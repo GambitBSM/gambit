@@ -129,13 +129,15 @@ namespace Gambit
       //    #undef ECHO
       // #endif
 
-      SPECGEN_SET(precision_goal,                    double, 1.0e-4);
-      SPECGEN_SET(max_iterations,                    double, 0 );
-      SPECGEN_SET(calculate_sm_masses,               bool, false );
-      SPECGEN_SET(pole_mass_loop_order,              int, 2 );
-      SPECGEN_SET(ewsb_loop_order,                   int, 2 );
-      SPECGEN_SET(beta_loop_order,                   int, 2 );
-      SPECGEN_SET(threshold_corrections_loop_order,  int, 1 );
+      // These correspond to the entries in Block FlexibleSUSY (when running FlexibleSUSY manually via SLHA file input)
+      SPECGEN_SET(precision_goal,                    double, 1.0e-4);  // 0
+      SPECGEN_SET(max_iterations,                    double, 0 );      // 1
+      SPECGEN_SET(calculate_sm_masses,               bool, false );    // 3 (2 is algorithm type, currently only two_scale used here)
+      SPECGEN_SET(pole_mass_loop_order,              int, 2 );         // 4
+      SPECGEN_SET(ewsb_loop_order,                   int, 2 );         // 5
+      SPECGEN_SET(beta_loop_order,                   int, 2 );         // 6
+      SPECGEN_SET(threshold_corrections_loop_order,  int, 1 );         // 7
+      SPECGEN_SET(beta_zero_threshold,               double, 1.0e-11); // 14
 
       #undef SPECGEN_SET
 
@@ -147,15 +149,21 @@ namespace Gambit
       // alpha_t^2 + alpha_t alpha_b + alpha_b^2
       // alpha_tau^2
       two_loop_settings.higgs_at_as
-         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_as");
+         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_as"); // 8
       two_loop_settings.higgs_ab_as
-         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_ab_as");
+         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_ab_as"); // 9
       two_loop_settings.higgs_at_at
-         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_at");
+         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_at"); // 10, presumably
       two_loop_settings.higgs_atau_atau
-         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_atau_atau");
+         = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_atau_atau"); // 11
+
+      // Top-quark two-loop corrections QCD
+      two_loop_settings.top_qcd 
+         = runOptions.getValueOrDef<bool>(true,"use_top_2loop_qcd"); // 13, presumably
 
       spectrum_generator.set_two_loop_corrections(two_loop_settings);
+
+      // index 12 is "force output", not relevant here
 
       // Generate spectrum
       spectrum_generator.run(oneset, input);
@@ -455,16 +463,17 @@ namespace Gambit
       // Run spectrum generator
       result = run_FS_spectrum_generator<CMSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
-
       if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
       {
         // Spit out the full spectrum as an SLHA file.
+        std::cout << "Dropping SLHA file 'GAMBIT_unimproved_spectrum.slha'" << std::endl;
         str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_unimproved_spectrum.slha", "SLHA_output_filename");
         result->getSLHA(filename);
       }
-
+ 
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     
     }
 
     // Runs MSSM spectrum generator with EWSB scale input
@@ -477,13 +486,13 @@ namespace Gambit
       input.Qin = *myPipe::Param.at("Qin"); // MSSMatQ also requires input scale to be supplied
       fill_MSSM63_input(input,myPipe::Param);
       result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
       if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
       {
         // Spit out the full spectrum as an SLHA file.
         str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_unimproved_spectrum.slha", "SLHA_output_filename");
         result->getSLHA(filename);
       }
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
     }
 
     // Runs MSSM spectrum generator with GUT scale input
@@ -495,13 +504,13 @@ namespace Gambit
       MSSMatMGUT_input_parameters input;
       fill_MSSM63_input(input,myPipe::Param);
       result = run_FS_spectrum_generator<MSSMatMGUT_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
       if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
       {
         // Spit out the full spectrum as an SLHA file.
         str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_unimproved_spectrum.slha", "SLHA_output_filename");
         result->getSLHA(filename);
       }
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
     }
 
     void get_GUTMSSMB_spectrum (const Spectrum* &/*result*/)

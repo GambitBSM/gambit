@@ -82,17 +82,18 @@ ObsLikes:
     - capability: lnL_FermiLATdwarfs
       purpose:    LogLike
 
-    - capability: XENON100_2012_LogLikelihood
-      purpose:    LogLike
-
-    - capability: LUX_2013_LogLikelihood
-      purpose:    LogLike
-
-    - capability: SuperCDMS_2014_LogLikelihood
-      purpose:    LogLike
-
-    - capability: SIMPLE_2014_LogLikelihood
-      purpose:    LogLike
+    # Ben: ddcalc currently broken for me
+    #- capability: XENON100_2012_LogLikelihood
+    #  purpose:    LogLike
+    #
+    #- capability: LUX_2013_LogLikelihood
+    #  purpose:    LogLike
+    #
+    #- capability: SuperCDMS_2014_LogLikelihood
+    #  purpose:    LogLike
+    #
+    #- capability: SIMPLE_2014_LogLikelihood
+    #  purpose:    LogLike
 
     - capability: IC79_loglike
       purpose:    LogLike
