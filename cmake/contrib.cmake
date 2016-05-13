@@ -206,7 +206,7 @@ else()
 
 endif()
 # Add clean info
-add_external_clean(flexiblesusy ${FS_DIR} null clean)
+# add_external_clean(flexiblesusy ${FS_DIR} null clean) # TODO bjf> this just deletes the entire flexiblesusy directory, doesn't make sense to do this while we are shipping flexiblesusy this way. Can add this back in if we auto-download flexiblesusy or some such. 
 add_custom_target(distclean-flexiblesusy COMMAND cd ${FS_DIR} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean &&
                                                  ${CMAKE_COMMAND} -E cmake_echo_color --red --bold "To get flexiblesusy to rebuild now, you must call make configure-flexiblesusy or rerun cmake.") || true)
 add_dependencies(distclean-flexiblesusy clean-flexiblesusy)
