@@ -113,6 +113,8 @@ namespace Gambit
       // | higgs_2loop_correction_ab_as     | 0, 1                         | 1 (= enabled)   |
       // | higgs_2loop_correction_at_at     | 0, 1                         | 1 (= enabled)   |
       // | higgs_2loop_correction_atau_atau | 0, 1                         | 1 (= enabled)   |
+      // | top_2loop_corrections_qcd        | 0, 1                         | 1 (= enabled)   |
+      // | beta_zero_threshold              | any positive double          | 1.0e-11         |
 
 
       #define SPECGEN_SET(NAME,TYPE,DEFAULTVAL) \
@@ -287,12 +289,15 @@ namespace Gambit
       #ifdef SPECBIT_DEBUG
          typename MI::SlhaIo slha_io;
          slha_io.set_spinfo(problems);
-         slha_io.set_sminputs(oneset);
+         // slha_io.set_sminputs(oneset); // TODO: The numbers this generates are not what originally go into oneset! There seems to be some adjustment or something done internally. So it is misleading to see these in the SMInputs block. Better to remove them.
          slha_io.set_minpar(input);
          slha_io.set_extpar(input);
          slha_io.set_spectrum(mssmspec.model_interface.model);
-         slha_io.write_to_file("SpecBit/initial_CMSSM_spectrum->slha");
+         //slha_io.set_extra(model, scales); 
+         slha_io.write_to_file("SpecBit_MSSM_FS_spectrum.slha");
       #endif
+
+      std::cout << "qedqcd mElectron (2):" << oneset.displayMass(softsusy::mElectron) << std::endl;
 
       // Package pointer to QedQcd SubSpectrum object along with pointer to MSSM SubSpectrum object,
       // and SMInputs struct.

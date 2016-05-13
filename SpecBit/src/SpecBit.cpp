@@ -46,25 +46,41 @@ namespace Gambit
     /// Initialise QedQcd object from SMInputs data
     void setup_QedQcd(softsusy::QedQcd& oneset /*output*/, const SMInputs& sminputs /*input*/)
     {
-      // Set pole masses (to be treated specially)
-      oneset.setPoleMt(sminputs.mT);
-      //oneset.setPoleMb(...);
-      oneset.setPoleMtau(sminputs.mTau);
-      oneset.setMbMb(sminputs.mBmB);
-      /// set running quark masses
-      oneset.setMass(softsusy::mDown,    sminputs.mD);
-      oneset.setMass(softsusy::mUp,      sminputs.mU);
-      oneset.setMass(softsusy::mStrange, sminputs.mS);
-      oneset.setMass(softsusy::mCharm,   sminputs.mCmC);
-      /// set QED and QCD structure constants
-      oneset.setAlpha(softsusy::ALPHA, 1./sminputs.alphainv);
-      oneset.setAlpha(softsusy::ALPHAS, sminputs.alphaS);
+      /// set QED and QCD structure constants, and Fermi constant
+      oneset.setAlpha(softsusy::ALPHA, 1./sminputs.alphainv);  // 1
+      oneset.setFermiConstant(sminputs.GF);                    // 2
+      oneset.setAlpha(softsusy::ALPHAS, sminputs.alphaS);      // 3
+ 
+      // Set pole masses  
+      oneset.setPoleMZ(sminputs.mZ);                           // 4
+      softsusy::MZ = sminputs.mZ; // TODO! This is setting some global constant? Not very nice... but this is what FlexibleSUSY does, see flexiblesusy/src/slha_io.cpp  
+      oneset.setMass(softsusy::mBottom, sminputs.mBmB);        // 5      
+      oneset.setMbMb(sminputs.mBmB);                           // "
+      //oneset.setPoleMb(...); ??
+      oneset.setPoleMt(sminputs.mT);                           // 6
+      oneset.setMass(softsusy::mTau, sminputs.mTau);           // 7                             
+      oneset.setPoleMtau(sminputs.mTau);                       // "
+      //oneset.setPoleMW(value);                               // 9 TODO: do we want to add this?
+
       /// NOTE! These assume the input electron and muon pole masses are "close
       /// enough" to MSbar masses at MZ. The object does the same with its 
       /// default values so I guess it is ok.
-      oneset.setMass(softsusy::mElectron, sminputs.mE);
-      oneset.setMass(softsusy::mMuon,     sminputs.mMu);
-      oneset.setPoleMZ(sminputs.mZ);
+      oneset.setMass(softsusy::mElectron, sminputs.mE);       // 11
+      oneset.setMass(softsusy::mMuon,     sminputs.mMu);      // 13
+
+      /// Neutrino pole masses
+      oneset.setNeutrinoPoleMass(3, sminputs.mNu3);           // 8
+      oneset.setNeutrinoPoleMass(1, sminputs.mNu1);           // 12
+      oneset.setNeutrinoPoleMass(2, sminputs.mNu2);           // 14  
+
+      /// Running quark masses
+      oneset.setMass(softsusy::mDown,    sminputs.mD);        // 21
+      oneset.setMass(softsusy::mUp,      sminputs.mU);        // 22
+      oneset.setMass(softsusy::mStrange, sminputs.mS);        // 23
+      oneset.setMass(softsusy::mCharm,   sminputs.mCmC);      // 24
+
+      /// Check:
+      std::cout << "qedqcd mElectron:" << oneset.displayMass(softsusy::mElectron) << std::endl;
     }
 
     /// @} End module convenience functions

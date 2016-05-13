@@ -152,10 +152,8 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need)
 
-
   set(BUILT_FS_MODELS CMSSM MSSMatMGUT MSSM SingletDMZ3 SingletDM)
  
-
   # Explain how to build each of the flexiblesusy spectrum generators we need.  Configure now, serially, to prevent parallel build issues.
   string (REPLACE ";" "," BUILT_FS_MODELS_COMMAS "${BUILT_FS_MODELS}")
   set(config_command ./configure ${FS_OPTIONS} --with-models=${BUILT_FS_MODELS_COMMAS})
@@ -167,8 +165,8 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
                   OUTPUT_VARIABLE output
                  )
   if (NOT "${result}" STREQUAL "0")
-    message("${BoldRed}-- Configuring FlexibleSUSY failed.  Here's what I tried to do:\n${config_command}\n${output}${ColourReset}" )
-    message(FATAL_ERROR "Configuring FlexibleSUSY failed." )
+    message("${BoldRed}-- Configuring FlexibleSUSY failed.  Here's what I tried to do:\ncd ${FS_DIR}\n${config_command}\n${output}${ColourReset}" )
+    message(FATAL_ERROR "Configuring FlexibleSUSY failed. (result=${result})" )
   endif()
   message("${Yellow}-- Configuring FlexibleSUSY - done.${ColourReset}")
 
