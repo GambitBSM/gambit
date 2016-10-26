@@ -129,7 +129,7 @@ function(add_subdirectory_if_present dir)
   endif()
 endfunction()
 
-# Function to add static GAMBIT library
+# Function to add GAMBIT library (STATIC, SHARED, or OBJECT depending on OPTION)
 function(add_gambit_library libraryname)
   cmake_parse_arguments(ARG "" "OPTION" "SOURCES;HEADERS" ${ARGN})
 
@@ -283,10 +283,10 @@ function(add_standalone executablename)
     if(standalone_permitted AND EXISTS "${PROJECT_SOURCE_DIR}/${module}/" AND (";${GAMBIT_BITS};" MATCHES ";${module};"))
       if(COMMA_SEPARATED_MODULES)
         set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},${module}")
-        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:${module}>)
+        #set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:${module}>)
       else()
         set(COMMA_SEPARATED_MODULES "${module}")
-        set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
+        #set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
         set(first_module ${module})
       endif()
       # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
@@ -326,10 +326,9 @@ function(add_standalone executablename)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
     endif()
 
-    add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
+    add_gambit_executable(${executablename} "${GAMBIT_ALL_COMMON_LIBS} ${ARG_LIBRARIES}"
                           SOURCES ${STANDALONE_SOURCES}
                                   ${STANDALONE_OBJECTS}
-                                  ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
 
     # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here

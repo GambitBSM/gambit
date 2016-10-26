@@ -111,7 +111,7 @@ def main(argv):
     for header in sorted(prior_hdrs):
         cmakelist_txt_out += " "*16 + "include/gambit/ScannerBit/" + header.split('/ScannerBit/include/gambit/ScannerBit/')[1] + "\n"
         prior_txt_out += "#include \"" + "gambit/ScannerBit/" + header.split('/ScannerBit/include/gambit/ScannerBit/')[1] + "\"\n"
-    cmakelist_txt_out += ")\n\nadd_gambit_library( ScannerBit OPTION OBJECT SOURCES ${scannerbit_sources} HEADERS ${scannerbit_headers} )\n\n"
+    cmakelist_txt_out += ")\n\nadd_gambit_library( gambit-ScannerBit OPTION SHARED SOURCES ${scannerbit_sources} HEADERS ${scannerbit_headers} )\n\n"
 
     prior_txt_out += "\n#endif\n"
     ## end adding scannerbit files to CMakeLists.txt ##
@@ -801,7 +801,7 @@ endif()
     
     towrite += "#################################################################################\n\n"
     towrite += "foreach (plugin ${SCANNERBIT_PLUGINS})\n"
-    towrite += " "*4 + "add_dependencies(ScannerBit ${plugin})\n"
+    towrite += " "*4 + "add_dependencies(gambit-ScannerBit ${plugin})\n"
     towrite += "endforeach()\n"
     
     cmake = "./ScannerBit/CMakeLists.txt"

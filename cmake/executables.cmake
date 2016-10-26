@@ -32,12 +32,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_DELPHES)
     set(gambit_XTRA ${gambit_XTRA} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
   endif()
-  add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
+  set(EXEC_LIBS ${GAMBIT_ALL_COMMON_LIBS} gambit-Core gambit-Printers ${GAMBIT_BIT_LIBS} ${gambit_XTRA})
+  add_gambit_executable(${PROJECT_NAME} "${EXEC_LIBS}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
-                                ${GAMBIT_ALL_COMMON_OBJECTS}
-                                ${GAMBIT_BIT_OBJECTS}
-                                $<TARGET_OBJECTS:Core>
-                                $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
   if (NOT EXCLUDE_FLEXIBLESUSY)
@@ -58,11 +55,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
       set(ScannerBit_XTRA ${ScannerBit_XTRA} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
     endif()
   endif()
-  add_gambit_executable(ScannerBit_standalone "${ScannerBit_XTRA}"
+  set(EXEC_LIBS ${GAMBIT_BASIC_COMMON_LIBS} gambit-ScannerBit gambit-Printers ${ScannerBit_XTRA})
+  add_gambit_executable(ScannerBit_standalone "${EXEC_LIBS}"
                         SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/examples/ScannerBit_standalone.cpp
-                                $<TARGET_OBJECTS:ScannerBit>
-                                $<TARGET_OBJECTS:Printers>
-                                ${GAMBIT_BASIC_COMMON_OBJECTS}
   )
   set_target_properties(ScannerBit_standalone PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/ScannerBit/bin")
   if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
