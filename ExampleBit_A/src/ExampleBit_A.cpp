@@ -174,10 +174,10 @@ namespace Gambit
       }
 
       // Randomly invalidate points for testing purposes
-      if (Random::draw() < 0.5)
-      {
-        invalid_point().raise("I don't like this point.");
-      }
+      // if (Random::draw() < 0.5)
+      // {
+      //   invalid_point().raise("I don't like this point.");
+      // }
 
       result = loglTotal;
     }

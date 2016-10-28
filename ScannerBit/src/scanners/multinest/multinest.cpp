@@ -112,8 +112,6 @@ scanner_plugin(MultiNest, version(3, 10))
       int pWrap[ndims];
       for(int i = 0; i < ndims; i++) pWrap[i] = 0; // (need to do more work if we actually want to allow periodic BCs)
 
-      // TODO: check what happens if resume mode is active but multinest native output is not written. I guess it will resume writing to the printer output, but actually start a new scan?
-
       // Root for output files
       std::string root_str;
       std::string defpath = Gambit::Utils::ensure_path_exists(
@@ -159,6 +157,34 @@ scanner_plugin(MultiNest, version(3, 10))
       // Create the object that interfaces to the MultiNest LogLike callback function
       Gambit::MultiNest::LogLikeWrapper loglwrapper(LogLike, get_printer(), ndims);
       Gambit::MultiNest::global_loglike_object = &loglwrapper;
+
+      // For debugging: check all the MultiNest options values:
+      bool show_options = true;
+      if((myrank==0) and show_options)
+      {
+          std::cout << "MultiNest run settings:" << std::endl;
+          std::cout << " IS      : " << IS << std::endl;
+          std::cout << " mmodel  : " << mmodal << std::endl;
+          std::cout << " ceff    : " << ceff << std::endl;
+          std::cout << " nlive   : " << nlive << std::endl;
+          std::cout << " tol     : " << tol << std::endl;
+          std::cout << " efr     : " << efr << std::endl;
+          std::cout << " ndims   : " << ndims << std::endl;
+          std::cout << " nPar    : " << nPar << std::endl;
+          std::cout << " nClsPar : " << nClsPar << std::endl;
+          std::cout << " maxModes: " << maxModes << std::endl;
+          std::cout << " updInt  : " << updInt << std::endl;
+          std::cout << " Ztol    : " << Ztol << std::endl;
+          std::cout << " root    : " << root << std::endl;
+          std::cout << " seed    : " << seed << std::endl;
+          std::cout << " pWrap   : " << pWrap << std::endl;
+          std::cout << " fb      : " << fb << std::endl;
+          std::cout << " resume  : " << resume << std::endl;
+          std::cout << " outfile : " << outfile << std::endl;
+          std::cout << " initMPI : " << initMPI << std::endl;
+          std::cout << " ln0     : " << ln0 << std::endl;
+          std::cout << " maxiter : " << maxiter << std::endl;
+      }
 
       //Run MultiNest, passing callback functions for the loglike and dumper.
       if(myrank == 0) std::cout << "Starting MultiNest run..." << std::endl;
