@@ -174,20 +174,8 @@ namespace Gambit
       }
 
       // Print timing info if requested (independent of whether printing actual result)
-      if(myTimingPrintFlag and not already_printed_timing[thread_num])
-      {
-        if (not iRunNested) thread_num = 0; // Force printing of thread_num=0 if this functor cannot run nested.
-        int rank = printer->getRank();
-        std::chrono::duration<double> runtime = end[thread_num] - start[thread_num];
-        logger() << LogTags::debug << "Printing "<<myTimingLabel<<" (vID="<<myTimingVertexID<<", rank="<<rank<<", pID="<<pointID<<")" << EOM;
-        printer->print(runtime.count(),myTimingLabel,myTimingVertexID,rank,pointID);
-        already_printed_timing[thread_num] = true;
-      }
+      print_timing(printer,pointID,thread_num);
     }
-
-    /// Printer function (no-thread-index short-circuit)
-    template <typename TYPE>
-    void module_functor<TYPE>::print(Printers::BasePrinter* printer, const int pointID) { print(printer,pointID,0); }
 
   // Backend_functor_common class method definitions
 

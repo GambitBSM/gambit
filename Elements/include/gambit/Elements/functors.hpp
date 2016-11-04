@@ -667,7 +667,9 @@ namespace Gambit
       /// lockups and memory corruption if it occurs at an inopportune time. "soft" shutdown is
       /// always preferable.
       bool signal_mode_locked = true;
-      /// @}
+
+      /// Timimg print method, common to all functors, even void types which cannot normally print
+      void print_timing(Printers::BasePrinter*, const int, int);
 
       /// Connectors to external helper functions (to decouple signal handling from this class)
       // friend void FunctorHelp::check_for_shutdown_signal(module_functor_common&);
@@ -713,10 +715,6 @@ namespace Gambit
       /// Printer function
       virtual void print(Printers::BasePrinter* printer, const int pointID, int index);
 
-      /// Printer function (no-thread-index short-circuit)
-      virtual void print(Printers::BasePrinter* printer, const int pointID);
-
-
     protected:
 
       /// Internal storage of function pointer
@@ -747,11 +745,8 @@ namespace Gambit
       /// Calculate method
       void calculate();
 
-      /// Blank print method
+      /// void print method; prints only timing data
       virtual void print(Printers::BasePrinter*, const int, int);
-
-      /// Blank print method
-      virtual void print(Printers::BasePrinter*, const int);
 
     protected:
 

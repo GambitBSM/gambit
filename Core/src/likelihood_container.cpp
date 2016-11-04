@@ -53,6 +53,8 @@ namespace Gambit
     min_valid_lnlike        (iniFile.getValue<double>("likelihood", "model_invalid_for_lnlike_below")),
     alt_min_valid_lnlike    (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
     active_min_valid_lnlike (min_valid_lnlike), // can be switched to the alternate value by the scanner
+    previous_startL         (std::chrono::system_clock::now()),
+    previous_endL           (std::chrono::system_clock::now()),
     intralooptime_label     ("Runtime(ms) intraloop"),
     interlooptime_label     ("Runtime(ms) interloop"),
     totallooptime_label     ("Runtime(ms) totalloop"),

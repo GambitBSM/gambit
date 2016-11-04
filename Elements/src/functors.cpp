@@ -1552,6 +1552,29 @@ namespace Gambit
       }
       needs_recalculating[thread_num] = false;
     }
+  
+    /// Timimg print method, common to all functors, even void types which cannot normally print
+    void module_functor_common::print_timing(Printers::BasePrinter* printer, const int pointID, int thread_num)
+    {
+      // Only try to print if print flag set to true, and if this functor(+thread) hasn't already been printed
+      // TODO: though actually the printer system will probably cark it if printing from multiple threads is
+      // attempted, because it uses the VertexID to differentiate print streams, and this is shared among threads.
+      // Can fix by requiring a VertexID+thread_num pair, but I am leaving this for later.
+      init_memory();                 // Init memory if this is the first run through.
+      
+      // Print timing info if requested (independent of whether printing actual result)
+      if(myTimingPrintFlag and not already_printed_timing[thread_num])
+      {
+        if (not iRunNested) thread_num = 0; // Force printing of thread_num=0 if this functor cannot run nested.
+        int rank = printer->getRank();
+        std::chrono::duration<double> runtime = end[thread_num] - start[thread_num];
+        typedef std::chrono::nanoseconds ns;
+        double d_runtime   = std::chrono::duration_cast<ns>(runtime).count(); 
+        logger() << LogTags::debug << "Printing "<<myTimingLabel<<" (vID="<<myTimingVertexID<<", rank="<<rank<<", pID="<<pointID<<")" << EOM;
+        printer->print(d_runtime,myTimingLabel,myTimingVertexID,rank,pointID);
+        already_printed_timing[thread_num] = true;
+      }
+    }
 
   /// Class methods for actual module functors for TYPE=void.
 
@@ -1618,10 +1641,8 @@ namespace Gambit
       }
     }
 
-    /// Blank print methods
-    void module_functor<void>::print(Printers::BasePrinter*, const int, int) {}
-    void module_functor<void>::print(Printers::BasePrinter*, const int) {}
-
+    /// Print functor for void functor types. Prints timing data only.
+    void module_functor<void>::print(Printers::BasePrinter* p, const int pID, int tn) {print_timing(p,pID,tn);}
 
     /// @{ Model functor class method definitions
 

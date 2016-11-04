@@ -639,11 +639,11 @@ namespace Gambit
         //      threads other than the main one need to be accessed with
         //        masterGraph[*it]->print(boundPrinter,pointID,index);
         //      where index is some integer s.t. 0 <= index <= number of hardware threads
-        if (not typeComp(masterGraph[*it]->type(),  "void", *boundTEs, false)) 
-        {
+        //if (not typeComp(masterGraph[*it]->type(),  "void", *boundTEs, false)) 
+        //{
            //std::cout << "Printing '"<< masterGraph[*it]->name() <<"' for point ID '"<<pointID<<"'" << std::endl; // Debug
-           masterGraph[*it]->print(boundPrinter,pointID);
-        }
+           masterGraph[*it]->print(boundPrinter,pointID); // Void types can now try printing, since they may want to print timing data.
+        //}
         //masterGraph[*it]->print(boundPrinter,pointID); // (module) functors now avoid trying to print void types by themselves.
       }
       // Reset the cout output precision, in case any backends have messed with it during the ObsLike evaluation.
