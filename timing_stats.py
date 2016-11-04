@@ -76,7 +76,7 @@ def getstats(N,data,name,multiplier,unit):
 # Mean and standard deviation
 pm = u"\u00B1"
 print
-print u"% of valid points: Mean (median) {0} standard deviation ; [min,max] of timing variables:".format(pm)
+print u"% of points timed: Mean (median) {0} standard deviation ; [min,max] of timing variables:".format(pm)
 print u"Total number of samples: {0}".format(Ntot)
 print "------------------------------------------------"
 print getstats(1, interloop[mask], "Inter-loop time"           ,1e-3,"s") #convert milliseconds to seconds
