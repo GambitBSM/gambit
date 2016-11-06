@@ -51,7 +51,8 @@ namespace Gambit
     class BaseBasePrinter  
     {
       public:
-        BaseBasePrinter(): printer_enabled(true) {}
+        BaseBasePrinter(): printer_enabled(true), _print_timing(false) {}
+        BaseBasePrinter(bool p): printer_enabled(true), _print_timing(p) {}
         virtual ~BaseBasePrinter() {}
         /// Function to signal to the printer to write buffer contents to disk
         //virtual void flush() {}; // TODO: needed?
@@ -70,6 +71,14 @@ namespace Gambit
 
         /// "Turn on" printer; print calls will work as normal.
         void enable() { printer_enabled = true; }
+ 
+        /// Bool to check whether timing data should be printed.
+        /// Note: this doesn't do anything in the printer itself, it is just a kind
+        /// global variable that other parts of the code should check when deciding
+        /// whether to print timing data. Currently the printers cannot tell
+        /// themselves what kind of data is being printed, so they cannot turn off
+        /// the printing of timing data internally.
+        bool printTiming() { return _print_timing; }
 
         // Printer dispatch function. If a virtual function override exists for
         // the print type, info is passed on, otherwise the function call is resolved
@@ -96,6 +105,10 @@ namespace Gambit
       protected:
         /// Flag to check if print functions are enabled or disabled
         bool printer_enabled;
+
+        /// Flag for external code to check to see if it should print
+        /// timing data or not. 
+        bool _print_timing;
 
         /// Default _print function. Throws an error if no matching 
         /// virtual function for the type of the attempted print is

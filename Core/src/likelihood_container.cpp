@@ -58,9 +58,6 @@ namespace Gambit
     intralooptime_label     ("Runtime(ms) intraloop"),
     interlooptime_label     ("Runtime(ms) interloop"),
     totallooptime_label     ("Runtime(ms) totalloop"),
-    /* Note, likelihood container should be constructed after dependency
-       resolution, so that new printer IDs can be safely acquired without
-       risk of collision with graph vertex IDs */
     intraloopID(Printers::get_main_param_id(intralooptime_label)),
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
@@ -312,7 +309,7 @@ namespace Gambit
       typedef std::chrono::milliseconds ms;
 
       // Print timing data
-      if(dependencyResolver.printTiming())
+      if(printer.printTiming())
       {
         int rank = printer.getRank();
         // Convert time counts to doubles (had weird problem with long long ints on some systems)

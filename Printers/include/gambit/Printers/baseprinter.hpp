@@ -80,9 +80,11 @@ namespace Gambit
           , is_aux(false)
        {}
 
-        BasePrinter(BasePrinter* const primary, bool is_aux_IN)
-          : primary_printer(primary)
-          , is_aux(is_aux_IN)
+        BasePrinter(BasePrinter* const primary, const Options& options)
+          : BaseBasePrinter(options.getValueOrDef<bool>(false,"print_timing"))
+          , primary_printer(primary)
+          , is_aux(options.getValueOrDef<bool>(false,"auxilliary"))
+          , resume(options.getValue<bool>("resume"))
        {}
 
         /// Destructor

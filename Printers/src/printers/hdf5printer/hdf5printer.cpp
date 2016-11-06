@@ -595,14 +595,13 @@ namespace Gambit
 
     // Constructor
     HDF5Printer::HDF5Printer(const Options& options, BasePrinter* const primary)
-    : BasePrinter(primary,options.getValueOrDef<bool>(false,"auxilliary"))
+    : BasePrinter(primary,options)
     , printer_name("Primary printer")
     , myRank(0)
     , mpiSize(1)
 #ifdef WITH_MPI
     , myComm() // initially attaches to MPI_COMM_WORLD
 #endif
-    , resume(options.getValue<bool>("resume"))
     {
       common_constructor(options);
     }

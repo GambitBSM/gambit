@@ -20,6 +20,7 @@
 #define __multinest_hpp__
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
+#include <chrono>
 
 // Auxilliary classes and functions needed by multinest
 // (cloned largely from eggbox.cc, and modified to use cwrapper.f90 interface 
@@ -68,6 +69,15 @@ namespace Gambit
 
             /// Variable to indicate whether the dumper function has been run at least once
             bool dumper_runonce;
+
+            /// Timing variables
+            bool print_timing_data;
+            std::chrono::time_point<std::chrono::system_clock> start_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> end_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> start_extern_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> end_extern_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> start_dumper; 
+            std::chrono::time_point<std::chrono::system_clock> end_dumper; 
 
          public:
             /// Constructor

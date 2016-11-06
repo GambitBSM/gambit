@@ -57,7 +57,7 @@ namespace Gambit
         BasePrinter* printerptr;
 
         /// Constructor
-        PrinterManager(const Options&, bool resume_mode);
+        PrinterManager(const Options&, bool resume_mode, bool print_timing);
   
         /// Destructor
         ~PrinterManager();

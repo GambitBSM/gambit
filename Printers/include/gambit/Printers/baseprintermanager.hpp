@@ -40,9 +40,12 @@ namespace Gambit
         /// Flag for "resume" mode
         bool resume;
 
+        /// Flag for printing timing data
+        bool _print_timing;
+
       public:
-        BasePrinterManager() : resume(false) {}
-        BasePrinterManager(bool r) : resume(r) {}
+        BasePrinterManager() : resume(false), _print_timing(false) {}
+        BasePrinterManager(bool r, bool p) : resume(r), _print_timing(p) {}
 
         /// Getter for "resume" mode flag
         bool resume_mode() { return resume; }
@@ -61,6 +64,15 @@ namespace Gambit
 
         /// Instruct printers that scan has finished and to perform cleanup
         virtual void finalise(bool abnormal=false) = 0;
+
+        /// Bool to check whether timing data should be printed.
+        /// Note: this doesn't do anything in the printer itself, it is just a kind
+        /// global variable that other parts of the code should check when deciding
+        /// whether to print timing data. Currently the printers cannot tell
+        /// themselves what kind of data is being printed, so they cannot turn off
+        /// the printing of timing data internally.
+        bool printTiming() { return _print_timing; }
+        bool set_printTiming(bool in) { _print_timing = in; }
 
         /// For debugging: check up on mpi
         /// For debugging: check up on MPI

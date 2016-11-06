@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
       Core().accountForMissingClasses();
 
       // Set up the printer manager for redirection of scan output.
-      Printers::PrinterManager printerManager(iniFile.getPrinterNode(),Core().resume);
+      Printers::PrinterManager printerManager(iniFile.getPrinterNode(),Core().resume,iniFile.getValueOrDef<bool>(false, "print_timing_data"));
 
       // Set up dependency resolver
       DRes::DependencyResolver dependencyResolver(Core(), Models::ModelDB(), iniFile, Utils::typeEquivalencies(), *(printerManager.printerptr));

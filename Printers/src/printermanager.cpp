@@ -41,8 +41,8 @@ namespace Gambit
   {
 
     /// Manager class for creating printer objects  
-    PrinterManager::PrinterManager(const Options& printerNode, bool resume_mode)
-      : BasePrinterManager(resume_mode)
+    PrinterManager::PrinterManager(const Options& printerNode, bool resume_mode, bool print_timing)
+      : BasePrinterManager(resume_mode,print_timing)
       , tag(printerNode.getValue<std::string>("printer"))
       , options(printerNode.getNode("options"))
       , printerptr(NULL)
@@ -53,9 +53,10 @@ namespace Gambit
          // If "tag" names a valid printer, create it.
          DBUG( std::cout << "PrinterManager: Creating Primary printer \"" << tag << "\"" << std::endl; )
 
-         // pass on the "resume" flag to the printer
+         // pass on the "resume" and "print_timing" flags to the printer
          Options mod_options = options;
          mod_options.setValue("resume",resume_mode);
+         mod_options.setValue("print_timing",print_timing);
 
          BasePrinter* null(NULL);
          printerptr = printer_creators.at(tag)(mod_options,null);
@@ -99,6 +100,7 @@ namespace Gambit
        DBUG( std::cout << "PrinterManager: Creating Auxilliary printer \"" << tag << "\" with name \"" << streamname << "\"" << std::endl; )
        Options mod_options = new_options;
        mod_options.setValue("resume",this->resume_mode());
+       mod_options.setValue("print_timing",this->printTiming());
        mod_options.setValue("auxilliary",true);
        mod_options.setValue("name",streamname);
        mod_options.setValue("default_output_path",options.getValue<str>("default_output_path"));

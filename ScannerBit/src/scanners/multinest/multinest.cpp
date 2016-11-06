@@ -206,7 +206,17 @@ namespace Gambit {
 
       /// LogLikeWrapper Constructor
       LogLikeWrapper::LogLikeWrapper(scanPtr loglike, printer_interface& printer, int ndim)
-        : boundLogLike(loglike), boundPrinter(printer), my_ndim(ndim), dumper_runonce(false)
+        : boundLogLike(loglike)
+        , boundPrinter(printer)
+        , my_ndim(ndim)
+        , dumper_runonce(false)
+        , print_timing_data(false)
+        , start_LogL       (std::chrono::system_clock::now()) 
+        , end_LogL         (std::chrono::system_clock::now())
+        , start_extern_LogL(std::chrono::system_clock::now())
+        , end_extern_LogL  (std::chrono::system_clock::now())
+        , start_dumper     (std::chrono::system_clock::now())
+        , end_dumper       (std::chrono::system_clock::now())
       { }
 
       /// Main interface function from MultiNest to ScannerBit-supplied loglikelihood function
@@ -228,6 +238,8 @@ namespace Gambit {
       ///
       double LogLikeWrapper::LogLike(double *Cube, int ndim, int)
       {
+         // Measure time taken to go around this loop
+  
          //convert C style array to C++ vector class
          std::vector<double> unitpars(Cube, Cube + ndim);
 
@@ -279,6 +291,8 @@ namespace Gambit {
       void LogLikeWrapper::dumper(int nSamples, int nlive, int nPar, double *physLive, double *posterior, double* /*paramConstr*/, 
        double /*maxLogLike*/, double /*logZ*/, double /*logZerr*/)
       {
+          // Measure how long this function takes to run
+
           int thisrank = boundPrinter.get_stream()->getRank(); // MPI rank of this process
           if(thisrank!=0)
           {

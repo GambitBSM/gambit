@@ -650,9 +650,6 @@ namespace Gambit
       cout << std::setprecision(boundCore->get_outprec());
     }
 
-    /// Getter for print_timing flag (used by LikelihoodContainer)
-    bool DependencyResolver::printTiming() { return print_timing; }
-
     // Get the functor corresponding to a single VertexID
     functor* DependencyResolver::get_functor(VertexID id)
     {
@@ -1400,7 +1397,7 @@ namespace Gambit
 
       // Read ini entries
       use_regex    = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_regex");
-      print_timing = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
+      print_timing = printer.printTiming(); 
       if ( use_regex )    logger() << "Using regex for string comparison." << endl;
       if ( print_timing ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
 
