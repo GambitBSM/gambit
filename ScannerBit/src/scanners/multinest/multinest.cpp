@@ -210,13 +210,14 @@ namespace Gambit {
         , boundPrinter(printer)
         , my_ndim(ndim)
         , dumper_runonce(false)
-        , print_timing_data(false)
-        , start_LogL       (std::chrono::system_clock::now()) 
-        , end_LogL         (std::chrono::system_clock::now())
-        , start_extern_LogL(std::chrono::system_clock::now())
-        , end_extern_LogL  (std::chrono::system_clock::now())
-        , start_dumper     (std::chrono::system_clock::now())
-        , end_dumper       (std::chrono::system_clock::now())
+        , start_LogL        (std::chrono::system_clock::now()) 
+        , end_LogL          (std::chrono::system_clock::now())
+        , start_outside_LogL(std::chrono::system_clock::now())
+        , end_outside_LogL  (std::chrono::system_clock::now())
+        , start_dumper      (std::chrono::system_clock::now())
+        , end_dumper        (std::chrono::system_clock::now())
+        , dumper_last_pID(-1)
+        , dumper_last_pID_count(0)
       { }
 
       /// Main interface function from MultiNest to ScannerBit-supplied loglikelihood function
@@ -239,7 +240,9 @@ namespace Gambit {
       double LogLikeWrapper::LogLike(double *Cube, int ndim, int)
       {
          // Measure time taken to go around this loop
-  
+         end_outside_LogL = std::chrono::system_clock::now();
+         std::chrono::duration<double> outside_LogL_runtime = end_outside_LogL - start_outside_LogL; // Time taken outside this function since last loop
+ 
          //convert C style array to C++ vector class
          std::vector<double> unitpars(Cube, Cube + ndim);
 
@@ -247,7 +250,11 @@ namespace Gambit {
          //if (ndim!=my_ndim) {scan_error().raise(LOCAL_INFO,"ndim!=my_ndim in multinest LogLike function!");}
          //if (ndim!=parameter_keys.size()) {scan_error().raise(LOCAL_INFO,"ndim!=parameter_keys.size() in multinest LogLike function!");}
 
+         // Measure likelihood evaluation time
+         start_LogL = std::chrono::system_clock::now();
          double lnew = boundLogLike(unitpars);
+         end_LogL = std::chrono::system_clock::now();
+         std::chrono::duration<double> LogL_runtime = end_LogL - start_LogL;
 
          // Extract the primary printer from the printer manager
          //printer* primary_stream( boundPrinter.get_stream() );
@@ -257,6 +264,24 @@ namespace Gambit {
          int pointID = boundLogLike->getPtID();   // point ID number
          Cube[ndim+0] = myrank;
          Cube[ndim+1] = pointID;
+
+         // Print out some timing data
+         printer* primary_printer = boundPrinter.get_stream();
+         if(primary_printer->printTiming())
+         {
+            typedef std::chrono::nanoseconds ns;
+            double d_outside_LogL_runtime = std::chrono::duration_cast<ns>(outside_LogL_runtime).count();
+            double d_LogL_runtime         = std::chrono::duration_cast<ns>(LogL_runtime).count();
+            static const std::string label_outside_LogL_runtime("Runtime(ns) for MultiNest: outside_LogL");
+            static const std::string label_LogL_runtime        ("Runtime(ns) for MultiNest: LogL_evaluation");
+            static const int outside_LogL_ID = Printers::get_main_param_id(label_outside_LogL_runtime);
+            static const int LogL_ID         = Printers::get_main_param_id(label_LogL_runtime);
+            primary_printer->print(d_outside_LogL_runtime, label_outside_LogL_runtime, outside_LogL_ID, myrank, pointID);
+            primary_printer->print(d_LogL_runtime,         label_LogL_runtime,         LogL_ID        , myrank, pointID);
+         }
+
+         // Measure time taken to go around this loop
+         start_outside_LogL = std::chrono::system_clock::now();
 
          // Done! (lnew will be used by MultiNest to guide the search)
          return lnew;
@@ -291,7 +316,9 @@ namespace Gambit {
       void LogLikeWrapper::dumper(int nSamples, int nlive, int nPar, double *physLive, double *posterior, double* /*paramConstr*/, 
        double /*maxLogLike*/, double /*logZ*/, double /*logZerr*/)
       {
+          std::cout<<"Running dumper"<<std::endl;
           // Measure how long this function takes to run
+          start_dumper = std::chrono::system_clock::now();
 
           int thisrank = boundPrinter.get_stream()->getRank(); // MPI rank of this process
           if(thisrank!=0)
@@ -378,7 +405,48 @@ namespace Gambit {
              // //live_stream->print(parameters, "Parameters", myrank, pointID);
           }
 
-      }
+          // Measure how long this function takes to run
+          end_dumper = std::chrono::system_clock::now();
+          std::chrono::duration<double> dumper_runtime = end_dumper - start_dumper; // Time taken outside this function since last loop
+
+          // Print out some timing data
+          printer* primary_printer = boundPrinter.get_stream();
+          if(primary_printer->printTiming())
+          {
+             // Need rank and pointID for this actual point in the scan, unlike the posterior/live point data
+             int myrank  = boundLogLike->getRank();
+             int pointID = boundLogLike->getPtID();
+             if(pointID==dumper_last_pID) 
+             {
+                dumper_last_pID_count++;
+             } else {
+                dumper_last_pID = pointID;
+                dumper_last_pID_count = 0;
+             }
+             if(dumper_last_pID_count==0)
+             {
+                std::cout << "Printing timing data from dumper function; rank="<<myrank<<", pID="<<pointID<<std::endl;
+                // Timing data and descriptors
+                typedef std::chrono::nanoseconds ns;
+                double d_dumper_runtime = std::chrono::duration_cast<ns>(dumper_runtime).count();
+                static const std::string label_dumper_runtime("Runtime(ns) for MultiNest: dumper");
+                static const int dumper_ID = Printers::get_main_param_id(label_dumper_runtime);
+                primary_printer->print(d_dumper_runtime, label_dumper_runtime, dumper_ID, myrank, pointID);
+             }
+             else if(dumper_last_pID_count==1)
+             {
+                std::cerr << "Skipped printing of MultiNest dumper timing information for point (rank="<<myrank<<", pID="<<pointID<<"); dumper already ran once for this iteration, cannot print again at same point!"<<std::endl;
+             }
+             else if(dumper_last_pID_count>1)
+             {
+                scan_err <<"Error! ScannerBit MultiNest plugin attempted to run 'dumper' function more "
+                         <<"than twice in a row on the same pointID! (It is allow to do it twice because "
+                         <<"MultiNest seems to run it twice in a row at the end of a scan; but no more "
+                         <<"than that is allowed!)"
+                         << scan_end;
+             }
+          }
+      }//end dumper function
 
    }
 

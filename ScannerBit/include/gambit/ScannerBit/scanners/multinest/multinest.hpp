@@ -71,13 +71,18 @@ namespace Gambit
             bool dumper_runonce;
 
             /// Timing variables
-            bool print_timing_data;
             std::chrono::time_point<std::chrono::system_clock> start_LogL; 
             std::chrono::time_point<std::chrono::system_clock> end_LogL; 
-            std::chrono::time_point<std::chrono::system_clock> start_extern_LogL; 
-            std::chrono::time_point<std::chrono::system_clock> end_extern_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> start_outside_LogL; 
+            std::chrono::time_point<std::chrono::system_clock> end_outside_LogL; 
             std::chrono::time_point<std::chrono::system_clock> start_dumper; 
             std::chrono::time_point<std::chrono::system_clock> end_dumper; 
+
+            /// pointID used the last time that the dumper function ran
+            /// MultiNest apparently runs the dumper twice in a row at the end of a scan 
+            /// for some reason, so need to ignore timing of the second occurrance of this.
+            int dumper_last_pID;
+            int dumper_last_pID_count;
 
          public:
             /// Constructor

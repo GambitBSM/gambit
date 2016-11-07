@@ -5,7 +5,7 @@
 #import numpy as np
 import h5py
 import numpy as np
-from scipy.stats import mode
+from scipy.stats import mode, binned_statistic
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -88,7 +88,7 @@ print getstats(1, totalloop[mask], "Total time per iteration"  ,1e-3,"s")
 functor_name = []
 functor_timing_data = []
 functor_timing_data_isvalid = []
-strstart = "Runtime(ns) for #"
+strstart = "Runtime(ns) for "
 for itemname in group: 
    item = group[itemname]
    if isinstance(item,h5py.Dataset):
@@ -115,4 +115,68 @@ for name, dataname, dataname_isvalid in zip(functor_name, functor_timing_data, f
 if sortbyruntime:
    for key, value in iter(sorted(datadict.iteritems(),reverse=True)):
        print getstats(*value)
+print
+print "Generating timing graphs..."
+
+fig = plt.figure(figsize=(12,12))
+
+all_iterations = np.arange(len(totalloop))
+def add_logl_timing_data(ax,lmask,title,do_bins=True):
+   labels = ["likelihood evaluation","inter-loop"]
+   if do_bins:
+      Nbins = 100
+      p1, bin_edges1, binindices = binned_statistic(all_iterations[lmask], intraloop[lmask], statistic='mean', bins=Nbins)
+      p2, bin_edges2, binindices = binned_statistic(all_iterations[lmask], interloop[lmask], statistic='mean', bins=Nbins)
+      p3, bin_edges3, binindices = binned_statistic(all_iterations[lmask], totalloop[lmask], statistic='mean', bins=Nbins)
+      x = bin_edges1[:-1]
+      ax.set_ylabel("Average run-time per bin (ms)")
+   else:
+      p1 = intraloop[lmask]
+      p2 = interloop[lmask]
+      p3 = totalloop[lmask]
+      x  = all_iterations[lmask]
+      ax.set_ylabel("Point run-time (ms)")
+   ax.stackplot(x, p1, p2, labels=labels)
+   ax.plot(x, p3, c='k', lw=1.5, label="Total")
+   ax.set_xlabel("iteration")
+   ax.set_title(title)
+
+dumper_data = group["Runtime(ns) for MultiNest: dumper"]
+dumper_mask = np.array(group["Runtime(ns) for MultiNest: dumper_isvalid"],dtype=np.bool)
+dumper_y = dumper_data[dumper_mask] * 1e-6 # convert to milliseconds
+dumper_x = all_iterations[dumper_mask]
+
+N=4
+ax = fig.add_subplot(N,1,1)
+add_logl_timing_data(ax,mask,"Binned mean runtime, all points")
+plt.legend()
+
+ax = fig.add_subplot(N,1,2)
+add_logl_timing_data(ax,mask,"Unbinned runtime, all points",do_bins=False)
+ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
+plt.legend()
+
+ax = fig.add_subplot(N,1,3)
+# Need to shift mask to get interloop time for next point
+dumper_mask2 = np.zeros(len(dumper_mask),dtype=np.bool)
+dumper_mask2[1:] = dumper_mask[:-1]
+dumper_mask3 = np.zeros(len(dumper_mask),dtype=np.bool)
+dumper_mask3[:-1] = dumper_mask[1:]
+add_logl_timing_data(ax,dumper_mask2,"Unbinned runtime, dumper iterations only",do_bins=False)
+ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
+plt.legend()
+
+ax = fig.add_subplot(N,1,4)
+non_dumper_mask = mask & (~dumper_mask2)
+add_logl_timing_data(ax,non_dumper_mask,"Unbinned runtime, non-dumper iterations", do_bins=False)
+plt.legend()
+
+#data = np.vstack([interloop[mask], intraloop[mask]]).T
+#ax.hist(data, 1000, histtype='step', stacked=True, fill=True, label=labels)
+
+#ax.stackplot(iterations[mask], interloop[mask], intraloop[mask], labels=["inter-loop","likelihood evaluation"])
+#ax.plot(iterations[mask], totalloop[mask], c='k', lw=3, label="Total")
+plt.tight_layout()
+fig.savefig("timing_graphs.png")
+print "Done! Saved 'timing_graphs.png'"
 print

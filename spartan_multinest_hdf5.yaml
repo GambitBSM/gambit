@@ -36,10 +36,10 @@ Scanner:
     multinest:
       plugin: MultiNest
       like:  LogLike
-      nlive: 1000
+      nlive: 10000
       updInt: 100
       tol: 0.5
-      mmodal: 0
+      mmodal: 1
 
     de:
       plugin: Diver
