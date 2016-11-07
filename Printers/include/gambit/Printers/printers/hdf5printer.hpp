@@ -176,12 +176,6 @@ namespace Gambit
         /// Completely reset the PPIDlists (e.g. used when printer is reset)
         void reset_PPID_lists();
 
-        /// Ask the printer for the highest ID number known for a given rank
-        /// process (needed for resuming, so the scanner can resume assigning
-        /// point ID from this value. 
-        // TODO: DEPRECATED
-        //unsigned long getHighestPointID(const int rank);
-
         /// Check if PPIDpair exists in global index list
         bool seen_PPID_before(const PPIDpair& ppid);
 
@@ -233,27 +227,12 @@ namespace Gambit
         unsigned long get_sync_pos() { return sync_pos; }
         void increment_sync_pos() { sync_pos+=1; }
 
-        /// Retrieve the "resume" flag
-        bool get_resume() { return resume; }
-
-        /// Retrieve the starting position in output datasets for new data
-        //bool get_startpos() { return startpos; } // OBSOLETE
-
-        /// Retreive any stored PPIDpairs from previous runs (resume mode)
-        /// OBSOLETE
-        //const std::vector<PPIDpair>& get_previous_points() { return previous_points; }
-
         /// Clear previous points list
         void clear_previous_points() { std::vector<PPIDpair>().swap(previous_points); } // This technique also shrinks the capacity of the vector, which 'clear' does not do.
 
         /// Scan for existing temporary files, in preparation for combining them
         /// Should only do this if scan is resuming, and if we are process rank 0.
         void prepare_and_combine_tmp_files();
-
-        /// Gather MPIrank/pointID pairs from an existing output file
-        /// Along the way, verify that datasets in the output file have consistent lengths
-        /// OBSOLETE
-        //std::vector<PPIDpair> gather_old_PPIDs();
 
         PPIDpair get_highest_PPID_from_HDF5(hid_t group_id);
 
@@ -483,15 +462,6 @@ namespace Gambit
         // but will be "global" data about the whole scan (e.g. max log likelihood 
         // found, scan statistics, etc.)
         bool global = false;
-
-        /// Flag to trigger "resume" mode.
-        /// i.e. during initialisation, we attempt to read the output file and
-        /// work out where to write new data.
-        bool resume;
-
-        /// Position to start writing new output. Should be zero unless we are in
-        /// resume mode.
-        //unsigned long startpos = 0; // OBSOLETE
 
         /// Write position to which output buffers should be synchronised
         unsigned long sync_pos = 0;

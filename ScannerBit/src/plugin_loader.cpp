@@ -638,11 +638,12 @@ namespace Gambit
             /// Delete the persistence file if it exists (e.g. when starting a new run)
             void pluginInfo::clear_alt_min_LogL_state() const
             {
-                if(check_alt_min_LogL_state())
+                std::string state_fname(def_out_path+"/ALT_MIN_LOGL_IN_USE");
+                // Atomically delete persistence file if it exists
+                int errflag = remove(state_fname.c_str());
+                if(errflag!=0 and errno!=ENOENT)
                 {
-                    std::string state_fname(def_out_path+"/ALT_MIN_LOGL_IN_USE");
-                    // Persistence file exists: delete it
-                    if (remove(state_fname.c_str())) scan_err << "Failed to delete alternative min_LogL persistence file '" << state_fname << "'! Error was: " << strerror(errno) << scan_end;
+                    scan_err << "Failed to delete alternative min_LogL persistence file '" << state_fname << "'! Error was: " << strerror(errno) << scan_end;
                 }
             }
 

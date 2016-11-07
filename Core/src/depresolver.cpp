@@ -1397,7 +1397,7 @@ namespace Gambit
 
       // Read ini entries
       use_regex    = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_regex");
-      print_timing = printer.printTiming(); 
+      print_timing = boundPrinter->printTiming(); 
       if ( use_regex )    logger() << "Using regex for string comparison." << endl;
       if ( print_timing ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
 

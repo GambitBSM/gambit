@@ -73,11 +73,13 @@ namespace Gambit
       private:
         BasePrinter* primary_printer;
         bool is_aux;
+        bool resume;
 
       public:
         BasePrinter()
           : primary_printer(NULL)
           , is_aux(false)
+          , resume(false)
        {}
 
         BasePrinter(BasePrinter* const primary, const Options& options)
@@ -93,6 +95,9 @@ namespace Gambit
         /// Initialisation function
         // Run by dependency resolver, which supplies the functors with a vector of VertexIDs whose requiresPrinting flags are set to true. (TODO: probably extend this to be a list of functors THIS printer is supposed to print, since we may want several printers handling different functors, for SLHA output or some such perhaps).
         virtual void initialise(const std::vector<int>&) = 0;
+
+        /// Check resume mode
+        bool resume_mode() { return resume; }
 
         /// Set this as an auxilliary printer
         void set_as_aux() { is_aux = true; }

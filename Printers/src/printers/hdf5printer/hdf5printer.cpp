@@ -560,7 +560,7 @@ namespace Gambit
                                       , aux_i
                                       , synchronised
                                       , silence
-                                      , false /*printer->get_resume() -- In this new version of the HDF5Printer we write temporary files and then combine them at the end of the scan, so each individual buffer no longer needs to be in 'resume' mode, it can just start anew and be combined with the old data later on */
+                                      , false /*printer->resume_mode() -- In this new version of the HDF5Printer we write temporary files and then combine them at the end of the scan, so each individual buffer no longer needs to be in 'resume' mode, it can just start anew and be combined with the old data later on */
                                       );
 
         // Get the new (possibly silenced) buffer back out of the map
@@ -672,7 +672,7 @@ namespace Gambit
           #endif
           if(HDF5::checkFileReadable(finalfile, msg_finalfile))
           {
-            if(overwrite_file and not resume)
+            if(overwrite_file and not resume_mode())
             {
               // Note: "not resume" means "start or restart"
               // Delete existing output file
@@ -720,7 +720,7 @@ namespace Gambit
           }
 
           // Deal with temporary files from previous runs
-          if(resume) // If in resume mode, need to combine any existing process-level temporary files
+          if(resume_mode()) // If in resume mode, need to combine any existing process-level temporary files
           {
             logger() << LogTags::info << "Checking if temporary files from a previous scan exist" << EOM;
             std::vector<std::string> tmp_files = find_temporary_files(true); //error if they are inconsistent
@@ -766,7 +766,7 @@ namespace Gambit
                 printer_error().raise(LOCAL_INFO, errmsg.str());
               }
             }
-          } // end if(resume)
+          } // end if(resume_mode())
         }
         else
         {
@@ -777,7 +777,7 @@ namespace Gambit
 #endif
         }
 
-        if(resume)
+        if(resume_mode())
         {
           long highest = 0;
           /// Check if combined output file exists
@@ -956,7 +956,7 @@ namespace Gambit
       // Make sure a barrier or similar exists outside this function to make
       // sure master node does combination before workers try to retrieve
       // previous points
-      if(not resume or not myRank==0)
+      if(not resume_mode() or not myRank==0)
       {
         std::ostringstream errmsg;
         errmsg << "HDF5Printer: Tried to run function 'prepare_and_combined_tmp_files', however GAMBIT is not in 'resume' mode, and this is not the process with rank 0, so this is forbidden. This indicates a bug in the HDF5Printer logic, please report it.";

@@ -72,7 +72,6 @@ namespace Gambit
         /// themselves what kind of data is being printed, so they cannot turn off
         /// the printing of timing data internally.
         bool printTiming() { return _print_timing; }
-        bool set_printTiming(bool in) { _print_timing = in; }
 
         /// For debugging: check up on mpi
         /// For debugging: check up on MPI

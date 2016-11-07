@@ -161,7 +161,7 @@ namespace Gambit
 
     // Constructor
     asciiPrinter::asciiPrinter(const Options& options, BasePrinter* const primary)
-      : BasePrinter(primary,options.getValueOrDef<bool>(false,"auxilliary"))
+      : BasePrinter(primary,options)
       , output_file("")
       , info_file("")
       , bufferlength(100) 
