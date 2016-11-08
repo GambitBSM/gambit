@@ -36,8 +36,8 @@ Scanner:
     multinest:
       plugin: MultiNest
       like:  LogLike
-      nlive: 10000
-      updInt: 100
+      nlive: 100000
+      updInt: 1000
       tol: 0.5
       mmodal: 1
 

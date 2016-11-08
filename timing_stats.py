@@ -117,59 +117,128 @@ if sortbyruntime:
        print getstats(*value)
 print
 print "Generating timing graphs..."
-
-fig = plt.figure(figsize=(12,12))
+def runningMeanFast(x, N):
+    return np.convolve(x, np.ones((N,))/N)[(N-1):]
 
 all_iterations = np.arange(len(totalloop))
-def add_logl_timing_data(ax,lmask,title,do_bins=True):
+def add_logl_timing_data(ax,lmask,title,mode=None):
    labels = ["likelihood evaluation","inter-loop"]
-   if do_bins:
-      Nbins = 100
+   Nbins = 100
+   if mode=='bin':
       p1, bin_edges1, binindices = binned_statistic(all_iterations[lmask], intraloop[lmask], statistic='mean', bins=Nbins)
       p2, bin_edges2, binindices = binned_statistic(all_iterations[lmask], interloop[lmask], statistic='mean', bins=Nbins)
       p3, bin_edges3, binindices = binned_statistic(all_iterations[lmask], totalloop[lmask], statistic='mean', bins=Nbins)
       x = bin_edges1[:-1]
-      ax.set_ylabel("Average run-time per bin (ms)")
+      ax.set_ylabel("Average run-time\nper bin (ms)")
+   elif mode=='running_mean':
+      p1 = runningMeanFast(intraloop[lmask], Nbins)
+      p2 = runningMeanFast(interloop[lmask], Nbins)
+      p3 = runningMeanFast(totalloop[lmask], Nbins)
+      x = all_iterations[lmask] # remove transient at beginning
+      ax.set_ylabel("Running mean run-time\n(N={0}) (ms)".format(Nbins))
+      print p3.shape, x.shape
    else:
       p1 = intraloop[lmask]
       p2 = interloop[lmask]
       p3 = totalloop[lmask]
       x  = all_iterations[lmask]
       ax.set_ylabel("Point run-time (ms)")
-   ax.stackplot(x, p1, p2, labels=labels)
-   ax.plot(x, p3, c='k', lw=1.5, label="Total")
+   ax.fill_between(x, 0, p3, facecolor='darkred', label="Total")
+   ax.stackplot(x, p1, p2, labels=labels, lw=0)
    ax.set_xlabel("iteration")
    ax.set_title(title)
 
-dumper_data = group["Runtime(ns) for MultiNest: dumper"]
-dumper_mask = np.array(group["Runtime(ns) for MultiNest: dumper_isvalid"],dtype=np.bool)
-dumper_y = dumper_data[dumper_mask] * 1e-6 # convert to milliseconds
-dumper_x = all_iterations[dumper_mask]
+try:
+  dumper_data = group["Runtime(ns) for MultiNest: dumper"]
+  dumper_mask = np.array(group["Runtime(ns) for MultiNest: dumper_isvalid"],dtype=np.bool)
+  dumper_y = dumper_data[dumper_mask] * 1e-6 # convert to milliseconds
+  dumper_x = all_iterations[dumper_mask]
+  fig = plt.figure(figsize=(12,12))
+  N=5
+  have_dumper=True
+except KeyError:
+  fig = plt.figure(figsize=(12,6))
+  N=3
+  have_dumper=False
 
-N=4
+def add_timefraction_plot(ax,lmask,title):
+   # --- Evolving time-fraction plot ---
+   # The idea: show what fraction of runtime is spent on various tasks,
+   # as a function of (approximate) real-time. Real-time count will assume
+   # that the total loop-time measurements are accurate, i.e. no runtime time 
+   # is unaccounted for. It also assumes that we have all primary timing
+   # measurements for all likelihood evaluations.
+   
+   # I think the easiest way to do this is to break up the run into a series of
+   # time-slices, and compute the properties of each slice.
+   # This also assumes we are only looking at data from one process at a time.
+   # Might look bizarre on combined data.
+   
+   Nslices = 200.
+   cum_runtime = np.cumsum(totalloop[lmask])
+   total_runtime = cum_runtime[-1]
+   slice_time = total_runtime/Nslices
+   
+   # Determine which iterations mark the endpoints of the slices
+   Niter = len(cum_runtime)
+   slice_times = np.arange(0,total_runtime+slice_time,slice_time)
+   
+   # Bin up the timing data according to these bin edges
+   p1, bin_edges, binindices = binned_statistic(cum_runtime, intraloop[lmask], statistic='sum', bins=slice_times)
+   p2, bin_edges, binindices = binned_statistic(cum_runtime, interloop[lmask], statistic='sum', bins=slice_times)
+   p3, bin_edges, binindices = binned_statistic(cum_runtime, totalloop[lmask], statistic='sum', bins=slice_times)
+
+   # Plot!
+   x = bin_edges[:-1] * 1e-3 / 60. # bin left in minutes
+   labels = ["likelihood evaluation","inter-loop"]
+   ax.stackplot(x, p1/p3, p2/p3, labels=labels, lw=0, step='pre')
+   ax.set_xlabel("Total runtime (minutes)")
+   ax.set_ylabel("Use fraction")
+   ax.set_title(title,y=1.3)
+
+   # Add ticks every few bins labelling what iteration was reached by that point
+   # First get the maximum iteration reached in each bin, then just pick some to show
+   iters, bin_edges, binindices = binned_statistic(cum_runtime, all_iterations[lmask], statistic=np.max, bins=slice_times)
+   iter_x = bin_edges[::20]
+   iter_label = iters[::20]
+   ax2 = ax.twiny()
+   ax2.set_xlim(ax.get_xlim())
+   ax2.set_xticks(iter_x)
+   ax2.set_xticklabels([int(x) for x in iter_label])
+   ax2.set_xlabel("Iteration reached")
+
+
+# --- "Normal" timing plots ---
+
+
 ax = fig.add_subplot(N,1,1)
-add_logl_timing_data(ax,mask,"Binned mean runtime, all points")
-plt.legend()
+add_timefraction_plot(ax,mask,"CPU usage distribution")
+ax.legend(loc=1, frameon=False, framealpha=0,prop={'size':8})
 
 ax = fig.add_subplot(N,1,2)
-add_logl_timing_data(ax,mask,"Unbinned runtime, all points",do_bins=False)
-ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
-plt.legend()
+add_logl_timing_data(ax,mask,"Running mean runtime, all points",mode='running_mean')
+plt.legend(loc=1, frameon=False, framealpha=0,prop={'size':8})
 
 ax = fig.add_subplot(N,1,3)
-# Need to shift mask to get interloop time for next point
-dumper_mask2 = np.zeros(len(dumper_mask),dtype=np.bool)
-dumper_mask2[1:] = dumper_mask[:-1]
-dumper_mask3 = np.zeros(len(dumper_mask),dtype=np.bool)
-dumper_mask3[:-1] = dumper_mask[1:]
-add_logl_timing_data(ax,dumper_mask2,"Unbinned runtime, dumper iterations only",do_bins=False)
-ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
-plt.legend()
+add_logl_timing_data(ax,mask,"Unbinned runtime, all points")
+if have_dumper: ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
+plt.legend(loc=1, frameon=False, framealpha=0,prop={'size':8})
 
-ax = fig.add_subplot(N,1,4)
-non_dumper_mask = mask & (~dumper_mask2)
-add_logl_timing_data(ax,non_dumper_mask,"Unbinned runtime, non-dumper iterations", do_bins=False)
-plt.legend()
+if have_dumper:
+  ax = fig.add_subplot(N,1,4)
+  # Need to shift mask to get interloop time for next point
+  dumper_mask2 = np.zeros(len(dumper_mask),dtype=np.bool)
+  dumper_mask2[1:] = dumper_mask[:-1]
+  dumper_mask3 = np.zeros(len(dumper_mask),dtype=np.bool)
+  dumper_mask3[:-1] = dumper_mask[1:]
+  add_logl_timing_data(ax,dumper_mask2,"Unbinned runtime, dumper iterations only")
+  ax.plot(dumper_x,dumper_y,'o',c='r',ms=4,mew=0,label="dumper function")
+  plt.legend(loc=1, frameon=False, framealpha=0,prop={'size':8})
+  
+  ax = fig.add_subplot(N,1,5)
+  non_dumper_mask = mask & (~dumper_mask2)
+  add_logl_timing_data(ax,non_dumper_mask,"Unbinned runtime, non-dumper iterations")
+  plt.legend(loc=1, frameon=False, framealpha=0,prop={'size':8})
 
 #data = np.vstack([interloop[mask], intraloop[mask]]).T
 #ax.hist(data, 1000, histtype='step', stacked=True, fill=True, label=labels)

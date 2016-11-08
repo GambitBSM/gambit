@@ -433,18 +433,20 @@ namespace Gambit {
                 static const int dumper_ID = Printers::get_main_param_id(label_dumper_runtime);
                 primary_printer->print(d_dumper_runtime, label_dumper_runtime, dumper_ID, myrank, pointID);
              }
-             else if(dumper_last_pID_count==1)
+             else if(dumper_last_pID_count>0)
              {
-                std::cerr << "Skipped printing of MultiNest dumper timing information for point (rank="<<myrank<<", pID="<<pointID<<"); dumper already ran once for this iteration, cannot print again at same point!"<<std::endl;
+                std::cerr << "Skipped printing of MultiNest dumper timing information for point (rank="<<myrank<<", pID="<<pointID<<"); dumper already ran "<<dumper_last_pID_count<<" times for this iteration, cannot print again at same point!"<<std::endl;
              }
-             else if(dumper_last_pID_count>1)
-             {
-                scan_err <<"Error! ScannerBit MultiNest plugin attempted to run 'dumper' function more "
-                         <<"than twice in a row on the same pointID! (It is allow to do it twice because "
-                         <<"MultiNest seems to run it twice in a row at the end of a scan; but no more "
-                         <<"than that is allowed!)"
-                         << scan_end;
-             }
+             // Apparantly multinest can often run the dumper twice for the same iteration of the master; I guess if it
+             // is processing loads of likelihoods from the workers and doesn't need to compute any new ones itself.
+             //else if(dumper_last_pID_count>1)
+             //{
+             //   scan_err <<"Error! ScannerBit MultiNest plugin attempted to run 'dumper' function more "
+             //            <<"than twice in a row on the same pointID! (It is allow to do it twice because "
+             //            <<"MultiNest seems to run it twice in a row at the end of a scan; but no more "
+             //            <<"than that is allowed!)"
+             //            << scan_end;
+             //}
           }
       }//end dumper function
 
