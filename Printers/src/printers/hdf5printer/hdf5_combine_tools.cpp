@@ -201,6 +201,7 @@ namespace Gambit
               , sizes(num, 0)
               , size_tot(0)
               , root_file_name(file_name)
+              , pt_min(0)
             {
                 //std::vector<bool> temp;
                 //herr_t status;
@@ -282,10 +283,6 @@ namespace Gambit
                     {
                        // Probably the sync group is empty for this file, just skip it
                        size = 0;
-                       if (i == num - 1) // Do we need this here?
-                       {
-                           size_tot_l = size_tot + size; // Last?
-                       }
                     } 
                     else if(dataset<0 or dataset2<0)
                     {
@@ -319,11 +316,6 @@ namespace Gambit
                            printer_error().raise(LOCAL_INFO, errmsg.str());
                        }
                        
-                       if (i == num - 1)
-                       {
-                           size_tot_l = size_tot + size; // Last?
-                       }
-                       
                        for (auto it = valids.end()-1; size > 0; --it)
                        {
                            if (*it)
@@ -342,7 +334,7 @@ namespace Gambit
                     {
                         cum_sizes[j] += size;
                     }
-                    sizes[i] = size;
+                    sizes[i] = size; // Size of dataset minus invalid entries that pad the end.
                     size_tot += size;
                 }
             }
@@ -584,8 +576,8 @@ namespace Gambit
                     dataset_out   = HDF5::openDataset(new_group, *it);
                     dataset2_out  = HDF5::openDataset(new_group, (*it)+"_isvalid");
                     std::cout << "Copying parameter "<<*it<<std::endl; // debug
-                    Enter_HDF5<copy_hdf5>(dataset_out, datasets, size_tot_l, sizes, old_dataset);
-                    Enter_HDF5<copy_hdf5>(dataset2_out, datasets2, size_tot_l, sizes, old_dataset2);
+                    Enter_HDF5<copy_hdf5>(dataset_out, datasets, size_tot, sizes, old_dataset);
+                    Enter_HDF5<copy_hdf5>(dataset2_out, datasets2, size_tot, sizes, old_dataset2);
                     
                     for (int i = 0, end = datasets.size(); i < end; i++)
                     {
@@ -857,6 +849,48 @@ namespace Gambit
                }
                return output_hash;
             }
+
+            /// Select a chunk of a 1D HDF5 dataset
+            std::pair<hid_t,hid_t> select_chunk(hid_t dset_id, std::size_t offset, std::size_t length)
+            {
+                if(dset_id<0) 
+                {
+                   std::ostringstream errmsg;
+                   errmsg << "Invalid dataset supplied to select_chunk function! This is a bug in the HDF5Printer, please report it." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+
+                // Select a hyperslab.
+                hid_t dspace_id = H5Dget_space(dset_id);
+                if(dspace_id<0) 
+                {
+                   std::ostringstream errmsg;
+                   errmsg << "Error selecting chunk from dataset in HDF5 file. H5Dget_space failed." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+
+                hsize_t offsets[1];
+                offsets[0] = offset;
+                //offsets[1] = 0; // don't need: only 1D for now.
+
+                hsize_t selection_dims[1]; // Set same as output chunks, but may have a different length
+                selection_dims[0] = length; // Adjust chunk length to input specification
+
+                herr_t err_hs = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offsets, NULL, selection_dims, NULL);        
+
+                if(err_hs<0) 
+                {
+                   std::ostringstream errmsg;
+                   errmsg << "Error selecting chunk from dataset in HDF5 file. H5Sselect_hyperslab failed." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+
+                // Define memory space
+                hid_t memspace_id = H5Screate_simple(1, selection_dims, NULL);         
+
+                return std::make_pair(memspace_id, dspace_id); // Be sure to close these identifiers after using them!
+            }
+
 
         }
     }

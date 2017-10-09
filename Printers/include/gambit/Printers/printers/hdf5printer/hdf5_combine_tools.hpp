@@ -44,6 +44,9 @@ namespace Gambit
             template <class U, typename... T>
             void Enter_HDF5(hid_t dataset, T&... params);
 
+            /// Select a chunk of a 1D HDF5 dataset
+            std::pair<hid_t,hid_t> select_chunk(hid_t dset_id, std::size_t offset, std::size_t length);
+
             struct read_hdf5
             {
                 template <typename U, typename T>
@@ -80,13 +83,35 @@ namespace Gambit
                     {
                         hsize_t dim_t;
                         if(datasets[i] >= 0)
-                        {
-                           // Read the dataset in to buffer
-                           H5Dread(datasets[i], get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[j]);
-                           
-                           hid_t space = H5Dget_space(datasets[i]);
-                           dim_t = H5Sget_simple_extent_npoints(space);
-                           H5Sclose(space);
+                        {                           
+                           // Check that the buffer is the right size to fit the dataset!
+                           if( (data.size() - j)<sizes[i])
+                           {
+                              // Data has some other unexpected size, error!
+                              std::ostringstream errmsg;
+                              errmsg << "Error copying parameter "". Buffer overrun while reading dataset from input file " << i << ". (Dataset in file had size "<<dim_t<<", but there was only size "<<data.size()-j<<" left in the buffer; buffer.size()="<<data.size()<<", current pos.="<<j<<")"<<std::endl;
+                              printer_error().raise(LOCAL_INFO, errmsg.str());
+ 
+                           }
+
+                           // Get the hyperslab selection (i.e. the dataset minus invalid points padding out the end)
+                           std::pair<hid_t,hid_t> selection_ids = select_chunk(datasets[i], 0, sizes[0]);
+                           hid_t memspace_id = selection_ids.first;
+                           hid_t dspace_id   = selection_ids.second;
+
+                           // Get the data from the hyperslab.
+                           // NOTE! PROBABLY NEED TO CONVERT ALL H5DREAD OPERATIONS IN THIS FILE TO MATCH THIS!
+                           herr_t err_read = H5Dread(datasets[i], get_hdf5_data_type<U>::type(), memspace_id, dspace_id, H5P_DEFAULT, (void *)&data[j]);
+                  
+                           if(err_read<0)
+                           {
+                              std::ostringstream errmsg;
+                              errmsg << "Error copying parameter "". An error was reported during the H5Dread operation. This is probably a bug in the HDF5Printer, please report it."<<std::endl;
+                              printer_error().raise(LOCAL_INFO, errmsg.str());
+                           }
+                  
+                           H5Sclose(dspace_id);
+                           H5Sclose(memspace_id);
                         }
                         else
                         {
@@ -115,8 +140,16 @@ namespace Gambit
                             printer_error().raise(LOCAL_INFO, errmsg.str());
                         }
                     }
-                    
+
+                    if( dataset_out<0 )
+                    {
+                        std::ostringstream errmsg;
+                        errmsg << "Error copying parameter "".  Output dataset file failed to open for some reason. It is possible that the target file or group does not exist. This should not happen so it is a bug, please report it." <<std::endl;
+                        printer_error().raise(LOCAL_INFO, errmsg.str());
+                    }
+                    std::cout << "Performing H5Dwrite" <<std::endl;
                     H5Dwrite( dataset_out, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
+                    std::cout << "Finished H5Dwrite!" <<std::endl;
                 }
             };
 
@@ -371,7 +404,6 @@ namespace Gambit
                 std::vector<unsigned long long> cum_sizes;
                 std::vector<unsigned long long> sizes;
                 unsigned long long size_tot;
-                unsigned long long size_tot_l;
                 std::string root_file_name;
                 unsigned long long pt_min;
                 
