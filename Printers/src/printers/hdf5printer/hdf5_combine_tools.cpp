@@ -315,7 +315,8 @@ namespace Gambit
                            errmsg << "pointID and pointID_isvalid are not the same size.";
                            printer_error().raise(LOCAL_INFO, errmsg.str());
                        }
-                       
+                      
+                       // Subtract invalid points from the end of the dataset; these are just padding. 
                        for (auto it = valids.end()-1; size > 0; --it)
                        {
                            if (*it)
