@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
     // Check that required backends are present
     if (not Backends::backendInfo().works["Pythia8.212.EM"]) backend_error().raise(LOCAL_INFO, "Pythia 8.212.EM is missing!");
-    if (not Backends::backendInfo().works["nulike1.0.4"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.4 is missing!");
+    if (not Backends::backendInfo().works["nulike1.0.5"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.5 is missing!");
 
     // Output some info about ColliderBit
     cout << endl << "My name is " << name() << endl;

@@ -145,6 +145,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --with-boost-incdir=${Boost_INCLUDE_DIR}
        --with-lapack-libs=${LAPACK_LINKLIBS}
        --with-blas-libs=${LAPACK_LINKLIBS}
+       --disable-librarylink
       #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
      )
 

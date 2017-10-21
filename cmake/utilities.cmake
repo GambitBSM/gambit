@@ -142,6 +142,7 @@ function(add_gambit_library libraryname)
 
   add_library(${libraryname} ${ARG_OPTION} ${ARG_SOURCES} ${ARG_HEADERS})
   add_dependencies(${libraryname} model_harvest)
+  add_dependencies(${libraryname} particle_harvest)
   add_dependencies(${libraryname} backend_harvest)
   add_dependencies(${libraryname} printer_harvest)
   add_dependencies(${libraryname} module_harvest)

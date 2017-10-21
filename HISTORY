@@ -3,6 +3,12 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.1.1
+Bugfix release.
+- Fixed cmake bug preventing compilation on systems with Mathematica installed but without libuuid.
+- Fixed issue caused when Mathematica license server is missing/faulty.
+- Updated ColliderBit_standalone to use nulike 1.0.5.
+
 v1.1.0
 Feature release.
 - Added support for Mathematica backends

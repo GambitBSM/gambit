@@ -1,0 +1,247 @@
+## YAML file containing all particles for the particle database.
+
+## particle_database.cpp is constructed from this, at compile time, via particle_harvester.py
+
+StandardModel:
+  
+  # add_SM_particle
+  Particles:
+  
+    - comment: " ---- Standard Model flavour eigenstates (context = 1) ---- "
+      
+    - comment: "Quarks"
+  
+    - name: "d"
+      PDG_context: [1, 1]
+      conjugate: "dbar"
+      description: "Down quark"
+      
+    - name: "u"
+      PDG_context: [2, 1]
+      conjugate: "ubar"
+      description: "Up quark"
+      
+    - name: "s"
+      PDG_context: [3, 1]
+      conjugate: "sbar"
+      description: "Strange quark"
+      
+    - name: "c"
+      PDG_context: [4, 1]
+      conjugate: "cbar"
+      description: "Charm quark"
+      
+    - name: "b"
+      PDG_context: [5, 1]
+      conjugate: "bbar"
+      description: "Bottom quark"
+      
+    - name: "t"
+      PDG_context: [6, 1]
+      conjugate: "tbar"
+      description: "Top quark"
+      
+    - comment: "Leptons"
+      
+    - name: "e-"
+      PDG_context: [11, 1]
+      conjugate: "e+"
+      description: "Electron"
+      
+    - name: "mu-"
+      PDG_context: [13, 1]
+      conjugate: "mu+"
+      description: "Muon"
+      
+    - name: "tau-"
+      PDG_context: [15, 1]
+      conjugate: "tau+"
+      description: "Tau"
+      
+    - comment: "Neutrinos"
+      
+    - name: "nu_e"
+      PDG_context: [12, 1]
+      conjugate: "nubar_e"
+      description: "Electron neutrino"
+      
+    - name: "nu_mu"
+      PDG_context: [14, 1]
+      conjugate: "nubar_mu"
+      description: "Muon neutrino"
+      
+    - name: "nu_tau"
+      PDG_context: [16, 1]
+      conjugate: "nubar_tau"
+      description: "Tau neutrino"
+      
+    - comment: " ---- Standard Model gauge bosons [context = 0] ---- "
+      
+    - name: "g"
+      PDG_context: [21, 0]
+      description: "Gluon"
+      
+    - name: "gamma"
+      PDG_context: [22, 0]
+      description: "Photon"
+      
+    - name: "Z0"
+      PDG_context: [23, 0]
+      description: "Z Boson"
+      
+    - name: "W+"
+      PDG_context: [24, 0]
+      conjugate: "W-"
+      description: "W Boson"
+      
+    - name: "G"
+      PDG_context: [39, 0]
+      description: "Graviton"
+      
+    - comment: " ---- Standard Model significant mesons [context = 0] ----"
+      
+    - name: "pi0"
+      PDG_context: [111, 0]
+    
+    - name: "pi+"
+      PDG_context: [211, 0]
+      conjugate: "pi-"
+      
+    - name: "eta"
+      PDG_context: [221, 0]
+      
+    - name: "rho0"
+      PDG_context: [113, 0]
+      
+    - name: "rho+"
+      PDG_context: [213, 0]
+      conjugate: "rho-"
+      
+    - name: "omega"
+      PDG_context: [223, 0]
+  
+  # add_SM_particle_set    
+  Sets:
+  
+    - comment: " ---- Standard Model mass eigenstates (context = 0) ---- "
+  
+    - name: "d"
+      PDG_context: [[1, 0], [3, 0], [5, 0]]
+      conjugate: "dbar"
+      description: "Mass-ordered down-type quarks"
+      
+    - name: "u"
+      PDG_context: [[2, 0], [4, 0], [6, 0]]
+      conjugate: "ubar"
+      description: "Mass-ordered up-type quarks"
+     
+    - name: "e-"
+      PDG_context: [[11, 0], [13, 0], [15, 0]]
+      conjugate: "e+"
+      description: "Mass-ordered leptons"
+      
+    - name: "nu"
+      PDG_context: [[12, 0], [14, 0], [16, 0]]
+      conjugate: "nubar"
+      description: "Mass-ordered neutrinos"
+
+      
+OtherModels:
+   
+  # add_particle
+  Particles:
+  
+    - comment: " ---- MSSM sparticle mass eigenstates (context = 0) ---- (TODO to be extended to NMSSM) \n      // Defined according to SLHA2 (http://arxiv.org/pdf/0801.0045v3.pdf, see eq. 28 - 31) where applicable."
+    
+    - name: "~g"
+      PDG_context: [1000021, 0]
+      description: "Gluino"
+      
+    - name: "~G"
+      PDG_context: [1000039, 0]
+      description: "Gravitino"
+      
+    - name: "A0"
+      PDG_context: [36, 0]
+      description: "Pseudoscalar Higgs"
+      
+    - name: "H+"
+      PDG_context: [37, 0]
+      conjugate: "H-"
+      description: "Charged Higgs"
+      
+    - name: "S"
+      PDG_context: [9900001, 0]
+      description: "Scalar Singlet"
+
+  # add_particle_set
+  Sets:
+  
+    - name: "h0"
+      PDG_context: [[25, 0], [35, 0]]
+      description: "Mass-ordered neutral Higgs"
+      
+    - name: "~d"
+      PDG_context: [[1000001, 0], [1000003, 0], [1000005, 0], [2000001, 0], [2000003, 0], [2000005, 0]]
+      conjugate: "~dbar"
+      description: "Mass-ordered down-type squarks"
+      
+    - name: "~u"
+      PDG_context: [[1000002, 0], [1000004, 0], [1000006, 0], [2000002, 0], [2000004, 0], [2000006, 0]]
+      conjugate: "~ubar"
+      description: "Mass-ordered up-type squarks"
+      
+    - name: "~e-"
+      PDG_context: [[1000011, 0], [1000013, 0], [1000015, 0], [2000011, 0], [2000013, 0], [2000015, 0]]
+      conjugate: "~e+"
+      description: "Mass-ordered sleptons"
+      
+    - name: "~nu"
+      PDG_context: [[1000012, 0], [1000014, 0], [1000016, 0], [2000012, 0], [2000014, 0], [2000016, 0]]
+      conjugate: "~nubar"
+      description: "Mass-ordered sneutrinos"
+      
+    - name: "~chi0"
+      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0]]
+      description: "Mass-ordered neutralinos"
+    
+    - name: "~chi+"
+      PDG_context: [[1000024, 0], [1000037, 0]]
+      conjugate: "~chi-"
+      description: "Mass-ordered charginos"
+
+    - name: "nu_RPV"
+      PDG_context: [[12, 10], [14, 10], [16, 10], [1000022, 10], [1000023, 10], [1000025, 10], [1000035, 10], [1000045, 10]]
+      description: "Example extension of neutrino set to account for mixing with NMSSM neutralinos"
+  
+  # add_generic_particle
+  Generic:
+  
+    - comment: "---- GAMBIT generic particle classes (context = 0) ----"
+  
+    - name: "boson"
+      PDG_context: [9900081, 0]
+      
+    - name: "fermion"
+      PDG_context: [9900082, 0]
+      
+    - name: "lepton"
+      PDG_context: [9900083, 0]
+      
+    - name: "quark"
+      PDG_context: [9900084, 0]
+      
+    - name: "neutrino"
+      PDG_context: [9900085, 0]
+      
+    - name: "hadron"
+      PDG_context: [9900086, 0]
+      
+    - name: "meson"
+      PDG_context: [9900087, 0]
+      
+    - name: "penta"
+      PDG_context: [9900088, 0]
+      
+      
+
