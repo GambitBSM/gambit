@@ -504,6 +504,9 @@ def get_all_files_with_ext(verbose,starting_dir,ext_set,kind):
 def retrieve_generic_headers(verbose,starting_dir,kind,excludes,exclude_list=[]):
     headers=[]
     for root,dirs,files in os.walk(starting_dir):
+        for d in list(dirs):
+            for x in excludes:
+                if d.startswith(x) and d in dirs: dirs.remove(d) # Avoid descending into excluded directories
         for name in files:
             exclude = False
             for x in excludes:

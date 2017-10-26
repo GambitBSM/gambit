@@ -49,6 +49,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0057 # CMake 3.3
   CMP0068 # CMake 3.9.1
   )
   if(POLICY ${p})
@@ -187,7 +188,8 @@ if(EIGEN3_FOUND)
 else()
   message("${BoldRed}   Eigen v3.1.0 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
   set(itch "${itch};gm2calc;flexiblesusy")
-  message(FATAL_ERROR "\nFlexibleSUSY is currently included in the GAMBIT distribution, so in fact it cannot be ditched.  Please install Eigen3.\n(Note that this will change in future GAMBIT versions, where FlexibleSUSY will be a 'true' backend.)")
+  message("${Red}   FlexibleSUSY is currently compiled directly into SpecBit, so with FlexibleSUSY unavailable SpecBit will also be excluded from the build. Please install Eigen3 if you want to use FlexibleSUSY and/or SpecBit.\n(Note that this will change in future GAMBIT versions, where FlexibleSUSY will be a 'true' backend and thus -Ditch'able separately from SpecBit.)${ColourReset}")
+  set(itch "${itch};SpecBit")
 endif()
 
 # Check for OpenMP

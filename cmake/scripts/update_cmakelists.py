@@ -94,6 +94,9 @@ def main(argv):
             if mod=="Printers" and excluded(current_dirname, exclude_printers):
                 if verbose: print "    Ignoring source files for printer {0}".format(current_dirname)
                 continue # skip this directory
+            if mod=="Backends" and excluded(current_dirname, exclude_backends):
+                if verbose: print "    Ignoring source files for backend {0}".format(current_dirname)
+                continue # skip this directory       
             for name in files:
                 if (name.endswith(".c") or name.endswith(".cc") or name.endswith(".cpp")) and not hidden(name):
                     short_root = re.sub("\\./"+mod+"/src/?","",root)
@@ -113,6 +116,9 @@ def main(argv):
                 if verbose: print "    Ignoring header files for printer {0}".format(current_dirname)
                 excluded_components.add(current_dirname)
                 continue # skip this directory
+            if mod=="Backends" and excluded(current_dirname, exclude_backends):
+                if verbose: print "    Ignoring header files for backend {0}".format(current_dirname)
+                continue # skip this directory       
             for name in files:
                 short_root = re.sub("\\./"+mod+"/include/?","",root)
                 if short_root != "" : short_root += "/"
