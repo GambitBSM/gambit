@@ -32,12 +32,14 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   if (NOT EXCLUDE_DELPHES)
     set(gambit_XTRA ${gambit_XTRA} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
   endif()
-  add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
+  set(LIBS ${gambit_XTRA}
+           ${GAMBIT_ALL_COMMON_LIBS}
+           ${GAMBIT_BIT_LIBS}
+           Core
+           Printers)
+  message("LIBS: ${LIBS}")
+  add_gambit_executable(${PROJECT_NAME} "${LIBS}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
-                                ${GAMBIT_ALL_COMMON_OBJECTS}
-                                ${GAMBIT_BIT_OBJECTS}
-                                $<TARGET_OBJECTS:Core>
-                                $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
   if (NOT EXCLUDE_FLEXIBLESUSY)
@@ -62,11 +64,12 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
       set(ScannerBit_XTRA ${ScannerBit_XTRA} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
     endif()
   endif()
-  add_gambit_executable(ScannerBit_standalone "${ScannerBit_XTRA}"
+  set(LIBS ${ScannerBit_XTRA}
+           ScannerBit
+           Printers
+           ${GAMBIT_BASIC_COMMON_LIBS})
+  add_gambit_executable(ScannerBit_standalone "${LIBS}"
                         SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/examples/ScannerBit_standalone.cpp
-                                $<TARGET_OBJECTS:ScannerBit>
-                                $<TARGET_OBJECTS:Printers>
-                                ${GAMBIT_BASIC_COMMON_OBJECTS}
   )
   if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
     if (NOT EXCLUDE_FLEXIBLESUSY)
@@ -80,6 +83,18 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
     target_compile_definitions(Printers PRIVATE SCANNER_STANDALONE)
   endif()
   add_dependencies(standalones ScannerBit_standalone)
+
+  # Add the ScannerBit API library (not an executable, but needs similar linking etc)
+  add_exportable_gambit_library(interface "${LIBS}" SCANNER_LIB_DEPENDENCIES OPTION SHARED 
+       SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/examples/ScannerBit_python.cpp) 
+  set_target_properties(interface PROPERTIES 
+       VERSION "${PROJECT_VERSION}"
+       SOVERSION 1
+       PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/pyScannerBit.h)
+  
+  # Make API library findable via cmake's find_package command 
+  message("SCANNER_LIB_DEPENDENCIES: ${SCANNER_LIB_DEPENDENCIES}")
+  export_target(interface ${PROJECT_SOURCE_DIR}/ScannerBit/include "${SCANNER_LIB_DEPENDENCIES}")
 endif()
 
 # Add C++ hdf5 combine tool, if we have HDF5 libraries

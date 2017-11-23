@@ -74,4 +74,4 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/yaml_variadic_functions.hpp
 )
 
-add_gambit_library(Utils OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+add_gambit_library(Utils OPTION SHARED SOURCES ${source_files} HEADERS ${header_files})

@@ -20,7 +20,7 @@
 #
 #  \author Ben Farmer
 #          (benjamin.farmer@fysik.su.se)
-#  \date 2016 Jan
+#  \date 2016 Jan, 2017 Nov
 #
 #  \author Tomas Gonzalo
 #          (t.e.gonzalo@fys.uio.no)
@@ -218,7 +218,7 @@ endfunction()
 # Function to add GAMBIT executable
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
-
+  message("LIBRARIES: ${LIBRARIES}")
   add_executable(${executablename} ${ARG_SOURCES} ${ARG_HEADERS})
   set_target_properties(${executablename} PROPERTIES EXCLUDE_FROM_ALL 1)
 
@@ -266,6 +266,7 @@ function(add_gambit_executable executablename LIBRARIES)
     set(LIBRARIES ${LIBRARIES} ${Mathematica_WSTP_LIBRARIES})
   endif()
 
+  message("LIBRARIES: ${LIBRARIES}")
   target_link_libraries(${executablename} ${LIBRARIES} yaml-cpp)
   add_dependencies(${executablename} mkpath)
 
@@ -293,10 +294,12 @@ function(add_standalone executablename)
     if(standalone_permitted AND EXISTS "${PROJECT_SOURCE_DIR}/${module}/" AND (";${GAMBIT_BITS};" MATCHES ";${module};"))
       if(COMMA_SEPARATED_MODULES)
         set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},${module}")
-        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:${module}>)
+        #set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:${module}>)
+        set(STANDALONE_LIBS ${STANDALONE_LIBS} ${module})
       else()
         set(COMMA_SEPARATED_MODULES "${module}")
-        set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
+        #set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
+        set(STANDALONE_LIBS ${module})
         set(first_module ${module})
       endif()
       # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
@@ -336,10 +339,9 @@ function(add_standalone executablename)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
     endif()
 
-    add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
+    set(LIBS ${ARG_LIBRARIES} ${STANDALONE_LIBS} ${GAMBIT_ALL_COMMON_LIBS})
+    add_gambit_executable(${executablename} "${LIBS}"
                           SOURCES ${STANDALONE_SOURCES}
-                                  ${STANDALONE_OBJECTS}
-                                  ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
 
     # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here
@@ -543,4 +545,130 @@ macro(BOSS_backend name backend_version)
     )
   endif()
 endmacro()
+
+# Function to export a target with its own *Config.cmake file, so that other projects
+# can find it via find_package
+# From: https://stackoverflow.com/a/33568871/1447953
+function(export_target _target _include_dir _libraries)
+    # Get full paths to any GAMBIT libraries so the external package can find them
+    # Currently assumes that all other libraries in _libraries list are full
+    # paths.
+    set(ALL_LIBS "")
+    foreach(lib ${_libraries})
+       if(TARGET ${lib})
+          get_property(LIB TARGET ${lib} PROPERTY LOCATION)
+          set(ALL_LIBS ${ALL_LIBS} ${LIB})
+       else() 
+          set(ALL_LIBS ${ALL_LIBS} ${lib})
+       endif()
+    endforeach(lib)
+    #set(ALL_LIBS ${_libraries})
+    message("Libs for ${_target}: ${ALL_LIBS}")
+    file(
+        WRITE "${CMAKE_CURRENT_BINARY_DIR}/${_target}Config.cmake"
+        "
+            include(\"\${CMAKE_CURRENT_LIST_DIR}/${_target}Targets.cmake\")
+            #set_property(
+            #    TARGET ${_target} 
+            #    APPEND PROPERTY 
+            #        INTERFACE_INCLUDE_DIRECTORIES ${_include_dir}
+            #)
+            #set(${_target}_INCLUDE_DIRS ${_include_dir})
+            #set(${_target}_LIBRARIES ${ALL_LIBS})
+            set_property(
+                 TARGET ${_target} 
+                 APPEND PROPERTY 
+                     INTERFACE_LINK_LIBRARIES ${ALL_LIBS})
+        "
+    )
+    #message("${_target}_INCLUDE_DIRS: ${_include_dir}")
+    #message("${_target}_LIBRARIES: ${_libraries}")
+    export(TARGETS ${_target} FILE "${CMAKE_CURRENT_BINARY_DIR}/${_target}Targets.cmake")
+
+    # NOTE: The following call can pollute your PC's CMake package registry
+    #       See comments/alternatives in link
+    export(PACKAGE ${_target}) 
+endfunction(export_target)
+
+
+# Function to add exportable GAMBIT library
+# (i.e. a library which can be loaded by some external package)
+# Does a combination of add_gambit_library and add_gambit_executable,
+# mainly adding the linking steps of the latter to the former.
+function(add_exportable_gambit_library libraryname LIBRARIES EXPORT_LIBRARIES)
+  cmake_parse_arguments(ARG "" "OPTION" "SOURCES;HEADERS" ${ARGN})
+
+  add_library(${libraryname} ${ARG_OPTION} ${ARG_SOURCES} ${ARG_HEADERS})
+  add_dependencies(${libraryname} model_harvest)
+  add_dependencies(${libraryname} backend_harvest)
+  add_dependencies(${libraryname} printer_harvest)
+  add_dependencies(${libraryname} module_harvest)
+  add_dependencies(${libraryname} yaml-cpp)
+
+  if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
+    foreach (dir ${GAMBIT_INCDIRS})
+      target_include_directories(${libraryname} PUBLIC ${dir})
+    endforeach()
+  else()
+    foreach (dir ${GAMBIT_INCDIRS})
+      include_directories(${dir})
+    endforeach()
+  endif()
+
+  if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
+    set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
+  endif()
+
+  # Library linking
+  if(MPI_CXX_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${MPI_CXX_LIBRARIES})
+    if(MPI_CXX_LINK_FLAGS)
+      set_target_properties(${libraryname} PROPERTIES LINK_FLAGS ${MPI_CXX_LINK_FLAGS})
+    endif()
+  endif()
+  if(MPI_C_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${MPI_C_LIBRARIES})
+    if(MPI_C_LINK_FLAGS)
+      set_target_properties(${libraryname} PROPERTIES LINK_FLAGS ${MPI_C_LINK_FLAGS})
+    endif()
+  endif()
+  if (LIBDL_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
+  endif()
+  if (Boost_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${Boost_LIBRARIES})
+  endif()
+  if (GSL_FOUND)
+    if(HDF5_FOUND AND "${USE_MATH_LIBRARY_CHOSEN_BY}" STREQUAL "HDF5")
+      strip_library(m GSL_LIBRARIES)
+    endif()
+    set(LIBRARIES ${LIBRARIES} ${GSL_LIBRARIES})
+  endif()
+  if(HDF5_FOUND)
+    if(GSL_FOUND AND "${USE_MATH_LIBRARY_CHOSEN_BY}" STREQUAL "GSL")
+      strip_library(m HDF5_LIBRARIES)
+    endif()
+    set(LIBRARIES ${LIBRARIES} ${HDF5_LIBRARIES})
+  endif()
+  if(Mathematica_FOUND AND Mathematica_WSTP_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${Mathematica_WSTP_LIBRARIES})
+  endif()
+
+  #This time need to link the libraries as PRIVATE so that they are not
+  #visible via ${libraryname} and so do not need to be part of the 
+  #export set (when we eventually do the export)
+  target_link_libraries(${libraryname} PRIVATE yaml-cpp ${LIBRARIES})
+  add_dependencies(${libraryname} mkpath)
+
+  #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
+  if(VERBOSE)
+    message(STATUS ${LIBRARIES})
+  endif()
+
+  # pass out a list of all the libraries
+  set(${EXPORT_LIBRARIES} yaml-cpp ${LIBRARIES} PARENT_SCOPE)
+
+endfunction()
+
+
 

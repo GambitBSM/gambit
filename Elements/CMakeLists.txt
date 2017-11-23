@@ -60,4 +60,4 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/virtual_higgs.hpp
 )
 
-add_gambit_library(Elements OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+add_gambit_library(Elements OPTION SHARED SOURCES ${source_files} HEADERS ${header_files})

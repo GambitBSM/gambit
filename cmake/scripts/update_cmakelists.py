@@ -170,7 +170,7 @@ set(source_files                                \n"
         towrite+=")\n\nset(header_files\n"
         for hpp in headers: towrite+='include/{0}\n'.format(hpp)
         towrite+=")\n\n"
-        towrite+="add_gambit_library("+mod+" OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})"
+        towrite+="add_gambit_library("+mod+" OPTION SHARED SOURCES ${source_files} HEADERS ${header_files})"
         cmakelist = "./"+mod+"/CMakeLists.txt"
         candidate = "./scratch/"+mod+"_CMakeLists.txt"
         with open(candidate,"w") as f: f.write(towrite)

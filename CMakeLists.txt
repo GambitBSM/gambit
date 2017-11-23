@@ -55,6 +55,7 @@ foreach(p
     cmake_policy(SET ${p} NEW)
   endif()
 endforeach()
+cmake_policy(SET CMP0026 OLD) # Allow use of LOCATION property
 
 # Set the project name, enabling C, C++ and Fortran support
 project(gambit C CXX Fortran)
@@ -413,13 +414,19 @@ add_subdirectory_if_present(Printers)
 add_subdirectory_if_present(Core)
 
 # Lists of different GAMBIT object files to link
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Logs> $<TARGET_OBJECTS:Utils>)
-set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Models> $<TARGET_OBJECTS:Backends> $<TARGET_OBJECTS:Elements>)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Logs> $<TARGET_OBJECTS:Utils>)
+#set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Models> $<TARGET_OBJECTS:Backends> $<TARGET_OBJECTS:Elements>)
+# Library version of the above
+set(GAMBIT_BASIC_COMMON_LIBS "${GAMBIT_BASIC_COMMON_LIBS}" Logs Utils)
+set(GAMBIT_ALL_COMMON_LIBS "${GAMBIT_BASIC_COMMON_LIBS}" Models Backends Elements)
+
 
 # Set compilation targets for GAMBIT modules
 foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
-  set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
+  #set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
+  # Library version (SHARED instead of OBJECT in add_gambit_library)
+  set(GAMBIT_BIT_LIBS ${GAMBIT_BIT_LIBS} ${bit})
 endforeach()
 
 # Add the executables

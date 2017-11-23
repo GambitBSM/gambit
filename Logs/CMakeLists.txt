@@ -31,4 +31,4 @@ set(header_files include/gambit/Logs/log_tags.hpp
                  include/gambit/Logs/logmaster.hpp
 )
 
-add_gambit_library(Logs OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+add_gambit_library(Logs OPTION SHARED SOURCES ${source_files} HEADERS ${header_files})

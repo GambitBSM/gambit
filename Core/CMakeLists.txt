@@ -48,5 +48,5 @@ set(header_files include/gambit/Core/container_factory.hpp
                  include/gambit/Core/yaml_parser.hpp
 )
 
-add_gambit_library(Core OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
+add_gambit_library(Core OPTION SHARED SOURCES ${source_files} HEADERS ${header_files})
 add_dependencies(Core module_harvest)
