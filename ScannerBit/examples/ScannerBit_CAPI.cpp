@@ -39,8 +39,32 @@ void hello_world()
    std::cout << "Hello world" << std::endl;
 }
 
-void run_test_scan()
+/// Required signature of the user-supplied likelihood function
+typedef double (*user_funcptr)(const std::unordered_map<std::string, double> &in);    
+
+/// Likelihood contain class for wrapping user-supplied function pointers 
+/// (to a 'main' function which evaluates a likelihood)
+class CAPI_Likelihood_Container : public Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
 {
+  private:
+    const user_funcptr my_user_func;
+
+  public:
+    /// Constructor
+    CAPI_Likelihood_Container(const user_funcptr f) : my_user_func(f) {}
+
+    /// Do the prior transformation and populate the parameter map
+    void setParameters (const std::unordered_map<std::string, double> &) {/* nothing yet! */}
+
+    /// Evaluate total likelihood function
+    double main (std::unordered_map<std::string, double> &in) { return my_user_func(in); }
+
+};
+
+void run_test_scan(const char in_yaml_file[], const user_funcptr user_func)
+{
+    std::string yaml_file(in_yaml_file);
+
     signal(SIGTERM, sighandler_soft);
     signal(SIGINT,  sighandler_soft);
     signal(SIGUSR1, sighandler_soft);
@@ -73,11 +97,8 @@ void run_test_scan()
         int rank = 0;
         #endif
 
-        // Hardcoded YAML ini file for testing 
-        std::string filename("/net/archive/groups/plgggambit/ben/repos/gambit/yaml_files/ScannerBit.yaml");
-
         IniParser::Parser iniFile;
-        iniFile.readFile(filename);
+        iniFile.readFile(yaml_file);
 
         // Initialise the random number generator, letting the RNG class choose its own default.
         Random::create_rng_engine(iniFile.getValueOrDef<std::string>("default", "rng"));
@@ -93,8 +114,11 @@ void run_test_scan()
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
 
+        //Construct likelihood container to wrap user-supplied likelihood function
+        CAPI_Likelihood_Container likelihood(user_func);
+
         //Create the master scan manager
-        Scanner::Scan_Manager scan(scanner_node, &printerManager, 0); 
+        Scanner::Scan_Manager scan(scanner_node, &printerManager, &likelihood); 
 
         scan.Run();
 

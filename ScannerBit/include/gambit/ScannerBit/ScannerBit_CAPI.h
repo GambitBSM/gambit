@@ -26,7 +26,7 @@ extern "C"
 #endif
 
     void hello_world();
-    void run_test_scan();
+    void run_test_scan(const char[]);
 
 #ifdef __cplusplus
 }
