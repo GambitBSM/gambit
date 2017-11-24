@@ -85,16 +85,16 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   add_dependencies(standalones ScannerBit_standalone)
 
   # Add the ScannerBit API library (not an executable, but needs similar linking etc)
-  add_exportable_gambit_library(interface "${LIBS}" SCANNER_LIB_DEPENDENCIES OPTION SHARED 
-       SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/examples/ScannerBit_python.cpp) 
-  set_target_properties(interface PROPERTIES 
+  add_exportable_gambit_library(ScannerBitCAPI "${LIBS}" SCANNER_LIB_DEPENDENCIES OPTION SHARED 
+       SOURCES ${PROJECT_SOURCE_DIR}/ScannerBit/examples/ScannerBit_CAPI.cpp) 
+  set_target_properties(ScannerBitCAPI PROPERTIES 
        VERSION "${PROJECT_VERSION}"
        SOVERSION 1
-       PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/pyScannerBit.h)
+       PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/ScannerBit_CAPI.h)
   
   # Make API library findable via cmake's find_package command 
   message("SCANNER_LIB_DEPENDENCIES: ${SCANNER_LIB_DEPENDENCIES}")
-  export_target(interface ${PROJECT_SOURCE_DIR}/ScannerBit/include "${SCANNER_LIB_DEPENDENCIES}")
+  export_target(ScannerBitCAPI ${PROJECT_SOURCE_DIR}/ScannerBit/include "${SCANNER_LIB_DEPENDENCIES}")
 endif()
 
 # Add C++ hdf5 combine tool, if we have HDF5 libraries

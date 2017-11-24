@@ -19,7 +19,7 @@
 ///  *********************************************
 
 #include <iostream>
-#include "gambit/ScannerBit/pyScannerBit.h"
+#include "gambit/ScannerBit/ScannerBit_CAPI.h"
 #include "gambit/ScannerBit/scannerbit.hpp" // Needed for symbols like
 #include "gambit/ScannerBit/scan.hpp"
 #include "gambit/ScannerBit/plugin_loader.hpp" // Needed for symbols like plugin_info

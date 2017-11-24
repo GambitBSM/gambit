@@ -89,11 +89,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} $ENV{LIBRARY_PATH})
 string(REPLACE ":" ";" CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}")
 
-# When building, use the install RPATH already
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+# use, i.e. don't skip the full RPATH for the build tree
+SET(CMAKE_SKIP_BUILD_RPATH FALSE) # bjf> was TRUE
 
-# Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
+# {{ New RPATH stuff
+# when building, don't use the install RPATH already
+# (but later on when installing)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# }}
 
 # Include cmake utility scripts, including colour definitions.
 include(cmake/utilities.cmake)
@@ -151,6 +158,9 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
+
+# The rpath that ends up in shared libraries. If we later change how installing works, this might need to change too
+SET(CMAKE_INSTALL_RPATH ${mylibdir})
 
 # Check for C++11 and C++14 support
 include(CheckCXXCompilerFlag)

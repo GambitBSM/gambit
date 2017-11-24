@@ -158,7 +158,7 @@ function(add_gambit_library libraryname)
   endif()
 
   if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
-    set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
+    set_target_properties(${libraryname} PROPERTIES SUFFIX .so)
   endif()
 
   # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
