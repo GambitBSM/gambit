@@ -39,9 +39,6 @@ void hello_world()
    std::cout << "Hello world" << std::endl;
 }
 
-/// Required signature of the user-supplied likelihood function
-typedef double (*user_funcptr)(const std::unordered_map<std::string, double> &in);    
-
 /// Likelihood contain class for wrapping user-supplied function pointers 
 /// (to a 'main' function which evaluates a likelihood)
 class CAPI_Likelihood_Container : public Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
@@ -57,9 +54,46 @@ class CAPI_Likelihood_Container : public Scanner::Function_Base<double (std::uno
     void setParameters (const std::unordered_map<std::string, double> &) {/* nothing yet! */}
 
     /// Evaluate total likelihood function
-    double main (std::unordered_map<std::string, double> &in) { return my_user_func(in); }
+    double main (std::unordered_map<std::string, double> &pars) 
+    {
+      double ret_val = my_user_func(pars);
+      //(*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
+      // Output the transformed parameter values for this point
+      unsigned long long int id = Gambit::Printers::get_point_id();
+      int rank = getRank();
+      for (std::unordered_map<std::string, double>::const_iterator it = pars.begin(); it != pars.end(); ++it)
+      {
+         getPrinter().print(it->second, it->first, rank, id);
+      }
+      return ret_val;
+    }
 
 };
+
+/// As well as the likelihood container class, we also need a factory function for this likelihood
+/// container, due to the way ScannerBit works.
+registry
+{
+  typedef void* factory_type(const user_funcptr f); //Needs to match constructor of likelihood container
+  reg_elem <factory_type> __scanner_factories__;
+}
+  
+class CAPI_Likelihood_Container_Factory : public Scanner::Factory_Base
+{
+  private:
+    const user_funcptr myf;
+  public:
+    CAPI_Likelihood_Container_Factory(const user_funcptr f) : myf(f) {}
+    ~CAPI_Likelihood_Container_Factory() {}
+    void * operator() (const str&/*purpose*/) const
+    {
+       // We don't use the purpose string for anything in this C API, so just ignore it.
+       return __scanner_factories__["ScannerBit_C_API_Target_Function"](myf);
+    }
+};
+
+#define LOAD_SCANNER_FUNCTION(tag, ...) REGISTER(__scanner_factories__, tag, __VA_ARGS__)
+LOAD_SCANNER_FUNCTION(ScannerBit_C_API_Target_Function, CAPI_Likelihood_Container)
 
 void run_test_scan(const char in_yaml_file[], const user_funcptr user_func)
 {
@@ -115,7 +149,7 @@ void run_test_scan(const char in_yaml_file[], const user_funcptr user_func)
         scanner_node["Priors"] = iniFile.getPriorsNode();
 
         //Construct likelihood container to wrap user-supplied likelihood function
-        CAPI_Likelihood_Container likelihood(user_func);
+        CAPI_Likelihood_Container_Factory likelihood(user_func);
 
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &likelihood); 

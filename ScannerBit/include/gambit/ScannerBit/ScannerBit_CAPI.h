@@ -18,7 +18,13 @@
 ///
 ///  *********************************************
 
+#include <unordered_map>
+#include <string>
+
 // Interface function declarations
+
+/// Required signature of the user-supplied likelihood function
+typedef double (*user_funcptr)(const std::unordered_map<std::string, double> &in);    
 
 #ifdef __cplusplus
 extern "C"
@@ -26,8 +32,7 @@ extern "C"
 #endif
 
     void hello_world();
-    void run_test_scan(const char[]);
-
+    void run_test_scan(const char[], const user_funcptr);
 #ifdef __cplusplus
 }
 #endif
