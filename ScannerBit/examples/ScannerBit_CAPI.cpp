@@ -95,10 +95,17 @@ class CAPI_Likelihood_Container_Factory : public Scanner::Factory_Base
 #define LOAD_SCANNER_FUNCTION(tag, ...) REGISTER(__scanner_factories__, tag, __VA_ARGS__)
 LOAD_SCANNER_FUNCTION(ScannerBit_C_API_Target_Function, CAPI_Likelihood_Container)
 
-void run_test_scan(const char in_yaml_file[], const user_funcptr user_func)
+/// Wrapper for run_scan which reads in a YAML file to create the master YAML config data
+void run_scan_from_file(const char in_yaml_file[], const user_funcptr user_func)
 {
     std::string yaml_file(in_yaml_file);
+    YAML::Node root = IniParser::Parser::filename_to_node(in_yaml_file);
+    run_scan(root, user_func);
+}
 
+/// Run a scan, providing a YAML node containing config data plus a user-supplied likelihood function to scan
+void run_scan(YAML::Node root, const user_funcptr user_func)
+{
     signal(SIGTERM, sighandler_soft);
     signal(SIGINT,  sighandler_soft);
     signal(SIGUSR1, sighandler_soft);
@@ -132,7 +139,7 @@ void run_test_scan(const char in_yaml_file[], const user_funcptr user_func)
         #endif
 
         IniParser::Parser iniFile;
-        iniFile.readFile(yaml_file);
+        iniFile.basicParse(root,"test_scan"); // Parse the YAML config node supplied to this function
 
         // Initialise the random number generator, letting the RNG class choose its own default.
         Random::create_rng_engine(iniFile.getValueOrDef<std::string>("default", "rng"));

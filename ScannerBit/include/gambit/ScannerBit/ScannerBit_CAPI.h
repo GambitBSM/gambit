@@ -20,6 +20,7 @@
 
 #include <unordered_map>
 #include <string>
+#include "yaml-cpp/yaml.h"
 
 // Interface function declarations
 
@@ -32,7 +33,8 @@ extern "C"
 #endif
 
     void hello_world();
-    void run_test_scan(const char[], const user_funcptr);
+    void run_scan_from_file(const char[], const user_funcptr);
+    void run_scan(YAML::Node, const user_funcptr);
 #ifdef __cplusplus
 }
 #endif

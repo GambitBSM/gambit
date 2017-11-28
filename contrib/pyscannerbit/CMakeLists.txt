@@ -29,6 +29,12 @@ message("Libs: ${LIBS}")
 # We will use pybind11 to create the Python extension module
 add_subdirectory("${PROJECT_SOURCE_DIR}/lib/pybind11-2.1.1")
 
+# Kind of a drag... might be best to create a FindPackage file for yaml-cpp and install it properly.
+# # Need yaml-cpp for parsing configuration file
+# set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../yaml-cpp-0.5.3/include)
+# include_directories("${yaml_INCLUDE_DIR}")
+# add_subdirectory(${PROJECT_SOURCE_DIR}/../yaml-cpp-0.5.3 EXCLUDE_FROM_ALL)
+
 # Generate Python module
 pybind11_add_module(pyscannerbit "${PROJECT_SOURCE_DIR}/src/pyScannerBit.cpp")
 target_link_libraries(pyscannerbit PUBLIC ScannerBitCAPI)

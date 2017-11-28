@@ -47,19 +47,19 @@ double wrapper_func(const std::unordered_map<std::string, double>& pars)
    return r; // Rubbish for now, just see if it works 
 }
 
-void py_run_test_scan(const char yaml_file[], const py::object& f)
+void py_run_scan(const char yaml_file[], const py::object& f)
 {
    // Set user-defined Python function for callbacks
    user_pyfunc = f;   
 
    // Call library function
-   run_test_scan(yaml_file,&wrapper_func);
+   run_scan_from_file(yaml_file,&wrapper_func);
 }
 
 PYBIND11_PLUGIN(pyscannerbit)
 {
     py::module m("pyscannerbit");
     m.def("hello", &py_hello_world);
-    m.def("run_test", &py_run_test_scan);
+    m.def("run_scan", &py_run_scan);
     return m.ptr();
 }

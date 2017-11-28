@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 # ---
 
 # Choose YAML file to run
-yaml = "/net/archive/groups/plgggambit/ben/repos/gambit/yaml_files/ScannerBit_test.yaml"
+yaml = "test.yaml"
 
 # Test function
 def test(pars):
@@ -30,7 +30,7 @@ def test(pars):
 
 skip_scan = False
 if not skip_scan:
-   sb.run_test(yaml,test)
+   sb.run_scan(yaml,test)
 
 # Open the output file and examine scan results
 f = h5py.File("runs/ScannerBit/samples/gambit_output.hdf5",'r')

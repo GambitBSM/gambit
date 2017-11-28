@@ -97,10 +97,8 @@ namespace Gambit
         /// Getter for options
         const Options getOptions(str key) const;
 
-     protected:
-
         /// Read in the actual YAML file
-        YAML::Node filename_to_node(str);
+        static YAML::Node filename_to_node(str);
         
         /// Do the basic parsing of the YAML file
         void basicParse(YAML::Node,str);
