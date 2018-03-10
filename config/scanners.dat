@@ -260,3 +260,17 @@ diver: |
 
   verbosity[0]:                       Output verbosity: 0=only error messages, 1=basic info, 2=civ-level info, 3+=population info.
 
+
+badass: |
+  #remove_newlines
+  badass is a simple annealed importance sampler.  It explores the composite pdf, Prior^(1-b)*Posterior^b, and varies the 'b' parameter between 0 and 1 through updates. The sampler continuously updates a set of live points by updating each point independently through a Metropolis-Hastings update.  At the end, each point is weighted such that the points are statistically consistent with the target posterior.   Each update uses the twalk algorithm for the M-H update and jump a user specified amount of times.
+  
+  MCMC YAML options:
+      projection_dimension (dim): The dimension of the space being projected onto.
+      walk_distance: (2.5):       The distance of the kwalk jump over a point.
+      transverse_distance (6.0):  The distance of the kwalk jump away from a point.
+      jumps (10):                 The number of attempted jumps.
+      
+  Sampler YAML options:
+      Bs ([0, 1]):  The 'b' values used in each update.
+      

@@ -47,7 +47,7 @@ Scanner:
   # This tag specifies which plugin to use as the scanner.
   # Here the multinest scanner is choosen, but you could
   # choose any scanner defined under the scanners section
-  use_scanner: twalk
+  use_scanner: multinest
 
   scanners:
 
@@ -65,6 +65,14 @@ Scanner:
       #chain_number: 20
       projection_dimension: 4
 
+    badass:
+      plugin: badass
+      like: LogLike
+      points: 10000
+      jumps: 10
+      #chain_number: 20
+      projection_dimension: 4
+      
     de:
       plugin: Diver
       like: LogLike
