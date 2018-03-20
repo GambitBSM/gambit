@@ -456,8 +456,8 @@ namespace Gambit
          // Spit out the full spectrum as SLHA1 and SLHA2 files.
          str prefix   = runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
          str filename = runOptions->getValueOrDef<str>(default_name, "SLHA_output_filename");
-         writeSLHAfile(1,prefix+filename+".slha1");
-         writeSLHAfile(2,prefix+filename+".slha2");
+         writeSLHAfile(1,prefix+filename+"_spec.slha1");
+         writeSLHAfile(2,prefix+filename+"_spec.slha2");
       }
    }
 
