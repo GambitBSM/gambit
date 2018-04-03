@@ -48,7 +48,7 @@
 set(name "darksusy")
 set(ver "5.1.3")
 set(dl "http://www.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
-set(md5 "ca95ffa083941a469469710fab2f3c97")
+set(md5 "a76d7358873dda9ba623bd65a465bcfe")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(DS_Fortran_FLAGS "${GAMBIT_Fortran_FLAGS}")  # Workaround to avoid the debug flag (-g) being ignored.
