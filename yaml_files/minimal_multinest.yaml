@@ -1,0 +1,71 @@
+# GAMBIT configuration for an minimal MultiNest scan of a toy model.
+
+# Running ./gambit -f minimal_multinest.yaml should produce results in the
+# folder ./runs/minimal_multinest.yaml/
+
+# We have a 20 samples drawn from a normal distribution of unknown mean and
+# standard deviation, which we wish to infer.
+
+Parameters:
+
+  # The model is that data follow a normal distribution, NormalDist,
+  # with an unknown mean, mu, that lies between 15 and 30,
+  # and an unknown standard deviation, sigma, that lies between 0 and 5.
+
+  # The fact that the data follow a normal distribution is specified in the
+  # likelihood normaldist_loglike.
+
+  # We don't need to explicitly set the priors for mu and sigma.
+  # Flat priors are automatically generated for them in the ranges specified
+  # below.
+
+  # See ./gambit NormalDist and ./gambit normaldist_loglike
+
+  NormalDist:
+    mu:
+      range: [15, 30]
+    sigma:
+      range: [0, 5]
+
+Printer:
+
+  # We write results in ascii format.
+
+  printer: ascii
+  options:
+    output_file: "minimal_multinest.dat"
+
+Scanner:
+
+  # We select the MultiNest sampler, multinest. See ./gambit multinest
+
+  use_scanner: NormalDistScanner  # This is defined in the scanners block below
+
+  scanners:
+    NormalDistScanner:
+      plugin: multinest
+      like: NormalDistLogLike  # This is defined in the ObsLikes block
+
+ObsLikes:
+
+  # We define the likelihood, NormalDistLogLike, which was used in the Scanner
+  # block.
+
+  # We select the normaldist_loglike capability from the ExampleBit_A module.
+  # This is 20 data points, which were indeed drawn from a normal distribution.
+  # We find the probability of drawing them, given the mean, mu, and standard
+  # deviation, sigma, in our model.
+
+  # See ./gambit normaldist_loglike
+
+  - purpose: NormalDistLogLike  # This was used in the Scanner block
+    capability: normaldist_loglike
+    module: ExampleBit_A
+
+KeyValues:
+
+  # We must set a threshold on the log-likelihood. Log-likelihoods below this
+  # threshold indicate that parameter set resulted in an invalid model.
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
