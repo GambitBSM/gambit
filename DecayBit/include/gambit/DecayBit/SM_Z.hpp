@@ -33,11 +33,11 @@ namespace SM_Z {
 // The central values in eq. 46.
 
 constexpr struct {
-  constexpr double mh_OS = 125.7;  // GeV
-  constexpr double mt_OS = 173.2;
-  constexpr double MZ_OS = 91.1876;
-  constexpr double alpha_s_MSbar_MZ = 0.1184;
-  constexpr double delta_alpha_OS = 0.059;
+  const double mh_OS = 125.7;  // GeV
+  const double mt_OS = 173.2;
+  const double MZ_OS = 91.1876;
+  const double alpha_s_MSbar_MZ = 0.1184;
+  const double delta_alpha_OS = 0.059;
 } hat;
 
 // Data in Table 7.
@@ -58,6 +58,12 @@ constexpr double table_7[kRows][kCols] = {
   {215.80, 0.036, 0.0057, -0.0044, 6.2e-5, -2.98, 0.20, 0.020, -0.00036, -1.3, -0.84, -0.0019, 0.054, 0.73, -0.011, -18,  0.01},
   {41488.4, 3.88, 0.829, -0.911, 0.0076, 61.10, 16, -2.0, -0.59, -579.4, 38, -0.26, 6.5, 84, 9.5, -86152,  0.25}
 };
+
+
+// Data in Table 6, though re-arranged to match columns in Table 7.
+// The final entry isn't in the table and instead comes from the text below eq. 35.
+constexpr int kEntries = 12;
+constexpr double table_6[kEntries] = {0.012, 0.012, 0.12, 0.12, 0.09, 0.09, 0.21, 0.5, 5.e-3, 5.e-5, 1.5e-4, 6.};
 
 class TwoLoop {
  public:
@@ -105,14 +111,14 @@ class TwoLoop {
   double BR_s() {return BR_s();}
   double BR_b() {return gamma_b() / gamma_total();}
 
-  double Rl() {return 1.e3 * observable(8);}
-  double Rc() {return 1.e3 * observable(9);}
-  double Rb() {return 1.e3 * observable(10);}
+  double Rl() {return 1.e-3 * observable(8);}
+  double Rc() {return 1.e-3 * observable(9);}
+  double Rb() {return 1.e-3 * observable(10);}
   double sigma_0_had() {return observable(11);}  // pb
 
-  double error_Rl() {return 1.e3 * error(8);}
-  double error_Rc() {return 1.e3 * error(9);}
-  double error_Rb() {return 1.e3 * error(10);}
+  double error_Rl() {return 1.e-3 * error(8);}
+  double error_Rc() {return 1.e-3 * error(9);}
+  double error_Rb() {return 1.e-3 * error(10);}
   double error_sigma_0_had() {return error(11);}  // pb
 
   TwoLoop(double mh_OS,
@@ -138,9 +144,10 @@ class TwoLoop {
 
   double error(int i) {
     /*
-      Error in observable calculated from eq. 46.
+      Error in observable calculated from eq. 46. We add the error from the 
+      parametric formula and theory error in quadrature.
     */
-    return table_7[i][16];
+    return std::sqrt(pow(table_7[i][16], 2) + pow(table_6[i], 2));
   }
 
   double observable(int i) {
