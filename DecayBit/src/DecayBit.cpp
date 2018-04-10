@@ -3080,7 +3080,7 @@ namespace Gambit
 
       // SM prediction for invisible width at two-loop in MeV.
       // TODO: the arguments should be taken from the model somehow
-      const auto SM_Z = SM_Z::TwoLoop(125., 172., 90., 0.1184);
+      auto SM_Z = SM_Z::TwoLoop(125., 172., 90., 0.1184);
       const double predicted = SM_Z.gamma_invisible();
       const double tau = SM_Z.error_gamma_invisible();
 
