@@ -37,7 +37,9 @@
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/DecayBit/DecayBit_rollcall.hpp"
 #include "gambit/DecayBit/decay_utils.hpp"
+#include "gambit/DecayBit/SM_Z.hpp"
 #include "gambit/Utils/version.hpp"
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/ascii_table_reader.hpp"
 
 #include <string>
@@ -3069,6 +3071,26 @@ namespace Gambit
       double BF = Dep::Higgs_decay_rates->BF("S","S");
       static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/DecayBit/data/GammaInv_SM_higgs_DeltaChi2.dat");
       result = (BF > 0.0) ? -chi2->bind("BR")->eval(BF)*0.5 : -0.0;
+    }
+
+    void lnL_Z_invWidth(double& lnL) {
+      /*
+        Log-likelihood from LEP measurements of SM Z invisible width.
+      */
+
+      // SM prediction for invisible width at two-loop in MeV.
+      // TODO: the arguments should be taken from the model somehow
+      const auto SM_Z = SM_Z::TwoLoop(125., 172., 90., 0.1184);
+      const double predicted = SM_Z.gamma_invisible();
+      const double tau = SM_Z.error_gamma_invisible();
+
+      // Invisible width in MeV from PDG fit to LEP data. See
+      // http://pdglive.lbl.gov/BranchingRatio.action?desig=9&parCode=S044
+
+      const double measured = 499.;
+      const double sigma = 1.5;
+
+      lnL = Stats::gaussian_loglikelihood(predicted, measured, tau, sigma, false);
     }
 
   }
