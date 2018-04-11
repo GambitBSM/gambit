@@ -170,7 +170,7 @@ class TwoLoop {
            table_7[i][12] * delta_alpha_s * delta_t +
            table_7[i][13] * delta_delta_alpha +
            table_7[i][14] * delta_delta_alpha * L_H +
-           table_7[i][15] * delta_delta_alpha * delta_z;
+           table_7[i][15] * delta_z;
   }
 };
 
