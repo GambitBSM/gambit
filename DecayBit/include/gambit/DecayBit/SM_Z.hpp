@@ -227,7 +227,12 @@ class TwoLoop {
   double error_BR(int row) {
     /*
       The error in a branching ratio found by propagating errors.
-
+      
+      We propagate an error in f = x / y. In fact, though, we should propagate
+      an error in f = x / (x + y), since the partial width in the numerator
+      contributes to the total width. Thus this formula is reliable only for
+      small branching ratios.
+      
       @param row - row number of Table 7 corresponding to quantity.
     */
     const double BR = observable(row) / gamma_total();
