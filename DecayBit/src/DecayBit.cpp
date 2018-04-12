@@ -3079,20 +3079,21 @@ namespace Gambit
       */
 
       // SM prediction for invisible width at two-loop in MeV.
-      // TODO: the arguments should be taken from the model somehow
-      auto SM_Z = SM_Z::TwoLoop(125., 172., 90., 0.1184);
-      const double predicted = SM_Z.gamma_invisible();
-      const double tau = SM_Z.error_gamma_invisible();
+      // TODO(afowlie): the arguments should be taken from the model somehow
+      auto Z = SM_Z::TwoLoop(125., 172., 90., 0.1184);
+      const double predicted = Z.gamma_invisible();
+      const double tau = Z.error_gamma_invisible();
 
       // Invisible width in MeV from PDG fit to LEP data. See
       // http://pdglive.lbl.gov/BranchingRatio.action?desig=9&parCode=S044
 
-      const double measured = 499.;
-      const double sigma = 1.5;
+      constexpr double measured = 499.;
+      constexpr double sigma = 1.5;
 
-      lnL = Stats::gaussian_loglikelihood(predicted, measured, tau, sigma, false);
+      lnL = Stats::gaussian_loglikelihood(predicted,
+        measured, tau, sigma, false);
     }
 
-  }
+  }  // namespace DecayBit
 
-}
+}  // namespace Gambit
