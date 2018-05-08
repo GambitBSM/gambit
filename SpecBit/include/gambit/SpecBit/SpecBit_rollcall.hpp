@@ -43,6 +43,9 @@ START_MODULE
   /// Module function declarations for SpecBit_SingletDM.cpp
   #include "gambit/SpecBit/SpecBit_SingletDM_rollcall.hpp"
 
+   /// Module function declarations for SpecBit_THDM.cpp
+  #include "gambit/SpecBit/SpecBit_THDM_rollcall.hpp"
+
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
 

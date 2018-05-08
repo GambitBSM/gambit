@@ -150,7 +150,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
      )
 
   # Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need)
-  set(ALL_FS_MODELS CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu SingletDMZ3 SingletDM)
+  set(ALL_FS_MODELS CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu SingletDMZ3 SingletDM THDM_II)
 
   # Check if there has been command line instructions to only build with certain models. Default is to build everything!  
   if(BUILD_FS_MODELS)
