@@ -27,11 +27,41 @@ namespace Gambit {
   SpectrumContents::THDM::THDM()
   {
     setName("THDM");
+    std::vector<int> scalar = initVector(1);   // i.e. get(Par::Tag, "name")
+     std::vector<int> v2     = initVector(2);   // i.e. get(Par::Tag, "name", i)
+     std::vector<int> v3     = initVector(3);   // "
+     std::vector<int> v4     = initVector(4);   // "
+     std::vector<int> v6     = initVector(6);   // "
+     std::vector<int> m2x2   = initVector(2,2); // i.e. get(Par::Tag, "name", i, j)
+     std::vector<int> m3x3   = initVector(3,3); // "
+     std::vector<int> m4x4   = initVector(4,4); // "
+     std::vector<int> m6x6   = initVector(6,6); // "
+  
+
+     addParameter(Par::mass1, "vev"      );
+
+     addParameter(Par::dimensionless, "g1", scalar);
+     addParameter(Par::dimensionless, "g2", scalar);
+     addParameter(Par::dimensionless, "g3", scalar);
     
-    addParameter(Par::Pole_Mass, "mh0");
-    addParameter(Par::Pole_Mass, "mH0");
-    addParameter(Par::Pole_Mass, "mA");
-    addParameter(Par::Pole_Mass, "mC");
+     addParameter(Par::dimensionless, "sinW2", scalar);
+  
+     addParameter(Par::dimensionless, "Yd2", m3x3);
+     addParameter(Par::dimensionless, "Yu2", m3x3);
+     addParameter(Par::dimensionless, "Ye2", m3x3);
+    
+     addParameter(Par::Pole_Mass, "h0",    v2);
+     addParameter(Par::Pole_Mass, "A0", scalar);
+     addParameter(Par::Pole_Mass, "H+", scalar);
+     addParameter(Par::Pole_Mass, "W+", scalar);
+    
+    //  addParameter(Par::Pole_Mixing, "h0",    m2x2); 
+    //  addParameter(Par::Pole_Mixing, "A0",    m2x2); 
+    //  addParameter(Par::Pole_Mixing, "H+",    m2x2); 
+
+    // addParameter(Par::Pole_Mass, "h0",    v2);
+    // addParameter(Par::Pole_Mass, "A0", scalar);
+    // addParameter(Par::Pole_Mass, "H+", scalar);
 
     addParameter(Par::mass1, "m12_2");
     addParameter(Par::dimensionless, "alpha");

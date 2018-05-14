@@ -16,23 +16,26 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:37:11
+// File generated at Fri 11 May 2018 14:08:36
 
 #ifndef THDM_II_SPECTRUM_GENERATOR_INTERFACE_H
 #define THDM_II_SPECTRUM_GENERATOR_INTERFACE_H
 
-#include "THDM_II_two_scale_model.hpp"
+#include "THDM_II_mass_eigenstates.hpp"
+#include "THDM_II_model.hpp"
+#include "THDM_II_model_slha.hpp"
 #include "THDM_II_utilities.hpp"
 
-#include "spectrum_generator_settings.hpp"
-#include "coupling_monitor.hpp"
-#include "two_loop_corrections.hpp"
 #include "error.hpp"
+#include "coupling_monitor.hpp"
 #include "logger.hpp"
+#include "lowe.h"
+#include "spectrum_generator_problems.hpp"
+#include "spectrum_generator_settings.hpp"
+#include "loop_corrections.hpp"
 
-namespace softsusy {
-   class QedQcd;
-}
+#include <string>
+#include <tuple>
 
 namespace flexiblesusy {
 
@@ -41,76 +44,46 @@ struct THDM_II_input_parameters;
 template <class T>
 class THDM_II_spectrum_generator_interface {
 public:
-   THDM_II_spectrum_generator_interface()
-      : model()
-      , settings()
-      , parameter_output_scale(0.)
-      , reached_precision(std::numeric_limits<double>::infinity())
-   {}
-   virtual ~THDM_II_spectrum_generator_interface() {}
+   virtual ~THDM_II_spectrum_generator_interface() = default;
 
-   const THDM_II<T>& get_model() const { return model; }
-   THDM_II<T>& get_model() { return model; }
-   const Problems<THDM_II_info::NUMBER_OF_PARTICLES>& get_problems() const {
-      return model.get_problems();
-   }
-   int get_exit_code() const { return get_problems().have_problem(); }
+   std::tuple<THDM_II<T>> get_models() const
+   { return std::make_tuple(model); }
+   std::tuple<THDM_II_slha<THDM_II<T>>> get_models_slha() const
+   { return std::make_tuple(THDM_II_slha<THDM_II<T> >(model, settings.get(Spectrum_generator_settings::force_positive_masses) == 0.)); }
+
+   const THDM_II<T>& get_model() const
+   { return model; }
+   THDM_II<T>& get_model()
+   { return model; }
+   THDM_II_slha<THDM_II<T>> get_model_slha() const
+   { return THDM_II_slha<THDM_II<T>>(model, settings.get(Spectrum_generator_settings::force_positive_masses) == 0.); }
+
+   Spectrum_generator_problems get_problems() const { return problems; }
+   int get_exit_code() const { return problems.have_problem(); }
    double get_reached_precision() const { return reached_precision; }
    const Spectrum_generator_settings& get_settings() const { return settings; }
    void set_parameter_output_scale(double s) { parameter_output_scale = s; }
-   void set_precision_goal(double precision_goal_) {
-      settings.set(Spectrum_generator_settings::precision, precision_goal_);
-   }
-   void set_pole_mass_loop_order(unsigned l) {
-      settings.set(Spectrum_generator_settings::pole_mass_loop_order, l);
-      model.set_pole_mass_loop_order(l);
-   }
-   void set_pole_scale(double q) {
-      settings.set(Spectrum_generator_settings::pole_mass_scale, q);
-   }
-   void set_ewsb_loop_order(unsigned l) {
-      settings.set(Spectrum_generator_settings::ewsb_loop_order, l);
-      model.set_ewsb_loop_order(l);
-   }
-   void set_beta_loop_order(unsigned l) {
-      settings.set(Spectrum_generator_settings::beta_loop_order, l);
-   }
-   void set_beta_zero_threshold(double t) {
-      settings.set(Spectrum_generator_settings::beta_zero_threshold, t);
-   }
-   void set_max_iterations(unsigned n) {
-      settings.set(Spectrum_generator_settings::max_iterations, n);
-   }
-   void set_calculate_sm_masses(bool flag) {
-      settings.set(Spectrum_generator_settings::calculate_sm_masses, flag);
-   }
-   void set_force_output(bool flag) {
-      settings.set(Spectrum_generator_settings::force_output, flag);
-   }
-   void set_threshold_corrections_loop_order(unsigned t) {
-      settings.set(Spectrum_generator_settings::threshold_corrections_loop_order, t);
-   }
-   void set_two_loop_corrections(const Two_loop_corrections& c) {
-      settings.set_two_loop_corrections(c);
-      model.set_two_loop_corrections(c);
-   }
    void set_settings(const Spectrum_generator_settings&);
 
-   virtual void run(const softsusy::QedQcd&, const THDM_II_input_parameters&) = 0;
+   void run(const softsusy::QedQcd&, const THDM_II_input_parameters&);
    void write_running_couplings(const std::string& filename, double, double) const;
    void write_spectrum(const std::string& filename = "THDM_II_spectrum.dat") const;
 
 protected:
    THDM_II<T> model;
+   Spectrum_generator_problems problems;
    Spectrum_generator_settings settings;
-   double parameter_output_scale; ///< output scale for running parameters
-   double reached_precision; ///< the precision that was reached
+   double parameter_output_scale{0.}; ///< output scale for running parameters
+   double reached_precision{std::numeric_limits<double>::infinity()}; ///< the precision that was reached
+
+   void translate_exception_to_problem(THDM_II<T>& model);
+   virtual void run_except(const softsusy::QedQcd&, const THDM_II_input_parameters&) = 0;
 };
 
 /**
  * Setup spectrum generator from a Spectrum_generator_settings object.
  *
- * @param settings spectrum generator settings
+ * @param settings_ spectrum generator settings
  */
 template <class T>
 void THDM_II_spectrum_generator_interface<T>::set_settings(
@@ -119,7 +92,33 @@ void THDM_II_spectrum_generator_interface<T>::set_settings(
    settings = settings_;
    model.set_pole_mass_loop_order(settings.get(Spectrum_generator_settings::pole_mass_loop_order));
    model.set_ewsb_loop_order(settings.get(Spectrum_generator_settings::ewsb_loop_order));
-   model.set_two_loop_corrections(settings.get_two_loop_corrections());
+   model.set_loop_corrections(settings.get_loop_corrections());
+   model.set_threshold_corrections(settings.get_threshold_corrections());
+}
+
+/**
+ * @brief Run's the RG solver with the given input parameters
+ *
+ * This function calls run_except() from the derived class and
+ * translates an emitted exception into an problem code.
+ *
+ * @param qedqcd_ Standard Model input parameters
+ * @param input model input parameters
+ */
+template <class T>
+void THDM_II_spectrum_generator_interface<T>::run(
+   const softsusy::QedQcd& qedqcd_, const THDM_II_input_parameters& input)
+{
+   softsusy::QedQcd qedqcd = qedqcd_;
+
+   try {
+      qedqcd.to(qedqcd.displayPoleMZ());
+      this->run_except(qedqcd, input);
+   } catch (...) {
+      this->translate_exception_to_problem(model);
+   }
+
+   problems.set_model_problems({ model.get_problems() });
 }
 
 /**
@@ -158,11 +157,43 @@ void THDM_II_spectrum_generator_interface<T>::write_running_couplings(
  * @param filename output file name
  */
 template <class T>
-void THDM_II_spectrum_generator_interface<T>::write_spectrum(const std::string& filename) const
+void THDM_II_spectrum_generator_interface<T>::write_spectrum(
+   const std::string& filename) const
 {
-   THDM_II_spectrum_plotter plotter;
-   plotter.extract_spectrum(model);
+   THDM_II_spectrum_plotter plotter(model);
    plotter.write_to_file(filename);
+}
+
+/**
+ * Flags problems in the given model class from the current pending
+ * exception.
+ *
+ * This function assumes that there is an active exception.
+ *
+ * @param model model class
+ */
+template <class T>
+void THDM_II_spectrum_generator_interface<T>::translate_exception_to_problem(THDM_II<T>& model)
+{
+   try {
+      throw;
+   } catch (const NoConvergenceError&) {
+      problems.flag_no_convergence();
+   } catch (const NonPerturbativeRunningError& error) {
+      model.get_problems().flag_no_perturbative();
+      model.get_problems().flag_non_perturbative_parameter(
+         error.get_parameter_index(), error.get_parameter_value(),
+         error.get_scale());
+   } catch (const NonPerturbativeRunningQedQcdError& error) {
+      model.get_problems().flag_no_perturbative();
+      model.get_problems().flag_thrown(error.what());
+   } catch (const NoSinThetaWConvergenceError&) {
+      model.get_problems().flag_no_sinThetaW_convergence();
+   } catch (const Error& error) {
+      model.get_problems().flag_thrown(error.what());
+   } catch (const std::exception& error) {
+      model.get_problems().flag_thrown(error.what());
+   }
 }
 
 } // namespace flexiblesusy

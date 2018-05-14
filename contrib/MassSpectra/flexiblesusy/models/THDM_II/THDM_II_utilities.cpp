@@ -16,22 +16,23 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:35:52
+// File generated at Fri 11 May 2018 14:08:35
 
 #include "THDM_II_utilities.hpp"
 #include "THDM_II_input_parameters.hpp"
 #include "THDM_II_observables.hpp"
+#include "error.hpp"
 #include "logger.hpp"
 #include "physical_input.hpp"
 #include "database.hpp"
 #include "wrappers.hpp"
 #include "lowe.h"
 
-#include <cassert>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <iterator>
 
 #define PHYSICAL(p) model.get_physical().p
 #define MODELPARAMETER(p) model.get_##p()
@@ -40,46 +41,59 @@ namespace flexiblesusy {
 
 namespace utilities {
 
-void append(std::vector<std::string>& a, const std::vector<std::string>& b)
+template <typename Iterable>
+void append(std::vector<std::string>& a, const Iterable& b)
 {
-   a.insert(a.end(), b.begin(), b.end());
+   a.insert(a.end(), begin(b), end(b));
 }
 
 void append(Eigen::ArrayXd& a, const Eigen::ArrayXd& b)
 {
-   const unsigned a_rows = a.rows();
+   const auto a_rows = a.rows();
    a.conservativeResize(a_rows + b.rows());
    a.block(a_rows, 0, b.rows(), 1) = b;
 }
 
 } // namespace utilities
 
-THDM_II_spectrum_plotter::THDM_II_spectrum_plotter()
-   : spectrum()
-   , scale(0.0)
-   , width(16)
+namespace {
+
+std::valarray<double> to_valarray(double v)
 {
+   return std::valarray<double>(&v, 1);
 }
 
+template <class Scalar, int M, int N>
+std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>& v)
+{
+   return std::valarray<double>(v.data(), v.size());
+}
+
+} // anonymous namespace
+
+THDM_II_spectrum_plotter::THDM_II_spectrum_plotter(const THDM_II_mass_eigenstates& model)
+{
+   extract_spectrum(model);
+}
 
 void THDM_II_spectrum_plotter::extract_spectrum(const THDM_II_mass_eigenstates& model)
 {
    spectrum.clear();
    scale = model.get_scale();
 
-   spectrum.push_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
-   spectrum.push_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
-   spectrum.push_back(TParticle("Hm", "H^-", to_valarray(PHYSICAL(MHm))));
+   spectrum.emplace_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
+   spectrum.emplace_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
+   spectrum.emplace_back(TParticle("Hm", "H^-", to_valarray(PHYSICAL(MHm))));
 
    if (model.do_calculate_sm_pole_masses()) {
-      spectrum.push_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
-      spectrum.push_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
-      spectrum.push_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
-      spectrum.push_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
-      spectrum.push_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
-      spectrum.push_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
-      spectrum.push_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
-      spectrum.push_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
+      spectrum.emplace_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
+      spectrum.emplace_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
+      spectrum.emplace_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
+      spectrum.emplace_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
+      spectrum.emplace_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
+      spectrum.emplace_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
+      spectrum.emplace_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
+      spectrum.emplace_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
 
    }
 }
@@ -89,9 +103,9 @@ void THDM_II_spectrum_plotter::write_to_file(const std::string& file_name) const
    if (spectrum.empty())
       return;
 
-   std::ofstream filestr(file_name.c_str(), std::ios::out);
+   std::ofstream filestr(file_name, std::ios::out);
    VERBOSE_MSG("THDM_II_spectrum_plotter::write_to_file: opening file: "
-               << file_name.c_str());
+               << file_name);
    if (filestr.fail()) {
       ERROR("THDM_II_spectrum_plotter::write_to_file: can't open file "
             << file_name);
@@ -103,18 +117,18 @@ void THDM_II_spectrum_plotter::write_to_file(const std::string& file_name) const
 
    filestr.close();
    VERBOSE_MSG("THDM_II_spectrum_plotter::write_to_file: file written: "
-               << file_name.c_str());
+               << file_name);
 }
 
 void THDM_II_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::ofstream& filestr) const
 {
-   for (std::size_t s = 0; s < spectrum.size(); ++s) {
-      if (!filestr.good()) {
-         ERROR("THDM_II_spectrum_plotter::write_spectrum: "
-               "file stream is corrupted");
-         break;
-      }
+   if (!filestr.good()) {
+      ERROR("THDM_II_spectrum_plotter::write_spectrum: "
+            "file stream is corrupted");
+      return;
+   }
 
+   for (std::size_t s = 0; s < spectrum.size(); ++s) {
       const std::string& name = spectrum[s].name;
       const std::string& latex_name = spectrum[s].latex_name;
       const std::valarray<double>& masses = spectrum[s].masses;
@@ -123,7 +137,7 @@ void THDM_II_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::of
       filestr << std::left << "# " << name << '\n';
 
       for (std::size_t i = 0; i < multiplicity; ++i) {
-         std::string lname("$" + latex_name + "$");
+         const std::string lname("$" + latex_name + "$");
          std::stringstream lname_with_index;
          lname_with_index << "$" << latex_name;
          if (multiplicity > 1)
@@ -134,15 +148,10 @@ void THDM_II_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::of
                  << std::left << std::setw(width) << masses[i]
                  << std::left << std::setw(width) << name
                  << std::left << std::setw(2*width) << lname
-                 << std::left << std::setw(2*width) << lname_with_index.str()
+                 << std::left << lname_with_index.str()
                  << '\n';
       }
    }
-}
-
-std::valarray<double> THDM_II_spectrum_plotter::to_valarray(double v)
-{
-   return std::valarray<double>(&v, 1);
 }
 
 namespace THDM_II_database {
@@ -154,6 +163,7 @@ namespace THDM_II_database {
  * @param model mass eigenstates
  * @param qedqcd pointer to low-enregy data. If zero, the low-enregy
  *    data will not be written.
+ * @param physical_input pointer to physical non-SLHA input parameters
  * @param observables pointer to observables struct. If zero, the
  *    observables will not be written.
  */
@@ -195,9 +205,18 @@ void to_database(
    append(names, THDM_II_parameter_getter().get_parameter_names());
    append(values, model.get());
 
+   // fill extra parameters
+   append(names, THDM_II_parameter_getter().get_extra_parameter_names());
+   append(values, model.get_extra_parameters());
+
+   // fill DR-bar masses and mixings
+   append(names, THDM_II_parameter_getter().get_DRbar_mass_names());
+   append(names, THDM_II_parameter_getter().get_DRbar_mixing_names());
+   append(values, model.get_DRbar_masses_and_mixings());
+
    // fill pole masses and mixings
-   append(names, THDM_II_parameter_getter().get_mass_names());
-   append(names, THDM_II_parameter_getter().get_mixing_names());
+   append(names, THDM_II_parameter_getter().get_pole_mass_names());
+   append(names, THDM_II_parameter_getter().get_pole_mixing_names());
    append(values, model.get_physical().get());
 
    // fill low-energy data (optional)
@@ -218,9 +237,29 @@ void to_database(
       append(values, observables->get());
    }
 
-   database::Database db(file_name);
-   db.insert("Point", names, values);
+   try {
+      database::Database db(file_name);
+      db.insert("Point", names, values);
+   } catch(const flexiblesusy::Error& e) {
+      ERROR(e.what());
+   }
 }
+
+namespace {
+Eigen::ArrayXd extract_entry(const std::string& file_name, long long entry)
+{
+   database::Database db(file_name);
+   Eigen::ArrayXd values;
+
+   try {
+      values = db.extract("Point", entry);
+   } catch (const flexiblesusy::Error& e) {
+      ERROR(e.what());
+   }
+
+   return values;
+}
+} // anonymous namespace
 
 /**
  * read mass eigenstates from database
@@ -229,44 +268,46 @@ void to_database(
  * @param entry entry number (0 = first entry)
  * @param qedqcd pointer to low-energy data.  If zero, the low-energy
  *    data structure will not be filled
+ * @param physical_input pointer to physical non-SLHA input.  If zero,
+ *    the physical_input data structure will not be filled.
  * @param observables pointer to observables.  If zero, the observables
  *    data structure will not be filled
  *
  * @return mass eigenstates
  */
 THDM_II_mass_eigenstates from_database(
-   const std::string& file_name, std::size_t entry, softsusy::QedQcd* qedqcd,
+   const std::string& file_name, long long entry, softsusy::QedQcd* qedqcd,
    Physical_input* physical_input, THDM_II_observables* observables)
 {
    using utilities::append;
 
    THDM_II_mass_eigenstates model;
-   const std::size_t number_of_parameters = model.get_number_of_parameters();
-   const std::size_t number_of_masses = THDM_II_parameter_getter().get_number_of_masses();
-   const std::size_t number_of_mixings = THDM_II_info::NUMBER_OF_MIXINGS;
-   const std::size_t number_of_input_parameters = THDM_II_info::NUMBER_OF_INPUT_PARAMETERS;
-   const std::size_t number_of_low_energy_input_parameters =
-      (qedqcd ? softsusy::NUMBER_OF_LOW_ENERGY_INPUT_PARAMETERS : 0u);
-   const std::size_t number_of_extra_physical_input_parameters =
-      (physical_input ? Physical_input::NUMBER_OF_INPUT_PARAMETERS : 0u);
-   const std::size_t number_of_observables =
-      (observables ? THDM_II_observables::NUMBER_OF_OBSERVABLES : 0u);
-   const std::size_t total_entries = 9 + number_of_input_parameters
-      + number_of_parameters + number_of_masses + number_of_mixings
+   const auto number_of_parameters = model.get_number_of_parameters();
+   const auto number_of_masses = THDM_II_parameter_getter().get_number_of_masses();
+   const auto number_of_mixings = THDM_II_info::NUMBER_OF_MIXINGS;
+   const auto number_of_input_parameters = THDM_II_info::NUMBER_OF_INPUT_PARAMETERS;
+   const auto number_of_extra_parameters = THDM_II_info::NUMBER_OF_EXTRA_PARAMETERS;
+   const auto number_of_low_energy_input_parameters =
+      (qedqcd ? softsusy::NUMBER_OF_LOW_ENERGY_INPUT_PARAMETERS : 0);
+   const auto number_of_extra_physical_input_parameters =
+      (physical_input ? Physical_input::NUMBER_OF_INPUT_PARAMETERS : 0);
+   const auto number_of_observables =
+      (observables ? THDM_II_observables::NUMBER_OF_OBSERVABLES : 0);
+   const auto total_entries = 9 + number_of_input_parameters + number_of_extra_parameters
+      + number_of_parameters + 2*(number_of_masses + number_of_mixings)
       + number_of_low_energy_input_parameters
       + number_of_extra_physical_input_parameters + number_of_observables;
 
-   database::Database db(file_name);
-   const Eigen::ArrayXd values(db.extract("Point", entry));
+   const Eigen::ArrayXd values(extract_entry(file_name, entry));
 
-   if (static_cast<std::size_t>(values.rows()) < total_entries) {
+   if (values.rows() < total_entries) {
       ERROR("data set " << entry << " extracted from " << file_name
             << " contains " << values.rows() << " entries."
             " Expected number of entries at least: " << total_entries);
       return model;
    }
 
-   unsigned offset = 0;
+   int offset = 0;
 
    // restore settings
    model.set_loops(values(offset++));
@@ -286,6 +327,14 @@ THDM_II_mass_eigenstates from_database(
    // restore DR-bar parameters
    model.set(values.block(offset, 0, number_of_parameters, 1));
    offset += number_of_parameters;
+
+   // restore extra parameters
+   model.set_extra_parameters(values.block(offset, 0, number_of_extra_parameters, 1));
+   offset += number_of_extra_parameters;
+
+   // restore DR-bar masses and mixings
+   model.set_DRbar_masses_and_mixings(values.block(offset, 0, number_of_masses + number_of_mixings, 1));
+   offset += number_of_masses + number_of_mixings;
 
    // restore pole masses and mixings
    model.get_physical().set(values.block(offset, 0, number_of_masses + number_of_mixings, 1));
@@ -309,7 +358,9 @@ THDM_II_mass_eigenstates from_database(
       offset += number_of_observables;
    }
 
-   assert(offset == total_entries);
+   if (offset != total_entries)
+      throw SetupError("from_database: offset (" + ToString(offset) +
+                       ") != total_entries (" + ToString(total_entries) + ").");
 
    return model;
 }

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:37:11
+// File generated at Fri 11 May 2018 14:08:41
 
 #ifndef THDM_II_OBSERVABLES_H
 #define THDM_II_OBSERVABLES_H
@@ -35,7 +35,7 @@ class THDM_II_mass_eigenstates;
 class Physical_input;
 
 struct THDM_II_observables {
-   static const unsigned NUMBER_OF_OBSERVABLES = 12;
+   static const int NUMBER_OF_OBSERVABLES = 12;
 
    THDM_II_observables();
    Eigen::ArrayXd get() const; ///< returns vector of all observables
@@ -50,7 +50,13 @@ struct THDM_II_observables {
 
 };
 
-THDM_II_observables calculate_observables(const THDM_II_mass_eigenstates&, const softsusy::QedQcd&, const Physical_input&);
+THDM_II_observables calculate_observables(
+   THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
+   const Physical_input&);
+
+THDM_II_observables calculate_observables(
+   THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
+   const Physical_input&, double scale);
 
 } // namespace flexiblesusy
 

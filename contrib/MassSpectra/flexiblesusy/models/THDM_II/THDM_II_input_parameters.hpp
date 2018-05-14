@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:35:50
+// File generated at Fri 11 May 2018 14:06:43
 
 #ifndef THDM_II_INPUT_PARAMETERS_H
 #define THDM_II_INPUT_PARAMETERS_H
@@ -27,23 +27,18 @@
 namespace flexiblesusy {
 
 struct THDM_II_input_parameters {
-   double Lambda1IN;
-   double Lambda2IN;
-   double Lambda3IN;
-   double Lambda4IN;
-   double Lambda5IN;
-   double Lambda6IN;
-   double Lambda7IN;
-   double M122IN;
-   double TanBeta;
-   double Qin;
-   double QEWSB;
+   double Lambda1IN{};
+   double Lambda2IN{};
+   double Lambda3IN{};
+   double Lambda4IN{};
+   double Lambda5IN{};
+   double Lambda6IN{};
+   double Lambda7IN{};
+   double M122IN{};
+   double TanBeta{};
+   double Qin{};
+   double QEWSB{};
 
-   THDM_II_input_parameters()
-      : Lambda1IN(0), Lambda2IN(0), Lambda3IN(0), Lambda4IN(0), Lambda5IN(0),
-   Lambda6IN(0), Lambda7IN(0), M122IN(0), TanBeta(0), Qin(0), QEWSB(0)
-
-   {}
 
    Eigen::ArrayXd get() const;
    void set(const Eigen::ArrayXd&);

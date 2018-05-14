@@ -11,6 +11,7 @@
 #include "yaml-cpp/node/ptr.h"
 #include "yaml-cpp/node/detail/node_iterator.h"
 #include <boost/iterator/iterator_adaptor.hpp>
+#include <boost/next_prior.hpp>
 #include <boost/utility.hpp>
 
 namespace YAML {

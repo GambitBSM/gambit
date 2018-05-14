@@ -16,35 +16,28 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:37:10
+// File generated at Fri 11 May 2018 14:08:41
 
 /**
  * @file THDM_II_two_scale_model.cpp
  * @brief implementation of the THDM_II model class
  *
  * Contains the definition of the THDM_II model class methods
- * which solve EWSB and calculate pole masses and mixings from DRbar
+ * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Wed 29 Mar 2017 15:37:10 with FlexibleSUSY
- * 1.5.1 (git commit: unknown) and SARAH 4.9.0 .
+ * This file was generated at Fri 11 May 2018 14:08:41 with FlexibleSUSY
+ * 2.1.0 (git commit: unknown) and SARAH 4.12.3 .
  */
 
 #include "THDM_II_two_scale_model.hpp"
 
 namespace flexiblesusy {
 
-using namespace THDM_II_info;
-
 #define CLASSNAME THDM_II<Two_scale>
 
 CLASSNAME::THDM_II(const THDM_II_input_parameters& input_)
-   : Two_scale_model()
-   , THDM_II_mass_eigenstates(input_)
-{
-}
-
-CLASSNAME::~THDM_II()
+   : THDM_II_mass_eigenstates(input_)
 {
 }
 

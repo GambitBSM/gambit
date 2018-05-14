@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/next_prior.hpp>
 #include <sstream>
 
 #include "yaml-cpp/exceptions.h"
@@ -9,6 +10,7 @@
 #include "yaml-cpp/node/detail/node_iterator.h"
 #include "yaml-cpp/node/ptr.h"
 #include "yaml-cpp/node/type.h"
+
 
 namespace YAML {
 namespace detail {

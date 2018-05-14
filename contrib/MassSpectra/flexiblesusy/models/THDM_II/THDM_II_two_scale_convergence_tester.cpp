@@ -16,9 +16,10 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:35:50
+// File generated at Fri 11 May 2018 14:08:39
 
 #include "THDM_II_two_scale_convergence_tester.hpp"
+#include <array>
 #include <cmath>
 #include <algorithm>
 #include "wrappers.hpp"
@@ -40,44 +41,41 @@ namespace flexiblesusy {
 #define OLD4(p,i,j,k,l) ol.get_##p(i,j,k,l)
 #define NEW4(p,i,j,k,l) ne.get_##p(i,j,k,l)
 
-THDM_II_convergence_tester<Two_scale>::THDM_II_convergence_tester(THDM_II<Two_scale>* model, double accuracy_goal)
-   : Convergence_tester_DRbar<THDM_II<Two_scale> >(model, accuracy_goal)
-{
-}
-
-THDM_II_convergence_tester<Two_scale>::~THDM_II_convergence_tester()
+THDM_II_convergence_tester<Two_scale>::THDM_II_convergence_tester(
+   THDM_II<Two_scale>* model, double accuracy_goal, const Scale_getter& sg)
+   : Convergence_tester_DRbar<THDM_II<Two_scale> >(model, accuracy_goal, sg)
 {
 }
 
 double THDM_II_convergence_tester<Two_scale>::max_rel_diff() const
 {
    const THDM_II<Two_scale>& ol = get_last_iteration_model();
-   const THDM_II<Two_scale>& ne = get_model();
+   const THDM_II<Two_scale>& ne = get_current_iteration_model();
 
-   double diff[17] = { 0 };
+   std::array<double, 17> diff{};
 
    diff[0] = MaxRelDiff(OLD(MVZ),NEW(MVZ));
-   for (unsigned i = 0; i < 2; i++) {
+   for (int i = 0; i < 2; ++i) {
       diff[i + 1] = MaxRelDiff(OLD1(Mhh,i),NEW1(Mhh,i));
    }
-   for (unsigned i = 1; i < 2; i++) {
+   for (int i = 1; i < 2; ++i) {
       diff[i + 3] = MaxRelDiff(OLD1(MAh,i),NEW1(MAh,i));
    }
-   for (unsigned i = 1; i < 2; i++) {
+   for (int i = 1; i < 2; ++i) {
       diff[i + 5] = MaxRelDiff(OLD1(MHm,i),NEW1(MHm,i));
    }
-   for (unsigned i = 0; i < 3; i++) {
+   for (int i = 0; i < 3; ++i) {
       diff[i + 7] = MaxRelDiff(OLD1(MFd,i),NEW1(MFd,i));
    }
-   for (unsigned i = 0; i < 3; i++) {
+   for (int i = 0; i < 3; ++i) {
       diff[i + 10] = MaxRelDiff(OLD1(MFu,i),NEW1(MFu,i));
    }
-   for (unsigned i = 0; i < 3; i++) {
+   for (int i = 0; i < 3; ++i) {
       diff[i + 13] = MaxRelDiff(OLD1(MFe,i),NEW1(MFe,i));
    }
    diff[16] = MaxRelDiff(OLD(MVWm),NEW(MVWm));
 
-   return *std::max_element(diff, diff + 17);
+   return *std::max_element(diff.cbegin(), diff.cend());
 
 }
 

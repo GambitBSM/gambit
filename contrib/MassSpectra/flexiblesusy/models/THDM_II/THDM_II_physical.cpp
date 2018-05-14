@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:37:10
+// File generated at Fri 11 May 2018 14:08:34
 
 #include "THDM_II_physical.hpp"
 #include "slha_io.hpp"
@@ -26,25 +26,6 @@
 #define LOCALPHYSICAL(p) p
 
 namespace flexiblesusy {
-
-THDM_II_physical::THDM_II_physical()
-   :
-    MVG(0), MFv(Eigen::Array<double,3,1>::Zero()), Mhh(Eigen::Array<double,2,1
-       >::Zero()), MAh(Eigen::Array<double,2,1>::Zero()), MHm(Eigen::Array<double,
-       2,1>::Zero()), MFd(Eigen::Array<double,3,1>::Zero()), MFu(Eigen::Array<
-       double,3,1>::Zero()), MFe(Eigen::Array<double,3,1>::Zero()), MVWm(0), MVP(0
-       ), MVZ(0)
-
-   , ZH(Eigen::Matrix<double,2,2>::Zero()), ZA(Eigen::Matrix<double,2,2>::Zero(
-      )), ZP(Eigen::Matrix<double,2,2>::Zero()), Vd(Eigen::Matrix<std::complex<
-      double>,3,3>::Zero()), Ud(Eigen::Matrix<std::complex<double>,3,3>::Zero()),
-      Vu(Eigen::Matrix<std::complex<double>,3,3>::Zero()), Uu(Eigen::Matrix<
-      std::complex<double>,3,3>::Zero()), Ve(Eigen::Matrix<std::complex<double>,3,
-      3>::Zero()), Ue(Eigen::Matrix<std::complex<double>,3,3>::Zero()), ZZ(
-      Eigen::Matrix<double,2,2>::Zero())
-
-{
-}
 
 void THDM_II_physical::clear()
 {
@@ -374,6 +355,8 @@ void THDM_II_physical::print(std::ostream& ostr) const
    ostr << "MFu = " << MFu.transpose() << '\n';
    ostr << "MFe = " << MFe.transpose() << '\n';
    ostr << "MVWm = " << MVWm << '\n';
+   ostr << "MVP = " << MVP << '\n';
+   ostr << "MVZ = " << MVZ << '\n';
 
    ostr << "----------------------------------------\n"
            "pole mass mixing matrices:\n"

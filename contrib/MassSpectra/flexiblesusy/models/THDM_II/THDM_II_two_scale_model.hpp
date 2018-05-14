@@ -16,16 +16,16 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 29 Mar 2017 15:37:10
+// File generated at Fri 11 May 2018 14:08:41
 
 /**
  * @file THDM_II_two_scale_model.hpp
  * @brief contains class for model with routines needed to solve boundary
- *        value problem using the two_scale solver by solvingt EWSB
+ *        value problem using the two_scale solver by solving EWSB
  *        and determine the pole masses and mixings
  *
- * This file was generated at Wed 29 Mar 2017 15:37:10 with FlexibleSUSY
- * 1.5.1 (git commit: unknown) and SARAH 4.9.0 .
+ * This file was generated at Fri 11 May 2018 14:08:41 with FlexibleSUSY
+ * 2.1.0 (git commit: unknown) and SARAH 4.12.3 .
  */
 
 #ifndef THDM_II_TWO_SCALE_H
@@ -33,28 +33,33 @@
 
 #include "THDM_II_model.hpp"
 #include "THDM_II_mass_eigenstates.hpp"
-#include "two_scale_model.hpp"
+
+#include "model.hpp"
 
 namespace flexiblesusy {
 
 class Two_scale;
 /**
  * @class THDM_II<Two_scale>
- * @brief model class with routines for determing masses and mixinga and EWSB
+ * @brief model class with routines for determining masses and mixings and EWSB
  */
 template<>
-class THDM_II<Two_scale> : public Two_scale_model, public THDM_II_mass_eigenstates {
+class THDM_II<Two_scale> : public Model, public THDM_II_mass_eigenstates {
 public:
    explicit THDM_II(const THDM_II_input_parameters& input_ = THDM_II_input_parameters());
-   virtual ~THDM_II();
+   THDM_II(const THDM_II&) = default;
+   THDM_II(THDM_II&&) = default;
+   virtual ~THDM_II() = default;
+   THDM_II& operator=(const THDM_II&) = default;
+   THDM_II& operator=(THDM_II&&) = default;
 
    // interface functions
-   virtual void calculate_spectrum();
-   virtual void clear_problems();
-   virtual std::string name() const;
-   virtual void run_to(double scale, double eps = -1.0);
-   virtual void print(std::ostream& out = std::cout) const;
-   virtual void set_precision(double);
+   virtual void calculate_spectrum() override;
+   virtual void clear_problems() override;
+   virtual std::string name() const override;
+   virtual void run_to(double scale, double eps = -1.0) override;
+   virtual void print(std::ostream& out = std::cerr) const override;
+   virtual void set_precision(double) override;
 };
 
 std::ostream& operator<<(std::ostream&, const THDM_II<Two_scale>&);

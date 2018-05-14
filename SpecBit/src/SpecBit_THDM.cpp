@@ -156,11 +156,11 @@ namespace Gambit
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double e = pow( 4*Pi*( alpha_em ),0.5) ;
 
-      thdm_model.lightHiggsMass           = m_h;
-      thdm_model.heavyHiggsMass           = m_H;
-      thdm_model.pseudoscalarHiggsMass    = m_A;
-      thdm_model.chargedHiggsMass         = m_Hp;
-      thdm_model.tanBeta                  = tan_beta;
+      thdm_model.mh0           = m_h;
+      thdm_model.mH0           = m_H;
+      thdm_model.mA0           = m_A;
+      thdm_model.mC            = m_Hp;
+      thdm_model.tanb                     = tan_beta;
       thdm_model.m12_2                    = m12_2;
       thdm_model.lambda6                  = lambda6;
       thdm_model.lambda7                  = lambda7;
@@ -235,10 +235,10 @@ namespace Gambit
         const SubSpectrum& SM = spec.get_LE();
         const SMInputs& sminputs   = spec.get_SMInputs();
 
-        double m_h = he.get(Par::Pole_Mass, "mh0");
-        double m_H = he.get(Par::Pole_Mass, "mH0");
-        double m_A = he.get(Par::Pole_Mass, "mA");
-        double m_Hp = he.get(Par::Pole_Mass, "mC");
+        double m_h = he.get(Par::Pole_Mass,"h0",1);
+        double m_H = he.get(Par::Pole_Mass,"h0",2);
+        double m_A = he.get(Par::Pole_Mass, "A0");
+        double m_Hp = he.get(Par::Pole_Mass, "H+");
         double alpha = he.get(Par::dimensionless, "alpha");
         double tan_beta = he.get(Par::dimensionless, "tanb");
 
@@ -309,10 +309,10 @@ namespace Gambit
 
         he -> RunToScale(scale);
 
-        double m_h = he->get(Par::Pole_Mass, "mh0");
-        double m_H = he->get(Par::Pole_Mass, "mH0");
-        double m_A = he->get(Par::Pole_Mass, "mA");
-        double m_Hp = he->get(Par::Pole_Mass, "mC");
+        double m_h = he->get(Par::Pole_Mass, "h0",1);
+        double m_H = he->get(Par::Pole_Mass, "h0",2);
+        double m_A = he->get(Par::Pole_Mass, "A0");
+        double m_Hp = he->get(Par::Pole_Mass, "H+");
         double alpha = he->get(Par::dimensionless, "alpha");
         double tan_beta = he->get(Par::dimensionless, "tanb");
 
@@ -377,16 +377,16 @@ namespace Gambit
         switch (HiggsNumber)
         {
           case 1:
-            m_h = he.get(Par::Pole_Mass,"mh0");
+            m_h = he.get(Par::Pole_Mass,"h0",1);
             break;
           case 2:
-            m_h = he.get(Par::Pole_Mass,"mH0");
+            m_h = he.get(Par::Pole_Mass,"h0",2);
             break;
           case 3:
             m_h = he.get(Par::Pole_Mass,"A0");
             break;
           default:
-            m_h = he.get(Par::Pole_Mass,"mh0");
+            m_h = he.get(Par::Pole_Mass,"h0",1);
             break;
         }
 
@@ -961,7 +961,7 @@ namespace Gambit
 
         SubSpectrum& he = fullspectrum.get_HE();
 
-        double tan_beta = he.get(Par::dimensionless,"tb");
+        double tan_beta = he.get(Par::dimensionless,"tanb");
         double alpha = he.get(Par::dimensionless,"alpha");
 
         double sba = get_sba(tan_beta, alpha);
@@ -1000,7 +1000,7 @@ namespace Gambit
 
         SubSpectrum& he = fullspectrum.get_HE();
 
-        double mh = he.get(Par::Pole_Mass,"mh0");
+        double mh = he.get(Par::Pole_Mass,"h0",1);
         double S;
         double T;
         double U;
@@ -1356,10 +1356,10 @@ namespace Gambit
         const SubSpectrum& SM = fullspectrum.get_LE();
         const SMInputs& sminputs   = fullspectrum.get_SMInputs();
 
-        double m_h = he.get(Par::Pole_Mass, "mh0");
-        double m_H = he.get(Par::Pole_Mass, "mH0");
-        double m_A = he.get(Par::Pole_Mass, "mA");
-        double m_Hp = he.get(Par::Pole_Mass, "mC");
+        double m_h = he.get(Par::Pole_Mass, "h0",1);
+        double m_H = he.get(Par::Pole_Mass, "h0",2);
+        double m_A = he.get(Par::Pole_Mass, "A0");
+        double m_Hp = he.get(Par::Pole_Mass, "H+");
         double alpha = he.get(Par::dimensionless, "alpha");
         double tan_beta = he.get(Par::dimensionless, "tanb");
 
@@ -1569,12 +1569,12 @@ namespace Gambit
 
         spec -> RunToScale(QrunTo);
 
-        double m_h = spec->get(Par::mass1, "mh0");
-        double m_H = spec->get(Par::mass1, "mH0");
-        double m_A = spec->get(Par::mass1, "mA");
-        double m_Hp = spec->get(Par::mass1, "mC");
+        double m_h = spec->get(Par::mass1, "h0",1);
+        double m_H = spec->get(Par::mass1, "h0",2);
+        double m_A = spec->get(Par::mass1, "A0");
+        double m_Hp = spec->get(Par::mass1, "H+");
         double alpha = spec->get(Par::dimensionless, "alpha");
-        double tb = spec->get(Par::dimensionless, "tb");
+        double tb = spec->get(Par::dimensionless, "tanb");
         double m12_2 = spec->get(Par::mass1, "m12_2");
 
         double sba = get_sba(tb, alpha);
@@ -2434,12 +2434,12 @@ namespace Gambit
 
         cout << "---- running to scale: " << QrunTo << "GeV. "<< endl;
 
-        cout << "mh0 = " <<  spec->get(Par::mass1, "mh0") << endl;
-        cout <<  "mH0 = " << spec->get(Par::mass1, "mH0") << endl;
-        cout <<  "mA = " << spec->get(Par::mass1, "mA") << endl;
-        cout << "mC = " <<  spec->get(Par::mass1, "mC") << endl;
+        cout << "mh0 = " <<  spec->get(Par::mass1, "h0",1) << endl;
+        cout <<  "mH0 = " << spec->get(Par::mass1, "h0",2) << endl;
+        cout <<  "mA = " << spec->get(Par::mass1, "A0") << endl;
+        cout << "mC = " <<  spec->get(Par::mass1, "H+") << endl;
         cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
-        cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tb") << endl;
+        cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tanb") << endl;
         cout <<  "m12_2 = " << spec->get(Par::mass1, "m12_2") << endl;
 
         cout << "lambda_1 = " << spec->get(Par::mass1, "lambda_1") << endl;
@@ -2450,10 +2450,10 @@ namespace Gambit
 
         spec -> RunToScale(QrunTo);
 
-        double mh0_1 = spec->get(Par::mass1, "mh0");
-        double mh0_2 = spec->get(Par::mass1, "mH0");
-        double mA0 = spec->get(Par::mass1, "mA");
-        double mHm = spec->get(Par::mass1, "mC");
+        double mh0_1 = spec->get(Par::mass1, "h0",1);
+        double mh0_2 = spec->get(Par::mass1, "h0",2);
+        double mA0 = spec->get(Par::mass1, "A0");
+        double mHm = spec->get(Par::mass1, "H+");
         double alpha = spec->get(Par::dimensionless, "alpha");
         double tb = spec->get(Par::dimensionless, "tanb");
         double m12_2 = spec->get(Par::mass1, "m12_2");
@@ -2493,10 +2493,10 @@ namespace Gambit
 
       Spectrum fullspectrum = *Dep::THDM_spectrum;
       SubSpectrum& spec = fullspectrum.get_HE();
-      double mh0_1 = spec.get(Par::Pole_Mass, "mh0");
-      double mh0_2 = spec.get(Par::Pole_Mass, "mH0");
-      double mA0 = spec.get(Par::Pole_Mass, "mA");
-      double mHm = spec.get(Par::Pole_Mass, "mC");
+      double mh0_1 = spec.get(Par::Pole_Mass, "h0",1);
+      double mh0_2 = spec.get(Par::Pole_Mass, "h0",2);
+      double mA0 = spec.get(Par::Pole_Mass, "A0");
+      double mHm = spec.get(Par::Pole_Mass, "H+");
       double alpha = spec.get(Par::dimensionless, "alpha");
       double tb = spec.get(Par::dimensionless, "tanb");
       cout << "----------------------------------" << endl;
