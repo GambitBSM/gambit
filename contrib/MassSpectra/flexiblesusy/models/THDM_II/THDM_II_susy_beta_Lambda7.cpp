@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:06:36
+// File generated at Mon 14 May 2018 15:28:31
 
 #include "THDM_II_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -109,25 +109,6 @@ double THDM_II_susy_parameters::calc_beta_Lambda7_2_loop(const Susy_traces& susy
  * @return 3-loop beta function
  */
 double THDM_II_susy_parameters::calc_beta_Lambda7_3_loop(const Susy_traces& susy_traces) const
-{
-   DEFINE_PROJECTOR(3,3,3,3)
-
-
-
-   double beta_Lambda7;
-
-   beta_Lambda7 = 0;
-
-
-   return beta_Lambda7;
-}
-
-/**
- * Calculates the 4-loop beta function of Lambda7.
- *
- * @return 4-loop beta function
- */
-double THDM_II_susy_parameters::calc_beta_Lambda7_4_loop(const Susy_traces& susy_traces) const
 {
    DEFINE_PROJECTOR(3,3,3,3)
 

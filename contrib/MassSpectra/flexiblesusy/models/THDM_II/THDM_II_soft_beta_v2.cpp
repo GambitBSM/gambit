@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:06:43
+// File generated at Mon 14 May 2018 15:28:36
 
 #include "THDM_II_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -114,25 +114,6 @@ double THDM_II_soft_parameters::calc_beta_v2_2_loop(const Soft_traces& soft_trac
  * @return 3-loop beta function
  */
 double THDM_II_soft_parameters::calc_beta_v2_3_loop(const Soft_traces& soft_traces) const
-{
-   DEFINE_PROJECTOR(3,3,3,3)
-
-
-
-   double beta_v2;
-
-   beta_v2 = 0;
-
-
-   return beta_v2;
-}
-
-/**
- * Calculates the 4-loop beta function of v2.
- *
- * @return 4-loop beta function
- */
-double THDM_II_soft_parameters::calc_beta_v2_4_loop(const Soft_traces& soft_traces) const
 {
    DEFINE_PROJECTOR(3,3,3,3)
 

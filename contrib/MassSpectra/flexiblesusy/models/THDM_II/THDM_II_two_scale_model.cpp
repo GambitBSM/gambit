@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:41
+// File generated at Mon 14 May 2018 15:30:09
 
 /**
  * @file THDM_II_two_scale_model.cpp
@@ -26,8 +26,8 @@
  * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Fri 11 May 2018 14:08:41 with FlexibleSUSY
- * 2.1.0 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Mon 14 May 2018 15:30:09 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "THDM_II_two_scale_model.hpp"

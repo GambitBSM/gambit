@@ -1,5 +1,5 @@
 Print["================================"];
-Print["FlexibleSUSY 2.1.0"];
+Print["FlexibleSUSY 2.0.1"];
 Print["THDM_II"];
 Print["http://flexiblesusy.hepforge.org"];
 Print["================================"];
@@ -41,7 +41,7 @@ fsDefaultSettings = {
       calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
       poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
       ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
-      betaFunctionLoopOrder -> 4,        (* FlexibleSUSY[6] *)
+      betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
       thresholdCorrectionsLoopOrder -> 2,(* FlexibleSUSY[7] *)
       higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
       higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
@@ -64,7 +64,6 @@ fsDefaultSettings = {
       higgs3loopCorrectionAbAsAs -> 1,   (* FlexibleSUSY[27] *)
       higgs3loopCorrectionAtAtAs -> 1,   (* FlexibleSUSY[28] *)
       higgs3loopCorrectionAtAtAt -> 1,   (* FlexibleSUSY[29] *)
-      higgs4loopCorrectionAtAsAsAs -> 1, (* FlexibleSUSY[30] *)
       parameterOutputScale -> 0          (* MODSEL[12] *)
 };
 
@@ -156,7 +155,6 @@ FSTHDM_IIOpenHandle[OptionsPattern[]] :=
             OptionValue[higgs3loopCorrectionAbAsAs],
             OptionValue[higgs3loopCorrectionAtAtAs],
             OptionValue[higgs3loopCorrectionAtAtAt],
-            OptionValue[higgs4loopCorrectionAtAsAsAs],
             OptionValue[parameterOutputScale],
 
             (* Standard Model input parameters *)
@@ -245,7 +243,6 @@ FSTHDM_IISet[handle_Integer, p:OptionsPattern[]] :=
             OptionValue[higgs3loopCorrectionAbAsAs],
             OptionValue[higgs3loopCorrectionAtAtAs],
             OptionValue[higgs3loopCorrectionAtAtAt],
-            OptionValue[higgs4loopCorrectionAtAsAsAs],
             OptionValue[parameterOutputScale],
 
             (* Standard Model input parameters *)

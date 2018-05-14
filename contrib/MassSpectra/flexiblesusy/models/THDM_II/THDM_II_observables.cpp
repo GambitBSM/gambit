@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:41
+// File generated at Mon 14 May 2018 15:30:09
 
 #include "THDM_II_observables.hpp"
 #include "THDM_II_mass_eigenstates.hpp"
@@ -125,44 +125,34 @@ void THDM_II_observables::set(const Eigen::ArrayXd& vec)
 
 }
 
-THDM_II_observables calculate_observables(THDM_II_mass_eigenstates& model,
+THDM_II_observables calculate_observables(const THDM_II_mass_eigenstates& model,
                                               const softsusy::QedQcd& qedqcd,
                                               const Physical_input& physical_input,
                                               double scale)
 {
    auto model_at_scale = model;
 
-   if (scale > 0.) {
-      try {
-         model_at_scale.run_to(scale);
-      } catch (const Error& e) {
-         model.get_problems().flag_thrown(e.what());
-         return THDM_II_observables();
-      }
-   }
+   if (scale > 0.)
+      model_at_scale.run_to(scale);
 
    return calculate_observables(model_at_scale, qedqcd, physical_input);
 }
 
-THDM_II_observables calculate_observables(THDM_II_mass_eigenstates& model,
+THDM_II_observables calculate_observables(const THDM_II_mass_eigenstates& model,
                                               const softsusy::QedQcd& qedqcd,
                                               const Physical_input& physical_input)
 {
    THDM_II_observables observables;
 
-   try {
-      THDM_II_effective_couplings effective_couplings(model, qedqcd, physical_input);
-      effective_couplings.calculate_effective_couplings();
+   THDM_II_effective_couplings effective_couplings(model, qedqcd, physical_input);
+   effective_couplings.calculate_effective_couplings();
 
-      observables.EFFCPHIGGSPHOTONPHOTON(0) = effective_couplings.get_eff_CphhVPVP(0);
-      observables.EFFCPHIGGSPHOTONPHOTON(1) = effective_couplings.get_eff_CphhVPVP(1);
-      observables.EFFCPHIGGSGLUONGLUON(0) = effective_couplings.get_eff_CphhVGVG(0);
-      observables.EFFCPHIGGSGLUONGLUON(1) = effective_couplings.get_eff_CphhVGVG(1);
-      observables.EFFCPPSEUDOSCALARPHOTONPHOTON = effective_couplings.get_eff_CpAhVPVP(1);
-      observables.EFFCPPSEUDOSCALARGLUONGLUON = effective_couplings.get_eff_CpAhVGVG(1);
-   } catch (const Error& e) {
-      model.get_problems().flag_thrown(e.what());
-   }
+   observables.EFFCPHIGGSPHOTONPHOTON(0) = effective_couplings.get_eff_CphhVPVP(0);
+   observables.EFFCPHIGGSPHOTONPHOTON(1) = effective_couplings.get_eff_CphhVPVP(1);
+   observables.EFFCPHIGGSGLUONGLUON(0) = effective_couplings.get_eff_CphhVGVG(0);
+   observables.EFFCPHIGGSGLUONGLUON(1) = effective_couplings.get_eff_CphhVGVG(1);
+   observables.EFFCPPSEUDOSCALARPHOTONPHOTON = effective_couplings.get_eff_CpAhVPVP(1);
+   observables.EFFCPPSEUDOSCALARGLUONGLUON = effective_couplings.get_eff_CpAhVGVG(1);
 
    return observables;
 }

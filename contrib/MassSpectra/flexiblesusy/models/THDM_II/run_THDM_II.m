@@ -8,7 +8,7 @@ handle = FSTHDM_IIOpenHandle[
         calculateStandardModelMasses -> 0, (* FlexibleSUSY[3] *)
         poleMassLoopOrder -> 2,            (* FlexibleSUSY[4] *)
         ewsbLoopOrder -> 2,                (* FlexibleSUSY[5] *)
-        betaFunctionLoopOrder -> 4,        (* FlexibleSUSY[6] *)
+        betaFunctionLoopOrder -> 3,        (* FlexibleSUSY[6] *)
         thresholdCorrectionsLoopOrder -> 2,(* FlexibleSUSY[7] *)
         higgs2loopCorrectionAtAs -> 1,     (* FlexibleSUSY[8] *)
         higgs2loopCorrectionAbAs -> 1,     (* FlexibleSUSY[9] *)
@@ -31,7 +31,6 @@ handle = FSTHDM_IIOpenHandle[
         higgs3loopCorrectionAbAsAs -> 1,   (* FlexibleSUSY[27] *)
         higgs3loopCorrectionAtAtAs -> 1,   (* FlexibleSUSY[28] *)
         higgs3loopCorrectionAtAtAt -> 1,   (* FlexibleSUSY[29] *)
-        higgs4loopCorrectionAtAsAsAs -> 1, (* FlexibleSUSY[30] *)
         parameterOutputScale -> 0          (* MODSEL[12] *)
     },
     fsSMParameters -> {

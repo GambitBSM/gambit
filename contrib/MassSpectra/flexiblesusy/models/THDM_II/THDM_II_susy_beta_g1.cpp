@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:06:34
+// File generated at Mon 14 May 2018 15:28:29
 
 #include "THDM_II_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -57,9 +57,9 @@ double THDM_II_susy_parameters::calc_beta_g1_2_loop(const Susy_traces& susy_trac
 
    double beta_g1;
 
-   beta_g1 = Re(0.05555555555555555*twoLoop*Cube(g1)*(208*Sqr(g1) + 3*(-5
-      *traceYdAdjYd - 15*traceYeAdjYe - 17*traceYuAdjYu + 36*Sqr(g2) + 88*Sqr(
-      g3))));
+   beta_g1 = Re(twoLoop*(11.555555555555555*Power5(g1) +
+      0.16666666666666666*Cube(g1)*(-5*traceYdAdjYd - 15*traceYeAdjYe - 17*
+      traceYuAdjYu + 36*Sqr(g2) + 88*Sqr(g3))));
 
 
    return beta_g1;
@@ -71,25 +71,6 @@ double THDM_II_susy_parameters::calc_beta_g1_2_loop(const Susy_traces& susy_trac
  * @return 3-loop beta function
  */
 double THDM_II_susy_parameters::calc_beta_g1_3_loop(const Susy_traces& susy_traces) const
-{
-   DEFINE_PROJECTOR(3,3,3,3)
-
-
-
-   double beta_g1;
-
-   beta_g1 = 0;
-
-
-   return beta_g1;
-}
-
-/**
- * Calculates the 4-loop beta function of g1.
- *
- * @return 4-loop beta function
- */
-double THDM_II_susy_parameters::calc_beta_g1_4_loop(const Susy_traces& susy_traces) const
 {
    DEFINE_PROJECTOR(3,3,3,3)
 

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:34
+// File generated at Mon 14 May 2018 15:30:04
 
 /**
  * @file THDM_II_mass_eigenstates.cpp
@@ -26,8 +26,8 @@
  * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Fri 11 May 2018 14:08:34 with FlexibleSUSY
- * 2.1.0 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Mon 14 May 2018 15:30:04 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "THDM_II_mass_eigenstates.hpp"
@@ -54,7 +54,6 @@
 
 
 
-
 #include <array>
 #include <cmath>
 #include <functional>
@@ -73,17 +72,16 @@ namespace flexiblesusy {
 #define MODELPARAMETER(parameter) model.get_##parameter()
 #define EXTRAPARAMETER(parameter) model.get_##parameter()
 
-#define HIGGS_2LOOP_CORRECTION_AT_AS       loop_corrections.higgs_at_as
-#define HIGGS_2LOOP_CORRECTION_AB_AS       loop_corrections.higgs_ab_as
-#define HIGGS_2LOOP_CORRECTION_AT_AT       loop_corrections.higgs_at_at
-#define HIGGS_2LOOP_CORRECTION_ATAU_ATAU   loop_corrections.higgs_atau_atau
-#define TOP_POLE_QCD_CORRECTION            loop_corrections.top_qcd
-#define HIGGS_3LOOP_CORRECTION_AT_AS_AS    loop_corrections.higgs_at_as_as
-#define HIGGS_3LOOP_CORRECTION_AB_AS_AS    loop_corrections.higgs_ab_as_as
-#define HIGGS_3LOOP_MDR_SCHEME             loop_corrections.higgs_3L_mdr_scheme
-#define HIGGS_3LOOP_CORRECTION_AT_AT_AS    loop_corrections.higgs_at_at_as
-#define HIGGS_3LOOP_CORRECTION_AT_AT_AT    loop_corrections.higgs_at_at_at
-#define HIGGS_4LOOP_CORRECTION_AT_AS_AS_AS loop_corrections.higgs_at_as_as_as
+#define HIGGS_2LOOP_CORRECTION_AT_AS     loop_corrections.higgs_at_as
+#define HIGGS_2LOOP_CORRECTION_AB_AS     loop_corrections.higgs_ab_as
+#define HIGGS_2LOOP_CORRECTION_AT_AT     loop_corrections.higgs_at_at
+#define HIGGS_2LOOP_CORRECTION_ATAU_ATAU loop_corrections.higgs_atau_atau
+#define TOP_POLE_QCD_CORRECTION          loop_corrections.top_qcd
+#define HIGGS_3LOOP_CORRECTION_AT_AS_AS  loop_corrections.higgs_at_as_as
+#define HIGGS_3LOOP_CORRECTION_AB_AS_AS  loop_corrections.higgs_ab_as_as
+#define HIGGS_3LOOP_MDR_SCHEME           loop_corrections.higgs_3L_mdr_scheme
+#define HIGGS_3LOOP_CORRECTION_AT_AT_AS  loop_corrections.higgs_at_at_as
+#define HIGGS_3LOOP_CORRECTION_AT_AT_AT  loop_corrections.higgs_at_at_at
 
 CLASSNAME::THDM_II_mass_eigenstates(const THDM_II_input_parameters& input_)
    : THDM_II_soft_parameters(input_)
@@ -489,13 +487,13 @@ void CLASSNAME::calculate_DRbar_masses()
    const auto save_ewsb_flag = make_raii_guard(
       [this, has_no_ewsb_flag] () {
          if (has_no_ewsb_flag) {
-            this->problems.flag_no_ewsb_tree_level();
+            this->problems.flag_no_ewsb();
          } else {
-            this->problems.unflag_no_ewsb_tree_level();
+            this->problems.unflag_no_ewsb();
          }
       }
    );
-   problems.unflag_no_ewsb_tree_level();
+   problems.unflag_no_ewsb();
    solve_ewsb_tree_level();
 #ifdef ENABLE_VERBOSE
    if (problems.no_ewsb()) {
@@ -3271,8 +3269,8 @@ std::complex<double> CLASSNAME::self_energy_VWm_1loop(double p ) const
    result += -(AbsSqr(CpconjVWmVPVWm())*(A0(Sqr(MVWm)) + 10*B00(Sqr(p),Sqr(MVWm
       ),0) - 2*Sqr(MVWm) + 0.6666666666666666*Sqr(p) + B0(Sqr(p),Sqr(MVWm),0)*(Sqr
       (MVWm) + 4*Sqr(p))));
-   result += 0.5*(-(A0(Sqr(MVZ))*(4*CpconjVWmVWmVZVZ1() + CpconjVWmVWmVZVZ2() +
-      CpconjVWmVWmVZVZ3())) + 2*CpconjVWmVWmVZVZ1()*Sqr(MVZ));
+   result += -0.5*A0(Sqr(MVZ))*(4*CpconjVWmVWmVZVZ1() + CpconjVWmVWmVZVZ2() +
+      CpconjVWmVWmVZVZ3()) + CpconjVWmVWmVZVZ1()*Sqr(MVZ);
    result += -(AbsSqr(CpconjVWmVWmVZ())*(A0(Sqr(MVWm)) + A0(Sqr(MVZ)) + 10*B00(
       Sqr(p),Sqr(MVZ),Sqr(MVWm)) - 2*(Sqr(MVWm) + Sqr(MVZ) - 0.3333333333333333*
       Sqr(p)) + B0(Sqr(p),Sqr(MVZ),Sqr(MVWm))*(Sqr(MVWm) + Sqr(MVZ) + 4*Sqr(p))));
@@ -4081,8 +4079,6 @@ std::complex<double> CLASSNAME::tadpole_hh_1loop(int gO1) const
    return result * oneOver16PiSqr;
 
 }
-
-
 
 
 

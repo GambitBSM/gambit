@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:46
+// File generated at Mon 14 May 2018 15:30:13
 
 #include "config.h"
 
@@ -130,7 +130,7 @@ int run_solver(const THDM_II_input_parameters& input)
    spectrum_generator.set_settings(settings);
    spectrum_generator.run(qedqcd, input);
 
-   auto model = std::get<0>(spectrum_generator.get_models_slha());
+   const auto model = std::get<0>(spectrum_generator.get_models_slha());
 
    THDM_II_scales scales;
    scales.HighScale = spectrum_generator.get_high_scale();

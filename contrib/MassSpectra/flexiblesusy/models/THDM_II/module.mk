@@ -2,10 +2,6 @@ DIR          := models/THDM_II
 MODNAME      := THDM_II
 SARAH_MODEL  := THDM_II
 WITH_$(MODNAME) := yes
-MODTHDM_II_MOD := SM
-MODTHDM_II_DEP := $(patsubst %,model_specific/%,$(MODTHDM_II_MOD))
-MODTHDM_II_INC := $(patsubst %,-Imodel_specific/%,$(MODTHDM_II_MOD))
-MODTHDM_II_LIB := $(foreach M,$(MODTHDM_II_MOD),model_specific/$M/libmodel_specific_$M$(MODULE_LIBEXT))
 
 THDM_II_INSTALL_DIR := $(INSTALL_DIR)/$(DIR)
 
@@ -27,7 +23,7 @@ THDM_II_INCLUDE_MK := \
 
 THDM_II_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.THDM_II_generated \
-		$(DIR)/LesHouches.in.THDMII
+
 
 THDM_II_REFERENCES := \
 		$(DIR)/THDM_II_references.tex
@@ -210,21 +206,6 @@ clean-$(MODNAME)-obj:
 		-rm -f $(EXETHDM_II_OBJ)
 		-rm -f $(LLTHDM_II_OBJ)
 
-# BEGIN: NOT EXPORTED ##########################################
-clean-$(MODNAME)-src:
-		-rm -f $(LIBTHDM_II_SRC)
-		-rm -f $(LIBTHDM_II_HDR)
-		-rm -f $(EXETHDM_II_SRC)
-		-rm -f $(LLTHDM_II_SRC)
-		-rm -f $(LLTHDM_II_MMA)
-		-rm -f $(METACODE_STAMP_THDM_II)
-		-rm -f $(THDM_II_INCLUDE_MK)
-		-rm -f $(THDM_II_SLHA_INPUT)
-		-rm -f $(THDM_II_REFERENCES)
-		-rm -f $(THDM_II_GNUPLOT)
-
-distclean-$(MODNAME): clean-$(MODNAME)-src
-# END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj
 		-rm -f $(EXETHDM_II_EXE)
@@ -270,7 +251,7 @@ $(METACODE_STAMP_THDM_II):
 endif
 
 $(LIBTHDM_II_DEP) $(EXETHDM_II_DEP) $(LLTHDM_II_DEP) $(LIBTHDM_II_OBJ) $(EXETHDM_II_OBJ) $(LLTHDM_II_OBJ) $(LLTHDM_II_LIB): \
-	CPPFLAGS += $(MODTHDM_II_INC) $(GSLFLAGS) $(EIGENFLAGS) $(BOOSTFLAGS) $(TSILFLAGS) $(HIMALAYAFLAGS)
+	CPPFLAGS += $(GSLFLAGS) $(EIGENFLAGS) $(BOOSTFLAGS) $(TSILFLAGS) $(HIMALAYAFLAGS)
 
 ifneq (,$(findstring yes,$(ENABLE_LOOPTOOLS)$(ENABLE_FFLITE)))
 $(LIBTHDM_II_DEP) $(EXETHDM_II_DEP) $(LLTHDM_II_DEP) $(LIBTHDM_II_OBJ) $(EXETHDM_II_OBJ) $(LLTHDM_II_OBJ) $(LLTHDM_II_LIB): \
@@ -278,22 +259,21 @@ $(LIBTHDM_II_DEP) $(EXETHDM_II_DEP) $(LLTHDM_II_DEP) $(LIBTHDM_II_OBJ) $(EXETHDM
 endif
 
 $(LLTHDM_II_OBJ) $(LLTHDM_II_LIB): \
-	CPPFLAGS += $(LLFLAGS)
+	CPPFLAGS += $(shell $(MATH_INC_PATHS) --math-cmd="$(MATH)" -I --librarylink --mathlink)
 
 $(LIBTHDM_II): $(LIBTHDM_II_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
-$(DIR)/%.x: $(DIR)/%.o $(LIBTHDM_II) $(MODTHDM_II_LIB) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
+$(DIR)/%.x: $(DIR)/%.o $(LIBTHDM_II) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
 		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
-$(LLTHDM_II_LIB): $(LLTHDM_II_OBJ) $(LIBTHDM_II) $(MODTHDM_II_LIB) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS) $(LLLIBS)
+$(LLTHDM_II_LIB): $(LLTHDM_II_OBJ) $(LIBTHDM_II) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBTHDM_II_DEP) $(EXETHDM_II_DEP)
 ALLSRC += $(LIBTHDM_II_SRC) $(EXETHDM_II_SRC)
 ALLLIB += $(LIBTHDM_II)
 ALLEXE += $(EXETHDM_II_EXE)
-ALLMODDEP += $(MODTHDM_II_DEP)
 
 ifeq ($(ENABLE_LIBRARYLINK),yes)
 ALLDEP += $(LLTHDM_II_DEP)

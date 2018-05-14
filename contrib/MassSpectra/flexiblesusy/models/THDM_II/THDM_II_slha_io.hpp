@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:35
+// File generated at Mon 14 May 2018 15:30:05
 
 #ifndef THDM_II_SLHA_IO_H
 #define THDM_II_SLHA_IO_H
@@ -94,7 +94,7 @@ public:
    template <class... Ts> void set_spectrum(const std::tuple<Ts...>&);
    template <class Model> void set_spectrum(const THDM_II_slha<Model>&);
    template <class T> void set_spectrum(const THDM_II<T>&);
-   void set_spectrum(const standard_model::Standard_model&);
+   void set_spectrum(const standard_model::Standard_model& m) { slha_io.set_spectrum(m); }
    void set_spinfo(const Spectrum_generator_problems&);
    void set_spinfo(const Problems&);
    void set_spinfo(const std::vector<std::string>&, const std::vector<std::string>&);
@@ -123,11 +123,8 @@ private:
    void set_imextpar(const THDM_II_input_parameters&);
    void set_minpar(const THDM_II_input_parameters&);
    void set_mass(const THDM_II_physical&, bool);
-   void set_mass(const standard_model::Standard_model_physical&);
    void set_mixing_matrices(const THDM_II_physical&, bool);
-   void set_mixing_matrices(const standard_model::Standard_model_physical&);
    template <class Model> void set_model_parameters(const THDM_II_slha<Model>&);
-   void set_model_parameters(const standard_model::Standard_model&);
    void set_ckm(const Eigen::Matrix<std::complex<double>,3,3>&, double);
    void set_pmns(const Eigen::Matrix<std::complex<double>,3,3>&, double);
    double read_scale() const;

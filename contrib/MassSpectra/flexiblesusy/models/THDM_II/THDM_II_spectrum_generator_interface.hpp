@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:36
+// File generated at Mon 14 May 2018 15:30:05
 
 #ifndef THDM_II_SPECTRUM_GENERATOR_INTERFACE_H
 #define THDM_II_SPECTRUM_GENERATOR_INTERFACE_H
@@ -51,9 +51,7 @@ public:
    std::tuple<THDM_II_slha<THDM_II<T>>> get_models_slha() const
    { return std::make_tuple(THDM_II_slha<THDM_II<T> >(model, settings.get(Spectrum_generator_settings::force_positive_masses) == 0.)); }
 
-   const THDM_II<T>& get_model() const
-   { return model; }
-   THDM_II<T>& get_model()
+   THDM_II<T> get_model() const
    { return model; }
    THDM_II_slha<THDM_II<T>> get_model_slha() const
    { return THDM_II_slha<THDM_II<T>>(model, settings.get(Spectrum_generator_settings::force_positive_masses) == 0.); }

@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:40
+// File generated at Mon 14 May 2018 15:30:09
 
 /**
  * @file THDM_II_two_scale_ewsb_solver.cpp
  *
  * @brief implementation of EWSB solver for two-scale iteration
  *
- * This file was generated at Fri 11 May 2018 14:08:40 with FlexibleSUSY
- * 2.1.0 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Mon 14 May 2018 15:30:09 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "THDM_II_two_scale_ewsb_solver.hpp"
@@ -241,10 +241,10 @@ int CLASSNAME::solve_tree_level(THDM_II_mass_eigenstates& model)
    if (is_finite) {
       model.set_M112(M112);
       model.set_M222(M222);
-      model.get_problems().unflag_no_ewsb_tree_level();
+      model.get_problems().unflag_no_ewsb();
    } else {
       error = EWSB_solver::FAIL;
-      model.get_problems().flag_no_ewsb_tree_level();
+      model.get_problems().flag_no_ewsb();
    }
 
    return error;

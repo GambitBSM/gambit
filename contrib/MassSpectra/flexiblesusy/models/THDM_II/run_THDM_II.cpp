@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:46
+// File generated at Mon 14 May 2018 15:30:13
 
 #include "config.h"
 
@@ -79,7 +79,7 @@ int run_solver(flexiblesusy::THDM_II_slha_io& slha_io,
 
    spectrum_generator.run(qedqcd, input);
 
-   auto models = spectrum_generator.get_models_slha();
+   const auto models = spectrum_generator.get_models_slha();
    const auto& problems = spectrum_generator.get_problems();
 
    THDM_II_scales scales;

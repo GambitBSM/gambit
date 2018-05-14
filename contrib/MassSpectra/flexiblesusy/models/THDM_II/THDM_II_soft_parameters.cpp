@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:06:41
+// File generated at Mon 14 May 2018 15:28:35
 
 #include "THDM_II_soft_parameters.hpp"
 #include "config.h"
@@ -90,9 +90,6 @@ THDM_II_soft_parameters THDM_II_soft_parameters::calc_beta(int loops) const
          #else
          #endif
 
-            if (loops > 3) {
-
-            }
          }
       }
    }

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:35
+// File generated at Mon 14 May 2018 15:30:05
 
 #ifndef THDM_II_UTILITIES_H
 #define THDM_II_UTILITIES_H
@@ -54,9 +54,6 @@ private:
                 + std::to_string(static_cast<long long>(m)) + ")"));
          }
       }
-
-      masses.shrink_to_fit();
-
       return masses;
    }
 

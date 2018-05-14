@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Fri 11 May 2018 14:08:41
+// File generated at Mon 14 May 2018 15:30:09
 
 #ifndef THDM_II_OBSERVABLES_H
 #define THDM_II_OBSERVABLES_H
@@ -51,11 +51,11 @@ struct THDM_II_observables {
 };
 
 THDM_II_observables calculate_observables(
-   THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
+   const THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
    const Physical_input&);
 
 THDM_II_observables calculate_observables(
-   THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
+   const THDM_II_mass_eigenstates&, const softsusy::QedQcd&,
    const Physical_input&, double scale);
 
 } // namespace flexiblesusy
