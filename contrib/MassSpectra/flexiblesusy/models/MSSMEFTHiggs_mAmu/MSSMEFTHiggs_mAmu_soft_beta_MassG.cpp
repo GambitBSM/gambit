@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:59:58
+// File generated at Thu 10 May 2018 14:40:04
 
 #include "MSSMEFTHiggs_mAmu_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -94,9 +94,9 @@ double MSSMEFTHiggs_mAmu_soft_parameters::calc_beta_MassG_2_loop(const Soft_trac
 
    double beta_MassG;
 
-   beta_MassG = Re(0.4*twoLoop*Sqr(g3)*(11*(MassB + MassG)*Sqr(g1) + 5*(9
-      *(MassG + MassWB)*Sqr(g2) + 4*(traceAdjYdTYd + traceAdjYuTYu - MassG*
-      traceYdAdjYd - MassG*traceYuAdjYu + 7*MassG*Sqr(g3)))));
+   beta_MassG = Re(0.4*twoLoop*Sqr(g3)*(11*(MassB + MassG)*Sqr(g1) + 45*(
+      MassG + MassWB)*Sqr(g2) + 20*(traceAdjYdTYd + traceAdjYuTYu - MassG*
+      traceYdAdjYd - MassG*traceYuAdjYu + 7*MassG*Sqr(g3))));
 
 
    return beta_MassG;

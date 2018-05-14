@@ -65,7 +65,7 @@ namespace Gambit {
       /// third argument "oldfile" is used to report whether an existing file was opened (true if yes)
       hid_t openFile(const std::string& fname, bool overwrite, bool& oldfile)
       {
-          hid_t file_id;  // file handle
+	  hid_t file_id;  // file handle
 
           if(overwrite)
           {

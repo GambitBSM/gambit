@@ -114,17 +114,22 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_0LEP_20invfb", "ATLAS_0LEPStop_20invfb",
-                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                   "ATLAS_3LEPEW_20invfb"] ]
+      analyses: [ ["ATLAS_8TeV_0LEP_20invfb",
+                   "ATLAS_8TeV_0LEPStop_20invfb",
+                   "ATLAS_8TeV_1LEPStop_20invfb",
+                   "ATLAS_8TeV_2bStop_20invfb",
+                   "ATLAS_8TeV_2LEPEW_20invfb",
+                   "ATLAS_8TeV_2LEPStop_20invfb",
+                   "ATLAS_8TeV_3LEPEW_20invfb"] ]
 
   # Specify the list of CMS analyses to run with BuckFast
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ ["CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
-                   "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"] ]
+      analyses: [ ["CMS_8TeV_1LEPDMTOP_20invfb",
+                   "CMS_8TeV_2LEPDMTOP_20invfb",
+                   "CMS_8TeV_3LEPEW_20invfb",
+                   "CMS_8TeV_MONOJET_20invfb"] ]
 
   # Specify details of the ColliderOperator
   # Includes the number of generated events

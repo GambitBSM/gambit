@@ -245,7 +245,7 @@ namespace HEPUtils {
       const double pz = sqrt_pt2_m2 * sinh(y);
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -284,7 +284,7 @@ namespace HEPUtils {
         throw std::invalid_argument("Negative transverse momentum in calculation");
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -304,8 +304,8 @@ namespace HEPUtils {
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
       const double pz = p * cos(theta);
-      const double E = sqrt( sqr(p) + sqr(mass) );
-      setPE(px, py, pz, E);
+      //const double E = sqrt( sqr(p) + sqr(mass) );
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -322,7 +322,7 @@ namespace HEPUtils {
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
       const double pz = sqrt(sqr(E) - sqr(mass) - sqr(pt));
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 

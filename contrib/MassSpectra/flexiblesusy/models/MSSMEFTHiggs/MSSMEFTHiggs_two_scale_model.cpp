@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:21
+// File generated at Thu 10 May 2018 14:42:06
 
 /**
  * @file MSSMEFTHiggs_two_scale_model.cpp
@@ -26,8 +26,8 @@
  * which solve EWSB and calculate pole masses and mixings from DRbar
  * parameters.
  *
- * This file was generated at Tue 9 Jan 2018 20:02:21 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:42:06 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "MSSMEFTHiggs_two_scale_model.hpp"

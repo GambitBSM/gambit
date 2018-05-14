@@ -20,6 +20,7 @@ SuperIso:
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so
   1.1.0:       ./Backends/installed/ddcalc/1.1.0/lib/libDDCalc.so
+  1.2.0:       ./Backends/installed/ddcalc/1.2.0/lib/libDDCalc.so
 
 HiggsBounds:
   4.2.1:       ./Backends/installed/higgsbounds/4.2.1/lib/libhiggsbounds.so
@@ -32,16 +33,6 @@ FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
-
-LibFarrayTest:
-  1.0:         ./Backends/examples/libFarrayTest.so
-
-LibFirst:
-  1.0:         ./Backends/examples/libfirst.so
-  1.1:         ./Backends/examples/libfirst.so
-
-LibFortran:
-  1.0:         ./Backends/examples/libfortran.so
 
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
@@ -69,11 +60,28 @@ SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
 SPheno:
-  3.3.8:	./Backends/installed/spheno/3.3.8/lib/libSPheno.so
-
-libMathematicaTest:
-  1.0:         ./Backends/examples/libMathematicaTest.m
+  3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
 
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
 
+
+LibFirst:
+  1.0:         ./Backends/examples/libfirst.so
+  1.1:         ./Backends/examples/libfirst.so
+
+LibSecond:
+  1.0:         ./Backends/examples/libsecond/1.0/libsecond.py
+  1.1:         ./Backends/examples/libsecond/1.1/libsecond.py
+
+LibThird:
+  1.0:         ./Backends/examples/libthird.py
+
+LibFortran:
+  1.0:         ./Backends/examples/libfortran.so
+
+LibFarrayTest:
+  1.0:         ./Backends/examples/libFarrayTest.so
+
+libMathematicaTest:
+  1.0:         ./Backends/examples/libMathematicaTest.m

@@ -44,13 +44,13 @@ namespace Gambit {
 
       // Electron smearing and efficiency
       /// @todo Run-dependence?
-      ATLAS::applyElectronTrackingEff(eventOut.electrons());
+      //ATLAS::applyElectronTrackingEff(eventOut.electrons());
       ATLAS::smearElectronEnergy(eventOut.electrons());
       ATLAS::applyElectronEff(eventOut.electrons());
 
       // Muon smearing and efficiency
       /// @todo Run-dependence?
-      ATLAS::applyMuonTrackEff(eventOut.muons());
+      //ATLAS::applyMuonTrackEff(eventOut.muons());
       ATLAS::smearMuonMomentum(eventOut.muons());
       ATLAS::applyMuonEff(eventOut.muons());
 
@@ -78,12 +78,12 @@ namespace Gambit {
 
       //MJW debug- make this the same as ATLAS temporarily
       // Electron smearing and efficiency
-      CMS::applyElectronTrackingEff(eventOut.electrons());
+      //CMS::applyElectronTrackingEff(eventOut.electrons());
       CMS::smearElectronEnergy(eventOut.electrons());
       CMS::applyElectronEff(eventOut.electrons());
 
       // Muon smearing and efficiency
-      CMS::applyMuonTrackEff(eventOut.muons());
+      //CMS::applyMuonTrackEff(eventOut.muons());
       CMS::smearMuonMomentum(eventOut.muons());
       CMS::applyMuonEff(eventOut.muons());
 
@@ -204,7 +204,12 @@ namespace Gambit {
         }
 
         // All particles other than invisibles and muons are jet constituents
+	// Matthias added test to keep non-prompt particles
         if (visible && p.idAbs() != MCUtils::PID::MUON) jetparticles.push_back(mk_pseudojet(p.p()));
+	// next case are visible non-prompt muons
+	//if (visible && p.idAbs() == MCUtils::PID::MUON && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
+	// next case are non-prompt neutrinos
+	//if (!visible && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
       }
 
       /// Jet finding

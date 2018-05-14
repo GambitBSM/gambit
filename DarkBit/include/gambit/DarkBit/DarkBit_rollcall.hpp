@@ -164,7 +164,7 @@ START_MODULE
         DEPENDENCY(MSSM_spectrum, Spectrum)
       #endif
       BACKEND_REQ(dsrdthlim, (), void, ())
-      BACKEND_REQ(dsrdtab, (), void, (double(*)(double&), double&))
+      BACKEND_REQ(dsrdtab, (), void, (double(*)(double&), double&, int&))
       BACKEND_REQ(dsrdeqn, (), void, (double(*)(double&),double&,double&,double&,double&,int&))
       BACKEND_REQ(dsrdwintp, (), double, (double&))
       BACKEND_REQ(particle_code, (), int, (const str&))
@@ -177,17 +177,20 @@ START_MODULE
       BACKEND_REQ(rdpadd, (), DS_RDPADD)
       BACKEND_REQ(rddof, (), DS_RDDOF)
       BACKEND_REQ(rderrors, (), DS_RDERRORS)
+      BACKEND_REQ(rdtime, (), DS_RDTIME)
     #undef FUNCTION
 
-    // Routine for cross checking RD density results
+    // Routine for cross checking relic density results
     #define FUNCTION RD_oh2_DarkSUSY
       START_FUNCTION(double)
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(DarkSUSY_PointInit, bool)
       BACKEND_REQ(dsrdomega, (), double, (int&,int&,double&,int&,int&,int&))
+      BACKEND_REQ(rderrors, (), DS_RDERRORS)
+      BACKEND_REQ(rdtime, (), DS_RDTIME)
     #undef FUNCTION
 
-    // Routine for cross checking RD density results
+    // Routine for cross checking relic density results
     #define FUNCTION RD_oh2_MicrOmegas
       START_FUNCTION(double)
       BACKEND_REQ(oh2, (MicrOmegas_MSSM, MicrOmegas_SingletDM), double, (double*,int,double))
@@ -599,6 +602,7 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(DARWIN_Xe)
   DD_DECLARE_EXPERIMENT(LUX_2016)
   DD_DECLARE_EXPERIMENT(PandaX_2016)
+  DD_DECLARE_EXPERIMENT(PandaX_2017)
   DD_DECLARE_EXPERIMENT(LUX_2015)
   DD_DECLARE_EXPERIMENT(PICO_2L)
   DD_DECLARE_EXPERIMENT(PICO_60_F)

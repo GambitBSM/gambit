@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:47:14
+// File generated at Thu 10 May 2018 15:08:55
 
 #include "MSSMatMGUT_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -140,16 +140,16 @@ double MSSMatMGUT_soft_parameters::calc_beta_mHu2_2_loop(const Soft_traces& soft
       traceYdAdjYuYuAdjYd - 6*mHu2*traceYdAdjYuYuAdjYd - 6*
       traceYuAdjTYdTYdAdjYu - 36*traceYuAdjTYuTYuAdjYu - 6*
       traceYuAdjYdTYdAdjTYu - 36*traceYuAdjYuTYuAdjTYu - 36*mHu2*
-      traceYuAdjYuYuAdjYu + 6*Tr22*Quad(g2) + 1.2*Tr2U111*Sqr(g1) + 1.6*
-      traceconjTYuTpTYu*Sqr(g1) - 1.6*MassB*traceconjTYuTpYu*Sqr(g1) + 1.6*
-      tracemq2AdjYuYu*Sqr(g1) + 1.6*tracemu2YuAdjYu*Sqr(g1) + 1.6*mHu2*
-      traceYuAdjYu*Sqr(g1) + 0.6*Conj(MassWB)*Sqr(g2)*(3*(MassB + 2*MassWB)*Sqr
-      (g1) + 55*MassWB*Sqr(g2)) + 0.04*Conj(MassB)*Sqr(g1)*(621*MassB*Sqr(g1) +
-      5*(-8*(traceAdjYuTYu - 2*MassB*traceYuAdjYu) + 9*(2*MassB + MassWB)*Sqr(
-      g2))) + 32*traceconjTYuTpTYu*Sqr(g3) - 32*MassG*traceconjTYuTpYu*Sqr(g3)
-      + 32*tracemq2AdjYuYu*Sqr(g3) + 32*tracemu2YuAdjYu*Sqr(g3) + 32*mHu2*
-      traceYuAdjYu*Sqr(g3) + 64*traceYuAdjYu*AbsSqr(MassG)*Sqr(g3) - 32*
-      traceAdjYuTYu*Conj(MassG)*Sqr(g3)));
+      traceYuAdjYuYuAdjYu + 6*Tr22*Quad(g2) + 33*AbsSqr(MassWB)*Quad(g2) + 1.2*
+      Tr2U111*Sqr(g1) + 1.6*traceconjTYuTpTYu*Sqr(g1) - 1.6*MassB*
+      traceconjTYuTpYu*Sqr(g1) + 1.6*tracemq2AdjYuYu*Sqr(g1) + 1.6*
+      tracemu2YuAdjYu*Sqr(g1) + 1.6*mHu2*traceYuAdjYu*Sqr(g1) + 1.8*(MassB + 2*
+      MassWB)*Conj(MassWB)*Sqr(g1)*Sqr(g2) + 0.04*Conj(MassB)*Sqr(g1)*(-40*(
+      traceAdjYuTYu - 2*MassB*traceYuAdjYu) + 621*MassB*Sqr(g1) + 45*(2*MassB +
+      MassWB)*Sqr(g2)) + 32*traceconjTYuTpTYu*Sqr(g3) - 32*MassG*
+      traceconjTYuTpYu*Sqr(g3) + 32*tracemq2AdjYuYu*Sqr(g3) + 32*
+      tracemu2YuAdjYu*Sqr(g3) + 32*mHu2*traceYuAdjYu*Sqr(g3) + 64*traceYuAdjYu*
+      AbsSqr(MassG)*Sqr(g3) - 32*traceAdjYuTYu*Conj(MassG)*Sqr(g3)));
 
 
    return beta_mHu2;

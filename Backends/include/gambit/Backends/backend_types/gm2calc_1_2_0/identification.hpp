@@ -3,6 +3,7 @@
 #include "gambit/Utils/cats.hpp"
 
 #define BACKENDNAME gm2calc
+#define BACKENDLANG CXX
 #define VERSION 1.2.0
 #define SAFE_VERSION 1_2_0
 

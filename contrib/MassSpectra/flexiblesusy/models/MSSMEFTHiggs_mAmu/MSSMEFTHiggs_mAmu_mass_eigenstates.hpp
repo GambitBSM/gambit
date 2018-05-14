@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:00:25
+// File generated at Thu 10 May 2018 14:40:25
 
 /**
  * @file MSSMEFTHiggs_mAmu_mass_eigenstates.hpp
@@ -25,8 +25,8 @@
  *        value problem using the two_scale solver by solving EWSB
  *        and determine the pole masses and mixings
  *
- * This file was generated at Tue 9 Jan 2018 20:00:25 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:40:25 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #ifndef MSSMEFTHiggs_mAmu_MASS_EIGENSTATES_H

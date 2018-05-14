@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:36
+// File generated at Thu 10 May 2018 14:42:18
 
 #include "config.h"
 
@@ -44,6 +44,7 @@ void print_usage()
    std::cout <<
       "Usage: run_cmd_line_MSSMEFTHiggs.x [options]\n"
       "Options:\n"
+      "  --TanBeta=<value>\n"
       "  --SignMu=<value>\n"
       "  --MSUSY=<value>\n"
       "  --M1Input=<value>\n"
@@ -51,7 +52,6 @@ void print_usage()
       "  --M3Input=<value>\n"
       "  --mHd2IN=<value>\n"
       "  --mHu2IN=<value>\n"
-      "  --TanBeta=<value>\n"
 
       "  --solver-type=<value>             an integer corresponding\n"
       "                                    to the solver type to use\n"
@@ -65,6 +65,9 @@ void set_command_line_parameters(const Dynamic_array_view<char*>& args,
 {
    for (int i = 1; i < args.size(); ++i) {
       const auto option = args[i];
+
+      if(Command_line_options::get_parameter_value(option, "--TanBeta=", input.TanBeta))
+         continue;
 
       if(Command_line_options::get_parameter_value(option, "--SignMu=", input.SignMu))
          continue;
@@ -85,9 +88,6 @@ void set_command_line_parameters(const Dynamic_array_view<char*>& args,
          continue;
 
       if(Command_line_options::get_parameter_value(option, "--mHu2IN=", input.mHu2IN))
-         continue;
-
-      if(Command_line_options::get_parameter_value(option, "--TanBeta=", input.TanBeta))
          continue;
 
       

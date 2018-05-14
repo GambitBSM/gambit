@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 17:59:20
+// File generated at Thu 10 May 2018 14:26:41
 
 #include "MSSMatMSUSY_mAmu_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -138,9 +138,9 @@ double MSSMatMSUSY_mAmu_soft_parameters::calc_beta_MassWB_3_loop(const Soft_trac
       MassB*traceAdjYeYe + 21*MassWB*traceAdjYeYe + 29*MassB*traceAdjYuYu + 29*
       MassWB*traceAdjYuYu - 11*traceTYdAdjYd - 21*traceTYeAdjYe - 29*
       traceTYuAdjYu - 9*(MassB + 2*MassWB)*Sqr(g2) + 8*(MassB + MassG + MassWB)
-      *Sqr(g3)) + 25*(105*MassWB*Quad(g2) + Sqr(g2)*(-11*(2*MassWB*(3*
-      traceAdjYdYd + traceAdjYeYe + 3*traceAdjYuYu) - 3*traceTYdAdjYd -
-      traceTYeAdjYe - 3*traceTYuAdjYu) + 24*(MassG + 2*MassWB)*Sqr(g3)) + 2*(
+      *Sqr(g3)) + 25*(105*MassWB*Quad(g2) + Sqr(g2)*(11*(-2*MassWB*(3*
+      traceAdjYdYd + traceAdjYeYe + 3*traceAdjYuYu) + 3*traceTYdAdjYd +
+      traceTYeAdjYe + 3*traceTYuAdjYu) + 24*(MassG + 2*MassWB)*Sqr(g3)) + 2*(
       -24*traceAdjYdTYdAdjYdYd + 12*MassWB*traceAdjYdYdAdjYdYd - 8*
       traceAdjYeTYeAdjYeYe + 6*MassWB*traceAdjYdYd*traceAdjYeYe + 4*MassWB*
       traceAdjYeYeAdjYeYe - 6*traceAdjYuTYuAdjYdYd - 24*traceAdjYuTYuAdjYuYu +

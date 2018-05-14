@@ -118,10 +118,16 @@ LibFirst_1_0_init: |
 LibFirst_1_1_init: |
    Initialize the C++ testing LibFirst backend, version 1.1.
 
-LibFirst_initialize_capability: |
+LibSecond_1_0_init: |
+   Initialize the Python testing LibSecond backend, version 1.0.
+
+LibSecond_1_1_init: |
+   Initialize the Python testing LibSecond backend, version 1.1.
+
+initialize_capability: |
    Tester function for the initialization of backends.
 
-LibFirst_returnResult_capability: |
+returnResult_capability: |
    Tester function for the return of results from backends.
 
 LibFortran_1_0_init: |
@@ -155,13 +161,13 @@ awesomeness: |
    "awesomenessByAnders" to the logger.
 
 SomeArray: |
-   Example double array in libfirst.
+   Example double array in libfirst and friends.
 
 SomeDouble: |
-   Example double in libfirst.
+   Example double in libfirst and friends.
 
 SomeInt: |
-   Example integer in libfirst.
+   Example integer in libfirst and friends.
 
 funcBE: |
    Example Fortran backend function that simulates a backend function
@@ -327,9 +333,21 @@ ColliderOperator: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
+LHCEventLoopInfo: |
+   Info about the event loop.
+
+LHC_signals: |
+   Signal predictions and uncertainties in all LHC analyses.
+
+LHC_LogLikes: |
+   Computes analysis-specific log-likelihood values,
+   from AllAnalysisNumbers.
+
 LHC_Combined_LogLike: |
-   Combines the results from AnalysisNumbers together into
-   a single delta-log-likelihood value.
+   A final, single delta-log-likelihood value for LHC searches.
+
+MC_ConvergenceSettings : |
+   Convergence settings to be used for terminating Monte Carlo event generation.
 
 HardScatteringSim: |
    Provides a Pythia 8 instance within a container which is
@@ -397,6 +415,9 @@ IdentityAnalysisNumbers: |
    Uses the given IdentityAnalysisContainer
    to perform all its analyses upon the given
    CopiedEvent.
+
+AllAnalysisNumbers: |
+   Combined analysis numbers from all LHC analyses used in a scan.
 
 ALEPH_Selectron_LLike: |
    Compares the cross section times branching ratio
@@ -478,6 +499,12 @@ OPAL_Chargino_SemiLeptonic_LLike: |
    pair production (with one leptonic and one hadronic decaying W boson)
    to the model-independent limit according to the OPAL collaboration.
    Returns a log likelihood value.
+
+OPAL_Degenerate_Chargino_LLike: |
+   Compares the cross section times branching ratio for chargino
+   pair production to the limit on degenerate charginos and neutralinos
+   according to the OPAL collaboration.
+   Returns a likelihood value
 
 LEP_Higgs_LogLike: |
     Provides log-likelihood for combined model-independent LEP
@@ -1170,6 +1197,27 @@ PandaX_2016_SignalSD: |
 PandaX_2016_LogLikelihood: |
    Calculate the log-likelihood for the PandaX 2016 direct detection analysis.
 
+PandaX_2017_Calculate: |
+   Perform rate and likelihood calculations for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Events: |
+   The number of observed events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Background: |
+   The number of background events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Signal: |
+   The number of signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSI: |
+   The number of spin-independent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSD: |
+   The number of spin-independent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_LogLikelihood: |
+   Calculate the log-likelihood for the PandaX 2017 direct detection analysis.
+
 SuperCDMS_2014_Calculate: |
    Perform rate and likelihood calculations for the SuperCDMS 2014 direct detection analysis.
 
@@ -1515,6 +1563,9 @@ DDCalc_1_0_0_init: |
 DDCalc_1_1_0_init: |
    Initialises DDCalc 1.1.0.
 
+DDCalc_1_2_0_init: |
+   Initialises DDCalc 1.2.0.
+
 DD_Experiment: |
    The name of the DDcalc experiment corresponding to a specific experiment index.
 
@@ -1568,6 +1619,9 @@ PICO_60_2017_Init: |
 
 PandaX_2016_Init: |
    Initialises a direct detection experiment with the properties of the 2016 analysis of PandaX.
+
+PandaX_2017_Init: |
+   Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
 
 XENON100_2012_Init: |
    Initialises a direct detection experiment with the properties of the 2012 analysis of Xenon100.
@@ -1942,6 +1996,9 @@ rdlun: |
 rdpadd: |
    Parameters that effect the tabulation of the invariant annihilation rate in DarkSUSY.
 
+rdtime: |
+   Timing parameters for DarkSUSY relic density calculations.
+
 IBintvars: |
    Common block for DarkSUSY internal Bremsstrahlung routines.
 
@@ -2199,6 +2256,12 @@ Reference_SM_A0_decay_rates: |
 
 Reference_SM_other_Higgs_decay_rates: |
    Computation of decays of SM Higgs with mass equal to the mass of the least SM-like CP-even Higgs.
+
+Z_invisible_width: |
+   Invisible decay width of the Z boson
+
+lnL_Z_invisible_width: |
+   Log Likelihood for the inivislbe decay width of the Z boson
 
 #-------------------------------------
 #  PrecisionBit capabilities

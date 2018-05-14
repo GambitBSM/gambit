@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:05:55
+// File generated at Thu 10 May 2018 14:31:51
 
 #include "MSSM_mAmu_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -66,10 +66,10 @@ double MSSM_mAmu_susy_parameters::calc_beta_Mu_2_loop(const Susy_traces& susy_tr
    double beta_Mu;
 
    beta_Mu = Re(0.02*twoLoop*Mu*(207*Quad(g1) + 10*Sqr(g1)*(-2*
-      traceYdAdjYd + 6*traceYeAdjYe + 4*traceYuAdjYu + 9*Sqr(g2)) + 25*(15*Quad
-      (g2) + 2*(-3*(3*traceYdAdjYdYdAdjYd + 2*traceYdAdjYuYuAdjYd +
-      traceYeAdjYeYeAdjYe + 3*traceYuAdjYuYuAdjYu) + 16*(traceYdAdjYd +
-      traceYuAdjYu)*Sqr(g3)))));
+      traceYdAdjYd + 6*traceYeAdjYe + 4*traceYuAdjYu + 9*Sqr(g2)) + 25*(-6*(3*
+      traceYdAdjYdYdAdjYd + 2*traceYdAdjYuYuAdjYd + traceYeAdjYeYeAdjYe + 3*
+      traceYuAdjYuYuAdjYu) + 15*Quad(g2) + 32*(traceYdAdjYd + traceYuAdjYu)*Sqr
+      (g3))));
 
 
    return beta_Mu;

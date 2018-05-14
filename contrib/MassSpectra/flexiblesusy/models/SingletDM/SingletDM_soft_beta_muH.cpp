@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:01
+// File generated at Thu 10 May 2018 14:42:52
 
 #include "SingletDM_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -106,10 +106,10 @@ double SingletDM_soft_parameters::calc_beta_muH_2_loop(const Soft_traces& soft_t
       LamH + 50*traceYdAdjYd + 150*traceYeAdjYe + 170*traceYuAdjYu + 45*Sqr(g2)
       ) - 25*(145*muH*Quad(g2) - 12*muH*(48*LamH + 5*(3*traceYdAdjYd +
       traceYeAdjYe + 3*traceYuAdjYu))*Sqr(g2) + 8*(24*LamH*muH*(3*traceYdAdjYd
-      + traceYeAdjYe + 3*traceYuAdjYu) + muH*(3*(9*traceYdAdjYdYdAdjYd + 14*
+      + traceYeAdjYe + 3*traceYuAdjYu) + 3*muH*(9*traceYdAdjYdYdAdjYd + 14*
       traceYdAdjYuYuAdjYd + 3*traceYeAdjYeYeAdjYe + 9*traceYuAdjYuYuAdjYu) - 80
-      *(traceYdAdjYd + traceYuAdjYu)*Sqr(g3)) + 30*muH*Sqr(LamH) + (muH + 4*muS
-      )*Sqr(LamSH)))));
+      *muH*(traceYdAdjYd + traceYuAdjYu)*Sqr(g3) + 30*muH*Sqr(LamH) + (muH + 4*
+      muS)*Sqr(LamSH)))));
 
 
    return beta_muH;

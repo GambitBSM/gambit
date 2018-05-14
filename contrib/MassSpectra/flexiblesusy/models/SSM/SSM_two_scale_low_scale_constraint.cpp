@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:45
+// File generated at Thu 10 May 2018 14:43:28
 
 #include "SSM_two_scale_low_scale_constraint.hpp"
 #include "SSM_two_scale_model.hpp"
@@ -332,7 +332,7 @@ void SSM_low_scale_constraint<Two_scale>::calculate_Yu_DRbar()
    }
 
    const auto v = MODELPARAMETER(v);
-   MODEL->set_Yu((-((1.4142135623730951*upQuarksDRbar)/v).transpose()).real());
+   MODEL->set_Yu((((1.4142135623730951*upQuarksDRbar)/v).transpose()).real());
 
 }
 

@@ -15,11 +15,12 @@
 ///  \author Pat Scott
 ///        (p.scott@imperial.ac.uk)
 ///  \date 2015 Apr
-///                                             
+///  \date 2017 Dec
+///
 ///  \author Tomas Gonzalo
 ///        (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Sep
-///                                               
+///
 ///
 ///
 ///***********************************************
@@ -52,6 +53,9 @@
 #cmakedefine HAVE_MATHEMATICA 1
 #cmakedefine MATHEMATICA_WSTP_H "@Mathematica_WSTP_INCLUDE_DIR@/wstp.h"
 #cmakedefine MATHEMATICA_KERNEL "@Mathematica_KERNEL_EXECUTABLE@"
+
+/// Found/installed pybind11
+#cmakedefine HAVE_PYBIND11 1
 
 /// Found ROOT version 6 or later
 #cmakedefine ROOT_6_OR_LATER_FOUND 1

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:01:44
+// File generated at Thu 10 May 2018 14:41:32
 
 #include "MSSMEFTHiggs_input_parameters.hpp"
 #include "wrappers.hpp"
@@ -29,14 +29,14 @@ Eigen::ArrayXd MSSMEFTHiggs_input_parameters::get() const
 {
    Eigen::ArrayXd pars(80);
 
-   pars(0) = SignMu;
-   pars(1) = MSUSY;
-   pars(2) = M1Input;
-   pars(3) = M2Input;
-   pars(4) = M3Input;
-   pars(5) = mHd2IN;
-   pars(6) = mHu2IN;
-   pars(7) = TanBeta;
+   pars(0) = TanBeta;
+   pars(1) = SignMu;
+   pars(2) = MSUSY;
+   pars(3) = M1Input;
+   pars(4) = M2Input;
+   pars(5) = M3Input;
+   pars(6) = mHd2IN;
+   pars(7) = mHu2IN;
    pars(8) = mq2Input(0,0);
    pars(9) = mq2Input(0,1);
    pars(10) = mq2Input(0,2);
@@ -115,14 +115,14 @@ Eigen::ArrayXd MSSMEFTHiggs_input_parameters::get() const
 
 void MSSMEFTHiggs_input_parameters::set(const Eigen::ArrayXd& pars)
 {
-   SignMu = pars(0);
-   MSUSY = pars(1);
-   M1Input = pars(2);
-   M2Input = pars(3);
-   M3Input = pars(4);
-   mHd2IN = pars(5);
-   mHu2IN = pars(6);
-   TanBeta = pars(7);
+   TanBeta = pars(0);
+   SignMu = pars(1);
+   MSUSY = pars(2);
+   M1Input = pars(3);
+   M2Input = pars(4);
+   M3Input = pars(5);
+   mHd2IN = pars(6);
+   mHu2IN = pars(7);
    mq2Input(0,0) = pars(8);
    mq2Input(0,1) = pars(9);
    mq2Input(0,2) = pars(10);
@@ -200,6 +200,7 @@ void MSSMEFTHiggs_input_parameters::set(const Eigen::ArrayXd& pars)
 
 std::ostream& operator<<(std::ostream& ostr, const MSSMEFTHiggs_input_parameters& input)
 {
+   ostr << "TanBeta = " << INPUT(TanBeta) << ", ";
    ostr << "SignMu = " << INPUT(SignMu) << ", ";
    ostr << "MSUSY = " << INPUT(MSUSY) << ", ";
    ostr << "M1Input = " << INPUT(M1Input) << ", ";
@@ -207,7 +208,6 @@ std::ostream& operator<<(std::ostream& ostr, const MSSMEFTHiggs_input_parameters
    ostr << "M3Input = " << INPUT(M3Input) << ", ";
    ostr << "mHd2IN = " << INPUT(mHd2IN) << ", ";
    ostr << "mHu2IN = " << INPUT(mHu2IN) << ", ";
-   ostr << "TanBeta = " << INPUT(TanBeta) << ", ";
    ostr << "mq2Input = " << INPUT(mq2Input) << ", ";
    ostr << "mu2Input = " << INPUT(mu2Input) << ", ";
    ostr << "md2Input = " << INPUT(md2Input) << ", ";

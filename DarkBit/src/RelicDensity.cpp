@@ -70,9 +70,9 @@ namespace Gambit
           "CoannMaxMass");
 
       // introduce pointers to DS mass spectrum and relevant particle info
-      DS_PACODES *DSpart = &(*BEreq::pacodes);
-      DS_MSPCTM *mymspctm= &(*BEreq::mspctm);
-      DS_INTDOF *myintdof= &(*BEreq::intdof);
+      DS_PACODES *DSpart = BEreq::pacodes.pointer();
+      DS_MSPCTM *mymspctm= BEreq::mspctm.pointer();
+      DS_INTDOF *myintdof= BEreq::intdof.pointer();
 
       // first add neutralino=WIMP=least massive 'coannihilating particle'
       result.coannihilatingParticles.push_back(
@@ -383,12 +383,34 @@ namespace Gambit
         bool tbtest=false;
       #endif
 
-      // What follows below is the standard accurate calculation of oh2 in DS
-      // either in fast = 0 (slower, accuracy <1%)  or fast = 1 (faster, default) mode
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 30s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(30, "timeout");
 
-      // the following replaces dsrdcom -- which cannot be linked properly!?
+      // What follows below is the standard accurate calculation of oh2 in DS, in one of the
+      // following modes:
+      //   fast =   0 - standard accurate calculation (accuracy better than 1%)
+      //            1 - faster calculation: sets parameters for when to add
+      //                extra points less tough to avoid excessively
+      //                adding extra points, expected accurarcy: 1% or better
+      //            2 - faster calculation: compared to fast=1, this option
+      //                adds less points in Weff tabulation in general and
+      //                is more elaborate in deciding when to include points
+      //                close to thresholds and resonances
+      //                expected accuracy: around 1%
+      //            3 - even more aggressive on trying minimize the number
+      //                of tabulated points
+      //                expected accuracy: 5-10%
+      //            9 - superfast. This method still makes sure to include
+      //                resonances and threholds, but does not attempt to sample
+      //                them very well. Should give an order of magnitude estimate
+      //                expected accuracy: order of magnitude
+      //           10 - quick and dirty method, i.e. expand the annihilation
+      //                cross section in x (not recommended)
+      //                expected accuracy: can be orders of magnitude wrong
+      //                for models with strong resonances or thresholds
+
       DS_RDPARS myrdpars;
-
       /// Option fast<int>: Numerical performance of Boltzmann solver in DS
       /// (default: 1) [NB: accurate is fast = 0 !]
       int fast = runOptions->getValueOrDef<int>(1, "fast");
@@ -403,7 +425,7 @@ namespace Gambit
           myrdpars.dpthr=2.5e-3;myrdpars.wdiffr=0.5;myrdpars.wdifft=0.1;
           break;
         default:
-          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1)");
+          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet supported in DarkBit::RD_oh2_general.  Please add relevant settings to this routine.");
       }
 
       myrdpars.hstep=0.01;myrdpars.hmin=1.0e-9;myrdpars.compeps=0.01;
@@ -428,7 +450,7 @@ namespace Gambit
 
 
       // write mass and dof of DM & coannihilating particle to DS common blocks
-      DS_RDMGEV *myrdmgev = &(*BEreq::rdmgev);
+      DS_RDMGEV *myrdmgev = BEreq::rdmgev.pointer();
 
       myrdmgev->nco=myRDspec.coannihilatingParticles.size();
       for (std::size_t i=1; i<=((unsigned int)myrdmgev->nco); i++)
@@ -473,7 +495,7 @@ namespace Gambit
 
       // determine starting point for integration of Boltzmann eq and write
       // to DS common blocks
-      DS_RDDOF *myrddof = &(*BEreq::rddof);
+      DS_RDDOF *myrddof = BEreq::rddof.pointer();
       double xstart=std::max(myrdpars.xinit,1.0001*mwimp/myrddof->tgev(1));
       double tstart=mwimp/xstart;
       int k; myrddof->khi=myrddof->nf; myrddof->klo=1;
@@ -490,9 +512,9 @@ namespace Gambit
 
       // follow wide res treatment for heavy Higgs adopted in DS
       double widthheavyHiggs=
-             (*BEreq::widths).width(BEreq::particle_code("h0_2"));
+             BEreq::widths->width(BEreq::particle_code("h0_2"));
       if (widthheavyHiggs<0.1)
-        (*BEreq::widths).width(BEreq::particle_code("h0_2"))=0.1;
+        BEreq::widths->width(BEreq::particle_code("h0_2"))=0.1;
 
       // always check that invariant rate is OK at least at one point
       double peff = mwimp/100;
@@ -520,10 +542,8 @@ namespace Gambit
         std::cout << "Starting dsrdtab..." << std::endl;
       #endif
 
-
-
       // Tabulate the invariant rate
-      BEreq::dsrdtab(byVal(*Dep::RD_eff_annrate),xstart);
+      BEreq::dsrdtab(byVal(*Dep::RD_eff_annrate),xstart,fast);
 
       #ifdef DARKBIT_RD_DEBUG
         logger() << LogTags::repeat_to_cout << "...done!" << EOM;
@@ -544,8 +564,12 @@ namespace Gambit
         }
       #endif
 
-      // Check whether piped invalid point was thrown
-      piped_invalid_point.check();
+      // Check whether DarkSUSY threw an error
+      if (BEreq::rderrors->rderr != 0)
+      {
+        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+        else DarkBit_error().raise(LOCAL_INFO, "DarkSUSY invariant rate tabulation failed.");
+      }
 
       // determine integration limit
       BEreq::dsrdthlim();
@@ -559,11 +583,14 @@ namespace Gambit
       // BEreq::dsrdeqn(byVal(*Dep::RD_eff_annrate),xstart,xend,yend,xf,nfcn);
 
       // change heavy Higgs width in DS back to standard value
-      (*BEreq::widths).width(BEreq::particle_code("h0_2"))
+      BEreq::widths->width(BEreq::particle_code("h0_2"))
          =widthheavyHiggs;
 
       //Check for NAN result.
       if ( Utils::isnan(yend) ) DarkBit_error().raise(LOCAL_INFO, "DarkSUSY returned NaN for relic density!");
+
+      // Check whether DarkSUSY threw some other error
+      if (BEreq::rderrors->rderr != 0) DarkBit_error().raise(LOCAL_INFO, "DarkSUSY Boltzmann solver failed.");
 
       result = 0.70365e8*myrddof->fh(myrddof->nf)*mwimp*yend;
 
@@ -624,6 +651,9 @@ namespace Gambit
       omtype = runOptions->getValueOrDef<int>(1, "omtype");
       /// Option fast<int>: 0 standard, 1 fast, 2 dirty (default 0)
       fast = runOptions->getValueOrDef<int>(0, "fast");
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 30s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(30, "timeout");
 
       // Output
       double xf;  // freeze-out temperature
@@ -632,6 +662,14 @@ namespace Gambit
       int nfc;  // number of fnct calls to effective annihilation cross section
       logger() << LogTags::debug << "Starting DarkSUSY relic density calculation..." << EOM;
       double oh2 = BEreq::dsrdomega(omtype,fast,xf,ierr,iwar,nfc);
+
+      // Check whether DarkSUSY threw an error
+      if (BEreq::rderrors->rderr != 0)
+      {
+        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+        else DarkBit_error().raise(LOCAL_INFO, "DarkSUSY relic density calculation failed.");
+      }
+
       result = oh2;
       logger() << LogTags::debug << "RD_oh2_DarkSUSY: oh2 is " << oh2 << EOM;
     }

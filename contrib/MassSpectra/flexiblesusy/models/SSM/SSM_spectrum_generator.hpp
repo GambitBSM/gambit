@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:42
+// File generated at Thu 10 May 2018 14:43:26
 
 #ifndef SSM_SPECTRUM_GENERATOR_H
 #define SSM_SPECTRUM_GENERATOR_H

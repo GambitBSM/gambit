@@ -1,0 +1,93 @@
+##########################################################################
+## GAMBIT configuration for an ultra-minimal Python test scan.
+##
+## Only needs ExampleBit_A, ExampleBit_B and built-in random scanner.
+##########################################################################
+
+
+Parameters:
+  CMSSM:
+    A0: 10
+    M0: 1000
+    M12: 1000
+    SignMu: 1
+    TanBeta:
+      range: [10, 50]
+
+Priors:
+
+  # None needed: flat priors are automatically generated for mu and sigma
+
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "results.hdf5"
+    group: "/spartan"
+    delete_file_on_restart: true
+
+  #printer: ascii
+  #options:
+  #  output_file: "results.dat"
+  #  buffer_length: 10
+  #  delete_file_on_restart: true
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 10
+      like: dummy
+
+ObsLikes:
+
+  - purpose:      dummy
+    capability:   nevents
+    type:         double
+
+  - purpose:      observable
+    capability:   nevents_postcuts
+    module:       ExampleBit_B
+
+
+Rules:
+
+  - capability:  nevents_postcuts
+    backends:
+    - {capability: awesomeness, backend: LibSecond, version: 1.1}
+    - {capability: someFunction, backend: LibSecond, version: 1.1}
+    - {capability: SomeInt, backend: LibSecond, version: 1.1}
+
+  - capability:  function_pointer
+    backends:
+    - {function: externalFunction}
+
+  - capability: nevents
+    type: int
+    function: event_count
+    module: ExampleBit_B
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/Python_test"
+
+  rng: ranlux48
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  debug: true

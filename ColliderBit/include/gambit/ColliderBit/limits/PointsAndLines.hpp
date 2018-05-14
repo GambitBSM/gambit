@@ -7,15 +7,18 @@
 namespace Gambit {
   namespace ColliderBit {
 
+
     /// @brief Add two numbers in quadrature
+    /// @todo Use HEPUtils add_quad
     inline double addInQuad(const double& a, const double& b) { return sqrt(a*a + b*b); }
+
 
     /// @brief A simple container for a point on an xy plane.
     ///
     /// This class is largely based upon the structure of the P4 class which is
     /// part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
     /// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
-    /// 
+    ///
     /// Modified to a simple point on a 2d-plane by Abram Krislock <a.m.b.krislock@fys.uio.no>
     class P2 {
       /// @name Storage

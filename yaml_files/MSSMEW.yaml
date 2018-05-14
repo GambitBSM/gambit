@@ -1,0 +1,382 @@
+##########################################################################
+## GAMBIT configuration for running a MultiNest scan of the MSSMEW using
+## only ColliderBit likelihoods (LHC and LEP particle searches, LHC and LEP
+## Higgs data).
+##
+## SM nuisance parameters are fixed to default values, and no astrophysical
+## nuisance parameters are used. See the ColliderBit paper for more details.
+##########################################################################
+
+
+Parameters:
+
+  # SM nuisance parameters fixed for now.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  MSSM11atQ_mA:
+    Ad_3:
+      fixed_value: 0
+    Ae_3:
+      fixed_value: 0
+    Au_3:
+      fixed_value: 0
+    M1:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    M2:
+      prior_type: double_log_flat_join
+      ranges: [0, 0, 1e1, 5e3]
+    M3:
+      fixed_value: 5000
+    Qin:
+      fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
+    TanBeta:
+      range: [1.0, 70.0]
+      prior_type: flat
+    ml2:
+      fixed_value: 9000000
+    mq2:
+      fixed_value: 9000000
+    mu:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    mA:
+      fixed_value: 5000
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  # These lines tell GAMBIT to use the hdf5 printer
+  # Can switch to the ascii printer by commenting out and
+  # using the ascii lines below
+
+  printer: hdf5
+  options:
+    output_file: "MSSMEW.hdf5"
+    group: "/MSSMEW"
+    delete_file_on_restart: false
+
+  # printer: ascii
+  # options:
+  #  output_file: "gambit_output.txt"
+
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 1000
+      tol: 0.5
+
+    random:
+      plugin: random
+      point_number: 2
+      output_file:  output
+      like:  Likelihood
+      files:
+        output_file: "weights ..."
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 19200
+      convthresh: 1e-5
+      verbosity: 1
+      lambdajDE: false
+
+
+ObsLikes:
+
+    # Likelihoods for SM nuisance parameters
+    - purpose:    LogLike
+      capability: lnL_t_mass
+
+    - purpose:    LogLike
+      capability: lnL_alpha_s
+
+    # Combined LHC likelihood
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # LEP likelihoods
+    - purpose:    LogLike
+      capability: L3_Neutralino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: L3_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Neutralino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Degenerate_Chargino_LLike
+
+    # Other likelihoods
+    - purpose:    LogLike
+      capability: lnL_Z_invisible_width
+
+    # Observables (not included in likelihood)
+    - purpose:    likelihood_details
+      capability: LHC_LogLikes
+
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+    # - purpose:    Observable
+    #   capability: mw
+
+    # - purpose:    Observable
+    #   capability: deltarho
+
+    # - purpose:    Observable
+    #   capability: prec_sinW2_eff
+
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+Rules:
+
+  # Set any pole masses by hand?
+  # NOTE: This will break the internal spectrum consistency -- use at your own risk!
+  - options:
+      override_FS_pole_masses:
+        h0_1: 125.09
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+    options:
+      allow_stable_charged_particles: false
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_mA_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+      # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
+      # LEP measurements of the Z width.
+      mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
+
+
+  # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
+  # so that things depending on "MSSM_spectrum" will be happy.
+  - capability: MSSM_spectrum 
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  # These options set various tolerances in the spectrum generation
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+      #gauge_mixing_tolerance_invalidates_point_only: false
+      #family_mixing_tolerance_invalidates_point_only: false
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+ # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+  ##### LHC Detector and Analysis rules #####
+  #
+  # The current capability structure allows for the user to mix'n'match
+  # collider settings, detector sims and analyses. The user may run BuckFastATLAS
+  # with ATLAS analyses, BuckFastCMS with CMS analyses, and Delphes with any analyses,
+  # for various configurations of Pythia.
+  #
+  # The way to turn the detectors on or off is via the boolean option useDetector for
+  # the module functions getDelphes, getBuckFastATLAS and getBuckFastCMS.
+  #
+  # NOTE: The use of Delphes currently only works when running with OMP_NUM_THREADS=1
+
+  # Choose Monte Carlo event simulator.
+  - capability:  ColliderOperator
+    function: operateLHCLoop
+    options:
+      pythiaNames: ["Pythia_SUSY_LHC_13TeV_EWonly"]
+      silenceLoop: true
+      maxFailedEvents: 1000
+      pythiaSeedBase: -1    # If -1, a new seed is generated for every Pythia configuration and parameter point 
+
+  # Choose statistical settings for Monte Carlo event generator
+  - capability: MC_ConvergenceSettings
+    options:
+      min_nEvents: [20000]
+      max_nEvents: [100000]
+      events_between_convergence_checks: [20000]
+      target_fractional_uncert: [0.3]
+      halt_when_systematic_dominated: true
+      all_SR_must_converge: false
+
+  # Define Monte Carlo event simulator and associated options.
+  - capability:  HardScatteringSim
+    function:  getPythia
+    options:
+      # Pythia_doc_path defaults to the xmldoc directory of the default Pythia
+      # backend. So, this must only be set if the user chooses a different Pythia.
+      # Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
+      Pythia_SUSY_LHC_13TeV_EWonly: ["Print:quiet = on",
+                                     "Next:numberCount = 0",
+                                     "Random:setSeed = on",
+                                     "Beams:eCM = 13000",
+                                     "PartonLevel:MPI = off",
+                                     "PartonLevel:ISR = on",
+                                     "PartonLevel:FSR = on",
+                                     "HadronLevel:all = on",
+                                     "SUSY:all = off",
+                                     "SUSY:qqbar2chi0chi0 = on",
+                                     "SUSY:qqbar2chi+-chi0 = on",
+                                     "SUSY:qqbar2chi+chi- = on",
+                                     "TauDecays:mode = 0",
+                                     "TimeShower:pTmin = 20"]
+
+      xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+
+
+  # BuckFast for ATLAS rules and options
+  - capability: SimpleSmearingSim
+    type: "ColliderBit::BuckFastSmearATLAS"
+    function: getBuckFastATLAS
+    options:
+      # useDetector defaults to true for getBuckFastATLAS. Set it to false to ignore all ATLAS analyses and disable the BuckFast ATLAS simulator
+      useDetector: [true]
+      # Choose which type of event to use: for parton level, change partonOnly to true
+      partonOnly: [false]
+      antiktR: [0.4]
+
+  # BuckFast for CMS rules and options
+  - capability: SimpleSmearingSim
+    type: "ColliderBit::BuckFastSmearCMS"
+    function: getBuckFastCMS
+    options:
+      # useDetector defaults to true for getBuckFastCMS. Set it to false to ignore all CMS analyses and disable the BuckFast CMS simulator
+      useDetector: [true]
+      # Choose which type of event to use: for parton level, change partonOnly to true
+      partonOnly: [false]
+      antiktR: [0.4]
+
+  # ATLAS analysis setup.
+  - capability: ATLASAnalysisContainer
+    function: getATLASAnalysisContainer
+    options:
+      analyses: [ ["ATLAS_13TeV_MultiLEP_36invfb"] ]
+
+  # CMS analysis setup
+  # NOTE: Don't blindly copy this analysis list without also checking the
+  #       "skip_analyses" list for "LHC_Combined_LogLike" below.
+  - capability: CMSAnalysisContainer
+    function: getCMSAnalysisContainer
+    options:
+      analyses: [ ["CMS_13TeV_1LEPbb_36invfb",
+                   "CMS_13TeV_2LEPsoft_36invfb",
+                   "CMS_13TeV_MultiLEP_36invfb",
+                   "CMS_13TeV_MONOJET_36invfb", 
+                   "CMS_13TeV_2OSLEP_36invfb",
+                   "CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE"] ]
+
+  # List any analyses that should *NOT* be included in the total log-likelihood!
+  - capability: LHC_Combined_LogLike
+    function: calc_LHC_LogLike
+    options:
+      skip_analyses: ["CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE"]
+
+  # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
+  # Can change "_lognormal_" to "_gaussian_" if you prefer
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+
+
+
+# Set the names of key log files
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  # Set the default output path
+  default_output_path: "runs/MSSMEW/"
+
+  # We set the errors from the physics modules to be non-fatal
+  # to avoid crashing the entire scan due to a rare problem point.
+  # This means we should pay close attention to the log files...
+  exceptions:
+    ColliderBit_error: non-fatal
+    DarkBit_error: non-fatal
+    DecayBit_error: non-fatal
+    FlavBit_error: non-fatal
+    PrecisionBit_error: non-fatal
+    SpecBit_error: non-fatal

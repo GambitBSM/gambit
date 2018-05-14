@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:24:01
+// File generated at Thu 10 May 2018 14:52:01
 
 #ifndef MSSMNoFVatMGUT_TWO_SCALE_SPECTRUM_GENERATOR_H
 #define MSSMNoFVatMGUT_TWO_SCALE_SPECTRUM_GENERATOR_H

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:59:52
+// File generated at Thu 10 May 2018 14:39:59
 
 #include "MSSMEFTHiggs_mAmu_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -75,9 +75,9 @@ Eigen::Matrix<double,3,3> MSSMEFTHiggs_mAmu_soft_parameters::calc_beta_TYu_1_loo
 
    Eigen::Matrix<double,3,3> beta_TYu;
 
-   beta_TYu = (oneOver16PiSqr*(0.06666666666666667*(2*Yu*(45*
-      traceAdjYuTYu + 13*MassB*Sqr(g1) + 45*MassWB*Sqr(g2) + 80*MassG*Sqr(g3))
-      - (-45*traceYuAdjYu + 13*Sqr(g1) + 45*Sqr(g2) + 80*Sqr(g3))*TYu) + 2*(Yu*
+   beta_TYu = (oneOver16PiSqr*(0.06666666666666667*(2*Yu*(13*MassB*Sqr(g1
+      ) + 45*(traceAdjYuTYu + MassWB*Sqr(g2)) + 80*MassG*Sqr(g3)) - (-45*
+      traceYuAdjYu + 13*Sqr(g1) + 45*Sqr(g2) + 80*Sqr(g3))*TYu) + 2*(Yu*
       Yd.adjoint()*TYd) + 4*(Yu*Yu.adjoint()*TYu) + TYu*Yd.adjoint()*Yd + 5*(
       TYu*Yu.adjoint()*Yu))).real();
 

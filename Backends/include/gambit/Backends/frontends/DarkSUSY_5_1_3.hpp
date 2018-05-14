@@ -53,7 +53,7 @@ BE_FUNCTION(dsrdomega, double, (int&,int&,double&,int&,int&,int&), "dsrdomega_",
 BE_FUNCTION(dsrdinit, void, (), "dsrdinit_", "dsrdinit")
 BE_FUNCTION(dsrdset, void, (char*, int&, char*, int&), "dsrdset_", "dsrdset")
 BE_FUNCTION(dsrdthlim, void, (), "dsrdthlim_", "dsrdthlim")
-BE_FUNCTION(dsrdtab, void, (double(*)(double&), double&), "dsrdtab_", "dsrdtab")
+BE_FUNCTION(dsrdtab, void, (double(*)(double&),double&,int&), "dsrdtab_", "dsrdtab")
 BE_FUNCTION(dsrdeqn, void, (double(*)(double&),double&,double&,double&,double&,int&), "dsrdeqn_", "dsrdeqn")
 BE_FUNCTION(dsrdwintp, double, (double&), "dsrdwintp_", "dsrdwintp")
 BE_FUNCTION(dsanwx, double, (double&), "dsanwx_", "dsanwx")
@@ -115,6 +115,7 @@ BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
 BE_VARIABLE(rdswitch, DS_RDSWITCH, "rdswitch_",  "rdswitch")  // gRD Switches
 BE_VARIABLE(rdlun, DS_RDLUN,       "rdlun_",     "rdlun")     // gRD I/O
 BE_VARIABLE(rdpadd, DS_RDPADD,     "rdpadd_",    "rdpadd")    // gRD I/O
+BE_VARIABLE(rdtime, DS_RDTIME,     "rdtime_",    "rdtime")    // gRD timeout
 // IB stuff
 BE_VARIABLE(IBintvars, DS_IBINTVARS,"ibintvars_", "IBintvars")
 // Direct detection

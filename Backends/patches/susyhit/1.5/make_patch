@@ -1,0 +1,16 @@
+cd ../../../downloaded
+echo "diff -rupN susyhit-pristine/hdecay.f ../installed/susyhit/1.5/hdecay.f" > patch_susyhit_1.5.dif
+diff -rupN susyhit-pristine/hdecay.f ../installed/susyhit/1.5/hdecay.f >> patch_susyhit_1.5.dif
+echo "diff -rupN susyhit-pristine/lightst3bod.f ../installed/susyhit/1.5/lightst3bod.f" >> patch_susyhit_1.5.dif
+diff -rupN susyhit-pristine/lightst3bod.f ../installed/susyhit/1.5/lightst3bod.f >> patch_susyhit_1.5.dif
+echo "diff -rupN susyhit-pristine/lightst4bod.f ../installed/susyhit/1.5/lightst4bod.f" >> patch_susyhit_1.5.dif
+diff -rupN susyhit-pristine/lightst4bod.f ../installed/susyhit/1.5/lightst4bod.f >> patch_susyhit_1.5.dif
+echo "diff -rupN susyhit-pristine/makefile ../installed/susyhit/1.5/makefile" >> patch_susyhit_1.5.dif
+diff -rupN susyhit-pristine/makefile ../installed/susyhit/1.5/makefile >> patch_susyhit_1.5.dif
+echo "diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f" >> patch_susyhit_1.5.dif
+diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f >> patch_susyhit_1.5.dif
+mv patch_susyhit_1.5.dif ../patches/susyhit/1.5/
+cd ../patches/susyhit/1.5 
+
+
+

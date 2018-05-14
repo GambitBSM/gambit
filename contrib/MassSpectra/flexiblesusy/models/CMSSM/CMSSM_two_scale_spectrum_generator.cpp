@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 19:42:34
+// File generated at Thu 10 May 2018 15:12:44
 
 #include "CMSSM_two_scale_spectrum_generator.hpp"
 #include "CMSSM_input_parameters.hpp"

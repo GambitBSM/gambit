@@ -95,6 +95,19 @@ private:
 };
 
 /**
+ * @class NonPerturbativeSinThetaW
+ * @brief Calculation of sin(theta) became non-perturbative
+ */
+class NonPerturbativeSinThetaW : public Error {
+public:
+   NonPerturbativeSinThetaW() {}
+   virtual ~NonPerturbativeSinThetaW() = default;
+   virtual std::string what() const override {
+      return "NonPerturbativeSinThetaW: sin(theta) non-perturbative";
+   }
+};
+
+/**
  * @class NonPerturbativeRunningError
  * @brief Non-perturbative RG running
  */

@@ -260,8 +260,14 @@
         return local;                                                          \
       }                                                                        \
                                                                                \
+      /* Register the module error and warning objects by calling the          \
+         above functions. */                                                   \
+      error& temp_error_reference = CAT(MODULE,_error)();                      \
+      warning& temp_warning_reference = CAT(MODULE,_warning)();                \
+                                                                               \
       /* Register the module with the log system.  Not done for models. */     \
       const int log_registered = register_module_with_log(STRINGIFY(MODULE));  \
+                                                                               \
                                                                                \
       CORE_START_MODULE_COMMON(MODULE)                                         \
                                                                                \

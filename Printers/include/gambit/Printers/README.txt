@@ -14,7 +14,7 @@ Instructions for adding new Gambit printers.
   which will make Gambit aware of the printers' existence. 
 
 - If a printer depends on external libraries, currently these will need to be
-  dealt with manual in the main CMakeLists.txt file. Will automate this
+  dealt with manually in the main CMakeLists.txt file. Will automate this
   hopefully, similar to ScannerBit.
 
 - If the external libraries are missing, CMakeLists.txt should -Ditch the

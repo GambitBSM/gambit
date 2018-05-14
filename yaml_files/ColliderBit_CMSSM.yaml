@@ -29,7 +29,6 @@ Parameters:
       prior_type: flat
     SignMu: 1
 
-
 Priors:
 
   # All priors simple, so specified in Parameters section
@@ -66,7 +65,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      point_number: 10
       output_file:  output
       like:  Likelihood
       files:
@@ -102,14 +101,13 @@ ObsLikes:
     - purpose:    LogLike
       capability: LHC_Combined_LogLike
 
-    - purpose:    Observable
-      capability: SLHA1_violation
-
-    - purpose:    Observable
-      capability: MSSM_spectrum
-      type:       map_str_dbl
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
 
     # Calculate the LEP likelihoods
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+
     - purpose:    LogLike
       capability: ALEPH_Selectron_LLike
 
@@ -155,15 +153,24 @@ ObsLikes:
     - purpose:    LogLike
       capability: OPAL_Neutralino_Hadronic_LLike
 
-    # Calculate the LEP Higgs likelihood
+    # Other observables
+    - purpose:    likelihood_details
+      capability: LHC_LogLikes
 
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - purpose:    Observable
+      capability: LHC_signals
 
-    # Calculate the LHC Higgs likelihood
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+
 
 Rules:
 
@@ -240,10 +247,18 @@ Rules:
   - capability:  ColliderOperator
     function: operateLHCLoop
     options:
-      nEvents: [5000, 5000]
       pythiaNames: ["Pythia_SUSY_LHC_8TeV", "Pythia_SUSY_LHC_13TeV"]
-      silenceLoop: true
+      silenceLoop: false
 
+  # Choose statistical settings for Monte Carlo event generator
+  - capability: MC_ConvergenceSettings
+    options:
+      min_nEvents: [5000,5000]
+      max_nEvents: [50000,50000]
+      events_between_convergence_checks: [5000,5000]
+      target_fractional_uncert: [0.3,0.3]
+      halt_when_systematic_dominated: true
+      all_SR_must_converge: false
 
   # Choose which getPythia to use
   # For a scan, we use the one that does not expect an input SLHA file (i.e. do not use getPythiaFileReader)
@@ -275,7 +290,7 @@ Rules:
       xsec_vetos: [0.048, 0.075]
 
       # Option needed if you want to use the getPythiaFileReader
-      # SLHA_filenames: ["path to SLHA file"]
+      #SLHA_filenames: ["ColliderBit/data/susy_msugra_2600_350_0_10_P_softsusy.slha"]
 
 
   # Delphes rules and options (ex. the Delphes configuration card file)
@@ -306,7 +321,7 @@ Rules:
     function: getBuckFastCMS
     options:
       # useDetector defaults to true for getBuckFastCMS. Set it to false to ignore all CMS analyses and disable the BuckFast CMS simulator
-      useDetector: [true,false]
+      useDetector: [true,true]
       # Choose which type of event to use: for parton level, change partonOnly to true
       partonOnly: [false,false]
       antiktR: [0.4,0.4]
@@ -323,52 +338,70 @@ Rules:
       antiktR: [0.4,0.4]
 
 
-  # Specify the list of analyses to run after Delphes performs detector simulation
-  # NOTE: The use of Delphes currently only works when running with OMP_NUM_THREADS=1
-  - capability: DetAnalysisContainer
-    function: getDetAnalysisContainer
-    options:
-      analyses: [ ["ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
-                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                   "ATLAS_3LEPEW_20invfb"],
-                   [] ]
-
   # Specify the list of ATLAS analyses to run with BuckFast
   # These will get run if BuckFast is turned on
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
-                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                   "ATLAS_3LEPEW_20invfb"],
-                  ["ATLAS_13TeV_0LEP_13invfb"] ]
+      analyses: [ ["ATLAS_8TeV_0LEP_20invfb",
+                   "ATLAS_8TeV_0LEPStop_20invfb",
+                   "ATLAS_8TeV_1LEPbb_20invfb",
+                   "ATLAS_8TeV_1LEPStop_20invfb",
+                   "ATLAS_8TeV_2bStop_20invfb",
+                   "ATLAS_8TeV_2LEPEW_20invfb",
+                   "ATLAS_8TeV_2LEPStop_20invfb",
+                   "ATLAS_8TeV_3LEPEW_20invfb"],
+                  ["ATLAS_13TeV_0LEP_13invfb",
+                   "ATLAS_13TeV_MultiLEP_36invfb",
+                   "ATLAS_13TeV_0LEPStop_20invfb",
+                   "ATLAS_13TeV_2LEPStop_36invfb",
+                   "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+                   "ATLAS_13TeV_2bMET_36invfb"] ]
+
+                   # "ATLAS_13TeV_1LEPStop_36invfb",
+                   #
 
   # Specify the list of CMS analyses to run with BuckFast
   # These will get run if BuckFast is turned on
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ ["CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
-                   "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"],
-                  [] ]
+      analyses: [ ["CMS_8TeV_1LEPDMTOP_20invfb",
+                   "CMS_8TeV_2LEPDMTOP_20invfb",
+                   "CMS_8TeV_3LEPEW_20invfb",
+                   "CMS_8TeV_MONOJET_20invfb"],
+                  ["CMS_13TeV_0LEP_13invfb",
+                   "CMS_13TeV_1LEPbb_36invfb",
+                   "CMS_13TeV_2LEPsoft_36invfb",
+                   "CMS_13TeV_2OSLEP_36invfb",
+                   "CMS_13TeV_1LEPStop_36invfb",
+                   "CMS_13TeV_MultiLEP_36invfb"] ]
+
+                   # "CMS_13TeV_2LEPStop_36invfb",
+                   # "CMS_13TeV_MONOJET_36invfb",
 
   # Specify the list of identity analyses to run
   # These will be run if the identity simulation is turned on
   - capability: IdentityAnalysisContainer
     function: getIdentityAnalysisContainer
     options:
-      analyses: [ [ "ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
-                    "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                    "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                    "ATLAS_3LEPEW_20invfb","CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
-                    "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"], [] ]
-
+      analyses: [ [], [] ]
+      # analyses: [ [ "ATLAS_8TeV_0LEP_20invfb",
+      #               "ATLAS_8TeV_0LEPStop_20invfb",
+      #               "ATLAS_8TeV_1LEPStop_20invfb",
+      #               "ATLAS_8TeV_2bStop_20invfb",
+      #               "ATLAS_8TeV_2LEPEW_20invfb",
+      #               "ATLAS_8TeV_2LEPStop_20invfb",
+      #               "ATLAS_8TeV_3LEPEW_20invfb",
+      #               "CMS_8TeV_1LEPDMTOP_20invfb",
+      #               "CMS_8TeV_2LEPDMTOP_20invfb",
+      #               "CMS_8TeV_3LEPEW_20invfb",
+      #               "CMS_8TeV_MONOJET_20invfb"],
+      #               [] ]
 
     # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
     # Can change "_lognormal_" to "_gaussian_" if you prefer
-  - capability: LHC_Combined_LogLike
+  - capability: LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
 

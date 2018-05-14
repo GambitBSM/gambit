@@ -21,8 +21,13 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2014 Aug
+///
 ///  \author Csaba Balazs
 ///  \date 2015 Jan-May
+///
+///   \author Tomas Gonzalo
+///           (t.e.gonzalo@fys.uio.no)
+///   \date 2018 Feb
 ///
 ///  *********************************************
 
@@ -668,6 +673,30 @@ START_MODULE
 
   #undef CAPABILITY
 
+  #define CAPABILITY Z_invisible_width
+  START_CAPABILITY
+
+    #define FUNCTION Z_invisible_width_MSSM
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Z_decay_rates, DecayTable::Entry)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Z_invisible_width
+  START_CAPABILITY
+
+    #define FUNCTION lnL_Z_invisible_width
+    START_FUNCTION(double)
+    DEPENDENCY(Z_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Z_invisible_width, DecayTable::Entry)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
 
   #define CAPABILITY decay_rates
   START_CAPABILITY
@@ -783,7 +812,7 @@ START_MODULE
 // SM decay rate functions
 QUICK_FUNCTION(DecayBit, W_plus_decay_rates,    NEW_CAPABILITY, W_plus_decays,    DecayTable::Entry)
 QUICK_FUNCTION(DecayBit, W_minus_decay_rates ,  NEW_CAPABILITY, W_minus_decays,   DecayTable::Entry, (), (W_plus_decay_rates,   DecayTable::Entry))
-QUICK_FUNCTION(DecayBit, Z_decay_rates,         NEW_CAPABILITY, Z_decays,         DecayTable::Entry)
+QUICK_FUNCTION(DecayBit, Z_decay_rates,         OLD_CAPABILITY, Z_decays,         DecayTable::Entry)
 QUICK_FUNCTION(DecayBit, tbar_decay_rates,      NEW_CAPABILITY, tbar_decays,      DecayTable::Entry, (), (t_decay_rates,        DecayTable::Entry))
 QUICK_FUNCTION(DecayBit, mu_plus_decay_rates,   NEW_CAPABILITY, mu_plus_decays,   DecayTable::Entry)
 QUICK_FUNCTION(DecayBit, mu_minus_decay_rates,  NEW_CAPABILITY, mu_minus_decays,  DecayTable::Entry, (), (mu_plus_decay_rates,  DecayTable::Entry))

@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:57:02
+// File generated at Thu 10 May 2018 14:37:46
 
 /**
  * @file MSSMatMSUSYEFTHiggs_mAmu_two_scale_ewsb_solver.cpp
  *
  * @brief implementation of EWSB solver for two-scale iteration
  *
- * This file was generated at Tue 9 Jan 2018 19:57:02 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:37:46 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "MSSMatMSUSYEFTHiggs_mAmu_two_scale_ewsb_solver.hpp"

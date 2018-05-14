@@ -12,17 +12,17 @@
 ///  or likelihood to this module.
 ///
 ///  Don't put typedefs or other type definitions
-///  in this file; see 
+///  in this file; see
 ///  Elements/include/gambit/Elements/types_rollcall.hpp
-///  for further instructions on how to add new 
+///  for further instructions on how to add new
 ///  types.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Pat Scott
-///  \date 2012 Nov  
+///  \date 2012 Nov
 ///  \date 2013 Jan, Feb, April, May
 ///
 ///  \author Anders Kvellestad
@@ -34,11 +34,11 @@
 /// Specifies that this is the MODULE named ExampleBit_B.
 ///
 /// \def CAPABILITY
-/// Specifies that ExampleBit_B (this MODULE) is 
-/// capable of providing the service CAPABILITY.  
-/// Usually a CAPABILITY means that the MODULE can 
-/// compute some physical or statistical quantity 
-/// referred to by CAPABILITY.   
+/// Specifies that ExampleBit_B (this MODULE) is
+/// capable of providing the service CAPABILITY.
+/// Usually a CAPABILITY means that the MODULE can
+/// compute some physical or statistical quantity
+/// referred to by CAPABILITY.
 ///
 /// \def FUNCTION
 /// Specifies that ExampleBit_B (this MODULE) contains
@@ -46,21 +46,21 @@
 /// commands required to provided the current CAPABILITY.
 ///
 /// \def BACKEND_REQ
-/// Specifies that the current FUNCTION in 
+/// Specifies that the current FUNCTION in
 /// ExampleBit_B (this MODULE) requires BACKEND_REQ from
 /// a backend code.  The requirement BACKEND_REQ corresponds
-/// to a capability that a valid backend function 
-/// is expected to report in its corresponding 
+/// to a capability that a valid backend function
+/// is expected to report in its corresponding
 /// registration header file.
 ///
 /// \def CONDITIONAL_DEPENDENCY
-/// Specifies that the current FUNCTION in 
+/// Specifies that the current FUNCTION in
 /// ExampleBit_B (this MODULE) has a CONDITIONAL_DEPENDENCY
 /// that is only active under certain conditions.
 /// These conditions may include:
 ///  - a specific backend is in use in order to fill
 ///    a certain BACKEND_REQ
-///  - a certain model is under analysis 
+///  - a certain model is under analysis
 
 
 #ifndef __ExampleBit_B_rollcall_hpp__
@@ -92,33 +92,33 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY nevents_postcuts       // Observable: predicted number of events for process after cuts 
+  #define CAPABILITY nevents_postcuts       // Observable: predicted number of events for process after cuts
   START_CAPABILITY
   //LATEX_LABEL($n_{\rm events, cut}$)      // Specify the LaTeX label of this quantity.  Not implemented yet...
 
     #define FUNCTION predicted_events       // Name of specific function providing the observable
-    START_FUNCTION(int)                     // Function calculates an integer variable                  
+    START_FUNCTION(int)                     // Function calculates an integer variable
     DEPENDENCY(nevents, double)             // Dependency: post-cut events needs pre-cut events
     DEPENDENCY(function_pointer, fptr)      // Dependency: some function pointer
-    
+
     BACKEND_REQ(awesomeness, (lib123), double, (int))
     BACKEND_REQ(refex, (common_be), double, (double&))
     BACKEND_REQ(refex2, (common_be), void, (double&, double))
     BACKEND_REQ(varex, (common_be), double, (int, etc))
     BACKEND_REQ(varex2, (common_be), double, (int, etc))
     BACKEND_REQ(runMe, (), void, (double (*)(int&), int&))
-    BACKEND_REQ(SomeInt, (model_dependent_reqs, libfirst1_only), int)
-    BACKEND_REQ(someFunction, (libfirst1_only, common_be), void, ())
+    BACKEND_REQ(SomeInt, (model_dependent_reqs, libfirst11_or_libsecond_only), python_variable<int>)
+    BACKEND_REQ(someFunction, (libfirst11_or_libsecond_only), void, ())
 
-    ACTIVATE_BACKEND_REQ_FOR_MODELS( (demo_B, nonexistent_model), (model_dependent_reqs) )
-    BACKEND_OPTION( (LibFirst, 1.1), (libfirst1_only, lib123) )
-    BACKEND_OPTION( (LibSecond), (lib123) )
+    ACTIVATE_BACKEND_REQ_FOR_MODELS( (CMSSM, demo_B, nonexistent_model), (model_dependent_reqs) )
+    BACKEND_OPTION( (LibFirst, 1.1), (libfirst11_or_libsecond_only, lib123) )
+    BACKEND_OPTION( (LibSecond), (libfirst11_or_libsecond_only, lib123) )
     BACKEND_OPTION( (LibThird, 1.2, 1.3 , 1.5), (lib123) )
     FORCE_SAME_BACKEND(common_be)
 
     #define CONDITIONAL_DEPENDENCY particle_id             // A dependency that only counts under certain conditions (must come after all BACKEND_REQs)
     START_CONDITIONAL_DEPENDENCY(std::string)              // Type of the dependency; one type permitted per CONDITIONAL_DEPENDENCY.
-    ACTIVATE_FOR_BACKEND(awesomeness, LibFirst, 1.1, 1.2)  // Dependency counts if awesomeness comes from LibFirst v1.1 or 1.2 
+    ACTIVATE_FOR_BACKEND(awesomeness, LibFirst, 1.1, 1.2)  // Dependency counts if awesomeness comes from LibFirst v1.1 or 1.2
     ACTIVATE_FOR_BACKEND(awesomeness, LibThird)            // Dependency counts when any version of LibThird is used for awesomeness
     ACTIVATE_FOR_MODEL(demo_B)                             // Dependency counts when scanning demo_B or one of its sub-models
     #undef CONDITIONAL_DEPENDENCY
@@ -141,8 +141,8 @@ START_MODULE
   #define CAPABILITY particle_id
   START_CAPABILITY
 
-    #define FUNCTION particle_identity     // Observable: name of a particle    
-    START_FUNCTION(std::string)                
+    #define FUNCTION particle_identity     // Observable: name of a particle
+    START_FUNCTION(std::string)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -171,7 +171,7 @@ QUICK_FUNCTION(ExampleBit_B, Example_lnL_B, NEW_CAPABILITY, example_lnL, double,
 // Equivalent to:
 //   #define CAPABILITY test_vector
 //   START_CAPABILITY
-//     #define FUNCTION exampleVec             
+//     #define FUNCTION exampleVec
 //     START_FUNCTION(std::vector<double>)
 //     #undef FUNCTION
 //   #undef CAPABILITY

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:36
+// File generated at Thu 10 May 2018 14:42:18
 
 #include "config.h"
 
@@ -436,6 +436,7 @@ void Model_data::put_input_parameters(MLINK link) const
 {
    MLPutFunction(link, "List", 16);
 
+   MLPutRuleTo(link, INPUTPARAMETER(TanBeta), "TanBeta");
    MLPutRuleTo(link, INPUTPARAMETER(SignMu), "SignMu");
    MLPutRuleTo(link, INPUTPARAMETER(MSUSY), "MSUSY");
    MLPutRuleTo(link, INPUTPARAMETER(M1Input), "M1Input");
@@ -443,7 +444,6 @@ void Model_data::put_input_parameters(MLINK link) const
    MLPutRuleTo(link, INPUTPARAMETER(M3Input), "M3Input");
    MLPutRuleTo(link, INPUTPARAMETER(mHd2IN), "mHd2IN");
    MLPutRuleTo(link, INPUTPARAMETER(mHu2IN), "mHu2IN");
-   MLPutRuleTo(link, INPUTPARAMETER(TanBeta), "TanBeta");
    MLPutRuleTo(link, INPUTPARAMETER(mq2Input), "mq2Input");
    MLPutRuleTo(link, INPUTPARAMETER(mu2Input), "mu2Input");
    MLPutRuleTo(link, INPUTPARAMETER(md2Input), "md2Input");
@@ -1087,6 +1087,7 @@ Model_data make_data(const Dynamic_array_view<Element_t>& pars)
    physical_input.set(Physical_input::mh_pole, pars[c++]);
 
    MSSMEFTHiggs_input_parameters input;
+   INPUTPARAMETER(TanBeta) = pars[c++];
    INPUTPARAMETER(SignMu) = pars[c++];
    INPUTPARAMETER(MSUSY) = pars[c++];
    INPUTPARAMETER(M1Input) = pars[c++];
@@ -1094,7 +1095,6 @@ Model_data make_data(const Dynamic_array_view<Element_t>& pars)
    INPUTPARAMETER(M3Input) = pars[c++];
    INPUTPARAMETER(mHd2IN) = pars[c++];
    INPUTPARAMETER(mHu2IN) = pars[c++];
-   INPUTPARAMETER(TanBeta) = pars[c++];
    INPUTPARAMETER(mq2Input(0,0)) = pars[c++];
    INPUTPARAMETER(mq2Input(0,1)) = pars[c++];
    INPUTPARAMETER(mq2Input(0,2)) = pars[c++];

@@ -1,6 +1,6 @@
 diff -rupN susyhit-pristine/hdecay.f ../installed/susyhit/1.5/hdecay.f
---- susyhit-pristine/hdecay.f	2015-02-22 18:14:22.000000000 +0000
-+++ ../installed/susyhit/1.5/hdecay.f	2017-04-17 00:57:30.905324040 +0100
+--- susyhit-pristine/hdecay.f	2015-02-22 19:14:22.000000000 +0100
++++ ../installed/susyhit/1.5/hdecay.f	2018-02-12 16:29:05.379945083 +0100
 @@ -1,7 +1,7 @@
  C ==================================================================
  C ================= PROGRAM HDECAY: COMMENTS =======================
@@ -2749,8 +2749,8 @@ diff -rupN susyhit-pristine/hdecay.f ../installed/susyhit/1.5/hdecay.f
 +
  c end change susyhit
 diff -rupN susyhit-pristine/lightst3bod.f ../installed/susyhit/1.5/lightst3bod.f
---- susyhit-pristine/lightst3bod.f	2015-02-22 18:14:22.000000000 +0000
-+++ ../installed/susyhit/1.5/lightst3bod.f	2017-04-13 17:05:33.896249679 +0100
+--- susyhit-pristine/lightst3bod.f	2015-02-22 19:14:22.000000000 +0100
++++ ../installed/susyhit/1.5/lightst3bod.f	2018-02-12 16:29:05.379945083 +0100
 @@ -13,7 +13,7 @@ cccccccccccccccccccccccccccccccccccccccc
        double precision sdgf,amz,amw,pi,g2
        double precision width_bchiW, width_jchiw, width_tot3bod
@@ -2806,8 +2806,8 @@ diff -rupN susyhit-pristine/lightst3bod.f ../installed/susyhit/1.5/lightst3bod.f
        COMMON/SD_mwmzpole/amwp,amzp
  c---- ramona cahnged 2/2/15
 diff -rupN susyhit-pristine/lightst4bod.f ../installed/susyhit/1.5/lightst4bod.f
---- susyhit-pristine/lightst4bod.f	2015-02-22 18:14:22.000000000 +0000
-+++ ../installed/susyhit/1.5/lightst4bod.f	2017-04-13 17:05:33.896249679 +0100
+--- susyhit-pristine/lightst4bod.f	2015-02-22 19:14:22.000000000 +0100
++++ ../installed/susyhit/1.5/lightst4bod.f	2018-02-12 16:29:05.383945079 +0100
 @@ -34,7 +34,7 @@ c----- end ramona added
       .msd2(3,3), td(3,3), tu(3,3),
       . usqmix(6,6), dsqmix(6,6)
@@ -3043,8 +3043,8 @@ diff -rupN susyhit-pristine/lightst4bod.f ../installed/susyhit/1.5/lightst4bod.f
  c----- ramona added 4/11/14
        COMMON/SD_mwmzpole/amwp,amzp
 diff -rupN susyhit-pristine/makefile ../installed/susyhit/1.5/makefile
---- susyhit-pristine/makefile	2015-02-22 18:14:22.000000000 +0000
-+++ ../installed/susyhit/1.5/makefile	2017-04-13 17:05:33.896249679 +0100
+--- susyhit-pristine/makefile	2015-02-22 19:14:22.000000000 +0100
++++ ../installed/susyhit/1.5/makefile	2018-02-12 16:29:05.383945079 +0100
 @@ -2,13 +2,19 @@ OBJS1 = bsg.o twoloophiggs.o suspect2.o
  OBJS2 = sdecay.o lightst4bod.o Xvegas.o lightst3bod.o
  OBJS3 = susylha.o hgaga.o hdecay.o
@@ -3070,8 +3070,8 @@ diff -rupN susyhit-pristine/makefile ../installed/susyhit/1.5/makefile
 \ No newline at end of file
 +	rm -f *.o
 diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
---- susyhit-pristine/sdecay.f	2015-02-22 18:14:22.000000000 +0000
-+++ ../installed/susyhit/1.5/sdecay.f	2017-04-17 00:50:33.409318328 +0100
+--- susyhit-pristine/sdecay.f	2015-02-22 19:14:22.000000000 +0100
++++ ../installed/susyhit/1.5/sdecay.f	2018-02-12 16:31:00.031840596 +0100
 @@ -98,7 +98,12 @@ c  file.]
  c                                                                      c
  c cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc c
@@ -14430,7 +14430,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
           call SD_runmass(amsti,0.D0,0.D0,runmb,runmt)
           scalb = SD_yuk(2,runmb)
           scalt = SD_yuk(1,runmt)
-@@ -41454,7 +42107,7 @@ c --- the running couplings ---
+@@ -41454,16 +42107,23 @@ c --- the running couplings ---
  
        call SD_neutstoptop(atopr,btopr)
        call SD_charstopbot(alstor,akstor)
@@ -14439,7 +14439,26 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        call SD_charsbottop(alsbot,aksbot)
  
  c ----------------------------
-@@ -41478,18 +42131,18 @@ c ----------------------------
+ 
+       kap = dreal(SD_kappa(amsti**2,amq**2,mcharneut**2,0.D0))
+ 
+-      b0 = (amsti**2-amq**2-mcharneut**2+kap)/(2.D0*amq*mcharneut)
+-      b1 = (amsti**2-amq**2+mcharneut**2-kap)/(2.D0*amsti*mcharneut)
+-      b2 = (amsti**2+amq**2-mcharneut**2-kap)/(2.D0*amsti*amq)
++      ! Modified by GAMBIT to avoid precision issues
++      if(amsti > mcharneut) then
++         b0 = (kap+amsti**2-amq**2-mcharneut**2)/(2.D0*amq*mcharneut) 
++         b1 = (-kap+amsti**2-amq**2+mcharneut**2)/(2.D0*amsti*mcharneut)
++         b2 = (-kap+amsti**2+amq**2-mcharneut**2)/(2.D0*amsti*amq) 
++      else
++         b0 = (kap-mcharneut**2+amsti**2-amq**2)/(2.D0*amq*mcharneut)   
++         b1 = (-kap+mcharneut**2+amsti**2-amq**2)/(2.D0*amsti*mcharneut)
++         b2 = (-kap-mcharnet**2+amsti**2+amq**2)/(2.D0*amsti*amq)  
++      endif
+ 
+       lb0 = dreal(cdlog(dcmplx(b0)))
+       lb1 = dreal(cdlog(dcmplx(b1)))
+@@ -41478,18 +42138,18 @@ c ----------------------------
       .     dlog(kap**2/(lamv*amsti*amq*mcharneut)) - kap -
       .     (amsti**2-mcharneut**2)*lb02 - amq**2*lb1)
        hi01 = dreal(1.D0/(4.D0*amsti**2)*(-2.D0*
@@ -14462,7 +14481,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     -2.D0*mcharneut**2*lb0-kap)
        hi10 = 1.D0/(4.D0*amsti**2)*(amsti**4*lb2-
       .     mcharneut**2*(2.D0*amq**2-2.D0*amsti**2+mcharneut**2)*
-@@ -41515,7 +42168,7 @@ c ----------------------------
+@@ -41515,7 +42175,7 @@ c ----------------------------
        elseif(isign.eq.0) then
           epschi = 1.D0
        endif
@@ -14471,7 +14490,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        SD_corrreali = 8.D0*cli*cri*amq*mcharneut*epschi*((amsti**2+amq**2
       .     -mcharneut**2)*hi01+amsti**2*hi00+amq**2*hi11+hi0+hi1)
       .     +(cli**2+cri**2)*(2.D0*(amq**2+mcharneut**2-amsti**2)*
-@@ -41554,7 +42207,7 @@ c --- the running couplings ---
+@@ -41554,7 +42214,7 @@ c --- the running couplings ---
           scalt = ytewsb/dsqrt(g2)
           runmt = rmtc
           runmb = rmbc
@@ -14480,7 +14499,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
           call SD_runmass(mcharneut,0.D0,0.D0,runmb,runmt)
           scalb = SD_yuk(2,runmb)
           scalt = SD_yuk(1,runmt)
-@@ -41566,7 +42219,7 @@ c --- the running couplings ---
+@@ -41566,7 +42226,7 @@ c --- the running couplings ---
  
        call SD_neutstoptop(atopr,btopr)
        call SD_charstopbot(alstor,akstor)
@@ -14489,7 +14508,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        call SD_charsbottop(alsbot,aksbot)
  
  c ----------------------------
-@@ -41591,18 +42244,18 @@ c ----------------------------
+@@ -41591,18 +42251,18 @@ c ----------------------------
       .     dlog(kap**2/(lamv*amsti*amq*mcharneut)) - kap -
       .     (mcharneut**2-amq**2)*lb01 - amsti**2*lb2)
        hi21 = dreal(1.D0/(4.D0*mcharneut**2)*(-2.D0*
@@ -14512,7 +14531,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     -2.D0*amsti**2*lb0-kap)
        hi12 = 1.D0/(4.D0*mcharneut**2)*(amsti**4*lb0-
       .     mcharneut**2*(2.D0*amq**2-2.D0*amsti**2+mcharneut**2)*
-@@ -41628,7 +42281,7 @@ c ----------------------------
+@@ -41628,7 +42288,7 @@ c ----------------------------
        elseif(isign.eq.0) then
           epschi = 1.D0
        endif
@@ -14521,7 +14540,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        SD_realicorr = 8.D0*cli*cri*amq*mcharneut*epschi*((amsti**2+amq**2
       .     -mcharneut**2)*hi21+amsti**2*hi22+amq**2*hi11+hi2+hi1)
       .     +(cli**2+cri**2)*(2.D0*(amq**2+mcharneut**2-amsti**2)*
-@@ -41646,20 +42299,20 @@ c --------------------------------------
+@@ -41646,20 +42306,20 @@ c --------------------------------------
  c - QCD corrections to the decays light squark -> light quark + gluino c
  
        double precision function SD_gama(r)
@@ -14549,7 +14568,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
  
-@@ -41674,12 +42327,12 @@ c --------------------------------------
+@@ -41674,12 +42334,12 @@ c --------------------------------------
  
        pi = 4.D0*datan(1.D0)
  
@@ -14567,7 +14586,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
  
-@@ -41691,7 +42344,7 @@ c --------------------------------------
+@@ -41691,7 +42351,7 @@ c --------------------------------------
  
        implicit double precision (a-h,k-z)
  
@@ -14576,7 +14595,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     ((r-1.D0)*(r+3.D0))/(4.D0*r**2)*dlog(dabs(1.D0-r))
  
        return
-@@ -41713,10 +42366,10 @@ c maggie changed with respect to the pap
+@@ -41713,10 +42373,10 @@ c maggie changed with respect to the pap
  
        SD_gamrendec =  SD_gamrendec + 4.D0/12.D0*dlog(mur**2/amsq**2)
       .     + 1.D0/24.D0*dlog(mur**2/amsb1**2) + 1.D0/24.D0*
@@ -14589,7 +14608,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
  
-@@ -41744,16 +42397,16 @@ c -------- gluino -> sbottom1/2 bottom -
+@@ -41744,16 +42404,16 @@ c -------- gluino -> sbottom1/2 bottom -
           isign = 1.D0
        elseif(ival.eq.2) then
           isign = -1.D0
@@ -14609,7 +14628,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .   - SD_BP02(amt**2,amgl,amst2,amuv**2) ) + 2.D0*amt**2*(
       .   (amgl**2+amt**2-amst1**2)*SD_BP02(amt**2,amgl,amst1,amuv**2)
       .  +(amgl**2+amt**2-amst2**2)*SD_BP02(amt**2,amgl,amst2,amuv**2)
-@@ -41779,9 +42432,9 @@ c --------------------------------------
+@@ -41779,9 +42439,9 @@ c --------------------------------------
           isign = 1.D0
        elseif(ival.eq.2) then
           isign = -1.D0
@@ -14621,7 +14640,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .  SD_A01(amst1**2,amuv**2)
       .  -(amgl**2+amt**2-amst1**2)*SD_B02(amt**2,amgl,amst1,amuv**2)
       .  +(amgl**2+amt**2-amst2**2)*SD_B02(amt**2,amgl,amst2,amuv**2)
-@@ -41828,7 +42481,7 @@ c --------------------------------------
+@@ -41828,7 +42488,7 @@ c --------------------------------------
           isign = 1.D0
        elseif(ival.eq.2) then
           isign = -1.D0
@@ -14630,7 +14649,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        sig2t = isign*amt*amgl*dsin(2.D0*thet)
        sig2b = isign*amb*amgl*dsin(2.D0*theb)
-@@ -41836,13 +42489,13 @@ c --------------------------------------
+@@ -41836,13 +42496,13 @@ c --------------------------------------
        SD_gamglui2 = 2.D0*SD_A01(amt**2,amuv**2) -
       .     SD_A01(amst1**2,amuv**2) - SD_A01(amst2**2,amuv**2)
       .     + (amst1**2+amgl**2-amt**2)*
@@ -14647,7 +14666,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     (amgl**2+amt**2-amst2**2)*
       .     SD_BP02(amgl**2,amst2,amt,amuv**2) )
  
-@@ -41851,13 +42504,13 @@ c maggie changed with respect to the pap
+@@ -41851,13 +42511,13 @@ c maggie changed with respect to the pap
       .     2.D0*SD_A01(amb**2,amuv**2) -
       .     SD_A01(amsb1**2,amuv**2) - SD_A01(amsb2**2,amuv**2)
       .     + (amsb1**2+amgl**2-amb**2)*
@@ -14664,7 +14683,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     (amgl**2+amb**2-amsb2**2)*
       .     SD_BP02(amgl**2,amsb2,amb,amuv**2) )
  c end maggie changed
-@@ -41876,7 +42529,7 @@ c --------------------------------------
+@@ -41876,7 +42536,7 @@ c --------------------------------------
  
        pi = 4.D0*datan(1.D0)
  
@@ -14673,7 +14692,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     4.D0*amgl**4*SD_BP02(amgl**2,lamv,amgl,amuv**2)
  
        SD_gamglui3 = -1.D0/16.D0/pi**2*SD_gamglui3
-@@ -41899,12 +42552,12 @@ c --------------------------------------
+@@ -41899,12 +42559,12 @@ c --------------------------------------
           isign = 1.D0
        elseif(ival.eq.2) then
           isign = -1.D0
@@ -14689,7 +14708,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     2.D0*sig2t*SD_BP02(amst1**2,amgl,amt,amuv**2) -
       .     (amgl**2+amt**2-amst1**2)*
       .     SD_BP02(amst1**2,amgl,amt,amuv**2) - 2.D0*amst1**2*
-@@ -41930,21 +42583,25 @@ c --------------------------------------
+@@ -41930,21 +42590,25 @@ c --------------------------------------
           isign = 1.D0
        elseif(ival.eq.2) then
           isign = -1.D0
@@ -14723,7 +14742,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     SD_gam12
  
        SD_gam12 = -1.D0/16.D0/pi**2*SD_gam12
-@@ -41997,7 +42654,7 @@ c --------------------------------------
+@@ -41997,7 +42661,7 @@ c --------------------------------------
        end
  
  c -------------------------------------------------------------------- c
@@ -14732,7 +14751,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        double precision function SD_gamreal(amst1,amt,amgl,thet,ival,
       .                                     lamv)
-@@ -42029,18 +42686,18 @@ c --- this function is for the stop1/2,
+@@ -42029,18 +42693,18 @@ c --- this function is for the stop1/2,
        b1 = (m0**2-m1**2+m2**2-kap)/(2.D0*m0*m2)
        b2 = (m0**2+m1**2-m2**2-kap)/(2.D0*m0*m1)
  
@@ -14759,7 +14778,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     SD_ccspen(dcmplx(1.D0-b1**2)) ) )
  
        iglgl = 1.D0/(4.D0*m2**2*m0**2)*(kap*dlog(kap**2/(lamv*m0*m1*m2))
-@@ -42062,9 +42719,9 @@ c --- this function is for the stop1/2,
+@@ -42062,9 +42726,9 @@ c --- this function is for the stop1/2,
       .     -kap)
  
        itgl = -1.D0/(4.D0*m0**2)*(-m2**4*dlog(b0)+m0**2*(2.D0*m1**2
@@ -14771,7 +14790,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        iglst1 = 1.D0/(4.D0*m0**2)*(m0**4*dlog(b1)-m1**2*(2.D0*m2**2
       .     -2.D0*m0**2+m1**2)*dlog(b0) -kap/4.D0*(m2**2-3.D0*m0**2
       .     +5.D0*m1**2) )
-@@ -42082,7 +42739,7 @@ c --- this function is for the stop1/2,
+@@ -42082,7 +42746,7 @@ c --- this function is for the stop1/2,
        end
  
  c -------------------------------------------------------------------- c
@@ -14780,7 +14799,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        double precision function SD_gamrealgl(amst1,amt,amgl,thet,ival,
       .                                       lamv)
-@@ -42114,18 +42771,18 @@ c --- this function is for the gluino de
+@@ -42114,18 +42778,18 @@ c --- this function is for the gluino de
        b1 = (m0**2-m1**2+m2**2-kap)/(2.D0*m0*m2)
        b2 = (m0**2+m1**2-m2**2-kap)/(2.D0*m0*m1)
  
@@ -14807,7 +14826,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     SD_ccspen(dcmplx(1.D0-b2**2)) ) )
  
        iglgl = 1.D0/(4.D0*m0**4)*(kap*dlog(kap**2/(lamv*m0*m1*m2))
-@@ -42148,7 +42805,7 @@ c --- this function is for the gluino de
+@@ -42148,7 +42812,7 @@ c --- this function is for the gluino de
       .     -kap)
  
        itgl = -1.D0/(4.D0*m0**2)*(-m0**4*dlog(b2)+m2**2*(2.D0*m1**2
@@ -14816,7 +14835,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     kap/4.D0*(m1**2+5.D0*m2**2-3.D0*m0**2) )
  
        iglst1 = 1.D0/(4.D0*m0**2)*(m2**4*dlog(b1)-m1**2*(2.D0*m0**2
-@@ -42183,7 +42840,7 @@ c --------------------------------------
+@@ -42183,7 +42847,7 @@ c --------------------------------------
  c maggie changed with respect to the paper 26/3/03
        SD_gamcfdec = SD_gamcfdec + 4.D0*( 4.D0/12.D0*dlog(mur**2/amsq**2)
       .     + 1.D0/24.D0*dlog(mur**2/amsb1**2) + 1.D0/24.D0*
@@ -14825,7 +14844,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     + 1.D0/24.D0*dlog(mur**2/amst1**2) + 1.D0/24.D0*
       .     dlog(mur**2/amst2**2) + 1.D0/6.D0*dlog(mur**2/amt**2)
       .     + 1.D0/2.D0*dlog(mur**2/amgl**2) )
-@@ -42209,20 +42866,20 @@ c --------------------------------------
+@@ -42209,20 +42873,20 @@ c --------------------------------------
        pi = 4.D0*datan(1.D0)
  
        fffunc(1) = 2.D0*(amt**2+amgl**2)*
@@ -14852,7 +14871,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .   +4.D0*SD_B02(amgl**2,amt,amst1,amuv**2)
       .   +4.D0*(amgl**2+amt**2-amst1**2)*
       .   dreal( SD_C03(amst1**2,amt**2,amgl**2,amt,amgl,amst1) )
-@@ -42230,40 +42887,40 @@ c --------------------------------------
+@@ -42230,40 +42894,40 @@ c --------------------------------------
       .   dreal( SD_C03(amst1**2,amt**2,amgl**2,amt,amgl,amst2) )
  
        fffunc(3) = 1.D0/(amgl**2*amt**2)*( 2.D0*amt**2*(
@@ -14905,7 +14924,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .   -2.D0*amt**2*(amgl**2+amt**2-amst1**2) - 2.D0*amt**2*
       .   (amgl**2+amt**2-amst2**2) )*
       .   dreal( SD_C03(amst1**2,amt**2,amgl**2,amt,amgl,amst2) ))
-@@ -42275,7 +42932,7 @@ c --------------------------------------
+@@ -42275,7 +42939,7 @@ c --------------------------------------
       .   - (amst1**2+amgl**2-amt**2)*
       .   dreal( SD_C0_lam(amgl,amst1,amt,lamv) ) )
       .   - 8.D0/3.D0*(amt**2+amst1**2-amgl**2)*
@@ -14914,7 +14933,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        do i=1,3,1
           fffunc(i) = -1.D0/16.D0/pi**2*fffunc(i)
-@@ -42337,10 +42994,10 @@ c----end ramona chnaged
+@@ -42337,10 +43001,10 @@ c----end ramona chnaged
       .     +(m2**2-m1**2-s)*SD_B02(s,m1,m2,mu2) )
  c---- ramona chnaged 5/6/13
        endif
@@ -14928,7 +14947,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
  c -------------------------------------------------------------------- c
  c ----------------------- The divergent piece of B1 ------------------ c
-@@ -42351,10 +43008,10 @@ c ----------------------- The divergent
+@@ -42351,10 +43015,10 @@ c ----------------------- The divergent
  
        SD_B1_DIV = 1.D0/2.D0/s*( m1**2*log(mu2)-m2**2*log(mu2)
       .     +(m2**2-m1**2-s)*SD_B02_DIV(s,m1,m2,mu2) )
@@ -14942,7 +14961,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
  c -------------------------------------------------------------------- c
  c ------------------- The derivative of B1: dB1/ ds ------------------ c
-@@ -42370,7 +43027,7 @@ c---- ramona changed 5/6/13
+@@ -42370,7 +43034,7 @@ c---- ramona changed 5/6/13
       .-(2d0*m1**2*m2**2*(m1**2+m2**2))/(m1**2-m2**2)**5
       .*dlog(m1**2/m2**2))
        else
@@ -14951,7 +14970,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        SD_BP1 = -1.D0/2.D0/s**2*( SD_A01(m1**2,mu2)-
       .     SD_A01(m2**2,mu2)+(m2**2-m1**2)*SD_B02(s,m1,m2,mu2) )
       .     +1.D0/2.D0/s*(m2**2-m1**2)*SD_BP02(s,m1,m2,mu2)
-@@ -42378,9 +43035,9 @@ c---- end ramona changed
+@@ -42378,9 +43042,9 @@ c---- end ramona changed
  c---- ramona changed 5/6/13
        endif
  c--- end ramona changed
@@ -14963,7 +14982,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
  c -------------------------------------------------------------------- c
  c ------- The C function for a small mass lambda: -------------------- c
-@@ -42411,10 +43068,10 @@ c --------------------------------------
+@@ -42411,10 +43075,10 @@ c --------------------------------------
        dlxs = cdlog(xs)
        dlfc = cdlog(1.D0-xs**2)
  
@@ -14976,7 +14995,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .     SD_ccspen(1.D0-xs*m2/m1) + SD_ccspen(xs**2) +
       .     1.D0/2.D0*(dlog(m1/m2))**2 - pi**2/6.D0 )
  
-@@ -42436,7 +43093,7 @@ c --------------------------------------
+@@ -42436,7 +43100,7 @@ c --------------------------------------
  
        ieps = dcmplx(0.d0,1.d-17)
  
@@ -14985,7 +15004,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
           SD_KAPPA = cdsqrt((C*(C-4.D0*A))*(1+IEPS*D))
        elseif(B.eq.C) then
           SD_KAPPA = cdsqrt((A*(A-4.D0*B))*(1+IEPS*D))
-@@ -42452,13 +43109,13 @@ c----ramona chnaged 4/6/13
+@@ -42452,13 +43116,13 @@ c----ramona chnaged 4/6/13
  c---------------------------------------------------------------------
         complex*16 function infc0func(pp,m, sca)
  c---- function for the infrared divergent c03 function
@@ -15003,7 +15022,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
          infc0func=(1d0/4d0*dLog(sca/m**2)**2+
       .dLog(m**2/(m**2-pp))*dLog(sca/m**2)+
-@@ -42495,7 +43152,7 @@ C     SD_KAPPA(A,B,C) = DSQRT(A**2+B**2+
+@@ -42495,7 +43159,7 @@ C     SD_KAPPA(A,B,C) = DSQRT(A**2+B**2+
  C     SD_KAPPA(A,B,C) = DSQRT(DABS(A**2+B**2+C**2-2*(A*B+A*C+B*C)))
  c     SD_KAPPA(A,B,C) = CDSQRT(DCMPLX(A**2+B**2+C**2-2*(A*B+A*C+B*C)))
  
@@ -15012,7 +15031,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  c         SD_KAPPA(A,B,C,D) = cdsqrt((C*(C-4.D0*A))*(1+IEPS*D))
  c      elseif(B.eq.C) then
  c         SD_KAPPA(A,B,C,D) = cdsqrt((A*(A-4.D0*B))*(1+IEPS*D))
-@@ -42607,13 +43264,13 @@ c --------------------------------------
+@@ -42607,13 +43271,13 @@ c --------------------------------------
  
        real*8 function SD_B02(s,m1,m2,mu2)
  
@@ -15031,7 +15050,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        if(s.eq.m22) then
           zkappa = cdsqrt(dcmplx(m12*(m12-4.D0*s)))
-@@ -42628,32 +43285,36 @@ c --------------------------------------
+@@ -42628,32 +43292,36 @@ c --------------------------------------
  
        if (s.eq.0.D0) then
           if (m12.eq.m22) then
@@ -15079,7 +15098,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
        end
-@@ -42661,14 +43322,14 @@ c --------------------------------------
+@@ -42661,14 +43329,14 @@ c --------------------------------------
  c -------------------------------------------------------------------- c
  
        real*8 function SD_BP02(s,m1,m2,mu2)
@@ -15100,7 +15119,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        if(s.eq.m22) then
           zkappa = cdsqrt(dcmplx(m12*(m12-4.D0*s)))
-@@ -42685,12 +43346,12 @@ c --------------------------------------
+@@ -42685,12 +43353,12 @@ c --------------------------------------
           if (m12.eq.m22) then
              SD_BP02=1.D0/(6.D0*m12)
           else
@@ -15117,7 +15136,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
           SD_BP02=( -1.D0 + dlog(m22/mu2)/2.D0 )/m22
        elseif (m22.eq.0.D0) then
           if(m12.ge.s) then
-@@ -42705,14 +43366,24 @@ c----- ramona changed 5/6/13
+@@ -42705,14 +43373,24 @@ c----- ramona changed 5/6/13
           elseif(m22.lt.s) then
              SD_BP02=( -1.D0 - m22/s*dlog((-m22+s)/m22) )/s
           endif
@@ -15148,7 +15167,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
        end
-@@ -42724,23 +43395,23 @@ c--- end ramona changed
+@@ -42724,23 +43402,23 @@ c--- end ramona changed
  *----------------------------------------------------------------------*
  *       8.06.90    ANSGAR DENNER                                       *
  ************************************************************************
@@ -15185,7 +15204,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
  CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          FUNCTION SD_CCSPEN(Z)
-@@ -42869,19 +43540,19 @@ c ======================================
+@@ -42869,19 +43547,19 @@ c ======================================
  
        den = p1**2*p2**2- (p3**2-p1**2-p2**2)**2/4.D0
  
@@ -15208,7 +15227,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        end
  
-@@ -42898,19 +43569,19 @@ c --------------------------------------
+@@ -42898,19 +43576,19 @@ c --------------------------------------
  
        den = p1**2*p2**2 - (p3**2-p1**2-p2**2)**2/4.D0
  
@@ -15231,7 +15250,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        end
  
-@@ -42937,7 +43608,7 @@ c --------------------------------------
+@@ -42937,7 +43615,7 @@ c --------------------------------------
  
        SD_C1_lam = 1.D0/den*( p2**2*r1 - (p3**2-p1**2-p2**2)/2.D0*r2 )
  
@@ -15240,7 +15259,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        end
  
-@@ -42964,45 +43635,45 @@ c --------------------------------------
+@@ -42964,45 +43642,45 @@ c --------------------------------------
  
        SD_C2_lam = 1.D0/den*( -(p3**2-p1**2-p2**2)/2.D0*r1 + p1**2*r2 )
  
@@ -15300,7 +15319,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        return
        end
-@@ -43010,13 +43681,13 @@ c --------------------------------------
+@@ -43010,13 +43688,13 @@ c --------------------------------------
  c -------------------------------------------------------------------- c
  
        real*8 function SD_BP02_DIV(s,m1,m2,mu2)
@@ -15319,7 +15338,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        if (s.eq.0.D0) then
           if (m12.eq.m22) then
-@@ -43024,19 +43695,19 @@ c --------------------------------------
+@@ -43024,19 +43702,19 @@ c --------------------------------------
           else
              SD_BP02_DIV=0.D0
           endif
@@ -15344,7 +15363,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  c channel.
  c ==================================================================== c
  c                       The stop 4-body decays                         c
-@@ -43044,12 +43715,12 @@ c ======================================
+@@ -43044,12 +43722,12 @@ c ======================================
  
        subroutine SD_st4bod(etot,sigmato,sigmasn,sigmaw,sigmah,ainter,
       .                     sigmae,sigmaq)
@@ -15360,7 +15379,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        integer irunw
        integer irunsl
  
-@@ -43116,7 +43787,7 @@ c      COMMON/SD_flagmixang/flagcu,flagc
+@@ -43116,7 +43794,7 @@ c      COMMON/SD_flagmixang/flagcu,flagc
        COMMON/SD_coup5/ale,altau,alsne,blsne,alsnt,blsnt
        COMMON/SD_coup6/alsto,aksto,alsbo,aksbo
        COMMON/SD_coup7/alup,aldo
@@ -15369,7 +15388,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        COMMON/SD_coup9/atop,btop,abo,bbo
        COMMON/SD_coup10/aup,bup,ado,bdo
        COMMON/SD_coup11/gltt,ghtt,gatt
-@@ -43142,7 +43813,7 @@ c      COMMON/SD_flagmixang/flagcu,flagc
+@@ -43142,7 +43820,7 @@ c      COMMON/SD_flagmixang/flagcu,flagc
        irunz=15000
        irunw=irunz
        irunsl=irunz
@@ -15378,7 +15397,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        bet = datan(tanbeta)
        tw  = sw/cw
  
-@@ -43173,19 +43844,19 @@ c -- assignments old-new names of variab
+@@ -43173,19 +43851,19 @@ c -- assignments old-new names of variab
        enddo
  
        asnl=anu(1,1)
@@ -15402,7 +15421,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        do k=1,4
           ado4bod(1,k)=0.d0
           ado4bod(2,k)=-dsqrt(2.d0)*(zp(k,1)*sw/3.d0+(0.5d0-1.d0/3.d0*
-@@ -43283,9 +43954,9 @@ c ------------------------- slepton exch
+@@ -43283,9 +43961,9 @@ c ------------------------- slepton exch
              aesnaesnesn=0.d0
              asusdasusdsu=0.d0
              asusdasusdsd=0.d0
@@ -15414,7 +15433,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              do i=1,2
                 do k=1,2
                    do m=1,2
-@@ -43502,9 +44173,9 @@ c ---------------------------- W exchang
+@@ -43502,9 +44180,9 @@ c ---------------------------- W exchang
              pwpw=SD_scal(pw,pw)
              ptpt=SD_scal(pt,pt)
              pchipchi=SD_scal(pchi,pchi)
@@ -15426,7 +15445,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              Dsb(1)=(psbpsb-asb1**2)
              Dsb(2)=(psbpsb-asb2**2)
              Dt=(ptpt-amt**2)
-@@ -43528,7 +44199,7 @@ c ------------------------- top exchange
+@@ -43528,7 +44206,7 @@ c ------------------------- top exchange
              pa2=4.d0*ptp0*ptpfb*pbpf-2.d0*ptpt*p0pfb*pbpf
              pb2=2.d0*pbpf*p0pfb
              pab=2.d0*pbpf*ptpfb
@@ -15435,7 +15454,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              a1a1=a*(atop(1,1)**2*pa2+btop(1,1)**2*amt**2*pb2
  c---- ramona changed 14/10/14 amneut-->xmneut
       .           -2.d0*xmneut(1)*amt*atop(1,1)*btop(1,1)*pab)
-@@ -43552,7 +44223,7 @@ c --------------------------- chargino e
+@@ -43552,7 +44230,7 @@ c --------------------------- chargino e
              do i=1,2
                 do j=1,2
                    a=4.d0*g2**3/Dw**2/Dchi(i)/Dchi(j)
@@ -15444,7 +15463,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
                    p1=2.d0*p0pf*pchipfb*pchipb+2.d0*p0pfb*pchipf*pchipb
       .                 -pchipchi*pbpfb*p0pf-pchipchi*p0pfb*pbpf
                    p2=pbpfb*p0pf+pbpf*p0pfb
-@@ -43566,7 +44237,7 @@ c --------------------------- chargino e
+@@ -43566,7 +44244,7 @@ c --------------------------- chargino e
       .                 +aksto(1,i)*aksto(1,j)*OR(1,i)*OL(1,j)
                    a4=alsto(1,i)*alsto(1,j)*OR(1,i)*OL(1,j)
       .                 +aksto(1,i)*aksto(1,j)*OL(1,i)*OR(1,j)
@@ -15453,7 +15472,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
                    achiachi=achiachi+a*(a1*p1+xmchar(i)*xmchar(j)*a2*p2
       .                 -xmneut(1)*xmchar(j)*a3*p3-xmneut(1)*
       .                 xmchar(i)*a4*p4)
-@@ -43597,7 +44268,7 @@ c---- ramona changed 14/10/14 amchar-->x
+@@ -43597,7 +44275,7 @@ c---- ramona changed 14/10/14 amchar-->x
  c ------------------------ interference btilde chi+ ------------------ c
  
              abachi=0.d0
@@ -15462,7 +15481,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              do i=1,2
                 do j=1,2
                    a=4.d0*g2**3*aw(1,i)/dw**2/dsb(i)/dchi(j)
-@@ -43648,7 +44319,7 @@ c --------------------- interference sta
+@@ -43648,7 +44326,7 @@ c --------------------- interference sta
  
              astoasb=0.d0
              pa=(pbpf*ppfb-ppb*pfpfb+pbpfb*ppf)
@@ -15471,7 +15490,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              do i=1,2
                 do j=1,2
                    do m=1,2
-@@ -43710,8 +44381,8 @@ c -------------------- interference sneu
+@@ -43710,8 +44388,8 @@ c -------------------- interference sneu
  	p1=ppb*pchipfb*p0pf - pbpfb*pchip*p0pf +
       .       ppb*p0pchi*pfpfb - p0pb*pchip*pfpfb - pbpfb*p0pchi*ppf +
       .       p0pb*pchipfb*ppf - ppb*pchipf*p0pfb + pbpf*pchip*p0pfb +
@@ -15482,7 +15501,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .       pchipb*p0pf*ppfb
  
  	do i=1,2
-@@ -43731,7 +44402,7 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -43731,7 +44409,7 @@ c---- ramona changed 14/10/14 amneut-->x
             a2=atop(1,1)
             p1=pbpf*pchipfb-pbpfb*pchipf+pchipb*pfpfb
             p2=pbpfb*ptpchi*p0pf - ptpb*pchipfb*p0pf - pbpfb*p0pchi*ptpf
@@ -15491,7 +15510,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .          + pbpfb*pchipf*ptp0-pbpf*pchipfb*ptp0-pchipb*pfpfb*ptp0
       .          - ptpb*pchipf*p0pfb+pbpf*ptpchi*p0pfb+pchipb*ptpf*p0pfb
       .          + p0pb*pchipf*ptpfb-pbpf*p0pchi*ptpfb-pchipb*p0pf*ptpfb
-@@ -43761,7 +44432,7 @@ c ------------------- interference selec
+@@ -43761,7 +44439,7 @@ c ------------------- interference selec
  
  	aeasb=0.d0
  	pa=(pbpf*ppfb-ppb*pfpfb+pbpfb*ppf)
@@ -15500,7 +15519,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	do i=1,2
             do m=1,2
                aeasb=aeasb+2.d0*g2**3*
-@@ -43786,7 +44457,7 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -43786,7 +44464,7 @@ c---- ramona changed 14/10/14 amneut-->x
  c---- ramona changed 14/10/14 amneut-->xmneut, amchar-> xmchar
       .          *xmchar(i)/(DW*Dt*Dchi(i)*Dsel)*(a1*p1-a2*p2)
  	enddo
@@ -15509,7 +15528,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  c --------------------- interference selectron chi ------------------- c
  
  	aeachi=0.d0
-@@ -43815,10 +44486,10 @@ c ------------------ interference sneutr
+@@ -43815,10 +44493,10 @@ c ------------------ interference sneutr
  	p1=ppb*pchipfb*p0pf - pbpfb*pchip*p0pf +
       .       ppb*p0pchi*pfpfb - p0pb*pchip*pfpfb - pbpfb*p0pchi*ppf +
       .       p0pb*pchipfb*ppf - ppb*pchipf*p0pfb + pbpf*pchip*p0pfb +
@@ -15523,7 +15542,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	do i=1,2
             do j=1,2
                asneasbo=asneasbo-dsqrt(2.d0)*g2**3*alsto(1,i)*asnl*
-@@ -43837,7 +44508,7 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -43837,7 +44515,7 @@ c---- ramona changed 14/10/14 amneut-->x
             a2=atop(1,1)
             p1=pbpf*pchipfb-pbpfb*pchipf+pchipb*pfpfb
             p2=pbpfb*ptpchi*p0pf - ptpb*pchipfb*p0pf - pbpfb*p0pchi*ptpf
@@ -15532,7 +15551,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .          + pbpfb*pchipf*ptp0-pbpf*pchipfb*ptp0-pchipb*pfpfb*ptp0
       .          - ptpb*pchipf*p0pfb+pbpf*ptpchi*p0pfb+pchipb*ptpf*p0pfb
       .          + p0pb*pchipf*ptpfb-pbpf*p0pchi*ptpfb-pchipb*p0pf*ptpfb
-@@ -43921,10 +44592,10 @@ c ----------------------- interference s
+@@ -43921,10 +44599,10 @@ c ----------------------- interference s
  	p1=ppb*pchipfb*p0pf - pbpfb*pchip*p0pf +
       .       ppb*p0pchi*pfpfb - p0pb*pchip*pfpfb - pbpfb*p0pchi*ppf +
       .       p0pb*pchipfb*ppf - ppb*pchipf*p0pfb + pbpf*pchip*p0pfb +
@@ -15546,7 +15565,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	do i=1,2
             do j=1,2
                asuasbo=asuasbo-dsqrt(2.d0)*g2**3*alsto(1,i)
-@@ -43944,7 +44615,7 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -43944,7 +44622,7 @@ c---- ramona changed 14/10/14 amneut-->x
             a2=atop(1,1)
             p1=pbpf*pchipfb-pbpfb*pchipf+pchipb*pfpfb
             p2=pbpfb*ptpchi*p0pf - ptpb*pchipfb*p0pf - pbpfb*p0pchi*ptpf
@@ -15555,7 +15574,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       .          + pbpfb*pchipf*ptp0-pbpf*pchipfb*ptp0-pchipb*pfpfb*ptp0
       .          - ptpb*pchipf*p0pfb+pbpf*ptpchi*p0pfb+pchipb*ptpf*p0pfb
       .          + p0pb*pchipf*ptpfb-pbpf*p0pchi*ptpfb-pchipb*p0pf*ptpfb
-@@ -43972,19 +44643,19 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -43972,19 +44650,19 @@ c---- ramona changed 14/10/14 amneut-->x
  	enddo
  
  c -------------------------------- result ---------------------------- c
@@ -15579,7 +15598,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        enddo
  
        sigmaw=resuw/2.d0/ast1/(2.d0*pi)**8
-@@ -44065,8 +44736,8 @@ c ---------------------------- Higgs exc
+@@ -44065,8 +44743,8 @@ c ---------------------------- Higgs exc
              pwpw=SD_scal(pw,pw)
              ptpt=SD_scal(pt,pt)
              pchipchi=SD_scal(pchi,pchi)
@@ -15590,7 +15609,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              dsb(1)=(psbpsb-asb1**2)
              dsb(2)=(psbpsb-asb2**2)
              dt=(ptpt-amt**2)
-@@ -44084,8 +44755,8 @@ c -------------------------- top exchang
+@@ -44084,8 +44762,8 @@ c -------------------------- top exchang
              p1=2.d0*ptpb*ptp0-ptpt*p0pb
              p2=ptpb
              p3=p0pb
@@ -15601,7 +15620,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
  c ------------------------- sbottom exchange ------------------------- c
  
-@@ -44094,9 +44765,9 @@ c ------------------------- sbottom exch
+@@ -44094,9 +44772,9 @@ c ------------------------- sbottom exch
                 do k=1,2
                    a=2.d0*chctb(1,i)*chctb(1,k)*amtau**2*dtan(bet)**2
       .                 /amw**2/dsb(i)/dsb(k)/dhiggs**2
@@ -15613,7 +15632,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
                 enddo
              enddo
  
-@@ -44105,7 +44776,7 @@ c --------------------------- chi exchan
+@@ -44105,7 +44783,7 @@ c --------------------------- chi exchan
              ahchiahchi=0.d0
              do i=1,2
                 do k=1,2
@@ -15622,7 +15641,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
                    a=4.d0*pfpfb*g2**3*amtau**2*dtan(bet)**2
       .                 /2.d0/amw**2/dchi(i)/dchi(k)/dhiggs**2
                    a1=alsto(1,i)*alsto(1,k)*ql(1,i)*qr(1,k)
-@@ -44125,7 +44796,7 @@ c---- ramona changed 14/10/14 amneut-->x
+@@ -44125,7 +44803,7 @@ c---- ramona changed 14/10/14 amneut-->x
       .                 a2*p2+
  c---- ramona changed 14/10/14 amneut-->xmneut, amchar-> xmchar
       .                 xmchar(i)*xmchar(k)*a3*p3+xmneut(1)*xmchar(k)*
@@ -15631,7 +15650,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
                 enddo
              enddo
  
-@@ -44140,7 +44811,7 @@ c ---------------------- interference to
+@@ -44140,7 +44818,7 @@ c ---------------------- interference to
                 p1=p0pb
                 p2=ptpb
  c---- ramona changed 14/10/14 amneut-->xmneut
@@ -15640,7 +15659,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
              enddo
  
  c ---------------------- interference sbottom chi -------------------- c
-@@ -44180,15 +44851,15 @@ c---- ramona changed 14/10/14 amchar-> x
+@@ -44180,15 +44858,15 @@ c---- ramona changed 14/10/14 amchar-> x
  c---- ramona changed 14/10/14 amneut-->xmneut, amchar-> xmchar
       .              +xmneut(1)*xmchar(i)*a4*p4)
              enddo
@@ -15659,7 +15678,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        end
  
  c -------------------------------------------------------------------- c
-@@ -44211,7 +44882,7 @@ c --------------------------------------
+@@ -44211,7 +44889,7 @@ c --------------------------------------
  c
        COMMON/SD_outparam/salpha_MS,alphasmzms
  
@@ -15668,7 +15687,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  
        amc = amc0
        amb = amb0
-@@ -44265,10 +44936,10 @@ C --------------------------------------
+@@ -44265,10 +44943,10 @@ C --------------------------------------
  
  C LA LIGNE SUIVANTE A ETE AJOUTEE POUR QUE LA SOUS-ROUTINE
  C RAMBO N'OUBLIT PAS CES VARIABLES: Z, TWOPI, PO2LOG.
@@ -15681,7 +15700,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  C INITIALIZATION STEP@D FACTORIALS FOR THE PHASE SPACE WEIGHT
  	      IF(IBEGIN.NE.0) GOTO 103
  	      IBEGIN=1
-@@ -44309,7 +44980,7 @@ c	write(*,*)'µµµµµµµµµµRN(1)',
+@@ -44309,7 +44987,7 @@ c	write(*,*)'µµµµµµµµµµRN(1)',
  	      Q(3,I)=Q(4,I)*C
  	      Q(2,I)=Q(4,I)*S*DCOS(F)
   202          Q(1,I)=Q(4,I)*S*DSIN(F)
@@ -15690,7 +15709,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  C
  C CALCULATE THE PARAMETERS OF THE CONFORMAL TRANSFORMATION
  	      DO 203 I=1,4
-@@ -44339,11 +45010,11 @@ c	write(*,*)'P2(I)2',P(4,I),X,Q(4,I),B(3
+@@ -44339,11 +45017,11 @@ c	write(*,*)'P2(I)2',P(4,I),X,Q(4,I),B(3
  C
  C CALCULATE WEIGHT AND POSSIBLE WARNINGS
  	      WT=DLOG(TWOPI/4.)
@@ -15704,7 +15723,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  c	write(*,*)'*********wt2*********',WT
  	      IF(WT.GE.-180.D0) GOTO 208
  	      IF(IWARN(1).LE.5) PRINT 1004,WT
-@@ -44357,11 +45028,11 @@ C
+@@ -44357,11 +45035,11 @@ C
  C RETURN FOR WEIGHTED MASSLESS MOMENTA
   209          IF(NM.NE.0) GOTO 210
  	      WT=DEXP(WT)
@@ -15718,7 +15737,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
   210          XMAX=DSQRT(1.-(XMT/ET)**2)
  	      DO 301 I=1,N
  	      XM2(I)=XM(I)**2
-@@ -44405,11 +45076,11 @@ C CALCULATE THE MASS-EFFECT WEIGHT FACTO
+@@ -44405,11 +45083,11 @@ C CALCULATE THE MASS-EFFECT WEIGHT FACTO
  	      WT2=WT2*V(I)/E(I)
   308          WT3=WT3+V(I)**2/E(I)
  	      WTM=(2.*N-3.)*DLOG(X)+DLOG(WT2/WT3*ET)
@@ -15732,7 +15751,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	      IF(WT.GE.-180.D0) GOTO 309
  	      IF(IWARN(3).LE.5) PRINT 1004,WT
  	      IWARN(3)=IWARN(3)+1
-@@ -44417,7 +45088,7 @@ C RETURN FOR  WEIGHTED MASSIVE MOMENTA
+@@ -44417,7 +45095,7 @@ C RETURN FOR  WEIGHTED MASSIVE MOMENTA
  	      IF(IWARN(4).LE.5) PRINT 1005,WT
  	      IWARN(4)=IWARN(4)+1
   310          WT=DEXP(WT)
@@ -15741,7 +15760,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	      RETURN
  C
   1001         FORMAT(' RAMBO FAILS@D # OF PARTICLES =',I5,
-@@ -44433,13 +45104,13 @@ C
+@@ -44433,13 +45111,13 @@ C
  	      END
  c--- ramona removed in 1002 and 1006 tab character
  c--- to get rid of warning at compliation 11/9/14
@@ -15759,7 +15778,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  C   1 IDMY=IDMY
  C     RN=DRANF()
  C     IF(RN.NE.0.) RETURN
-@@ -44447,19 +45118,19 @@ C     PRINT 2,I,C,J,RN
+@@ -44447,19 +45125,19 @@ C     PRINT 2,I,C,J,RN
  C   2 FORMAT(' RN WARNING: WRONG VALUE OCCURED'/,
  C    .     'I,C,J,RN :',I15,D15.6,I15,D15.6)
  C     GOTO 1
@@ -15784,7 +15803,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
  	        REAL U(97)
  	        COMMON /SET1/ U,C,CD,CM,I,J
  	        SD_UNIV=U(I)-U(J)
-@@ -44475,28 +45146,28 @@ C  A UNIVERSAL RANDOM NUMBER GENERATOR
+@@ -44475,28 +45153,28 @@ C  A UNIVERSAL RANDOM NUMBER GENERATOR
  	        IF(SD_UNIV.LT.0.) SD_UNIV=SD_UNIV+1
  	        RETURN
  	        END
@@ -15822,7 +15841,7 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
       &  	    'FOURTH SEED .LT.0 OR .GT.168'
  	        IF ( (IP.EQ.1).AND.(JP.EQ.1).AND.(KP.EQ.1) ) STOP
       &  	    'FIRST, SECOND AND THIRD SEEDS ARE ALL EQUAL TO 1'
-@@ -44529,5 +45200,5 @@ C     ************* FUNCTION SCALAR PROD
+@@ -44529,5 +45207,5 @@ C     ************* FUNCTION SCALAR PROD
  77    DUM=DUM-A(ID)*B(ID)
        SD_SCAL=DUM
        RETURN

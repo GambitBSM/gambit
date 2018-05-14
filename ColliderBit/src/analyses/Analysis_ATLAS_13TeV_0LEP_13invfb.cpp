@@ -28,8 +28,9 @@ namespace Gambit {
       Cutflows _flows;
 
       Analysis_ATLAS_13TeV_0LEP_13invfb() {
-        set_luminosity(13.3);
 
+        set_analysis_name("ATLAS_13TeV_0LEP_13invfb");
+        set_luminosity(13.3);
 
         // Book cut-flows
         const vector<string> cuts23j = {"Pre-sel+MET+pT1+meff", "Njet", "Dphi_min(j123,MET)", "Dphi_min(j4+,MET)", "pT2", "eta_j12", "MET/sqrtHT", "m_eff(incl)"};
@@ -104,7 +105,7 @@ namespace Gambit {
           if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > 0.4; }))
             signalElectrons.push_back(e);
         // Apply electron ID selection
-        ATLAS::applyLooseIDElectronSelection(signalElectrons);
+        ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
 
         // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets
         /// @todo Actually only within 0.2--0.4...
@@ -122,7 +123,7 @@ namespace Gambit {
 
         ////////////////////////////////
         // Calculate common variables and cuts
-	
+
         // Multiplicities
         const size_t nElectrons = signalElectrons.size();
         const size_t nMuons = signalMuons.size();
@@ -192,7 +193,7 @@ namespace Gambit {
 
         ////////////////////////////////
         // Fill signal regions
-		
+
         const bool leptonCut = (nElectrons == 0 && nMuons == 0);
         const bool metCut = (met > 250.);
         if (nJets50 >= 2 && leptonCut && metCut) {
@@ -236,31 +237,26 @@ namespace Gambit {
             if (signalJets[5]->pT() >  50 && etamax_6 < 2.0 && met_meff_6 > 0.20 && meff_incl > 1800) _srnums[11] += 1;
             if (signalJets[5]->pT() > 100 &&                   met_meff_6 > 0.15 && meff_incl > 2200) _srnums[12] += 1;
           }
-	  
+
           // Cutflows
+          if (nJets50 >= 2) _flows["2j-0800"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 200, etamax_2 < 0.8, met_sqrtHT > 14*sqrt(GeV), meff_incl >  800});
+          if (nJets50 >= 2) _flows["2j-1200"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 16*sqrt(GeV), meff_incl > 1200});
+          if (nJets50 >= 2) _flows["2j-1600"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 18*sqrt(GeV), meff_incl > 1600});
+          if (nJets50 >= 2) _flows["2j-2000"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 20*sqrt(GeV), meff_incl > 2000});
+          if (nJets50 >= 3) _flows["3j-1200"].filltail({nJets50 >= 3, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 600 && signalJets[2]->pT() > 50, true, met_sqrtHT > 16*sqrt(GeV), meff_incl > 1200});
+          if (nJets50 >= 4) _flows["4j-1000"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 1.2, aplanarity > 0.04, met_meff_4 > 0.25*sqrt(GeV), meff_incl > 1000});
+          if (nJets50 >= 4) _flows["4j-1400"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.25*sqrt(GeV), meff_incl > 1400});
+          if (nJets50 >= 4) _flows["4j-1800"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 1800});
+          if (nJets50 >= 4) _flows["4j-2200"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 150, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 2200});
+          if (nJets50 >= 4) _flows["4j-2600"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 150, true,           aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 2600});
+          if (nJets50 >= 5) _flows["5j-1400"].filltail({nJets50 >= 5, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 500 && signalJets[4]->pT() > 50, true, true, met_meff_5 > 0.3*sqrt(GeV), meff_incl > 1400});
+          if (nJets50 >= 6) _flows["6j-1800"].filltail({nJets50 >= 6, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[5]->pT() > 50, etamax_6 < 2.0, aplanarity > 0.08, met_meff_6 > 0.20*sqrt(GeV), meff_incl > 1800});
+          if (nJets50 >= 6) _flows["6j-2200"].filltail({nJets50 >= 6, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[5]->pT() > 100, true,           aplanarity > 0.08, met_meff_6 > 0.15*sqrt(GeV), meff_incl > 2200});
 
-	  int nJets=signalJets.size();
-	  
-          if(nJets>1)_flows["2j-0800"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 200, etamax_2 < 0.8, met_sqrtHT > 14*sqrt(GeV), meff_incl >  800});
-          if(nJets>1)_flows["2j-1200"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 16*sqrt(GeV), meff_incl > 1200});
-          if(nJets>1)_flows["2j-1600"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 18*sqrt(GeV), meff_incl > 1600});
-          if(nJets>1)_flows["2j-2000"].filltail({true, dphimin_123 > 0.8, dphimin_more > 0.4, signalJets[1]->pT() > 250, etamax_2 < 1.2, met_sqrtHT > 20*sqrt(GeV), meff_incl > 2000});
-          if(nJets>2)_flows["3j-1200"].filltail({nJets50 >= 3, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 600 && signalJets[2]->pT() > 50, true, met_sqrtHT > 16*sqrt(GeV), meff_incl > 1200});
-          if(nJets>3)_flows["4j-1000"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 1.2, aplanarity > 0.04, met_meff_4 > 0.25*sqrt(GeV), meff_incl > 1000});
-          if(nJets>3)_flows["4j-1400"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.25*sqrt(GeV), meff_incl > 1400});
-          if(nJets>3)_flows["4j-1800"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 100, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 1800});
-          if(nJets>3)_flows["4j-2200"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.4, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 150, etamax_4 < 2.0, aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 2200});
-          if(nJets>3)_flows["4j-2600"].filltail({nJets50 >= 4, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[3]->pT() > 150, true,           aplanarity > 0.04, met_meff_4 > 0.20*sqrt(GeV), meff_incl > 2600});
-          if(nJets>4)_flows["5j-1400"].filltail({nJets50 >= 5, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 500 && signalJets[4]->pT() > 50, true, true, met_meff_5 > 0.3*sqrt(GeV), meff_incl > 1400});
-	  if(nJets>5) _flows["6j-1800"].filltail({nJets50 >= 6, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[5]->pT() > 50, etamax_6 < 2.0, aplanarity > 0.08, met_meff_6 > 0.20*sqrt(GeV), meff_incl > 1800});
-          if(nJets>5)_flows["6j-2200"].filltail({nJets50 >= 6, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[5]->pT() > 100, true,           aplanarity > 0.08, met_meff_6 > 0.15*sqrt(GeV), meff_incl > 2200});
-	  
-	  
-	  }
-
+        }
       }
-      
-      
+
+
       void add(BaseAnalysis* other) {
         // The base class add function handles the signal region vector and total # events.
         HEPUtilsAnalysis::add(other);
@@ -274,24 +270,29 @@ namespace Gambit {
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-        static const string ANAME = "Analysis_ATLAS_13TeV_0LEP_13invfb";
-        add_result(SignalRegionData(ANAME, "meff-2j-0800", 650, {_srnums[0],  0.}, {610., 50.}));
-        add_result(SignalRegionData(ANAME, "meff-2j-1200", 270, {_srnums[1],  0.}, {297., 29.}));
-        add_result(SignalRegionData(ANAME, "meff-2j-1600",  96, {_srnums[2],  0.}, {121., 13.}));
-        add_result(SignalRegionData(ANAME, "meff-2j-2000",  29, {_srnums[3],  0.}, { 42.,  6.}));
-        add_result(SignalRegionData(ANAME, "meff-3j-1200", 363, {_srnums[4],  0.}, {355., 33.}));
-        add_result(SignalRegionData(ANAME, "meff-4j-1000",  97, {_srnums[5],  0.}, { 84.,  7.}));
-        add_result(SignalRegionData(ANAME, "meff-4j-1400",  71, {_srnums[6],  0.}, { 66.,  8.}));
-        add_result(SignalRegionData(ANAME, "meff-4j-1800",  37, {_srnums[7],  0.}, { 27.,  3.2}));
-        add_result(SignalRegionData(ANAME, "meff-4j-2200",  10, {_srnums[8],  0.}, {  4.8, 1.1}));
-        add_result(SignalRegionData(ANAME, "meff-4j-2600",   3, {_srnums[9],  0.}, {  2.7, 0.6}));
-        add_result(SignalRegionData(ANAME, "meff-5j-1400",  64, {_srnums[10], 0.}, { 68.,  9.}));
-        add_result(SignalRegionData(ANAME, "meff-6j-1800",  10, {_srnums[11], 0.}, {  5.5, 1.0}));
-        add_result(SignalRegionData(ANAME, "meff-6j-2200",   1, {_srnums[12], 0.}, {  0.82,0.35}));
+        add_result(SignalRegionData("meff-2j-0800", 650, {_srnums[0],  0.}, {610., 50.}));
+        add_result(SignalRegionData("meff-2j-1200", 270, {_srnums[1],  0.}, {297., 29.}));
+        add_result(SignalRegionData("meff-2j-1600",  96, {_srnums[2],  0.}, {121., 13.}));
+        add_result(SignalRegionData("meff-2j-2000",  29, {_srnums[3],  0.}, { 42.,  6.}));
+        add_result(SignalRegionData("meff-3j-1200", 363, {_srnums[4],  0.}, {355., 33.}));
+        add_result(SignalRegionData("meff-4j-1000",  97, {_srnums[5],  0.}, { 84.,  7.}));
+        add_result(SignalRegionData("meff-4j-1400",  71, {_srnums[6],  0.}, { 66.,  8.}));
+        add_result(SignalRegionData("meff-4j-1800",  37, {_srnums[7],  0.}, { 27.,  3.2}));
+        add_result(SignalRegionData("meff-4j-2200",  10, {_srnums[8],  0.}, {  4.8, 1.1}));
+        add_result(SignalRegionData("meff-4j-2600",   3, {_srnums[9],  0.}, {  2.7, 0.6}));
+        add_result(SignalRegionData("meff-5j-1400",  64, {_srnums[10], 0.}, { 68.,  9.}));
+        add_result(SignalRegionData("meff-6j-1800",  10, {_srnums[11], 0.}, {  5.5, 1.0}));
+        add_result(SignalRegionData("meff-6j-2200",   1, {_srnums[12], 0.}, {  0.82,0.35}));
 
         // const double sf = 13.3*crossSection()/femtobarn/sumOfWeights();
         // _flows.scale(sf);
-        cout << "CUTFLOWS:\n\n" << _flows << endl;
+        // cout << "CUTFLOWS:\n\n" << _flows << endl;
+      }
+
+
+    protected:
+      void clear() {
+        for(size_t i=0;i<NUMSR;i++) { _srnums[i]=0; }
       }
 
     };

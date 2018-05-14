@@ -19,6 +19,7 @@ GAMBIT contains interfaces to various external codes, along with scripts for dow
 
  - **DDCalc:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C, arXiv:1705.07920
  - **Multinest:** F. Feroz, M. P. Hobson, and M. Bridges, MULTINEST: an efficient and robust Bayesian inference tool for cosmology and particle physics, MNRAS 398 (2009) 1601–1614, arXiv:0809.3437
+ - **PolyChord:** W. J. Handley, M. P. Hobson, M. P., and A. N. Lasenby, POLYCHORD: next-generation nested sampling, MNRAS 453 (2015) 4384–4398, arXiv:1506.00171
  - **FlexibleSUSY:** P. Athron, J.-h. Park, D. Stöckinger, and A. Voigt, FlexibleSUSY - A spectrum generator generator for supersymmetric models, Comp. Phys. Comm. 190 (2015) 139–172, arXiv:1406.2319
  - **GamLike:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C (2017), arXiv:1705.07920
  - **GM2Calc:** P. Athron, M. Bach, et. al., GM2Calc: precise MSSM prediction for (g-2) of the muon, Eur. Phys. J. C 76 (2016) 62, arXiv:1510.08071

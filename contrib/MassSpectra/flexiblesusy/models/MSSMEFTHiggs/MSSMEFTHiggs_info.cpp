@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:13
+// File generated at Thu 10 May 2018 14:41:58
 
 #include "MSSMEFTHiggs_info.hpp"
 
@@ -121,8 +121,8 @@ namespace MSSMEFTHiggs_info {
       "ZZ(0,1)", "ZZ(1,0)", "ZZ(1,1)"};
 
    const std::array<std::string, NUMBER_OF_INPUT_PARAMETERS>
-      input_parameter_names = {"Sign(Mu)", "MSUSY", "M1Input", "M2Input",
-      "M3Input", "mHd2IN", "mHu2IN", "TanBeta", "mq2Input(0,0)", "mq2Input(0,1)",
+      input_parameter_names = {"TanBeta", "Sign(Mu)", "MSUSY", "M1Input",
+      "M2Input", "M3Input", "mHd2IN", "mHu2IN", "mq2Input(0,0)", "mq2Input(0,1)",
       "mq2Input(0,2)", "mq2Input(1,0)", "mq2Input(1,1)", "mq2Input(1,2)",
       "mq2Input(2,0)", "mq2Input(2,1)", "mq2Input(2,2)", "mu2Input(0,0)",
       "mu2Input(0,1)", "mu2Input(0,2)", "mu2Input(1,0)", "mu2Input(1,1)",

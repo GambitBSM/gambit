@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:59
+// File generated at Thu 10 May 2018 14:43:38
 
 #include "HSSUSY_susy_parameters.hpp"
 #include "config.h"

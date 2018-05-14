@@ -92,13 +92,14 @@ else()
   add_dependencies(distclean clean-delphes)
 endif()
 
-#contrib/fjcore-3.1.3; compile only if Delphes is ditched and ColliderBit is not.
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.1.3/include")
+#contrib/fjcore-3.2.0; compile only if Delphes is ditched and ColliderBit is not.
+set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
 include_directories("${fjcore_INCLUDE_DIR}")
 add_definitions(-DFJCORE)
+add_definitions(-DFJNS=gambit::fjcore)
 add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.1.3/src/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.1.3/include/fjcore.hh)
+                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 
 #contrib/MassSpectra; include only if SpecBit is in use
@@ -123,7 +124,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
     set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lifcore -limf -ldl -lintlc -lsvml")
   endif()
-  message("${BoldYellow}-- Determined FlexibleSUSY compiler library dependencies: ${flexiblesusy_extralibs}${ColourReset}")
+  #message("${Yellow}-- Determined FlexibleSUSY compiler library dependencies: ${flexiblesusy_extralibs}${ColourReset}")
   set(flexiblesusy_LDFLAGS "${flexiblesusy_LDFLAGS} ${flexiblesusy_extralibs}")
 
   # Silence the deprecated-declarations warnings comming from Eigen3
@@ -152,16 +153,16 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need)
   set(ALL_FS_MODELS CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu SingletDMZ3 SingletDM THDM_II)
 
-  # Check if there has been command line instructions to only build with certain models. Default is to build everything!  
+  # Check if there has been command line instructions to only build with certain models. Default is to build everything!
   if(BUILD_FS_MODELS)
     # Use whatever the user has supplied!
   else()
     set(BUILD_FS_MODELS ${ALL_FS_MODELS})
-  endif() 
+  endif()
 
   #set(BUILD_FS_MODELS CMSSM MSSM MSSMatMGUT)
   set(EXCLUDED_FS_MODELS "")
-  
+
   # Check that all the models the user asked for are in fact valid models
   foreach(MODELNAME ${BUILD_FS_MODELS})
     if(";${ALL_FS_MODELS};" MATCHES ";${MODELNAME};")
@@ -187,8 +188,10 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
    set(config_command ./configure ${FS_OPTIONS} --with-models=${BUILD_FS_MODELS_COMMAS})
   add_custom_target(configure-flexiblesusy COMMAND cd ${FS_DIR} && ${config_command})
   message("${Yellow}-- Configuring FlexibleSUSY for models: ${BoldYellow}${BUILD_FS_MODELS_COMMAS}${ColourReset}")
-  message("${Yellow}   i.e. the following, otherwise available, models are switched OFF, and all GAMBIT module functions associated with them will be excluded from the GAMBIT compilation: ${BoldYellow}${EXCLUDED_FS_MODELS_COMMAS}${ColourReset}")
-  message("${Yellow}-- Using configure command \n${config_command}\n${output}${ColourReset}" )
+  if (NOT "${EXCLUDED_FS_MODELS_COMMAS}" STREQUAL "")
+    message("${Red}   Switching OFF FlexibleSUSY support for models: ${BoldRed}${EXCLUDED_FS_MODELS_COMMAS}${ColourReset}")
+  endif()
+  #message("${Yellow}-- Using configure command \n${config_command}${output}${ColourReset}" )
   execute_process(COMMAND ${config_command}
                   WORKING_DIRECTORY ${FS_DIR}
                   RESULT_VARIABLE result
@@ -239,6 +242,7 @@ else()
   set (EXCLUDE_FLEXIBLESUSY TRUE)
 
 endif()
+
 
 # Add clean info
 add_custom_target(clean-flexiblesusy COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done

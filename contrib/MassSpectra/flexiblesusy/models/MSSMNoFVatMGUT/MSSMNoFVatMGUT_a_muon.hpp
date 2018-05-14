@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:24:11
+// File generated at Thu 10 May 2018 14:52:06
 
 /**
  * @file MSSMNoFVatMGUT_a_muon.hpp
  *
- * This file was generated at Wed 25 Oct 2017 18:24:11 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:52:06 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSMNoFVatMGUT_A_MUON_H

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:59:59
+// File generated at Thu 10 May 2018 14:40:04
 
 #ifndef MSSMEFTHiggs_mAmu_INPUT_PARAMETERS_H
 #define MSSMEFTHiggs_mAmu_INPUT_PARAMETERS_H

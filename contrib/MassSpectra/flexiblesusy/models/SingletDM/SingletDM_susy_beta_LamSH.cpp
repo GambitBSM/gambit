@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:10:59
+// File generated at Thu 10 May 2018 14:42:50
 
 #include "SingletDM_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -40,9 +40,9 @@ double SingletDM_susy_parameters::calc_beta_LamSH_1_loop(const Susy_traces& susy
 
    double beta_LamSH;
 
-   beta_LamSH = Re(0.1*LamSH*oneOver16PiSqr*(-9*Sqr(g1) + 5*(4*(3*LamH +
-      3*LamS + 2*LamSH + 3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu) - 9*
-      Sqr(g2))));
+   beta_LamSH = Re(0.1*LamSH*oneOver16PiSqr*(20*(3*LamH + 3*LamS + 2*
+      LamSH + 3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu) - 9*Sqr(g1) - 45*
+      Sqr(g2)));
 
 
    return beta_LamSH;

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:13
+// File generated at Thu 10 May 2018 14:41:58
 
 #include "MSSMEFTHiggs_slha_io.hpp"
 #include "MSSMEFTHiggs_input_parameters.hpp"
@@ -121,8 +121,8 @@ void MSSMEFTHiggs_slha_io::set_minpar(const MSSMEFTHiggs_input_parameters& input
    std::ostringstream minpar;
 
    minpar << "Block MINPAR\n";
-   minpar << FORMAT_ELEMENT(4, input.SignMu, "SignMu");
    minpar << FORMAT_ELEMENT(3, input.TanBeta, "TanBeta");
+   minpar << FORMAT_ELEMENT(4, input.SignMu, "SignMu");
    slha_io.set_block(minpar);
 
 }
@@ -573,8 +573,8 @@ void MSSMEFTHiggs_slha_io::fill_minpar_tuple(MSSMEFTHiggs_input_parameters& inpu
                                                 int key, double value)
 {
    switch (key) {
-   case 4: input.SignMu = value; break;
    case 3: input.TanBeta = value; break;
+   case 4: input.SignMu = value; break;
    default: WARNING("Unrecognized entry in block MINPAR: " << key); break;
    }
 

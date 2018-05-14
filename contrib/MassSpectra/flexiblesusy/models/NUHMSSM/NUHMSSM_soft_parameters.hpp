@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:37:42
+// File generated at Thu 10 May 2018 15:01:49
 
 #ifndef NUHMSSM_soft_parameters_H
 #define NUHMSSM_soft_parameters_H

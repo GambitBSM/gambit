@@ -178,6 +178,19 @@ namespace Gambit
       mssmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
       mssmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
 
+
+      // Has the user chosen to override any pole mass values?
+      // This will typically break consistency, but may be useful in some special cases
+      if (runOptions.hasKey("override_FS_pole_masses"))
+      {
+        std::vector<str> particle_names = runOptions.getNames("override_FS_pole_masses");
+        for (auto& name : particle_names)
+        {
+          double mass = runOptions.getValue<double>("override_FS_pole_masses", name);
+          mssmspec.set_override(Par::Pole_Mass, mass, name);
+        }
+      }
+
       // Add theory errors
       static const MSSM_strs ms;
 
@@ -1029,6 +1042,13 @@ namespace Gambit
 
       // Create Spectrum object from the slhaea object
       result = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(input_slha, input_slha, mass_cut, mass_ratio_cut);
+
+      // Add getter for susy scale if option set for this
+      bool add_susy_scale = myPipe::runOptions->getValueOrDef<bool>(false,"assume_Q_is_MSUSY");
+      if(add_susy_scale)
+      {
+         result.get_HE().set_override(Par::mass1,result.get_HE().GetScale(),"susy_scale",true); 
+      }
 
       // No sneaking in charged LSPs via SLHA, jävlar.
       if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");

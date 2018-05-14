@@ -347,8 +347,14 @@ namespace Gambit
       double theor_unc = 1.5; // theory uncertainty
       BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
 
-      result = -0.5*chisq_withouttheory;
+      // Catch HiggsBound's error value, chisq = -999
+      if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+      {
+        ColliderBit_warning().raise(LOCAL_INFO, "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0.");
+        chisq_withouttheory = 0.0;
+      }
 
+      result = -0.5*chisq_withouttheory;
     }
 
     /// Get an LHC chisq from HiggsSignals

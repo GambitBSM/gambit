@@ -55,8 +55,8 @@ Block SMINPUTS               # Standard Model inputs
    23   1.040000000e-01      # ms(2 GeV) MS-bar
    24   1.270000000e+00      # mc(mc) MS-bar
 Block MINPAR
-   4   0   # Sign(Mu)
    3   0   # TanBeta
+   4   0   # Sign(Mu)
 Block EXTPAR
    0   0   # MSUSY
    1   0   # M1Input

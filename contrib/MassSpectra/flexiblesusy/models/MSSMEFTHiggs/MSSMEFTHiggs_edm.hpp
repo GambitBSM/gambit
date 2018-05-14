@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:25
+// File generated at Thu 10 May 2018 14:42:09
 
 /**
  * @file MSSMEFTHiggs_edm.hpp
  *
- * This file was generated at Tue 9 Jan 2018 20:02:25 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:42:09 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSMEFTHiggs_EDM_H

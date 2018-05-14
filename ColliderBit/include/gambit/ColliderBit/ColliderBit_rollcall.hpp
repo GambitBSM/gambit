@@ -20,6 +20,11 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
+///  \date 2018 Jan
+///
+///  \author Andy Buckley
+///          (andy.buckley@cern.ch)
+///  \date 2017 Jun
 ///
 ///  *********************************************
 
@@ -39,12 +44,22 @@
 START_MODULE
 
   #include "ColliderBit_Higgs_rollcall.hpp"
+  #include "ColliderBit_LEP_rollcall.hpp"
+
+  /// Sets the options for establishing convergence of Monte Carlo simulations
+  #define CAPABILITY MC_ConvergenceSettings
+  START_CAPABILITY
+    #define FUNCTION MC_ConvergenceSettings_from_YAML
+    START_FUNCTION(convergence_settings)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   /// Controls looping of Collider simulations
   #define CAPABILITY ColliderOperator
   START_CAPABILITY
     #define FUNCTION operateLHCLoop
     START_FUNCTION(void, CAN_MANAGE_LOOPS)
+    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -119,7 +134,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
- #define CAPABILITY IdentityAnalysisContainer
+  #define CAPABILITY IdentityAnalysisContainer
   START_CAPABILITY
     #define FUNCTION getIdentityAnalysisContainer
     START_FUNCTION(HEPUtilsAnalysisContainer)
@@ -128,7 +143,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-#ifndef EXCLUDE_DELPHES
+  #ifndef EXCLUDE_DELPHES
   #define CAPABILITY DetAnalysisContainer
   START_CAPABILITY
     #define FUNCTION getDetAnalysisContainer
@@ -137,7 +152,9 @@ START_MODULE
     DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
     #undef FUNCTION
   #undef CAPABILITY
-#endif // not defined EXCLUDE_DELPHES
+  #endif // not defined EXCLUDE_DELPHES
+
+
 
   /// Event capabilities
   #define CAPABILITY HardScatteringEvent
@@ -196,24 +213,26 @@ START_MODULE
 
   // A capability that calculates the log likelihood
   // Runs all analyses and fills vector of analysis results
-#ifndef EXCLUDE_DELPHES
+  #ifndef EXCLUDE_DELPHES
   #define CAPABILITY DetAnalysisNumbers
   START_CAPABILITY
     #define FUNCTION runDetAnalyses
-    START_FUNCTION(AnalysisNumbers)
+    START_FUNCTION(AnalysisDataPointers)
     NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
+    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
     DEPENDENCY(ReconstructedEvent, HEPUtils::Event)
     DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
     DEPENDENCY(DetAnalysisContainer, HEPUtilsAnalysisContainer)
     #undef FUNCTION
   #undef CAPABILITY
-#endif // not defined EXCLUDE_DELPHES
+  #endif // not defined EXCLUDE_DELPHES
 
   #define CAPABILITY ATLASAnalysisNumbers
   START_CAPABILITY
     #define FUNCTION runATLASAnalyses
-    START_FUNCTION(AnalysisNumbers)
+    START_FUNCTION(AnalysisDataPointers)
     NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
+    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
     DEPENDENCY(ATLASSmearedEvent, HEPUtils::Event)
     DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
     DEPENDENCY(ATLASAnalysisContainer, HEPUtilsAnalysisContainer)
@@ -223,8 +242,9 @@ START_MODULE
   #define CAPABILITY CMSAnalysisNumbers
   START_CAPABILITY
     #define FUNCTION runCMSAnalyses
-    START_FUNCTION(AnalysisNumbers)
+    START_FUNCTION(AnalysisDataPointers)
     NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
+    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
     DEPENDENCY(CMSSmearedEvent, HEPUtils::Event)
     DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
     DEPENDENCY(CMSAnalysisContainer, HEPUtilsAnalysisContainer)
@@ -234,199 +254,67 @@ START_MODULE
   #define CAPABILITY IdentityAnalysisNumbers
   START_CAPABILITY
     #define FUNCTION runIdentityAnalyses
-    START_FUNCTION(AnalysisNumbers)
+    START_FUNCTION(AnalysisDataPointers)
     NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
+    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
     DEPENDENCY(CopiedEvent, HEPUtils::Event)
     DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
     DEPENDENCY(IdentityAnalysisContainer, HEPUtilsAnalysisContainer)
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Calculate the log likelihood from the analysis numbers
-  #define CAPABILITY LHC_Combined_LogLike
+  // Collect all the analysis numbers in one place
+  #define CAPABILITY AllAnalysisNumbers
   START_CAPABILITY
-    #define FUNCTION calc_LHC_LogLike
-    START_FUNCTION(double)
-    DEPENDENCY(ATLASAnalysisNumbers, AnalysisNumbers)
-    DEPENDENCY(CMSAnalysisNumbers, AnalysisNumbers)
-    DEPENDENCY(IdentityAnalysisNumbers, AnalysisNumbers)
-#ifndef EXCLUDE_DELPHES
-    DEPENDENCY(DetAnalysisNumbers, AnalysisNumbers)
-#endif // not defined EXCLUDE_DELPHES
+    #define FUNCTION CollectAnalyses
+    START_FUNCTION(AnalysisDataPointers)
+    DEPENDENCY(ATLASAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
+    #ifndef EXCLUDE_DELPHES
+      DEPENDENCY(DetAnalysisNumbers, AnalysisDataPointers)
+    #endif
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Extract the signal predictions and uncertainties for all analyses
+  #define CAPABILITY LHC_signals
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_signals
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Calculate the log likelihood for each analysis from the analysis numbers
+  #define CAPABILITY LHC_LogLikes
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_LogLike_per_analysis
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
     #undef FUNCTION
   #undef CAPABILITY
 
-  ///////////// LEP limits ////////////////////////
+  // Calculate the total log likelihood
+  #define CAPABILITY LHC_Combined_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(LHC_LogLikes, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
 
-  // CoM energy 208GeV
-  // LEP production cross sections and uncertainties: selectrons
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_selselbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_selselbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_selserbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_selserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_serserbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_serserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_serselbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_serselbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_selserbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_se1se1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_se1se1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_se1se2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_se1se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_se2se2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_se2se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_se2se1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_se2se1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_se1se2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: smuons
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smulsmulbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smulsmulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smulsmurbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smulsmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smursmurbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smursmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smursmulbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smursmulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_smulsmurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smu1smu1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smu1smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smu1smu2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smu1smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smu2smu2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smu2smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_smu2smu1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_smu2smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_smu1smu2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: staus
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_staulstaulbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_staulstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_staulstaurbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_staulstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_staurstaurbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_staurstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_staurstaulbar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_staurstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_staulstaurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_stau1stau1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_stau1stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_stau1stau2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_stau1stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_stau2stau2bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_stau2stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_stau2stau1bar, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_stau2stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_stau1stau2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: neutralinos
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_11, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_12, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_13, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_13, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_14, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_14, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_22, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_23, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_23, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_24, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_24, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_33, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_33, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_34, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_34, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chi00_44, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chi00_44, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  // LEP production cross sections and uncertainties: charginos
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chipm_11, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chipm_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chipm_12, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chipm_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chipm_22, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chipm_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP208_xsec_chipm_21, NEW_CAPABILITY, LEP208_SLHA1_convention_xsec_chipm_21, triplet<double>, (MSSM30atQ, NUHM2), (LEP208_xsec_chipm_12, triplet<double>))
-
-  // CoM energy 205GeV
-  // LEP production cross sections and uncertainties: selectrons
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_selselbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_selselbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_selserbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_selserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_serserbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_serserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_serselbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_serselbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_selserbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_se1se1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_se1se1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_se1se2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_se1se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_se2se2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_se2se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_se2se1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_se2se1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_se1se2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: smuons
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smulsmulbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smulsmulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smulsmurbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smulsmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smursmurbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smursmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smursmulbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smursmulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_smulsmurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smu1smu1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smu1smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smu1smu2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smu1smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smu2smu2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smu2smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_smu2smu1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_smu2smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_smu1smu2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: staus
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_staulstaulbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_staulstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_staulstaurbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_staulstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_staurstaurbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_staurstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_staurstaulbar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_staurstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_staulstaurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_stau1stau1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_stau1stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_stau1stau2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_stau1stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_stau2stau2bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_stau2stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_stau2stau1bar, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_stau2stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_stau1stau2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: neutralinos
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_11, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_12, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_13, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_13, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_14, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_14, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_22, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_23, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_23, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_24, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_24, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_33, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_33, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_34, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_34, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chi00_44, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chi00_44, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  // LEP production cross sections and uncertainties: charginos
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chipm_11, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chipm_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chipm_12, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chipm_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chipm_22, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chipm_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP205_xsec_chipm_21, NEW_CAPABILITY, LEP205_SLHA1_convention_xsec_chipm_21, triplet<double>, (MSSM30atQ, NUHM2), (LEP205_xsec_chipm_12, triplet<double>))
-
-  // CoM energy 188GeV
-  // LEP production cross sections and uncertainties: selectrons
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_selselbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_selselbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_selserbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_selserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_serserbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_serserbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_serselbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_serselbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_selserbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_se1se1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_se1se1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_se1se2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_se1se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_se2se2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_se2se2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_se2se1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_se2se1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_se1se2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: smuons
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smulsmulbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smulsmulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smulsmurbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smulsmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smursmurbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smursmurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smursmulbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smursmulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_smulsmurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smu1smu1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smu1smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smu1smu2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smu1smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smu2smu2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smu2smu2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_smu2smu1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_smu2smu1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_smu1smu2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: staus
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_staulstaulbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_staulstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_staulstaurbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_staulstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_staurstaurbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_staurstaurbar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_staurstaulbar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_staurstaulbar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_staulstaurbar, triplet<double>))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_stau1stau1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_stau1stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_stau1stau2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_stau1stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_stau2stau2bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_stau2stau2bar, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_stau2stau1bar, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_stau2stau1bar, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_stau1stau2bar, triplet<double>))
-  // LEP production cross sections and uncertainties: neutralinos
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_11, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_12, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_13, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_13, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_14, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_14, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_22, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_23, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_23, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_24, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_24, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_33, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_33, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_34, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_34, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chi00_44, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chi00_44, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  // LEP production cross sections and uncertainties: charginos
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chipm_11, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chipm_11, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chipm_12, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chipm_12, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chipm_22, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chipm_22, triplet<double>, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (Z_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, LEP188_xsec_chipm_21, NEW_CAPABILITY, LEP188_SLHA1_convention_xsec_chipm_21, triplet<double>, (MSSM30atQ, NUHM2), (LEP188_xsec_chipm_12, triplet<double>))
-
-  // LEP Slepton analyses
-  // ALEPH
-  QUICK_FUNCTION(ColliderBit, ALEPH_Selectron_LLike, NEW_CAPABILITY, ALEPH_Selectron_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_selselbar, triplet<double>), (LEP208_xsec_serserbar, triplet<double>), (selectron_l_decay_rates, DecayTable::Entry), (selectron_r_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, ALEPH_Smuon_LLike, NEW_CAPABILITY, ALEPH_Smuon_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_smulsmulbar, triplet<double>), (LEP208_xsec_smursmurbar, triplet<double>), (smuon_l_decay_rates, DecayTable::Entry), (smuon_r_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, ALEPH_Stau_LLike, NEW_CAPABILITY, ALEPH_Stau_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_stau1stau1bar, triplet<double>), (LEP208_xsec_stau2stau2bar, triplet<double>), (stau_1_decay_rates, DecayTable::Entry), (stau_2_decay_rates, DecayTable::Entry))
-  // L3
-  QUICK_FUNCTION(ColliderBit, L3_Selectron_LLike, NEW_CAPABILITY, L3_Selectron_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP205_xsec_selselbar, triplet<double>), (LEP205_xsec_serserbar, triplet<double>), (selectron_l_decay_rates, DecayTable::Entry), (selectron_r_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, L3_Smuon_LLike, NEW_CAPABILITY, L3_Smuon_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP205_xsec_smulsmulbar, triplet<double>), (LEP205_xsec_smursmurbar, triplet<double>), (smuon_l_decay_rates, DecayTable::Entry), (smuon_r_decay_rates, DecayTable::Entry))
-  QUICK_FUNCTION(ColliderBit, L3_Stau_LLike, NEW_CAPABILITY, L3_Stau_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP205_xsec_stau1stau1bar, triplet<double>), (LEP205_xsec_stau2stau2bar, triplet<double>), (stau_1_decay_rates, DecayTable::Entry), (stau_2_decay_rates, DecayTable::Entry))
-
-  // LEP Gaugino analyses
-  // L3 Mass Eigeninos
-  QUICK_FUNCTION(ColliderBit, L3_Neutralino_All_Channels_LLike, NEW_CAPABILITY, L3_Neutralino_All_Channels_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chi00_12, triplet<double>), (LEP188_xsec_chi00_13, triplet<double>), (LEP188_xsec_chi00_14, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, L3_Neutralino_Leptonic_LLike, NEW_CAPABILITY, L3_Neutralino_Leptonic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chi00_12, triplet<double>), (LEP188_xsec_chi00_13, triplet<double>), (LEP188_xsec_chi00_14, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, L3_Chargino_All_Channels_LLike, NEW_CAPABILITY, L3_Chargino_All_Channels_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (LEP188_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, L3_Chargino_Leptonic_LLike, NEW_CAPABILITY, L3_Chargino_Leptonic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (LEP188_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  // OPAL Mass Eigeninos
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Hadronic_LLike, NEW_CAPABILITY, OPAL_Chargino_Hadronic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_SemiLeptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_SemiLeptonic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_Leptonic_LLike, NEW_CAPABILITY, OPAL_Chargino_Leptonic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  QUICK_FUNCTION(ColliderBit, OPAL_Chargino_All_Channels_LLike, NEW_CAPABILITY, OPAL_Chargino_All_Channels_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chipm_11, triplet<double>), (LEP208_xsec_chipm_22, triplet<double>), (decay_rates, DecayTable))
-  // Due to the nature of the analysis details in the OPAL paper, we can't tell
-  // which of the following two limits is appropriate for our use. Thus, we will
-  // be conservative and choose only the weaker of the two limits.
-  QUICK_FUNCTION(ColliderBit, OPAL_Neutralino_Hadronic_LLike, NEW_CAPABILITY, OPAL_Neutralino_Hadronic_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chi00_12, triplet<double>), (LEP208_xsec_chi00_13, triplet<double>), (LEP208_xsec_chi00_14, triplet<double>), (decay_rates, DecayTable))
-  //QUICK_FUNCTION(ColliderBit, OPAL_Neutralino_Hadronic_viaZ_LLike, NEW_CAPABILITY, OPAL_Neutralino_Hadronic_viaZ_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP208_xsec_chi00_12, triplet<double>), (LEP208_xsec_chi00_13, triplet<double>), (LEP208_xsec_chi00_14, triplet<double>), (decay_rates, DecayTable))
-  // L3 Small DeltaM Gaugino and Higgsinos involve an associated ISR photon, which we don't have a cross-section calculation for.
-  //QUICK_FUNCTION(ColliderBit, L3_Charged_Gaugino_Small_DeltaM_Heavy_Sneutrino_LLike, NEW_CAPABILITY, L3_Charged_Gaugino_Small_DeltaM_Heavy_Sneutrino_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (charginoplus_1_decay_rates, DecayTable::Entry), (W_plus_decay_rates, DecayTable::Entry))
-  //QUICK_FUNCTION(ColliderBit, L3_Charged_Gaugino_Small_DeltaM_Any_Sneutrino_LLike, NEW_CAPABILITY, L3_Charged_Gaugino_Small_DeltaM_Any_Sneutrino_Conservative_LLike, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (charginoplus_1_decay_rates, DecayTable::Entry), (W_plus_decay_rates, DecayTable::Entry))
-  //QUICK_FUNCTION(ColliderBit, L3_Charged_Higgsino_Small_DeltaM, NEW_CAPABILITY, L3_Charged_Higgsino_Small_DeltaM, double, (MSSM30atQ, NUHM2), (MSSM_spectrum, Spectrum), (LEP188_xsec_chipm_11, triplet<double>), (charginoplus_1_decay_rates, DecayTable::Entry), (W_plus_decay_rates, DecayTable::Entry))
-
+  // Output some info about the event loop
+  #define CAPABILITY LHCEventLoopInfo
+  START_CAPABILITY
+    #define FUNCTION getLHCEventLoopInfo
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers) // This is just to ensure that the loop is done
+    #undef FUNCTION
+  #undef CAPABILITY
 
 
   // Dummy observable that creates a dependency on TestModel1D, which is used to satisfy the normal

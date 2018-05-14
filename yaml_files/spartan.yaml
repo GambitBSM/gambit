@@ -33,6 +33,7 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
+  #printer: cout
 
 Scanner:
 

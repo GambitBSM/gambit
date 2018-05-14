@@ -231,6 +231,11 @@ namespace Gambit
       Fdouble hstep,hmin,compeps,xinit,xfinal,umax,cfr,pmax;
   };
 
+  struct DS_RDTIME
+  {
+      Fdouble rdt_max,rdt_start,rdt_end;
+  };
+
   struct DS_DDCOM
   {
       Farray<Fdouble, 7, 12> ftp;

@@ -66,6 +66,5 @@
 [std::string, MString]
 [const std::string, const MString]
 
-
 # Neutrino yield function pointer
 ["double(*)(double&, int&, void*)", nuyield_functype]

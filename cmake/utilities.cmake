@@ -29,6 +29,7 @@
 #************************************************
 
 include(CMakeParseArguments)
+include(ExternalProject)
 
 # Add precompiled header support
 ##include(cmake/PrecompiledHeader.cmake)
@@ -215,6 +216,16 @@ function(remove_build_files)
   endforeach()
 endfunction()
 
+# Macro to set up internal variables for contrib version of pybind11
+macro(use_contributed_pybind11)
+  set(pybind11_FOUND TRUE)
+  set(pybind11_DIR "${pybind11_CONTRIB_DIR}")
+  set(pybind11_VERSION "${PREFERRED_pybind11_VERSION}")
+  add_subdirectory("${pybind11_DIR}")
+  add_custom_target(nuke-pybind11 COMMAND ${CMAKE_COMMAND} -E remove_directory "${pybind11_DIR}")
+  add_dependencies(nuke-contrib nuke-pybind11)
+endmacro()
+
 # Function to add GAMBIT executable
 function(add_gambit_executable executablename LIBRARIES)
   cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;" ${ARGN})
@@ -265,8 +276,11 @@ function(add_gambit_executable executablename LIBRARIES)
   if(Mathematica_FOUND AND Mathematica_WSTP_FOUND)
     set(LIBRARIES ${LIBRARIES} ${Mathematica_WSTP_LIBRARIES})
   endif()
+  if(pybind11_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${PYTHON_LIBRARIES})
+  endif()
 
-  target_link_libraries(${executablename} ${LIBRARIES} yaml-cpp)
+  target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp)
   add_dependencies(${executablename} mkpath)
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
@@ -425,7 +439,7 @@ function(add_standalone_tarballs modules version)
     set(dirname "${module}_${version}")
 
     if ("${module}" STREQUAL "ScannerBit")
-      add_custom_target(${module}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -435,10 +449,10 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
+                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
     else()
-      add_custom_target(${module}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -450,18 +464,18 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
+                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
     endif()
 
-    add_dependencies(${module}.tar nuke-all)
-    add_dependencies(standalone_tarballs ${module}.tar)
+    add_dependencies(${module}-${version}.tar nuke-all)
+    add_dependencies(standalone_tarballs ${module}-${version}.tar)
 
   endforeach()
 
   # Add a special ad-hoc command to make a tarball containing SpecBit, DecayBit and PrecisionBit
   set(dirname "3Bit_${version}")
-  add_custom_target(3Bit.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+  add_custom_target(3Bit-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/SpecBit ${dirname}/SpecBit
@@ -475,10 +489,10 @@ function(add_standalone_tarballs modules version)
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit.tar
-                             COMMAND ${CMAKE_COMMAND} -E tar c 3Bit.tar ${dirname})
-  add_dependencies(3Bit.tar nuke-all)
-  add_dependencies(standalone_tarballs 3Bit.tar)
+                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit-${version}.tar
+                             COMMAND ${CMAKE_COMMAND} -E tar c 3Bit-${version}.tar ${dirname})
+  add_dependencies(3Bit-${version}.tar nuke-all)
+  add_dependencies(standalone_tarballs 3Bit-${version}.tar)
 
 endfunction()
 

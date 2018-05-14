@@ -477,7 +477,7 @@ Rules:
       rho0_obserr: 0.15
 
   # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
-  - capability: LHC_Combined_LogLike
+  - capability: LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
 
@@ -537,25 +537,58 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
-                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                   "ATLAS_3LEPEW_20invfb"] ]
+      analyses: [ ["ATLAS_8TeV_0LEP_20invfb",
+                   "ATLAS_8TeV_0LEPStop_20invfb",
+                   "ATLAS_8TeV_1LEPbb_20invfb",
+                   "ATLAS_8TeV_1LEPStop_20invfb",
+                   "ATLAS_8TeV_2bStop_20invfb",
+                   "ATLAS_8TeV_2LEPEW_20invfb",
+                   "ATLAS_8TeV_2LEPStop_20invfb",
+                   "ATLAS_8TeV_3LEPEW_20invfb"],
+                  ["ATLAS_13TeV_0LEP_13invfb",
+                   "ATLAS_13TeV_MultiLEP_36invfb",
+                   "ATLAS_13TeV_0LEPStop_20invfb",
+                   "ATLAS_13TeV_2LEPStop_36invfb",
+                   "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+                   "ATLAS_13TeV_2bMET_36invfb"] ]
+
+                   # "ATLAS_13TeV_1LEPStop_36invfb",
 
   # CMS analysis setup
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ ["CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
-                   "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"] ]
+      analyses: [ ["CMS_8TeV_1LEPDMTOP_20invfb",
+                   "CMS_8TeV_2LEPDMTOP_20invfb",
+                   "CMS_8TeV_3LEPEW_20invfb",
+                   "CMS_8TeV_MONOJET_20invfb"],
+                  ["CMS_13TeV_0LEP_13invfb",
+                   "CMS_13TeV_1LEPbb_36invfb",
+                   "CMS_13TeV_2LEPsoft_36invfb",
+                   "CMS_13TeV_2OSLEP_36invfb",
+                   "CMS_13TeV_1LEPStop_36invfb",
+                   "CMS_13TeV_MultiLEP_36invfb"] ]
+
+                   # "CMS_13TeV_2LEPStop_36invfb",
+                   # "CMS_13TeV_MONOJET_36invfb",
 
   # Choose Monte Carlo event simulator and number of events to run.
   - capability:  ColliderOperator
     function: operateLHCLoop
     options:
-      nEvents: [20000]
       pythiaNames: ["Pythia_SUSY_LHC_8TeV"]
       silenceLoop: true
+
+  # Choose statistical settings for Monte Carlo event generator
+  - capability: MC_ConvergenceSettings
+    options:
+      min_nEvents: [5000,5000]
+      max_nEvents: [50000,50000]
+      events_between_convergence_checks: [5000,5000]
+      target_fractional_uncert: [0.3,0.3]
+      halt_when_systematic_dominated: true
+      all_SR_must_converge: false
+
 
   # Define Monte Carlo event simulator and associated options.
   - capability:  HardScatteringSim
@@ -572,6 +605,15 @@ Rules:
                              "SUSY:all = on",
                              "TauDecays:mode = 0",
                              "TimeShower:pTmin = 20"]
+      Pythia_SUSY_LHC_13TeV: ["Print:quiet = on",
+                             "PartonLevel:MPI = off",
+                             "PartonLevel:ISR = on",
+                             "PartonLevel:FSR = on",
+                             "HadronLevel:all = on",
+                             "SUSY:all = on",
+                             "TauDecays:mode = 0",
+                             "TimeShower:pTmin = 20"]
+
       xsec_vetos: [0.048]  # 0.048 fb correspond to ~1 expected event at L = 20.7 fb^-1.
 
 

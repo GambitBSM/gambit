@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:57:05
+// File generated at Thu 10 May 2018 14:37:48
 
 #ifndef MSSMatMSUSYEFTHiggs_mAmu_EFFECTIVE_COUPLINGS_H
 #define MSSMatMSUSYEFTHiggs_mAmu_EFFECTIVE_COUPLINGS_H
