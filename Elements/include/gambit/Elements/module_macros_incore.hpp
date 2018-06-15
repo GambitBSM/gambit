@@ -1515,7 +1515,7 @@
                                                                                \
       const int CAT_4(classloading_from_,BACKEND,_for_,FUNCTION) =             \
        set_classload_requirements(Functown::FUNCTION, STRINGIFY(BACKEND),      \
-       VERSTRING, STRINGIFY(CAT(Default_,BACKEND)));                           \
+       VERSTRING, STRINGIFY(CAT(Default__,BACKEND)));                           \
                                                                                \
     }                                                                          \
                                                                                \

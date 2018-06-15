@@ -49,7 +49,6 @@ namespace Gambit
 
    /// Specialisation of "traits" class used to inform Spec<T> class of what
    /// "Model" and "Input" are for this derived class
-   template <>
    template <class MI>
    struct SpecTraits<SpecBit::SingletDMSpec<MI>>
    {

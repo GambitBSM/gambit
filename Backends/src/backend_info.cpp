@@ -196,6 +196,8 @@ namespace Gambit
   /// Given a backend and a safe version (with no periods), return the true version
   str Backends::backend_info::version_from_safe_version (str be, str sv) const
   {
+    cout << "backend: "<< be << endl;
+    cout << "safe_version: "<< sv << endl;
     return safe_version_map.at(be).first.at(sv);
   }
 
@@ -210,6 +212,8 @@ namespace Gambit
   {
     safe_version_map[be].first[sv] = v;
     safe_version_map[be].second[v] = sv;
+    cout << "LINKED" << endl;
+    cout << "getting safe version: " << safe_version_from_version(be, v) << endl;
   }
 
   /// Override a backend's config file location
@@ -365,6 +369,8 @@ namespace Gambit
   void Backends::backend_info::loadLibrary_C_CXX_Fortran(const str& be, const str& ver, const str& sv, bool with_BOSS)
   {
     const str path = corrected_path(be,ver);
+
+    cout << "linking versions " << be << " " << ver << " " << sv << endl;
     link_versions(be, ver, sv);
     classloader[be+ver] = with_BOSS;
     needsMathematica[be+ver] = false;

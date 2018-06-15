@@ -32,7 +32,7 @@ namespace Gambit
     {
       Core().registerModule(module);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 19"); ini_catch(e); }
     return 0;
   }
 
@@ -43,7 +43,7 @@ namespace Gambit
     {
       Core().registerModuleFunctor(f);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 20"); ini_catch(e); }
     return 0;
   }
 
@@ -54,7 +54,7 @@ namespace Gambit
     {
       Core().registerPrimaryModelFunctor(primary_parameters);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 21"); ini_catch(e); }
     return 0;
   }
 
@@ -65,7 +65,7 @@ namespace Gambit
     {
       Core().registerBackend(be, ver);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 22"); ini_catch(e); }
     return 0;
   }
 
@@ -76,7 +76,7 @@ namespace Gambit
     {
       Core().registerBackendFunctor(f);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 23"); ini_catch(e); }
     return 0;
   }
 
@@ -87,7 +87,7 @@ namespace Gambit
     {
       Core().registerNestedModuleFunctor(f);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 24"); ini_catch(e); }
     return 0;
   }
 

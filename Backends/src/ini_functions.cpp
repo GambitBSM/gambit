@@ -69,7 +69,7 @@ namespace Gambit
     {
       vec.push_back(s);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 10"); ini_catch(e); }
     return 0;
   }
 
@@ -126,7 +126,7 @@ namespace Gambit
         }
       }
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 11"); ini_catch(e); }
     return 0;
   }
 
@@ -139,7 +139,7 @@ namespace Gambit
       Logging::tag2str()[mytag] = s;
       Logging::components().insert(mytag);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 12"); ini_catch(e); }
     return 0;
   }
 
@@ -151,7 +151,7 @@ namespace Gambit
       Utils::strip_whitespace_except_after_const(classname);
       Backends::backendInfo().classes[bever].insert(classname);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 13"); ini_catch(e); }
     return 0;
   }
 
@@ -295,7 +295,7 @@ namespace Gambit
       }
 
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 14"); ini_catch(e); }
     return 0;
   }
 
@@ -311,7 +311,7 @@ namespace Gambit
         ini_functor.setStatus(-4);
       }
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 15"); ini_catch(e); }
     return 0;
   }
 
@@ -348,7 +348,7 @@ namespace Gambit
         Backends::backendInfo().constructor_status[be+ver+fixns(barename+args)] = "OK";
       }
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 16"); ini_catch(e); }
     return 0;
   }
 
@@ -360,7 +360,7 @@ namespace Gambit
     {
       f.makeBackendRuleForModel(models, tags);
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 17"); ini_catch(e); }
     return 0;
   }
 
@@ -372,6 +372,21 @@ namespace Gambit
     {
       // Split up the passed version string into individual versions
       std::vector<str> versions = Utils::delimiterSplit(verstr, ",");
+      for (auto it = versions.begin() ; it != versions.end(); ++it)
+      {
+        cout << "it: " << *it << endl;
+         // Retrieve the version corresponding to the default if needed
+        if (*it == "default") *it = Backends::backendInfo().version_from_safe_version(be, default_ver);
+        
+        cout << "it_2: " << *it << endl;
+
+        // Retrieve the safe version corresponding to this version
+        str sv = Backends::backendInfo().safe_version_from_version(be, *it);
+
+        cout << "sv: " << sv << endl;
+        // Set the requirement in the functor
+        //f.setRequiredClassloader(be,*it,sv);
+      }
       // Add each version individually as required for classloading
       for (auto it = versions.begin() ; it != versions.end(); ++it)
       {
@@ -383,7 +398,7 @@ namespace Gambit
         f.setRequiredClassloader(be,*it,sv);
       }
     }
-    catch (std::exception& e) { ini_catch(e); }
+    catch (std::exception& e) { printf("BITE 18"); ini_catch(e); }
     return 0;
   }
 
