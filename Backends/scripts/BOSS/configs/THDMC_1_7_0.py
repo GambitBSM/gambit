@@ -17,7 +17,7 @@
 
 
 castxml_cc_id  = 'gnu'      # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
-castxml_cc     = 'g++'      # Name a specific compiler: 'g++', 'cl', ...
+castxml_cc     = 'g++-6'      # Name a specific compiler: 'g++', 'cl', ...
 castxml_cc_opt = ''         # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
 
 
@@ -31,15 +31,15 @@ gambit_base_namespace  = ''
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = ['../../../Backends/installed/2HDMC/1.7.0/src/SM.h',
-                '../../../Backends/installed/2HDMC/1.7.0/src/THDM.h',
-                '../../../Backends/installed/2HDMC/1.7.0/src/Constraints.h',
-                '../../../Backends/installed/2HDMC/1.7.0/src/DecayTableTHDM.h']
-include_paths = ['../../../Backends/installed/2HDMC/1.7.0/lib/','../../../Backends/installed/2HDMC/1.7.0/src/','.']
-base_paths    = ['../../../Backends/installed/2HDMC/1.7.0/']
+input_files   = ['../../../Backends/installed/THDMC/1.7.0/src/SM.h',
+                '../../../Backends/installed/THDMC/1.7.0/src/THDM.h',
+                '../../../Backends/installed/THDMC/1.7.0/src/Constraints.h',
+                '../../../Backends/installed/THDMC/1.7.0/src/DecayTableTHDM.h']
+include_paths = ['../../../Backends/installed/THDMC/1.7.0/lib/','../../../Backends/installed/THDMC/1.7.0/src/','.']
+base_paths    = ['../../../Backends/installed/THDMC/1.7.0/']
 
-header_files_to = '../../../Backends/installed/2HDMC/1.7.0/src'
-src_files_to    = '../../../Backends/installed/2HDMC/1.7.0/src'
+header_files_to = '../../../Backends/installed/THDMC/1.7.0/src'
+src_files_to    = '../../../Backends/installed/THDMC/1.7.0/src'
 
 load_classes = ['SM',
                 'THDM',

@@ -106,16 +106,19 @@ namespace Gambit
       }
 
       // "extra" function to compute TanBeta & alpha
-    //   template <class Model>
-    //   double get_tanbeta(const Model& model)
-    //   {
-    //     return model.get_tanb();
-    //   }
+      template <class Model>
+      double get_tanb(const Model& model)
+      {
+        // this needs implementation!!
+        //return model.get_tanb();
+
+        return 0.0;
+      }
 
        template <class Model>
        double get_alpha(const Model& model)
        {
-           return -1*model.alpha();
+           return -1*model.Alpha();
        }
 
 //    extract pole masses from arrays
@@ -174,49 +177,49 @@ namespace Gambit
        template <class Model>
        double get_lambda1(const Model& model)
        {
-           return model.get_lambda_1();
+           return model.get_Lambda1();
        }
 
        template <class Model>
        double get_lambda2(const Model& model)
        {
-           return model.get_lambda_2();
+           return model.get_Lambda2();
        }
 
        template <class Model>
        double get_lambda3(const Model& model)
        {
-           return model.get_lamda_3();
+           return model.get_Lambda3();
        }
 
        template <class Model>
        double get_lambda4(const Model& model)
        {
-           return model.get_lamda_4();
+           return model.get_Lambda4();
        }
 
        template <class Model>
        double get_lambda5(const Model& model)
        {
-           return model.get_lambda_5();
+           return model.get_Lambda5();
        }
 
        template <class Model>
        double get_lambda6(const Model& model)
        {
-           return model.get_lambda_6();
+           return model.get_Lambda6();
        }
 
        template <class Model>
        double get_lambda7(const Model& model)
        {
-           return model.get_lambda_7();
+           return model.get_Lambda7();
        }
 
        template <class Model>
-       double get_m122(const Model& model)
+       double get_m12_2(const Model& model)
        {
-           return model.get_m12_2();
+           return model.get_M122();
        }
 
        template <class Model>
@@ -237,7 +240,7 @@ namespace Gambit
       template <class Model>\
       double get_MHpm1_pole_slha(const Model& model)
       {
-        return model.get_MHpm_pole_slha(1);
+        return model.get_MHm_pole_slha(1);
       }
 
        template <class Model>
@@ -255,7 +258,7 @@ namespace Gambit
       template <class Model>
       void set_MHpm1_pole_slha(Model& model, double mass)
       {
-        model.get_physical_slha().MHpm(1) = mass;
+        model.get_physical_slha().MHm(1) = mass;
       }
 
      //PA:  setting MZ and MW is necessary because we may have them as ouptuts
@@ -281,10 +284,24 @@ namespace Gambit
          typedef typename MTget::FInfo1 FInfo1;
          typedef typename MTget::FInfo2 FInfo2;
 
-         static const std::set<int> i01 = initSet(0,1);
-         static const std::set<int> i012 = initSet(0,1,2);
-         static const std::set<int> i0123 = initSet(0,1,2,3);
-         static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
+         cout << "Init GetterMaps THDMSpec" << endl;
+
+        //  static const std::set<int> i01 = initSet(0,1);
+        //  static const std::set<int> i012 = initSet(0,1,2);
+        //  static const std::set<int> i0123 = initSet(0,1,2,3);
+        //  static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
+
+         static const int i01v[] = {0,1};
+         static const std::set<int> i01(i01v, Utils::endA(i01v));
+
+         static const int i012v[] = {0,1,2};
+         static const std::set<int> i012(i012v, Utils::endA(i012v));
+
+         static const int i0123v[] = {0,1,2,3};
+         static const std::set<int> i0123(i0123v, Utils::endA(i0123v));
+
+         static const int i012345v[] = {0,1,2,3,4,5};
+         static const std::set<int> i012345(i012345v, Utils::endA(i012345v));
 
          /// @{ mass2 - mass dimension 2 parameters
          //
@@ -314,7 +331,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTget::fmap0 tmp_map;
-            tmp_map["vev"]= &Model::get_vev;
+            // tmp_map["vev"]= &Model::get_vev;
 
             map_collection[Par::mass1].map0 = tmp_map;
          }
@@ -323,7 +340,7 @@ namespace Gambit
          // (Zero index, model object as argument)
          {
             typename MTget::fmap0_extraM tmp_map;
-            tmp_map["m12_2"]= &get_m122<Model>;
+            tmp_map["m12_2"]= &get_m12_2<Model>;
             tmp_map["lambda_1"]= &get_lambda1<Model>;
             tmp_map["lambda_2"]= &get_lambda2<Model>;
             tmp_map["lambda_3"]= &get_lambda3<Model>;
@@ -333,6 +350,7 @@ namespace Gambit
             tmp_map["lambda_7"]= &get_lambda7<Model>;
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
+            cout << "Assigned lambdas" << endl;
          }
 
          // Functions utilising the two-index "plain-vanilla" function signature
@@ -353,7 +371,7 @@ namespace Gambit
             tmp_map["g2"]= &Model::get_g2;
             tmp_map["g3"]= &Model::get_g3;
 
-            tmp_map["tanb"]= &Model::get_tanb;
+            // tmp_map["tanb"]= &Model::get_tanb;
 
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
@@ -364,6 +382,7 @@ namespace Gambit
             typename MTget::fmap0_extraM tmp_map;
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             tmp_map["alpha"]= &get_alpha<Model>;
+            tmp_map["tanb"]= &get_tanb<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
          }
 
@@ -372,9 +391,9 @@ namespace Gambit
          {
             typename MTget::fmap2 tmp_map;
 
-            tmp_map["Yd2"]= FInfo2( &Model::get_Yd2, i012, i012);
-            tmp_map["Yu2"]= FInfo2( &Model::get_Yu2, i012, i012);
-            tmp_map["Ye2"]= FInfo2( &Model::get_Ye2, i012, i012);
+            // tmp_map["Yd2"]= FInfo2( &Model::get_Yd2, i012, i012);
+            // tmp_map["Yu2"]= FInfo2( &Model::get_Yu2, i012, i012);
+            // tmp_map["Ye2"]= FInfo2( &Model::get_Ye2, i012, i012);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
@@ -442,6 +461,9 @@ namespace Gambit
          }
          /// @}
 
+        cout << "Par::Pole_Mass" << Par::Pole_Mass << endl;
+        //  cout << "map_collection[Par::Pole_Mass]: " << map_collection[Par::Pole_Mass] << endl;
+
          return map_collection;
       }
 
@@ -484,7 +506,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTset::fmap0 tmp_map;
-            tmp_map["vev"]= &Model::set_vev;
+            // tmp_map["vev"]= &Model::set_vev;
 
             map_collection[Par::mass1].map0 = tmp_map;
          }
@@ -507,7 +529,7 @@ namespace Gambit
             tmp_map["g2"]= &Model::set_g2;
             tmp_map["g3"]= &Model::set_g3;
 
-            tmp_map["tanb"]= &Model::set_tanb;
+            // tmp_map["tanb"]= &Model::set_tanb;
 
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
@@ -517,9 +539,9 @@ namespace Gambit
          {
             typename MTset::fmap2 tmp_map;
 
-            tmp_map["Yd2"]= FInfo2( &Model::set_Yd2, i012, i012);
-            tmp_map["Yu2"]= FInfo2( &Model::set_Yu2, i012, i012);
-            tmp_map["Ye2"]= FInfo2( &Model::set_Ye2, i012, i012);
+            // tmp_map["Yd2"]= FInfo2( &Model::set_Yd2, i012, i012);
+            // tmp_map["Yu2"]= FInfo2( &Model::set_Yu2, i012, i012);
+            // tmp_map["Ye2"]= FInfo2( &Model::set_Ye2, i012, i012);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
          }

@@ -42,6 +42,12 @@ START_CAPABILITY
   ALLOW_MODEL(THDMatQ)
   #undef FUNCTION
 
+   // Convert spectrum into a standard map so that it can be printed
+#define FUNCTION get_THDM_spectrum_as_map
+  START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
+  DEPENDENCY(THDM_spectrum, Spectrum)
+#undef FUNCTION
+
 #undef CAPABILITY
 
 #define CAPABILITY test_THDM_spectrum_1
@@ -172,6 +178,7 @@ START_CAPABILITY
   DEPENDENCY(Physical_Basis, thdm_physical_basis)
   #undef FUNCTION
 #undef CAPABILITY
+
 
 #define CAPABILITY unitarity_constraint_likelihood_THDM
 START_CAPABILITY

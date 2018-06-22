@@ -42,7 +42,7 @@ gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
 
 THDMC:
-  1.7.0:       ./Backends/installed/2HDMC/1.7.0/lib/lib2HDMC.so
+  1.7.0:       ./Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so
 
 gm2calc:
   1.2.0:       ./Backends/installed/gm2calc/1.2.0/src/libgm2calc.so

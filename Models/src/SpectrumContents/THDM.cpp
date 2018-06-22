@@ -38,7 +38,7 @@ namespace Gambit {
      std::vector<int> m6x6   = initVector(6,6); // "
   
 
-     addParameter(Par::mass1, "vev"      );
+    //  addParameter(Par::mass1, "vev");
 
      addParameter(Par::dimensionless, "g1", scalar);
      addParameter(Par::dimensionless, "g2", scalar);
@@ -46,9 +46,9 @@ namespace Gambit {
     
      addParameter(Par::dimensionless, "sinW2", scalar);
   
-     addParameter(Par::dimensionless, "Yd2", m3x3);
-     addParameter(Par::dimensionless, "Yu2", m3x3);
-     addParameter(Par::dimensionless, "Ye2", m3x3);
+    //  addParameter(Par::dimensionless, "Yd2", m3x3);
+    //  addParameter(Par::dimensionless, "Yu2", m3x3);
+    //  addParameter(Par::dimensionless, "Ye2", m3x3);
     
      addParameter(Par::Pole_Mass, "h0",    v2);
      addParameter(Par::Pole_Mass, "A0", scalar);
@@ -63,17 +63,19 @@ namespace Gambit {
     // addParameter(Par::Pole_Mass, "A0", scalar);
     // addParameter(Par::Pole_Mass, "H+", scalar);
 
-    addParameter(Par::mass1, "m12_2");
     addParameter(Par::dimensionless, "alpha");
-    addParameter(Par::dimensionless, "tanb");
     
+    addParameter(Par::mass1, "lambda_6");
+    addParameter(Par::mass1, "lambda_7");
+
+    addParameter(Par::dimensionless, "tanamb");
+    addParameter(Par::mass1, "m12_2");
+
     addParameter(Par::mass1, "lambda_1");
     addParameter(Par::mass1, "lambda_2");
     addParameter(Par::mass1, "lambda_3");
     addParameter(Par::mass1, "lambda_4");
     addParameter(Par::mass1, "lambda_5");
-    addParameter(Par::mass1, "lambda_6");
-    addParameter(Par::mass1, "lambda_7");
     
   }
   

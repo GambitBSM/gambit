@@ -260,6 +260,8 @@ namespace Gambit
             // map_collection[Par::Pole_Mixing].map2 = tmp_map;
          }
 
+         return map_collection;
+
       }
       
       static SetterMaps fill_setter_maps()

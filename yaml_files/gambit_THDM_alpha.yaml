@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDM:
+    THDMatQ:
         mh0:
             range: [124.9, 126.5] # 2-sigma range PDG 2015
             # prior_type: flat
@@ -30,15 +30,15 @@ Parameters:
         m12_2:
             range: [-50000, 700000]
             # prior_type: flat
-        tb:
+        tanb:
             range: [0.25, 100]
             # prior_type: flat
-        # Qin:
-            # fixed_value: 91.1876 #mZ
+        Qin:
+            fixed_value: 91.1876 #mZ
             # fixed_value: 173.15
             # fixed_value: 80.39
-        # QrunTo:
-            # fixed_value: 750
+        QrunTo:
+            fixed_value: 750
             # prior_type: log
     # THDM:
     #     mh0: 120
@@ -112,7 +112,7 @@ Scanner:
        output_file: "weights ..."
 
     multinest:
-      plugin: MultiNest
+      plugin: multinest
       like:  LogLike
       nlive: 500
       tol: 0.1
@@ -134,8 +134,8 @@ ObsLikes:
     # - capability: theoretical_constraint_likelihood_THDM
     #   purpose: LogLike
 
-    - capability: test_THDM_spectrum_1
-      purpose: LogLike
+    # - capability: test_THDM_spectrum_1
+    #   purpose: LogLike
 
     # - capability: test_THDM_spectrum_2
     #   purpose: LogLike
@@ -287,8 +287,8 @@ Rules:
     #     HB_analysis_type: 1
 
     - capability: THDM_spectrum
-      # function: get_THDM_I_spectrum_FS
-      function: get_THDM_spectrum #no FS spectrum calculation
+      function: get_THDM_spectrum_FS
+      # function: get_THDM_spectrum #no FS spectrum calculation
 
     # - capability: THDM_Higgs_Couplings_For_HB
     #   function: THDM_Couplings_For_HB
@@ -373,3 +373,6 @@ KeyValues:
   enable_testing: true
 
   debug: true
+
+  YukawaType: 1
+
