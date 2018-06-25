@@ -976,6 +976,9 @@ namespace Gambit
         double tan_beta = he.get(Par::dimensionless,"tanb");
         double alpha = he.get(Par::dimensionless,"alpha");
 
+        cout << tan_beta << endl;
+        cout << alpha << endl;
+
         double sba = get_sba(tan_beta, alpha);
 
         // sin(b-a) = 1 in alignment limit -distance from alignment limit:
@@ -1783,8 +1786,6 @@ namespace Gambit
 
         // Retrieve spectrum contents
 
-
-
         const Spectrum* fullspectrum = *Dep::THDM_spectrum;
 
       //const DecayTable::Entry& decays = *Dep::Higgs_decay_rates;
@@ -1939,7 +1940,7 @@ namespace Gambit
 
       // Generate spectrum
       spectrum_generator.run(oneset, input);
-
+     
       // Extract report on problems...
       const typename MI::Problems& problems = spectrum_generator.get_problems();
 
@@ -1982,9 +1983,10 @@ namespace Gambit
       thdmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
       thdmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
 
-      //thdmspec.set_override(Par::dimensionless,  *input_Param.at("sba"), "sba", true);
+      thdmspec.set_override(Par::dimensionless, *input_Param.at("alpha"), "Lambda1", true);
 
-      thdmspec.set_override(Par::dimensionless, *input_Param.at("YukawaType") , "YukawaType", true);
+      thdmspec.set_override(Par::dimensionless, 2 , "YukawaType", true);
+      //thdmspec.set_override(Par::dimensionless, *input_Param.at("YukawaType") , "YukawaType", true);
 
             //MSSM THEORY ERRORS//
     //   // Add theory errors
@@ -2066,7 +2068,7 @@ namespace Gambit
 
             /// Fast way for now:
             problems.print_problems(msg);
-            invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
+            // invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
          }
       }
 
@@ -2074,7 +2076,7 @@ namespace Gambit
       { cout << "DBG 98" << endl;
          std::ostringstream msg;
          problems.print_warnings(msg);
-         SpecBit_warning().raise(LOCAL_INFO,msg.str()); //TODO: Is a warning the correct thing to do here?
+          SpecBit_warning().raise(LOCAL_INFO,msg.str()); //TODO: Is a warning the correct thing to do here?
       }
 
       // Write SLHA file (for debugging purposes...)
@@ -2092,7 +2094,9 @@ namespace Gambit
       static const Spectrum::mc_info mass_cut = runOptions.getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
       static const Spectrum::mr_info mass_ratio_cut = runOptions.getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
+      cout << "filled spectrum" << endl;
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
+        model_interface.model.print(cout);
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     //   return Spectrum(qedqcdspec,mssmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
@@ -2302,7 +2306,7 @@ namespace Gambit
       cout << "DBG 99A" << endl;
 
       double sba = get_sba(tb, alpha);
-
+ 
       // set up required quantities
       double beta = atan(tb);
       double ctb = 1./tb;
@@ -2465,35 +2469,53 @@ namespace Gambit
 
         cout << "---- running to scale: " << QrunTo << "GeV. "<< endl;
 
-        cout << "mh0 = " <<  spec->get(Par::mass1, "h0",1) << endl;
-        cout <<  "mH0 = " << spec->get(Par::mass1, "h0",2) << endl;
-        cout <<  "mA = " << spec->get(Par::mass1, "A0") << endl;
-        cout << "mC = " <<  spec->get(Par::mass1, "H+") << endl;
+        cout << "mh0 = " <<  spec->get(Par::Pole_Mass, "h0", 1) << endl;
+        cout <<  "mH0 = " << spec->get(Par::Pole_Mass, "h0", 2) << endl;
+        cout <<  "mA = " << spec->get(Par::Pole_Mass, "A0") << endl;
+        cout << "mC = " <<  spec->get(Par::Pole_Mass, "H+") << endl;
         cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
         cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tanb") << endl;
         cout <<  "m12_2 = " << spec->get(Par::mass1, "m12_2") << endl;
-
-        cout << "lambda_1 = " << spec->get(Par::mass1, "lambda_1") << endl;
-        cout << "lambda_2 = " << spec->get(Par::mass1, "lambda_2") << endl;
-        cout << "lambda_3 = " << spec->get(Par::mass1, "lambda_3") << endl;
-        cout << "lambda_4 = " << spec->get(Par::mass1, "lambda_4") << endl;
-        cout << "lambda_5 = " << spec->get(Par::mass1, "lambda_5") << endl;
-
-        spec -> RunToScale(QrunTo);
-
-        double mh0_1 = spec->get(Par::mass1, "h0",1);
-        double mh0_2 = spec->get(Par::mass1, "h0",2);
-        double mA0 = spec->get(Par::mass1, "A0");
-        double mHm = spec->get(Par::mass1, "H+");
-        double alpha = spec->get(Par::dimensionless, "alpha");
-        double tb = spec->get(Par::dimensionless, "tanb");
-        double m12_2 = spec->get(Par::mass1, "m12_2");
 
         double lambda_1 = spec->get(Par::mass1, "lambda_1");
         double lambda_2 = spec->get(Par::mass1, "lambda_2");
         double lambda_3 = spec->get(Par::mass1, "lambda_3");
         double lambda_4 = spec->get(Par::mass1, "lambda_4");
         double lambda_5 = spec->get(Par::mass1, "lambda_5");
+
+
+        cout << "lambda_1 = " << lambda_1 << endl;
+        cout << "lambda_2 = " << lambda_2 << endl;
+        cout << "lambda_3 = " << lambda_3 << endl;
+        cout << "lambda_4 = " << lambda_4 << endl;
+        cout << "lambda_5 = " << lambda_5 << endl;
+
+        std::vector<double> lambdas = {lambda_1,lambda_2,lambda_3,lambda_4,lambda_5};
+
+        double non_pertubativity = 0.;
+        for(int i=0; i<lambdas.size(); i++)
+        {
+          non_pertubativity += abs(lambdas[i] - 4*PI);
+        }
+
+        if (non_pertubativity == 0)
+        {
+
+        spec -> RunToScale(10.0);
+
+        double mh0_1 = spec->get(Par::Pole_Mass, "h0", 1);
+        double mh0_2 = spec->get(Par::Pole_Mass, "h0", 2);
+        double mA0 = spec->get(Par::Pole_Mass, "A0");
+        double mHm = spec->get(Par::Pole_Mass, "H+");
+        double alpha = spec->get(Par::dimensionless, "alpha");
+        double tb = spec->get(Par::dimensionless, "tanb");
+        double m12_2 = spec->get(Par::mass1, "m12_2");
+
+       lambda_1 = spec->get(Par::mass1, "lambda_1");
+       lambda_2 = spec->get(Par::mass1, "lambda_2");
+       lambda_3 = spec->get(Par::mass1, "lambda_3");
+       lambda_4 = spec->get(Par::mass1, "lambda_4");
+       lambda_5 = spec->get(Par::mass1, "lambda_5");
 
         //double sba = get_sba(tb, alpha);
 
@@ -2514,7 +2536,11 @@ namespace Gambit
         cout << "lambda_4 = " << lambda_4 << endl;
         cout << "lambda_5 = " << lambda_5 << endl;
         cout << "----------------------------------" << endl;
-
+        }
+        else
+        {
+          cout << "Perturbativity failed: Did not run to scale" << endl;
+        }
 
         result = 0;
     }

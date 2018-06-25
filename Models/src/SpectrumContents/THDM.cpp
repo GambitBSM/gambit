@@ -68,7 +68,7 @@ namespace Gambit {
     addParameter(Par::mass1, "lambda_6");
     addParameter(Par::mass1, "lambda_7");
 
-    addParameter(Par::dimensionless, "tanamb");
+    addParameter(Par::dimensionless, "tanb");
     addParameter(Par::mass1, "m12_2");
 
     addParameter(Par::mass1, "lambda_1");

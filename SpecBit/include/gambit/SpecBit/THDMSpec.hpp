@@ -68,11 +68,11 @@ namespace Gambit
       template <class MI>
       void THDMSpec<MI>::RunToScaleOverride(double scale)
       {
-        //   std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE run_to(scale) " << std::endl;
+          std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE run_to(scale) " << std::endl;
         model_interface.model.run_to(scale);
-        //   std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE calculate_DRbar_masses() " << std::endl;
+          std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE calculate_DRbar_masses() " << std::endl;
         model_interface.model.calculate_DRbar_masses();
-        //   std::cout << "THDMSpec.hpp | RunToScaleOverride() | END" << std::endl;
+          std::cout << "THDMSpec.hpp | RunToScaleOverride() | END" << std::endl;
 
       }
       template <class MI>
@@ -111,13 +111,13 @@ namespace Gambit
       {
         // this needs implementation!!
         //return model.get_tanb();
-
-        return 0.0;
+        return model.get_v2()/model.get_v1();
       }
 
        template <class Model>
        double get_alpha(const Model& model)
        {
+          cout << "WHAT IS ALPHA? " << model.Alpha() << endl;
            return -1*model.Alpha();
        }
 
@@ -126,7 +126,8 @@ namespace Gambit
       template <class Model>
       double get_mA_pole(const Model& model)
       {
-       return model.get_MAh_pole_slha(1);
+       return model.get_MAh(1);
+      //  return model.get_MAh_pole_slha(1);
       }
 
        template <class Model>
@@ -151,7 +152,9 @@ namespace Gambit
       template <class Model>
       double get_mh_1_pole(const Model& model)
       {
-       return model.get_Mhh_pole_slha(0);
+       //return model.get_Mhh_pole_slha(0);
+       cout << "get_mh_1_pole" << endl;
+       return model.get_Mhh(0);
       }
 
        template <class Model>
@@ -237,43 +240,43 @@ namespace Gambit
         return model.get_MAh_pole_slha(1);
       }
 
-      template <class Model>\
+      template <class Model>
       double get_MHpm1_pole_slha(const Model& model)
       {
         return model.get_MHm_pole_slha(1);
       }
 
-       template <class Model>
-      void set_Mhh_pole_slha(Model& model, double mass, int i)
-      {
-        model.get_physical_slha().Mhh(i) = mass;
-      }
+    //    template <class Model>
+    //   void set_Mhh_pole_slha(Model& model, double mass, int i)
+    //   {
+    //     cout << "set_Mhh_pole_slha: " << mass << endl;
+    //     model.get_physical_slha().Mhh(i) = mass;
+    //   }
 
-       template <class Model>
-      void set_MAh1_pole_slha(Model& model, double mass)
-      {
-        model.get_physical_slha().MAh(1) = mass;
-      }
+    //    template <class Model>
+    //   void set_MAh1_pole_slha(Model& model, double mass)
+    //   {
+    //     model.get_physical_slha().MAh(1) = mass;
+    //   }
 
-      template <class Model>
-      void set_MHpm1_pole_slha(Model& model, double mass)
-      {
-        model.get_physical_slha().MHm(1) = mass;
-      }
+    //   template <class Model>
+    //   void set_MHpm1_pole_slha(Model& model, double mass)
+    //   {
+    //     model.get_physical_slha().MHm(1) = mass;
+    //   }
 
-     //PA:  setting MZ and MW is necessary because we may have them as ouptuts
-     template <class Model>
-     void set_MZ_pole_slha(Model& model, double mass)
-     {
-        model.get_physical_slha().MVZ = mass;
-     }
+    //  //PA:  setting MZ and MW is necessary because we may have them as ouptuts
+    //  template <class Model>
+    //  void set_MZ_pole_slha(Model& model, double mass)
+    //  {
+    //     model.get_physical_slha().MVZ = mass;
+    //  }
 
-     template <class Model>
-     void set_MW_pole_slha(Model& model, double mass)
-     {
-        model.get_physical_slha().MVWm = mass;
-     }
-
+    //  template <class Model>
+    //  void set_MW_pole_slha(Model& model, double mass)
+    //  {
+    //     model.get_physical_slha().MVWm = mass;
+    //  }
 
       template <class MI>
       typename THDMSpec<MI>::GetterMaps THDMSpec<MI>::fill_getter_maps()
@@ -284,7 +287,6 @@ namespace Gambit
          typedef typename MTget::FInfo1 FInfo1;
          typedef typename MTget::FInfo2 FInfo2;
 
-         cout << "Init GetterMaps THDMSpec" << endl;
 
         //  static const std::set<int> i01 = initSet(0,1);
         //  static const std::set<int> i012 = initSet(0,1,2);
@@ -336,7 +338,7 @@ namespace Gambit
             map_collection[Par::mass1].map0 = tmp_map;
          }
 
-         // Functions utilising the "extraM" function signature
+          // Functions utilising the "extraM" function signature
          // (Zero index, model object as argument)
          {
             typename MTget::fmap0_extraM tmp_map;
@@ -348,9 +350,18 @@ namespace Gambit
             tmp_map["lambda_5"]= &get_lambda5<Model>;
             tmp_map["lambda_6"]= &get_lambda6<Model>;
             tmp_map["lambda_7"]= &get_lambda7<Model>;
+            // tmp_map["vev"]= &Model::get_vev;
+
+            map_collection[Par::mass1].map0_extraM = tmp_map;
+         }
+
+         // Functions utilising the "extraM" function signature
+         // (Zero index, model object as argument)
+         {
+            typename MTget::fmap0_extraM tmp_map;
+            
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
-            cout << "Assigned lambdas" << endl;
          }
 
          // Functions utilising the two-index "plain-vanilla" function signature
@@ -421,7 +432,7 @@ namespace Gambit
             typename MTget::fmap0_extraM tmp_map;
 
             // Using wrapper functions defined above
-            tmp_map["A0"] = &get_MAh1_pole_slha<Model>;
+            tmp_map["A0"] = &get_mA_pole<Model>;
             tmp_map["H+"] = &get_MHpm1_pole_slha<Model>;
 
             // Goldstones
@@ -440,6 +451,7 @@ namespace Gambit
             typename MTget::fmap1 tmp_map;
 
             tmp_map["h0"] =  FInfo1( &Model::get_Mhh_pole_slha, i01 );
+            
 
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
@@ -461,7 +473,6 @@ namespace Gambit
          }
          /// @}
 
-        cout << "Par::Pole_Mass" << Par::Pole_Mass << endl;
         //  cout << "map_collection[Par::Pole_Mass]: " << map_collection[Par::Pole_Mass] << endl;
 
          return map_collection;
@@ -484,6 +495,7 @@ namespace Gambit
          static const std::set<int> i0123 = initSet(0,1,2,3);
          static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
 
+         
          /// @{ mass2 - mass dimension 2 parameters
          //
          // Functions utilising the "plain-vanilla" function signature
@@ -534,6 +546,8 @@ namespace Gambit
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
 
+         
+
          // Functions utilising the two-index "plain-vanilla" function signature
          // (Two-index member functions of model object)
          {
@@ -548,8 +562,9 @@ namespace Gambit
 
         {
           typename MTset::fmap0_extraM tmp_map;
-          tmp_map["A0"] = &set_MAh1_pole_slha<Model>;
-          tmp_map["H+"] = &set_MHpm1_pole_slha<Model>;
+          // tmp_map["A0"] = &set_MAh1_pole_slha<Model>;
+          // tmp_map["H+"] = &set_MHpm1_pole_slha<Model>;
+
             /// Note; these aren't in the particle database, so no
             /// conversion between particle/antiparticle.
             //   tmp_map["Goldstone0"] = &set_neutral_goldstone_pole_slha<Model>;
@@ -559,15 +574,15 @@ namespace Gambit
             /// PA: MW is a prediction in FS and most spectrum generators
             /// so this belongs in the HE object.
             /// MZ is not and so belongs in LE object
-          tmp_map["W+"] = &set_MW_pole_slha<Model>;
+          // tmp_map["W+"] = &set_MW_pole_slha<Model>;
 
-          map_collection[Par::Pole_Mass].map0_extraM = tmp_map;
+          map_collection[Par::dimensionless].map0_extraM = tmp_map;
         }
 
         {
           typename MTset::fmap1_extraM tmp_map;
 
-          tmp_map["h0"] =  FInfo1M( &set_Mhh_pole_slha<Model>, i01 );
+          // tmp_map["h0"] =  FInfo1M( &set_Mhh_pole_slha<Model>, i01 );
 
           map_collection[Par::Pole_Mass].map1_extraM = tmp_map;
         }
