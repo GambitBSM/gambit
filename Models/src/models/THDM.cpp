@@ -44,7 +44,7 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
    logger()<<"Running interpret_as_parent calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
 
   targetP.setValue("Qin",80.39);
-    targetP.setValue("QrunTo", 173.15);
+  targetP.setValue("QrunTo", 173.15);
 
   targetP.setValue("mh0", myP.getValue("mh0") );
   targetP.setValue("mH0", myP.getValue("mH0") );
@@ -56,11 +56,7 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
   targetP.setValue("tanb", myP.getValue("tanb") );
   targetP.setValue("y_type", myP.getValue("y_type") );
     
-//    double tanb = myP.getValue("tb");
-//    double beta = atan(tanb);
-//    double sinba = sin(beta-myP.getValue("alpha"));
-    
-    targetP.setValue("alpha", myP.getValue("alpha") );
+  targetP.setValue("alpha", myP.getValue("alpha") );
 
    // Done! Check that everything is ok if desired.
    #ifdef THDM_DBUG

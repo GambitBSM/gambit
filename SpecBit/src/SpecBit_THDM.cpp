@@ -65,11 +65,12 @@
 // #include "flexiblesusy/src/two_loop_corrections.hpp"
 
 #include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
+#include "flexiblesusy/src/problems.hpp"
 
 
 // Switch for debug mode
-//#define SpecBit_DBUG
-//#define SPECBIT_DEBUG
+#define SpecBit_DBUG
+#define SPECBIT_DEBUG
 
 namespace Gambit
 {
@@ -137,7 +138,7 @@ namespace Gambit
       double tan_beta = *myPipe::Param.at("tanb");
 
       //Check Yukawa Type Validity
-      int YukawaType = myPipe::runOptions->getValueOrDef<int>(1, "YukawaType");
+      int YukawaType = myPipe::runOptions->getValueOrDef<int>(2, "YukawaType");
       if( YukawaType > 0 && YukawaType < 5 )
       { cout << "DBG 5" << endl;
         //Yukawa Type is valid
@@ -1983,7 +1984,9 @@ namespace Gambit
       thdmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
       thdmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
 
-      thdmspec.set_override(Par::dimensionless, *input_Param.at("alpha"), "Lambda1", true);
+      double sba = sin(atan(*input_Param.at("tanb")) - *input_Param.at("alpha"));
+
+      thdmspec.set_override(Par::dimensionless, sba, "sba", true);
 
       thdmspec.set_override(Par::dimensionless, 2 , "YukawaType", true);
       //thdmspec.set_override(Par::dimensionless, *input_Param.at("YukawaType") , "YukawaType", true);
@@ -2016,16 +2019,16 @@ namespace Gambit
     //   mssmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ms.h0, 1, true);
 
       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
-      double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
-      thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
-      thdmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
+      // double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
+      // thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
+      // thdmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
 
       // Save the input value of TanBeta
       // Probably need to make it a full requirement of the MSSM SpectrumContents
-    //   if(input_Param.find("TanBeta") != input_Param.end())
-    //   { cout << "DBG " << endl;
-    //     thdmspec.set_override(Par::dimensionless, *input_Param.at("TanBeta"), "tanbeta(mZ)", true);
-    //   }
+      //   if(input_Param.find("TanBeta") != input_Param.end())
+      //   { cout << "DBG " << endl;
+      //     thdmspec.set_override(Par::dimensionless, *input_Param.at("TanBeta"), "tanbeta(mZ)", true);
+      //   }
 
       // Create a second SubSpectrum object to wrap the qedqcd object used to initialise the spectrum generator
       // Attach the sminputs object as well, so that SM pole masses can be passed on (these aren't easily
@@ -2051,11 +2054,18 @@ namespace Gambit
          }
          else
          { cout << "DBG 97" << endl;
+            std::ostringstream errmsg;
+            errmsg << "A serious problem was encountered during spectrum generation!; ";
+            errmsg << "Message from FlexibleSUSY below:" << std::endl;
+            problems.print_problems(errmsg);
+            problems.print_warnings(errmsg);
+            // SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             /// Check what the problem was
             /// see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
             std::ostringstream msg;
+            cout << " FS message: " << msg.str() << endl;
             //msg << "";
-            //if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
+            // if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
             //if( have_tachyon()       ) msg << "tachyon" << std::endl;
             //if( have_thrown()        ) msg << "error" << std::endl;
             //if( have_non_perturbative_parameter()   ) msg << "non-perturb. param" << std::endl; // TODO: check which
@@ -2084,9 +2094,9 @@ namespace Gambit
          typename MI::SlhaIo slha_io;
          slha_io.set_spinfo(problems);
          slha_io.set_sminputs(oneset);
-         slha_io.set_minpar(input);
-         slha_io.set_extpar(input);
-         slha_io.set_spectrum(mssmspec.model_interface.model);
+        //  slha_io.set_minpar(input);
+        //  slha_io.set_extpar(input);
+         slha_io.set_spectrum(thdmspec.model_interface.model);
          slha_io.write_to_file("SpecBit/initial_THDM_spectrum->slha");
       #endif
 
@@ -2354,13 +2364,13 @@ namespace Gambit
       //m22_2 = -0.5/sb*(pow(m_h,2)*ca*sba+pow(m_H,2)*sa*cba)+m12_2*ctb;
       //double valued parameters
       input.TanBeta     = tb;
-      input.Lambda1IN      = lambda_1; // 1/2 to match FS conventions ** DELETED
-      input.Lambda2IN      = lambda_2; // 1/2 to match FS conventions ** DELETED
-      input.Lambda3IN      = lambda_3;
-      input.Lambda4IN      = lambda_4;
-      input.Lambda5IN      = lambda_5;
-      input.Lambda6IN      = lambda6;
-      input.Lambda7IN      = lambda7;
+      input.Lambda1IN      =   1.; //lambda_1; // 1/2 to match FS conventions ** DELETED
+      input.Lambda2IN      = 1.;//lambda_2; // 1/2 to match FS conventions ** DELETED
+      input.Lambda3IN      = 1.;//lambda_3;
+      input.Lambda4IN      = 1.;//lambda_4;
+      input.Lambda5IN      = 1.;//lambda_5;
+      input.Lambda6IN      = 1.;//lambda6;
+      input.Lambda7IN      = 1.;//lambda7;
 
       cout << "DBG 99D" << endl;
 
@@ -2371,7 +2381,7 @@ namespace Gambit
       cout << "lambda_5 = " << lambda_5 << endl;
 
 
-      input.M122IN      = m12_2;              // minus sign to match FS conventions ** DELETED
+      input.M122IN      = 1.;//m12_2;              // minus sign to match FS conventions ** DELETED
       input.QEWSB       = *Param.at("Qin");
       input.Qin         = *Param.at("Qin");   // set as option later
 
@@ -2476,6 +2486,7 @@ namespace Gambit
         cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
         cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tanb") << endl;
         cout <<  "m12_2 = " << spec->get(Par::mass1, "m12_2") << endl;
+        cout <<  "sin(theta_W) = " << spec->get(Par::dimensionless, "sinW2") << endl;
 
         double lambda_1 = spec->get(Par::mass1, "lambda_1");
         double lambda_2 = spec->get(Par::mass1, "lambda_2");
@@ -2492,13 +2503,13 @@ namespace Gambit
 
         std::vector<double> lambdas = {lambda_1,lambda_2,lambda_3,lambda_4,lambda_5};
 
-        double non_pertubativity = 0.;
+        double pertubativity = true;
         for(int i=0; i<lambdas.size(); i++)
         {
-          non_pertubativity += abs(lambdas[i] - 4*PI);
+          if(abs(lambdas[i]) > 4*PI) pertubativity = false ;
         }
 
-        if (non_pertubativity == 0)
+        if(pertubativity)
         {
 
         spec -> RunToScale(10.0);
