@@ -1932,7 +1932,7 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<int>(1.000000000e-14,"beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_down"));
-      settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321,"threshold_corrections"));
+      settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(1,"threshold_corrections"));
 
       
       spectrum_generator.set_settings(settings);
