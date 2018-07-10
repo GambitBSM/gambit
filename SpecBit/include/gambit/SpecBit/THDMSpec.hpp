@@ -117,8 +117,8 @@ namespace Gambit
        template <class Model>
        double get_alpha(const Model& model)
        {
-          cout << "WHAT IS ALPHA? " << model.Alpha() << endl;
-           return -1*model.Alpha();
+         // may need to be negative as we are working in a different convention
+           return model.Alpha();
        }
 
 //    extract pole masses from arrays

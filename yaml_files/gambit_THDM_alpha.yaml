@@ -34,11 +34,11 @@ Parameters:
             range: [0.25, 100]
             # prior_type: flat
         Qin:
-            fixed_value: 91.1876 #mZ
-            # fixed_value: 173.15
+            # fixed_value: 91.1876 #mZ
+            fixed_value: 173.15
             # fixed_value: 80.39
         QrunTo:
-            fixed_value: 750
+            fixed_value: 80
             # prior_type: log
     # THDM:
     #     mh0: 120
@@ -134,51 +134,51 @@ ObsLikes:
     # - capability: theoretical_constraint_likelihood_THDM
     #   purpose: LogLike
 
-    - capability: test_THDM_spectrum_1
-      purpose: LogLike
+    # - capability: test_THDM_spectrum_1
+    #   purpose: LogLike
 
     # - capability: test_THDM_spectrum_2
     #   purpose: LogLike
 
     ## CURRENT SCAN
 
-    # - capability: global_minimum_discriminant_likelihood
-    #   purpose: LogLike
+    - capability: global_minimum_discriminant_likelihood
+      purpose: LogLike
 
-    # - purpose:    LogLike
-    #   capability: unitarity_constraint_likelihood_THDM
+    - purpose:    LogLike
+      capability: unitarity_constraint_likelihood_THDM
 
     - purpose:    LogLike
       capability: alignment_limit_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: perturbativity_constraint_likelihood_THDM
-    #   function: get_perturbativity_constraint_likelihood_THDM
+    - purpose:    LogLike
+      capability: perturbativity_constraint_likelihood_THDM
+      function: get_perturbativity_constraint_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: stability_constraint_likelihood_THDM
-    #   function: get_stability_likelihood_THDM
+    - purpose:    LogLike
+      capability: stability_constraint_likelihood_THDM
+      function: get_stability_likelihood_THDM
 
-    # - capability: NLO_unitarity_constraint_likelihood_THDM
-    #   purpose: LogLike
+    - capability: NLO_unitarity_constraint_likelihood_THDM
+      purpose: LogLike
 
     ## END
     #
-    # - purpose:    LogLike
-    #   capability: oblique_parameters_likelihood_THDM
-    #
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
+    
     # - capability: b2sgamma_LL
     #   function: b2sgamma_likelihood
     #   purpose: LogLike
-    #
+    
     # - capability: b2sll_LL
     #   funtion: b2sll_likelihood
     #   purpose: LogLike
-    #
+    
     # - capability: b2ll_LL
     #   funtion: b2ll_likelihood
     #   purpose: LogLike
-    #
+    
     # - capability: SL_LL
     #   funtion: SL_likelihood
     #   purpose: LogLike
@@ -207,47 +207,47 @@ ObsLikes:
     #   function: printGammaGamma_h0_2_THDM_HB
     #   purpose: Observable
 
-    - purpose: Observable
-      capability: lambda1_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda1_coupling_basis
 
-    - purpose: Observable
-      capability: lambda2_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda2_coupling_basis
 
-    - purpose: Observable
-      capability: lambda3_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda3_coupling_basis
 
-    - purpose: Observable
-      capability: lambda4_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda4_coupling_basis
 
-    - purpose: Observable
-      capability: lambda5_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda5_coupling_basis
 
-    - purpose: Observable
-      capability: tanb_coupling_basis
+    # - purpose: Observable
+    #   capability: tanb_coupling_basis
 
-    - purpose: Observable
-      capability: m12_2_coupling_basis
+    # - purpose: Observable
+    #   capability: m12_2_coupling_basis
 
-    - purpose: Observable
-      capability: mh0_physical_basis
+    # - purpose: Observable
+    #   capability: mh0_physical_basis
     
-    - purpose: Observable
-      capability: mH0_physical_basis
+    # - purpose: Observable
+    #   capability: mH0_physical_basis
     
-    - purpose: Observable
-      capability: mHp_physical_basis
+    # - purpose: Observable
+    #   capability: mHp_physical_basis
     
-    - purpose: Observable
-      capability: mA_physical_basis
+    # - purpose: Observable
+    #   capability: mA_physical_basis
     
-    - purpose: Observable
-      capability: tanb_physical_basis
+    # - purpose: Observable
+    #   capability: tanb_physical_basis
     
-    - purpose: Observable
-      capability: sba_physical_basis
+    # - purpose: Observable
+    #   capability: sba_physical_basis
     
-    - purpose: Observable
-      capability: m12_2_physical_basis
+    # - purpose: Observable
+    #   capability: m12_2_physical_basis
 
     # - capability: bsgamma
     #   function: SI_bsgamma
