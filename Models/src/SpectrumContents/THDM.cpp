@@ -46,9 +46,9 @@ namespace Gambit {
     
      addParameter(Par::dimensionless, "sinW2", scalar);
   
-    //  addParameter(Par::dimensionless, "Yd2", m3x3);
-    //  addParameter(Par::dimensionless, "Yu2", m3x3);
-    //  addParameter(Par::dimensionless, "Ye2", m3x3);
+     addParameter(Par::dimensionless, "Yd", m3x3);
+     addParameter(Par::dimensionless, "Yu", m3x3);
+     addParameter(Par::dimensionless, "Ye", m3x3);
     
      addParameter(Par::Pole_Mass, "h0",    v2);
      addParameter(Par::Pole_Mass, "A0", scalar);

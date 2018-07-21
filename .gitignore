@@ -75,3 +75,12 @@ Backends/installed/**
 ScannerBit/downloaded/**
 ScannerBit/installed/**
 
+
+# CUSTOM GIT IGNORES TO FIX LATER
+
+contrib/MassSpectra/flexiblesusy/conftest.x.dSYM/Contents/Info.plist
+contrib/MassSpectra/flexiblesusy/conftest.x.dSYM/Contents/Resources/DWARF/conftest.x
+Backends/examples/libFarrayTest.so.dSYM/Contents/Info.plist
+Backends/examples/libfirst.so.dSYM/Contents/Info.plist
+Backends/examples/libfortran.so.dSYM/Contents/Info.plist
+Backends/include/gambit/Backends/backend_functor_types.hpp

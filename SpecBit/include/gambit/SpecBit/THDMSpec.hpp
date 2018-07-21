@@ -402,9 +402,9 @@ namespace Gambit
          {
             typename MTget::fmap2 tmp_map;
 
-            // tmp_map["Yd2"]= FInfo2( &Model::get_Yd2, i012, i012);
-            // tmp_map["Yu2"]= FInfo2( &Model::get_Yu2, i012, i012);
-            // tmp_map["Ye2"]= FInfo2( &Model::get_Ye2, i012, i012);
+            tmp_map["Yd"]= FInfo2( &Model::get_Yd, i012, i012);
+            tmp_map["Yu"]= FInfo2( &Model::get_Yu, i012, i012);
+            tmp_map["Ye"]= FInfo2( &Model::get_Ye, i012, i012);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
@@ -553,9 +553,9 @@ namespace Gambit
          {
             typename MTset::fmap2 tmp_map;
 
-            // tmp_map["Yd2"]= FInfo2( &Model::set_Yd2, i012, i012);
-            // tmp_map["Yu2"]= FInfo2( &Model::set_Yu2, i012, i012);
-            // tmp_map["Ye2"]= FInfo2( &Model::set_Ye2, i012, i012);
+            tmp_map["Yd"]= FInfo2( &Model::set_Yd, i012, i012);
+            tmp_map["Yu"]= FInfo2( &Model::set_Yu, i012, i012);
+            tmp_map["Ye"]= FInfo2( &Model::set_Ye, i012, i012);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
          }

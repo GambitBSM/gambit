@@ -178,25 +178,26 @@ namespace Gambit
       thdm_model.lambda5 = Lambda[5];
 
       // Standard model
-    //   thdm_model.sinW2 = sinW2;
+      thdm_model.sinW2 = sinW2;
 
-    //   // gauge couplings
-    //   thdm_model.g1 = e / sinW2;
-    //   thdm_model.g2 = e / cosW2;
-    //   thdm_model.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      // gauge couplings
+      thdm_model.g1 = e / sinW2;
+      thdm_model.g2 = e / cosW2;
+      thdm_model.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
 
-    //   // Yukawas
-    //   double vev        = 1. / sqrt(sqrt(2.)*sminputs.GF);
-    //   double sqrt2v = pow(2.0,0.5)/vev;
-    //   thdm_model.Yu[0] = sqrt2v * sminputs.mU;
-    //   thdm_model.Yu[1] = sqrt2v * sminputs.mCmC;
-    //   thdm_model.Yu[2] = sqrt2v * sminputs.mT;
-    //   thdm_model.Ye[0] = sqrt2v * sminputs.mE;
-    //   thdm_model.Ye[1] = sqrt2v * sminputs.mMu;
-    //   thdm_model.Ye[2] = sqrt2v * sminputs.mTau;
-    //   thdm_model.Yd[0] = sqrt2v * sminputs.mD;
-    //   thdm_model.Yd[1] = sqrt2v * sminputs.mS;
-    //   thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
+      // Yukawas
+      double vev        = 1. / sqrt(sqrt(2.)*sminputs.GF);
+      double sqrt2v = pow(2.0,0.5)/vev;
+      thdm_model.Yu[0] = sqrt2v * sminputs.mU;
+      thdm_model.Yu[1] = sqrt2v * sminputs.mCmC;
+      thdm_model.Yu[2] = sqrt2v * sminputs.mT;
+      thdm_model.Ye[0] = sqrt2v * sminputs.mE;
+      thdm_model.Ye[1] = sqrt2v * sminputs.mMu;
+      thdm_model.Ye[2] = sqrt2v * sminputs.mTau;
+      thdm_model.Yd[0] = sqrt2v * sminputs.mD;
+      thdm_model.Yd[1] = sqrt2v * sminputs.mS;
+      thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
+      if (debug_THDM) cout << "DBG 4A" << endl;
 
 
       // Create a SubSpectrum object to wrap the EW sector information
@@ -1897,8 +1898,10 @@ namespace Gambit
       // Fill QedQcd object with SMInputs values
       setup_QedQcd(oneset,sminputs);
 
+      cout << "SMINPUTS: " << sminputs.mU << endl;
+
       // Run everything to Mz
-      //oneset.toMz();
+      oneset.toMz();
 
       // Create spectrum generator object
       typename MI::SpectrumGenerator spectrum_generator;
