@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 31 Jul 2018 21:11:42
+// File generated at Wed 1 Aug 2018 14:15:34
 
 #include "THDM_II_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -35,14 +35,13 @@ Eigen::Matrix<double,3,3> THDM_II_susy_parameters::calc_beta_Yd_1_loop(const Sus
 {
    const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
    const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
-   const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
 
 
    Eigen::Matrix<double,3,3> beta_Yd;
 
-   beta_Yd = (oneOver16PiSqr*(Yd*(3*traceYdAdjYd + traceYeAdjYe + 3*
-      traceYuAdjYu - 0.4166666666666667*Sqr(g1) - 2.25*Sqr(g2) - 8*Sqr(g3)) +
-      1.5*(Yd*Yd.adjoint()*Yd) - 1.5*(Yd*Yu.adjoint()*Yu))).real();
+   beta_Yd = (oneOver16PiSqr*(Yd*(3*traceYdAdjYd + traceYeAdjYe -
+      0.4166666666666667*Sqr(g1) - 2.25*Sqr(g2) - 8*Sqr(g3)) + 1.5*(Yd*
+      Yd.adjoint()*Yd) + 0.5*(Yd*Yu.adjoint()*Yu))).real();
 
 
    return beta_Yd;
@@ -57,30 +56,27 @@ Eigen::Matrix<double,3,3> THDM_II_susy_parameters::calc_beta_Yd_2_loop(const Sus
 {
    const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
    const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
-   const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
    const double traceYdAdjYdYdAdjYd = TRACE_STRUCT.traceYdAdjYdYdAdjYd;
    const double traceYdAdjYuYuAdjYd = TRACE_STRUCT.traceYdAdjYuYuAdjYd;
    const double traceYeAdjYeYeAdjYe = TRACE_STRUCT.traceYeAdjYeYeAdjYe;
-   const double traceYuAdjYuYuAdjYu = TRACE_STRUCT.traceYuAdjYuYuAdjYu;
+   const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
 
 
    Eigen::Matrix<double,3,3> beta_Yd;
 
    beta_Yd = (twoLoop*(-0.004629629629629629*Yd*(113*Quad(g1) + 3*Sqr(g1)
-      *(-15*(5*traceYdAdjYd + 15*traceYeAdjYe + 17*traceYuAdjYu) + 162*Sqr(g2)
-      - 248*Sqr(g3)) + 27*(42*Quad(g2) - 3*Sqr(g2)*(5*(3*traceYdAdjYd +
-      traceYeAdjYe + 3*traceYuAdjYu) + 24*Sqr(g3)) + 2*(-4*Lambda3*Lambda4 + 27
-      *traceYdAdjYdYdAdjYd - 6*traceYdAdjYuYuAdjYd + 9*traceYeAdjYeYeAdjYe + 27
-      *traceYuAdjYuYuAdjYu + 432*Quad(g3) - 80*(traceYdAdjYd + traceYuAdjYu)*
-      Sqr(g3) - 6*Sqr(Lambda2) - 4*Sqr(Lambda3) - 4*Sqr(Lambda4) - 6*Sqr(
-      Lambda5) - 6*Sqr(Lambda6) - 18*Sqr(Lambda7)))) + 0.020833333333333332*(
-      187*Sqr(g1) + 3*(135*Sqr(g2) + 4*(-3*(8*Lambda2 + 9*traceYdAdjYd + 3*
-      traceYeAdjYe + 9*traceYuAdjYu) + 64*Sqr(g3))))*(Yd*Yd.adjoint()*Yd) +
-      0.020833333333333332*(-79*Sqr(g1) + 3*(60*traceYdAdjYd + 20*traceYeAdjYe
-      + 60*traceYuAdjYu + 9*Sqr(g2) - 256*Sqr(g3)))*(Yd*Yu.adjoint()*Yu) + 1.5*
-      (Yd*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - Yd*Yd.adjoint()*Yd*Yu.adjoint()*Yu
-      - 0.25*(Yd*Yu.adjoint()*Yu*Yd.adjoint()*Yd) + 2.75*(Yd*Yu.adjoint()*Yu*
-      Yu.adjoint()*Yu))).real();
+      *(-75*(traceYdAdjYd + 3*traceYeAdjYe) + 162*Sqr(g2) - 248*Sqr(g3)) + 27*(
+      42*Quad(g2) - 3*Sqr(g2)*(5*(3*traceYdAdjYd + traceYeAdjYe) + 24*Sqr(g3))
+      + 2*(-4*Lambda3*Lambda4 + 27*traceYdAdjYdYdAdjYd + 9*traceYdAdjYuYuAdjYd
+      + 9*traceYeAdjYeYeAdjYe + 432*Quad(g3) - 80*traceYdAdjYd*Sqr(g3) - 6*Sqr(
+      Lambda1) - 4*Sqr(Lambda3) - 4*Sqr(Lambda4) - 6*Sqr(Lambda5) - 18*Sqr(
+      Lambda6) - 6*Sqr(Lambda7)))) + (-6*Lambda1 - 6.75*traceYdAdjYd - 2.25*
+      traceYeAdjYe + 3.8958333333333335*Sqr(g1) + 8.4375*Sqr(g2) + 16*Sqr(g3))*
+      (Yd*Yd.adjoint()*Yd) + (-2*Lambda3 + 2*Lambda4 - 2.25*traceYuAdjYu -
+      0.3680555555555556*Sqr(g1) + 2.0625*Sqr(g2) + 5.333333333333333*Sqr(g3))*
+      (Yd*Yu.adjoint()*Yu) + 1.5*(Yd*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 0.25*(
+      Yd*Yu.adjoint()*Yu*Yd.adjoint()*Yd) - 0.25*(Yd*Yu.adjoint()*Yu*Yu.adjoint
+      ()*Yu))).real();
 
 
    return beta_Yd;

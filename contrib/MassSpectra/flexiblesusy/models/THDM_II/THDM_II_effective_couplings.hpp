@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 31 Jul 2018 21:13:51
+// File generated at Wed 1 Aug 2018 14:17:44
 
 #ifndef THDM_II_EFFECTIVE_COUPLINGS_H
 #define THDM_II_EFFECTIVE_COUPLINGS_H
@@ -61,6 +61,12 @@ public:
    void calculate_effective_couplings();
 
    std::complex<double> CphhconjVWmVWm(int gI2) const;
+   std::complex<double> CpbarFdFdhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFdAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFeFehhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFeAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFuFuhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFuAhPL(int gO2, int gI1, int gI2) const;
    std::complex<double> CphhHmconjHm(int gt1, int gt2, int gt3) const;
    std::complex<double> CpAhHmconjHm(int gt1, int gt2, int gt3) const;
    void calculate_eff_CphhVPVP(int gO1);

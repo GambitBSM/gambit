@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 31 Jul 2018 21:11:45
+// File generated at Wed 1 Aug 2018 14:15:37
 
 #include "THDM_II_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -69,15 +69,13 @@ typename Eigen::MatrixBase<Derived>::PlainObject operator-(double n, const Eigen
  */
 double THDM_II_soft_parameters::calc_beta_v2_1_loop(const Soft_traces& soft_traces) const
 {
-   const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
-   const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
    const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
 
 
    double beta_v2;
 
-   beta_v2 = Re(oneOver16PiSqr*v2*(-3*traceYdAdjYd - traceYeAdjYe - 3*
-      traceYuAdjYu + Sqr(g1) + 3*Sqr(g2)));
+   beta_v2 = Re(oneOver16PiSqr*v2*(-3*traceYuAdjYu + Sqr(g1) + 3*Sqr(g2))
+      );
 
 
    return beta_v2;
@@ -90,29 +88,21 @@ double THDM_II_soft_parameters::calc_beta_v2_1_loop(const Soft_traces& soft_trac
  */
 double THDM_II_soft_parameters::calc_beta_v2_2_loop(const Soft_traces& soft_traces) const
 {
-   const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
-   const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
    const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
-   const double traceYdAdjYdYdAdjYd = TRACE_STRUCT.traceYdAdjYdYdAdjYd;
    const double traceYdAdjYuYuAdjYd = TRACE_STRUCT.traceYdAdjYuYuAdjYd;
-   const double traceYeAdjYeYeAdjYe = TRACE_STRUCT.traceYeAdjYeYeAdjYe;
    const double traceYuAdjYuYuAdjYu = TRACE_STRUCT.traceYuAdjYuYuAdjYu;
 
 
    double beta_v2;
 
-   beta_v2 = Re(0.010416666666666666*twoLoop*(-144*Lambda1*Lambda6*v1 -
-      144*Lambda3*Lambda6*v1 - 144*Lambda4*Lambda6*v1 - 144*Lambda5*Lambda6*v1
-      - 144*Lambda2*Lambda7*v1 - 144*Lambda3*Lambda7*v1 - 144*Lambda4*Lambda7*
-      v1 - 144*Lambda5*Lambda7*v1 - 96*Lambda3*Lambda4*v2 + 648*
-      traceYdAdjYdYdAdjYd*v2 - 144*traceYdAdjYuYuAdjYd*v2 + 216*
-      traceYeAdjYeYeAdjYe*v2 + 648*traceYuAdjYuYuAdjYu*v2 - 429*v2*Quad(g1) +
-      1071*v2*Quad(g2) - 484*traceYuAdjYu*v2*Sqr(g1) - 972*traceYuAdjYu*v2*Sqr(
-      g2) + 90*v2*Sqr(g1)*Sqr(g2) - 12*traceYeAdjYe*v2*(29*Sqr(g1) + 27*Sqr(g2)
-      ) - 1920*traceYuAdjYu*v2*Sqr(g3) - 4*traceYdAdjYd*v2*(61*Sqr(g1) + 243*
-      Sqr(g2) + 480*Sqr(g3)) - 144*v2*Sqr(Lambda2) - 96*v2*Sqr(Lambda3) - 96*v2
-      *Sqr(Lambda4) - 144*v2*Sqr(Lambda5) - 144*v2*Sqr(Lambda6) - 432*v2*Sqr(
-      Lambda7)));
+   beta_v2 = Re(0.010416666666666666*twoLoop*(-4*traceYuAdjYu*v2*(121*Sqr
+      (g1) + 243*Sqr(g2) + 480*Sqr(g3)) - 3*(48*Lambda1*Lambda6*v1 + 48*Lambda4
+      *Lambda6*v1 + 48*Lambda5*Lambda6*v1 + 48*Lambda2*Lambda7*v1 + 48*Lambda4*
+      Lambda7*v1 + 48*Lambda5*Lambda7*v1 - 72*traceYdAdjYuYuAdjYd*v2 - 216*
+      traceYuAdjYuYuAdjYu*v2 + 16*Lambda3*(3*Lambda6*v1 + 3*Lambda7*v1 + 2*
+      Lambda4*v2) + 143*v2*Quad(g1) - 357*v2*Quad(g2) - 30*v2*Sqr(g1)*Sqr(g2) +
+      48*v2*Sqr(Lambda2) + 32*v2*Sqr(Lambda3) + 32*v2*Sqr(Lambda4) + 48*v2*Sqr
+      (Lambda5) + 48*v2*Sqr(Lambda6) + 144*v2*Sqr(Lambda7))));
 
 
    return beta_v2;

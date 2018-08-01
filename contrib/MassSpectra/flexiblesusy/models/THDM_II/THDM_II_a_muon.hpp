@@ -16,12 +16,12 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 31 Jul 2018 21:13:52
+// File generated at Wed 1 Aug 2018 14:17:45
 
 /**
  * @file THDM_II_a_muon.hpp
  *
- * This file was generated at Tue 31 Jul 2018 21:13:52 with FlexibleSUSY
+ * This file was generated at Wed 1 Aug 2018 14:17:45 with FlexibleSUSY
  * 2.0.1 and SARAH 4.12.3 .
  */
 

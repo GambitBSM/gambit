@@ -1,6 +1,6 @@
 DIR          := models/THDM_II
 MODNAME      := THDM_II
-SARAH_MODEL  := THDM_I
+SARAH_MODEL  := THDM_II
 WITH_$(MODNAME) := yes
 
 THDM_II_INSTALL_DIR := $(INSTALL_DIR)/$(DIR)
