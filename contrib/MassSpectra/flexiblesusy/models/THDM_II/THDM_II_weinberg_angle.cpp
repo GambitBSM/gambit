@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:30:08
+// File generated at Tue 31 Jul 2018 21:13:49
 
 #include "THDM_II_mass_eigenstates.hpp"
 #include "THDM_II_weinberg_angle.hpp"
@@ -146,41 +146,46 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
 
    int iteration = 0;
    bool not_converged = true;
-   bool fudged = false;
    double sinThetaW_old = sinThetaW_start;
    double sinThetaW_new = sinThetaW_start;
 
    while (not_converged && iteration < number_of_iterations) {
-      fudged = false;
-
       double deltaRhoHat = calculate_delta_rho_hat(sinThetaW_old);
 
-      if (!std::isfinite(deltaRhoHat) || Abs(deltaRhoHat) >= 1.0) {
-         fudged = true;
+      if (!std::isfinite(deltaRhoHat)) {
+#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
+         WARNING("delta_rho non-finite");
+#endif
          deltaRhoHat = 0.;
       }
 
-      const double rhohat_ratio = 1.0 / (1.0 - deltaRhoHat);
+      const double rhohat_ratio = Abs(deltaRhoHat) < 1.0 ?
+         1.0 / (1.0 - deltaRhoHat) : 1.0;
 
       double deltaRHat = calculate_delta_r_hat(rhohat_ratio, sinThetaW_old);
 
-      if (!std::isfinite(deltaRHat) || Abs(deltaRHat) >= 1.0) {
-         fudged = true;
+      if (deltaRHat > 1.) {
+#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
+         WARNING("delta_r_hat > 1");
+#endif
+         deltaRHat = 0.;
+      }
+
+      if (!std::isfinite(deltaRHat)) {
+#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
+         WARNING("delta_r_hat non-finite");
+#endif
          deltaRHat = 0.;
       }
 
       double sin2thetasqO4 = Pi * alphaDRbar /
          (ROOT2 * Sqr(mz) * gfermi * (1.0 - deltaRHat) * rhohat_tree);
 
-      if (sin2thetasqO4 >= 0.25) {
-         fudged = true;
+      if (sin2thetasqO4 >= 0.25)
          sin2thetasqO4 = 0.25;
-      }
 
-      if (sin2thetasqO4 < 0.0) {
-         fudged = true;
+      if (sin2thetasqO4 < 0.0)
          sin2thetasqO4 = 0.0;
-      }
 
       const double sin2theta = Sqrt(4.0 * sin2thetasqO4);
       const double theta = 0.5 * ArcSin(sin2theta);
@@ -194,8 +199,7 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
                   << " dRhoHat=" << deltaRhoHat
                   << " rhohat_ratio=" << rhohat_ratio
                   << " dRHat=" << deltaRHat
-                  << " sinThetaW_new=" << sinThetaW_new
-                  << " fudged = " << fudged);
+                  << " sinThetaW_new=" << sinThetaW_new);
 
       not_converged = precision >= precision_goal;
 
@@ -203,19 +207,11 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
       iteration++;
    }
 
-   if (fudged)
-      throw NonPerturbativeSinThetaW();
-
    if (not_converged)
       throw NoSinThetaWConvergenceError(number_of_iterations, sinThetaW_new);
 
-   const double deltaRhoHat = calculate_delta_rho_hat(sinThetaW_new);
-
-   if (Abs(deltaRhoHat) >= 1.0)
-      throw NonPerturbativeSinThetaW();
-
    const double rhohat_ratio_final =
-      1.0 / (1.0 - deltaRhoHat);
+      1.0 / (1.0 - calculate_delta_rho_hat(sinThetaW_new));
    const double mw_pole =
       Sqrt(Sqr(mz) * rhohat_tree * rhohat_ratio_final * (1 - Sqr(sinThetaW_new)));
 
@@ -472,7 +468,7 @@ std::complex<double> CLASSNAME::CpbarFvFehhPR(int gO1, int gI2, int gI1) const
    const auto ZH = MODELPARAMETER(ZH);
 
    const std::complex<double> result = 0.7071067811865475*SUM(j1,0,2,Conj(Ye(j1
-      ,gO1))*Ue(gI2,j1))*ZH(gI1,0);
+      ,gO1))*Ue(gI2,j1))*ZH(gI1,1);
 
    return result;
 }
@@ -491,7 +487,7 @@ std::complex<double> CLASSNAME::CpbarFvFeAhPR(int gO1, int gI1, int gI2) const
    const auto ZA = MODELPARAMETER(ZA);
 
    const std::complex<double> result = std::complex<double>(0.,
-      -0.7071067811865475)*SUM(j1,0,2,Conj(Ye(j1,gO1))*Ue(gI1,j1))*ZA(gI2,0);
+      -0.7071067811865475)*SUM(j1,0,2,Conj(Ye(j1,gO1))*Ue(gI1,j1))*ZA(gI2,1);
 
    return result;
 }
@@ -504,7 +500,7 @@ std::complex<double> CLASSNAME::CpbarFeFeconjHmPL(int gO2, int gI2, int gI1) con
    const auto ZP = MODELPARAMETER(ZP);
 
    const std::complex<double> result = -(SUM(j2,0,2,Conj(Ve(gI2,j2))*SUM(j1,0,2
-      ,Conj(Ue(gO2,j1))*Ye(j1,j2)))*ZP(gI1,0));
+      ,Conj(Ue(gO2,j1))*Ye(j1,j2)))*ZP(gI1,1));
 
    return result;
 }
@@ -523,7 +519,7 @@ std::complex<double> CLASSNAME::CpbarFeFvhhPL(int gO2, int gI2, int gI1) const
    const auto ZH = MODELPARAMETER(ZH);
 
    const std::complex<double> result = 0.7071067811865475*SUM(j1,0,2,Conj(Ue(
-      gO2,j1))*Ye(j1,gI2))*ZH(gI1,0);
+      gO2,j1))*Ye(j1,gI2))*ZH(gI1,1);
 
    return result;
 }
@@ -542,7 +538,7 @@ std::complex<double> CLASSNAME::CpbarFeFvAhPL(int gO2, int gI1, int gI2) const
    const auto ZA = MODELPARAMETER(ZA);
 
    const std::complex<double> result = std::complex<double>(0.,
-      0.7071067811865475)*SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,gI1))*ZA(gI2,0);
+      0.7071067811865475)*SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,gI1))*ZA(gI2,1);
 
    return result;
 }
@@ -569,7 +565,7 @@ std::complex<double> CLASSNAME::CpbarFeFeHmPR(int gO4, int gI3, int gI4) const
    const auto ZP = MODELPARAMETER(ZP);
 
    const std::complex<double> result = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*
-      Ue(gI3,j1))*Ve(gO4,j2))*ZP(gI4,0));
+      Ue(gI3,j1))*Ve(gO4,j2))*ZP(gI4,1));
 
    return result;
 }

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:28:35
+// File generated at Tue 31 Jul 2018 21:11:44
 
 #include "THDM_II_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -112,13 +112,13 @@ double THDM_II_soft_parameters::calc_beta_M122_2_loop(const Soft_traces& soft_tr
       M122 - 36*Lambda6*Lambda7*M122 + 6*Lambda3*Lambda6*M222 + 6*Lambda4*
       Lambda6*M222 + 6*Lambda5*Lambda6*M222 + 18*Lambda2*Lambda7*M222 + 12*
       Lambda3*Lambda7*M222 + 12*Lambda4*Lambda7*M222 + 12*Lambda5*Lambda7*M222
-      + 36*Lambda6*M112*traceYdAdjYd - 6*Lambda3*M122*traceYdAdjYd - 12*Lambda4
-      *M122*traceYdAdjYd - 18*Lambda5*M122*traceYdAdjYd - 6.75*M122*
-      traceYdAdjYdYdAdjYd - 16.5*M122*traceYdAdjYuYuAdjYd + 12*Lambda6*M112*
-      traceYeAdjYe - 2*Lambda3*M122*traceYeAdjYe - 4*Lambda4*M122*traceYeAdjYe
-      - 6*Lambda5*M122*traceYeAdjYe - 2.25*M122*traceYeAdjYeYeAdjYe - 6*Lambda3
-      *M122*traceYuAdjYu - 12*Lambda4*M122*traceYuAdjYu - 18*Lambda5*M122*
-      traceYuAdjYu + 36*Lambda7*M222*traceYuAdjYu - 6.75*M122*
+      - 6*Lambda3*M122*traceYdAdjYd - 12*Lambda4*M122*traceYdAdjYd - 18*Lambda5
+      *M122*traceYdAdjYd + 36*Lambda7*M222*traceYdAdjYd - 6.75*M122*
+      traceYdAdjYdYdAdjYd + 1.5*M122*traceYdAdjYuYuAdjYd - 2*Lambda3*M122*
+      traceYeAdjYe - 4*Lambda4*M122*traceYeAdjYe - 6*Lambda5*M122*traceYeAdjYe
+      + 12*Lambda7*M222*traceYeAdjYe - 2.25*M122*traceYeAdjYeYeAdjYe - 6*
+      Lambda3*M122*traceYuAdjYu - 12*Lambda4*M122*traceYuAdjYu - 18*Lambda5*
+      M122*traceYuAdjYu + 36*Lambda7*M222*traceYuAdjYu - 6.75*M122*
       traceYuAdjYuYuAdjYu + 9.5625*M122*Quad(g1) - 15.1875*M122*Quad(g2) +
       0.375*(-96*Lambda6*M112 + 32*Lambda3*M122 + 64*Lambda4*M122 + 96*Lambda5*
       M122 - 96*Lambda7*M222 + 15*M122*traceYdAdjYd + 5*M122*traceYeAdjYe + 15*

@@ -34,11 +34,11 @@ Parameters:
             range: [0.25, 100]
             # prior_type: flat
         Qin:
-            # fixed_value: 91.1876 #mZ
-            fixed_value: 173.15
+            fixed_value: 91.1876 #mZ
+            # fixed_value: 173.15
             # fixed_value: 80.39
         QrunTo:
-            fixed_value: 80
+            fixed_value: 10
             # prior_type: log
     # THDM:
     #     mh0: 120

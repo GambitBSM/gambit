@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:28:29
+// File generated at Tue 31 Jul 2018 21:11:35
 
 #include "THDM_II_susy_parameters.hpp"
 #include "config.h"
@@ -292,8 +292,6 @@ THDM_II_susy_parameters::Susy_traces THDM_II_susy_parameters::calc_susy_traces(i
       TRACE_STRUCT.traceYuAdjYu = Re((Yu*Yu.adjoint()).trace());
       TRACE_STRUCT.traceYdAdjYdYdAdjYd = Re((Yd*Yd.adjoint()*Yd*Yd.adjoint())
          .trace());
-      TRACE_STRUCT.traceYdAdjYuYuAdjYd = Re((Yd*Yu.adjoint()*Yu*Yd.adjoint())
-         .trace());
       TRACE_STRUCT.traceYeAdjYeYeAdjYe = Re((Ye*Ye.adjoint()*Ye*Ye.adjoint())
          .trace());
       TRACE_STRUCT.traceYuAdjYuYuAdjYu = Re((Yu*Yu.adjoint()*Yu*Yu.adjoint())
@@ -302,6 +300,8 @@ THDM_II_susy_parameters::Susy_traces THDM_II_susy_parameters::calc_susy_traces(i
    }
 
    if (loops > 1) {
+      TRACE_STRUCT.traceYdAdjYuYuAdjYd = Re((Yd*Yu.adjoint()*Yu*Yd.adjoint())
+         .trace());
       TRACE_STRUCT.traceYdAdjYdYdAdjYdYdAdjYd = Re((Yd*Yd.adjoint()*Yd*Yd.adjoint(
          )*Yd*Yd.adjoint()).trace());
       TRACE_STRUCT.traceYdAdjYdYdAdjYuYuAdjYd = Re((Yd*Yd.adjoint()*Yd*Yu.adjoint(

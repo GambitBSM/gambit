@@ -1,6 +1,6 @@
 DIR          := models/THDM_II
 MODNAME      := THDM_II
-SARAH_MODEL  := THDM_II
+SARAH_MODEL  := THDM_I
 WITH_$(MODNAME) := yes
 
 THDM_II_INSTALL_DIR := $(INSTALL_DIR)/$(DIR)
@@ -23,7 +23,7 @@ THDM_II_INCLUDE_MK := \
 
 THDM_II_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.THDM_II_generated \
-
+		$(DIR)/LesHouches.in.THDMII
 
 THDM_II_REFERENCES := \
 		$(DIR)/THDM_II_references.tex
@@ -206,6 +206,21 @@ clean-$(MODNAME)-obj:
 		-rm -f $(EXETHDM_II_OBJ)
 		-rm -f $(LLTHDM_II_OBJ)
 
+# BEGIN: NOT EXPORTED ##########################################
+clean-$(MODNAME)-src:
+		-rm -f $(LIBTHDM_II_SRC)
+		-rm -f $(LIBTHDM_II_HDR)
+		-rm -f $(EXETHDM_II_SRC)
+		-rm -f $(LLTHDM_II_SRC)
+		-rm -f $(LLTHDM_II_MMA)
+		-rm -f $(METACODE_STAMP_THDM_II)
+		-rm -f $(THDM_II_INCLUDE_MK)
+		-rm -f $(THDM_II_SLHA_INPUT)
+		-rm -f $(THDM_II_REFERENCES)
+		-rm -f $(THDM_II_GNUPLOT)
+
+distclean-$(MODNAME): clean-$(MODNAME)-src
+# END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj
 		-rm -f $(EXETHDM_II_EXE)

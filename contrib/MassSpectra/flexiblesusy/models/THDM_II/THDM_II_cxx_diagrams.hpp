@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:30:12
+// File generated at Tue 31 Jul 2018 21:13:56
 
 /**
  * @file THDM_II_cxx_diagrams.hpp
  *
- * This file was generated at Mon 14 May 2018 15:30:12 with FlexibleSUSY
- * 2.0.1 and SARAH 4.12.2 .
+ * This file was generated at Tue 31 Jul 2018 21:13:56 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.3 .
  */
 
 #ifndef THDM_II_CXXDIAGRAMS_H
@@ -740,7 +740,7 @@ Vertex<bar<Fe>::type, Fe, Hm>::evaluate(const indices_type& indices, const Evalu
 
    const std::complex<double> left = 0;
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt2,j1))*Ve(gt1,j2))*ZP(gt3,0));
+   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt2,j1))*Ve(gt1,j2))*ZP(gt3,1));
 
    return vertex_type(left, right);
 }
@@ -757,7 +757,7 @@ Vertex<Fe, bar<Fe>::type, conj<Hm>::type>::evaluate(const indices_type& indices,
    const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt2,j1))*Ye(j1,j2)))*ZP(gt3,0));
+   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt2,j1))*Ye(j1,j2)))*ZP(gt3,1));
 
    const std::complex<double> right = 0;
 
@@ -791,7 +791,7 @@ Vertex<bar<Fe>::type, Fe, conj<Hm>::type>::evaluate(const indices_type& indices,
    const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt2,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt3,0));
+   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt2,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt3,1));
 
    const std::complex<double> right = 0;
 
@@ -812,7 +812,7 @@ Vertex<Fe, bar<Fe>::type, Hm>::evaluate(const indices_type& indices, const Evalu
 
    const std::complex<double> left = 0;
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt2,j2))*ZP(gt3,0));
+   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt2,j2))*ZP(gt3,1));
 
    return vertex_type(left, right);
 }
@@ -846,7 +846,7 @@ Vertex<bar<Fe>::type, Hm, Fe>::evaluate(const indices_type& indices, const Evalu
 
    const std::complex<double> left = 0;
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt3,j1))*Ve(gt1,j2))*ZP(gt2,0));
+   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt3,j1))*Ve(gt1,j2))*ZP(gt2,1));
 
    return vertex_type(left, right);
 }
@@ -863,7 +863,7 @@ Vertex<Fe, conj<Hm>::type, bar<Fe>::type>::evaluate(const indices_type& indices,
    const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt3,j1))*Ye(j1,j2)))*ZP(gt2,0));
+   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt3,j1))*Ye(j1,j2)))*ZP(gt2,1));
 
    const std::complex<double> right = 0;
 
@@ -899,7 +899,7 @@ Vertex<bar<Fe>::type, conj<Hm>::type, Fe>::evaluate(const indices_type& indices,
    const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt3,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt2,0));
+   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt3,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt2,1));
 
    const std::complex<double> right = 0;
 
@@ -920,7 +920,7 @@ Vertex<Fe, Hm, bar<Fe>::type>::evaluate(const indices_type& indices, const Evalu
 
    const std::complex<double> left = 0;
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt3,j2))*ZP(gt2,0));
+   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt3,j2))*ZP(gt2,1));
 
    return vertex_type(left, right);
 }

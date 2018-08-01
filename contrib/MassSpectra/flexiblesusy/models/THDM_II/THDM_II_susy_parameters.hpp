@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:28:29
+// File generated at Tue 31 Jul 2018 21:11:35
 
 #ifndef THDM_II_susy_parameters_H
 #define THDM_II_susy_parameters_H
@@ -127,10 +127,10 @@ private:
       double traceYeAdjYeYeAdjYe{};
       double traceYuAdjYuYuAdjYu{};
       double traceYdAdjYdYdAdjYdYdAdjYd{};
-      double traceYdAdjYuYuAdjYdYdAdjYd{};
-      double traceYeAdjYeYeAdjYeYeAdjYe{};
       double traceYdAdjYdYdAdjYuYuAdjYd{};
+      double traceYdAdjYuYuAdjYdYdAdjYd{};
       double traceYdAdjYuYuAdjYuYuAdjYd{};
+      double traceYeAdjYeYeAdjYeYeAdjYe{};
       double traceYuAdjYuYuAdjYuYuAdjYu{};
 
    };

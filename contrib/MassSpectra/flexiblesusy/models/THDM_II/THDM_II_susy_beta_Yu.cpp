@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Mon 14 May 2018 15:28:34
+// File generated at Tue 31 Jul 2018 21:11:42
 
 #include "THDM_II_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -33,14 +33,16 @@ namespace flexiblesusy {
  */
 Eigen::Matrix<double,3,3> THDM_II_susy_parameters::calc_beta_Yu_1_loop(const Susy_traces& susy_traces) const
 {
+   const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
+   const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
    const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
 
 
    Eigen::Matrix<double,3,3> beta_Yu;
 
-   beta_Yu = (oneOver16PiSqr*(-0.08333333333333333*Yu*(-36*traceYuAdjYu +
-      17*Sqr(g1) + 27*Sqr(g2) + 96*Sqr(g3)) + 0.5*(Yu*Yd.adjoint()*Yd) + 1.5*(
-      Yu*Yu.adjoint()*Yu))).real();
+   beta_Yu = (oneOver16PiSqr*(Yu*(3*traceYdAdjYd + traceYeAdjYe + 3*
+      traceYuAdjYu - 1.4166666666666667*Sqr(g1) - 2.25*Sqr(g2) - 8*Sqr(g3)) -
+      1.5*(Yu*Yd.adjoint()*Yd) + 1.5*(Yu*Yu.adjoint()*Yu))).real();
 
 
    return beta_Yu;
@@ -53,26 +55,31 @@ Eigen::Matrix<double,3,3> THDM_II_susy_parameters::calc_beta_Yu_1_loop(const Sus
  */
 Eigen::Matrix<double,3,3> THDM_II_susy_parameters::calc_beta_Yu_2_loop(const Susy_traces& susy_traces) const
 {
-   const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
-   const double traceYdAdjYuYuAdjYd = TRACE_STRUCT.traceYdAdjYuYuAdjYd;
-   const double traceYuAdjYuYuAdjYu = TRACE_STRUCT.traceYuAdjYuYuAdjYu;
    const double traceYdAdjYd = TRACE_STRUCT.traceYdAdjYd;
    const double traceYeAdjYe = TRACE_STRUCT.traceYeAdjYe;
+   const double traceYuAdjYu = TRACE_STRUCT.traceYuAdjYu;
+   const double traceYdAdjYdYdAdjYd = TRACE_STRUCT.traceYdAdjYdYdAdjYd;
+   const double traceYdAdjYuYuAdjYd = TRACE_STRUCT.traceYdAdjYuYuAdjYd;
+   const double traceYeAdjYeYeAdjYe = TRACE_STRUCT.traceYeAdjYeYeAdjYe;
+   const double traceYuAdjYuYuAdjYu = TRACE_STRUCT.traceYuAdjYuYuAdjYu;
 
 
    Eigen::Matrix<double,3,3> beta_Yu;
 
    beta_Yu = (twoLoop*(0.004629629629629629*Yu*(1267*Quad(g1) + Sqr(g1)*(
-      765*traceYuAdjYu - 162*Sqr(g2) + 456*Sqr(g3)) - 27*(42*Quad(g2) - 9*Sqr(
-      g2)*(5*traceYuAdjYu + 8*Sqr(g3)) + 2*(-4*Lambda3*Lambda4 + 9*
-      traceYdAdjYuYuAdjYd + 27*traceYuAdjYuYuAdjYu + 432*Quad(g3) - 80*
-      traceYuAdjYu*Sqr(g3) - 6*Sqr(Lambda2) - 4*Sqr(Lambda3) - 4*Sqr(Lambda4) -
-      6*Sqr(Lambda5) - 6*Sqr(Lambda6) - 18*Sqr(Lambda7)))) + (-2*Lambda3 + 2*
-      Lambda4 - 2.25*traceYdAdjYd - 0.75*traceYeAdjYe - 0.2847222222222222*Sqr(
-      g1) + 2.0625*Sqr(g2) + 5.333333333333333*Sqr(g3))*(Yu*Yd.adjoint()*Yd) +
-      (-6*Lambda2 - 6.75*traceYuAdjYu + 4.645833333333333*Sqr(g1) + 8.4375*Sqr(
-      g2) + 16*Sqr(g3))*(Yu*Yu.adjoint()*Yu) - 0.25*(Yu*Yd.adjoint()*Yd*
-      Yd.adjoint()*Yd) - 0.25*(Yu*Yd.adjoint()*Yd*Yu.adjoint()*Yu) + 1.5*(Yu*
+      225*traceYdAdjYd + 675*traceYeAdjYe + 765*traceYuAdjYu - 162*Sqr(g2) +
+      456*Sqr(g3)) - 27*(42*Quad(g2) - 3*Sqr(g2)*(5*(3*traceYdAdjYd +
+      traceYeAdjYe + 3*traceYuAdjYu) + 24*Sqr(g3)) + 2*(-4*Lambda3*Lambda4 + 27
+      *traceYdAdjYdYdAdjYd - 6*traceYdAdjYuYuAdjYd + 9*traceYeAdjYeYeAdjYe + 27
+      *traceYuAdjYuYuAdjYu + 432*Quad(g3) - 80*(traceYdAdjYd + traceYuAdjYu)*
+      Sqr(g3) - 6*Sqr(Lambda2) - 4*Sqr(Lambda3) - 4*Sqr(Lambda4) - 6*Sqr(
+      Lambda5) - 6*Sqr(Lambda6) - 18*Sqr(Lambda7)))) + 0.020833333333333332*(
+      -43*Sqr(g1) + 3*(60*traceYdAdjYd + 20*traceYeAdjYe + 60*traceYuAdjYu + 9*
+      Sqr(g2) - 256*Sqr(g3)))*(Yu*Yd.adjoint()*Yd) + 0.020833333333333332*(223*
+      Sqr(g1) + 3*(135*Sqr(g2) + 4*(-3*(8*Lambda2 + 9*traceYdAdjYd + 3*
+      traceYeAdjYe + 9*traceYuAdjYu) + 64*Sqr(g3))))*(Yu*Yu.adjoint()*Yu) +
+      2.75*(Yu*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 0.25*(Yu*Yd.adjoint()*Yd*
+      Yu.adjoint()*Yu) - Yu*Yu.adjoint()*Yu*Yd.adjoint()*Yd + 1.5*(Yu*
       Yu.adjoint()*Yu*Yu.adjoint()*Yu))).real();
 
 

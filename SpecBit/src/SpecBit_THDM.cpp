@@ -1898,8 +1898,6 @@ namespace Gambit
       // Fill QedQcd object with SMInputs values
       setup_QedQcd(oneset,sminputs);
 
-      cout << "SMINPUTS: " << sminputs.mU << endl;
-
       // Run everything to Mz
       oneset.toMz();
 
@@ -1966,19 +1964,6 @@ namespace Gambit
       // A pointer to this object is what gets turned into a SubSpectrum pointer and
       // passed around Gambit.
       //
-
-      
-    //   // This object will COPY the interface data members into itself, so it is now the
-    //   // one-stop-shop for all spectrum information, including the model interface object.
-    //   MSSMSpec<MI> mssmspec(model_interface, "FlexibleSUSY", "2.0.beta");
-
-    //   // Add extra information about the scales used to the wrapper object
-    //   // (last parameter turns on the 'allow_new' option for the override setter, which allows
-    //   //  us to set parameters that don't previously exist)
-    //   mssmspec.set_override(Par::mass1,spectrum_generator.get_high_scale(),"high_scale",true);
-    //   mssmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
-    //   mssmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
-
       // This object will COPY the interface data members into itself, so it is now the
       // one-stop-shop for all spectrum information, including the model interface object.
       THDMSpec<MI> thdmspec(model_interface, "FlexibleSUSY", "2.0.beta");
@@ -2062,11 +2047,11 @@ namespace Gambit
          { if (debug_THDM) cout << "DBG 97" << endl;
 
             // //EXTRA DEBUG INFO
-            // std::ostringstream errmsg;
-            // cout << "FS DEBUG INFO:" << endl
-            // problems.print_problems(errmsg);
-            // problems.print_warnings(errmsg);
-            // //---------------------
+            std::ostringstream errmsg;
+            cout << "FS DEBUG INFO:" << endl;
+            problems.print_problems(errmsg);
+            problems.print_warnings(errmsg);
+            //---------------------
 
             /// Check what the problem was
             /// see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
@@ -2116,7 +2101,6 @@ namespace Gambit
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
         model_interface.model.print(cout);
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
-    //   return Spectrum(qedqcdspec,mssmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 
 
@@ -2390,7 +2374,7 @@ namespace Gambit
 
 
       input.M122IN      = m12_2;              // minus sign to match FS conventions ** DELETED
-      input.QEWSB       = *Param.at("Qin");
+      input.QEWSB       = 173.0;//*Param.at("Qin");
       input.Qin         = *Param.at("Qin");   // set as option later
 
       // Sanity checks
