@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:37
+// File generated at Thu 2 Aug 2018 15:06:41
 
 #ifndef THDM_II_INFO_H
 #define THDM_II_INFO_H
@@ -61,7 +61,7 @@ namespace THDM_II_info {
       ZZ1_0, ZZ1_1, NUMBER_OF_MIXINGS };
 
    enum Input_parameters : int { Lambda1IN, Lambda2IN, Lambda3IN, Lambda4IN,
-      Lambda5IN, Lambda6IN, Lambda7IN, M122IN, TanBeta, Qin, QEWSB,
+      Lambda5IN, Lambda6IN, Lambda7IN, M122IN, TanBeta, Qin,
       NUMBER_OF_INPUT_PARAMETERS };
 
    enum Extra_parameters : int { NUMBER_OF_EXTRA_PARAMETERS };

@@ -23,9 +23,9 @@
 #define PARENT THDMatQ
   START_MODEL
   
-  DEFINEPARS(mh0,mH0,mA,mC)
+  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5)
   DEFINEPARS(lambda_6,lambda_7,m12_2)
-  DEFINEPARS(alpha,tanb)
+  DEFINEPARS(tanb)
   
   INTERPRET_AS_PARENT_FUNCTION(THDM_to_THDMatQ)
   // Translation functions defined in THDM.cpp

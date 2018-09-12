@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:42
+// File generated at Thu 2 Aug 2018 15:06:46
 
 #include "THDM_II_two_scale_susy_scale_constraint.hpp"
 #include "THDM_II_two_scale_model.hpp"
@@ -141,9 +141,9 @@ void THDM_II_susy_scale_constraint<Two_scale>::initialize()
 {
    check_model_ptr();
 
-   const auto QEWSB = INPUTPARAMETER(QEWSB);
+   const auto Qin = INPUTPARAMETER(Qin);
 
-   initial_scale_guess = QEWSB;
+   initial_scale_guess = Qin;
 
    scale = initial_scale_guess;
 }
@@ -152,9 +152,9 @@ void THDM_II_susy_scale_constraint<Two_scale>::update_scale()
 {
    check_model_ptr();
 
-   const auto QEWSB = INPUTPARAMETER(QEWSB);
+   const auto Qin = INPUTPARAMETER(Qin);
 
-   scale = QEWSB;
+   scale = Qin;
 
 
 }

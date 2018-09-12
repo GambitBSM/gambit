@@ -109,7 +109,7 @@ options="                    \
 enable_compile="yes"
 enable_compiler_warnings="no"
 enable_colors="no"
-enable_debug="yes"
+enable_debug="no"
 enable_mass_error_check="no"
 enable_fflite="no"
 enable_himalaya="automatic"
@@ -124,7 +124,7 @@ enable_shared_libs="no"
 enable_static="no"
 enable_threads="automatic"
 enable_tsil="automatic"
-enable_verbose="yes"
+enable_verbose="no"
 
 # corresponding preprocessor define statements
 DEFINE_ENABLE_COLORS="#undef ENABLE_COLORS"

@@ -31,6 +31,22 @@
   #define CAPABILITY HB_ModelParameters
   START_CAPABILITY
 
+   // THDM Higgs model parameters
+    #define FUNCTION THDMHiggs_ModelParameters
+    START_FUNCTION(hb_ModelParameters)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Higgs_Couplings, thdmc_couplings)
+    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_h01, thdmc_couplings)
+    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_h02, thdmc_couplings)
+    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_A0, thdmc_couplings)
+    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_h01, thdmc_decay_widths)
+    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_h02, thdmc_decay_widths)
+    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_A0, thdmc_decay_widths)
+    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
+    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
+    ALLOW_MODELS(THDMatQ, THDM)
+    #undef FUNCTION
+
     // SM Higgs model parameters
     #define FUNCTION SMHiggs_ModelParameters
     START_FUNCTION(hb_ModelParameters)
@@ -85,7 +101,7 @@
   // Get an LHC Higgs chisq
   #define CAPABILITY LHC_Higgs_LogLike
   START_CAPABILITY
-
+  
     #define FUNCTION calc_HS_LHC_LogLike
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters, hb_ModelParameters)

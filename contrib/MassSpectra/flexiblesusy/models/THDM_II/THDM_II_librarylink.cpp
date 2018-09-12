@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:50
+// File generated at Thu 2 Aug 2018 15:06:53
 
 #include "config.h"
 
@@ -434,7 +434,7 @@ void Model_data::put_sm_input_parameters(MLINK link) const
 
 void Model_data::put_input_parameters(MLINK link) const
 {
-   MLPutFunction(link, "List", 11);
+   MLPutFunction(link, "List", 10);
 
    MLPutRuleTo(link, INPUTPARAMETER(Lambda1IN), "Lambda1IN");
    MLPutRuleTo(link, INPUTPARAMETER(Lambda2IN), "Lambda2IN");
@@ -446,7 +446,6 @@ void Model_data::put_input_parameters(MLINK link) const
    MLPutRuleTo(link, INPUTPARAMETER(M122IN), "M122IN");
    MLPutRuleTo(link, INPUTPARAMETER(TanBeta), "TanBeta");
    MLPutRuleTo(link, INPUTPARAMETER(Qin), "Qin");
-   MLPutRuleTo(link, INPUTPARAMETER(QEWSB), "QEWSB");
 
 
    MLEndPacket(link);
@@ -956,7 +955,7 @@ Model_data make_data(const Dynamic_array_view<Element_t>& pars)
    const Index_t n_settings = Spectrum_generator_settings::NUMBER_OF_OPTIONS,
       n_sm_parameters = softsusy::NUMBER_OF_LOW_ENERGY_INPUT_PARAMETERS
                         + Physical_input::NUMBER_OF_INPUT_PARAMETERS,
-      n_input_pars = 11;
+      n_input_pars = 10;
    const Index_t n_total = n_settings + n_sm_parameters + n_input_pars;
 
    if (pars.size() != n_total)
@@ -1063,7 +1062,6 @@ Model_data make_data(const Dynamic_array_view<Element_t>& pars)
    INPUTPARAMETER(M122IN) = pars[c++];
    INPUTPARAMETER(TanBeta) = pars[c++];
    INPUTPARAMETER(Qin) = pars[c++];
-   INPUTPARAMETER(QEWSB) = pars[c++];
 
 
    Model_data data;

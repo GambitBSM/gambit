@@ -46,17 +46,17 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
   targetP.setValue("Qin",80.39);
   targetP.setValue("QrunTo", 173.15);
 
-  targetP.setValue("mh0", myP.getValue("mh0") );
-  targetP.setValue("mH0", myP.getValue("mH0") );
-  targetP.setValue("mA", myP.getValue("mA") );
-  targetP.setValue("mC", myP.getValue("mC") );
+  targetP.setValue("lambda_1", myP.getValue("lambda_1") );
+  targetP.setValue("lambda_2", myP.getValue("lambda_2") );
+  targetP.setValue("lambda_3", myP.getValue("lambda_3") );
+  targetP.setValue("lambda_4", myP.getValue("lambda_4") );
+  targetP.setValue("lambda_5", myP.getValue("lambda_5") );
   targetP.setValue("lambda_6", myP.getValue("lambda_6") );
   targetP.setValue("lambda_7", myP.getValue("lambda_7") );
   targetP.setValue("m12_2", myP.getValue("m12_2") );
   targetP.setValue("tanb", myP.getValue("tanb") );
   targetP.setValue("y_type", myP.getValue("y_type") );
-    
-  targetP.setValue("alpha", myP.getValue("alpha") );
+
 
    // Done! Check that everything is ok if desired.
    #ifdef THDM_DBUG

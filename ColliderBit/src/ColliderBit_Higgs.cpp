@@ -372,6 +372,8 @@ namespace Gambit
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
 
+      cout << "higgs mass for HS: " << ModelParam.Mh[0] << endl;
+
       BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
                  &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
                  &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
@@ -547,6 +549,180 @@ namespace Gambit
       // The ttbar production cross-sections for the (BSM,SM) model can be found at (prodxs_X[h+27], prodxs_X[h+30]),
       // where h is the higgs index (0 = h0_1, 1 = h0_2, 2 = A0) and X is one of Tev, LHC7 or LHC8.
       result = HiggsProd;
+
+    }
+
+
+    // THDM EXTENSIONS
+
+    // void THDMHiggs_gambit_ModelParameters(Higgs_ModelParameters &result)
+    // {
+    //   using namespace Pipes::THDMHiggs_gambit_ModelParameters;
+    //   Spectrum fullspectrum = *Dep::THDM_spectrum;
+    //   const SubSpectrum& he = fullspectrum.get_HE();
+    //   result.reset();
+    //   result.nh = 3;
+    //   result.add_higgs(he.get(Par::mass1,"mh0"),0.0,1);
+    //   result.add_higgs(he.get(Par::mass1,"mH0"),0.0,1);
+    //   result.add_higgs(he.get(Par::mass1,"mA"),0.0,-1);
+    //   result.add_charged_higgs(he.get(Par::mass1,"mC"),0.0);
+    // }
+
+
+    void THDMHiggs_ModelParameters(hb_ModelParameters &result)
+    {
+      using namespace Pipes::THDMHiggs_ModelParameters;
+
+      // unpack THDM Couplings
+      thdmc_couplings TDHM_couplings = *Dep::THDM_Higgs_Couplings;
+      thdmc_couplings TDHM_couplings_SM_Like_h01 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_h01;
+      thdmc_couplings TDHM_couplings_SM_Like_h02 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_h02;
+      thdmc_couplings TDHM_couplings_SM_Like_A0 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_A0;
+
+      thdmc_total_widths THDM_total_widths = *Dep::THDM_TotalWidths;
+      thdmc_decay_widths THDM_decay_widths = *Dep::THDM_DecayWidths;
+
+      thdmc_decay_widths THDM_decay_widths_SM_Like_h01 = *Dep::THDM_DecayWidths_SM_Like_Model_h01;
+      thdmc_decay_widths THDM_decay_widths_SM_Like_h02 = *Dep::THDM_DecayWidths_SM_Like_Model_h02;
+      thdmc_decay_widths THDM_decay_widths_SM_Like_A0 = *Dep::THDM_DecayWidths_SM_Like_Model_A0;
+
+      Spectrum fullspectrum = *Dep::THDM_spectrum;
+
+      //int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
+
+      const SubSpectrum& he = fullspectrum.get_HE();
+      const SubSpectrum& SM = fullspectrum.get_LE();
+      const SMInputs& sminputs   = fullspectrum.get_SMInputs();
+
+      std::vector <thdmc_decay_widths> SMLikeDecayWidths(3);
+      std::vector <thdmc_couplings> SMLikeCouplings(3);
+
+      SMLikeDecayWidths[0] = THDM_decay_widths_SM_Like_h01;
+      SMLikeDecayWidths[1] = THDM_decay_widths_SM_Like_h02;
+      SMLikeDecayWidths[2] = THDM_decay_widths_SM_Like_A0;
+
+      SMLikeCouplings[0] = TDHM_couplings_SM_Like_h01;
+      SMLikeCouplings[1] = TDHM_couplings_SM_Like_h02;
+      SMLikeCouplings[2] = TDHM_couplings_SM_Like_A0;
+
+      // ---
+      // adapted from 2HDMC code - Constraints.cpp
+
+      double RWW=0.77; double RZZ=1.0-RWW;
+
+      double MZ= SM.get(Par::Pole_Mass,"Z0");
+      double MW= SM.get(Par::Pole_Mass,"W+");
+
+      double GF = sminputs.GF;
+      double v = 1./sqrt(sqrt(2)*GF);
+      double g= 2.*MW/v;
+
+      double sintw = sqrt(1.-MW*MW/(MZ*MZ));
+      double costw = sqrt(1.-sintw*sintw);
+
+      complex <double> c,cs,cp,cs_sm,cp_sm,cst,cpt,cst_sm,cpt_sm;
+
+      result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
+      result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
+      result.Mh[2] = he.get(Par::Pole_Mass,"A0");
+      result.MHplus[0] = he.get(Par::Pole_Mass,"H+");
+
+      result.deltaMh[0] = 0.;
+      result.deltaMh[1] = 0.;
+      result.deltaMh[2] = 0.;
+
+      result.deltaMHplus[0] = 0.;
+
+      result.CP[0] = 1;
+      result.CP[1] = 1;
+      result.CP[2] = -1;
+
+      for (int h=0; h<3; h++) {
+
+        result.hGammaTot[h] = THDM_total_widths.gamma_tot_h[h+1];
+
+        result.BR_hjss[h] = THDM_decay_widths.gamma_hdd[h+1][2][2]/result.hGammaTot[h];
+        result.BR_hjcc[h] = THDM_decay_widths.gamma_huu[h+1][2][2]/result.hGammaTot[h];
+        result.BR_hjbb[h] = THDM_decay_widths.gamma_hdd[h+1][3][3]/result.hGammaTot[h];
+        result.BR_hjtautau[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/result.hGammaTot[h];
+        result.BR_hjmumu[h] = THDM_decay_widths.gamma_hll[h+1][2][2]/result.hGammaTot[h];
+        result.BR_hjWW[h] = THDM_decay_widths.gamma_hvv[h+1][3]/result.hGammaTot[h];
+        result.BR_hjZZ[h] = THDM_decay_widths.gamma_hvv[h+1][2]/result.hGammaTot[h];
+        result.BR_hjZga[h] = THDM_decay_widths.gamma_hZga[h+1]/result.hGammaTot[h];
+        result.BR_hjgg[h] = THDM_decay_widths.gamma_hgg[h+1]/result.hGammaTot[h];
+        result.BR_hjgaga[h] = THDM_decay_widths.gamma_hgaga[h+1]/result.hGammaTot[h];
+
+
+        for (int h2=0; h2<3; h2++) {
+
+          result.BR_hjhihi[h2][h] = THDM_decay_widths.gamma_hhh[h+1][h2+1][h2+1]/result.hGammaTot[h];
+
+          if(result.hGammaTot[h2+1]==0)
+          {
+            result.BR_hjinvisible[h] = result.BR_hjhihi[h2][h];
+          }
+          else{ result.BR_hjinvisible[h] = 0; }
+
+          c = TDHM_couplings.vhh[2][h2+1][h+1];
+          result.CS_lep_hjhi_ratio[h][h2] = pow(abs(c)/(g/2./costw),2);
+        }
+
+        c = TDHM_couplings.vvh[2][2][h+1];
+        result.CS_lep_hjZ_ratio[h]=pow(abs(c)/(g/costw*MZ),2);
+        result.CS_dd_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
+        result.CS_uu_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
+        result.CS_ss_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
+        result.CS_cc_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
+        result.CS_bb_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
+
+        result.CS_gg_hjZ_ratio[h]=0.;
+
+        c = TDHM_couplings.vvh[3][3][h+1];
+        result.CS_ud_hjWp_ratio[h] = pow(abs(c)/(g*MW),2);
+        result.CS_ud_hjWm_ratio[h] = result.CS_ud_hjWp_ratio[h];
+        result.CS_cs_hjWp_ratio[h] = result.CS_ud_hjWp_ratio[h];
+        result.CS_cs_hjWm_ratio[h] = result.CS_ud_hjWp_ratio[h];
+
+        result.CS_tev_vbf_ratio[h] = RWW*result.CS_ud_hjWp_ratio[h]+RZZ*result.CS_dd_hjZ_ratio[h];
+
+        result.CS_gg_hj_ratio[h] = THDM_decay_widths.gamma_hgg[h+1]/SMLikeDecayWidths[h].gamma_hgg[1];
+
+        cs = TDHM_couplings.hdd_cs[h+1][3][3];
+        cp = TDHM_couplings.hdd_cp[h+1][3][3];
+        cs_sm = SMLikeCouplings[h].hdd_cs[1][3][3];
+        cp_sm = SMLikeCouplings[h].hdd_cp[1][3][3];
+
+        result.CS_bb_hj_ratio[h]=pow(abs(cs/cs_sm),2)+pow(abs(cp/cs_sm),2);
+        result.CS_bg_hjb_ratio[h]=result.CS_bb_hj_ratio[h];
+        result.CS_lep_bbhj_ratio[h] = result.CS_bb_hj_ratio[h];
+
+        result.CS_lep_tautauhj_ratio[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/SMLikeDecayWidths[h].gamma_hll[1][3][3];
+
+        cst = TDHM_couplings.huu_cs[h+1][3][3];
+        cpt = TDHM_couplings.huu_cp[h+1][3][3];
+        cst_sm = SMLikeCouplings[h].huu_cs[1][3][3];
+        cpt_sm = SMLikeCouplings[h].huu_cp[1][3][3];
+
+        result.CS_tev_tthj_ratio[h] = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
+
+        result.CS_lhc7_vbf_ratio[h] = result.CS_tev_vbf_ratio[h];
+        result.CS_lhc8_vbf_ratio[h] = result.CS_tev_vbf_ratio[h];
+        result.CS_lhc7_tthj_ratio[h] = result.CS_tev_tthj_ratio[h];
+        result.CS_lhc8_tthj_ratio[h] = result.CS_tev_tthj_ratio[h];
+
+      }
+
+      result.HpGammaTot[0] = THDM_total_widths.gamma_tot_h[4];
+
+      result.CS_lep_HpjHmi_ratio[0] = 1.;
+
+      result.BR_tWpb = THDM_total_widths.gamma_tot_t_SM_contrib/THDM_total_widths.gamma_tot_t;
+      result.BR_tHpjb[0]= THDM_decay_widths.gamma_uhd[3][4][3]/THDM_total_widths.gamma_tot_t;
+      result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/THDM_total_widths.gamma_tot_h[4];
+      result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/THDM_total_widths.gamma_tot_h[4];
+      result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/THDM_total_widths.gamma_tot_h[4];
+
+      // ---
 
     }
 

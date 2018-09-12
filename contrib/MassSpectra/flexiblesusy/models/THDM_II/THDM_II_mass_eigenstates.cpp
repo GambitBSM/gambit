@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:35
+// File generated at Thu 2 Aug 2018 15:06:39
 
 /**
  * @file THDM_II_mass_eigenstates.cpp
@@ -26,7 +26,7 @@
  * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Wed 1 Aug 2018 14:17:35 with FlexibleSUSY
+ * This file was generated at Thu 2 Aug 2018 15:06:39 with FlexibleSUSY
  * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
  */
 

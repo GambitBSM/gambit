@@ -74,8 +74,7 @@ handle = FSTHDM_IIOpenHandle[
         Lambda7IN -> 0,
         M122IN -> 0,
         TanBeta -> 0,
-        Qin -> 0,
-        QEWSB -> 0
+        Qin -> 0
     }
 ];
 

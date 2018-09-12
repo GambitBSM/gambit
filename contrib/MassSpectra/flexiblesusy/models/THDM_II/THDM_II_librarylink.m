@@ -109,8 +109,7 @@ fsTHDM_IIDefaultInputParameters = {
    Lambda7IN -> 0,
    M122IN -> 0,
    TanBeta -> 0,
-   Qin -> 0,
-   QEWSB -> 0
+   Qin -> 0
 };
 
 Options[FSTHDM_IIOpenHandle] = {
@@ -199,8 +198,7 @@ FSTHDM_IIOpenHandle[OptionsPattern[]] :=
             OptionValue[Lambda7IN],
             OptionValue[M122IN],
             OptionValue[TanBeta],
-            OptionValue[Qin],
-            OptionValue[QEWSB]
+            OptionValue[Qin]
         }
 ];
 
@@ -287,8 +285,7 @@ FSTHDM_IISet[handle_Integer, p:OptionsPattern[]] :=
             OptionValue[Lambda7IN],
             OptionValue[M122IN],
             OptionValue[TanBeta],
-            OptionValue[Qin],
-            OptionValue[QEWSB]
+            OptionValue[Qin]
         }] /. HoldPattern[OptionValue[param_]] :> param /.
         { p } /.
         FSTHDM_IIGetSettings[handle] /.

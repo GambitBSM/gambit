@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:37
+// File generated at Thu 2 Aug 2018 15:06:41
 
 #include "THDM_II_info.hpp"
 
@@ -74,8 +74,7 @@ namespace THDM_II_info {
 
    const std::array<std::string, NUMBER_OF_INPUT_PARAMETERS>
       input_parameter_names = {"Lambda1IN", "Lambda2IN", "Lambda3IN", "Lambda4IN",
-      "Lambda5IN", "Lambda6IN", "Lambda7IN", "M122IN", "TanBeta", "Qin", "QEWSB"}
-      ;
+      "Lambda5IN", "Lambda6IN", "Lambda7IN", "M122IN", "TanBeta", "Qin"};
 
    const std::array<std::string, NUMBER_OF_EXTRA_PARAMETERS>
       extra_parameter_names = {};

@@ -50,11 +50,8 @@
 #define PI 3.14159265
 
 //#include "gambit/Elements/numerical_constants.hpp"
-
 // #TO DO# CREATE AND INCLUDE ANY HEADERS FOR THDM
-
 //#include "gambit/SpecBit/SMskeleton.hpp"
-
 
 #include "flexiblesusy/src/spectrum_generator_settings.hpp"
 
@@ -67,11 +64,10 @@
 #include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
 
-
 // Switch for debug mode
 // #define SpecBit_DBUG
 // #define SPECBIT_DEBUG
-bool debug_THDM = true;
+bool debug_THDM = false;
 
 namespace Gambit
 {
@@ -81,6 +77,101 @@ namespace Gambit
     using namespace LogTags;
     using namespace flexiblesusy;
     using namespace std;
+
+    enum string_code {
+      //---SIGNS
+      signHash,
+      signEquals,
+      signOpenBracket,
+      signClosedBracket,
+      signNegative,
+      signDecimal,
+      signComma,
+      signPositive,
+      imaginary,
+      lessThan,
+      greaterThan,
+      distanceFrom,
+      //--CHI SQAURED Type
+      observable,
+      bound,
+    };
+
+
+    // ----------------------------------------------------------------
+    // chi^2 function
+    double getChi(double value, string_code type, string_code sign, double value_bound, double error) {
+
+      double chi = 0.0;
+
+      switch (type)
+      {
+        case observable:
+          switch (sign)
+            {
+                case lessThan:
+                    if(value<value_bound)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        chi = pow(((value-value_bound)/error),2);
+                    }
+                break;
+                case greaterThan:
+                    if(value>value_bound)
+                    {
+                        return 0;
+                        }
+                    else
+                    {
+                        chi = pow(((value-value_bound)/error),2);
+                    }
+                break;
+            case distanceFrom:
+              chi = pow(((value-value_bound)/error),2);
+                break;
+            default:
+            return chi;
+            }
+          break;
+        case bound:
+          switch (sign)
+          {
+            case lessThan:
+              if(value<(value_bound/0.64))
+              {
+                return 0;
+              }
+              else
+              {
+                chi = pow(((0.6*value)/(value_bound)-1.0),2);
+              }
+            break;
+            case greaterThan:
+              if(value>(value_bound/0.64))
+              {
+                return 0;
+              }
+              else
+              {
+                chi = pow(((0.6*value)/(value_bound)-1.0),2);
+              }
+            break;
+            case distanceFrom:
+              chi = pow(((0.6*value)/(value_bound)-1.0),2);
+            break;
+            default:
+            return chi;
+          }
+          break;
+        default:
+          return chi;
+      }
+
+        return chi;
+    }
 
     void get_CKM_from_Wolfenstein_parameters(complex<double> CKM[2][2], double lambda, double A, double rho, double eta)
     { if (debug_THDM) cout << "DBG 3" << endl;
@@ -97,11 +188,11 @@ namespace Gambit
       CKM[2][2] = 1;
     }
 
-
-    //forward declerations
-    double get_sba(double tanb, double alpha);
-    std::vector<double> convertToCouplingBasis(double m_h, double m_H, double m_A, double m_Hp, double tb, double alpha, double m12_2, double lambda6, double lambda7, double GF);
-
+    //calculate sba
+    double get_sba(double tanb, double alpha)
+    { if (debug_THDM) cout << "DBG 12" << endl;
+        return sin(atan(tanb)-alpha);
+    }
 
     /// Get a Spectrum object wrapper for the THDM model
     void get_THDM_spectrum(Spectrum &result)
@@ -128,13 +219,13 @@ namespace Gambit
       // Initialise an object to carry the THDM sector information
       Models::THDMModel thdm_model;
 
-      double m_h = *myPipe::Param.at("mh0");
-      double m_H = *myPipe::Param.at("mH0");
-      double m_A = *myPipe::Param.at("mA");
-      double m_Hp = *myPipe::Param.at("mC");
-      double alpha = *myPipe::Param.at("alpha");
-      double lambda6 = *myPipe::Param.at("lambda_6");
-      double lambda7 = *myPipe::Param.at("lambda_7");
+      double lambda_1 = *myPipe::Param.at("lambda_1");
+      double lambda_2 = *myPipe::Param.at("lambda_2");
+      double lambda_3 = *myPipe::Param.at("lambda_3");
+      double lambda_4 = *myPipe::Param.at("lambda_4");
+      double lambda_5 = *myPipe::Param.at("lambda_5");
+      double lambda_6 = *myPipe::Param.at("lambda_6");
+      double lambda_7 = *myPipe::Param.at("lambda_7");
       double m12_2 =*myPipe::Param.at("m12_2");
       double tan_beta = *myPipe::Param.at("tanb");
 
@@ -159,23 +250,15 @@ namespace Gambit
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double e = pow( 4*Pi*( alpha_em ),0.5) ;
 
-      thdm_model.mh0           = m_h;
-      thdm_model.mH0           = m_H;
-      thdm_model.mA0           = m_A;
-      thdm_model.mC            = m_Hp;
-      thdm_model.tanb                     = tan_beta;
-      thdm_model.m12_2                    = m12_2;
-      thdm_model.lambda6                  = lambda6;
-      thdm_model.lambda7                  = lambda7;
-      thdm_model.alpha                    = alpha;
-
-      std::vector<double> Lambda = convertToCouplingBasis(m_h, m_H, m_A, m_Hp, tan_beta, alpha, m12_2, lambda6, lambda7, sminputs.GF);
-
-      thdm_model.lambda1 = Lambda[1];
-      thdm_model.lambda2 = Lambda[2];
-      thdm_model.lambda3 = Lambda[3];
-      thdm_model.lambda4 = Lambda[4];
-      thdm_model.lambda5 = Lambda[5];
+      thdm_model.lambda1           = lambda_1;
+      thdm_model.lambda2           = lambda_2;
+      thdm_model.lambda3           = lambda_3;
+      thdm_model.lambda4           = lambda_4;
+      thdm_model.lambda5           = lambda_5;
+      thdm_model.tanb              = tan_beta;
+      thdm_model.m12_2             = m12_2;
+      thdm_model.lambda6           = lambda_6;
+      thdm_model.lambda7           = lambda_7;
 
       // Standard model
       thdm_model.sinW2 = sinW2;
@@ -226,8 +309,6 @@ namespace Gambit
       full_spectrum = Spectrum(qedqcdspec,thdm_spec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
 
       result = full_spectrum;
-
-      cout << endl << "###" << endl <<"GREAT START" << endl << "###" << endl << endl;
       }
 
       template <class A, class B>
@@ -236,23 +317,24 @@ namespace Gambit
         //Takes in the spectrum and fills a THDM object which is defined
         //in 2HDMC. Any 2HDMC functions can then be called on this object.
 
+        YukawaType = 2; // for now hard code!
+
         const SubSpectrum& he = spec.get_HE();
         const SubSpectrum& SM = spec.get_LE();
         const SMInputs& sminputs   = spec.get_SMInputs();
 
-        double m_h = he.get(Par::Pole_Mass,"h0",1);
-        double m_H = he.get(Par::Pole_Mass,"h0",2);
-        double m_A = he.get(Par::Pole_Mass, "A0");
-        double m_Hp = he.get(Par::Pole_Mass, "H+");
-        double alpha = he.get(Par::dimensionless, "alpha");
+        // these are the running couplings
+        double lambda_1 = he.get(Par::mass1,"lambda_1");
+        double lambda_2 = he.get(Par::mass1,"lambda_2");
+        double lambda_3 = he.get(Par::mass1, "lambda_3");
+        double lambda_4 = he.get(Par::mass1, "lambda_4");
+        double lambda_5 = he.get(Par::mass1, "lambda_5");
         double tan_beta = he.get(Par::dimensionless, "tanb");
 
-        double lambda6 = he.get(Par::mass1, "lambda_6");
-        double lambda7 = he.get(Par::mass1, "lambda_7");
+        double lambda_6 = he.get(Par::mass1, "lambda_6");
+        double lambda_7 = he.get(Par::mass1, "lambda_7");
 
         double m12_2 = he.get(Par::mass1,"m12_2");
-
-        double sba = get_sba(tan_beta, alpha);
 
         inputSM.set_alpha(1/(sminputs.alphainv));
         inputSM.set_alpha_s(sminputs.alphaS);
@@ -287,7 +369,7 @@ namespace Gambit
 
         inputTHDM.set_SM(inputSM);
 
-        inputTHDM.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
+        inputTHDM.set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6, lambda_7, m12_2, tan_beta);
         inputTHDM.set_yukawas_type(YukawaType);
 
       }
@@ -307,6 +389,8 @@ namespace Gambit
         //Takes in the spectrum and fills a THDM object which is defined
         //in 2HDMC. Any 2HDMC functions can then be called on this object.
 
+        YukawaType = 2; // for now hard code!
+
         const SubSpectrum& SM = spec.get_LE();
         const SMInputs& sminputs   = spec.get_SMInputs();
 
@@ -314,19 +398,17 @@ namespace Gambit
 
         he -> RunToScale(scale);
 
-        double m_h = he->get(Par::Pole_Mass, "h0",1);
-        double m_H = he->get(Par::Pole_Mass, "h0",2);
-        double m_A = he->get(Par::Pole_Mass, "A0");
-        double m_Hp = he->get(Par::Pole_Mass, "H+");
-        double alpha = he->get(Par::dimensionless, "alpha");
+        double lambda_1 = he->get(Par::mass1, "lambda_1");
+        double lambda_2 = he->get(Par::mass1, "lambda_2");
+        double lambda_3 = he->get(Par::mass1, "lambda_3");
+        double lambda_4 = he->get(Par::mass1, "lambda_4");
+        double lambda_5 = he->get(Par::mass1, "lambda_5");
         double tan_beta = he->get(Par::dimensionless, "tanb");
 
-        double lambda6 = he->get(Par::mass1, "lambda_6");
-        double lambda7 = he->get(Par::mass1, "lambda_7");
+        double lambda_6 = he->get(Par::mass1, "lambda_6");
+        double lambda_7 = he->get(Par::mass1, "lambda_7");
 
         double m12_2 = he->get(Par::mass1,"m12_2");
-
-        double sba = get_sba(tan_beta, alpha);
 
         inputSM.set_alpha(1/(sminputs.alphainv));
         inputSM.set_alpha_s(sminputs.alphaS);
@@ -361,7 +443,7 @@ namespace Gambit
 
         inputTHDM.set_SM(inputSM);
 
-        inputTHDM.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
+        inputTHDM.set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6, lambda_7, m12_2, tan_beta);
         inputTHDM.set_yukawas_type(YukawaType);
 
       }
@@ -370,6 +452,8 @@ namespace Gambit
       void fill_THDM_object_SM_Like_Model(A& inputTHDM, B& inputSM, Spectrum& spec, int HiggsNumber, int YukawaType)
       { if (debug_THDM) cout << "DBG 10" << endl;
         //Fills a 2HDMC object with SM-like input, makes use of the decoupling limit
+
+        YukawaType = 2; // for now hard code!
 
         const SubSpectrum& he = spec.get_HE();
         const SubSpectrum& SM = spec.get_LE();
@@ -435,53 +519,6 @@ namespace Gambit
         inputTHDM.set_yukawas_type(YukawaType);
 
       }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////USEFUL FUNCTIONS FOR PARAMETER CONVERSIONS////////////////////////////////////////////////////////////////
-
-    double get_sba(double tanb, double alpha)
-    { if (debug_THDM) cout << "DBG 12" << endl;
-        return sin(atan(tanb)-alpha);
-    }
-
-    std::vector<double> convertToCouplingBasis(double m_h, double m_H, double m_A, double m_Hp, double tb, double alpha, double m12_2, double lambda6, double lambda7, double GF)
-    { if (debug_THDM) cout << "DBG 13" << endl;
-        // set up required quantities
-        double sba = get_sba(tb, alpha);
-
-        double beta = atan(tb);
-        double ctb = 1./tb;
-        double cb  = 1./sqrt(1.+tb*tb);
-        double sb  = tb*cb;
-        double sb2 = sb*sb;
-        double cb2 = cb*cb;
-
-        double sa  = sin(alpha);
-        double sa2 = sa*sa;
-        double ca  = cos(alpha);
-        double ca2 = ca*ca;
-
-        double cba = sqrt(1.-sba*sba);
-
-        double v2= pow (1. / sqrt(sqrt(2.)*GF),2);
-
-        double lambda_1=(m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
-        double lambda_2=(m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
-        double lambda_3=((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-        double lambda_4=((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-        double lambda_5=(m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-
-        std::vector<double> Lambda(6);
-        Lambda[0] = 0.0;
-        Lambda[1] = lambda_1;
-        Lambda[2] = lambda_2;
-        Lambda[3] = lambda_3;
-        Lambda[4] = lambda_4;
-        Lambda[5] = lambda_5;
-
-        return Lambda;
-
-    }
 
     
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -648,23 +685,18 @@ namespace Gambit
         //set constraint values
         //-----------------------------
         // all values < 16*PI for unitarity conditions
-        double unitarityUpperLimit = 8*M_PI;
-        int numberErrors = 0;
+        double unitarityUpperLimit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+        double sigma = 4.0*M_PI;
         //-----------------------------
 
         //calculate the total error of each point
-        // for example the total error for points x_i with upper limit U (x_i no larger than U)
-        // totalError = sum_over_i ( |U - x_i| )
-        double unitarityError = totalErrorFunctionLessThan(unitarityUpperLimit, unitarityConditions, numberErrors);
+        double chi2 = 0.0;
 
-        double sigmaUnitary = 1;
-
-        if (numberErrors != 0) { if (debug_THDM) cout << "DBG 30" << endl; sigmaUnitary = numberErrors*sigmaUnitary; }
-
-        // loglike function
-        double loglike = -unitarityError/(pow(sigmaUnitary,2));
-
-        result = loglike;
+        for (int i=1; i<unitarityConditions[0]; i++) {
+             chi2 += getChi(unitarityConditions[i],bound,lessThan,unitarityUpperLimit,sigma);
+        }
+        
+        result = -chi2;
       }
 
       void get_NLO_unitarity_constraint_likelihood_THDM(double& result)
@@ -688,8 +720,8 @@ namespace Gambit
         double lambda3 = spec->get(Par::mass1, "lambda_3");
         double lambda4 = spec->get(Par::mass1, "lambda_4");
         double lambda5 = spec->get(Par::mass1, "lambda_5");
-        double lambda6 = spec->get(Par::mass1, "lambda_6");
-        double lambda7 = spec->get(Par::mass1, "lambda_7");
+        // double lambda6 = spec->get(Par::mass1, "lambda_6");
+        // double lambda7 = spec->get(Par::mass1, "lambda_7");
 
         std::vector<double> Lambda(6);
         Lambda[0] = 0.0;
@@ -821,24 +853,21 @@ namespace Gambit
         //set constraint values
         //-----------------------------
         // all values < 1/2 for NLO unitarity conditions
-        double unitarityUpperLimit = 1/2;
-        int numberErrors = 0;
+        double unitarityUpperLimit = 0.5;
+        double sigma = 1.0; ///HMMM
         //-----------------------------
 
+        double chi2 = 0.0;
+
         //calculate the total error of each point
-        // for example the total error for points x_i with upper limit U (x_i no larger than U)
-        // totalError = sum_over_i ( |U - x_i| )
-        double unitarityError = totalErrorFunctionLessThan(unitarityUpperLimit, unitarityConditions, numberErrors);
+        //obsevable used due to unitarityUpperLimit being small
 
-        double sigmaUnitary = 1;
+        for (int i=1; i<unitarityConditions[0]; i++) {
+             chi2 += getChi(unitarityConditions[i],bound,lessThan,unitarityUpperLimit,sigma);
+        }
 
-        if (numberErrors != 0) { if (debug_THDM) cout << "DBG 33" << endl; sigmaUnitary = numberErrors*sigmaUnitary; }
 
-        // loglike function
-        double loglike = -unitarityError/(pow(sigmaUnitary,2));
-
-        result = loglike;
-
+        result = -chi2*100;
       }
 
       double get_perturbativity(Spectrum& spec, int YukawaType, double QrunTo)
@@ -866,22 +895,17 @@ namespace Gambit
         //-----------------------------
         // all values < 4*PI for perturbativity conditions
         double perturbativityUpperLimit = 4*M_PI;
-        int numberErrors = 0;
+        double sigma = 4*M_PI;
         //-----------------------------
 
+        double chi2 = 0.0;
+
         //calculate the total error of each point
-        // for example the total error for points x_i with upper limit U (x_i no larger than U)
-        // totalError = sum_over_i ( |U - x_i| )
-      	double perturbativityError = totalErrorFunctionLessThan(perturbativityUpperLimit, perturbativityConditions, numberErrors);
+        for (int i=1; i<perturbativityConditions[0]; i++) {
+             chi2 += getChi(perturbativityConditions[i],bound,lessThan,perturbativityUpperLimit,sigma);
+        }
 
-        double sigmaPert = 1;
-
-        if (numberErrors != 0) { if (debug_THDM) cout << "DBG 37" << endl; sigmaPert = numberErrors*sigmaPert; }
-
-        // loglike function
-        double loglike = -perturbativityError/(pow(sigmaPert,2));
-
-        return loglike;
+        return -chi2*100;
       }
 
       void get_perturbativity_constraint_likelihood_THDM(double& result)
@@ -893,7 +917,7 @@ namespace Gambit
         double scale = 0;
           if (atScale)
           { if (debug_THDM) cout << "DBG 39" << endl;
-              double scale = *Param.at("QrunTo");
+              scale = *Param.at("QrunTo");
           }
         result = get_perturbativity(fullspectrum, YukawaType, scale);
       }
@@ -919,13 +943,17 @@ namespace Gambit
         //-----------------------------
         // all values > 0 for stability conditions
         double stabilityLowerLimit = 0;
-        int numberErrors = 0;
+        double sigma = 1.0;
         //-----------------------------
 
+        double chi2 = 0.0;
+
+        // observable used due to zero being limit
         //calculate the total error of each point
-        // for example the total error for points x_i with upper limit U (x_i no larger than U)
-        // totalError = sum_over_i ( |U - x_i| )
-      	double stabilityError = totalErrorFunctionGreaterThan(stabilityLowerLimit, stabilityConditions, numberErrors);
+        //calculate the total error of each point
+        for (int i=1; i<stabilityConditions[0]; i++) {
+             chi2 += getChi(stabilityConditions[i],observable,greaterThan,stabilityLowerLimit,sigma);
+        }
 
          //error at the moment
          if(QrunTo!=0)
@@ -933,23 +961,21 @@ namespace Gambit
            // fill for 750 GeV
            fill_THDM_object_AtScale(thdmObject,smObject,spec, YukawaType, QrunTo);
            thdmObject.get_stability_conditions(stabilityConditions);
-           double stabilityErrorRunTo = totalErrorFunctionGreaterThan(stabilityLowerLimit, stabilityConditions, numberErrors);
+           
+           double chi2atQ = 0.0;
+            // observable used due to zero being limit
+            for (int i=1; i<stabilityConditions[0]; i++) {
+             chi2atQ += getChi(stabilityConditions[i],observable,greaterThan,stabilityLowerLimit,sigma);
+            }
 
            // select the largest of the two errors
-           if (stabilityErrorRunTo > stabilityError)
+           if (chi2atQ > chi2)
            { if (debug_THDM) cout << "DBG 42" << endl;
-             stabilityError = stabilityErrorRunTo;
+             chi2 = chi2atQ;
            }
          }
 
-        double sigmaStability = 1;
-
-        if (numberErrors != 0) { if (debug_THDM) cout << "DBG 43" << endl; sigmaStability = numberErrors*sigmaStability; }
-
-        // loglike function
-        double loglike = -stabilityError/(pow(sigmaStability,2));
-
-        return loglike;
+        return -chi2*100;
       }
 
       void get_stability_likelihood_THDM(double& result)
@@ -961,7 +987,7 @@ namespace Gambit
         double scale = 0;
         if (atScale)
         { if (debug_THDM) cout << "DBG 45" << endl;
-            double scale = *Param.at("QrunTo");
+            scale = *Param.at("QrunTo");
         }
         result = get_stability_likelihood_THDM(fullspectrum ,YukawaType, scale);
 
@@ -971,35 +997,24 @@ namespace Gambit
       { if (debug_THDM) cout << "DBG 46" << endl;
         using namespace Pipes::get_alignment_limit_likelihood_THDM;
 
-        if (debug_THDM) cout << "DBG 46B" << endl;
         Spectrum fullspectrum = *Dep::THDM_spectrum;
 
-        if (debug_THDM) cout << "DBG 46C" << endl;
         SubSpectrum& he = fullspectrum.get_HE();
 
-        if (debug_THDM) cout << "DBG 46D" << endl;
         double tan_beta = he.get(Par::dimensionless,"tanb");
-        double alpha = he.get(Par::dimensionless,"alpha");
-
-        cout << tan_beta << endl;
-        cout << alpha << endl;
+        double alpha = he.get(Par::dimensionless,"alpha"); //TODO: Find out what this alpha is!
 
         double sba = get_sba(tan_beta, alpha);
 
         // sin(b-a) = 1 in alignment limit -distance from alignment limit:
         double sbaTol = 0.01;
+        double sigma = 1.;
         //-----------------------------
 
-      	double sbaError = errorFunctionLessThan(sbaTol, 1-sba);
+        // chi2 function
+        double chi2 = getChi((1.0-sba),bound,lessThan,sbaTol,sigma);
 
-        double sigmaSba = 1.;
-
-        // loglike function
-        double loglike = -sbaError/(pow(sigmaSba,2));
-
-        cout << "YIKES" << endl;
-
-        result = loglike;
+        result = -chi2;
       }
 
 
@@ -1034,18 +1049,12 @@ namespace Gambit
 
         double loglike = 0.0;
 
-        // loglike +=  Stats::gaussian_loglikelihood_marginalised(S,0.014,0.0,0.10);
-
         loglike +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
         loglike +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
         loglike +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
         loglike +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
         loglike +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
         loglike +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
-
-        // std::cout<< "### oblique params errors (S,T,U,V,W,X): " << Stats::gaussian_loglikelihood(S,0.014,0.0,0.10) << ", " << Stats::gaussian_loglikelihood(T,0.03,0.0,0.11)
-        //     << ", " << Stats::gaussian_loglikelihood(U,0.06,0.0,0.10)  <<", " <<  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38)
-        //      <<", " <<  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7) <<", " << Stats::gaussian_loglikelihood(X,0.38,0.0,0.59) << std::endl;
 
         result = loglike;
       }
@@ -1161,27 +1170,16 @@ namespace Gambit
         double lambda5 = spec->get(Par::mass1, "lambda_5");
         double lambda6 = spec->get(Par::mass1, "lambda_6");
         double lambda7 = spec->get(Par::mass1, "lambda_7");
-        double alpha = spec->get(Par::dimensionless, "alpha");
         double tb = spec->get(Par::dimensionless, "tanb");
         double m12_2 = spec->get(Par::mass1, "m12_2");
 
-        double sba = get_sba(tb, alpha);
 
         // set up required quantities
-        double beta = atan(tb);
         double ctb = 1./tb;
         double cb  = 1./sqrt(1.+tb*tb);
         double sb  = tb*cb;
         double sb2 = sb*sb;
         double cb2 = cb*cb;
-
-//        double alpha = -asin(sba)+beta;
-        double sa  = sin(alpha);
-        double sa2 = sa*sa;
-        double ca  = cos(alpha);
-        double ca2 = ca*ca;
-
-        double cba = sqrt(1.-sba*sba);
 
         double v2= pow (1. / sqrt(sqrt(2.)*sminputs.GF),2);
 
@@ -1197,17 +1195,15 @@ namespace Gambit
         // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
         complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
 
-        complex<double> zero = 0;
+        double sigma = 1.;
+        double chi2 = 0.0;
 
-        // find the error in the discriminant
-        double error = errorFunctionComplexGreaterThan(zero,discriminant);
+         // calculate chi2
+         // observable used due to zero being limit
+        chi2 += getChi(discriminant.real(),observable,greaterThan,0.0,sigma);
+        chi2 += getChi(discriminant.imag(),observable,greaterThan,0.0,sigma);
 
-        double sigmaDiscriminant = 1.;
-
-        // calculate loglike function
-        double loglike = -error/(pow(sigmaDiscriminant,2));
-
-        result = loglike;
+        result = -chi2;
 
       }
 
@@ -1385,6 +1381,12 @@ namespace Gambit
         double alpha = he.get(Par::dimensionless, "alpha");
         double tan_beta = he.get(Par::dimensionless, "tanb");
 
+        double lambda1 = he.get(Par::mass1, "lambda_1");
+        double lambda2 = he.get(Par::mass1, "lambda_2");
+        double lambda3 = he.get(Par::mass1, "lambda_3");
+        double lambda4 = he.get(Par::mass1, "lambda_4");
+        double lambda5 = he.get(Par::mass1, "lambda_5");
+
         double sba = get_sba(tan_beta, alpha);
 
         double lambda6 = he.get(Par::mass1,"lambda_6");
@@ -1399,17 +1401,17 @@ namespace Gambit
         double MZ = SM.get(Par::Pole_Mass,"Z0");
         double MW = SM.get(Par::Pole_Mass,"W+");
 
-        double gammaZ = 2.4952;
-        double gammaW = 2.085;
+        // double gammaZ = 2.4952;
+        // double gammaW = 2.085;
 
-        double Me = SM.get(Par::Pole_Mass,"e-_1");
-        double Mmu = SM.get(Par::Pole_Mass,"e-_2");
+        // double Me = SM.get(Par::Pole_Mass,"e-_1");
+        // double Mmu = SM.get(Par::Pole_Mass,"e-_2");
         double Mtau = SM.get(Par::Pole_Mass,"e-_3");
 
-        double Mu = sminputs.mU; //u
-        double Md = sminputs.mD; //d
-        double Mc = sminputs.mCmC; //c
-        double Ms = sminputs.mS; //s
+        // double Mu = sminputs.mU; //u
+        // double Md = sminputs.mD; //d
+        // double Mc = sminputs.mCmC; //c
+        // double Ms = sminputs.mS; //s
         double Mt = SM.get(Par::Pole_Mass,"u_3"); //t
         double Mb = SM.get(Par::Pole_Mass,"d_3"); //b
 
@@ -1421,10 +1423,6 @@ namespace Gambit
         double g_prime = smObject.get_gprime();
         double g = smObject.get_g();
         double g_3 = 4.*M_PI*alphaS;
-
-        double lambda1, lambda2, lambda3, lambda4, lambda5;
-
-        thdmObject.get_param_gen(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,m12_2,tan_beta);
 
         SLHAstruct slha;
 
@@ -1546,7 +1544,7 @@ namespace Gambit
 
         Spectrum fullspectrum = *Dep::THDM_spectrum;
 
-        const SMInputs& sminputs   = fullspectrum.get_SMInputs();
+        // const SMInputs& sminputs   = fullspectrum.get_SMInputs();
 
         unique_ptr<SubSpectrum> spec = fullspectrum.clone_HE();
 
@@ -1624,19 +1622,11 @@ namespace Gambit
       void print_lambda1_coupling_basis(double& result)
       { if (debug_THDM) cout << "DBG 74" << endl;
 
-        cout << "BITE1" << endl;
-
         using namespace Pipes::print_lambda1_coupling_basis;
 
-        cout << "BITE2" << endl;
-
         const thdm_coupling_basis couplingBasis = *Dep::Coupling_Basis;
-
-        cout << "BITE3" << endl;
-
+        
         result = couplingBasis.lambda1;
-
-        cout << "BITE4" << endl;
 
       }
 
@@ -1925,7 +1915,7 @@ namespace Gambit
       Spectrum_generator_settings settings;
       settings.set(Spectrum_generator_settings::precision, runOptions.getValueOrDef<double>(1.0e-4,"precision_goal"));
       settings.set(Spectrum_generator_settings::max_iterations, runOptions.getValueOrDef<double>(0,"max_iterations"));
-      settings.set(Spectrum_generator_settings::calculate_sm_masses, runOptions.getValueOrDef<bool> (false, "calculate_sm_masses"));
+      settings.set(Spectrum_generator_settings::calculate_sm_masses, runOptions.getValueOrDef<bool> (true, "calculate_sm_masses"));
       settings.set(Spectrum_generator_settings::pole_mass_loop_order, runOptions.getValueOrDef<int>(2,"pole_mass_loop_order"));
       settings.set(Spectrum_generator_settings::pole_mass_loop_order, runOptions.getValueOrDef<int>(2,"ewsb_loop_order"));
       settings.set(Spectrum_generator_settings::beta_loop_order, runOptions.getValueOrDef<int>(2,"beta_loop_order"));
@@ -1938,9 +1928,8 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<int>(1.000000000e-14,"beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_down"));
-      settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(1,"threshold_corrections"));
+      settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321,"threshold_corrections"));
 
-      
       spectrum_generator.set_settings(settings);
 
       // Generate spectrum
@@ -1975,39 +1964,38 @@ namespace Gambit
       thdmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
       thdmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
 
-      double sba = sin(atan(*input_Param.at("tanb")) - *input_Param.at("alpha"));
+      // double sba = sin(atan(*input_Param.at("tanb")) - *input_Param.at("alpha"));
+      // thdmspec.set_override(Par::dimensionless, sba, "sba", true);
 
-      thdmspec.set_override(Par::dimensionless, sba, "sba", true);
-
-      thdmspec.set_override(Par::dimensionless, 2 , "YukawaType", true);
+      thdmspec.set_override(Par::dimensionless, 2 , "YukawaType", true); // hardcode for now
       //thdmspec.set_override(Par::dimensionless, *input_Param.at("YukawaType") , "YukawaType", true);
+      // **THDM THEORY ERRORS
+      // ** Add theory errors
 
-            //MSSM THEORY ERRORS//
-    //   // Add theory errors
-    //   static const MSSM_strs ms;
+      //   static const MSSM_strs ms;
 
-    //   static const std::vector<int> i12     = initVector(1,2);
-    //   static const std::vector<int> i123    = initVector(1,2,3);
-    //   static const std::vector<int> i1234   = initVector(1,2,3,4);
-    //   static const std::vector<int> i123456 = initVector(1,2,3,4,5,6);
+      //   static const std::vector<int> i12     = initVector(1,2);
+      //   static const std::vector<int> i123    = initVector(1,2,3);
+      //   static const std::vector<int> i1234   = initVector(1,2,3,4);
+      //   static const std::vector<int> i123456 = initVector(1,2,3,4,5,6);
 
-    //   // 3% theory "error"
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_pred, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_pred, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_6, i123456, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_6, i123456, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, "~chi0", i1234, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, "~chi0", i1234, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_3, i123, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_3, i123, true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_2, i12,  true);
-    //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_2, i12,  true);
+      //   // 3% theory "error"
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_pred, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_pred, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_6, i123456, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_6, i123456, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, "~chi0", i1234, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, "~chi0", i1234, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_3, i123, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_3, i123, true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ms.pole_mass_strs_1_2, i12,  true);
+      //   mssmspec.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ms.pole_mass_strs_1_2, i12,  true);
 
-    //   // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
-    //   // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
-    //   double rd_mh1 = 2.0 / mssmspec.get(Par::Pole_Mass, ms.h0, 1);
-    //   mssmspec.set_override(Par::Pole_Mass_1srd_high, rd_mh1, ms.h0, 1, true);
-    //   mssmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ms.h0, 1, true);
+      //   // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
+      //   // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
+      //   double rd_mh1 = 2.0 / mssmspec.get(Par::Pole_Mass, ms.h0, 1);
+      //   mssmspec.set_override(Par::Pole_Mass_1srd_high, rd_mh1, ms.h0, 1, true);
+      //   mssmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ms.h0, 1, true);
 
       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
       // double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
@@ -2099,283 +2087,39 @@ namespace Gambit
 
       cout << "filled spectrum" << endl;
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
-        model_interface.model.print(cout);
+        if (debug_THDM) model_interface.model.print(cout);
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 
 
-//   template <class MI>
-//     Spectrum run_FS_spectrum_generator
-//         ( const typename MI::InputParameters& input
-//         , const SMInputs& sminputs
-//         , const Options& runOptions
-//         , const std::map<str, safe_ptr<double> >& input_Param
-//         )
-//     { if (debug_THDM) cout << "DBG " << endl;
-//       // SoftSUSY object used to set quark and lepton masses and gauge
-//       // couplings in QEDxQCD effective theory
-//       // Will be initialised by default using values in lowe.h, which we will
-//       // override next.
-//       softsusy::QedQcd oneset;
-
-//       // Fill QedQcd object with SMInputs values
-//       setup_QedQcd(oneset,sminputs);
-
-//       // Run everything to Mz
-//       oneset.toMz();
-
-
-//       // Create spectrum generator object
-//       typename MI::SpectrumGenerator spectrum_generator;
-
-//         //double PoleMassScale = *input_Param.at("QrunTo");
-
-
-//       #define SPECGEN_SET(NAME,TYPE,DEFAULTVAL) \
-//          CAT_2(spectrum_generator.set_, NAME) BOOST_PP_LPAREN() runOptions.getValueOrDef<TYPE> \
-//                BOOST_PP_LPAREN() DEFAULTVAL BOOST_PP_COMMA() STRINGIFY(NAME) \
-//                BOOST_PP_RPAREN() BOOST_PP_RPAREN()
-
-//       SPECGEN_SET(precision_goal,                    double, 1.0e-4);
-//       SPECGEN_SET(max_iterations,                    double, 0 );
-//       SPECGEN_SET(calculate_sm_masses,               bool, false );
-//       SPECGEN_SET(pole_mass_loop_order,              int, 2 );
-//       SPECGEN_SET(ewsb_loop_order,                   int, 2 );
-//       SPECGEN_SET(beta_loop_order,                   int, 2 );
-//       SPECGEN_SET(threshold_corrections_loop_order,  int, 1 );
-//       //SPECGEN_SET(pole_scale,                   double, PoleMassScale);
-
-//       #undef SPECGEN_SET
-
-
-//       // Higgs loop corrections are a little different... sort them out now
-//       Two_loop_corrections two_loop_settings;
-
-
-//       // alpha_t alpha_s
-//       // alpha_b alpha_s
-//       // alpha_t^2 + alpha_t alpha_b + alpha_b^2
-//       // alpha_tau^2
-//       two_loop_settings.higgs_at_as
-//          = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_as");
-//       two_loop_settings.higgs_ab_as
-//          = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_ab_as");
-//       two_loop_settings.higgs_at_at
-//          = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_at_at");
-//       two_loop_settings.higgs_atau_atau
-//          = runOptions.getValueOrDef<bool>(true,"use_higgs_2loop_atau_atau");
-
-
-//       spectrum_generator.set_two_loop_corrections(two_loop_settings);
-
-//       // Generate spectrum
-//       spectrum_generator.run(oneset, input);
-
-//       // Extract report on problems...
-//       const typename MI::Problems& problems = spectrum_generator.get_problems();
-
-//       // Create Model_interface to carry the input and results, and know
-//       // how to access the flexiblesusy routines.
-//       // Note: Output of spectrum_generator.get_model() returns type, e.g. CMSSM.
-//       // Need to convert it to type CMSSM_slha (which alters some conventions of
-//       // parameters into SLHA format)
-//       MI model_interface(spectrum_generator,oneset,input);
-
-//       // Create SubSpectrum object to wrap flexiblesusy data
-//       // THIS IS STATIC so that it lives on once we leave this module function. We
-//       // therefore cannot run the same spectrum generator twice in the same loop and
-//       // maintain the spectrum resulting from both. But we should never want to do
-//       // this.
-//       // A pointer to this object is what gets turned into a SubSpectrum pointer and
-//       // passed around Gambit.
-//       //
-//       // This object will COPY the interface data members into itself, so it is now the
-//       // one-stop-shop for all spectrum information, including the model interface object.
-//       THDMSpec<MI> thdmspec(model_interface, "FlexibleSUSY", "1.5.1");
-
-//       // Add extra information about the scales used to the wrapper object
-//       // (last parameter turns on the 'allow_new' option for the override setter, which allows
-//       //  us to set parameters that don't previously exist)
-//       thdmspec.set_override(Par::mass1,spectrum_generator.get_high_scale(),"high_scale",true);
-//       thdmspec.set_override(Par::mass1,spectrum_generator.get_susy_scale(),"susy_scale",true);
-//       thdmspec.set_override(Par::mass1,spectrum_generator.get_low_scale(), "low_scale", true);
-
-//       //thdmspec.set_override(Par::dimensionless,  *input_Param.at("sba"), "sba", true);
-
-//       thdmspec.set_override(Par::dimensionless, *input_Param.at("YukawaType") , "YukawaType", true);
-
-//       // Add theory errors
-
-
-//       static const std::vector<int> i12     = initVector(1,2);
-//       static const std::vector<int> i123    = initVector(1,2,3);
-//       static const std::vector<int> i1234   = initVector(1,2,3,4);
-//       static const std::vector<int> i123456 = initVector(1,2,3,4,5,6);
-
-
-//       // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
-//       // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
-//       //double rd_mh1 = 2.0 / thdmspec.get(Par::Pole_Mass, ms.h0, 1);
-//       //thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mh1, ms.h0, 1, true);
-//       //thdmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ms.h0, 1, true);
-
-//       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
-//       double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
-//       thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
-//       thdmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
-
-
-
-
-//       // Create a second SubSpectrum object to wrap the qedqcd object used to initialise the spectrum generator
-//       // Attach the sminputs object as well, so that SM pole masses can be passed on (these aren't easily
-//       // extracted from the QedQcd object, so use the values that we put into it.)
-//       QedQcdWrapper qedqcdspec(oneset,sminputs);
-
-//       // Deal with points where spectrum generator encountered a problem
-//       #ifdef SPECBIT_DEBUG
-//         std::cout<<"Problem? "<<problems.have_problem()<<std::endl;
-//       #endif
-//       if( problems.have_problem() )
-//       { if (debug_THDM) cout << "DBG " << endl;
-//          if( runOptions.getValueOrDef<bool>(false,"invalid_point_fatal") )
-//          { if (debug_THDM) cout << "DBG " << endl;
-//             ///TODO: Need to tell gambit that the spectrum is not viable somehow. For now
-//             /// just die.
-//             std::ostringstream errmsg;
-//             errmsg << "A serious problem was encountered during spectrum generation!; ";
-//             errmsg << "Message from FlexibleSUSY below:" << std::endl;
-//             problems.print_problems(errmsg);
-//             problems.print_warnings(errmsg);
-//             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
-//          }
-//          else
-//          { if (debug_THDM) cout << "DBG " << endl;
-//             /// Check what the problem was
-//             /// see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
-//             std::ostringstream msg;
-//             //msg << "";
-//             //if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
-//             //if( have_tachyon()       ) msg << "tachyon" << std::endl;
-//             //if( have_thrown()        ) msg << "error" << std::endl;
-//             //if( have_non_perturbative_parameter()   ) msg << "non-perturb. param" << std::endl; // TODO: check which
-//             //if( have_failed_pole_mass_convergence() ) msg << "fail pole mass converg." << std::endl; // TODO: check which
-//             //if( no_ewsb()            ) msg << "no ewsb" << std::endl;
-//             //if( no_convergence()     ) msg << "no converg." << std::endl;
-//             //if( no_perturbative()    ) msg << "no pertub." << std::endl;
-//             //if( no_rho_convergence() ) msg << "no rho converg." << std::endl;
-//             //if( msg.str()=="" ) msg << " Unrecognised problem! ";
-
-//             /// Fast way for now:
-//             problems.print_problems(msg);
-//             invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
-//          }
-//       }
-
-//       if( problems.have_warning() )
-//       { if (debug_THDM) cout << "DBG " << endl;
-//          std::ostringstream msg;
-//          problems.print_warnings(msg);
-//          SpecBit_warning().raise(LOCAL_INFO,msg.str()); //TODO: Is a warning the correct thing to do here?
-//       }
-
-//       // Retrieve any mass cuts
-//       static const Spectrum::mc_info mass_cut = runOptions.getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
-//       static const Spectrum::mr_info mass_ratio_cut = runOptions.getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
-
-//       // Package QedQcd SubSpectrum object, THDM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
-//       return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
-//     }
-
     template <class THDMInputStruct>
-    void fill_THDM_input(THDMInputStruct &input, const std::map<str, safe_ptr<double> >& Param ,SMInputs sminputs)
+    void fill_THDM_input(THDMInputStruct &input, const std::map<str, safe_ptr<double> >& Param)
     { if (debug_THDM) cout << "DBG 99" << endl;
       // read in THDM model parameters
-      double m_h = *Param.at("mh0");
-      if (debug_THDM) cout << "DBG 99A1" << endl;
-      double m_H = *Param.at("mH0");
-      if (debug_THDM) cout << "DBG 99A2" << endl;
-      double m_A = *Param.at("mA");
-      if (debug_THDM) cout << "DBG 99A3" << endl;
-      double m_Hp = *Param.at("mC");
-      if (debug_THDM) cout << "DBG 99A4" << endl;
-      double alpha = *Param.at("alpha");
+      double lambda_1 = *Param.at("lambda_1");
+      double lambda_2 = *Param.at("lambda_2");
+      double lambda_3 = *Param.at("lambda_3");
+      double lambda_4 = *Param.at("lambda_4");
+      double lambda_5 = *Param.at("lambda_5");
       double m12_2 = *Param.at("m12_2");
       double tb = *Param.at("tanb");
-      double lambda6 = *Param.at("lambda_6");
-      double lambda7 = *Param.at("lambda_7");
+      double lambda_6 = *Param.at("lambda_6");
+      double lambda_7 = *Param.at("lambda_7");
 
-      if (debug_THDM) cout << "DBG 99A" << endl;
-
-      double sba = get_sba(tb, alpha);
- 
-      // set up required quantities
-      double beta = atan(tb);
-      double ctb = 1./tb;
-      double cb  = 1./sqrt(1.+tb*tb);
-      double sb  = tb*cb;
-      double sb2 = sb*sb;
-      double cb2 = cb*cb;
-
-      if (debug_THDM) cout << "DBG 99B" << endl;
-
-      //      double betaAlpha = 0;
-      //      //
-      //      // if (sba > PI/2)
-      //      // { if (debug_THDM) cout << "DBG " << endl;
-      //        betaAlpha = acos(sba) + PI/2;
-      //      // }
-      //      // else if (sba < -PI/2)
-      //      // { if (debug_THDM) cout << "DBG " << endl;
-      //      //   betaAlpha = acos(sba) - PI/2;
-      //      // }
-      //      // else
-      //      // { if (debug_THDM) cout << "DBG " << endl;
-      //      //   betaAlpha = asin(sba);
-      //      // }
-      //
-      //      double alpha = - betaAlpha + beta;
-      double sa  = sin(alpha);
-      double sa2 = sa*sa;
-      double ca  = cos(alpha);
-      double ca2 = ca*ca;
-
-      double cba = sqrt(1.-sba*sba);
-
-      double v2= pow (1. / sqrt(sqrt(2.)*sminputs.GF),2);
-
-      // convert
-      double lambda_1=(m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
-      double lambda_2=(m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
-      double lambda_3=((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-      double lambda_4=((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-      double lambda_5=(m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-
-      if (debug_THDM) cout << "DBG 99C" << endl;
-
-      //m22_2 = -0.5/sb*(pow(m_h,2)*ca*sba+pow(m_H,2)*sa*cba)+m12_2*ctb;
       //double valued parameters
       input.TanBeta     = tb;
-      input.Lambda1IN      = lambda_1; // 1/2 to match FS conventions ** DELETED
-      input.Lambda2IN      = lambda_2; // 1/2 to match FS conventions ** DELETED
+      input.Lambda1IN      = lambda_1; 
+      input.Lambda2IN      = lambda_2; 
       input.Lambda3IN      = lambda_3;
       input.Lambda4IN      = lambda_4;
       input.Lambda5IN      = lambda_5;
-      input.Lambda6IN      = lambda6;
-      input.Lambda7IN      = lambda7;
+      input.Lambda6IN      = lambda_6;
+      input.Lambda7IN      = lambda_7;
 
       if (debug_THDM) cout << "DBG 99D" << endl;
 
-      cout << "*lambda_1 = " << lambda_1 << endl;
-      cout << "*lambda_2 = " << lambda_2 << endl;
-      cout << "*lambda_3 = " << lambda_3 << endl;
-      cout << "*lambda_4 = " << lambda_4 << endl;
-      cout << "*lambda_5 = " << lambda_5 << endl;
-
-
-      input.M122IN      = m12_2;              // minus sign to match FS conventions ** DELETED
-      input.QEWSB       = 173.0;//*Param.at("Qin");
-      input.Qin         = *Param.at("Qin");   // set as option later
+      input.M122IN      = m12_2;           
+      input.Qin         = *Param.at("Qin"); 
 
       // Sanity checks
       if(input.TanBeta<0)
@@ -2385,11 +2129,7 @@ namespace Gambit
          SpecBit_error().raise(LOCAL_INFO,msg.str());
       }
 
-    //      cout << "Track Lambda 1 (A): " << input.Lambda1IN << endl;
-    //      cout << "Track Lambda 2 (A): " << input.Lambda2IN << endl;
-    //      cout << "Track Lambda 3 (A): " << input.Lambda3IN << endl;
-    //      cout << "Track Lambda 4 (A): " << input.Lambda4IN << endl;
-    //      cout << "Track Lambda 5 (A): " << input.Lambda5IN << endl;
+
     }
 
 
@@ -2399,19 +2139,19 @@ namespace Gambit
       using namespace softsusy;
       namespace myPipe = Pipes::get_THDM_spectrum_FS;
       const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
-      const Options& runOptions=*myPipe::runOptions;
+      // const Options& runOptions=*myPipe::runOptions;
     
       int YukawaType = myPipe::runOptions->getValueOrDef<int>(1, "YukawaType");
       YukawaType = 2;
       THDM_II_input_parameters input;
-          fill_THDM_input(input,myPipe::Param,sminputs);
+      fill_THDM_input(input,myPipe::Param);
 
       switch(YukawaType)
       { if (debug_THDM) cout << "DBG 102" << endl;
         case 1:
         { if (debug_THDM) cout << "DBG 103" << endl;
           // THDM_I_input_parameters input;
-          // fill_THDM_input(input,myPipe::Param,sminputs);
+          // fill_THDM_input(input,myPipe::Param);
           // result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
           // break;
         }
@@ -2423,14 +2163,14 @@ namespace Gambit
         case 3:
         { if (debug_THDM) cout << "DBG 105" << endl;
         //   THDM_lepton_input_parameters input;
-        //   fill_THDM_input(input,myPipe::Param,sminputs);
+        //   fill_THDM_input(input,myPipe::Param);
         //   result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
           break;
         }
         case 4:
         { if (debug_THDM) cout << "DBG 106" << endl;
         //   THDM_flipped_input_parameters input;
-        //   fill_THDM_input(input,myPipe::Param,sminputs);
+        //   fill_THDM_input(input,myPipe::Param);
         //   result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
           break;
         }
@@ -2445,19 +2185,6 @@ namespace Gambit
       }
 
     }
-
-    // void get_THDM_spectrum_FS(Spectrum& result)
-    // { if (debug_THDM) cout << "DBG " << endl;
-    //   using namespace softsusy;
-    //   namespace myPipe = Pipes::get_THDM_spectrum_FS;
-    //   const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
-    //   THDM_I_input_parameters input;
-    //
-    //   fill_THDM_I_input(input,myPipe::Param,sminputs);
-    //
-    //   result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-    //
-    // }
 
     void test_THDM_spectrum_1(double &result)
     { if (debug_THDM) cout << "DBG 108" << endl;
@@ -2496,7 +2223,7 @@ namespace Gambit
         std::vector<double> lambdas = {lambda_1,lambda_2,lambda_3,lambda_4,lambda_5};
 
         double pertubativity = true;
-        for(int i=0; i<lambdas.size(); i++)
+        for(int i=0; i<int(lambdas.size()); i++)
         {
           if(abs(lambdas[i]) > 4*PI) pertubativity = false ;
         }
@@ -2504,7 +2231,7 @@ namespace Gambit
         if(pertubativity)
         {
 
-        spec -> RunToScale(750.0);
+        spec -> RunToScale(QrunTo);
 
         double mh0_1 = spec->get(Par::Pole_Mass, "h0", 1);
         double mh0_2 = spec->get(Par::Pole_Mass, "h0", 2);
@@ -2514,13 +2241,16 @@ namespace Gambit
         double tb = spec->get(Par::dimensionless, "tanb");
         double m12_2 = spec->get(Par::mass1, "m12_2");
 
+        double mh0_1_run = spec->get(Par::mass1, "h0", 1);
+        double mh0_2_run = spec->get(Par::mass1, "h0", 2);
+        double mA0_run = spec->get(Par::mass1, "A0");
+        double mHm_run = spec->get(Par::mass1, "H+");
+
        lambda_1 = spec->get(Par::mass1, "lambda_1");
        lambda_2 = spec->get(Par::mass1, "lambda_2");
        lambda_3 = spec->get(Par::mass1, "lambda_3");
        lambda_4 = spec->get(Par::mass1, "lambda_4");
        lambda_5 = spec->get(Par::mass1, "lambda_5");
-
-        //double sba = get_sba(tb, alpha);
 
         cout << "---- after running to scale: " << QrunTo << "GeV. "<< endl;
         cout << "----------------------------------" << endl;
@@ -2533,6 +2263,11 @@ namespace Gambit
         cout << "tb = " << tb << endl;
         cout << "m12_2 = " << m12_2 << endl;
         cout << "----------------------------------" << endl;
+        cout << "mh0_1_run = " << mh0_1_run << endl;
+        cout << "mh0_2_run = " << mh0_2_run << endl;
+        cout << "mA0_run = " << mA0_run << endl;
+        cout << "mHm_run = " << mHm_run << endl;
+        cout << "----------------------------------" << endl;
         cout << "lambda_1 = " << lambda_1 << endl;
         cout << "lambda_2 = " << lambda_2 << endl;
         cout << "lambda_3 = " << lambda_3 << endl;
@@ -2542,11 +2277,12 @@ namespace Gambit
         }
         else
         {
-          cout << "Perturbativity failed: Did not run to scale" << endl;
+          cout << "Perturbativity failed: Did not run to scale.. Would most likely fail at FS level." << endl;
         }
 
         result = 0;
     }
+
     void test_THDM_spectrum_2(double &result)
     { if (debug_THDM) cout << "DBG 109" << endl;
       using namespace Pipes::test_THDM_spectrum_2;

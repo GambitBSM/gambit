@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:15:37
+// File generated at Thu 2 Aug 2018 15:04:50
 
 #include "THDM_II_input_parameters.hpp"
 #include "wrappers.hpp"
@@ -27,7 +27,7 @@ namespace flexiblesusy {
 
 Eigen::ArrayXd THDM_II_input_parameters::get() const
 {
-   Eigen::ArrayXd pars(11);
+   Eigen::ArrayXd pars(10);
 
    pars(0) = Lambda1IN;
    pars(1) = Lambda2IN;
@@ -39,7 +39,6 @@ Eigen::ArrayXd THDM_II_input_parameters::get() const
    pars(7) = M122IN;
    pars(8) = TanBeta;
    pars(9) = Qin;
-   pars(10) = QEWSB;
 
    return pars;
 }
@@ -56,7 +55,6 @@ void THDM_II_input_parameters::set(const Eigen::ArrayXd& pars)
    M122IN = pars(7);
    TanBeta = pars(8);
    Qin = pars(9);
-   QEWSB = pars(10);
 
 }
 
@@ -72,7 +70,6 @@ std::ostream& operator<<(std::ostream& ostr, const THDM_II_input_parameters& inp
    ostr << "M122IN = " << INPUT(M122IN) << ", ";
    ostr << "TanBeta = " << INPUT(TanBeta) << ", ";
    ostr << "Qin = " << INPUT(Qin) << ", ";
-   ostr << "QEWSB = " << INPUT(QEWSB) << ", ";
 
    return ostr;
 }

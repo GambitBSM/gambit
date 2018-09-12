@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:50
+// File generated at Thu 2 Aug 2018 15:06:53
 
 #include "config.h"
 
@@ -55,7 +55,6 @@ void print_usage()
       "  --M122IN=<value>\n"
       "  --TanBeta=<value>\n"
       "  --Qin=<value>\n"
-      "  --QEWSB=<value>\n"
 
       "  --solver-type=<value>             an integer corresponding\n"
       "                                    to the solver type to use\n"
@@ -98,9 +97,6 @@ void set_command_line_parameters(const Dynamic_array_view<char*>& args,
          continue;
 
       if(Command_line_options::get_parameter_value(option, "--Qin=", input.Qin))
-         continue;
-
-      if(Command_line_options::get_parameter_value(option, "--QEWSB=", input.QEWSB))
          continue;
 
       

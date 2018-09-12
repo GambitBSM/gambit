@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:15:37
+// File generated at Thu 2 Aug 2018 15:04:50
 
 #ifndef THDM_II_INPUT_PARAMETERS_H
 #define THDM_II_INPUT_PARAMETERS_H
@@ -37,7 +37,6 @@ struct THDM_II_input_parameters {
    double M122IN{};
    double TanBeta{};
    double Qin{};
-   double QEWSB{};
 
 
    Eigen::ArrayXd get() const;

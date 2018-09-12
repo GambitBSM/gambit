@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Aug 2018 14:17:37
+// File generated at Thu 2 Aug 2018 15:06:41
 
 #include "THDM_II_slha_io.hpp"
 #include "THDM_II_input_parameters.hpp"
@@ -72,7 +72,6 @@ void THDM_II_slha_io::set_extpar(const THDM_II_input_parameters& input)
 
    extpar << "Block EXTPAR\n";
    extpar << FORMAT_ELEMENT(0, input.Qin, "Qin");
-   extpar << FORMAT_ELEMENT(1, input.QEWSB, "QEWSB");
    slha_io.set_block(extpar);
 
 }
@@ -506,7 +505,6 @@ void THDM_II_slha_io::fill_extpar_tuple(THDM_II_input_parameters& input,
 {
    switch (key) {
    case 0: input.Qin = value; break;
-   case 1: input.QEWSB = value; break;
    default: WARNING("Unrecognized entry in block EXTPAR: " << key); break;
    }
 

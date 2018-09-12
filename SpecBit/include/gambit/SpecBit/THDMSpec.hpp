@@ -68,11 +68,17 @@ namespace Gambit
       template <class MI>
       void THDMSpec<MI>::RunToScaleOverride(double scale)
       {
-          std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE run_to(scale) " << std::endl;
-        model_interface.model.run_to(scale);
-          std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE calculate_DRbar_masses() " << std::endl;
+          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE run_to(scale) " << std::endl;
+        try {
+          model_interface.model.run_to(scale);
+        }
+        catch(...){
+          invalid_point().raise("FS Invalid Point: RunToScale Failed");
+          //TODO: Terminal message here
+        }
+          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE calculate_DRbar_masses() " << std::endl;
         model_interface.model.calculate_DRbar_masses();
-          std::cout << "THDMSpec.hpp | RunToScaleOverride() | END" << std::endl;
+          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | END" << std::endl;
 
       }
       template <class MI>
@@ -126,8 +132,7 @@ namespace Gambit
       template <class Model>
       double get_mA_pole(const Model& model)
       {
-       return model.get_MAh(1);
-      //  return model.get_MAh_pole_slha(1);
+       return model.get_MAh_pole_slha(1);
       }
 
        template <class Model>
@@ -152,9 +157,7 @@ namespace Gambit
       template <class Model>
       double get_mh_1_pole(const Model& model)
       {
-       //return model.get_Mhh_pole_slha(0);
-       cout << "get_mh_1_pole" << endl;
-       return model.get_Mhh(0);
+       return model.get_Mhh_pole_slha(0);
       }
 
        template <class Model>
@@ -166,7 +169,8 @@ namespace Gambit
       template <class Model>
       double get_mHm_pole(const Model& model)
       {
-       return model.get_MHm_pole_slha(1);
+      //  return model.get_MHm_pole_slha(1);
+      return model.get_MHm(1);
       }
 
        template <class Model>
@@ -352,22 +356,20 @@ namespace Gambit
             tmp_map["lambda_7"]= &get_lambda7<Model>;
             // tmp_map["vev"]= &Model::get_vev;
 
-            map_collection[Par::mass1].map0_extraM = tmp_map;
-         }
+            tmp_map["A0"] = &get_mA_running<Model>;
+            tmp_map["H+"] = &get_mHm_running<Model>;
 
-         // Functions utilising the "extraM" function signature
-         // (Zero index, model object as argument)
-         {
-            typename MTget::fmap0_extraM tmp_map;
-            
-            tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
-            map_collection[Par::dimensionless].map0_extraM = tmp_map;
+            map_collection[Par::mass1].map0_extraM = tmp_map;
          }
 
          // Functions utilising the two-index "plain-vanilla" function signature
          // (Two-index member functions of model object)
-         {
-            // ##nil
+        {
+            typename MTget::fmap1 tmp_map;
+
+            tmp_map["h0"] =  FInfo1( &Model::get_Mhh, i01 );
+            
+            map_collection[Par::mass1].map1 = tmp_map;
          }
 
          /// @}
@@ -432,7 +434,7 @@ namespace Gambit
             typename MTget::fmap0_extraM tmp_map;
 
             // Using wrapper functions defined above
-            tmp_map["A0"] = &get_mA_pole<Model>;
+            tmp_map["A0"] = &get_MAh1_pole_slha<Model>;
             tmp_map["H+"] = &get_MHpm1_pole_slha<Model>;
 
             // Goldstones
@@ -452,7 +454,6 @@ namespace Gambit
 
             tmp_map["h0"] =  FInfo1( &Model::get_Mhh_pole_slha, i01 );
             
-
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
 
@@ -487,8 +488,8 @@ namespace Gambit
 
          typedef typename MTset::FInfo2 FInfo2;
 
-         typedef typename MTset::FInfo1M FInfo1M;
-         typedef typename MTset::FInfo2M FInfo2M;
+        //  typedef typename MTset::FInfo1M FInfo1M;
+        //  typedef typename MTset::FInfo2M FInfo2M;
 
          static const std::set<int> i01 = initSet(0,1);
          static const std::set<int> i012 = initSet(0,1,2);
