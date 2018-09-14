@@ -13,6 +13,10 @@
 ///          (ben.farmer@gmail.com)
 ///  \date 2016 Mar, 2017 Jan, Feb, Mar
 ///
+///  \author José Eliel Camargo-Molina
+///           (Elielcamargomolina@gmail.com)
+///  \date Sept 2018
+///
 ///  *********************************************
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
@@ -21,10 +25,16 @@
 #ifndef __postprocessor_hpp__
 #define __postprocessor_hpp__
 
+
+// Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
+extern template std::size_t Gambit::Printers::getTypeID<double>();
+
 namespace Gambit
 {
+
   namespace PostProcessor
   {
+
       /// @{ Helper functions for performing resume related tasks
 
       /// Answer queries as to whether a given dataset index has been postprocessed in a previous run or not

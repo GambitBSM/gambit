@@ -17,6 +17,9 @@
 ///          (ben.farmer@gmail.com)
 ///  \date 2016 Mar, 2017 Jan, Feb, Mar
 ///
+///  \author José Eliel Camargo-Molina
+/////           (Elielcamargomolina@gmail.com)
+/////  \date Sept 2018
 ///  *********************************************
 
 // STL
@@ -39,8 +42,6 @@
 using namespace Gambit;
 using namespace Gambit::PostProcessor;
 
-// Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
-extern template std::size_t Gambit::Printers::getTypeID<double>();
 
 // The reweigher Scanner plugin
 scanner_plugin(postprocessor, version(1, 0, 0))
