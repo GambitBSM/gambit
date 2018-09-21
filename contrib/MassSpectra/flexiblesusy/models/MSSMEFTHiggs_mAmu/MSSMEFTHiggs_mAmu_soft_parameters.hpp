@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:59:50
+// File generated at Thu 10 May 2018 14:39:57
 
 #ifndef MSSMEFTHiggs_mAmu_soft_parameters_H
 #define MSSMEFTHiggs_mAmu_soft_parameters_H

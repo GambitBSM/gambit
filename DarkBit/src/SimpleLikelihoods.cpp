@@ -150,6 +150,7 @@ namespace Gambit {
       // from 0.5 to 500 GeV
       std::vector<double> x = daFunk::logspace(-0.301, 2.699, 100);
       x = daFunk::augmentSingl(x, (*Dep::GA_AnnYield)->set("v",0));
+
       std::vector<double> y = ((*Dep::GA_AnnYield)/8./M_PI*fraction*fraction)->
         set("v", 0)->bind("E")->vect(x);
 

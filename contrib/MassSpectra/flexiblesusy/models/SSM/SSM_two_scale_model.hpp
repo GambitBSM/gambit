@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:45
+// File generated at Thu 10 May 2018 14:43:28
 
 /**
  * @file SSM_two_scale_model.hpp
@@ -24,8 +24,8 @@
  *        value problem using the two_scale solver by solving EWSB
  *        and determine the pole masses and mixings
  *
- * This file was generated at Wed 25 Oct 2017 18:11:45 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:43:28 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #ifndef SSM_TWO_SCALE_H

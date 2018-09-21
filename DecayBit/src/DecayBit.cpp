@@ -21,6 +21,11 @@
 ///          (peter.athron@coepp.org.au)
 ///  \date 2015 Jun
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Oct
+///  \date 2017 Jun
+///
 ///  \author Are Raklev
 ///          (ahye@fys.uio.no)
 ///  \date 2018 Jan
@@ -28,6 +33,10 @@
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2018 Jan
+///
+///  \author Tomas Gonzalo
+///          (t.e.gonzalo@fys.uio.no)
+///  \date 2018 Feb
 ///
 ///  *********************************************
 
@@ -37,8 +46,13 @@
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/DecayBit/DecayBit_rollcall.hpp"
 #include "gambit/DecayBit/decay_utils.hpp"
+#include "gambit/DecayBit/SM_Z.hpp"
+#include "gambit/DecayBit/MSSM_H.hpp"
+#include "gambit/DecayBit/MSSM_Z.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/ascii_table_reader.hpp"
+#include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
 
 #include <string>
 #include <map>
@@ -48,7 +62,9 @@
 
 #define pow2(a) ((a)*(a))          // Get speedy
 #define pow3(a) ((a)*(a)*(a))
-#define pow4(a) (pow2(a)*pow2(a)) 
+#define pow4(a) (pow2(a)*pow2(a))
+
+//#define DECAYBIT_DEBUG
 
 namespace Gambit
 {
@@ -70,10 +86,10 @@ namespace Gambit
     }
 
     /// Integrate a std::function using GSL cquad
-    double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps) 
+    double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps)
     {
       double result = 0.0;
-      gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);      
+      gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);
 
       gsl_function F;
       F.function = unwrap;
@@ -81,6 +97,13 @@ namespace Gambit
 
       gsl_integration_cquad(&F, a, b, abseps, releps, gsl_ws, &result, NULL, NULL);
       gsl_integration_cquad_workspace_free(gsl_ws);
+
+      // Check result
+      if (Utils::isnan(result))
+      {
+        invalid_point().raise("Integration returned NaN.");
+      }
+
       return result;
     }
 
@@ -88,8 +111,8 @@ namespace Gambit
     double sqrt_lambda(double a, double b, double c) { return sqrt(pow2(a+b-c) - 4*a*b); }
 
     /// Breit-Wigner pole (complex)
-    std::complex<double> BW(double q2, double m2, double imag_term) 
-    { 
+    std::complex<double> BW(double q2, double m2, double imag_term)
+    {
       static const std::complex<double> i(0.0,1.0);
       return m2 / (m2 - q2 -i*imag_term);
     }
@@ -291,6 +314,8 @@ namespace Gambit
     /// Reference: 2017 PDG
     void Z_decays (DecayTable::Entry& result)
     {
+      using namespace Pipes::Z_decays;
+
       result.calculator = "GAMBIT::DecayBit";
       result.calculator_version = gambit_version();
       result.width_in_GeV = 2.4952;
@@ -300,6 +325,21 @@ namespace Gambit
       result.set_BF(0.03366, 0.00007, "mu+", "mu-");
       result.set_BF(0.03370, 0.00008, "tau+", "tau-");
       result.set_BF(0.6991, 0.0006, "hadron", "hadron");
+
+      // Neutrinos
+      // FIXME: It doesn't work because SMINPUTS it's not satisfied yet
+      /*const SMInputs sminputs = *Dep::SMINPUTS;
+
+      const double cosW = sminputs.mW/sminputs.mZ;
+      const double sinW2 = 1 - cosW*cosW;
+      const double g2 = sqrt(4*pi/sminputs.alphainv/sinW2);
+      const double mZ = sminputs.mZ;
+
+      double Z_to_neutrinos = pow(g2/(2.0*cosW),2) * mZ/(24.0*pi);
+      result.set_BF(Z_to_neutrinos/result.width_in_GeV, Z_to_neutrinos/pow(result.width_in_GeV,2)*result.positive_error, "nu_e", "nubar_e");
+      result.set_BF(Z_to_neutrinos/result.width_in_GeV, Z_to_neutrinos/pow(result.width_in_GeV,2)*result.positive_error, "nu_mu", "nubar_mu");
+      result.set_BF(Z_to_neutrinos/result.width_in_GeV, Z_to_neutrinos/pow(result.width_in_GeV,2)*result.positive_error, "nu_tau", "nubar_tau");
+      */
     }
 
     /// SM decays: t
@@ -1424,6 +1464,7 @@ namespace Gambit
       else
         result = *Dep::stau_1_decay_rates_SH;
 
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// SUSY-HIT MSSM decays: stau_1
@@ -1546,6 +1587,8 @@ namespace Gambit
       // Else, use the SUSY-HIT results
       else
         result = *Dep::chargino_plus_1_decay_rates_SH;
+
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// SUSY-HIT MSSM decays: chargino_plus_1
@@ -2231,7 +2274,7 @@ namespace Gambit
     }
 
 
-    /// MSSM decays: chargino decays for small chargino--neutralino mass splitting. 
+    /// MSSM decays: chargino decays for small chargino--neutralino mass splitting.
     /// Using results from hep-ph/9607421.
     void chargino_plus_1_decays_smallsplit(DecayTable::Entry& result)
     {
@@ -2250,7 +2293,7 @@ namespace Gambit
 
       const double delta_m = m_C - m_N;
 
-      // If the chargino--neutralino mass difference is large, 
+      // If the chargino--neutralino mass difference is large,
       // the calculations in this module function should not be used.
       // Return empty result.
       if (delta_m > 1.5)
@@ -2267,23 +2310,23 @@ namespace Gambit
 
       const double Up11 = mssm.get(Par::Pole_Mixing,"~chi+",1,1); // (~W1 - i*~W2) component
       const double Up12 = mssm.get(Par::Pole_Mixing,"~chi+",1,2); // ~Hu+ component
-      const double Um11 = mssm.get(Par::Pole_Mixing,"~chi-",1,1); // (~W1 + i*~W2) component 
+      const double Um11 = mssm.get(Par::Pole_Mixing,"~chi-",1,1); // (~W1 + i*~W2) component
       const double Um12 = mssm.get(Par::Pole_Mixing,"~chi-",1,2); // ~Hu- component
 
-      // Connection to chargino matrix notation in S. Martin's "A SUSY Primer": 
+      // Connection to chargino matrix notation in S. Martin's "A SUSY Primer":
       // Our 'Up' matrix corresponds to his 'V' matrix, and
       // our 'Um' matrix corresponds to his 'U' matrix.
 
       // We use the convention that keeps the mixing matrices real.
-      // This means that the neutralino mass can be negative. 
-      // In that case, we have to deal with relative phase factors 
+      // This means that the neutralino mass can be negative.
+      // In that case, we have to deal with relative phase factors
       // when implementing the calculations from hep-ph/9607421.
       // @todo Double check these conventions.
       double O11L  = -1./root2*N14*Up12 + N12*Up11;
-      double O11R  =  1./root2*N13*Um12 + N12*Um11;  
-      if (m_C_signed < 0.) 
+      double O11R  =  1./root2*N13*Um12 + N12*Um11;
+      if (m_C_signed < 0.)
         O11L = -O11L;
-      if (m_N_signed < 0.) 
+      if (m_N_signed < 0.)
         O11R = -O11R;
 
 
@@ -2321,21 +2364,21 @@ namespace Gambit
       // Map to store partial width results
       std::map<str,double> partial_widths;
 
-      // 
+      //
       // Channel: ~chi+_1 --> ~chi0_1 e+ nu_e
-      // 
+      //
       partial_widths["N_el+_nu"] = 0.0;
       if (delta_m > m_el)
       {
         // Integrand 1
         std::function<double(double)> N_el_nu_integrand_1 = [&m_N2,&m_C2,&m_el2](double q2)
-        { 
+        {
           return (1. - (m_N2+m_el2)/q2) * pow2(1. - q2/m_C2) * sqrt_lambda(q2,m_N2,m_el2);
         };
 
         // Integrand 2
         std::function<double(double)> N_el_nu_integrand_2 = [&m_N2,&m_C2,&m_el2](double q2)
-        { 
+        {
           return (q2/m_C2) * pow2(1. - m_el2/q2) * sqrt_lambda(m_C2,m_N2,q2);
         };
 
@@ -2347,21 +2390,21 @@ namespace Gambit
         partial_widths["N_el+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_el_nu_I1 - 2.*m_N*O11L*O11R*N_el_nu_I2 );
       }
 
-      // 
+      //
       // Channel: ~chi+_1 --> ~chi0_1 mu+ nu_mu
-      // 
+      //
       partial_widths["N_mu+_nu"] = 0.0;
       if (delta_m > m_mu)
       {
         // Integrand 1
         std::function<double(double)> N_mu_nu_integrand_1 = [&m_N2,&m_C2,&m_mu2](double q2)
-        { 
+        {
           return (1. - (m_N2+m_mu2)/q2) * pow2(1. - q2/m_C2) * sqrt_lambda(q2,m_N2,m_mu2);
         };
 
         // Integrand 2
         std::function<double(double)> N_mu_nu_integrand_2 = [&m_N2,&m_C2,&m_mu2](double q2)
-        { 
+        {
           return (q2/m_C2) * pow2(1. - m_mu2/q2) * sqrt_lambda(m_C2,m_N2,q2);
         };
 
@@ -2381,7 +2424,7 @@ namespace Gambit
       {
         double k_pi = sqrt_lambda(m_C2,m_N2,m_pi2) / (2*m_C);
         partial_widths["N_pi+"] = ( (f_pi2 * G_F2 * k_pi / (4. * pi * m_C2)) *
-                          (  pow2(O11L+O11R) * ( pow2(m_C2-m_N2) - m_pi2*pow2(m_C-m_N) ) 
+                          (  pow2(O11L+O11R) * ( pow2(m_C2-m_N2) - m_pi2*pow2(m_C-m_N) )
                            + pow2(O11L-O11R) * ( pow2(m_C2-m_N2) - m_pi2*pow2(m_C+m_N) ) ) );
       }
 
@@ -2393,13 +2436,13 @@ namespace Gambit
       {
         // Define a helper function
         std::function<std::complex<double>(double)> F = [&beta,&m_rho_02,&gamma_rho_0,&m_rho_prime2,&gamma_rho_prime](double q2)
-        { 
+        {
           return (BW(q2, m_rho_02, sqrt(q2)*gamma_rho_0) + beta*BW(q2, m_rho_prime2, sqrt(q2)*gamma_rho_prime)) / (1. + beta);
         };
 
         // Integrand
         std::function<double(double)> N_2pi_integrand = [&F,&m_N,&m_C,&m_N2,&m_C2,&m_pi2,&O11L,&O11R,&O11L2,&O11R2](double q2)
-        { 
+        {
           return pow2(std::abs(F(q2))) * pow(1. - 4*m_pi2/q2,1.5) * sqrt_lambda(m_C2,m_N2,q2)
                       * ( (O11L2+O11R2)*( q2*(m_C2+m_N2-2*q2) + pow2(m_C2-m_N2) ) - (12*O11L*O11R*q2*m_C*m_N) );
         };
@@ -2412,14 +2455,14 @@ namespace Gambit
       }
 
       //
-      // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0 pi0  
+      // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0 pi0
       //
       partial_widths["N_pi+_pi0_pi0"] = 0.0;
       if (delta_m > 3*m_pi)
       {
         // Define a helper function
         std::function<double(double)> g = [&m_pi,&m_pi2,&m_rho_0](double q2)
-        { 
+        {
           double res = 0.0;
           if (q2 < pow2(m_rho_0 + m_pi))
             res = 4.1 * pow3(q2-9*m_pi2) * (1. - 3.3*(q2-9*m_pi2) + 5.8*pow2(q2-9*m_pi2));
@@ -2434,12 +2477,12 @@ namespace Gambit
 
         // Integrand
         std::function<double(double)> N_3pi_integrand = [&g,&m_N,&m_C,&m_N2,&m_C2,&O11L,&O11R,&O11L2,&O11R2,&f_pi2,&m_a,&gamma_a](double q2)
-        { 
+        {
           double BW_imag_term = m_a * gamma_a * g(q2)/g(pow2(m_a));
 
-          return sqrt_lambda(m_C2,m_N2,q2) * pow2(std::abs(BW(q2,pow2(m_a),BW_imag_term))) * g(q2) 
+          return sqrt_lambda(m_C2,m_N2,q2) * pow2(std::abs(BW(q2,pow2(m_a),BW_imag_term))) * g(q2)
                    * ( (O11L2 + O11R2)*(m_C2 + m_N2 - 2*q2 + pow2(m_C2-m_N2)/q2 )
-                       - 12*O11L*O11R*m_C*m_N ); 
+                       - 12*O11L*O11R*m_C*m_N );
         };
 
         // Perform integration
@@ -2457,9 +2500,9 @@ namespace Gambit
       partial_widths["N_pi+_pi+_pi-"] = partial_widths["N_pi+_pi0_pi0"];
 
 
-      // 
+      //
       // Store results
-      // 
+      //
       result.calculator = "GAMBIT::DecayBit";
       result.calculator_version = gambit_version();
 
@@ -2548,7 +2591,7 @@ namespace Gambit
     }
 
 
-    /// MSSM decays: stau decays for small stau--neutralino mass splitting. 
+    /// MSSM decays: stau decays for small stau--neutralino mass splitting.
     /// Using results from T. Jittoh, J. Sato, T. Shimomura, M. Yamanaka, Phys. Rev. D73 (2006), hep-ph/0512197
     void stau_1_decays_smallsplit(DecayTable::Entry& result)
     {
@@ -2582,7 +2625,7 @@ namespace Gambit
       // Stau--neutralino mass difference
       double delta_m = m_stau - m_N;
 
-      // If the stau--neutralino mass difference is large, 
+      // If the stau--neutralino mass difference is large,
       // the calculations in this module function should not be used.
       // Return empty result.
       if (delta_m > 2.5)
@@ -2591,9 +2634,9 @@ namespace Gambit
         return;
       }
 
-      // 
+      //
       // Get constants and parameters
-      // 
+      //
 
       // SM parameters
       const double G_F = *Param["GF"];
@@ -2608,7 +2651,7 @@ namespace Gambit
       const double m_pi = meson_masses.pi_plus;
       const double f_pi = meson_decay_constants.pi_plus;
       const double CKM_lambda = *Param["CKM_lambda"];
-      const double costc = 1. - 0.5*pow2(CKM_lambda); // cos(theta_Cabibbo) 
+      const double costc = 1. - 0.5*pow2(CKM_lambda); // cos(theta_Cabibbo)
 
       // MSSM parameters
       const double tanb = mssm.safeget(Par::dimensionless,"tanbeta");
@@ -2628,11 +2671,11 @@ namespace Gambit
       // Map to store partial width results
       std::map<str,double> partial_widths;
 
-      // 
+      //
       // Channel: ~tau_1- --> ~chi0_1 tau-
-      // 
+      //
       std::function<double()> width_N_tau = [&m_stau,&m_N,&m_tau,&gL,&gR]()
-      { 
+      {
         double width = 0.0;
         if (m_stau > m_N + m_tau)
         {
@@ -2646,11 +2689,11 @@ namespace Gambit
       partial_widths["N_tau-"] = width_N_tau();
 
 
-      // 
+      //
       // Channel: ~tau_1- --> ~chi0_1 pi- nutau
-      // 
+      //
       std::function<double()> width_N_pi_nu = [&m_stau,&m_N,&m_tau,&m_pi,&gL,&gR,&w_tau,&G_F,&f_pi,&costc]()
-      { 
+      {
         double width = 0.0;
 
         if (m_stau > m_N + m_pi)
@@ -2671,7 +2714,7 @@ namespace Gambit
 
           // Split integration by hand to avoid pole
           double I;
-          if(dm < m_tau) 
+          if(dm < m_tau)
             I = integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
           else
           {
@@ -2690,11 +2733,11 @@ namespace Gambit
       partial_widths["N_pi-_nutau"] = width_N_pi_nu();
 
 
-      // 
+      //
       // Channel: ~tau_1- --> ~chi0_1 l- nubarl nutau
-      // 
+      //
       std::function<double(double)> width_N_l_nubar_nu = [&m_stau,&m_N,&m_tau,&gL,&gR,&w_tau,&G_F](double m_l)
-      { 
+      {
         double width = 0.0;
 
         if (m_stau > m_N + m_l)
@@ -2715,7 +2758,7 @@ namespace Gambit
 
           // Split integration by hand to avoid pole
           double I;
-          if(dm < m_tau) 
+          if(dm < m_tau)
             I = integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
           else
           {
@@ -2735,9 +2778,9 @@ namespace Gambit
       partial_widths["N_mu-_nubarmu_nutau"] = width_N_l_nubar_nu(m_mu);
 
 
-      // 
+      //
       // Store results
-      // 
+      //
       result.calculator = "GAMBIT::DecayBit";
       result.calculator_version = gambit_version();
 
@@ -2836,7 +2879,135 @@ namespace Gambit
 
       // Make sure the width is sensible.
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
-   }
+    }
+
+    //////////// Vector DM /////////////////////
+
+    /// Add the decay of Higgs to vectors for the VectorDM model (see arXiv:1512.06458v4)
+    void VectorDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::VectorDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::VectorDM_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"V");
+      double lambda = he.get(Par::dimensionless,"lambda_hV");
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> VV width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double midfactor = (1 - 4*massratio2 + 12*pow(massratio2,2));
+      double gamma = (2.0*mass <= mhpole) ? ((pow(lambda*v0,2)*pow(mhpole,3))/(128.0*pi*pow(mass,4))) * midfactor * sqrt(1.0 - 4.0*massratio2) : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> VV width for debugging
+      logger() << "Gamma (h -> VV) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->VV branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "V", "V");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    //////////// Majorana fermion DM /////////////////////
+
+    /// Add the decay of Higgs to Majorana fermions for the MajoranaDM model (see arXiv:1512.06458v4)
+    void MajoranaDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::MajoranaDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::MajoranaDM_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"X");
+      double lambda = he.get(Par::dimensionless,"lX");
+      double cxi = std::cos(he.get(Par::dimensionless,"xi"));
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> XX width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double lfactor = (1 - 4*massratio2*pow(cxi,2));
+      double gamma = (2.0*mass <= mhpole) ? ((mhpole*pow(v0*lambda,2))/(16.0*pi)) * sqrt(1.0 - 4.0*massratio2) * lfactor : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> XX width for debugging
+      logger() << "Gamma (h -> XX) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->XX branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "X", "X");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    //////////// Dirac fermion DM /////////////////////
+
+    /// Add the decay of Higgs to Dirac fermions for the DiracDM model (see arXiv:1512.06458v4)
+    void DiracDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::DiracDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::DiracDM_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"F");
+      double lambda = he.get(Par::dimensionless,"lF");
+      double cxi = std::cos(he.get(Par::dimensionless,"xi"));
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> FF width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double lfactor = (1 - 4*massratio2*pow(cxi,2));
+      double gamma = (2.0*mass <= mhpole) ? ((mhpole*pow(v0*lambda,2))/(8.0*pi)) * sqrt(1.0 - 4.0*massratio2) * lfactor : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> FF width for debugging
+      logger() << "Gamma (h -> FF) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->FF branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "F", "F");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
 
 
     //////////// Everything ///////////////////
@@ -2878,6 +3049,8 @@ namespace Gambit
       // MSSM-specific
       if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
       {
+
+        static bool allow_stable_charged_particles = runOptions->getValueOrDef<bool>(false, "allow_stable_charged_particles");
 
         // Make sure that if the user has elected to take Higgs decays from FeynHiggs that
         // they have elected to take the Higgs mass from FeynHiggs alone.
@@ -2958,9 +3131,54 @@ namespace Gambit
         if (runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
         {
           // Spit out the full decay table in SLHA1 and SLHA2 formats.
+          str prefix   = runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
           str filename = runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
-          decays.writeSLHAfile(1,filename+".slha1",false,psn);
-          decays.writeSLHAfile(2,filename+".slha2",false,psn);
+          decays.writeSLHAfile(1,prefix+filename+".slha1",false,psn);
+          decays.writeSLHAfile(2,prefix+filename+".slha2",false,psn);
+        }
+
+        /// Invalidate MSSM points that have a stable charged particle?
+        if (not allow_stable_charged_particles)
+        {
+          static const double lifetime_universe = 4.35e17; // [seconds]
+
+          // Create vector with names of all charged partices
+          static const std::vector<str> charged_particle_names = {
+            "H+", "~chi+_1", "~chi+_2",
+            psn.ist1, psn.ist2,
+            psn.isb1, psn.isb2,
+            psn.isul, psn.isur,
+            psn.isdl, psn.isdr,
+            psn.iscl, psn.iscr,
+            psn.issl, psn.issr,
+            psn.isell, psn.iselr,
+            psn.ismul, psn.ismur,
+            psn.istau1, psn.istau2
+          };
+
+          // Check lifetime for each charged particle
+          for (auto& particle_name : charged_particle_names)
+          {
+            double width = decays(particle_name).width_in_GeV;
+            if (width <= 0 || hbar/width > lifetime_universe)
+            {
+              std::stringstream msg;
+              msg << "Charged particle " << particle_name << " is stable. Decay width = " << width << " GeV.";
+              invalid_point().raise(msg.str());
+            }
+          }
+        }
+
+        /// Check all particles for negative decay width
+        for (auto& map_entry : decays.particles)
+        {
+          double width = map_entry.second.width_in_GeV;
+          if (width < 0)
+          {
+              std::stringstream msg;
+              msg << "Particle " << map_entry.first.first << " has a negative width = " << width << " GeV.";
+              invalid_point().raise(msg.str());
+          }
         }
 
       }
@@ -3062,15 +3280,296 @@ namespace Gambit
       return daFunk::interp("BR", table["BR"], table["Delta_chi2"]);
     }
 
-    /// Implemented: Belanger et al. 2013, arXiv:1306.2941
-    void lnL_Higgs_invWidth_SMlike(double& result)
+    void SingletDM_inv_Higgs_BF(double& BF)
     {
+       /**
+          @brief Branching fraction for Higgs into singlet DM
+          @param BF \f$\textrm{BR}(h\to S S)\f$
+       */
+       using namespace Pipes::SingletDM_inv_Higgs_BF;
+       BF = Dep::Higgs_decay_rates->BF("S", "S");
+    }
+
+    void MSSM_inv_Higgs_BF(double &BF)
+    {
+      /**
+         @brief Branching fraction for Higgs into pair of lightest neutralinos
+
+         @warning Tree-level formulas
+         @warning Assumes decoupling limit for Higgs mixing angle
+         \f[
+         \alpha = \beta - \frac12 \pi
+         \f]
+         @warning Only includes neutralinos, charginos and SM-like width in
+         total width
+
+         @param BF \f$\textrm{BR}(h\to\chi^0_1\chi^0_1)\f$
+      */
+      using namespace Pipes::MSSM_inv_Higgs_BF;
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      const SubSpectrum& MSSM = Dep::MSSM_spectrum->get_HE();
+      const SMInputs& SM = Dep::MSSM_spectrum->get_SMInputs();
+
+      // Neutralino masses with phases
+      std::array<double, 4> m_0;
+      for (int i = 0; i <= 3; i += 1)
+      {
+        m_0[i] = spec.get(Par::Pole_Mass, "~chi0", i + 1);
+      }
+
+      // Neutralino mixing matrix
+      std::array<std::array<double, 4>, 4> Z;
+      for (int i = 0; i <= 3; i += 1)
+      {
+        for (int j = 0; j <= 3; j += 1)
+        {
+          Z[i][j] = MSSM.get(Par::Pole_Mixing, "~chi0", i + 1, j + 1);
+        }
+      }
+
+      // Chargino masses
+      std::array<double, 2> m_pm;
+      for (int i = 0; i <= 1; i += 1)
+      {
+        m_pm[i] = spec.get(Par::Pole_Mass, "~chi+", i + 1);
+      }
+
+      // Chargino mixing matrices
+      std::array<std::array<double, 2>, 2> U, V;
+      for (int i = 0; i <= 1; i += 1)
+      {
+        for (int j = 0; j <= 1; j += 1)
+        {
+          U[i][j] = MSSM.get(Par::Pole_Mixing, "~chi-", i + 1, j + 1);
+          V[i][j] = MSSM.get(Par::Pole_Mixing, "~chi+", i + 1, j + 1);
+        }
+      }
+
+      // SM parameters
+      const double mh = MSSM.get(Par::Pole_Mass, "h0_1");
+      const double mw = MSSM.get(Par::Pole_Mass, "W+");
+      const double GF = SM.GF;
+      const double sw2 = MSSM.safeget(Par::dimensionless, "sinW2");
+
+      // Higgs mixing angle
+      const double beta = atan(MSSM.safeget(Par::dimensionless, "tanbeta"));
+      const double alpha = beta - 0.5 * pi;
+
+      // Higgs invisible width
+      double gamma_inv = 0.;
+      try
+      {
+        gamma_inv = MSSM_H::gamma_h_chi_0(0, 0, m_0, Z, alpha, mh, mw, GF, sw2);
+      }
+      catch (const std::invalid_argument& e)
+      {
+        DecayBit_error().raise(LOCAL_INFO, e.what());
+      }
+
+      // SM-like Higgs width
+      DecayTable::Entry SM_h;
+      compute_SM_higgs_decays(SM_h, mh);
+      const double gamma_SM = SM_h.width_in_GeV;
+
+      // Width to neutralinos and charginos
+      double gamma_chi = 0.;
+      try
+      {
+        gamma_chi = MSSM_H::gamma_h_chi(m_pm, m_0, U, V, Z, alpha, mh, mw, GF, sw2);
+      }
+      catch (const std::invalid_argument& e)
+      {
+        DecayBit_error().raise(LOCAL_INFO, e.what());
+      }
+
+      // Total Higgs width
+      double gamma_tot = gamma_SM + gamma_chi;
+
+      BF = gamma_inv / gamma_tot;
+    }
+
+    void lnL_Higgs_invWidth_SMlike(double& lnL)
+    {
+      /**
+         @brief Log-likelihood for Higgs invisible branching ratio
+
+         We use log-likelihoods extracted from e.g.,
+         <a href="http://cms-results.web.cern.ch/cms-results/public-results/
+         preliminary-results/HIG-17-023/CMS-PAS-HIG-17-023_Figure_007-b.png">
+         CMS-PAS-HIG-17-023</a>
+
+         There are scripts
+         @code
+         python ./DecayBit/data/convolve_with_theory.py <file> <frac_error> <min> <max>
+         @endcode
+         for convolving a data file with a fractional theory error, and
+         @code
+         python ./DecayBit/data/profile_theory.py <file> <frac_error> <min> <max>
+         @endcode
+         for profiling a fractional theory error.
+
+         There are a few data files, e.g.,
+         @code
+         ./DecayBit/data/arXiv_1306.2941_Figure_8.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_convolved.dat
+         ./DecayBit/data/CMS-PAS-HIG-17-023_Figure_7-b_10_profiled.dat
+         @endcode
+         The first one is the default. The third and fourth ones include a 10%
+         theory uncertainty in the branching fraction by convolving it and
+         profiling it, respectively. The data file is specified in
+         the YAML by the `BR_h_inv_chi2_data_file` option. The path is
+         relative to the GAMBIT directory, `GAMBIT_DIR`.
+
+         @warning This typically assumes that the Higgs is otherwise SM-like,
+         i.e., no changes to production cross sections or any other decays.
+
+         @param lnL Log-likelihood for Higgs invisible branching ratio
+      */
       using namespace Pipes::lnL_Higgs_invWidth_SMlike;
-      double BF = Dep::Higgs_decay_rates->BF("S","S");
-      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/DecayBit/data/GammaInv_SM_higgs_DeltaChi2.dat");
+
+      const double BF = *Dep::inv_Higgs_BF;
+
+      if (BF < 0.)
+      {
+        DecayBit_error().raise(LOCAL_INFO, "negative BF");
+      }
+
+      const std::string default_name = "./DecayBit/data/arXiv_1306.2941_Figure_8.dat";
+      const std::string name = runOptions->getValueOrDef<std::string>
+        (default_name, "BR_h_inv_chi2_data_file");
+      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/" + name);
+      lnL = -0.5 * chi2->bind("BR")->eval(BF);
+    }
+
+    void lnL_Z_inv_MSSMlike(double& lnL)
+    {
+      /**
+         @brief Log-likelihood from LEP measurements of \f$Z\f$-boson invisible
+         width
+
+         @warning This is for MSSM-like models with Z-boson invisible decays
+         to neutralinos and neutrinos
+
+         @param lnL Log-likelihood
+      */
+      using namespace Pipes::lnL_Z_inv_MSSMlike;
+      const triplet<double> gamma_nu = *Dep::Z_gamma_nu;
+      const triplet<double> gamma_chi_0 = *Dep::Z_gamma_chi_0;
+      const double gamma_inv = gamma_chi_0.central + gamma_nu.central;
+      // Average + and - errors
+      const double tau_nu = 0.5 * (gamma_nu.upper + gamma_nu.lower);
+      const double tau_chi_0 = 0.5 * (gamma_chi_0.upper + gamma_chi_0.lower);
+      // Add theory errors in quadrature
+      const double tau = std::sqrt(pow(tau_nu, 2) + pow(tau_chi_0, 2));
+      lnL = Stats::gaussian_loglikelihood(gamma_inv, SM_Z::gamma_inv.mu,
+        tau, SM_Z::gamma_inv.sigma, false);
+    }
+
+    // Implemented: Belanger et al. 2013, arXiv:1306.2941
+    void lnL_Higgs_invWidth_SMlike_VDM(double& result)
+    {
+      using namespace Pipes::lnL_Higgs_invWidth_SMlike_VDM;
+      double BF = Dep::Higgs_decay_rates->BF("V","V");
+      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/DecayBit/data/arXiv_1306.2941_Figure_8.dat");
       result = (BF > 0.0) ? -chi2->bind("BR")->eval(BF)*0.5 : -0.0;
     }
 
-  }
+    // Implemented: Belanger et al. 2013, arXiv:1306.2941
+    void lnL_Higgs_invWidth_SMlike_MDM(double& result)
+    {
+      using namespace Pipes::lnL_Higgs_invWidth_SMlike_MDM;
+      double BF = Dep::Higgs_decay_rates->BF("X","X");
+      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/DecayBit/data/arXiv_1306.2941_Figure_8.dat");
+      result = (BF > 0.0) ? -chi2->bind("BR")->eval(BF)*0.5 : -0.0;
+    }
 
-}
+    // Implemented: Belanger et al. 2013, arXiv:1306.2941
+    void lnL_Higgs_invWidth_SMlike_DDM(double& result)
+    {
+      using namespace Pipes::lnL_Higgs_invWidth_SMlike_DDM;
+      double BF = Dep::Higgs_decay_rates->BF("F","F");
+      static daFunk::Funk chi2 = get_Higgs_invWidth_chi2(GAMBIT_DIR "/DecayBit/data/arXiv_1306.2941_Figure_8.dat");
+      result = (BF > 0.0) ? -chi2->bind("BR")->eval(BF)*0.5 : -0.0;
+    }
+
+    void Z_gamma_nu_SM_2l(triplet<double>& gamma)
+    {
+      /**
+         @brief Calculate width of \f$Z\f$ decays to neutrinos,
+         \f$\Gamma(Z\to\nu\nu)\f$ at two-loop in GeV
+
+         @warning This uses input \f$\alpha(M_Z)\f$ - does not include input
+         light-quark thresholds.
+
+         @param gamma \f$\Gamma(Z\to\chi\chi)\f$
+      */
+      using namespace Pipes::Z_gamma_nu_SM_2l;
+
+      const SMInputs& SM = Dep::SM_spectrum->get_SMInputs();
+
+      // Construct SM Z two-loop object
+      const double mh_OS = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
+      const double MZ = Dep::SM_spectrum->get(Par::Pole_Mass, "Z0");
+      auto Z = SM_Z::TwoLoop(mh_OS, SM.mT, MZ, SM.alphaS, delta_alpha_OS);
+
+      if (Z.nuisances_outside_ranges())
+      {
+        DecayBit_warning().raise(LOCAL_INFO, "SM nuisance parameters outside "
+          "range of validity for two-loop Z formulas. Not accounting for "
+          "variation in SM nuisance parameters");
+      }
+
+      // Set elements of triplet to the width and its error
+      gamma.central = Z.gamma_inv();
+      gamma.lower = Z.error_gamma_inv();
+      gamma.upper = gamma.lower;  // Error is symmetric
+    }
+
+    void Z_gamma_chi_0_MSSM_tree(triplet<double>& gamma)
+    {
+      /**
+         @brief Calculate width of \f$Z\f$ decays to the lightest neutralinos,
+         \f$\Gamma(Z\to\chi^0_1\chi^0_1)\f$ in GeV
+
+         @warning Tree-level formula with 10% error
+
+         @param gamma \f$\Gamma(Z\to\chi^0_1\chi^0_1)\f$
+      */
+      using namespace Pipes::Z_gamma_chi_0_MSSM_tree;
+
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      const SubSpectrum& MSSM = Dep::MSSM_spectrum->get_HE();
+      const SMInputs& SM = Dep::MSSM_spectrum->get_SMInputs();
+
+      // Neutralino masses without phases
+      std::array<double, 4> m_0;
+      for (int i = 0; i <= 3; i += 1)
+      {
+        m_0[i] = std::fabs(spec.get(Par::Pole_Mass, "~chi0", i + 1));
+      }
+
+      // Neutralino mixing matrix
+      std::array<std::array<double, 4>, 4> Z;
+      for (int i = 0; i <= 3; i += 1)
+      {
+        for (int j = 0; j <= 3; j += 1)
+        {
+          Z[i][j] = MSSM.get(Par::Pole_Mixing, "~chi0", i + 1, j + 1);
+        }
+      }
+
+      // SM nuisance parameters
+      const double g2 = MSSM.safeget(Par::dimensionless, "g2");
+      const double sw2 = MSSM.safeget(Par::dimensionless, "sinW2");
+      const double MZ = SM.mZ;
+
+      // Set elements of triplet to the width and its error
+      gamma.central = MSSM_Z::gamma_chi_0(0, 0, m_0, Z, g2, MZ, sw2);
+      gamma.lower = gamma.central * 0.1;
+      gamma.upper = gamma.lower;  // Error is symmetric
+    }
+
+  }  // namespace DecayBit
+
+}  // namespace Gambit

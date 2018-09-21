@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Core-only functions for triggering 
+///  Core-only functions for triggering
 ///  initialisation code.
 ///
 ///  *********************************************
@@ -12,19 +12,19 @@
 ///
 ///  (add name and date if you modify)
 ///
-///  \author Pat Scott 
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Feb
 ///
 ///  *********************************************
 
-#include "gambit/Elements/ini_functions.hpp"
 #include "gambit/Core/ini_functions.hpp"
 #include "gambit/Core/core_singleton.hpp"
+#include "gambit/Elements/ini_catch.hpp"
 
 namespace Gambit
 {
-    
+
   /// Register a module with the Core.
   int register_module(str module)
   {
@@ -44,7 +44,7 @@ namespace Gambit
       Core().registerModuleFunctor(f);
     }
     catch (std::exception& e) { ini_catch(e); }
-    return 0;    
+    return 0;
   }
 
   /// Register a model functor with the Core.
@@ -55,7 +55,7 @@ namespace Gambit
       Core().registerPrimaryModelFunctor(primary_parameters);
     }
     catch (std::exception& e) { ini_catch(e); }
-    return 0;    
+    return 0;
   }
 
   /// Register a backend with the Core
@@ -66,9 +66,9 @@ namespace Gambit
       Core().registerBackend(be, ver);
     }
     catch (std::exception& e) { ini_catch(e); }
-    return 0;    
+    return 0;
   }
-  
+
   /// Register a backend functor with the Core
   int register_backend_functor(functor& f)
   {
@@ -77,9 +77,9 @@ namespace Gambit
       Core().registerBackendFunctor(f);
     }
     catch (std::exception& e) { ini_catch(e); }
-    return 0;    
+    return 0;
   }
-  
+
     /// Register a loop management requirement with the Core
   int register_management_req(module_functor_common& f)
   {
@@ -88,7 +88,7 @@ namespace Gambit
       Core().registerNestedModuleFunctor(f);
     }
     catch (std::exception& e) { ini_catch(e); }
-    return 0;    
+    return 0;
   }
 
 }

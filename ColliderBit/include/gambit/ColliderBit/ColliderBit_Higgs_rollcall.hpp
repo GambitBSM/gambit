@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Rollcall header for ColliderBit module.
+///  Rollcall header for ColliderBit module Higgs functions.
 ///
 ///  *********************************************
 ///

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:10:28
+// File generated at Thu 10 May 2018 14:42:26
 
 #include "SingletDMZ3_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -40,9 +40,9 @@ double SingletDMZ3_susy_parameters::calc_beta_LamSH_1_loop(const Susy_traces& su
 
    double beta_LamSH;
 
-   beta_LamSH = Re(0.1*LamSH*oneOver16PiSqr*(-9*Sqr(g1) + 5*(4*(3*LamH +
-      LamS + LamSH + 3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu) - 9*Sqr(g2
-      ))));
+   beta_LamSH = Re(0.1*LamSH*oneOver16PiSqr*(20*(3*LamH + LamS + LamSH +
+      3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu) - 9*Sqr(g1) - 45*Sqr(g2))
+      );
 
 
    return beta_LamSH;
@@ -66,9 +66,9 @@ double SingletDMZ3_susy_parameters::calc_beta_LamSH_2_loop(const Susy_traces& su
 
    double beta_LamSH;
 
-   beta_LamSH = Re(-0.0025*LamSH*twoLoop*(-1671*Quad(g1) - 10*Sqr(g1)*(2*
-      (144*LamH + 6*LamSH + 25*traceYdAdjYd + 75*traceYeAdjYe + 85*traceYuAdjYu
-      ) + 45*Sqr(g2)) + 25*(145*Quad(g2) - 12*(48*LamH + 2*LamSH + 5*(3*
+   beta_LamSH = Re(0.0025*LamSH*twoLoop*(1671*Quad(g1) + 10*Sqr(g1)*(2*(
+      144*LamH + 6*LamSH + 25*traceYdAdjYd + 75*traceYeAdjYe + 85*traceYuAdjYu)
+      + 45*Sqr(g2)) - 25*(145*Quad(g2) - 12*(48*LamH + 2*LamSH + 5*(3*
       traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu))*Sqr(g2) + 4*(24*LamS*LamSH
       + 24*LamSH*traceYdAdjYd + 54*traceYdAdjYdYdAdjYd + 84*
       traceYdAdjYuYuAdjYd + 8*LamSH*traceYeAdjYe + 18*traceYeAdjYeYeAdjYe + 24*

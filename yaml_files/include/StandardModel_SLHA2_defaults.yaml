@@ -8,42 +8,37 @@
 ## These values are all FIXED. To vary e.g., m_top, or just use different
 ## fixed values, you should create (and include) a new version of this file.
 ##
-## Values from PDG 2014
-##  * from http://pdg.lbl.gov/2014/reviews/rpp2014-rev-standard-model.pdf
-## ** from http://pdg.lbl.gov/2014/reviews/rpp2014-rev-phys-constants.pdf
-##  § from http://pdg.lbl.gov/2014/tables/rpp2014-sum-leptons.pdf
-##  @ from http://pdg.lbl.gov/2014/tables/rpp2014-sum-quarks.pdf
-##    (for reference: http://pdg.lbl.gov/2014/reviews/rpp2014-rev-quark-masses.pdf)
-##  $ from http://arxiv.org/abs/1403.4427
-##  ! from http://pdg.lbl.gov/2014/listings/rpp2014-list-z-boson.pdf
-##  & from http://pdg.lbl.gov/2014/listings/rpp2014-list-b-quark.pdf
-##  % from http://pdg.lbl.gov/2014/listings/rpp2014-list-c-quark.pdf
-##  ^ from http://pdg.lbl.gov/2014/reviews/rpp2014-rev-qcd.pdf
+## Values from PDG 2017
+##  # from http://pdg.lbl.gov/2017/mobile/summary-tables/pdf/rpp2017-sum-quarks-m.pdf
+##    (for reference: http://pdg.lbl.gov/2017/reviews/rpp2017-rev-quark-masses.pdf)
+##  & from http://pdg.lbl.gov/2017/tables/rpp2017-sum-leptons.pdf
+##  @ from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-qcd.pdf
+##  ! from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-standard-model.pdf
+##  $ from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-top-quark.pdf
 ##
 ## If more than one source is listed, values are equal in both sources.
 ## Values in GeV where units apply.
 ###########################################################################
 
-
 # SLHA1
-alphainv:  1.27940010E+02 # alpha^{-1}(mZ)^MSbar *
-GF      :  1.16637870E-05 # G_Fermi **
-alphaS  :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
+alphainv:  1.27950010E+02 # alpha^{-1}(mZ)^MSbar !
+GF      :  1.16637870E-05 # G_Fermi !
+alphaS  :  1.18100000E-01 # alpha_s(mZ)^MSbar @
 mZ      :  9.11876000E+01 # mZ(pole) !
-mBmB    :  4.18000000E+00 # mb(mb)^MSbar &
+mBmB    :  4.18000000E+00 # mb(mb)^MSbar #
 mT      :  1.73340000E+02 # mtop(pole) $
-mTau    :  1.77682000E+00 # mtau(pole) §
+mTau    :  1.77686000E+00 # mtau(pole) &
 mNu3    :               0 # mnu3(pole)
 
 # SLHA2
-mE      :  5.10998928E-04 # melectron(pole) § **
+mE      :  5.10998946E-04 # melectron(pole) &
 mNu1    :               0 # mnu1(pole)
-mMu     :  1.05658372E-01 # mmuon(pole) §
+mMu     :  1.05658375E-01 # mmuon(pole) &
 mNu2    :               0 # mnu2(pole)
-mD      :  4.80000000E-03 # md(2 GeV)^MSbar @
-mU      :  2.30000000E-03 # mu(2 GeV)^MSbar @
-mS      :  9.50000000E-02 # ms(2 GeV)^MSbar @
-mCmC    :  1.27500000E+00 # mc(mc)^MSbar %
+mD      :  4.70000000E-03 # md(2 GeV)^MSbar #
+mU      :  2.20000000E-03 # mu(2 GeV)^MSbar #
+mS      :  9.60000000E-02 # ms(2 GeV)^MSbar #
+mCmC    :  1.28000000E+00 # mc(mc)^MSbar #
 
 # CKM
 # Wolfenstein parameterisation (matches SLHA2 VCKMIN block)

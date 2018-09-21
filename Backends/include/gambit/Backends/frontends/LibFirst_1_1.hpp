@@ -29,12 +29,12 @@
 LOAD_LIBRARY
 
 // Set models that this backend can be used with.  If absent, all models are allowed.
-BE_ALLOW_MODELS(CMSSM,SingletDMZ3,WC)
+BE_ALLOW_MODELS(NUHM1,SingletDMZ3,WC)
 
 // Functions
-BE_FUNCTION(initialize, void, (int), "_Z10initializei", "LibFirst_initialize_capability")
-BE_FUNCTION(someFunction, void, (), "_Z12someFunctionv", "someFunction", (CMSSM,WC))
-BE_FUNCTION(returnResult, double, (), "_Z12returnResultv","LibFirst_returnResult_capability")
+BE_FUNCTION(initialize, void, (int), "_Z10initializei", "initialize_capability")
+BE_FUNCTION(someFunction, void, (), "_Z12someFunctionv", "someFunction", (NUHM1,WC))
+BE_FUNCTION(returnResult, double, (), "_Z12returnResultv","returnResult_capability")
 BE_FUNCTION(byRefExample, double, (double&), "_Z12byRefExampleRd", "refex")
 BE_FUNCTION(byRefExample2, void, (double&, double), "_Z13byRefExample2Rdd", "refex2")
 BE_FUNCTION(nastyExample, double, (int, etc), "_Z12nastyExampleiz", "varex")
@@ -43,7 +43,7 @@ BE_FUNCTION(arrayarg_2D, double, (double(*)[10]), "_Z11arrayarg_2DPA10_d", "exam
 BE_FUNCTION(arrayarg_3D, double, (double(*)[10][10]), "_Z11arrayarg_3DPA10_A10_d", "example_be_array_3D")
 
 // Variables
-BE_VARIABLE(SomeInt, int, "someInt", "SomeInt", (CMSSM))
+BE_VARIABLE(SomeInt, int, "someInt", "SomeInt", (NUHM1))
 BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
 BE_VARIABLE(SomeArray, dblarr, "someArray", "SomeArray")
 BE_VARIABLE(SomeVector, std::vector<double>, "someVector", "test_vector")
@@ -52,7 +52,7 @@ BE_VARIABLE(SomeVector, std::vector<double>, "someVector", "test_vector")
 BE_INI_DEPENDENCY(nevents, int)
 
 // Convenience functions (registration)
-BE_CONV_FUNCTION(awesomenessByAnders, double, (int), "awesomeness", (CMSSM,SingletDM))
+BE_CONV_FUNCTION(awesomenessByAnders, double, (int), "awesomeness", (NUHM1,SingletDM))
 BE_CONV_FUNCTION(variadicConvenience, double, (int, etc), "varex2")
 
 // Initialisation function (definition)
@@ -85,7 +85,7 @@ BE_NAMESPACE
 
   double awesomenessByAnders(int a)
   {
-    logger().send("Message from 'awesomenessByAnders' backend convenience function in libfirst wrapper",LogTags::info);
+    logger().send("Message from 'awesomenessByAnders' backend convenience function in LibFirst v1.1 wrapper",LogTags::info);
     initialize(a);
     someFunction();
     return returnResult();

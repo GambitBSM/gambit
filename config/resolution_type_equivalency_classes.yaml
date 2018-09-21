@@ -39,6 +39,9 @@
 # Int to double triplet map
 ["std::map<int, triplet<double> >", map_int_triplet_dbl]
 
+#Int pair to double map
+["std::map< std::pair < int, int >", double> map_intpair_dbl]
+
 # Fortran data types
 [bool, Flogical, Flogical1]
 [char, Fcharacter]
@@ -65,7 +68,6 @@
 [const char, const MChar]
 [std::string, MString]
 [const std::string, const MString]
-
 
 # Neutrino yield function pointer
 ["double(*)(double&, int&, void*)", nuyield_functype]

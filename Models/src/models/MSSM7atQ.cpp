@@ -39,6 +39,9 @@
      // Gaugino masses
      double mz = Dep::SMINPUTS->mZ;
      double am1 = Dep::SMINPUTS->alphainv;
+     /// At tree level
+     /// 0.25* ( sin(2\theta_W) )^2 = pi / (root2*mz*mz*am1*Dep::SMINPUTS->GF)
+     /// solve quadratic eqn for (sin \theta_W)^2 = sin2thetaW_tree
      double sin2thetaW_tree = 0.5 - sqrt(0.25 - pi / (root2*mz*mz*am1*Dep::SMINPUTS->GF));
      targetP.setValue("M1", myP["M2"] * 5.0/3.0 * sin2thetaW_tree / (1.0-sin2thetaW_tree));
      targetP.setValue("M3", myP["M2"] * Dep::SMINPUTS->alphaS * am1 * sin2thetaW_tree);

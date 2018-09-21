@@ -24,10 +24,10 @@ void recursive_mkdir(const char *path)
                 if(*p == '/') {
                         *p = '\0';
                         if(access(opath, F_OK))
-                                mkdir(opath, S_IRWXU);
+                                mkdir(opath, ACCESSPERMS);
                         *p = '/';
                 }
         if(access(opath, F_OK))         /* if path is not terminated with / */
-                mkdir(opath, S_IRWXU);
+                mkdir(opath, ACCESSPERMS);
 }
 

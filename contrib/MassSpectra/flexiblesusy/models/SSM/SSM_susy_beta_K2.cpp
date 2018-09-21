@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:28
+// File generated at Thu 10 May 2018 14:43:15
 
 #include "SSM_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -40,9 +40,9 @@ double SSM_susy_parameters::calc_beta_K2_1_loop(const Susy_traces& susy_traces) 
 
    double beta_K2;
 
-   beta_K2 = Re(0.1*K2*oneOver16PiSqr*(-9*Sqr(g1) + 5*(4*(2*K2 + 6*
-      LambdaS + 3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu + 3*Lambdax) - 9
-      *Sqr(g2))));
+   beta_K2 = Re(0.1*K2*oneOver16PiSqr*(20*(2*K2 + 6*LambdaS + 3*
+      traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu + 3*Lambdax) - 9*Sqr(g1) -
+      45*Sqr(g2)));
 
 
    return beta_K2;

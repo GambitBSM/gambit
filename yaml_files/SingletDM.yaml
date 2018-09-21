@@ -191,16 +191,16 @@ Rules:
     options:
       fast: 1
 
-  # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
-  - capability: lnL_FermiLATdwarfs
-    function:  lnL_FermiLATdwarfs_gamLike
-
   # Choose to use DarkSUSY yield tables for indirect detection
   - capability: SimYieldTable
     function: SimYieldTable_DarkSUSY
     options:
       allow_yield_extrapolation: true
 
+  # Choose to use DarkSUSY for solar capture rate
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
+    
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_SingletDM

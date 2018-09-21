@@ -12,7 +12,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2014 Mar, 2016 Jan
@@ -36,9 +36,9 @@
 namespace Gambit
 {
   /// Forward declare minimial logging components needed to use logger
-  namespace Logging 
-  { 
-     class LogMaster; 
+  namespace Logging
+  {
+     class LogMaster;
      /// Special (empty) struct for signalling end of message to LogMaster stream
      struct endofmessage {};
 
@@ -52,7 +52,7 @@ namespace Gambit
      // Function to retrieve the 'components' set (needed by module and backend macros so they can add to it)
      std::set<int>& components();
 
-     // Typedefs for standard stream manpulators. We need stream operator overloads for all of them. 
+     // Typedefs for standard stream manpulators. We need stream operator overloads for all of them.
      typedef std::ostream& (*manip1)( std::ostream& );
      typedef std::basic_ios< std::ostream::char_type, std::ostream::traits_type > ios_type;
      typedef ios_type& (*manip2)( ios_type& );
@@ -75,6 +75,16 @@ namespace Gambit
      // will be able to stream into the loggers.
      template <typename TYPE>
      LogMaster& operator << (LogMaster& logobj, const TYPE& input)
+     {
+       using ::Gambit::operator<<; // Unhide operator overloads in Gambit scope
+       std::stringstream ss;
+       ss << input;
+       logobj << ss.str();
+       return logobj;
+     }
+     // Non-const copy
+     template <typename TYPE>
+     LogMaster& operator << (LogMaster& logobj, TYPE& input)
      {
        using ::Gambit::operator<<; // Unhide operator overloads in Gambit scope
        std::stringstream ss;

@@ -37,11 +37,7 @@ LOAD_LIBRARY
  * to the modules via the rollcall system */
 
 /* Syntax for BE_FUNCTION:
- * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
- *
- * The last argument (capability name) is optional.
- * If left out (as done below) it will default to "[backend name]_[function name]_capability"
- * (e.g. "LibFirst_initialize_capability")  */
+ * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
 
 BE_FUNCTION(initialize_HiggsSignals, void, (int&, int&, const char*), "initialize_higgssignals_", "initialize_HiggsSignals")
 BE_FUNCTION(initialize_HiggsSignals_latestresults, void, (int&, int&), "initialize_higgssignals_latestresults_", "initialize_HiggsSignals_latestresults")

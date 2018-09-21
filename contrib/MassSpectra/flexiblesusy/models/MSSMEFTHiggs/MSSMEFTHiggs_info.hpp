@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:13
+// File generated at Thu 10 May 2018 14:41:58
 
 #ifndef MSSMEFTHiggs_INFO_H
 #define MSSMEFTHiggs_INFO_H
@@ -89,8 +89,8 @@ namespace MSSMEFTHiggs_info {
       ImZUR2_0, ReZUR2_1, ImZUR2_1, ReZUR2_2, ImZUR2_2, ZZ0_0, ZZ0_1, ZZ1_0, ZZ1_1
       , NUMBER_OF_MIXINGS };
 
-   enum Input_parameters : int { SignMu, MSUSY, M1Input, M2Input, M3Input,
-      mHd2IN, mHu2IN, TanBeta, mq2Input0_0, mq2Input0_1, mq2Input0_2, mq2Input1_0,
+   enum Input_parameters : int { TanBeta, SignMu, MSUSY, M1Input, M2Input,
+      M3Input, mHd2IN, mHu2IN, mq2Input0_0, mq2Input0_1, mq2Input0_2, mq2Input1_0,
       mq2Input1_1, mq2Input1_2, mq2Input2_0, mq2Input2_1, mq2Input2_2,
       mu2Input0_0, mu2Input0_1, mu2Input0_2, mu2Input1_0, mu2Input1_1, mu2Input1_2
       , mu2Input2_0, mu2Input2_1, mu2Input2_2, md2Input0_0, md2Input0_1,

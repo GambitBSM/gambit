@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:00:38
+// File generated at Thu 10 May 2018 14:40:38
 
 #ifndef MSSMEFTHiggs_mAmu_EFFECTIVE_COUPLINGS_H
 #define MSSMEFTHiggs_mAmu_EFFECTIVE_COUPLINGS_H

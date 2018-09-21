@@ -14,6 +14,10 @@
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
 ///    \date 2014 Sep - Dec, 2015 Jan - Mar
+///  
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///    \date 2016 Aug
 ///
 ///  *********************************************
 
@@ -46,20 +50,23 @@ START_MODULE
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
 
+  /// Module function declarations for SpecBit_VectorDM.cpp
+  #include "gambit/SpecBit/SpecBit_VectorDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_MajoranaDM.cpp
+  #include "gambit/SpecBit/SpecBit_MajoranaDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_DiracDM.cpp
+  #include "gambit/SpecBit/SpecBit_DiracDM_rollcall.hpp"
+
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"
 
-  // Functions to changes the capability associated with a Spectrum object to "SM_spectrum"
-  ///TODO: CURRENTLY THERE SEEMS TO BE A BUG WITH RETRIEVING THESE DEPENDENCIES! SWITCHING BACK TO OLD METHOD
-  //QUICK_FUNCTION(SpecBit, SM_spectrum, NEW_CAPABILITY, convert_MSSM_to_SM,   Spectrum, (), (MSSM_spectrum, Spectrum))
-  //QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_NMSSM_to_SM,  Spectrum, (), (NMSSM_spectrum, Spectrum))
-  //QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_E6MSSM_to_SM, Spectrum, (), (E6MSSM_spectrum, Spectrum))
-
-  // Note: QUICK_FUNCTION usage:
-  // Arguments: MODULE, CAPABILITY, NEW_CAPABILITY_FLAG, FUNCTION, TYPE, (n x ALLOWED_MODEL), m x (DEPENDENCY, DEPENDENCY_TYPE)
-  //            The last two arguments are optional, and n and m can be anything from 0 to 10.
-  //
-  // equivalent to:
+  /// Functions to change the capability associated with a Spectrum object to "SM_spectrum"
+  /// @{
+  QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_MSSM_to_SM,  Spectrum, (MSSM63atQ, MSSM63atMGUT), (MSSM_spectrum, Spectrum))
+  QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_NMSSM_to_SM,  Spectrum, (NMSSM_does_not_exist_yet), (NMSSM_spectrum, Spectrum))
+  QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_E6MSSM_to_SM, Spectrum, (E6MSSM_does_not_exist_yet), (E6MSSM_spectrum, Spectrum))
   /// @}
 
   // 'Convenience' functions to retrieve certain particle properities in a simple format

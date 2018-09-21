@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 20:02:35
+// File generated at Thu 10 May 2018 14:42:18
 
 /**
  * @file MSSMEFTHiggs_cxx_diagrams.hpp
  *
- * This file was generated at Tue 9 Jan 2018 20:02:35 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:42:18 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSMEFTHiggs_CXXDIAGRAMS_H
@@ -915,7 +915,7 @@ Vertex<VP, conj<Se>::type, Se>::evaluate(const indices_type& indices, const Eval
    const auto ZE = MODELPARAMETER(ZE);
    const auto ThetaW = DERIVEDPARAMETER(ThetaW);
 
-   const std::complex<double> result = 0.5*(-((0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*SUM(j1,0,2,Conj(ZE(gt3,j1))*ZE(gt2,j1))) - 1.5491933384829668*g1*Cos(ThetaW)*SUM(j1,0,2,Conj(ZE(gt3,3 + j1))*ZE(gt2,3 + j1)));
+   const std::complex<double> result = -0.5*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*SUM(j1,0,2,Conj(ZE(gt3,j1))*ZE(gt2,j1)) - 0.7745966692414834*g1*Cos(ThetaW)*SUM(j1,0,2,Conj(ZE(gt3,3 + j1))*ZE(gt2,3 + j1));
 
    return vertex_type(result);
 }
@@ -1065,9 +1065,9 @@ Vertex<VP, bar<Cha>::type, Cha>::evaluate(const indices_type& indices, const Eva
    const auto UP = MODELPARAMETER(UP);
    const auto ThetaW = DERIVEDPARAMETER(ThetaW);
 
-   const std::complex<double> left = 0.5*(2*g2*Conj(UM(gt3,0))*Sin(ThetaW)*UM(gt2,0) + Conj(UM(gt3,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UM(gt2,1));
+   const std::complex<double> left = g2*Conj(UM(gt3,0))*Sin(ThetaW)*UM(gt2,0) + 0.5*Conj(UM(gt3,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UM(gt2,1);
 
-   const std::complex<double> right = 0.5*(2*g2*Conj(UP(gt2,0))*Sin(ThetaW)*UP(gt3,0) + Conj(UP(gt2,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UP(gt3,1));
+   const std::complex<double> right = g2*Conj(UP(gt2,0))*Sin(ThetaW)*UP(gt3,0) + 0.5*Conj(UP(gt2,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UP(gt3,1);
 
    return vertex_type(left, right);
 }

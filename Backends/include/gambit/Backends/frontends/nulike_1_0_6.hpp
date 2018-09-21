@@ -20,6 +20,7 @@
 ///  *********************************************
 
 #define BACKENDNAME nulike
+#define BACKENDLANG Fortran
 #define VERSION 1.0.6
 #define SAFE_VERSION 1_0_6
 

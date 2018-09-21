@@ -113,9 +113,9 @@ namespace Gambit
           else
           {
             if ( channel == "bb" ) return sv_ff(lambda, mass, v, mb, true);
-            if ( channel == "cc" ) return sv_ff(lambda, mass, v, mc, false);
+            if ( channel == "cc" ) return sv_ff(lambda, mass, v, mc, true);
             if ( channel == "tautau" ) return sv_ff(lambda, mass, v, mtau, false);
-            if ( channel == "tt" ) return sv_ff(lambda, mass, v, mt, false);
+            if ( channel == "tt" ) return sv_ff(lambda, mass, v, mt, true);
             if ( channel == "ZZ" ) return sv_ZZ(lambda, mass, v);
             if ( channel == "WW" ) return sv_WW(lambda, mass, v);
           }
@@ -222,7 +222,9 @@ namespace Gambit
       // Initialize empty catalog and main annihilation process
       TH_ProcessCatalog catalog;
       TH_Process process_ann("S", "S");
-
+      
+      // Explicitly state that Scalar DM is self-conjugate
+      process_ann.isSelfConj = true;
 
       ///////////////////////////////////////
       // Import particle masses and couplings

@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:35:40
+// File generated at Thu 10 May 2018 15:00:14
 
 /**
  * @file MSSMNoFV_a_muon.cpp
  *
- * This file was generated at Wed 25 Oct 2017 18:35:40 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 15:00:14 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #include "MSSMNoFV_a_muon.hpp"

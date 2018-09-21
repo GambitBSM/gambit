@@ -463,17 +463,15 @@ namespace Gambit
       if(missing_flag)
       {
         // Warn user of missing descriptions
-        std::ostringstream msg;
-        msg << "Descriptions are missing for the following models:" <<endl;
+        cout << "Descriptions are missing for the following models:" << endl;
         for (std::vector<model_info>::const_iterator it = model_dbase.begin(); it != model_dbase.end(); ++it)
         {
           if(not it->has_description)
           {
-            msg << "   " << it->name << endl;
+            cout << "   " << it->name << endl;
           }
         }
-        msg << "Please add descriptions of these to "<< input_model_descriptions << endl;
-        core_error().raise(LOCAL_INFO,msg.str());
+        cout << "Please add descriptions of these to "<< input_model_descriptions << endl;
       }
 
       // Write out the centralised database file containing all this information
@@ -500,24 +498,19 @@ namespace Gambit
     void gambit_core::check_capability_descriptions()
     {
 
-      if (missing_capability_description && !developer_mode)
+      if (missing_capability_description)
       {
-        std::ostringstream msg;
-        msg << "Descriptions are missing for the following capabilities:" <<endl;
+        cout << "Descriptions are missing for the following capabilities:" << endl;
         for (std::vector<capability_info>::const_iterator it = capability_dbase.begin(); it != capability_dbase.end(); ++it)
         {
           if(not it->has_description)
           {
-            msg << "   " << it->name << endl;
+            cout << "   " << it->name << endl;
           }
         }
-        msg << "Please add descriptions of these to "<< input_capability_descriptions << endl;
-        msg << "or temporarily run in developer mode with the --developer runtime option" << endl;
-        core_error().raise(LOCAL_INFO,msg.str());
+        cout << "Please add descriptions of these to "<< input_capability_descriptions << endl;
       }
     }
-
-
 
     /// Get the description of the named capability from the description database
     const capability_info gambit_core::get_capability_info(const str& name) const
@@ -605,7 +598,7 @@ namespace Gambit
           str x(GAMBIT_EXECUTABLE);
           int len = arg.length();
           int xlen = x.length();
-          if (len > xlen and arg.substr(len-xlen,len-1) == x)
+          if (len >= xlen and arg.substr(len-xlen,xlen) == x)
           {
             command = argv[i+1];
             break;

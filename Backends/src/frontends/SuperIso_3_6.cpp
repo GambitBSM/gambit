@@ -11,6 +11,7 @@
 /// \author Nazila Mahmoudi
 ///         (nazila@cern.ch)
 /// \date 2016 Jul
+/// \date 2018 Jan
 ///
 /// \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
@@ -28,8 +29,9 @@
 #include "gambit/Backends/frontends/SuperIso_3_6.hpp"
 #include "gambit/Backends/backend_types/SuperIso.hpp"
 
-/// Number of observables the SuperIso returns for B0 -> K*0 mu mu
+/// Number of observables the SuperIso returns for B0 -> K(*) mu mu
 #define Nobs_BKsll 30
+#define Nobs_BKll 2
 
 
 // Initialisation
@@ -104,6 +106,66 @@ BE_NAMESPACE
     return results;
   }
 
+  /// RK* observables
+  double RKstar_CONV(const parameters *param, double Q2_min, double Q2_max)
+  {
+    check_model(param, LOCAL_INFO);
+    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
+
+    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
+    double C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
+    std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
+    double obs[Nobs_BKsll+1];
+
+    double mu_W=2.*param->mass_W;
+    double mu_b=param->mass_b_pole;
+
+    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
+    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
+    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
+    modify_WC(param, C0b, CQ0b);
+
+    CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
+    C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
+    CQ_calculator(1,byVal(CQ0be),byVal(CQ1be),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(1,byVal(Cpbe),byVal(CQpbe),byVal(mu_W),byVal(mu_b),param);
+    modify_WC(param, C0be, CQ0be);
+
+    return BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKstarll(1,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
+  }
+  
+  /// RK observable
+  double RK_CONV(const parameters *param, double Q2_min, double Q2_max)
+  {
+    check_model(param, LOCAL_INFO);
+    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
+
+    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
+    double C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
+    std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
+    double obs[Nobs_BKll+1];
+
+    double mu_W=2.*param->mass_W;
+    double mu_b=param->mass_b_pole;
+
+    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
+    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
+    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
+    modify_WC(param, C0b, CQ0b);
+
+    CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
+    C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
+    CQ_calculator(1,byVal(CQ0be),byVal(CQ1be),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(1,byVal(Cpbe),byVal(CQpbe),byVal(mu_W),byVal(mu_b),param);
+    modify_WC(param, C0be, CQ0be);
+
+    return BRBKll(2,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKll(1,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
+  }
+  
   /// Branching fraction of B -> X_s gamma
   double bsgamma_CONV(const parameters *param, double E_t)
   {

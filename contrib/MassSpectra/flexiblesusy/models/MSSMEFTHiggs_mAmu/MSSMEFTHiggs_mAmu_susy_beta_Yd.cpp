@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:59:46
+// File generated at Thu 10 May 2018 14:39:54
 
 #include "MSSMEFTHiggs_mAmu_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -65,14 +65,13 @@ Eigen::Matrix<double,3,3> MSSMEFTHiggs_mAmu_susy_parameters::calc_beta_Yd_2_loop
    Eigen::Matrix<double,3,3> beta_Yd;
 
    beta_Yd = (twoLoop*(0.011111111111111112*Yd*(287*Quad(g1) + 2*Sqr(g1)*
-      (-18*traceYdAdjYd + 54*traceYeAdjYe + 45*Sqr(g2) + 40*Sqr(g3)) + 5*(135*
-      Quad(g2) + 144*Sqr(g2)*Sqr(g3) - 2*(27*(3*traceYdAdjYdYdAdjYd +
-      traceYdAdjYuYuAdjYd + traceYeAdjYeYeAdjYe) + 16*Quad(g3) - 144*
-      traceYdAdjYd*Sqr(g3)))) + (-3*(3*traceYdAdjYd + traceYeAdjYe) + 0.8*Sqr(
-      g1) + 6*Sqr(g2))*(Yd*Yd.adjoint()*Yd) + (-3*traceYuAdjYu + 0.8*Sqr(g1))*(
-      Yd*Yu.adjoint()*Yu) - 4*(Yd*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 2*(Yd*
-      Yu.adjoint()*Yu*Yd.adjoint()*Yd) - 2*(Yd*Yu.adjoint()*Yu*Yu.adjoint()*Yu)
-      )).real();
+      (-18*traceYdAdjYd + 54*traceYeAdjYe + 45*Sqr(g2) + 40*Sqr(g3)) + 5*(-54*(
+      3*traceYdAdjYdYdAdjYd + traceYdAdjYuYuAdjYd + traceYeAdjYeYeAdjYe) + 135*
+      Quad(g2) - 32*Quad(g3) + 288*traceYdAdjYd*Sqr(g3) + 144*Sqr(g2)*Sqr(g3)))
+      + (-3*(3*traceYdAdjYd + traceYeAdjYe) + 0.8*Sqr(g1) + 6*Sqr(g2))*(Yd*
+      Yd.adjoint()*Yd) + (-3*traceYuAdjYu + 0.8*Sqr(g1))*(Yd*Yu.adjoint()*Yu) -
+      4*(Yd*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 2*(Yd*Yu.adjoint()*Yu*
+      Yd.adjoint()*Yd) - 2*(Yd*Yu.adjoint()*Yu*Yu.adjoint()*Yu))).real();
 
 
    return beta_Yd;

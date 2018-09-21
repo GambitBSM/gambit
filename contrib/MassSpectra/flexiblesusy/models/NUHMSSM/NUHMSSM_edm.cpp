@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:39:51
+// File generated at Thu 10 May 2018 15:03:28
 
 /**
  * @file NUHMSSM_edm.cpp
  *
- * This file was generated at Wed 25 Oct 2017 18:39:51 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 15:03:28 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #include "NUHMSSM_edm.hpp"

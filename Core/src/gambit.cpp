@@ -31,7 +31,7 @@ void do_cleanup()
 {
   Gambit::Scanner::Plugins::plugin_info.dump(); // Also calls printer finalise() routine
 }
-\
+
 
 /// Main GAMBIT program
 int main(int argc, char* argv[])

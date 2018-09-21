@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:47
+// File generated at Thu 10 May 2018 14:43:29
 
 /**
  * @file SSM_edm.cpp
  *
- * This file was generated at Wed 25 Oct 2017 18:11:47 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:43:29 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #include "SSM_edm.hpp"

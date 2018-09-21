@@ -39,6 +39,26 @@ namespace Gambit
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
+  
+  /**
+     @brief Thomson limit of \f$\alpha_e\f$ in OS scheme from
+     <a href="http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf">PDG 2017</a>
+  */
+  constexpr double alpha_e_OS_thomson_limit = 0.0072973525664;
+  /**
+     @brief \f$\alpha_e(M_Z)\f$ in OS scheme from
+     <a href="https://arxiv.org/pdf/1105.3149.pdf">1105.3149</a>
+  */
+  constexpr double alpha_e_OS_MZ = 1. / 128.944;
+  /**
+     @brief \f$\Delta\alpha\f$ in OS scheme.
+
+     Defined by
+     \f[
+     \alpha(M_Z) = \frac{\alpha(0)}{1 - \Delta\alpha}
+     \f]
+  */
+  constexpr double delta_alpha_OS = 1. - alpha_e_OS_thomson_limit / alpha_e_OS_MZ;
 
   static const struct Mesons_masses
   {

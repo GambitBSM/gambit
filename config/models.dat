@@ -380,10 +380,6 @@ CMSSM: |
    SignMu       - the sign of the mu parameter
    TanBeta      - the ratio of the up-type to down-type Higgs vevs
 
-MSSM25atQ: |
-
-   As per the MSSM30atQ, but with first and second generation trilinear couplings degenerate in the slepton sector, and set to zero for squarks. This leaves:
-
 StandardModel_SLHA2: |
    Contains all SM parameters except the Higgs mass, which is separated out since this is often a prediction of BSM physics models. Models without their own Higgs sector can be scanned in tandem with an extra model that contains the Higgs mass as a parameter. The StandardModel_SLHA2 model contains the SM parameters that are defined in the SMINPUTS, VCKMIN and UPMNSIN blocks of the second SUSY Les Houches Accord (SLHA2):
 
@@ -479,3 +475,23 @@ SingletDM: |
 SingletDM_running: |
 
    The scalar singlet DM model with lambda_S (the scalar self-coupling), lambda_hS (the scalar-SM Higgs interaction strength) and mS (the mass of the new scalar) defined at the scale mZ as free parameters, allowing full calculation of pole masses, renormalisation group running and vacuum stability.
+
+VectorDM: |
+
+   The vector DM model, with two parameters mV (the mass of the vector DM), and lambda_hV, the strength of the vector DM interaction with the SM Higgs. Note that mV should either be interpreted as the tree level mass or directly as the pole mass for V. This is analogous to the treatment of the SM Higgs mass in the model StandardModel_Higgs.
+
+MajoranaDM: |
+
+   The Majorana fermion DM model, with three parameters mX (the mass of the Majorana fermion DM), lX = lambda_{hX}/Lambda_X where Lambda_X is the EFT cut-off scale, and xi is a mixing angle, controlling the interaction between the Majorana fermion DM and the SM Higgs.
+
+MajoranaDM_sps: |
+
+   Same as MajoranaDM, but specifying instead the scalar and pseudoscalar couplings lX_s and lX_ps of DM to the Higgs.
+
+DiracDM: |
+
+   The Dirac fermion DM model, with three parameters mF (the mass of the Dirac fermion DM), lF = lambda_{hF}/Lambda_F where Lambda_F is the EFT cut-off scale, and xi is a mixing angle, controlling the scalar-pseudoscalar interaction between the Dirac fermion DM and the SM Higgs.
+
+DiracDM_sps: |
+
+   Same as DiracDM, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.

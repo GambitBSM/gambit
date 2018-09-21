@@ -13,6 +13,10 @@
 ///          (jcornell@ucsc.edu)
 ///  \date 2014 Sep
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Aug
+///
 ///  *********************************************
 
 #ifndef __MicrOmegas_types_hpp__
@@ -23,6 +27,7 @@ namespace Gambit
     namespace MicrOmegas
     {
     typedef  struct { double par[36]; }  MOcommonSTR;
+    typedef  struct { double weight; char *prtcl[5];} aChannel;
     }
 }
 

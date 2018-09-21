@@ -178,7 +178,9 @@
 /// \link BACKEND_OPTION() BACKEND_OPTION\endlink, the rule defined by the latest call takes
 /// precedence.  Note that all rules have _immediate_ effect, so only apply to BACKEND_REQs
 /// of the current FUNCTION that have already been declared!
-#define BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)         CORE_BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)
+#define BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)         LONG_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS)
+#define LONG_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS) \
+                                                          CORE_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS)
 
 /// Define a rule that certain sets of backend requirements need to be resolved by the same backend.
 /// The sets are identified by tags, any number of which can be passed to FORCE_SAME_BACKEND.
@@ -260,8 +262,14 @@
         return local;                                                          \
       }                                                                        \
                                                                                \
+      /* Register the module error and warning objects by calling the          \
+         above functions. */                                                   \
+      error& temp_error_reference = CAT(MODULE,_error)();                      \
+      warning& temp_warning_reference = CAT(MODULE,_warning)();                \
+                                                                               \
       /* Register the module with the log system.  Not done for models. */     \
       const int log_registered = register_module_with_log(STRINGIFY(MODULE));  \
+                                                                               \
                                                                                \
       CORE_START_MODULE_COMMON(MODULE)                                         \
                                                                                \
@@ -1184,7 +1192,7 @@
 
 /// Redirection of BACKEND_OPTION(BACKEND_AND_VERSIONS, TAGS) when invoked from
 /// within the core.
-#define CORE_BACKEND_OPTION(BE_AND_VER,TAGS)                                   \
+#define CORE_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BE_AND_VER,TAGS)     \
                                                                                \
   IF_TOKEN_UNDEFINED(MODULE,FAIL("You must define MODULE before calling "      \
    "BACKEND_OPTION."))                                                         \

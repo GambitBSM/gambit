@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -178,6 +178,7 @@ namespace HEPUtils {
     }
 
     /// Set the p coordinates and energy simultaneously
+    /// @warning For numerical stability, prefer setPM when possible
     P4& setPE(double px, double py, double pz, double E) {
       if (E < 0)
         throw std::invalid_argument("Negative energy given as argument");
@@ -245,7 +246,7 @@ namespace HEPUtils {
       const double pz = sqrt_pt2_m2 * sinh(y);
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -284,7 +285,7 @@ namespace HEPUtils {
         throw std::invalid_argument("Negative transverse momentum in calculation");
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -304,8 +305,8 @@ namespace HEPUtils {
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
       const double pz = p * cos(theta);
-      const double E = sqrt( sqr(p) + sqr(mass) );
-      setPE(px, py, pz, E);
+      //const double E = sqrt( sqr(p) + sqr(mass) );
+      setPM(px, py, pz, mass);
       return *this;
     }
 
@@ -322,7 +323,7 @@ namespace HEPUtils {
       const double px = pt * cos(phi);
       const double py = pt * sin(phi);
       const double pz = sqrt(sqr(E) - sqr(mass) - sqr(pt));
-      setPE(px, py, pz, E);
+      setPM(px, py, pz, mass);
       return *this;
     }
 

@@ -192,6 +192,7 @@ namespace Gambit
                 void set_early_shutdown_in_progress(){earlyShutdownInProgress=true;}
                 bool early_shutdown_in_progress() const {return earlyShutdownInProgress;}
                 bool resume_mode() const { return printer->resume_mode(); }
+                std::string temp_file_path() {return def_out_path + "/temp_files/";}
 
                 #ifdef WITH_MPI
                 // tags for messages sent via scannerComm

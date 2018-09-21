@@ -41,14 +41,29 @@
 ///          (pscott@imperial.ac.uk)
 ///  \date 2014 Mar
 ///  \date 2015 Mar, Aug
+///        2018 Sep
 ///
 ///  \author Sebastian Wild
 ///          (sebastian.wild@ph.tum.de)
-///  \date 2016 Aug
+///  \date 2016 Aug, 2017 Oct
 ///
 ///  \author Felix Kahlhoefer
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 August
+///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Oct
+///  \date 2018 Jan, Aug
+///
+/// \author Aaron Vincent
+///         (aaron.vincent@cparc.ca)
+/// \date 2017 Sept
+///
+/// \author Sanjay Bloor
+///         (sanjay.bloor12@imperial.ac.uk)
+/// \date 2017 Dec
+/// \date 2018 Aug
 ///
 ///  *********************************************
 
@@ -117,7 +132,7 @@ START_MODULE
       START_FUNCTION(DarkBit::RD_spectrum_type)
       DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
-      ALLOW_MODELS(SingletDM)
+      ALLOW_MODELS(SingletDM, DiracDM, MajoranaDM, VectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -149,7 +164,7 @@ START_MODULE
       START_FUNCTION(fptr_dd)
       DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
-      ALLOW_MODELS(SingletDM)
+      ALLOW_MODELS(SingletDM, DiracDM, MajoranaDM, VectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -164,7 +179,7 @@ START_MODULE
         DEPENDENCY(MSSM_spectrum, Spectrum)
       #endif
       BACKEND_REQ(dsrdthlim, (), void, ())
-      BACKEND_REQ(dsrdtab, (), void, (double(*)(double&), double&))
+      BACKEND_REQ(dsrdtab, (), void, (double(*)(double&), double&, int&))
       BACKEND_REQ(dsrdeqn, (), void, (double(*)(double&),double&,double&,double&,double&,int&))
       BACKEND_REQ(dsrdwintp, (), double, (double&))
       BACKEND_REQ(particle_code, (), int, (const str&))
@@ -177,21 +192,24 @@ START_MODULE
       BACKEND_REQ(rdpadd, (), DS_RDPADD)
       BACKEND_REQ(rddof, (), DS_RDDOF)
       BACKEND_REQ(rderrors, (), DS_RDERRORS)
+      BACKEND_REQ(rdtime, (), DS_RDTIME)
     #undef FUNCTION
 
-    // Routine for cross checking RD density results
+    // Routine for cross checking relic density results
     #define FUNCTION RD_oh2_DarkSUSY
       START_FUNCTION(double)
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(DarkSUSY_PointInit, bool)
       BACKEND_REQ(dsrdomega, (), double, (int&,int&,double&,int&,int&,int&))
+      BACKEND_REQ(rderrors, (), DS_RDERRORS)
+      BACKEND_REQ(rdtime, (), DS_RDTIME)
     #undef FUNCTION
 
-    // Routine for cross checking RD density results
+    // Routine for cross checking relic density results
     #define FUNCTION RD_oh2_MicrOmegas
       START_FUNCTION(double)
-      BACKEND_REQ(oh2, (MicrOmegas_MSSM, MicrOmegas_SingletDM), double, (double*,int,double))
-      ALLOW_MODELS(MSSM63atQ,SingletDM)
+      BACKEND_REQ(oh2, (MicrOmegas_MSSM, MicrOmegas_SingletDM, MicrOmegas_VectorDM, MicrOmegas_MajoranaDM, MicrOmegas_DiracDM), double, (double*,int,double))
+      ALLOW_MODELS(MSSM63atQ, SingletDM, VectorDM, MajoranaDM, DiracDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -380,9 +398,27 @@ START_MODULE
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_SingletDM
       START_FUNCTION(DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(decay_rates,DecayTable)
+      DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(SingletDM_spectrum, Spectrum)
       ALLOW_MODELS(SingletDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_VectorDM
+      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(VectorDM_spectrum, Spectrum)
+      DEPENDENCY(decay_rates, DecayTable)
+      ALLOW_MODELS(VectorDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_MajoranaDM
+      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(MajoranaDM_spectrum, Spectrum)
+      DEPENDENCY(decay_rates, DecayTable)
+      ALLOW_MODELS(MajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DiracDM
+      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DiracDM_spectrum, Spectrum)
+      ALLOW_MODELS(DiracDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -515,7 +551,7 @@ START_MODULE
       BACKEND_REQ(dsddgpgn, (), void, (double&, double&, double&, double&))
       BACKEND_REQ(mspctm, (), DS_MSPCTM)
       BACKEND_REQ(ddcom, (DarkSUSY), DS_DDCOM)
-      ALLOW_MODELS(nuclear_params_fnq)
+      ALLOW_JOINT_MODEL(nuclear_params_fnq,MSSM63atQ)
     #undef FUNCTION
 
     #define FUNCTION DD_couplings_MicrOmegas
@@ -523,12 +559,13 @@ START_MODULE
       BACKEND_REQ(nucleonAmplitudes, (gimmemicro), int, (double(*)(double,double,double,double), double*, double*, double*, double*))
       BACKEND_REQ(FeScLoop, (gimmemicro), double, (double, double, double, double))
       BACKEND_REQ(MOcommon, (gimmemicro), MicrOmegas::MOcommonSTR)
-      ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ, SingletDM)
+      ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ, SingletDM, VectorDM)
       MODEL_GROUP(group1, (nuclear_params_fnq))
-      MODEL_GROUP(group2, (MSSM63atQ, SingletDM))
+      MODEL_GROUP(group2, (MSSM63atQ, SingletDM, VectorDM))
       ALLOW_MODEL_COMBINATION(group1, group2)
       BACKEND_OPTION((MicrOmegas_MSSM),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_SingletDM),(gimmemicro))
+      BACKEND_OPTION((MicrOmegas_VectorDM),(gimmemicro))
       FORCE_SAME_BACKEND(gimmemicro)
     #undef FUNCTION
 
@@ -538,6 +575,24 @@ START_MODULE
       ALLOW_JOINT_MODEL(nuclear_params_fnq, SingletDM)
      #undef FUNCTION
 
+     #define FUNCTION DD_couplings_VectorDM
+      START_FUNCTION(DM_nucleon_couplings)
+      DEPENDENCY(VectorDM_spectrum, Spectrum)
+      ALLOW_JOINT_MODEL(nuclear_params_fnq, VectorDM)
+     #undef FUNCTION
+
+     #define FUNCTION DD_couplings_MajoranaDM
+      START_FUNCTION(DM_nucleon_couplings)
+      DEPENDENCY(MajoranaDM_spectrum, Spectrum)
+      ALLOW_JOINT_MODEL(nuclear_params_fnq, MajoranaDM)
+     #undef FUNCTION
+
+     #define FUNCTION DD_couplings_DiracDM
+      START_FUNCTION(DM_nucleon_couplings)
+      DEPENDENCY(DiracDM_spectrum, Spectrum)
+      ALLOW_JOINT_MODEL(nuclear_params_fnq, DiracDM)
+     #undef FUNCTION
+
   #undef CAPABILITY
 
   // Simple calculators of the spin-(in)dependent WIMP-proton and WIMP-neutron cross-sections
@@ -545,6 +600,26 @@ START_MODULE
   QUICK_FUNCTION(DarkBit, sigma_SI_n, NEW_CAPABILITY, sigma_SI_n_simple, double, (), (DD_couplings, DM_nucleon_couplings), (mwimp, double))
   QUICK_FUNCTION(DarkBit, sigma_SD_p, NEW_CAPABILITY, sigma_SD_p_simple, double, (), (DD_couplings, DM_nucleon_couplings), (mwimp, double))
   QUICK_FUNCTION(DarkBit, sigma_SD_n, NEW_CAPABILITY, sigma_SD_n_simple, double, (), (DD_couplings, DM_nucleon_couplings), (mwimp, double))
+
+  // Generalized v^2n, q^2n DM-nucleon cross sections
+  #define CAPABILITY sigma_SI_p
+      #define FUNCTION sigma_SI_vnqn
+      START_FUNCTION(map_intpair_dbl)
+      DEPENDENCY(mwimp,double)
+      DEPENDENCY(DD_couplings,DM_nucleon_couplings)
+      ALLOW_MODELS(DiracDM, MajoranaDM)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY sigma_SD_p
+  //Spin-dependent general v^2n q^2n cross section
+      #define FUNCTION sigma_SD_vnqn
+      START_FUNCTION(map_intpair_dbl)
+      DEPENDENCY(mwimp,double)
+      DEPENDENCY(DD_couplings,DM_nucleon_couplings)
+      ALLOW_MODELS(DiracDM, MajoranaDM)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Likelihoods for nuclear parameters:
   #define CAPABILITY lnL_SI_nuclear_parameters
@@ -564,53 +639,127 @@ START_MODULE
   #undef CAPABILITY
 
   // DD rate and likelihood calculations. Don't try this one at home kids.
-  #define DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,TYPE,NAME)                    \
-  LONG_START_CAPABILITY(MODULE, CAT_3(EXPERIMENT,_,NAME))                     \
-  LONG_DECLARE_FUNCTION(MODULE, CAT_3(EXPERIMENT,_,NAME),                     \
-   CAT_3(EXPERIMENT,_Get,NAME), TYPE, 0)                                      \
-  LONG_DEPENDENCY(MODULE, CAT_3(EXPERIMENT,_Get,NAME),                        \
-   CAT(EXPERIMENT,_Calculate), bool)                                          \
-  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                          \
-   CAT_3(EXPERIMENT,_Get,NAME), DD_Experiment, (DDCalc), int, (const str&))   \
-  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                          \
-   CAT_3(EXPERIMENT,_Get,NAME), CAT(DD_,NAME), (DDCalc), TYPE, (const int&))
-  #define DD_DECLARE_EXPERIMENT(EXPERIMENT)                                   \
-  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_Calculate))                   \
-  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_Calculate),                   \
-   CAT(EXPERIMENT,_Calc), bool, 0)                                            \
-  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calculate),                        \
-   CAT(EXPERIMENT,_Calc), DD_Experiment, (DDCalc), int, (const str&))         \
-  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calculate),                        \
-   CAT(EXPERIMENT,_Calc), DD_CalcRates, (DDCalc), void, (const int&))         \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,int,Events)                           \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,Background)                    \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,Signal)                        \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,SignalSI)                      \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,SignalSD)                      \
-  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,LogLikelihood)                 \
+  #define DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,TYPE,NAME)                          \
+  LONG_START_CAPABILITY(MODULE, CAT_3(EXPERIMENT,_,NAME))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT_3(EXPERIMENT,_,NAME),                           \
+   CAT_3(EXPERIMENT,_Get,NAME), TYPE, 0)                                            \
+  LONG_DEPENDENCY(MODULE, CAT_3(EXPERIMENT,_Get,NAME),                              \
+   CAT(EXPERIMENT,_Calculate), bool)                                                \
+  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                                \
+   CAT_3(EXPERIMENT,_Get,NAME), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                                \
+   CAT_3(EXPERIMENT,_Get,NAME), CAT(DD_,NAME), (needs_DDCalc), TYPE, (const int&))
+
+  #define DD_DECLARE_BIN_FUNCTION(EXPERIMENT,TYPE,NAME)                             \
+  LONG_START_CAPABILITY(MODULE, CAT_3(EXPERIMENT,_,NAME))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT_3(EXPERIMENT,_,NAME),                           \
+   CAT_3(EXPERIMENT,_Get,NAME), std::vector<double>, 0)                             \
+  LONG_DEPENDENCY(MODULE, CAT_3(EXPERIMENT,_Get,NAME),                              \
+   CAT(EXPERIMENT,_Calculate), bool)                                                \
+  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                                \
+   CAT_3(EXPERIMENT,_Get,NAME), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                                \
+   CAT_3(EXPERIMENT,_Get,NAME), DD_Bins, (needs_DDCalc), int, (const int&))         \
+  LONG_BACKEND_REQ(MODULE, CAT_3(EXPERIMENT,_,NAME),                                \
+   CAT_3(EXPERIMENT,_Get,NAME), CAT(DD_,NAME), (needs_DDCalc), TYPE, (const int&,   \
+   const int&))
+
+  #define DD_DECLARE_EXPERIMENT(EXPERIMENT)                                         \
+  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_Calculate))                         \
+  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_Calculate),                         \
+   CAT(EXPERIMENT,_Calc), bool, 0)                                                  \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calculate),                              \
+   CAT(EXPERIMENT,_Calc), DD_Experiment, (needs_DDCalc), int, (const str&))         \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calculate),                              \
+   CAT(EXPERIMENT,_Calc), DD_CalcRates, (needs_DDCalc), void, (const int&))         \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,int,Events)                                 \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,Background)                          \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,Signal)                              \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,SignalSI)                            \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,SignalSD)                            \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,int,Bins)                                   \
+  DD_DECLARE_RESULT_FUNCTION(EXPERIMENT,double,LogLikelihood)                       \
+  DD_DECLARE_BIN_FUNCTION(EXPERIMENT,int,BinEvents)                                 \
+  DD_DECLARE_BIN_FUNCTION(EXPERIMENT,double,BinBackground)                          \
+  DD_DECLARE_BIN_FUNCTION(EXPERIMENT,double,BinSignal)                              \
+
+  #define SET_BACKEND_OPTION(EXPERIMENT, VERSIONS)                                  \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_Calculate), CAT(EXPERIMENT,_Calc),    \
+   VERSIONS, (needs_DDCalc))                                                        \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_Events), CAT(EXPERIMENT,_GetEvents),  \
+   VERSIONS, (needs_DDCalc))                                                        \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_Background),                          \
+   CAT(EXPERIMENT,_GetBackground), VERSIONS, (needs_DDCalc))                        \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_Signal), CAT(EXPERIMENT,_GetSignal),  \
+   VERSIONS, (needs_DDCalc))                                                        \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_SignalSI),                            \
+   CAT(EXPERIMENT,_GetSignalSI), VERSIONS, (needs_DDCalc))                          \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_SignalSD),                            \
+   CAT(EXPERIMENT,_GetSignalSD), VERSIONS, (needs_DDCalc))                          \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_Bins), CAT(EXPERIMENT,_GetBins),      \
+   VERSIONS, (needs_DDCalc))                                                        \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_LogLikelihood),                       \
+   CAT(EXPERIMENT,_GetLogLikelihood), VERSIONS, (needs_DDCalc))                     \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_BinEvents),                           \
+   CAT(EXPERIMENT,_GetBinEvents), VERSIONS, (needs_DDCalc))                         \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_BinBackground),                       \
+   CAT(EXPERIMENT,_GetBinBackground), VERSIONS, (needs_DDCalc))                     \
+  LONG_BACKEND_OPTION(MODULE, CAT(EXPERIMENT,_BinSignal),                           \
+   CAT(EXPERIMENT,_GetBinSignal), VERSIONS, (needs_DDCalc))                         \
+
+
 
   // Declare different DD experiments that exist in DDCalc.
-  DD_DECLARE_EXPERIMENT(XENON100_2012)
-  DD_DECLARE_EXPERIMENT(XENON1T_2017)
-  DD_DECLARE_EXPERIMENT(LUX_2013)
-  DD_DECLARE_EXPERIMENT(SuperCDMS_2014)
-  DD_DECLARE_EXPERIMENT(SIMPLE_2014)
-  DD_DECLARE_EXPERIMENT(DARWIN_Ar)
-  DD_DECLARE_EXPERIMENT(DARWIN_Xe)
-  DD_DECLARE_EXPERIMENT(LUX_2016)
-  DD_DECLARE_EXPERIMENT(PandaX_2016)
-  DD_DECLARE_EXPERIMENT(LUX_2015)
-  DD_DECLARE_EXPERIMENT(PICO_2L)
-  DD_DECLARE_EXPERIMENT(PICO_60_F)
-  DD_DECLARE_EXPERIMENT(PICO_60_I)
-  DD_DECLARE_EXPERIMENT(PICO_60_2017)
+  DD_DECLARE_EXPERIMENT(XENON100_2012)        // Aprile et al., PRL 109, 181301 (2013) [arxiv:1207.5988]
+  DD_DECLARE_EXPERIMENT(XENON1T_2017)         // Aprile et al., PRL 119, 181301 (2017) [arxiv:1705.06655]
+  DD_DECLARE_EXPERIMENT(XENON1T_2018)         // Aprile et al., May 28 talk at Gran Sasso.
+  DD_DECLARE_EXPERIMENT(DARWIN)               // M. Schumann et al., [arXiv:1506.08309]
+  DD_DECLARE_EXPERIMENT(LUX_2013)             // Akerib et al., PRL 112, 091303 (2014) [arxiv:1310.8214]
+  DD_DECLARE_EXPERIMENT(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
+  DD_DECLARE_EXPERIMENT(LUX_2016)             // D.S. Akerib et al., PRL 118, 021303 (2017) [arxiv:1608.07648]
+  DD_DECLARE_EXPERIMENT(LZ)                   // LZ TDR, [arXiv:1509.02910]
+  DD_DECLARE_EXPERIMENT(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
+  DD_DECLARE_EXPERIMENT(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
+  DD_DECLARE_EXPERIMENT(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
+  DD_DECLARE_EXPERIMENT(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
+  DD_DECLARE_EXPERIMENT(SuperCDMS_2014)       // Agnese et al., PRL 112, 241302 (2014) [arxiv:1402.7137]
+  DD_DECLARE_EXPERIMENT(CDMSlite)             // Agnese et al., PRL 116, 071301 (2015) [arxiv:1509.02448]
+  DD_DECLARE_EXPERIMENT(SIMPLE_2014)          // Felizardo et al., PRD 89, 072013 (2014) [arxiv:1404.4309]
+  DD_DECLARE_EXPERIMENT(PICO_2L)              // C. Amole et al., PRD 93, 061101 (2016) [arXiv:1601.03729]
+  DD_DECLARE_EXPERIMENT(PICO_60_F)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
+  DD_DECLARE_EXPERIMENT(PICO_60_I)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
+  DD_DECLARE_EXPERIMENT(PICO_60)              // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
+  DD_DECLARE_EXPERIMENT(PICO_60_2017)         // C. Amole et al., arXiv:1702.07666
+  DD_DECLARE_EXPERIMENT(PICO_500)             // S. Fallows, talk at TAUP 2017
+
+  // Specify which versions of DDCalc support which experiments.
+  // If an experiment does not have any entry here, any version (of any backend) is allowed.
+
+  // Introduced in DDCalc 1.0.0 but later deleted
+  SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
+  SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
+  // Introduced in DDCalc 1.1.0
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0))
+  // Introduced in DDCalc 1.2.0
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0))
+  // Introduced in DDCalc 2.0.0
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0))
+
 
 
   // INDIRECT DETECTION: NEUTRINOS =====================================
 
   // Solar capture ------------------------
 
-  // Capture rate of regular dark matter in the Sun (no v-dependent or q-dependent cross-sections) (s^-1).
+  /// Capture rate of regular dark matter in the Sun (no v-dependent or q-dependent cross-sections) (s^-1).
   #define CAPABILITY capture_rate_Sun
   START_CAPABILITY
     #define FUNCTION capture_rate_Sun_const_xsec
@@ -624,9 +773,29 @@ START_MODULE
         ACTIVATE_FOR_BACKEND(cap_Sun_v0q0_isoscalar, DarkSUSY)
         #undef CONDITIONAL_DEPENDENCY
     #undef FUNCTION
+
+    ///Alternative function for the above: Capture rate of dark matter with a constant cross section (s^-1), using backend Captn' General
+    #define FUNCTION capture_rate_Sun_const_xsec_capgen
+    START_FUNCTION(double)
+    BACKEND_REQ(cap_Sun_v0q0_isoscalar,(CaptnGeneral),void,(const double&,const double&,const double&,double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
+    DEPENDENCY(mwimp,double)
+    DEPENDENCY(sigma_SI_p, double)
+    DEPENDENCY(sigma_SD_p, double)
+    #undef FUNCTION
+
+    ///Capture rate of dark matter with q^n or v^n cross section (s^-1), using backend Captn' General
+    #define FUNCTION capture_rate_Sun_vnqn
+    START_FUNCTION(double)
+    BACKEND_REQ(cap_Sun_vnqn_isoscalar,(CaptnGeneral),void,(const double&,const double&,const int&,const int&,const int&,double&))
+    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
+    DEPENDENCY(mwimp,double)
+    DEPENDENCY(sigma_SD_p, map_intpair_dbl)
+    DEPENDENCY(sigma_SI_p,map_intpair_dbl)
+    #undef FUNCTION
   #undef CAPABILITY
 
-  // Equilibration time for capture and annihilation of dark matter in the Sun (s)
+  /// Equilibration time for capture and annihilation of dark matter in the Sun (s)
   #define CAPABILITY equilibration_time_Sun
   START_CAPABILITY
     #define FUNCTION equilibration_time_Sun
@@ -635,9 +804,20 @@ START_MODULE
       DEPENDENCY(mwimp, double)
       DEPENDENCY(capture_rate_Sun, double)
     #undef FUNCTION
+
+    /// Same as the above function except sigma-v is calculated at the most probable speed v = sqrt(2*T/mDM) where
+    /// T = 1.35e-6 GeV is the Sun's core temperature
+    #define FUNCTION equilibration_time_Sun_vprob
+      START_FUNCTION(double)
+      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(mwimp, double)
+      DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(capture_rate_Sun, double)
+      ALLOW_MODELS(DiracDM, MajoranaDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
-  // Annihilation rate of dark matter in the Sun (s^-1)
+  /// Annihilation rate of dark matter in the Sun (s^-1)
   #define CAPABILITY annihilation_rate_Sun
   START_CAPABILITY
     #define FUNCTION annihilation_rate_Sun
@@ -655,12 +835,10 @@ START_MODULE
     DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
     DEPENDENCY(mwimp, double)
     DEPENDENCY(sigmav, double)
-    DEPENDENCY(sigma_SI_p, double)
-    DEPENDENCY(sigma_SD_p, double)
     DEPENDENCY(DarkMatter_ID, std::string)
     BACKEND_REQ(nuyield_setup, (needs_DS), void, (const double(&)[29],
      const double(&)[29][3], const double(&)[15], const double(&)[3], const double&,
-     const double&, const double&, const double&, const double&))
+     const double&))
     BACKEND_REQ(nuyield, (needs_DS), double, (const double&, const int&, void*&))
     BACKEND_REQ(get_DS_neutral_h_decay_channels, (needs_DS), std::vector< std::vector<str> >, ())
     BACKEND_REQ(get_DS_charged_h_decay_channels, (needs_DS), std::vector< std::vector<str> >, ())
@@ -983,6 +1161,18 @@ START_MODULE
     #define FUNCTION DarkMatter_ID_SingletDM
     START_FUNCTION(std::string)
     ALLOW_MODELS(SingletDM, SingletDM_running)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_VectorDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(VectorDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_MajoranaDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(MajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DiracDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DiracDM)
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_MSSM
     START_FUNCTION(std::string)

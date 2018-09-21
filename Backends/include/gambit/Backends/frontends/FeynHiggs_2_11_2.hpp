@@ -22,27 +22,23 @@
 #define VERSION 2.11.2
 #define SAFE_VERSION 2_11_2
 
-/* The following macro loads the library using dlopen 
+/* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
 
-/* Next we use macros BE_VARIABLE and BE_FUNCTION to load pointers 
+/* Next we use macros BE_VARIABLE and BE_FUNCTION to load pointers
  * (using dlsym) to the variables and functions within the library.
- *  
+ *
  * The macros also set up a minimal interface providing 'get/set'
- * functions for the library variables and function pointers 
+ * functions for the library variables and function pointers
  * for the library functions.
- *  
- * These functions are then wrapped in functors that the core can connect 
+ *
+ * These functions are then wrapped in functors that the core can connect
  * to the modules via the rollcall system */
- 
+
 /* Syntax for BE_FUNCTION:
- * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
- * 
- * The last argument (capability name) is optional. 
- * If left out (as done below) it will default to "[backend name]_[function name]_capability"
- * (e.g. "LibFirst_initialize_capability")  */
+ * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
 
 
 BE_FUNCTION(FHSetFlags, void, (int&,int&,int&,int&,int&,int&,int&,int&,int&,int&), "fhsetflags_", "FHSetFlags")

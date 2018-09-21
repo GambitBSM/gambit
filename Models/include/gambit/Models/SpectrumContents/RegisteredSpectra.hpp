@@ -14,6 +14,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Aug
+///
 ///  *********************************************
 
 #ifndef __registeredspectra_hpp__
@@ -32,9 +36,11 @@ namespace Gambit
     struct SM_slha         : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
     struct SMHiggs         : SubSpectrumContents { SMHiggs(); };
     struct MSSM            : SubSpectrumContents { MSSM(); };
-    struct SingletDM       : SubSpectrumContents { SingletDM(); };
+    struct SingletDM       : SubSpectrumContents { SingletDM(); };    
     struct SingletDMZ3     : SubSpectrumContents { SingletDMZ3(); };
-
-  }
+    struct VectorDM        : SubSpectrumContents { VectorDM(); };
+    struct MajoranaDM      : SubSpectrumContents { MajoranaDM(); }; 
+    struct DiracDM         : SubSpectrumContents { DiracDM(); };
+  } 
 }
 #endif

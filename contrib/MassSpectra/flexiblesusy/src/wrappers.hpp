@@ -296,7 +296,19 @@ inline bool IsFinite(const std::complex<double>& x) noexcept
 template <class Derived>
 bool IsFinite(const Eigen::DenseBase<Derived>& m)
 {
-   return m.allFinite();
+  // workaround for intel compiler / eigen bug that causes
+  // unexpected behavior from allFinite
+  int nr = m.rows();
+  int nc = m.cols();
+  bool allfinite = true;
+  for (int r = 0; r<nr; ++r) {
+    for (int c = 0; c<nc; ++c) {
+      if ( !std::isfinite( m(r,c) ) ) allfinite = false;
+    }
+  }
+
+  return allfinite;
+  //   return m.allFinite();
 }
 
 inline constexpr int KroneckerDelta(int i, int j) noexcept

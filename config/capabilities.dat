@@ -118,10 +118,16 @@ LibFirst_1_0_init: |
 LibFirst_1_1_init: |
    Initialize the C++ testing LibFirst backend, version 1.1.
 
-LibFirst_initialize_capability: |
+LibSecond_1_0_init: |
+   Initialize the Python testing LibSecond backend, version 1.0.
+
+LibSecond_1_1_init: |
+   Initialize the Python testing LibSecond backend, version 1.1.
+
+initialize_capability: |
    Tester function for the initialization of backends.
 
-LibFirst_returnResult_capability: |
+returnResult_capability: |
    Tester function for the return of results from backends.
 
 LibFortran_1_0_init: |
@@ -155,13 +161,13 @@ awesomeness: |
    "awesomenessByAnders" to the logger.
 
 SomeArray: |
-   Example double array in libfirst.
+   Example double array in libfirst and friends.
 
 SomeDouble: |
-   Example double in libfirst.
+   Example double in libfirst and friends.
 
 SomeInt: |
-   Example integer in libfirst.
+   Example integer in libfirst and friends.
 
 funcBE: |
    Example Fortran backend function that simulates a backend function
@@ -258,10 +264,6 @@ SingletDM_spectrum: |
 SingletDMZ3_spectrum: |
     Create spectrum object for scalar singlet dark matter model with a Z3 symmetry.
 
-check_perturb: |
-    Compute the spectrum with the spectrum generator and return a
-    likelihood corresponding to the validity of the spectrum up to the chosen high scale.
-
 vacuum_stability: |
     Run the quartic Higgs coupling to high scales, in order to determine
     the expected lifetime of the electroweak vacuum, the instability scale, and
@@ -278,8 +280,23 @@ VS_likelihood: |
 expected_lifetime: |
     Return the expected lifetime of the electroweak vacuum.
 
-print_SingletDM_spectrum: |
-    Print the spectrum contents to the output stream.
+#####  VectorDM  #####
+
+VectorDM_spectrum: |
+    Create spectrum object for the vector dark matter model, available functions
+    are a simple container spectrum and one produced by a spectrum generator.
+
+#####  MajoranaDM  #####
+
+MajoranaDM_spectrum: |
+    Create spectrum object for the Majorana fermion dark matter model, available functions
+    are a simple container spectrum and one produced by a spectrum generator.
+
+#####  DiracDM  #####
+
+DiracDM_spectrum: |
+    Create spectrum object for the Dirac fermion dark matter model, available functions
+    are a simple container spectrum and one produced by a spectrum generator.
 
 #####   Standard model  #####
 
@@ -334,9 +351,35 @@ ColliderOperator: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
+LHCEventLoopInfo: |
+   Info about the event loop.
+
+LHC_signals: |
+   Signal predictions and uncertainties in all LHC analyses.
+
+LHC_LogLikes: |
+   Computes analysis-specific log-likelihood values,
+   from AllAnalysisNumbers.
+
 LHC_Combined_LogLike: |
-   Combines the results from AnalysisNumbers together into
-   a single delta-log-likelihood value.
+   A final, single delta-log-likelihood value for LHC searches.
+
+LHC_LogLike_per_SR: |
+   Delta-log-likelihood values for every signal region in the LHC analyses.
+
+LHC_LogLike_per_analysis: |
+   One delta-log-likelihood value per LHC analysis.
+
+LHC_LogLike_SR_indices: |
+   The indices of the signal regions whose delta-log-likelihood values contribute to
+   LHC_Combined_LogLike and LHC_LogLike_per_analysis.
+
+LHC_LogLike_SR_labels: |
+   The indices of the signal regions whose delta-log-likelihood values contribute to
+   LHC_Combined_LogLike and LHC_LogLike_per_analysis.
+
+MC_ConvergenceSettings : |
+   Convergence settings to be used for terminating Monte Carlo event generation.
 
 HardScatteringSim: |
    Provides a Pythia 8 instance within a container which is
@@ -363,25 +406,46 @@ ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
+ATLASnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the
+   given HardScatteringEvent. No efficiencies are applied.
+
 CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
+
+CMSnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the
+   given HardScatteringEvent. No efficiencies are applied.
 
 CopiedEvent: |
    Uses the given SimpleSmearingSim to do absolutely nothing to
    the given HardScatteringEvent.
 
 ATLASAnalysisContainer: |
-   Provides a list of ATLAS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASSmearedEvent. The container is ready to apply each analysis to
+   each event.
+
+ATLASnoeffAnalysisContainer: |
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASnoeffSmearedEvent. The container is ready to apply each analysis to
+   each event.
 
 CMSAnalysisContainer: |
-   Provides a list of CMS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSSmearedEvent. The container is ready to apply each analysis to
+   each event.
+
+CMSnoeffAnalysisContainer: |
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to
+   each event.
 
 DetAnalysisContainer: |
-   Provides a list of Delphes analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of analyses to be used with the detector simulation
+   capability DetectorSim (Delphes). The container is ready to apply each
+   analysis to each event.
 
 IdentityAnalysisContainer: |
    Provides a list of “identity” analyses (no detector
@@ -392,8 +456,16 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
+ATLASnoeffAnalysisNumbers: |
+   Uses the given ATLASnoeffAnalysisContainer to perform all its
+   analyses upon the given ATLASSmearedEvent.
+
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
+   upon the given CMSSmearedEvent.
+
+CMSnoeffAnalysisNumbers: |
+   Uses the given CMSnoeffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 DetAnalysisNumbers: |
@@ -404,6 +476,9 @@ IdentityAnalysisNumbers: |
    Uses the given IdentityAnalysisContainer
    to perform all its analyses upon the given
    CopiedEvent.
+
+AllAnalysisNumbers: |
+   Combined analysis numbers from all LHC analyses used in a scan.
 
 ALEPH_Selectron_LLike: |
    Compares the cross section times branching ratio
@@ -486,6 +561,12 @@ OPAL_Chargino_SemiLeptonic_LLike: |
    to the model-independent limit according to the OPAL collaboration.
    Returns a log likelihood value.
 
+OPAL_Degenerate_Chargino_LLike: |
+   Compares the cross section times branching ratio for chargino
+   pair production to the limit on degenerate charginos and neutralinos
+   according to the OPAL collaboration.
+   Returns a likelihood value
+
 LEP_Higgs_LogLike: |
     Provides log-likelihood for combined model-independent LEP
     neutral Higgs searches.
@@ -497,11 +578,6 @@ LHC_Higgs_LogLike: |
 HB_ModelParameters: |
    Provides SM and MSSM input parameters for LEP and LHC Higgs
    likelihood calculations.
-
-FH_HiggsProd: |
-   Provides estimated MSSM Higgs production cross sections through
-   an interface to FeynHiggs.
-
 
 # LEP cross-section capabilities
 
@@ -1072,10 +1148,22 @@ XENON100_2012_SignalSI: |
    The number of spin-independent signal events for the XENON100 2012 direct detection analysis.
 
 XENON100_2012_SignalSD: |
-   The number of spin-independent signal events for the XENON100 2012 direct detection analysis.
+   The number of spin-dependent signal events for the XENON100 2012 direct detection analysis.
 
 XENON100_2012_LogLikelihood: |
    Calculate the log-likelihood for the XENON100 2012 direct detection analysis.
+
+XENON100_2012_BinBackground: |
+   The number of expected background events in each bin for the XENON100 2012 direct detection analysis.
+
+XENON100_2012_BinEvents: |
+   The number of expected events in each bin for the XENON100 2012 direct detection analysis.
+
+XENON100_2012_BinSignal: |
+   The number of expected signal events in each bin for the XENON100 2012 direct detection analysis.
+
+XENON100_2012_Bins: |
+   The number of bins used in the XENON100 2012 direct detection analysis.
 
 XENON1T_2017_Calculate: |
    Perform rate and likelihood calculations for the XENON1T 2017 direct detection analysis.
@@ -1086,6 +1174,18 @@ XENON1T_2017_Events: |
 XENON1T_2017_Background: |
    The number of background events for the XENON1T 2017 direct detection analysis.
 
+XENON1T_2017_BinBackground: |
+   The number of expected background events in each bin for the XENON1T 2017 direct detection analysis.
+
+XENON1T_2017_BinEvents: |
+   The number of expected events in each bin for the XENON1T 2017 direct detection analysis.
+
+XENON1T_2017_BinSignal: |
+   The number of expected signal events in each bin for the XENON1T 20178 direct detection analysis.
+
+XENON1T_2017_Bins: |
+   The number of bins used in the XENON1T 2017 direct detection analysis.
+
 XENON1T_2017_Signal: |
    The number of signal events for the XENON1T 2017 direct detection analysis.
 
@@ -1093,10 +1193,43 @@ XENON1T_2017_SignalSI: |
    The number of spin-independent signal events for the XENON1T 2017 direct detection analysis.
 
 XENON1T_2017_SignalSD: |
-   The number of spin-independent signal events for the XENON1T 2017 direct detection analysis.
+   The number of spin-dependent signal events for the XENON1T 2017 direct detection analysis.
 
 XENON1T_2017_LogLikelihood: |
    Calculate the log-likelihood for the XENON1T 2017 direct detection analysis.
+
+XENON1T_2018_Background: |
+   The number of background events for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_BinBackground: |
+   The number of expected background events in each bin for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_BinEvents: |
+   The number of expected events in each bin for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_BinSignal: |
+   The number of expected signal events in each bin for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_Bins: |
+   The number of bins used in the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_Calculate: |
+   Perform rate and likelihood calculations for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_Events: |
+   The number of observed events for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_LogLikelihood: |
+   Calculate the log-likelihood for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_Signal: |
+   The number of signal events for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_SignalSI: |
+   The number of spin-idependent signal events for the XENON1T 2018 direct detection analysis.
+
+XENON1T_2018_SignalSD: |
+   The number of spin-dependent signal events for the XENON1T 2018 direct detection analysis.
 
 LUX_2013_Calculate: |
    Perform rate and likelihood calculations for the LUX 2013 direct detection analysis.
@@ -1114,10 +1247,22 @@ LUX_2013_SignalSI: |
    The number of spin-independent signal events for the LUX 2013 direct detection analysis.
 
 LUX_2013_SignalSD: |
-   The number of spin-independent signal events for the LUX 2013 direct detection analysis.
+   The number of spin-dependent signal events for the LUX 2013 direct detection analysis.
 
 LUX_2013_LogLikelihood: |
    Calculate the log-likelihood for the LUX 2013 direct detection analysis.
+
+LUX_2013_BinBackground: |
+   The number of expected background events in each bin for the LUX 2013 direct detection analysis.
+
+LUX_2013_BinEvents: |
+   The number of expected events in each bin for the LUX 2013 direct detection analysis.
+
+LUX_2013_BinSignal: |
+   The number of expected signal events in each bin for the LUX 2013 direct detection analysis.
+
+LUX_2013_Bins: |
+   The number of bins used in the LUX 2013 direct detection analysis.
 
 LUX_2015_Calculate: |
    Perform rate and likelihood calculations for the LUX 2015 direct detection analysis.
@@ -1135,10 +1280,22 @@ LUX_2015_SignalSI: |
    The number of spin-independent signal events for the LUX 2015 direct detection analysis.
 
 LUX_2015_SignalSD: |
-   The number of spin-independent signal events for the LUX 2015 direct detection analysis.
+   The number of spin-dependent signal events for the LUX 2015 direct detection analysis.
 
 LUX_2015_LogLikelihood: |
    Calculate the log-likelihood for the LUX 2015 direct detection analysis.
+
+LUX_2015_BinBackground: |
+   The number of expected background events in each bin for the LUX 2015 direct detection analysis.
+
+LUX_2015_BinEvents: |
+   The number of expected events in each bin for the LUX 2015 direct detection analysis.
+
+LUX_2015_BinSignal: |
+   The number of expected signal events in each bin for the LUX 2015 direct detection analysis.
+
+LUX_2015_Bins: |
+   The number of bins used in the LUX 2015 direct detection analysis.
 
 LUX_2016_Calculate: |
    Perform rate and likelihood calculations for the LUX 2016 direct detection analysis.
@@ -1156,10 +1313,55 @@ LUX_2016_SignalSI: |
    The number of spin-independent signal events for the LUX 2016 direct detection analysis.
 
 LUX_2016_SignalSD: |
-   The number of spin-independent signal events for the LUX 2016 direct detection analysis.
+   The number of spin-dependent signal events for the LUX 2016 direct detection analysis.
 
 LUX_2016_LogLikelihood: |
    Calculate the log-likelihood for the LUX 2016 direct detection analysis.
+
+LUX_2016_BinBackground: |
+   The number of expected background events in each bin for the LUX 2016 direct detection analysis.
+
+LUX_2016_BinEvents: |
+   The number of expected events in each bin for the LUX 2016 direct detection analysis.
+
+LUX_2016_BinSignal: |
+   The number of expected signal events in each bin for the LUX 2016 direct detection analysis.
+
+LUX_2016_Bins: |
+   The number of bins used in the LUX 2016 direct detection analysis.
+
+LZ_Calculate: |
+   Perform rate and likelihood calculations for the LZ direct detection analysis.
+
+LZ_Events: |
+   The number of observed events for the LZ direct detection analysis.
+
+LZ_Background: |
+   The number of background events for the LZ direct detection analysis.
+
+LZ_Signal: |
+   The number of signal events for the LZ direct detection analysis.
+
+LZ_SignalSI: |
+   The number of spin-independent signal events for the LZ direct detection analysis.
+
+LZ_SignalSD: |
+   The number of spin-dependent signal events for the LZ direct detection analysis.
+
+LZ_LogLikelihood: |
+   Calculate the log-likelihood for the LZ direct detection analysis.
+
+LZ_BinBackground: |
+   The number of expected background events in each bin for the LZ direct detection analysis.
+
+LZ_BinEvents: |
+   The number of expected events in each bin for the LZ direct detection analysis.
+
+LZ_BinSignal: |
+   The number of expected signal events in each bin for the LZ direct detection analysis.
+
+LZ_Bins: |
+   The number of bins used in the LZ direct detection analysis.
 
 PandaX_2016_Calculate: |
    Perform rate and likelihood calculations for the PandaX 2016 direct detection analysis.
@@ -1177,10 +1379,55 @@ PandaX_2016_SignalSI: |
    The number of spin-independent signal events for the PandaX 2016 direct detection analysis.
 
 PandaX_2016_SignalSD: |
-   The number of spin-independent signal events for the PandaX 2016 direct detection analysis.
+   The number of spin-dependent signal events for the PandaX 2016 direct detection analysis.
 
 PandaX_2016_LogLikelihood: |
    Calculate the log-likelihood for the PandaX 2016 direct detection analysis.
+
+PandaX_2016_BinBackground: |
+   The number of expected background events in each bin for the PandaX 2016 direct detection analysis.
+
+PandaX_2016_BinEvents: |
+   The number of expected events in each bin for the PandaX 2016 direct detection analysis.
+
+PandaX_2016_BinSignal: |
+   The number of expected signal events in each bin for the PandaX 2016 direct detection analysis.
+
+PandaX_2016_Bins: |
+   The number of bins used in the PandaX 2016 direct detection analysis.
+
+PandaX_2017_Calculate: |
+   Perform rate and likelihood calculations for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Events: |
+   The number of observed events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Background: |
+   The number of background events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Signal: |
+   The number of signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSI: |
+   The number of spin-independent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSD: |
+   The number of spin-dependent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_LogLikelihood: |
+   Calculate the log-likelihood for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_BinBackground: |
+   The number of expected background events in each bin for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_BinEvents: |
+   The number of expected events in each bin for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_BinSignal: |
+   The number of expected signal events in each bin for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Bins: |
+   The number of bins used in the PandaX 2017 direct detection analysis.
 
 SuperCDMS_2014_Calculate: |
    Perform rate and likelihood calculations for the SuperCDMS 2014 direct detection analysis.
@@ -1198,10 +1445,22 @@ SuperCDMS_2014_SignalSI: |
    The number of spin-independent signal events for the SuperCDMS 2014 direct detection analysis.
 
 SuperCDMS_2014_SignalSD: |
-   The number of spin-independent signal events for the SuperCDMS 2014 direct detection analysis.
+   The number of spin-dependent signal events for the SuperCDMS 2014 direct detection analysis.
 
 SuperCDMS_2014_LogLikelihood: |
    Calculate the log-likelihood for the SuperCDMS 2014 direct detection analysis.
+
+SuperCDMS_2014_BinBackground: |
+   The number of expected background events in each bin for the SuperCDMS 2014 direct detection analysis.
+
+SuperCDMS_2014_BinEvents: |
+   The number of expected events in each bin for the SuperCDMS 2014 direct detection analysis.
+
+SuperCDMS_2014_BinSignal: |
+   The number of expected signal events in each bin for the SuperCDMS 2014 direct detection analysis.
+
+SuperCDMS_2014_Bins: |
+   The number of bins used in the SuperCDMS 2014 direct detection analysis.
 
 SIMPLE_2014_Calculate: |
    Perform rate and likelihood calculations for the SIMPLE 2014 direct detection analysis.
@@ -1219,10 +1478,22 @@ SIMPLE_2014_SignalSI: |
    The number of spin-independent signal events for the SIMPLE 2014 direct detection analysis.
 
 SIMPLE_2014_SignalSD: |
-   The number of spin-independent signal events for the SIMPLE 2014 direct detection analysis.
+   The number of spin-dependent signal events for the SIMPLE 2014 direct detection analysis.
 
 SIMPLE_2014_LogLikelihood: |
    Calculate the log-likelihood for the SIMPLE 2014 direct detection analysis.
+
+SIMPLE_2014_BinBackground: |
+   The number of expected background events in each bin for the SIMPLE 2014 direct detection analysis.
+
+SIMPLE_2014_BinEvents: |
+   The number of expected events in each bin for the SIMPLE 2014 direct detection analysis.
+
+SIMPLE_2014_BinSignal: |
+   The number of expected signal events in each bin for the SIMPLE 2014 direct detection analysis.
+
+SIMPLE_2014_Bins: |
+   The number of bins used in the SIMPLE 2014 direct detection analysis.
 
 PICO_2L_Calculate: |
    Perform rate and likelihood calculations for the PICO-2L direct detection analysis.
@@ -1240,10 +1511,22 @@ PICO_2L_SignalSI: |
    The number of spin-independent signal events for the PICO-2L direct detection analysis.
 
 PICO_2L_SignalSD: |
-   The number of spin-independent signal events for the PICO-2L direct detection analysis.
+   The number of spin-dependent signal events for the PICO-2L direct detection analysis.
 
 PICO_2L_LogLikelihood: |
    Calculate the log-likelihood for the PICO-2L direct detection analysis.
+
+PICO_2L_BinBackground: |
+   The number of expected background events in each bin for the PICO-2L direct detection analysis.
+
+PICO_2L_BinEvents: |
+   The number of expected events in each bin for the PICO-2L direct detection analysis.
+
+PICO_2L_BinSignal: |
+   The number of expected signal events in each bin for the PICO-2L direct detection analysis.
+
+PICO_2L_Bins: |
+   The number of bins used in the PICO-2L direct detection analysis.
 
 PICO_60_F_Calculate: |
    Perform rate and likelihood calculations for the PICO-60 direct detection analysis (flourine only).
@@ -1261,10 +1544,22 @@ PICO_60_F_SignalSI: |
    The number of spin-independent signal events for the PICO-60 direct detection analysis (flourine only).
 
 PICO_60_F_SignalSD: |
-   The number of spin-independent signal events for the PICO-60 direct detection analysis (flourine only).
+   The number of spin-dependent signal events for the PICO-60 direct detection analysis (flourine only).
 
 PICO_60_F_LogLikelihood: |
    Calculate the log-likelihood for the PICO-60 direct detection analysis (flourine only).
+
+PICO_60_F_BinBackground: |
+   The number of expected background events in each bin for the PICO-60 direct detection analysis (flourine only).
+
+PICO_60_F_BinEvents: |
+   The number of expected events in each bin for the PICO-60 direct detection analysis (flourine only).
+
+PICO_60_F_BinSignal: |
+   The number of expected signal events in each bin for the PICO-60 direct detection analysis (flourine only).
+
+PICO_60_F_Bins: |
+   The number of bins used in the PICO-60 direct detection analysis (flourine only).
 
 PICO_60_I_Calculate: |
    Perform rate and likelihood calculations for the PICO-60 direct detection analysis (iodine only).
@@ -1282,10 +1577,22 @@ PICO_60_I_SignalSI: |
    The number of spin-independent signal events for the PICO-60 direct detection analysis (iodine only).
 
 PICO_60_I_SignalSD: |
-   The number of spin-independent signal events for the PICO-60 direct detection analysis (iodine only).
+   The number of spin-dependent signal events for the PICO-60 direct detection analysis (iodine only).
 
 PICO_60_I_LogLikelihood: |
    Calculate the log-likelihood for the PICO-60 direct detection analysis (iodine only).
+
+PICO_60_I_BinBackground: |
+   The number of expected background events in each bin for the PICO-60 direct detection analysis (iodine only).
+
+PICO_60_I_BinEvents: |
+   The number of expected events in each bin for the PICO-60 direct detection analysis (iodine only).
+
+PICO_60_I_BinSignal: |
+   The number of expected signal events in each bin for the PICO-60 direct detection analysis (iodine only).
+
+PICO_60_I_Bins: |
+   The number of bins used in the PICO-60 direct detection analysis (iodine only).
 
 PICO_60_2017_Calculate: |
    Perform rate and likelihood calculations for the PICO-60 2017 direct detection analysis.
@@ -1303,52 +1610,88 @@ PICO_60_2017_SignalSI: |
    The number of spin-independent signal events for the PICO-60 2017 direct detection analysis.
 
 PICO_60_2017_SignalSD: |
-   The number of spin-independent signal events for the PICO-60 2017 direct detection analysis.
+   The number of spin-dependent signal events for the PICO-60 2017 direct detection analysis.
 
 PICO_60_2017_LogLikelihood: |
    Calculate the log-likelihood for the PICO-60 2017 direct detection analysis.
 
-DARWIN_Ar_2015_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_2017_BinBackground: |
+   The number of expected background events in each bin for the PICO-60 2017 direct detection analysis.
 
-DARWIN_Ar_2015_Events: |
-   The number of observed events for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_2017_BinEvents: |
+   The number of expected events in each bin for the PICO-60 2017 direct detection analysis.
 
-DARWIN_Ar_2015_Background: |
-   The number of background events for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_2017_BinSignal: |
+   The number of expected signal events in each bin for the PICO-60 2017 direct detection analysis.
 
-DARWIN_Ar_2015_Signal: |
-   The number of signal events for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_2017_Bins: |
+   The number of bins used in the PICO-60 2017 direct detection analysis.
 
-DARWIN_Ar_2015_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_Calculate: |
+   Perform rate and likelihood calculations for the PICO-60 direct detection analysis.
 
-DARWIN_Ar_2015_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_Events: |
+   The number of observed events for the PICO-60 direct detection analysis.
 
-DARWIN_Ar_2015_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Ar 2015 direct detection analysis.
+PICO_60_Background: |
+   The number of background events for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_Signal: |
+   The number of signal events for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_Events: |
-   The number of observed events for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_SignalSI: |
+   The number of spin-independent signal events for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_Background: |
-   The number of background events for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_SignalSD: |
+   The number of spin-dependent signal events for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_Signal: |
-   The number of signal events for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_LogLikelihood: |
+   Calculate the log-likelihood for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_BinBackground: |
+   The number of expected background events in each bin for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_BinEvents: |
+   The number of expected events in each bin for the PICO-60 direct detection analysis.
 
-DARWIN_Xe_2015_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Xe 2015 direct detection analysis.
+PICO_60_BinSignal: |
+   The number of expected signal events in each bin for the PICO-60 direct detection analysis.
+
+PICO_60_Bins: |
+   The number of bins used in the PICO-60 direct detection analysis.
+
+PICO_500_Calculate: |
+   Perform rate and likelihood calculations for the PICO-500 direct detection analysis.
+
+PICO_500_Events: |
+   The number of observed events for the PICO-500 direct detection analysis.
+
+PICO_500_Background: |
+   The number of background events for the PICO-500 direct detection analysis.
+
+PICO_500_Signal: |
+   The number of signal events for the PICO-500 direct detection analysis.
+
+PICO_500_SignalSI: |
+   The number of spin-independent signal events for the PICO-500 direct detection analysis.
+
+PICO_500_SignalSD: |
+   The number of spin-dependent signal events for the PICO-500 direct detection analysis.
+
+PICO_500_LogLikelihood: |
+   Calculate the log-likelihood for the PICO-500 direct detection analysis.
+
+PICO_500_BinBackground: |
+   The number of expected background events in each bin for the PICO-500 direct detection analysis.
+
+PICO_500_BinEvents: |
+   The number of expected events in each bin for the PICO-500 direct detection analysis.
+
+PICO_500_BinSignal: |
+   The number of expected signal events in each bin for the PICO-500 direct detection analysis.
+
+PICO_500_Bins: |
+   The number of bins used in the PICO-500 direct detection analysis.
 
 DARWIN_Ar_Calculate: |
    Perform rate and likelihood calculations for the DARWIN Ar 2015 direct detection analysis.
@@ -1366,10 +1709,22 @@ DARWIN_Ar_SignalSI: |
    The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
 
 DARWIN_Ar_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
+   The number of spin-dependent signal events for the DARWIN Ar 2015 direct detection analysis.
 
 DARWIN_Ar_LogLikelihood: |
    Calculate the log-likelihood for the DARWIN Ar 2015 direct detection analysis.
+
+DARWIN_Ar_BinBackground: |
+   The number of expected background events in each bin for the DARWIN Ar 2015 direct detection analysis.
+
+DARWIN_Ar_BinEvents: |
+   The number of expected events in each bin for the DARWIN Ar 2015 direct detection analysis.
+
+DARWIN_Ar_BinSignal: |
+   The number of expected signal events in each bin for the DARWIN Ar 2015 direct detection analysis.
+
+DARWIN_Ar_Bins: |
+   The number of bins used in the DARWIN Ar 2015 direct detection analysis.
 
 DARWIN_Xe_Calculate: |
    Perform rate and likelihood calculations for the DARWIN Xe 2015 direct detection analysis.
@@ -1387,10 +1742,154 @@ DARWIN_Xe_SignalSI: |
    The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
 
 DARWIN_Xe_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
+   The number of spin-dependent signal events for the DARWIN Xe 2015 direct detection analysis.
 
 DARWIN_Xe_LogLikelihood: |
    Calculate the log-likelihood for the DARWIN Xe 2015 direct detection analysis.
+
+DARWIN_Xe_BinBackground: |
+   The number of expected background events in each bin for the DARWIN Xe 2015 direct detection analysis.
+
+DARWIN_Xe_BinEvents: |
+   The number of expected events in each bin for the DARWIN Xe 2015 direct detection analysis.
+
+DARWIN_Xe_BinSignal: |
+   The number of expected signal events in each bin for the DARWIN Xe 2015 direct detection analysis.
+
+DARWIN_Xe_Bins: |
+   The number of bins used in the DARWIN Xe 2015 direct detection analysis.
+
+DARWIN_Calculate: |
+   Perform rate and likelihood calculations for the DARWIN 2015 direct detection analysis.
+
+DARWIN_Events: |
+   The number of observed events for the DARWIN 2015 direct detection analysis.
+
+DARWIN_Background: |
+   The number of background events for the DARWIN 2015 direct detection analysis.
+
+DARWIN_Signal: |
+   The number of signal events for the DARWIN 2015 direct detection analysis.
+
+DARWIN_SignalSI: |
+   The number of spin-independent signal events for the DARWIN 2015 direct detection analysis.
+
+DARWIN_SignalSD: |
+   The number of spin-dependent signal events for the DARWIN 2015 direct detection analysis.
+
+DARWIN_LogLikelihood: |
+   Calculate the log-likelihood for the DARWIN 2015 direct detection analysis.
+
+DARWIN_BinBackground: |
+   The number of expected background events in each bin for the DARWIN 2015 direct detection analysis.
+
+DARWIN_BinEvents: |
+   The number of expected events in each bin for the DARWIN 2015 direct detection analysis.
+
+DARWIN_BinSignal: |
+   The number of expected signal events in each bin for the DARWIN 2015 direct detection analysis.
+
+DARWIN_Bins: |
+   The number of bins used in the DARWIN 2015 direct detection analysis.
+
+CDMSlite_Background: |
+   The number of background events for the CDMSlite direct detection analysis.
+
+CDMSlite_BinBackground: |
+   The number of expected background events in each bin for the CDMSlite direct detection analysis.
+
+CDMSlite_BinEvents: |
+   The number of expected events in each bin for the CDMSlite direct detection analysis.
+
+CDMSlite_BinSignal: |
+   The number of expected signal events in each bin for the CDMSlite direct detection analysis.
+
+CDMSlite_Bins: |
+   The number of bins used in the CDMSlite direct detection analysis.
+
+CDMSlite_Calculate: |
+   Perform rate and likelihood calculations for the CDMSlite direct detection analysis.
+
+CDMSlite_Events: |
+   The number of observed events for the CDMSlite direct detection analysis.
+
+CDMSlite_LogLikelihood: |
+   Calculate the log-likelihood for the CDMSlite direct detection analysis.
+
+CDMSlite_Signal: |
+   The number of signal events for the CDMSlite direct detection analysis.
+
+CDMSlite_SignalSI: |
+   The number of spin-idependent signal events for the CDMSlite direct detection analysis.
+
+CDMSlite_SignalSD: |
+   The number of spin-dependent signal events for the CDMSlite direct detection analysis.
+
+CRESST_II_Background: |
+   The number of background events for the CRESST-II direct detection analysis.
+
+CRESST_II_BinBackground: |
+   The number of expected background events in each bin for the CRESST-II direct detection analysis.
+
+CRESST_II_BinEvents: |
+   The number of expected events in each bin for the CRESST-II direct detection analysis.
+
+CRESST_II_BinSignal: |
+   The number of expected signal events in each bin for the CRESST-II direct detection analysis.
+
+CRESST_II_Bins: |
+   The number of bins used in the CRESST-II direct detection analysis.
+
+CRESST_II_Calculate: |
+   Perform rate and likelihood calculations for the CRESST-II direct detection analysis.
+
+CRESST_II_Events: |
+   The number of observed events for the CRESST-II direct detection analysis.
+
+CRESST_II_LogLikelihood: |
+   Calculate the log-likelihood for the CRESST-II direct detection analysis.
+
+CRESST_II_Signal: |
+   The number of signal events for the CRESST-II direct detection analysis.
+
+CRESST_II_SignalSI: |
+   The number of spin-idependent signal events for the CRESST-II direct detection analysis.
+
+CRESST_II_SignalSD: |
+   The number of spin-dependent signal events for the CRESST-II direct detection analysis.
+
+DarkSide_50_Background: |
+   The number of background events for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_BinBackground: |
+   The number of expected background events in each bin for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_BinEvents: |
+   The number of expected events in each bin for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_BinSignal: |
+   The number of expected signal events in each bin for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_Bins: |
+   The number of bins used in the DarkSide 50 direct detection analysis.
+
+DarkSide_50_Calculate: |
+   Perform rate and likelihood calculations for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_Events: |
+   The number of observed events for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_LogLikelihood: |
+   Calculate the log-likelihood for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_Signal: |
+   The number of signal events for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_SignalSI: |
+   The number of spin-idependent signal events for the DarkSide 50 direct detection analysis.
+
+DarkSide_50_SignalSD: |
+   The number of spin-dependent signal events for the DarkSide 50 direct detection analysis.
 
 lnL_SI_nuclear_parameters: |
    The log-likehood for the spin-independent nuclear parameters.
@@ -1569,6 +2068,12 @@ DDCalc_1_0_0_init: |
 DDCalc_1_1_0_init: |
    Initialises DDCalc 1.1.0.
 
+DDCalc_1_2_0_init: |
+   Initialises DDCalc 1.2.0.
+
+DDCalc_2_0_0_init: |
+   Initialises DDCalc 2.0.0.
+
 DD_Experiment: |
    The name of the DDcalc experiment corresponding to a specific experiment index.
 
@@ -1596,6 +2101,18 @@ DD_SignalSD: |
 DD_SignalSI: |
    The number of spin-independent signal events for a given direct detection experiment.
 
+DD_BinBackground: |
+   The number of background events in a specific bin for a given direct detection experiment.
+
+DD_BinEvents: |
+   The number of events in a specific bin for a given direct detection experiment.
+
+DD_BinSignal: |
+   The number of signal events in a specific bin for a given direct detection experiment.
+
+DD_Bins: |
+   The number of bins for a given direct detection experiment.
+
 LUX_2013_Init: |
    Initialises a direct detection experiment with the properties of the 2013 analysis of LUX.
 
@@ -1620,8 +2137,17 @@ PICO_60_I_Init: |
 PICO_60_2017_Init: |
    Initialises a direct detection experiment with the properties of the 2017 analysis of PICO-60.
 
+PICO_60_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of PICO-60.
+
+PICO_500_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of PICO-500.
+
 PandaX_2016_Init: |
    Initialises a direct detection experiment with the properties of the 2016 analysis of PandaX.
+
+PandaX_2017_Init: |
+   Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
 
 XENON100_2012_Init: |
    Initialises a direct detection experiment with the properties of the 2012 analysis of Xenon100.
@@ -1629,8 +2155,26 @@ XENON100_2012_Init: |
 XENON1T_2017_Init: |
    Initialises a direct detection experiment with the properties of the 2017 analysis of Xenon1T.
 
+XENON1T_2018_Init: |
+   Initialises a direct detection experiment with the properties of the 2018 analysis of Xenon1T.
+
 SuperCDMS_2014_Init: |
    Initialises a direct detection experiment with the properties of the 2014 analysis of SuperCDMS.
+
+CDMSlite_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of CDMSlite.
+
+CRESST_II_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of CRESST-II.
+
+DarkSide_50_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of DarkSide-50.
+
+DARWIN_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of DARWIN.
+
+LZ_Init: |
+   Initialises a direct detection experiment with the properties of the analysis of LZ.
 
 FreeDetectorss: |
    Deletes the detector object held internally by DDCalc (relevant for the C/C++ interface of DDCalc).
@@ -1645,22 +2189,37 @@ FreeAll: |
    Deletes the detector, halo and WIMP objects held internally by DDCalc (relevant for the C/C++ interface of DDCalc).
 
 GetWIMP_mG: |
-  Gets the WIMP parameters m, GpSI, GnSI, GpSD, GnSD (used in DDCalc)
+   Gets the WIMP parameters m, GpSI, GnSI, GpSD, GnSD (used in DDCalc)
 
 GetWIMP_mfa: |
-  Gets the WIMP parameters m, fp, fn, ap, an (used in DDCalc)
+   Gets the WIMP parameters m, fp, fn, ap, an (used in DDCalc)
 
 GetWIMP_msigma: |
-  Gets the WIMP parameters m, sigmapSI, sigmanSI, sigmapSD, sigmanSD (used in DDCalc)
+   Gets the WIMP parameters m, sigmapSI, sigmanSI, sigmapSD, sigmanSD (used in DDCalc)
+
+GetWIMP_higgsportal: |
+   Gets the WIMP parameters m, fsp, fsn, app, apn (used in DDCalc_2_0_0)
 
 SetWIMP_mG: |
-  Sets the WIMP parameters m, GpSI, GnSI, GpSD, GnSD (used in DDCalc)
+   Sets the WIMP parameters m, GpSI, GnSI, GpSD, GnSD (used in DDCalc)
 
 SetWIMP_mfa: |
-  Sets the WIMP parameters m, fp, fn, ap, an (used in DDCalc)
+   Sets the WIMP parameters m, fp, fn, ap, an (used in DDCalc)
 
 SetWIMP_msigma: |
-  Sets the WIMP parameters m, sigmapSI, sigmanSI, sigmapSD, sigmanSD (used in DDCalc)
+   Sets the WIMP parameters m, sigmapSI, sigmanSI, sigmapSD, sigmanSD (used in DDCalc)
+
+SetWIMP_higgsportal: |
+   Sets the WIMP parameters m, fsp, fsn, app, apn (used in DDCalc_2_0_0)
+
+SetWIMP_NREffectiveTheory: |
+   Sets the WIMP parameters m, spin for a non-relativistic effective field theory.
+
+GetNRCoefficient: |
+   Get the value of a given non-relativistic operator
+
+SetNRCoefficient: |
+   Set the value of a given non-relativistic operator
 
 InitDetector: |
   Default detector setup used in DDCalc
@@ -1996,6 +2555,9 @@ rdlun: |
 rdpadd: |
    Parameters that effect the tabulation of the invariant annihilation rate in DarkSUSY.
 
+rdtime: |
+   Timing parameters for DarkSUSY relic density calculations.
+
 IBintvars: |
    Common block for DarkSUSY internal Bremsstrahlung routines.
 
@@ -2032,6 +2594,15 @@ MicrOmegas_MSSM_3_6_9_2_init: |
 
 MicrOmegas_SingletDM_3_6_9_2_init: |
    Initialise MicrOmegas SingletDM backend.
+
+MicrOmegas_VectorDM_3_6_9_2_init: |
+   Initialise MicrOmegas VectorDM backend.
+
+MicrOmegas_MajoranaDM_3_6_9_2_init: |
+   Initialise MicrOmegas MajoranaDM backend.
+
+MicrOmegas_DiracDM_3_6_9_2_init: |
+   Initialise MicrOmegas DiracDM backend.
 
 assignVal: |
    Assigns a value to a model parameter in MicrOmegas.
@@ -2087,6 +2658,13 @@ VWdecay: |
 dNdE: |
    Differential cosmic-ray yield.
 
+calcSpectrum: |
+   MicrOmegas routine for calculating the dark matter annihilation spectrum at rest
+   along with the zero velocity annihilation cross section (sigmav)_0 in cm^3 s^-1.
+
+vSigmaCh: |
+   MicrOmegas array containing the relative contribution and particle names for each
+   annihilation channel. It is filled by the calcSpectrum function in micrOmegas.
 
 #-------------------------------------
 #  DecayBit capabilities
@@ -2134,41 +2712,6 @@ snu_muonl_decay_rates : |
 snu_taul_decay_rates : |
    Decays of the ν_τL sneutrinos.
 
-sup_ C _decay_rates : |
-   Decays of the u_L squarks.
-
-sdown_ C _decay_rates : |
-   Decays of the d_L squarks.
-
-scharm_ C _decay_rates : |
-   Decays of the c_L squarks.
-
-sstrange_ C _decay_rates : |
-   Decays of the s_L squarks.
-
-electron_ C _decay_rates : |
-   Decays of the e_L sleptons.
-
-smuon_ C _decay_rates : |
-   Decays of the mu_L sleptons.
-sup_ C _decay_rates : |
-   Decays of the u_R squarks.
-
-sdown_ C _decay_rates : |
-   Decays of the d_R squarks.
-
-scharm_ C _decay_rates : |
-   Decays of the c_R squarks.
-
-sstrange_ C _decay_rates : |
-   Decays of the s_R squarks.
-
-electron_ C _decay_rates : |
-   Decays of the e_R sleptons.
-
-smuon_ C _decay_rates : |
-   Decays of the μ_R sleptons.
-
 stop_1_decay_rates : |
    Decays of the t_1 squarks.
 
@@ -2204,42 +2747,6 @@ snubar_muonl_decay_rates : |
 
 snubar_taul_decay_rates : |
    Decays of the anti-ν_τL sneutrinos.
-
-supbar_ C _decay_rates : |
-   Decays of the anti-u_L squarks.
-
-sdownbar_ C _decay_rates : |
-   Decays of the anti-d_L squarks.
-
-scharmbar_ C _decay_rates : |
-   Decays of the anti-c_L squarks.
-
-sstrangebar_ C _decay_rates : |
-   Decays of the anti-s_L squarks.
-
-electronbar_ C _decay_rates : |
-   Decays of the anti-e_L sleptons.
-
-smuonbar_ C _decay_rates : |
-   Decays of the anti-μ_L sleptons.
-
-supbar_ C _decay_rates : |
-   Decays of the anti-u_R squarks.
-
-sdownbar_ C _decay_rates : |
-   Decays of the anti-d_R squarks.
-
-scharmbar_ C _decay_rates : |
-   Decays of the anti-c_R squarks.
-
-sstrangebar_ C _decay_rates : |
-   Decays of the anti-s_R squarks.
-
-electronbar_ C _decay_rates : |
-   Decays of the anti-e_R sleptons.
-
-smuonbar_ C _decay_rates : |
-   Decays of the anti-μ_R sleptons.
 
 stopbar_1_decay_rates : |
    Decays of the anti-t_1 squarks.
@@ -2292,32 +2799,11 @@ tau_minus_decay_rates : |
 W_minus_decay_rates : |
   All decays of the W- gauge boson.
 
-Hminus_decay_rates : |
-   Decays of the MSSM H-.
-
 chargino_minus_1_decay_rates : |
    Decays of the chargino- 1.
 
 chargino_minus_2_decay_rates : |
    Decays of the chargino- 2.
-
-pi0_decay_rates : |
-  All decays of the π0 meson.
-
-rho0_decay_rates : |
-  All decays of the ρ0 meson.
-
-piplus_decay_rates : |
-  All decays of the π+ meson.
-
-rhoplus_decay_rates : |
-  All decays of the ρ+ meson.
-
-piminus_decay_rates : |
-  All decays of the π- meson.
-
-rhominus_decay_rates : |
-  All decays of the ρ- meson.
 
 rho1450_decay_rates : |
   Decays of the ρ(1450) meson.
@@ -2345,6 +2831,18 @@ Reference_SM_A0_decay_rates: |
 
 Reference_SM_other_Higgs_decay_rates: |
    Computation of decays of SM Higgs with mass equal to the mass of the least SM-like CP-even Higgs.
+
+Z_gamma_nu: |
+   Decay width of the Z boson to neutrinos in MeV.
+
+Z_gamma_chi_0: |
+   Decay width of the Z boson to neutralinos in MeV.
+
+lnL_Z_inv: |
+   Log Likelihood for the inivislbe decay width of the Z boson.
+
+inv_Higgs_BF: |
+   Invisible decay branching fraction of the SM-like Higgs boson.
 
 #-------------------------------------
 #  PrecisionBit capabilities
@@ -2701,6 +3199,30 @@ alphas_running : |
 
 slha_adjust : |
    Adjusts the SLHA parameters to the SuperIso standard.
+
+LUV_LL :  |
+   Calculate the likelihood function of the b->sll LUV observables (RK, RK*)
+
+LUV_M :  |
+   Measurements related to LUV in b->sll
+
+RK :  |
+   Calculation R_K in 1-6GeVGeV
+
+RK_CONV:  |
+   Conv function from SuperIso to calculate the R_K
+
+RKstar_0045_11:  |
+   Calculation R_K* in 0.045-1.1GeVGeV
+
+RKstar_11_60:  |
+   Calculation R_K* in 1.1 -  6.0 GeVGeV
+
+RKstar_CONV:  |
+   Conv function from SuperIso to calculate the R_K*
+
+
+
 
 #-------------------------------------
 #  SUSY-HIT capabilities
@@ -3154,6 +3676,21 @@ SingletDM_parameters: |
 SingletDM_running_parameters: |
    Parameters for the model SingletDM_running (see ./gambit SingletDM_running)
 
+VectorDM_parameters: |
+   Parameters for the model VectorDM (see ./gambit VectorDM)
+
+MajoranaDM_parameters: |
+   Parameters for the model MajoranaDM (see ./gambit MajoranaDM)
+
+MajoranaDM_sps_parameters: |
+   Parameters for the model MajoranaDM_sps (see ./gambit MajoranaDM_sps)
+
+DiracDM_parameters: |
+   Parameters for the model DiracDM (see ./gambit DiracDM)
+
+DiracDM_sps_parameters: |
+   Parameters for the model DiracDM_sps (see ./gambit DiracDM_sps)
+
 StandardModel_Higgs_parameters: |
    Parameters for the model StandardModel_Higgs (see ./gambit StandardModel_Higgs)
 
@@ -3285,3 +3822,20 @@ SUSYHD_MHiggs: |
 
 SUSYHD_DeltaMHiggs : |
    Calculates the uncertainty on the Higgs mass using SUSYHD
+
+
+#-------------------------------------
+#  Capgen capabilities
+#-------------------------------------
+
+CaptnGeneral_1_0_init: |
+  Initialize Captn' general backend.
+
+captn_init: |
+  Actually initialize Captn' general.
+
+cap_sun_saturation: |
+  Compute the saturation value of dark matter capture in the Sun based on halo params.
+
+cap_Sun_vnqn_isoscalar: |
+  Compute v^n or q^n solar capture rate.

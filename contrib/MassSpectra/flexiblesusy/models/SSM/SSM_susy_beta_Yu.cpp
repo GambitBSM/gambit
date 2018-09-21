@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:11:29
+// File generated at Thu 10 May 2018 14:43:16
 
 #include "SSM_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -74,10 +74,10 @@ Eigen::Matrix<double,3,3> SSM_susy_parameters::calc_beta_Yu_2_loop(const Susy_tr
       + 432*Quad(g3) - 80*(traceYdAdjYd + traceYuAdjYu)*Sqr(g3) - Sqr(K2) - 6*
       Sqr(Lambdax)))) + 0.0125*(-43*Sqr(g1) + 5*(20*(3*traceYdAdjYd +
       traceYeAdjYe + 3*traceYuAdjYu) + 9*Sqr(g2) - 256*Sqr(g3)))*(Yu*Yd.adjoint
-      ()*Yd) + 0.0125*(223*Sqr(g1) + 675*Sqr(g2) + 20*(-3*(9*traceYdAdjYd + 3*
-      traceYeAdjYe + 9*traceYuAdjYu + 8*Lambdax) + 64*Sqr(g3)))*(Yu*Yu.adjoint(
-      )*Yu) + 2.75*(Yu*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 0.25*(Yu*Yd.adjoint()
-      *Yd*Yu.adjoint()*Yu) - Yu*Yu.adjoint()*Yu*Yd.adjoint()*Yd + 1.5*(Yu*
+      ()*Yd) + (-0.75*(9*traceYdAdjYd + 3*traceYeAdjYe + 9*traceYuAdjYu + 8*
+      Lambdax) + 2.7875*Sqr(g1) + 8.4375*Sqr(g2) + 16*Sqr(g3))*(Yu*Yu.adjoint()
+      *Yu) + 2.75*(Yu*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - 0.25*(Yu*Yd.adjoint()*
+      Yd*Yu.adjoint()*Yu) - Yu*Yu.adjoint()*Yu*Yd.adjoint()*Yd + 1.5*(Yu*
       Yu.adjoint()*Yu*Yu.adjoint()*Yu))).real();
 
 

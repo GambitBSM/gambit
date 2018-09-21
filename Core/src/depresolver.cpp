@@ -18,7 +18,8 @@
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 May, Jul, Aug, Nov
-///  \date 2014 Jan, Mar, Apr, Dec
+///        2014 Jan, Mar, Apr, Dec
+///        2018 Sep
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu)
@@ -1648,8 +1649,8 @@ namespace Gambit
     }
 
     /// Find rules entry that matches vertex
-    const IniParser::ObservableType * DependencyResolver::findIniEntry(
-            DRes::VertexID toVertex, const IniParser::ObservablesType &entries, const str & errtag)
+    const IniParser::ObservableType * DependencyResolver::findIniEntry(DRes::VertexID toVertex,
+     const IniParser::ObservablesType &entries, const str & errtag)
     {
       std::vector<const IniParser::ObservableType*> auxEntryCandidates;
       for (IniParser::ObservablesType::const_iterator it =
@@ -1800,7 +1801,7 @@ namespace Gambit
           remaining_groups.clear();
         }
 
-    }
+      }
 
     }
 
@@ -1827,10 +1828,22 @@ namespace Gambit
         if ( auxEntry != NULL ) reqEntry = findIniEntry((*itf)->quantity(), (*auxEntry).backends, "backend");
         if ( reqEntry != NULL) entryExists = true;
 
-        // Without inifile entry, just match any capability-type pair exactly.
-        if ( std::find(reqs.begin(), reqs.end(), (*itf)->quantity()) != reqs.end()
-        // With inifile entry, we also check capability, type, function name and backend name.
-        and ( entryExists ? backendFuncMatchesIniEntry(*itf, *reqEntry, *boundTEs) : true ) )
+        // Look for a match to at least one backend requirement, taking into account type equivalency classes.
+        bool simple_match = false;
+        for (std::set<sspair>::const_iterator
+             itr  = reqs.begin();
+             itr != reqs.end();
+             ++itr)
+        {
+          if ((*itf)->capability() == itr->first and typeComp((*itf)->type(), itr->second, *boundTEs))
+          {
+            simple_match = true;
+            break;
+          }
+        }
+
+        // If there is a relevant inifile entry, we also check for a match to the capability, type, function name and backend name in that entry.
+        if ( simple_match and ( entryExists ? backendFuncMatchesIniEntry(*itf, *reqEntry, *boundTEs) : true ) )
         {
 
           // Has the backend vertex already been disabled by the backend system?
@@ -1860,6 +1873,7 @@ namespace Gambit
           else
           {
             // otherwise, add it to disabled vertex candidate list
+            if (not disabled) (*itf)->setStatus(1);
             disabledVertexCandidates.push_back(*itf);
           }
         }
@@ -1949,12 +1963,16 @@ namespace Gambit
       // Replace the previous list of candidates with the survivors.
       vertexCandidates = survivingVertexCandidates;
 
-      // Only print the status flag -5 if any of the disabled vertex has it
+      // Only print the status flags -5 or -6 if any of the disabled vertices has it
       bool printMathematicaStatus = false;
       for(unsigned int j=0; j < disabledVertexCandidates.size(); j++)
         if(disabledVertexCandidates[j]->status() == -5)
           printMathematicaStatus = true;
- 
+      bool printPythonStatus = false;
+      for(unsigned int j=0; j < disabledVertexCandidates.size(); j++)
+        if(disabledVertexCandidates[j]->status() == -6)
+          printPythonStatus = true;
+
       // No candidates? Death.
       if (vertexCandidates.size() == 0)
       {
@@ -1969,12 +1987,14 @@ namespace Gambit
                  <<     printGenericFunctorList(disabledVertexCandidates)
                  << endl
                  << "Status flags:" << endl
-                 << " 1: This function is available, but the backend version does not match your request." << endl
+                 << " 1: This function is available, but the backend version is not compatible with all your requests." << endl
                  << " 0: This function is not compatible with any model you are scanning." << endl
                  << "-1: The backend that provides this function is missing." << endl
                  << "-2: The backend is present, but function is absent or broken." << endl;
          if(printMathematicaStatus)
             errmsg << "-5: The backend requires Mathematica, but Mathematica is absent." << endl;
+         if(printPythonStatus)
+            errmsg << "-6: The backend requires Python, but pybind11 is absent." << endl;
           errmsg << endl
                  << "Make sure to check your YAML file, especially the rules" << endl
                  << "pertaining to backends."  << endl

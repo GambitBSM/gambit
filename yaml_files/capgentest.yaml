@@ -1,0 +1,395 @@
+##########################################################################
+## GAMBIT configuration for running a scan of the CMSSM using Diver.
+##
+## Includes likelihoods for LHC and LEP particle searches, LHC and LEP Higgs
+## searches (and LHC signal strengths), flavour physics, indirect and
+## direct dark matter detection, and electroweak precision observables.
+##
+## SM, nuclear matrix element and dark matter halo nuisance parameters
+## are included.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # Nuclear matrix parameters.
+  # nuclear_params_sigmas_sigmal:
+  #   sigmas:
+  #     range:  [19, 67]
+  #   sigmal:
+  #     range:  [31, 85]
+  #   deltau:
+  #     fixed_value:  0.842
+  #   deltad:
+  #     fixed_value: -0.427
+  #   deltas:
+  #     fixed_value: -0.085
+
+  # SUSY parameters.
+  CMSSM:
+    M0: 200
+    M12: 80
+    A0: 0
+    TanBeta: 10
+    SignMu: 1
+
+  # Dark matter halo parameters.
+  Halo_gNFW_rho0:
+    rho0:
+      range: [.3, .4]
+    v0:
+      range: [235.0, 280.0]
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "testystuff.dat"
+
+
+#  printer: hdf5
+# options:
+#   output_file: "CMSSM.hdf5"
+#   group: "/CMSSM"
+
+
+Scanner:
+
+  use_scanner: grid
+
+  scanners:
+
+    grid:
+      plugin: grid
+      like: LogLike
+      grid_pts: [2, 2]
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 19200
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+
+  - purpose: Observable
+    capability: capture_rate_Sun
+#  function: capture_rate_Sun_const_xsec
+#capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec
+    #function: capture_rate_Sun_const_xsec_capgen
+    function: capture_rate_Sun_vnqn
+
+
+Rules:
+
+  # Tell all functions that are able to dump SLHA files to do so.
+  #- options:
+  #    drop_SLHA_file: true
+
+  # Globally permit maximal mixing between gauge and family eigenstates
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+
+  # Choose to use gm2calc for g-2
+  - capability: muon_gm2
+    function: GM2C_SUSY
+
+  # Choose to base the SM prediction for g-2 on e+e- data
+  - capability: muon_gm2_SM
+    function: gm2_SM_ee
+
+  # Use SuperIso instead of FeynHiggs for b->sgamma
+  - capability: bsgamma
+    function: SI_bsgamma
+
+  # Use SuperIso instead of FeynHiggs for B_s->mumu
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+
+  # Choose to implement the relic density likelihood as an upper bound, not a detection
+  - capability: lnL_oh2
+    function: lnL_oh2_upperlimit
+
+  # Choose to rescale signals in direct and indirect detection by the relic density fraction
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+
+  # Use DarkSUSY, MicrOmegas or the DarkBit native calculator for the relic density?
+  - capability: RD_oh2
+    function: RD_oh2_general
+    #function: RD_oh2_DarkSUSY
+    #function: RD_oh2_MicrOmegas
+    options:
+      # for all calculations
+      fast: 1
+      # used by RD_oh2_DarkSUSY only
+      omtype: 1
+      # used by RD_oh2_MicrOmegas only
+      Beps: 1e-5
+
+  # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
+  - capability: lnL_FermiLATdwarfs
+    function:  lnL_FermiLATdwarfs_gamLike
+
+  # Choose to use DarkSUSY yield tables for indirect detection
+  - capability: SimYieldTable
+    function: SimYieldTable_DarkSUSY
+    options:
+      allow_yield_extrapolation: true
+
+  # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
+  - capability: DD_couplings
+    function: DD_couplings_DarkSUSY
+    #function: DD_couplings_MicrOmegas
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_CMSSM_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  # Choose where to get the precision spectrum from
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+    #function: make_MSSM_precision_spectrum_W
+    #function: make_MSSM_precision_spectrum_H_W
+    # The following options only have an impact when using make_MSSM_precision_spectrum_H_W.
+    # Choose to take FeynHiggs' prediction for the Higgs mass (rather then FlexibleSUSY's).
+    # Choose to use the difference between the FeynHiggs and spectrum generator predictions, along
+    # with the FH error estimate, to estimate the theoretical error on the prediction.
+    #options:
+    #  Higgs_predictions_source: 1
+    #  Higgs_predictions_error_method: 4
+
+  # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
+  # as the latest version (2.12.0) is buggy.
+  # In practice, the easiest way to do this is just to not install / nuke the versions you don't want to use, e.g.
+  #  make nuke-feynhiggs_2_12_0
+  #  make nuke-feynhiggs_2_11_2
+  # In a future version of GAMBIT, it will possible to just do this here in the yaml file:
+  #- backend: FeynHiggs
+  #  version: 2.11.3
+  # If you want to do it from the yaml file now, you need to do this:
+  #- capability: FH_Couplings_output
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  #- capability: FH_Precision
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
+  #- capability: prec_HiggsMasses
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  #- capability: FH_MSSMMasses
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+  # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+    #function: MSSM_higgs_couplings_FH
+
+  # Experimental values to be used in nuclear parameter likelihoods (all values in MeV)
+  - capability: lnL_SI_nuclear_parameters
+    function: lnL_sigmas_sigmal
+    options:
+      sigmas_central: 43.0
+      sigmas_error: 8.0
+      sigmal_central: 58.0
+      sigmal_error: 9.0
+
+  # Observed value and uncertainty of local dark matter density (in GeV/cm^3)
+  - capability: lnL_rho0
+    function: lnL_rho0_lognormal
+    options:
+      rho0_obs: 0.4
+      rho0_obserr: 0.15
+
+  # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
+  - capability: LHC_Combined_LogLike
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+
+  # Values to be used in local disk rotation speed likelihood (all values in km/s)
+  - capability: lnL_vrot
+    function: lnL_vrot_gaussian
+    options:
+      vrot_obs: 235
+      vrot_obserr: 20
+
+  # Values to be used in Maxwellian most-probable speed likelihood (all values in km/s)
+  - capability: lnL_v0
+    function: lnL_v0_gaussian
+    options:
+      v0_obs: 235
+      v0_obserr: 20
+
+  # Values to be used in local Galactic escape speed likelihood (all values in km/s)
+  - capability: lnL_vesc
+    function: lnL_vesc_gaussian
+    options:
+      vesc_obs: 550
+      vesc_obserr: 35
+
+  # Values to be used in PrecisionBit likelihood function for light quark masses
+  - capability: lnL_light_quark_masses
+    options:
+      # m_u/m_d
+      mud_central: 0.48
+      mud_error: 0.10
+      # m_s / ((m_u + m_d)/2)
+      msud_central: 27.5
+      msud_error: 1.0
+      # m_s
+      ms_central: 95.E-03
+      ms_error: 5.E-03
+
+  # ATLAS detector simulation
+  - capability: SimpleSmearingSim
+    type: "ColliderBit::BuckFastSmearATLAS"
+    function: getBuckFastATLAS
+    options:
+      partonOnly: [false]
+      antiktR: [0.4]
+      useDetector: [true]
+
+  # CMS detector simulation
+  - capability: SimpleSmearingSim
+    type: "ColliderBit::BuckFastSmearCMS"
+    function: getBuckFastCMS
+    options:
+      partonOnly: [false]
+      antiktR: [0.5]
+      useDetector: [true]
+
+  # ATLAS analysis setup.
+  - capability: ATLASAnalysisContainer
+    function: getATLASAnalysisContainer
+    options:
+      analyses: [ ["ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
+                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
+                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
+                   "ATLAS_3LEPEW_20invfb"] ]
+
+  # CMS analysis setup
+  - capability: CMSAnalysisContainer
+    function: getCMSAnalysisContainer
+    options:
+      analyses: [ ["CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
+                   "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"] ]
+
+  # Choose Monte Carlo event simulator and number of events to run.
+  - capability:  ColliderOperator
+    function: operateLHCLoop
+    options:
+      nEvents: [20000]
+      pythiaNames: ["Pythia_SUSY_LHC_8TeV"]
+      silenceLoop: true
+
+  # Define Monte Carlo event simulator and associated options.
+  - capability:  HardScatteringSim
+    function:  getPythia
+    options:
+      ### Pythia_doc_path defaults to the xmldoc directory of the default Pythia
+      ###   backend. So, this must only be set if the user chooses a different Pythia.
+      #Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
+      Pythia_SUSY_LHC_8TeV: ["Print:quiet = on",
+                             "PartonLevel:MPI = off",
+                             "PartonLevel:ISR = on",
+                             "PartonLevel:FSR = on",
+                             "HadronLevel:all = on",
+                             "SUSY:all = on",
+                             "TauDecays:mode = 0",
+                             "TimeShower:pTmin = 20"]
+      xsec_vetos: [0.048]  # 0.048 fb correspond to ~1 expected event at L = 20.7 fb^-1.
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/CMSSM/"
+
+  debug: true
+  DARKBIT_DEBUG: true

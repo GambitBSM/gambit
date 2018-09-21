@@ -30,6 +30,10 @@
 ///          (anders.kvellestad@nordita.org)
 ///  \date 2016 Feb
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Oct
+///
 ///  *********************************************
 
 
@@ -104,6 +108,9 @@ START_MODULE
   // Basic mass extractors for different types of spectra, for use with precision likelihoods and other things not needing a whole spectrum object.
   QUICK_FUNCTION(PrecisionBit, mw, NEW_CAPABILITY, mw_from_SM_spectrum,   triplet<double>, (), (SM_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_SS_spectrum,   triplet<double>, (SingletDM, SingletDMZ3), (SingletDM_spectrum, Spectrum))
+  QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_VV_spectrum,   triplet<double>, (VectorDM), (VectorDM_spectrum, Spectrum))
+  QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_XX_spectrum,   triplet<double>, (MajoranaDM), (MajoranaDM_spectrum, Spectrum))
+  QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_FF_spectrum,   triplet<double>, (DiracDM), (DiracDM_spectrum, Spectrum))   
   QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_MSSM_spectrum, triplet<double>, (MSSM63atQ, MSSM63atMGUT), (MSSM_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mh, NEW_CAPABILITY, mh_from_SM_spectrum,   triplet<double>, (), (SM_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_SS_spectrum,   triplet<double>, (SingletDM, SingletDMZ3), (SingletDM_spectrum, Spectrum))

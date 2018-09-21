@@ -31,10 +31,14 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2014 Dec
+///
+///  \author Andy Buckley
+///          (andy.buckley@cern.ch)
+///  \date 2017 Jun
 ///
 ///  *********************************************
 
@@ -61,18 +65,18 @@ namespace Gambit
       public:
 
         /// Pick uniform distribution
-        threadsafe_rng() : distribution(0.0, 1.0) {}
+        // threadsafe_rng() : distribution(0.0, 1.0) {}
 
         /// Pure virtual destructor to force overriding in derived class
-        virtual ~threadsafe_rng() = 0; 
+        virtual ~threadsafe_rng() = 0;
 
         /// Operator used for getting random deviates
         virtual double operator()() = 0;
 
-      protected:
-
-        /// The underlying uniform distribution
-        std::uniform_real_distribution<double> distribution;
+        /// Operator for compliance with RandomNumberEngine interface -> random distribution sampling
+        double min() const { return 0.0; }
+        /// Operator for compliance with RandomNumberEngine interface -> random distribution sampling
+        double max() const { return 1.0; }
 
     };
 
@@ -85,14 +89,15 @@ namespace Gambit
     {
 
       public:
-      
+
         /// Create RNG engines, one for each thread.
         specialised_threadsafe_rng()
         {
-          const int max_threads = omp_get_max_threads(); 
+          const int max_threads = omp_get_max_threads();
           rngs = new Engine[max_threads];
           for(int index = 0; index < max_threads; ++index)
           {
+            /// @todo Would it be better to hardware-seed via std::random_device?
             rngs[index] = Engine(index+std::chrono::system_clock::now().time_since_epoch().count());
           }
         }
@@ -100,8 +105,8 @@ namespace Gambit
         /// Destroy RNG engines
         virtual ~specialised_threadsafe_rng() { delete [] rngs; }
 
-        /// Draw a random number from the uniform distribution, using the chosen engine. 
-        virtual double operator()() { return distribution(rngs[omp_get_thread_num()]); }
+        /// Draw a random number from the uniform distribution, using the chosen engine.
+        virtual double operator()() { return std::generate_canonical<double, 32>(rngs[omp_get_thread_num()]); }
 
       private:
 
@@ -123,6 +128,9 @@ namespace Gambit
       /// Draw a single uniform random deviate using the chosen RNG engine
       static double draw();
 
+      /// Draw a single uniform random deviate using the chosen RNG engine
+      static Utils::threadsafe_rng& rng() { return *local_rng; }
+
     private:
 
       /// Private constructor makes this a purely managerial class, i.e. unable to be instantiated
@@ -136,10 +144,3 @@ namespace Gambit
 }
 
 #endif // #defined __threadsafe_rng_hpp__
-
-
-
-
-
-
-

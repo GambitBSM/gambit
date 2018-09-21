@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Functions specifically for triggering 
+///  Functions specifically for triggering
 ///  backend initialisation code.
 ///
 ///  *********************************************
@@ -12,7 +12,7 @@
 ///
 ///  (add name and date if you modify)
 ///
-///  \author Pat Scott 
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Feb
 ///
@@ -22,21 +22,62 @@
 #define __ini_functions_backends_hpp__
 
 #include <vector>
+#include <exception>
 #include <dlfcn.h>
 
 #include "gambit/Utils/util_types.hpp"
-#include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Backends/backend_singleton.hpp"
+#include "gambit/Elements/ini_catch.hpp"
+
+/// Define the separator to use instead of "::" when macros get gnarly.
+#define NS_SEP ___no_apologies_for_rocking_macros___
 
 
 namespace Gambit
 {
+  // Forward declarations
+  class functor;
+  class module_functor_common;
+
+  /// Get back the "::" from things that use NS_SEP instead
+  str fixns(str);
+
+  /// Call push back on a vector of strings
+  int vectorstr_push_back(std::vector<str>&, str);
+
+  /// Notify a backend functor of which models it can be used with
+  int set_allowed_models(functor&, std::vector<str>&, str);
+
+  /// Register a backend with the logging system
+  int register_backend_with_log(str);
+
+  /// Register a BOSSed type with the rollcall system
+  int register_type(str bever, str classname);
+
+  /// Disable a backend functor if its library is missing or the symbol cannot be found.
+  int set_backend_functor_status(functor&, const str&);
+
+  /// Disable a backend initialisation function if the backend is missing.
+  int set_BackendIniBit_functor_status(functor&, str, str);
+
+  /// Get the status of a factory pointer to a BOSSed type's wrapper constructor.
+  int get_ctor_status(str, str, str, str, str, str);
+
+  /// Set a backend rule for one or more models.
+  int set_backend_rule_for_model(module_functor_common&, str, str);
+
+  /// Set the classloading requirements of a given functor.
+  int set_classload_requirements(module_functor_common&, str, str, str);
+
+  /// Save default versions of BOSSed backends for later reference
+  int set_default_bossed_version(const str&, const str&);
 
   namespace Backends
   {
 
     /// Simplify pointers to void functions
     typedef void(*voidFptr)();
-    
+
     /// Hack to suppress warnings about casting between void pointers and function pointers.
     /// "Necessary" as long as dlsym has no separate functionality for retrieving function pointers.
     union void_voidFptr
@@ -47,14 +88,18 @@ namespace Gambit
 
     /// Get the pointer to the backend function.
     template <typename T>
-    T load_backend_symbol(void* pHandle, void_voidFptr pSym, str symbol_name, str be, str ver)
+    T load_backend_symbol(str symbol_name, str be, str ver)
     {
       T result;
       try
       {
+        // Get the pointer to the backend
+        bool works = backendInfo().works.at(be+ver);
+        void* pHandle = works ? backendInfo().loaded_C_CXX_Fortran_backends.at(be+ver) : NULL ;
         // Clear error code by calling dlerror()
         dlerror();
         // Obtain a void pointer (pSym) to the library symbol.
+        void_voidFptr pSym;
         pSym.ptr = dlsym(pHandle, symbol_name.c_str());
         // If using backwards systems missing dlinfo(), like OSX, determine the path to the library with dladdr()
         #ifndef HAVE_LINK_H
@@ -64,15 +109,15 @@ namespace Gambit
             Dl_info info;
             int dladdr_result = dladdr(pSym.ptr, &info);
             // Try overriding the path to the library if dladdr seemed to return OK.
-            if (dladdr_result) attempt_backend_path_override(be, ver, info.dli_fname);
-          }        
+            if (dladdr_result) backendInfo().attempt_backend_path_override(be, ver, info.dli_fname);
+          }
         #else
           // Do something inconsequential with the last two args to skip compiler warnings.
           (void)be;
           (void)ver;
         #endif
         // Hand over the pointer
-        result = reinterpret_cast<T>(pSym.fptr);        
+        result = reinterpret_cast<T>(pSym.fptr);
       }
       catch (std::exception& e) { ini_catch(e); }
       return result;
@@ -80,7 +125,7 @@ namespace Gambit
 
     /// Provide the factory pointer to a BOSSed type's wrapper constructor.
     template <typename T>
-    T handover_factory_pointer(str be, str ver, str name, str barename, 
+    T handover_factory_pointer(str be, str ver, str name, str barename,
                                str args, str symbol_name, T factory,
                                T missing_backend, T missing_factory)
     {
@@ -89,13 +134,13 @@ namespace Gambit
         int status = get_ctor_status(be, ver, name, barename, args, symbol_name);
         switch(status)
         {
-          case  0: return factory;         
+          case  0: return factory;
           case -1: return missing_backend;
           case -2: return missing_factory;
         }
       }
       catch (std::exception& e) { ini_catch(e); }
-      return missing_factory;      
+      return missing_factory;
     }
 
   }

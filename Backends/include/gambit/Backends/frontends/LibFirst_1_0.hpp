@@ -2,18 +2,18 @@
 //   *********************************************
 ///  \file
 ///
-///  Example of how to use the macros in 
+///  Example of how to use the macros in
 ///  'backend_macros.hpp' to set up a frontend for
 ///  a specific library.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Anders Kvellestad
 ///  \date 2013 Mar, Apr, Nov
 ///
-///  \author Pat Scott 
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 Apr
 ///  \date 2014 May
@@ -42,9 +42,9 @@ LOAD_LIBRARY
  * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
  */
 
-BE_FUNCTION(initialize, void, (int), "_Z10initializei", "LibFirst_initialize_capability")
+BE_FUNCTION(initialize, void, (int), "_Z10initializei", "initialize_capability")
 BE_FUNCTION(someFunction, void, (), "_Z12someFunctionv", "someFunction")
-BE_FUNCTION(returnResult, double, (), "_Z12returnResultv","LibFirst_returnResult_capability")
+BE_FUNCTION(returnResult, double, (), "_Z12returnResultv","returnResult_capability")
 BE_FUNCTION(byRefExample, double, (double&), "_Z12byRefExampleRd", "refex")
 BE_FUNCTION(byRefExample2, void, (double&, double), "_Z13byRefExample2Rdd", "refex2")
 
@@ -89,7 +89,7 @@ BE_NAMESPACE
   /* Convenience functions go here */
   double awesomenessByAnders(int a)
   {
-    logger().send("Message from 'awesomenessByAnders' backend convenience function in libfirst wrapper",LogTags::info);
+    logger().send("Message from 'awesomenessByAnders' backend convenience function in LibFirst v1.0 wrapper",LogTags::info);
     initialize(a);
     someFunction();
     return returnResult();

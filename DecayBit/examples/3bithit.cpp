@@ -65,7 +65,7 @@ int main()
     cout << "    SDECAY (via SUSY-HIT)                                " << endl;
     cout <<                                                                endl;
     cout << "  GAMBIT Models Workgroup                                " << endl;
-    cout << "  EPJC 2017 xx:xxxx                                      " << endl;
+    cout << "  EPJC 2018 xx:xxxx                                      " << endl;
     cout << "  (arXiv:1705.07936)                                     " << endl;
     cout <<                                                                endl;
     cout << "---------------------------------------------------------" << endl;

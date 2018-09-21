@@ -373,11 +373,11 @@ Rules:
   - capability: DD_couplings
     function: DD_couplings_DarkSUSY
     options: 
-      # If the below is true, 1 loop effects as discuseed in 
-      # Drees Nojiri Phys.Rev. D48 (1993) 3483 are included
+      # If the below is true, 1 loop effects as discuseed in Drees Nojiri 
+      # Phys.Rev. D48 (1993) 3483 are included (default: true)
       loop: true 
-      # If the below is false, the squark propagator is approximated as 1/m_sq^2
-      # (automatically set to true if loop = true)
+      # If the below is false, the squark propagator is approximated as 1/m_sq^2 
+      # (default: false)
       # pole: false
     #function: DD_couplings_MicrOmegas
     #options:

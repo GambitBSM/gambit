@@ -41,13 +41,46 @@
 #          (j.mckay14@imperial.ac.uk)
 #  \date 2016 Aug
 #
+#  \author Ankit Beniwal
+#  	   (ankit.beniwal@adelaide.edu.au)
+#  \date 2016 Aug
+#  \date 2017 Jun
+#  \date 2018 Aug
+#
+#  \author Aaron Vincent
+#          (aaron.vincent@cparc.ca)
+#  \date 2017 Sep, Nov
+#
 #************************************************
+
+
+
+# CaptnGeneral
+set(name "capgen")
+set(ver "1.0")
+set(lib "gencaplib")
+set(dl "null")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    GIT_REPOSITORY https://github.com/aaronvincent/captngen.git
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${GAMBIT_Fortran_FLAGS} MODULE=${FMODULE}
+    INSTALL_COMMAND ""
+)
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
 
 
 # DarkSUSY
 set(name "darksusy")
 set(ver "5.1.3")
-set(dl "http://www.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
+set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "ca95ffa083941a469469710fab2f3c97")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -107,7 +140,7 @@ endif()
 set(name "ddcalc")
 set(ver "1.0.0")
 set(lib "libDDCalc")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "0c0da22b84721fc1d945f8039a4686c9")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
@@ -129,9 +162,49 @@ endif()
 set(name "ddcalc")
 set(ver "1.1.0")
 set(lib "libDDCalc")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "47191564385379dd70aeba4811cd7c3b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(ddcalc_flags "${GAMBIT_Fortran_FLAGS} -${FMODULE} ${dir}/build")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "ddcalc")
+set(ver "1.2.0")
+set(lib "libDDCalc")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(md5 "93b894b80b360159264f0d634cd7387e")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(ddcalc_flags "${GAMBIT_Fortran_FLAGS} -${FMODULE} ${dir}/build")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "ddcalc")
+set(ver "2.0.0")
+set(lib "libDDCalc")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(md5 "504cb95a298fa62d11097793dc318549")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
 set(ddcalc_flags "${GAMBIT_Fortran_FLAGS} -${FMODULE} ${dir}/build")
 check_ditch_status(${name} ${ver})
 if(NOT ditched_${name}_${ver})
@@ -151,7 +224,7 @@ endif()
 # Gamlike
 set(name "gamlike")
 set(ver "1.0.0")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 if(GSL_FOUND)
@@ -255,6 +328,59 @@ if(NOT ditched_${name}_${model}_${ver})
   set_as_default_version("backend model" ${name}_${model} ${ver})
 endif()
 
+# MicrOmegas VectorDM model
+set(model "VectorDM")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
+  set_as_default_version("backend model" ${name}_${model} ${ver})
+endif()
+
+# MicrOmegas MajoranaDM model
+set(model "MajoranaDM")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
+  set_as_default_version("backend model" ${name}_${model} ${ver})
+endif()
+
+# MicrOmegas DiracDM model
+set(model "DiracDM")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
+  set_as_default_version("backend model" ${name}_${model} ${ver})
+endif()
 
 # Pythia
 set(name "pythia")
@@ -343,7 +469,7 @@ endif()
 set(name "nulike")
 set(ver "1.0.4")
 set(lib "libnulike")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "47649992d19984ee53df6a1655c48227")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver})
@@ -363,7 +489,7 @@ endif()
 set(name "nulike")
 set(ver "1.0.5")
 set(lib "libnulike")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "20cee73a38fb3560298b6a3acdd4d83a")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver})
@@ -383,7 +509,7 @@ endif()
 set(name "nulike")
 set(ver "1.0.6")
 set(lib "libnulike")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "fc4c35dc867bb1213d80acd12e5c1169")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver})
@@ -532,7 +658,7 @@ endif()
 # HiggsBounds tables
 set(name "higgsbounds_tables")
 set(ver "0.0")
-set(dl "https://www.hepforge.org/archive/higgsbounds/csboutput_trans_binary.tar.gz")
+set(dl "https://higgsbounds.hepforge.org/downloads/csboutput_trans_binary.tar.gz")
 set(md5 "004decca30335ddad95654a04dd034a6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver})
@@ -554,9 +680,10 @@ endif()
 set(name "higgsbounds")
 set(ver "4.3.1")
 set(lib "libhiggsbounds")
-set(dl "https://www.hepforge.org/archive/higgsbounds/HiggsBounds-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
 set(md5 "c1667613f814a9f0297d1f11a8b3ef34")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(hb_tab_name "higgsbounds_tables")
 set(hb_tab_ver "0.0")
 set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
@@ -566,6 +693,7 @@ if(NOT ditched_${name}_${ver})
     DEPENDS ${hb_tab_name}_${hb_tab_ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
               COMMAND sed ${dashi} -e "s|clsbtablesdir=.*|clsbtablesdir=\"${hb_tab_dir}/\"|" my_configure
@@ -592,7 +720,7 @@ endif()
 set(name "higgsbounds")
 set(ver "4.2.1")
 set(lib "libhiggsbounds")
-set(dl "https://www.hepforge.org/archive/higgsbounds/HiggsBounds-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
 set(md5 "47b93330d4e0fddcc23b381548db355b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(hb_tab_name "higgsbounds_tables")
@@ -630,7 +758,7 @@ endif()
 set(name "higgssignals")
 set(ver "1.4.0")
 set(lib "libhiggssignals")
-set(dl "https://www.hepforge.org/archive/higgsbounds/HiggsSignals-${ver}.tar.gz")
+set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
 set(md5 "537d3885b1cbddbe1163dbc843ec2beb")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -672,7 +800,7 @@ endif()
 set(name "spheno")
 set(ver "3.3.8")
 set(lib "lib/libSPheno.so")
-set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/SPheno-${ver}.tar.gz")
 set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
@@ -695,7 +823,7 @@ endif()
 # gm2calc
 set(name "gm2calc")
 set(ver "1.3.0")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "1bddab5a411a895edd382a1f8a991c15")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
@@ -721,7 +849,7 @@ endif()
 # gm2calc
 set(name "gm2calc")
 set(ver "1.2.0")
-set(dl "https://www.hepforge.org/archive/${name}/${name}-${ver}.tar.gz")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "07d55bbbd648b8ef9b2d69ad1dfd8326")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
@@ -751,7 +879,8 @@ set(ver "1.0.2")
 set(dl "http://users.ictp.it/~${name}/v${ver}/SUSYHD.tgz")
 set(md5 "e831c3fa977552ff944e0db44db38e87")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} 1)
+set(ditch_if_absent "Mathematica")
+check_ditch_status(${name} ${ver} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}

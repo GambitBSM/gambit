@@ -1,0 +1,164 @@
+##########################################################################
+## GAMBIT configuration for an ultra-minimal random scan of the CMSSM.
+##
+## Only needs example modules ExampleBit_A and ExampleBit_B,
+## plus example backends libfirst and libFortran.
+##########################################################################
+
+
+Parameters:
+
+  NUHM1:
+    A0: [10.0, -100.0, 1]
+    M0:
+      prior_type: log
+      range: [0.001,1000]
+    mH:
+      prior_type: log
+      range: [0.001,1000]
+    M12:
+      prior_type: log
+      range: [100,2000]
+    SignMu:
+      range: [-1, 1]
+    TanBeta:
+      fixed_value: 1
+
+
+Priors:
+
+  # Specify the priors, the parameters they work with, and any options as needed for that prior.
+  # A prior object is built for every entry here (along with any coming from 'range' keywords above),
+  # and then they are combined internally by ScannerBit into an overall 'composite' prior.
+
+Printer:
+
+  # Select printer to use via string tag (ascii or hdf5)
+  printer: ascii
+
+  # This options node is passed on wholesale to
+  # the printer object; required options may
+  # therefore vary according to the selected
+  # printer.
+  options:
+    output_file: "results.dat"
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like:  LogLike
+      point_number: 20
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 3
+
+    grid:
+      plugin: grid
+      like: LogLike
+      grid_pts: [2, 2, 3]
+
+
+ObsLikes:
+
+  # Test CMSSM, ExampleBit_A and ExampleBit_B
+  - purpose:      LogLike
+    capability:   Example_lnL_B
+    type:         double
+    function:     ""
+    module:       ""
+
+  # Test loop manager
+  - purpose:      LogLike
+    capability:   Example_lnL_A
+    type:         double
+
+  # Test array and -> operators in safety buckets.
+  - purpose:      Observable
+    capability:   ptr_arr_tests
+
+  # Test vector output of printer
+  - purpose:      Observable
+    capability:   test_vector
+    type:         std::vector<double>
+
+  # Test passing of arrays to backends
+  - purpose:      Observable
+    capability:   test_BE_Array
+
+
+Rules:
+
+  - capability:   LibFirst_1_1_init
+    dependencies:
+    - {capability: nevents, module: ExampleBit_A}
+
+  - capability:    nevents_postcuts
+    type: int
+    dependencies:
+    - {capability: particle_id, module: ExampleBit_B}
+    backends:
+    - {capability: awesomeness, backend: LibFirst, version: 1.1}
+    - {capability: someFunction, backend: LibFirst, version: 1.1}
+
+  - capability:    xsection
+    options:
+      scale: 15.5
+
+  - capability:    function_pointer
+    backends:
+    - {function: externalFunction2}
+
+
+Logger:
+
+  # Redirection of specific messages according to tags
+  # Can redirect to stdout or stderr by specifying these as the "filenames".
+  # Obviously this also means it is impossible to redirect output to actual
+  # files with these names.
+
+  redirection:
+    [Default]             : "default.log"
+    [Debug]               : "debug.log"
+    [Error]               : "errors.log"
+    [Warning]             : "warnings.log"
+    [Core,Error]          : "core_errors.log"
+    [Core,Error,Fatal]    : "fatal_core_errors.log"
+    [Dependency Resolver] : "dependency_resolver.log"
+    [Scanner]             : "Scanner.log"
+    [ExampleBit_A]        : "ExampleBit_A.log"
+    [ExampleBit_B]        : "ExampleBit_B.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/spartan_CMSSM"
+
+  # Some example keys and subkeys
+  my_key: 123
+  another_key:
+    subkey3:
+      subsubkey1: value2
+
+  rng: ranlux48
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    log_runtime: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  # By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+    ExampleBit_A_error: non-fatal

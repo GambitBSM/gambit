@@ -1,0 +1,281 @@
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  CMSSM:
+    M0: 70
+    M12: 350
+    A0: 0
+    TanBeta: 10
+    SignMu: 1
+
+Priors:
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "CMSSM.hdf5"
+    group: "/CMSSM"
+    delete_file_on_restart: true
+
+Scanner:
+
+  use_scanner: multinest
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 1
+      tol: 0.5
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  Likelihood
+      files:
+        output_file: "weights ..."
+
+
+ObsLikes:
+
+    - capability: lnL_t_mass
+      purpose:    LogLike
+
+    - capability: lnL_mbmb
+      purpose:    LogLike
+
+    - capability: lnL_alpha_em
+      purpose:    LogLike
+
+    - capability: lnL_alpha_s
+      purpose:    LogLike
+
+    - capability: lnL_W_mass
+      purpose:    LogLike
+
+    - capability: lnL_sinW2_eff
+      purpose:    LogLike
+
+    - capability: lnL_deltarho
+      purpose:    LogLike
+
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+    - purpose:    LogLike
+      capability: ALEPH_Selectron_LLike
+
+    - purpose:    LogLike
+      capability: ALEPH_Smuon_LLike
+
+    - purpose:    LogLike
+      capability: ALEPH_Stau_LLike
+
+    - purpose:    LogLike
+      capability: L3_Selectron_LLike
+
+    - purpose:    LogLike
+      capability: L3_Smuon_LLike
+
+    - purpose:    LogLike
+      capability: L3_Stau_LLike
+
+    - purpose:    LogLike
+      capability: L3_Neutralino_All_Channels_LLike
+
+    - purpose:    LogLike
+      capability: L3_Neutralino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: L3_Chargino_All_Channels_LLike
+
+    - purpose:    LogLike
+      capability: L3_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_All_Channels_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Neutralino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
+
+Rules:
+
+  - capability: decay_rates
+    function: all_decays
+
+  - capability: unimproved_MSSM_spectrum
+    function: get_CMSSM_spectrum
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 1
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+  - capability:  ColliderOperator
+    function: operateLHCLoop
+    options:
+      nEvents: [0, 1000000]
+      pythiaNames: ["Pythia_SUSY_LHC_8TeV", "Pythia_SUSY_LHC_13TeV"]
+      silenceLoop: false
+
+  - capability:  HardScatteringSim
+    function:  getPythiaFileReader
+    options:
+      Pythia_SUSY_LHC_8TeV: []
+      Pythia_SUSY_LHC_13TeV: ["Print:quiet = on",
+                             "PartonLevel:MPI = off",
+                             "PartonLevel:ISR = on",
+                             "PartonLevel:FSR = off",
+                             "HadronLevel:all = on",
+                             "SUSY:all = off",
+                             "SUSY:qqbar2chi+-chi0 = on",
+                             "SUSY:idA = 1000023",
+                             "SUSY:idB = 1000024",
+                             "SLHA:keepSM = off",
+                             "SLHA:minMassSM = 0",
+                             "TauDecays:mode = 0"]
+      xsec_vetos: [0.048, 0.075]
+
+      SLHA_filenames: ["ColliderBit/data/CMS_13TeV_2OSLEP_36invfb_550_200.slha"] 
+
+  - capability: DetectorSim
+    type: "Gambit::ColliderBit::DelphesVanilla"
+    function: getDelphes
+    options:
+      useDetector: [false,false]
+      delphesConfigFiles: ["ColliderBit/data/delphes_card_ATLAS.tcl","ColliderBit/data/delphes_card_ATLAS.tcl"]
+
+  - capability: SimpleSmearingSim
+    type: "Gambit::ColliderBit::BuckFastSmearATLAS"
+    function: getBuckFastATLAS
+    options:
+      useDetector: [false,false]
+      partonOnly: [false,false]
+      antiktR: [0.4,0.4]
+
+  - capability: SimpleSmearingSim
+    type: "Gambit::ColliderBit::BuckFastSmearCMS"
+    function: getBuckFastCMS
+    options:
+      useDetector: [false,true]
+      partonOnly: [false,false]
+      antiktR: [0.4,0.4]
+
+  - capability: SimpleSmearingSim
+    type: "Gambit::ColliderBit::BuckFastIdentity"
+    function: getBuckFastIdentity
+    options:
+      useDetector: [false,false]
+      partonOnly: [false,false]
+      antiktR: [0.4,0.4]
+
+  - capability: DetAnalysisContainer
+    function: getDetAnalysisContainer
+    options:
+      analyses: [ [], [] ]
+
+  - capability: ATLASAnalysisContainer
+    function: getATLASAnalysisContainer
+    options:
+      analyses: [ [], [] ]
+
+  - capability: CMSAnalysisContainer
+    function: getCMSAnalysisContainer
+    options:
+      analyses: [ [], ["CMS_13TeV_2OSLEP_36invfb"] ]
+
+  - capability: IdentityAnalysisContainer
+    function: getIdentityAnalysisContainer
+    options:
+      analyses: [ [], [] ]
+
+  - capability: LHC_Combined_LogLike
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    debug: true
+
+  default_output_path: "runs/ColliderBit_Validation_CMS_13TeV_2OSLEP_36invfb/"

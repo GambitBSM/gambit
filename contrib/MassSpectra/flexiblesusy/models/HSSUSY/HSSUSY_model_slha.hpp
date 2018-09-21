@@ -21,7 +21,7 @@
  * @brief contains wrapper class for model class in SLHA convention
  */
 
-// File generated at Wed 25 Oct 2017 18:12:10
+// File generated at Thu 10 May 2018 14:43:46
 
 #ifndef HSSUSY_SLHA_H
 #define HSSUSY_SLHA_H

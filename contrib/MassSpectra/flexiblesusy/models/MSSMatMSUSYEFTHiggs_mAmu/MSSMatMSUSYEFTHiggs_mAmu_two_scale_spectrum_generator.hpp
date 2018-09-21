@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:57:03
+// File generated at Thu 10 May 2018 14:37:46
 
 #ifndef MSSMatMSUSYEFTHiggs_mAmu_STANDARD_MODEL_TWO_SCALE_SPECTRUM_GENERATOR_H
 #define MSSMatMSUSYEFTHiggs_mAmu_STANDARD_MODEL_TWO_SCALE_SPECTRUM_GENERATOR_H

@@ -19,6 +19,7 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 Apr
 ///        2015 Mar
+///        2018 Sep
 ///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
@@ -53,7 +54,7 @@ BE_FUNCTION(dsrdomega, double, (int&,int&,double&,int&,int&,int&), "dsrdomega_",
 BE_FUNCTION(dsrdinit, void, (), "dsrdinit_", "dsrdinit")
 BE_FUNCTION(dsrdset, void, (char*, int&, char*, int&), "dsrdset_", "dsrdset")
 BE_FUNCTION(dsrdthlim, void, (), "dsrdthlim_", "dsrdthlim")
-BE_FUNCTION(dsrdtab, void, (double(*)(double&), double&), "dsrdtab_", "dsrdtab")
+BE_FUNCTION(dsrdtab, void, (double(*)(double&),double&,int&), "dsrdtab_", "dsrdtab")
 BE_FUNCTION(dsrdeqn, void, (double(*)(double&),double&,double&,double&,double&,int&), "dsrdeqn_", "dsrdeqn")
 BE_FUNCTION(dsrdwintp, double, (double&), "dsrdwintp_", "dsrdwintp")
 BE_FUNCTION(dsanwx, double, (double&), "dsanwx_", "dsanwx")
@@ -115,6 +116,7 @@ BE_VARIABLE(rdpars, DS_RDPARS,     "rdpars_",    "rdpars")    // gRD Parameters
 BE_VARIABLE(rdswitch, DS_RDSWITCH, "rdswitch_",  "rdswitch")  // gRD Switches
 BE_VARIABLE(rdlun, DS_RDLUN,       "rdlun_",     "rdlun")     // gRD I/O
 BE_VARIABLE(rdpadd, DS_RDPADD,     "rdpadd_",    "rdpadd")    // gRD I/O
+BE_VARIABLE(rdtime, DS_RDTIME,     "rdtime_",    "rdtime")    // gRD timeout
 // IB stuff
 BE_VARIABLE(IBintvars, DS_IBINTVARS,"ibintvars_", "IBintvars")
 // Direct detection
@@ -130,8 +132,7 @@ BE_VARIABLE(dshmnoclue, DS_HMNOCLUE, "dshmnoclue_", "dshmnoclue")
 // Convenience functions (registration)
 BE_CONV_FUNCTION(neutrino_yield, double, (const double&, const int&, void*&), "nuyield")
 BE_CONV_FUNCTION(dsgenericwimp_nusetup, void, (const double(&)[29], const double(&)[29][3], const double(&)[15],
-                                               const double(&)[3], const double&, const double&, const double&,
-                                               const double&, const double&), "nuyield_setup")
+                                               const double(&)[3], const double&, const double&), "nuyield_setup")
 BE_CONV_FUNCTION(DSparticle_code, int, (const str&), "particle_code")
 BE_CONV_FUNCTION(init_diskless, int, (const SLHAstruct&, const DecayTable&), "initFromSLHAeaAndDecayTable")
 BE_CONV_FUNCTION(DS_neutral_h_decay_channels, std::vector<std::vector<str>>, (), "get_DS_neutral_h_decay_channels")

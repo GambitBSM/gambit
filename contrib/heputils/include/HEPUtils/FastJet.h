@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -20,12 +20,16 @@
 #include <stdexcept>
 
 #ifndef FJCORE
+#ifndef FJNS
 #define FJNS fastjet
+#endif
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #else
 #include "fjcore.hh"
+#ifndef FJNS
 #define FJNS fjcore
+#endif
 #endif
 
 namespace HEPUtils {
@@ -48,11 +52,14 @@ namespace HEPUtils {
   inline FJNS::PseudoJet mk_pseudojet(const P4& p) {
     return FJNS::PseudoJet(p.px(), p.py(), p.pz(), p.E());
   }
+  /// Alias for mk_pseudojet
+  inline FJNS::PseudoJet mk_pj(const P4& p) { return mk_pseudojet(p); }
 
 
   /// Convert a FastJet PseudoJet to a P4
   inline P4 mk_p4(const FJNS::PseudoJet& p) {
     const double m = p.m();
+    /// @todo These units aren't defined -- should just make it a < 0 threshold
     if (m < -5e-3) throw std::domain_error("Negative mass vector from FastJet");
     return P4::mkXYZM(p.px(), p.py(), p.pz(), (m >= 0) ? m : 0);
   }

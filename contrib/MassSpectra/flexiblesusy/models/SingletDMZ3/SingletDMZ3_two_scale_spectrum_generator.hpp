@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 25 Oct 2017 18:10:44
+// File generated at Thu 10 May 2018 14:42:39
 
 #ifndef SingletDMZ3_TWO_SCALE_SPECTRUM_GENERATOR_H
 #define SingletDMZ3_TWO_SCALE_SPECTRUM_GENERATOR_H

@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 9 Jan 2018 19:57:07
+// File generated at Thu 10 May 2018 14:37:48
 
 /**
  * @file MSSMatMSUSYEFTHiggs_mAmu_a_muon.hpp
  *
- * This file was generated at Tue 9 Jan 2018 19:57:07 with FlexibleSUSY
- * 2.0.1 and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:37:48 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSMatMSUSYEFTHiggs_mAmu_A_MUON_H

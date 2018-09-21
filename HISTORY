@@ -3,6 +3,12 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.1.3
+Bugfix release
+- Made Mathematica backends automatically ditch when Mathematica is missing
+- Updated DarkSUSY 5.1.3 URL to match new SU hosting location
+- Updated HiggsSignals 1.4.0 patch to match (non-versioned!) official increment of HiggsSignals
+
 v1.1.2
 Bugfix release
 - Made DecayTable output SLHA1 and SLHA2 format decay tables
