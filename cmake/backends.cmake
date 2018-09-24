@@ -719,6 +719,36 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# SPheno-SARAH NMSSM model
+set(model "nmssm")
+set(Model "NMSSM")
+set(name "spheno${model}")
+set(ver "4.0.3")
+set(lib "lib/libSPheno${Model}.so")
+#set(dl "https://spheno.hepforge.org/downloads/?f=SPheno-${ver}.tar.gz")
+set(dl "https://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(sarahdir "${PROJECT_SOURCE_DIR}/Models/data/SARAH/${Model}/EWSB/SPheno")
+message(${sarahdir})
+file(GLOB sarahfiles  "${sarahdir}/[a-zA-Z0-9]*")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} 
+             COMMAND mkdir -p "${dir}/${Model}" 
+             COMMAND cp -r "${sarahfiles}" "${dir}/${Model}" 
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} Model=${Model} F90=${CMAKE_Fortran_COMPILER} FFLAGS=${GAMBIT_Fortran_FLAGS} ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # gm2calc
 set(name "gm2calc")
