@@ -303,6 +303,7 @@ namespace Gambit
 
     }
 
+    #if(FS_MODEL_SingletDM_IS_BUILT)   
     void get_SingletDM_spectrum_pole(Spectrum& result)
     {
       using namespace softsusy;
@@ -333,7 +334,9 @@ namespace Gambit
       }
 
     }
+    #endif
 
+    #if(FS_MODEL_SingletDMZ3_IS_BUILT)    
     void get_SingletDMZ3_spectrum(Spectrum& result)
     {
       using namespace softsusy;
@@ -366,6 +369,7 @@ namespace Gambit
       }
 
     }
+    #endif
 
     /// Put together the Higgs couplings for the SingletDM, from partial widths only
     void SingletDM_higgs_couplings_pwid(HiggsCouplingsTable &result)

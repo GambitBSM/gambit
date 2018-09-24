@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:14:35
+// File generated at Thu 10 May 2018 14:56:01
 
 #ifndef CMSSMNoFV_UTILITIES_H
 #define CMSSMNoFV_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class CMSSMNoFV_spectrum_plotter {
 public:
+   CMSSMNoFV_spectrum_plotter() = default;
+   explicit CMSSMNoFV_spectrum_plotter(const CMSSMNoFV_mass_eigenstates&);
    void extract_spectrum(const CMSSMNoFV_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> CMSSMNoFV_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace CMSSMNoFV_database {
 

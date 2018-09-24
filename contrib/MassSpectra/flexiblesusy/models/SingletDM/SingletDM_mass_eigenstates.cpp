@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:41:34
+// File generated at Thu 10 May 2018 14:42:59
 
 /**
  * @file SingletDM_mass_eigenstates.cpp
@@ -26,8 +26,8 @@
  * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Tue 26 Sep 2017 22:41:34 with FlexibleSUSY
- * 2.0.0-dev (git commit: 4d4c39a2702e9a6604f84813ccb0b85d40987f3b) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:42:59 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "SingletDM_mass_eigenstates.hpp"
@@ -660,7 +660,7 @@ void CLASSNAME::clear_DRbar_parameters()
 
 void CLASSNAME::clear_problems()
 {
-   problems.unflag_all_tachyons();
+   problems.clear();
 }
 
 void CLASSNAME::clear()
@@ -2629,8 +2629,8 @@ std::complex<double> CLASSNAME::self_energy_VWp_1loop(double p ) const
    result += -(AbsSqr(CpconjVWpVPVWp())*(A0(Sqr(MVWp)) + 10*B00(Sqr(p),Sqr(MVWp
       ),0) - 2*Sqr(MVWp) + 0.6666666666666666*Sqr(p) + B0(Sqr(p),Sqr(MVWp),0)*(Sqr
       (MVWp) + 4*Sqr(p))));
-   result += 0.5*(-(A0(Sqr(MVZ))*(4*CpconjVWpVWpVZVZ1() + CpconjVWpVWpVZVZ2() +
-      CpconjVWpVWpVZVZ3())) + 2*CpconjVWpVWpVZVZ1()*Sqr(MVZ));
+   result += -0.5*A0(Sqr(MVZ))*(4*CpconjVWpVWpVZVZ1() + CpconjVWpVWpVZVZ2() +
+      CpconjVWpVWpVZVZ3()) + CpconjVWpVWpVZVZ1()*Sqr(MVZ);
    result += -(AbsSqr(CpconjVWpVWpVZ())*(A0(Sqr(MVWp)) + A0(Sqr(MVZ)) + 10*B00(
       Sqr(p),Sqr(MVZ),Sqr(MVWp)) - 2*(Sqr(MVWp) + Sqr(MVZ) - 0.3333333333333333*
       Sqr(p)) + B0(Sqr(p),Sqr(MVZ),Sqr(MVWp))*(Sqr(MVWp) + Sqr(MVZ) + 4*Sqr(p))));

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:35
+// File generated at Thu 10 May 2018 14:41:58
 
 #include "MSSMEFTHiggs_info.hpp"
 
@@ -121,26 +121,26 @@ namespace MSSMEFTHiggs_info {
       "ZZ(0,1)", "ZZ(1,0)", "ZZ(1,1)"};
 
    const std::array<std::string, NUMBER_OF_INPUT_PARAMETERS>
-      input_parameter_names = {"MSUSY", "M1Input", "M2Input", "M3Input", "MuInput"
-      , "mAInput", "TanBeta", "mq2Input(0,0)", "mq2Input(0,1)", "mq2Input(0,2)",
-      "mq2Input(1,0)", "mq2Input(1,1)", "mq2Input(1,2)", "mq2Input(2,0)",
-      "mq2Input(2,1)", "mq2Input(2,2)", "mu2Input(0,0)", "mu2Input(0,1)",
-      "mu2Input(0,2)", "mu2Input(1,0)", "mu2Input(1,1)", "mu2Input(1,2)",
-      "mu2Input(2,0)", "mu2Input(2,1)", "mu2Input(2,2)", "md2Input(0,0)",
-      "md2Input(0,1)", "md2Input(0,2)", "md2Input(1,0)", "md2Input(1,1)",
-      "md2Input(1,2)", "md2Input(2,0)", "md2Input(2,1)", "md2Input(2,2)",
-      "ml2Input(0,0)", "ml2Input(0,1)", "ml2Input(0,2)", "ml2Input(1,0)",
-      "ml2Input(1,1)", "ml2Input(1,2)", "ml2Input(2,0)", "ml2Input(2,1)",
-      "ml2Input(2,2)", "me2Input(0,0)", "me2Input(0,1)", "me2Input(0,2)",
-      "me2Input(1,0)", "me2Input(1,1)", "me2Input(1,2)", "me2Input(2,0)",
-      "me2Input(2,1)", "me2Input(2,2)", "AuInput(0,0)", "AuInput(0,1)",
-      "AuInput(0,2)", "AuInput(1,0)", "AuInput(1,1)", "AuInput(1,2)",
-      "AuInput(2,0)", "AuInput(2,1)", "AuInput(2,2)", "AdInput(0,0)",
-      "AdInput(0,1)", "AdInput(0,2)", "AdInput(1,0)", "AdInput(1,1)",
-      "AdInput(1,2)", "AdInput(2,0)", "AdInput(2,1)", "AdInput(2,2)",
-      "AeInput(0,0)", "AeInput(0,1)", "AeInput(0,2)", "AeInput(1,0)",
-      "AeInput(1,1)", "AeInput(1,2)", "AeInput(2,0)", "AeInput(2,1)",
-      "AeInput(2,2)"};
+      input_parameter_names = {"TanBeta", "Sign(Mu)", "MSUSY", "M1Input",
+      "M2Input", "M3Input", "mHd2IN", "mHu2IN", "mq2Input(0,0)", "mq2Input(0,1)",
+      "mq2Input(0,2)", "mq2Input(1,0)", "mq2Input(1,1)", "mq2Input(1,2)",
+      "mq2Input(2,0)", "mq2Input(2,1)", "mq2Input(2,2)", "mu2Input(0,0)",
+      "mu2Input(0,1)", "mu2Input(0,2)", "mu2Input(1,0)", "mu2Input(1,1)",
+      "mu2Input(1,2)", "mu2Input(2,0)", "mu2Input(2,1)", "mu2Input(2,2)",
+      "md2Input(0,0)", "md2Input(0,1)", "md2Input(0,2)", "md2Input(1,0)",
+      "md2Input(1,1)", "md2Input(1,2)", "md2Input(2,0)", "md2Input(2,1)",
+      "md2Input(2,2)", "ml2Input(0,0)", "ml2Input(0,1)", "ml2Input(0,2)",
+      "ml2Input(1,0)", "ml2Input(1,1)", "ml2Input(1,2)", "ml2Input(2,0)",
+      "ml2Input(2,1)", "ml2Input(2,2)", "me2Input(0,0)", "me2Input(0,1)",
+      "me2Input(0,2)", "me2Input(1,0)", "me2Input(1,1)", "me2Input(1,2)",
+      "me2Input(2,0)", "me2Input(2,1)", "me2Input(2,2)", "AuInput(0,0)",
+      "AuInput(0,1)", "AuInput(0,2)", "AuInput(1,0)", "AuInput(1,1)",
+      "AuInput(1,2)", "AuInput(2,0)", "AuInput(2,1)", "AuInput(2,2)",
+      "AdInput(0,0)", "AdInput(0,1)", "AdInput(0,2)", "AdInput(1,0)",
+      "AdInput(1,1)", "AdInput(1,2)", "AdInput(2,0)", "AdInput(2,1)",
+      "AdInput(2,2)", "AeInput(0,0)", "AeInput(0,1)", "AeInput(0,2)",
+      "AeInput(1,0)", "AeInput(1,1)", "AeInput(1,2)", "AeInput(2,0)",
+      "AeInput(2,1)", "AeInput(2,2)"};
 
    const std::array<std::string, NUMBER_OF_EXTRA_PARAMETERS>
       extra_parameter_names = {};

@@ -43,7 +43,7 @@
 
 namespace softsusy {
    class QedQcd;
-}
+} // namespace softsusy
 
 namespace flexiblesusy {
 

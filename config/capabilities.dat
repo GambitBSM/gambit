@@ -118,10 +118,16 @@ LibFirst_1_0_init: |
 LibFirst_1_1_init: |
    Initialize the C++ testing LibFirst backend, version 1.1.
 
-LibFirst_initialize_capability: |
+LibSecond_1_0_init: |
+   Initialize the Python testing LibSecond backend, version 1.0.
+
+LibSecond_1_1_init: |
+   Initialize the Python testing LibSecond backend, version 1.1.
+
+initialize_capability: |
    Tester function for the initialization of backends.
 
-LibFirst_returnResult_capability: |
+returnResult_capability: |
    Tester function for the return of results from backends.
 
 LibFortran_1_0_init: |
@@ -155,13 +161,13 @@ awesomeness: |
    "awesomenessByAnders" to the logger.
 
 SomeArray: |
-   Example double array in libfirst.
+   Example double array in libfirst and friends.
 
 SomeDouble: |
-   Example double in libfirst.
+   Example double in libfirst and friends.
 
 SomeInt: |
-   Example integer in libfirst.
+   Example integer in libfirst and friends.
 
 funcBE: |
    Example Fortran backend function that simulates a backend function
@@ -258,10 +264,6 @@ SingletDM_spectrum: |
 SingletDMZ3_spectrum: |
     Create spectrum object for scalar singlet dark matter model with a Z3 symmetry.
 
-check_perturb: |
-    Compute the spectrum with the spectrum generator and return a
-    likelihood corresponding to the validity of the spectrum up to the chosen high scale.
-
 vacuum_stability: |
     Run the quartic Higgs coupling to high scales, in order to determine
     the expected lifetime of the electroweak vacuum, the instability scale, and
@@ -277,9 +279,6 @@ VS_likelihood: |
 
 expected_lifetime: |
     Return the expected lifetime of the electroweak vacuum.
-
-print_SingletDM_spectrum: |
-    Print the spectrum contents to the output stream.
 
 #####   Standard model  #####
 
@@ -334,9 +333,21 @@ ColliderOperator: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
+LHCEventLoopInfo: |
+   Info about the event loop.
+
+LHC_signals: |
+   Signal predictions and uncertainties in all LHC analyses.
+
+LHC_LogLikes: |
+   Computes analysis-specific log-likelihood values,
+   from AllAnalysisNumbers.
+
 LHC_Combined_LogLike: |
-   Combines the results from AnalysisNumbers together into
-   a single delta-log-likelihood value.
+   A final, single delta-log-likelihood value for LHC searches.
+
+MC_ConvergenceSettings : |
+   Convergence settings to be used for terminating Monte Carlo event generation.
 
 HardScatteringSim: |
    Provides a Pythia 8 instance within a container which is
@@ -363,25 +374,46 @@ ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
+ATLASnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the 
+   given HardScatteringEvent. No efficiencies are applied.
+
 CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
+
+CMSnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the 
+   given HardScatteringEvent. No efficiencies are applied.
 
 CopiedEvent: |
    Uses the given SimpleSmearingSim to do absolutely nothing to
    the given HardScatteringEvent.
 
 ATLASAnalysisContainer: |
-   Provides a list of ATLAS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASSmearedEvent. The container is ready to apply each analysis to 
+   each event.
+
+ATLASnoeffAnalysisContainer: |
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASnoeffSmearedEvent. The container is ready to apply each analysis to 
+   each event.
 
 CMSAnalysisContainer: |
-   Provides a list of CMS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSSmearedEvent. The container is ready to apply each analysis to 
+   each event.
+
+CMSnoeffAnalysisContainer: |
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to 
+   each event.
 
 DetAnalysisContainer: |
-   Provides a list of Delphes analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of analyses to be used with the detector simulation
+   capability DetectorSim (Delphes). The container is ready to apply each 
+   analysis to each event.
 
 IdentityAnalysisContainer: |
    Provides a list of “identity” analyses (no detector
@@ -392,8 +424,16 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
+ATLASnoeffAnalysisNumbers: |
+   Uses the given ATLASnoeffAnalysisContainer to perform all its
+   analyses upon the given ATLASSmearedEvent.
+
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
+   upon the given CMSSmearedEvent.
+
+CMSnoeffAnalysisNumbers: |
+   Uses the given CMSnoeffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 DetAnalysisNumbers: |
@@ -404,6 +444,9 @@ IdentityAnalysisNumbers: |
    Uses the given IdentityAnalysisContainer
    to perform all its analyses upon the given
    CopiedEvent.
+
+AllAnalysisNumbers: |
+   Combined analysis numbers from all LHC analyses used in a scan.
 
 ALEPH_Selectron_LLike: |
    Compares the cross section times branching ratio
@@ -486,6 +529,12 @@ OPAL_Chargino_SemiLeptonic_LLike: |
    to the model-independent limit according to the OPAL collaboration.
    Returns a log likelihood value.
 
+OPAL_Degenerate_Chargino_LLike: |
+   Compares the cross section times branching ratio for chargino
+   pair production to the limit on degenerate charginos and neutralinos
+   according to the OPAL collaboration.
+   Returns a likelihood value
+
 LEP_Higgs_LogLike: |
     Provides log-likelihood for combined model-independent LEP
     neutral Higgs searches.
@@ -497,11 +546,6 @@ LHC_Higgs_LogLike: |
 HB_ModelParameters: |
    Provides SM and MSSM input parameters for LEP and LHC Higgs
    likelihood calculations.
-
-FH_HiggsProd: |
-   Provides estimated MSSM Higgs production cross sections through
-   an interface to FeynHiggs.
-
 
 # LEP cross-section capabilities
 
@@ -1182,6 +1226,27 @@ PandaX_2016_SignalSD: |
 PandaX_2016_LogLikelihood: |
    Calculate the log-likelihood for the PandaX 2016 direct detection analysis.
 
+PandaX_2017_Calculate: |
+   Perform rate and likelihood calculations for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Events: |
+   The number of observed events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Background: |
+   The number of background events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_Signal: |
+   The number of signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSI: |
+   The number of spin-independent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_SignalSD: |
+   The number of spin-independent signal events for the PandaX 2017 direct detection analysis.
+
+PandaX_2017_LogLikelihood: |
+   Calculate the log-likelihood for the PandaX 2017 direct detection analysis.
+
 SuperCDMS_2014_Calculate: |
    Perform rate and likelihood calculations for the SuperCDMS 2014 direct detection analysis.
 
@@ -1307,48 +1372,6 @@ PICO_60_2017_SignalSD: |
 
 PICO_60_2017_LogLikelihood: |
    Calculate the log-likelihood for the PICO-60 2017 direct detection analysis.
-
-DARWIN_Ar_2015_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_Events: |
-   The number of observed events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_Background: |
-   The number of background events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_Signal: |
-   The number of signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_2015_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Xe_2015_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_Events: |
-   The number of observed events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_Background: |
-   The number of background events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_Signal: |
-   The number of signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_SignalSD: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_2015_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Xe 2015 direct detection analysis.
 
 DARWIN_Ar_Calculate: |
    Perform rate and likelihood calculations for the DARWIN Ar 2015 direct detection analysis.
@@ -1569,6 +1592,9 @@ DDCalc_1_0_0_init: |
 DDCalc_1_1_0_init: |
    Initialises DDCalc 1.1.0.
 
+DDCalc_1_2_0_init: |
+   Initialises DDCalc 1.2.0.
+
 DD_Experiment: |
    The name of the DDcalc experiment corresponding to a specific experiment index.
 
@@ -1622,6 +1648,9 @@ PICO_60_2017_Init: |
 
 PandaX_2016_Init: |
    Initialises a direct detection experiment with the properties of the 2016 analysis of PandaX.
+
+PandaX_2017_Init: |
+   Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
 
 XENON100_2012_Init: |
    Initialises a direct detection experiment with the properties of the 2012 analysis of Xenon100.
@@ -1996,6 +2025,9 @@ rdlun: |
 rdpadd: |
    Parameters that effect the tabulation of the invariant annihilation rate in DarkSUSY.
 
+rdtime: |
+   Timing parameters for DarkSUSY relic density calculations.
+
 IBintvars: |
    Common block for DarkSUSY internal Bremsstrahlung routines.
 
@@ -2134,41 +2166,6 @@ snu_muonl_decay_rates : |
 snu_taul_decay_rates : |
    Decays of the ν_τL sneutrinos.
 
-sup_ C _decay_rates : |
-   Decays of the u_L squarks.
-
-sdown_ C _decay_rates : |
-   Decays of the d_L squarks.
-
-scharm_ C _decay_rates : |
-   Decays of the c_L squarks.
-
-sstrange_ C _decay_rates : |
-   Decays of the s_L squarks.
-
-electron_ C _decay_rates : |
-   Decays of the e_L sleptons.
-
-smuon_ C _decay_rates : |
-   Decays of the mu_L sleptons.
-sup_ C _decay_rates : |
-   Decays of the u_R squarks.
-
-sdown_ C _decay_rates : |
-   Decays of the d_R squarks.
-
-scharm_ C _decay_rates : |
-   Decays of the c_R squarks.
-
-sstrange_ C _decay_rates : |
-   Decays of the s_R squarks.
-
-electron_ C _decay_rates : |
-   Decays of the e_R sleptons.
-
-smuon_ C _decay_rates : |
-   Decays of the μ_R sleptons.
-
 stop_1_decay_rates : |
    Decays of the t_1 squarks.
 
@@ -2177,6 +2174,12 @@ sbottom_1_decay_rates : |
 
 stau_1_decay_rates : |
    Decays of the τ_1 sleptons.
+
+stau_1_decay_rates_SH : |
+   Decays of the τ_1 sleptons calculated with SUSY-HIT.
+
+stau_1_decay_rates_smallsplit : |
+   Decays of the τ_1 sleptons for small stau--neutralino mass splittings.
 
 stop_2_decay_rates : |
    Decays of the t_2 squarks.
@@ -2198,42 +2201,6 @@ snubar_muonl_decay_rates : |
 
 snubar_taul_decay_rates : |
    Decays of the anti-ν_τL sneutrinos.
-
-supbar_ C _decay_rates : |
-   Decays of the anti-u_L squarks.
-
-sdownbar_ C _decay_rates : |
-   Decays of the anti-d_L squarks.
-
-scharmbar_ C _decay_rates : |
-   Decays of the anti-c_L squarks.
-
-sstrangebar_ C _decay_rates : |
-   Decays of the anti-s_L squarks.
-
-electronbar_ C _decay_rates : |
-   Decays of the anti-e_L sleptons.
-
-smuonbar_ C _decay_rates : |
-   Decays of the anti-μ_L sleptons.
-
-supbar_ C _decay_rates : |
-   Decays of the anti-u_R squarks.
-
-sdownbar_ C _decay_rates : |
-   Decays of the anti-d_R squarks.
-
-scharmbar_ C _decay_rates : |
-   Decays of the anti-c_R squarks.
-
-sstrangebar_ C _decay_rates : |
-   Decays of the anti-s_R squarks.
-
-electronbar_ C _decay_rates : |
-   Decays of the anti-e_R sleptons.
-
-smuonbar_ C _decay_rates : |
-   Decays of the anti-μ_R sleptons.
 
 stopbar_1_decay_rates : |
    Decays of the anti-t_1 squarks.
@@ -2268,6 +2235,12 @@ H_plus_decay_rates : |
 chargino_plus_1_decay_rates : |
    Decays of the chargino+ 1.
 
+chargino_plus_1_decay_rates_SH : |
+   Decays of the chargino+ 1 calculated using SUSY-HIT.
+
+chargino_plus_1_decay_rates_smallsplit : |
+   Decays of the chargino+ 1 at small chargino--neutralino mass splittings.
+
 chargino_plus_2_decay_rates : |
    Decays of the chargino+ 2.
 
@@ -2280,32 +2253,14 @@ tau_minus_decay_rates : |
 W_minus_decay_rates : |
   All decays of the W- gauge boson.
 
-Hminus_decay_rates : |
-   Decays of the MSSM H-.
-
 chargino_minus_1_decay_rates : |
    Decays of the chargino- 1.
 
 chargino_minus_2_decay_rates : |
    Decays of the chargino- 2.
 
-pi0_decay_rates : |
-  All decays of the π0 meson.
-
-rho0_decay_rates : |
-  All decays of the ρ0 meson.
-
-piplus_decay_rates : |
-  All decays of the π+ meson.
-
-rhoplus_decay_rates : |
-  All decays of the ρ+ meson.
-
-piminus_decay_rates : |
-  All decays of the π- meson.
-
-rhominus_decay_rates : |
-  All decays of the ρ- meson.
+rho1450_decay_rates : |
+  Decays of the ρ(1450) meson.
 
 neutralino_1_decay_rates : |
    Decays of the neutralino 1.
@@ -2330,6 +2285,18 @@ Reference_SM_A0_decay_rates: |
 
 Reference_SM_other_Higgs_decay_rates: |
    Computation of decays of SM Higgs with mass equal to the mass of the least SM-like CP-even Higgs.
+
+Z_gamma_nu: |
+   Decay width of the Z boson to neutrinos in MeV.
+   
+Z_gamma_chi_0: |
+   Decay width of the Z boson to neutralinos in MeV.
+
+lnL_Z_inv: |
+   Log Likelihood for the inivislbe decay width of the Z boson.
+
+inv_Higgs_BF: |
+   Invisible decay branching fraction of the SM-like Higgs boson.
 
 #-------------------------------------
 #  PrecisionBit capabilities
@@ -2686,6 +2653,30 @@ alphas_running : |
 
 slha_adjust : |
    Adjusts the SLHA parameters to the SuperIso standard.
+
+LUV_LL :  |
+   Claculate the likelihood function of the b->sll LUV observables (RK, RK*)
+
+LUV_M :  |
+   Measurements related to LUV in b->sll
+
+RK :  |
+   Calculation R_K in 1-6GeVGeV
+
+RK_CONV:  |
+   Conv function from SuperIso to calculate the R_K
+
+RKstar_0045_11:  |
+   Calculation R_K* in 0.045-1.1GeVGeV
+
+RKstar_11_60:  |
+   Calculation R_K* in 1.1 -  6.0 GeVGeV
+
+RKstar_CONV:  |
+   Conv function from SuperIso to calculate the R_K*
+
+
+
 
 #-------------------------------------
 #  SUSY-HIT capabilities

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:16
+// File generated at Thu 10 May 2018 14:43:38
 
 #include "HSSUSY_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -77,11 +77,11 @@ double HSSUSY_susy_parameters::calc_beta_g1_3_loop(const Susy_traces& susy_trace
 
    double beta_g1;
 
-   beta_g1 = Re(-0.000041666666666666665*threeLoop*Cube(g1)*(388613*Quad(
-      g1) - 10*Sqr(g1)*(648*Lambdax + 1845*Sqr(g2) - 4384*Sqr(g3) - 8481*Sqr(Yu
-      (2,2))) - 75*(3945*Quad(g2) - 6*Sqr(g2)*(-24*Lambdax + 32*Sqr(g3) + 785*
-      Sqr(Yu(2,2))) + 4*(4752*Quad(g3) + 945*Quad(Yu(2,2)) - 36*Sqr(Lambdax) -
-      464*Sqr(g3)*Sqr(Yu(2,2))))));
+   beta_g1 = Re(0.000041666666666666665*threeLoop*(-388613*Power7(g1) +
+      10*Power5(g1)*(648*Lambdax + 1845*Sqr(g2) - 4384*Sqr(g3) - 8481*Sqr(Yu(2,
+      2))) + 75*Cube(g1)*(3945*Quad(g2) - 6*Sqr(g2)*(-24*Lambdax + 32*Sqr(g3) +
+      785*Sqr(Yu(2,2))) + 4*(4752*Quad(g3) + 945*Quad(Yu(2,2)) - 36*Sqr(
+      Lambdax) - 464*Sqr(g3)*Sqr(Yu(2,2))))));
 
 
    return beta_g1;

@@ -25,6 +25,9 @@
 #  \author Antje Putze (putze@lapth.cnrs.fr)
 #  \date 2016 Jan
 #
+#  \author Will Handley (wh260@cam.ac.uk)
+#  \date 2018 May
+#
 #************************************************
 
 
@@ -104,6 +107,48 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} MODULE=${FMODULE} FOPT=${diverFFLAGS} SO_LINK_FLAGS=${diverSO_LINK_FLAGS}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("scanner" ${name} ${ver})
+endif()
+
+# PolyChord
+set(name "polychord")
+set(ver "1.14")
+set(lib "libchord")
+set(md5 "a6a3d46c7796d310ef955e8aa27f29d6")
+set(baseurl "https://ccpforge.cse.rl.ac.uk")
+set(endurl "/gf/download/frsrelease/617/9205/PolyChord_v${ver}.tar.gz")
+set(gateurl "/gf/account/?action=LoginAction")
+set(dl "${baseurl}${endurl}")
+set(dl2 "${baseurl}${gateurl}")
+set(login_data "password=${CCPForge_p1}${CCPForge_p2}${CCPForge_p3}&username=${CCPForge_user}&redirect=${endurl}")
+set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(pcSO_LINK "${CMAKE_Fortran_COMPILER} -shared ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+if(MPI_Fortran_FOUND)
+  set(pcFFLAGS "${GAMBIT_Fortran_FLAGS_PLUS_MPI}")
+else()
+  set(pcFFLAGS "${GAMBIT_Fortran_FLAGS}")
+endif()
+if(MPI_CXX_FOUND)
+  set(pcCXXFLAGS "${GAMBIT_CXX_FLAGS_PLUS_MPI}")
+else()
+  set(pcCXXFLAGS "${GAMBIT_CXX_FLAGS}")
+endif()
+if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
+  set(pcFFLAGS "${pcFFLAGS} -heap-arrays -assume noold_maxminloc ")
+else()
+  set(pcFFLAGS "${pcFFLAGS} -fno-stack-arrays")
+endif()
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver} "null" ${login_data} ${dl2}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LINKLIB=${pcSO_LINK}
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)

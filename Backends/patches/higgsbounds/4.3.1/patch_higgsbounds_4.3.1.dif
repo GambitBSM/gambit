@@ -1,0 +1,11 @@
+--- HiggsBounds-4.3.1/usefulbits.f90	2017-03-23 19:52:07.000000000 +0100
++++ ../installed/higgsbounds/4.3.1/usefulbits.f90 2018-04-12 19:23:41.530298535 +0200
+@@ -15,7 +15,7 @@ module usefulbits
+  integer :: using_likelihood = 0
+ 
+ ! For the LEP chisq extension:
+- logical :: chisqcut_at_mumax = .False.
++ logical :: chisqcut_at_mumax = .True.
+  
+  character(LEN=5) :: whichanalyses
+  character(LEN=4) :: whichinput 

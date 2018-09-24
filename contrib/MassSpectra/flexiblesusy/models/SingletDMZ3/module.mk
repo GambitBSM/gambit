@@ -25,6 +25,9 @@ SingletDMZ3_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.SingletDMZ3_generated \
 		$(DIR)/LesHouches.in.SingletDMZ3
 
+SingletDMZ3_REFERENCES := \
+		$(DIR)/SingletDMZ3_references.tex
+
 SingletDMZ3_GNUPLOT := \
 		$(DIR)/SingletDMZ3_plot_rgflow.gnuplot \
 		$(DIR)/SingletDMZ3_plot_spectrum.gnuplot
@@ -185,6 +188,7 @@ install-src::
 ifneq ($(SingletDMZ3_SLHA_INPUT),)
 		install -m u=rw,g=r,o=r $(SingletDMZ3_SLHA_INPUT) $(SingletDMZ3_INSTALL_DIR)
 endif
+		install -m u=rw,g=r,o=r $(SingletDMZ3_REFERENCES) $(SingletDMZ3_INSTALL_DIR)
 		install -m u=rw,g=r,o=r $(SingletDMZ3_GNUPLOT) $(SingletDMZ3_INSTALL_DIR)
 endif
 
@@ -223,7 +227,8 @@ pack-$(MODNAME)-src:
 		$(EXESingletDMZ3_SRC) \
 		$(LLSingletDMZ3_SRC) $(LLSingletDMZ3_MMA) \
 		$(SingletDMZ3_MK) $(SingletDMZ3_INCLUDE_MK) \
-		$(SingletDMZ3_SLHA_INPUT) $(SingletDMZ3_GNUPLOT)
+		$(SingletDMZ3_SLHA_INPUT) $(SingletDMZ3_REFERENCES) \
+		$(SingletDMZ3_GNUPLOT)
 
 $(LIBSingletDMZ3_SRC) $(LIBSingletDMZ3_HDR) $(EXESingletDMZ3_SRC) $(LLSingletDMZ3_SRC) $(LLSingletDMZ3_MMA) \
 : run-metacode-$(MODNAME)
@@ -260,10 +265,10 @@ $(LIBSingletDMZ3): $(LIBSingletDMZ3_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
 $(DIR)/%.x: $(DIR)/%.o $(LIBSingletDMZ3) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$^ $(ADDONLIBS)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 $(LLSingletDMZ3_LIB): $(LLSingletDMZ3_OBJ) $(LIBSingletDMZ3) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$^) $(ADDONLIBS) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBSingletDMZ3_DEP) $(EXESingletDMZ3_DEP)
 ALLSRC += $(LIBSingletDMZ3_SRC) $(EXESingletDMZ3_SRC)

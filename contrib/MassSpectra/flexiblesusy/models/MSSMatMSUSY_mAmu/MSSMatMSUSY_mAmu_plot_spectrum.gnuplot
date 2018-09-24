@@ -1,5 +1,3 @@
-set terminal x11
-
 set title "MSSMatMSUSY_mAmu particle spectrum"
 set ylabel "mass / GeV"
 unset key

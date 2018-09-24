@@ -15,7 +15,7 @@
   exp_value: 3.9e-10
   exp_stat_error: 1.5e-10
   exp_sys_error: 0.0e-10
-  exp_source: Nature 522
+  exp_source: Nature 522:68
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
@@ -1558,3 +1558,42 @@
     value: -0.15
   - name: S8_B0Kstar0mumu_17-19
     value: -0.11
+
+- name: RKstar_0045_11
+  islimit: false
+  exp_value: 0.66
+  exp_stat_error: 0.09
+  exp_sys_error: 0.03
+  exp_source: 1705.05802
+  th_error: 0.01
+  th_error_type: A
+  th_error_source: 1605.07633
+  correlation:
+  - name: NONE
+
+- name: RKstar_11_60
+  islimit: false
+  exp_value: 0.69
+  exp_stat_error: 0.09
+  exp_sys_error: 0.05
+  exp_source: 1705.05802
+  th_error: 0.01
+  th_error_type: A
+  th_error_source: 1605.07633
+  correlation:
+  - name: NONE
+
+- name: RK
+  islimit: false
+  exp_value: 0.745
+  exp_stat_error: 0.082
+  exp_sys_error: 0.036
+  exp_source: 1406.6482
+  th_error: 0.01
+  th_error_type: A
+  th_error_source: 1605.07633
+  correlation:
+  - name: NONE
+
+
+

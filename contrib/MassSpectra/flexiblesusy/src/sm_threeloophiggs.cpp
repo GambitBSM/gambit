@@ -29,9 +29,6 @@ namespace sm_threeloophiggs {
  * @note The result contains the 3-loop tadpole diagrams.  It is
  * therefore not 1-particle irreducible (1PI).
  *
- * @note The sign of the result is opposite to arxiv:1407.4336,
- * Eq. (3.3).
- *
  * @param scale renormalization scale
  * @param mt MS-bar top mass
  * @param yt MS-bar Yukawa coupling
@@ -39,7 +36,7 @@ namespace sm_threeloophiggs {
  *
  * @return real part of 3-loop correction \f$O(\alpha_t \alpha_s^2)\f$
  */
-double self_energy_higgs_3loop_at_as_as_sm(
+double delta_mh_3loop_at_as_as_sm(
    double scale, double mt, double yt, double g3)
 {
    const double yt2 = Sqr(yt);
@@ -54,7 +51,7 @@ double self_energy_higgs_3loop_at_as_as_sm(
       g34*yt2*mt2*(248.1215180432007 + 839.1966169377614*LogT
                    + 160*LogT2 - 736*LogT3);
 
-   return - result * threeLoop;
+   return result * threeLoop;
 }
 
 /**
@@ -64,9 +61,6 @@ double self_energy_higgs_3loop_at_as_as_sm(
  * @note The result contains the 3-loop tadpole diagrams.  It is
  * therefore not 1-particle irreducible (1PI).
  *
- * @note The sign of the result is opposite to arxiv:1407.4336,
- * Eq. (3.3).
- *
  * @param scale renormalization scale
  * @param mt MS-bar top mass
  * @param yt MS-bar Yukawa coupling
@@ -74,7 +68,7 @@ double self_energy_higgs_3loop_at_as_as_sm(
  *
  * @return real part of 3-loop correction \f$O(\alpha_t^2\alpha_s) \f$
  */
-double self_energy_higgs_3loop_at_at_as_sm(
+double delta_mh_3loop_at_at_as_sm(
    double scale, double mt, double yt, double g3)
 {
    const double yt4 = Power4(yt);
@@ -89,7 +83,7 @@ double self_energy_higgs_3loop_at_at_as_sm(
       g32*yt4*mt2*(2764.365124334015 + 1283.715638285500*LogT
                    - 360*LogT2 + 240*LogT3);
 
-   return - result * threeLoop;
+   return result * threeLoop;
 }
 
 /**
@@ -99,9 +93,6 @@ double self_energy_higgs_3loop_at_at_as_sm(
  * @note The result contains the 3-loop tadpole diagrams.  It is
  * therefore not 1-particle irreducible (1PI).
  *
- * @note The sign of the result is opposite to arxiv:1407.4336,
- * Eq. (3.4).
- *
  * @param scale renormalization scale
  * @param mt MS-bar top mass
  * @param yt MS-bar Yukawa coupling
@@ -109,7 +100,7 @@ double self_energy_higgs_3loop_at_at_as_sm(
  *
  * @return real part of 3-loop correction \f$O(\alpha_t^3) \f$
  */
-double self_energy_higgs_3loop_at_at_at_sm(
+double delta_mh_3loop_at_at_at_sm(
    double scale, double mt, double yt, double mh)
 {
    const double yt6 = Power6(yt);
@@ -125,7 +116,7 @@ double self_energy_higgs_3loop_at_at_at_sm(
       yt6*mt2*(-3199.016554815089 + 36*LogH - 2653.510765697467*LogT
                + 756*LogH*LogT + 27.*0.5*LogT2 + 324*LogH*LogT2 - 225*LogT3);
 
-   return - result * threeLoop;
+   return result * threeLoop;
 }
 
 } // namespace sm_threeloophiggs

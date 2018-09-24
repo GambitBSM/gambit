@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:20:11
+// File generated at Thu 10 May 2018 15:00:02
 
 #include "MSSMNoFV_utilities.hpp"
 #include "MSSMNoFV_input_parameters.hpp"
@@ -56,48 +56,67 @@ void append(Eigen::ArrayXd& a, const Eigen::ArrayXd& b)
 
 } // namespace utilities
 
+namespace {
+
+std::valarray<double> to_valarray(double v)
+{
+   return std::valarray<double>(&v, 1);
+}
+
+template <class Scalar, int M, int N>
+std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>& v)
+{
+   return std::valarray<double>(v.data(), v.size());
+}
+
+} // anonymous namespace
+
+MSSMNoFV_spectrum_plotter::MSSMNoFV_spectrum_plotter(const MSSMNoFV_mass_eigenstates& model)
+{
+   extract_spectrum(model);
+}
 
 void MSSMNoFV_spectrum_plotter::extract_spectrum(const MSSMNoFV_mass_eigenstates& model)
 {
    spectrum.clear();
    scale = model.get_scale();
 
-   spectrum.push_back(TParticle("Glu", "\\tilde{g}", to_valarray(PHYSICAL(MGlu))));
-   spectrum.push_back(TParticle("SveL", "\\tilde{\\nu}_e", to_valarray(PHYSICAL(MSveL))));
-   spectrum.push_back(TParticle("SvmL", "\\tilde{\\nu}_{\\mu}", to_valarray(PHYSICAL(MSvmL))));
-   spectrum.push_back(TParticle("SvtL", "\\tilde{\\nu}_{\\tau}", to_valarray(PHYSICAL(MSvtL))));
-   spectrum.push_back(TParticle("Sd", "\\tilde{d}", to_valarray(PHYSICAL(MSd))));
-   spectrum.push_back(TParticle("Su", "\\tilde{u}", to_valarray(PHYSICAL(MSu))));
-   spectrum.push_back(TParticle("Se", "\\tilde{e}", to_valarray(PHYSICAL(MSe))));
-   spectrum.push_back(TParticle("Sm", "\\tilde{\\mu}", to_valarray(PHYSICAL(MSm))));
-   spectrum.push_back(TParticle("Stau", "\\tilde{\\tau}", to_valarray(PHYSICAL(MStau))));
-   spectrum.push_back(TParticle("Ss", "\\tilde{s}", to_valarray(PHYSICAL(MSs))));
-   spectrum.push_back(TParticle("Sc", "\\tilde{c}", to_valarray(PHYSICAL(MSc))));
-   spectrum.push_back(TParticle("Sb", "\\tilde{b}", to_valarray(PHYSICAL(MSb))));
-   spectrum.push_back(TParticle("St", "\\tilde{t}", to_valarray(PHYSICAL(MSt))));
-   spectrum.push_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
-   spectrum.push_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
-   spectrum.push_back(TParticle("Hpm", "H^-", to_valarray(PHYSICAL(MHpm))));
-   spectrum.push_back(TParticle("Chi", "\\tilde{\\chi}^0", to_valarray(PHYSICAL(MChi))));
-   spectrum.push_back(TParticle("Cha", "\\tilde{\\chi}^-", to_valarray(PHYSICAL(MCha))));
+   spectrum.emplace_back(TParticle("Glu", "\\tilde{g}", to_valarray(PHYSICAL(MGlu))));
+   spectrum.emplace_back(TParticle("SveL", "\\tilde{\\nu}_e", to_valarray(PHYSICAL(MSveL))));
+   spectrum.emplace_back(TParticle("SvmL", "\\tilde{\\nu}_{\\mu}", to_valarray(PHYSICAL(MSvmL))));
+   spectrum.emplace_back(TParticle("SvtL", "\\tilde{\\nu}_{\\tau}", to_valarray(PHYSICAL(MSvtL))));
+   spectrum.emplace_back(TParticle("Sd", "\\tilde{d}", to_valarray(PHYSICAL(MSd))));
+   spectrum.emplace_back(TParticle("Su", "\\tilde{u}", to_valarray(PHYSICAL(MSu))));
+   spectrum.emplace_back(TParticle("Se", "\\tilde{e}", to_valarray(PHYSICAL(MSe))));
+   spectrum.emplace_back(TParticle("Sm", "\\tilde{\\mu}", to_valarray(PHYSICAL(MSm))));
+   spectrum.emplace_back(TParticle("Stau", "\\tilde{\\tau}", to_valarray(PHYSICAL(MStau))));
+   spectrum.emplace_back(TParticle("Ss", "\\tilde{s}", to_valarray(PHYSICAL(MSs))));
+   spectrum.emplace_back(TParticle("Sc", "\\tilde{c}", to_valarray(PHYSICAL(MSc))));
+   spectrum.emplace_back(TParticle("Sb", "\\tilde{b}", to_valarray(PHYSICAL(MSb))));
+   spectrum.emplace_back(TParticle("St", "\\tilde{t}", to_valarray(PHYSICAL(MSt))));
+   spectrum.emplace_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
+   spectrum.emplace_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
+   spectrum.emplace_back(TParticle("Hpm", "H^-", to_valarray(PHYSICAL(MHpm))));
+   spectrum.emplace_back(TParticle("Chi", "\\tilde{\\chi}^0", to_valarray(PHYSICAL(MChi))));
+   spectrum.emplace_back(TParticle("Cha", "\\tilde{\\chi}^-", to_valarray(PHYSICAL(MCha))));
 
    if (model.do_calculate_sm_pole_masses()) {
-      spectrum.push_back(TParticle("Fb", "b", to_valarray(PHYSICAL(MFb))));
-      spectrum.push_back(TParticle("Fc", "c", to_valarray(PHYSICAL(MFc))));
-      spectrum.push_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
-      spectrum.push_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
-      spectrum.push_back(TParticle("Fm", "m", to_valarray(PHYSICAL(MFm))));
-      spectrum.push_back(TParticle("Fs", "s", to_valarray(PHYSICAL(MFs))));
-      spectrum.push_back(TParticle("Ft", "t", to_valarray(PHYSICAL(MFt))));
-      spectrum.push_back(TParticle("Ftau", "\\tau", to_valarray(PHYSICAL(MFtau))));
-      spectrum.push_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
-      spectrum.push_back(TParticle("Fve", "\\nu_e", to_valarray(PHYSICAL(MFve))));
-      spectrum.push_back(TParticle("Fvm", "\\nu_{\\mu}", to_valarray(PHYSICAL(MFvm))));
-      spectrum.push_back(TParticle("Fvt", "\\nu_{\\tau}", to_valarray(PHYSICAL(MFvt))));
-      spectrum.push_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
-      spectrum.push_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
-      spectrum.push_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
-      spectrum.push_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
+      spectrum.emplace_back(TParticle("Fb", "b", to_valarray(PHYSICAL(MFb))));
+      spectrum.emplace_back(TParticle("Fc", "c", to_valarray(PHYSICAL(MFc))));
+      spectrum.emplace_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
+      spectrum.emplace_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
+      spectrum.emplace_back(TParticle("Fm", "m", to_valarray(PHYSICAL(MFm))));
+      spectrum.emplace_back(TParticle("Fs", "s", to_valarray(PHYSICAL(MFs))));
+      spectrum.emplace_back(TParticle("Ft", "t", to_valarray(PHYSICAL(MFt))));
+      spectrum.emplace_back(TParticle("Ftau", "\\tau", to_valarray(PHYSICAL(MFtau))));
+      spectrum.emplace_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
+      spectrum.emplace_back(TParticle("Fve", "\\nu_e", to_valarray(PHYSICAL(MFve))));
+      spectrum.emplace_back(TParticle("Fvm", "\\nu_{\\mu}", to_valarray(PHYSICAL(MFvm))));
+      spectrum.emplace_back(TParticle("Fvt", "\\nu_{\\tau}", to_valarray(PHYSICAL(MFvt))));
+      spectrum.emplace_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
+      spectrum.emplace_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
+      spectrum.emplace_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
+      spectrum.emplace_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
 
    }
 }
@@ -152,15 +171,10 @@ void MSSMNoFV_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::o
                  << std::left << std::setw(width) << masses[i]
                  << std::left << std::setw(width) << name
                  << std::left << std::setw(2*width) << lname
-                 << std::left << std::setw(2*width) << lname_with_index.str()
+                 << std::left << lname_with_index.str()
                  << '\n';
       }
    }
-}
-
-std::valarray<double> MSSMNoFV_spectrum_plotter::to_valarray(double v)
-{
-   return std::valarray<double>(&v, 1);
 }
 
 namespace MSSMNoFV_database {

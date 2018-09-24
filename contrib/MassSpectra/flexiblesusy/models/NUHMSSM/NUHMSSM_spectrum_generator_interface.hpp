@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:24:19
+// File generated at Thu 10 May 2018 15:03:20
 
 #ifndef NUHMSSM_SPECTRUM_GENERATOR_INTERFACE_H
 #define NUHMSSM_SPECTRUM_GENERATOR_INTERFACE_H
@@ -158,8 +158,7 @@ template <class T>
 void NUHMSSM_spectrum_generator_interface<T>::write_spectrum(
    const std::string& filename) const
 {
-   NUHMSSM_spectrum_plotter plotter;
-   plotter.extract_spectrum(model);
+   NUHMSSM_spectrum_plotter plotter(model);
    plotter.write_to_file(filename);
 }
 

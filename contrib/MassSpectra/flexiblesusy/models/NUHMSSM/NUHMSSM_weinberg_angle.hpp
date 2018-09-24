@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:24:24
+// File generated at Thu 10 May 2018 15:03:24
 
 #ifndef NUHMSSM_WEINBERG_ANGLE_H
 #define NUHMSSM_WEINBERG_ANGLE_H
@@ -93,10 +93,10 @@ private:
    std::complex<double> CpbarFeFeAhPL(int gO2, int gI1, int gI2) const;
    std::complex<double> CpbarFeFeAhPR(int gO1, int gI1, int gI2) const;
    std::complex<double> CpbarFeChiSePR(int gO1, int gI2, int gI1) const;
-   std::complex<double> CpbarChaFeconjSvPL(int gt2, int gt1, int gt3) const;
-   std::complex<double> CpChiFeconjSePL(int gt1, int gt2, int gt3) const;
    std::complex<double> CpChaFvconjSePL(int gI1, int gO1, int gI2) const;
    std::complex<double> CpChiFvconjSvPL(int gI1, int gO1, int gI2) const;
+   std::complex<double> CpbarChaFeconjSvPL(int gI1, int gO1, int gI2) const;
+   std::complex<double> CpChiFeconjSePL(int gI1, int gO1, int gI2) const;
    std::complex<double> delta_vb_wave_Fv(int gO1) const;
    std::complex<double> delta_vb_wave_Fe(int gO1) const;
    std::complex<double> delta_vb_vertex(int gO1, int gO2) const;

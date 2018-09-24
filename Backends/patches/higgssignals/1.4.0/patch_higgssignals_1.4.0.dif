@@ -1,6 +1,6 @@
-diff -rupN ./HiggsSignals.F90 ../../installed/higgssignals/1.4.0/HiggsSignals.F90
---- ./HiggsSignals.F90	2015-07-24 15:23:34.000000000 -0400
-+++ ../../installed/higgssignals/1.4.0/HiggsSignals.F90	2017-11-16 13:17:24.000000000 -0500
+diff -rupN ./HiggsSignals.F9 ../../installed/higgssignals/1.4.0/HiggsSignals.F90
+--- ./HiggsSignals.F90	2015-07-24 21:23:34.000000000 +0200
++++ ../../installed/higgssignals/1.4.0/HiggsSignals.F90	2017-12-08 13:31:52.139489275 +0100
 @@ -36,7 +36,7 @@ program HiggsSignals
   elseif(runmode.eq.'both') then
    mode = 3
@@ -10,3 +10,10 @@ diff -rupN ./HiggsSignals.F90 ../../installed/higgssignals/1.4.0/HiggsSignals.F9
   endif
   
   call run_HiggsSignals( mode, Chisq_mu, Chisq_mh, Chisq, ndf, Pvalue)
+@@ -45,4 +45,4 @@ program HiggsSignals
+  
+  call finish_HiggsSignals
+ 
+-end program
+\ No newline at end of file
++end program

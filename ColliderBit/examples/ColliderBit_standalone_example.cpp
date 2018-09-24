@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
     // Check that required backends are present
     if (not Backends::backendInfo().works["Pythia8.212.EM"]) backend_error().raise(LOCAL_INFO, "Pythia 8.212.EM is missing!");
-    if (not Backends::backendInfo().works["nulike1.0.5"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.5 is missing!");
+    if (not Backends::backendInfo().works["nulike1.0.6"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.6 is missing!");
 
     // Output some info about ColliderBit
     cout << endl << "My name is " << name() << endl;
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     calc_LHC_LogLike.resolveDependency(&runATLASAnalyses);
     calc_LHC_LogLike.resolveDependency(&runCMSAnalyses);
     calc_LHC_LogLike.resolveDependency(&runIdentityAnalyses);
-    calc_LHC_LogLike.resolveBackendReq(&Backends::nulike_1_0_5::Functown::nulike_lnpiln); //treat systematics with a log normal distribution
+    calc_LHC_LogLike.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_lnpiln); //treat systematics with a log normal distribution
 
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&getPythiaFileReader);
@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
     //
 
     // Call the initialisation functions for all backends that are in use.
-    nulike_1_0_5_init.reset_and_calculate();
+    nulike_1_0_6_init.reset_and_calculate();
     Pythia_8_212_EM_init.reset_and_calculate();
 
     // Run the simulation loop and calculate the LHC likelihood.

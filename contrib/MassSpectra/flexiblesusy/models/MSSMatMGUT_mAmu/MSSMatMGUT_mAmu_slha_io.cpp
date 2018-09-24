@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:48:18
+// File generated at Thu 10 May 2018 14:30:09
 
 #include "MSSMatMGUT_mAmu_slha_io.hpp"
 #include "MSSMatMGUT_mAmu_input_parameters.hpp"

@@ -1,5 +1,5 @@
 Print["================================"];
-Print["FlexibleSUSY 2.0.0-dev"];
+Print["FlexibleSUSY 2.0.1"];
 Print["MSSMEFTHiggs"];
 Print["http://flexiblesusy.hepforge.org"];
 Print["================================"];
@@ -100,13 +100,14 @@ fsDefaultSMParameters = {
 };
 
 fsMSSMEFTHiggsDefaultInputParameters = {
+   TanBeta -> 0,
+   SignMu -> 0,
    MSUSY -> 0,
    M1Input -> 0,
    M2Input -> 0,
    M3Input -> 0,
-   MuInput -> 0,
-   mAInput -> 0,
-   TanBeta -> 0,
+   mHd2IN -> 0,
+   mHu2IN -> 0,
    mq2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
    mu2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
    md2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
@@ -194,13 +195,14 @@ FSMSSMEFTHiggsOpenHandle[OptionsPattern[]] :=
 
             (* MSSMEFTHiggs input parameters *)
             ,
+            OptionValue[TanBeta],
+            OptionValue[SignMu],
             OptionValue[MSUSY],
             OptionValue[M1Input],
             OptionValue[M2Input],
             OptionValue[M3Input],
-            OptionValue[MuInput],
-            OptionValue[mAInput],
-            OptionValue[TanBeta],
+            OptionValue[mHd2IN],
+            OptionValue[mHu2IN],
             OptionValue[mq2Input][[1,1]],
             OptionValue[mq2Input][[1,2]],
             OptionValue[mq2Input][[1,3]],
@@ -350,13 +352,14 @@ FSMSSMEFTHiggsSet[handle_Integer, p:OptionsPattern[]] :=
 
             (* MSSMEFTHiggs input parameters *)
             ,
+            OptionValue[TanBeta],
+            OptionValue[SignMu],
             OptionValue[MSUSY],
             OptionValue[M1Input],
             OptionValue[M2Input],
             OptionValue[M3Input],
-            OptionValue[MuInput],
-            OptionValue[mAInput],
-            OptionValue[TanBeta],
+            OptionValue[mHd2IN],
+            OptionValue[mHu2IN],
             OptionValue[mq2Input][[1,1]],
             OptionValue[mq2Input][[1,2]],
             OptionValue[mq2Input][[1,3]],

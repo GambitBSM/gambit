@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:56:56
+// File generated at Thu 10 May 2018 14:43:28
 
 #ifndef SSM_EFFECTIVE_COUPLINGS_H
 #define SSM_EFFECTIVE_COUPLINGS_H
@@ -60,13 +60,13 @@ public:
 
    void calculate_effective_couplings();
 
-   std::complex<double> CpFdhhbarFdPL(int gt1, int gt2, int gt3) const;
-   std::complex<double> CpFuhhbarFuPL(int gt1, int gt2, int gt3) const;
-   std::complex<double> CpFehhbarFePL(int gt1, int gt2, int gt3) const;
-   std::complex<double> CphhVWpconjVWp(int gt1) const;
-   std::complex<double> CpAhFdbarFdPL(int gt2, int gt3) const;
-   std::complex<double> CpAhFubarFuPL(int gt2, int gt3) const;
-   std::complex<double> CpAhFebarFePL(int gt2, int gt3) const;
+   std::complex<double> CpbarFdFdAhPL(int gI1, int gI2) const;
+   std::complex<double> CpbarFeFeAhPL(int gI1, int gI2) const;
+   std::complex<double> CpbarFuFuAhPL(int gI1, int gI2) const;
+   std::complex<double> CphhconjVWpVWp(int gI2) const;
+   std::complex<double> CpbarFdFdhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFehhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFuhhPL(int gO2, int gI2, int gI1) const;
    void calculate_eff_CphhVPVP(int gO1);
    void calculate_eff_CphhVGVG(int gO1);
    void calculate_eff_CpAhVPVP();

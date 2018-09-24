@@ -6,8 +6,8 @@
 PROGRAM_NAME=FlexibleSUSY
 FLEXIBLESUSY_MAJOR=2
 FLEXIBLESUSY_MINOR=0
-FLEXIBLESUSY_PATCH=0
-FLEXIBLESUSY_EXTRA="-dev"
+FLEXIBLESUSY_PATCH=1
+FLEXIBLESUSY_EXTRA=""
 FLEXIBLESUSY_VERSION="${FLEXIBLESUSY_MAJOR}.${FLEXIBLESUSY_MINOR}.${FLEXIBLESUSY_PATCH}${FLEXIBLESUSY_EXTRA}"
 GIT_COMMIT=$(git rev-parse HEAD 2> /dev/null || echo unknown)
 GM2CALC_VERSION="1.3.3"
@@ -211,7 +211,7 @@ cxx_compiler_version="unknown"
 
 # required C++ compiler versions
 required_cxx_compiler_version="unknown"
-required_gpp_compiler_version="4.8.1"
+required_gpp_compiler_version="4.8.4"
 required_clang_compiler_version="3.8.1"
 required_icpc_compiler_version="15.0.0"
 
@@ -2167,12 +2167,13 @@ check_math_cmd() {
 
         message "Error: Mathematica needs to be installed to run the meta code or to enable LibraryLink!"
         message "   You can use the --with-math-cmd= option to specify the location of"
-        message "   the math kernel."
+        message "   the math kernel.  It is usually installed in "
         case "$operating_system" in
-            Linux)  message "   It is usually installed in /usr/local/Wolfram/Mathematica/" ;;
-            Darwin) message "   It is usually installed in /Applications/Mathematica.app/"  ;;
-            CYGWIN_NT*) message "   It is usually installed in /cygdrive/c/Program Files/Wolfram Research/Mathematica/" ;;
+            Linux)  message "   /usr/local/Wolfram/Mathematica/" ;;
+            Darwin) message "   /Applications/Mathematica.app/"  ;;
+            CYGWIN_NT*) message "   /cygdrive/c/Program Files/Wolfram Research/Mathematica/" ;;
         esac
+        message "   Alternatively, you can disable the meta code by using --disable-meta ."
         exit 1
     else
         result "found $cmd"
@@ -2195,14 +2196,15 @@ Put[\$VersionNumber,
     OutputForm[\$InstallationDirectory],
     "${mathconfig}"];
 If[\$VersionNumber < ${required_mathematica_version},
-   error = 1;
+   error = 2;
   ];
 Quit[error];
 EOF
 
     checking_msg "Mathematica version >= ${required_mathematica_version}"
-    "$MATH" -run "Get[\"${_math_info_check_progr}\"]" > /dev/null 2>&1 &&
+    echo "Get[\"${_math_info_check_progr}\"]" | "$MATH" > /dev/null 2>&1 &&
 	_ok=true
+    local _exit_status="$?"
     if test -r "${mathconfig}"; then
         MATH_VERSION=$(sed -n '1p' "${mathconfig}")
 	MATH_SYSTEMID=$(sed -n '2p' "${mathconfig}")
@@ -2214,7 +2216,14 @@ EOF
     if $_ok; then
         result "ok (version ${MATH_VERSION} for ${MATH_SYSTEMID} in ${MATH_INSTDIR})"
     else
-        result "not ok (version ${MATH_VERSION} for ${MATH_SYSTEMID} in ${MATH_INSTDIR})"
+	if [ "$_exit_status" = 2 ]; then
+	    result "not ok (version ${MATH_VERSION} for ${MATH_SYSTEMID} in ${MATH_INSTDIR})"
+	else
+	    result "not ok"
+	fi
+	MATH=""
+	[ "${enable_meta}" = "yes" -o "$enable_librarylink" = "yes" ] || return
+
         message "Error: Mathematica ${required_mathematica_version} or higher needs to be installed!"
         exit 1
     fi
@@ -2755,9 +2764,11 @@ check_solvers
 check_install
 check_install_dir
 
-if [ "$enable_librarylink" = "yes" ]; then
+if [ "$enable_meta" = yes -o "$enable_librarylink" != no ]; then
     check_math_cmd
     check_mathematica_info
+else
+    MATH=""
 fi
 
 if test "x${enable_meta}" = "xyes"; then

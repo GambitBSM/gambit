@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Thu 28 Sep 2017 14:27:47
+// File generated at Thu 10 May 2018 14:27:06
 
 /**
  * @file MSSMatMSUSY_mAmu_ewsb_solver_interface.hpp
  *
  * @brief contains interface for EWSB solver
  *
- * This file was generated at Thu 28 Sep 2017 14:27:47 with FlexibleSUSY
- * 2.0.0-dev (git commit: 4d4c39a2702e9a6604f84813ccb0b85d40987f3b) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:27:06 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #ifndef MSSMatMSUSY_mAmu_EWSB_SOLVER_INTERFACE_H

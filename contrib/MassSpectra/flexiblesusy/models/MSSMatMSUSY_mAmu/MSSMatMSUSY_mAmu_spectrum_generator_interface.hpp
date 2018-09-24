@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Thu 28 Sep 2017 14:27:47
+// File generated at Thu 10 May 2018 14:27:06
 
 #ifndef MSSMatMSUSY_mAmu_SPECTRUM_GENERATOR_INTERFACE_H
 #define MSSMatMSUSY_mAmu_SPECTRUM_GENERATOR_INTERFACE_H
@@ -158,8 +158,7 @@ template <class T>
 void MSSMatMSUSY_mAmu_spectrum_generator_interface<T>::write_spectrum(
    const std::string& filename) const
 {
-   MSSMatMSUSY_mAmu_spectrum_plotter plotter;
-   plotter.extract_spectrum(model);
+   MSSMatMSUSY_mAmu_spectrum_plotter plotter(model);
    plotter.write_to_file(filename);
 }
 

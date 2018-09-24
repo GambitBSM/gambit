@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:36
+// File generated at Thu 10 May 2018 14:41:59
 
 #ifndef MSSMEFTHiggs_SPECTRUM_GENERATOR_INTERFACE_H
 #define MSSMEFTHiggs_SPECTRUM_GENERATOR_INTERFACE_H
@@ -163,8 +163,7 @@ template <class T>
 void MSSMEFTHiggs_spectrum_generator_interface<T>::write_spectrum(
    const std::string& filename) const
 {
-   MSSMEFTHiggs_spectrum_plotter plotter;
-   plotter.extract_spectrum(model);
+   MSSMEFTHiggs_spectrum_plotter plotter(model);
    plotter.write_to_file(filename);
 }
 

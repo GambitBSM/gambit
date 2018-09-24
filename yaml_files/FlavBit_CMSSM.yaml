@@ -80,6 +80,9 @@ ObsLikes:
     - purpose:    LogLike
       capability: b2sgamma_LL
 
+    - purpose:    LogLike
+      capability: LUV_LL
+
     # SM nuisance parameter likelihoods
     - capability: lnL_t_mass
       purpose:    LogLike

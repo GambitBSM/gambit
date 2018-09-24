@@ -30,6 +30,7 @@ namespace Gambit
 
   const double pi = 3.141592653589793238462643383279502884197;
   const double root2 = sqrt(2.0);
+  const double hbar = 6.582119514e-25;                          // GeV s  (http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf)
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
@@ -38,6 +39,26 @@ namespace Gambit
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
+  
+  /**
+     @brief Thomson limit of \f$\alpha_e\f$ in OS scheme from
+     <a href="http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf">PDG 2017</a>
+  */
+  constexpr double alpha_e_OS_thomson_limit = 0.0072973525664;
+  /**
+     @brief \f$\alpha_e(M_Z)\f$ in OS scheme from
+     <a href="https://arxiv.org/pdf/1105.3149.pdf">1105.3149</a>
+  */
+  constexpr double alpha_e_OS_MZ = 1. / 128.944;
+  /**
+     @brief \f$\Delta\alpha\f$ in OS scheme.
+
+     Defined by
+     \f[
+     \alpha(M_Z) = \frac{\alpha(0)}{1 - \Delta\alpha}
+     \f]
+  */
+  constexpr double delta_alpha_OS = 1. - alpha_e_OS_thomson_limit / alpha_e_OS_MZ;
 
   static const struct Mesons_masses
   {
@@ -49,7 +70,14 @@ namespace Gambit
     static constexpr double rho_plus = 0.775;     // charged rho meson mass (GeV/c^2)
     static constexpr double rho_minus = 0.775;    // charged rho meson mass (GeV/c^2)
     static constexpr double omega = 0.7827;       // omega meson mass (GeV/c^2)
+    static constexpr double rho1450 = 1.465;      // rho(1450) mass (GeV/c^2)
   } meson_masses;
+
+  static const struct Mesons_decay_constants
+  {
+    static constexpr double pi_plus = 0.13041;    // (GeV)
+  } meson_decay_constants;
+
 
   /// M_W (Breit-Wigner mass parameter ~ pole) = 80.385 +/- 0.015  GeV (1 sigma), Gaussian.
   /// Reference http://pdg.lbl.gov/2014/listings/rpp2014-list-w-boson.pdf = K.A. Olive et al. (Particle Data Group), Chin. Phys. C38, 090001 (2014)

@@ -67,9 +67,16 @@ Alternatively, the Mathematica interface of FlexibleSUSY may be used:
    supersymmetry at both high and low scales" [<a
    href="https://arxiv.org/abs/1609.00371">JHEP 1701 (2017) 079</a>]
 
+ - Peter Athron, Markus Bach, Dylan Harries, Thomas Kwasnitza,
+   Jae-hyeon Park, Dominik Stöckinger, Alexander Voigt, Jobst Ziebell:
+   "FlexibleSUSY 2.0: Extensions to investigate the phenomenology of
+   SUSY and non-SUSY models" [<a
+   href="https://arxiv.org/abs/1710.03760">arXiv:1710.03760</a>]
+
 If you use **FlexibleSUSY** in your work please cite [<a
 href="http://inspirehep.net/record/1299998">CPC 190 (2015)
-139-172</a>].
+139-172</a>, <a
+href="https://arxiv.org/abs/1710.03760">arXiv:1710.03760</a>].
 
 If you use the **FlexibleEFTHiggs** approach in your work please cite [<a
 href="https://inspirehep.net/record/1484857">JHEP 1701 (2017)

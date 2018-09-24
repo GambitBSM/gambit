@@ -7,8 +7,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 Apr, July, Aug, Dec
 ///  \date 2014 Mar
@@ -25,7 +25,7 @@
 #define __util_functions_hpp__
 
 #include <vector>
-#include <chrono> 
+#include <chrono>
 #include <cmath>
 
 #include "gambit/Utils/util_types.hpp"
@@ -35,7 +35,7 @@
 
 extern "C"
 {
-  #include "mkpath/mkpath.h"  
+  #include "mkpath/mkpath.h"
 }
 
 # if GAMBIT_CONFIG_FLAG_use_std_regex
@@ -60,7 +60,7 @@ namespace Gambit
   template <typename T>
   T byVal(T t) { return t; }
 
-  template <typename T> 
+  template <typename T>
   int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
   /// Make sure there are no nasty surprises from regular C abs()
@@ -76,7 +76,7 @@ namespace Gambit
     /// Strips namespace from the start of a string, or after "const".
     str strip_leading_namespace(str s, str ns);
 
-    /// Strip all whitespace except that following "const", 
+    /// Strip all whitespace except that following "const",
     /// in which case the whitespace is replaced by a single space.
     void strip_whitespace_except_after_const(str&);
 
@@ -85,17 +85,17 @@ namespace Gambit
 
     /// Created a str of a specified length.
     str str_fixed_len(str, int);
-    
+
     /// Copy a str to a character array, stripping the null termination character.
     void strcpy2f(char*, int, str);
 
     /// Checks whether `str' ends with `suffix'
-    bool endsWith(const std::string& str, const std::string& suffix); 
+    bool endsWith(const std::string& str, const std::string& suffix);
 
     /// Checks whether `str' begins with `prefix'
-    bool startsWith(const std::string& str, const std::string& prefix); 
+    bool startsWith(const std::string& str, const std::string& prefix);
 
-    /// Get pointers to beginning and end of array. 
+    /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
     //   int vv[] = { 12,43 };
     //   std::vector<int> v(beginA(vv), endA(vv));
@@ -108,27 +108,27 @@ namespace Gambit
 
     /// Test if two sets are disjoint (works on any sorted std container I think)
     // From http://stackoverflow.com/questions/1964150/c-test-if-2-sets-are-disjoint
-    template<class Set1, class Set2> 
+    template<class Set1, class Set2>
     bool is_disjoint(const Set1 &set1, const Set2 &set2)
     {
       if(set1.empty() || set2.empty()) return true;
-  
-      typename Set1::const_iterator 
-          it1 = set1.begin(), 
+
+      typename Set1::const_iterator
+          it1 = set1.begin(),
           it1End = set1.end();
-      typename Set2::const_iterator 
-          it2 = set2.begin(), 
+      typename Set2::const_iterator
+          it2 = set2.begin(),
           it2End = set2.end();
-  
+
       if(*it1 > *set2.rbegin() || *it2 > *set1.rbegin()) return true;
-  
+
       while(it1 != it1End && it2 != it2End)
       {
           if(*it1 == *it2) return false;
           if(*it1 < *it2) { it1++; }
           else { it2++; }
       }
-  
+
       return true;
     }
 
@@ -161,31 +161,44 @@ namespace Gambit
 
     /// Check if two strings are a "close" match
     /// Used for "did you mean?" type checking during command line argument processing
-    bool are_similar(const str& s1, const str& s2);   
+    bool are_similar(const str& s1, const str& s2);
 
     /// Sub-check for are_similar.
     /// true if s1 can be obtained by deleting one character from s2
-    bool check1(const str& s1, const str& s2);   
+    bool check1(const str& s1, const str& s2);
 
     /// Sub-check for are_similar.
-    /// true if s1 can be obtained from s2 by changing no more than X characters (X=2 for now)    
+    /// true if s1 can be obtained from s2 by changing no more than X characters (X=2 for now)
     bool check2(const str& s1, const str& s2);
 
     /// returns square of double - saves tedious repetition
     double sqr(double a);
-    
-    /// Local GAMBIT definition of isnan.  Could be redefined at a later point, depending on compiler support. 
+
+    /// Local GAMBIT definition of isnan.  Could be redefined at a later point, depending on compiler support.
     using std::isnan;
 
-    /// Local GAMBIT definition of isinf.  Could be redefined at a later point, depending on compiler support. 
+    /// Local GAMBIT definition of isinf.  Could be redefined at a later point, depending on compiler support.
     using std::isinf;
 
     /// Check if a string represents an integer
     /// From: http://stackoverflow.com/a/2845275/1447953
     bool isInteger(const std::string&);
 
+    // Dummy functions for variadic variables to avoid compiler warnings
+    template<typename... T> void dummy_function() {}
+    template<typename T> void dummy_function(T one)
+    {
+      (void)one;
+    }
+
+    template<typename T1, typename... T> void dummy_function(T1 first, T... args)
+    {
+     (void)first;
+     dummy_function(args...);
+    }
+
   }
 
 }
-        
+
 #endif //defined __util_functions_hpp__

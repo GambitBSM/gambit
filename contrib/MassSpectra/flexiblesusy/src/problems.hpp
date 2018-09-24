@@ -52,6 +52,7 @@ public:
    void flag_no_sinThetaW_convergence();
 
    void unflag_bad_mass(int particle);
+   void unflag_all_bad_masses();
    void unflag_running_tachyon(int particle);
    void unflag_pole_tachyon(int particle);
    void unflag_all_tachyons();
@@ -60,6 +61,7 @@ public:
    void unflag_no_perturbative();
    void unflag_no_pole_mass_convergence(int particle);
    void unflag_non_perturbative_parameter(int parameter);
+   void unflag_all_non_perturbative_parameters();
    void unflag_no_sinThetaW_convergence();
 
    bool is_bad_mass(int particle) const;

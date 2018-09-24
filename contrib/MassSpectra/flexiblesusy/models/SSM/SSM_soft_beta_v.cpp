@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:56:44
+// File generated at Thu 10 May 2018 14:43:18
 
 #include "SSM_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -101,10 +101,10 @@ double SSM_soft_parameters::calc_beta_v_2_loop(const Soft_traces& soft_traces) c
 
    double beta_v;
 
-   beta_v = Re(-0.00125*twoLoop*v*(1257*Quad(g1) + 10*Sqr(g1)*(86*
-      traceYdAdjYd + 162*traceYeAdjYe + 206*traceYuAdjYu - 9*Sqr(g2)) - 25*(343
-      *Quad(g2) - 84*(3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu)*Sqr(g2) -
-      8*(80*(traceYdAdjYd + traceYuAdjYu)*Sqr(g3) + Sqr(K2) - 3*(9*
+   beta_v = Re(-0.00125*twoLoop*v*(1221*Quad(g1) + 10*Sqr(g1)*(122*
+      traceYdAdjYd + 174*traceYeAdjYe + 242*traceYuAdjYu - 45*Sqr(g2)) + 25*(
+      -379*Quad(g2) + 108*(3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu)*Sqr(
+      g2) + 8*(80*(traceYdAdjYd + traceYuAdjYu)*Sqr(g3) + Sqr(K2) - 3*(9*
       traceYdAdjYdYdAdjYd - 2*traceYdAdjYuYuAdjYd + 3*traceYeAdjYeYeAdjYe + 9*
       traceYuAdjYuYuAdjYu - 2*Sqr(Lambdax))))));
 

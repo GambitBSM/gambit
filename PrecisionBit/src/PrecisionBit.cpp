@@ -700,7 +700,7 @@ namespace Gambit
 
     /// b quark mass likelihood
     /// m_b (mb)^MSbar = 4.18 +/- 0.03 GeV (1 sigma), Gaussian.
-   /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
+    /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
     void lnL_mbmb_chi2(double &result)
     {
       using namespace Pipes::lnL_mbmb_chi2;
@@ -710,8 +710,8 @@ namespace Gambit
     }
 
     /// c quark mass likelihood
-    /// m_c (mc)^MSbar = 1.275 +/- 0.025 GeV (1 sigma), Gaussian.
-     ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
+    /// m_c (mc)^MSbar = 1.28 +/- 0.03 GeV (1 sigma), Gaussian.
+    ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
     void lnL_mcmc_chi2(double &result)
     {
       using namespace Pipes::lnL_mcmc_chi2;
@@ -748,7 +748,7 @@ namespace Gambit
     }
 
     /// alpha^{-1}(mZ)^MSbar likelihood
-    /// alpha^{-1}(mZ)^MSbar = 127.940 +/- 0.014 (1 sigma), Gaussian.  (PDG global SM fit)
+    /// alpha^{-1}(mZ)^MSbar = 127.950 +/- 0.017 (1 sigma), Gaussian.  (PDG global SM fit)
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-standard-model.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
     void lnL_alpha_em_chi2(double &result)
     {
@@ -792,7 +792,7 @@ namespace Gambit
 
     /// Simple, naive h boson mass likelihood
     /// Reference: D. Aad et al arxiv:1503.07589, Phys.Rev.Lett. 114 (2015) 191803 (ATLAS + CMS combination)
-   /// Also used dierctly in http://pdg.lbl.gov/2016/tables/rpp2016-sum-gauge-higgs-bosons.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
+    /// Also used dierctly in http://pdg.lbl.gov/2016/tables/rpp2016-sum-gauge-higgs-bosons.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
     void lnL_h_mass_chi2(double &result)
     {
       using namespace Pipes::lnL_h_mass_chi2;
@@ -947,18 +947,20 @@ namespace Gambit
         model.get_physical().MFu =smin.mU; //MSbar
         model.get_physical().MFc =smin.mCmC; // MSbar
 
-        /// Use hardcoded values as reccommended by GM2Calc authours
-        /// unless the user really wants to change these
-        double alpha_MZ = runOptions->getValueOrDef
-        <double>(0.00729735, "GM2Calc_extra_alpha_e_MZ");
-        double alpha_thompson = runOptions->getValueOrDef
-        <double>(0.00775531, "GM2Calc_extra_alpha_e_thompson_limit");
+        /// alpha_MZ := alpha(0) (1 - \Delta^{OS}(M_Z) ) where
+        /// \Delta^{OS}(M_Z) = quark and lepton contributions to
+        // on-shell renormalized photon vacuum polarization
+        // default value recommended by GM2calc from arxiv:1105.3149  
+        const double alpha_MZ = runOptions->getValueOrDef
+        <double>(alpha_e_OS_MZ, "GM2Calc_extra_alpha_e_MZ");
+        const double alpha_thomson = runOptions->getValueOrDef
+        <double>(alpha_e_OS_thomson_limit, "GM2Calc_extra_alpha_e_thomson_limit");
 
         if (alpha_MZ > std::numeric_limits<double>::epsilon())
           model.set_alpha_MZ(alpha_MZ);
 
-        if (alpha_thompson > std::numeric_limits<double>::epsilon())
-          model.set_alpha_thompson(alpha_thompson);
+        if (alpha_thomson > std::numeric_limits<double>::epsilon())
+          model.set_alpha_thompson(alpha_thomson);
 
         model.set_scale(mssm.GetScale());                   // 2L
 
@@ -999,10 +1001,10 @@ namespace Gambit
         invalid_point().raise(err.str());
       }
 
-      double error = BEreq::calculate_uncertainty_amu_2loop(model);
+      const double error = BEreq::calculate_uncertainty_amu_2loop(model);
 
-      double amumssm = BEreq::calculate_amu_1loop(model)
-                       + BEreq::calculate_amu_2loop(model);
+      const double amumssm = BEreq::calculate_amu_1loop(model)
+         + BEreq::calculate_amu_2loop(model);
 
       // Convert from a_mu to g-2
       result.central = 2.0*amumssm;

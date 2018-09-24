@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:48:18
+// File generated at Thu 10 May 2018 14:30:09
 
 #ifndef MSSMatMGUT_mAmu_UTILITIES_H
 #define MSSMatMGUT_mAmu_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class MSSMatMGUT_mAmu_spectrum_plotter {
 public:
+   MSSMatMGUT_mAmu_spectrum_plotter() = default;
+   explicit MSSMatMGUT_mAmu_spectrum_plotter(const MSSMatMGUT_mAmu_mass_eigenstates&);
    void extract_spectrum(const MSSMatMGUT_mAmu_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> MSSMatMGUT_mAmu_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace MSSMatMGUT_mAmu_database {
 

@@ -27,6 +27,6 @@ public:
    virtual void guess() = 0;
 };
 
-}
+} // namespace flexiblesusy
 
 #endif

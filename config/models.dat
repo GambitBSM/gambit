@@ -380,10 +380,6 @@ CMSSM: |
    SignMu       - the sign of the mu parameter
    TanBeta      - the ratio of the up-type to down-type Higgs vevs
 
-MSSM25atQ: |
-
-   As per the MSSM30atQ, but with first and second generation trilinear couplings degenerate in the slepton sector, and set to zero for squarks. This leaves:
-
 StandardModel_SLHA2: |
    Contains all SM parameters except the Higgs mass, which is separated out since this is often a prediction of BSM physics models. Models without their own Higgs sector can be scanned in tandem with an extra model that contains the Higgs mass as a parameter. The StandardModel_SLHA2 model contains the SM parameters that are defined in the SMINPUTS, VCKMIN and UPMNSIN blocks of the second SUSY Les Houches Accord (SLHA2):
 

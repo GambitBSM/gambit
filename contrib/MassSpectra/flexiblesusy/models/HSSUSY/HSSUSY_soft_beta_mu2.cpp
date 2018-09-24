@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:24
+// File generated at Thu 10 May 2018 14:43:40
 
 #include "HSSUSY_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -104,10 +104,10 @@ double HSSUSY_soft_parameters::calc_beta_mu2_2_loop(const Soft_traces& soft_trac
    beta_mu2 = Re(0.0025*mu2*twoLoop*(1671*Quad(g1) + 10*Sqr(g1)*(50*
       traceYdAdjYd + 150*traceYeAdjYe + 170*traceYuAdjYu + 288*Lambdax + 45*Sqr
       (g2)) - 25*(145*Quad(g2) - 12*(15*traceYdAdjYd + 5*traceYeAdjYe + 15*
-      traceYuAdjYu + 48*Lambdax)*Sqr(g2) - 8*(80*(traceYdAdjYd + traceYuAdjYu)*
-      Sqr(g3) - 3*(9*traceYdAdjYdYdAdjYd + 14*traceYdAdjYuYuAdjYd + 3*
+      traceYuAdjYu + 48*Lambdax)*Sqr(g2) - 640*(traceYdAdjYd + traceYuAdjYu)*
+      Sqr(g3) + 24*(9*traceYdAdjYdYdAdjYd + 14*traceYdAdjYuYuAdjYd + 3*
       traceYeAdjYeYeAdjYe + 9*traceYuAdjYuYuAdjYu + 24*traceYdAdjYd*Lambdax + 8
-      *traceYeAdjYe*Lambdax + 24*traceYuAdjYu*Lambdax + 10*Sqr(Lambdax))))));
+      *traceYeAdjYe*Lambdax + 24*traceYuAdjYu*Lambdax + 10*Sqr(Lambdax)))));
 
 
    return beta_mu2;

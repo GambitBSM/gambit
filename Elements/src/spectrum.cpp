@@ -417,6 +417,8 @@ namespace Gambit
    /// Output spectrum contents as an SLHA file, using getSLHAea.
    void Spectrum::writeSLHAfile(int slha_version, const str& filename) const
    {
+      // Ensure path exists first
+      Utils::ensure_path_exists(filename); // Not sure if file locking can help with race conditions on this... hopefully filesystem can handle it.
       Utils::FileLock mylock(filename);
       mylock.get_lock();
       std::ofstream ofs(filename);
@@ -431,9 +433,10 @@ namespace Gambit
       if (runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
       {
          // Spit out the full spectrum as SLHA1 and SLHA2 files.
+         str prefix   = runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
          str filename = runOptions->getValueOrDef<str>(default_name, "SLHA_output_filename");
-         writeSLHAfile(1,filename+".slha1");
-         writeSLHAfile(2,filename+".slha2");
+         writeSLHAfile(1,prefix+filename+".slha1");
+         writeSLHAfile(2,prefix+filename+".slha2");
       }
    }
 

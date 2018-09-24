@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:43
+// File generated at Thu 10 May 2018 14:42:06
 
 #include "MSSMEFTHiggs_two_scale_initial_guesser.hpp"
 #include "MSSMEFTHiggs_two_scale_model.hpp"
@@ -206,8 +206,6 @@ void MSSMEFTHiggs_standard_model_initial_guesser<Two_scale>::guess_model_paramet
    const auto md2Input = INPUTPARAMETER(md2Input);
    const auto ml2Input = INPUTPARAMETER(ml2Input);
    const auto me2Input = INPUTPARAMETER(me2Input);
-   const auto MuInput = INPUTPARAMETER(MuInput);
-   const auto mAInput = INPUTPARAMETER(mAInput);
    const auto AuInput = INPUTPARAMETER(AuInput);
    const auto AdInput = INPUTPARAMETER(AdInput);
    const auto AeInput = INPUTPARAMETER(AeInput);
@@ -225,8 +223,6 @@ void MSSMEFTHiggs_standard_model_initial_guesser<Two_scale>::guess_model_paramet
    MODEL->set_md2((md2Input).real());
    MODEL->set_ml2((ml2Input).real());
    MODEL->set_me2((me2Input).real());
-   MODEL->set_Mu(Re(MuInput));
-   MODEL->set_BMu(Re(Sqr(mAInput)/(1/TanBeta + TanBeta)));
    MODEL->set_TYu(((AuInput).cwiseProduct(Yu)).real());
    MODEL->set_TYd(((AdInput).cwiseProduct(Yd)).real());
    MODEL->set_TYe(((AeInput).cwiseProduct(Ye)).real());

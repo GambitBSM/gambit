@@ -12,12 +12,13 @@ Source code repository:  https://github.com/FlexibleSUSY
 Bug reports:             https://github.com/FlexibleSUSY/FlexibleSUSY/issues
 References:              CPC 190 (2015) 139-172 (arxiv:1406.2319 [hep-ph]),
                          JHEP 1701 (2017) 079 (arXiv:1609.00371 [hep-ph])
+                         arXiv:1710.03760 [hep-ph]
 
 
 Requirements
 ============
 
- * C++ compiler (g++ >= 4.9.2 or clang++ >= 3.8.1 or icpc >= 15.0.0)
+ * C++ compiler (g++ >= 4.8.5 or clang++ >= 3.8.1 or icpc >= 15.0.0)
  * Fortran compiler (gfortran, ifort)
  * Mathematica (version 7.0 or higher)
  * SARAH (version 4.11.0 or higher)   http://sarah.hepforge.org
@@ -28,7 +29,9 @@ Requirements
 
 Optional:
 
- * Looptools (version 2.8 or higher)  http://www.feynarts.de/looptools/
+ * BLAS                               http://www.netlib.org/blas/
+ * LAPACK                             http://www.netlib.org/lapack/
+ * LoopTools (version 2.8 or higher)  http://www.feynarts.de/looptools/
 
 
 Installation of SARAH
@@ -293,23 +296,23 @@ the options
 must be used to set LDFLAGS and LDLIBS.
 
 
-Looptools
+LoopTools
 =========
 
-It is possible to use Looptools (http://www.feynarts.de/looptools/)
+It is possible to use LoopTools (http://www.feynarts.de/looptools/)
 for calculating the loop functions, instead of using SOFTSUSY's loop
-functions.  To enable Looptools configure FlexibleSUSY via
+functions.  To enable LoopTools configure FlexibleSUSY via
 
    $ ./configure --enable-looptools
 
-To use the Looptools library and header files from a specific
+To use the LoopTools library and header files from a specific
 directory configure via
 
    $ ./configure --enable-looptools \
      --with-looptools-incdir="/path/to/looptools/build/" \
      --with-looptools-libdir="/path/to/looptools/build/"
 
-Note: Looptools 2.8 or higher is required.
+Note: LoopTools 2.8 or higher is required.
 
 
 Plotting the mass spectrum and RG running

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:47
+// File generated at Thu 10 May 2018 14:43:47
 
 #include "HSSUSY_utilities.hpp"
 #include "HSSUSY_input_parameters.hpp"
@@ -56,6 +56,25 @@ void append(Eigen::ArrayXd& a, const Eigen::ArrayXd& b)
 
 } // namespace utilities
 
+namespace {
+
+std::valarray<double> to_valarray(double v)
+{
+   return std::valarray<double>(&v, 1);
+}
+
+template <class Scalar, int M, int N>
+std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>& v)
+{
+   return std::valarray<double>(v.data(), v.size());
+}
+
+} // anonymous namespace
+
+HSSUSY_spectrum_plotter::HSSUSY_spectrum_plotter(const HSSUSY_mass_eigenstates& model)
+{
+   extract_spectrum(model);
+}
 
 void HSSUSY_spectrum_plotter::extract_spectrum(const HSSUSY_mass_eigenstates& model)
 {
@@ -64,17 +83,17 @@ void HSSUSY_spectrum_plotter::extract_spectrum(const HSSUSY_mass_eigenstates& mo
 
 
    if (model.do_calculate_sm_pole_masses()) {
-      spectrum.push_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
-      spectrum.push_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
-      spectrum.push_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
-      spectrum.push_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
-      spectrum.push_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
-      spectrum.push_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
-      spectrum.push_back(TParticle("Hp", "H^+", to_valarray(PHYSICAL(MHp))));
-      spectrum.push_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
-      spectrum.push_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
-      spectrum.push_back(TParticle("VWp", "W^+", to_valarray(PHYSICAL(MVWp))));
-      spectrum.push_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
+      spectrum.emplace_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
+      spectrum.emplace_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
+      spectrum.emplace_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
+      spectrum.emplace_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
+      spectrum.emplace_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
+      spectrum.emplace_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
+      spectrum.emplace_back(TParticle("Hp", "H^+", to_valarray(PHYSICAL(MHp))));
+      spectrum.emplace_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
+      spectrum.emplace_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
+      spectrum.emplace_back(TParticle("VWp", "W^+", to_valarray(PHYSICAL(MVWp))));
+      spectrum.emplace_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
 
    }
 }
@@ -129,15 +148,10 @@ void HSSUSY_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::ofs
                  << std::left << std::setw(width) << masses[i]
                  << std::left << std::setw(width) << name
                  << std::left << std::setw(2*width) << lname
-                 << std::left << std::setw(2*width) << lname_with_index.str()
+                 << std::left << lname_with_index.str()
                  << '\n';
       }
    }
-}
-
-std::valarray<double> HSSUSY_spectrum_plotter::to_valarray(double v)
-{
-   return std::valarray<double>(&v, 1);
 }
 
 namespace HSSUSY_database {

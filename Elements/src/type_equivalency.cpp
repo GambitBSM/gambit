@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Implementations for type_equivalency class, 
+///  Implementations for type_equivalency class,
 ///  a simple container used for storing info about
 ///  which types have been defined as equivalent
 ///  for depencency resolution purposes.
@@ -10,8 +10,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Oct, Dec
 ///
@@ -41,8 +41,8 @@ namespace Gambit
         s = Utils::strip_leading_namespace(s, it->first+"_"+it->second);
       }
       return s;
-    } 
-    
+    }
+
     /// Constructor for type_equivalency
     type_equivalency::type_equivalency() :
      filename(GAMBIT_DIR "/config/resolution_type_equivalency_classes.yaml")
@@ -50,9 +50,9 @@ namespace Gambit
       // Read yaml configuration file
       std::vector<YAML::Node> yaml_entries;
       try
-      { 
+      {
         yaml_entries = YAML::LoadAllFromFile(filename);
-      } 
+      }
       catch (YAML::Exception &e)
       {
         std::ostringstream msg;
@@ -63,11 +63,11 @@ namespace Gambit
       }
       // Iterate over the entries in the configuration file and add them to the set of equivalency classes
       for (auto it = yaml_entries.begin(); it != yaml_entries.end(); ++it)
-      {  
+      {
         add(it->as< std::vector<str> >());
       }
     }
-    
+
     /// Define a new equivalency relation
     /// {@
     void type_equivalency::add(str t1, str t2)
@@ -97,7 +97,7 @@ namespace Gambit
         }
         if (loc1 != end and loc2 != end)
         {
-          already_added = true;      
+          already_added = true;
         }
         if (already_added) break;
       }
@@ -113,7 +113,7 @@ namespace Gambit
     void type_equivalency::add(str t1, str t2, str t3, str t4, str t5, str t6) { add(t1,t2); add(t1,t3); add(t1,t4); add(t1,t5); add(t1,t6); }
     void type_equivalency::add(std::vector<str> v) { for (auto it = v.begin()+1; it != v.end(); ++it) { add(v[0],*it); } }
     /// }@
-  
+
   }
 
-}  
+}

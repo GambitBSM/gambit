@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:20:11
+// File generated at Thu 10 May 2018 15:00:02
 
 #ifndef MSSMNoFV_UTILITIES_H
 #define MSSMNoFV_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class MSSMNoFV_spectrum_plotter {
 public:
+   MSSMNoFV_spectrum_plotter() = default;
+   explicit MSSMNoFV_spectrum_plotter(const MSSMNoFV_mass_eigenstates&);
    void extract_spectrum(const MSSMNoFV_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> MSSMNoFV_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace MSSMNoFV_database {
 

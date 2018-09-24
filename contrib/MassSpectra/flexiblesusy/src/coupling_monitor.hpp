@@ -90,10 +90,10 @@ private:
       }
    };
 
-   TData couplings;        ///< all couplings at all scales
+   TData couplings{};      ///< all couplings at all scales
    Model model;            ///< the model
    DataGetter data_getter; ///< hepler class which extracts the model parameters
-   int width;         ///< width of columns in output table
+   int width{16};          ///< width of columns in output table
 
    /// write line with parameter names
    void write_parameter_names_line(std::ofstream&) const;
@@ -103,10 +103,8 @@ private:
 
 template <class Model, class DataGetter>
 Coupling_monitor<Model,DataGetter>::Coupling_monitor(const Model& model_, const DataGetter& data_getter_)
-   : couplings(TData())
-   , model(model_)
+   : model(model_)
    , data_getter(data_getter_)
-   , width(16)
 {
 }
 
@@ -178,7 +176,7 @@ void Coupling_monitor<Model,DataGetter>::write_comment_line(std::ofstream& fout)
 
    for (std::size_t i = 0; i < parameter_names.size(); ++i) {
       fout << std::left << std::setw(width)
-           << '[' << (i+2) << "] " << parameter_names[i];
+           << '[' + std::to_string(i+2) + "] " + parameter_names[i];
    }
 
    fout << '\n';
@@ -261,7 +259,7 @@ void Coupling_monitor<Model,DataGetter>::run(double q1, double q2,
 
    // run from q1 to q2
    for (int n = 0; n < number_of_steps + endpoint_offset; ++n) {
-      const double scale = exp(log(q1) + n * (log(q2) - log(q1)) / number_of_steps);
+      const double scale = std::exp(std::log(q1) + n * (std::log(q2) - std::log(q1)) / number_of_steps);
       try {
          model.run_to(scale);
       } catch (const Error&) {
@@ -269,12 +267,12 @@ void Coupling_monitor<Model,DataGetter>::run(double q1, double q2,
                << scale << " failed");
          break;
       }
-      couplings.push_back(TData::value_type(scale, data_getter.get_parameters(model)));
+      couplings.emplace_back(scale, data_getter.get_parameters(model));
    }
 
    std::sort(couplings.begin(), couplings.end(), TScaleComp());
 }
 
-}
+} // namespace flexiblesusy
 
 #endif

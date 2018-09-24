@@ -6,10 +6,10 @@
 ///
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///  <!-- add name and date if you modify -->
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 Apr, Oct
 ///  \date 2014 Mar
@@ -58,30 +58,30 @@
 /// \name Macro chain for stripping parantheses off an argument
 /// Usage: STRIP_PARENS(x). Example: STRIP_PARENS((y,z)) expands to y,z
 /// @{
-#define APPLY(macro, args) APPLY_I(macro, args) 
-#define APPLY_I(macro, args) macro args 
-#define STRIP_PARENS(x) EVAL_PAR((STRIP_PARENS_I x), x) 
-#define STRIP_PARENS_I(...) 1,1 
-#define EVAL_PAR(test, x) EVAL_PAR_I(test, x) 
-#define EVAL_PAR_I(test, x) MAYBE_STRIP_PARENS(TEST_ARITY test, x) 
-#define TEST_ARITY(...) APPLY(TEST_ARITY_I, (__VA_ARGS__, 2, 1, 0)) 
-#define TEST_ARITY_I(a,b,c,...) c 
-#define MAYBE_STRIP_PARENS(cond, x) MAYBE_STRIP_PARENS_I(cond, x) 
-#define MAYBE_STRIP_PARENS_I(cond, x) CAT(MAYBE_STRIP_PARENS_, cond)(x) 
-#define MAYBE_STRIP_PARENS_1(x) x 
-#define MAYBE_STRIP_PARENS_2(x) APPLY(MAYBE_STRIP_PARENS_2_I, x) 
+#define APPLY(macro, args) APPLY_I(macro, args)
+#define APPLY_I(macro, args) macro args
+#define STRIP_PARENS(x) EVAL_PAR((STRIP_PARENS_I x), x)
+#define STRIP_PARENS_I(...) 1,1
+#define EVAL_PAR(test, x) EVAL_PAR_I(test, x)
+#define EVAL_PAR_I(test, x) MAYBE_STRIP_PARENS(TEST_ARITY test, x)
+#define TEST_ARITY(...) APPLY(TEST_ARITY_I, (__VA_ARGS__, 2, 1, 0))
+#define TEST_ARITY_I(a,b,c,...) c
+#define MAYBE_STRIP_PARENS(cond, x) MAYBE_STRIP_PARENS_I(cond, x)
+#define MAYBE_STRIP_PARENS_I(cond, x) CAT(MAYBE_STRIP_PARENS_, cond)(x)
+#define MAYBE_STRIP_PARENS_1(x) x
+#define MAYBE_STRIP_PARENS_2(x) APPLY(MAYBE_STRIP_PARENS_2_I, x)
 #define MAYBE_STRIP_PARENS_2_I(...) __VA_ARGS__
 /// @}
 
 /// \name Macro chain checking if the argument has parantheses
 /// Usage: HAS_PARENS(x). Example: HAS_PARENS((y,z)) expands to 1
 /// @{
-#define HAS_PARENS(x) EVAL_HASP((HAS_PARENS_I x), x) 
-#define HAS_PARENS_I(...) 1,1 
-#define EVAL_HASP(test, x) EVAL_HASP_I(test, x) 
-#define EVAL_HASP_I(test, x) CHECK_PARENS(TEST_ARITY test, x) 
-#define CHECK_PARENS(cond, x) CHECK_PARENS_I(cond, x) 
-#define CHECK_PARENS_I(cond, x) CAT(CHECK_PARENS_, cond)(x) 
+#define HAS_PARENS(x) EVAL_HASP((HAS_PARENS_I x), x)
+#define HAS_PARENS_I(...) 1,1
+#define EVAL_HASP(test, x) EVAL_HASP_I(test, x)
+#define EVAL_HASP_I(test, x) CHECK_PARENS(TEST_ARITY test, x)
+#define CHECK_PARENS(cond, x) CHECK_PARENS_I(cond, x)
+#define CHECK_PARENS_I(cond, x) CAT(CHECK_PARENS_, cond)(x)
 #define CHECK_PARENS_1(x) 0
 #define CHECK_PARENS_2(x) 1
 /// @}
@@ -122,7 +122,7 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
     1,1,1,1,1,1,1,1,1,1,1,1
 /// @}
 
-/// \name Macro that expands to the argument list with a comma in front 
+/// \name Macro that expands to the argument list with a comma in front
 /// if the (bracket enclosed) argument list is not empty.
 /// If the agrument list is empty, expands to nothing.
 /// @{
@@ -135,14 +135,14 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 /// Used to avoid possible reentrancy issues with multiple use of BOOST_PP_TUPLE_ELEM.
 /// @{
 #define PAIR_ELEMENT0(TPLE) PAIR_ELEMENT0_I TPLE
-#define PAIR_ELEMENT0_I(A,B) A 
+#define PAIR_ELEMENT0_I(A,B) A
 #define PAIR_ELEMENT1(TPLE) PAIR_ELEMENT1_I TPLE
-#define PAIR_ELEMENT1_I(A,B) B 
+#define PAIR_ELEMENT1_I(A,B) B
 /// @}
 
 /// \name Type comparison macros
 /// Macros to evaluate whether two intrinsic types are identical or not.
-/// Example use: define a macro that evaluates to 1 if token X = void, 0 
+/// Example use: define a macro that evaluates to 1 if token X = void, 0
 /// otherwise.
 /// \code
 /// #define X_IS_VOID(X) IS_TYPE(X, void)
@@ -162,9 +162,9 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 /// \name String comparison macros.
 /// Macros for evaluating whether tokens are equal or not for certain special values, and
 /// for then switching on the result.
-/// Define your special values, such as "myToken" locally as 
+/// Define your special values, such as "myToken" locally as
 /// \code
-/// #define myToken_myToken 1)(1 
+/// #define myToken_myToken 1)(1
 /// Just like the IS_TYPE macro, so redirects to that.
 /// \endcode
 /// @{
@@ -187,62 +187,71 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 
 /// \name General variadic macro expanders
 /// Generic variadic macro expanders for 1 to 10 arguments.
-/// Example use: redirect EXAMPLE according to whether it is called 
+/// Example use: redirect EXAMPLE according to whether it is called
 /// with 2, 3 or 4 arguments.
 /// \code
 /// #define EXAMPLE_4(_1, _2, _3, _4) DOSTUFF(_1,  _2,  _3,  _4)
 /// #define EXAMPLE_3(_1, _2, _3)     DOSTUFF(_1,  _2,  _3, foo)
 /// #define EXAMPLE_2(_1, _2)         DOSTUFF(_1,  _2, foo, bar)
 /// #define EXAMPLE(...)              VARARG(EXAMPLE, __VA_ARGS__)
-/// \endcode 
+/// \endcode
 /// @{
 #define VA_NARGS_IMPL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, N, ...) N
 #define VA_NARGS(...) VA_NARGS_IMPL(X,__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 #define VARARG_IMPL2(base, count, ...) CAT_3(base,_,count)(__VA_ARGS__)
-#define VARARG_IMPL(base, count, ...) VARARG_IMPL2(base, count, __VA_ARGS__) 
+#define VARARG_IMPL(base, count, ...) VARARG_IMPL2(base, count, __VA_ARGS__)
 #define VARARG(base, ...) VARARG_IMPL(base, VA_NARGS(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
-/// \name Variadic macro expanders taking 3 leading arguments 
+/// \name Duplicate of variadic macro expanders, to allow nesting.
+/// @{
+#define VA_NARGS_NESTED_IMPL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, N, ...) N
+#define VA_NARGS_NESTED(...) VA_NARGS_NESTED_IMPL(X,__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define VARARG_NESTED_IMPL2(base, count, ...) CAT_3(base,_,count)(__VA_ARGS__)
+#define VARARG_NESTED_IMPL(base, count, ...) VARARG_NESTED_IMPL2(base, count, __VA_ARGS__)
+#define VARARG_NESTED(base, ...) VARARG_NESTED_IMPL(base, VA_NARGS_NESTED(__VA_ARGS__), __VA_ARGS__)
+/// @}
+
+/// \name Variadic macro expanders taking 3 leading arguments
 /// @{
 #define VA_NARGS_AB_IMPL(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, N, ...) N
 #define VA_NARGS_AB(...) VA_NARGS_AB_IMPL(X,__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 #define VARARG_AB_IMPL2(base, A, B, count, ...) CAT_3(base,_,count)(A, B, __VA_ARGS__)
-#define VARARG_AB_IMPL(base, A, B, count, ...) VARARG_AB_IMPL2(base, A, B, count, __VA_ARGS__) 
+#define VARARG_AB_IMPL(base, A, B, count, ...) VARARG_AB_IMPL2(base, A, B, count, __VA_ARGS__)
 #define VARARG_AB(base, A, B, ...) VARARG_AB_IMPL(base, A, B, VA_NARGS_AB(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
-/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument  
+/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument
 /// @{
 #define VARARG_SWITCH_ON_GT_ONE_TESTER_1 1)(1
 #define VA_NARGS_SWITCH_ON_GT_ONE_IMPL(_1, _2, _3, N, ...) IF_ELSE_EQUAL(VARARG_SWITCH_ON_GT_ONE_TESTER,N,N,MORE)
 #define VA_NARGS_SWITCH_ON_GT_ONE(...) VA_NARGS_SWITCH_ON_GT_ONE_IMPL(X,__VA_ARGS__, 2, 1, 0)
 #define VARARG_SWITCH_ON_GT_ONE_IMPL2(base, count, ...) CAT_3(base,_,count)(__VA_ARGS__)
-#define VARARG_SWITCH_ON_GT_ONE_IMPL(base, count, ...) VARARG_SWITCH_ON_GT_ONE_IMPL2(base, count, __VA_ARGS__) 
+#define VARARG_SWITCH_ON_GT_ONE_IMPL(base, count, ...) VARARG_SWITCH_ON_GT_ONE_IMPL2(base, count, __VA_ARGS__)
 #define VARARG_SWITCH_ON_GT_ONE(base, ...) VARARG_SWITCH_ON_GT_ONE_IMPL(base, VA_NARGS_SWITCH_ON_GT_ONE(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
-/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument, taking 1 leading argument  
+/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument, taking 1 leading argument
 /// @{
 #define VARARG_SWITCH_ON_GT_ONE_A_TESTER_1 1)(1
 #define VA_NARGS_SWITCH_ON_GT_ONE_A_IMPL(_1, _2, _3, N, ...) IF_ELSE_EQUAL(VARARG_SWITCH_ON_GT_ONE_A_TESTER,N,N,MORE)
 #define VA_NARGS_SWITCH_ON_GT_ONE_A(...) VA_NARGS_SWITCH_ON_GT_ONE_A_IMPL(X,__VA_ARGS__, 2, 1, 0)
 #define VARARG_SWITCH_ON_GT_ONE_A_IMPL2(base, A, count, ...) CAT_3(base,_,count)(A, __VA_ARGS__)
-#define VARARG_SWITCH_ON_GT_ONE_A_IMPL(base, A, count, ...) VARARG_SWITCH_ON_GT_ONE_A_IMPL2(base, A, count, __VA_ARGS__) 
+#define VARARG_SWITCH_ON_GT_ONE_A_IMPL(base, A, count, ...) VARARG_SWITCH_ON_GT_ONE_A_IMPL2(base, A, count, __VA_ARGS__)
 #define VARARG_SWITCH_ON_GT_ONE_A(base, A, ...) VARARG_SWITCH_ON_GT_ONE_A_IMPL(base, A, VA_NARGS_SWITCH_ON_GT_ONE_A(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
-/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument, taking 3 leading arguments  
+/// \name Variadic macro expanders for distinguishing between 1 and >1 variadic argument, taking 3 leading arguments
 /// @{
 #define VARARG_SWITCH_ON_GT_ONE_ABC_TESTER_1 1)(1
 #define VA_NARGS_SWITCH_ON_GT_ONE_ABC_IMPL(_1, _2, _3, N, ...) IF_ELSE_EQUAL(VARARG_SWITCH_ON_GT_ONE_ABC_TESTER,N,N,MORE)
 #define VA_NARGS_SWITCH_ON_GT_ONE_ABC(...) VA_NARGS_SWITCH_ON_GT_ONE_ABC_IMPL(X,__VA_ARGS__, 2, 1, 0)
 #define VARARG_SWITCH_ON_GT_ONE_ABC_IMPL2(base, A, B, C, count, ...) CAT_3(base,_,count)(A, B, C, __VA_ARGS__)
-#define VARARG_SWITCH_ON_GT_ONE_ABC_IMPL(base, A, B, C, count, ...) VARARG_SWITCH_ON_GT_ONE_ABC_IMPL2(base, A, B, C, count, __VA_ARGS__) 
+#define VARARG_SWITCH_ON_GT_ONE_ABC_IMPL(base, A, B, C, count, ...) VARARG_SWITCH_ON_GT_ONE_ABC_IMPL2(base, A, B, C, count, __VA_ARGS__)
 #define VARARG_SWITCH_ON_GT_ONE_ABC(base, A, B, C, ...) VARARG_SWITCH_ON_GT_ONE_ABC_IMPL(base, A, B, C, VA_NARGS_SWITCH_ON_GT_ONE_ABC(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
-/// \name Variadic macro expanders for distinguishing between 1, 2 and >2 variadic arguments, taking 3 leading arguments  
+/// \name Variadic macro expanders for distinguishing between 1, 2 and >2 variadic arguments, taking 3 leading arguments
 /// @{
 #define VARARG_SWITCH_ON_GT_TWO_ABC_TESTER_2 1)(1
 #define VARARG_SWITCH_ON_GT_TWO_ABC_TESTER_1 1)(1
@@ -250,7 +259,7 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
                                                                                  BOOST_PP_TUPLE_ELEM(0,(STRIP_PARENS(N))),N,MORE)
 #define VA_NARGS_SWITCH_ON_GT_TWO_ABC(...) VA_NARGS_SWITCH_ON_GT_TWO_ABC_IMPL(X,__VA_ARGS__, 3, 2, 1, 0)
 #define VARARG_SWITCH_ON_GT_TWO_ABC_IMPL2(base, A, B, C, count, ...) CAT_3(base,_,count)(A, B, C, __VA_ARGS__)
-#define VARARG_SWITCH_ON_GT_TWO_ABC_IMPL(base, A, B, C, count, ...) VARARG_SWITCH_ON_GT_TWO_ABC_IMPL2(base, A, B, C, count, __VA_ARGS__) 
+#define VARARG_SWITCH_ON_GT_TWO_ABC_IMPL(base, A, B, C, count, ...) VARARG_SWITCH_ON_GT_TWO_ABC_IMPL2(base, A, B, C, count, __VA_ARGS__)
 #define VARARG_SWITCH_ON_GT_TWO_ABC(base, A, B, C, ...) VARARG_SWITCH_ON_GT_TWO_ABC_IMPL(base, A, B, C, VA_NARGS_SWITCH_ON_GT_TWO_ABC(__VA_ARGS__), __VA_ARGS__)
 /// @}
 
@@ -261,10 +270,10 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 /// must exist a macro definition of the following form:
 /// \code
 /// #define DEFINED_FOO ()
-/// \endcode 
-/// If this definition exists, DEFINED(FOO) will return 1.  It is up to 
+/// \endcode
+/// If this definition exists, DEFINED(FOO) will return 1.  It is up to
 /// you to actually create a matching macro FOO when you create DEFINED_FOO,
-/// and then do something with the information that DEFINED provides about 
+/// and then do something with the information that DEFINED provides about
 /// the existence of DEFINED_FOO (and presumably also FOO).
 ///
 /// Typically these macros would be used to switch behaviour on a flag
@@ -273,11 +282,11 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 /// @{
 #define CHECK_N(x, n, ...) n
 #define CHECK(...) CHECK_N(__VA_ARGS__, 0, 0)
-#define PROBE(x) x, 1                                                             
+#define PROBE(x) x, 1
 #define DEFINED_PROBE(NAME)            DEFINED_PROBE_PROXY( DEFINED_##NAME )      // concatenate DEFINED_ prefix with function name
 #define DEFINED_PROBE_PROXY(...)       DEFINED_PROBE_PRIMITIVE(__VA_ARGS__)       // expand arguments
 #define DEFINED_PROBE_PRIMITIVE(x)     DEFINED_PROBE_COMBINE_ x                   // collapse again
-#define DEFINED_PROBE_COMBINE_(...)    PROBE(X)   
+#define DEFINED_PROBE_COMBINE_(...)    PROBE(X)
 /// Returns 1 or 0 depending on whether a corresponding DEFINED_<NAME> () macro has been
 /// \code #defined \endcode or not.
 #define DEFINED(NAME)                  CHECK(DEFINED_PROBE(NAME))
@@ -329,6 +338,23 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 #define IS_ELLIPSIS(ELEM) IS_EQUAL(etc,ELEM)
 #define STRIP_VARIADIC_ARG(T)   BOOST_PP_IIF(LAST_ARG_VARIADIC(T), (POP_LAST(T)),      T)
 #define CONVERT_VARIADIC_ARG(T) BOOST_PP_IIF(LAST_ARG_VARIADIC(T), (POP_LAST(T), ...), T)
+/// @}
+
+/// \name Preprocessor switch-case statements
+/// @{
+#define IF_ELSEIF_9(VAR1, _1, VAR2, _2, VAR3, _3, VAR4, _4, _5) \
+         BOOST_PP_IF(VAR1, _1,                                  \
+         BOOST_PP_IF(VAR2, _2,                                  \
+         BOOST_PP_IF(VAR3, _3,                                  \
+         BOOST_PP_IF(VAR4, _4, _5))))
+#define IF_ELSEIF_7(VAR1, _1, VAR2, _2, VAR3, _3, _4)           \
+         BOOST_PP_IF(VAR1, _1,                                  \
+         BOOST_PP_IF(VAR2, _2,                                  \
+         BOOST_PP_IF(VAR3, _3, _4)))
+#define IF_ELSEIF_5(VAR1, _1, VAR2, _2, _3)                     \
+         BOOST_PP_IF(VAR1, _1,                                  \
+         BOOST_PP_IF(VAR2, _2, _3))
+#define IF_ELSEIF(...) VARARG_NESTED(IF_ELSEIF, __VA_ARGS__)
 /// @}
 
 /// Macro for defining a static const vector easily. With C++11 could use initialiser lists, but

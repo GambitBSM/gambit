@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:55:00
+// File generated at Thu 10 May 2018 14:42:18
 
 #include "config.h"
 
@@ -45,13 +45,14 @@ void print_usage()
    std::cout <<
       "Usage: scan_MSSMEFTHiggs.x [options]\n"
       "Options:\n"
+      "  --TanBeta=<value>\n"
+      "  --SignMu=<value>\n"
       "  --MSUSY=<value>\n"
       "  --M1Input=<value>\n"
       "  --M2Input=<value>\n"
       "  --M3Input=<value>\n"
-      "  --MuInput=<value>\n"
-      "  --mAInput=<value>\n"
-      "  --TanBeta=<value>\n"
+      "  --mHd2IN=<value>\n"
+      "  --mHu2IN=<value>\n"
 
       "  --solver-type=<value>             an integer corresponding\n"
       "                                    to the solver type to use\n"
@@ -66,6 +67,12 @@ void set_command_line_parameters(const Dynamic_array_view<char*>& args,
    for (int i = 1; i < args.size(); ++i) {
       const auto option = args[i];
 
+      if(Command_line_options::get_parameter_value(option, "--TanBeta=", input.TanBeta))
+         continue;
+
+      if(Command_line_options::get_parameter_value(option, "--SignMu=", input.SignMu))
+         continue;
+
       if(Command_line_options::get_parameter_value(option, "--MSUSY=", input.MSUSY))
          continue;
 
@@ -78,13 +85,10 @@ void set_command_line_parameters(const Dynamic_array_view<char*>& args,
       if(Command_line_options::get_parameter_value(option, "--M3Input=", input.M3Input))
          continue;
 
-      if(Command_line_options::get_parameter_value(option, "--MuInput=", input.MuInput))
+      if(Command_line_options::get_parameter_value(option, "--mHd2IN=", input.mHd2IN))
          continue;
 
-      if(Command_line_options::get_parameter_value(option, "--mAInput=", input.mAInput))
-         continue;
-
-      if(Command_line_options::get_parameter_value(option, "--TanBeta=", input.TanBeta))
+      if(Command_line_options::get_parameter_value(option, "--mHu2IN=", input.mHu2IN))
          continue;
 
       
@@ -134,7 +138,7 @@ void scan(int solver_type, MSSMEFTHiggs_input_parameters& input,
    softsusy::QedQcd qedqcd;
 
    for (const auto p: range) {
-      INPUTPARAMETER(MSUSY) = p;
+      INPUTPARAMETER(TanBeta) = p;
 
       MSSMEFTHiggs_scan_result result;
       switch (solver_type) {
@@ -177,7 +181,7 @@ int main(int argc, char* argv[])
                                solver_type);
 
    std::cout << "# "
-             << std::setw(12) << std::left << "MSUSY" << ' '
+             << std::setw(12) << std::left << "TanBeta" << ' '
              << std::setw(12) << std::left << "Mhh(0)/GeV" << ' '
              << std::setw(12) << std::left << "error"
              << '\n';

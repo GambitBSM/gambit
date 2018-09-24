@@ -25,6 +25,9 @@ lowMSSM_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.lowMSSM_generated \
 		$(DIR)/LesHouches.in.lowMSSM
 
+lowMSSM_REFERENCES := \
+		$(DIR)/lowMSSM_references.tex
+
 lowMSSM_GNUPLOT := \
 		$(DIR)/lowMSSM_plot_rgflow.gnuplot \
 		$(DIR)/lowMSSM_plot_spectrum.gnuplot
@@ -185,6 +188,7 @@ install-src::
 ifneq ($(lowMSSM_SLHA_INPUT),)
 		install -m u=rw,g=r,o=r $(lowMSSM_SLHA_INPUT) $(lowMSSM_INSTALL_DIR)
 endif
+		install -m u=rw,g=r,o=r $(lowMSSM_REFERENCES) $(lowMSSM_INSTALL_DIR)
 		install -m u=rw,g=r,o=r $(lowMSSM_GNUPLOT) $(lowMSSM_INSTALL_DIR)
 endif
 
@@ -223,7 +227,8 @@ pack-$(MODNAME)-src:
 		$(EXElowMSSM_SRC) \
 		$(LLlowMSSM_SRC) $(LLlowMSSM_MMA) \
 		$(lowMSSM_MK) $(lowMSSM_INCLUDE_MK) \
-		$(lowMSSM_SLHA_INPUT) $(lowMSSM_GNUPLOT)
+		$(lowMSSM_SLHA_INPUT) $(lowMSSM_REFERENCES) \
+		$(lowMSSM_GNUPLOT)
 
 $(LIBlowMSSM_SRC) $(LIBlowMSSM_HDR) $(EXElowMSSM_SRC) $(LLlowMSSM_SRC) $(LLlowMSSM_MMA) \
 : run-metacode-$(MODNAME)
@@ -260,10 +265,10 @@ $(LIBlowMSSM): $(LIBlowMSSM_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
 $(DIR)/%.x: $(DIR)/%.o $(LIBlowMSSM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$^ $(ADDONLIBS)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 $(LLlowMSSM_LIB): $(LLlowMSSM_OBJ) $(LIBlowMSSM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$^) $(ADDONLIBS) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBlowMSSM_DEP) $(EXElowMSSM_DEP)
 ALLSRC += $(LIBlowMSSM_SRC) $(EXElowMSSM_SRC)

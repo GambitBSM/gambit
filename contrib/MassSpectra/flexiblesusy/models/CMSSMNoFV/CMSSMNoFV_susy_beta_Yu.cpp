@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:11:44
+// File generated at Thu 10 May 2018 14:54:03
 
 #include "CMSSMNoFV_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -121,11 +121,11 @@ Eigen::Matrix<double,3,3> CMSSMNoFV_susy_parameters::calc_beta_Yu_3_loop(const S
       (g3) - 24*(traceAdjYuYuAdjYdYd + 3*traceAdjYuYuAdjYuYu)*Sqr(g3))))*(Yu*
       1.2020569031595942) - 0.0033333333333333335*threeLoop*(1899*Quad(g1) + 10
       *Sqr(g1)*(-96*traceAdjYdYd + 48*traceAdjYeYe + 123*Sqr(g2) + 152*Sqr(g3))
-      + 25*(135*Quad(g2) + 24*Sqr(g2)*(-3*(3*traceAdjYdYd + traceAdjYeYe) + 2*
-      Sqr(g3)) - 4*(8*Quad(g3) - 24*(traceAdjYdYd - traceAdjYeYe)*Sqr(g3) - 3*(
+      + 25*(135*Quad(g2) - 32*Quad(g3) + 96*(traceAdjYdYd - traceAdjYeYe)*Sqr(
+      g3) + 24*Sqr(g2)*(-3*(3*traceAdjYdYd + traceAdjYeYe) + 2*Sqr(g3)) + 12*(
       -18*traceAdjYdYdAdjYdYd + 6*traceAdjYdYd*traceAdjYeYe - 6*
       traceAdjYeYeAdjYeYe - 6*traceAdjYuYuAdjYdYd + 9*Sqr(traceAdjYdYd) + Sqr(
-      traceAdjYeYe)))))*(Yu*Yd.adjoint()*Yd) + (-28.536666666666665*threeLoop*
+      traceAdjYeYe))))*(Yu*Yd.adjoint()*Yd) + (-28.536666666666665*threeLoop*
       Quad(g1) - 54.75*threeLoop*Quad(g2) - 0.03333333333333333*threeLoop*Sqr(
       g1)*(-270*traceAdjYuYu + 579*Sqr(g2) + 424*Sqr(g3)) + Sqr(g2)*(45*
       threeLoop*traceAdjYuYu - 92*threeLoop*Sqr(g3)) + threeLoop*(18*

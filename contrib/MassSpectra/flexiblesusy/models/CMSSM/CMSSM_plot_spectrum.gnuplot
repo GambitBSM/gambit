@@ -1,5 +1,3 @@
-set terminal x11
-
 set title "CMSSM particle spectrum"
 set ylabel "mass / GeV"
 unset key

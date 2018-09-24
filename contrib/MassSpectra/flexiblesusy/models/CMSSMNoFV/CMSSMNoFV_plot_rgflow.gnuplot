@@ -1,5 +1,3 @@
-set terminal x11
-
 set title "CMSSMNoFV renormalization group flow"
 set xlabel "renormalization scale / GeV"
 set logscale x

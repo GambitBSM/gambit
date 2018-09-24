@@ -26,7 +26,9 @@ namespace Gambit {
       Analysis_CMS_13TeV_0LEP_13invfb() :
         _cutflow("CMS 0-lep 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
+        set_analysis_name("CMS_13TeV_0LEP_13invfb");
         set_luminosity(12.9);
+
         for (size_t i = 0; i < NUMSR; ++i) _srnums[i] = 0;
       }
 
@@ -216,9 +218,8 @@ namespace Gambit {
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-        cout << _cutflow << endl;
+//        cout << _cutflow << endl;
 
-        static const string ANAME = "Analysis_CMS_13TeV_0LEP_13invfb";
         static const double OBSNUM[NUMSR] = {
           // 5180, 1780, 146, 2834, 2819, 202, 1070,  93, 134, 11, 1009, 411, 35, 512, 607, 47, 200, 27, 30, 4,   195, 77,  2,  65, 109,  9,   22,   6,   2,   1,    10,    3,  0,    3,   12,   2,   2,   0,   0,   0,
           // 334,   603,  93,  163,  734, 121,  149,  76,  32,  4,  164, 309, 43,  58, 293, 52,  54, 26,  6, 0,    54,133,  4,  11,  97, 14,    9,   9,   4,   1,    11,   13,  4,    1,   13,   3,   1,   2,   0,   0,
@@ -238,12 +239,18 @@ namespace Gambit {
           // 30,     45,  15,   13,   43,  15,  14,   9,  4.6, 2.5,  16,  25,  8,   7,  25, 7,   6.5,4.7,2.2,1.5,  8.3,15, 4.6,  5, 13,   3.7,  3.2, 2.2, 1.3, 1,     2.1, 5,   1.7,  1.9,  3.5, 2.3, 1.4, 1.2, 1.1, 1.0,
           // 2.4,     9,   7,   1.9,  10,  6,    3,  3.5, 1.2, 1.3,   2,   7,  4.5, 2,  10, 4,   2.1, 5, 1.3, 1,   1.2,7.6,2.5, 1.5, 5,   5,    1.3,   2, 1.2, 1.2,   1.1, 4,   1.6,  1.3,  2.1, 2,   1,   1.5, 1,   1,
           // 1,       2,   3,    1,   1.5, 5.2, 1.2, 1.5, 1.2, 1,     1,   2,  2.5, 1,  1.7,2.3, 1.3,1.6,1.2, 1,   1,  1.5,2.6,  1,  1.4, 1.9,  1.5, 1.8, 1.2, 1,     1,   1,   1.4,  1,    1.3, 1.2, 1.3, 1.2, 1.2, 1
-          99.7, 3.91, 21.6, 2.86, 0.98, 11.2, 8.24, 4.24, 2.60, 1.60, 33.0, 5.47
+          99.7, 3.91, 21.6, 2.86, 0.98, 11.2, 8.24, 4.24, 2.60, 1.60, 33.0, 5.47 //< quad sums of upper limits
         };
         for (size_t ibin = 0; ibin < NUMSR; ++ibin) {
           stringstream ss; ss << "sr-" << ibin;
-          add_result(SignalRegionData(ANAME, ss.str(), OBSNUM[ibin], {_srnums[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
+          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_srnums[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
         }
+      }
+
+
+    protected:
+      void clear() {
+        for(size_t i=0;i<NUMSR;i++) { _srnums[i]=0; }
       }
 
     };

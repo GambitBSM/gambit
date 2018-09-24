@@ -51,6 +51,6 @@ TargetModel cast_model(InputModel abstract_model)
 #endif
 }
 
-}
+} // namespace flexiblesusy
 
 #endif

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:33:48
+// File generated at Thu 10 May 2018 15:11:14
 
 #ifndef CMSSM_soft_parameters_H
 #define CMSSM_soft_parameters_H

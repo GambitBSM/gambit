@@ -31,12 +31,18 @@ MAN_PAGE        := $(MAN_OUTPUT_DIR)/index.html
 DOXYFILE        := $(DIR)/Doxyfile
 DOXYGEN_MAINPAGE:= $(DIR)/mainpage.dox
 
-PAPER_PDF       := $(PDF_OUTPUT_DIR)/flexiblesusy-1.0.pdf
-PAPER_SRC       := $(DIR)/flexiblesusy-1.0.tex
-PAPER_STY       := $(DIR)/tikz-uml.sty
+PAPER_PDF_1     := $(PDF_OUTPUT_DIR)/flexiblesusy-1.0.pdf
+PAPER_PDF_2     := $(PDF_OUTPUT_DIR)/flexiblesusy-2.0.pdf
+PAPER_PDF       := $(PAPER_PDF_1) $(PAPER_PDF_2)
+PAPER_SRC_1     := $(DIR)/flexiblesusy-1.0.tex
+PAPER_SRC_2     := $(DIR)/flexiblesusy-2.0.tex
+PAPER_SRC       := $(PAPER_SRC_1) $(PAPER_SRC_2)
+PAPER_STY       := $(DIR)/JHEP.bst $(DIR)/tikz-uml.sty
 
 LATEX_TMP       := \
 		$(patsubst %.pdf, %.aux, $(PAPER_PDF)) \
+		$(patsubst %.pdf, %.bbl, $(PAPER_PDF)) \
+		$(patsubst %.pdf, %.blg, $(PAPER_PDF)) \
 		$(patsubst %.pdf, %.log, $(PAPER_PDF)) \
 		$(patsubst %.pdf, %.toc, $(PAPER_PDF)) \
 		$(patsubst %.pdf, %.out, $(PAPER_PDF)) \
@@ -102,7 +108,13 @@ $(MAN_PAGE):
 		  echo "GENERATE_HTML = NO"; \
 		) | doxygen -
 
-$(PAPER_PDF): $(PAPER_SRC) $(PAPER_STY)
+$(PAPER_PDF_1): $(PAPER_SRC_1) $(PAPER_STY)
 		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<
+		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<
+		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<
+
+$(PAPER_PDF_2): $(PAPER_SRC_2) $(PAPER_STY)
+		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<
+		bibtex $(PAPER_SRC_2:.tex=)
 		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<
 		pdflatex -output-directory $(PDF_OUTPUT_DIR) $<

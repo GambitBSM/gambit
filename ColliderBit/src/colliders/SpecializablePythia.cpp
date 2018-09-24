@@ -135,7 +135,10 @@ namespace Gambit
         _pythiaBase = new Pythia8::Pythia(pythiaDocPath, false);
       }
       // Pass all settings to _pythiaBase
-      for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+      for(const auto command : _pythiaSettings){
+	_pythiaBase->readString(command);
+
+      }
 
       // Create new _pythiaInstance from _pythiaBase
       if (_pythiaInstance) delete _pythiaInstance;
@@ -144,6 +147,13 @@ namespace Gambit
       // Send along the SLHAea::Coll pointer, if it exists
       if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
+      // MJW attempts to read commands again to get SM decay table change working from yaml file
+      for(const auto command : _pythiaSettings){
+	_pythiaInstance->readString(command);
+      }
+
+	
+	
       if (!_pythiaInstance->init(os)) throw InitializationError();
     }
 

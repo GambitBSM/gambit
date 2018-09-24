@@ -37,7 +37,7 @@
 
 namespace softsusy {
    class QedQcd;
-}
+} // namespace softsusy
 
 namespace flexiblesusy {
 
@@ -61,7 +61,7 @@ namespace flexiblesusy {
       const boost::format single_element_formatter(" %5d   %16.8E   # %s\n");
       /// SLHA line formatter for the SPINFO block entries
       const boost::format spinfo_formatter(" %5d   %s\n");
-   }
+   } // namespace
 
 #define FORMAT_MASS(pdg,mass,name)                                      \
    boost::format(mass_formatter) % (pdg) % (mass) % (name)

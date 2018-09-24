@@ -23,7 +23,10 @@ SingletDM_INCLUDE_MK := \
 
 SingletDM_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.SingletDM_generated \
+		$(DIR)/LesHouches.in.SingletDM
 
+SingletDM_REFERENCES := \
+		$(DIR)/SingletDM_references.tex
 
 SingletDM_GNUPLOT := \
 		$(DIR)/SingletDM_plot_rgflow.gnuplot \
@@ -185,6 +188,7 @@ install-src::
 ifneq ($(SingletDM_SLHA_INPUT),)
 		install -m u=rw,g=r,o=r $(SingletDM_SLHA_INPUT) $(SingletDM_INSTALL_DIR)
 endif
+		install -m u=rw,g=r,o=r $(SingletDM_REFERENCES) $(SingletDM_INSTALL_DIR)
 		install -m u=rw,g=r,o=r $(SingletDM_GNUPLOT) $(SingletDM_INSTALL_DIR)
 endif
 
@@ -223,7 +227,8 @@ pack-$(MODNAME)-src:
 		$(EXESingletDM_SRC) \
 		$(LLSingletDM_SRC) $(LLSingletDM_MMA) \
 		$(SingletDM_MK) $(SingletDM_INCLUDE_MK) \
-		$(SingletDM_SLHA_INPUT) $(SingletDM_GNUPLOT)
+		$(SingletDM_SLHA_INPUT) $(SingletDM_REFERENCES) \
+		$(SingletDM_GNUPLOT)
 
 $(LIBSingletDM_SRC) $(LIBSingletDM_HDR) $(EXESingletDM_SRC) $(LLSingletDM_SRC) $(LLSingletDM_MMA) \
 : run-metacode-$(MODNAME)
@@ -260,10 +265,10 @@ $(LIBSingletDM): $(LIBSingletDM_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
 $(DIR)/%.x: $(DIR)/%.o $(LIBSingletDM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$^ $(ADDONLIBS)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 $(LLSingletDM_LIB): $(LLSingletDM_OBJ) $(LIBSingletDM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$^) $(ADDONLIBS) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBSingletDM_DEP) $(EXESingletDM_DEP)
 ALLSRC += $(LIBSingletDM_SRC) $(EXESingletDM_SRC)

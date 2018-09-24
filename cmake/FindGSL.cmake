@@ -20,7 +20,7 @@ INCLUDE(FindPkgConfig)
 IF(NOT PKG_CONFIG_FOUND) 
   message(FATAL_ERROR "Package pkgconfig is required.")
 ENDIF()
-PKG_CHECK_MODULES(GSL "gsl >= 1.10")
+PKG_CHECK_MODULES(GSL "gsl >= 1.15")
 set(GSL_FOUND_BY_PKG_CHECK_MODULES ${GSL_FOUND})
 
 set( GSL_FOUND OFF )

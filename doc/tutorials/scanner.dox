@@ -1,0 +1,516 @@
+namespace gambit
+{
+/*!
+\page plugin_main How to make a scanner plugin.
+
+Introduction to Gambit plugins:
+
+Plugin are self-contained pieces of code that are compiled
+   in separate objects external to Gambit itself.  At runtime,
+   ScannerBit selects and loads the appropriate plugins based
+   on inifile entries.  The plugin themselves can be used for
+   a wide variety of purposes.  "scanner_plugin"s specify
+   a plugin that will be used as a scanner whereas "objective_plugin"s
+   are general use plugins that can be used as test functions,
+   likelihoods, priors, etc.  Below is an discription and instructions
+   for these plugins.
+
+Sections:
+
+ - \subpage Plugin_Declaration_Section
+ - \subpage Plugin_Compilation_Section
+ - \subpage Plugin_IniFile_Section
+ - \subpage External_Compilation
+*/
+**********************************************************************
+**************** PLUGIN DECLARATION SECTION **************************
+**********************************************************************
+/*!
+\page Plugin_Declaration_Section Plugin Declaration Section
+
+Example:
+
+ - Lets start with an example of a scanner plugin, after which
+   I'll explain what each macro does.  The relevant inifile
+   entry is included at the end.
+
+Quick discription of this example:
+
+ - This example declares a scanner named "my_cool_scanner" of
+   version "0.0.0-beta".  Inside it, it declares a "like_ptr"
+   (named "loglike") which is a function of the form
+   "double (const vector<double> &)", int num which
+   will be set to the inifile entry "number", and an int
+   "dim" which will be set to the dimension.  The actual
+   scanner will be ran in "int plugin_main()".
+
+\code
+
+    #include "scanner_plugin.hpp"
+
+    // declare a plugin of name "my_cool_scanner" of version "0.0.0-beta"
+    scanner_plugin(my_cool_scanner, version(0, 0, 0, beta))
+    {
+        // specify that the entry "number" is required by gambit.
+        reqd_inifile_entries("number");
+
+        // tell gambit to look for the library "my_cool_library" 
+        reqd_libraries("my_cool_library");
+
+        // tell gambit that the file "my_cool_header.h" is needed
+            to compile this plugin.
+        reqd_include_paths("my_cool_header.h");
+
+        // declare a scanner function "loglike" that inputs
+            a "std::vector<double> &" and outout a "double" 
+        like_ptr<double (const std::vector<double> &)> loglike;
+
+        int num, dim;
+
+        // this macro runs when the plugin is loaded 
+        plugin_constructor
+        {
+            // Get a functor corresponding to the purpose "Likelihood" 
+            likelihood = get_purpose("Likelihood");
+
+            // get the inifile entry "number" with the default value of "0" 
+            num = get_inifile_value<int>("number", 0);
+
+            // get the dimension of the parameter space. 
+            dim = get_dimension();
+        }
+
+        // main function that will run the scanner. 
+        int plugin_main(void)
+        {
+            std::vector<double> a(dim);
+            for (int j = 0; j < num; j++)
+            {
+            for (int i = 0; i < ma; i++)
+            {
+                a[i] = Gambit::Random::draw();
+            }
+            loglike(a);
+            }
+
+            return 0;
+        }
+
+        // this runs when the plugin is closed 
+        plugin_deconstructor
+        {
+            std::cout << "no more plugin" << std::endl;
+        }
+    }
+\endcode
+
+------------------------------------------------------------
+
+\subsection Plugin_Commands Plugin Commands
+
+Here are the different macros and functions that can be used:
+
+<table>
+  <caption>Plugin Macros and Functions</caption>
+  <tr>
+    <th>Function</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code scanner_plugin(plugin_name, version) {...} \endcode</td>
+    <td> declared a plugin with the name "plugin_name" of
+   version "version".</td>
+  </tr>
+  <tr>
+    <td>\code objective_plugin(plugin_name, version) {...} \endcode</td>
+    <td> same as above, except declares an "objective" plugin.
+   Used as test functions and prior plugins.</td>
+  </tr>
+  <tr>
+    <td>\code version(majar, minor, patch, release) \endcode</td>
+    <td> declares the version number to be "major.minor.patch-release"
+   major, minor, and patch must be integers.  release is optional.</td>
+  </tr>
+  <tr>
+    <td>\code ret plugin_main(args... params) {...} \endcode</td>
+    <td> The function that is called when the plugin is ran.  For the
+   scanner, it must be of the form "int plugin_name(void)"</td>
+  </tr>
+  <tr>
+    <td>\code plugin_constructor {...} \endcode</td>
+    <td> This function will be ran when the plugin to loaded.</td>
+  </tr>
+  <tr>
+    <td>\code plugin_deconstructor {...} \endcode</td>
+    <td> This function will be ran when the plugin to closed.</td>
+  </tr>
+  <tr>
+    <td>\code get_inifile_value<ret_type>("tag", default) \endcode</td>
+    <td> Gets the inifile value corresponding to the tag "tag".
+   If "tag" is not specified, then the results defaults
+   to "default".  The default entry is optional. If
+   the default entry and the "tag" infile entry is not
+   specified, ScannerBit will throw an error.
+  </tr>
+  <tr>
+    <td>\code get_dimension() \endcode</td>
+    <td> Gets the dimension of the unit hypercube being explored.</td>
+  </tr>
+  <tr>
+    <td>\code get_purpose("purpose") \endcode</td>
+    <td> gets the functor corresponding to the purpose "purpose".</td>
+  </tr>
+  <tr>
+    <td>\code printer_interface &get_printer() \endcode</td>
+    <td> gets the printer interface. See printer command subsection.</td>
+  </tr>
+  <tr>
+    <td>\code like_ptr<ret (args...)> \endcode</td>
+    <td> a container functor of the form "ret like_ptr(args ...)".
+   Used to contain the output of "get_purpose".</td>
+  </tr>
+  <tr>
+    <td>\code void set_resume_params(...) \endcode</td>
+    <td> tells ScannerBit which parameters need to be resume
+   on resume.</td>
+  </tr>
+  <tr>
+    <td>\code set_dimension(...) \endcode</td>
+    <td> For objective plugins that will be used as priors.
+   Set the hypercube dimension that will be operator
+   over by the prior.</td>
+  </tr>
+  <tr>
+    <td>\code reqd_inifile_entries(...) \endcode</td>
+    <td> Tells ScannerBit that there entries must be in the inifile
+   in order to load the plugin.</td>
+  </tr>
+  <tr>
+    <td>\code reqd_libraries(...) \endcode</td>
+    <td> Tells ScannerBit to search for and link these libraries.</td>
+  </tr>
+  <tr>
+    <td>\code reqd_headers(...) \endcode</td>
+    <td> Tells ScannerBit that these headers are required to exist
+   in order for the plugin to compile.</td>
+  </tr>
+  <tr>
+    <td>\code cxx_flags(...) \endcode</td>
+    <td> Tells ScannerBit to compile this plugin with the flags specified.</td>
+  </tr>
+</table>
+
+-------------------------------------------------------
+
+\subsection printer_commands printer commands
+
+There are two printer classes that ScannerBit interacts with.
+All of these classes are within the Gambit::Scanner namespace.
+
+<table>
+  <caption>Plugin Macros and Functions</caption>
+  <tr>
+    <th>Class</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code printer_interface \endcode</td>
+    <td>class that interfaces with the printer system.</td>
+  </tr>
+  <tr>
+    <td>\code printer \endcode</td>
+    <td>class that does the actual printing.</td>
+  </tr>
+</table>
+
+<table>
+  <caption>printer_interface member functions</caption>
+  <tr>
+    <th>Member Function</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code printer *get_stream(const std::string& name = "") \endcode</td>
+    <td>gets the printer stream that corresponds to the name "name".
+     if no name is specified, the main printer is returned.</td>
+  </tr>
+  <tr>
+    <td>\code bool resume_mode() \endcode</td>
+    <td>return true is in resume mode.</td>
+  </tr>
+  <tr>
+    <td>\code void new_stream(const std::string& name, const Options& option) \endcode</td>
+    <td>create a new stream named "name" with options "option".</td>
+  </tr>
+</table>
+
+
+<table>
+  <caption>printer_interface member functions</caption>
+  <tr>
+    <th>Member Function</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code void reset(bool force=false) \endcode</td>
+    <td>deletes output that was already in the stream.  When force
+     is set to true, the main printer may be reset.</td>
+  </tr>
+  <tr>
+    <td>\code void print(value, const std::string &param_name, int rank, ulonglong id) \endcode</td>
+    <td>prints "value" of param_name with point id "id" and MPI rank "rank".</td>
+  </tr>
+  <tr>
+    <td>\code void assign_aux_numbers (...) \endcode</td>
+    <td>function that ensures that the specified params are MPI thread safe.</td>
+  </tr>
+</table>
+
+\subsection functor_commands functor commands
+
+Each functor generated by get_purpose has various useful member
+functions.  For the above example, the following functions are
+available:
+
+<table>
+  <caption>functor member functions</caption>
+  <tr>
+    <th>Member Function</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code loglike->getPurpose() \endcode</td>
+    <td>returns the purpose.</td>
+  </tr>
+  <tr>
+    <td>\code loglike->getRank() \endcode</td>
+    <td>returns the MPI rank.</td>
+  </tr>
+  <tr>
+    <td>\code loglike->getPtID() \endcode</td>
+    <td>returns the current point id.</td>
+  </tr>
+</table>
+
+*/
+
+***************************************************************
+*************** PLUGIN COMPILATION SECTION ********************
+***************************************************************
+/*!
+\page Plugin_Compilation_Section Plugin Compilation Section
+
+Compiling with gambit:
+
+ - The suggested method of compiling is to use the internal
+   Gambit compilation tools.  To do so, make a source
+   directory in the ScannerBit/src/scanners or ScannerBit/src/objectives
+   folders and, if need be, make the corresponding include directory
+   of the same name in ScannerBit/include/scanners or
+   ScannerBit/include/objectives.  Then, move your source and
+   include files into these directories.
+
+   In the example above, the commands would be:
+
+   mkdir ./ScannerBit/src/scanners/my_cool_scanner
+   mkdir ./ScannerBit/include/scanners/my_cool_scanner
+   mv my_cool_source.cpp ./ScannerBit/src/scanners/my_cool_scanner/
+   mv my_cool_header.h ./ScannerBit/include/scanners/my_cool_scanner/
+
+linking external libraries:
+
+ - If you want to link external libraries to your plugin
+   or use an external include path, you may specify
+   these in config/scanner_locations.yaml or
+   config/objective_locations.yaml with the line:
+
+\code
+   my_plugin_name:
+     version:
+       - lib: path_to_my_external_library
+       - inc: my_include_path
+\endcode
+
+   for example, in the example above we'd include:
+
+\code
+   my_cool_scanner:
+     0.0.0-beta:
+       - lib: ./libmy_cool_library.so
+       - inc: ./my_cool_path
+\endcode
+   in config/scanner_locations.yaml.
+
+ - Note that if you link to an external library, you must
+   include the "reqd_libraries" function in the plugin declaration.
+   For example, in the example above, the plugin declaration would be:
+
+\code
+   scanner_plugin(my_cool_scanner, version(0, 0, 0, beta))
+   {
+     req_libraries();
+   }
+\endcode
+
+   Optionally, You can specify library names in the "reqd_libraries".
+   If you do you, gambit will try to find these libraries for
+   you.  In the above example, this would be:
+   
+\code
+   scanner_plugin(my_cool_scanner, version(0, 0, 0, beta))
+   {
+     req_libraries("my_cool_library");
+   }
+\endcode
+
+requiring existance of files to compile:
+
+ - You can also specify that a certain file must be found in
+   order to compile.  This is done with the "reqd_headers"
+   function:
+
+\code
+   scanner_plugin(my_cool_scanner, version(0, 0, 0, beta))
+   {
+     reqd_headers("my_cool_header.h");
+   }
+\endcode
+
+   In the above example, "my_cool_scanner" will not to compiled
+   unless "my_cool_header.h" is found.
+   
+*/
+
+/*!
+\page Plugin_IniFile_Section Plugin IniFile Section
+
+Here is an example of an inifile entry for a scanner:
+
+\code
+Scanner:
+
+  use_scanner_plugin: my_plugin_tag
+
+  plugins:
+
+    my_plugin_tag:
+      plugin: my_cool_scanner
+      options:
+        number: 1
+\endcode
+
+description:
+ - The plugins are declared under the "plugins" tag in the
+   scanner section.  Each plugin is specified by an unique
+   tag (in this case "my_plugin_tag").  The plugin name is
+   specified by the "plugin" tag.  The options for that
+   plugin either specified under the plugin tag or the
+   "options" tag.  The "use_scanner_plugin" tag is used to
+   specify which scanner to use.
+
+<table>
+  <caption>Available tags that can be used under plugin tags</caption>
+  <tr>
+    <th>Tag</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code plugins: \endcode</td>
+    <td>declares plugin name (not optional).</td>
+  </tr>
+  <tr>
+    <td>\code options: \endcode</td>
+    <td>section where the plugin options are specified (optional).</td>
+  </tr>
+  <tr>
+    <td>\code purpose: \endcode</td>
+    <td>for Objective plugins:  specifies the purpose associated
+   with the plugin.</td>
+  </tr>
+</table>
+
+<table>
+  <caption>Available tags that can be used under the Scanner tag</caption>
+  <tr>
+    <th>Tag</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>\code use_scanner_plugin: \endcode</td>
+    <td>specifies the tag corresponding to the scanner plugin that
+   is going to me used.</td>
+  </tr>
+  <tr>
+    <td>\code use_objective_plugins: \endcode</td>
+    <td>specifies the plugin or plugins that scannerbit is going
+   to use.</td>
+  </tr>
+</table>
+
+ - You can specify required inifile entries with the function
+   "reqd_inifile_entries(...)".  If you do, ScannerBit will
+   not load the plugin if these inifile entries are not specified.
+   In the above example, this is:
+   
+\code
+   scanner_plugin(my_cool_scanner, version(0, 0, 0, beta))
+   {
+     req_inifile_entries("example");
+   }
+\endcode
+
+*/
+/*!
+\page External_Compilation External Compilation
+
+ - Because of Gambit's compilation tools, it is highly recomended
+   to compile with gambit.  But there may be situations where
+   compilation is too compilated or specialized to included
+   as part of gambit.  Although, this method is not supported
+   by the Gambit collaboration.  But, in such cases, ScannerBit
+   provides a nifty "scanlibs" commandline tool and well as
+   a plugin inifile convenance tag, "plugin_path:" for specifying
+   external plugins that are stored external to gambit.
+
+   For example, to compile externally, run:
+
+   g++ `path_to_gambit/ScannerBit/bin/scanlibs --hdrs --cflags` sources.cpp -o plugins.so
+
+   or on an intel compiler:
+
+   icc `path_to_gambit/ScannerBit/bin/scanlibs --hdrs --cflags --intel` ...
+
+ - Example:  statically linking directly to a plugin.
+   By default, Gambit links static executables to the main
+   executable.  But if the library is compiled with position
+   independent code (with -fPIC), it is possible to statically
+   link directly to the plugin.  To do this, first compile your
+   plugin code with:
+
+   g++ `./ScannerBit/bin/scanlibs --hdrs --boost` -c --std=c++11 plugin_src.cpp
+
+   and then link with:
+
+   g++ -shared -Wl,--whole-archive libconflict.a -Wl,--no-whole-archive plugin_src.o -o libmyplugin.so
+
+ - For covenance, if your plugin object is not placed in
+   in the ScannerBit/lib directory, you make specify the path
+   to a plugin external to Gambit under the plugin tag
+   for your specific scanner in the infile.  This is done
+   with the sub-tag "plugin_path:":
+
+
+  example infile entry:
+\code
+Scanner:
+
+  plugins:
+
+    my_plugin_tag:
+      plugin: my_external_plugin
+      plugin_path: path_to_my_external_plugin/libplugin.so
+      
+\endcode
+*/
+
+}

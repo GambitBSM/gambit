@@ -29,6 +29,6 @@ public:
    virtual void restart() = 0;
 };
 
-}
+} // namespace flexiblesusy
 
 #endif

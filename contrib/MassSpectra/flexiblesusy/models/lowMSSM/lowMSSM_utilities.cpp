@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:28:02
+// File generated at Thu 10 May 2018 15:06:30
 
 #include "lowMSSM_utilities.hpp"
 #include "lowMSSM_input_parameters.hpp"
@@ -56,32 +56,51 @@ void append(Eigen::ArrayXd& a, const Eigen::ArrayXd& b)
 
 } // namespace utilities
 
+namespace {
+
+std::valarray<double> to_valarray(double v)
+{
+   return std::valarray<double>(&v, 1);
+}
+
+template <class Scalar, int M, int N>
+std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>& v)
+{
+   return std::valarray<double>(v.data(), v.size());
+}
+
+} // anonymous namespace
+
+lowMSSM_spectrum_plotter::lowMSSM_spectrum_plotter(const lowMSSM_mass_eigenstates& model)
+{
+   extract_spectrum(model);
+}
 
 void lowMSSM_spectrum_plotter::extract_spectrum(const lowMSSM_mass_eigenstates& model)
 {
    spectrum.clear();
    scale = model.get_scale();
 
-   spectrum.push_back(TParticle("Glu", "\\tilde{g}", to_valarray(PHYSICAL(MGlu))));
-   spectrum.push_back(TParticle("Sd", "\\tilde{d}", to_valarray(PHYSICAL(MSd))));
-   spectrum.push_back(TParticle("Sv", "\\tilde{\\nu}", to_valarray(PHYSICAL(MSv))));
-   spectrum.push_back(TParticle("Su", "\\tilde{u}", to_valarray(PHYSICAL(MSu))));
-   spectrum.push_back(TParticle("Se", "\\tilde{e}", to_valarray(PHYSICAL(MSe))));
-   spectrum.push_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
-   spectrum.push_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
-   spectrum.push_back(TParticle("Hpm", "H^-", to_valarray(PHYSICAL(MHpm))));
-   spectrum.push_back(TParticle("Chi", "\\tilde{\\chi}^0", to_valarray(PHYSICAL(MChi))));
-   spectrum.push_back(TParticle("Cha", "\\tilde{\\chi}^-", to_valarray(PHYSICAL(MCha))));
+   spectrum.emplace_back(TParticle("Glu", "\\tilde{g}", to_valarray(PHYSICAL(MGlu))));
+   spectrum.emplace_back(TParticle("Sd", "\\tilde{d}", to_valarray(PHYSICAL(MSd))));
+   spectrum.emplace_back(TParticle("Sv", "\\tilde{\\nu}", to_valarray(PHYSICAL(MSv))));
+   spectrum.emplace_back(TParticle("Su", "\\tilde{u}", to_valarray(PHYSICAL(MSu))));
+   spectrum.emplace_back(TParticle("Se", "\\tilde{e}", to_valarray(PHYSICAL(MSe))));
+   spectrum.emplace_back(TParticle("hh", "h", to_valarray(PHYSICAL(Mhh))));
+   spectrum.emplace_back(TParticle("Ah", "A^0", to_valarray(PHYSICAL(MAh))));
+   spectrum.emplace_back(TParticle("Hpm", "H^-", to_valarray(PHYSICAL(MHpm))));
+   spectrum.emplace_back(TParticle("Chi", "\\tilde{\\chi}^0", to_valarray(PHYSICAL(MChi))));
+   spectrum.emplace_back(TParticle("Cha", "\\tilde{\\chi}^-", to_valarray(PHYSICAL(MCha))));
 
    if (model.do_calculate_sm_pole_masses()) {
-      spectrum.push_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
-      spectrum.push_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
-      spectrum.push_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
-      spectrum.push_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
-      spectrum.push_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
-      spectrum.push_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
-      spectrum.push_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
-      spectrum.push_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
+      spectrum.emplace_back(TParticle("Fd", "d", to_valarray(PHYSICAL(MFd))));
+      spectrum.emplace_back(TParticle("Fe", "e", to_valarray(PHYSICAL(MFe))));
+      spectrum.emplace_back(TParticle("Fu", "u", to_valarray(PHYSICAL(MFu))));
+      spectrum.emplace_back(TParticle("Fv", "\\nu", to_valarray(PHYSICAL(MFv))));
+      spectrum.emplace_back(TParticle("VG", "g", to_valarray(PHYSICAL(MVG))));
+      spectrum.emplace_back(TParticle("VP", "\\gamma", to_valarray(PHYSICAL(MVP))));
+      spectrum.emplace_back(TParticle("VWm", "W^-", to_valarray(PHYSICAL(MVWm))));
+      spectrum.emplace_back(TParticle("VZ", "Z", to_valarray(PHYSICAL(MVZ))));
 
    }
 }
@@ -136,15 +155,10 @@ void lowMSSM_spectrum_plotter::write_spectrum(const TSpectrum& spectrum, std::of
                  << std::left << std::setw(width) << masses[i]
                  << std::left << std::setw(width) << name
                  << std::left << std::setw(2*width) << lname
-                 << std::left << std::setw(2*width) << lname_with_index.str()
+                 << std::left << lname_with_index.str()
                  << '\n';
       }
    }
-}
-
-std::valarray<double> lowMSSM_spectrum_plotter::to_valarray(double v)
-{
-   return std::valarray<double>(&v, 1);
 }
 
 namespace lowMSSM_database {

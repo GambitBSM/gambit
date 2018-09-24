@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:17
+// File generated at Thu 10 May 2018 14:43:38
 
 #include "HSSUSY_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -56,8 +56,8 @@ double HSSUSY_susy_parameters::calc_beta_g3_2_loop(const Susy_traces& susy_trace
 
    double beta_g3;
 
-   beta_g3 = Re(-0.1*twoLoop*Cube(g3)*(-11*Sqr(g1) + 5*(-9*Sqr(g2) + 4*(
-      traceYdAdjYd + traceYuAdjYu + 13*Sqr(g3)))));
+   beta_g3 = Re(-0.1*twoLoop*Cube(g3)*(-11*Sqr(g1) - 45*Sqr(g2) + 20*(
+      traceYdAdjYd + traceYuAdjYu + 13*Sqr(g3))));
 
 
    return beta_g3;
@@ -77,9 +77,9 @@ double HSSUSY_susy_parameters::calc_beta_g3_3_loop(const Susy_traces& susy_trace
    double beta_g3;
 
    beta_g3 = Re(0.008333333333333333*threeLoop*Cube(g3)*(-523*Quad(g1) +
-      Sqr(g1)*(-9*Sqr(g2) + 616*Sqr(g3) - 303*Sqr(Yu(2,2))) + 15*(109*Quad(g2)
-      + 3*Sqr(g2)*(56*Sqr(g3) - 31*Sqr(Yu(2,2))) + 20*(13*Quad(g3) + 6*Quad(Yu(
-      2,2)) - 16*Sqr(g3)*Sqr(Yu(2,2))))));
+      1635*Quad(g2) + Sqr(g1)*(-9*Sqr(g2) + 616*Sqr(g3) - 303*Sqr(Yu(2,2))) +
+      45*Sqr(g2)*(56*Sqr(g3) - 31*Sqr(Yu(2,2))) + 300*(13*Quad(g3) + 6*Quad(Yu(
+      2,2)) - 16*Sqr(g3)*Sqr(Yu(2,2)))));
 
 
    return beta_g3;

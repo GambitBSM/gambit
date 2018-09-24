@@ -1,4 +1,25 @@
-FlexibleSUSY 2.0.0 [not released yet]
+FlexibleSUSY 2.0.1 [October, 20 2017]
+
+ * Feature: For each FlexibleSUSY <model> the TeX file
+   <model>/<model>_references.tex is created, which contains \cite{}
+   commands with references to be cited.  Note, that the references to
+   be cited are model-specific due to the different switches in the
+   FlexibleSUSY model files.
+
+ * Bugfix (commit 682de11c): Include 2-loop gluino contribution in the
+   extraction of yt from the top pole mass in the split-MSSM, Eq.(4.7)
+   of arxiv:1312.5220, if UseHiggs3LoopSplit == True.
+
+   Thanks to Pietro Slavich.
+
+ * Bugfix (commits 88009cac, 5ac9366c): Now configure script does not
+   hang even if Mathematica fails to find a valid license.  The script
+   does not quit even if Mathematica does not meet the version
+   requirement, unless --enable-meta or --enable-librarylink is given.
+
+   Thanks to Anders Kvellestad.
+
+FlexibleSUSY 2.0.0 [October, 10 2017]
 
  * Feature: The weak mixing angle can now be calculated from the muon
    decay constant at the full 1-loop level (including flavour mixing
@@ -175,7 +196,7 @@ FlexibleSUSY 2.0.0 [not released yet]
  * Feature: In the MSSM, the 3-loop corrections O(alpha_t*alpha_s^2)
    and O(alpha_b*alpha_s^2) to the Higgs pole mass from Ref.
    [arxiv:hep-ph/1005.5709] can be taken into account.  The
-   corrections are taken from the Himalaya package [arxiv:XXXX.YYYY].
+   corrections are taken from the Himalaya package [arxiv:1708.05720].
    Himalaya can be downloaded from
 
       https://github.com/jklappert/Himalaya
@@ -368,15 +389,6 @@ FlexibleSUSY 2.0.0 [not released yet]
    renamed to MatchingScaleInput, to express that it is imposed at the
    matching scale, which is in general not equal to the SUSYScale.
 
- * Change (commit d738afc): The W boson pole mass is calculated at the
-   same scale as the other pole masses.  By default this is the value
-   given by the SUSYScale model file variable.  At run-time the scale
-   can be changed using the SLHA input field FlexibleSUSY[17] or the
-   `poleMassScale' symbol in the Mathematica interface.  Note, that
-   the W pole mass is only written to the output if the SLHA input
-   field FlexibleSUSY[3] is non-zero or `calculateStandardModelMasses'
-   is non-zero in the Mathematica interface.
-
  * Change: Update to GM2Calc 1.3.3.
 
  * Bugfix (commits be8f35b, 3432967): Improve the stability of the
@@ -396,6 +408,20 @@ FlexibleSUSY 2.0.0 [not released yet]
    instabilities during mass matrix diagonalization, which may result
    in eigenvectors with magnitude larger than 1.
 
+FlexibleSUSY-1.7.5 [September, 05 2017]
+
+ * Bugfix (commit 03e9265): Correcting wrong vertex between
+   chargino-smuon-neutrino and chargino-muon-sneutrino in muon decay.
+   Thanks to Markus Bach.
+
+ * Bugfix (commit f3f3850): Correcting coefficient in complex
+   dilogarithm.
+
+ * Bugfix (commit d8d8c0c): Make LibraryLink Set[] functions accept
+   matrix-valued parameters.
+
+ * Bugfix (commit 072be7e): Enable 3-loop RGEs in HSSUSY by default.
+
 FlexibleSUSY-1.7.4 [April, 12 2017]
 
  * Bugfix (commit f434e30): Rename internal IndexSum symbol which
@@ -405,10 +431,6 @@ FlexibleSUSY-1.7.4 [April, 12 2017]
    beta function of SM vacuum expectation value after a corresponding
    bugfix in SARAH 4.11.0.  This bugfix affects the Higgs mass
    prediction with FlexibleEFTHiggs by around 10 MeV.
-
- * Bugfix (commit 03e9265): Correcting wrong vertex between
-   chargino-smuon-neutrino and chargino-muon-sneutrino in muon decay.
-   Thanks to Markus Bach.
 
 FlexibleSUSY-1.7.3 [February, 27 2017]
 

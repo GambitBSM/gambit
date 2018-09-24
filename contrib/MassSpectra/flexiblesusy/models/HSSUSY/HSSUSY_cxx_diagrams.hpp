@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:53:08
+// File generated at Thu 10 May 2018 14:48:00
 
 /**
  * @file HSSUSY_cxx_diagrams.hpp
  *
- * This file was generated at Tue 26 Sep 2017 22:53:08 with FlexibleSUSY
- * 2.0.0-dev and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:48:00 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef HSSUSY_CXXDIAGRAMS_H
@@ -377,7 +377,7 @@ struct Hp {
    static constexpr int numberOfGenerations = 1;
    using smFlags = boost::mpl::vector_c<bool, true>;
    static constexpr int numberOfFieldIndices = 0;
-   static constexpr double electric_charge = -1;
+   static constexpr double electric_charge = 1;
    using lorentz_conjugate = conj<Hp>::type;
 };
 

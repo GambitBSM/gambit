@@ -93,9 +93,9 @@ namespace Electroweak_constants {
       const double mu2SM = 7.67488232E+03; ///< mu^2 MS-bar in the SM at Q = MZ
       const double lamSM = 2.79613357E-01; ///< lambda MS-bar in the SM at Q = MZ
       const double vSM = 2.48997424E+02;   ///< VEV MS-bar in the SM at Q = MZ
-   }
-}
+   } // namespace
+} // namespace Electroweak_constants
 
-}
+} // namespace flexiblesusy
 
 #endif

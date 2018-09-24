@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Thu 28 Sep 2017 14:27:46
+// File generated at Thu 10 May 2018 14:27:06
 
 #include "MSSMatMSUSY_mAmu_info.hpp"
 

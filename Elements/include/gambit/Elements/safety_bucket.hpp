@@ -72,7 +72,7 @@ namespace Gambit
                      "Unfortunately this does not yet point to anything, because the dependency\n"
                      "or backend requirement has not been satistified yet.  If using GAMBIT in \n"
                      "full, please check your rollcall declaration of this module function, and\n"
-                     "its source code.  This error often occus because you have written \n"
+                     "its source code.  This error often occurs because you have written \n"
                      "  using namespace Pipes::x \n"
                      "where x is not actually the function being executed.  Don't steal pipes!!\n\n"
                      "Alternatively, if you are writing a standalone executable using some  \n"

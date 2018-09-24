@@ -46,6 +46,6 @@ private:
    std::vector<Convergence_tester*> testers{};
 };
 
-}
+} // namespace flexiblesusy
 
 #endif

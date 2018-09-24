@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Simple container used for storing info about
+///  Container used for storing info about
 ///  backends during initialisation time.
 ///
 ///  *********************************************
@@ -13,6 +13,7 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Aug
 ///  \date 2015 May
+///  \date 2017 Dec
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
@@ -24,8 +25,23 @@
 #define __backend_info_hpp__
 
 #include <map>
+
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 #include "yaml-cpp/yaml.h"
+
+// Forward declarations
+#ifdef HAVE_MATHEMATICA
+  typedef struct WSLink* WSLINK;
+#endif
+#ifdef HAVE_PYBIND11
+  namespace pybind11
+  {
+    class module;
+    class scoped_interpreter;
+  }
+#endif
+
 
 namespace Gambit
 {
@@ -41,6 +57,9 @@ namespace Gambit
 
         /// Constructor
         backend_info();
+
+        /// Destructor
+        ~backend_info();
 
         /// Indicate whether a custom backend locations file exists
         bool custom_locations_exist() const;
@@ -60,6 +79,9 @@ namespace Gambit
         /// Return the path to the folder in which a backend library resides
         str path_dir(str, str) const;
 
+        /// Return the bare name of the library of a backend library, with no path or extension
+        str lib_name(str, str) const;
+
         /// Key: backend name + version
         std::map<str,str> dlerrors;
 
@@ -71,6 +93,9 @@ namespace Gambit
 
         /// Key: backend name + version
         std::map<str,bool> needsMathematica;
+
+        /// Key: backend name + version
+        std::map<str,bool> needsPython;
 
         /// Key: backend name + version
         std::map<str,bool> classloader;
@@ -97,7 +122,7 @@ namespace Gambit
         void link_versions(str, str, str);
 
         /// Override a backend's config file location
-        void override_path(str&, str&, str);
+        void override_path(const str&, const str&, str);
 
         /// Get the default version of a BOSSed backend.
         str default_version(const str& be) const;
@@ -108,6 +133,24 @@ namespace Gambit
         /// Get all safe versions of a given backend that are successfully loaded.
         std::vector<str> working_safe_versions(const str&);
 
+        /// Try to resolve a pointer to a partial path to a shared library and use it to override the stored backend path.
+        void attempt_backend_path_override(const str&, const str&, const char*);
+
+        /// Attempt to load a backend library.
+        int loadLibrary(const str&, const str&, const str&, bool, const str&);
+
+        /// C/C++/Fortran backends that have been successfully loaded (Key: name+version)
+        std::map<str, void*> loaded_C_CXX_Fortran_backends;
+
+        #ifdef HAVE_MATHEMATICA
+          /// Python backends that have been successfully loaded (Key: name+version)
+          std::map<str, WSLINK> loaded_mathematica_backends;
+        #endif
+
+        #ifdef HAVE_PYBIND11
+          /// Python backends that have been successfully loaded (Key: name+version)
+          std::map<str, pybind11::module*> loaded_python_backends;
+        #endif
 
       private:
 
@@ -131,6 +174,32 @@ namespace Gambit
 
         /// Flag indicating whether or not the user has a custom backend locations file
         bool custom_bepathfile_exists;
+
+        /// Load a backend library written in C, C++ or Fortran
+        void loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool with_BOSS);
+
+        #ifdef HAVE_MATHEMATICA
+          /// Load WSTP for Mathematica backends
+          void loadLibrary_Mathematica(const str&, const str&, const str&);
+        #endif
+
+        #ifdef HAVE_PYBIND11
+          /// Load a Python backend module
+          void loadLibrary_Python(const str&, const str&, const str&);
+
+          /// Python sys modudle
+          pybind11::module* sys;
+
+          /// Pointer to the Python interpreter
+          pybind11::scoped_interpreter* python_interpreter;
+
+          /// Indicate whether Python has been started or not
+          bool python_started;
+
+          /// Fire up the Python interpreter
+          void start_python();
+        #endif
+
     };
 
   }

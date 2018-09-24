@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:36
+// File generated at Thu 10 May 2018 14:41:59
 
 #include "MSSMEFTHiggs_standard_model_matching.hpp"
 #include "wrappers.hpp"
@@ -728,6 +728,10 @@ MSSMEFTHiggs_mass_eigenstates calculate_MSSMEFTHiggs_1loop(
  * Calculates the gauge and Yukawa couplings and the SM-like VEV in
  * the MSSMEFTHiggs at the necessary loop level from the known Standard
  * Model couplings and the SM vev.
+ *
+ * @param model MSSMEFTHiggs parameters (to be set)
+ * @param sm SM parameters
+ * @param idx Higgs index (in mass ordered Higgs multiplet)
  */
 void match_low_to_high_scale_model_1loop(
    MSSMEFTHiggs_mass_eigenstates& model,
@@ -830,6 +834,7 @@ void match_low_to_high_scale_model_tree_level(
  * @param model MSSMEFTHiggs parameters
  * @param sm Standard Model
  * @param loop_order downwards matching loop order
+ * @param idx Higgs index (in mass ordered Higgs multiplet)
  */
 void match_low_to_high_scale_model(
    MSSMEFTHiggs_mass_eigenstates& model, const Standard_model& sm, int loop_order, int idx)

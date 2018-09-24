@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:13:12
+// File generated at Thu 10 May 2018 14:55:07
 
 #include "CMSSMNoFV_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -125,8 +125,8 @@ Eigen::Matrix<double,3,3> CMSSMNoFV_soft_parameters::calc_beta_mu2_2_loop(const 
       Yd.adjoint()*Yd*mq2*Yu.adjoint()) - 2*(Yu*Yd.adjoint()*Yd*Yu.adjoint()*
       mu2) - 4*(Yu*Yu.adjoint()*mu2*Yu*Yu.adjoint()) - 4*(Yu*Yu.adjoint()*Yu*
       mq2*Yu.adjoint()) - 2*(Yu*Yu.adjoint()*Yu*Yu.adjoint()*mu2) +
-      0.07111111111111111*(2*Conj(MassB)*Sqr(g1)*(321*MassB*Sqr(g1) + 40*(2*
-      MassB + MassG)*Sqr(g3)) + 5*(-11.618950038622252*g1*Tr31 + 30*Tr23*Quad(
+      0.07111111111111111*(2*Conj(MassB)*(321*MassB*Quad(g1) + 40*(2*MassB +
+      MassG)*Sqr(g1)*Sqr(g3)) + 5*(-11.618950038622252*g1*Tr31 + 30*Tr23*Quad(
       g3) + 6*Tr2U111*Sqr(g1) + 8*Conj(MassG)*Sqr(g3)*(2*(MassB + 2*MassG)*Sqr(
       g1) - 15*MassG*Sqr(g3))))*UNITMATRIX(3))).real();
 

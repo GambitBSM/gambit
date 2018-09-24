@@ -63,6 +63,8 @@ namespace Gambit
             inline unsigned int & sizeRef(){return param_size;}
 
             inline std::vector<std::string> getParameters() const {return param_names;}
+            
+            virtual std::vector<std::string> getShownParameters() const {return param_names;}
 
             virtual ~BasePrior () {}
         };

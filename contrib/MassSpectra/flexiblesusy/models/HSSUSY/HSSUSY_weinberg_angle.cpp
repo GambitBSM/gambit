@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:51
+// File generated at Thu 10 May 2018 14:43:48
 
 #include "HSSUSY_mass_eigenstates.hpp"
 #include "HSSUSY_weinberg_angle.hpp"
@@ -146,46 +146,41 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
 
    int iteration = 0;
    bool not_converged = true;
+   bool fudged = false;
    double sinThetaW_old = sinThetaW_start;
    double sinThetaW_new = sinThetaW_start;
 
    while (not_converged && iteration < number_of_iterations) {
+      fudged = false;
+
       double deltaRhoHat = calculate_delta_rho_hat(sinThetaW_old);
 
-      if (!std::isfinite(deltaRhoHat)) {
-#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
-         WARNING("delta_rho non-finite");
-#endif
+      if (!std::isfinite(deltaRhoHat) || Abs(deltaRhoHat) >= 1.0) {
+         fudged = true;
          deltaRhoHat = 0.;
       }
 
-      const double rhohat_ratio = Abs(deltaRhoHat) < 1.0 ?
-         1.0 / (1.0 - deltaRhoHat) : 1.0;
+      const double rhohat_ratio = 1.0 / (1.0 - deltaRhoHat);
 
       double deltaRHat = calculate_delta_r_hat(rhohat_ratio, sinThetaW_old);
 
-      if (deltaRHat > 1.) {
-#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
-         WARNING("delta_r_hat > 1");
-#endif
-         deltaRHat = 0.;
-      }
-
-      if (!std::isfinite(deltaRHat)) {
-#if defined(ENABLE_VERBOSE) || defined(ENABLE_DEBUG)
-         WARNING("delta_r_hat non-finite");
-#endif
+      if (!std::isfinite(deltaRHat) || Abs(deltaRHat) >= 1.0) {
+         fudged = true;
          deltaRHat = 0.;
       }
 
       double sin2thetasqO4 = Pi * alphaDRbar /
          (ROOT2 * Sqr(mz) * gfermi * (1.0 - deltaRHat) * rhohat_tree);
 
-      if (sin2thetasqO4 >= 0.25)
+      if (sin2thetasqO4 >= 0.25) {
+         fudged = true;
          sin2thetasqO4 = 0.25;
+      }
 
-      if (sin2thetasqO4 < 0.0)
+      if (sin2thetasqO4 < 0.0) {
+         fudged = true;
          sin2thetasqO4 = 0.0;
+      }
 
       const double sin2theta = Sqrt(4.0 * sin2thetasqO4);
       const double theta = 0.5 * ArcSin(sin2theta);
@@ -199,7 +194,8 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
                   << " dRhoHat=" << deltaRhoHat
                   << " rhohat_ratio=" << rhohat_ratio
                   << " dRHat=" << deltaRHat
-                  << " sinThetaW_new=" << sinThetaW_new);
+                  << " sinThetaW_new=" << sinThetaW_new
+                  << " fudged = " << fudged);
 
       not_converged = precision >= precision_goal;
 
@@ -207,11 +203,19 @@ std::pair<double,double> CLASSNAME::calculate(double sinThetaW_start)
       iteration++;
    }
 
+   if (fudged)
+      throw NonPerturbativeSinThetaW();
+
    if (not_converged)
       throw NoSinThetaWConvergenceError(number_of_iterations, sinThetaW_new);
 
+   const double deltaRhoHat = calculate_delta_rho_hat(sinThetaW_new);
+
+   if (Abs(deltaRhoHat) >= 1.0)
+      throw NonPerturbativeSinThetaW();
+
    const double rhohat_ratio_final =
-      1.0 / (1.0 - calculate_delta_rho_hat(sinThetaW_new));
+      1.0 / (1.0 - deltaRhoHat);
    const double mw_pole =
       Sqrt(Sqr(mz) * rhohat_tree * rhohat_ratio_final * (1 - Sqr(sinThetaW_new)));
 

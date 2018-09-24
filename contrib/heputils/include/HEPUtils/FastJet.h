@@ -20,12 +20,16 @@
 #include <stdexcept>
 
 #ifndef FJCORE
+#ifndef FJNS
 #define FJNS fastjet
+#endif
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #else
 #include "fjcore.hh"
+#ifndef FJNS
 #define FJNS fjcore
+#endif
 #endif
 
 namespace HEPUtils {

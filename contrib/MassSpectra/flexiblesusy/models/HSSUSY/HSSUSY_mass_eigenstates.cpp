@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:44
+// File generated at Thu 10 May 2018 14:43:46
 
 /**
  * @file HSSUSY_mass_eigenstates.cpp
@@ -26,8 +26,8 @@
  * which solve EWSB and calculate pole masses and mixings from MSbar
  * parameters.
  *
- * This file was generated at Tue 26 Sep 2017 22:36:44 with FlexibleSUSY
- * 2.0.0-dev (git commit: 4d4c39a2702e9a6604f84813ccb0b85d40987f3b) and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:43:46 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.12.2 .
  */
 
 #include "HSSUSY_mass_eigenstates.hpp"
@@ -656,7 +656,7 @@ void CLASSNAME::clear_DRbar_parameters()
 
 void CLASSNAME::clear_problems()
 {
-   problems.unflag_all_tachyons();
+   problems.clear();
 }
 
 void CLASSNAME::clear()
@@ -1065,15 +1065,15 @@ Eigen::Matrix<double,3,3> CLASSNAME::get_mass_matrix_Fu() const
 {
    Eigen::Matrix<double,3,3> mass_matrix_Fu;
 
-   mass_matrix_Fu(0,0) = -0.7071067811865475*v*Yu(0,0);
-   mass_matrix_Fu(0,1) = -0.7071067811865475*v*Yu(1,0);
-   mass_matrix_Fu(0,2) = -0.7071067811865475*v*Yu(2,0);
-   mass_matrix_Fu(1,0) = -0.7071067811865475*v*Yu(0,1);
-   mass_matrix_Fu(1,1) = -0.7071067811865475*v*Yu(1,1);
-   mass_matrix_Fu(1,2) = -0.7071067811865475*v*Yu(2,1);
-   mass_matrix_Fu(2,0) = -0.7071067811865475*v*Yu(0,2);
-   mass_matrix_Fu(2,1) = -0.7071067811865475*v*Yu(1,2);
-   mass_matrix_Fu(2,2) = -0.7071067811865475*v*Yu(2,2);
+   mass_matrix_Fu(0,0) = 0.7071067811865475*v*Yu(0,0);
+   mass_matrix_Fu(0,1) = 0.7071067811865475*v*Yu(1,0);
+   mass_matrix_Fu(0,2) = 0.7071067811865475*v*Yu(2,0);
+   mass_matrix_Fu(1,0) = 0.7071067811865475*v*Yu(0,1);
+   mass_matrix_Fu(1,1) = 0.7071067811865475*v*Yu(1,1);
+   mass_matrix_Fu(1,2) = 0.7071067811865475*v*Yu(2,1);
+   mass_matrix_Fu(2,0) = 0.7071067811865475*v*Yu(0,2);
+   mass_matrix_Fu(2,1) = 0.7071067811865475*v*Yu(1,2);
+   mass_matrix_Fu(2,2) = 0.7071067811865475*v*Yu(2,2);
 
    return mass_matrix_Fu;
 }
@@ -2551,8 +2551,8 @@ std::complex<double> CLASSNAME::self_energy_VWp_1loop(double p ) const
    result += -(AbsSqr(CpconjVWpVPVWp())*(A0(Sqr(MVWp)) + 10*B00(Sqr(p),Sqr(MVWp
       ),0) - 2*Sqr(MVWp) + 0.6666666666666666*Sqr(p) + B0(Sqr(p),Sqr(MVWp),0)*(Sqr
       (MVWp) + 4*Sqr(p))));
-   result += 0.5*(-(A0(Sqr(MVZ))*(4*CpconjVWpVWpVZVZ1() + CpconjVWpVWpVZVZ2() +
-      CpconjVWpVWpVZVZ3())) + 2*CpconjVWpVWpVZVZ1()*Sqr(MVZ));
+   result += -0.5*A0(Sqr(MVZ))*(4*CpconjVWpVWpVZVZ1() + CpconjVWpVWpVZVZ2() +
+      CpconjVWpVWpVZVZ3()) + CpconjVWpVWpVZVZ1()*Sqr(MVZ);
    result += -(AbsSqr(CpconjVWpVWpVZ())*(A0(Sqr(MVWp)) + A0(Sqr(MVZ)) + 10*B00(
       Sqr(p),Sqr(MVZ),Sqr(MVWp)) - 2*(Sqr(MVWp) + Sqr(MVZ) - 0.3333333333333333*
       Sqr(p)) + B0(Sqr(p),Sqr(MVZ),Sqr(MVWp))*(Sqr(MVWp) + Sqr(MVZ) + 4*Sqr(p))));
@@ -3358,11 +3358,11 @@ double CLASSNAME::self_energy_hh_2loop(double p) const
    double self_energy = 0.;
 
    if (HIGGS_2LOOP_CORRECTION_AT_AT) {
-      self_energy += self_energy_higgs_2loop_at_at_sm(p2, scale, mt, yt);
+      self_energy -= delta_mh_2loop_at_at_sm(p2, scale, mt, yt);
    }
 
    if (HIGGS_2LOOP_CORRECTION_AT_AS) {
-      self_energy += self_energy_higgs_2loop_at_as_sm(p2, scale, mt, yt, gs);
+      self_energy -= delta_mh_2loop_at_as_sm(p2, scale, mt, yt, gs);
    }
 
    return self_energy;
@@ -3384,15 +3384,15 @@ double CLASSNAME::self_energy_hh_3loop() const
    double self_energy = 0.;
 
    if (HIGGS_3LOOP_CORRECTION_AT_AT_AT) {
-      self_energy += self_energy_higgs_3loop_at_at_at_sm(scale, mt, yt, mh);
+      self_energy -= delta_mh_3loop_at_at_at_sm(scale, mt, yt, mh);
    }
 
    if (HIGGS_3LOOP_CORRECTION_AT_AT_AS) {
-      self_energy += self_energy_higgs_3loop_at_at_as_sm(scale, mt, yt, gs);
+      self_energy -= delta_mh_3loop_at_at_as_sm(scale, mt, yt, gs);
    }
 
    if (HIGGS_3LOOP_CORRECTION_AT_AS_AS) {
-      self_energy += self_energy_higgs_3loop_at_as_as_sm(scale, mt, yt, gs);
+      self_energy -= delta_mh_3loop_at_as_as_sm(scale, mt, yt, gs);
    }
 
    return self_energy;

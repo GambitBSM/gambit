@@ -21,6 +21,7 @@
 ///  \date 2014 Sep
 ///  \date 2015 Feb
 ///  \date 2016 Jul
+///  \date 2018 Jan
 ///
 ///  \author Pat Scott
 ///  \date 2015 May
@@ -31,6 +32,7 @@
 ///  \date 2015 May
 ///  \date 2016 Aug
 ///  \date 2016 Oct
+///  \date 2018 Jan
 ///
 ///  *********************************************
 
@@ -413,6 +415,44 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Helper macro to make the following declarations quicker
+  #define RKSTAR_BINS                                                                                   \
+    START_FUNCTION(double)                                                                     \
+    DEPENDENCY(SuperIso_modelinfo, parameters)                                                             \
+    BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )                                                       \
+    BACKEND_REQ(RKstar_CONV, (libsuperiso), double, (const parameters*, double, double))
+
+ // Observable: RK* in q^2 bin from 0.045 GeV^2 to 1.1 GeV^2
+  #define CAPABILITY RKstar_0045_11
+  START_CAPABILITY
+    #define FUNCTION SI_RKstar_0045_11
+    RKSTAR_BINS
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ // Observable: RK* in q^2 bin from 1.1 GeV^2 to 6 GeV^2
+  #define CAPABILITY RKstar_11_60
+  START_CAPABILITY
+    #define FUNCTION SI_RKstar_11_60
+    RKSTAR_BINS
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Helper macro to make the following declarations quicker
+  #define RK_BINS                                                                                   \
+    START_FUNCTION(double)                                                                     \
+    DEPENDENCY(SuperIso_modelinfo, parameters)                                                             \
+    BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )                                                       \
+    BACKEND_REQ(RK_CONV, (libsuperiso), double, (const parameters*, double, double))
+
+ // Observable: RK in q^2 bin from 1 GeV^2 to 6 GeV^2
+  #define CAPABILITY RK
+  START_CAPABILITY
+    #define FUNCTION SI_RK
+    RK_BINS
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // All FeynHiggs flavour observables
   #define CAPABILITY FH_FlavourObs
   START_CAPABILITY
@@ -522,7 +562,28 @@ START_MODULE
     DEPENDENCY(SL_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
   #undef CAPABILITY
+   
+  // Tree-level leptonic and semi-leptonic B & D decay measurements
+  #define CAPABILITY LUV_M
+  START_CAPABILITY
+    #define FUNCTION LUV_measurements
+    START_FUNCTION(FlavBit::predictions_measurements_covariances)
+    DEPENDENCY(RK, double)
+    DEPENDENCY(RKstar_0045_11, double)
+    DEPENDENCY(RKstar_11_60, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
+  #define CAPABILITY LUV_LL
+  START_CAPABILITY
+    #define FUNCTION LUV_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(LUV_M, FlavBit::predictions_measurements_covariances)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  
+   
 
 #undef MODULE
 

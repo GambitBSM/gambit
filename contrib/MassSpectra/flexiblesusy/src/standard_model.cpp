@@ -4153,11 +4153,11 @@ double Standard_model::self_energy_hh_2loop(double p) const
    double self_energy = 0.;
 
    if (HIGGS_2LOOP_CORRECTION_AT_AT) {
-      self_energy += self_energy_higgs_2loop_at_at_sm(p2, scale, mt, yt);
+      self_energy -= delta_mh_2loop_at_at_sm(p2, scale, mt, yt);
    }
 
    if (HIGGS_2LOOP_CORRECTION_AT_AS) {
-      self_energy += self_energy_higgs_2loop_at_as_sm(p2, scale, mt, yt, gs);
+      self_energy -= delta_mh_2loop_at_as_sm(p2, scale, mt, yt, gs);
    }
 
    return self_energy;
@@ -4175,15 +4175,15 @@ double Standard_model::self_energy_hh_3loop() const
    double self_energy = 0.;
 
    if (HIGGS_3LOOP_CORRECTION_AT_AT_AT) {
-      self_energy += self_energy_higgs_3loop_at_at_at_sm(scale, mt, yt, mh);
+      self_energy -= delta_mh_3loop_at_at_at_sm(scale, mt, yt, mh);
    }
 
    if (HIGGS_3LOOP_CORRECTION_AT_AT_AS) {
-      self_energy += self_energy_higgs_3loop_at_at_as_sm(scale, mt, yt, gs);
+      self_energy -= delta_mh_3loop_at_at_as_sm(scale, mt, yt, gs);
    }
 
    if (HIGGS_3LOOP_CORRECTION_AT_AS_AS) {
-      self_energy += self_energy_higgs_3loop_at_as_as_sm(scale, mt, yt, gs);
+      self_energy -= delta_mh_3loop_at_as_as_sm(scale, mt, yt, gs);
    }
 
    return self_energy;

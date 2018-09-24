@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:42
+// File generated at Thu 10 May 2018 14:42:05
 
 #include "MSSMEFTHiggs_two_scale_susy_scale_constraint.hpp"
 #include "MSSMEFTHiggs_two_scale_model.hpp"
@@ -74,13 +74,13 @@ void MSSMEFTHiggs_susy_scale_constraint<Two_scale>::apply()
    const auto M1Input = INPUTPARAMETER(M1Input);
    const auto M2Input = INPUTPARAMETER(M2Input);
    const auto M3Input = INPUTPARAMETER(M3Input);
+   const auto mHd2IN = INPUTPARAMETER(mHd2IN);
+   const auto mHu2IN = INPUTPARAMETER(mHu2IN);
    const auto mq2Input = INPUTPARAMETER(mq2Input);
    const auto mu2Input = INPUTPARAMETER(mu2Input);
    const auto md2Input = INPUTPARAMETER(md2Input);
    const auto ml2Input = INPUTPARAMETER(ml2Input);
    const auto me2Input = INPUTPARAMETER(me2Input);
-   const auto MuInput = INPUTPARAMETER(MuInput);
-   const auto mAInput = INPUTPARAMETER(mAInput);
    const auto AuInput = INPUTPARAMETER(AuInput);
    const auto AdInput = INPUTPARAMETER(AdInput);
    const auto AeInput = INPUTPARAMETER(AeInput);
@@ -95,13 +95,13 @@ void MSSMEFTHiggs_susy_scale_constraint<Two_scale>::apply()
    MODEL->set_MassB(Re(M1Input));
    MODEL->set_MassWB(Re(M2Input));
    MODEL->set_MassG(Re(M3Input));
+   MODEL->set_mHd2(Re(mHd2IN));
+   MODEL->set_mHu2(Re(mHu2IN));
    MODEL->set_mq2((mq2Input).real());
    MODEL->set_mu2((mu2Input).real());
    MODEL->set_md2((md2Input).real());
    MODEL->set_ml2((ml2Input).real());
    MODEL->set_me2((me2Input).real());
-   MODEL->set_Mu(Re(MuInput));
-   MODEL->set_BMu(Re(Sqr(mAInput)/(1/TanBeta + TanBeta)));
    MODEL->set_TYu(((AuInput).cwiseProduct(Yu)).real());
    MODEL->set_TYd(((AdInput).cwiseProduct(Yd)).real());
    MODEL->set_TYe(((AeInput).cwiseProduct(Ye)).real());

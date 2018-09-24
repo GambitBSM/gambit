@@ -23,15 +23,15 @@ namespace flexiblesusy {
 namespace sm_threeloophiggs {
 
 /// SM Higgs self-energy 3-loop, only O(alpha_t alpha_s^2)
-double self_energy_higgs_3loop_at_as_as_sm(
+double delta_mh_3loop_at_as_as_sm(
    double scale, double mt, double yt, double g3);
 
 /// SM Higgs self-energy 3-loop, only O(alpha_t^2 alpha_s)
-double self_energy_higgs_3loop_at_at_as_sm(
+double delta_mh_3loop_at_at_as_sm(
    double scale, double mt, double yt, double g3);
 
 /// SM Higgs self-energy 3-loop, only O(alpha_t^3)
-double self_energy_higgs_3loop_at_at_at_sm(
+double delta_mh_3loop_at_at_at_sm(
    double scale, double mt, double yt, double mh);
 
 } // namespace sm_threeloophiggs

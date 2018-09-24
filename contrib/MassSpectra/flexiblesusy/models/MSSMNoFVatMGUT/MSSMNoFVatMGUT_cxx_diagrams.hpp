@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:09:21
+// File generated at Thu 10 May 2018 14:52:12
 
 /**
  * @file MSSMNoFVatMGUT_cxx_diagrams.hpp
  *
- * This file was generated at Sun 24 Sep 2017 16:09:21 with FlexibleSUSY
- * 2.0.0-dev and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:52:12 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSMNoFVatMGUT_CXXDIAGRAMS_H
@@ -1027,7 +1027,7 @@ Vertex<VP, conj<Sm>::type, Sm>::evaluate(const indices_type& indices, const Eval
    const auto ZM = MODELPARAMETER(ZM);
    const auto ThetaW = DERIVEDPARAMETER(ThetaW);
 
-   const std::complex<double> result = 0.5*(-(Conj(ZM(gt3,0))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*ZM(gt2,0)) - 1.5491933384829668*g1*Conj(ZM(gt3,1))*Cos(ThetaW)*ZM(gt2,1));
+   const std::complex<double> result = -0.5*Conj(ZM(gt3,0))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*ZM(gt2,0) - 0.7745966692414834*g1*Conj(ZM(gt3,1))*Cos(ThetaW)*ZM(gt2,1);
 
    return vertex_type(result);
 }
@@ -1153,9 +1153,9 @@ Vertex<VP, bar<Cha>::type, Cha>::evaluate(const indices_type& indices, const Eva
    const auto UP = MODELPARAMETER(UP);
    const auto ThetaW = DERIVEDPARAMETER(ThetaW);
 
-   const std::complex<double> left = 0.5*(2*g2*Conj(UM(gt3,0))*Sin(ThetaW)*UM(gt2,0) + Conj(UM(gt3,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UM(gt2,1));
+   const std::complex<double> left = g2*Conj(UM(gt3,0))*Sin(ThetaW)*UM(gt2,0) + 0.5*Conj(UM(gt3,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UM(gt2,1);
 
-   const std::complex<double> right = 0.5*(2*g2*Conj(UP(gt2,0))*Sin(ThetaW)*UP(gt3,0) + Conj(UP(gt2,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UP(gt3,1));
+   const std::complex<double> right = g2*Conj(UP(gt2,0))*Sin(ThetaW)*UP(gt3,0) + 0.5*Conj(UP(gt2,1))*(0.7745966692414834*g1*Cos(ThetaW) + g2*Sin(ThetaW))*UP(gt3,1);
 
    return vertex_type(left, right);
 }

@@ -1,5 +1,3 @@
-set terminal x11
-
 set title "HSSUSY renormalization group flow"
 set xlabel "renormalization scale / GeV"
 set logscale x

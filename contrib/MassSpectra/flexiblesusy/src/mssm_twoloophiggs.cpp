@@ -29,7 +29,8 @@
    #define LOCK_MUTEX() std::lock_guard<std::mutex> lg(mtx_mssm)
    namespace flexiblesusy {namespace mssm_twoloophiggs {
       static std::mutex mtx_mssm; /// locks MSSM fortran functions
-   }}
+   } // namespace mssm_twoloophiggs
+} // namespace flexiblesusy
 #else
    #define LOCK_MUTEX()
 #endif
@@ -296,8 +297,13 @@ Eigen::Matrix<double, 2, 1> tadpole_higgs_2loop_at_as_mssm_general(
    ewsb2loop_(&mt2, &mg, &mst12, &mst22, &sxt, &cxt, &scale2,
               &mu, &tanb, &vev2, &gs, &result(0), &result(1));
 
-   if (!result.allFinite())
-      result.setZero();
+
+   /// Workaround for intel or eigen bug causing unexpected behaviour of allFinite
+   if(std::isfinite( result(0) ) == false or std::isfinite( result(1) ) == false )
+       result.setZero();
+
+   // if (!result.allFinite())
+   //    result.setZero();
 
    return -result;
 }
@@ -483,8 +489,12 @@ Eigen::Matrix<double, 2, 1> tadpole_higgs_2loop_at_at_mssm(
               &result(0), &result(1));
    }
 
-   if (!result.allFinite())
-      result.setZero();
+   /// Workaround for intel or eigen bug causing unexpected behaviour of allFinite
+   if(std::isfinite( result(0) ) == false or std::isfinite( result(1) ) == false )
+       result.setZero();
+
+   // if (!result.allFinite())
+   //    result.setZero();
 
    return -result;
 }
@@ -513,8 +523,12 @@ Eigen::Matrix<double, 2, 1> tadpole_higgs_2loop_atau_atau_mssm(
    tausqtad_(&mtau2, &mA2, &msv2, &mstau12, &mstau22, &sintau,
              &costau, &scale2, &mu, &tanb, &vev2, &result(0), &result(1));
 
-   if (!result.allFinite())
-      result.setZero();
+   /// Workaround for intel or eigen bug causing unexpected behaviour of allFinite
+   if(std::isfinite( result(0) ) == false or std::isfinite( result(1) ) == false )
+       result.setZero();
+
+   // if (!result.allFinite())
+   //    result.setZero();
 
    return -result;
 }

@@ -30,7 +30,7 @@ namespace nmssm_twoloophiggs {
 
 namespace {
 template <typename T> T sqr(T a) { return a * a; }
-}
+} // namespace
 
 Eigen::Matrix<double, 3, 1> tadpole_higgs_2loop_at_as_nmssm(
    double mt2, double mg, double mst12, double mst22,

@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:52:46
+// File generated at Thu 10 May 2018 14:33:34
 
 /**
  * @file MSSM_mAmu_a_muon.hpp
  *
- * This file was generated at Sun 24 Sep 2017 15:52:46 with FlexibleSUSY
- * 2.0.0-dev and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:33:34 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #ifndef MSSM_mAmu_A_MUON_H

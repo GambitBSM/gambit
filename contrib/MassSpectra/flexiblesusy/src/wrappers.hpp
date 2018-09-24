@@ -39,6 +39,7 @@
 #include "eigen_tensor.hpp"
 #include "error.hpp"
 #include "if.hpp"
+#include "numerics2.hpp"
 #include "sum.hpp"
 #include "which.hpp"
 
@@ -222,6 +223,11 @@ inline double Tan(double a) noexcept
    return std::tan(a);
 }
 
+inline double Cot(double a) noexcept
+{
+   return 1./Tan(a);
+}
+
 inline double Cos(double x) noexcept
 {
    return std::cos(x);
@@ -246,6 +252,9 @@ inline constexpr int Delta(int i, int j) noexcept
 {
    return i == j;
 }
+
+#define FSFlagProblem(p) [&](){ (p); return 0.; }()
+#define FSFlagWarning(p) [&](){ (p); return 0.; }()
 
 template <typename T>
 constexpr T If(bool c, T a, T b) noexcept { return c ? a : b; }
@@ -287,7 +296,19 @@ inline bool IsFinite(const std::complex<double>& x) noexcept
 template <class Derived>
 bool IsFinite(const Eigen::DenseBase<Derived>& m)
 {
-   return m.allFinite();
+  // workaround for intel compiler / eigen bug that causes
+  // unexpected behavior from allFinite
+  int nr = m.rows();
+  int nc = m.cols();
+  bool allfinite = true;
+  for (int r = 0; r<nr; ++r) {
+    for (int c = 0; c<nc; ++c) {
+      if ( !std::isfinite( m(r,c) ) ) allfinite = false;
+    }
+  }
+
+  return allfinite;
+  //   return m.allFinite();
 }
 
 inline constexpr int KroneckerDelta(int i, int j) noexcept
@@ -313,6 +334,16 @@ typename Eigen::MatrixBase<Derived>::PlainObject Diag(const Eigen::MatrixBase<De
          diag(i,k) = 0.0;
 
    return diag;
+}
+
+inline std::complex<double> ComplexLog(double a) noexcept
+{
+   return fast_log(std::complex<double>(a,0.));
+}
+
+inline std::complex<double> ComplexLog(const std::complex<double>& z) noexcept
+{
+   return fast_log(z);
 }
 
 inline double FiniteLog(double a) noexcept
@@ -933,6 +964,6 @@ Derived ZeroSqrt(const Eigen::ArrayBase<Derived>& m)
    return m.unaryExpr([](double a){ return ZeroSqrt(a); });
 }
 
-}
+} // namespace flexiblesusy
 
 #endif

@@ -6,7 +6,7 @@
 
 \subsection Requirements
 
- - C++ compiler (`g++` >= 4.9.2 or `clang++` >= 3.8.1 or `icpc` >= 15.0.0)
+ - C++ compiler (`g++` >= 4.8.5 or `clang++` >= 3.8.1 or `icpc` >= 15.0.0)
  - Fortran compiler (`gfortran`, `ifort`)
  - Mathematica (version 7.0 or higher)
  - SARAH (version 4.11.0 or higher)   http://sarah.hepforge.org
@@ -17,7 +17,9 @@
 
 Optional:
 
- - Looptools (version 2.8 or higher)  http://www.feynarts.de/looptools/
+ - BLAS                               http://www.netlib.org/blas/
+ - LAPACK                             http://www.netlib.org/lapack/
+ - LoopTools (version 2.8 or higher)  http://www.feynarts.de/looptools/
 
 \subsection generation Generating a spectrum generator
 
@@ -274,20 +276,20 @@ remove model-specific files:
      make clean-<model>-src # deletes generated files
 
 
-\section looptools Looptools
+\section looptools LoopTools
 
-It is possible to use Looptools (http://www.feynarts.de/looptools/)
+It is possible to use LoopTools (http://www.feynarts.de/looptools/)
 for calculating the loop functions, instead of using Softsusy's loop
-functions.  To enable Looptools configure via
+functions.  To enable LoopTools configure via
 
     ./configure --enable-looptools
 
-To use the Looptools library and header files from a specific
+To use the LoopTools library and header files from a specific
 directory configure via
 
     ./configure --enable-looptools --with-looptools-incdir="/path/to/looptools/build/" --with-looptools-libdir="/path/to/looptools/build/"
 
-Note: Looptools 2.8 or higher is required.  Versions <= 2.7 will fail
+Note: LoopTools 2.8 or higher is required.  Versions <= 2.7 will fail
 to build with the following compiler error message (or similar):
 
     In file included from models/MSSM/MSSM_two_scale_model.cpp:28:0:

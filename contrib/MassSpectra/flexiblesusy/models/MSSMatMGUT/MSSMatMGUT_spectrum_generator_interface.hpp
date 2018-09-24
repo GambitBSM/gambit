@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:31:47
+// File generated at Thu 10 May 2018 15:09:35
 
 #ifndef MSSMatMGUT_SPECTRUM_GENERATOR_INTERFACE_H
 #define MSSMatMGUT_SPECTRUM_GENERATOR_INTERFACE_H
@@ -158,8 +158,7 @@ template <class T>
 void MSSMatMGUT_spectrum_generator_interface<T>::write_spectrum(
    const std::string& filename) const
 {
-   MSSMatMGUT_spectrum_plotter plotter;
-   plotter.extract_spectrum(model);
+   MSSMatMGUT_spectrum_plotter plotter(model);
    plotter.write_to_file(filename);
 }
 

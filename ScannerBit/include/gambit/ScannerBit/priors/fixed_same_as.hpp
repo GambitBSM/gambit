@@ -74,6 +74,8 @@ namespace Gambit
             }
 
             FixedPrior(const std::string &name, double value) : BasePrior(name), value(1, value), iter(0) {}
+            
+            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
 
             void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
             {
@@ -142,6 +144,8 @@ namespace Gambit
                 name = name_in.substr(pos_old);
                 param_names.push_back(name_in);
             }
+            
+            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
 
             void transform (const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
             {

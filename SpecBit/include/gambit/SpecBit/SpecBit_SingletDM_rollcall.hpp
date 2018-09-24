@@ -38,6 +38,7 @@
     ALLOW_MODEL_COMBINATION(higgs, singlet)
     #undef FUNCTION
 
+    #if(FS_MODEL_SingletDM_IS_BUILT)    
     #define FUNCTION get_SingletDM_spectrum_pole
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
@@ -46,6 +47,7 @@
     MODEL_GROUP(singlet_running, (SingletDM_running))
     ALLOW_MODEL_COMBINATION(higgs_running, singlet_running)
     #undef FUNCTION
+    #endif
 
     // Convert spectrum into a standard map so that it can be printed
     #define FUNCTION get_SingletDM_spectrum_as_map
@@ -59,6 +61,7 @@
   #define CAPABILITY SingletDMZ3_spectrum
   START_CAPABILITY
 
+    #if(FS_MODEL_SingletDMZ3_IS_BUILT)    
     #define FUNCTION get_SingletDMZ3_spectrum
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
@@ -67,6 +70,7 @@
     MODEL_GROUP(singlet, (SingletDMZ3))
     ALLOW_MODEL_COMBINATION(higgs, singlet)
     #undef FUNCTION
+    #endif
     // ==============================
 
     // Convert spectrum into a standard map so that it can be printed

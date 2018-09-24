@@ -25,6 +25,9 @@ MSSMEFTHiggs_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.MSSMEFTHiggs_generated \
 		$(DIR)/LesHouches.in.MSSMEFTHiggs
 
+MSSMEFTHiggs_REFERENCES := \
+		$(DIR)/MSSMEFTHiggs_references.tex
+
 MSSMEFTHiggs_GNUPLOT := \
 		$(DIR)/MSSMEFTHiggs_plot_rgflow.gnuplot \
 		$(DIR)/MSSMEFTHiggs_plot_spectrum.gnuplot
@@ -185,6 +188,7 @@ install-src::
 ifneq ($(MSSMEFTHiggs_SLHA_INPUT),)
 		install -m u=rw,g=r,o=r $(MSSMEFTHiggs_SLHA_INPUT) $(MSSMEFTHiggs_INSTALL_DIR)
 endif
+		install -m u=rw,g=r,o=r $(MSSMEFTHiggs_REFERENCES) $(MSSMEFTHiggs_INSTALL_DIR)
 		install -m u=rw,g=r,o=r $(MSSMEFTHiggs_GNUPLOT) $(MSSMEFTHiggs_INSTALL_DIR)
 endif
 
@@ -223,7 +227,8 @@ pack-$(MODNAME)-src:
 		$(EXEMSSMEFTHiggs_SRC) \
 		$(LLMSSMEFTHiggs_SRC) $(LLMSSMEFTHiggs_MMA) \
 		$(MSSMEFTHiggs_MK) $(MSSMEFTHiggs_INCLUDE_MK) \
-		$(MSSMEFTHiggs_SLHA_INPUT) $(MSSMEFTHiggs_GNUPLOT)
+		$(MSSMEFTHiggs_SLHA_INPUT) $(MSSMEFTHiggs_REFERENCES) \
+		$(MSSMEFTHiggs_GNUPLOT)
 
 $(LIBMSSMEFTHiggs_SRC) $(LIBMSSMEFTHiggs_HDR) $(EXEMSSMEFTHiggs_SRC) $(LLMSSMEFTHiggs_SRC) $(LLMSSMEFTHiggs_MMA) \
 : run-metacode-$(MODNAME)
@@ -260,10 +265,10 @@ $(LIBMSSMEFTHiggs): $(LIBMSSMEFTHiggs_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
 $(DIR)/%.x: $(DIR)/%.o $(LIBMSSMEFTHiggs) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$^ $(ADDONLIBS)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 $(LLMSSMEFTHiggs_LIB): $(LLMSSMEFTHiggs_OBJ) $(LIBMSSMEFTHiggs) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$^) $(ADDONLIBS) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBMSSMEFTHiggs_DEP) $(EXEMSSMEFTHiggs_DEP)
 ALLSRC += $(LIBMSSMEFTHiggs_SRC) $(EXEMSSMEFTHiggs_SRC)

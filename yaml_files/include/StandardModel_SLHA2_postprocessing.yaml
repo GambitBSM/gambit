@@ -1,0 +1,63 @@
+# StandardModel_SLHA2 parameters in MSSM postprocessing.
+# import this file into a Parameters node named:
+# StandardModel_SLHA2:
+
+# SLHA1
+alphainv:
+  prior_type: none
+alphaS  :
+  prior_type: none
+mBmB    :
+  prior_type: none
+mT      :
+  prior_type: none
+GF      :
+  prior_type: none
+mZ      :
+  prior_type: none
+mTau    :
+  prior_type: none
+mNu3    :
+  prior_type: none
+# SLHA2
+mD      :
+  prior_type: none
+mU      :
+  prior_type: none
+mS      :
+  prior_type: none
+mCmC    :
+  prior_type: none
+mE      :
+  prior_type: none
+mMu     :
+  prior_type: none
+mNu1    :
+  prior_type: none
+mNu2    :
+  prior_type: none
+
+# CKM
+CKM_lambda  :
+  prior_type: none
+CKM_A       :
+  prior_type: none
+CKM_rhobar  :
+  prior_type: none
+CKM_etabar  :
+  prior_type: none
+
+# PMNS
+theta12 :
+  prior_type: none
+theta23 :
+  prior_type: none
+theta13 :
+  prior_type: none               
+delta13 :
+  prior_type: none
+alpha1  :
+  prior_type: none
+alpha2  :
+  prior_type: none
+ 

@@ -342,9 +342,9 @@ namespace Gambit
       using namespace Pipes::do_Farray_stuff;
       using std::cout;
       using std::endl;
-      libFarrayTest_CB_type  *commonBlock  = &(*BEreq::libFarrayTestCommonBlock);
-      libFarrayTest_CB2_type *commonBlock2 = &(*BEreq::libFarrayTestCommonBlock2);
-      libFarrayTest_CB3_type *commonBlock3 = &(*BEreq::libFarrayTestCommonBlock3);
+      libFarrayTest_CB_type  *commonBlock  = BEreq::libFarrayTestCommonBlock.pointer();
+      libFarrayTest_CB2_type *commonBlock2 = BEreq::libFarrayTestCommonBlock2.pointer();
+      libFarrayTest_CB3_type *commonBlock3 = BEreq::libFarrayTestCommonBlock3.pointer();
 
       cout << "do_Farray_stuff has been summoned!" << endl;
       cout << "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn" << endl;
@@ -459,8 +459,8 @@ namespace Gambit
       cout << "Testing Pythia backend" << endl;
       cout << "======================" << endl;
 
-      static str default_doc_path = GAMBIT_DIR "/Backends/installed/Pythia/" + 
-                                    Backends::backendInfo().default_version("Pythia") + 
+      static str default_doc_path = GAMBIT_DIR "/Backends/installed/Pythia/" +
+                                    Backends::backendInfo().default_version("Pythia") +
                                     "/share/Pythia8/xmldoc/";
 
       Pythia8::Pythia pythia(default_doc_path, false);

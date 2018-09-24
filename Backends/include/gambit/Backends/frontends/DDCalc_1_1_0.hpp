@@ -36,6 +36,7 @@
 
 // Identify backend
 #define BACKENDNAME DDCalc
+#define BACKENDLANG Fortran
 #define VERSION 1.1.0
 #define SAFE_VERSION 1_1_0
 

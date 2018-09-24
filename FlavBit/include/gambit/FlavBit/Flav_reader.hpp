@@ -78,10 +78,10 @@ namespace Gambit
         void initialise_matrices();
 
         /// Print a boost ublas matrix
-        void print_matrix(boost::numeric::ublas::matrix<double>&, str);
+        void print_matrix(boost::numeric::ublas::matrix<double>&, str, bool is_true_matrix = true);
 
         /// Print a boost ublas matrix with a pair type
-        void print_matrix(boost::numeric::ublas::matrix< std::pair<double, bool> >&, str);
+        void print_matrix(boost::numeric::ublas::matrix< std::pair<double, bool> >&, str, bool is_true_matrix = true);
 
         /// Set debug mode for reader
         void debug_mode(bool k) {debug = k;}

@@ -226,6 +226,11 @@ void Problems::unflag_bad_mass(int particle)
    bad_masses.at(particle) = false;
 }
 
+void Problems::unflag_all_bad_masses()
+{
+   std::fill(bad_masses.begin(), bad_masses.end(), 0);
+}
+
 void Problems::unflag_running_tachyon(int particle)
 {
    running_tachyons.at(particle) = false;
@@ -265,6 +270,11 @@ void Problems::unflag_no_pole_mass_convergence(int particle)
 void Problems::unflag_non_perturbative_parameter(int parameter)
 {
    non_pert_pars.erase(parameter);
+}
+
+void Problems::unflag_all_non_perturbative_parameters()
+{
+   non_pert_pars.clear();
 }
 
 void Problems::unflag_no_sinThetaW_convergence()

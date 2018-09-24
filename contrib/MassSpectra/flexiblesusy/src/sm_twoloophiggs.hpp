@@ -22,13 +22,13 @@
 namespace flexiblesusy {
 namespace sm_twoloophiggs {
 
-/// SM Higgs self-energy 1-loop
-double self_energy_higgs_1loop_sm(
+/// SM Higgs 1-loop contribution
+double delta_mh_1loop_sm(
    double p, double scale, double mt, double yt,
    double v, double gY, double g2, double lambda);
 
-/// SM Higgs self-energy 1-loop, only O(alpha_t)
-double self_energy_higgs_1loop_at_sm(
+/// SM Higgs 1-loop contribution, only O(alpha_t)
+double delta_mh_1loop_at_sm(
    double p, double scale, double mt, double yt);
 
 /// SM Higgs self-energy 2-loop, only O(alpha_t alpha_s)
@@ -39,12 +39,32 @@ double self_energy_higgs_2loop_at_as_sm(
 double self_energy_higgs_2loop_at_at_sm(
    double p2, double scale, double mt, double yt);
 
-/// SM Higgs self-energy 1-loop from SUSYHD 1.0.2
-double self_energy_higgs_1loop_sm_SUSYHD(
+/// SM Higgs tadpole 1-loop, only O(alpha_t)
+double tadpole_higgs_1loop_at_sm(
+   double scale, double mt, double yt);
+
+/// SM Higgs tadpole 2-loop, only O(alpha_t alpha_s)
+double tadpole_higgs_2loop_at_as_sm(
+   double scale, double mt, double yt, double g3);
+
+/// SM Higgs tadpole 2-loop, only O(alpha_t^2)
+double tadpole_higgs_2loop_at_at_sm(
+   double scale, double mt, double yt);
+
+/// SM Higgs 2-loop contribution, only O(alpha_t alpha_s)
+double delta_mh_2loop_at_as_sm(
+   double p2, double scale, double mt, double yt, double g3);
+
+/// SM Higgs 2-loop contribution, only O(alpha_t^2)
+double delta_mh_2loop_at_at_sm(
+   double p2, double scale, double mt, double yt);
+
+/// SM Higgs 1-loop contribution from SUSYHD 1.0.2
+double delta_mh_1loop_sm_SUSYHD(
    double vev, double Mt, double mh, double MW, double MZ, double Q);
 
-/// SM Higgs self-energy 2-loop from SUSYHD 1.0.2
-double self_energy_higgs_2loop_sm_SUSYHD(
+/// SM Higgs 2-loop contribution from SUSYHD 1.0.2
+double delta_mh_2loop_sm_SUSYHD(
    double vev, double Mt, double Mh, double g3);
 
 } // namespace sm_twoloophiggs

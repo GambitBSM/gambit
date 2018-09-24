@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:35
+// File generated at Thu 10 May 2018 14:41:58
 
 #ifndef MSSMEFTHiggs_UTILITIES_H
 #define MSSMEFTHiggs_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class MSSMEFTHiggs_spectrum_plotter {
 public:
+   MSSMEFTHiggs_spectrum_plotter() = default;
+   explicit MSSMEFTHiggs_spectrum_plotter(const MSSMEFTHiggs_mass_eigenstates&);
    void extract_spectrum(const MSSMEFTHiggs_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> MSSMEFTHiggs_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace MSSMEFTHiggs_database {
 

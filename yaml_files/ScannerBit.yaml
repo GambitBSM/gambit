@@ -93,7 +93,8 @@ Scanner:
       plugin: grid
       version: ">=1.0"
       like: LogLike
-      grid_pts: [5, 5]
+      grid_pts: [5, 3]
+      parameters: ["EggBox::param_1", "EggBox::param_0"]
 
     multinest:
       plugin: multinest

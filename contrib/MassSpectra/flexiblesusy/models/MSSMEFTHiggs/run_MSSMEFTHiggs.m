@@ -65,13 +65,14 @@ handle = FSMSSMEFTHiggsOpenHandle[
         Mh -> 125.09
     },
     fsModelParameters -> {
+        TanBeta -> 0,
+        SignMu -> 0,
         MSUSY -> 0,
         M1Input -> 0,
         M2Input -> 0,
         M3Input -> 0,
-        MuInput -> 0,
-        mAInput -> 0,
-        TanBeta -> 0,
+        mHd2IN -> 0,
+        mHu2IN -> 0,
         mq2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
         mu2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
         md2Input -> {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}},

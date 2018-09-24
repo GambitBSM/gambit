@@ -92,7 +92,7 @@ Rules:
     function: all_decays
 
   - capability: MSSM_spectrum
-    function: make_MSSM_precision_spectrum_H_W
+    function: make_MSSM_precision_spectrum_4H_W
     options:
       Higgs_predictions_source: 1
       Higgs_predictions_error_method: 4

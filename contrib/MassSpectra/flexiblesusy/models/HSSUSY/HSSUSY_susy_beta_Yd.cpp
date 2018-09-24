@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:36:21
+// File generated at Thu 10 May 2018 14:43:39
 
 #include "HSSUSY_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -68,13 +68,13 @@ Eigen::Matrix<double,3,3> HSSUSY_susy_parameters::calc_beta_Yd_2_loop(const Susy
 
    beta_Yd = (twoLoop*(-0.0016666666666666668*Yd*(127*Quad(g1) + 5*Sqr(g1
       )*(-15*(5*traceYdAdjYd + 15*traceYeAdjYe + 17*traceYuAdjYu) + 162*Sqr(g2)
-      - 248*Sqr(g3)) + 75*(46*Quad(g2) - 3*Sqr(g2)*(5*(3*traceYdAdjYd +
-      traceYeAdjYe + 3*traceYuAdjYu) + 24*Sqr(g3)) + 2*(432*Quad(g3) - 80*(
-      traceYdAdjYd + traceYuAdjYu)*Sqr(g3) + 3*(9*traceYdAdjYdYdAdjYd - 2*
+      - 248*Sqr(g3)) + 75*(46*Quad(g2) + 864*Quad(g3) - 160*(traceYdAdjYd +
+      traceYuAdjYu)*Sqr(g3) - 3*Sqr(g2)*(5*(3*traceYdAdjYd + traceYeAdjYe + 3*
+      traceYuAdjYu) + 24*Sqr(g3)) + 6*(9*traceYdAdjYdYdAdjYd - 2*
       traceYdAdjYuYuAdjYd + 3*traceYeAdjYeYeAdjYe + 9*traceYuAdjYuYuAdjYu - 2*
-      Sqr(Lambdax))))) + 0.0125*(187*Sqr(g1) + 675*Sqr(g2) + 20*(-3*(9*
-      traceYdAdjYd + 3*traceYeAdjYe + 9*traceYuAdjYu + 8*Lambdax) + 64*Sqr(g3))
-      )*(Yd*Yd.adjoint()*Yd) + 0.0125*(-79*Sqr(g1) + 5*(20*(3*traceYdAdjYd +
+      Sqr(Lambdax)))) + (-0.75*(9*traceYdAdjYd + 3*traceYeAdjYe + 9*
+      traceYuAdjYu + 8*Lambdax) + 2.3375*Sqr(g1) + 8.4375*Sqr(g2) + 16*Sqr(g3))
+      *(Yd*Yd.adjoint()*Yd) + 0.0125*(-79*Sqr(g1) + 5*(20*(3*traceYdAdjYd +
       traceYeAdjYe + 3*traceYuAdjYu) + 9*Sqr(g2) - 256*Sqr(g3)))*(Yd*Yu.adjoint
       ()*Yu) + 1.5*(Yd*Yd.adjoint()*Yd*Yd.adjoint()*Yd) - Yd*Yd.adjoint()*Yd*
       Yu.adjoint()*Yu - 0.25*(Yd*Yu.adjoint()*Yu*Yd.adjoint()*Yd) + 2.75*(Yd*

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:30:46
+// File generated at Thu 10 May 2018 15:08:43
 
 #include "MSSMatMGUT_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -148,13 +148,13 @@ Eigen::Matrix<double,3,3> MSSMatMGUT_soft_parameters::calc_beta_mq2_2_loop(const
       Yd.adjoint()*md2*Yd) - 2*(Yd.adjoint()*Yd*Yd.adjoint()*Yd*mq2) - 4*(
       Yu.adjoint()*mu2*Yu*Yu.adjoint()*Yu) - 4*(Yu.adjoint()*Yu*mq2*Yu.adjoint(
       )*Yu) - 4*(Yu.adjoint()*Yu*Yu.adjoint()*mu2*Yu) - 2*(Yu.adjoint()*Yu*
-      Yu.adjoint()*Yu*mq2) + 0.0044444444444444444*(Conj(MassB)*Sqr(g1)*(597*
-      MassB*Sqr(g1) + 5*(9*(2*MassB + MassWB)*Sqr(g2) + 16*(2*MassB + MassG)*
-      Sqr(g3))) + 5*(16*Conj(MassG)*Sqr(g3)*((MassB + 2*MassG)*Sqr(g1) + 15*(3*
-      (2*MassG + MassWB)*Sqr(g2) - 8*MassG*Sqr(g3))) + 3*(2*(7.745966692414834*
-      g1*Tr31 + 45*Tr22*Quad(g2) + 80*Tr23*Quad(g3) + Tr2U111*Sqr(g1)) + 3*Conj
-      (MassWB)*Sqr(g2)*((MassB + 2*MassWB)*Sqr(g1) + 5*(33*MassWB*Sqr(g2) + 16*
-      (MassG + 2*MassWB)*Sqr(g3))))))*UNITMATRIX(3))).real();
+      Yu.adjoint()*Yu*mq2) + 0.0044444444444444444*(30*(g1*(g1*Tr2U111 +
+      7.745966692414834*Tr31) + 45*Tr22*Quad(g2) + 80*Tr23*Quad(g3)) + 80*Conj(
+      MassG)*Sqr(g3)*((MassB + 2*MassG)*Sqr(g1) + 45*(2*MassG + MassWB)*Sqr(g2)
+      - 120*MassG*Sqr(g3)) + Conj(MassB)*Sqr(g1)*(597*MassB*Sqr(g1) + 45*(2*
+      MassB + MassWB)*Sqr(g2) + 80*(2*MassB + MassG)*Sqr(g3)) + 45*Conj(MassWB)
+      *Sqr(g2)*((MassB + 2*MassWB)*Sqr(g1) + 165*MassWB*Sqr(g2) + 80*(MassG + 2
+      *MassWB)*Sqr(g3)))*UNITMATRIX(3))).real();
 
 
    return beta_mq2;

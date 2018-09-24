@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:39:11
+// File generated at Thu 10 May 2018 15:15:47
 
 #ifndef MSSM_UTILITIES_H
 #define MSSM_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class MSSM_spectrum_plotter {
 public:
+   MSSM_spectrum_plotter() = default;
+   explicit MSSM_spectrum_plotter(const MSSM_mass_eigenstates&);
    void extract_spectrum(const MSSM_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> MSSM_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace MSSM_database {
 

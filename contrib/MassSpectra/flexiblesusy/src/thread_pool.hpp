@@ -50,7 +50,7 @@ namespace flexiblesusy {
  */
 class Thread_pool {
 public:
-   Thread_pool(std::size_t pool_size = std::thread::hardware_concurrency())
+   explicit Thread_pool(std::size_t pool_size = std::thread::hardware_concurrency())
    {
       VERBOSE_MSG("launching " << pool_size << " threads ...");
       for (std::size_t i = 0; i < pool_size; ++i)

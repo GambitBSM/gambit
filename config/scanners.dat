@@ -90,6 +90,34 @@ multinest: |
       Posterior:    Statistical weight of each point.
       live_points:  Boolean, true if the point is a live point.  False otherwise.
 
+polychord: |
+  #remove_newlines
+  PolyChord is an alternative nested sampler to MultiNest, specialised for
+  working in higher dimensions. Instead of rejection sampling, PolyChord
+  uses slice sampling to navigate the constrained prior. The scaling with
+  dimensionality is polynomial (rather than MultiNest's exponential scaling),
+  and tuning parameters are generally less opaque. In particular, slice
+  sampling is able to exploit a hierarchy of parameter speeds. This
+  implementation uses code developed by Handley et. al.:
+  https://arxiv.org/abs/1506.00171
+
+  YAML options (defaults):
+      nlive (25*nDims)              number of live points
+      num_repeats (5*nDims):        length of slice sampling chain
+      nprior (10*nlive):            rejection sample the prior by this amount
+      do_clustering (1):            perform clustering?
+      fb (1):                       Feedback level 
+      tol (0.5):                    defines the stopping criteria
+      logZero (-1E90):              points with loglike < logZero will be ignored by PolyChord
+      maxiter (0):                  Max no. of iterations, a non-positive value means infinity.
+      outfile (0):                  write output files?
+      compression_factor (exp(-1)): update/dump every time volume drops by this amount
+      seed (-1):                    seed for random number generator. Negative means seed from system time
+
+  Auxillary output variables:
+      Posterior:    Statistical weight of each point.
+      live_points:  Boolean, true if the point is a live point.  False otherwise.
+
 raster: |
   #remove_newlines
   The raster scanner prints a user-defined set of points.  Any non-specified parameters will be randomly chosen and transformed by the priors.  Note that any specified point must use the "none"
@@ -127,6 +155,7 @@ grid: |
   YAML options:
       grid_pts[req'd]: The number of points along each dimension on the grid.  A vector is given with each element corresponding to each dimension.
       like:            Use the functors thats corresponds to the specified purpose.
+      parameters:      Specifies the order of parameters that corresponds to the grid points specified by the tag "grid_pts".
 
 square_grid: |
   Simple grid scanner where each dimension of grid are identical.  Evaluation points along a user-defined grid.

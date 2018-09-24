@@ -31,6 +31,6 @@ public:
    virtual void set_models(Model*, Model*) = 0;
 };
 
-}
+} // namespace flexiblesusy
 
 #endif

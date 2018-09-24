@@ -44,6 +44,7 @@ static_lib_cmd="@STATIC_LIB_CMD@"
 threadlibs="@THREADLIBS@"
 tsilflags="@TSILFLAGS@"
 tsillibs="@TSILLIBS@"
+gm2calclibs="${ABSBASEDIR}/addons/GM2Calc/libGM2Calc${module_lib_ext}"
 
 create_module_list() {
     echo "config src fflite slhaea doc $models $addons $optional_modules"
@@ -81,7 +82,8 @@ create_include_directives_for_external_modules() {
 create_flexiblesusy_libs() {
     local flexiblesusylibs=
 
-    for a in $models $addons ; do
+    for a in $addons $models ; do
+        [ "x$(basename $a)" = "xGM2Calc" ] && continue
         flexiblesusylibs="$flexiblesusylibs ${ABSBASEDIR}/${a}/lib$(basename $a)${module_lib_ext}"
     done
 
@@ -96,7 +98,7 @@ cppflags_without_modules="$cppflags_from_configure $incl_external_modules"
 cppflags="$cppflags_from_configure $incl_FS_modules $incl_external_modules"
 flexiblesusy_libs="$(create_flexiblesusy_libs)"
 compile_cmd="$cxx $cppflags $cxxflags"
-libs="$ldflags $flexiblesusy_libs $loopfunclibs $himalayalibs $gsllibs $boostthreadlibs $lapacklibs $blaslibs $flibs $sqlitelibs $tsillibs $threadlibs $ldlibs"
+libs="$ldflags $flexiblesusy_libs $gm2calclibs $loopfunclibs $himalayalibs $gsllibs $boostthreadlibs $lapacklibs $blaslibs $flibs $sqlitelibs $tsillibs $threadlibs $ldlibs"
 modules="$(create_module_list)"
 
 help() {

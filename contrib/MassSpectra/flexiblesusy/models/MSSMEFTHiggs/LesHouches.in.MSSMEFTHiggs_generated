@@ -48,20 +48,22 @@ Block SMINPUTS               # Standard Model inputs
     9   80.385               # MW pole
    11   5.109989020e-04      # melectron(pole)
    12   0.000000000e+00      # mnu1(pole)
-   13   1.056583570e-01      # mmuon(pole)
+   13   1.056583715e-01      # mmuon(pole)
    14   0.000000000e+00      # mnu2(pole)
    21   4.750000000e-03      # md(2 GeV) MS-bar
    22   2.400000000e-03      # mu(2 GeV) MS-bar
    23   1.040000000e-01      # ms(2 GeV) MS-bar
    24   1.270000000e+00      # mc(mc) MS-bar
+Block MINPAR
+   3   0   # TanBeta
+   4   0   # Sign(Mu)
 Block EXTPAR
    0   0   # MSUSY
    1   0   # M1Input
    2   0   # M2Input
    3   0   # M3Input
-   4   0   # MuInput
-   5   0   # mAInput
-   25   0   # TanBeta
+   21   0   # mHd2IN
+   22   0   # mHu2IN
 Block MSQ2IN
    1   1   0   # mq2Input(1,1)
    1   2   0   # mq2Input(1,2)

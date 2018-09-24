@@ -90,8 +90,8 @@ struct create_zero<T, true> {
 template<class Idx, class Function>
 auto sum(Idx ini, Idx fin, Function f) -> decltype(EvalEigenXpr<Idx>(ini, f))
 {
-    typedef decltype(EvalEigenXpr<Idx>(ini, f)) Evaled;
-    typedef typename std::remove_cv<Evaled>::type Acc;
+    using Evaled = decltype(EvalEigenXpr<Idx>(ini, f));
+    using Acc = typename std::remove_cv<Evaled>::type;
     Acc s = create_zero<Acc, is_eigen_type<Evaled>::value>::zero();
     for (Idx i = ini; i <= fin; i++) s += f(i);
     return s;

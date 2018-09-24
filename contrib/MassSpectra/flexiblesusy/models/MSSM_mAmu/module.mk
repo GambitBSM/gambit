@@ -25,6 +25,9 @@ MSSM_mAmu_SLHA_INPUT := \
 		$(DIR)/LesHouches.in.MSSM_mAmu_generated \
 		$(DIR)/LesHouches.in.MSSM_mAmu
 
+MSSM_mAmu_REFERENCES := \
+		$(DIR)/MSSM_mAmu_references.tex
+
 MSSM_mAmu_GNUPLOT := \
 		$(DIR)/MSSM_mAmu_plot_rgflow.gnuplot \
 		$(DIR)/MSSM_mAmu_plot_spectrum.gnuplot
@@ -185,6 +188,7 @@ install-src::
 ifneq ($(MSSM_mAmu_SLHA_INPUT),)
 		install -m u=rw,g=r,o=r $(MSSM_mAmu_SLHA_INPUT) $(MSSM_mAmu_INSTALL_DIR)
 endif
+		install -m u=rw,g=r,o=r $(MSSM_mAmu_REFERENCES) $(MSSM_mAmu_INSTALL_DIR)
 		install -m u=rw,g=r,o=r $(MSSM_mAmu_GNUPLOT) $(MSSM_mAmu_INSTALL_DIR)
 endif
 
@@ -223,7 +227,8 @@ pack-$(MODNAME)-src:
 		$(EXEMSSM_mAmu_SRC) \
 		$(LLMSSM_mAmu_SRC) $(LLMSSM_mAmu_MMA) \
 		$(MSSM_mAmu_MK) $(MSSM_mAmu_INCLUDE_MK) \
-		$(MSSM_mAmu_SLHA_INPUT) $(MSSM_mAmu_GNUPLOT)
+		$(MSSM_mAmu_SLHA_INPUT) $(MSSM_mAmu_REFERENCES) \
+		$(MSSM_mAmu_GNUPLOT)
 
 $(LIBMSSM_mAmu_SRC) $(LIBMSSM_mAmu_HDR) $(EXEMSSM_mAmu_SRC) $(LLMSSM_mAmu_SRC) $(LLMSSM_mAmu_MMA) \
 : run-metacode-$(MODNAME)
@@ -260,10 +265,10 @@ $(LIBMSSM_mAmu): $(LIBMSSM_mAmu_OBJ)
 		$(MODULE_MAKE_LIB_CMD) $@ $^
 
 $(DIR)/%.x: $(DIR)/%.o $(LIBMSSM_mAmu) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$^ $(ADDONLIBS)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(CXX) $(LDFLAGS) -o $@ $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 $(LLMSSM_mAmu_LIB): $(LLMSSM_mAmu_OBJ) $(LIBMSSM_mAmu) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
-		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$^) $(ADDONLIBS) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
+		$(LIBLNK_MAKE_LIB_CMD) $@ $(CPPFLAGS) $(CFLAGS) $(call abspathx,$(ADDONLIBS) $^ $(LIBGM2Calc)) $(filter -%,$(LOOPFUNCLIBS)) $(HIMALAYALIBS) $(GSLLIBS) $(BOOSTTHREADLIBS) $(LAPACKLIBS) $(BLASLIBS) $(FLIBS) $(SQLITELIBS) $(TSILLIBS) $(THREADLIBS) $(LDLIBS)
 
 ALLDEP += $(LIBMSSM_mAmu_DEP) $(EXEMSSM_mAmu_DEP)
 ALLSRC += $(LIBMSSM_mAmu_SRC) $(EXEMSSM_mAmu_SRC)

@@ -32,6 +32,7 @@
 #include "ewsb_solver.hpp"
 #include "gsl_utils.hpp"
 #include "gsl_vector.hpp"
+#include "wrappers.hpp"
 
 namespace flexiblesusy {
 
@@ -211,7 +212,10 @@ int Root_finder<dimension>::gsl_function(const gsl_vector* x, void* params, gsl_
 
    try {
       result = (*fun)(arg);
-      status = result.allFinite() ? GSL_SUCCESS : GSL_EDOM;
+      // workaround for intel compiler / eigen bug that causes unexpected behavior
+      // of allFinite()
+      status = IsFinite(result) ? GSL_SUCCESS : GSL_EDOM;
+      //status = result.allFinite() ? GSL_SUCCESS : GSL_EDOM;
    } catch (const flexiblesusy::Error&) {
       status = GSL_EDOM;
    }

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:41:37
+// File generated at Thu 10 May 2018 14:43:01
 
 #ifndef SingletDM_UTILITIES_H
 #define SingletDM_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class SingletDM_spectrum_plotter {
 public:
+   SingletDM_spectrum_plotter() = default;
+   explicit SingletDM_spectrum_plotter(const SingletDM_mass_eigenstates&);
    void extract_spectrum(const SingletDM_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> SingletDM_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace SingletDM_database {
 

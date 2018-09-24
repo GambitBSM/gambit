@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 16:22:20
+// File generated at Thu 10 May 2018 15:01:41
 
 #include "NUHMSSM_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -62,11 +62,11 @@ Eigen::Matrix<double,3,3> NUHMSSM_susy_parameters::calc_beta_Ye_2_loop(const Sus
 
    Eigen::Matrix<double,3,3> beta_Ye;
 
-   beta_Ye = (twoLoop*(0.1*Ye*(135*Quad(g1) + 2*Sqr(g1)*(-2*traceYdAdjYd
-      + 6*traceYeAdjYe + 9*Sqr(g2)) + 5*(-6*(3*traceYdAdjYdYdAdjYd +
-      traceYdAdjYuYuAdjYd + traceYeAdjYeYeAdjYe) + 15*Quad(g2) + 32*
-      traceYdAdjYd*Sqr(g3))) + (-3*(3*traceYdAdjYd + traceYeAdjYe) + 6*Sqr(g2))
-      *(Ye*Ye.adjoint()*Ye) - 4*(Ye*Ye.adjoint()*Ye*Ye.adjoint()*Ye))).real();
+   beta_Ye = (twoLoop*(0.1*Ye*(-30*(3*traceYdAdjYdYdAdjYd +
+      traceYdAdjYuYuAdjYd + traceYeAdjYeYeAdjYe) + 135*Quad(g1) + 75*Quad(g2) +
+      2*Sqr(g1)*(-2*traceYdAdjYd + 6*traceYeAdjYe + 9*Sqr(g2)) + 160*
+      traceYdAdjYd*Sqr(g3)) + (-3*(3*traceYdAdjYd + traceYeAdjYe) + 6*Sqr(g2))*
+      (Ye*Ye.adjoint()*Ye) - 4*(Ye*Ye.adjoint()*Ye*Ye.adjoint()*Ye))).real();
 
 
    return beta_Ye;
@@ -102,20 +102,20 @@ Eigen::Matrix<double,3,3> NUHMSSM_susy_parameters::calc_beta_Ye_3_loop(const Sus
       5022*Sqr(g2) + 23760*Sqr(g3)) + 50*Sqr(g1)*(90*traceAdjYdYdAdjYdYd + 270*
       traceAdjYeYeAdjYeYe - 72*traceAdjYuYuAdjYdYd + 135*Quad(g2) - 9*(
       traceAdjYdYd + 27*traceAdjYeYe)*Sqr(g2) - 568*traceAdjYdYd*Sqr(g3)) + 125
-      *(2070*Power6(g2) + 45*Quad(g2)*(-21*traceAdjYdYd - 7*traceAdjYeYe - 12*
-      traceAdjYuYu + 48*Sqr(g3)) - 36*Sqr(g2)*(-3*traceAdjYdYdAdjYdYd -
-      traceAdjYeYeAdjYeYe - 6*traceAdjYuYuAdjYdYd + 44*traceAdjYdYd*Sqr(g3)) +
-      4*(3*(3*traceAdjYdYdAdjYdYdAdjYdYd + 18*traceAdjYdYdAdjYdYd*traceAdjYeYe
+      *(12*(3*traceAdjYdYdAdjYdYdAdjYdYd + 18*traceAdjYdYdAdjYdYd*traceAdjYeYe
       + 6*traceAdjYeYe*traceAdjYeYeAdjYeYe + 18*traceAdjYdYd*(3*
       traceAdjYdYdAdjYdYd + traceAdjYeYeAdjYeYe) + traceAdjYeYeAdjYeYeAdjYeYe +
-      18*traceAdjYuYu*traceAdjYuYuAdjYdYd + 9*traceAdjYuYuAdjYuYuAdjYdYd) -
-      160*traceAdjYdYd*Quad(g3) + 72*(3*traceAdjYdYdAdjYdYd +
-      traceAdjYuYuAdjYdYd)*Sqr(g3)))) + 0.004*(-10746*Power6(g1) - 5*Quad(g1)*(
-      77*traceAdjYdYd - 81*traceAdjYeYe + 1458*Sqr(g2) + 4752*Sqr(g3)) - 50*Sqr
-      (g1)*(81*Quad(g2) + 9*(5*traceAdjYdYd - 9*traceAdjYeYe)*Sqr(g2) - 2*(27*
-      traceAdjYdYdAdjYdYd - 27*traceAdjYeYeAdjYeYe + 21*traceAdjYuYuAdjYdYd +
-      56*traceAdjYdYd*Sqr(g3))) + 125*(630*Power6(g2) - 9*Quad(g2)*(7*(3*
-      traceAdjYdYd + traceAdjYeYe) + 48*Sqr(g3)) + 36*Sqr(g2)*(3*
+      18*traceAdjYuYu*traceAdjYuYuAdjYdYd + 9*traceAdjYuYuAdjYuYuAdjYdYd) +
+      2070*Power6(g2) - 640*traceAdjYdYd*Quad(g3) + 288*(3*traceAdjYdYdAdjYdYd
+      + traceAdjYuYuAdjYdYd)*Sqr(g3) + 45*Quad(g2)*(-21*traceAdjYdYd - 7*
+      traceAdjYeYe - 12*traceAdjYuYu + 48*Sqr(g3)) - 36*Sqr(g2)*(-3*
+      traceAdjYdYdAdjYdYd - traceAdjYeYeAdjYeYe - 6*traceAdjYuYuAdjYdYd + 44*
+      traceAdjYdYd*Sqr(g3)))) + 0.004*(-10746*Power6(g1) - 5*Quad(g1)*(77*
+      traceAdjYdYd - 81*traceAdjYeYe + 1458*Sqr(g2) + 4752*Sqr(g3)) - 50*Sqr(g1
+      )*(-6*(9*traceAdjYdYdAdjYdYd - 9*traceAdjYeYeAdjYeYe + 7*
+      traceAdjYuYuAdjYdYd) + 81*Quad(g2) + 9*(5*traceAdjYdYd - 9*traceAdjYeYe)*
+      Sqr(g2) - 112*traceAdjYdYd*Sqr(g3)) + 125*(630*Power6(g2) - 9*Quad(g2)*(7
+      *(3*traceAdjYdYd + traceAdjYeYe) + 48*Sqr(g3)) + 36*Sqr(g2)*(3*
       traceAdjYdYdAdjYdYd + traceAdjYeYeAdjYeYe + 8*traceAdjYdYd*Sqr(g3)) - 4*(
       -3*(3*traceAdjYdYdAdjYdYdAdjYdYd + traceAdjYeYeAdjYeYeAdjYeYe) + 8*
       traceAdjYdYd*Quad(g3) + 24*(3*traceAdjYdYdAdjYdYd + traceAdjYuYuAdjYdYd)*

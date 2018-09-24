@@ -11,15 +11,15 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott 
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
-///  \date 2012 Nov 
+///  \date 2012 Nov
 ///  \date 2013 Jan, Feb, Oct
 ///
 ///  \author Christoph Weniger
 ///          (christoph.weniger@gmail.com)
-///  \date 2013 Jan 
+///  \date 2013 Jan
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -40,7 +40,7 @@ namespace Gambit
   namespace ExampleBit_B
   {
     using namespace LogTags;
-  
+
     //************************************************************
 
     /// \name Module functions
@@ -49,10 +49,10 @@ namespace Gambit
     void particle_identity (str    &result) { result = "examplon"; }
     void event_count       (int    &result) { result = 2; }
     void example_lnL       (double &result) { result = *Pipes::example_lnL::Dep::nevents_postcuts; }
-     
+
     // Function that returns a vector of doubles, for testing printer
-    void exampleVec (std::vector<double> &result) 
-    { 
+    void exampleVec (std::vector<double> &result)
+    {
       result.clear();
       result.push_back(101);
       result.push_back(102);
@@ -74,15 +74,15 @@ namespace Gambit
     void ptrArrTester (int &result)
     {
       using namespace Pipes::ptrArrTester;
-      logger() << "\n  The size of the vector retrieved from test_vector dependency by vecTester is " << Dep::test_vector->size() << "."; 
+      logger() << "\n  The size of the vector retrieved from test_vector dependency by vecTester is " << Dep::test_vector->size() << ".";
       logger() << "\n  The size of the vector retrieved from test_vector backend requirement by vecTester is " << BEreq::test_vector->size() << ".";
       logger() << "\n  The second element of the array retrieved from SomeArray is " << (*BEreq::SomeArray)[1] << "." << EOM;
       result = 1;
     }
- 
 
-    void sigma_example (double &result) 
-    { 
+
+    void sigma_example (double &result)
+    {
       using namespace Pipes::sigma_example;
       logger() << endl;
       logger() << "In ExampleBit_B, function xsection." << endl;
@@ -98,14 +98,14 @@ namespace Gambit
       //  logger() << "  M3: " << *Param["M3"] << endl;
       //  logger() <<info<<EOM;
       //}
-      result = 5.e10; 
+      result = 5.e10;
     }
 
-    void predicted_events (int &result)          
+    void predicted_events (int &result)
     {
       using namespace Pipes::predicted_events;
- 
-      logger() << endl << "My dependency on nevents has been filled by " << 
+
+      logger() << endl << "My dependency on nevents has been filled by " <<
        Dep::nevents.name() << " from " <<
        Dep::nevents.module() << "." << endl;
       logger() << "Its value is: " << *Dep::nevents << info << EOM;
@@ -113,15 +113,17 @@ namespace Gambit
       //cout << "Now let's see what happens when we try to retrieve a conditional dependency." << endl;
       //cout << "The id is: " << *Dep::id << endl;
 
-      int stuff = 2;
+      static int i = 0;
+      int stuff = 2 + i;
+      i++;
       double doall_local = BEreq::awesomeness(2);
       double doall_local2 = BEreq::awesomeness(byVal(stuff));
-      logger() << "My backend requirement of awesomeness has been filled by " << 
+      logger() << "My backend requirement of awesomeness has been filled by " <<
        BEreq::awesomeness.name() << " from " <<
-       BEreq::awesomeness.backend() << ", v" << 
+       BEreq::awesomeness.backend() << ", v" <<
        BEreq::awesomeness.version() << "." << endl;
-      logger() << "Its value is: " << doall_local << endl;    
-      logger() << "Again, its value is: " << doall_local2 << info << EOM;
+      logger() << "Its result for constant input 2 is: " << doall_local << endl;
+      logger() << "Its result for by-value input of (point number + 1) is: " << doall_local2 << info << EOM;
 
       result = (int) (*Dep::nevents + doall_local);
 
@@ -133,7 +135,7 @@ namespace Gambit
       double refex1 = BEreq::refex(inputvar1);
       logger() << "Next returns void, takes parameters both by ref and by val." << EOM;
       BEreq::refex2(inputvar2, byVal(inputvar3));
-      logger() << "Results of backend functions with parameters passed byRef: "; 
+      logger() << "Results of backend functions with parameters passed byRef: ";
       logger() << refex1 << ", " << inputvar1 << ", " << inputvar2 << info << EOM;
 
       //Example showing calling of variadic backend functions
@@ -146,23 +148,26 @@ namespace Gambit
       int arg2 = 15;
       BEreq::runMe(byVal(*Dep::function_pointer), arg2);
 
-      // Demostration of accessing backend requirements via 'BEvariable_bucket'/'BEfunction_bucket' objects
+      // Demonstration of accessing backend requirements via 'BEvariable_bucket'/'BEfunction_bucket' objects
       // living in Pipes::[module function name]::BEreq::[backend capability]
-      logger() << endl;
-      logger() << "Will now set backend variable SomeInt=1000." << endl;
-      logger() << "If this works the next result from 'someFunction' should be PI*1000.";
-      logger() << info <<EOM;
-      *BEreq::SomeInt = 1000;
-      BEreq::someFunction();
+      if (ModelInUse("CMSSM") or ModelInUse("demo_B") or ModelInUse("nonexistent_model"))
+      {
+        logger() << endl;
+        logger() << "Will now set backend variable SomeInt=1000." << endl;
+        logger() << "If this works the next result from 'someFunction' should be PI*1000.";
+        logger() << info <<EOM;
+        *BEreq::SomeInt = 1000;
+        BEreq::someFunction();
+        logger() << "SomeInt now equals: " << *BEreq::SomeInt << endl;
+        logger() << "Some extra info on the backend requirement 'SomeInt':" << endl;
+        logger() << "Name: " << BEreq::SomeInt.name() << "   Backend: " << BEreq::SomeInt.backend() << "   Version: " << BEreq::SomeInt.version();
+        logger() << info <<EOM;
+      }
 
       logger() << endl;
       logger() << "Will now call 'someFunction' once more, this time using the function pointer." << info <<EOM;
       void (*function_pointer)() = BEreq::someFunction.pointer();
       function_pointer();
-
-      logger() << "Print some info on the backend requirement 'SomeInt':" << endl;
-      logger() << "Name: " << BEreq::SomeInt.name() << "   Backend: " << BEreq::SomeInt.backend() << "   Version: " << BEreq::SomeInt.version();
-      logger() << info <<EOM;
 
     }
 

@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:53:00
+// File generated at Thu 10 May 2018 14:47:57
 
 /**
  * @file HSSUSY_a_muon.cpp
  *
- * This file was generated at Tue 26 Sep 2017 22:53:00 with FlexibleSUSY
- * 2.0.0-dev and SARAH 4.11.0 .
+ * This file was generated at Thu 10 May 2018 14:47:57 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.12.2 .
  */
 
 #include "HSSUSY_a_muon.hpp"

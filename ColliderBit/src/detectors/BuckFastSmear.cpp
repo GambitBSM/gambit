@@ -44,18 +44,49 @@ namespace Gambit {
 
       // Electron smearing and efficiency
       /// @todo Run-dependence?
-      ATLAS::applyElectronTrackingEff(eventOut.electrons());
+      //ATLAS::applyElectronTrackingEff(eventOut.electrons());
       ATLAS::smearElectronEnergy(eventOut.electrons());
       ATLAS::applyElectronEff(eventOut.electrons());
 
       // Muon smearing and efficiency
       /// @todo Run-dependence?
-      ATLAS::applyMuonTrackEff(eventOut.muons());
+      //ATLAS::applyMuonTrackEff(eventOut.muons());
       ATLAS::smearMuonMomentum(eventOut.muons());
       ATLAS::applyMuonEff(eventOut.muons());
 
       // Apply hadronic tau reco efficiency *in the analyses* -- it's specific to LHC run & working-point
       //ATLAS::applyTauEfficiency(eventOut.taus());
+      //Smear taus
+      ATLAS::smearTaus(eventOut.taus());
+
+      // Smear jet momenta
+      ATLAS::smearJets(eventOut.jets());
+
+      // Unset b-tags outside |eta|=2.5
+      for (HEPUtils::Jet* j : eventOut.jets()) {
+        if (j->abseta() > 2.5) j->set_btag(false);
+      }
+    }
+
+
+    /// BuckFastSmearATLASnoeff definitions
+    void BuckFastSmearATLASnoeff::processEvent(const Pythia8::Event& eventIn, HEPUtils::Event& eventOut) const {
+      if (partonOnly)
+        convertPythia8PartonEvent(eventIn, eventOut);
+      else
+        convertPythia8ParticleEvent(eventIn, eventOut);
+
+      // Electron smearing
+      /// @todo Run-dependence?
+      //ATLAS::applyElectronTrackingEff(eventOut.electrons());
+      ATLAS::smearElectronEnergy(eventOut.electrons());
+
+      // Muon smearing
+      /// @todo Run-dependence?
+      //ATLAS::applyMuonTrackEff(eventOut.muons());
+      ATLAS::smearMuonMomentum(eventOut.muons());
+
+      // Apply hadronic tau reco efficiency *in the analyses* -- it's specific to LHC run & working-point
       //Smear taus
       ATLAS::smearTaus(eventOut.taus());
 
@@ -78,17 +109,47 @@ namespace Gambit {
 
       //MJW debug- make this the same as ATLAS temporarily
       // Electron smearing and efficiency
-      CMS::applyElectronTrackingEff(eventOut.electrons());
+      //CMS::applyElectronTrackingEff(eventOut.electrons());
       CMS::smearElectronEnergy(eventOut.electrons());
       CMS::applyElectronEff(eventOut.electrons());
 
       // Muon smearing and efficiency
-      CMS::applyMuonTrackEff(eventOut.muons());
+      //CMS::applyMuonTrackEff(eventOut.muons());
       CMS::smearMuonMomentum(eventOut.muons());
       CMS::applyMuonEff(eventOut.muons());
 
       // Apply hadronic tau reco efficiency *in the analyses* -- it's specific to LHC run & working-point
       //CMS::applyTauEfficiency(eventOut.taus());
+      //Smear taus
+      CMS::smearTaus(eventOut.taus());
+
+      // Smear jet momenta
+      CMS::smearJets(eventOut.jets());
+
+      // Unset b-tags outside |eta|=2.5
+      for (HEPUtils::Jet* j : eventOut.jets()) {
+        if (j->abseta() > 2.5) j->set_btag(false);
+      }
+    }
+
+
+    /// BuckFastSmearCMSnoeff definition
+    void BuckFastSmearCMSnoeff::processEvent(const Pythia8::Event& eventIn, HEPUtils::Event& eventOut) const {
+      if (partonOnly)
+        convertPythia8PartonEvent(eventIn, eventOut);
+      else
+        convertPythia8ParticleEvent(eventIn, eventOut);
+
+      //MJW debug- make this the same as ATLAS temporarily
+      // Electron smearing
+      //CMS::applyElectronTrackingEff(eventOut.electrons());
+      CMS::smearElectronEnergy(eventOut.electrons());
+
+      // Muon smearing
+      //CMS::applyMuonTrackEff(eventOut.muons());
+      CMS::smearMuonMomentum(eventOut.muons());
+
+      // Apply hadronic tau reco efficiency *in the analyses* -- it's specific to LHC run & working-point
       //Smear taus
       CMS::smearTaus(eventOut.taus());
 
@@ -204,7 +265,12 @@ namespace Gambit {
         }
 
         // All particles other than invisibles and muons are jet constituents
+	// Matthias added test to keep non-prompt particles
         if (visible && p.idAbs() != MCUtils::PID::MUON) jetparticles.push_back(mk_pseudojet(p.p()));
+	// next case are visible non-prompt muons
+	//if (visible && p.idAbs() == MCUtils::PID::MUON && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
+	// next case are non-prompt neutrinos
+	//if (!visible && !prompt) jetparticles.push_back(mk_pseudojet(p.p()));
       }
 
       /// Jet finding

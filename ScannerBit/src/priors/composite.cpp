@@ -58,36 +58,36 @@ namespace Gambit
     {
         std::vector<std::string> expand_dots(const std::vector<std::string> &param_names_in)
         {
-                std::vector<std::string> param_names = param_names_in;
+            std::vector<std::string> param_names = param_names_in;
                 
-                for (int i = 0, end = param_names.size(); i < end; i++)
+            for (int i = 0, end = param_names.size(); i < end; i++)
+            {
+                if (param_names[i].find("...") != std::string::npos)
                 {
-                        if (param_names[i].find("...") != std::string::npos)
+                    auto p_it = param_names.begin() + i;
+                    std::string::size_type pos = p_it->find("...");
+                    std::string prefix = p_it->substr(0, pos) + "_";
+                    std::stringstream ss(p_it->substr(pos+3));
+                    int N = 0;
+                    if (bool(ss >> N) && N >0)
+                    {
+                        p_it = param_names.erase(p_it);
+                        std::vector<std::string> temps;
+                        
+                        for (int j = 0; j < N; j++)
                         {
-                                auto p_it = param_names.begin() + i;
-                                std::string::size_type pos = p_it->find("...");
-                                std::string prefix = p_it->substr(0, pos) + "_";
-                                std::stringstream ss(p_it->substr(pos+3));
-                                int N = 0;
-                                if (bool(ss >> N) && N >0)
-                                {
-                                        p_it = param_names.erase(p_it);
-                                        std::vector<std::string> temps;
-                                        
-                                        for (int j = 0; j < N; j++)
-                                        {
-                                                std::stringstream ss;
-                                                ss << j;
-                                                temps.push_back(prefix + ss.str());
-                                        }
-                                        
-                                        param_names.insert(p_it, temps.begin(), temps.end());
-                                        i += N - 1;
-                                }
+                            std::stringstream ss;
+                            ss << j;
+                            temps.push_back(prefix + ss.str());
                         }
+                        
+                        param_names.insert(p_it, temps.begin(), temps.end());
+                        i += N - 1;
+                    }
                 }
-                
-                return param_names;
+            }
+            
+            return param_names;
         }
         /// Special "build-a-prior" classi
         // Combines prior objects together, so that the Scanner can deal with just one object in a standard way.
@@ -228,9 +228,15 @@ namespace Gambit
                                     }
                                     else
                                     {
-                                        my_subpriors.push_back( prior_creators.at(priortype)(std::vector<std::string>(1, joined_parname),options) );
-                                        if (priortype != "fixed")
+                                        BasePrior *new_prior = prior_creators.at(priortype)(std::vector<std::string>(1, joined_parname),options);
+                                        
+                                        if (priortype == "fixed")
                                         {
+                                            phantomPriors.push_back(new_prior);
+                                        }
+                                        else
+                                        {
+                                            my_subpriors.push_back( new_prior );
                                             shown_param_names.push_back(joined_parname);
                                         }
                                     }
@@ -244,7 +250,7 @@ namespace Gambit
                             }
                             else 
                             {
-                                shown_param_names.push_back(joined_parname);
+                                //shown_param_names.push_back(joined_parname);
                                 needSet.insert(joined_parname);
                             }
                         }
@@ -303,15 +309,16 @@ namespace Gambit
                     {
                         if (priortype == "fixed")
                         {
-                            for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; par_it++)
+                            /*for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; par_it++)
                             {
                                 shown_param_names.erase
                                 (
                                     std::find(shown_param_names.begin(), shown_param_names.end(), *par_it)
                                 );
-                            }
+                            }*/
                             
-                            my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            //my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            phantomPriors.push_back( prior_creators.at(priortype)(params,options) );
                         }
                         else if (priortype == "same_as")
                         {
@@ -320,10 +327,10 @@ namespace Gambit
                                 std::string same_name = options.getValue<std::string>("same_as");
                                 for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; ++par_it)
                                 {
-                                    shown_param_names.erase
+                                    /*shown_param_names.erase
                                     (
                                         std::find(shown_param_names.begin(), shown_param_names.end(), *par_it)
-                                    );
+                                    );*/
                                     sameMap[*par_it] = same_name;
                                 }
                             }
@@ -334,7 +341,23 @@ namespace Gambit
                         }
                         else
                         {
-                            my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            BasePrior* new_prior = prior_creators.at(priortype)(params,options);
+                            my_subpriors.push_back( new_prior );
+                            
+                            auto params = new_prior->getShownParameters();
+                            shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                            
+                            /*if (priortype == "composite")
+                            {
+                                auto composite_new_prior = static_cast<CompositePrior *>(new_prior);
+                                auto params = composite_new_prior->getShownParameters();
+                                shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                            }
+                            else
+                            {
+                                auto params = new_prior->getShownParameters();
+                                shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
+                            }*/
                         }
                     }
                 }
@@ -406,7 +429,7 @@ namespace Gambit
                 }
                 else
                 {
-                    my_subpriors.push_back(new MultiPriors(key_it->second, sameMapOptions));
+                    phantomPriors.push_back(new MultiPriors(key_it->second, sameMapOptions));
                 }
             }
             
@@ -421,17 +444,18 @@ namespace Gambit
             my_subpriors.insert(my_subpriors.end(), phantomPriors.begin(), phantomPriors.end());
         }  
         
-        CompositePrior::CompositePrior(const std::vector<std::string> &params_in, const Options &options_in) : BasePrior(params_in), shown_param_names(params_in)
+        CompositePrior::CompositePrior(const std::vector<std::string> &params_in, const Options &options_in) : BasePrior(params_in)//, shown_param_names(params_in)
         {       
             std::map<std::string, std::string> sameMap;
             std::unordered_map<std::string, std::pair<double, double>> sameMapOptions;
             std::set<std::string> needSet(params_in.begin(), params_in.end());
-            std::set<std::string> paramSet(params_in.begin(), params_in.end()); 
+            std::set<std::string> paramSet(params_in.begin(), params_in.end());
+            std::vector<BasePrior *> phantomPriors;
 
             auto priorNames = options_in.getNames();
             std::sort(priorNames.begin(), priorNames.end());
             
-            for (auto priorname_it = priorNames.begin(), priorname_end = priorNames.end(); priorname_it != priorname_end; priorname_it++)
+            for (auto priorname_it = priorNames.begin(), priorname_end = priorNames.end(); priorname_it != priorname_end; ++priorname_it)
             {
                 std::string &priorname = *priorname_it;
                 if (options_in.hasKey(priorname, "parameters") && options_in.hasKey(priorname, "prior_type"))
@@ -475,15 +499,15 @@ namespace Gambit
                     {
                         if (priortype == "fixed")
                         {
-                            for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; par_it++)
+                            /*for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; par_it++)
                             {
                                 shown_param_names.erase
                                 (
                                     std::find(shown_param_names.begin(), shown_param_names.end(), *par_it)
                                 );
-                            }
+                            }*/
                                 
-                            my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            phantomPriors.push_back( prior_creators.at(priortype)(params,options) );
                         }
                         else if (priortype == "same_as")
                         {
@@ -492,10 +516,10 @@ namespace Gambit
                                 std::string same_name = options.getValue<std::string>("same_as");
                                 for (auto par_it = params.begin(), par_end = params.end(); par_it != par_end; par_it++)
                                 {
-                                    shown_param_names.erase
+                                    /*shown_param_names.erase
                                     (
                                         std::find(shown_param_names.begin(), shown_param_names.end(), *par_it)
-                                    );
+                                    );*/
                                     sameMap[*par_it] = same_name;
                                 }
                             }
@@ -506,7 +530,13 @@ namespace Gambit
                         }
                         else
                         {
-                            my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            //my_subpriors.push_back( prior_creators.at(priortype)(params,options) );
+                            
+                            BasePrior* new_prior = prior_creators.at(priortype)(params,options);
+                            my_subpriors.push_back( new_prior );
+                            
+                            auto params = new_prior->getShownParameters();
+                            shown_param_names.insert(shown_param_names.end(), params.begin(), params.end());
                         }
                     }
                 }
@@ -578,7 +608,7 @@ namespace Gambit
                 }
                 else
                 {
-                    my_subpriors.push_back(new MultiPriors(key_it->second, sameMapOptions));
+                    phantomPriors.push_back(new MultiPriors(key_it->second, sameMapOptions));
                 }
             }
             
@@ -589,6 +619,8 @@ namespace Gambit
             }
             
             setSize(param_size);
+            
+            my_subpriors.insert(my_subpriors.end(), phantomPriors.begin(), phantomPriors.end());
         }
     } // end namespace Priors
 } // end namespace Gambit

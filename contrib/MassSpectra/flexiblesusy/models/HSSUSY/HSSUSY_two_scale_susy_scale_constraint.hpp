@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:52:54
+// File generated at Thu 10 May 2018 14:47:55
 
 #ifndef HSSUSY_TWO_SCALE_SUSY_SCALE_CONSTRAINT_H
 #define HSSUSY_TWO_SCALE_SUSY_SCALE_CONSTRAINT_H

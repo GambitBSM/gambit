@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Tue 26 Sep 2017 22:42:36
+// File generated at Thu 10 May 2018 14:42:37
 
 #ifndef SingletDMZ3_UTILITIES_H
 #define SingletDMZ3_UTILITIES_H
@@ -114,6 +114,8 @@ public:
 
 class SingletDMZ3_spectrum_plotter {
 public:
+   SingletDMZ3_spectrum_plotter() = default;
+   explicit SingletDMZ3_spectrum_plotter(const SingletDMZ3_mass_eigenstates&);
    void extract_spectrum(const SingletDMZ3_mass_eigenstates&);
    void write_to_file(const std::string&) const;
 
@@ -135,16 +137,7 @@ private:
    int width{16};
 
    void write_spectrum(const TSpectrum&, std::ofstream&) const;
-   static std::valarray<double> to_valarray(double);
-   template <class Scalar, int M, int N>
-   static std::valarray<double> to_valarray(const Eigen::Array<Scalar, M, N>&);
 };
-
-template <class Scalar, int M, int N>
-std::valarray<double> SingletDMZ3_spectrum_plotter::to_valarray(const Eigen::Array<Scalar, M, N>& v)
-{
-   return std::valarray<double>(v.data(), v.size());
-}
 
 namespace SingletDMZ3_database {
 

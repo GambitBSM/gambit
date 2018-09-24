@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Sun 24 Sep 2017 15:54:35
+// File generated at Thu 10 May 2018 14:41:58
 
 #include "MSSMEFTHiggs_slha_io.hpp"
 #include "MSSMEFTHiggs_input_parameters.hpp"
@@ -75,9 +75,8 @@ void MSSMEFTHiggs_slha_io::set_extpar(const MSSMEFTHiggs_input_parameters& input
    extpar << FORMAT_ELEMENT(1, input.M1Input, "M1Input");
    extpar << FORMAT_ELEMENT(2, input.M2Input, "M2Input");
    extpar << FORMAT_ELEMENT(3, input.M3Input, "M3Input");
-   extpar << FORMAT_ELEMENT(4, input.MuInput, "MuInput");
-   extpar << FORMAT_ELEMENT(5, input.mAInput, "mAInput");
-   extpar << FORMAT_ELEMENT(25, input.TanBeta, "TanBeta");
+   extpar << FORMAT_ELEMENT(21, input.mHd2IN, "mHd2IN");
+   extpar << FORMAT_ELEMENT(22, input.mHu2IN, "mHu2IN");
    slha_io.set_block(extpar);
 
 }
@@ -119,6 +118,12 @@ void MSSMEFTHiggs_slha_io::set_modsel(const SLHA_io::Modsel& modsel)
  */
 void MSSMEFTHiggs_slha_io::set_minpar(const MSSMEFTHiggs_input_parameters& input)
 {
+   std::ostringstream minpar;
+
+   minpar << "Block MINPAR\n";
+   minpar << FORMAT_ELEMENT(3, input.TanBeta, "TanBeta");
+   minpar << FORMAT_ELEMENT(4, input.SignMu, "SignMu");
+   slha_io.set_block(minpar);
 
 }
 
@@ -568,6 +573,8 @@ void MSSMEFTHiggs_slha_io::fill_minpar_tuple(MSSMEFTHiggs_input_parameters& inpu
                                                 int key, double value)
 {
    switch (key) {
+   case 3: input.TanBeta = value; break;
+   case 4: input.SignMu = value; break;
    default: WARNING("Unrecognized entry in block MINPAR: " << key); break;
    }
 
@@ -581,9 +588,8 @@ void MSSMEFTHiggs_slha_io::fill_extpar_tuple(MSSMEFTHiggs_input_parameters& inpu
    case 1: input.M1Input = value; break;
    case 2: input.M2Input = value; break;
    case 3: input.M3Input = value; break;
-   case 4: input.MuInput = value; break;
-   case 5: input.mAInput = value; break;
-   case 25: input.TanBeta = value; break;
+   case 21: input.mHd2IN = value; break;
+   case 22: input.mHu2IN = value; break;
    default: WARNING("Unrecognized entry in block EXTPAR: " << key); break;
    }
 

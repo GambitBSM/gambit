@@ -76,7 +76,7 @@ as the VEV are calculated from the input parameters
 \f$m_u(2\,\text{GeV})\f$, \f$m_d(2\,\text{GeV})\f$,
 \f$m_s(2\,\text{GeV})\f$, \f$m_c(m_c)\f$, \f$m_b(m_b)\f$, \f$M_t\f$,
 \f$M_e\f$, \f$M_\mu\f$, \f$M_\tau\f$, \f$M_Z\f$ using the approach
-described in [arxiv:1609.00371].
+described in [arxiv:1609.00371, arxiv:1710.03760].
 
 Depending on the given input flags, the top Yukawa coupling,
 \f$y_t(M_Z)\f$, is calculated at the 1-loop level plus additional

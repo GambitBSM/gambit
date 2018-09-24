@@ -1,0 +1,34 @@
+/*!
+\mainpage
+
+GAMBIT is a global fitting code for generic Beyond the Standard Model theories, designed to allow fast and easy definition of new models, observables, likelihoods, scanners and backend physics codes. 
+
+\tableofcontents
+
+The Bits of Gambit:
+
+ - \subpage ScannerBit
+ - \subpage ColliderBit
+ - \subpage DarkBit
+ - \subpage SpecBit
+ - \subpage PrecisionBit
+ - \subpage FlavorBit
+ - \subpage DecayBit
+ - \subpage CosmoBit
+ - \subpage NeutrinoBit
+
+Gambit Tools:
+ - \subpage pippi
+ - \subpage GUM
+ - \subpage Models
+ 
+*/
+
+/*!
+\page ScannerBit ScannerBit
+
+ScannerBit is the sampling module for Gambit.  ScannerBit implements various scanners which are programmed as plugins.
+
+\tableofcontents
+ - \subpage plugin_main
+*/

@@ -100,6 +100,6 @@ void copy(const Eigen::DenseBase<Derived>& src, gsl_vector* dst)
       gsl_vector_set(dst, i, src(i));
 }
 
-}
+} // namespace flexiblesusy
 
 #endif

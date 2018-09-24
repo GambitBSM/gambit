@@ -137,9 +137,9 @@ void RGFlow<Semi_analytic>::solve()
       no_conv_inner_iteration = false;
       prepare_inner_iteration(inner_solver);
       try {
-      inner_solver.solve();
+         inner_solver.solve();
       } catch (const NoConvergenceError&) {
-	no_conv_inner_iteration = true;
+         no_conv_inner_iteration = true;
       }
       run_outer_sliders();
       accuracy_reached = accuracy_goal_reached();
