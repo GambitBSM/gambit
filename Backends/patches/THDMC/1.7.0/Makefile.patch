@@ -1,6 +1,6 @@
 --- Makefile	2015-08-28 22:39:35.000000000 +0930
-+++ Makefile_patched	2018-04-17 01:07:22.000000000 +0930
-@@ -1,28 +1,37 @@
++++ Makefile_patched	2018-09-26 15:18:41.000000000 +0930
+@@ -1,28 +1,36 @@
 -# Makefile for 2HDMC 
 +# Makefile for 2HDMC
  
@@ -8,46 +8,47 @@
 -CC = g++
 -LDFLAGS=-lgsl -lgslcblas
 +CC = $(CXX)
++LDGSLFLAGS=-lgsl -lgslcblas
++LDFLAGS=$(LDGSLFLAGS)
  
  #Optimisation level, eg: -O3
- OPT=-O3
+-OPT=-O3
++OPT=
  #OR debug level: -g(n=1,2,3)
 -DEBUG= 
-+DEBUG=
- 
+-
 -VPATH=src 
 -
 -CFLAGS= -Wall $(DEBUG) $(OPT)
-+LDGSLFLAGS= -lgsl -lgslcblas
-+BOSSINCLUDE = -I../../../scripts/BOSS
++DEBUG=
  
 +VPATH=src
  OBJDIR=lib
  LIBDIR=$(OBJDIR)
 -SOURCES=THDM.cpp SM.cpp DecayTable.cpp Constraints.cpp Util.cpp runTHDM.cpp
 +
-+CFLAGS= -Wall $(DEBUG) $(OPT) 
-+CFLAGS+= $(CXXFLAGS)
-+CFLAGS+= -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE) -I$(BOSSINCLUDE)
-+
 +
 +SOURCES=THDM.cpp SM.cpp DecayTableTHDM.cpp Constraints.cpp Util.cpp runTHDM.cpp BOSS_Constraints.cpp  BOSS_DecayTableTHDM.cpp  BOSS_factory_Constraints.cpp  BOSS_factory_DecayTableTHDM.cpp  BOSS_factory_SM.cpp  BOSS_factory_THDM.cpp  BOSS_SM.cpp  BOSS_THDM.cpp  BOSS_wrapperutils.cpp
  OBJECTS=$(SOURCES:.cpp=.o)
  LIB=lib2HDMC.a
 -LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
-+LDFLAGS=-L$(LIBDIR) -l2HDMC $(LDGSLFLAGS) -lm
++LDFLAGS+=-L$(LIBDIR) -l2HDMC $(LDGSLFLAGS) -lm
  #LDFLAGS+=-L$(LIBDIR) -l2HDMC
  LIBS=
  PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
  
++BOSS_INCLUDE = -I../../../scripts/BOSS
++
 +SHAREDCFLAGS = -fPIC
 +SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(LDGSLFLAGS)
 +SHAREDLIB=lib2HDMC.so
 +
++CFLAGS= -Wall $(DEBUG) $(OPT) $(CXXFLAGS) -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE) $(SHAREDCFLAGS) $(BOSS_INCLUDE) -std=c++14
++
  # To use HiggsBounds/HiggsSignals for Higgs constraints, put the corresponding libraries
  # in the "lib" subdirectory and uncomment the following lines.
  # Note that both programs: HiggsBounds (> 4.2.0) and HiggsSignals (> 1.4.0) must be present
-@@ -30,12 +39,23 @@
+@@ -30,13 +38,24 @@
  #LDFLAGS+=-L$(LIBDIR) -lHS -lHB -lgfortran
  #SOURCES+=HBHS.cpp
  
@@ -57,35 +58,26 @@
  all: lib $(PROG)
  
  $(OBJDIR)/%.o : %.cpp %.h
--	$(CC) $(CFLAGS) -c $< -o $@
-+	$(CC) $(CFLAGS) $(SHAREDCFLAGS) -c $< -o $@
-+
-+boss:
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_Constraints.cpp -o $(LIBDIR)/BOSS_Constraints.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_DecayTableTHDM.cpp -o $(LIBDIR)/BOSS_DecayTableTHDM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_factory_Constraints.cpp -o $(LIBDIR)/BOSS_factory_Constraints.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_factory_DecayTableTHDM.cpp -o $(LIBDIR)/BOSS_factory_DecayTableTHDM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_factory_SM.cpp -o $(LIBDIR)/BOSS_factory_SM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_factory_THDM.cpp -o $(LIBDIR)/BOSS_factory_THDM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_SM.cpp -o $(LIBDIR)/BOSS_SM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_THDM.cpp -o $(LIBDIR)/BOSS_THDM.o
-+	$(CC)  $(CFLAGS) $(SHAREDCFLAGS) -c $(VPATH)/BOSS_wrapperutils.cpp -o $(LIBDIR)/BOSS_wrapperutils.o
+ 	$(CC) $(CFLAGS) -c $< -o $@
  
++boss:
++	$(CC) $(CFLAGS) -c src/BOSS_Constraints.cpp -o lib/BOSS_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_DecayTableTHDM.cpp -o lib/BOSS_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_Constraints.cpp -o lib/BOSS_factory_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_DecayTableTHDM.cpp -o lib/BOSS_factory_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_SM.cpp -o lib/BOSS_factory_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_THDM.cpp -o lib/BOSS_factory_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_SM.cpp -o lib/BOSS_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_THDM.cpp -o lib/BOSS_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_wrapperutils.cpp -o lib/BOSS_wrapperutils.o
++
  lib: $(addprefix $(LIBDIR)/, $(LIB))
  
-@@ -46,6 +66,24 @@
+ $(addprefix $(LIBDIR)/, $(LIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
+@@ -46,6 +65,15 @@
  %: %.cpp $(addprefix $(LIBDIR)/, $(LIB))
  	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
  
-+sharedlib: $(addprefix $(LIBDIR)/, $(SHAREDLIB))
-+
-+$(addprefix $(LIBDIR)/, $(SHAREDLIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
-+	@ echo "Making library $@"
-+	$(CC) $(addprefix $(OBJDIR)/, $(OBJECTS)) $(SHAREDLIBFLAGS) -o $@
-+
-+%: %.cpp $(addprefix $(LIBDIR)/, $(SHAREDLIB))
-+	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
-+
 +sharedlib: $(addprefix $(LIBDIR)/, $(SHAREDLIB))
 +
 +$(addprefix $(LIBDIR)/, $(SHAREDLIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))

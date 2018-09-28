@@ -821,8 +821,8 @@ set(name "THDMC")
 set(ver "1.7.0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/THDMC/1.7.0")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/THDMC/1.7.0")
-set(dl "http://www.hepforge.org/archive/2hdmc/2HDMC-1.7.0.tar.gz")
-set(md5 "28d70cdce026eac37d947a14f6f5246c")
+set(dl "http://www.dingohead.com/filip/2HDMC.zip")
+set(md5 "0f6a60e58f4216886bad49da4d0d6ff8")
 # set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 # set(patch "${PROJECT_SOURCE_DIR}/Backaends/patches/${name}/${ver}/patch_${name}")
 set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -834,9 +834,9 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch < ${patch}/Makefile.patch
-	    COMMAND patch -s -p0 < ${patch}/src.patch
-  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
-      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
+	    # COMMAND patch -s -p0 < ${patch}/src.patch
+  	  #COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
+      #COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE=${GSL_INCLUDE_DIRS} boss
     COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib

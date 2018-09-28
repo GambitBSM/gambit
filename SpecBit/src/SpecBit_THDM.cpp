@@ -47,6 +47,7 @@
 
 #include "gambit/Utils/statistics.hpp"
 
+#define L_MAX 1000000000000000
 #define PI 3.14159265
 
 //#include "gambit/Elements/numerical_constants.hpp"
@@ -67,7 +68,7 @@
 // Switch for debug mode
 // #define SpecBit_DBUG
 // #define SPECBIT_DEBUG
-bool debug_THDM = false;
+bool debug_THDM = true;
 
 namespace Gambit
 {
@@ -79,20 +80,10 @@ namespace Gambit
     using namespace std;
 
     enum string_code {
-      //---SIGNS
-      signHash,
-      signEquals,
-      signOpenBracket,
-      signClosedBracket,
-      signNegative,
-      signDecimal,
-      signComma,
-      signPositive,
-      imaginary,
-      lessThan,
-      greaterThan,
-      distanceFrom,
       //--CHI SQAURED Type
+      less_than,
+      greater_than,
+      distance_from,
       observable,
       bound,
     };
@@ -100,16 +91,25 @@ namespace Gambit
 
     // ----------------------------------------------------------------
     // chi^2 function
-    double getChi(double value, string_code type, string_code sign, double value_bound, double error) {
+    double get_chi(double value, string_code type, string_code sign, double value_bound, double error) {
 
       double chi = 0.0;
+
+      bool use_one_sigma_bound = false;
+      double sigma_limit = 0.64;
+      double sigma_rescale = 0.6;
+
+      if (!use_one_sigma_bound) {
+        sigma_limit = 1.;
+        sigma_rescale = 1.;
+      }
 
       switch (type)
       {
         case observable:
           switch (sign)
             {
-                case lessThan:
+                case less_than:
                     if(value<value_bound)
                     {
                         return 0;
@@ -119,7 +119,7 @@ namespace Gambit
                         chi = pow(((value-value_bound)/error),2);
                     }
                 break;
-                case greaterThan:
+                case greater_than:
                     if(value>value_bound)
                     {
                         return 0;
@@ -129,7 +129,7 @@ namespace Gambit
                         chi = pow(((value-value_bound)/error),2);
                     }
                 break;
-            case distanceFrom:
+            case distance_from:
               chi = pow(((value-value_bound)/error),2);
                 break;
             default:
@@ -139,28 +139,28 @@ namespace Gambit
         case bound:
           switch (sign)
           {
-            case lessThan:
-              if(value<(value_bound/0.64))
+            case less_than:
+              if(value<(value_bound/sigma_limit))
               {
                 return 0;
               }
               else
               {
-                chi = pow(((0.6*value)/(value_bound)-1.0),2);
+                chi = pow(((sigma_rescale*value)/(value_bound)-1.0),2);
               }
             break;
-            case greaterThan:
-              if(value>(value_bound/0.64))
+            case greater_than:
+              if(value>(value_bound/sigma_limit))
               {
                 return 0;
               }
               else
               {
-                chi = pow(((0.6*value)/(value_bound)-1.0),2);
+                chi = pow(((sigma_rescale*value)/(value_bound)-1.0),2);
               }
             break;
-            case distanceFrom:
-              chi = pow(((0.6*value)/(value_bound)-1.0),2);
+            case distance_from:
+              chi = pow(((sigma_rescale*value)/(value_bound)-1.0),2);
             break;
             default:
             return chi;
@@ -280,8 +280,6 @@ namespace Gambit
       thdm_model.Yd[0] = sqrt2v * sminputs.mD;
       thdm_model.Yd[1] = sqrt2v * sminputs.mS;
       thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
-      if (debug_THDM) cout << "DBG 4A" << endl;
-
 
       // Create a SubSpectrum object to wrap the EW sector information
       Models::THDMSimpleSpec thdm_spec(thdm_model);
@@ -311,95 +309,27 @@ namespace Gambit
       result = full_spectrum;
       }
 
-      template <class A, class B>
-      void fill_THDM_object(A& inputTHDM, B& inputSM, Spectrum& spec, int YukawaType)
-      { if (debug_THDM) cout << "DBG 7" << endl;
-        //Takes in the spectrum and fills a THDM object which is defined
-        //in 2HDMC. Any 2HDMC functions can then be called on this object.
 
+    //Takes in the spectrum and fills a THDM object which is defined
+    //in 2HDMC. Any 2HDMC functions can then be called on this object.
+    void fill_THDM_object_at_scale(Spectrum& spec, THDM& THDMObject, int YukawaType, double scale) {
+      if (debug_THDM) cout << "DBG fill_THDM_object_at_scale 1" << endl;
+        THDMC_1_7_0::SM* SMObject = THDMObject.get_SM();
         YukawaType = 2; // for now hard code!
 
-        const SubSpectrum& he = spec.get_HE();
-        const SubSpectrum& SM = spec.get_LE();
+        unique_ptr<SubSpectrum> SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+        unique_ptr<SubSpectrum> he =  spec.clone_HE(); // Copy "high-energy" SubSpectrum
+
         const SMInputs& sminputs   = spec.get_SMInputs();
 
-        // these are the running couplings
-        double lambda_1 = he.get(Par::mass1,"lambda_1");
-        double lambda_2 = he.get(Par::mass1,"lambda_2");
-        double lambda_3 = he.get(Par::mass1, "lambda_3");
-        double lambda_4 = he.get(Par::mass1, "lambda_4");
-        double lambda_5 = he.get(Par::mass1, "lambda_5");
-        double tan_beta = he.get(Par::dimensionless, "tanb");
+        if (scale > 0.0) {
+          he -> RunToScale(scale);
+        }
 
-        double lambda_6 = he.get(Par::mass1, "lambda_6");
-        double lambda_7 = he.get(Par::mass1, "lambda_7");
-
-        double m12_2 = he.get(Par::mass1,"m12_2");
-
-        inputSM.set_alpha(1/(sminputs.alphainv));
-        inputSM.set_alpha_s(sminputs.alphaS);
-        inputSM.set_GF(sminputs.GF);
-
-        inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-        inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
-
-        inputSM.set_gamma_Z(2.4952);
-        inputSM.set_gamma_W(2.085);
-
-        inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-        inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-        inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
-
-        // inputSM.set_qmass_msbar(2,SM.get(Par::mass1,"u_1")); //u
-        // inputSM.set_qmass_msbar(1,SM.get(Par::mass1,"d_1")); //d
-        // inputSM.set_qmass_msbar(4,SM.get(Par::mass1,"u_2")); //c
-        // inputSM.set_qmass_msbar(3,SM.get(Par::mass1,"d_2")); //s
-
-        inputSM.set_qmass_msbar(2,sminputs.mU); //u
-        inputSM.set_qmass_msbar(1,sminputs.mD); //d
-        inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-        inputSM.set_qmass_msbar(3,sminputs.mS); //s
-        inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-        inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
-
-        complex<double> CKMMatrix[2][2];
-        get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-        inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-                abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
-
-        inputTHDM.set_SM(inputSM);
-
-        inputTHDM.set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6, lambda_7, m12_2, tan_beta);
-        inputTHDM.set_yukawas_type(YukawaType);
-
-      }
-
-      unique_ptr<SubSpectrum> returnHESubSpectrumAtScale(const Spectrum& spec, double scale)
-      { if (debug_THDM) cout << "DBG 8" << endl;
-        unique_ptr<SubSpectrum> SubSpectrumToScale = spec.clone_HE();
-
-        SubSpectrumToScale -> RunToScale(scale);
-
-        return SubSpectrumToScale;
-      }
-
-      template <class A, class B>
-      void fill_THDM_object_AtScale(A& inputTHDM, B& inputSM, Spectrum& spec, int YukawaType, double scale)
-      { if (debug_THDM) cout << "DBG 9" << endl;
-        //Takes in the spectrum and fills a THDM object which is defined
-        //in 2HDMC. Any 2HDMC functions can then be called on this object.
-
-        YukawaType = 2; // for now hard code!
-
-        const SubSpectrum& SM = spec.get_LE();
-        const SMInputs& sminputs   = spec.get_SMInputs();
-
-        unique_ptr<SubSpectrum> he = spec.clone_HE();
-
-        he -> RunToScale(scale);
-
-        double lambda_1 = he->get(Par::mass1, "lambda_1");
-        double lambda_2 = he->get(Par::mass1, "lambda_2");
+      if (debug_THDM) cout << "DBG fill_THDM_object_at_scale 2" << endl;
+          // thes are are the running couplings
+        double lambda_1 = he->get(Par::mass1,"lambda_1");
+        double lambda_2 = he->get(Par::mass1,"lambda_2");
         double lambda_3 = he->get(Par::mass1, "lambda_3");
         double lambda_4 = he->get(Par::mass1, "lambda_4");
         double lambda_5 = he->get(Par::mass1, "lambda_5");
@@ -410,53 +340,62 @@ namespace Gambit
 
         double m12_2 = he->get(Par::mass1,"m12_2");
 
-        inputSM.set_alpha(1/(sminputs.alphainv));
-        inputSM.set_alpha_s(sminputs.alphaS);
-        inputSM.set_GF(sminputs.GF);
+        SMObject->set_alpha(1/(sminputs.alphainv));
+        // SMObject->set_alpha0(alpha0);
+        SMObject->set_alpha_s(sminputs.alphaS);
+        SMObject->set_GF(sminputs.GF);
+        SMObject->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
+        SMObject->set_MW(SM->get(Par::Pole_Mass,"W+"));
 
-        inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-        inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
+        SMObject->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
+        SMObject->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
+        SMObject->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
 
-        inputSM.set_gamma_Z(2.4952);
-        inputSM.set_gamma_W(2.085);
+        SMObject->set_qmass_msbar(2,sminputs.mU); //u
+        SMObject->set_qmass_msbar(1,sminputs.mD); //d
+        SMObject->set_qmass_msbar(4,sminputs.mCmC); //c
+        SMObject->set_qmass_msbar(3,sminputs.mS); //s
+        SMObject->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //t
+        SMObject->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //b
 
-        inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-        inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-        inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
+       if (debug_THDM) cout << "DBG fill_THDM_object_at_scale 3" << endl;
 
-        // inputSM.set_qmass_msbar(2,SM.get(Par::mass1,"u_1")); //u
-        // inputSM.set_qmass_msbar(1,SM.get(Par::mass1,"d_1")); //d
-        // inputSM.set_qmass_msbar(4,SM.get(Par::mass1,"u_2")); //c
-        // inputSM.set_qmass_msbar(3,SM.get(Par::mass1,"d_2")); //s
-
-        inputSM.set_qmass_msbar(2,sminputs.mU); //u
-        inputSM.set_qmass_msbar(1,sminputs.mD); //d
-        inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-        inputSM.set_qmass_msbar(3,sminputs.mS); //s
-        inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-        inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
+        // SMObject->set_qmass_msbar(2,SM.get(Par::mass1,"u_1")); //u
+        // SMObject->set_qmass_msbar(1,SM.get(Par::mass1,"d_1")); //d
+        // SMObject->set_qmass_msbar(4,SM.get(Par::mass1,"u_2")); //c
+        // SMObject->set_qmass_msbar(3,SM.get(Par::mass1,"d_2")); //s
 
         complex<double> CKMMatrix[2][2];
         get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-        inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-                abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
+        // SMObject->set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
+                // abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
 
-        inputTHDM.set_SM(inputSM);
+        // must be run after setting all elements
+        // *** not currently supported by BOSSed 2HDMC backend ***
+        // SMObject->clear_lookup();
 
-        inputTHDM.set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6, lambda_7, m12_2, tan_beta);
-        inputTHDM.set_yukawas_type(YukawaType);
+        THDMObject.set_param_gen(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, m12_2, tan_beta);
+        THDMObject.set_yukawas_type(YukawaType);
+
+        if (debug_THDM) cout << "DBG fill_THDM_object_at_scale 4" << endl;
 
       }
 
-      template <class A, class B>
-      void fill_THDM_object_SM_Like_Model(A& inputTHDM, B& inputSM, Spectrum& spec, int HiggsNumber, int YukawaType)
+      void fill_THDM_object(Spectrum& spec, THDM& THDMObject, int YukawaType) 
+      {
+          fill_THDM_object_at_scale(spec, THDMObject, YukawaType, 0.0);
+      }
+ 
+      // template <class A, class B>
+      void fill_THDM_object_SM_Like_Model(Spectrum& spec, THDM& THDMObject, int HiggsNumber, int YukawaType)
       { if (debug_THDM) cout << "DBG 10" << endl;
         //Fills a 2HDMC object with SM-like input, makes use of the decoupling limit
 
         YukawaType = 2; // for now hard code!
+        THDMC_1_7_0::SM* SMObject = THDMObject.get_SM();
 
-        const SubSpectrum& he = spec.get_HE();
-        const SubSpectrum& SM = spec.get_LE();
+        const unique_ptr<SubSpectrum> SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+        const unique_ptr<SubSpectrum> he =  spec.clone_HE(); // Copy "high-energy" SubSpectrum
         const SMInputs& sminputs   = spec.get_SMInputs();
 
         // in the decoupling limit THDM-> SM
@@ -466,57 +405,54 @@ namespace Gambit
         switch (HiggsNumber)
         { if (debug_THDM) cout << "DBG 11" << endl;
           case 1:
-            m_h = he.get(Par::Pole_Mass,"h0",1);
+            m_h = he->get(Par::Pole_Mass,"h0",1);
             break;
           case 2:
-            m_h = he.get(Par::Pole_Mass,"h0",2);
+            m_h = he->get(Par::Pole_Mass,"h0",2);
             break;
           case 3:
-            m_h = he.get(Par::Pole_Mass,"A0");
+            m_h = he->get(Par::Pole_Mass,"A0");
             break;
           default:
-            m_h = he.get(Par::Pole_Mass,"h0",1);
+            m_h = he->get(Par::Pole_Mass,"h0",1);
             break;
         }
 
+        // decouple
         double m_H = m_h*100;
         double m_A = m_h*100;
         double m_Hp = m_h*100;
+        // set alignment
         double sba = 1.0;
         double lambda6 = 0.;
         double lambda7 = 0.;
         double m12_2 = 0.;
         double tan_beta = 1.;
 
-        inputSM.set_alpha(1/(sminputs.alphainv));
-        inputSM.set_alpha_s(sminputs.alphaS);
-        inputSM.set_GF(sminputs.GF);
-        inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-        inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
+        SMObject->set_alpha(1/(sminputs.alphainv));
+        SMObject->set_alpha_s(sminputs.alphaS);
+        SMObject->set_GF(sminputs.GF);
+        SMObject->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
+        SMObject->set_MW(SM->get(Par::Pole_Mass,"W+"));
 
-        inputSM.set_gamma_Z(2.4952);
-        inputSM.set_gamma_W(2.085);
+        SMObject->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
+        SMObject->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
+        SMObject->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
 
-        inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-        inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-        inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
-
-        inputSM.set_qmass_msbar(2,sminputs.mU); //u
-        inputSM.set_qmass_msbar(1,sminputs.mD); //d
-        inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-        inputSM.set_qmass_msbar(3,sminputs.mS); //s
-        inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-        inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
+        SMObject->set_qmass_msbar(2,sminputs.mU); //u
+        SMObject->set_qmass_msbar(1,sminputs.mD); //d
+        SMObject->set_qmass_msbar(4,sminputs.mCmC); //c
+        SMObject->set_qmass_msbar(3,sminputs.mS); //s
+        SMObject->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //t
+        SMObject->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //b
 
         complex<double> CKMMatrix[2][2];
         get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-        inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-                abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
+        // SMObject->set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
+                // abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
 
-        inputTHDM.set_SM(inputSM);
-
-        inputTHDM.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
-        inputTHDM.set_yukawas_type(YukawaType);
+        THDMObject.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
+        THDMObject.set_yukawas_type(YukawaType);
 
       }
 
@@ -528,69 +464,69 @@ namespace Gambit
       // Error functions are used throughout to calculate the absolute distance
       // of a point or set of points from a given true value.
 
-      double errorFunctionLessThan(double lessThanNumber, double value) { if (debug_THDM) cout << "DBG " << endl;
+      double errorFunctionless_than(double less_thanNumber, double value) { if (debug_THDM) cout << "DBG " << endl;
       	double error;
 
-      	if(value<lessThanNumber)
+      	if(value<less_thanNumber)
       	{ if (debug_THDM) cout << "DBG 14" << endl;
       		return 0;
       		}
       	else
       	{ if (debug_THDM) cout << "DBG 15" << endl;
-      		error = value-lessThanNumber;
+      		error = value-less_thanNumber;
       		return pow(error,1);
       	}
       }
 
-      double errorFunctionGreaterThan(double greaterThanNumber, double value){ if (debug_THDM) cout << "DBG " << endl;
+      double errorFunctiongreater_than(double greater_thanNumber, double value){ if (debug_THDM) cout << "DBG " << endl;
       	double error;
 
-      	if(value>greaterThanNumber)
+      	if(value>greater_thanNumber)
       	{ if (debug_THDM) cout << "DBG 16" << endl;
       		return 0;
       		}
       	else
       	{ if (debug_THDM) cout << "DBG 17" << endl;
-      		error = abs(value-greaterThanNumber);
+      		error = abs(value-greater_thanNumber);
       		return pow(error,1);
       	}
       }
 
-      double errorFunctionComplexGreaterThan(complex<double> greaterThanNumber, complex<double> value){ if (debug_THDM) cout << "DBG " << endl;
+      double errorFunctionComplexgreater_than(complex<double> greater_thanNumber, complex<double> value){ if (debug_THDM) cout << "DBG " << endl;
 
           double error = 0;
 
-          double realGreaterThan = greaterThanNumber.real();
-          double imagGreaterThan = greaterThanNumber.imag();
+          double realgreater_than = greater_thanNumber.real();
+          double imaggreater_than = greater_thanNumber.imag();
 
           double realValue = value.real();
           double imagValue = value.imag();
 
-          if(realValue<realGreaterThan)
+          if(realValue<realgreater_than)
           { if (debug_THDM) cout << "DBG 18" << endl;
-              error = error + abs(realValue - realGreaterThan);
+              error = error + abs(realValue - realgreater_than);
           }
 
-          if(imagValue<imagGreaterThan)
+          if(imagValue<imaggreater_than)
           { if (debug_THDM) cout << "DBG 19" << endl;
-              error = error + abs(imagValue - imagGreaterThan);
+              error = error + abs(imagValue - imaggreater_than);
           }
 
           return pow(error,1);
       }
 
-      double totalErrorFunctionGreaterThan(double greaterThanNumber, double * valuesArray, int &numberOfErrors) { if (debug_THDM) cout << "DBG " << endl;
+      double totalErrorFunctiongreater_than(double greater_thanNumber, double * valuesArray, int &numberOfErrors) { if (debug_THDM) cout << "DBG " << endl;
       	double error;
       	int ArraySize = valuesArray[0];
       	double result = 0;
 
       	for(int j=1; j<=ArraySize; j++)
       	{ if (debug_THDM) cout << "DBG 20" << endl;
-      		if(valuesArray[j]>=greaterThanNumber)
+      		if(valuesArray[j]>=greater_thanNumber)
       			result += 0; //result is unchanged
       		else
       		{ if (debug_THDM) cout << "DBG 21" << endl;
-      			error = abs(valuesArray[j])-greaterThanNumber;
+      			error = abs(valuesArray[j])-greater_thanNumber;
       			result += pow(error,1);
             numberOfErrors++;
       		}
@@ -598,18 +534,18 @@ namespace Gambit
         return result;
       }
 
-      double totalErrorFunctionLessThan(double lessThanNumber, double * valuesArray, int &numberOfErrors) { if (debug_THDM) cout << "DBG " << endl;
+      double totalErrorFunctionless_than(double less_thanNumber, double * valuesArray, int &numberOfErrors) { if (debug_THDM) cout << "DBG " << endl;
         double error;
         int ArraySize = valuesArray[0];
         double result = 0;
 
         for(int j=1; j<=ArraySize; j++)
         { if (debug_THDM) cout << "DBG 22" << endl;
-          if(abs(valuesArray[j])<=lessThanNumber)
+          if(abs(valuesArray[j])<=less_thanNumber)
             result += 0; //result is unchanged
           else
           { if (debug_THDM) cout << "DBG 23" << endl;
-            error = abs(valuesArray[j])-lessThanNumber;
+            error = abs(valuesArray[j])-less_thanNumber;
             result += pow(error,1);
             numberOfErrors++;
           }
@@ -618,86 +554,142 @@ namespace Gambit
         return result;
       }
 
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //one loop level beta functions for the lambda couplings
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//one loop level beta functions for the lambda couplings
 
-            double betaOne(std::vector<double> Lambda)
-            { if (debug_THDM) cout << "DBG 24" << endl;
-              double beta = 12*pow(Lambda[1],2) + 4*pow(Lambda[3],2) + 4*Lambda[3]*Lambda[4] + 2*pow(Lambda[4],2) + 2*pow(Lambda[5],2);
-              return 1/(16*pow(PI,2))*beta;
-            }
+      double betaOne(std::vector<double> Lambda)
+      { if (debug_THDM) cout << "DBG 24" << endl;
+        double beta = 12*pow(Lambda[1],2) + 4*pow(Lambda[3],2) + 4*Lambda[3]*Lambda[4] + 2*pow(Lambda[4],2) + 2*pow(Lambda[5],2);
+        return 1/(16*pow(PI,2))*beta;
+      }
 
-            double betaTwo(std::vector<double> Lambda)
-            { if (debug_THDM) cout << "DBG 25" << endl;
-              double beta = 12*pow(Lambda[2],2)+4*pow(Lambda[3],2)+4*Lambda[3]*Lambda[4]+2*pow(Lambda[4],2)+2*pow(Lambda[5],2);
-              return 1/(16*pow(PI,2))*beta;
-            }
+      double betaTwo(std::vector<double> Lambda)
+      { if (debug_THDM) cout << "DBG 25" << endl;
+        double beta = 12*pow(Lambda[2],2)+4*pow(Lambda[3],2)+4*Lambda[3]*Lambda[4]+2*pow(Lambda[4],2)+2*pow(Lambda[5],2);
+        return 1/(16*pow(PI,2))*beta;
+      }
 
-            double betaThree(std::vector<double> Lambda)
-            { if (debug_THDM) cout << "DBG 26" << endl;
-              double beta = 4*pow(Lambda[3],2) +2*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6*Lambda[3]+2*Lambda[4]) + 2*pow(Lambda[5],2);
-              return 1/(16*pow(PI,2))*beta;
-            }
+      double betaThree(std::vector<double> Lambda)
+      { if (debug_THDM) cout << "DBG 26" << endl;
+        double beta = 4*pow(Lambda[3],2) +2*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6*Lambda[3]+2*Lambda[4]) + 2*pow(Lambda[5],2);
+        return 1/(16*pow(PI,2))*beta;
+      }
 
-            double betaFour(std::vector<double> Lambda)
-            { if (debug_THDM) cout << "DBG 27" << endl;
-              double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3])*Lambda[4] + pow(Lambda[4],2) + 8*pow(Lambda[5],2);
-              return 1/(16*pow(PI,2))*beta;
-            }
+      double betaFour(std::vector<double> Lambda)
+      { if (debug_THDM) cout << "DBG 27" << endl;
+        double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3])*Lambda[4] + pow(Lambda[4],2) + 8*pow(Lambda[5],2);
+        return 1/(16*pow(PI,2))*beta;
+      }
 
-            double betaFive(std::vector<double> Lambda)
-            { if (debug_THDM) cout << "DBG 28" << endl;
-              double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3] + 12*Lambda[4])*Lambda[5];
-              return 1/(16*pow(PI,2))*beta;
-            }
+      double betaFive(std::vector<double> Lambda)
+      { if (debug_THDM) cout << "DBG 28" << endl;
+        double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3] + 12*Lambda[4])*Lambda[5];
+        return 1/(16*pow(PI,2))*beta;
+      }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////GAMBIT FUNCTIONS////////////////////////////////////////////////////////////////////////////////
 
+      // ----------------------------------//
+      // **** LO UNITARITY LIKELIHOOD **** //
+
       void get_unitarity_constraint_likelihood_THDM(double& result)
       { if (debug_THDM) cout << "DBG 29" << endl;
         using namespace Pipes::get_unitarity_constraint_likelihood_THDM;
-
+        if (debug_THDM) cout << "DBG 29B" << endl;
         Spectrum fullspectrum = *Dep::THDM_spectrum;
-
+        if (debug_THDM) cout << "DBG 29C" << endl;
         //const Spectrum* spec = fullspectrum;
-
-        if (debug_THDM) cout << "DBG 29A" << endl;
-
-        THDMC_1_7_0::THDM thdmObject;
-        THDMC_1_7_0::SM smObject = thdmObject.get_SM();
-
-        if (debug_THDM) cout << "DBG 29AA" << endl;
-
+        THDMC_1_7_0::THDM THDMObject;
+        if (debug_THDM) cout << "DBG 29CD" << endl;
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
-        if (debug_THDM) cout << "DBG 29B" << endl;
-
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,fullspectrum, YukawaType);
+        if (debug_THDM) cout << "DBG 29A" << endl;
+        fill_THDM_object(fullspectrum, THDMObject, YukawaType);
 
-        //arrays to hold condtion values
-        double unitarityConditions[13];
+        double lambda[8];
+        double m122;
+        double tan_beta;
+        THDMObject.get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tan_beta);
 
-        //get arrays of values that need to each satisfy the conditions
-        thdmObject.get_unitarity_conditions(unitarityConditions);
+        const int array_size = 12;
+
+        static double eigs[array_size+1];
+        eigs[0] = array_size;
+
+        // S-Matrices from Ginzburg and Ivanov, hep-ph/0508020
+        eigs[1] = lambda[3]-lambda[4];
+        //if (abs(S20) > abs(egmax)) egmax = S20;
+
+        double s2 = sqrt(2.);
+
+        double S21_data[] = { lambda[1],    lambda[5],    s2*lambda[6],
+                              lambda[5],    lambda[2],    s2*lambda[7],
+                              s2*lambda[6], s2*lambda[7], lambda[3]+lambda[4] };
+
+        double S01_data[] = { lambda[1],  lambda[4],  lambda[6],  lambda[6],
+                              lambda[4],  lambda[2],  lambda[7],  lambda[7],
+                              lambda[6],  lambda[7],  lambda[3],  lambda[5],
+                              lambda[6],  lambda[7],  lambda[5],  lambda[3] };
+
+        double S00_data[] = { 3.*lambda[1],2.*lambda[3]+lambda[4],3.*lambda[6],3.*lambda[6],
+                              2.*lambda[3]+lambda[4],3.*lambda[2],3.*lambda[7],3.*lambda[7],
+                              3.*lambda[6],3.*lambda[7],lambda[3]+2.*lambda[4],3.*lambda[5],
+                              3.*lambda[6],3.*lambda[7],3.*lambda[5],lambda[3]+2.*lambda[4] };
+
+        gsl_matrix_view S21 = gsl_matrix_view_array(S21_data,3,3);
+        gsl_matrix_view S01 = gsl_matrix_view_array(S01_data,4,4);
+        gsl_matrix_view S00 = gsl_matrix_view_array(S00_data,4,4);
+
+        gsl_eigen_symm_workspace *w3 = gsl_eigen_symm_alloc(3);
+        gsl_eigen_symm_workspace *w4 = gsl_eigen_symm_alloc(4);
+        gsl_vector *eval3 = gsl_vector_alloc(3);
+        gsl_vector *eval4 = gsl_vector_alloc(4);
+
+        gsl_eigen_symm(&S21.matrix,eval3,w3);
+        for (int i=0;i<3;i++) {
+          eigs[i+2]=gsl_vector_get(eval3,i);
+          //if (abs(eg)>abs(egmax)) egmax = eg;
+        }
+
+        gsl_eigen_symm(&S01.matrix,eval4,w4);
+        for (int i=0;i<4;i++) {
+          eigs[i+5] = gsl_vector_get(eval4,i);
+          //if (abs(eg)>abs(egmax)) egmax = eg;
+        }
+
+        gsl_eigen_symm(&S00.matrix,eval4,w4);
+        for (int i=0;i<4;i++) {
+          eigs[i+9] = gsl_vector_get(eval4,i);
+          //if (abs(eg)>abs(egmax)) egmax = eg;
+        }
+
+        gsl_eigen_symm_free(w3);
+        gsl_eigen_symm_free(w4);
+        gsl_vector_free(eval3);
+        gsl_vector_free(eval4);
 
         //set constraint values
         //-----------------------------
         // all values < 16*PI for unitarity conditions
-        double unitarityUpperLimit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+        double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
         double sigma = 4.0*M_PI;
         //-----------------------------
 
-        //calculate the total error of each point
+         //calculate the total error of each point
         double chi2 = 0.0;
 
-        for (int i=1; i<unitarityConditions[0]; i++) {
-             chi2 += getChi(unitarityConditions[i],bound,lessThan,unitarityUpperLimit,sigma);
+        for (auto eachEig : eigs) {
+              chi2 += get_chi(abs(eachEig),bound,less_than,unitarity_upper_limit,sigma);
         }
-        
+
         result = -chi2;
+
       }
+
+      // -----------------------------------//
+      // **** NLO UNITARITY LIKELIHOOD **** //
 
       void get_NLO_unitarity_constraint_likelihood_THDM(double& result)
       { if (debug_THDM) cout << "DBG 31" << endl;
@@ -707,14 +699,9 @@ namespace Gambit
         Spectrum fullspectrum = *Dep::THDM_spectrum;
 
         unique_ptr<SubSpectrum> spec = fullspectrum.clone_HE();
-
-        if (debug_THDM) cout << "DBG 31A" << endl;
         double runToScale = *Param.at("QrunTo");
-
-        if (debug_THDM) cout << "DBG 31B" << endl;
         spec -> RunToScale(runToScale);
 
-        if (debug_THDM) cout << "DBG 31C" << endl;
         double lambda1 = spec->get(Par::mass1, "lambda_1");
         double lambda2 = spec->get(Par::mass1, "lambda_2");
         double lambda3 = spec->get(Par::mass1, "lambda_3");
@@ -854,128 +841,126 @@ namespace Gambit
         //-----------------------------
         // all values < 1/2 for NLO unitarity conditions
         double unitarityUpperLimit = 0.5;
-        double sigma = 1.0; ///HMMM
+        double sigma = 1.0; /// not used here
         //-----------------------------
 
         double chi2 = 0.0;
 
         //calculate the total error of each point
-        //obsevable used due to unitarityUpperLimit being small
-
         for (int i=1; i<unitarityConditions[0]; i++) {
-             chi2 += getChi(unitarityConditions[i],bound,lessThan,unitarityUpperLimit,sigma);
+             chi2 += get_chi(unitarityConditions[i],bound,less_than,unitarityUpperLimit,sigma)*pow(10,5);
         }
 
-
-        result = -chi2*100;
+        result = -chi2;
       }
+
+      // ------------------------------------//
+      // **** PERTURBATIVITY LIKELIHOOD **** //
 
       double get_perturbativity(Spectrum& spec, int YukawaType, double QrunTo)
       { if (debug_THDM) cout << "DBG 34" << endl;
-        THDMC_1_7_0::THDM thdmObject;
-        THDMC_1_7_0::SM smObject;
+
+        THDMC_1_7_0::THDM THDMObject;
 
         // fill the THDM object with values from the input file
-        if(QrunTo!=0)
-        { if (debug_THDM) cout << "DBG 35" << endl;
-            fill_THDM_object_AtScale(thdmObject,smObject,spec, YukawaType, QrunTo);
-        }
-        else
-        { if (debug_THDM) cout << "DBG 36" << endl;
-            fill_THDM_object(thdmObject,smObject,spec, YukawaType);
-        }
-
-        //arrays to hold condtion values
-        double perturbativityConditions[257];
-
-        //get arrays of values that need to each satisfy the conditions
-        thdmObject.get_perturbativity_conditions(perturbativityConditions);
+        fill_THDM_object_at_scale(spec, THDMObject, YukawaType, QrunTo);
 
         //set constraint values
         //-----------------------------
         // all values < 4*PI for perturbativity conditions
-        double perturbativityUpperLimit = 4*M_PI;
+        double perturbativity_upper_limit = 4*M_PI;
         double sigma = 4*M_PI;
         //-----------------------------
 
-        double chi2 = 0.0;
+        double chi_2 = 0.0;
 
-        //calculate the total error of each point
-        for (int i=1; i<perturbativityConditions[0]; i++) {
-             chi2 += getChi(perturbativityConditions[i],bound,lessThan,perturbativityUpperLimit,sigma);
+        complex<double> hhhh_coupling;
+        double mh0, mH, mA, mHp, sba, lambda6, lambda7, m122, tan_beta;
+        THDMObject.get_param_phys(mh0, mH, mA, mHp, sba, lambda6, lambda7, m122,tan_beta);
+
+        // calculate the chi^2 from all possible 4 higgs interactions
+        for (int i=1;i<5;i++) {
+          for (int j=1;j<5;j++) {
+            for (int k=1;k<5;k++) {
+              for (int l=1;l<5;l++) {
+                  // TODO: This (may be) slow; prefer filling a coupling spectrum and then attaining from there
+                  THDMObject.get_coupling_hhhh(i,j,k,l,hhhh_coupling);
+                  chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
+              }
+            }
+          }
         }
 
-        return -chi2*100;
+        return -chi_2;
       }
 
       void get_perturbativity_constraint_likelihood_THDM(double& result)
       { if (debug_THDM) cout << "DBG 38" << endl;
+
         using namespace Pipes::get_perturbativity_constraint_likelihood_THDM;
         Spectrum fullspectrum = *Dep::THDM_spectrum;
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
-        bool atScale = runOptions->getValueOrDef<bool>(false, "atQrunToScale");
-        double scale = 0;
-          if (atScale)
-          { if (debug_THDM) cout << "DBG 39" << endl;
-              scale = *Param.at("QrunTo");
-          }
-        result = get_perturbativity(fullspectrum, YukawaType, scale);
+        bool at_scale = runOptions->getValueOrDef<bool>(false, "atQrunToScale");
+
+      // if at_scale is on: calculate likelihood at given scale as well as MZ 
+        double result_at_scale = 0.0;
+        if (at_scale) {
+            result_at_scale = get_perturbativity(fullspectrum ,YukawaType, *Param.at("QrunTo"));
+        }
+        result = get_perturbativity(fullspectrum ,YukawaType, 0.0);
+
+        // select the smallest of the two chi_2
+        if (result_at_scale < result) {
+        result = result_at_scale;
+        }
       }
 
-      double get_stability_likelihood_THDM(Spectrum& spec, int YukawaType, double QrunTo)
+      // -------------------------------//
+      // **** STABILITY LIKELIHOOD **** //
+
+      double get_stability_likelihood_THDM(Spectrum& spec, int YukawaType, double Q_run_to)
       { if (debug_THDM) cout << "DBG 40" << endl;
 
-        THDMC_1_7_0::THDM thdmObject;
-        THDMC_1_7_0::SM smObject;
+        THDMC_1_7_0::THDM THDMObject;
 
         // stability constrainst between mZ (91.2 GeV) & 750 GeV
 
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,spec, YukawaType);
+        fill_THDM_object_at_scale(spec, THDMObject, YukawaType, Q_run_to);
 
-        //arrays to hold condtion values
-        double stabilityConditions[5];
-
-        //get arrays of values that need to each satisfy the conditions
-        thdmObject.get_stability_conditions(stabilityConditions);
-
-        //set constraint values
-        //-----------------------------
-        // all values > 0 for stability conditions
-        double stabilityLowerLimit = 0;
-        double sigma = 1.0;
-        //-----------------------------
-
-        double chi2 = 0.0;
-
-        // observable used due to zero being limit
-        //calculate the total error of each point
-        //calculate the total error of each point
-        for (int i=1; i<stabilityConditions[0]; i++) {
-             chi2 += getChi(stabilityConditions[i],observable,greaterThan,stabilityLowerLimit,sigma);
-        }
-
-         //error at the moment
-         if(QrunTo!=0)
-         { if (debug_THDM) cout << "DBG 41" << endl;
-           // fill for 750 GeV
-           fill_THDM_object_AtScale(thdmObject,smObject,spec, YukawaType, QrunTo);
-           thdmObject.get_stability_conditions(stabilityConditions);
-           
-           double chi2atQ = 0.0;
-            // observable used due to zero being limit
-            for (int i=1; i<stabilityConditions[0]; i++) {
-             chi2atQ += getChi(stabilityConditions[i],observable,greaterThan,stabilityLowerLimit,sigma);
-            }
-
-           // select the largest of the two errors
-           if (chi2atQ > chi2)
-           { if (debug_THDM) cout << "DBG 42" << endl;
-             chi2 = chi2atQ;
-           }
+        //do the full check first - if fails continue with chi^2 calculation to guide scanner
+        if (THDMObject.check_stability()){
+          return 0.0;
          }
 
-        return -chi2*100;
+          double chi_2 = 0;
+          double lambda[8];
+          double m122;
+          double tan_beta;
+          THDMObject.get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tan_beta);
+
+          double sigma = 4*M_PI;
+
+          //observable likelihood used as this should be covered by prior and has a central value of zero
+          chi_2 += get_chi(lambda[1],observable,greater_than,0,sigma);
+          chi_2 += get_chi(lambda[2],observable,greater_than,0,sigma);
+
+          if (isnan(sqrt(lambda[1]*lambda[2]))) {
+              chi_2 = L_MAX;
+          }
+          else {
+              chi_2 += get_chi(lambda[3],bound,greater_than,-sqrt(lambda[1]*lambda[2]),sigma);
+              if (lambda[6] == 0.0 && lambda[7]==0.0) {
+                chi_2 += get_chi(lambda[3]+lambda[4]-abs(lambda[5]),observable, greater_than, -sqrt(lambda[1]*lambda[2]),sigma);
+              }
+              else {
+                chi_2 += get_chi(lambda[3]+lambda[4]-lambda[5],observable, greater_than, -sqrt(lambda[1]*lambda[2]),sigma);
+              }
+              // TODO: Check the need for the below..
+              // loglike += get_chi(2*abs(lambda[6]+lambda[7]), observable, less_than, 1/2*(lambda[1]+lambda[2])+ lambda[3] + lambda[4] + lambda[5] ,4*PI);
+          }
+
+          return -chi_2;
       }
 
       void get_stability_likelihood_THDM(double& result)
@@ -983,15 +968,23 @@ namespace Gambit
         using namespace Pipes::get_stability_likelihood_THDM;
         Spectrum fullspectrum = *Dep::THDM_spectrum;
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
-        bool atScale = runOptions->getValueOrDef<bool>(false, "betweenQinAndQrunTo");
-        double scale = 0;
-        if (atScale)
-        { if (debug_THDM) cout << "DBG 45" << endl;
-            scale = *Param.at("QrunTo");
+        bool at_scale = runOptions->getValueOrDef<bool>(false, "betweenQinAndQrunTo");
+
+        // if at_scale is on: calculate likelihood at given scale as well as MZ 
+        double result_at_scale = 0.0;
+        if (at_scale) {
+            result_at_scale = get_stability_likelihood_THDM(fullspectrum ,YukawaType, *Param.at("QrunTo"));
         }
-        result = get_stability_likelihood_THDM(fullspectrum ,YukawaType, scale);
+        result = get_stability_likelihood_THDM(fullspectrum ,YukawaType, 0.0);
+
+        // select the smallest of the two chi_2
+        if (result_at_scale < result) {
+        result = result_at_scale;
+        }
 
       }
+
+      // **** ALIGNMENT LIMIT LIKELIHOOD **** //
 
       void get_alignment_limit_likelihood_THDM(double& result)
       { if (debug_THDM) cout << "DBG 46" << endl;
@@ -1012,7 +1005,7 @@ namespace Gambit
         //-----------------------------
 
         // chi2 function
-        double chi2 = getChi((1.0-sba),bound,lessThan,sbaTol,sigma);
+        double chi2 = get_chi((1.0-sba),bound,less_than,sbaTol,sigma);
 
         result = -chi2;
       }
@@ -1026,12 +1019,11 @@ namespace Gambit
         Spectrum fullspectrum = *Dep::THDM_spectrum;
 
         THDMC_1_7_0::THDM thdmObject;
-        THDMC_1_7_0::SM smObject;
 
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,fullspectrum, YukawaType);
+        fill_THDM_object(fullspectrum, thdmObject, YukawaType);
 
         THDMC_1_7_0::Constraints constraintsObject(thdmObject);
 
@@ -1200,8 +1192,8 @@ namespace Gambit
 
          // calculate chi2
          // observable used due to zero being limit
-        chi2 += getChi(discriminant.real(),observable,greaterThan,0.0,sigma);
-        chi2 += getChi(discriminant.imag(),observable,greaterThan,0.0,sigma);
+        chi2 += get_chi(discriminant.real(),observable,greater_than,0.0,sigma);
+        chi2 += get_chi(discriminant.imag(),observable,greater_than,0.0,sigma);
 
         result = -chi2;
 
@@ -1283,7 +1275,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,fullspectrum, YukawaType);
+        fill_THDM_object(fullspectrum, thdmObject, YukawaType);
 
         fill_THDM_Couplings(result,thdmObject);
       }
@@ -1300,7 +1292,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,fullspectrum, YukawaType);
+        fill_THDM_object(fullspectrum, thdmObject, YukawaType);
 
         fill_THDM_Couplings_For_HB(result,thdmObject);
       }
@@ -1317,7 +1309,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(thdmObject,smObject,fullspectrum,1,YukawaType);
+        fill_THDM_object_SM_Like_Model(fullspectrum,thdmObject,1,YukawaType);
 
         fill_THDM_Couplings_For_HB_SMLikeComponent(result,thdmObject);
       }
@@ -1334,7 +1326,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(thdmObject,smObject,fullspectrum,2,YukawaType);
+        fill_THDM_object_SM_Like_Model(fullspectrum,thdmObject,2,YukawaType);
 
         fill_THDM_Couplings_For_HB_SMLikeComponent(result,thdmObject);
       }
@@ -1351,7 +1343,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(thdmObject,smObject,fullspectrum,3,YukawaType);
+        fill_THDM_object_SM_Like_Model(fullspectrum,thdmObject,3,YukawaType);
 
         fill_THDM_Couplings_For_HB_SMLikeComponent(result,thdmObject);
       }
@@ -1368,7 +1360,7 @@ namespace Gambit
         int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
 
         // fill the THDM object with values from the input file
-        fill_THDM_object(thdmObject,smObject,fullspectrum,YukawaType);
+        fill_THDM_object(fullspectrum, thdmObject, YukawaType);
 
         const SubSpectrum& he = fullspectrum.get_HE();
         const SubSpectrum& SM = fullspectrum.get_LE();
@@ -1498,36 +1490,37 @@ namespace Gambit
           }
         }
 
+        // TODO: fix below for complex kappa & gamma yukawa matrices
         // ---
         // adapted from 2HDMC code - THDMC.cpp
-        double k1,k2,k3,r1,r2,r3;
-        thdmObject.get_kappa_up(k1,k2,k3);
-        thdmObject.get_yukawas_up(r1,r2,r3);
-        (k1>0 ? matrix_u[0] = r1/k1 : matrix_u[0]=0.);
-        (k2>0 ? matrix_u[4] = r2/k2 : matrix_u[4]=0.);
-        (k3>0 ? matrix_u[8] = r3/k3 : matrix_u[8]=0.);
+        // double k1,k2,k3,r1,r2,r3;
+        // thdmObject.get_kappa_up(k1,k2,k3);
+        // thdmObject.get_yukawas_up(r1,r2,r3);
+        // (k1>0 ? matrix_u[0] = r1/k1 : matrix_u[0]=0.);
+        // (k2>0 ? matrix_u[4] = r2/k2 : matrix_u[4]=0.);
+        // (k3>0 ? matrix_u[8] = r3/k3 : matrix_u[8]=0.);
 
-        thdmObject.get_kappa_down(k1,k2,k3);
-        thdmObject.get_yukawas_down(r1,r2,r3);
-        (k1>0 ? matrix_d[0] = r1/k1 : matrix_d[0]=0.);
-        (k2>0 ? matrix_d[4] = r2/k2 : matrix_d[4]=0.);
-        (k3>0 ? matrix_d[8] = r3/k3 : matrix_d[8]=0.);
+        // thdmObject.get_kappa_down(k1,k2,k3);
+        // thdmObject.get_yukawas_down(r1,r2,r3);
+        // (k1>0 ? matrix_d[0] = r1/k1 : matrix_d[0]=0.);
+        // (k2>0 ? matrix_d[4] = r2/k2 : matrix_d[4]=0.);
+        // (k3>0 ? matrix_d[8] = r3/k3 : matrix_d[8]=0.);
 
-        thdmObject.get_kappa_lepton(k1,k2,k3);
-        thdmObject.get_yukawas_lepton(r1,r2,r3);
-        (k1>0 ? matrix_l[0] = r1/k1 : matrix_l[0]=0.);
-        (k2>0 ? matrix_l[4] = r2/k2 : matrix_l[4]=0.);
-        (k3>0 ? matrix_l[8] = r3/k3 : matrix_l[8]=0.);
-        // ---
+        // thdmObject.get_kappa_lepton(k1,k2,k3);
+        // thdmObject.get_yukawas_lepton(r1,r2,r3);
+        // (k1>0 ? matrix_l[0] = r1/k1 : matrix_l[0]=0.);
+        // (k2>0 ? matrix_l[4] = r2/k2 : matrix_l[4]=0.);
+        // (k3>0 ? matrix_l[8] = r3/k3 : matrix_l[8]=0.);
+        // // ---
 
-        SLHAea_add_block(slha, "UCOUPL");
-        SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);
+        // SLHAea_add_block(slha, "UCOUPL");
+        // SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);
 
-        SLHAea_add_block(slha, "DCOUPL");
-        SLHAea_add_matrix(slha, "DCOUPL", matrix_d, 3, 3, "LU", true);
+        // SLHAea_add_block(slha, "DCOUPL");
+        // SLHAea_add_matrix(slha, "DCOUPL", matrix_d, 3, 3, "LU", true);
 
-        SLHAea_add_block(slha, "LCOUPL");
-        SLHAea_add_matrix(slha, "LCOUPL", matrix_l, 3, 3, "LU", true);
+        // SLHAea_add_block(slha, "LCOUPL");
+        // SLHAea_add_matrix(slha, "LCOUPL", matrix_l, 3, 3, "LU", true);
 
         result = slha;
       }
@@ -2191,7 +2184,6 @@ namespace Gambit
         using namespace Pipes::test_THDM_spectrum_1;
 
         Spectrum fullspectrum = *Dep::THDM_spectrum;
-
         unique_ptr<SubSpectrum> spec = fullspectrum.clone_HE();
 
         double QrunTo = *Param.at("QrunTo");

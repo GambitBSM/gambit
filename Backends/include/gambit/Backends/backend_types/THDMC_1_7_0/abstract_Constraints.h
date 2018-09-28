@@ -20,6 +20,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         public:
     
+            virtual Abstract_THDM& model_ref__BOSS() =0;
+    
+            virtual Abstract_Constraints& operator_equal__BOSS(const Abstract_Constraints&) =0;
+    
+            virtual void init() =0;
+    
             virtual void set_THDM__BOSS(Abstract_THDM&) =0;
     
             virtual bool check_unitarity(double) =0;
@@ -40,10 +46,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual bool check_charged(bool&, bool&, bool&) =0;
     
-            virtual bool check_NMSSMTools(bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&) =0;
-    
-            virtual bool check_HiggsBounds(int&, int&, double&, int&) =0;
-    
             virtual double delta_amu() =0;
     
             virtual double delta_rho(double) =0;
@@ -51,6 +53,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual void oblique_param(double, double&, double&, double&, double&, double&, double&) =0;
     
             virtual void print_all(double) =0;
+    
+            virtual Abstract_SM& sm_ref__BOSS() =0;
+    
+            virtual Abstract_DecayTableTHDM& table_ref__BOSS() =0;
     
         public:
             virtual void pointer_assign__BOSS(Abstract_Constraints*) =0;

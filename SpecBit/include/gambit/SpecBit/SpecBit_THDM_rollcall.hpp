@@ -32,21 +32,22 @@ START_CAPABILITY
 // Create Spectrum object from SMInputs structs, SM Higgs parameters,
 // and the THDM parameters
   #define FUNCTION get_THDM_spectrum
-  START_FUNCTION(Spectrum)
-  DEPENDENCY(SMINPUTS, SMInputs)
-  ALLOW_MODEL(THDM, THDMatQ)
+    START_FUNCTION(Spectrum)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    ALLOW_MODEL(THDM, THDMatQ)
   #undef FUNCTION
+
   #define FUNCTION get_THDM_spectrum_FS
-  START_FUNCTION(Spectrum)
-  DEPENDENCY(SMINPUTS, SMInputs)
-  ALLOW_MODEL(THDMatQ)
+    START_FUNCTION(Spectrum)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    ALLOW_MODEL(THDMatQ)
   #undef FUNCTION
 
    // Convert spectrum into a standard map so that it can be printed
-#define FUNCTION get_THDM_spectrum_as_map
-  START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
-  DEPENDENCY(THDM_spectrum, Spectrum)
-#undef FUNCTION
+  #define FUNCTION get_THDM_spectrum_as_map
+    START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
+    DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
 
 #undef CAPABILITY
 

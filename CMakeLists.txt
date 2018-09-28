@@ -461,3 +461,13 @@ include(cmake/executables.cmake)
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
 endif()
+
+# find_library(CORE_FOUNDATION CoreFoundation)
+# if (NOT CORE_FOUNDATION)
+#     message(FATAL_ERROR "CoreFoundation not found")
+# else()
+#     message("--Compiling with CoreFoundation")
+# endif()
+
+# # add_executable(gambit ${gambit_SOURCES})
+# target_link_libraries(${PROJECT_NAME} ${CORE_FOUNDATION})

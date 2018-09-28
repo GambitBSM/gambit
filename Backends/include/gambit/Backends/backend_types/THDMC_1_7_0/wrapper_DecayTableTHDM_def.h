@@ -12,9 +12,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Member functions: 
-    inline void DecayTableTHDM::set_model(THDM model)
+    inline void DecayTableTHDM::init()
     {
-        get_BEptr()->set_model__BOSS(*model.get_BEptr());
+        get_BEptr()->init();
+    }
+    
+    inline void DecayTableTHDM::set_model(THDM& mod)
+    {
+        get_BEptr()->set_model__BOSS(*mod.get_BEptr());
     }
     
     inline THDM DecayTableTHDM::get_model()
@@ -139,8 +144,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Wrappers for original constructors: 
-    inline DecayTableTHDM::DecayTableTHDM(THDM mod) :
-        WrapperBase(__factory0(mod))
+    inline DecayTableTHDM::DecayTableTHDM(THDM& mod) :
+        WrapperBase(__factory0(mod)),
+        model( get_BEptr()->model_ref__BOSS().get_init_wref())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -148,7 +154,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Special pointer-based constructor: 
     inline DecayTableTHDM::DecayTableTHDM(Abstract_DecayTableTHDM* in) :
-        WrapperBase(in)
+        WrapperBase(in),
+        model( get_BEptr()->model_ref__BOSS().get_init_wref())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -156,7 +163,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Copy constructor: 
     inline DecayTableTHDM::DecayTableTHDM(const DecayTableTHDM& in) :
-        WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
+        WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
+        model( get_BEptr()->model_ref__BOSS().get_init_wref())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
