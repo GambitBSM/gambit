@@ -42,9 +42,173 @@ BE_FUNCTION(CalculateRunningMasses, void, (Farray_Freal8_1_3&, //mf_l_in
                                         Farray_Freal8_1_3&, // mf_u_out 
                                         Finteger&), //kont))
 	 "__standardmodel_MOD_calculaterunningmasses", "SPhenoNMSSM_internal")
+BE_FUNCTION(SetMatchingConditions, void, 
+        (Freal8&, // g1SM
+         Freal8&, // g2SM
+         Freal8&, // g3SM
+         Farray_Fcomplex16_1_3_1_3&, // YuSM
+         Farray_Fcomplex16_1_3_1_3&, // YdSM
+         Farray_Fcomplex16_1_3_1_3&, // YeSM
+         Freal8&, // vSM 
+         Freal8&, // vd
+         Freal8&, // vu
+         Freal8&, // vS
+         Freal8&, // g1
+         Freal8&, // g2
+         Freal8&, // g3
+         Farray_Fcomplex16_1_3_1_3&, // Yd
+         Farray_Fcomplex16_1_3_1_3&, // Ye
+         Fcomplex16&, // lam
+         Fcomplex16&, // kap
+         Farray_Fcomplex16_1_3_1_3&, // Yu
+         Farray_Fcomplex16_1_3_1_3&, // Td
+         Farray_Fcomplex16_1_3_1_3&, // Te
+         Fcomplex16&, // Tlam
+         Fcomplex16&, // Tk
+         Farray_Fcomplex16_1_3_1_3&, // Tu
+         Farray_Fcomplex16_1_3_1_3&, // mq2
+         Farray_Fcomplex16_1_3_1_3&, // ml2
+         Freal8&, // mHd2
+         Freal8&, // mHu2
+         Farray_Fcomplex16_1_3_1_3&, // md2
+         Farray_Fcomplex16_1_3_1_3&, // mu2
+         Farray_Fcomplex16_1_3_1_3&, // me2
+         Freal8&, // ms2
+         Fcomplex16&, // M1
+         Fcomplex16&, // M2
+         Fcomplex16&, // M3
+         Flogical& // MZsuffix
+        ), "__model_data_nmssm_MOD_setmatchingconditions", "SPhenoNMSSM_internal")
+BE_FUNCTION(Switch_from_superCKM, void, 
+        (Farray_Fcomplex16_1_3_1_3&, // Yd_ckm
+         Farray_Fcomplex16_1_3_1_3&, // Yu_ckm
+         Farray_Fcomplex16_1_3_1_3&, // Td_ckm
+         Farray_Fcomplex16_1_3_1_3&, // Tu_ckm
+         Farray_Fcomplex16_1_3_1_3&, // md2_ckm
+         Farray_Fcomplex16_1_3_1_3&, // mq2_ckm
+         Farray_Fcomplex16_1_3_1_3&, // mu2_ckm
+         Farray_Fcomplex16_1_3_1_3&, // Td_out
+         Farray_Fcomplex16_1_3_1_3&, // Tu_out
+         Farray_Fcomplex16_1_3_1_3&, // md2_out
+         Farray_Fcomplex16_1_3_1_3&, // mq2_out
+         Farray_Fcomplex16_1_3_1_3&, // mu2_out
+         Flogical // Tranposed
+        ), "__sphenonmssm_MOD_switch_from_superckm", "SPhenoNMSSM_internal")
+BE_FUNCTION(SolveTadpoleEquations, void, 
+        (Freal8&, // g1
+         Freal8&, // g2
+         Freal8&, // g3
+         Farray_Fcomplex16_1_3_1_3&, // Yd
+         Farray_Fcomplex16_1_3_1_3&, // Ye
+         Fcomplex16&, // lam
+         Fcomplex16&, // kap
+         Farray_Fcomplex16_1_3_1_3&, // Yu
+         Farray_Fcomplex16_1_3_1_3&, // Td
+         Farray_Fcomplex16_1_3_1_3&, // Te
+         Fcomplex16&, // Tlam
+         Fcomplex16&, // Tk
+         Farray_Fcomplex16_1_3_1_3&, // Tu
+         Farray_Fcomplex16_1_3_1_3&, // mq2
+         Farray_Fcomplex16_1_3_1_3&, // ml2
+         Freal8&, // mHd2
+         Freal8&, // mHu2
+         Farray_Fcomplex16_1_3_1_3&, // md2
+         Farray_Fcomplex16_1_3_1_3&, // mu2
+         Farray_Fcomplex16_1_3_1_3&, // me2
+         Freal8&, // ms2
+         Fcomplex16*, // M1
+         Fcomplex16*, // M2
+         Fcomplex16*, // M3
+         Freal8&, // vd
+         Freal8&, // vu
+         Freal8&, //vS
+         Farray_Fcomplex16_1_3&, // Tad1Loop
+        ), "__tadpoleequations_nmssm_MOD_solvetadpoleequations", "SPhenoNMSSM_internal")
+BE_FUNCTION(OneLoopMasses, void, 
+        (Farray_Freal8_1_2&, // MAh
+         Farray_Freal8_1_2&, // MAh2
+         Farray_Freal8_1_2&, // MCha
+         Farray_Freal8_1_2&, // MCha2
+         Farray_Freal8_1_4&, // MChi
+         Farray_Freal8_1_4&, // MChi2
+         Farray_Freal8_1_3&, // MFd
+         Farray_Freal8_1_3&, // MFd2
+         Farray_Freal8_1_3&, // MFe
+         Farray_Freal8_1_3&, // MFe2
+         Farray_Freal8_1_3&, // MFu
+         Farray_Freal8_1_3&, // MFu2
+         Freal8&, // MGlu
+         Freal8&, // MGlu2
+         Farray_Freal8_1_2&, // Mhh
+         Farray_Freal8_1_2&, // Mhh2
+         Farray_Freal8_1_2&, // MHpm
+         Farray_Freal8_1_2&, // MHpm2
+         Farray_Freal8_1_6&, // MSd
+         Farray_Freal8_1_6&, // MSd2
+         Farray_Freal8_1_6&, // MSe
+         Farray_Freal8_1_6&, // MSe2
+         Farray_Freal8_1_6&, // MSu
+         Farray_Freal8_1_6&, // MSu2
+         Farray_Freal8_1_3&, // MSv
+         Farray_Freal8_1_3&, // MSv2
+         Freal8&, // MVWm
+         Freal8&, // MVWm2
+         Freal8&, // MVZ
+         Freal8&, // MVZ2
+         Fcomplex16&, // pG
+         Freal8&, // TW
+         Farray_Fcomplex16_1_2_1_2&, // UM
+         Farray_Fcomplex16_1_2_1_2&, // UP
+         Freal8&, // v
+         Farray_Freal8_1_2_1_2&, // ZA
+         Farray_Fcomplex16_1_6_1_6&, // ZD
+         Farray_Fcomplex16_1_3_1_3&, // ZDL
+         Farray_Fcomplex16_1_3_1_3&, // ZDR
+         Farray_Fcomplex16_1_6_1_6&, // ZE
+         Farray_Fcomplex16_1_3_1_3&, // ZEL
+         Farray_Fcomplex16_1_3_1_3&, // ZER
+         Farray_Freal8_1_2_1_2&, // ZH
+         Farray_Fcomplex16_1_4_1_4&, // ZN
+         Farray_Freal8_1_2_1_2&, // ZP
+         Farray_Fcomplex16_1_6_1_6&, // ZU
+         Farray_Fcomplex16_1_3_1_3&, // ZUL
+         Farray_Fcomplex16_1_3_1_3&, // ZUR
+         Farray_Fcomplex16_1_3_1_3&, // ZV
+         Farray_Fcomplex16_1_2_1_2&, // ZW
+         Farray_Freal8_1_2_1_2&, // ZZ
+         Freal8&, // betaH
+         Freal8&, // vd
+         Freal8&, // vu
+         Freal8&, // vS
+         Freal8&, // g1
+         Freal8&, // g2
+         Freal8&, // g3
+         Farray_Fcomplex16_1_3_1_3&, // Yd
+         Farray_Fcomplex16_1_3_1_3&, // Ye
+         Fcomplex16&, // lam
+         Fcomplex16&, // kap
+         Farray_Fcomplex16_1_3_1_3&, // Yu
+         Farray_Fcomplex16_1_3_1_3&, // Td
+         Farray_Fcomplex16_1_3_1_3&, // Te
+         Fcomplex16&, // Tlam
+         Fcomplex16&, // Tk
+         Farray_Fcomplex16_1_3_1_3&, // Tu
+         Farray_Fcomplex16_1_3_1_3& , // mq2
+         Farray_Fcomplex16_1_3_1_3&, // ml2
+         Freal8&, // mHd2
+         Freal8&, // mHu2
+         Farray_Fcomplex16_1_3_1_3&, // md2
+         Farray_Fcomplex16_1_3_1_3&, // mu2
+         Farray_Fcomplex16_1_3_1_3&, // me2
+         Freal8&, // ms2
+         Fcomplex16&, // M1
+         Fcomplex16&, // M2
+         Fcomplex16&, //M3
+         Finteger& //  kont
+        ), "__loopmasses_nmssm_MOD_oneloopmasses", "SPhenoNMSSM_internal")
 BE_FUNCTION(CalculateSpectrum, void, 
 	(Finteger&, // n_run
-	 Freal8&, // delta
+	 Freal8&, // delta_mass
 	 Flogical&, // WriteOut
 	 Finteger&, // kont
          Farray_Freal8_1_2&, // MAh
@@ -98,21 +262,23 @@ BE_FUNCTION(CalculateSpectrum, void,
          Farray_Fcomplex16_1_3_1_3&, // ZV
          Farray_Fcomplex16_1_2_1_2&, // ZW
          Farray_Freal8_1_2_1_2&, // ZZ
-         Freal8&, // alphaH
          Freal8&, // betaH
          Freal8&, // vd
          Freal8&, // vu
+         Freal8&, // vS
          Freal8&, // g1
          Freal8&, // g2
          Freal8&, // g3
          Farray_Fcomplex16_1_3_1_3&, // Yd
          Farray_Fcomplex16_1_3_1_3&, // Ye
+         Fcomplex16&, // lam
+         Fcomplex16&, // kap
          Farray_Fcomplex16_1_3_1_3&, // Yu
-         Fcomplex16&, // Mu
          Farray_Fcomplex16_1_3_1_3&, // Td
          Farray_Fcomplex16_1_3_1_3&, // Te
+         Fcomplex16&, // Tlam
+         Fcomplex16&, // Tk
          Farray_Fcomplex16_1_3_1_3&, // Tu
-         Fcomplex16&, // Bmu
          Farray_Fcomplex16_1_3_1_3& , // mq2
          Farray_Fcomplex16_1_3_1_3&, // ml2
          Freal8&, // mHd2
@@ -120,11 +286,97 @@ BE_FUNCTION(CalculateSpectrum, void,
          Farray_Fcomplex16_1_3_1_3&, // md2
          Farray_Fcomplex16_1_3_1_3&, // mu2
          Farray_Fcomplex16_1_3_1_3&, // me2
+         Freal8&, // ms2
          Fcomplex16&, // M1
          Fcomplex16&, // M2
-         Fcomplex16&, //M3
+         Fcomplex16&, // M3
          Freal8& //  m_GUT
 	), "__sphenomssm_MOD_calculatespectrum", "SPhenoNMSSM_internal")
+BE_FUNCTION(GetScaleUncertainty, void, 
+	(Freal8&, // delta_mass
+	 Flogical&, // WriteOut
+	 Finteger&, // kont
+         Farray_Freal8_1_2&, // MAh
+         Farray_Freal8_1_2&, // MAh2
+         Farray_Freal8_1_2&, // MCha
+         Farray_Freal8_1_2&, // MCha2
+         Farray_Freal8_1_4&, // MChi
+         Farray_Freal8_1_4&, // MChi2
+         Farray_Freal8_1_3&, // MFd
+         Farray_Freal8_1_3&, // MFd2
+         Farray_Freal8_1_3&, // MFe
+         Farray_Freal8_1_3&, // MFe2
+         Farray_Freal8_1_3&, // MFu
+         Farray_Freal8_1_3&, // MFu2
+         Freal8&, // MGlu
+         Freal8&, // MGlu2
+         Farray_Freal8_1_2&, // Mhh
+         Farray_Freal8_1_2&, // Mhh2
+         Farray_Freal8_1_2&, // MHpm
+         Farray_Freal8_1_2&, // MHpm2
+         Farray_Freal8_1_6&, // MSd
+         Farray_Freal8_1_6&, // MSd2
+         Farray_Freal8_1_6&, // MSe
+         Farray_Freal8_1_6&, // MSe2
+         Farray_Freal8_1_6&, // MSu
+         Farray_Freal8_1_6&, // MSu2
+         Farray_Freal8_1_3&, // MSv
+         Farray_Freal8_1_3&, // MSv2
+         Freal8&, // MVWm
+         Freal8&, // MVWm2
+         Freal8&, // MVZ
+         Freal8&, // MVZ2
+         Fcomplex16&, // pG
+         Freal8&, // TW
+         Farray_Fcomplex16_1_2_1_2&, // UM
+         Farray_Fcomplex16_1_2_1_2&, // UP
+         Freal8&, // v
+         Farray_Freal8_1_2_1_2&, // ZA
+         Farray_Fcomplex16_1_6_1_6&, // ZD
+         Farray_Fcomplex16_1_3_1_3&, // ZDL
+         Farray_Fcomplex16_1_3_1_3&, // ZDR
+         Farray_Fcomplex16_1_6_1_6&, // ZE
+         Farray_Fcomplex16_1_3_1_3&, // ZEL
+         Farray_Fcomplex16_1_3_1_3&, // ZER
+         Farray_Freal8_1_2_1_2&, // ZH
+         Farray_Fcomplex16_1_4_1_4&, // ZN
+         Farray_Freal8_1_2_1_2&, // ZP
+         Farray_Fcomplex16_1_6_1_6&, // ZU
+         Farray_Fcomplex16_1_3_1_3&, // ZUL
+         Farray_Fcomplex16_1_3_1_3&, // ZUR
+         Farray_Fcomplex16_1_3_1_3&, // ZV
+         Farray_Fcomplex16_1_2_1_2&, // ZW
+         Farray_Freal8_1_2_1_2&, // ZZ
+         Freal8&, // betaH
+         Freal8&, // vd
+         Freal8&, // vu
+         Freal8&, // vS
+         Freal8&, // g1
+         Freal8&, // g2
+         Freal8&, // g3
+         Farray_Fcomplex16_1_3_1_3&, // Yd
+         Farray_Fcomplex16_1_3_1_3&, // Ye
+         Fcomplex16&, // lam
+         Fcomplex16&, // kap
+         Farray_Fcomplex16_1_3_1_3&, // Yu
+         Farray_Fcomplex16_1_3_1_3&, // Td
+         Farray_Fcomplex16_1_3_1_3&, // Te
+         Fcomplex16&, // Tlam
+         Fcomplex16&, // Tk
+         Farray_Fcomplex16_1_3_1_3&, // Tu
+         Farray_Fcomplex16_1_3_1_3& , // mq2
+         Farray_Fcomplex16_1_3_1_3&, // ml2
+         Freal8&, // mHd2
+         Freal8&, // mHu2
+         Farray_Fcomplex16_1_3_1_3&, // md2
+         Farray_Fcomplex16_1_3_1_3&, // mu2
+         Farray_Fcomplex16_1_3_1_3&, // me2
+         Freal8&, // ms2
+         Fcomplex16&, // M1
+         Fcomplex16&, // M2
+         Fcomplex16&, // M3
+         Farray_Freal8_1_46&// mass_uncertainty_Q
+        ), "__model_data_nmssm_MOD_mass_uncertainty_q", "SPhenoNMSSM_internal")
 BE_FUNCTION(GetRenormalizationScale, Freal8, (), "__loopfunctions_MOD_getrenormalizationscale", "SPhenoNMSSM_internal")
 BE_FUNCTION(SetRGEScale, void, (Freal8&), "__model_data_nmssm_MOD_setrgescale", "SPhenoNMSSM_internal")
 /*BE_FUNCTION(SetHighScaleModel, Flogical, (Fstring<20>), "__sugraruns_MOD_sethighscalemodel", "SPhenoNMSSM_internal")
@@ -135,7 +387,7 @@ BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), "__model_data_nmssm_MOD
 BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_setyukawascheme", "SPhenoNMSSM_internal")
 /*BE_FUNCTION(Set_Use_bsstep_instead_of_rkqs, Flogical, (Flogical&), "__mathematics_MOD_set_use_bsstep_instead_of_rkqs", "SPhenoNMSSM_internal")
 BE_FUNCTION(Set_Use_rzextr_instead_of_pzextr, Flogical, (Flogical&), "__mathematics_MOD_set_use_rzextr_instead_of_pzextr", "SPhenoNMSSM_internal")*/
-BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_mssm_MOD_alpha_msbar", "SPhenoNMSSM_internal")
+BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SPhenoNMSSM_internal")
 /*BE_FUNCTION(Low_Energy_Constraints_MSSM, void,
         (Freal8&, // Q_in
          Farray_Freal8_1_3&, // gauge
@@ -189,7 +441,7 @@ BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_mssm_MOD_a
          Freal8&, // BR_Z_e_mu
          Freal8&, // BR_Z_e_tau 
          Freal8& // BR_Z_mu_tau
-       ), "__lowenergy_MOD_low_energy_constraints_mssm", "SPhenoNMSSM_internal")    
+       ), "__lowenergy_MOD_low_energy_constraints_nmssm", "SPhenoNMSSM_internal")    
 
 BE_FUNCTION(CalculateBR_MSSM, void, 
 	(Finteger&, // n_nu
@@ -260,7 +512,7 @@ BE_FUNCTION(CalculateBR_MSSM, void,
          Freal8&, // F_Gmsb
          Freal8&, // m32
          Freal8& // grav_fac
-        ), "__branchingratios_MOD_calculatebr_mssm", "SPhenoNMSSM_internal")
+        ), "__branchingratios_MOD_calculatebr_nmssm", "SPhenoNMSSM_internal")
 BE_FUNCTION(CalculateCrossSectionsMSSM, void,
         (Freal8&, // Ecms
          Freal8&, // Pm
@@ -322,11 +574,11 @@ BE_VARIABLE(TwoLoopMethod, Finteger, "__settings_MOD_twoloopmethod", "SPhenoNMSS
 BE_VARIABLE(GaugelessLimit, Flogical, "__settings_MOD_gaugelesslimit", "SPhenoNMSSM_internal")
 BE_VARIABLE(hstep_pn, Freal8, "__settings_MOD_hstep_pn", "SPhenoNMSSM_internal")
 BE_VARIABLE(hstep_sa, Freal8, "__settings_MOD_hstep_sa", "SPhenoNMSSM_internal")
-BE_VARIABLE(TwoLoopRegulatorMass, "__settings_MOD_twoloopregulatormass", "SPhenoNMSSM_internal")
+BE_VARIABLE(TwoLoopRegulatorMass, Freal8, "__settings_MOD_twoloopregulatormass", "SPhenoNMSSM_internal")
 BE_VARIABLE(TwoLoopSafeMode, Flogical, "__settings_MOD_twoloopsafemode", "SPhenoNMSSM_internal")
 BE_VARIABLE(L_BR, Flogical, "__control_MOD_l_br", "SPhenoNMSSM_internal")
 BE_VARIABLE(L_CS, Flogical, "__control_MOD_l_cs", "SPhenoNMSSM_internal")
-BE_VARIABLE(MatchingOrder, Fint, "__settings_MOD_matchingorder", "SPhenoNMSSM_internal")
+BE_VARIABLE(MatchingOrder, Finteger, "__settings_MOD_matchingorder", "SPhenoNMSSM_internal")
 BE_VARIABLE(GetMassUncertainty, Flogical, "__model_data_nmssm_MOD_getmassuncertainty","SPhenoNMSSM_interal")
 BE_VARIABLE(delta_mass, Freal8, "__control_MOD_delta_mass", "SPhenoNMSSM_internal")
 BE_VARIABLE(n_run, Finteger, "__control_MOD_n_run", "SPhenoNMSSM_internal")
@@ -346,13 +598,13 @@ BE_VARIABLE(KineticMixing, Flogical, "__model_data_nmssm_MOD_kineticmixing", "SP
 BE_VARIABLE(RunningSUSYparametersLowEnergy, Flogical, "__settings_MOD_runningsusyparameterslowenergy", "SPhenoNMSSM_internal")
 BE_VARIABLE(RunningSMparametersLowEnergy, Flogical, "__settings_MOD_runningsmparameterslowenergy", "SPhenoNMSSM_internal")
 BE_VARIABLE(WriteParametersAtQ, Flogical, "__settings_MOD_writeparametersatq", "SPhenoNMSSM_internal")
-BE_VARIABLE(SolutionTadpoleNr, Fint, "__model_data_nmssm_MOD_solutiontadpolenr", "SPhenoNMSSM_internal")
+BE_VARIABLE(SolutionTadpoleNr, Finteger, "__model_data_nmssm_MOD_solutiontadpolenr", "SPhenoNMSSM_internal")
 BE_VARIABLE(DecoupleAtRenScale, Flogical, "__settings_MOD_decoupleatrenscale", "SPhenoNMSSM_internal")
 BE_VARIABLE(Calculate_mh_within_SM, Flogical, "__settings_MOD_calculate_mh_within_sm", "SPhenoNMSSM_internal")
 BE_VARIABLE(Force_mh_within_SM, Flogical, "__settings_MOD_force_mh_within_sm", "SPhenoNMSSM_internal")
 BE_VARIABLE(MatchZWpoleMasses, Flogical, "__settings_MOD_matchzwpolemasses", "SPhenoNMSSM_internal")
 BE_VARIABLE(Write_WHIZARD, Flogical, "__model_data_nmssm_MOD_write_whizard", "SPhenoNMSSM_internal")
-BE_VARIABLE(Write_HiggsBounds, Flogical, "__inputoutput_mssm_MOD_write_higgsbounds", "SPhenoNMSSM_internal")
+BE_VARIABLE(Write_HiggsBounds, Flogical, "__inputoutput_nmssm_MOD_write_higgsbounds", "SPhenoNMSSM_internal")
 BE_VARIABLE(OutputForMO, Flogical, "__settings_MOD_outputformo", "SPhenoNMSSM_internal")
 BE_VARIABLE(OutputForMG, Flogical, "__settings_MOD_outputformg", "SPhenoNMSSM_internal")
 BE_VARIABLE(Write_WCXF, Flogical, "__settings_MOD_write_wcxf", "SPhenoNMSSM_internal")
@@ -367,9 +619,9 @@ BE_VARIABLE(TreeLevelUnitarityLimits, Flogical, "__model_data_nmssm_MOD_treeleve
 BE_VARIABLE(TrilinearUnitarityi, Flogical, "__model_data_nmssm_MOD_trilinearunitarity", "SPhenoNMSSM_internal")
 BE_VARIABLE(unitarity_s_min, Freal8, "__model_data_nmssm_MOD_unitarity_s_min", "SPhenoNMSSM_internal")
 BE_VARIABLE(unitarity_s_max, Freal8, "__model_data_nmssm_MOD_unitarity_s_max", "SPhenoNMSSM_internal")
-BE_VARIABLE(unitarity_steps, Fint, "__model_data_nmssm_MOD_unitarity_steps", "SPhenoNMSSM_internal")
+BE_VARIABLE(unitarity_steps, Finteger, "__model_data_nmssm_MOD_unitarity_steps", "SPhenoNMSSM_internal")
 BE_VARIABLE(RunRGEs_unitarity, Flogical, "__model_data_nmssm_MOD_RunRGEs_unitarity", "SPhenoNMSSM_internal")
-BE_VARIABLE(TUcutLevel, Fint, "__model_data_nmssm_MOD_TUcutLevel", "SPhenoNMSSM_internal")
+BE_VARIABLE(TUcutLevel, Finteger, "__model_data_nmssm_MOD_TUcutLevel", "SPhenoNMSSM_internal")
 BE_VARIABLE(WriteTreeLevelTadpoleSolutions, Flogical, "__model_data_nmssm_MOD_writetreeleveltadpolesolutions", "SPhenoNMSSM_internal")
 BE_VARIABLE(WriteGUTvalues, Flogical, "__settings_MOD_writegutvalues", "SPhenoNMSSM_internal")
 BE_VARIABLE(WriteEffHiggsCouplingRatios, Flogical, "__model_data_nmssm_MOD_writeeffhiggscouplingratios", "SPhenoNMSSM_internal")
@@ -431,11 +683,11 @@ BE_VARIABLE(BrZll, Farray_Freal8_1_3, "__standardmodel_MOD_brzll", "SPhenoNMSSM_
 BE_VARIABLE(BrZinv, Freal8, "__standardmodel_MOD_brzinv", "SPhenoNMSSM_internal")
 BE_VARIABLE(mW, Freal8, "__standardmodel_MOD_mw", "SPhenoNMSSM_internal")
 BE_VARIABLE(mW_SM, Freal8, "__model_data_nmssm_MOD_mw_sm", "SPhenoNMSSM_internal")
-BE_VARIABLE(mW2, Freal8, "__standardmodel_MOD_mw2", "SPhenoNMSSM_internal")*/
+BE_VARIABLE(mW2, Freal8, "__standardmodel_MOD_mw2", "SPhenoNMSSM_internal")
 BE_VARIABLE(gamW, Freal8, "__standardmodel_MOD_gamw", "SPhenoNMSSM_internal")
-/*BE_VARIABLE(gamW2, Freal8, "__standardmodel_MOD_gamw2", "SPhenoNMSSM_internal")*/
+BE_VARIABLE(gamW2, Freal8, "__standardmodel_MOD_gamw2", "SPhenoNMSSM_internal")
 BE_VARIABLE(gmW, Freal8, "__standardmodel_MOD_gmw", "SPhenoNMSSM_internal")
-/*BE_VARIABLE(gmW2, Freal8, "__standardmodel_MOD_gmw2", "SPhenoNMSSM_internal")
+BE_VARIABLE(gmW2, Freal8, "__standardmodel_MOD_gmw2", "SPhenoNMSSM_internal")
 BE_VARIABLE(BrWqq, Farray_Freal8_1_2, "__standardmodel_MOD_brwqq", "SPhenoNMSSM_internal")
 BE_VARIABLE(BrWln, Farray_Freal8_1_3, "__standardmodel_MOD_brwln", "SPhenoNMSSM_internal")
 BE_VARIABLE(mf_l, Farray_Freal8_1_3, "__standardmodel_MOD_mf_l", "SPhenoNMSSM_internal")
@@ -451,9 +703,9 @@ BE_VARIABLE(mf_d2, Farray_Freal8_1_3, "__standardmodel_MOD_mf_d2", "SPhenoNMSSM_
 BE_VARIABLE(MNuR, Freal8, "__model_data_MOD_mnur", "SPhenoNMSSM_internal")
 BE_VARIABLE(Q_light_quarks, Freal8, "__standardmodel_MOD_q_light_quarks", "SPhenoNMSSM_internal")
 BE_VARIABLE(Delta_Alpha_Lepton, Freal8, "__standardmodel_MOD_delta_alpha_lepton", "SPhenoNMSSM_internal")
-BE_VARIABLE(Delta_Alpha_Hadron, Freal8, "__standardmodel_MOD_delta_alpha_hadron", "SPhenoNMSSM_internal")*/
+BE_VARIABLE(Delta_Alpha_Hadron, Freal8, "__standardmodel_MOD_delta_alpha_hadron", "SPhenoNMSSM_internal")
 BE_VARIABLE(Alpha, Freal8, "__standardmodel_MOD_alpha", "SPhenoNMSSM_internal")
-/*BE_VARIABLE(Alpha_mZ, Freal8, "__standardmodel_MOD_alpha_mz", "SPhenoNMSSM_internal")
+BE_VARIABLE(Alpha_mZ, Freal8, "__standardmodel_MOD_alpha_mz", "SPhenoNMSSM_internal")
 BE_VARIABLE(Alpha_mZ_MS, Freal8, "__standardmodel_MOD_alpha_mz_ms", "SPhenoNMSSM_internal")
 BE_VARIABLE(MZ_input, Flogical, "__model_data_nmssm_MOD_mz_input", "SPhenoNMSSM_internal")
 BE_VARIABLE(AlphaS_mZ, Freal8, "__standardmodel_MOD_alphas_mz", "SPhenoNMSSM_internal")
@@ -516,24 +768,38 @@ BE_VARIABLE(ZUR, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_zur" ,"SPhen
 BE_VARIABLE(ZV, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_zv", "SPhenoNMSSM_internal")
 BE_VARIABLE(ZW, Farray_Fcomplex16_1_2_1_2, "__model_data_nmssm_MOD_zw", "SPhenoNMSSM_internal")
 BE_VARIABLE(ZZ, Farray_Freal8_1_2_1_2, "__model_data_nmssm_MOD_zz", "SPhenoNMSSM_internal")
-BE_VARIABLE(alphaH, Freal8, "__model_data_nmssm_MOD_alphah", "SPhenoNMSSM_internal")
-BE_VARIABLE(betaH, Freal8, "__model_data_nmssm_MOD_betah", "SPhenoNMSSM_internal")
+//BE_VARIABLE(alphaH, Freal8, "__model_data_nmssm_MOD_alphah", "SPhenoNMSSM_internal")
+BE_VARIABLE(betaH, Freal8, "__model_data_nmssm_MOD_betah", "SPhenoNMSSM_internal")*/
+// Model data
 BE_VARIABLE(vd, Freal8, "__model_data_nmssm_MOD_vd", "SPhenoNMSSM_internal")
+BE_VARIABLE(vdIN, Freal8, "__model_data_nmssm_MOD_vdin", "SPhenoNMSSM_internal")
 BE_VARIABLE(vu, Freal8, "__model_data_nmssm_MOD_vu", "SPhenoNMSSM_internal")
+BE_VARIABLE(vuIN, Freal8, "__model_data_nmssm_MOD_vuin", "SPhenoNMSSM_internal")
+BE_VARIABLE(vS, Freal8, "__model_data_nmssm_MOD_vs", "SPhenoNMSSM_internal")
+BE_VARIABLE(vSIN, Freal8, "__model_data_nmssm_MOD_vsin", "SPhenoNMSSM_internal")
 BE_VARIABLE(g1, Freal8, "__model_data_nmssm_MOD_g1", "SPhenoNMSSM_internal")
+BE_VARIABLE(g1IN, Freal8, "__model_data_nmssm_MOD_g1in", "SPhenoNMSSM_internal")
 BE_VARIABLE(g2, Freal8, "__model_data_nmssm_MOD_g2", "SPhenoNMSSM_internal")
+BE_VARIABLE(g2IN, Freal8, "__model_data_nmssm_MOD_g2in", "SPhenoNMSSM_internal")
 BE_VARIABLE(g3, Freal8, "__model_data_nmssm_MOD_g3", "SPhenoNMSSM_internal")
-BE_VARIABLE(g1GUT, Freal8, "__model_data_nmssm_MOD_g1gut", "SPhenoNMSSM_internal")
-BE_VARIABLE(g2GUT, Freal8, "__model_data_nmssm_MOD_g2gut", "SPhenoNMSSM_internal")
-BE_VARIABLE(g3GUT, Freal8, "__model_data_nmssm_MOD_g3gut", "SPhenoNMSSM_internal")
+BE_VARIABLE(g3IN, Freal8, "__model_dat_nmssm_MOD_g3uin", "SPhenoNMSSM_internal")
 BE_VARIABLE(Yd, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_yd", "SPhenoNMSSM_internal")
+BE_VARIABLE(YdIN, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_ydin", "SPhenoNMSSM_internal")
 BE_VARIABLE(Ye, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_ye", "SPhenoNMSSM_internal")
+BE_VARIABLE(YeIN, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_yein", "SPhenoNMSSM_internal")
 BE_VARIABLE(Yu, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_yu", "SPhenoNMSSM_internal")
-BE_VARIABLE(Mu, Fcomplex16, "__model_data_nmssm_MOD_mu", "SPhenoNMSSM_internal")
+BE_VARIABLE(YuIN, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_yuin", "SPhenoNMSSM_internal")
+BE_VARIABLE(lam, Fcomplex16, "__model_data_nmssm_MOD_lam", "SPhenoNMSSM_internal")
+BE_VARIABLE(lamIN, Fcomplex16, "__model_data_nmssm_MOD_lamin", "SPhenoNMSSM_internal")
+BE_VARIABLE(kap, Fcomplex16, "__model_data_nmssm_MOD_kap", "SPhenoNMSSM_internal")
+BE_VARIABLE(kapIN, Fcomplex16, "__model_data_nmssm_MOD_kapin", "SPhenoNMSSM_internal")
 BE_VARIABLE(Td, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_td", "SPhenoNMSSM_internal")
 BE_VARIABLE(Te, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_te", "SPhenoNMSSM_internal")
 BE_VARIABLE(Tu, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_tu", "SPhenoNMSSM_internal")
-BE_VARIABLE(Bmu, Fcomplex16, "__model_data_nmssm_MOD_bmu", "SPhenoNMSSM_internal")
+BE_VARIABLE(Tlam, Fcomplex16, "__model_data_nmssm_MOD_tlam", "SPhenoNMSSM_internal")
+BE_VARIABLE(TlamIN, Fcomplex16, "__model_data_nmssm_MOD_tlamin", "SPhenoNMSSM_internal")
+BE_VARIABLE(Tk, Fcomplex16, "__model_data_nmssm_MOD_tkap", "SPhenoNMSSM_internal")
+BE_VARIABLE(TkIN, Fcomplex16, "__model_data_nmssm_MOD_tkapin", "SPhenoNMSSM_internal")
 BE_VARIABLE(mq2, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_mq2", "SPhenoNMSSM_internal")
 BE_VARIABLE(ml2, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_ml2", "SPhenoNMSSM_internal")
 BE_VARIABLE(mHd2, Freal8, "__model_data_nmssm_MOD_mhd2", "SPhenoNMSSM_internal")
@@ -542,21 +808,52 @@ BE_VARIABLE(md2, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_md2", "SPhen
 BE_VARIABLE(mu2, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_mu2", "SPhenoNMSSM_internal")
 BE_VARIABLE(me2, Farray_Fcomplex16_1_3_1_3, "__model_data_nmssm_MOD_me2", "SPhenoNMSSM_internal")
 BE_VARIABLE(M1, Fcomplex16, "__model_data_nmssm_MOD_m1", "SPhenoNMSSM_internal")
+BE_VARIABLE(M1IN, Fcomplex16, "__model_data_nmssm_MOD_m1in", "SPhenoNMSSM_internal")
 BE_VARIABLE(M2, Fcomplex16, "__model_data_nmssm_MOD_m2", "SPhenoNMSSM_internal")
+BE_VARIABLE(M2IN, Fcomplex16, "__model_data_nmssm_MOD_m2in", "SPhenoNMSSM_internal")
 BE_VARIABLE(M3, Fcomplex16, "__model_data_nmssm_MOD_m3", "SPhenoNMSSM_internal")
+BE_VARIABLE(M3IN, Fcomplex16, "__model_data_nmssm_MOD_m3in", "SPhenoNMSSM_internal")
+BE_VARIABLE(vdMZ, Freal8, "__model_data_nmssm_MOD_vdmz", "SPhenoNMSSM_internal")
+BE_VARIABLE(vuMZ, Freal8, "__model_data_nmssm_MOD_vumz", "SPhenoNMSSM_internal")
+BE_VARIABLE(vSMZ, Freal8, "__model_data_nmssm_MOD_vsmz", "SPhenoNMSSM_internal")
+BE_VARIABLE(vSM, Freal8, "__model_data_nmssm_MOD_vsm", "SPhenoNMSSM_internal")
+BE_VARIABLE(g1SM, Freal8, "__sphenonmssm_MOD_g1sm", "SPhenoNMSSM_internal")
+BE_VARIABLE(g2SM, Freal8, "__sphenonmssm_MOD_g2sm", "SPhenoNMSSM_internal")
+BE_VARIABLE(g3SM, Freal8, "__sphenonmssm_MOD_g3sm", "SPhenoNMSSM_internal")
+BE_VARIABLE(YuSM, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_yusm", "SPhenoNMSSM_internal")
+BE_VARIABLE(YdSM, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_ydsm", "SPhenoNMSSM_internal")
+BE_VARIABLE(YeSM, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_yesm", "SPhenoNMSSM_internal")
+BE_VARIABLE(Yd_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_yd_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(Yu_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_yu_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(Td_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_td_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(Tu_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_tu_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(mq2_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_mq2_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(md2_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_md2_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(mu2_ckm, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_mu2_ckm", "SPhenoNMSSM_internal")
+BE_VARIABLE(Td_out, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_td_out", "SPhenoNMSSM_internal")
+BE_VARIABLE(Tu_out, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_tu_out", "SPhenoNMSSM_internal")
+BE_VARIABLE(mq2_out, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_mq2_out", "SPhenoNMSSM_internal")
+BE_VARIABLE(md2_out, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_md2_out", "SPhenoNMSSM_internal")
+BE_VARIABLE(mu2_out, Farray_Fcomplex16_1_3_1_3, "__sphenonmssm_MOD_mu2_out", "SPhenoNMSSM_internal")
+BE_VARIABLE(OneLoopMatching, Flogical, "__model_data_nmssm_MOD_oneloopmatching", "SPhenoNMSSM_internal")
+BE_VARIABLE(TwoLoopMatching, Flogical "__model_data_nmssm_MOD_twoloopmatching", "SPhenoNMSSM_internal")
+BE_VARIABLE(GuessTwoLoopMatchingBSM, Flogical, "__model_data_nmssm_MOD_guesstwoloopmatchingbsm", "SPhenoNMSSM_internal")
+BE_VARIABLE(mass_uncertainty_Yt, Farray_Freal8_1_46, "__model_data_nmssm_MOD_mass_uncertainty", "SPheno_internal")
 // Control Variables
 BE_VARIABLE(kont, Finteger, "__sphenomssm_MOD_kont", "SPhenoNMSSM_internal")
+BE_VARIABLE(WriteOut, Flogical, "__control_MOD_writeout", "SPhenoNMSSM_internal")
+BE_VARIABLE(epsI, Freal8, "__sphenonmssm_MOD_epsi", "SPhenoNMSSM_internal")
 BE_VARIABLE(deltaM, Freal8, "__sphenonmssm_MOD_deltam", "SPhenoNMSSM_internal")
 BE_VARIABLE(mGUT, Freal8, "__sphenomssm_MOD_mgut", "SPhenoNMSSM_internal")
 BE_VARIABLE(ErrCan, Finteger, "__control_MOD_errcan", "SPhenoNMSSM_internal")
 BE_VARIABLE(FoundIterativeSolution, Flogical, "__model_data_nmssm_MOD_founditerativesolution", "SPhenoNMSSM_internal")
 // Other variables
-BE_VARIABLE(Qin, Freal8, "__sphenomssm_MOD_qin", "SPhenoNMSSM_internal")
+/*BE_VARIABLE(Qin, Freal8, "__sphenomssm_MOD_qin", "SPhenoNMSSM_internal")
 BE_VARIABLE(ratioWoM, Freal8, "__sphenomssm_MOD_ratiowom","SPhenoNMSSM_internal")
 BE_VARIABLE(CalcTBD, Flogical, "__sphenomssm_MOD_calctbd","SPhenoNMSSM_internal")
 */
 // Convenience functions (registration)
-BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPhenoNMSSM_MSSMspectrum")
+BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPheno_NMSSMspectrum")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SPhenoNMSSM_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SPhenoNMSSM_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SPhenoNMSSM_internal")

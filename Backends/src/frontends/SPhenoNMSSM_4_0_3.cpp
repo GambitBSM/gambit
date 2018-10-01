@@ -42,20 +42,230 @@ BE_NAMESPACE
 
     ReadingData(inputs);
 
-    if(*HighScaleModel == "LOW" and !(*SUSYrunningFromMZ))
+    if((*MatchingOrder == -1) or (*MatchingOrder == 2))
     {
-      // GAMBIT: No low energy model
+      if(*HighScaleModel == "LOW")
+      {
+        if(!*CalculateOneLoopMasses)
+          *MatchingOrder = -1;
+        else
+          *MatchingOrder =  2;
+      }
+      else
+        *MatchingOrder =  2;
+    }
+    switch(*MatchingOrder)
+    {
+      case 0:
+        *OneLoopMatching = false;
+        *TwoLoopMatching = false;
+        *GuessTwoLoopMatchingBSM = false;
+        break;
+      case 1:
+        *OneLoopMatching = true;
+        *TwoLoopMatching = false;
+        *GuessTwoLoopMatchingBSM = false;
+        break;
+      case 2:
+        *OneLoopMatching = true;
+        *TwoLoopMatching = true;
+        *GuessTwoLoopMatchingBSM = true;
+        break;
+    }
+
+    if(*MatchingOrder == -1)
+    {
+      // Setting values 
+      *vd = *vdIN;
+      *vu = *vuIN;
+      *vS = *vSIN;
+      *g1 = *g1IN;
+      *g2 = *g2IN;
+      *g3 = *g3IN;
+      *Yd = *YdIN;
+      *Ye = *YeIN;
+      *lam = *lamIN;
+      *kap = *kapIN;
+      *Yu = *YuIN;
+      *Td = *TdIN;
+      *Te = *TeIN;
+      *Tlam = *TlamIN;
+      *Tk = *TkIN;
+      *Tu = *TuIN;
+      *mq2 = *mq2IN;
+      *ml2 = *ml2IN;
+      *mHd2 = *mHd2IN;
+      *mHu2 = *mHu2IN;
+      *md2 = *md2IN;
+      *mu2 = *mu2IN;
+      *me2 = *me2IN;
+      *ms2 = *ms2IN;
+      *M1 = *M1IN;
+      *M2 = *M2IN;
+      *M3 = *M3IN;
+      *kap = *KappaInput;
+      *lam = *LambdaInput;
+      *Tk = *AKappaInputi * *KappaInput;
+      *Tlam = *ALambdaInput * *LambdaInput;
+      *vd = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
+      *vu = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
+      *vS = (sqrt(2._dp) * *MuEffinput) / *LambdaInput;
+      *tanbetaMZ = *tanbeta;
+  
+      //Setting VEVs used for low energy constraints 
+      *vdMZ = *vd;
+      *vuMZ = *vu;
+      *vSMZ = *vS;
+      sinW2 = 1.0 - *mW2 / *mZ2;
+      *vSM = 1/sqrt((*G_F*sqrt(2.0)));
+      *g1SM = sqrt(4*pi * *Alpha_MZ/(1-sinW2));
+      *g2SM = sqrt(4*pi * *Alpha_MZ/sinw2);
+      *g3SM = sqrt(*AlphaS_MZ*4*pi);
+      for(int i1=1; i1<=3; i1++)
+      {
+        (*YuSM)(i1,i1)=sqrt(2.0) * (*mf_u)(i1)/vSM;
+        (*YeSM)(i1,i1)=sqrt(2.0) * (*mf_l)(i1)/vSM;
+        (*YdSM)(i1,i1)=sqrt(2.0) * (*mf_d)(i1)/vSM;
+      }
+      if(*GenerationMixing)
+      {
+        for(int i=1; i<=3; i++)
+          for(int j=1; j<=3; j++)
+            for(int k=1; k<=3; k++)
+               (*YuSM)(i,j) = (*CKM)(i,k) * (*YuSM)(k,j);
+      }
+  
+      // Setting Boundary conditions 
+      SetMatchingConditions(*g1SM, *g2SM, *g3SM, *YuSM, *YdSM, *YeSM, *vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, false);
+  
+      *kap = *KappaInput;
+      *lam = *LambdaInput;
+      *Tk = *AKappaInput * *KappaInput;
+      *Tlam = *ALambdaInput * *LambdaInput;
+      *vd = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
+      *vu = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(TanBeta,2));
+      *vS = (sqrt(2.0) * *MuEffinput) / *LambdaInput;
+  
+      // Translate input form SCKM to electroweak basis 
+      if(*SwitchToSCKM)
+      {
+        *Yd_ckm = *Yd;
+        *Yu_ckm = *Yu;
+        *Td_ckm = *Td;
+        *Tu_ckm = *Tu;
+        *mq2_ckm = *mq2;
+        *md2_ckm = *md2;
+        *mu2_ckm = *mu2;
+        // TODO: Actual definition in SPhenoNMSSM and InputOutput is longer, may cause problems
+        Switch_from_superCKM(*Yd_ckm, *Yu_ckm, *Td_ckm, *Tu_ckm, *md2_ckm, *mq2_ckm, *mu2_ckm, *Td_out, *Tu_out, *md2_out, *mq2_out, *mu2_out, true);
+        if(*InputValueforTd) *Td = *Td_out
+        if(*InputValueforTu) *Tu = *Tu_out
+        if(*InputValueformq2) *mq2 = *mq2_out
+        if(*InputValueformd2) *md2 = *md2_out
+        if(*InputValueformu2) *mu2 = *mu2_out
+      }
+  
+      Farray_Fcomplex16_1_3 Tad1Loop;
+      SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
+  
+      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont)
+  
+      // TODO: Add some checks for SignOfMassChanged
+
     }
     else
     {
-      CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *alphaH, *betaH, *vd, *vu, *g1, *g2, *g3, *Yd, *Ye, *Yu, *Mu, *Td, *Te, *Tu, *Bmu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *M1, *M2, *M3, *mGUT);
+      if(*GetMassUncertainty)
+      {
+        if(*CalculateOneLoopMasses and *CalculateTwoLoopHiggsMasses)
+        {
+          *OneLoopMatching = true;
+          *TwoLoopMatching = false;
+          *GuessTwoLoopMatchingBSM = true;
+        }
+        else if(*CalculateOneLoopMasses and  !*CalculateTwoLoopHiggsMasses)
+        {
+          *OneLoopMatching = true;
+          *TwoLoopMatching = false;
+          *GuessTwoLoopMatchingBSM = false;
+        }
+        else
+        {
+          *OneLoopMatching = true;
+          *TwoLoopMatching = false;
+          *GuessTwoLoopMatchingBSM = false;
+        }
+
+        CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+
+        int n_tot = 0
+        for(int i=1; i<=6; i++)
+          *mass_uncertainty_Yt(n_tot+i) = MSd(i) // difference will be taken later 
+        n_tot = n_tot + 6
+        for(int i=1; i<=3; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MSv(i) // difference will be taken later 
+        n_tot = n_tot + 3
+        for(int i=1; i<=6; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MSu(i) // difference will be taken later 
+        n_tot = n_tot + 6
+        for(int i=1; i<=6; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MSe(i) // difference will be taken later 
+        n_tot = n_tot + 6
+        for(int i=1; i<=3; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = Mhh(i) // difference will be taken later 
+        n_tot = n_tot + 3
+        for(int i=1; i<=3; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MAh(i) // difference will be taken later 
+        n_tot = n_tot + 3
+        for(int i=1; i<=2; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MHpm(i) // difference will be taken later 
+        n_tot = n_tot + 2
+        for(int i=1; i<=5; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MChi(i) // difference will be taken later 
+        n_tot = n_tot + 5
+        for(int i=1; i<=2; i++) 
+          *mass_uncertainty_Yt(n_tot+i) = MCha(i) // difference will be taken later 
+        n_tot = n_tot + 2
+        *mass_uncertainty_Yt(n_tot+i) = MGlu // difference will be taken later 
+
+        if(*CalculateOneLoopMasses and *CalculateTwoLoopHiggsMasses)
+        {
+          *OneLoopMatching = true;
+          *TwoLoopMatching = true;
+          *GuessTwoLoopMatchingBSM = false;
+        }
+        else if(*CalculateOneLoopMasses and !*CalculateTwoLoopHiggsMasses)
+        {
+          *OneLoopMatching = false;
+          *TwoLoopMatching = false;
+          *GuessTwoLoopMatchingBSM = false;
+        }
+        else
+        {
+          *OneLoopMatching = false;
+          *TwoLoopMatching = false;
+          *GuessTwoLoopMatchingBSM = false;
+        }
+      }
+
+      CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+
+      if(*GetMassUncertainty)
+        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q)
 
     }
 
-    if(*FoundIterativeSolution)
+    if(*FoundIterativeSolution or *WriteOutputForNonConvergence)
     {
+      if(*OutputForMO)
+      {
+        // Not covered
+      }
 
-      cout << "mHd = " << sqrt(*mHd2) <<  endl;
+      // TODO: ScatterinEingenvalues
+
+      // TODO: TrilinearUnitarity
+
       spectrum = Spectrum_Out(inputs.param);
 
 
@@ -157,13 +367,17 @@ BE_NAMESPACE
       slha["EXTPAR"][""] << 48 << sqrt(*input_Param.at("md2_22")) << "# M_(D,22)";
     if(input_Param.find("md2_33") != input_Param.end())
       slha["EXTPAR"][""] << 49 << sqrt(*input_Param.at("md2_33")) << "# M_(D,33)";
-
-    // Block GAUGEGUT
-    SLHAea_add_block(slha, "GAUGEGUT", *mGUT);
-    slha["GAUGE"][""] << 1 << *g1GUT << "# g1(Q)^DRbar";
-    slha["GAUGE"][""] << 2 << *g2GUT << "# g2(Q)^DRbar";
-    slha["GAUGE"][""] << 3 << *g3GUT << "# g3(Q)^DRbar";
-
+    if(input_Param.find("lambda") != input_Param.end())
+      slha["EXTPAR"][""] << 61 << *input_Param.at("lambda") << "# Lambda
+    if(input_Param.find("kappa") != input_Param.end())
+      slha["EXTPAR"][""] << 62 << *input_Param.at("kappa") << "# kappa
+    if(input_Param.find("Alambda") != input_Param.end())
+      slha["EXTPAR"][""] << 63 << *input_Param.at("Alambda") << "# ALambda
+    if(input_Param.find("Akappa") != input_Param.end())
+      slha["EXTPAR"][""] << 64 << *input_Param.at("Akappa") << "# Akappa
+    if(input_Param.find("mueff") != input_Param.end())
+      slha["EXTPAR"][""] << 65 << *input_Param.at("mueff") << "# mueff
+ 
     // Block SMINPUTS
     SLHAea_add_block(slha, "SMINPUTS");
     slha["SMINPUTS"][""] << 1 << 1.0 / Alpha_MSbar(*mZ, *mW) << "# alpha_em^-1(MZ)^MSbar";
@@ -191,6 +405,15 @@ BE_NAMESPACE
     slha["GAUGE"][""] << 1 << *g1 << "# g1";
     slha["GAUGE"][""] << 2 << *g2 << "# g2";
     slha["GAUGE"][""] << 3 << *g3 << "# g3";
+
+    // Block NMSSMRUN
+    SLHAea_add_block(slha, "NMSSMRUN", Q);
+    slha["NMSSMRUN"][""] << 1 << *lam << "# lam";
+    slha["NMSSMRUN"][""] << 2 << *kap << "# kap";
+    slha["NMSSMRUN"][""] << 3 << *Tlam << "# Tlam";
+    slha["NMSSMRUN"][""] << 4 << *Tk << "# Tk";
+    slha["NMSSMRUN"][""] << 5 << *vS << "# vS";
+    slha["NMSSMRUN"][""] << 10 << *ms2 << "ms2";
 
     // Block HMIX
     SLHAea_add_block(slha, "HMIX", Q);
@@ -345,7 +568,9 @@ BE_NAMESPACE
 
     slha["MASS"][""] << 25 << (*Mhh)(1) << "# hh_1";
     slha["MASS"][""] << 35 << (*Mhh)(2) << "# hh_2";
+    slha["MASS"][""] << 45 << (*Mhh)(3) << "# hh_3";
     slha["MASS"][""] << 36 << (*MAh)(2) << "# Ah_2";
+    slha["MASS"][""] << 46 << (*MAh)(3) << "# Ah_3";
     slha["MASS"][""] << 37 << (*MHpm)(2) << "# Hpm_2";
 
     slha["MASS"][""] << 23 << *MVZ << "# VZ";
@@ -367,6 +592,7 @@ BE_NAMESPACE
     slha["MASS"][""] << 1000023 << (*MChi)(2) << "# Chi_2";
     slha["MASS"][""] << 1000025 << (*MChi)(3) << "# Chi_3";
     slha["MASS"][""] << 1000035 << (*MChi)(4) << "# Chi_4";
+    slha["MASS"][""] << 1000045 << (*MChi)(5) << "# Chi_5";
     slha["MASS"][""] << 1000024 << (*MCha)(1) << "# Cha_1";
     slha["MASS"][""] << 1000037 << (*MCha)(2) << "# Cha_2";
 
@@ -651,7 +877,7 @@ BE_NAMESPACE
     // TODO: Branching ratios, not covered yet
 
     // 19, MatchingOrder: maximal number of iterations
-    *MatchingOrder = inputs.options->getValueOrDef<Fint>(2, "MatchingOrder")
+    *MatchingOrder = inputs.options->getValueOrDef<Fint>(-2, "MatchingOrder")
 
     // 20, GetMassUncertainty
     *GetMassUncertainty = inputs.options->getValueOrDef<Flogical>(false, "GetMassUncertainty")
@@ -1101,9 +1327,10 @@ BE_NAMESPACE
     // No other blocks are relevant at this stage
 
     // now some checks and additional settings
-    *gmZ = *gamZ * *mZ;
+    // This all is already covered in InitializeStandardModel
+    /**gmZ = *gamZ * *mZ;
     *gmZ2 = pow(*gmZ, 2);
-    *mW2 = *mZ2 * (0.5 + sqrt(0.25 - *Alpha_mZ*M_PI / (sqrt(2) * *G_F * *mZ2))) / 0.985;
+    *mW2 = *mZ2 * (0.5 + sqrt(0.25 - *Alpha_mZ*pi / (sqrt(2) * *G_F * *mZ2))) / 0.985;
     *mW = sqrt(*mW2); 	// mass
     *mW_SM = *mW;
     *gamW = 2.06;	// width
@@ -1111,7 +1338,7 @@ BE_NAMESPACE
     *gmW = *gamW * *mW;
     *gmW2 = pow(*gmW, 2);
     *Alpha_mZ = Alpha_MSbar(*mZ, *mW);
-    CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);
+    CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);*/
 
   }
 

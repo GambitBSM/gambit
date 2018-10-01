@@ -19,7 +19,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
-///  \date 2016 Jue, 2017 Jan
+///  \date 2016 Jue, 2017 Jan, 2018 Sep
 ///
 ///  *********************************************
 ///
@@ -53,6 +53,17 @@
   #define CAPABILITY unimproved_MSSM_spectrum
   START_CAPABILITY
 
+    // =========================
+    // NMSSM spectrum (from SARAH-generated SPheno
+    //
+    #define FUNCTION get_NMSSM_spectrum_SPheno
+    START_FUNCTION(Spectrum)
+    ALLOW_MODELS(NMSSM66atQ)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    BACKEND_REQ(SPheno_NMSSMspectrum, (libSPhenoNMSSM), int, (Spectrum&, const FinputS&) )
+    BACKEND_OPTION((SPhenoNMSSM, 4.0.3), (libSPhenoNMSSM)
+    #undef FUNCTION
+
     // ==========================
     // GUT MSSM parameterisations
     // (CMSSM and its various non-universal generalisations)
@@ -62,18 +73,19 @@
     START_FUNCTION(Spectrum)
     ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPheno, 3.3.8), (libSPheno))
+    BACKEND_REQ(SPheno_MSSMspectrum, (MSSMspectrum), int, (Spectrum&, const Finputs&) )
+    BACKEND_OPTION((SPheno, 3.3.8), (MSSMspectrum))
+    BACKEND_OPTION((SPhenoMSSM, 3.3.8), (MSSMspectrum))
     #undef FUNCTION
 
     /// SPheno spectrum function
-    #define FUNCTION get_MSSM_spectrum_SPhenoMSSM
-    START_FUNCTION(Spectrum)
-    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPhenoMSSM_MSSMspectrum, (libSPhenoMSSM), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPhenoMSSM, 3.3.8), (libSPhenoMSSM))
-    #undef FUNCTION
+//    #define FUNCTION get_MSSM_spectrum_SPhenoMSSM
+//    START_FUNCTION(Spectrum)
+//    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
+//    DEPENDENCY(SMINPUTS, SMInputs)
+//    BACKEND_REQ(SPhenoMSSM_MSSMspectrum, (libSPhenoMSSM), int, (Spectrum&, const Finputs&) )
+//    BACKEND_OPTION((SPhenoMSSM, 3.3.8), (libSPhenoMSSM))
+//    #undef FUNCTION
 
     /// Get MSSM spectrum from CMSSM boundary conditions
     //  The type, (const) Spectrum, is a class containing two SubSpectrum* members and an SMInputs
