@@ -54,14 +54,14 @@
   START_CAPABILITY
 
     // =========================
-    // NMSSM spectrum (from SARAH-generated SPheno
+    // NMSSM spectrum (from SARAH-generated SPheno)
     //
     #define FUNCTION get_NMSSM_spectrum_SPheno
     START_FUNCTION(Spectrum)
     ALLOW_MODELS(NMSSM66atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPheno_NMSSMspectrum, (libSPhenoNMSSM), int, (Spectrum&, const FinputS&) )
-    BACKEND_OPTION((SPhenoNMSSM, 4.0.3), (libSPhenoNMSSM)
+    BACKEND_REQ(SPheno_NMSSMspectrum, (libSPhenoNMSSM), int, (Spectrum&, const Finputs&) )
+    BACKEND_OPTION((SPhenoNMSSM, 4.0.3), (libSPhenoNMSSM))
     #undef FUNCTION
 
     // ==========================

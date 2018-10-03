@@ -21,7 +21,7 @@
 /// 66 parameters plus sign, plus input scale NMSSM parameterisation
 #define MODEL NMSSM66atQ
   START_MODEL
-  DEFINEPARS(Qin,TanBeta,SignMu,
+  DEFINEPARS(Qin,TanBeta,
              M1,M2,M3)
 
   /// Parameters exclusive to the NMSSM

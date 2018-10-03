@@ -51,6 +51,12 @@
      DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
      #undef FUNCTION
 
+     #define FUNCTION SPheno_NMSSM_test
+     START_FUNCTION(bool)
+     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
+     #undef FUNCTION
+
+
    #undef CAPABILITY
 
    #define CAPABILITY run_light_quark_test

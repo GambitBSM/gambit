@@ -27,6 +27,7 @@ BE_NAMESPACE
   // Run SPheno
   int run_SPheno(Spectrum &spectrum, const Finputs &inputs)
   {
+
     *epsI = 1.0E-5;
     *deltaM = 1.0E-6;
     *mGUT = -1.0;
@@ -40,9 +41,37 @@ BE_NAMESPACE
     *delta_mass = 1.0E-4;
     *CalcTBD = false;
 
+    // Intialize variables native to SPhenoNMSSM
+    Freal8 vSM = 0.0;
+    Freal8 g1SM = 0.0;
+    Freal8 g2SM = 0.0;
+    Freal8 g3SM = 0.0;
+    Farray_Fcomplex16_1_3_1_3 YuSM, YdSM, YeSM;
+    Farray_Fcomplex16_1_3_1_3 Yu_ckm, Yd_ckm, Tu_ckm, Td_ckm, mq2_ckm, mu2_ckm, md2_ckm;
+    Farray_Fcomplex16_1_3_1_3 Td_out, Tu_out, mq2_out, md2_out, mu2_out;
+    for(int i=1; i<=3; i++)
+      for(int j=1; j<=3; j++)
+      {
+        YuSM(i,j) = {0.0,0.0};
+        YdSM(i,j) = {0.0,0.0};
+        YeSM(i,j) = {0.0,0.0};
+        Yu_ckm(i,j) = {0.0,0.0};
+        Yd_ckm(i,j) = {0.0,0.0};
+        Tu_ckm(i,j) = {0.0,0.0};
+        Td_ckm(i,j) = {0.0,0.0};
+        mq2_ckm(i,j) = {0.0,0.0};
+        mu2_ckm (i,j) = {0.0,0.0};
+        md2_ckm(i,j) = {0.0,0.0};
+        Td_out(i,j) = {0.0,0.0};
+        Tu_out(i,j) = {0.0,0.0};
+        mq2_out(i,j) = {0.0,0.0};
+        md2_out(i,j) = {0.0,0.0};
+        mu2_out(i,j) = {0.0,0.0};
+      }
+
     ReadingData(inputs);
 
-    if((*MatchingOrder == -1) or (*MatchingOrder == 2))
+    if((*MatchingOrder < -1) or (*MatchingOrder > 2))
     {
       if(*HighScaleModel == "LOW")
       {
@@ -73,7 +102,7 @@ BE_NAMESPACE
         break;
     }
 
-    if(*MatchingOrder == -1)
+   if(*MatchingOrder == -1)
     {
       // Setting values 
       *vd = *vdIN;
@@ -105,70 +134,71 @@ BE_NAMESPACE
       *M3 = *M3IN;
       *kap = *KappaInput;
       *lam = *LambdaInput;
-      *Tk = *AKappaInputi * *KappaInput;
+      *Tk = *AKappaInput * *KappaInput;
       *Tlam = *ALambdaInput * *LambdaInput;
-      *vd = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
-      *vu = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
-      *vS = (sqrt(2._dp) * *MuEffinput) / *LambdaInput;
-      *tanbetaMZ = *tanbeta;
+      *vd = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
+      *vu = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
+      *vS = sqrt(2.0) * (*MuEffinput / *LambdaInput).re;
+      *TanBetaMZ = *TanBeta;
   
       //Setting VEVs used for low energy constraints 
       *vdMZ = *vd;
       *vuMZ = *vu;
       *vSMZ = *vS;
-      sinW2 = 1.0 - *mW2 / *mZ2;
-      *vSM = 1/sqrt((*G_F*sqrt(2.0)));
-      *g1SM = sqrt(4*pi * *Alpha_MZ/(1-sinW2));
-      *g2SM = sqrt(4*pi * *Alpha_MZ/sinw2);
-      *g3SM = sqrt(*AlphaS_MZ*4*pi);
+      double sinW2 = 1.0 - *mW2 / *mZ2;
+      vSM = 1/sqrt((*G_F*sqrt(2.0)));
+      g1SM = sqrt(4*pi * *Alpha_mZ/(1-sinW2));
+      g2SM = sqrt(4*pi * *Alpha_mZ/sinW2);
+      g3SM = sqrt(*AlphaS_mZ*4*pi);
       for(int i1=1; i1<=3; i1++)
       {
-        (*YuSM)(i1,i1)=sqrt(2.0) * (*mf_u)(i1)/vSM;
-        (*YeSM)(i1,i1)=sqrt(2.0) * (*mf_l)(i1)/vSM;
-        (*YdSM)(i1,i1)=sqrt(2.0) * (*mf_d)(i1)/vSM;
+        YuSM(i1,i1)=sqrt(2.0) * (*mf_u)(i1) / vSM;
+        YeSM(i1,i1)=sqrt(2.0) * (*mf_l)(i1) / vSM;
+        YdSM(i1,i1)=sqrt(2.0) * (*mf_d)(i1) / vSM;
       }
       if(*GenerationMixing)
       {
         for(int i=1; i<=3; i++)
           for(int j=1; j<=3; j++)
             for(int k=1; k<=3; k++)
-               (*YuSM)(i,j) = (*CKM)(i,k) * (*YuSM)(k,j);
+               YuSM(i,j) = (*CKM)(i,k) * YuSM(k,j);
       }
   
       // Setting Boundary conditions 
-      SetMatchingConditions(*g1SM, *g2SM, *g3SM, *YuSM, *YdSM, *YeSM, *vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, false);
+      Flogical MZsuffix = false;
+      SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
   
       *kap = *KappaInput;
       *lam = *LambdaInput;
       *Tk = *AKappaInput * *KappaInput;
       *Tlam = *ALambdaInput * *LambdaInput;
-      *vd = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
-      *vu = (2*sqrt(*mz2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(TanBeta,2));
-      *vS = (sqrt(2.0) * *MuEffinput) / *LambdaInput;
+      *vd = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
+      *vu = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
+      *vS = sqrt(2.0) * (*MuEffinput / *LambdaInput).re;
   
       // Translate input form SCKM to electroweak basis 
       if(*SwitchToSCKM)
       {
-        *Yd_ckm = *Yd;
-        *Yu_ckm = *Yu;
-        *Td_ckm = *Td;
-        *Tu_ckm = *Tu;
-        *mq2_ckm = *mq2;
-        *md2_ckm = *md2;
-        *mu2_ckm = *mu2;
+        Yd_ckm = *Yd;
+        Yu_ckm = *Yu;
+        Td_ckm = *Td;
+        Tu_ckm = *Tu;
+        mq2_ckm = *mq2;
+        md2_ckm = *md2;
+        mu2_ckm = *mu2;
         // TODO: Actual definition in SPhenoNMSSM and InputOutput is longer, may cause problems
-        Switch_from_superCKM(*Yd_ckm, *Yu_ckm, *Td_ckm, *Tu_ckm, *md2_ckm, *mq2_ckm, *mu2_ckm, *Td_out, *Tu_out, *md2_out, *mq2_out, *mu2_out, true);
-        if(*InputValueforTd) *Td = *Td_out
-        if(*InputValueforTu) *Tu = *Tu_out
-        if(*InputValueformq2) *mq2 = *mq2_out
-        if(*InputValueformd2) *md2 = *md2_out
-        if(*InputValueformu2) *mu2 = *mu2_out
+        Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, true);
+        if(*InputValueforTd) *Td = Td_out;
+        if(*InputValueforTu) *Tu = Tu_out;
+        if(*InputValueformq2) *mq2 = mq2_out;
+        if(*InputValueformd2) *md2 = md2_out;
+        if(*InputValueformu2) *mu2 = mu2_out;
       }
   
       Farray_Fcomplex16_1_3 Tad1Loop;
       SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
   
-      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont)
+      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
   
       // TODO: Add some checks for SignOfMassChanged
 
@@ -195,38 +225,38 @@ BE_NAMESPACE
           *TwoLoopMatching = false;
           *GuessTwoLoopMatchingBSM = false;
         }
-
+ 
         CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
 
-        int n_tot = 0
+        int n_tot = 0;
         for(int i=1; i<=6; i++)
-          *mass_uncertainty_Yt(n_tot+i) = MSd(i) // difference will be taken later 
-        n_tot = n_tot + 6
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MSd)(i); // difference will be taken later 
+        n_tot = n_tot + 6;
         for(int i=1; i<=3; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MSv(i) // difference will be taken later 
-        n_tot = n_tot + 3
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MSv)(i); // difference will be taken later 
+        n_tot = n_tot + 3;
         for(int i=1; i<=6; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MSu(i) // difference will be taken later 
-        n_tot = n_tot + 6
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MSu)(i); // difference will be taken later 
+        n_tot = n_tot + 6;
         for(int i=1; i<=6; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MSe(i) // difference will be taken later 
-        n_tot = n_tot + 6
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MSe)(i); // difference will be taken later 
+        n_tot = n_tot + 6;
         for(int i=1; i<=3; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = Mhh(i) // difference will be taken later 
-        n_tot = n_tot + 3
+          (*mass_uncertainty_Yt)(n_tot+i) = (*Mhh)(i); // difference will be taken later 
+        n_tot = n_tot + 3;
         for(int i=1; i<=3; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MAh(i) // difference will be taken later 
-        n_tot = n_tot + 3
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MAh)(i); // difference will be taken later 
+        n_tot = n_tot + 3;
         for(int i=1; i<=2; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MHpm(i) // difference will be taken later 
-        n_tot = n_tot + 2
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MHpm)(i); // difference will be taken later 
+        n_tot = n_tot + 2;
         for(int i=1; i<=5; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MChi(i) // difference will be taken later 
-        n_tot = n_tot + 5
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MChi)(i); // difference will be taken later 
+        n_tot = n_tot + 5;
         for(int i=1; i<=2; i++) 
-          *mass_uncertainty_Yt(n_tot+i) = MCha(i) // difference will be taken later 
-        n_tot = n_tot + 2
-        *mass_uncertainty_Yt(n_tot+i) = MGlu // difference will be taken later 
+          (*mass_uncertainty_Yt)(n_tot+i) = (*MCha)(i); // difference will be taken later 
+        n_tot = n_tot + 2;
+        (*mass_uncertainty_Yt)(n_tot+1) = *MGlu; // difference will be taken later 
 
         if(*CalculateOneLoopMasses and *CalculateTwoLoopHiggsMasses)
         {
@@ -247,11 +277,11 @@ BE_NAMESPACE
           *GuessTwoLoopMatchingBSM = false;
         }
       }
-
+ 
       CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
 
       if(*GetMassUncertainty)
-        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q)
+        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q);
 
     }
 
@@ -265,7 +295,6 @@ BE_NAMESPACE
       // TODO: ScatterinEingenvalues
 
       // TODO: TrilinearUnitarity
-
       spectrum = Spectrum_Out(inputs.param);
 
 
@@ -293,15 +322,12 @@ BE_NAMESPACE
     SLHAea_add(slha, "SPINFO", 1, "GAMBIT, using "+str(STRINGIFY(BACKENDNAME))+" from SARAH");
     SLHAea_add(slha, "SPINFO", 2, gambit_version()+" (GAMBIT); "+str(STRINGIFY(VERSION))+" ("+str(STRINGIFY(BACKENDNAME))+"); "+str(STRINGIFY(SARAH_VERSION))+" (SARAH)");
 
-    // model information
-    if(*HighScaleModel == "LOW")
-    {
-      // Do nothing
-    } 
-
     // Block MODSEL
     SLHAea_add_block(slha, "MODSEL");
-    slha["MODSEL"][""] << 1 << 1 << "# GUT scale input";
+    if(*HighScaleModel == "LOW")
+      slha["MODSEL"][""] << 1 << 0 << "# SUSY scale input";
+    else
+      slha["MODSEL"][""] << 1 << 1 << "# GUT scale input";
     slha["MODSEL"][""] << 2 << *BoundaryCondition << "# Boundary conditions";
     if(*GenerationMixing)
       slha["MODSEL"][""] << 6 << 1 << "# switching on flavour violation";
@@ -312,8 +338,8 @@ BE_NAMESPACE
       slha["MINPAR"][""] << 1 << *input_Param.at("M0") << "# m0";
     if(input_Param.find("M12") != input_Param.end())
       slha["MINPAR"][""] << 2 << *input_Param.at("M12") << "# m12";
-    slha["MINPAR"][""] << 3 << *input_Param.at("TanBeta") << "# tanb at m_Z";
-    slha["MINPAR"][""] << 4 << *input_Param.at("SignMu") << "# cos(phase_mu)";
+    if(input_Param.find("TanBeta") != input_Param.end())
+      slha["MINPAR"][""] << 3 << *input_Param.at("TanBeta") << "# tanb at m_Z";
     if(input_Param.find("A0") != input_Param.end())
       slha["MINPAR"][""] << 5 << *input_Param.at("A0") << "# A0";
 
@@ -368,15 +394,21 @@ BE_NAMESPACE
     if(input_Param.find("md2_33") != input_Param.end())
       slha["EXTPAR"][""] << 49 << sqrt(*input_Param.at("md2_33")) << "# M_(D,33)";
     if(input_Param.find("lambda") != input_Param.end())
-      slha["EXTPAR"][""] << 61 << *input_Param.at("lambda") << "# Lambda
+      slha["EXTPAR"][""] << 61 << *input_Param.at("lambda") << "# Lambda";
     if(input_Param.find("kappa") != input_Param.end())
-      slha["EXTPAR"][""] << 62 << *input_Param.at("kappa") << "# kappa
+      slha["EXTPAR"][""] << 62 << *input_Param.at("kappa") << "# kappa";
     if(input_Param.find("Alambda") != input_Param.end())
-      slha["EXTPAR"][""] << 63 << *input_Param.at("Alambda") << "# ALambda
+      slha["EXTPAR"][""] << 63 << *input_Param.at("Alambda") << "# ALambda";
     if(input_Param.find("Akappa") != input_Param.end())
-      slha["EXTPAR"][""] << 64 << *input_Param.at("Akappa") << "# Akappa
+      slha["EXTPAR"][""] << 64 << *input_Param.at("Akappa") << "# Akappa";
     if(input_Param.find("mueff") != input_Param.end())
-      slha["EXTPAR"][""] << 65 << *input_Param.at("mueff") << "# mueff
+      slha["EXTPAR"][""] << 65 << *input_Param.at("mueff") << "# mueff";
+ 
+    // Block gaugeGUT
+    SLHAea_add_block(slha, "GAUGEGUT", *mGUT);
+    slha["GAUGEGUT"][""] << 1 << *g1GUT << "# g1(mGUT)";
+    slha["GAUGEGUT"][""] << 2 << *g2GUT << "# g2(mGUT)";
+    slha["GAUGEGUT"][""] << 3 << *g3GUT << "# g3(mGUT)";
  
     // Block SMINPUTS
     SLHAea_add_block(slha, "SMINPUTS");
@@ -397,7 +429,7 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
-    // TODO: add this
+    // TODO: Add this
     // if(*SwitchToSCKM)
 
     // Block GAUGE
@@ -408,31 +440,12 @@ BE_NAMESPACE
 
     // Block NMSSMRUN
     SLHAea_add_block(slha, "NMSSMRUN", Q);
-    slha["NMSSMRUN"][""] << 1 << *lam << "# lam";
-    slha["NMSSMRUN"][""] << 2 << *kap << "# kap";
-    slha["NMSSMRUN"][""] << 3 << *Tlam << "# Tlam";
-    slha["NMSSMRUN"][""] << 4 << *Tk << "# Tk";
+    slha["NMSSMRUN"][""] << 1 << lam->re << "# lam";
+    slha["NMSSMRUN"][""] << 2 << kap->re << "# kap";
+    slha["NMSSMRUN"][""] << 3 << Tlam->re << "# Tlam";
+    slha["NMSSMRUN"][""] << 4 << Tk->re << "# Tk";
     slha["NMSSMRUN"][""] << 5 << *vS << "# vS";
     slha["NMSSMRUN"][""] << 10 << *ms2 << "ms2";
-
-    // Block HMIX
-    SLHAea_add_block(slha, "HMIX", Q);
-    slha["HMIX"][""] << 1 << Mu->re << "# Mu";
-    slha["HMIX"][""] << 2 << *TanBeta << "# TanBeta";
-    slha["HMIX"][""] << 3 << sqrt(std::norm(*vu) + std::norm(*vd)) << "# v";
-    slha["HMIX"][""] << 4 << (*MAh2)(2) << "# MAH^2";
-    slha["HMIX"][""] << 10 << *betaH << "# betaH";
-    slha["HMIX"][""] << 11 << *alphaH << "# alphaH";
-    slha["HMIX"][""] << 101 << Bmu->re << "# Bmu";
-    slha["HMIX"][""] << 102 << *vd << "# vd";
-    slha["HMIX"][""] << 103 << *vu << "# vu";
-
-    if(Mu->im != 0 or Bmu->im != 0)
-    {
-      SLHAea_add_block(slha, "IMHMIX", Q);
-      slha["IMHMIX"][""] << 1 << Mu->im << "# Im(mu)";
-      slha["IMHMIX"][""] << 101 << Bmu->im << "# Im(Bmu)";
-    }
 
     // Block MSOFT
     SLHAea_add_block(slha, "MSOFT", Q);
@@ -465,6 +478,16 @@ BE_NAMESPACE
       slha["IMMSOFT"][""] << 2 << M2->im << "# Im(M2)";
       slha["IMMSOFT"][""] << 3 << M3->im << "# Im(M3)";
     }
+
+    // Block HMIX
+    SLHAea_add_block(slha, "HMIX", Q);
+    slha["HMIX"][""] << 1 << *input_Param.at("mueff") << " # mueff";
+    slha["HMIX"][""] << 2 << *TanBeta << "# TanBeta";
+    slha["HMIX"][""] << 3 << sqrt(std::norm(*vu) + std::norm(*vd)) << "# v";
+    slha["HMIX"][""] << 4 << 0.0 << "# m^2_A(Q)";
+    slha["HMIX"][""] << 10 << *betaH << "# betaH";
+    slha["HMIX"][""] << 102 << *vd << "# vd";
+    slha["HMIX"][""] << 103 << *vu << "# vu";
 
     // Block PHASES
     SLHAea_add_block(slha, "PHASES", Q);
@@ -596,6 +619,10 @@ BE_NAMESPACE
     slha["MASS"][""] << 1000024 << (*MCha)(1) << "# Cha_1";
     slha["MASS"][""] << 1000037 << (*MCha)(2) << "# Cha_2";
 
+    // TODO: missing
+    // if(*GetMassUncertainty)
+    // Block DMASS
+
     // TODO: maybe add this one too
     // Block LSP
  
@@ -624,23 +651,24 @@ BE_NAMESPACE
     SLHAea_add_block(slha, "SCALARMIX", Q);
     SLHAea_add_block(slha, "PSEUDOSCALARMIX", Q);
     SLHAea_add_block(slha, "CHARGEMIX", Q);
-    for(int i=1; i<=2; i++)
-      for(int j=1; j<=2; j++)
+    for(int i=1; i<=3; i++)
+      for(int j=1; j<=3; j++)
       {
         slha["SCALARMIX"][""] << i << j << (*ZH)(i,j) << "# ZH(" << i << "," << j << ")";
         slha["PSEUDOSCALARMIX"][""] << i << j << (*ZA)(i,j) << "# ZA(" << i << "," << j << ")";
-        slha["CHARGEMIX"][""] << i << j << (*ZP)(i,j) << "# ZP(" << i << "," << j << ")";
+        if(i < 3 and j < 3)
+          slha["CHARGEMIX"][""] << i << j << (*ZP)(i,j) << "# ZP(" << i << "," << j << ")";
       }
 
-    // Blocks NMIX, UMIX, VMIX
-    SLHAea_add_block(slha, "NMIX", Q);
-    SLHAea_add_block(slha, "IMNMIX", Q);
+    // Blocks NMNIX, UMIX, VMIX
+    SLHAea_add_block(slha, "NMNMIX", Q);
+    SLHAea_add_block(slha, "INMNMIX", Q);
     SLHAea_add_block(slha, "UMIX", Q);
     SLHAea_add_block(slha, "IMUMIX", Q);
     SLHAea_add_block(slha, "VMIX", Q);
     SLHAea_add_block(slha, "IMVMIX", Q);
-    for(int i=1; i<=4; i++)
-      for(int j=1; j<=4; j++)
+    for(int i=1; i<=5; i++)
+      for(int j=1; j<=5; j++)
       {
         slha["NMIX"][""] << i << j << (*ZN)(i,j).re << "# ZN(" << i << "," << j << ")";
         slha["IMNMIX"][""] << i << j << (*ZN)(i,j).im << "# Im(ZN(" << i << ", " << j << "))";
@@ -689,7 +717,7 @@ BE_NAMESPACE
     slha["SPheno"][""] << 2 << *SPA_convention << "# SPA_conventions";
     slha["SPheno"][""] << 8 << *TwoLoopMethod << "# Two Loop Method";
     slha["SPheno"][""] << 9 << *GaugelessLimit << "# Gauge-less limit";
-    slha["SPheno"][""] << 11 << *L_BR << "# L_BR";
+    slha["SPheno"][""] << 11 << *L_BR << "# Branching ratios";
     //slha["SPheno"][""] << 13 << *Enable3BDecays << "# 3 Body decays";
     slha["SPheno"][""] << 31 << *mGUT << "# GUT scale";
     slha["SPheno"][""] << 33 << Q << "# Renormalization scale";
@@ -711,14 +739,6 @@ BE_NAMESPACE
     slha["SPheno"][""] << 57 << *CalculateLowEnergy << "# Calculate low energy";
     slha["SPheno"][""] << 60 << *KineticMixing << "# Include kinetic mixing";
     slha["SPheno"][""] << 65 << *SolutionTadpoleNr << "# Solution of tadpole equation";
-   
-
-
-    // Block GAMBIT
-    SLHAea_add_block(slha, "GAMBIT");
-    slha["GAMBIT"][""] << 1 << *mGUT << "# Input scale of (upper) boundary contidions, e.g. GUT scale";
-
-    cout << slha << endl;
 
     //Create Spectrum object
     static const Spectrum::mc_info mass_cut;
@@ -726,7 +746,7 @@ BE_NAMESPACE
     Spectrum spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
     // Add the high scale variable by hand
-    spectrum.get_HE().set_override(Par::mass1, SLHAea::to<double>(slha.at("GAMBIT").at(1).at(1)), "high_scale", true);
+//    spectrum.get_HE().set_override(Par::mass1, SLHAea::to<double>(slha.at("GAMBIT").at(1).at(1)), "high_scale", true);
 
     return spectrum;
 
@@ -738,9 +758,9 @@ BE_NAMESPACE
 
     InitializeStandardModel(inputs.sminputs);
     InitializeLoopFunctions();
-
+ 
     *ErrorLevel = -1;
-    *GenerationMixing = false
+    *GenerationMixing = false;
 
     Set_All_Parameters_0();
 
@@ -834,7 +854,7 @@ BE_NAMESPACE
         *CalculateMSSM2Loop = true;
         break;
       default:
-        CalculateTwoLoopHiggsMasses = false;
+        *CalculateTwoLoopHiggsMasses = false;
     }
 
     // 9, GaugelessLimit
@@ -847,7 +867,7 @@ BE_NAMESPACE
     *hstep_sa = inputs.options->getValueOrDef<Freal8>(0.001, "hstep_sa");
 
     // 410, TwoLoopRegulatorMass
-    *TwoLoopRegulatorMass = inputs.options->getValueOrDef<Freal8>(0.0, "TwoLoopRegulatorMass") 
+    *TwoLoopRegulatorMass = inputs.options->getValueOrDef<Freal8>(0.0, "TwoLoopRegulatorMass"); 
 
    // 10, TwoLoopSafeMode
     *TwoLoopSafeMode = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopSafeMode");
@@ -877,10 +897,10 @@ BE_NAMESPACE
     // TODO: Branching ratios, not covered yet
 
     // 19, MatchingOrder: maximal number of iterations
-    *MatchingOrder = inputs.options->getValueOrDef<Fint>(-2, "MatchingOrder")
+    *MatchingOrder = inputs.options->getValueOrDef<Finteger>(-2, "MatchingOrder");
 
     // 20, GetMassUncertainty
-    *GetMassUncertainty = inputs.options->getValueOrDef<Flogical>(false, "GetMassUncertainty")
+    *GetMassUncertainty = inputs.options->getValueOrDef<Flogical>(false, "GetMassUncertainty");
 
     // 21, whether to calculate cross sections or not, L_CS
     // TODO: Cross sections, not covered yet
@@ -943,7 +963,10 @@ BE_NAMESPACE
     // 33, setting a fixed renormalization scale
     Freal8 RGEScale = inputs.options->getValueOrDef<Freal8>(0.0, "RGEScale");
     if(RGEScale > 0.0)
-      SetRGEScale(pow(RGEScale,2));
+    {
+      RGEScale *= RGEScale;
+      SetRGEScale(RGEScale);
+    }
 
     // 34, precision of mass calculation, delta_mass
     *delta_mass = inputs.options->getValueOrDef<Freal8>(0.00001, "delta_mass");
@@ -986,8 +1009,7 @@ BE_NAMESPACE
     // 53, Ignore negative masses at MZ
     *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<Flogical>(false, "IgnoreNegativeMassesMZ");
     // 54, Write Out for non convergence
-    // GAMBIT: no output
-    *WriteOutputForNonConvergence = false;
+    *WriteOutputForNonConvergence = inputs.options->getValueOrDef<Flogical>(false, "WriteOutputForNonConvergence");
 
     // 55, calculate one loop masses
     *CalculateOneLoopMasses = inputs.options->getValueOrDef<Flogical>(true, "CalculateOneLoopMasses");
@@ -1014,7 +1036,7 @@ BE_NAMESPACE
     *WriteParametersAtQ = inputs.options->getValueOrDef<Flogical>(false, "WriteParametersAtQ");
 
     // 65
-    *SolutionTadpoleNr = inputs.options->getValueOrDef<Fint>(1, "SolutionTadpoleNr");
+    *SolutionTadpoleNr = inputs.options->getValueOrDef<Finteger>(1, "SolutionTadpoleNr");
 
     // 66
     *DecoupleAtRenScale = inputs.options->getValueOrDef<Flogical>(false, "DecoupleAtRenScale");
@@ -1044,7 +1066,7 @@ BE_NAMESPACE
     *OutputForMG = false;
 
     // 79, Writes Wilson coefficients in WCXF format
-    *Write_WCXF = inputs.options->getValueOrDef<Flogical>(false, "Write_WCXF")
+    *Write_WCXF = inputs.options->getValueOrDef<Flogical>(false, "Write_WCXF");
 
     // 80, exit for sure with non-zero value if problem occurs, Non_Zero_Exit
     // GAMBIT: never brute exit, let GAMBIT do a controlled exit
@@ -1063,32 +1085,32 @@ BE_NAMESPACE
     *ForceRealMatrices = inputs.options->getValueOrDef<Flogical>(false, "ForceRealMatrices");
 
     // 150, use 1l2lshifts
-    *include1l2lshift=inputs.options->getValueOrDef<Flogical>(false,"include1l2lshift")
+    *include1l2lshift=inputs.options->getValueOrDef<Flogical>(false,"include1l2lshift");
 
     // 151
-    *NewGBC=inputs.options->getValueOrDef<Flogical>(true,"NewGBC")
-
+    *NewGBC=inputs.options->getValueOrDef<Flogical>(true,"NewGBC");
+ 
     // 440
-    *TreeLevelUnitarityLimits=inputs.options->getValueOrDef<Flogical>(true,"TreeLevelUnitarityLimits")
-
+    *TreeLevelUnitarityLimits=inputs.options->getValueOrDef<Flogical>(true,"TreeLevelUnitarityLimits");
+ 
     // 441
-    *TrilinearUnitarity=inputs.options->getValueOrDef<Flogical>(true,"TrilinearUnitarity")
-
+    *TrilinearUnitarity=inputs.options->getValueOrDef<Flogical>(true,"TrilinearUnitarity");
+ 
     // 442
-    *unitarity_s_min = inputs.options->getValueOrDef<Freal8>(2000,"unitarity_s_min")
-
+    *unitarity_s_min = inputs.options->getValueOrDef<Freal8>(2000,"unitarity_s_min");
+ 
     // 443
-    *unitarity_s_max = inputs.options->getValueOrDef<Freal8>(3000,"unitarity_s_max")
-
+    *unitarity_s_max = inputs.options->getValueOrDef<Freal8>(3000,"unitarity_s_max");
+ 
     // 444
-    *unitarity_steps = inputs.options->getValueOrDef<Fint>(5,"unitarity_steps")
-
+    *unitarity_steps = inputs.options->getValueOrDef<Finteger>(5,"unitarity_steps");
+ 
     // 445
-    *RunRGEs_unitarity=inputs.options->getValueOrDef<Flogical>(false,"RunRGEs_unitarity")
-
+    *RunRGEs_unitarity=inputs.options->getValueOrDef<Flogical>(false,"RunRGEs_unitarity");
+ 
     // 446
-    *TUcutLevel = inputs.options->getValueOrDef<Fint>(2,"TUcutLevel")
-
+    *TUcutLevel = inputs.options->getValueOrDef<Finteger>(2,"TUcutLevel");
+ 
     // 510, Write tree level tadpole solutions
     // GAMBIT: no output
     *WriteTreeLevelTadpoleSolutions = false;
@@ -1114,7 +1136,7 @@ BE_NAMESPACE
     // 530, write tree level tadpole parameters
     // GAMBIT: no output
     *WriteTreeLevelTadpoleParameters = false;
-
+ 
     // 550, CalcFT
     // Has no effect
     *CalcFT = true;
@@ -1129,7 +1151,7 @@ BE_NAMESPACE
     // GAMBIT: no output
     *PrintDebugInformation = false;
 
-
+ 
     /**********************/
     /* Block DECAYOPTIONS */
     /**********************/
@@ -1138,26 +1160,18 @@ BE_NAMESPACE
     /****************/
     // Block MINPAR //
     /****************/
-    if(*BoundaryCondition == 1)
-    {
-      // M0
-      if(inputs.param.find("M0") != inputs.param.end())
-        *m0 = *inputs.param.at("M0");
-      // M12
-      if(inputs.param.find("M12") != inputs.param.end())
-        m12->re = *inputs.param.at("M12");
-      // TanBeta
+    // M0
+    if(inputs.param.find("M0") != inputs.param.end())
+      *m0 = *inputs.param.at("M0");
+    // M12
+    if(inputs.param.find("M12") != inputs.param.end())
+      m12->re = *inputs.param.at("M12");
+    // TanBeta
+    if(inputs.param.find("TanBeta") != inputs.param.end())
       *TanBeta = *inputs.param.at("TanBeta");
-      // SignMu
-      SignumMu->re = *inputs.param.at("SignMu");
-      // A0
-      if(inputs.param.find("A0") != inputs.param.end())
-        Azero->re = *inputs.param.at("A0");
-    }
-    else if(*BoundaryCondition == 2)
-    {
-      // No GMSB in GAMBIT
-    }
+    // A0
+    if(inputs.param.find("A0") != inputs.param.end())
+      Azero->re = *inputs.param.at("A0");
 
     /****************/
     /* Block EXTPAR */
@@ -1180,13 +1194,14 @@ BE_NAMESPACE
     // in GAMBIT tanb is always at mZ
 
     // Parameters specific of the NMSSM
-    *LambdaInput = *inputs.param.at("lambda");
-    *KappaInput = *inputs.param.at("kappa");
-    *ALambdaInput = *inputs.param.at("Alambda");
-    *AKappaInput = *inputs.param.at("Akappa");
+    LambdaInput->re = *inputs.param.at("lambda");
+    KappaInput->re = *inputs.param.at("kappa");
+    ALambdaInput->re = *inputs.param.at("Alambda");
+    AKappaInput->re = *inputs.param.at("Akappa");
     if(inputs.param.find("mueff") != inputs.param.end())
-      *MuEffinput = *inputs.param.at("mueff");
+      MuEffinput->re = *inputs.param.at("mueff");
     // maybe add option to input vs in the future
+ 
 
     for(int i=1; i<=3; i++)
       for(int j=1; j<=3; j++)
@@ -1284,6 +1299,11 @@ BE_NAMESPACE
     /* Block GAUGEIN */
     /*****************/
     // Irrelevant
+
+    /********************/
+    /* Block NMSSMRUNIN */
+    /********************/
+    // This should be read from EXTPAR
 
     /****************/
     /* Block HMIXIN */
@@ -1452,6 +1472,12 @@ BE_NAMESPACE
     (*CKM)(3,2) = -c12*s23 - s12*c23*s13 * exp( i * phase );
     (*CKM)(3,3) = c23 * c13;
 
+    for(int i=1; i<=3; i++)
+    {
+      (*mf_l_mZ)(i) = 0.0;
+      (*mf_d_mZ)(i) = 0.0;
+      (*mf_u_mZ)(i) = 0.0;
+    }
     CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);
 
   }
@@ -1627,7 +1653,8 @@ BE_INI_FUNCTION
     if((*ModelInUse)("NMSSM66atQ"))
     {
       *HighScaleModel = "LOW";
-      *BoundaryCondition = 1;
+      // BC where all NMSSM parameters are taken at the SUSY scale
+      *BoundaryCondition = 3;
     }
     else
     {
@@ -1638,8 +1665,11 @@ BE_INI_FUNCTION
 
     *GenerationMixing = runOptions->getValueOrDef<Flogical>(false, "GenerationMixing");
 
-    if(inputs.param.find("Qin") != inputs.param.end())
-      SetRGEScale(pow(inputs.param.at("Qin"),2));
+    if(Param.find("Qin") != Param.end())
+    {
+      Freal8 RGEScale = pow(*Param.at("Qin"),2);
+      SetRGEScale(RGEScale);
+    }
 
   }
   scan_level = false;
