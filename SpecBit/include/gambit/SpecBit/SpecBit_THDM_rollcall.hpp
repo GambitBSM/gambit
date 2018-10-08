@@ -186,7 +186,7 @@ START_CAPABILITY
 
   #define FUNCTION get_unitarity_constraint_likelihood_THDM
   START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
+  // NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
@@ -208,8 +208,10 @@ START_CAPABILITY
 
   #define FUNCTION get_perturbativity_constraint_likelihood_THDM
   START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
+  // NEEDS_CLASSES_FROM(THDMC,default)
+  BACKEND_REQ(get_coupling_hhhh, (libthdmc_compact), void, (int,int,int,int,complex<double>&))
   DEPENDENCY(THDM_spectrum, Spectrum)
+  BACKEND_OPTION( (THDMC_compact), (libthdmc_compact) )
   ALLOW_MODELS(THDM, THDMatQ)
   #undef FUNCTION
 
@@ -255,7 +257,6 @@ START_CAPABILITY
 
   #define FUNCTION get_global_minimum_discriminant_likelihood
   START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION

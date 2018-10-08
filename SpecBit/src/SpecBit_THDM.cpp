@@ -68,7 +68,7 @@
 // Switch for debug mode
 // #define SpecBit_DBUG
 // #define SPECBIT_DEBUG
-bool debug_THDM = true;
+bool debug_THDM = false;
 
 namespace Gambit
 {
@@ -557,35 +557,35 @@ namespace Gambit
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //one loop level beta functions for the lambda couplings
 
-      double betaOne(std::vector<double> Lambda)
-      { if (debug_THDM) cout << "DBG 24" << endl;
-        double beta = 12*pow(Lambda[1],2) + 4*pow(Lambda[3],2) + 4*Lambda[3]*Lambda[4] + 2*pow(Lambda[4],2) + 2*pow(Lambda[5],2);
-        return 1/(16*pow(PI,2))*beta;
-      }
+    double betaOne(std::vector<double> Lambda)
+    {
+      double beta = 12.0*pow(Lambda[1],2) + 4.0*pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 2.0*pow(Lambda[4],2) + 2.0*pow(Lambda[5],2);
+      return 1.0/(16.0*pow(PI,2))*beta;
+    }
 
-      double betaTwo(std::vector<double> Lambda)
-      { if (debug_THDM) cout << "DBG 25" << endl;
-        double beta = 12*pow(Lambda[2],2)+4*pow(Lambda[3],2)+4*Lambda[3]*Lambda[4]+2*pow(Lambda[4],2)+2*pow(Lambda[5],2);
-        return 1/(16*pow(PI,2))*beta;
-      }
+    double betaTwo(std::vector<double> Lambda)
+    {
+      double beta = 12.0*pow(Lambda[2],2)+4.0*pow(Lambda[3],2)+4*Lambda[3]*Lambda[4]+2.0*pow(Lambda[4],2)+2.0*pow(Lambda[5],2);
+      return 1.0/(16.0*pow(PI,2))*beta;
+    }
 
-      double betaThree(std::vector<double> Lambda)
-      { if (debug_THDM) cout << "DBG 26" << endl;
-        double beta = 4*pow(Lambda[3],2) +2*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6*Lambda[3]+2*Lambda[4]) + 2*pow(Lambda[5],2);
-        return 1/(16*pow(PI,2))*beta;
-      }
+    double betaThree(std::vector<double> Lambda)
+    {
+      double beta = 4.0*pow(Lambda[3],2) +2.0*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6.0*Lambda[3]+2.0*Lambda[4]) + 2.0*pow(Lambda[5],2);
+      return 1.0/(16.0*pow(PI,2))*beta;
+    }
 
-      double betaFour(std::vector<double> Lambda)
-      { if (debug_THDM) cout << "DBG 27" << endl;
-        double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3])*Lambda[4] + pow(Lambda[4],2) + 8*pow(Lambda[5],2);
-        return 1/(16*pow(PI,2))*beta;
-      }
+    double betaFour(std::vector<double> Lambda)
+    {
+      double beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3])*Lambda[4] + 4.0*pow(Lambda[4],2) + 8.0*pow(Lambda[5],2);
+      return 1.0/(16.0*pow(PI,2))*beta;
+    }
 
-      double betaFive(std::vector<double> Lambda)
-      { if (debug_THDM) cout << "DBG 28" << endl;
-        double beta = (2*Lambda[1] + 2*Lambda[2] + 8*Lambda[3] + 12*Lambda[4])*Lambda[5];
-        return 1/(16*pow(PI,2))*beta;
-      }
+    double betaFive(std::vector<double> Lambda)
+    {
+      double beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3] + 12.0*Lambda[4])*Lambda[5];
+      return 1.0/(16.0*pow(PI,2))*beta;
+    }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////GAMBIT FUNCTIONS////////////////////////////////////////////////////////////////////////////////
@@ -593,25 +593,37 @@ namespace Gambit
       // ----------------------------------//
       // **** LO UNITARITY LIKELIHOOD **** //
 
-      void get_unitarity_constraint_likelihood_THDM(double& result)
-      { if (debug_THDM) cout << "DBG 29" << endl;
+      void get_unitarity_constraint_likelihood_THDM(double& result) { 
+        if (debug_THDM) cout << "DBG 29" << endl;
+
         using namespace Pipes::get_unitarity_constraint_likelihood_THDM;
-        if (debug_THDM) cout << "DBG 29B" << endl;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        if (debug_THDM) cout << "DBG 29C" << endl;
-        //const Spectrum* spec = fullspectrum;
-        THDMC_1_7_0::THDM THDMObject;
-        if (debug_THDM) cout << "DBG 29CD" << endl;
-        int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
+        
+        Spectrum fullspectrum = *Dep::THDM_spectrum; // Retrieve THDM Spectrum object
+        unique_ptr<SubSpectrum> SM = fullspectrum.clone_LE(); // Copy "low-energy" SubSpectrum 
+        unique_ptr<SubSpectrum> he =  fullspectrum.clone_HE(); // Copy "high-energy" SubSpectrum
+        // const SMInputs& sminputs   = fullspectrum.get_SMInputs(); // Extract SM inputs
+        // int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType"); // Get Yukawa Type & scale from YAML
 
-        // fill the THDM object with values from the input file
-        if (debug_THDM) cout << "DBG 29A" << endl;
-        fill_THDM_object(fullspectrum, THDMObject, YukawaType);
+        // double scale = *Param.at("QrunTo"); // Get Yukawa Type & scale from YAML
 
-        double lambda[8];
-        double m122;
-        double tan_beta;
-        THDMObject.get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tan_beta);
+        // Run high energy spectrum to sclae if scale > 0
+        // if (scale > 0.0) {
+        //   he -> RunToScale(scale);
+        // }
+
+        std::vector<double> lambda;
+
+        lambda.push_back(0.0); //empty s.t. lambda_i matches index i
+        lambda.push_back(he->get(Par::mass1,"lambda_1"));
+        lambda.push_back(he->get(Par::mass1,"lambda_2"));
+        lambda.push_back(he->get(Par::mass1, "lambda_3"));
+        lambda.push_back(he->get(Par::mass1, "lambda_4"));
+        lambda.push_back(he->get(Par::mass1, "lambda_5"));
+        lambda.push_back(he->get(Par::mass1, "lambda_6"));
+        lambda.push_back(he->get(Par::mass1, "lambda_7"));
+
+        // double m122 = he->get(Par::mass1,"m12_2");
+        // double tan_beta = he->get(Par::dimensionless, "tanb");
 
         const int array_size = 12;
 
@@ -718,108 +730,107 @@ namespace Gambit
         Lambda[4] = lambda4;
         Lambda[5] = lambda5;
 
-        const complex<double> i(0.0,1.0);
+        const std::complex<double> i(0.0,1.0);
 
-        std::complex<double> B1 = -3*lambda1 + (9/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(9*pow(lambda1,2)+pow((2*lambda3+lambda4),2));
+        std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*betaOne(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
 
-        // std::complex<double> B1_2 = -3*lambda1 + (9/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(9*pow(lambda1,2)+pow((2*lambda3+lambda4),2));
+        // std::complex<double> B1_2 = -3*Lambda[1] + (9/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1.)*(9*pow(Lambda[1],2)+pow((2*Lambda[3]+Lambda[4]),2));
 
-        std::complex<double> B2 = -3*lambda2 + (9/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(9*pow(lambda2,2) + pow((2*lambda3+lambda4),2));
+        std::complex<double> B2 = -3.0*Lambda[2] + (9.0/2.0)*betaTwo(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(9.0*pow(Lambda[2],2) + pow((2.0*Lambda[3]+Lambda[4]),2));
 
-        // std::complex<double> B2_2 = -3*lambda2 + (9/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(9*pow(lambda2,2)+pow((2*lambda3+lambda4),2));
+        // std::complex<double> B2_2 = -3*Lambda[2] + (9/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1.)*(9*pow(Lambda[2],2)+pow((2*Lambda[3]+Lambda[4]),2));
 
-        std::complex<double> B3 = - (2*lambda3+lambda4) + (3/2)*(2*betaThree(Lambda)+betaFour(Lambda)) + 3/(16*pow(PI,2))*(i*PI-1)*(lambda1+lambda2)*(2*lambda3+lambda4);
+        std::complex<double> B3 = - (2.0*Lambda[3]+Lambda[4]) + (3.0/2.0)*(2.0*betaThree(Lambda)+betaFour(Lambda)) + 3.0/(16.0*pow(PI,2))*(i*PI-1.)*(Lambda[1]+Lambda[2])*(2.0*Lambda[3]+Lambda[4]);
 
-        // std::complex<double> B3_2 = -(2*lambda3+lambda4) + (3/2)*(2*betaThree(Lambda)+betaFour(Lambda)) + (3/(16*pow(PI,2)))*(i*PI-1)*(lambda1+lambda2)*(2*lambda3+lambda4);
+        // std::complex<double> B3_2 = -(2*Lambda[3]+Lambda[4]) + (3/2)*(2*betaThree(Lambda)+betaFour(Lambda)) + (3/(16*pow(PI,2)))*(i*PI-1.)*(Lambda[1]+Lambda[2])*(2*Lambda[3]+Lambda[4]);
 
-        std::complex<double> B4 = - (lambda3 + 2*lambda4) + (3/2)*(betaThree(Lambda) + 2*betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1)*(pow(lambda3,2) + 4*lambda3*lambda4 + 4*pow(lambda4,2) + 9*pow(lambda5,2));
+        std::complex<double> B4 = - (Lambda[3] + 2.0*Lambda[4]) + (3.0/2.0)*(betaThree(Lambda) + 2.0*betaFour(Lambda)) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 4.0*pow(Lambda[4],2) + 9.0*pow(Lambda[5],2));
 
-        // std::complex<double> B4_2 = - (lambda3 + 2*lambda4) + (3/2)*(betaThree(Lambda) + 2*betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI - 1)*(pow(lambda3,2) + 4*lambda3*lambda4 + 4*pow(lambda4,2) + 9*pow(lambda5,2));
+        // std::complex<double> B4_2 = - (Lambda[3] + 2*Lambda[4]) + (3/2)*(betaThree(Lambda) + 2*betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI - 1)*(pow(Lambda[3],2) + 4*Lambda[3]*Lambda[4] + 4*pow(Lambda[4],2) + 9*pow(Lambda[5],2));
 
-        std::complex<double> B6 = -3*lambda5 + (9/2)*betaFive(Lambda) + (6/(16*pow(PI,2)))*(i*PI-1)*(lambda3 + 2*lambda4)*lambda5;
+        std::complex<double> B6 = -3.0*Lambda[5] + (9.0/2.0)*betaFive(Lambda) + (6.0/(16.0*pow(PI,2)))*(i*PI-1.)*(Lambda[3] + 2.0*Lambda[4])*Lambda[5];
 
-        // std::complex<double> B6_2 = -3*lambda5 + (9/2)*betaFive(Lambda) + (6/(16*pow(PI,2)))*(i*PI-1)*(lambda3 + 2*lambda4)*lambda5;
+        // std::complex<double> B6_2 = -3*Lambda[5] + (9/2)*betaFive(Lambda) + (6/(16*pow(PI,2)))*(i*PI-1.)*(Lambda[3] + 2*Lambda[4])*Lambda[5];
 
-        std::complex<double> B7 = -lambda1 + (3/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda1,2)+pow(lambda4,2));
+        std::complex<double> B7 = -Lambda[1] + (3.0/2.0)*betaOne(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[1],2)+pow(Lambda[4],2));
 
-        // std::complex<double> B7_2 = -lambda1 + (3/2)*betaOne(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(pow(lambda1,2) + pow(lambda4,2));
+        // std::complex<double> B7_2 = -Lambda[1] + (3/2)*betaOne(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[1],2) + pow(Lambda[4],2));
 
-        std::complex<double> B8 = -lambda2 + (3/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda2,2)+pow(lambda4,2)); //copied from B7
+        std::complex<double> B8 = -Lambda[2] + (3.0/2.0)*betaTwo(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[2],2)+pow(Lambda[4],2)); //copied from B7
 
-        // std::complex<double> B8_2 = -lambda2 + (3/2)*betaTwo(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(pow(lambda2,2) + pow(lambda4,2)); //copied from B7
+        // std::complex<double> B8_2 = -Lambda[2] + (3/2)*betaTwo(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[2],2) + pow(Lambda[4],2)); //copied from B7
 
-        std::complex<double> B9 = -lambda4 + (3/2)*betaFour(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(lambda1 + lambda2)*lambda4; //copied from B7
+        std::complex<double> B9 = -Lambda[4] + (3.0/2.0)*betaFour(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; //copied from B7
 
-        // std::complex<double> B9_2 = -lambda4 + (3/2)*betaFour(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(lambda1 + lambda2)*lambda4; //copied from B7
+        // std::complex<double> B9_2 = -Lambda[4] + (3/2)*betaFour(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; //copied from B7
 
-        std::complex<double> B13 = -lambda3 + (3/2)*betaThree(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(pow(lambda3,2)+pow(lambda5,2));
+        std::complex<double> B13 = -Lambda[3] + (3.0/2.0)*betaThree(Lambda) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2));
 
-        // std::complex<double> B13_2= -lambda3 + (3/2)*betaThree(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda3,2)+pow(lambda5,2)); //copied from B7
+        // std::complex<double> B13_2= -Lambda[3] + (3/2)*betaThree(Lambda) + 1/(16*pow(PI,2))*(i*PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2)); //copied from B7
 
-        std::complex<double> B15 = -lambda5 + (3/2)*betaFive(Lambda) + (2/(16*pow(PI,2)))*(i*PI-1)*lambda3*lambda5;
+        std::complex<double> B15 = -Lambda[5] + (3.0/2.0)*betaFive(Lambda) + (2.0/(16.0*pow(PI,2)))*(i*PI-1.)*Lambda[3]*Lambda[5];
 
-        // std::complex<double> B15_2 = -lambda5 + (3/2)*betaFive(Lambda) + (2/(16*pow(PI,2)))*(i*PI-1)*lambda3*lambda5;
+        // std::complex<double> B15_2 = -Lambda[5] + (3/2)*betaFive(Lambda) + (2/(16*pow(PI,2)))*(i*PI-1.)*Lambda[3]*Lambda[5];
 
-        std::complex<double> B19 = -(lambda3-lambda4) + (3/2)*(betaThree(Lambda) - betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1)*pow((lambda3-lambda4),2);
+        std::complex<double> B19 = -(Lambda[3]-Lambda[4]) + (3.0/2.0)*(betaThree(Lambda) - betaFour(Lambda)) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]-Lambda[4]),2);
 
-        // std::complex<double> B19_2 = -(lambda3-lambda4) + (3/2)*(betaThree(Lambda) - betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1)*pow((lambda3-lambda4),2);
+        // std::complex<double> B19_2 = -(Lambda[3]-Lambda[4]) + (3/2)*(betaThree(Lambda) - betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]-Lambda[4]),2);
 
-        std::complex<double> B20 = -lambda1 + (3/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda1,2) + pow(lambda5,2));
+        std::complex<double> B20 = -Lambda[1] + (3.0/2.0)*betaOne(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));
 
-        // std::complex<double> B20_2 = -lambda1 + (3/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda1,2) + pow(lambda5,2));
+        // std::complex<double> B20_2 = -Lambda[1] + (3/2)*betaOne(Lambda) + 1/(16*pow(PI,2))*(i*PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));
 
-        std::complex<double> B21 = -lambda2 + (3/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda2,2) + pow(lambda5,2));
+        std::complex<double> B21 = -Lambda[2] + (3.0/2.0)*betaTwo(Lambda) + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
 
-        // std::complex<double> B21_2 = -lambda2 + (3/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1)*(pow(lambda2,2) + pow(lambda5,2));
+        // std::complex<double> B21_2 = -Lambda[2] + (3/2)*betaTwo(Lambda) + 1/(16*pow(PI,2))*(i*PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
 
-        std::complex<double> B22 = -lambda5 + (3/2)*betaFive(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(lambda1 + lambda2)*lambda5;
+        std::complex<double> B22 = -Lambda[5] + (3.0/2.0)*betaFive(Lambda) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
 
-        // std::complex<double> B22_2 = -lambda5 + (3/2)*betaFive(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1)*(lambda1 + lambda2)*lambda5;
+        // std::complex<double> B22_2 = -Lambda[5] + (3/2)*betaFive(Lambda) + (1/(16*pow(PI,2)))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
 
-        std::complex<double> B30 = -(lambda3+lambda4) + (3/2)*(betaThree(Lambda)+betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1)*pow((lambda3+lambda4),2);
+        std::complex<double> B30 = -(Lambda[3]+Lambda[4]) + (3.0/2.0)*(betaThree(Lambda)+betaFour(Lambda)) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]+Lambda[4]),2);
 
-        // std::complex<double> B30_2 = -(lambda3+lambda4) + (3/2)*(betaThree(Lambda) + betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1)*pow((lambda3+lambda4),2);
+        // std::complex<double> B30_2 = -(Lambda[3]+Lambda[4]) + (3/2)*(betaThree(Lambda) + betaFour(Lambda)) + (1/(16*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]+Lambda[4]),2);
 
         // eigenvalues
 
-        std::complex<double> a00_even_plus = 1/(32*PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4*pow(B3,2)));
-        std::complex<double> a00_even_minus = 1/(32*PI) * ((B1 + B2) - sqrt(pow((B1-B2),2) + 4*pow(B3,2)));
+        std::complex<double> a00_even_plus = 1.0/(32.0*PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
+        std::complex<double> a00_even_minus = 1.0/(32.0*PI) * ((B1 + B2) - sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
 
         // std::complex<double> a00_even_plus_2 = 1/(32*PI) * ((B1_2 + B2_2) + sqrt(pow((B1_2-B2_2),2) + 4*pow(B3_2,2)));
         // std::complex<double> a00_even_minus_2 = 1/(32*PI) * ((B1_2 + B2_2) - sqrt(pow((B1_2-B2_2),2) + 4*pow(B3_2,2)));
 
-        std::complex<double> a00_odd_plus = 1/(32*PI) * (2*B4 + 2*B6);
-        std::complex<double> a00_odd_minus = 1/(32*PI) * (2*B4 - 2*B6);
+        std::complex<double> a00_odd_plus = 1.0/(32.0*PI) * (2.*B4 + 2.*B6);
+        std::complex<double> a00_odd_minus = 1.0/(32.0*PI) * (2.*B4 - 2.*B6);
 
         // std::complex<double> a00_odd_plus_2 = 1/(32*PI) * (2*B4_2 + 2*B6_2);
         // std::complex<double> a00_odd_minus_2 = 1/(32*PI) * (2*B4_2 - 2*B6_2);
 
-        std::complex<double> a01_even_plus = 1/(32*PI) * (B7 * B8 + sqrt(pow((B7-B8),2) + 4*pow(B9,2)));
-        std::complex<double> a01_even_minus = 1/(32*PI) * (B7 * B8 - sqrt(pow((B7-B8),2) + 4*pow(B9,2)));
+        std::complex<double> a01_even_plus = 1.0/(32.0*PI) * (B7 + B8 + sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
+        std::complex<double> a01_even_minus = 1.0/(32.0*PI) * (B7 + B8 - sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
 
         // std::complex<double> a01_even_plus_2 = 1/(32*PI) * (B7_2 * B8_2 + sqrt(pow((B7_2-B8_2),2) + 4*pow(B9_2,2)));
         // std::complex<double> a01_even_minus_2 = 1/(32*PI) * (B7_2 * B8_2 - sqrt(pow((B7_2-B8_2),2) + 4*pow(B9_2,2)));
 
-        std::complex<double> a01_odd_plus = 1/(32*PI) * (2*B13 + 2*B15);
-        std::complex<double> a01_odd_minus = 1/(32*PI) * (2*B13 - 2*B15);
+        std::complex<double> a01_odd_plus = 1.0/(32.0*PI) * (2.*B13 + 2.*B15);
+        std::complex<double> a01_odd_minus = 1.0/(32.0*PI) * (2.*B13 - 2.*B15);
 
         // std::complex<double> a01_odd_plus_2 = 1/(32*PI) * (2*B13_2 + 2*B15_2);
         // std::complex<double> a01_odd_minus_2 = 1/(32*PI) * (2*B13_2 - 2*B15_2);
 
-        std::complex<double> a10_odd = 1/(32*PI) * (2*B19);
+        std::complex<double> a10_odd = 1.0/(32.0*PI) * (2.*B19);
 
         // std::complex<double> a10_odd_2 = 1/(32*PI) * (2*B19_2);
 
-        std::complex<double> a11_even_plus = 1/(32*PI) * (B20 + B21 + sqrt(pow((B20-B21),2) + 4*pow(B22,2)) );
-        std::complex<double> a11_even_minus = 1/(32*PI) * (B20 + B21 - sqrt(pow((B20-B21),2) + 4*pow(B22,2)) );
+        std::complex<double> a11_even_plus = 1.0/(32.0*PI) * (B20 + B21 + sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
+        std::complex<double> a11_even_minus = 1.0/(32.0*PI) * (B20 + B21 - sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
 
         // std::complex<double> a11_even_plus_2 = 1/(32*PI) * (B20_2 + B21_2 + sqrt(pow((B20_2-B21_2),2) + 4*pow(B22_2,2)) );
         // std::complex<double> a11_even_minus_2 = 1/(32*PI) * (B20_2 + B21_2 - sqrt(pow((B20_2-B21_2),2) + 4*pow(B22_2,2)) );
 
-        std::complex<double> a11_odd = 1/(32*PI) * (2*B30);
+        std::complex<double> a11_odd = 1.0/(32.0*PI) * (2.*B30);
 
         // std::complex<double> a11_odd_2 = 1/(32*PI) * (2*B30_2);
-
         //arrays to hold condtion values
         double unitarityConditions[13];
         unitarityConditions[0] = 12;
@@ -847,8 +858,8 @@ namespace Gambit
         double chi2 = 0.0;
 
         //calculate the total error of each point
-        for (int i=1; i<unitarityConditions[0]; i++) {
-             chi2 += get_chi(unitarityConditions[i],bound,less_than,unitarityUpperLimit,sigma)*pow(10,5);
+        for (int i=1; i<=unitarityConditions[0]; i++) {
+             chi2 += get_chi(unitarityConditions[i],bound,less_than,unitarityUpperLimit,sigma)*pow(10,6);
         }
 
         result = -chi2;
@@ -857,13 +868,42 @@ namespace Gambit
       // ------------------------------------//
       // **** PERTURBATIVITY LIKELIHOOD **** //
 
-      double get_perturbativity(Spectrum& spec, int YukawaType, double QrunTo)
-      { if (debug_THDM) cout << "DBG 34" << endl;
+       void get_perturbativity_constraint_likelihood_THDM(double& result)
+      { if (debug_THDM) cout << "DBG 38" << endl;
 
-        THDMC_1_7_0::THDM THDMObject;
+       using namespace Pipes::get_perturbativity_constraint_likelihood_THDM;
+        Spectrum fullspectrum = *Dep::THDM_spectrum;
+        // int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
+        bool at_scale = runOptions->getValueOrDef<bool>(false, "atQrunToScale");
 
-        // fill the THDM object with values from the input file
-        fill_THDM_object_at_scale(spec, THDMObject, YukawaType, QrunTo);
+        // to do refill backend at scale
+
+      // decoy function for now to introduce THDMC_compact backend
+
+        // Spectrum fullspectrum = *Dep::THDM_spectrum; // Retrieve THDM Spectrum object
+        // // unique_ptr<SubSpectrum> SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+        // unique_ptr<SubSpectrum> he =  spec.clone_HE(); // Copy "high-energy" SubSpectrum
+        // const SMInputs& sminputs   = fullspectrum.get_SMInputs(); // Extract SM inputs
+        // int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType"); // Get Yukawa Type & scale from YAML
+
+        // double scale = *Param.at("QrunTo"); // Get Yukawa Type & scale from YAML
+
+        // Run high energy spectrum to sclae if scale > 0
+        // if (scale > 0.0) {
+        //   he -> RunToScale(scale);
+        // }
+
+        // lambda.push_back(he->get(Par::mass1,"lambda_1"));
+        // lambda.push_back(he->get(Par::mass1,"lambda_2"));
+        // lambda.push_back(he->get(Par::mass1, "lambda_3"));
+        // lambda.push_back(he->get(Par::mass1, "lambda_4"));
+        // lambda.push_back(he->get(Par::mass1, "lambda_5"));
+        // lambda.push_back(he->get(Par::mass1, "lambda_6"));
+        // lambda.push_back(he->get(Par::mass1, "lambda_7"));
+
+        // double m122 = he->get(Par::mass1,"m12_2");
+        // double tan_beta = he->get(Par::dimensionless, "tanb");
+
 
         //set constraint values
         //-----------------------------
@@ -875,8 +915,6 @@ namespace Gambit
         double chi_2 = 0.0;
 
         complex<double> hhhh_coupling;
-        double mh0, mH, mA, mHp, sba, lambda6, lambda7, m122, tan_beta;
-        THDMObject.get_param_phys(mh0, mH, mA, mHp, sba, lambda6, lambda7, m122,tan_beta);
 
         // calculate the chi^2 from all possible 4 higgs interactions
         for (int i=1;i<5;i++) {
@@ -884,35 +922,18 @@ namespace Gambit
             for (int k=1;k<5;k++) {
               for (int l=1;l<5;l++) {
                   // TODO: This (may be) slow; prefer filling a coupling spectrum and then attaining from there
-                  THDMObject.get_coupling_hhhh(i,j,k,l,hhhh_coupling);
+                  if (debug_THDM) cout << "DBG 38A" << endl;
+                  BEreq::get_coupling_hhhh(0,0,0,0,hhhh_coupling);
+                  if (debug_THDM) cout << "DBG 38B" << endl;
                   chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
+                  if (debug_THDM) cout << "DBG 38C" << endl;
+                  cout << abs(hhhh_coupling) << endl;
               }
             }
           }
         }
 
-        return -chi_2;
-      }
-
-      void get_perturbativity_constraint_likelihood_THDM(double& result)
-      { if (debug_THDM) cout << "DBG 38" << endl;
-
-        using namespace Pipes::get_perturbativity_constraint_likelihood_THDM;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
-        bool at_scale = runOptions->getValueOrDef<bool>(false, "atQrunToScale");
-
-      // if at_scale is on: calculate likelihood at given scale as well as MZ 
-        double result_at_scale = 0.0;
-        if (at_scale) {
-            result_at_scale = get_perturbativity(fullspectrum ,YukawaType, *Param.at("QrunTo"));
-        }
-        result = get_perturbativity(fullspectrum ,YukawaType, 0.0);
-
-        // select the smallest of the two chi_2
-        if (result_at_scale < result) {
-        result = result_at_scale;
-        }
+        result = -chi_2;
       }
 
       // -------------------------------//
@@ -921,24 +942,40 @@ namespace Gambit
       double get_stability_likelihood_THDM(Spectrum& spec, int YukawaType, double Q_run_to)
       { if (debug_THDM) cout << "DBG 40" << endl;
 
-        THDMC_1_7_0::THDM THDMObject;
+        // Spectrum fullspectrum = *Dep::THDM_spectrum; // Retrieve THDM Spectrum object
+        unique_ptr<SubSpectrum> SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+        unique_ptr<SubSpectrum> he =  spec.clone_HE(); // Copy "high-energy" SubSpectrum
+        // const SMInputs& sminputs   = fullspectrum.get_SMInputs(); // Extract SM inputs
+        // int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType"); // Get Yukawa Type & scale from YAML
 
-        // stability constrainst between mZ (91.2 GeV) & 750 GeV
+        // double scale = *Param.at("QrunTo"); // Get Yukawa Type & scale from YAML
 
-        // fill the THDM object with values from the input file
-        fill_THDM_object_at_scale(spec, THDMObject, YukawaType, Q_run_to);
+        // Run high energy spectrum to sclae if scale > 0
+        // if (scale > 0.0) {
+        //   he -> RunToScale(scale);
+        // }
+
+        std::vector<double> lambda;
+
+        lambda.push_back(0.0); //empty s.t. lambda_i matches index i
+        lambda.push_back(he->get(Par::mass1,"lambda_1"));
+        lambda.push_back(he->get(Par::mass1,"lambda_2"));
+        lambda.push_back(he->get(Par::mass1, "lambda_3"));
+        lambda.push_back(he->get(Par::mass1, "lambda_4"));
+        lambda.push_back(he->get(Par::mass1, "lambda_5"));
+        lambda.push_back(he->get(Par::mass1, "lambda_6"));
+        lambda.push_back(he->get(Par::mass1, "lambda_7"));
+
+        double m122 = he->get(Par::mass1,"m12_2");
+        double tan_beta = he->get(Par::dimensionless, "tanb");
 
         //do the full check first - if fails continue with chi^2 calculation to guide scanner
-        if (THDMObject.check_stability()){
-          return 0.0;
-         }
+        // if (THDMObject.check_stability()){
+        //   return 0.0;
+        //  }
 
           double chi_2 = 0;
-          double lambda[8];
-          double m122;
-          double tan_beta;
-          THDMObject.get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tan_beta);
-
+  
           double sigma = 4*M_PI;
 
           //observable likelihood used as this should be covered by prior and has a central value of zero

@@ -102,7 +102,7 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: random
+  use_scanner: multinest
 
   scanners:
     square_grid:
@@ -159,9 +159,9 @@ ObsLikes:
     - purpose:    LogLike
       capability: alignment_limit_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: perturbativity_constraint_likelihood_THDM
-      function: get_perturbativity_constraint_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: perturbativity_constraint_likelihood_THDM
+    #   function: get_perturbativity_constraint_likelihood_THDM
 
     - purpose:    LogLike
       capability: stability_constraint_likelihood_THDM
@@ -246,14 +246,14 @@ ObsLikes:
     - purpose: Observable
       capability: mA_physical_basis
     
-    # - purpose: Observable
-      # capability: tanb_physical_basis
+    - purpose: Observable
+      capability: tanb_physical_basis
     
-    # - purpose: Observable
-      # capability: sba_physical_basis
+    - purpose: Observable
+      capability: sba_physical_basis
     
-    # - purpose: Observable
-    #   capability: m12_2_physical_basis
+    - purpose: Observable
+      capability: m12_2_physical_basis
 
     # - capability: bsgamma
     #   function: SI_bsgamma

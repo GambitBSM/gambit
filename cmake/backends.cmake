@@ -847,6 +847,31 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# THDMC-compact
+set(name "THDMC_compact")
+set(ver "1.7.0")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/THDMC_compact/1.7.0")
+set(dl "http://www.dingohead.com/filip/2HDMC_compact.zip")
+set(md5 "fae09e7949d8211bf4ac2328887a2223")
+# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+# set(patch "${PROJECT_SOURCE_DIR}/Backaends/patches/${name}/${ver}/patch_${name}")
+set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+# set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE=${GSL_INCLUDE_DIRS} GSLLIBS=${GSL_LIBRARIES}
+    COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
  
 # THDMC
 # set(name "THDMC")
