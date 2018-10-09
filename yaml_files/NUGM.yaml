@@ -579,21 +579,15 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_13TeV_4LEP_36invfb",
-                   "ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb",
-                   "ATLAS_13TeV_RJ3L_3Lep_36invfb",
-                   "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
-                   "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
-                   "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
-                   "ATLAS_13TeV_3b_24invfb",
-                   "ATLAS_13TeV_3b_discoverySR_24invfb",
-                   "ATLAS_13TeV_3b_36invfb",
-                   "ATLAS_13TeV_3b_discoverySR_36invfb" 
-                   "ATLAS_13TeV_0LEP_36invfb",
-                   "ATLAS_13TeV_MultiLEP_36invfb",
+      analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
                    "ATLAS_13TeV_0LEPStop_36invfb",
+                   "ATLAS_13TeV_1LEPStop_36invfb",
+                   "ATLAS_13TeV_2bMET_36invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
-                   "ATLAS_13TeV_2bMET_36invfb"] ]
+                   "ATLAS_13TeV_3b_36invfb",
+                   "ATLAS_13TeV_MultiLEP_36invfb",
+                   "ATLAS_13TeV_4LEP_36invfb",
+                   "ATLAS_13TeV_RJ3L_lowmass_36invfb"] ]
 
 
   # ATLASnoeff analysis setup.
@@ -611,12 +605,28 @@ Rules:
     options:
       analyses: [ ["CMS_13TeV_0LEP_36invfb",
                    "CMS_13TeV_1LEPbb_36invfb",
-                   "CMS_13TeV_2OSLEP_36invfb",
-                   "CMS_13TeV_2LEPsoft_36invfb",
                    "CMS_13TeV_1LEPStop_36invfb",
                    "CMS_13TeV_2LEPStop_36invfb",
-                   "CMS_13TeV_MultiLEP_36invfb",
-                   "CMS_13TeV_MONOJET_36invfb" ] ]
+                   "CMS_13TeV_MONOJET_36invfb"] ]
+
+  # CMSnoeff analysis setup
+  # NOTE: Don't blindly copy this analysis list without also checking the
+  #       "skip_analyses" list for "LHC_Combined_LogLike" below.
+  - capability: CMSnoeffAnalysisContainer
+    function: getCMSnoeffAnalysisContainer
+    options:
+      analyses: [ [ "CMS_13TeV_2LEPsoft_36invfb",
+                    "CMS_13TeV_MultiLEP_36invfb",
+                    "CMS_13TeV_2OSLEP_36invfbar" ] ]
+
+
+  # List any analyses that should *NOT* be included in the total log-likelihood!
+  # These will still be computed if listed in the analysis setup above, 
+  # but their likelihood will not added to the combined likelihood.
+  - capability: LHC_Combined_LogLike
+    options:
+     skip_analyses: [ ]
+
 
   # Choose Monte Carlo event simulator.
   - capability:  ColliderOperator
