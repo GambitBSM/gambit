@@ -507,3 +507,16 @@ DiracSingletDM_Z2: |
 DiracSingletDM_Z2_sps: |
 
    Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
+
+NUGM: |
+
+   Non-Universal Gaugino Mass model. Descended from the MSSM63atMGUT. All off-diagonal elements in the squark and slepton mass matrices are set to zero, and all diagonal elements, as well as the Higgs mass paremeters mHu2 and mHd2, are set equal to a universal sfermion mass M0. All entries in the trilinear coupling matrices are set to the universal coupling A0. This leaves:
+
+   A0           - universal trilinear coupling
+   M0           - universal sfermion mass
+   M1           - bino mass
+   M2           - wino mass
+   M3           - gluino mass
+   SignMu       - the sign of the mu parameter
+   TanBeta      - the ratio of the up-type to down-type Higgs vevs
+
