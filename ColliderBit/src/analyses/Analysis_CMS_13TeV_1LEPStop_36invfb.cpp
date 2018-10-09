@@ -1,10 +1,5 @@
-#include <vector>
-#include <cmath>
-#include <memory>
-#include <iomanip>
 #include <fstream>
 #include "gambit/ColliderBit/topness.h"
-
 #include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
@@ -14,12 +9,12 @@ using namespace std;
 
    Based on: https://arxiv.org/pdf/1706.04402.pdf
              http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-16-051/#AddTab
-   
+
    By Yang Zhang
- 
+
    Known errors:
-        1. Modified topness is calculated with all b jets (not b-tagged) 
-           and up to three none-b jets, instead of up to three jets with 
+        1. Modified topness is calculated with all b jets (not b-tagged)
+           and up to three none-b jets, instead of up to three jets with
            highest CSV discriminator values.
    Known features:
 
@@ -27,20 +22,20 @@ using namespace std;
 
 namespace Gambit {
   namespace ColliderBit {
-  
+
     class Analysis_CMS_13TeV_1LEPStop_36invfb : public HEPUtilsAnalysis {
     private:
-    
+
         // Numbers passing cuts
-//        static const size_t NUM_SR = 31; 
+//        static const size_t NUM_SR = 31;
 //        double _SR[NUM_SR];
 
         static const size_t NUM_aggregateSR = 6;
         double _aggregateSR[NUM_aggregateSR];
-        
+
         // Cut Flow
         Cutflow _cutflow;
-        
+
         // Jet overlap removal
         void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
             //Routine to do jet-lepton check
@@ -66,23 +61,23 @@ namespace Gambit {
 
             return;
         }
-        
+
     public:
 
         Analysis_CMS_13TeV_1LEPStop_36invfb():
             _cutflow("CMS 0-lep stop 13 TeV", {
             "Trigger",
-            "M_{T}>150", 
-            "N_b>=1", 
+            "M_{T}>150",
+            "N_b>=1",
             "N_l<2",
             "N_tau==0",
             "deltaPhi_j12>0.8",
             "MET>250",
-            "**t_mod>0", 
+            "**t_mod>0",
             "**t_mod>10",
-            "**Mlb<175", 
+            "**Mlb<175",
             "**Mlb>175"}) {
-            
+
             set_analysis_name("CMS_13TeV_1LEPStop_36invfb");
             set_luminosity(35.9);
 //            for (size_t i = 0; i < NUM_SR; ++i) _SR[i] = 0;
@@ -92,23 +87,23 @@ namespace Gambit {
         void analyze(const HEPUtils::Event* event) {
             HEPUtilsAnalysis::analyze(event);
             _cutflow.fillinit();
-            
+
             // Missing energy
             double met = event->met();
             HEPUtils::P4 ptot = event->missingmom();
-            
+
             // Online  trigger
             if (met<120) return;
-                
+
             // lepton objects
-            vector<HEPUtils::Particle*> baselineElectrons; 
+            vector<HEPUtils::Particle*> baselineElectrons;
             for (HEPUtils::Particle* electron : event->electrons())
                 if (electron->pT() > 5. && electron->abseta() < 2.4 ) baselineElectrons.push_back(electron);
             vector<HEPUtils::Particle*> baselineMuons;
-            for (HEPUtils::Particle* muon : event->muons()) 
+            for (HEPUtils::Particle* muon : event->muons())
                 if (muon->pT() > 5. && muon->abseta() < 2.4 ) baselineMuons.push_back(muon);
             // Jets
-            vector<HEPUtils::Jet*> baselineJets;  
+            vector<HEPUtils::Jet*> baselineJets;
             vector<HEPUtils::Jet*> fullJets;
             for (HEPUtils::Jet* jet : event->jets()) {
                 if (jet->pT() > 30. && jet->abseta() < 2.4) baselineJets.push_back(jet);
@@ -116,7 +111,7 @@ namespace Gambit {
             }
 
             // Electron isolation
-            vector<HEPUtils::Particle*> Electrons; 
+            vector<HEPUtils::Particle*> Electrons;
             double Rrel;
             for (HEPUtils::Particle* e : baselineElectrons) {
                 if (e->pT() < 50.) Rrel=0.2;
@@ -129,7 +124,7 @@ namespace Gambit {
             }
 
             // Muon isolation
-            vector<HEPUtils::Particle*> Muons; 
+            vector<HEPUtils::Particle*> Muons;
             for (HEPUtils::Particle* mu : baselineMuons) {
                 if (mu->pT() < 50.) Rrel=0.2;
                 else if (mu->pT() < 200.) Rrel=10./mu->pT();
@@ -148,11 +143,11 @@ namespace Gambit {
             for (HEPUtils::Particle* mu : Muons) {
                 if (mu->pT() > 20. && mu->abseta() < 2.4 ) Leptons.push_back(mu);
             }
-            
+
             JetLeptonOverlapRemoval(baselineJets,Leptons,0.4);
 
             // Online trigger
-            if (baselineJets.size()<2) return;      
+            if (baselineJets.size()<2) return;
             if (Leptons.size()!=1) return;
             HEPUtils::P4 HTmiss(0,0,0,0);
             for (HEPUtils::Jet* j : baselineJets) HTmiss += j->mom();
@@ -196,26 +191,26 @@ namespace Gambit {
                     if (ii==0) leadjet_nob =false;
                 }
                 hasTag=has_tag(_eff2d_2, baselineJets.at(ii)->eta(), baselineJets.at(ii)->pT());
-                if(baselineJets.at(ii)->btag() && hasTag ) 
+                if(baselineJets.at(ii)->btag() && hasTag )
                     N_tight_bJets++;
             }
 
             if(mediumbJets.size()<1) return;
             _cutflow.fill(3); //"N_b>=1"
-            
+
             if(Electrons.size()+Muons.size()>1) return;
             _cutflow.fill(4); //"N_l<2"
 
             if(event->taus().size()>0) return;
             _cutflow.fill(5); //"N_tau==0"
-            
+
             // Azimuthal angle between MET and two leading jets
             double deltaPhi_j1=baselineJets.at(0)->mom().deltaPhi(ptot);
             double deltaPhi_j2=baselineJets.at(1)->mom().deltaPhi(ptot);
             double deltaPhi_j12 = deltaPhi_j1<deltaPhi_j2 ? deltaPhi_j1:deltaPhi_j2;
             if (deltaPhi_j12<0.8) return;
             _cutflow.fill(6); //"deltaPhi_j12>0.8"
-           
+
             if (met<250) return;
             _cutflow.fill(7); //"MET>250"
 
@@ -224,15 +219,15 @@ namespace Gambit {
             const double sigmat=15.;
             const double sigmaW=5.;
             double pl[]={Leptons.at(0)->mom().px(), Leptons.at(0)->mom().py(), Leptons.at(0)->mom().pz(), Leptons.at(0)->E()};
-            double MET[]={ptot.px(), ptot.py(), 0., 0.}; 
+            double MET[]={ptot.px(), ptot.py(), 0., 0.};
             double tmod=exp(9999.);
-            // The experimental report consider all possible pairings of b jet candidates 
+            // The experimental report consider all possible pairings of b jet candidates
             // with up to three jets with highest CSV discriminator values.
             int n_b=0;
             for (HEPUtils::Jet* bj :bJets) {
                 n_b++;
                 double pb1[]={bj->mom().px(), bj->mom().py(), bj->mom().pz(), bj->E()};
-                double tmod_tem=log(topnesscompute(pb1, pl, MET, sigmat, sigmaW)); 
+                double tmod_tem=log(topnesscompute(pb1, pl, MET, sigmat, sigmaW));
                 if(tmod>tmod_tem) tmod=tmod_tem;
             }
             // up to three jets
@@ -240,14 +235,14 @@ namespace Gambit {
                 if(n_b>3) break;
                 n_b++;
                 double pb1[]={nobj->mom().px(), nobj->mom().py(), nobj->mom().pz(), nobj->E()};
-                double tmod_tem=log(topnesscompute(pb1, pl, MET, sigmat, sigmaW)); 
+                double tmod_tem=log(topnesscompute(pb1, pl, MET, sigmat, sigmaW));
                 if(tmod>tmod_tem) tmod=tmod_tem;
             }
-            
+
             if (tmod>0 ) _cutflow.fill(8); //"**t_mod>0"
             if (tmod>10) _cutflow.fill(9); //"**t_mod>10"
-            
-            
+
+
             // Mlb
             double deltaRlb=9999.;
             double Mlb;
@@ -257,7 +252,7 @@ namespace Gambit {
                     Mlb= (bj->mom()+Leptons.at(0)->mom()).m();
                 }
             }
-            
+
             if (Mlb<175) _cutflow.fill(10); //"**Mlb<175"
             if (Mlb>175 and N_tight_bJets>0) _cutflow.fill(11); //"**Mlb>175"
 
@@ -266,7 +261,7 @@ namespace Gambit {
             /* SIGNAL REGIONS                                        */
             /*                                                       */
             /*********************************************************/
-            
+
 //            bool MET_250_350= met>250 and met<350;
 //            bool MET_350_450= met>350 and met<450;
 //            bool MET_450_600= met>450 and met<600;
@@ -336,7 +331,7 @@ namespace Gambit {
 //                    }
 //                }
 //            }
-//            
+//
 //            // compressed region
 //            if(baselineJets.size()>=5 and leadjet_nob and deltaPhi_j12 >0.5 and Leptons.at(0)->pT() < 150 and Leptons.at(0)->mom().deltaPhi(ptot)<2. ){
 //                if( MET_250_350)_SR[27]+=1;
@@ -362,12 +357,12 @@ namespace Gambit {
         void add(BaseAnalysis* other) {
             // The base class add function handles the signal region vector and total # events.
             HEPUtilsAnalysis::add(other);
-            Analysis_CMS_13TeV_1LEPStop_36invfb* specificOther 
+            Analysis_CMS_13TeV_1LEPStop_36invfb* specificOther
                 = dynamic_cast<Analysis_CMS_13TeV_1LEPStop_36invfb*>(other);
 
 //            for (size_t i = 0; i < NUM_SR; ++i)
 //                _SR[i] += specificOther->_SR[i];
-                
+
             for (size_t i = 0; i < NUM_aggregateSR; ++i)
                 _aggregateSR[i] += specificOther->_aggregateSR[i];
         }
@@ -376,7 +371,7 @@ namespace Gambit {
         void collect_results() {
 
             // cout << _cutflow << endl;
-            
+
 //            // binned signal region
 //            static const double OBSNUM[NUM_SR] = {72.,      24.,    6.,     2.,     6.,     3.,     2.,
 //                                                  343.,     68.,    13.,    6.,     2.,     38.,    8.,     2.,     1.,
@@ -396,7 +391,7 @@ namespace Gambit {
 //                add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_SR[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
 //                //cout << ss.str() << ":  "<< _SR[ibin] << endl;
 //            }
-            
+
             // aggregate signal region
             static const double aggregateOBSNUM[NUM_aggregateSR] = {4.,     8.,     3.,     3.,     2.,     4.};
             static const double aggregateBKGNUM[NUM_aggregateSR] = {3.4,    10.7,   8.8,    5.3,    1.9,    8.6};
@@ -406,7 +401,7 @@ namespace Gambit {
                 add_result(SignalRegionData(ass.str(), aggregateOBSNUM[ibin], {_aggregateSR[ibin],  0.}, {aggregateBKGNUM[ibin], aggregateBKGERR[ibin]}));
                 // cout << ass.str() << ":  "<< _aggregateSR[ibin] << endl;
             }
-            
+
             return;
         }
 

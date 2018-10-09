@@ -22,10 +22,10 @@ Parameters:
       fixed_value: 0
     M1:
       prior_type: double_log_flat_join
-      ranges: [-5e3, -1e1, 1e1, 5e3]
+      ranges: [-2e3, -1e1, 1e1, 2e3]
     M2:
       prior_type: double_log_flat_join
-      ranges: [0, 0, 1e1, 5e3]
+      ranges: [0, 0, 1e1, 2e3]
     M3:
       fixed_value: 5000
     Qin:
@@ -39,7 +39,7 @@ Parameters:
       fixed_value: 9000000
     mu:
       prior_type: double_log_flat_join
-      ranges: [-5e3, -1e1, 1e1, 5e3]
+      ranges: [-2e3, -1e1, 1e1, 2e3]
     mA:
       fixed_value: 5000
 
@@ -139,9 +139,6 @@ ObsLikes:
       capability: lnL_Higgs_invWidth
 
     # Observables (not included in likelihood)
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
-
     - purpose:    Observable
       capability: LHC_signals
 
@@ -213,7 +210,7 @@ Rules:
       invalid_point_fatal: false
       # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
       # LEP measurements of the Z width.
-      mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
+      # mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
 
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
@@ -275,12 +272,12 @@ Rules:
   # Choose statistical settings for Monte Carlo event generator
   - capability: MC_ConvergenceSettings
     options:
-      min_nEvents: [20000]
-      max_nEvents: [1000000]
-      events_between_convergence_checks: [20000]
-      target_fractional_uncert: [0.3]
+      min_nEvents: [100000]
+      max_nEvents: [100000]
+      events_between_convergence_checks: [200000]
+      target_fractional_uncert: [0.1]
       halt_when_systematic_dominated: true
-      all_analyses_must_converge: false
+      all_analyses_must_converge: true
       all_SR_must_converge: false
 
   # Define Monte Carlo event simulator and associated options.
@@ -359,10 +356,16 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ [ "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+      analyses: [ [ "ATLAS_13TeV_4LEP_36invfb",
+                    "ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb",
+                    "ATLAS_13TeV_RJ3L_3Lep_36invfb",
                     "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
                     "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
-                    "ATLAS_13TeV_MultiLEP_3Lep_36invfb" ] ]
+                    "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
+                    "ATLAS_13TeV_3b_24invfb",
+                    "ATLAS_13TeV_3b_discoverySR_24invfb",
+                    "ATLAS_13TeV_3b_36invfb",
+                    "ATLAS_13TeV_3b_discoverySR_36invfb" ] ]
 
   # ATLASnoeff analysis setup.
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -378,8 +381,8 @@ Rules:
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ [ "CMS_13TeV_1LEPbb_36invfb",
-                    "CMS_13TeV_MONOJET_36invfb" ] ]
+      analyses: [ [ "CMS_13TeV_1LEPbb_36invfb" ] ]
+                    # "CMS_13TeV_MONOJET_36invfb" ] ]
 
   # CMSnoeff analysis setup
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -401,7 +404,13 @@ Rules:
   - capability: LHC_Combined_LogLike
     options:
       skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_nocovar", 
-                       "CMS_13TeV_2OSLEP_36invfb_nocovar" ]
+                       "CMS_13TeV_2OSLEP_36invfb_nocovar",
+                       "ATLAS_13TeV_3b_discoverySR_24invfb",
+                       "ATLAS_13TeV_3b_discoverySR_36invfb",
+                       "ATLAS_13TeV_3b_36invfb",
+                       "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
+                       "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
+                       "ATLAS_13TeV_MultiLEP_3Lep_36invfb" ]
 
   # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
   # Can change "_lognormal_" to "_gaussian_" if you prefer

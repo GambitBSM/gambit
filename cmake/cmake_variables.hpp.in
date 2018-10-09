@@ -60,6 +60,12 @@
 /// Found ROOT version 6 or later
 #cmakedefine ROOT_6_OR_LATER_FOUND 1
 
+/// Leave out ROOT
+#cmakedefine EXCLUDE_ROOT 1
+
+/// Leave out RestFrames
+#cmakedefine EXCLUDE_RESTFRAMES 1
+
 /// Version info
 /// @{
 #define GAMBIT_VERSION_MAJOR    @GAMBIT_VERSION_MAJOR@
