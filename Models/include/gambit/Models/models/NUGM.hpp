@@ -18,13 +18,13 @@
 #define __NUGM_hpp__
 
 // Must include models which are targets of translation functions
-#include "gambit/Models/models/MSSM30atMGUT.hpp" 
+#include "gambit/Models/models/MSSM20atMGUT.hpp" 
 
 #define MODEL NUGM
-#define PARENT MSSM30atMGUT
+#define PARENT MSSM20atMGUT
   START_MODEL
   DEFINEPARS(M0,M1,M2,M3,A0,TanBeta,SignMu)
-  INTERPRET_AS_PARENT_FUNCTION(NUGM_to_MSSM30atMGUT)
+  INTERPRET_AS_PARENT_FUNCTION(NUGM_to_MSSM20atMGUT)
 #undef PARENT
 #undef MODEL
 
