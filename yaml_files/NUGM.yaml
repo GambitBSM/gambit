@@ -584,11 +584,19 @@ Rules:
                    "ATLAS_13TeV_1LEPStop_36invfb",
                    "ATLAS_13TeV_2bMET_36invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
+                   "ATLAS_13TeV_3b_24invfb",
+                   "ATLAS_13TeV_3b_discoverySR_24invfb",
                    "ATLAS_13TeV_3b_36invfb",
-                   "ATLAS_13TeV_MultiLEP_36invfb",
+                   "ATLAS_13TeV_3b_discoverySR_36invfb" 
+                   "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
+                   "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
+                   "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
                    "ATLAS_13TeV_4LEP_36invfb",
-                   "ATLAS_13TeV_RJ3L_lowmass_36invfb"] ]
+                   "ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb",
+                   "ATLAS_13TeV_RJ3L_3Lep_36invfb"] ]
 
+                   #"ATLAS_13TeV_MultiLEP_confnote_36invfb",
+                   #"ATLAS_13TeV_MultiLEP_36invfb",
 
   # ATLASnoeff analysis setup.
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -616,16 +624,28 @@ Rules:
     function: getCMSnoeffAnalysisContainer
     options:
       analyses: [ [ "CMS_13TeV_2LEPsoft_36invfb",
-                    "CMS_13TeV_MultiLEP_36invfb",
-                    "CMS_13TeV_2OSLEP_36invfbar" ] ]
+                    "CMS_13TeV_2LEPsoft_36invfb_nocovar",
+                    "CMS_13TeV_MultiLEP_2SSLep_36invfb",
+                    "CMS_13TeV_MultiLEP_3Lep_36invfb",
+                    "CMS_13TeV_2OSLEP_36invfbar",
+                    "CMS_13TeV_2OSLEP_36invfb_nocovar" ] ]
 
-
+                    #"CMS_13TeV_MultiLEP_36invfb",
+                    #"CMS_13TeV_MultiLEP_Full_36invfb",
+                    #"CMS_13TeV_MultiLEP_Full_2SSLep_36invfb",
+                    #"CMS_13TeV_MultiLEP_Full_3Lep_36invfb",
+                    #"CMS_13TeV_2OSLEP_confnote_36invfb",
+ 
   # List any analyses that should *NOT* be included in the total log-likelihood!
   # These will still be computed if listed in the analysis setup above, 
   # but their likelihood will not added to the combined likelihood.
   - capability: LHC_Combined_LogLike
     options:
-     skip_analyses: [ ]
+     skip_analyses: ["CMS_13TeV_2LEPsoft_36invfb_nocovar",
+                     "CMS_13TeV_2OSLEP_36invfb_nocovar",
+                     "ATLAS_13TeV_3b_discoverySR_24invfb",
+                     "ATLAS_13TeV_3b_discoverySR_36invfb",
+                     "ATLAS_13TeV_3b_36invfb" ]
 
 
   # Choose Monte Carlo event simulator.
