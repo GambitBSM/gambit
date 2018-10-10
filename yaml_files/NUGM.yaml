@@ -28,7 +28,7 @@ Parameters:
   # SUSY parameters.
   NUGM:
     M0:
-      range: [0, 1e4]
+      range: [50, 1e4]
       prior_type: log
     M1:
       prior_type: double_log_flat_join
