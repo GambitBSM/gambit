@@ -122,8 +122,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 500
-      tol: 0.08
+      nlive: 2000
+      tol: 0.1
       updInt: 1
 
       # No options to set, but still need the nodes at the moment...

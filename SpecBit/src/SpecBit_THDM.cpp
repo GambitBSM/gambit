@@ -723,7 +723,6 @@ namespace Gambit
         // double lambda7 = spec->get(Par::mass1, "lambda_7");
 
         std::vector<double> Lambda(6);
-        Lambda[0] = 0.0;
         Lambda[1] = lambda1;
         Lambda[2] = lambda2;
         Lambda[3] = lambda3;
@@ -859,7 +858,7 @@ namespace Gambit
 
         //calculate the total error of each point
         for (int i=1; i<=unitarityConditions[0]; i++) {
-             chi2 += get_chi(unitarityConditions[i],bound,less_than,unitarityUpperLimit,sigma)*pow(10,6);
+             chi2 += get_chi(unitarityConditions[i],observable,less_than,unitarityUpperLimit,sigma,pow(10,-4));
         }
 
         result = -chi2;
@@ -982,7 +981,7 @@ namespace Gambit
           chi_2 += get_chi(lambda[1],observable,greater_than,0,sigma);
           chi_2 += get_chi(lambda[2],observable,greater_than,0,sigma);
 
-          if (isnan(sqrt(lambda[1]*lambda[2]))) {
+          if (std::isnan(sqrt(lambda[1]*lambda[2]))) {
               chi_2 = L_MAX;
           }
           else {
