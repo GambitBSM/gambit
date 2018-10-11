@@ -851,14 +851,14 @@ namespace Gambit
         //-----------------------------
         // all values < 1/2 for NLO unitarity conditions
         double unitarityUpperLimit = 0.5;
-        double sigma = 1.0; /// not used here
+        double sigma = pow(10,-4); /// not used here
         //-----------------------------
 
         double chi2 = 0.0;
 
         //calculate the total error of each point
         for (int i=1; i<=unitarityConditions[0]; i++) {
-             chi2 += get_chi(unitarityConditions[i],observable,less_than,unitarityUpperLimit,sigma,pow(10,-4));
+             chi2 += get_chi(unitarityConditions[i],observable,less_than,unitarityUpperLimit,sigma);
         }
 
         result = -chi2;
