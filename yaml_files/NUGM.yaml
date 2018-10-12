@@ -28,8 +28,8 @@ Parameters:
   # SUSY parameters.
   NUGM:
     M0:
-      range: [50, 1e4]
-      prior_type: log
+      ranges: [0, 0, 1e1, 1e4]
+      prior_type: double_log_flat_join
     M1:
       prior_type: double_log_flat_join
       ranges: [-1e4, -1e1, 1e1, 1e4]
@@ -234,21 +234,18 @@ ObsLikes:
     - capability: lnL_rho0
       purpose: LogLike
 
-    #- capability: lnL_vrot
-    #  purpose: LogLike
+    - capability: lnL_v0
+      purpose: LogLike
 
-    #- capability: lnL_v0
-    #  purpose: LogLike
-
-    #- capability: lnL_vesc
-    #  purpose: LogLike
+    - capability: lnL_vesc
+      purpose: LogLike
 
     # SM nuisance parameter likelihoods
     - capability: lnL_t_mass
       purpose:    LogLike
 
-    - capability: lnL_mbmb
-      purpose:    LogLike
+    #- capability: lnL_mbmb
+    #  purpose:    LogLike
 
     #- capability: lnL_light_quark_masses
     #  purpose:    LogLike
@@ -415,10 +412,10 @@ Rules:
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
     type: Spectrum
-    #function: make_MSSM_precision_spectrum_none
+    function: make_MSSM_precision_spectrum_none
     #function: make_MSSM_precision_spectrum_W
     #function: make_MSSM_precision_spectrum_H_W
-    function: make_MSSM_precision_spectrum_4H_W
+    #function: make_MSSM_precision_spectrum_4H_W
     # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
     # or make_MSSM_precision_spectrum_H_W.
     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
@@ -716,6 +713,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/NUHM2/"
+  default_output_path: "runs/NUGM/"
 
   debug: true
