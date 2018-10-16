@@ -572,7 +572,7 @@ endif()
 
 set( reqd_lib_output )
 set( exclude_lib_output )
-set( PLUGIN_COMPILE_FLAGS \"${GAMBIT_CXX_FLAGS}\")\n
+set( PLUGIN_COMPILE_FLAGS \"${BACKEND_CXX_FLAGS}\")\n
 if(MPI_C_FOUND)
     set( PLUGIN_COMPILE_FLAGS \"${PLUGIN_COMPILE_FLAGS} ${MPI_C_COMPILE_FLAGS}\" )
     set( PLUGIN_COMPILE_DIRECTORIES
@@ -775,7 +775,7 @@ endif()
             towrite += "endif()\n\n"
 
             towrite += "if ( " + plug_type[i] + "_ok_flag_" + directory + " STREQUAL \"\" )\n"
-            towrite += " "*4 + "add_gambit_library( " + plug_type[i] + "_" + directory + " OPTION SHARED SOURCES ${"
+            towrite += " "*4 + "add_gambit_library( " + plug_type[i] + "_" + directory + " VISIBLE OPTION SHARED SOURCES ${"
             towrite += plug_type[i] + "_plugin_sources_" + directory + "} HEADERS ${"
             towrite += plug_type[i] + "_plugin_headers_" + directory + "} )\n"
             towrite += " "*4 + "set_target_properties( " + plug_type[i] + "_" + directory + "\n" + " "*23 + "PROPERTIES\n"

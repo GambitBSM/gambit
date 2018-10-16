@@ -81,13 +81,13 @@ namespace Gambit
     //typedef std::pair<unsigned long int, unsigned int> PPIDpair;
     struct PPIDpair
     {
-      long int pointID;
+      unsigned long long int pointID;
       unsigned int rank;
       PPIDpair() 
-        : pointID(-1)
+        : pointID(0)
         , rank(0)
       {}
-      PPIDpair(const long int p, const int r)
+      PPIDpair(const unsigned long long int p, const int r)
         : pointID(p)
         , rank(r)
       {}

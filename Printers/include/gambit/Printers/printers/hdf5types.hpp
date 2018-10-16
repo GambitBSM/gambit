@@ -32,6 +32,8 @@
   (map_str_dbl)             \
   (ModelParameters)         \
   (triplet<double>)         \
+  (map_intpair_dbl)         \
+
 
 #define HDF5_MODULE_BACKEND_TYPES \
   (DM_nucleon_couplings)    \

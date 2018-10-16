@@ -33,13 +33,14 @@ namespace Gambit
   const double hbar = 6.582119514e-25;                          // GeV s  (http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf)
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
+  const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
   const double atomic_mass_unit=0.931494028;                    // atomic mass unit (GeV/c^2)
   const double m_proton_amu = 1.00727646688;                    // proton mass (amu)
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
-  
+
   /**
      @brief Thomson limit of \f$\alpha_e\f$ in OS scheme from
      <a href="http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf">PDG 2017</a>

@@ -59,8 +59,8 @@ if(MPI)
         set(GAMBIT_MPI_F_INC "${GAMBIT_MPI_F_INC} -I${dir}")
       endforeach()
       string(STRIP "${GAMBIT_MPI_F_INC}" GAMBIT_MPI_F_INC)
-      set(GAMBIT_Fortran_FLAGS_PLUS_MPI "${MPI_Fortran_COMPILE_FLAGS} ${GAMBIT_Fortran_FLAGS} -DMPI ${GAMBIT_MPI_F_INC}")
-      string(STRIP "${GAMBIT_Fortran_FLAGS_PLUS_MPI}" GAMBIT_Fortran_FLAGS_PLUS_MPI)
+      set(BACKEND_Fortran_FLAGS_PLUS_MPI "${MPI_Fortran_COMPILE_FLAGS} ${BACKEND_Fortran_FLAGS} -DMPI ${GAMBIT_MPI_F_INC}")
+      string(STRIP "${BACKEND_Fortran_FLAGS_PLUS_MPI}" BACKEND_Fortran_FLAGS_PLUS_MPI)
       # Libraries
       foreach(lib ${MPI_Fortran_LIBRARIES})
         set(GAMBIT_MPI_F_LIB "${GAMBIT_MPI_F_LIB} ${lib}")
@@ -76,7 +76,7 @@ if(MPI)
     message("${BoldRed}   Missing Fortran MPI installation.  Fortran scanners will not be MPI-enabled.${ColourReset}")
   endif()
 
-    # Do things for C++ backends and scanners
+  # Do things for C++ backends and scanners
   if(MPI_CXX_FOUND)
     if(MPI_C_FOUND)
       message("${BoldYellow}-- MPI C++ libraries found. C++ scanners will be MPI-enabled.${ColourReset}")
@@ -85,8 +85,8 @@ if(MPI)
         set(GAMBIT_MPI_CXX_INC "${GAMBIT_MPI_CXX_INC} -I${dir}")
       endforeach()
       string(STRIP "${GAMBIT_MPI_CXX_INC}" GAMBIT_MPI_CXX_INC)
-      set(GAMBIT_CXX_FLAGS_PLUS_MPI "${MPI_CXX_COMPILE_FLAGS} ${GAMBIT_CXX_FLAGS} -DMPI ${GAMBIT_MPI_CXX_INC}")
-      string(STRIP "${GAMBIT_CXX_FLAGS_PLUS_MPI}" GAMBIT_CXX_FLAGS_PLUS_MPI)
+      set(BACKEND_CXX_FLAGS_PLUS_MPI "${MPI_CXX_COMPILE_FLAGS} ${BACKEND_CXX_FLAGS} -DMPI ${GAMBIT_MPI_CXX_INC}")
+      string(STRIP "${BACKEND_CXX_FLAGS_PLUS_MPI}" BACKEND_CXX_FLAGS_PLUS_MPI)
       # Libraries
       foreach(lib ${MPI_CXX_LIBRARIES})
         set(GAMBIT_MPI_CXX_LIB "${GAMBIT_MPI_CXX_LIB} ${lib}")
@@ -170,3 +170,5 @@ else()
   message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
   set (itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
+
+

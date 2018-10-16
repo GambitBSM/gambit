@@ -7,8 +7,6 @@
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import os
-import warnings
-import subprocess
 import shutil
 import glob
 import pickle
@@ -20,7 +18,6 @@ exec("import configs." + active_cfg.module_name + " as cfg")
 import modules.gb as gb
 import modules.utils as utils
 import modules.funcutils as funcutils
-import modules.infomsg as infomsg
 
 
 # ====== createOutputDirectories ========

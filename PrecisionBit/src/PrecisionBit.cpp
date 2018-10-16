@@ -16,6 +16,10 @@
 ///          (crogan@cern.ch)
 ///  \date 2014 Aug
 ///
+///  \author Ankit Beniwal
+///         (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Oct
+///
 ///  *********************************************
 
 #include <algorithm>
@@ -633,11 +637,43 @@ namespace Gambit
       result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
       result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
     }
-    void mw_from_SS_spectrum(triplet<double> &result)
+    void mw_from_ScalarSingletDM_Z2_spectrum(triplet<double> &result)
     {
-      using namespace Pipes::mw_from_SS_spectrum;
-      const SubSpectrum& LE = Dep::SingletDM_spectrum->get_LE();
+      using namespace Pipes::mw_from_ScalarSingletDM_Z2_spectrum;
+      const SubSpectrum& LE = Dep::ScalarSingletDM_Z2_spectrum->get_LE();
       result.central = LE.get(Par::Pole_Mass, "W+");;
+      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+    }
+    void mw_from_ScalarSingletDM_Z3_spectrum(triplet<double> &result)
+    {
+      using namespace Pipes::mw_from_ScalarSingletDM_Z3_spectrum;
+      const SubSpectrum& LE = Dep::ScalarSingletDM_Z3_spectrum->get_LE();
+      result.central = LE.get(Par::Pole_Mass, "W+");;
+      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+    }
+    void mw_from_VectorSingletDM_Z2_spectrum(triplet<double> &result)
+    {
+      using namespace Pipes::mw_from_VectorSingletDM_Z2_spectrum;
+      const SubSpectrum& LE = Dep::VectorSingletDM_Z2_spectrum->get_LE();
+      result.central = LE.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+    }
+    void mw_from_MajoranaSingletDM_Z2_spectrum(triplet<double> &result)
+    {
+      using namespace Pipes::mw_from_MajoranaSingletDM_Z2_spectrum;
+      const SubSpectrum& LE = Dep::MajoranaSingletDM_Z2_spectrum->get_LE();
+      result.central = LE.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+    }
+      void mw_from_DiracSingletDM_Z2_spectrum(triplet<double> &result)
+    {
+      using namespace Pipes::mw_from_DiracSingletDM_Z2_spectrum;
+      const SubSpectrum& LE = Dep::DiracSingletDM_Z2_spectrum->get_LE();
+      result.central = LE.get(Par::Pole_Mass, "W+");
       result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
       result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
     }
@@ -657,10 +693,18 @@ namespace Gambit
       result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
       result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
     }
-    void mh_from_SS_spectrum(triplet<double> &result)
+    void mh_from_ScalarSingletDM_Z2_spectrum(triplet<double> &result)
     {
-      using namespace Pipes::mh_from_SS_spectrum;
-      const SubSpectrum& HE = Dep::SingletDM_spectrum->get_HE();
+      using namespace Pipes::mh_from_ScalarSingletDM_Z2_spectrum;
+      const SubSpectrum& HE = Dep::ScalarSingletDM_Z2_spectrum->get_HE();
+      result.central = HE.get(Par::Pole_Mass, 25, 0);
+      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
+      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
+    }
+    void mh_from_ScalarSingletDM_Z3_spectrum(triplet<double> &result)
+    {
+      using namespace Pipes::mh_from_ScalarSingletDM_Z3_spectrum;
+      const SubSpectrum& HE = Dep::ScalarSingletDM_Z3_spectrum->get_HE();
       result.central = HE.get(Par::Pole_Mass, 25, 0);
       result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
       result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
@@ -950,7 +994,7 @@ namespace Gambit
         /// alpha_MZ := alpha(0) (1 - \Delta^{OS}(M_Z) ) where
         /// \Delta^{OS}(M_Z) = quark and lepton contributions to
         // on-shell renormalized photon vacuum polarization
-        // default value recommended by GM2calc from arxiv:1105.3149  
+        // default value recommended by GM2calc from arxiv:1105.3149
         const double alpha_MZ = runOptions->getValueOrDef
         <double>(alpha_e_OS_MZ, "GM2Calc_extra_alpha_e_MZ");
         const double alpha_thomson = runOptions->getValueOrDef

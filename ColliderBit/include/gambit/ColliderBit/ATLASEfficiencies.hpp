@@ -105,15 +105,30 @@ namespace Gambit {
 
           // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
           const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
-          const static std::vector<double> bineffs_pt_1p  = {    0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
-          const static std::vector<double> bineffs_pt_3p  = {    0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
+          const static std::vector<double> bineffs_pt_1p  = { 0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
+          const static std::vector<double> bineffs_pt_3p  = { 0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
           const static HEPUtils::BinnedFn1D<double> _eff_pt_1p(binedges_pt, bineffs_pt_1p);
           const static HEPUtils::BinnedFn1D<double> _eff_pt_3p(binedges_pt, bineffs_pt_3p);
           // 85% 1-prong, 15% >=3-prong
-          const static std::vector<double> bineffs_pt_avg = {    0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
+          const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
           const static HEPUtils::BinnedFn1D<double> _eff_pt_avg(binedges_pt, bineffs_pt_avg);
           filtereff_pt(taus, _eff_pt_avg, false);
 
+        }
+
+
+        inline void applyPhotonEfficiencyR2(std::vector<HEPUtils::Particle*>& photons) {
+
+          const static std::vector<double> binedges_eta   = { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX };
+          const static std::vector<double> binedges_pt    = { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX };
+          const static std::vector<double> bineffs_etapt  = { 0.00, 0.55, 0.70, 0.85, 0.89, 0.93, 0.95, 0.96, 0.96, 0.97, 0.97, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97, //
+                                                              0.00, 0.47, 0.66, 0.79, 0.86, 0.89, 0.94, 0.96, 0.97, 0.97, 0.98, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, //
+                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, //
+                                                              0.00, 0.54, 0.71, 0.84, 0.88, 0.92, 0.93, 0.94, 0.95, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, //
+                                                              0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, //
+                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 };
+          const static HEPUtils::BinnedFn2D<double> _eff_etapt(binedges_eta, binedges_pt, bineffs_etapt);
+          filtereff_etapt(photons, _eff_etapt, false);
         }
 
 

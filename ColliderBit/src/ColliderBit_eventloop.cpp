@@ -2453,7 +2453,7 @@ namespace Gambit
         {
           // Save SR numbers and absolute uncertainties
           const SignalRegionData srData = adata[SR];
-          const str key = adata.analysis_name + "_" + srData.sr_label + "_signal";
+          const str key = adata.analysis_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__signal";
           result[key] = srData.n_signal_at_lumi;
           const double abs_uncertainty_s_stat = (srData.n_signal == 0 ? 0 : sqrt(srData.n_signal) * (srData.n_signal_at_lumi/srData.n_signal));
           const double abs_uncertainty_s_sys = srData.signal_sys;
@@ -2463,10 +2463,10 @@ namespace Gambit
     }
 
 
-    // Loop over all analyses (and SRs within one analysis) and fill a map of per-analysis likelihoods
-    void calc_LHC_LogLike_per_analysis(map_str_dbl& result)
+    // Loop over all analyses and fill a map of AnalysisLogLikes objects
+    void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
-      using namespace Pipes::calc_LHC_LogLike_per_analysis;
+      using namespace Pipes::calc_LHC_LogLikes;
 
       // Clear the result map
       result.clear();
@@ -2477,36 +2477,59 @@ namespace Gambit
         // AnalysisData for this analysis
         const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
 
+        /// If no events have been generated (xsec veto) or too many events have failed, 
+        /// short-circut the loop and return delta log-likelihood = 0 for every SR in 
+        /// each analysis.
+        /// @todo This must be made more sophisticated once we add analyses that
+        ///       don't rely on event generation.
+        if (!eventsGenerated || nFailedEvents > maxFailedEvents)
+        {
+          // If this is an anlysis with covariance info, only add a single 0-entry in the map
+          if (adata.srcov.rows() > 0)
+          {
+            result[adata.analysis_name].combination_sr_label = "none";
+            result[adata.analysis_name].combination_loglike = 0.0;
+            continue;
+          }
+          // If this is an anlysis without covariance info, add 0-entries for all SRs plus
+          // one for the combined LogLike
+          else 
+          {
+            for (size_t SR = 0; SR < adata.size(); ++SR)
+            {
+              result[adata.analysis_name].sr_indices[adata[SR].sr_label] = SR;
+              result[adata.analysis_name].sr_loglikes[adata[SR].sr_label] = 0.0;
+              continue;
+            }
+            result[adata.analysis_name].combination_sr_label = "none";
+            result[adata.analysis_name].combination_loglike = 0.0;
+            continue;
+          }
+
+        }
+
+
         #ifdef COLLIDERBIT_DEBUG
         std::streamsize stream_precision = cout.precision();  // get current precision
         cout.precision(2);  // set precision
-        cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << "Will print content of " << adata.analysis_name << " signal regions:" << endl;
+        cout << debug_prefix() << "calc_LHC_LogLikes: " << "Will print content of " << adata.analysis_name << " signal regions:" << endl;
         for (size_t SR = 0; SR < adata.size(); ++SR)
         {
           const SignalRegionData& srData = adata[SR];
           cout << std::fixed << debug_prefix() 
-                                 << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name 
+                                 << "calc_LHC_LogLikes: " << adata.analysis_name 
                                  << ", " << srData.sr_label 
                                  << ",  n_b = " << srData.n_background << " +/- " << srData.background_sys
                                  << ",  n_obs = " << srData.n_observed 
                                  << ",  excess = " << srData.n_observed - srData.n_background << " +/- " << srData.background_sys
                                  << ",  n_s = " << srData.n_signal_at_lumi
                                  << ",  (excess-n_s) = " << (srData.n_observed-srData.n_background) - srData.n_signal_at_lumi << " +/- " << srData.background_sys
+                                 << ",  n_s_MC = " << srData.n_signal
                                  << endl; 
         }
         cout.precision(stream_precision); // restore previous precision
         #endif
 
-
-        /// If no events have been generated (xsec veto) or too many events have failed, 
-        /// short-circut the loop and return delta log-likelihood = 0 for each analysis.
-        /// @todo This must be made more sophisticated once we add analyses that
-        ///       don't rely on event generation.
-        if (!eventsGenerated || nFailedEvents > maxFailedEvents)
-        {
-          result[adata.analysis_name] = 0.0;
-          continue;
-        }
 
         // Loop over the signal regions inside the analysis, and work out the total (delta) log likelihood for this analysis
         /// @todo Unify the treatment of best-only and correlated SR treatments as far as possible
@@ -2531,8 +2554,34 @@ namespace Gambit
           /// @todo Support skewness correction to the pdf.
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
           #endif
+
+
+          // Shortcut: if all SRs have 0 signal prediction, we know the Delta LogLike is 0.
+          bool all_zero_signal = true;
+          for (size_t SR = 0; SR < adata.size(); ++SR)
+          {
+            if (adata[SR].n_signal != 0)
+            {
+              all_zero_signal = false;
+              break;
+            } 
+          }
+          if (all_zero_signal)
+          {
+            // Store result
+            result[adata.analysis_name].combination_sr_label = "all";
+            result[adata.analysis_name].combination_sr_index = -1;
+            result[adata.analysis_name].combination_loglike = 0.0;
+
+            #ifdef COLLIDERBIT_DEBUG
+            cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << 0.0 << " (No signal predicted. Skipped covariance calculation.)" <<endl;
+            #endif
+
+            // Continue to next analysis
+            continue;
+          }
 
           // Construct vectors of SR numbers
           Eigen::ArrayXd n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
@@ -2743,10 +2792,12 @@ namespace Gambit
           }
 
           // Store result
-          result[adata.analysis_name] = ana_dll;
+          result[adata.analysis_name].combination_sr_label = "all";
+          result[adata.analysis_name].combination_sr_index = -1;
+          result[adata.analysis_name].combination_loglike = ana_dll;
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name << "_DeltaLogLike : " << ana_dll << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << ana_dll << endl;
           #endif
 
         }
@@ -2755,11 +2806,12 @@ namespace Gambit
         {
           // No SR-correlation info, so just take the result from the SR *expected* to be most constraining, i.e. with highest expected dLL
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
           #endif
 
           double bestexp_dll_exp = 0, bestexp_dll_obs = 0;
           str bestexp_sr_label;
+          int bestexp_sr_index;
 
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
@@ -2809,25 +2861,15 @@ namespace Gambit
               bestexp_dll_exp = dll_exp;
               bestexp_dll_obs = llb_obs - llsb_obs;
               bestexp_sr_label = srData.sr_label;
+              bestexp_sr_index = SR;
               // #ifdef COLLIDERBIT_DEBUG
               // cout << debug_prefix() << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", LogL_exp = " << -bestexp_dll_exp << ", LogL_obs = " << -bestexp_dll_obs << endl;
               // #endif
             }
 
-            // // For debugging: print some useful numbers to the log.
-            // #ifdef COLLIDERBIT_DEBUG
-            // cout << endl;
-            // cout << debug_prefix() << "COLLIDER_RESULT: " << adata.analysis_name << ", SR: " << srData.sr_label << endl;
-            // cout << debug_prefix() << "  LLikes: b_ex      sb_ex     b_obs     sb_obs    (sb_obs-b_obs)" << endl;
-            // cout << debug_prefix() << "          " << llb_exp << "  " << llsb_exp << "  " << llb_obs << "  " << llsb_obs << "  " << llsb_obs-llb_obs << endl;
-            // cout << debug_prefix() << "  NEvents, not scaled to luminosity: " << srData.n_signal << endl;
-            // cout << debug_prefix() << "  NEvents, scaled  to luminosity:    " << srData.n_signal_at_lumi << endl;
-            // cout << debug_prefix() << "  NEvents: b [rel err]      sb [rel err]" << endl;
-            // cout << debug_prefix() << "           "
-            //      << n_predicted_uncertain_b << " [" << 100*frac_uncertainty_b << "%]  "
-            //      << n_predicted_uncertain_sb << " [" << 100*frac_uncertainty_sb << "%]" << endl;
-            // #endif
-
+            // Store "observed LogLike" result for this SR
+            result[adata.analysis_name].sr_indices[srData.sr_label] = SR;
+            result[adata.analysis_name].sr_loglikes[srData.sr_label] = llsb_obs - llb_obs;
           }
 
           // Check for problem
@@ -2852,10 +2894,13 @@ namespace Gambit
           }
 
           // Set this analysis' total obs dLL to that from the best-expected SR (with conversion to more negative dll = more exclusion convention)
-          result[adata.analysis_name] = -bestexp_dll_obs;
+          // result[adata.analysis_name] = -bestexp_dll_obs;
+          result[adata.analysis_name].combination_sr_label = bestexp_sr_label;
+          result[adata.analysis_name].combination_sr_index = bestexp_sr_index;
+          result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name << "_" << bestexp_sr_label << "_DeltaLogLike : " << -bestexp_dll_obs << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_" << bestexp_sr_label << "_LogLike : " << -bestexp_dll_obs << endl;
           #endif
         }
 
@@ -2863,11 +2908,79 @@ namespace Gambit
 
     }
 
-
-    // Compute the total likelihood for all analyses
-    void calc_LHC_LogLike(double& result)
+    // Extract the combined log likelihood for each analysis
+    void get_LHC_LogLike_per_analysis(map_str_dbl& result)
     {
-      using namespace Pipes::calc_LHC_LogLike;
+      using namespace Pipes::get_LHC_LogLike_per_analysis;
+      for (const std::pair<string,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair.first;
+        const AnalysisLogLikes& analysis_loglikes = pair.second;
+
+        result[analysis_name] = analysis_loglikes.combination_loglike;
+      }
+    }
+
+
+    // Extract the log likelihood for each SR
+    void get_LHC_LogLike_per_SR(map_str_dbl& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        for (const std::pair<string,double>& pair_j : analysis_loglikes.sr_loglikes)
+        {
+          const string& sr_label = pair_j.first;
+          const double& sr_loglike = pair_j.second;
+          const int sr_index = analysis_loglikes.sr_indices.at(sr_label);
+          
+          const string key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
+          result[key] = sr_loglike;          
+        }
+
+        result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;          
+      }
+    }
+
+
+    // Extract the labels for the SRs used in the analysis loglikes
+    void get_LHC_LogLike_SR_labels(map_str_str& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        result[analysis_name] = analysis_loglikes.combination_sr_label;
+      }
+    }
+
+
+    // Extract the indices for the SRs used in the analysis loglikes
+    // @todo Switch result type to map_str_int once we have implemented a printer for this type
+    void get_LHC_LogLike_SR_indices(map_str_dbl& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+
+      // Loop over analyses
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        result[analysis_name] = (double) analysis_loglikes.combination_sr_index;
+      }
+    }
+
+
+    // Compute the total likelihood combining all analyses
+    void calc_combined_LHC_LogLike(double& result)
+    {
+      using namespace Pipes::calc_combined_LHC_LogLike;
       result = 0.0;
 
       // Read analysis names from the yaml file
@@ -2884,7 +2997,7 @@ namespace Gambit
       }
 
       // Loop over analyses and calculate the total observed dLL
-      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLikes)
+      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
       {
         const string& analysis_name = analysis_loglike_pair.first;
         const double& analysis_loglike = analysis_loglike_pair.second;

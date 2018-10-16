@@ -12,11 +12,15 @@
 ///          (ben.farmer@gmail.com)
 ///  \date 2015 Oct - 2016 Jul
 ///
+///  \author José Eliel Camargo-Molina
+///         (Elielcamargomolina@gmail.com)
+///   \date 2018 Aug
 ///  *********************************************
 
 #include <iostream>
 #include <signal.h>
 #include <omp.h>
+#include <cmath>
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Logs/logger.hpp"
@@ -181,7 +185,7 @@ namespace Gambit
        logger() << "Waiting up to "<<timeout/1000<<" seconds for all processes to sync..." << EOM;
        // sleep setup
        bool timedout = false;
-       std::chrono::milliseconds bar_timeout(std::lround(timeout)); 
+       std::chrono::milliseconds bar_timeout(std::lround(timeout));
        if( signalComm->BarrierWithTimeout(bar_timeout, 9999) )
        {
          timedout = true; // Barrier timed out waiting for some process to enter

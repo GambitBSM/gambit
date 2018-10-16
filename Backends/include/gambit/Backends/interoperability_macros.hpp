@@ -57,22 +57,10 @@
 #endif
 
 /// Macro to choose between mathematica types, python types and normal types
-//#ifdef HAVE_MATHEMATICA
-//  #ifdef HAVE_PYBIND11
-    #define MATH_TYPE(TYPE)                                                                     \
-     IF_ELSEIF(USING_MATHEMATICA, mathematica_variable<TYPE>,                                   \
-               USING_PYTHON, python_variable<TYPE>,                                             \
-               /*USING NONE OF THE ABOVE*/ TYPE)
-//  #else
-//    #define MATH_TYPE(TYPE) BOOST_PP_IF(USING_MATHEMATICA, mathematica_variable<TYPE>, TYPE)
-//  #endif
-//#else
-//  #ifdef HAVE_PYBIND11
-//    #define MATH_TYPE(TYPE) BOOST_PP_IF(USING_PYTHON, python_variable<TYPE>, TYPE)
-//  #else
-//    #define MATH_TYPE(TYPE) TYPE
-//  #endif
-//#endif
+#define MATH_TYPE(TYPE)                                                                         \
+        IF_ELSEIF(USING_MATHEMATICA, mathematica_variable<TYPE>,                                \
+                  USING_PYTHON, python_variable<TYPE>,                                          \
+                  /*USING NONE OF THE ABOVE*/ TYPE)
 
 /// Macro that determines whether the language of the backend is C
 #define USING_CC IF_ELSE_TOKEN_DEFINED(BACKENDLANG,                                             \

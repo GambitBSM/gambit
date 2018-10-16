@@ -81,8 +81,8 @@ namespace Gambit
          /// Create or open hdf5 file
          // If overwrite=true then any existing file will be deleted and replaced. USE CAREFULLY!!!
          // third argument "oldfile" is used to report whether an existing file was opened (true if yes)
-         hid_t openFile(const std::string& fname, bool overwrite, bool& oldfile);
-         hid_t openFile(const std::string& fname, bool overwrite=false);
+         hid_t openFile(const std::string& fname, bool overwrite, bool& oldfile, const char access_type='r');
+         hid_t openFile(const std::string& fname, bool overwrite=false, const char access_type='r');
 
          /// Close hdf5 file
          hid_t closeFile(hid_t file);
@@ -160,6 +160,9 @@ namespace Gambit
          /// Get name of dataset
          std::string getName(hid_t dset_id);
 
+         /// Select a simple hyperslab in a 1D dataset
+         std::pair<hid_t,hid_t> selectChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
+  
          /// @}
 
       }

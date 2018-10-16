@@ -5,9 +5,7 @@
 #                                  #
 ####################################
 
-import xml.etree.ElementTree as ET
 from collections import OrderedDict
-import warnings
 import os
 
 # import modules.cfg as cfg

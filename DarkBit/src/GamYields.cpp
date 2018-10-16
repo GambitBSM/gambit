@@ -17,6 +17,10 @@
 ///          (sebastian.wild@ph.tum.de)
 ///  \date 2016 Aug
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2018 Aug
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -175,10 +179,11 @@ namespace Gambit {
      *
      * This function returns
      *
-     *   dN/dE*(sv)/mDM**2 (E, v)  [cm^3/s/GeV^3]
+     *   k*dN/dE*(sv)/mDM**2 (E, v)  [cm^3/s/GeV^3]
      *
      * the energy spectrum of photons times sigma*v/m^2, as function of
-     * energy (GeV) and velocity (c).  By default, only the v=0 component
+     * energy (GeV) and velocity (c), multiplied by k=1 for self-conjugate DM
+     * or k=1/2 for non-self conjugate.  By default, only the v=0 component
      * is calculated.
      *
      */
@@ -194,6 +199,9 @@ namespace Gambit {
 
       // Get annihilation process from process catalog
       TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
+      
+      // If process involves non-self-conjugate DM then we need to add a factor of 1/2 to the final spectrum. This must be explicitly set in the process catalogue.
+      double k = (annProc.isSelfConj) ? 1. : 0.5;
 
       // Get particle mass from process catalog
       const double mass = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
@@ -406,7 +414,7 @@ namespace Gambit {
         if(debug) os.close();
       #endif
 
-      result = daFunk::ifelse(1e-6 - daFunk::var("v"), Yield/(mass*mass),
+      result = k*daFunk::ifelse(1e-6 - daFunk::var("v"), Yield/(mass*mass),
           daFunk::throwError("Spectrum currently only defined for v=0."));
     }
 
@@ -430,7 +438,7 @@ namespace Gambit {
         double mDM_min, mDM_max;
         /// Option allow_yield_extrapolation<bool>: Spectra extrapolated for masses beyond Pythia results (default false)
         bool allow_yield_extrapolation = runOptions->getValueOrDef(false, "allow_yield_extrapolation");
-	if ( allow_yield_extrapolation ) 
+  if ( allow_yield_extrapolation ) 
         {
           mDM_min = 0.0; // in this case, the minimally allowed dark matter mass will later be set to be the mass of the final state particle,
                          // with an additional factor 0.99 for the case of Z, W or t final states (following DarkSUSY)
@@ -594,7 +602,7 @@ namespace Gambit {
         daFunk::Funk dNdE_2;
 
         double mDM_max;
-	if ( runOptions->getValueOrDef(false, "allow_yield_extrapolation") ) 
+  if ( runOptions->getValueOrDef(false, "allow_yield_extrapolation") ) 
         {mDM_max = 1.0e6;}
         else 
         {mDM_max = 5000.;} // maximal dark matter mass simulated in micromegas.
@@ -607,7 +615,7 @@ namespace Gambit {
 // using the approximation that x*dN/dx is a constant function of the dark matter mass.
 #define ADD_CHANNEL_WITH_SCALING(inP, P1, P2, FINAL, EcmMin, EcmMax, Ecm_ToScale)             \
         daFunk::Funk Ecm_ToUse = fmax(Ecm_ToScale, daFunk::var("Ecm"));    \
-	daFunk::Funk ScalingFactor = Ecm_ToUse/daFunk::var("Ecm");      \
+  daFunk::Funk ScalingFactor = Ecm_ToUse/daFunk::var("Ecm");      \
         dNdE = ScalingFactor * daFunk::func_fromThreadsafe(BEreq::dNdE.pointer(), Ecm_ToUse, ScalingFactor * daFunk::var("E"), inP, outN)/(ScalingFactor * daFunk::var("E")); \
         result.addChannel(dNdE, str_flav_to_mass(P1), str_flav_to_mass(P2), FINAL, EcmMin, EcmMax);
 
@@ -617,7 +625,7 @@ namespace Gambit {
         ADD_CHANNEL(3, "s", "sbar", "gamma", 2*2., 2*mDM_max)
         ADD_CHANNEL(4, "c", "cbar", "gamma", 2*2., 2*mDM_max)
         ADD_CHANNEL(5, "b", "bbar", "gamma", 2*5., 2*mDM_max)
-	ADD_CHANNEL_WITH_SCALING(6, "t", "tbar", "gamma", 2*160.0, 2*mDM_max, 2.0*176.0)
+  ADD_CHANNEL_WITH_SCALING(6, "t", "tbar", "gamma", 2*160.0, 2*mDM_max, 2.0*176.0)
         ADD_CHANNEL(7, "e+", "e-", "gamma", 2*2., 2*mDM_max)
         ADD_CHANNEL(8, "mu+", "mu-", "gamma", 2*2., 2*mDM_max)
         ADD_CHANNEL(9, "tau+", "tau-", "gamma", 2*2., 2*mDM_max)
@@ -650,7 +658,7 @@ namespace Gambit {
         result.addChannel(dNdE/2, "W-", "gamma", 79.497, mDM_max);
 
         // Add single particle lookup for t tbar to prevent them from being tagged as missing final states for cascades.
-	double Ecm_ToScale_top = 176.0;
+  double Ecm_ToScale_top = 176.0;
         daFunk::Funk Ecm_ToUse_top = fmax(Ecm_ToScale_top, daFunk::var("Ecm")); 
         daFunk::Funk ScalingFactor_top = Ecm_ToUse_top/daFunk::var("Ecm");
         dNdE =  ScalingFactor_top * (daFunk::func_fromThreadsafe(BEreq::dNdE.pointer(), daFunk::var("_Ecm"), ScalingFactor_top * daFunk::var("E"), 6, outN)

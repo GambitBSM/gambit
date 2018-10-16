@@ -24,6 +24,11 @@
 ///
 ///  \author Csaba Balazs
 ///  \date 2015 Jan-May
+///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Aug
+///
 ///   \author Tomas Gonzalo
 ///           (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Feb
@@ -124,11 +129,33 @@ START_MODULE
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
     #undef FUNCTION
 
-    #define FUNCTION SingletDM_Higgs_decays
+    #define FUNCTION ScalarSingletDM_Higgs_decays
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
-    DEPENDENCY(SingletDM_spectrum, Spectrum)
-    ALLOW_MODELS(SingletDM, SingletDMZ3)
+    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
+    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+    ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+    #undef FUNCTION
+
+    #define FUNCTION VectorSingletDM_Higgs_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum)
+    ALLOW_MODELS(VectorSingletDM_Z2)
+    #undef FUNCTION
+
+    #define FUNCTION MajoranaSingletDM_Higgs_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
+    ALLOW_MODELS(MajoranaSingletDM_Z2)
+    #undef FUNCTION
+
+    #define FUNCTION DiracSingletDM_Higgs_decays
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum)
+    ALLOW_MODELS(DiracSingletDM_Z2)
     #undef FUNCTION
 
     #define FUNCTION MSSM_h0_1_decays
@@ -814,17 +841,34 @@ START_MODULE
     #define FUNCTION lnL_Higgs_invWidth_SMlike
     START_FUNCTION(double)
     DEPENDENCY(inv_Higgs_BF, double)
-    ALLOW_MODELS(SingletDM, SingletDMZ3, MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY inv_Higgs_BF
   START_CAPABILITY
 
-    #define FUNCTION SingletDM_inv_Higgs_BF
+    #define FUNCTION ScalarSingletDM_inv_Higgs_BF
     START_FUNCTION(double)
     DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
-    ALLOW_MODELS(SingletDM, SingletDMZ3)
+    ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+    #undef FUNCTION
+
+    #define FUNCTION VectorSingletDM_inv_Higgs_BF
+    START_FUNCTION(double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS(VectorSingletDM_Z2)
+    #undef FUNCTION
+
+    #define FUNCTION MajoranaSingletDM_inv_Higgs_BF
+    START_FUNCTION(double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS(MajoranaSingletDM_Z2)
+    #undef FUNCTION
+
+    #define FUNCTION DiracSingletDM_inv_Higgs_BF
+    START_FUNCTION(double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS(DiracSingletDM_Z2)
     #undef FUNCTION
 
     #define FUNCTION MSSM_inv_Higgs_BF

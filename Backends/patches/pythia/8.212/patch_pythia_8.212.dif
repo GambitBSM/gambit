@@ -1,6 +1,6 @@
 diff -rupN 8.212_original/include/Pythia8/ParticleData.h 8.212/include/Pythia8/ParticleData.h
 --- 8.212_original/include/Pythia8/ParticleData.h	2015-09-23 17:34:38.000000000 +0200
-+++ 8.212/include/Pythia8/ParticleData.h	2017-04-12 15:27:59.721471853 +0200
++++ 8.212/include/Pythia8/ParticleData.h	2018-06-19 13:46:00.943050290 +0200
 @@ -347,6 +347,10 @@ public:
    bool init(string startFile = "../xmldoc/ParticleData.xml") {
      initCommon(); return readXML(startFile);}
@@ -53,7 +53,7 @@ diff -rupN 8.212_original/include/Pythia8/ParticleData.h 8.212/include/Pythia8/P
  //==========================================================================
 diff -rupN 8.212_original/include/Pythia8/PartonDistributions.h 8.212/include/Pythia8/PartonDistributions.h
 --- 8.212_original/include/Pythia8/PartonDistributions.h	2015-09-23 17:34:38.000000000 +0200
-+++ 8.212/include/Pythia8/PartonDistributions.h	2017-04-12 15:27:59.721471853 +0200
++++ 8.212/include/Pythia8/PartonDistributions.h	2018-06-19 13:46:00.947050268 +0200
 @@ -156,9 +156,8 @@ class MSTWpdf : public PDF {
  public:
  
@@ -139,7 +139,7 @@ diff -rupN 8.212_original/include/Pythia8/PartonDistributions.h 8.212/include/Py
    double *fQ2Grid;
 diff -rupN 8.212_original/include/Pythia8/Pythia.h 8.212/include/Pythia8/Pythia.h
 --- 8.212_original/include/Pythia8/Pythia.h	2015-09-23 17:34:39.000000000 +0200
-+++ 8.212/include/Pythia8/Pythia.h	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/include/Pythia8/Pythia.h	2018-06-19 13:46:00.947050268 +0200
 @@ -56,6 +56,11 @@ public:
    // Constructor. (See Pythia.cc file.)
    Pythia(string xmlDir = "../share/Pythia8/xmldoc", bool printBanner = true);
@@ -163,7 +163,7 @@ diff -rupN 8.212_original/include/Pythia8/Pythia.h 8.212/include/Pythia8/Pythia.
    bool next();
 diff -rupN 8.212_original/include/Pythia8/Settings.h 8.212/include/Pythia8/Settings.h
 --- 8.212_original/include/Pythia8/Settings.h	2015-09-23 17:34:39.000000000 +0200
-+++ 8.212/include/Pythia8/Settings.h	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/include/Pythia8/Settings.h	2018-06-19 13:46:00.947050268 +0200
 @@ -302,6 +302,9 @@ public:
    void resetMVec(string keyIn);
    void resetPVec(string keyIn);
@@ -176,7 +176,7 @@ diff -rupN 8.212_original/include/Pythia8/Settings.h 8.212/include/Pythia8/Setti
    // Pointer to various information on the generation.
 diff -rupN 8.212_original/include/Pythia8/SusyLesHouches.h 8.212/include/Pythia8/SusyLesHouches.h
 --- 8.212_original/include/Pythia8/SusyLesHouches.h	2015-09-23 17:34:40.000000000 +0200
-+++ 8.212/include/Pythia8/SusyLesHouches.h	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/include/Pythia8/SusyLesHouches.h	2018-06-19 13:46:00.947050268 +0200
 @@ -14,6 +14,9 @@
  #define Pythia8_SLHA_H
  
@@ -227,7 +227,7 @@ diff -rupN 8.212_original/include/Pythia8/SusyLesHouches.h 8.212/include/Pythia8
  
 diff -rupN 8.212_original/src/ParticleData.cc 8.212/src/ParticleData.cc
 --- 8.212_original/src/ParticleData.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/ParticleData.cc	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/src/ParticleData.cc	2018-06-19 13:46:00.951050248 +0200
 @@ -572,6 +572,8 @@ void ParticleData::initCommon() {
  
  void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
@@ -468,7 +468,7 @@ diff -rupN 8.212_original/src/ParticleData.cc 8.212/src/ParticleData.cc
  
 diff -rupN 8.212_original/src/PartonDistributions.cc 8.212/src/PartonDistributions.cc
 --- 8.212_original/src/PartonDistributions.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/PartonDistributions.cc	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/src/PartonDistributions.cc	2018-06-19 13:46:00.951050248 +0200
 @@ -2133,17 +2133,10 @@ void NNPDF::init(int iFitIn, string xmlP
    for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
  
@@ -736,7 +736,7 @@ diff -rupN 8.212_original/src/PartonDistributions.cc 8.212/src/PartonDistributio
  
 diff -rupN 8.212_original/src/ProcessLevel.cc 8.212/src/ProcessLevel.cc
 --- 8.212_original/src/ProcessLevel.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/ProcessLevel.cc	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/src/ProcessLevel.cc	2018-06-19 13:46:00.955050226 +0200
 @@ -6,6 +6,20 @@
  // Function definitions (not found in the header) for the ProcessLevel class.
  
@@ -836,7 +836,7 @@ diff -rupN 8.212_original/src/ProcessLevel.cc 8.212/src/ProcessLevel.cc
      if (containerPtrs[iContainer]->newSigmaMax()) {
 diff -rupN 8.212_original/src/Pythia.cc 8.212/src/Pythia.cc
 --- 8.212_original/src/Pythia.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/Pythia.cc	2017-04-12 15:32:42.924415790 +0200
++++ 8.212/src/Pythia.cc	2018-06-19 13:46:00.955050226 +0200
 @@ -113,7 +113,9 @@ Pythia::Pythia(string xmlDir, bool print
      info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
      return;
@@ -997,7 +997,7 @@ diff -rupN 8.212_original/src/Pythia.cc 8.212/src/Pythia.cc
       << " |  |   Stephen Mrenna;  Computing Division, "
 diff -rupN 8.212_original/src/ResonanceDecays.cc 8.212/src/ResonanceDecays.cc
 --- 8.212_original/src/ResonanceDecays.cc	2015-09-23 17:35:09.000000000 +0200
-+++ 8.212/src/ResonanceDecays.cc	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/src/ResonanceDecays.cc	2018-06-19 13:50:54.446386853 +0200
 @@ -92,6 +92,10 @@ bool ResonanceDecays::next( Event& proce
            idProd.push_back( idNow);
          }
@@ -1009,9 +1009,28 @@ diff -rupN 8.212_original/src/ResonanceDecays.cc 8.212/src/ResonanceDecays.cc
          // Pick masses. Pick new channel if fail.
          if (!pickMasses()) continue;
          foundChannel = true;
+@@ -191,11 +195,15 @@ bool ResonanceDecays::pickMasses() {
+     mSumMin     += mMinBW[i];
+   }
+ 
+-  // If sum of minimal masses above mother mass then give up.
+-  if (mSumMin + MSAFETY > mMother) return false;
++  // GAMBIT modification to allow decays at small mass splittings:
++  // Switched order of the two next if-statements and changed
++  // 0.5*MSAFETY to 0.1*MSAFETY.
+ 
+   // If sum of masses below and no Breit-Wigners then done.
+-  if (mSum + 0.5 * MSAFETY < mMother && nBW == 0) return true;
++  if (mSum + 0.1 * MSAFETY < mMother && nBW == 0) return true;
++
++  // If sum of minimal masses above mother mass then give up.
++  if (mSumMin + MSAFETY > mMother) return false;
+ 
+   // Else if below then retry Breit-Wigners, with simple treshold.
+   if (mSum + MSAFETY < mMother) {
 diff -rupN 8.212_original/src/SusyLesHouches.cc 8.212/src/SusyLesHouches.cc
 --- 8.212_original/src/SusyLesHouches.cc	2015-09-23 17:35:10.000000000 +0200
-+++ 8.212/src/SusyLesHouches.cc	2017-04-12 15:27:59.725471894 +0200
++++ 8.212/src/SusyLesHouches.cc	2018-06-19 13:46:00.955050226 +0200
 @@ -7,6 +7,58 @@
  #include "Pythia8/SusyLesHouches.h"
  #include "Pythia8/Streams.h"

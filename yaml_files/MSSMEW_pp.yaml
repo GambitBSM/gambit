@@ -144,7 +144,7 @@ ObsLikes:
 
     # Observables (not included in likelihood)
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals
@@ -382,20 +382,19 @@ Rules:
     function: getCMSnoeffAnalysisContainer
     options:
       analyses: [ [ "CMS_13TeV_2LEPsoft_36invfb",
-                    "CMS_13TeV_2LEPsoft_36invfb_NOCOVAR_NOLIKE",
+                    "CMS_13TeV_2LEPsoft_36invfb_nocovar",
                     "CMS_13TeV_MultiLEP_36invfb",
                     "CMS_13TeV_2OSLEP_36invfb",
-                    "CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE" ] ]
+                    "CMS_13TeV_2OSLEP_36invfb_nocovar" ] ]
 
 
   # List any analyses that should *NOT* be included in the total log-likelihood!
   # These will still be computed if listed in the analysis setup above, 
   # but their likelihood will not added to the combined likelihood.
   - capability: LHC_Combined_LogLike
-    function: calc_LHC_LogLike
     options:
-      skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_NOCOVAR_NOLIKE", 
-                       "CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE" ]
+      skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_nocovar", 
+                       "CMS_13TeV_2OSLEP_36invfb_nocovar" ]
 
   # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
   # Can change "_lognormal_" to "_gaussian_" if you prefer

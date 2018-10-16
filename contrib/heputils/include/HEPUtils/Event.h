@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2016 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -15,12 +15,15 @@
 namespace HEPUtils {
 
 
-  /// Simple event class, separating into various classes of particle
+  /// Simple event class, separating particles into classes
   class Event {
   private:
 
     /// @name Internal particle / vector containers
     //@{
+
+    /// Event weights
+    std::vector<double> _weights;
 
     /// @name Separate particle collections
     //@{
@@ -41,6 +44,7 @@ namespace HEPUtils {
     /// @todo Reinstate as a deep copy uing cloneTo?
     void operator = (const Event& e) {
       clear(); //< Delete current particles
+      _weights = e._weights;
       _photons = e._photons;
       _electrons = e._electrons;
       _muons = e._muons;
@@ -48,16 +52,10 @@ namespace HEPUtils {
       _invisibles = e._invisibles;
       _jets = e._jets;
       _pmiss = e._pmiss;
-      //return *this;
     }
 
 
   public:
-
-    /// @todo Need separate types of event (subclasses?) for what gets passed to detsim and to analysis?
-
-    /// @todo Should Event be able to do its own MET and SET calculations & jet construction? Defns differ...
-
 
     /// @name Constructors
     //@{
@@ -66,8 +64,9 @@ namespace HEPUtils {
     Event() { clear(); }
 
     /// Constructor from a list of Particles
-    Event(const std::vector<Particle*>& ps) {
+    Event(const std::vector<Particle*>& ps, const std::vector<double>& weights=std::vector<double>()) {
       clear();
+      _weights = weights;
       add_particles(ps);
     }
 
@@ -94,6 +93,7 @@ namespace HEPUtils {
 
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
+      e.set_weights(_weights);
       const std::vector<Particle*> ps = particles();
       for (size_t i = 0; i < ps.size(); ++i) {
         e.add_particle(new Particle(*ps[i]));
@@ -110,8 +110,8 @@ namespace HEPUtils {
 
     /// Empty the event's particle, jet and MET collections
     void clear() {
-      /// @todo Prefer this form when we can use C++11's range-for
-      // for (Particle* p : particles()) delete p;
+      _weights.clear();
+      // TODO: indexed loop -> for (Particle* p : particles()) delete p;
       #define DELCLEAR(v) do { if (!v.empty()) for (size_t i = 0; i < v.size(); ++i) delete v[i]; v.clear(); } while (0)
       DELCLEAR(_photons);
       DELCLEAR(_electrons);
@@ -123,6 +123,43 @@ namespace HEPUtils {
 
       _pmiss.clear();
     }
+
+
+    ///////////////////////
+
+
+    /// Set the event weights (also possible directly via non-const reference)
+    void set_weights(const std::vector<double>& ws) {
+      _weights = ws;
+    }
+
+    /// Set the event weights to the single given weight
+    void set_weight(double w) {
+      _weights.clear();
+      _weights.push_back(w);
+    }
+
+    /// Get the event weights (const)
+    const std::vector<double>& weights() const {
+      return _weights;
+    }
+
+    /// Get the event weights (non-const)
+    std::vector<double>& weights() {
+      return _weights;
+    }
+
+    /// Get a single event weight -- the nominal, by default
+    double weight(size_t i=0) const {
+      if (_weights.empty()) {
+        if (i == 0) return 1;
+        throw std::runtime_error("Trying to access non-default weight from empty weight vector");
+      }
+      return _weights[i];
+    }
+
+
+    /////////////////
 
 
     /// Add a particle to the event
@@ -147,7 +184,8 @@ namespace HEPUtils {
       else if (p->abspid() == 15)
         _taus.push_back(p);
       else if (p->abspid() == 12 || p->abspid() == 14 || p->abspid() == 16 ||
-               p->pid() == 1000022 || in_range(p->pid(), 50, 60))
+               p->pid() == 1000022 || p->pid() == 1000039 ||
+               in_range(p->pid(), 50, 60)) //< invert definition to specify all *visibles*?
         _invisibles.push_back(p);
       else
         delete p;
@@ -289,23 +327,22 @@ namespace HEPUtils {
     /// @name Missing energy
     //@{
 
-    /// @brief Get the missing energy vector
+    /// @brief Get the missing momentum vector
     ///
     /// Not _necessarily_ the sum over momenta of final state invisibles
     const P4& missingmom() const {
       return _pmiss;
     }
 
-    /// @brief Set the missing energy vector
+    /// @brief Set the missing momentum vector
     ///
     /// Not _necessarily_ the sum over momenta of final state invisibles
     void set_missingmom(const P4& pmiss) {
       _pmiss = pmiss;
     }
 
-    /// Get the missing ET in GeV
+    /// Get the missing transverse momentum in GeV
     double met() const {
-      /// @todo Any energy term needed? Most mass will be longitudinal: zero/subtract pz first?
       return missingmom().pT();
     }
 

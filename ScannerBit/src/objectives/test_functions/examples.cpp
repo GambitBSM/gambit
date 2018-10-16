@@ -99,6 +99,41 @@ objective_plugin(gaussian, version(1, 0, 0))
     }
 }
 
+objective_plugin(normal_example, version(1, 0, 0))
+{
+    plugin_constructor
+    {
+        int dim = get_keys().size();
+        
+        if (dim != 2)
+        {
+            scan_err << "Normal: Need to have two parameters." << scan_end;
+        }
+    }
+    
+    constexpr double SQ(double a) {return a*a;}
+    
+    double plugin_main(std::unordered_map<std::string, double> &map)
+    {
+        print_parameters(map);
+        
+        static const int N = 20;
+        static const double samples [] = {
+            21.32034213,  20.39713359,  19.27957134,  19.81839231,
+            20.89474358,  20.11058756,  22.38214557,  21.41479798,
+            23.49896999,  17.55991187,  24.9921142 ,  23.90166585,
+            20.97913273,  18.59180551,  23.49038072,  19.08201714,
+            21.19538797,  16.42544039,  18.93568891,  22.40925288
+            };
+        
+        double ret = 0.0;
+        for (int i = 0; i < N; i++)
+            ret += SQ((samples[i] - map["Normal::mu"])/map["Normal::sigma"]);
+        
+        return -ret/2.0 - N*std::log(map["Normal::sigma"]);
+    }
+}
+
 objective_plugin(EggBox, version(1, 0, 0))
 {
     std::pair <double, double> length;

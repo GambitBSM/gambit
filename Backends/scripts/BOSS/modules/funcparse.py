@@ -4,10 +4,8 @@
 #                             #
 ###############################
 
-import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import os
-import copy
 
 import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")

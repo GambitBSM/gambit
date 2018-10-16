@@ -14,6 +14,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Aug
+///
 ///  *********************************************
 
 #ifndef __registeredspectra_hpp__
@@ -28,12 +32,16 @@ namespace Gambit
   namespace SpectrumContents
   {
 
-    struct SM              : SubSpectrumContents { SM(); };
-    struct SM_slha         : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
-    struct SMHiggs         : SubSpectrumContents { SMHiggs(); };
-    struct MSSM            : SubSpectrumContents { MSSM(); };
-    struct SingletDM       : SubSpectrumContents { SingletDM(); };
-    struct SingletDMZ3     : SubSpectrumContents { SingletDMZ3(); };
+    struct SM                   : SubSpectrumContents { SM(); };
+    struct SM_slha              : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
+    struct SMHiggs              : SubSpectrumContents { SMHiggs(); };
+    struct MSSM                 : SubSpectrumContents { MSSM(); };
+    struct MDM                  : SubSpectrumContents { MDM(); };
+    struct ScalarSingletDM_Z2   : SubSpectrumContents { ScalarSingletDM_Z2(); };
+    struct ScalarSingletDM_Z3   : SubSpectrumContents { ScalarSingletDM_Z3(); };
+    struct VectorSingletDM_Z2   : SubSpectrumContents { VectorSingletDM_Z2(); };
+    struct MajoranaSingletDM_Z2 : SubSpectrumContents { MajoranaSingletDM_Z2(); };
+    struct DiracSingletDM_Z2    : SubSpectrumContents { DiracSingletDM_Z2(); };
 
   }
 }

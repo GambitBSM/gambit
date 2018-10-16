@@ -49,6 +49,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
   )
   if(POLICY ${p})
@@ -68,7 +69,6 @@ endif()
 if (CMAKE_CXX_COMPILER MATCHES "gcc$")
   message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to gcc.  I don't think that means what you think it means.  Do you really want to compile C++ with gcc rather than g++?")
 endif()
-
 
 # Use ccache to speed up re-compiling if it is available
 #find_program(CCACHE_FOUND ccache)
@@ -147,7 +147,6 @@ endif()
 foreach(module yaml os re datetime sys getopt shutil itertools)
   find_python_module(${module} REQUIRED)
 endforeach()
-
 
 # Check for axel
 find_program(axel_FOUND axel)
@@ -293,10 +292,13 @@ include(cmake/FindLibDL.cmake)
 include(cmake/warnings.cmake)
 
 # Construct the full set of compiler flags to be used for external projects
+set(BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_C_FLAGS}")
+set(BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_CXX_FLAGS}")
+set(BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_Fortran_FLAGS}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
   # Unless invoked with FORCE_O3, drop down to -O2 optimisation for more reasonable compile time.
   if (NOT DEFINED FORCE_O3)
@@ -304,25 +306,35 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     string(REGEX REPLACE "(-O3)" "-O2" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     string(REGEX REPLACE "(-O3)" "-O2" CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}")
   endif()
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}")
   # Never send the -O3 from cmake's release build config onwards to backends, as some are touchy.
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_C_FLAGS "${GAMBIT_C_FLAGS}")
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_CXX_FLAGS "${GAMBIT_CXX_FLAGS}")
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_Fortran_FLAGS "${GAMBIT_Fortran_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELWITHDEBINFO}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_MINSIZEREL}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_MINSIZEREL}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_MINSIZEREL}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_MINSIZEREL}")
 else()
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+endif()
+
+# Make symbols hidden by default when compiling GAMBIT source files only
+if(${CMAKE_MAJOR_VERSION} MATCHES "2")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fvisibility=hidden")
+else()
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+  set(CMAKE_Fortran_VISIBILITY_PRESET hidden)
+  set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
 
 # Check for optional packages and disable sections of GAMBIT accordingly
@@ -444,11 +456,11 @@ include(cmake/externals.cmake)
 # Add GAMBIT subdirectories.
 add_subdirectory(Logs)
 add_subdirectory(Utils)
+add_subdirectory_if_present(Core)
 add_subdirectory_if_present(Models)
 add_subdirectory_if_present(Backends)
 add_subdirectory_if_present(Elements)
 add_subdirectory_if_present(Printers)
-add_subdirectory_if_present(Core)
 
 # Lists of different GAMBIT object files to link
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Logs> $<TARGET_OBJECTS:Utils>)

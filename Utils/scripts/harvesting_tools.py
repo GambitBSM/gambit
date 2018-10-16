@@ -29,6 +29,7 @@ import datetime
 import sys
 import getopt
 import itertools
+import shutil
 
 default_bossed_versions = "./Backends/include/gambit/Backends/default_bossed_versions.hpp"
 equiv_config = "./config/resolution_type_equivalency_classes.yaml"
@@ -540,13 +541,13 @@ def same(f1,f2):
 # Compare a candidate file to an existing file, replacing only if they differ.
 def update_only_if_different(existing, candidate):
     if not os.path.isfile(existing):
-         os.rename(candidate,existing)
+         shutil.move(candidate,existing)
          print "\033[1;33m   Created "+re.sub("\\.\\/","",existing)+"\033[0m"
     elif same(existing, candidate):
          os.remove(candidate)
          print "\033[1;33m   Existing "+re.sub("\\.\\/","",existing)+" is identical to candidate; leaving it untouched\033[0m"
     else:
-         os.rename(candidate,existing)
+         shutil.move(candidate,existing)
          print "\033[1;33m   Updated "+re.sub("\\.\\/","",existing)+"\033[0m"
 
 #Create the module_rollcall header in the Core directory

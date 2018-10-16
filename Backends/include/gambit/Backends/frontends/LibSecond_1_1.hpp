@@ -22,7 +22,7 @@
 #define VERSION 1.1
 #define SAFE_VERSION 1_1
 
-/* The following macro imports the modudle in the Python interpreter
+/* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
@@ -41,8 +41,6 @@ LOAD_LIBRARY
 BE_FUNCTION(initialize, void, (int), "initialize", "initialize_capability")
 BE_FUNCTION(someFunction, void, (), "someFunction", "someFunction")
 BE_FUNCTION(returnResult, double, (), "returnResult","returnResult_capability")
-//BE_FUNCTION(byRefExample, double, (double&), "_Z12byRefExampleRd", "refex")
-//BE_FUNCTION(byRefExample2, void, (double&, double), "_Z13byRefExample2Rdd", "refex2")
 
 /* We have now created the following:
  *
@@ -78,31 +76,8 @@ BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
 /* At this point we have a minimal interface to the loaded library.
  * Any additional convenience functions could be constructed below
  * using the available pointers. All convenience functions must be
- * registred/wrapped via the macro BE_CONV_FUNCTION (see below). */
-
-BE_NAMESPACE
-{
-  /* Convenience functions go here */
-  double awesomenessNotByAnders(int a)
-  {
-    logger().send("Message from 'awesomenessNotByAnders' backend convenience function in LibSecond v1.1 wrapper",LogTags::info);
-    initialize(a);
-    someFunction();
-    return returnResult();
-  }
-}
-END_BE_NAMESPACE
-
-/* Note that BE_NAMESPACE is just
- * namespace Gambit
- * {
- *   namespace Backends
- *   {
- *     namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
- * and END_BE_NAMESPACE is just
- *   }
- * }
- */
+ * registred/wrapped via the macro BE_CONV_FUNCTION. Implementation
+ * of convenience functions can be found in LibSecond_1.1.cpp. */
 
 /* Now register any convenience functions and wrap them in functors.
  *
@@ -110,9 +85,6 @@ END_BE_NAMESPACE
  * BE_CONV_FUNCTION([function name], type, (arguments), "[choose capability name]") */
 
 BE_CONV_FUNCTION(awesomenessNotByAnders, double, (int), "awesomeness")
-
-BE_INI_FUNCTION {}
-END_BE_INI_FUNCTION
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

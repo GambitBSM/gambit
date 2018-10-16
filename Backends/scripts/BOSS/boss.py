@@ -18,12 +18,10 @@
 import xml.etree.ElementTree as ET
 import os
 import sys
-import warnings
 import shutil
 import glob
 import subprocess
 import pickle
-import copy
 from collections import OrderedDict
 from optparse import OptionParser
 
@@ -98,6 +96,19 @@ def main():
     (options, args) = parser.parse_args()
 
 
+    # Print banner
+    msg = '''\033[1m
+
+  ========================================
+  ||                                    ||
+  ||  BOSS - Backend-On-a-Stick-Script  ||
+  ||                                    ||
+  ========================================
+    \033[0m'''
+    # msg = utils.modifyText(msg,'bold')
+    print msg
+
+
     # Check for conflicting options
     if options.generate_only_flag and options.types_header_flag:
         print
@@ -126,6 +137,41 @@ def main():
 
         sys.exit()
 
+
+    # Check that CastXML is found and get the correct path 
+    # (system-wide executable or prebuilt binary in castxml/bin/castxml)
+    boss_abs_dir = os.path.dirname(os.path.abspath(__file__))
+    local_castxml_path = os.path.join(boss_abs_dir,"castxml/bin/castxml")
+    has_castxml_system = True
+    has_castxml_local = True
+    try: 
+        subprocess.check_output(["which","castxml"])
+    except subprocess.CalledProcessError:
+        print
+        print "Cannot find a system-wide 'castxml' executable."
+        print "CastXML can be installed with 'apt install castxml' (Linux) or 'brew install castxml' (OS X)."
+        has_castxml_system = False
+        print "Will now look for a prebuilt CastXML binary in %s" % (local_castxml_path)
+
+    try: 
+        subprocess.check_output(["which",local_castxml_path])
+    except subprocess.CalledProcessError:
+        print
+        print "Cannot find 'castxml' binary in %s." % (local_castxml_path)
+        print "To get the prebuilt castxml binary for your system, download a tarball from "
+        print
+        print "  https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz (for Linux)"
+        print
+        print "or "
+        print
+        print "  https://midas3.kitware.com/midas/download/item/318762/castxml-macosx.tar.gz (for OS X)"
+        print
+        print "and extract it in the main BOSS directory: %s/" % (boss_abs_dir)
+        print
+        has_castxml_local = False        
+
+    # Quit if no version of CastXML is found
+    if (not has_castxml_system) and (not has_castxml_local): sys.exit()
 
 
     # Get the config file name from command line. Import the correct config module.
@@ -159,21 +205,13 @@ def main():
     import modules.filehandling as filehandling
     import modules.infomsg as infomsg
 
+    # Write the result of the castxml checks to gb
+    gb.has_castxml_system = has_castxml_system
+    gb.has_castxml_local = has_castxml_local
 
     # Construct file name for the BOSS reset file to be created
     reset_info_file_name = 'reset_info.' + gb.gambit_backend_name_full + '.boss'
 
-    # Print banner
-    msg = '''
-
-  ========================================
-  ||                                    ||
-  ||  BOSS - Backend-On-a-Stick-Script  ||
-  ||                                    ||
-  ========================================
-    '''
-    msg = utils.modifyText(msg,'bold')
-    print msg
 
     # Convert all input and final output paths in the config file to absolute paths
     cfg.input_files = [(gb.boss_dir + '/' + x if not x.startswith('/') else x) for x in cfg.input_files]

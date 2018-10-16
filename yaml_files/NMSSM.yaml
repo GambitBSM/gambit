@@ -210,7 +210,7 @@ Logger:
     [Debug] : "debug.log"
     [Default] : "default.log"
     [SpecBit] : "SpecBit.log"
-    [PrecisionBit] : "PrecisionBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
 
 KeyValues:
 

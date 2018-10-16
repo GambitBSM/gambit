@@ -22,13 +22,27 @@
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 August
 ///
+///  \author Pat Scott
+///          (p.scott@imperial.ac.uk)
+///  \date 2015--2018
+///
+///  \author Sebastian Wild
+///          (sebastian.wild@desy.de)
+///  \date 2017 October, November
+///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2018 August
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 
-namespace Gambit {
-  namespace DarkBit {
+namespace Gambit
+{
+  namespace DarkBit
+  {
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -88,33 +102,25 @@ namespace Gambit {
       logger() << LogTags::debug << "\tdels = delta s = " << BEreq::ddcom->dels << EOM;
 
 
+      // Loop corrections and pole removal.
+
       // Option loop<bool>: If true, include 1-loop effects discussed in
       // Drees Nojiri Phys.Rev. D48 (1993) 3483-3501 (default: true)
+      BEreq::ddcom->dddn = runOptions->getValueOrDef<bool>(true,"loop");
 
-      // Turn on Drees Nojiri treatment by default:
-      BEreq::ddcom->dddn = 1;
+      // Option pole<bool>: If true, include pole in nuclear scattering cross-section.
+      // If false, approximate squark propagator as 1/m_sq^2 (default: false)
+      BEreq::ddcom->ddpole = runOptions->getValueOrDef<bool>(false,"pole");
 
-      if (runOptions->hasKey("loop"))
+      // Some version notes:
+      // The default in DS5 is to for both these options to be false (tree-level cross-section with pole removed).
+      // The default in DS6 is to use Drees-Nojiri (1 loop) with the pole removed, which isn't an
+      // option in the official DS5.1.3.  The version in GAMBIT is patched to implement this option though,
+      // so we use it as the default here.
+
+
+      if (*Dep::DarkSUSY_PointInit)
       {
-        if (runOptions->getValue<bool>("loop")==false) BEreq::ddcom->dddn = 0;
-      }
-
-      // Option pole<bool>: If false, approximate squark propagator as 1/m_sq^2 (set to
-      // true if loop = true) (default: false)
-      if (runOptions->hasKey("pole"))
-      {
-        if (runOptions->getValue<bool>("pole")==true) BEreq::ddcom->ddpole = 1;
-        else
-        {
-          BEreq::ddcom->ddpole = 0;
-          if ((runOptions->hasKey("loop") && runOptions->getValue<bool>("loop")==true) ||
-             !(runOptions->hasKey("loop")))
-                logger () << LogTags::debug << "pole = false ignored "
-                   "by DarkSUSY because loop = true." << EOM;
-        }
-      }
-
-      if (*Dep::DarkSUSY_PointInit) {
         // Calling DarkSUSY subroutine dsddgpgn(gps,gns,gpa,gna)
         // to set all four couplings.
         BEreq::dsddgpgn(result.gps, result.gns, result.gpa, result.gna);
@@ -130,7 +136,9 @@ namespace Gambit {
         logger() << LogTags::debug << " gns = " << result.gns << std::endl;
         logger() << LogTags::debug << " gpa = " << result.gpa << std::endl;
         logger() << LogTags::debug << " gna = " << result.gna << EOM;
-      } else {
+      }
+      else
+      {
         // Set couplings to zero if DarkSUSY point initialization
         // was not successful
         result.gps = 0.0; result.gns = 0.0;
@@ -244,6 +252,39 @@ namespace Gambit {
       result = 3.0*gev2cm2/pi*pow(reduced_mass*gna,2.0);
     }
 
+    /// Calculation of SI and SD cross sections at a reference momentum q0
+    /// for the fermionic Higgs portal models
+    void sigma_SI_vnqn(map_intpair_dbl &result)
+    {
+      using namespace Pipes::sigma_SI_vnqn;
+
+      double q0 = 0.04; // reference momentum transfer: 40 MeV
+      double gps = Dep::DD_couplings->gps;
+      double gpa = Dep::DD_couplings->gpa;
+      double reduced_mass = *Dep::mwimp * m_proton / (*Dep::mwimp + m_proton);
+
+      result[std::make_pair(0,0)] =   gev2cm2/pi*pow(reduced_mass*gps,2.0);
+      result[std::make_pair(-2,0)] =  0.0;
+      result[std::make_pair(2,0)] =   gev2cm2/pi*pow(reduced_mass*gpa,2.0)*pow(q0/(*Dep::mwimp)/2.0,2.0);
+      result[std::make_pair(4,0)] =   0.0;
+      result[std::make_pair(0,-2)] =  0.0;
+      result[std::make_pair(0,2)] =   0.0;
+      result[std::make_pair(0,4)] =   0.0;
+    }
+
+    void sigma_SD_vnqn(map_intpair_dbl &result)
+    {
+      using namespace Pipes::sigma_SD_vnqn;
+
+      result[std::make_pair(0,0)] =   0.0;
+      result[std::make_pair(-2,0)] =  0.0;
+      result[std::make_pair(2,0)] =   0.0;
+      result[std::make_pair(4,0)] =   0.0;
+      result[std::make_pair(0,-2)] =  0.0;
+      result[std::make_pair(0,2)] =   0.0;
+      result[std::make_pair(0,4)] =   0.0;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -266,6 +307,18 @@ namespace Gambit {
       result = temp_result;                                                        \
     }
 
+    #define DDCALC_BIN(EXPERIMENT, TYPE, NAME)                                     \
+    void CAT_3(EXPERIMENT,_GetBin,NAME)(std::vector<double> &result)               \
+    {                                                                              \
+      using namespace Pipes::CAT_3(EXPERIMENT,_GetBin,NAME);                       \
+      result.clear();                                                              \
+      int nbins;                                                                   \
+      nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)));         \
+      for (int ibin=1;ibin<=nbins;ibin++) {                                        \
+        result.push_back(                                                          \
+        BEreq::CAT(DD_Bin,NAME)(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)),ibin)); } \
+    }
+
     /// Defines functions to perform the DDCalc internal rate calculations,
     /// and extract the results and log likelihoods, for the designated experiment.
     #define DD_EX(EXPERIMENT)                                                      \
@@ -282,24 +335,34 @@ namespace Gambit {
       DDCALC_RESULT(EXPERIMENT, double, Signal)                                    \
       DDCALC_RESULT(EXPERIMENT, double, SignalSI)                                  \
       DDCALC_RESULT(EXPERIMENT, double, SignalSD)                                  \
+      DDCALC_RESULT(EXPERIMENT, int,    Bins)                                      \
       DDCALC_RESULT(EXPERIMENT, double, LogLikelihood)                             \
+      DDCALC_BIN(EXPERIMENT, int,    Events)                                       \
+      DDCALC_BIN(EXPERIMENT, double, Background)                                   \
+      DDCALC_BIN(EXPERIMENT, double, Signal)                                       \
 
     // Experiments
     DD_EX(XENON100_2012)        // Aprile et al., PRL 109, 181301 (2013) [arxiv:1207.5988]
+    DD_EX(XENON1T_2017)         // Aprile et al., PRL 119, 181301 (2017) [arxiv:1705.06655]
+    DD_EX(XENON1T_2018)         // Aprile et al., May 28 talk at Gran Sasso.
+    DD_EX(DARWIN)               // M. Schumann et al., [arXiv:1506.08309]
     DD_EX(LUX_2013)             // Akerib et al., PRL 112, 091303 (2014) [arxiv:1310.8214]
-    DD_EX(SIMPLE_2014)          // Felizardo et al., PRD 89, 072013 (2014) [arxiv:1404.4309]
-    DD_EX(SuperCDMS_2014)       // Agnese et al., PRL 112, 241302 (2014) [arxiv:1402.7137]
-    DD_EX(DARWIN_Ar)
-    DD_EX(DARWIN_Xe)
+    DD_EX(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
     DD_EX(LUX_2016)             // D.S. Akerib et al., PRL 118, 021303 (2017) [arxiv:1608.07648]
+    DD_EX(LZ)                   // LZ TDR, [arXiv:1509.02910]
     DD_EX(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
     DD_EX(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
-    DD_EX(LUX_2015)             // D.S. Akerib et al., PRL 116, 161301 (2016) [arXiv:1512.03506]
+    DD_EX(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
+    DD_EX(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
+    DD_EX(SuperCDMS_2014)       // Agnese et al., PRL 112, 241302 (2014) [arxiv:1402.7137]
+    DD_EX(CDMSlite)             // Agnese et al., PRL 116, 071301 (2015) [arxiv:1509.02448]
+    DD_EX(SIMPLE_2014)          // Felizardo et al., PRD 89, 072013 (2014) [arxiv:1404.4309]
     DD_EX(PICO_2L)              // C. Amole et al., PRD 93, 061101 (2016) [arXiv:1601.03729]
     DD_EX(PICO_60_F)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
     DD_EX(PICO_60_I)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
+    DD_EX(PICO_60)              // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
     DD_EX(PICO_60_2017)         // C. Amole et al., arXiv:1702.07666
-    DD_EX(XENON1T_2017)         // E. Aprile et al., [arxiv:1705.06655]
+    DD_EX(PICO_500)             // S. Fallows, talk at TAUP 2017
 
     // Just in case, to make sure we don't mess with other things elsewhere.
     #undef DD_EX

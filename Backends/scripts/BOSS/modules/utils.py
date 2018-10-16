@@ -8,9 +8,6 @@ import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from operator import itemgetter
 import os
-import sys
-import warnings
-import subprocess
 import copy
 
 import modules.active_cfg as active_cfg
@@ -2150,13 +2147,7 @@ def constrEnumDeclHeader(enum_el_list, file_output_path):
 
 # Calls castxml from the shell (via modules.shelltimeout).
 
-def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=300., poll_interval=0.5):
-
-    # Choose castxml executable according to platform (linux or darwin)
-    if sys.platform == 'darwin':
-        castxml_path = gb.boss_dir+'/castxml/darwin/bin/castxml'
-    else:
-        castxml_path = gb.boss_dir+'/castxml/linux/bin/castxml'
+def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=300., poll_interval=0.5, use_castxml_path=None):
 
     # Avoid including intel headers when in "gnu mode" by
     # temporarily unsetting some environment variables
@@ -2171,8 +2162,20 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_
                 pass
 
 
+    # Set the use_castxml_path if it is not already set
+    castxml_system_path = 'castxml'
+    castxml_local_path = os.path.join(gb.boss_dir,"castxml/bin/castxml")
+    if use_castxml_path is None:
+        if gb.has_castxml_system:
+            use_castxml_path = castxml_system_path
+        elif gb.has_castxml_local:
+            use_castxml_path = castxml_local_path
+        else:
+            raise Exception('No castxml binary found.')
+
+
     # Construct castxml command to run
-    castxml_cmd = castxml_path + ' --castxml-gccxml -x c++'
+    castxml_cmd = use_castxml_path + ' --castxml-gccxml -x c++'
 
     # Add castxml settings from cfg file
     castxml_cmd += ' --castxml-cc-' + cfg.castxml_cc_id + ' "(" ' + cfg.castxml_cc
@@ -2221,13 +2224,22 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_
         print modifyText('END CASTXML OUTPUT','underline')
         print
 
+
+    # If it fails with the syste-wide castxml binary, try again with the local one
+    if (did_fail and use_castxml_path==castxml_system_path and gb.has_castxml_local):
+        print '  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') 
+        did_fail = False
+        use_castxml_path = castxml_local_path
+        castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=timeout_limit, poll_interval=poll_interval, use_castxml_path=use_castxml_path)
+
+
     # If it fails with icpc, try again with g++.
     if ("gnu" in cfg.castxml_cc_id) and ("icpc" in cfg.castxml_cc) and did_fail:
         print
         print '  ' + modifyText('Will retry with --castxml-cc=g++','yellow')
         print
         cfg.castxml_cc = 'g++'
-        castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=timeout_limit, poll_interval=poll_interval)
+        castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=timeout_limit, poll_interval=poll_interval, use_castxml_path=use_castxml_path)
     # Print error report
     elif did_fail:
         raise Exception('castxml failed')
@@ -2237,6 +2249,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_
     print
 
 # ====== END: castxmlRunner ========
+
 
 
 

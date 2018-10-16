@@ -138,10 +138,16 @@ ObsLikes:
 
     # Observables (not included in likelihood)
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_SR
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_SR_indices
 
     - purpose:    Observable
       capability: LHCEventLoopInfo
@@ -268,7 +274,7 @@ Rules:
   - capability: MC_ConvergenceSettings
     options:
       min_nEvents: [20000]
-      max_nEvents: [100000]
+      max_nEvents: [1000000]
       events_between_convergence_checks: [20000]
       target_fractional_uncert: [0.3]
       halt_when_systematic_dominated: true
@@ -351,7 +357,9 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_13TeV_MultiLEP_36invfb"] ]
+      analyses: [ [ "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
+                    "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
+                    "ATLAS_13TeV_MultiLEP_3Lep_36invfb" ] ]
 
   # ATLASnoeff analysis setup.
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -377,20 +385,20 @@ Rules:
     function: getCMSnoeffAnalysisContainer
     options:
       analyses: [ [ "CMS_13TeV_2LEPsoft_36invfb",
-                    "CMS_13TeV_2LEPsoft_36invfb_NOCOVAR_NOLIKE",
-                    "CMS_13TeV_MultiLEP_36invfb",
+                    "CMS_13TeV_2LEPsoft_36invfb_nocovar",
+                    "CMS_13TeV_MultiLEP_2SSLep_36invfb",
+                    "CMS_13TeV_MultiLEP_3Lep_36invfb",
                     "CMS_13TeV_2OSLEP_36invfb",
-                    "CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE" ] ]
+                    "CMS_13TeV_2OSLEP_36invfb_nocovar" ] ]
 
 
   # List any analyses that should *NOT* be included in the total log-likelihood!
   # These will still be computed if listed in the analysis setup above, 
   # but their likelihood will not added to the combined likelihood.
   - capability: LHC_Combined_LogLike
-    function: calc_LHC_LogLike
     options:
-      skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_NOCOVAR_NOLIKE", 
-                       "CMS_13TeV_2OSLEP_36invfb_NOCOVAR_NOLIKE" ]
+      skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_nocovar", 
+                       "CMS_13TeV_2OSLEP_36invfb_nocovar" ]
 
   # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
   # Can change "_lognormal_" to "_gaussian_" if you prefer

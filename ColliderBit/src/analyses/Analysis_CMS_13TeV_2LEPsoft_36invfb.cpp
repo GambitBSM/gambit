@@ -27,11 +27,32 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
+    // This analysis class is also a base class for the class
+    // Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar defined further down.
+    // This is the same analysis, but it does not make use of the 
+    // SR covariance information. 
     class Analysis_CMS_13TeV_2LEPsoft_36invfb : public HEPUtilsAnalysis {
+
+    protected:
+
+      // Counters for the number of accepted events for each signal region
+      std::map<string,double> _numSR = {
+        {"SR1", 0},
+        {"SR2", 0},
+        {"SR3", 0},
+        {"SR4", 0},
+        {"SR5", 0},
+        {"SR6", 0},
+        {"SR7", 0},
+        {"SR8", 0},
+        {"SR9", 0},
+        {"SR10", 0},
+        {"SR11", 0},
+        {"SR12", 0},
+      }; 
+
     private:
 
-      // Numbers passing cuts
-      double _numSR1, _numSR2, _numSR3, _numSR4, _numSR5, _numSR6, _numSR7, _numSR8, _numSR9, _numSR10, _numSR11, _numSR12; 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       size_t NCUTS;
@@ -51,19 +72,6 @@ namespace Gambit {
 
         set_analysis_name("CMS_13TeV_2LEPsoft_36invfb");
         set_luminosity(35.9);
-
-        _numSR1=0;
-        _numSR2=0;
-        _numSR3=0;
-        _numSR4=0;
-        _numSR5=0; 
-        _numSR6=0;
-        _numSR7=0; 
-        _numSR8=0;
-        _numSR9=0;
-        _numSR10=0; 
-        _numSR11=0;
-        _numSR12=0; 
 
         NCUTS=14;
         // xsecCMS_150_143=5180.;
@@ -206,22 +214,22 @@ namespace Gambit {
         // Signal Regions
         // In the low ETmiss region, for each passing event we add 0.65 due to trigger efficiency
         if (preselection && met>125. && met<200. && nSignalMuons == 2) {
-          if (m_ll>4. && m_ll<10.)_numSR1 += 0.65;
-          if (m_ll>10. && m_ll<20.)_numSR2 += 0.65;
-          if (m_ll>20. && m_ll<30.)_numSR3 += 0.65;
-          if (m_ll>30. && m_ll<50.)_numSR4 += 0.65;
+          if (m_ll>4. && m_ll<10.) _numSR["SR1"] += 0.65;
+          if (m_ll>10. && m_ll<20.) _numSR["SR2"] += 0.65;
+          if (m_ll>20. && m_ll<30.) _numSR["SR3"] += 0.65;
+          if (m_ll>30. && m_ll<50.) _numSR["SR4"] += 0.65;
         }
         if (preselection && met>200. && met<250.) {
-          if (m_ll>4. && m_ll<10.)_numSR5++;
-          if (m_ll>10. && m_ll<20.)_numSR6++;
-          if (m_ll>20. && m_ll<30.)_numSR7++;
-          if (m_ll>30. && m_ll<50.)_numSR8++;
+          if (m_ll>4. && m_ll<10.) _numSR["SR5"]++;
+          if (m_ll>10. && m_ll<20.) _numSR["SR6"]++;
+          if (m_ll>20. && m_ll<30.) _numSR["SR7"]++;
+          if (m_ll>30. && m_ll<50.) _numSR["SR8"]++;
         }
         if (preselection && met>250.) {
-          if (m_ll>4. && m_ll<10.)_numSR9++;
-          if (m_ll>10. && m_ll<20.)_numSR10++;
-          if (m_ll>20. && m_ll<30.)_numSR11++;
-          if (m_ll>30. && m_ll<50.)_numSR12++;
+          if (m_ll>4. && m_ll<10.) _numSR["SR9"]++;
+          if (m_ll>10. && m_ll<20.) _numSR["SR10"]++;
+          if (m_ll>20. && m_ll<30.) _numSR["SR11"]++;
+          if (m_ll>30. && m_ll<50.) _numSR["SR12"]++;
         }
 
         cutFlowVector_str[0] = "All events";
@@ -304,111 +312,29 @@ namespace Gambit {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
-        _numSR1 += specificOther->_numSR1;
-        _numSR2 += specificOther->_numSR2;
-        _numSR3 += specificOther->_numSR3;
-        _numSR4 += specificOther->_numSR4;
-        _numSR5 += specificOther->_numSR5;
-        _numSR6 += specificOther->_numSR6;
-        _numSR7 += specificOther->_numSR7;
-        _numSR8 += specificOther->_numSR8;
-        _numSR9 += specificOther->_numSR5;
-        _numSR10 += specificOther->_numSR6;
-        _numSR11 += specificOther->_numSR7;
-        _numSR12 += specificOther->_numSR8;
+
+        for (auto& el : _numSR) { 
+          el.second += specificOther->_numSR[el.first];
+        }
+
       }
 
 
-      void collect_results() {
+      virtual void collect_results() {        
 
-
-        // string path = "ColliderBit/results/cutflow_";
-        // path.append(analysis_name());
-        // path.append(".txt");
-        // cutflowFile.open(path.c_str());
-
- //        if (analysis_name().find("150_143") != string::npos) {
- //          cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W^{*}/Z^{*}, [\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{\\pm},\\tilde{\\chi}_{1}^{0}]: [150,143] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& CMS & GAMBIT & GAMBIT/CMS & $\\sigma$-corrected GAMBIT/CMS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsecCMS_150_143<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<<xsec()/xsecCMS_150_143<<" & 1\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 35.9 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=0; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_150_143[i]<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_150_143[i]<<"&"<<setprecision(4)<<(xsecCMS_150_143/xsec())*cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_150_143[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_150_143[i]*100./cutFlowVectorCMS_150_143[1]<<"&"<<setprecision(4)<<cutFlowVector[i]*100./cutFlowVector[1]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
- //        if (analysis_name().find("150_130") != string::npos) {
- //          cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W^{*}/Z^{*}, [\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{\\pm},\\tilde{\\chi}_{1}^{0}]: [150,130] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& CMS & GAMBIT & GAMBIT/CMS & $\\sigma$-corrected GAMBIT/CMS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsecCMS_150_130<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<<xsec()/xsecCMS_150_130<<" & 1\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 35.9 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=0; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_150_130[i]<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_150_130[i]<<"&"<<setprecision(4)<<(xsecCMS_150_130/xsec())*cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorCMS_150_130[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorCMS_150_130[i]*100./cutFlowVectorCMS_150_130[1]<<"&"<<setprecision(4)<<cutFlowVector[i]*100./cutFlowVector[1]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
- //        cutflowFile.close();
-
-        // DEBUG
-//        double L = 33.2;
-//        double xsec = 5180.;
-//        cout << "DEBUG:" << endl;
-//        for (size_t i=0; i<NCUTS; i++)
-//        {
-//          double CMS_abs = cutFlowVectorCMS_150_130[i];
-//          //double CMS_abs = cutFlowVectorCMS_150_143[i];
-//          double GAMBIT_abs = cutFlowVector[i];
-//          
-//          double eff = (double)cutFlowVector[i] / (double)cutFlowVector[0];
-//          if(i>6) eff *= 0.65;
-//          // double eff = (double)cutFlowVector[i] / 100000.;
-//
-//          double GAMBIT_scaled = eff * xsec * L;
-//
-//          double ratio = GAMBIT_scaled/CMS_abs;
-//          cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << CMS_abs << "\t" << GAMBIT_scaled << "\t" << "\t" << ratio << "\t\t" << cutFlowVector_str[i] << endl;
-//        }
-//        cout << "DEBUG:" << endl;
-        
-
-        // Signal region info for the covariance matrix
-        static const size_t SR_size_cov = 12;
-        const int SR_labels_cov[SR_size_cov] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-        const double SR_nums_cov[SR_size_cov] = {
-          _numSR1, _numSR2, _numSR3, _numSR4, _numSR5,  _numSR6, 
-          _numSR7, _numSR8, _numSR9, _numSR10, _numSR11, _numSR12,
-        };
-
-        // Observed event counts
-        static const double OBSNUM[SR_size_cov] = {
-          2., 15., 19., 18., 1., 0., 3., 1., 2., 1., 2., 0., 
-        };
-
-        // Background estimates
-        static const double BKGNUM[SR_size_cov] = {
-          3.5, 12., 17., 11., 1.6, 3.5, 2., 0.51, 1.4, 1.5, 1.5, 1.2,
-        };
-        
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR[SR_size_cov] = {
-          1., 2.3, 2.4, 2., 0.7, 0.9, 0.7, 0.52, 0.7, 0.6, 0.8, 0.6, 
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov; ++ibin) 
-        {
-          stringstream ss; ss << "SR-" << SR_labels_cov[ibin];
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {SR_nums_cov[ibin], 0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR1",  2.,  {_numSR["SR1"],  0.}, {3.5, 1.}));
+        add_result(SignalRegionData("SR2",  15., {_numSR["SR2"],  0.}, {12, 2.3}));
+        add_result(SignalRegionData("SR3",  19., {_numSR["SR3"],  0.}, {17, 2.4}));
+        add_result(SignalRegionData("SR4",  18., {_numSR["SR4"],  0.}, {11, 2.}));
+        add_result(SignalRegionData("SR5",  1.,  {_numSR["SR5"],  0.}, {1.6, 0.7}));
+        add_result(SignalRegionData("SR6",  0.,  {_numSR["SR6"],  0.}, {3.5, 0.9}));
+        add_result(SignalRegionData("SR7",  3.,  {_numSR["SR7"],  0.}, {2., 0.7}));
+        add_result(SignalRegionData("SR8",  1.,  {_numSR["SR8"],  0.}, {0.51, 0.52}));
+        add_result(SignalRegionData("SR9",  2.,  {_numSR["SR9"],  0.}, {1.4, 0.7}));
+        add_result(SignalRegionData("SR10", 1.,  {_numSR["SR10"], 0.}, {1.5, 0.6}));
+        add_result(SignalRegionData("SR11", 2.,  {_numSR["SR11"], 0.}, {1.5, 0.8}));
+        add_result(SignalRegionData("SR12", 0.,  {_numSR["SR12"], 0.}, {1.2, 0.6}));
 
         // Covariance matrix
         static const vector< vector<double> > BKGCOV = {
@@ -427,144 +353,56 @@ namespace Gambit {
         };
 
         set_covariance(BKGCOV);
-
-
-
-        // //Now fill a results object with the results for each SR
-        // SignalRegionData results_SR1;
-        // results_SR1.sr_label = "SR1";
-        // results_SR1.n_observed = 2.;
-        // results_SR1.n_background = 3.5; 
-        // results_SR1.background_sys = 1.;
-        // results_SR1.signal_sys = 0.; 
-        // results_SR1.n_signal = _numSR1;
-        // add_result(results_SR1);
-
-        // SignalRegionData results_SR2;
-        // results_SR2.sr_label = "SR1";
-        // results_SR2.n_observed = 15.;
-        // results_SR2.n_background = 12.;
-        // results_SR2.background_sys = 2.3;
-        // results_SR2.signal_sys = 0.;
-        // results_SR2.n_signal = _numSR2;
-        // add_result(results_SR2);
-
-        // SignalRegionData results_SR3;
-        // results_SR3.sr_label = "SR3";
-        // results_SR3.n_observed = 19.;
-        // results_SR3.n_background = 17.;
-        // results_SR3.background_sys = 2.4;
-        // results_SR3.signal_sys = 0.;
-        // results_SR3.n_signal = _numSR3;
-        // add_result(results_SR3);
-
-        // SignalRegionData results_SR4;
-        // results_SR4.sr_label = "SR4";
-        // results_SR4.n_observed = 18.;
-        // results_SR4.n_background = 11.;
-        // results_SR4.background_sys = 2.;
-        // results_SR4.signal_sys = 0.;
-        // results_SR4.n_signal = _numSR4;
-        // add_result(results_SR4);
-
-        // SignalRegionData results_SR5;
-        // results_SR5.sr_label = "SR5";
-        // results_SR5.n_observed = 1.;
-        // results_SR5.n_background = 1.6;
-        // results_SR5.background_sys = 0.7;
-        // results_SR5.signal_sys = 0.;
-        // results_SR5.n_signal = _numSR5;
-        // add_result(results_SR5);
-
-        // SignalRegionData results_SR6;
-        // results_SR6.sr_label = "SR6";
-        // results_SR6.n_observed = 0.;
-        // results_SR6.n_background = 3.5;
-        // results_SR6.background_sys = 0.9;
-        // results_SR6.signal_sys = 0.;
-        // results_SR6.n_signal = _numSR6;
-        // add_result(results_SR6);
-
-        // SignalRegionData results_SR7;
-        // results_SR7.sr_label = "SR7";
-        // results_SR7.n_observed = 3.;
-        // results_SR7.n_background = 2.;
-        // results_SR7.background_sys = 0.7;
-        // results_SR7.signal_sys = 0.;
-        // results_SR7.n_signal = _numSR7;
-        // add_result(results_SR7);
-
-        // SignalRegionData results_SR8;
-        // results_SR8.sr_label = "SR8";
-        // results_SR8.n_observed = 1.;
-        // results_SR8.n_background = 0.51;
-        // results_SR8.background_sys = 0.52;
-        // results_SR8.signal_sys = 0.;
-        // results_SR8.n_signal = _numSR8;
-        // add_result(results_SR8);
-
-        // SignalRegionData results_SR9;
-        // results_SR9.sr_label = "SR9";
-        // results_SR9.n_observed = 2.;
-        // results_SR9.n_background = 1.4;
-        // results_SR9.background_sys = 0.7;
-        // results_SR9.signal_sys = 0.;
-        // results_SR9.n_signal = _numSR9;
-        // add_result(results_SR9);
-
-        // SignalRegionData results_SR10;
-        // results_SR10.sr_label = "SR10";
-        // results_SR10.n_observed = 1.;
-        // results_SR10.n_background = 1.5;
-        // results_SR10.background_sys = 0.6;
-        // results_SR10.signal_sys = 0.;
-        // results_SR10.n_signal = _numSR10;
-        // add_result(results_SR10);
-
-        // SignalRegionData results_SR11;
-        // results_SR11.sr_label = "SR11";
-        // results_SR11.n_observed = 2.;
-        // results_SR11.n_background = 1.5;
-        // results_SR11.background_sys = 0.8;
-        // results_SR11.signal_sys = 0.;
-        // results_SR11.n_signal = _numSR11;
-        // add_result(results_SR11);
-
-        // SignalRegionData results_SR12;
-        // results_SR12.sr_label = "SR12";
-        // results_SR12.n_observed = 0.;
-        // results_SR12.n_background = 1.2;
-        // results_SR12.background_sys = 0.6;
-        // results_SR12.signal_sys = 0.;
-        // results_SR12.n_signal = _numSR12;
-        // add_result(results_SR12);
-
       }
 
 
     protected:
       void clear() {
-        _numSR1=0;
-        _numSR2=0;
-        _numSR3=0;
-        _numSR4=0;
-        _numSR5=0; 
-        _numSR6=0;
-        _numSR7=0; 
-        _numSR8=0;
-        _numSR9=0;
-        _numSR10=0; 
-        _numSR11=0;
-        _numSR12=0; 
+
+        for (auto& el : _numSR) { el.second = 0.;}
         
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };
 
-
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_36invfb)
+
+
+    // 
+    // Derived analysis class that does not make use of the SR covariance matrix
+    // 
+    class Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar : public Analysis_CMS_13TeV_2LEPsoft_36invfb {
+
+    public:
+      Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar() {
+        set_analysis_name("CMS_13TeV_2LEPsoft_36invfb_nocovar");
+      }
+
+      virtual void collect_results() {
+
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR1",  2.,  {_numSR["SR1"],  0.}, {3.5, 1.}));
+        add_result(SignalRegionData("SR2",  15., {_numSR["SR2"],  0.}, {12, 2.3}));
+        add_result(SignalRegionData("SR3",  19., {_numSR["SR3"],  0.}, {17, 2.4}));
+        add_result(SignalRegionData("SR4",  18., {_numSR["SR4"],  0.}, {11, 2.}));
+        add_result(SignalRegionData("SR5",  1.,  {_numSR["SR5"],  0.}, {1.6, 0.7}));
+        add_result(SignalRegionData("SR6",  0.,  {_numSR["SR6"],  0.}, {3.5, 0.9}));
+        add_result(SignalRegionData("SR7",  3.,  {_numSR["SR7"],  0.}, {2., 0.7}));
+        add_result(SignalRegionData("SR8",  1.,  {_numSR["SR8"],  0.}, {0.51, 0.52}));
+        add_result(SignalRegionData("SR9",  2.,  {_numSR["SR9"],  0.}, {1.4, 0.7}));
+        add_result(SignalRegionData("SR10", 1.,  {_numSR["SR10"], 0.}, {1.5, 0.6}));
+        add_result(SignalRegionData("SR11", 2.,  {_numSR["SR11"], 0.}, {1.5, 0.8}));
+        add_result(SignalRegionData("SR12", 0.,  {_numSR["SR12"], 0.}, {1.2, 0.6}));
+
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_36invfb_nocovar)
+
 
   }
 }

@@ -49,6 +49,7 @@
 #include <random>
 #include <chrono>
 
+#include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/util_types.hpp"
 
 
@@ -59,7 +60,7 @@ namespace Gambit
   {
 
     /// Base class for thread-safe random number generators.
-    class threadsafe_rng
+    class EXPORT_SYMBOLS threadsafe_rng
     {
 
       public:
@@ -117,7 +118,7 @@ namespace Gambit
 
   }
 
-  class Random
+  class EXPORT_SYMBOLS Random
   {
 
     public:

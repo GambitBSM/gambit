@@ -206,12 +206,13 @@ namespace Gambit
     {
       using namespace Pipes::SMLikeHiggs_ModelParameters;
       dep_bucket<Spectrum>* spectrum_dependency;
-      if (ModelInUse("SingletDM") or ModelInUse("SingletDMZ3")) spectrum_dependency = &Dep::SingletDM_spectrum;
-      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for SingleHiggs_ModelParameters.");
+      if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
+      else if (ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z3_spectrum;
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for SMLikeHiggs_ModelParameters.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
       set_SMLikeHiggs_ModelParameters(spec, *Dep::Higgs_Couplings, result);
     }
-    
+
     /// MSSM Higgs model parameters
     void MSSMHiggs_ModelParameters(hb_ModelParameters &result)
     {

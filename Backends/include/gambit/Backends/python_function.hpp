@@ -62,10 +62,21 @@ namespace Gambit
               return;
             }
 
+            // Work out if this is a function in the main part of the package, or in a sub-module
+            sspair module_and_name = split_qualified_python_name(symbol, backendInfo().lib_name(be, ver));
+
             // Extract the function from the module
             try
             {
-              func = mod->attr(symbol.c_str());
+              if (module_and_name.first.empty())
+              {
+                func = mod->attr(symbol.c_str());
+              }
+              else
+              {
+                pybind11::module sub_module = pybind11::module::import(module_and_name.first.c_str());
+                func = sub_module.attr(module_and_name.second.c_str());
+              }
               handle_works = true;
             }
             catch (std::exception& e)

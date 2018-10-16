@@ -126,7 +126,7 @@ namespace Gambit
       logger() << "Is CMSSM being scanned? " << ModelInUse("CMSSM") << endl;
       logger() << "Is NUHM1 being scanned? " << ModelInUse("NUHM1") << endl;
       logger() << "Is NormalDist being scanned? " << ModelInUse("NormalDist") << endl;;
-      logger() << "Is SingletDM being scanned? "  << ModelInUse("SingletDM");;
+      logger() << "Is ScalarSingletDM_Z2 being scanned? "  << ModelInUse("ScalarSingletDM_Z2");;
       logger() << info << EOM;
       std::cout << "  Printing parameter values:" << std::endl;
       std::cout << "mu: " << *Param["mu"] << std::endl;

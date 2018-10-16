@@ -163,7 +163,7 @@ namespace Gambit {
         double deltaPhi_met_j0=0;
         double deltaPhi_met_j1=0;       
 
-        vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpair(signalLeptons);
+        vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
         for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++) {
           vector<HEPUtils::Particle*> pair = SFOSpair_cont.at(iPa);
           sort(pair.begin(),pair.end(),comparePt);
@@ -435,18 +435,6 @@ namespace Gambit {
       // }
 
 
-      vector<vector<HEPUtils::Particle*>> getSFOSpair(vector<HEPUtils::Particle*> leptons) {
-        vector<vector<HEPUtils::Particle*>> SFOSpair_container;
-        for (size_t iLe1=0;iLe1<leptons.size();iLe1++) {        
-          for (size_t iLe2=0;iLe2<leptons.size();iLe2++) {
-            if (leptons.at(iLe1)->abspid()==leptons.at(iLe2)->abspid() && leptons.at(iLe1)->pid()!=leptons.at(iLe2)->pid()) {
-              vector<HEPUtils::Particle*> SFOSpair;
-              SFOSpair.push_back(leptons.at(iLe1));
-              SFOSpair.push_back(leptons.at(iLe2));
-              SFOSpair_container.push_back(SFOSpair);
-            } } }
-        return SFOSpair_container;
-      }
 
       double get_mjj(vector<HEPUtils::Jet*> jets) {
         double mjj=0;

@@ -21,6 +21,11 @@
 ///          (peter.athron@coepp.org.au)
 ///  \date 2015 Jun
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@adelaide.edu.au)
+///  \date 2016 Oct
+///  \date 2017 Jun
+///
 ///  \author Are Raklev
 ///          (ahye@fys.uio.no)
 ///  \date 2018 Jan
@@ -2807,9 +2812,6 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
-
-
-
     /// MSSM decays: conjugates
     /// @{
     void H_minus_decays (DecayTable::Entry& result)          { result = CP_conjugate(*Pipes::H_minus_decays::Dep::H_plus_decay_rates); }
@@ -2838,27 +2840,42 @@ namespace Gambit
     void chargino_minus_2_decays (DecayTable::Entry& result) { result = CP_conjugate(*Pipes::chargino_minus_2_decays::Dep::chargino_plus_2_decay_rates); }
     /// @}
 
-    //////////// Singlet DM /////////////////////
 
-    /// Add the decay of Higgs to singlets for the SingletDM model
-    void SingletDM_Higgs_decays (DecayTable::Entry& result)
+    //////////// Scalar singlet DM /////////////////////
+
+    /// Add the decay of Higgs to singlets for the ScalarSingletDM models
+    void ScalarSingletDM_Higgs_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::SingletDM_Higgs_decays;
+      using namespace Pipes::ScalarSingletDM_Higgs_decays;
 
       // Get the spectrum information
-      const Spectrum& spec = *Dep::SingletDM_spectrum;
-      const SubSpectrum& he = spec.get_HE();
-      double mass = spec.get(Par::Pole_Mass,"S");
+      bool self_conjugate = true;
+      dep_bucket<Spectrum>* spectrum_dependency;
+      if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running"))
+      {
+        spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
+      }
+      else if (ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running"))
+      {
+        spectrum_dependency = &Dep::ScalarSingletDM_Z3_spectrum;
+        self_conjugate = false;
+      }
+      else DecayBit_error().raise(LOCAL_INFO, "No valid model for ScalarSingletDM_Higgs_decays.");
+      const SubSpectrum& he = (*spectrum_dependency)->get_HE();
+
+      double mass = (*spectrum_dependency)->get(Par::Pole_Mass,"S");
       double lambda = he.get(Par::dimensionless,"lambda_hS");
       double v0 = he.get(Par::mass1,"vev");
-      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+      double mhpole = (*spectrum_dependency)->get(Par::Pole_Mass,"h0_1");
 
       // Get the reference SM Higgs decays
       result = *Dep::Reference_SM_Higgs_decay_rates;
 
       // Add the h->SS width to the total
       double massratio2 = pow(mass/mhpole,2);
-      double gamma = (2.0*mass <= mhpole) ? pow(lambda*v0,2)/(32.0*pi*mhpole) * sqrt(1.0 - 4.0*massratio2) : 0.0;
+      double gamma = (2.0*mass <= mhpole) ? pow(lambda*v0,2)/(16.0*pi*mhpole) * sqrt(1.0 - 4.0*massratio2) : 0.0;
+      // Include symmetry factor of two to account for identical final state particles
+      if (self_conjugate) gamma = 0.5 * gamma;
       result.width_in_GeV = result.width_in_GeV + gamma;
 
       // Rescale the SM decay branching fractions.
@@ -2874,7 +2891,135 @@ namespace Gambit
 
       // Make sure the width is sensible.
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
-   }
+    }
+
+    //////////// Vector singlet DM /////////////////////
+
+    /// Add the decay of Higgs to vectors for the VectorSingletDM models (see arXiv:1512.06458v4)
+    void VectorSingletDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::VectorSingletDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::VectorSingletDM_Z2_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"V");
+      double lambda = he.get(Par::dimensionless,"lambda_hV");
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> VV width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double midfactor = (1 - 4*massratio2 + 12*pow(massratio2,2));
+      double gamma = (2.0*mass <= mhpole) ? ((pow(lambda*v0,2)*pow(mhpole,3))/(128.0*pi*pow(mass,4))) * midfactor * sqrt(1.0 - 4.0*massratio2) : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> VV width for debugging
+      logger() << "Gamma (h -> VV) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->VV branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "V", "V");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    //////////// Majorana fermion singlet DM /////////////////////
+
+    /// Add the decay of Higgs to Majorana fermions for the MajoranaSingletDM models (see arXiv:1512.06458v4)
+    void MajoranaSingletDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::MajoranaSingletDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::MajoranaSingletDM_Z2_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"X");
+      double lambda = he.get(Par::dimensionless,"lX");
+      double cxi = std::cos(he.get(Par::dimensionless,"xi"));
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> XX width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double lfactor = (1 - 4*massratio2*pow(cxi,2));
+      double gamma = (2.0*mass <= mhpole) ? ((mhpole*pow(v0*lambda,2))/(16.0*pi)) * sqrt(1.0 - 4.0*massratio2) * lfactor : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> XX width for debugging
+      logger() << "Gamma (h -> XX) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->XX branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "X", "X");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
+
+    //////////// Dirac fermion singlet DM /////////////////////
+
+    /// Add the decay of Higgs to Dirac fermions for the DiracSingletDM models (see arXiv:1512.06458v4)
+    void DiracSingletDM_Higgs_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::DiracSingletDM_Higgs_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::DiracSingletDM_Z2_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mass = spec.get(Par::Pole_Mass,"F");
+      double lambda = he.get(Par::dimensionless,"lF");
+      double cxi = std::cos(he.get(Par::dimensionless,"xi"));
+      double v0 = he.get(Par::mass1,"vev");
+      double mhpole = spec.get(Par::Pole_Mass,"h0_1");
+
+      // Get the reference SM Higgs decays
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      // Add the h -> FF width to the total
+      double massratio2 = pow(mass/mhpole,2);
+      double lfactor = (1 - 4*massratio2*pow(cxi,2));
+      double gamma = (2.0*mass <= mhpole) ? ((mhpole*pow(v0*lambda,2))/(8.0*pi)) * sqrt(1.0 - 4.0*massratio2) * lfactor : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Print out the h -> FF width for debugging
+      logger() << "Gamma (h -> FF) = " << gamma << " GeV" << std::endl;
+
+      // Rescale the SM decay branching fractions.
+      double wscaling = Dep::Reference_SM_Higgs_decay_rates->width_in_GeV/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->FF branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "F", "F");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
 
 
     //////////// Everything ///////////////////
@@ -3147,15 +3292,6 @@ namespace Gambit
       return daFunk::interp("BR", table["BR"], table["Delta_chi2"]);
     }
 
-    void SingletDM_inv_Higgs_BF(double& BF)
-    {
-       /**
-          @brief Branching fraction for Higgs into singlet DM
-          @param BF \f$\textrm{BR}(h\to S S)\f$
-       */
-       using namespace Pipes::SingletDM_inv_Higgs_BF;
-       BF = Dep::Higgs_decay_rates->BF("S", "S");
-    }
 
     void MSSM_inv_Higgs_BF(double &BF)
     {
@@ -3253,6 +3389,46 @@ namespace Gambit
       double gamma_tot = gamma_SM + gamma_chi;
 
       BF = gamma_inv / gamma_tot;
+    }
+
+    void ScalarSingletDM_inv_Higgs_BF(double& BF)
+    {
+       /**
+          @brief Branching fraction for Higgs into scalar singlet DM
+          @param BF \f$\textrm{BR}(h\to S S)\f$
+       */
+       using namespace Pipes::ScalarSingletDM_inv_Higgs_BF;
+       BF = Dep::Higgs_decay_rates->BF("S", "S");
+    }
+
+    void VectorSingletDM_inv_Higgs_BF(double& BF)
+    {
+       /**
+          @brief Branching fraction for Higgs into vector singlet DM
+          @param BF \f$\textrm{BR}(h\to V V)\f$
+       */
+       using namespace Pipes::VectorSingletDM_inv_Higgs_BF;
+       BF = Dep::Higgs_decay_rates->BF("V", "V");
+    }
+
+    void MajoranaSingletDM_inv_Higgs_BF(double& BF)
+    {
+       /**
+          @brief Branching fraction for Higgs into Majorana singlet DM
+          @param BF \f$\textrm{BR}(h\to X X)\f$
+       */
+       using namespace Pipes::MajoranaSingletDM_inv_Higgs_BF;
+       BF = Dep::Higgs_decay_rates->BF("X", "X");
+    }
+
+    void DiracSingletDM_inv_Higgs_BF(double& BF)
+    {
+       /**
+          @brief Branching fraction for Higgs into Dirac singlet DM
+          @param BF \f$\textrm{BR}(h\to F F)\f$
+       */
+       using namespace Pipes::DiracSingletDM_inv_Higgs_BF;
+       BF = Dep::Higgs_decay_rates->BF("F", "F");
     }
 
     void lnL_Higgs_invWidth_SMlike(double& lnL)
@@ -3408,7 +3584,8 @@ namespace Gambit
       gamma.central = MSSM_Z::gamma_chi_0(0, 0, m_0, Z, g2, MZ, sw2);
       gamma.lower = gamma.central * 0.1;
       gamma.upper = gamma.lower;  // Error is symmetric
-  }
+    }
+
   }  // namespace DecayBit
 
 }  // namespace Gambit

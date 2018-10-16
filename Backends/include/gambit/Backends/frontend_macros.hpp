@@ -70,6 +70,10 @@ namespace Gambit                                                            \
       extern std::vector<str> allowed_models;                               \
       /* Make backend path easily available to convenience functions. */    \
       extern const str backendDir;                                          \
+      /* Make an easy reference to the actual backend module if it is a */  \
+      /* Python backend. */                                                 \
+      BOOST_PP_IF(HAVE_PYBIND11, BOOST_PP_IF(USING_PYTHON,                  \
+      extern pybind11::module& BACKENDNAME; , ), )                          \
     }                                                                       \
   }                                                                         \
 }                                                                           \

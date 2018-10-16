@@ -2,6 +2,8 @@
 ///  \author Rose Kudzman-Blais
 ///  \date 2017 May
 ///
+///  \author Anders Kvellestad
+///  \date 2018 June
 ///  *********************************************
 
 // Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2016-24/
@@ -22,11 +24,40 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
+    // This analysis class is a base class for three SR-specific analysis classes
+    // defined further down:
+    // - Analysis_ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+    // - Analysis_ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+    // - Analysis_ATLAS_13TeV_MultiLEP_3Lep_36invfb
     class Analysis_ATLAS_13TeV_MultiLEP_36invfb : public HEPUtilsAnalysis {
-    private:
 
-      // Numbers passing cuts
-      double _numSR2_SF_loose, _numSR2_SF_tight, _numSR2_DF_100, _numSR2_DF_150, _numSR2_DF_200, _numSR2_DF_300, _numSR2_int, _numSR2_high, _numSR2_low, _numSR3_slep_a, _numSR3_slep_b, _numSR3_slep_c, _numSR3_slep_d, _numSR3_slep_e, _numSR3_WZ_0Ja, _numSR3_WZ_0Jb, _numSR3_WZ_0Jc, _numSR3_WZ_1Ja, _numSR3_WZ_1Jb, _numSR3_WZ_1Jc; 
+    protected:
+
+      // Counters for the number of accepted events for each signal region
+      std::map<string,double> _numSR = {
+        {"SR2_SF_loose", 0},
+        {"SR2_SF_tight", 0},
+        {"SR2_DF_100", 0},
+        {"SR2_DF_150", 0},
+        {"SR2_DF_200", 0},
+        {"SR2_DF_300", 0},
+        {"SR2_int", 0},
+        {"SR2_high", 0},
+        {"SR2_low", 0},
+        {"SR3_slep_a", 0},
+        {"SR3_slep_b", 0},
+        {"SR3_slep_c", 0},
+        {"SR3_slep_d", 0},
+        {"SR3_slep_e", 0},
+        {"SR3_WZ_0Ja", 0},
+        {"SR3_WZ_0Jb", 0},
+        {"SR3_WZ_0Jc", 0},
+        {"SR3_WZ_1Ja", 0},
+        {"SR3_WZ_1Jb", 0},
+        {"SR3_WZ_1Jc", 0}
+      }; 
+
+    private:
 
       vector<int> cutFlowVector1;
       vector<string> cutFlowVector1_str;
@@ -72,28 +103,9 @@ namespace Gambit {
         set_analysis_name("ATLAS_13TeV_MultiLEP_36invfb");
         set_luminosity(36.1);
 
-        _numSR2_SF_loose=0;
-        _numSR2_SF_tight=0;
-        _numSR2_DF_100=0;
-        _numSR2_DF_150=0;
-        _numSR2_DF_200=0;
-        _numSR2_DF_300=0;
-        _numSR2_int=0;
-        _numSR2_high=0;
-        _numSR2_low=0;
-        _numSR3_slep_a=0;
-        _numSR3_slep_b=0;
-        _numSR3_slep_c=0;
-        _numSR3_slep_d=0;
-        _numSR3_slep_e=0;
-        _numSR3_WZ_0Ja=0;
-        _numSR3_WZ_0Jb=0;
-        _numSR3_WZ_0Jc=0;
-        _numSR3_WZ_1Ja=0;
-        _numSR3_WZ_1Jb=0;
-        _numSR3_WZ_1Jc=0;
-
         NCUTS1=22;
+
+
         // xsec1ATLAS_200_100=1807.4;
         for (size_t i=0;i<NCUTS1;i++){
           cutFlowVector1.push_back(0);
@@ -236,8 +248,8 @@ namespace Gambit {
         size_t nSignalJets=signalJets.size();
         size_t nSignalBJets=signalBJets.size();
 
-        vector<vector<HEPUtils::Particle*>> SFOSpairs=getSFOSpair(signalLeptons);
-        vector<vector<HEPUtils::Particle*>> OSpairs=getOSpair(signalLeptons);
+        vector<vector<HEPUtils::Particle*>> SFOSpairs=getSFOSpairs(signalLeptons);
+        vector<vector<HEPUtils::Particle*>> OSpairs=getOSpairs(signalLeptons);
 
         //Variables
         double pT_l0=0.;
@@ -338,18 +350,20 @@ namespace Gambit {
         bool preselection=false; 
         if ((nSignalLeptons==2 || nSignalLeptons==3) && nBaselineLeptons==nSignalLeptons && pT_l0>25 && pT_l1>20)preselection=true;
 
-        //Signal Regions
+
+        // Signal Regions
+
         //2lep+0jet
         if (preselection && nSignalLeptons==2 && OSpairs.size()==1 && mll>40 && central_jet_veto && bjet_veto) {
           if (SFOSpairs.size()==1) {
-            if (mT2>100 && mll>111)_numSR2_SF_loose++;
-            if (mT2>130 && mll>300)_numSR2_SF_tight++; 
+            if (mT2>100 && mll>111) _numSR["SR2_SF_loose"]++;
+            if (mT2>130 && mll>300) _numSR["SR2_SF_tight"]++;
           }
           if (SFOSpairs.size()==0) {
-            if (mT2>100 && mll>111)_numSR2_DF_100++;
-            if (mT2>150 && mll>111)_numSR2_DF_150++;
-            if (mT2>200 && mll>111)_numSR2_DF_200++;
-            if (mT2>300 && mll>111)_numSR2_DF_300++;
+            if (mT2>100 && mll>111) _numSR["SR2_DF_100"]++;
+            if (mT2>150 && mll>111) _numSR["SR2_DF_150"]++;
+            if (mT2>200 && mll>111) _numSR["SR2_DF_200"]++;
+            if (mT2>300 && mll>111) _numSR["SR2_DF_300"]++;
           }
         }
         
@@ -357,35 +371,35 @@ namespace Gambit {
         if (preselection && nSignalLeptons==2 && SFOSpairs.size()==1 && bjet_veto && nSignalJets>1 && pT_j0>30 && pT_j1>30 && pT_l1>25) {
           //SR2_int + SR2_high
           if (mll>81. && mll<101. && mjj>70. && mjj<100. && Z.pT()>80. && W.pT()>100. && mT2>100. && deltaR_jj<1.5 && deltaR_ll<1.8 && deltaPhi_met_W>0.5 && deltaPhi_met_W<3.0) {
-            if (met>150)_numSR2_int++;
-            if (met>250)_numSR2_high++;
+            if (met>150) _numSR["SR2_int"]++;
+            if (met>250) _numSR["SR2_high"]++;
           }
           //SR2_low_2J
-          if (nSignalJets==2 && mll>81. && mll<101. && mjj>70. && mjj<90. && met>100. && Z.pT()>60. && deltaPhi_met_Z<0.8 && deltaPhi_met_W>1.5 && (met/Z.pT())>0.6 && (met/Z.pT())<1.6 && (met/W.pT())<0.8)_numSR2_low++;
+          if (nSignalJets==2 && mll>81. && mll<101. && mjj>70. && mjj<90. && met>100. && Z.pT()>60. && deltaPhi_met_Z<0.8 && deltaPhi_met_W>1.5 && (met/Z.pT())>0.6 && (met/Z.pT())<1.6 && (met/W.pT())<0.8) _numSR["SR2_low"]++;
           //SR2_low_3J
-          if (nSignalJets>2 && nSignalJets<6 && mll>86 && mll<96 && mjj>70. && mjj<90. && met>100 && Z.pT()>40 && deltaR_jj<2.2 && deltaPhi_met_W<2.2 && deltaPhi_met_ISR>2.4 && deltaPhi_met_jet0>2.6 && (met/W_ISR.at(1).pT())>0.4 && (met/W_ISR.at(1).pT())<0.8 && Z.abseta()<1.6 && pT_j2>30.)_numSR2_low++;
+          if (nSignalJets>2 && nSignalJets<6 && mll>86 && mll<96 && mjj>70. && mjj<90. && met>100 && Z.pT()>40 && deltaR_jj<2.2 && deltaPhi_met_W<2.2 && deltaPhi_met_ISR>2.4 && deltaPhi_met_jet0>2.6 && (met/W_ISR.at(1).pT())>0.4 && (met/W_ISR.at(1).pT())<0.8 && Z.abseta()<1.6 && pT_j2>30.) _numSR["SR2_low"]++;
         }
         
         //3lep
         if (preselection && nSignalLeptons==3 && bjet_veto && SFOSpairs.size()) {
           if (mSFOS<81.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<30.)_numSR3_slep_a++;
-            if (pT_l2>30.)_numSR3_slep_b++;
+            if (pT_l2>20. && pT_l2<30.) _numSR["SR3_slep_a"]++;
+            if (pT_l2>30.) _numSR["SR3_slep_b"]++;
           }
           if (mSFOS>101.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<50.)_numSR3_slep_c++;
-            if (pT_l2>50. && pT_l2<80.)_numSR3_slep_d++;
-            if (pT_l2>80.)_numSR3_slep_e++;
+            if (pT_l2>20. && pT_l2<50.) _numSR["SR3_slep_c"]++;
+            if (pT_l2>50. && pT_l2<80.) _numSR["SR3_slep_d"]++;
+            if (pT_l2>80.) _numSR["SR3_slep_e"]++;
           }
           if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets==0 && mTmin>110.) {
-            if (met>60. && met<120.)_numSR3_WZ_0Ja++;
-            if (met>120. && met<170.)_numSR3_WZ_0Jb++;
-            if (met>170.)_numSR3_WZ_0Jc++;
+            if (met>60. && met<120.) _numSR["SR3_WZ_0Ja"]++;
+            if (met>120. && met<170.) _numSR["SR3_WZ_0Jb"]++;
+            if (met>170.) _numSR["SR3_WZ_0Jc"]++;
           }
           if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets>0) {
-            if (met>120. && met<200. && mTmin>110. && pTlll<120. && pT_j1>70.)_numSR3_WZ_1Ja++;
-            if (met>200. && mTmin>110. && mTmin<160.)_numSR3_WZ_1Jb++;
-            if (met>200. && pT_l2>35. && mTmin>160.)_numSR3_WZ_1Jc++;
+            if (met>120. && met<200. && mTmin>110. && pTlll<120. && pT_j1>70.) _numSR["SR3_WZ_1Ja"]++;
+            if (met>200. && mTmin>110. && mTmin<160.) _numSR["SR3_WZ_1Jb"]++;
+            if (met>200. && pT_l2>35. && mTmin>160.) _numSR["SR3_WZ_1Jc"]++;
           }
         }
 
@@ -816,380 +830,38 @@ namespace Gambit {
           cutFlowVector2_str[j] = specificOther->cutFlowVector2_str[j];
         }
 
-        _numSR2_SF_loose+= specificOther->_numSR2_SF_loose;
-        _numSR2_SF_tight+= specificOther->_numSR2_SF_tight;
-        _numSR2_DF_100+= specificOther->_numSR2_DF_100;
-        _numSR2_DF_150+= specificOther->_numSR2_DF_150;
-        _numSR2_DF_200+= specificOther->_numSR2_DF_200;
-        _numSR2_DF_300+= specificOther->_numSR2_DF_300;
-        _numSR2_int+= specificOther->_numSR2_int;
-        _numSR2_high+= specificOther->_numSR2_high;
-        _numSR2_low+= specificOther->_numSR2_low;
-        _numSR3_slep_a+= specificOther->_numSR3_slep_a;
-        _numSR3_slep_b+= specificOther->_numSR3_slep_b;
-        _numSR3_slep_c+= specificOther->_numSR3_slep_c;
-        _numSR3_slep_d+= specificOther->_numSR3_slep_d;
-        _numSR3_slep_e+= specificOther->_numSR3_slep_e;
-        _numSR3_WZ_0Ja+= specificOther->_numSR3_WZ_0Ja;
-        _numSR3_WZ_0Jb+= specificOther->_numSR3_WZ_0Jb;
-        _numSR3_WZ_0Jc+= specificOther->_numSR3_WZ_0Jc;
-        _numSR3_WZ_1Ja+= specificOther->_numSR3_WZ_1Ja;
-        _numSR3_WZ_1Jb+= specificOther->_numSR3_WZ_1Jb;
-        _numSR3_WZ_1Jc+= specificOther->_numSR3_WZ_1Jc;
-      }
-
-
-      void collect_results() {
-
-        // string path = "ColliderBit/results/cutflow_";
-        // path.append(analysis_name());
-        // path.append(".txt");
-        // cutflowFile.open(path.c_str());
-
-        // if (analysis_name().find("200_100") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/Z$ (on-shell), $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}, \\tilde{\\chi}_{1}^{0}]: [200,100] [GeV]$} \n\\makebox[\\linewidth]{ \n\\resizebox{\\textwidth}{!}{ \n\\renewcommand{\\arraystretch}{0.5} \n\\begin{tabular}{c c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"& $\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsec1ATLAS_200_100<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec1ATLAS_200_100<<" & 1\\\\"<<endl;
- //          cutflowFile<<" & Generated Events &"<< cutFlowVector1ATLAS_200_100[0]<<"&"<<cutFlowVector1[0]<<"& - & -\\\\ \\hline"<<endl;
-
-    //       cutflowFile<<"\\multicolumn{6}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
-    //       for (size_t i=1; i<NCUTS1; i++) {
-           //  if (i==1)cutflowFile<<"\\multirow{7}{*}{Event selection} &"<<cutFlowVector1_str[i]<<"&";
-           //  else if (i==8 || i==15)cutflowFile<<"\\multirow{7}{*}{"<<cutFlowVector1_str[i]<<"}&-&";
-           //  else cutflowFile<<"& "<<cutFlowVector1_str[i]<<" & ";
-    //         cutflowFile<<setprecision(4)<<cutFlowVector1ATLAS_200_100[i]<<"&"<<setprecision(4)<<cutFlowVector1[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector1[i]*xsec_per_event()*luminosity()/cutFlowVector1ATLAS_200_100[i]<<"&"<<setprecision(4)<<(xsec1ATLAS_200_100/xsec())*cutFlowVector1[i]*xsec_per_event()*luminosity()/cutFlowVector1ATLAS_200_100[i]<<"\\\\";
-           // if (i==7 || i==14)cutflowFile<<"\\hline\\hline"<<endl;
-           // else if (i==8 || i==10 || i==12 || i==15 || i==19)cutflowFile<<"\\cline{2-6}"<<endl;
-           // else cutflowFile<<endl;
-    //       }
-
- //          cutflowFile<<"\\hline \\multicolumn{6}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS1; i++) {
-        //     if (i==1)cutflowFile<<"\\multirow{7}{*}{Event selection} &"<<cutFlowVector1_str[i]<<"&";
-        //     else if (i==8 || i==15)cutflowFile<<"\\multirow{7}{*}{"<<cutFlowVector1_str[i]<<"}&-&";
-        //     else cutflowFile<<"& "<<cutFlowVector1_str[i]<<" & ";
- //            cutflowFile<<setprecision(4)<<cutFlowVector1ATLAS_200_100[i]*100./cutFlowVector1ATLAS_200_100[2]<<"&"<<setprecision(4)<<cutFlowVector1[i]*100./cutFlowVector1[2]<<"& - & -\\\\";
-        //    if (i==7 || i==14)cutflowFile<<"\\hline\\hline"<<endl;
-        //    else if (i==8 || i==10 || i==12 || i==15 || i==19)cutflowFile<<"\\cline{2-6}"<<endl;
-        //    else cutflowFile<<endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} } \n\\end{table}"<<endl;
-
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/Z$ (on-shell), $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}, \\tilde{\\chi}_{1}^{0}]: [200,100] [GeV]$} \n\\makebox[\\linewidth]{ \n\\resizebox*{!}{\\textheight}{ \n\\renewcommand{\\arraystretch}{0.5} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsec3ATLAS_200_100<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec3ATLAS_200_100<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector3ATLAS_200_100[0]<<"&"<<cutFlowVector3[0]<<"& - & -\\\\ \\hline"<<endl;
-
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS3; i++) {
- //            cutflowFile<<cutFlowVector3_str[i]<<"&"<<setprecision(4)<<cutFlowVector3ATLAS_200_100[i]<<"&"<<setprecision(4)<<cutFlowVector3[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector3[i]*xsec_per_event()*luminosity()/cutFlowVector3ATLAS_200_100[i]<<"&"<<setprecision(4)<<(xsec3ATLAS_200_100/xsec())*cutFlowVector3[i]*xsec_per_event()*luminosity()/cutFlowVector3ATLAS_200_100[i]<<"\\\\";
-        //    if (i==3 || i==12)cutflowFile<<"\\hline"<<endl;
-        //    else cutflowFile<<endl;
- //          }
-
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS3; i++) {
- //            cutflowFile<<cutFlowVector3_str[i]<<"&"<<setprecision(4)<<cutFlowVector3ATLAS_200_100[i]*100./cutFlowVector3ATLAS_200_100[2]<<"&"<<setprecision(4)<<cutFlowVector3[i]*100./cutFlowVector3[2]<<"& - & -\\\\";
-        //    if (i==3 || i==12)cutflowFile<<"\\hline"<<endl;
-        //    else cutflowFile<<endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n } } \n\\end{table}"<<endl;
-        // }
-
-        // if (analysis_name().find("400_200") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/Z$ (on-shell), $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0},\\tilde{\\chi}_{1}^{0}]: [400,200] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsec2ATLAS_400_200<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec2ATLAS_400_200<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector2ATLAS_400_200[0]<<"&"<<cutFlowVector2[0]<<"& - & -\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS2; i++) {
- //            cutflowFile<<cutFlowVector2_str[i]<<"&"<<setprecision(4)<<cutFlowVector2ATLAS_400_200[i]<<"&"<<setprecision(4)<<cutFlowVector2[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector2[i]*xsec_per_event()*luminosity()/cutFlowVector2ATLAS_400_200[i]<<"&"<<setprecision(4)<<(xsec2ATLAS_400_200/xsec())*cutFlowVector2[i]*xsec_per_event()*luminosity()/cutFlowVector2ATLAS_400_200[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS2; i++) {
- //            cutflowFile<<cutFlowVector2_str[i]<<"&"<<setprecision(4)<<cutFlowVector2ATLAS_400_200[i]*100./cutFlowVector2ATLAS_400_200[2]<<"&"<<setprecision(4)<<cutFlowVector2[i]*100./cutFlowVector2[2]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
-        // if (analysis_name().find("500_100") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/Z$ (on-shell), $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0},\\tilde{\\chi}_{1}^{0}]: [500,100] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsec2ATLAS_500_100<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec2ATLAS_500_100<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector2ATLAS_500_100[0]<<"&"<<cutFlowVector2[0]<<"& - & -\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS2; i++) {
- //            cutflowFile<<cutFlowVector2_str[i]<<"&"<<setprecision(4)<<cutFlowVector2ATLAS_500_100[i]<<"&"<<setprecision(4)<<cutFlowVector2[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector2[i]*xsec_per_event()*luminosity()/cutFlowVector2ATLAS_500_100[i]<<"&"<<setprecision(4)<<(xsec2ATLAS_500_100/xsec())*cutFlowVector2[i]*xsec_per_event()*luminosity()/cutFlowVector2ATLAS_500_100[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS2; i++) {
- //            cutflowFile<<cutFlowVector2_str[i]<<"&"<<setprecision(4)<<cutFlowVector2ATLAS_500_100[i]*100./cutFlowVector2ATLAS_500_100[2]<<"&"<<setprecision(4)<<cutFlowVector2[i]*100./cutFlowVector2[2]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
-        // if (analysis_name().find("800_600") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $\\tilde{l}$, $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0},\\tilde{\\chi}_{1}^{0}]: [800,600] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsec4ATLAS_800_600<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec4ATLAS_800_600<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector4ATLAS_800_600[0]<<"&"<<cutFlowVector4[0]<<"& - & -\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS4; i++) {
- //            cutflowFile<<cutFlowVector4_str[i]<<"&"<<setprecision(4)<<cutFlowVector4ATLAS_800_600[i]<<"&"<<setprecision(4)<<cutFlowVector4[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector4[i]*xsec_per_event()*luminosity()/cutFlowVector4ATLAS_800_600[i]<<"&"<<setprecision(4)<<(xsec4ATLAS_800_600/xsec())*cutFlowVector4[i]*xsec_per_event()*luminosity()/cutFlowVector4ATLAS_800_600[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS4; i++) {
- //            cutflowFile<<cutFlowVector4_str[i]<<"&"<<setprecision(4)<<cutFlowVector4ATLAS_800_600[i]*100./cutFlowVector4ATLAS_800_600[2]<<"&"<<setprecision(4)<<cutFlowVector4[i]*100./cutFlowVector4[2]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
-        // if (analysis_name().find("401_1") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{l}^{\\pm}\\tilde{l}^{\\mp}$ decay into leptons and $\\tilde{\\chi}_{1}^{0}, [\\tilde{l}^{\\pm},\\tilde{\\chi}_{1}^{0}]: [400.5,1] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{l}^{\\pm}\\tilde{l}^{\\mp})$ &"<<setprecision(4)<<xsec5ATLAS_401_1<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec5ATLAS_401_1<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector5ATLAS_401_1[0]<<"&"<<cutFlowVector5[0]<<"& - & -\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS5-3; i++) {
- //            cutflowFile<<cutFlowVector5_str[i]<<"&"<<setprecision(4)<<cutFlowVector5ATLAS_401_1[i]<<"&"<<setprecision(4)<<cutFlowVector5[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector5[i]*xsec_per_event()*luminosity()/cutFlowVector5ATLAS_401_1[i]<<"&"<<setprecision(4)<<(xsec5ATLAS_401_1/xsec())*cutFlowVector5[i]*xsec_per_event()*luminosity()/cutFlowVector5ATLAS_401_1[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS5-3; i++) {
- //            cutflowFile<<cutFlowVector5_str[i]<<"&"<<setprecision(4)<<cutFlowVector5ATLAS_401_1[i]*100./cutFlowVector5ATLAS_401_1[2]<<"&"<<setprecision(4)<<cutFlowVector5[i]*100./cutFlowVector5[2]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
-        // if (analysis_name().find("300_150") != string::npos) {
-        //   cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{1}^{\\mp}$ decay via $\\tilde{l}$, $[\\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{1}^{0}]: [300,150] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
- //          cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
- //          cutflowFile<<"$\\sigma (pp\\to \\tilde{l}^{\\pm}\\tilde{l}^{\\mp})$ &"<<setprecision(4)<<xsec5ATLAS_300_150<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<< xsec()/xsec5ATLAS_300_150<<" & 1\\\\"<<endl;
- //          cutflowFile<<"Generated Events &"<< cutFlowVector5ATLAS_300_150[0]<<"&"<<cutFlowVector5[0]<<"& - & -\\\\ \\hline"<<endl;
- //          cutflowFile<<"\\multicolumn{5}{c}{Expected events at 36.1 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS5; i++) {
- //            cutflowFile<<cutFlowVector5_str[i]<<"&"<<setprecision(4)<<cutFlowVector5ATLAS_300_150[i]<<"&"<<setprecision(4)<<cutFlowVector5[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector5[i]*xsec_per_event()*luminosity()/cutFlowVector5ATLAS_300_150[i]<<"&"<<setprecision(4)<<(xsec5ATLAS_300_150/xsec())*cutFlowVector5[i]*xsec_per_event()*luminosity()/cutFlowVector5ATLAS_300_150[i]<<"\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS5; i++) {
- //            cutflowFile<<cutFlowVector5_str[i]<<"&"<<setprecision(4)<<cutFlowVector5ATLAS_300_150[i]*100./cutFlowVector5ATLAS_300_150[2]<<"&"<<setprecision(4)<<cutFlowVector5[i]*100./cutFlowVector5[2]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-
-        // cutflowFile.close();
-
-        //Now fill a results object with the results for each SR
-        SignalRegionData results_SR2_SF_loose;
-        results_SR2_SF_loose.sr_label = "SR2_SF_loose";
-        results_SR2_SF_loose.n_observed = 153.;
-        results_SR2_SF_loose.n_background = 133.; 
-        results_SR2_SF_loose.background_sys = 22.;
-        results_SR2_SF_loose.signal_sys = 0.; 
-        results_SR2_SF_loose.n_signal = _numSR2_SF_loose;
-        add_result(results_SR2_SF_loose);
-
-        SignalRegionData results_SR2_SF_tight;
-        results_SR2_SF_tight.sr_label = "SR2_SF_tight";
-        results_SR2_SF_tight.n_observed = 9.;
-        results_SR2_SF_tight.n_background = 9.8; 
-        results_SR2_SF_tight.background_sys = 2.9;
-        results_SR2_SF_tight.signal_sys = 0.; 
-        results_SR2_SF_tight.n_signal = _numSR2_SF_tight;
-        add_result(results_SR2_SF_tight);
-
-        SignalRegionData results_SR2_DF_100;
-        results_SR2_DF_100.sr_label = "SR2_DF_100";
-        results_SR2_DF_100.n_observed = 78.;
-        results_SR2_DF_100.n_background = 68.; 
-        results_SR2_DF_100.background_sys = 7.;
-        results_SR2_DF_100.signal_sys = 0.; 
-        results_SR2_DF_100.n_signal = _numSR2_DF_100;
-        add_result(results_SR2_DF_100);
-
-        SignalRegionData results_SR2_DF_150;
-        results_SR2_DF_150.sr_label = "SR2_DF_150";
-        results_SR2_DF_150.n_observed = 11;
-        results_SR2_DF_150.n_background = 11.5; 
-        results_SR2_DF_150.background_sys = 3.1;
-        results_SR2_DF_150.signal_sys = 0.; 
-        results_SR2_DF_150.n_signal = _numSR2_DF_150;
-        add_result(results_SR2_DF_150);
-
-        SignalRegionData results_SR2_DF_200;
-        results_SR2_DF_200.sr_label = "SR2_DF_200";
-        results_SR2_DF_200.n_observed = 6.;
-        results_SR2_DF_200.n_background = 2.1; 
-        results_SR2_DF_200.background_sys = 1.9;
-        results_SR2_DF_200.signal_sys = 0.; 
-        results_SR2_DF_200.n_signal = _numSR2_DF_200;
-        add_result(results_SR2_DF_200);
-
-        SignalRegionData results_SR2_DF_300;
-        results_SR2_DF_300.sr_label = "SR2_DF_300";
-        results_SR2_DF_300.n_observed = 2.;
-        results_SR2_DF_300.n_background = 0.6; 
-        results_SR2_DF_300.background_sys = 0.6;
-        results_SR2_DF_300.signal_sys = 0.; 
-        results_SR2_DF_300.n_signal = _numSR2_DF_300;
-        add_result(results_SR2_DF_300);
-
-        SignalRegionData results_SR2_int;
-        results_SR2_int.sr_label = "SR2_int";
-        results_SR2_int.n_observed = 2.;
-        results_SR2_int.n_background = 4.1; 
-        results_SR2_int.background_sys = 2.6;
-        results_SR2_int.signal_sys = 0.; 
-        results_SR2_int.n_signal = _numSR2_int;
-        add_result(results_SR2_int);
-
-        SignalRegionData results_SR2_high;
-        results_SR2_high.sr_label = "SR2_high";
-        results_SR2_high.n_observed = 0.;
-        results_SR2_high.n_background = 1.6; 
-        results_SR2_high.background_sys = 1.6;
-        results_SR2_high.signal_sys = 0.; 
-        results_SR2_high.n_signal = _numSR2_high;
-        add_result(results_SR2_high);
-
-        SignalRegionData results_SR2_low;
-        results_SR2_low.sr_label = "SR2_low";
-        results_SR2_low.n_observed = 11.;
-        results_SR2_low.n_background = 4.2; 
-        results_SR2_low.background_sys = 3.4;
-        results_SR2_low.signal_sys = 0.; 
-        results_SR2_low.n_signal = _numSR2_low;
-        add_result(results_SR2_low);
-
-        SignalRegionData results_SR3_slep_a;
-        results_SR3_slep_a.sr_label = "SR3_slep_a";
-        results_SR3_slep_a.n_observed = 4.;
-        results_SR3_slep_a.n_background = 2.2; 
-        results_SR3_slep_a.background_sys = 0.8;
-        results_SR3_slep_a.signal_sys = 0.; 
-        results_SR3_slep_a.n_signal = _numSR3_slep_a;
-        add_result(results_SR3_slep_a);
-
-        SignalRegionData results_SR3_slep_b;
-        results_SR3_slep_b.sr_label = "SR3_slep_b";
-        results_SR3_slep_b.n_observed = 3.;
-        results_SR3_slep_b.n_background = 2.8; 
-        results_SR3_slep_b.background_sys = 0.4;
-        results_SR3_slep_b.signal_sys = 0.; 
-        results_SR3_slep_b.n_signal = _numSR3_slep_b;
-        add_result(results_SR3_slep_b);
-
-        SignalRegionData results_SR3_slep_c;
-        results_SR3_slep_c.sr_label = "SR3_slep_c";
-        results_SR3_slep_c.n_observed = 9.;
-        results_SR3_slep_c.n_background = 5.4; 
-        results_SR3_slep_c.background_sys = 0.9;
-        results_SR3_slep_c.signal_sys = 0.; 
-        results_SR3_slep_c.n_signal = _numSR3_slep_c;
-        add_result(results_SR3_slep_c);
-
-        SignalRegionData results_SR3_slep_d;
-        results_SR3_slep_d.sr_label = "SR3_slep_d";
-        results_SR3_slep_d.n_observed = 0.;
-        results_SR3_slep_d.n_background = 1.4; 
-        results_SR3_slep_d.background_sys = 0.4;
-        results_SR3_slep_d.signal_sys = 0.; 
-        results_SR3_slep_d.n_signal = _numSR3_slep_d;
-        add_result(results_SR3_slep_d);
-
-        SignalRegionData results_SR3_slep_e;
-        results_SR3_slep_e.sr_label = "SR3_slep_e";
-        results_SR3_slep_e.n_observed = 0.;
-        results_SR3_slep_e.n_background = 1.1; 
-        results_SR3_slep_e.background_sys = 0.2;
-        results_SR3_slep_e.signal_sys = 0.; 
-        results_SR3_slep_e.n_signal = _numSR3_slep_e;
-        add_result(results_SR3_slep_e);
-
-        SignalRegionData results_SR3_WZ_0Ja;
-        results_SR3_WZ_0Ja.sr_label = "SR3_WZ_0Ja";
-        results_SR3_WZ_0Ja.n_observed = 21.;
-        results_SR3_WZ_0Ja.n_background = 21.7; 
-        results_SR3_WZ_0Ja.background_sys = 2.9;
-        results_SR3_WZ_0Ja.signal_sys = 0.; 
-        results_SR3_WZ_0Ja.n_signal = _numSR3_WZ_0Ja;
-        add_result(results_SR3_WZ_0Ja);
-
-        SignalRegionData results_SR3_WZ_0Jb;
-        results_SR3_WZ_0Jb.sr_label = "SR3_WZ_0Jb";
-        results_SR3_WZ_0Jb.n_observed = 1.;
-        results_SR3_WZ_0Jb.n_background = 2.7; 
-        results_SR3_WZ_0Jb.background_sys = 0.5;
-        results_SR3_WZ_0Jb.signal_sys = 0.; 
-        results_SR3_WZ_0Jb.n_signal = _numSR3_WZ_0Jb;
-        add_result(results_SR3_WZ_0Jb);
-
-        SignalRegionData results_SR3_WZ_0Jc;
-        results_SR3_WZ_0Jc.sr_label = "SR3_WZ_0Jc";
-        results_SR3_WZ_0Jc.n_observed = 2.;
-        results_SR3_WZ_0Jc.n_background = 1.6; 
-        results_SR3_WZ_0Jc.background_sys = 0.3;
-        results_SR3_WZ_0Jc.signal_sys = 0.; 
-        results_SR3_WZ_0Jc.n_signal = _numSR3_WZ_0Jc;
-        add_result(results_SR3_WZ_0Jc);
-
-        SignalRegionData results_SR3_WZ_1Ja;
-        results_SR3_WZ_1Ja.sr_label = "SR3_WZ_1Ja";
-        results_SR3_WZ_1Ja.n_observed = 1.;
-        results_SR3_WZ_1Ja.n_background = 2.2; 
-        results_SR3_WZ_1Ja.background_sys = 0.5;
-        results_SR3_WZ_1Ja.signal_sys = 0.; 
-        results_SR3_WZ_1Ja.n_signal = _numSR3_WZ_1Ja;
-        add_result(results_SR3_WZ_1Ja);
-
-        SignalRegionData results_SR3_WZ_1Jb;
-        results_SR3_WZ_1Jb.sr_label = "SR3_WZ_1Jb";
-        results_SR3_WZ_1Jb.n_observed = 3.;
-        results_SR3_WZ_1Jb.n_background = 1.8; 
-        results_SR3_WZ_1Jb.background_sys = 0.3;
-        results_SR3_WZ_1Jb.signal_sys = 0.; 
-        results_SR3_WZ_1Jb.n_signal = _numSR3_WZ_1Jb;
-        add_result(results_SR3_WZ_1Jb);
-
-        SignalRegionData results_SR3_WZ_1Jc;
-        results_SR3_WZ_1Jc.sr_label = "SR3_WZ_1Jc";
-        results_SR3_WZ_1Jc.n_observed = 4.;
-        results_SR3_WZ_1Jc.n_background = 1.3; 
-        results_SR3_WZ_1Jc.background_sys = 0.3;
-        results_SR3_WZ_1Jc.signal_sys = 0.; 
-        results_SR3_WZ_1Jc.n_signal = _numSR3_WZ_1Jc;
-        add_result(results_SR3_WZ_1Jc);
-
-      }
-
-      vector<vector<HEPUtils::Particle*>> getSFOSpair(vector<HEPUtils::Particle*> leptons) {
-        vector<vector<HEPUtils::Particle*>> SFOSpair_container;
-        for (size_t iLe1=0;iLe1<leptons.size();iLe1++) {
-          for (size_t iLe2=0;iLe2<leptons.size();iLe2++) {
-            if (leptons.at(iLe1)->abspid()==leptons.at(iLe2)->abspid() && leptons.at(iLe1)->pid()!=leptons.at(iLe2)->pid()) {
-              vector<HEPUtils::Particle*> SFOSpair;
-              SFOSpair.push_back(leptons.at(iLe1));
-              SFOSpair.push_back(leptons.at(iLe2));
-              SFOSpair_container.push_back(SFOSpair);
-            }
-          }
+        for (auto& el : _numSR) { 
+          el.second += specificOther->_numSR[el.first];
         }
-        return SFOSpair_container;
+
       }
 
-      vector<vector<HEPUtils::Particle*>> getOSpair(vector<HEPUtils::Particle*> leptons) {
-        vector<vector<HEPUtils::Particle*>> OSpair_container;
-        for (size_t iLe1=0;iLe1<leptons.size();iLe1++) {
-          for (size_t iLe2=0;iLe2<leptons.size();iLe2++) {
-            if (leptons.at(iLe1)->pid()*leptons.at(iLe2)->pid()<0.) {
-              vector<HEPUtils::Particle*> OSpair;
-              OSpair.push_back(leptons.at(iLe1));
-              OSpair.push_back(leptons.at(iLe2));
-              OSpair_container.push_back(OSpair);
-            }
-          }
-        }
-        return OSpair_container;
+      // This function can be overridden by the derived SR-specific classes
+      virtual void collect_results() {
+
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR2_SF_loose", 153., {_numSR["SR2_SF_loose"], 0.}, {133., 22.}));
+        add_result(SignalRegionData("SR2_SF_tight", 9., {_numSR["SR2_SF_tight"], 0.}, {9.8, 2.9}));
+        add_result(SignalRegionData("SR2_DF_100", 78., {_numSR["SR2_DF_100"], 0.}, {68., 7.}));
+        add_result(SignalRegionData("SR2_DF_150", 11, {_numSR["SR2_DF_150"], 0.}, {11.5, 3.1}));
+        add_result(SignalRegionData("SR2_DF_200", 6., {_numSR["SR2_DF_200"], 0.}, {2.1, 1.9}));
+        add_result(SignalRegionData("SR2_DF_300", 2., {_numSR["SR2_DF_300"], 0.}, {0.6, 0.6}));
+        add_result(SignalRegionData("SR2_int", 2., {_numSR["SR2_int"], 0.}, {4.1, 2.6}));
+        add_result(SignalRegionData("SR2_high", 0., {_numSR["SR2_high"], 0.}, {1.6, 1.6}));
+        add_result(SignalRegionData("SR2_low", 11., {_numSR["SR2_low"], 0.}, {4.2, 3.4}));
+        add_result(SignalRegionData("SR3_slep_a", 4., {_numSR["SR3_slep_a"], 0.}, {2.2, 0.8}));
+        add_result(SignalRegionData("SR3_slep_b", 3., {_numSR["SR3_slep_b"], 0.}, {2.8, 0.4}));
+        add_result(SignalRegionData("SR3_slep_c", 9., {_numSR["SR3_slep_c"], 0.}, {5.4, 0.9}));
+        add_result(SignalRegionData("SR3_slep_d", 0., {_numSR["SR3_slep_d"], 0.}, {1.4, 0.4}));
+        add_result(SignalRegionData("SR3_slep_e", 0., {_numSR["SR3_slep_e"], 0.}, {1.1, 0.2}));
+        add_result(SignalRegionData("SR3_WZ_0Ja", 21., {_numSR["SR3_WZ_0Ja"], 0.}, {21.7, 2.9}));
+        add_result(SignalRegionData("SR3_WZ_0Jb", 1., {_numSR["SR3_WZ_0Jb"], 0.}, {2.7, 0.5}));
+        add_result(SignalRegionData("SR3_WZ_0Jc", 2., {_numSR["SR3_WZ_0Jc"], 0.}, {1.6, 0.3}));
+        add_result(SignalRegionData("SR3_WZ_1Ja", 1., {_numSR["SR3_WZ_1Ja"], 0.}, {2.2, 0.5}));
+        add_result(SignalRegionData("SR3_WZ_1Jb", 3., {_numSR["SR3_WZ_1Jb"], 0.}, {1.8, 0.3}));
+        add_result(SignalRegionData("SR3_WZ_1Jc", 4., {_numSR["SR3_WZ_1Jc"], 0.}, {1.3, 0.3}));
       }
+
 
       vector<HEPUtils::P4> get_W_ISR(vector<HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met) {
         HEPUtils::P4 Z_met_sys=Z+met;
@@ -1227,26 +899,8 @@ namespace Gambit {
 
     protected:
       void clear() {
-        _numSR2_SF_loose=0;
-        _numSR2_SF_tight=0;
-        _numSR2_DF_100=0;
-        _numSR2_DF_150=0;
-        _numSR2_DF_200=0;
-        _numSR2_DF_300=0;
-        _numSR2_int=0;
-        _numSR2_high=0;
-        _numSR2_low=0;
-        _numSR3_slep_a=0;
-        _numSR3_slep_b=0;
-        _numSR3_slep_c=0;
-        _numSR3_slep_d=0;
-        _numSR3_slep_e=0;
-        _numSR3_WZ_0Ja=0;
-        _numSR3_WZ_0Jb=0;
-        _numSR3_WZ_0Jc=0;
-        _numSR3_WZ_1Ja=0;
-        _numSR3_WZ_1Jb=0;
-        _numSR3_WZ_1Jc=0;
+
+        for (auto& el : _numSR) { el.second = 0.;}
         
         std::fill(cutFlowVector1.begin(), cutFlowVector1.end(), 0);
         std::fill(cutFlowVector2.begin(), cutFlowVector2.end(), 0);
@@ -1257,9 +911,91 @@ namespace Gambit {
 
     };
 
-
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_MultiLEP_36invfb)
+
+
+
+    // 
+    // Derived analysis class for the 2Lep0Jets SRs
+    // 
+    class Analysis_ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb : public Analysis_ATLAS_13TeV_MultiLEP_36invfb {
+
+    public:
+      Analysis_ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb() {
+        set_analysis_name("ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb");
+      }
+
+      virtual void collect_results() {
+
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR2_SF_loose", 153., {_numSR["SR2_SF_loose"], 0.}, {133., 22.}));
+        add_result(SignalRegionData("SR2_SF_tight", 9., {_numSR["SR2_SF_tight"], 0.}, {9.8, 2.9}));
+        add_result(SignalRegionData("SR2_DF_100", 78., {_numSR["SR2_DF_100"], 0.}, {68., 7.}));
+        add_result(SignalRegionData("SR2_DF_150", 11, {_numSR["SR2_DF_150"], 0.}, {11.5, 3.1}));
+        add_result(SignalRegionData("SR2_DF_200", 6., {_numSR["SR2_DF_200"], 0.}, {2.1, 1.9}));
+        add_result(SignalRegionData("SR2_DF_300", 2., {_numSR["SR2_DF_300"], 0.}, {0.6, 0.6}));
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)
+
+
+
+    // Derived analysis class for the 2LepPlusJets SRs
+    class Analysis_ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb : public Analysis_ATLAS_13TeV_MultiLEP_36invfb {
+
+    public:
+      Analysis_ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb() {
+        set_analysis_name("ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb");
+      }
+
+      virtual void collect_results() {
+
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR2_int", 2., {_numSR["SR2_int"], 0.}, {4.1, 2.6}));
+        add_result(SignalRegionData("SR2_high", 0., {_numSR["SR2_high"], 0.}, {1.6, 1.6}));
+        add_result(SignalRegionData("SR2_low", 11., {_numSR["SR2_low"], 0.}, {4.2, 3.4}));
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb)
+
+
+
+    // Derived analysis class for the 3Lep SRs
+    class Analysis_ATLAS_13TeV_MultiLEP_3Lep_36invfb : public Analysis_ATLAS_13TeV_MultiLEP_36invfb {
+
+    public:
+      Analysis_ATLAS_13TeV_MultiLEP_3Lep_36invfb() {
+        set_analysis_name("ATLAS_13TeV_MultiLEP_3Lep_36invfb");
+      }
+
+      virtual void collect_results() {
+
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR3_slep_a", 4., {_numSR["SR3_slep_a"], 0.}, {2.2, 0.8}));
+        add_result(SignalRegionData("SR3_slep_b", 3., {_numSR["SR3_slep_b"], 0.}, {2.8, 0.4}));
+        add_result(SignalRegionData("SR3_slep_c", 9., {_numSR["SR3_slep_c"], 0.}, {5.4, 0.9}));
+        add_result(SignalRegionData("SR3_slep_d", 0., {_numSR["SR3_slep_d"], 0.}, {1.4, 0.4}));
+        add_result(SignalRegionData("SR3_slep_e", 0., {_numSR["SR3_slep_e"], 0.}, {1.1, 0.2}));
+        add_result(SignalRegionData("SR3_WZ_0Ja", 21., {_numSR["SR3_WZ_0Ja"], 0.}, {21.7, 2.9}));
+        add_result(SignalRegionData("SR3_WZ_0Jb", 1., {_numSR["SR3_WZ_0Jb"], 0.}, {2.7, 0.5}));
+        add_result(SignalRegionData("SR3_WZ_0Jc", 2., {_numSR["SR3_WZ_0Jc"], 0.}, {1.6, 0.3}));
+        add_result(SignalRegionData("SR3_WZ_1Ja", 1., {_numSR["SR3_WZ_1Ja"], 0.}, {2.2, 0.5}));
+        add_result(SignalRegionData("SR3_WZ_1Jb", 3., {_numSR["SR3_WZ_1Jb"], 0.}, {1.8, 0.3}));
+        add_result(SignalRegionData("SR3_WZ_1Jc", 4., {_numSR["SR3_WZ_1Jc"], 0.}, {1.3, 0.3}));
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_MultiLEP_3Lep_36invfb)
+
 
 
   }

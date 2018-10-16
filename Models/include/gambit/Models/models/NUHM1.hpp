@@ -2,13 +2,13 @@
 //   *********************************************
 ///  \file
 ///
-///  NUHM1 model definition. 
+///  NUHM1 model definition.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Sep
 ///
@@ -17,8 +17,8 @@
 #ifndef __NUHM1_hpp__
 #define __NUHM1_hpp__
 
-// Must include models which are targets of translation functions
-#include "gambit/Models/models/NUHM2.hpp" 
+// Must include models that are targets of translation functions
+#include "gambit/Models/models/NUHM2.hpp"
 
 #define MODEL NUHM1
 #define PARENT NUHM2

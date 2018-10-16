@@ -18,7 +18,8 @@
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 May, Jul, Aug, Nov
-///  \date 2014 Jan, Mar, Apr, Dec
+///        2014 Jan, Mar, Apr, Dec
+///        2018 Sep
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu)
@@ -1872,6 +1873,7 @@ namespace Gambit
           else
           {
             // otherwise, add it to disabled vertex candidate list
+            if (not disabled) (*itf)->setStatus(1);
             disabledVertexCandidates.push_back(*itf);
           }
         }

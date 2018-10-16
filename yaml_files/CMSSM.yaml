@@ -187,10 +187,7 @@ ObsLikes:
     - capability: XENON100_2012_LogLikelihood
       purpose:    LogLike
 
-    - capability: XENON1T_2017_LogLikelihood
-      purpose:    LogLike
-
-    - capability: LUX_2015_LogLikelihood
+    - capability: XENON1T_2018_LogLikelihood
       purpose:    LogLike
 
     - capability: LUX_2016_LogLikelihood
@@ -205,7 +202,7 @@ ObsLikes:
     - capability: PICO_2L_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_60_F_LogLikelihood
+    - capability: PICO_60_LogLikelihood
       purpose:    LogLike
 
     - capability: PICO_60_2017_LogLikelihood
@@ -255,7 +252,7 @@ ObsLikes:
 
     # Other observables
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals
@@ -303,6 +300,10 @@ Rules:
   # Tell all functions that are able to dump SLHA files to do so.
   #- options:
   #    drop_SLHA_file: true
+
+  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -500,7 +501,6 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
-
   # ATLAS detector simulation
   - capability: SimpleSmearingSim
     type: "ColliderBit::BuckFastSmearATLAS"
@@ -526,13 +526,12 @@ Rules:
       analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
                    "ATLAS_13TeV_MultiLEP_36invfb",
                    "ATLAS_13TeV_0LEPStop_36invfb",
-                   "ATLAS_13TeV_1LEPStop_36invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
                    "ATLAS_13TeV_2bMET_36invfb"] ]
 
                    # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
-                   # The RJ3L_lowmass is not yet public and the
-                   # analysis code currently contains dummy numbers.
+                   # "ATLAS_13TeV_1LEPStop_36invfb",
+                   # These analyses currently depend on ROOT.
 
   # CMS analysis setup
   - capability: CMSAnalysisContainer

@@ -52,32 +52,53 @@ namespace Gambit
         private:
             std::string name;
             bool resume;
+            int rank;
+            int numtasks;
             
         public:
             resume_params_func(const std::string &name_in) : resume(false)
             {
-                int rank;
 #ifdef WITH_MPI
                 MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+                MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
 #else
                 rank = 0;
+                numtasks = 1;
 #endif
                 std::stringstream ss;
                 ss << rank;
                 name = name_in + "_" + ss.str();
             }
             
+            std::string get_name() const { return name; }
+
             void set_resume_mode(const bool &mode)
             {
-                resume = (mode && access( name.c_str(), F_OK )) ? false : mode;
+                resume = mode;
             }
             
             bool resume_mode() const {return resume;}
+            
+            std::string get_temp_file_name(const std::string &temp_file)
+            {
+                std::stringstream ss;
+                ss << Gambit::Scanner::Plugins::plugin_info.temp_file_path();
+                ss << name;
+                ss << "_";
+                ss << temp_file;
+                ss << "_";
+                ss << rank;
+                
+                return ss.str();
+            }
             
             void dump()
             {
                 Gambit::Scanner::Plugins::plugin_info.dump(name);
             }
+            
+            int Rank() const {return rank;}
+            int NumTasks() const {return numtasks;}
             
             template <typename... T>
             void operator ()(T&... params)

@@ -327,9 +327,18 @@ namespace Gambit {
       }
 
 
-      //
-      // Add functions variable b misidentification rate
-      // 
+      //Apply both b-tag efficiency and misidentification rate for CSVv2 medium WP
+      inline void applyCSVv2MediumBtagEffAndMisId(std::vector<const HEPUtils::Jet*>& jets, std::vector<const HEPUtils::Jet*>& bjets) {
+        if (jets.empty() && bjets.empty()) return;
+        // Apply b-tag efficiency
+        applyCSVv2MediumBtagEff(bjets);
+        // Apply misidentification rate to the non-b-jets in the jets vector
+        applyCSVv2MediumBtagMisId(jets, bjets);
+      }
+
+      inline void applyCSVv2MediumBtagEffAndMisId(std::vector<HEPUtils::Jet*>& jets, std::vector<HEPUtils::Jet*>& bjets) {
+        applyCSVv2MediumBtagEffAndMisId(reinterpret_cast<std::vector<const HEPUtils::Jet*>&>(jets), reinterpret_cast<std::vector<const HEPUtils::Jet*>&>(bjets));
+      }
 
       //@}
 

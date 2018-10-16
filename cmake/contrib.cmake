@@ -38,10 +38,11 @@ add_gambit_library(mkpath OPTION OBJECT
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/mkpath/include/mkpath/mkpath.h)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:mkpath>)
 
-#contrib/yaml-cpp-0.5.3
-set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.5.3/include)
+#contrib/yaml-cpp-0.6.2
+set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
 include_directories("${yaml_INCLUDE_DIR}")
-add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.5.3 EXCLUDE_FROM_ALL)
+add_definitions(-DYAML_CPP_DLL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
 #contrib/Delphes-3.1.2; include only if ColliderBit is in use and Delphes is not intentionally ditched.
 set (DELPHES_DIR "${PROJECT_SOURCE_DIR}/contrib/Delphes-3.1.2")
@@ -62,12 +63,12 @@ else()
   set (EXCLUDE_DELPHES FALSE)
   set (DELPHES_LDFLAGS "-L${DELPHES_DIR} -lDelphes")
   set (DELPHES_BAD_LINE "\\(..CC)\ ..patsubst\ -std=%,,..CXXFLAGS))\\)\ \\(..CXXFLAGS.\\)")
-  set (CMAKE_INSTALL_RPATH "${DELPHES_DIR}")
+  set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${DELPHES_DIR}")
   ExternalProject_Add(delphes
     SOURCE_DIR ${DELPHES_DIR}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure
-              COMMAND sed ${dashi} "/^CXXFLAGS += .* -Iexternal\\/tcl/ s/$/ ${CMAKE_CXX_FLAGS}/" <SOURCE_DIR>/Makefile
+              COMMAND sed ${dashi} "/^CXXFLAGS += .* -Iexternal\\/tcl/ s/$/ ${BACKEND_CXX_FLAGS}/" <SOURCE_DIR>/Makefile
               COMMAND sed ${dashi} "s,\ ..EXECUTABLE.,,g" <SOURCE_DIR>/Makefile
               COMMAND sed ${dashi} "s/${DELPHES_BAD_LINE}/\\1/g" <SOURCE_DIR>/Makefile
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} all
@@ -109,8 +110,8 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set (EXCLUDE_FLEXIBLESUSY FALSE)
 
   # Always use -O2 for flexiblesusy to ensure fast spectrum generation.
-  set(FS_CXX_FLAGS "${GAMBIT_CXX_FLAGS} -Wno-missing-field-initializers")
-  set(FS_Fortran_FLAGS "${GAMBIT_Fortran_FLAGS}")
+  set(FS_CXX_FLAGS "${BACKEND_CXX_FLAGS} -Wno-missing-field-initializers")
+  set(FS_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(FS_CXX_FLAGS "${FS_CXX_FLAGS} -O2")
     set(FS_Fortran_FLAGS "${FS_Fortran_FLAGS} -O2")
@@ -118,14 +119,13 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lgfortran -lm")
+    set(flexiblesusy_compilerlibs "-lgfortran -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lg2c -lm")
+    set(flexiblesusy_compilerlibs "-lg2c -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lifcore -limf -ldl -lintlc -lsvml")
+    set(flexiblesusy_compilerlibs "-lifcore -limf -ldl -lintlc -lsvml")
   endif()
-  #message("${Yellow}-- Determined FlexibleSUSY compiler library dependencies: ${flexiblesusy_extralibs}${ColourReset}")
-  set(flexiblesusy_LDFLAGS "${flexiblesusy_LDFLAGS} ${flexiblesusy_extralibs}")
+  set(flexiblesusy_LDFLAGS ${flexiblesusy_LDFLAGS} ${flexiblesusy_compilerlibs})
 
   # Silence the deprecated-declarations warnings comming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
@@ -133,6 +133,9 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # Silence the unused parameter and variable warnings comming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)
   set_compiler_warning("no-unused-variable" FS_CXX_FLAGS)
+
+  # Construct the command to create the shared library
+  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
 
   # FlexibleSUSY configure options
   set(FS_OPTIONS ${FS_OPTIONS}
@@ -147,12 +150,14 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --with-lapack-libs=${LAPACK_LINKLIBS}
        --with-blas-libs=${LAPACK_LINKLIBS}
        --disable-librarylink
+       --enable-shared-libs
+       --with-shared-lib-ext=.so
+       --with-shared-lib-cmd=${FS_SO_LINK_COMMAND}
       #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
      )
 
   # Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need)
-  set(ALL_FS_MODELS CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu SingletDMZ3 SingletDM)
-
+  set(ALL_FS_MODELS MDM CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu ScalarSingletDM_Z3 ScalarSingletDM_Z2)
   # Check if there has been command line instructions to only build with certain models. Default is to build everything!
   if(BUILD_FS_MODELS AND NOT ";${BUILD_FS_MODELS};" MATCHES ";ALL_FS_MODELS;")
     # Use whatever the user has supplied!
@@ -160,7 +165,6 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
     set(BUILD_FS_MODELS ${ALL_FS_MODELS})
   endif()
 
-  #set(BUILD_FS_MODELS CMSSM MSSM MSSMatMGUT)
   set(EXCLUDED_FS_MODELS "")
 
   # Check that all the models the user asked for are in fact valid models
@@ -210,17 +214,23 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   ExternalProject_Add(flexiblesusy
     SOURCE_DIR ${FS_DIR}
     BUILD_IN_SOURCE 1
-    BUILD_COMMAND $(MAKE) alllib
     CONFIGURE_COMMAND ${config_command}
+    BUILD_COMMAND $(MAKE) alllib
     INSTALL_COMMAND ""
   )
 
   # Set linking commands.  Link order matters! The core flexiblesusy libraries need to come after the model libraries but before the other link flags.
-  # for v 1.5.1 add "-L${FS_DIR}/legacy -llegacy"  after "-lflexiblesusy"
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FS_DIR}/src")
   set(flexiblesusy_LDFLAGS "-L${FS_DIR}/src -lflexisusy ${flexiblesusy_LDFLAGS}")
+  add_install_name_tool_step(flexiblesusy ${FS_DIR}/src libflexisusy.so)
   foreach(_MODEL ${BUILD_FS_MODELS})
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FS_DIR}/models/${_MODEL}")
     set(flexiblesusy_LDFLAGS "-L${FS_DIR}/models/${_MODEL} -l${_MODEL} ${flexiblesusy_LDFLAGS}")
+    add_install_name_tool_step(flexiblesusy ${FS_DIR}/models/${_MODEL} lib${_MODEL}.so)
   endforeach()
+
+  # Strip out leading and trailing whitespace
+  string(STRIP "${flexiblesusy_LDFLAGS}" flexiblesusy_LDFLAGS)
 
   # Set up include paths
   include_directories("${FS_DIR}/..")
@@ -233,9 +243,6 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   foreach(_MODEL ${BUILD_FS_MODELS})
     include_directories("${FS_DIR}/models/${_MODEL}")
   endforeach()
-
-  # Strip out leading and trailing whitespace
-  string(STRIP "${flexiblesusy_LDFLAGS}" flexiblesusy_LDFLAGS)
 
 else()
 

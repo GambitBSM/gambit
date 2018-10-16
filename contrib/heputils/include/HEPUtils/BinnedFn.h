@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -18,7 +18,8 @@
 namespace HEPUtils {
 
 
-  // Simple class just to do 1D bin index lookups. Not a container.
+  /// Simple class just to do 1D bin index lookups. Not a container.
+  /// @todo Extend to use a -inf .. +inf scheme... with what out-of-range default value?
   template <typename TX=double>
   class Binning1D {
   public:
@@ -89,7 +90,8 @@ namespace HEPUtils {
 
 
 
-  // Simple class just to do 2D bin index lookups. Not a container.
+  /// Simple class just to do 2D bin index lookups. Not a container.
+  /// @todo Extend to use a -inf .. +inf scheme... with what out-of-range default value?
   template <typename TX=double, typename TY=double>
   class Binning2D {
   public:
@@ -167,6 +169,7 @@ namespace HEPUtils {
 
 
   /// Binned container of Ts in 1D
+  /// @todo Extend to -inf .. +inf coverage, with templated out-of-range default value?
   template <typename T, typename TX=double>
   class BinnedFn1D {
   public:
@@ -234,6 +237,7 @@ namespace HEPUtils {
       if (binning.size() != values.size()) throw std::length_error("There must be one more bin edge than there are bin values");
     }
 
+
     /// The list of bin edges
     Binning1D<TX> binning;
 
@@ -245,6 +249,7 @@ namespace HEPUtils {
 
 
   /// Binned container of Ts in 2D
+  /// @todo Extend to -inf .. +inf coverage, with templated out-of-range default value?
   template <typename T, typename TX=double, typename TY=double>
   class BinnedFn2D {
   public:

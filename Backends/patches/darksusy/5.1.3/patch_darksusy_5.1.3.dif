@@ -1,6 +1,6 @@
 diff -rupN darksusy-5.1.3/configure ../installed/darksusy/5.1.3/configure
 --- darksusy-5.1.3/configure	2015-04-07 10:23:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/configure	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/configure	2018-07-04 22:31:57.218503877 +0100
 @@ -3337,11 +3337,11 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
  if test "${FCSET}" = "false" ; then
    if test "${FC}" = "ifort"; then
@@ -17,7 +17,7 @@ diff -rupN darksusy-5.1.3/configure ../installed/darksusy/5.1.3/configure
  
 diff -rupN darksusy-5.1.3/configure.ac ../installed/darksusy/5.1.3/configure.ac
 --- darksusy-5.1.3/configure.ac	2015-04-07 10:23:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/configure.ac	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/configure.ac	2018-07-04 22:31:57.218503877 +0100
 @@ -28,11 +28,11 @@ AC_PROG_FC([ifort gfortran])
  if test "${FCSET}" = "false" ; then
    if test "${FC}" = "ifort"; then 
@@ -34,7 +34,7 @@ diff -rupN darksusy-5.1.3/configure.ac ../installed/darksusy/5.1.3/configure.ac
  
 diff -rupN darksusy-5.1.3/contrib/FeynHiggs-2.9.4/makefile.in ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/makefile.in
 --- darksusy-5.1.3/contrib/FeynHiggs-2.9.4/makefile.in	2013-02-10 06:43:34.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/makefile.in	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/makefile.in	2018-07-04 22:31:57.218503877 +0100
 @@ -31,6 +31,9 @@ ARGS = $(PARALLEL) \
  default all lib frontend mma: force
  	cd $(BLD) && $(MAKE) $(ARGS) $@
@@ -47,7 +47,7 @@ diff -rupN darksusy-5.1.3/contrib/FeynHiggs-2.9.4/makefile.in ../installed/darks
  	-mkdir "$(LIBDIR)" "$(INCLUDEDIR)" "$(BINDIR)"
 diff -rupN darksusy-5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F
 --- darksusy-5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F	2013-02-10 06:43:34.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F	2018-07-04 22:31:57.218503877 +0100
 @@ -27,7 +27,7 @@
  #define EpsL(x,y)  vec_(x,y, 3, i)
  #define EpsTL(x,y) vec_(x,y, 4, i)
@@ -59,7 +59,7 @@ diff -rupN darksusy-5.1.3/contrib/FeynHiggs-2.9.4/src/Decays/VecSet.F ../install
  #define Spi(hel,om,x) spi_(x, om, hel+6, i)
 diff -rupN darksusy-5.1.3/contrib/galprop/v50p/Configure.cc ../installed/darksusy/5.1.3/contrib/galprop/v50p/Configure.cc
 --- darksusy-5.1.3/contrib/galprop/v50p/Configure.cc	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/contrib/galprop/v50p/Configure.cc	2018-05-23 15:19:02.282557326 +0100
++++ ../installed/darksusy/5.1.3/contrib/galprop/v50p/Configure.cc	2018-07-04 22:32:02.611805950 +0100
 @@ -0,0 +1,24 @@
 +
 +//**.****|****.****|****.****|****.****|****.****|****.****|****.****|****.****|
@@ -87,7 +87,7 @@ diff -rupN darksusy-5.1.3/contrib/galprop/v50p/Configure.cc ../installed/darksus
 +}
 diff -rupN darksusy-5.1.3/contrib/galprop/v50p/nuc_package.cc ../installed/darksusy/5.1.3/contrib/galprop/v50p/nuc_package.cc
 --- darksusy-5.1.3/contrib/galprop/v50p/nuc_package.cc	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/contrib/galprop/v50p/nuc_package.cc	2018-05-23 15:19:02.306557326 +0100
++++ ../installed/darksusy/5.1.3/contrib/galprop/v50p/nuc_package.cc	2018-07-04 22:32:02.639791951 +0100
 @@ -0,0 +1,834 @@
 +
 +//**.****|****.****|****.****|****.****|****.****|****.****|****.****|****.****|
@@ -925,7 +925,7 @@ diff -rupN darksusy-5.1.3/contrib/galprop/v50p/nuc_package.cc ../installed/darks
 +
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90	2018-07-04 22:31:57.218503877 +0100
 @@ -321,13 +321,13 @@ subroutine testBRSM(M)
     write(*,*)'calling the subroutines'
     write(*,*)'initialize_HiggsBounds and'
@@ -944,7 +944,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/access_SM.f90 ..
  !*********************************
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90	2018-07-04 22:31:57.222501877 +0100
 @@ -67,7 +67,7 @@ module channels
       case('TEV','LHC7')
        req= 0 * req
@@ -1088,7 +1088,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/channels.F90 ../
   !************************************************************
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_SLHA.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_SLHA.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_SLHA.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_SLHA.f90	2018-05-23 15:18:58.102557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_SLHA.f90	2018-07-04 22:31:57.222501877 +0100
 @@ -52,22 +52,22 @@ module extra_bits_for_SLHA
    !-------------------------------------------              
   
@@ -1128,7 +1128,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/extra_bits_for_S
      case(0)
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subroutines.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subroutines.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subroutines.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subroutines.F90	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subroutines.F90	2018-07-04 22:31:57.222501877 +0100
 @@ -68,7 +68,7 @@ subroutine initialize_HiggsBounds(nHiggs
   np(Chiplus)=0! do not change this without contacting us first!
  
@@ -1361,7 +1361,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/HiggsBounds_subr
   if(debug)write(*,*)'finishing off...'                      ; call flush(6)
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90	2018-07-04 22:31:57.222501877 +0100
 @@ -69,7 +69,7 @@ module input
     !haven't yet set whichanalyses,whichinput
     infile1=''
@@ -1678,7 +1678,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/input.F90 ../ins
     ! each file has the line number as the first column
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90	2018-07-04 22:31:57.222501877 +0100
 @@ -414,9 +414,9 @@ module interpolate
    !-------------------------------------------
  
@@ -1807,7 +1807,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/interpolate.f90 
  
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksusy.in ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksusy.in
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksusy.in	2015-04-07 10:23:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksusy.in	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksusy.in	2018-07-04 22:31:57.222501877 +0100
 @@ -106,10 +106,10 @@ OBJSsubroutines =  $(OBJSbasic) \
  default: HiggsBounds
  
@@ -1854,7 +1854,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/makefile_darksus
  	rm -f example_programs/example-SM_vs_4thGen
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90	2018-07-04 22:31:57.226499877 +0100
 @@ -30,7 +30,7 @@ module output
    !-------------------------------------------
  
@@ -1915,7 +1915,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/output.F90 ../in
     select case(pr(n)%ttype)
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90	2018-05-23 15:18:58.106557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90	2018-07-04 22:31:57.226499877 +0100
 @@ -129,7 +129,7 @@ module S95tables
    do i=lbound(S95_t1,dim=1),ubound(S95_t1,dim=1)
     if(WhichColliderElement(S95_t1(i)%expt).eq.0)then
@@ -2343,7 +2343,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables.f90 ..
   end function S95_t1_or_S95_t2_elementnumberfromid
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.F90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.F90	2018-07-04 22:31:57.226499877 +0100
 @@ -86,7 +86,7 @@ module S95tables_type1
     endif
    enddo
@@ -2364,7 +2364,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type1.
    ! do loop to read in S95 tables 
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.F90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.F90	2018-07-04 22:31:57.230497877 +0100
 @@ -272,11 +272,11 @@ module S95tables_type2
  
       do k=lbound(file_id_arr,dim=1),ubound(file_id_arr,dim=1)
@@ -2497,7 +2497,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type2.
   end subroutine fill_t1_from_t2
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.F90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.F90	2018-07-04 22:31:57.230497877 +0100
 @@ -249,7 +249,7 @@ module S95tables_type3
  
    ! checks we've filled the whole array
@@ -2803,7 +2803,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/S95tables_type3.
   
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90	2018-07-04 22:31:57.230497877 +0100
 @@ -81,7 +81,7 @@ module SLHA_manip
    ! write(*,*)'hello block',names_of_blocks_and_decays(i)%id, &
    !  & trim(adjustl(names_of_blocks_and_decays(i)%line))
@@ -2891,7 +2891,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/SLHA_manip.f90 .
    rewind(fileid)
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90	2018-07-04 22:31:57.230497877 +0100
 @@ -12,9 +12,9 @@ contains
      !integer :: strlowa = 97
      !integer :: strlowz = 122
@@ -2950,7 +2950,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/string_manip.f90
    columns=''
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90	2018-07-04 22:31:57.230497877 +0100
 @@ -36,7 +36,7 @@ module theo_manip
      call cp_from_g2
     case('hadr','part')
@@ -3063,7 +3063,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theo_manip.f90 .
    else
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctions.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctions.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctions.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctions.F90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctions.F90	2018-07-04 22:31:57.230497877 +0100
 @@ -56,7 +56,7 @@ module theory_BRfunctions
    
    ! checks we've filled the whole array
@@ -3075,7 +3075,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_BRfunctio
    col=7
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_functions.F90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_functions.F90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_functions.F90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_functions.F90	2018-05-23 15:18:58.110557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_functions.F90	2018-07-04 22:31:57.230497877 +0100
 @@ -71,7 +71,7 @@ module theory_XS_SM_functions
         rangeok=.False.
        endif
@@ -3105,7 +3105,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/theory_XS_SM_fun
  
 diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90 ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90
 --- darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90	2013-02-11 06:11:43.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90	2018-07-04 22:31:57.234495877 +0100
 @@ -288,7 +288,7 @@ module usefulbits
        if(abs(value-array(i)).le.small) output = 1
      enddo
@@ -3189,7 +3189,7 @@ diff -rupN darksusy-5.1.3/contrib/HiggsBounds-3.8.1/HiggsBounds/usefulbits.f90 .
    deallocate(theo) !allocated in subroutine do_input  
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/aldata.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/aldata.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/aldata.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/aldata.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/aldata.f	2018-07-04 22:31:57.234495877 +0100
 @@ -155,8 +155,8 @@ C          LUXSET=.TRUE. after RLUXGO ha
       $GOWW(25,2),ALLWW(2),GOWMOD(25,MXGOJ)
        SAVE /Q1Q2/
@@ -3469,7 +3469,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/func_int.f ../installed
 -      END
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/gettot.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/gettot.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/gettot.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/gettot.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/gettot.f	2018-07-04 22:31:57.234495877 +0100
 @@ -77,8 +77,8 @@ C          Jet limits
        COMMON/IDRUN/IDVER,IDG(2),IEVT,IEVGEN
        SAVE /IDRUN/
@@ -3878,7 +3878,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/isared.f ../installed/d
 -      END
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/makefile.in ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/makefile.in
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/makefile.in	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/makefile.in	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/makefile.in	2018-07-04 22:31:57.234495877 +0100
 @@ -6,9 +6,6 @@
  FF=@F77@
  FOPT=@FOPT@
@@ -3922,7 +3922,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/makefile.in ../installe
  	rm -f *.o
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/prtevt.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtevt.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/prtevt.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtevt.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtevt.f	2018-07-04 22:31:57.234495877 +0100
 @@ -84,8 +84,8 @@ C
        COMMON/WSIG/SIGLLQ
        SAVE /WSIG/
@@ -3936,7 +3936,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/prtevt.f ../installed/d
  C          LABELS ARE CHARACTER*8
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/prtlim.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtlim.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/prtlim.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtlim.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/prtlim.f	2018-07-04 22:31:57.234495877 +0100
 @@ -79,8 +79,8 @@ C          KKGravity common
        COMMON/PRTOUT/NEVPRT,NJUMP
        SAVE /PRTOUT/
@@ -3950,7 +3950,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/prtlim.f ../installed/d
        PARAMETER (MXTYPE=8)
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfgt.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfgt.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfgt.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfgt.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfgt.f	2018-07-04 22:31:57.238493877 +0100
 @@ -1,4 +1,4 @@
  C
 -      SUBROUTINE RANFGT(SEED)
@@ -3959,7 +3959,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfgt.f ../installed/d
        END
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfst.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfst.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfst.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfst.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ranfst.f	2018-07-04 22:31:57.238493877 +0100
 @@ -1,4 +1,4 @@
 -      SUBROUTINE RANFST(SEED)
 -      DOUBLE PRECISION SEED
@@ -3969,7 +3969,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ranfst.f ../installed/d
        END
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/readin.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/readin.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/readin.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/readin.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/readin.f	2018-07-04 22:31:57.238493877 +0100
 @@ -73,8 +73,8 @@ C          KKGravity common
        COMMON/PRTOUT/NEVPRT,NJUMP
        SAVE /PRTOUT/
@@ -3992,7 +3992,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/readin.f ../installed/d
        DATA NLAP/1,2,3, 1,2,7 ,1,2,8, 1,3,5, 1,3,6, 1,3,7, 1,3,8, 1,5,7,
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/reset.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/reset.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/reset.f	2011-11-03 14:34:52.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/reset.f	2018-05-23 15:18:58.114557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/reset.f	2018-07-04 22:31:57.238493877 +0100
 @@ -84,8 +84,8 @@ C          Jet limits
       $GOWW(25,2),ALLWW(2),GOWMOD(25,MXGOJ)
        SAVE /Q1Q2/
@@ -4006,7 +4006,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/reset.f ../installed/da
  C          AMGLSS               = gluino mass
 diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ssid.f ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ssid.f
 --- darksusy-5.1.3/contrib/isajet781-for-darksusy/ssid.f	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ssid.f	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/isajet781-for-darksusy/ssid.f	2018-07-04 22:31:57.238493877 +0100
 @@ -0,0 +1,80 @@
 +      CHARACTER*5 FUNCTION SSID(ID)
 +C-----------------------------------------------------------------------
@@ -4090,7 +4090,7 @@ diff -rupN darksusy-5.1.3/contrib/isajet781-for-darksusy/ssid.f ../installed/dar
 +      END
 diff -rupN darksusy-5.1.3/contrib/TSPACK/makefile.in ../installed/darksusy/5.1.3/contrib/TSPACK/makefile.in
 --- darksusy-5.1.3/contrib/TSPACK/makefile.in	2013-02-10 06:43:34.000000000 +0000
-+++ ../installed/darksusy/5.1.3/contrib/TSPACK/makefile.in	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/contrib/TSPACK/makefile.in	2018-07-04 22:31:57.238493877 +0100
 @@ -9,8 +9,7 @@ FOPT=@FOPT@
  # Dependencies and libraries
  DINC=../../include
@@ -4118,7 +4118,7 @@ diff -rupN darksusy-5.1.3/contrib/TSPACK/makefile.in ../installed/darksusy/5.1.3
  	rm -f tspack.f *.o
 diff -rupN darksusy-5.1.3/HISTORY ../installed/darksusy/5.1.3/HISTORY
 --- darksusy-5.1.3/HISTORY	2015-12-22 20:08:40.000000000 +0000
-+++ ../installed/darksusy/5.1.3/HISTORY	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/HISTORY	2018-07-04 22:31:57.238493877 +0100
 @@ -3,6 +3,12 @@ Version history for DarkSUSY
  
  ====================================================== VERSION HISTORY
@@ -4134,7 +4134,7 @@ diff -rupN darksusy-5.1.3/HISTORY ../installed/darksusy/5.1.3/HISTORY
  
 diff -rupN darksusy-5.1.3/include/dsandwcom.h ../installed/darksusy/5.1.3/include/dsandwcom.h
 --- darksusy-5.1.3/include/dsandwcom.h	2010-08-06 09:27:44.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/dsandwcom.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/dsandwcom.h	2018-07-04 22:31:57.238493877 +0100
 @@ -23,7 +23,7 @@ c....dwcom - common block needed for the
        save /dwcom1/,/dwcom2/
  
@@ -4146,7 +4146,7 @@ diff -rupN darksusy-5.1.3/include/dsandwcom.h ../installed/darksusy/5.1.3/includ
  ***                                                                 ***
 diff -rupN darksusy-5.1.3/include/dsascom.h ../installed/darksusy/5.1.3/include/dsascom.h
 --- darksusy-5.1.3/include/dsascom.h	2008-06-23 22:39:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/dsascom.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/dsascom.h	2018-07-04 22:31:57.238493877 +0100
 @@ -44,10 +44,10 @@ c some roundoff terms
  
  c dsasdwdcossfsf final/intermediate state arrays/variables
@@ -4176,7 +4176,7 @@ diff -rupN darksusy-5.1.3/include/dsascom.h ../installed/darksusy/5.1.3/include/
  
 diff -rupN darksusy-5.1.3/include/dsdirver.h ../installed/darksusy/5.1.3/include/dsdirver.h
 --- darksusy-5.1.3/include/dsdirver.h	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/dsdirver.h	2018-05-23 15:18:59.130557382 +0100
++++ ../installed/darksusy/5.1.3/include/dsdirver.h	2018-07-04 22:31:58.617803896 +0100
 @@ -0,0 +1,22 @@
 +*         -*- mode: fortran -*-
 +*######################################################################*
@@ -4188,7 +4188,7 @@ diff -rupN darksusy-5.1.3/include/dsdirver.h ../installed/darksusy/5.1.3/include
 +***         this piece of code is needed as a separate file          ***
 +***            the rest of the code 'includes' dsdirver.h            ***
 +c----------------------------------------------------------------------c
-+*** This file is created by config2.pl on Wed May 23 15:18:59 BST 2018
++*** This file is created by config2.pl on Wed Jul  4 22:31:58 BST 2018
 +
 +      character*5 dsver
 +      parameter(dsver='5.1.3')
@@ -4202,7 +4202,7 @@ diff -rupN darksusy-5.1.3/include/dsdirver.h ../installed/darksusy/5.1.3/include
 +************************** end of dsdirver.h ***************************
 diff -rupN darksusy-5.1.3/include/dsmssm.h ../installed/darksusy/5.1.3/include/dsmssm.h
 --- darksusy-5.1.3/include/dsmssm.h	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/include/dsmssm.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/dsmssm.h	2018-07-04 22:31:57.238493877 +0100
 @@ -140,9 +140,12 @@ c
        complex*16 neunmx(4,4),chaumx(2,2),chavmx(2,2),
       & slulmx(3,3),sldlmx(6,3),sldrmx(6,3),
@@ -4219,7 +4219,7 @@ diff -rupN darksusy-5.1.3/include/dsmssm.h ../installed/darksusy/5.1.3/include/d
        common/sugrainput/m0var,mhfvar,a0var,tgbetavar,sgnmuvar
 diff -rupN darksusy-5.1.3/include/dsrdcom.h ../installed/darksusy/5.1.3/include/dsrdcom.h
 --- darksusy-5.1.3/include/dsrdcom.h	2010-08-06 09:27:44.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/dsrdcom.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/dsrdcom.h	2018-07-04 22:31:57.238493877 +0100
 @@ -58,9 +58,12 @@ c...rdlims
  c...rdswitch - switches
        integer thavint,rdprt
@@ -4236,7 +4236,7 @@ diff -rupN darksusy-5.1.3/include/dsrdcom.h ../installed/darksusy/5.1.3/include/
  
 diff -rupN darksusy-5.1.3/include/dswacom.h ../installed/darksusy/5.1.3/include/dswacom.h
 --- darksusy-5.1.3/include/dswacom.h	2015-12-20 21:43:06.000000000 +0000
-+++ ../installed/darksusy/5.1.3/include/dswacom.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/dswacom.h	2018-07-04 22:31:57.242491877 +0100
 @@ -18,30 +18,26 @@ c...to 52.
        integer wamax,walast(2),wanm
        parameter(wamax=6) ! number of tables to load simultaneously
@@ -4290,7 +4290,7 @@ diff -rupN darksusy-5.1.3/include/dswacom.h ../installed/darksusy/5.1.3/include/
  
 diff -rupN darksusy-5.1.3/include/FHCouplings.h ../installed/darksusy/5.1.3/include/FHCouplings.h
 --- darksusy-5.1.3/include/FHCouplings.h	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/FHCouplings.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/FHCouplings.h	2018-07-04 22:31:04.748751159 +0100
 @@ -0,0 +1,149 @@
 +#if 0
 +	FHCouplings.h
@@ -4443,7 +4443,7 @@ diff -rupN darksusy-5.1.3/include/FHCouplings.h ../installed/darksusy/5.1.3/incl
 +
 diff -rupN darksusy-5.1.3/include/PDG.h ../installed/darksusy/5.1.3/include/PDG.h
 --- darksusy-5.1.3/include/PDG.h	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/PDG.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/PDG.h	2018-07-04 22:31:04.748751159 +0100
 @@ -0,0 +1,79 @@
 +#if 0
 +	PDG.h
@@ -4526,7 +4526,7 @@ diff -rupN darksusy-5.1.3/include/PDG.h ../installed/darksusy/5.1.3/include/PDG.
 +
 diff -rupN darksusy-5.1.3/include/SLHADefs.h ../installed/darksusy/5.1.3/include/SLHADefs.h
 --- darksusy-5.1.3/include/SLHADefs.h	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/SLHADefs.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/SLHADefs.h	2018-07-04 22:31:04.752749158 +0100
 @@ -0,0 +1,742 @@
 +#if 0
 +	SLHADefs.h
@@ -5272,7 +5272,7 @@ diff -rupN darksusy-5.1.3/include/SLHADefs.h ../installed/darksusy/5.1.3/include
 +#endif
 diff -rupN darksusy-5.1.3/include/SLHA.h ../installed/darksusy/5.1.3/include/SLHA.h
 --- darksusy-5.1.3/include/SLHA.h	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/include/SLHA.h	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/include/SLHA.h	2018-07-04 22:31:04.752749158 +0100
 @@ -0,0 +1,17 @@
 +#if 0
 +	SLHA.h
@@ -5293,7 +5293,7 @@ diff -rupN darksusy-5.1.3/include/SLHA.h ../installed/darksusy/5.1.3/include/SLH
 +
 diff -rupN darksusy-5.1.3/makefile.in ../installed/darksusy/5.1.3/makefile.in
 --- darksusy-5.1.3/makefile.in	2015-04-07 10:23:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/makefile.in	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/makefile.in	2018-07-04 22:31:57.242491877 +0100
 @@ -60,7 +60,9 @@ HBDIR=@HIGGSBOUNDSDIR@
  SLHADIR=@SLHADIR@
  TSPACKDIR=@TSPACKDIR@
@@ -5393,7 +5393,7 @@ diff -rupN darksusy-5.1.3/makefile.in ../installed/darksusy/5.1.3/makefile.in
  		echo 'The install directory is different from DS_ROOT' ; \
 diff -rupN darksusy-5.1.3/misc/makefile.in ../installed/darksusy/5.1.3/misc/makefile.in
 --- darksusy-5.1.3/misc/makefile.in	2013-02-15 17:58:12.000000000 +0000
-+++ ../installed/darksusy/5.1.3/misc/makefile.in	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/misc/makefile.in	2018-07-04 22:31:57.242491877 +0100
 @@ -26,6 +26,10 @@ caprates : caprates.f $(LIB)/libdarksusy
  	$(FF) $(FOPT) $(INC) -L$(LIB) -o caprates caprates.f \
          -ldarksusy -lHB -lFH
@@ -5407,7 +5407,7 @@ diff -rupN darksusy-5.1.3/misc/makefile.in ../installed/darksusy/5.1.3/misc/make
          -ldarksusy -lHB -lFH
 diff -rupN darksusy-5.1.3/misc/oh2test.f ../installed/darksusy/5.1.3/misc/oh2test.f
 --- darksusy-5.1.3/misc/oh2test.f	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/misc/oh2test.f	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/misc/oh2test.f	2018-07-04 22:31:57.242491877 +0100
 @@ -0,0 +1,294 @@
 +      program oh2test
 +c
@@ -5705,7 +5705,7 @@ diff -rupN darksusy-5.1.3/misc/oh2test.f ../installed/darksusy/5.1.3/misc/oh2tes
 +      end
 diff -rupN darksusy-5.1.3/share/DarkSUSY/tab_install.pl ../installed/darksusy/5.1.3/share/DarkSUSY/tab_install.pl
 --- darksusy-5.1.3/share/DarkSUSY/tab_install.pl	2008-04-11 10:31:28.000000000 +0100
-+++ ../installed/darksusy/5.1.3/share/DarkSUSY/tab_install.pl	2018-05-23 15:18:58.118557401 +0100
++++ ../installed/darksusy/5.1.3/share/DarkSUSY/tab_install.pl	2018-07-04 22:31:57.242491877 +0100
 @@ -12,7 +12,7 @@ if ($file =~ /.gz$/) {    # Convert asci
  #    } else {
  #	$type="d";
@@ -5717,7 +5717,7 @@ diff -rupN darksusy-5.1.3/share/DarkSUSY/tab_install.pl ../installed/darksusy/5.
      open(PROG,"|./ascii2bin") ||
 diff -rupN darksusy-5.1.3/src/as/dsaschicasea.f ../installed/darksusy/5.1.3/src/as/dsaschicasea.f
 --- darksusy-5.1.3/src/as/dsaschicasea.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsaschicasea.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsaschicasea.f	2018-07-04 22:31:57.242491877 +0100
 @@ -177,9 +177,13 @@ c....mass symbols used in form-code
            kchiu(k+2)=0
          enddo
@@ -5780,7 +5780,7 @@ diff -rupN darksusy-5.1.3/src/as/dsaschicasea.f ../installed/darksusy/5.1.3/src/
            kfers(i)=kcferd(i)
 diff -rupN darksusy-5.1.3/src/as/dsaschicaseb.f ../installed/darksusy/5.1.3/src/as/dsaschicaseb.f
 --- darksusy-5.1.3/src/as/dsaschicaseb.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsaschicaseb.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsaschicaseb.f	2018-07-04 22:31:57.246489878 +0100
 @@ -171,9 +171,13 @@ c....mass symbols used in form-code
            kchiu(k+2)=0
          enddo
@@ -5842,7 +5842,7 @@ diff -rupN darksusy-5.1.3/src/as/dsaschicaseb.f ../installed/darksusy/5.1.3/src/
          goto 200
 diff -rupN darksusy-5.1.3/src/as/dsaschicasec.f ../installed/darksusy/5.1.3/src/as/dsaschicasec.f
 --- darksusy-5.1.3/src/as/dsaschicasec.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsaschicasec.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsaschicasec.f	2018-07-04 22:31:57.246489878 +0100
 @@ -227,9 +227,13 @@ c....mass symbols used in form-code
            kchiu(k+2)=0
          enddo
@@ -5904,7 +5904,7 @@ diff -rupN darksusy-5.1.3/src/as/dsaschicasec.f ../installed/darksusy/5.1.3/src/
            kfers(i)=kcferd(i)
 diff -rupN darksusy-5.1.3/src/as/dsaschicased.f ../installed/darksusy/5.1.3/src/as/dsaschicased.f
 --- darksusy-5.1.3/src/as/dsaschicased.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsaschicased.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsaschicased.f	2018-07-04 22:31:57.246489878 +0100
 @@ -194,9 +194,13 @@ c....mass symbols used in form-code
            kchiu(k+2)=0
          enddo
@@ -5966,7 +5966,7 @@ diff -rupN darksusy-5.1.3/src/as/dsaschicased.f ../installed/darksusy/5.1.3/src/
          goto 400
 diff -rupN darksusy-5.1.3/src/as/dsasdwdcossfchi.f ../installed/darksusy/5.1.3/src/as/dsasdwdcossfchi.f
 --- darksusy-5.1.3/src/as/dsasdwdcossfchi.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsasdwdcossfchi.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsasdwdcossfchi.f	2018-07-04 22:31:57.246489878 +0100
 @@ -15,6 +15,8 @@
  ***   final state quarks in selected cases, June 2006, Jan 2007      ***
  *** modified: Piero Ullio to include a new labelling of states,      ***
@@ -6553,7 +6553,7 @@ diff -rupN darksusy-5.1.3/src/as/dsasdwdcossfchi.f ../installed/darksusy/5.1.3/s
            write(*,*) 'DS: wrong ciaux value =',ciaux
 diff -rupN darksusy-5.1.3/src/as/dsasdwdcossfsf.f ../installed/darksusy/5.1.3/src/as/dsasdwdcossfsf.f
 --- darksusy-5.1.3/src/as/dsasdwdcossfsf.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsasdwdcossfsf.f	2018-05-23 15:18:58.122557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsasdwdcossfsf.f	2018-07-04 22:31:57.250487877 +0100
 @@ -19,6 +19,11 @@
  *** modified: Piero Ullio to include mixing in fermion final states  ***
  ***   and a new labelling of states                                  ***
@@ -8139,7 +8139,7 @@ diff -rupN darksusy-5.1.3/src/as/dsasdwdcossfsf.f ../installed/darksusy/5.1.3/sr
                wok=.false.
 diff -rupN darksusy-5.1.3/src/as/dsasgbhb.f ../installed/darksusy/5.1.3/src/as/dsasgbhb.f
 --- darksusy-5.1.3/src/as/dsasgbhb.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/as/dsasgbhb.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/as/dsasgbhb.f	2018-07-04 22:31:57.250487877 +0100
 @@ -20,6 +20,9 @@
  *** added by Mia Schelke Jan 2007                          ***
  *** modified: Piero Ullio to include a new labelling of    ***
@@ -8258,80 +8258,326 @@ diff -rupN darksusy-5.1.3/src/as/dsasgbhb.f ../installed/darksusy/5.1.3/src/as/d
  *****
 diff -rupN darksusy-5.1.3/src/dd/dsdddn1.f ../installed/darksusy/5.1.3/src/dd/dsdddn1.f
 --- darksusy-5.1.3/src/dd/dsdddn1.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/dd/dsdddn1.f	2018-05-23 15:18:58.126557400 +0100
-@@ -15,7 +15,8 @@ c
-       mx2=mx*mx/scale
++++ ../installed/darksusy/5.1.3/src/dd/dsdddn1.f	2018-07-04 22:31:57.250487877 +0100
+@@ -16,7 +16,12 @@ c
        delta=4.d0*mq2*ms2-(mq2+ms2-mx2)**2
        mx4=mx2*mx2
--      if (abs(delta).lt.epsilon*mx4) then
-+c... made sure that arguemnt of srqt cannot become negative, TB 2018-02-28
-+      if (abs(delta).lt.epsilon*mx4.and.delta.lt.4.d0*mq2*ms2) then
-          delta=epsilon*mx4
+       if (abs(delta).lt.epsilon*mx4) then
+-         delta=epsilon*mx4
++         if (delta.gt.0.0d0) then
++           delta=epsilon*mx4
++           if (delta.gt.(4.d0*mq2*ms2)) delta = 4.d0*mq2*ms2 ! avoid negative argument of srt, TB 2018-06-26
++         else ! added to ensure correct re-calcluation of mx2, TB 2018-06-26 
++           delta=-epsilon*mx4
++         endif
           mx2=mq2+ms2-dsqrt(4.d0*mq2*ms2-delta)
        endif
+       sqrtdelta=dsqrt(dabs(delta))
 diff -rupN darksusy-5.1.3/src/dd/dsdddn2.f ../installed/darksusy/5.1.3/src/dd/dsdddn2.f
 --- darksusy-5.1.3/src/dd/dsdddn2.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/dd/dsdddn2.f	2018-05-23 15:18:58.126557400 +0100
-@@ -15,7 +15,8 @@ c
-       mx2=mx*mx/scale
++++ ../installed/darksusy/5.1.3/src/dd/dsdddn2.f	2018-07-04 22:31:57.250487877 +0100
+@@ -16,7 +16,12 @@ c
        delta=4.d0*mq2*ms2-(mq2+ms2-mx2)**2
        mx4=mx2*mx2
--      if (abs(delta).lt.epsilon*mx4) then
-+c... made sure that arguemnt of srqt cannot become negative, TB 2018-02-28
-+      if (abs(delta).lt.epsilon*mx4.and.delta.lt.4.d0*mq2*ms2) then
-          delta=epsilon*mx4
+       if (abs(delta).lt.epsilon*mx4) then
+-         delta=epsilon*mx4
++         if (delta.gt.0.0d0) then
++           delta=epsilon*mx4
++           if (delta.gt.(4.d0*mq2*ms2)) delta = 4.d0*mq2*ms2 ! avoid negative argument of srt, TB 2018-06-26
++         else ! added to ensure correct re-calcluation of mx2, TB 2018-06-26 
++           delta=-epsilon*mx4
++         endif
           mx2=mq2+ms2-dsqrt(4.d0*mq2*ms2-delta)
        endif
+       sqrtdelta=dsqrt(dabs(delta))
 diff -rupN darksusy-5.1.3/src/dd/dsdddn3.f ../installed/darksusy/5.1.3/src/dd/dsdddn3.f
 --- darksusy-5.1.3/src/dd/dsdddn3.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/dd/dsdddn3.f	2018-05-23 15:18:58.126557400 +0100
-@@ -15,7 +15,8 @@ c
-       mx2=mx*mx/scale
++++ ../installed/darksusy/5.1.3/src/dd/dsdddn3.f	2018-07-04 22:31:57.250487877 +0100
+@@ -16,7 +16,12 @@ c
        delta=4.d0*mq2*ms2-(mq2+ms2-mx2)**2
        mx4=mx2*mx2
--      if (abs(delta).lt.epsilon*mx4) then
-+c... made sure that arguemnt of srqt cannot become negative, TB 2018-02-28
-+      if (abs(delta).lt.epsilon*mx4.and.delta.lt.4.d0*mq2*ms2) then
-          delta=epsilon*mx4
+       if (abs(delta).lt.epsilon*mx4) then
+-         delta=epsilon*mx4
++         if (delta.gt.0.0d0) then
++           delta=epsilon*mx4
++           if (delta.gt.(4.d0*mq2*ms2)) delta = 4.d0*mq2*ms2 ! avoid negative argument of srt, TB 2018-06-26
++         else ! added to ensure correct re-calcluation of mx2, TB 2018-06-26 
++           delta=-epsilon*mx4
++         endif
           mx2=mq2+ms2-dsqrt(4.d0*mq2*ms2-delta)
        endif
+       sqrtdelta=dsqrt(dabs(delta))
 diff -rupN darksusy-5.1.3/src/dd/dsdddn4.f ../installed/darksusy/5.1.3/src/dd/dsdddn4.f
 --- darksusy-5.1.3/src/dd/dsdddn4.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/dd/dsdddn4.f	2018-05-23 15:18:58.126557400 +0100
-@@ -15,7 +15,8 @@ c
-       mx2=mx*mx/scale
++++ ../installed/darksusy/5.1.3/src/dd/dsdddn4.f	2018-07-04 22:31:57.250487877 +0100
+@@ -16,7 +16,12 @@ c
        delta=4.d0*mq2*ms2-(mq2+ms2-mx2)**2
        mx4=mx2*mx2
--      if (abs(delta).lt.epsilon*mx4) then
-+c... made sure that arguemnt of srqt cannot become negative, TB 2018-02-28
-+      if (abs(delta).lt.epsilon*mx4.and.delta.lt.4.d0*mq2*ms2) then
-          delta=epsilon*mx4
+       if (abs(delta).lt.epsilon*mx4) then
+-         delta=epsilon*mx4
++         if (delta.gt.0.0d0) then
++           delta=epsilon*mx4
++           if (delta.gt.(4.d0*mq2*ms2)) delta = 4.d0*mq2*ms2 ! avoid negative argument of srt, TB 2018-06-26
++         else ! added to ensure correct re-calcluation of mx2, TB 2018-06-26 
++           delta=-epsilon*mx4
++         endif
           mx2=mq2+ms2-dsqrt(4.d0*mq2*ms2-delta)
        endif
+       sqrtdelta=dsqrt(dabs(delta))
 diff -rupN darksusy-5.1.3/src/dd/dsddgpgn.f ../installed/darksusy/5.1.3/src/dd/dsddgpgn.f
 --- darksusy-5.1.3/src/dd/dsddgpgn.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/dd/dsddgpgn.f	2018-05-23 15:18:58.126557400 +0100
-@@ -310,7 +310,7 @@ c
++++ ../installed/darksusy/5.1.3/src/dd/dsddgpgn.f	2018-07-04 22:34:44.405230166 +0100
+@@ -6,7 +6,7 @@ c    'dssusy.h' - file with susy common
+ c  output:
+ c    gps, gns : proton and neutron scalar four-fermion couplings
+ c    gpa, gna : proton and neutron axial four-fermion couplings
+-c    units: GeV^-4
++c    units: GeV^-2
+ c  author: paolo gondolo (paolo@physics.utah.edu) 2004
+ c    2008-02-16 paolo gondolo double spin-dependent squark contribution
+ c    2008-02-16 paolo gondolo undo running quark masses in couplings
+@@ -28,7 +28,7 @@ c=======================================
+       real*8 f1q,df1q,fp,fn,aqh,aqd,aqs,fgh,fgd,fgs,agh,agd,ags
+       ! fp,fn,f1q,df1q,du,dd,ds are twice those in drees-nojiri
+       real*8 rmass(12) ! temporary array for lepton and quark running masses
+-                       ! currently extracted from yukawa 
++                       ! currently extracted from yukawa
+                        ! one day we will have rmass(k,q)
+ 
+       kx = kn(kln)
+@@ -153,78 +153,127 @@ c     u,d,s
+      &           mass(kh2)**2/rmass(ks)*fts(z)
+             aqd = 0.d0
+             aqs = 0.d0
+-            do i=1,6
+-               aqd = aqd        ! squarks: u,d,s tree a^2-b^2
+-     &              - 0.5d0*dreal(gl(ksqu(i),kx,ku)*
+-     &              conjg(gr(ksqu(i),kx,ku)))/rmass(ku)/
+-     &              (mass(ksqu(i))**2-(mx+mass(ku))**2)*ftu(z)
+-     &              - 0.5d0*dreal(gl(ksqd(i),kx,kd)*
+-     &              conjg(gr(ksqd(i),kx,kd)))/rmass(kd)/
+-     &              (mass(ksqd(i))**2-(mx+mass(kd))**2)*ftd(z)
+-     &              - 0.5d0*dreal(gl(ksqd(i),kx,ks)*
+-     &              conjg(gr(ksqd(i),kx,ks)))/rmass(ks)/
+-     &              (mass(ksqd(i))**2-(mx+mass(ks))**2)*fts(z)
+-               aqs = aqs        ! squarks: u,d,s tree & twist-2 a^2+b^2
+-     &              + 0.125*mx*(dsabsq(gl(ksqu(i),kx,ku))+
+-     &              dsabsq(gr(ksqu(i),kx,ku)))/
+-     &              (mass(ksqu(i))**2-(mx+mass(ku))**2)**2*(ftu(z)+
+-     &              3.d0*dsddo(1,z,mass(ksqu(i))**2-(mx+mass(ku))**2))
+-     &              + 0.125*mx*(dsabsq(gl(ksqd(i),kx,kd))+
+-     &              dsabsq(gr(ksqd(i),kx,kd)))/
+-     &              (mass(ksqd(i))**2-(mx+mass(kd))**2)**2*(ftd(z)+ 
+-     &              3.d0*dsddo(2,z,mass(ksqd(i))**2-(mx+mass(kd))**2))
+-     &              + 0.125*mx*(dsabsq(gl(ksqd(i),kx,ks))+
+-     &              dsabsq(gr(ksqd(i),kx,ks)))/
+-     &              (mass(ksqd(i))**2-(mx+mass(ks))**2)**2*(fts(z)+
+-     &              3.d0*dsddo(4,z,mass(ksqu(i))**2-(mx+mass(ks))**2))
+-               aqs = aqs        ! squarks: c twist-2 a^2+b^2
+-     &              + 0.125*mx*(dsabsq(gl(ksqu(i),kx,kc))+
+-     &              dsabsq(gr(ksqu(i),kx,kc)))/
+-     &              (mass(ksqu(i))**2-(mx+mass(kc))**2)**2*
+-     &              3.d0*dsddo(3,z,mass(ksqu(i))**2-(mx+mass(kc))**2)
+-               tmp1 =           ! squarks: b twist-2 a^2+b^2
+-     &              + 0.125*mx*(dsabsq(gl(ksqd(i),kx,kb))+
+-     &              dsabsq(gr(ksqd(i),kx,kb)))/
+-     &              (mass(ksqd(i))**2-(mx+mass(kb))**2)**2*
+-     &              3.d0*dsddo(6,z,mass(ksqd(i))**2-(mx+mass(kb))**2)
+-               tmp2 = asmb*dsddo(0,z,mass(kb)**2)/4.d0/pi*(
+-     &              +0.125*mx*(dsabsq(gl(ksqd(i),kx,kb))+
+-     &              dsabsq(gr(ksqd(i),kx,kb)))*
+-     &              dsdddn4(mass(ksqd(i)),mass(kb),mx)
+-     &              - 0.5d0*dreal(gl(ksqd(i),kx,kb)*
+-     &              conjg(gr(ksqd(i),kx,kb)))/rmass(kb)*
+-     &              dsdddn3(mass(ksqd(i)),mass(kb),mx))
+-               if (dabs(tmp1).lt.dabs(tmp2)) then
+-                  aqs = aqs + tmp1
+-               else
+-                  aqs = aqs + tmp2
+-               endif
+-               aqs = aqs        ! squarks: t twist-2 a^2+b^2
+-     &              +asmt*dsddo(0,z,mass(kt)**2)/4.d0/pi*(
+-     &              +0.125*mx*(dsabsq(gl(ksqu(i),kx,kt))+
+-     &              dsabsq(gr(ksqu(i),kx,kt)))*
+-     &              dsdddn4(mass(ksqu(i)),mass(kt),mx)
+-     &              - 0.5d0*dreal(gl(ksqu(i),kx,kt)*
+-     &              conjg(gr(ksqu(i),kx,kt)))/rmass(kt)*
+-     &              dsdddn3(mass(ksqu(i)),mass(kt),mx))
+-            enddo
++            if (ddpole.eq.1) then
++               do i=1,6
++                  aqd = aqd     ! squarks: u,d,s tree a^2-b^2
++     &                 - 0.5d0*dreal(gl(ksqu(i),kx,ku)*
++     &                 conjg(gr(ksqu(i),kx,ku)))/rmass(ku)/
++     &                 (mass(ksqu(i))**2-(mx+mass(ku))**2)*ftu(z)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,kd)*
++     &                 conjg(gr(ksqd(i),kx,kd)))/rmass(kd)/
++     &                 (mass(ksqd(i))**2-(mx+mass(kd))**2)*ftd(z)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,ks)*
++     &                 conjg(gr(ksqd(i),kx,ks)))/rmass(ks)/
++     &                 (mass(ksqd(i))**2-(mx+mass(ks))**2)*fts(z)
++                  aqs = aqs     ! squarks: u,d,s tree & twist-2 a^2+b^2
++     &                 + 0.125*mx*(dsabsq(gl(ksqu(i),kx,ku))+
++     &                 dsabsq(gr(ksqu(i),kx,ku)))/
++     &                 (mass(ksqu(i))**2-(mx+mass(ku))**2)**2*(ftu(z)+
++     &                 3.d0*dsddo(1,z,mass(ksqu(i))**2-(mx+mass(ku))**2))
++     &                 + 0.125*mx*(dsabsq(gl(ksqd(i),kx,kd))+
++     &                 dsabsq(gr(ksqd(i),kx,kd)))/
++     &                 (mass(ksqd(i))**2-(mx+mass(kd))**2)**2*(ftd(z)+
++     &                 3.d0*dsddo(2,z,mass(ksqd(i))**2-(mx+mass(kd))**2))
++     &                 + 0.125*mx*(dsabsq(gl(ksqd(i),kx,ks))+
++     &                 dsabsq(gr(ksqd(i),kx,ks)))/
++     &                 (mass(ksqd(i))**2-(mx+mass(ks))**2)**2*(fts(z)+
++     &                 3.d0*dsddo(4,z,mass(ksqu(i))**2-(mx+mass(ks))**2))
++                  aqs = aqs     ! squarks: c twist-2 a^2+b^2
++     &                 + 0.125*mx*(dsabsq(gl(ksqu(i),kx,kc))+
++     &                 dsabsq(gr(ksqu(i),kx,kc)))/
++     &                 (mass(ksqu(i))**2-(mx+mass(kc))**2)**2*
++     &                 3.d0*dsddo(3,z,mass(ksqu(i))**2-(mx+mass(kc))**2)
++                  tmp1 =        ! squarks: b twist-2 a^2+b^2
++     &                 + 0.125*mx*(dsabsq(gl(ksqd(i),kx,kb))+
++     &                 dsabsq(gr(ksqd(i),kx,kb)))/
++     &                 (mass(ksqd(i))**2-(mx+mass(kb))**2)**2*
++     &                 3.d0*dsddo(6,z,mass(ksqd(i))**2-(mx+mass(kb))**2)
++                  tmp2 = asmb*dsddo(0,z,mass(kb)**2)/4.d0/pi*(
++     &                 +0.125*mx*(dsabsq(gl(ksqd(i),kx,kb))+
++     &                 dsabsq(gr(ksqd(i),kx,kb)))*
++     &                 dsdddn4(mass(ksqd(i)),mass(kb),mx)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,kb)*
++     &                 conjg(gr(ksqd(i),kx,kb)))/rmass(kb)*
++     &                 dsdddn3(mass(ksqd(i)),mass(kb),mx))
++                  if (dabs(tmp1).lt.dabs(tmp2)) then
++                     aqs = aqs + tmp1
++                  else
++                     aqs = aqs + tmp2
++                  endif
++                  aqs = aqs     ! squarks: t twist-2 a^2+b^2
++     &                 +asmt*dsddo(0,z,mass(kt)**2)/4.d0/pi*(
++     &                 +0.125*mx*(dsabsq(gl(ksqu(i),kx,kt))+
++     &                 dsabsq(gr(ksqu(i),kx,kt)))*
++     &                 dsdddn4(mass(ksqu(i)),mass(kt),mx)
++     &                 - 0.5d0*dreal(gl(ksqu(i),kx,kt)*
++     &                 conjg(gr(ksqu(i),kx,kt)))/rmass(kt)*
++     &                 dsdddn3(mass(ksqu(i)),mass(kt),mx))
++               enddo
++            else ! (ddpole=0), i.e. no poles
++               do i=1,6
++                  aqd = aqd     ! squarks: u,d,s tree a^2-b^2
++     &                 - 0.5d0*dreal(gl(ksqu(i),kx,ku)*
++     &                 conjg(gr(ksqu(i),kx,ku)))/rmass(ku)/
++     &                 (mass(ksqu(i))**2)*ftu(z)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,kd)*
++     &                 conjg(gr(ksqd(i),kx,kd)))/rmass(kd)/
++     &                 (mass(ksqd(i))**2)*ftd(z)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,ks)*
++     &                 conjg(gr(ksqd(i),kx,ks)))/rmass(ks)/
++     &                 (mass(ksqd(i))**2)*fts(z)
++                  aqs = aqs     ! squarks: u,d,s tree & twist-2 a^2+b^2
++     &                 + 0.125*mx*(dsabsq(gl(ksqu(i),kx,ku))+
++     &                 dsabsq(gr(ksqu(i),kx,ku)))/
++     &                 (mass(ksqu(i))**2)**2*(ftu(z)+
++     &                 3.d0*dsddo(1,z,mass(ksqu(i))**2))
++     &                 + 0.125*mx*(dsabsq(gl(ksqd(i),kx,kd))+
++     &                 dsabsq(gr(ksqd(i),kx,kd)))/
++     &                 (mass(ksqd(i))**2)**2*(ftd(z)+
++     &                 3.d0*dsddo(2,z,mass(ksqd(i))**2))
++     &                 + 0.125*mx*(dsabsq(gl(ksqd(i),kx,ks))+
++     &                 dsabsq(gr(ksqd(i),kx,ks)))/
++     &                 (mass(ksqd(i))**2)**2*(fts(z)+
++     &                 3.d0*dsddo(4,z,mass(ksqu(i))**2))
++                  aqs = aqs     ! squarks: c twist-2 a^2+b^2
++     &                 + 0.125*mx*(dsabsq(gl(ksqu(i),kx,kc))+
++     &                 dsabsq(gr(ksqu(i),kx,kc)))/
++     &                 (mass(ksqu(i))**2)**2*
++     &                 3.d0*dsddo(3,z,mass(ksqu(i))**2)
++                  aqs = aqs       ! squarks: b twist-2 a^2+b^2
++     &                 +asmb*dsddo(0,z,mass(kb)**2)/4.d0/pi*(
++     &                 +0.125*mx*(dsabsq(gl(ksqd(i),kx,kb))+
++     &                 dsabsq(gr(ksqd(i),kx,kb)))*
++     &                 dsdddn4(mass(ksqd(i)),mass(kb),mx)
++     &                 - 0.5d0*dreal(gl(ksqd(i),kx,kb)*
++     &                 conjg(gr(ksqd(i),kx,kb)))/rmass(kb)*
++     &                 dsdddn3(mass(ksqd(i)),mass(kb),mx))
++                  aqs = aqs     ! squarks: t twist-2 a^2+b^2
++     &                 +asmt*dsddo(0,z,mass(kt)**2)/4.d0/pi*(
++     &                 +0.125*mx*(dsabsq(gl(ksqu(i),kx,kt))+
++     &                 dsabsq(gr(ksqu(i),kx,kt)))*
++     &                 dsdddn4(mass(ksqu(i)),mass(kt),mx)
++     &                 - 0.5d0*dreal(gl(ksqu(i),kx,kt)*
++     &                 conjg(gr(ksqu(i),kx,kt)))/rmass(kt)*
++     &                 dsdddn3(mass(ksqu(i)),mass(kt),mx))
++               enddo
++            endif
+             if (z.eq.1) then
+                fp = fp + m_p * (aqh+aqd+aqs+agh+agd+ags)
+-               if (prtlevel.ge.1) then
++               if (prtlevel.gt.1) then
+                   write (*,*) '(p) aqh=',aqh,' aqd=',aqd, ' aqs=',aqs
+                   write (*,*) '(p) agh=',agh,' agd=',agd, ' ags=',ags
+                endif
+             endif
+             if (z.eq.2) then
+                fn = fn + m_n * (aqh+aqd+aqs+agh+agd+ags)
+-               if (prtlevel.ge.1) then
++               if (prtlevel.gt.1) then
+                   write (*,*) '(n) aqh=',aqh,' aqd=',aqd, ' aqs=',aqs
+                   write (*,*) '(n) agh=',agh,' agd=',agd, ' ags=',ags
+                endif
+             endif
+          enddo
+       else
+-c     
++c
+ c     without poles, without twist-2 terms
+ c
+          do g=1,3
+@@ -284,8 +333,8 @@ c     &        (mass(ksqd(i))**2-(mx+mq)
+             fn = fn + f1q*ftn(q)*(m_n/rmq)
+          enddo
+       endif
+-      gps = fp   ! in gev^-4
+-      gns = fn   ! in gev^-4
++      gps = fp   ! in gev^-2
++      gns = fn   ! in gev^-2
+ 
+ c
+ c     SPIN DEPENDENT
+@@ -298,7 +347,7 @@ c
+       ds = 0.5*gr(kz,kx,kx)*(gl(kz,ks,ks)-gr(kz,ks,ks))/
+      &     mass(kz)**2
+       do i=1,6
+-        if (ddpole.eq.1.or.dddn.eq.1) then
++        if (ddpole.eq.1) then ! PS Corr 180704, removed dddn.eq.1 alternative
+           du = du
+      &       + 0.25*(dsabsq(gl(ksqu(i),kx,ku))+
+      &                dsabsq(gr(ksqu(i),kx,ku)))/
+@@ -310,7 +359,7 @@ c
            ds = ds
       &       + 0.25*(dsabsq(gl(ksqd(i),kx,ks))+
       &                dsabsq(gr(ksqd(i),kx,ks)))/
 -     &         (mass(ksqu(i))**2-(mx+mass(ks))**2)
-+     &         (mass(ksqd(i))**2-(mx+mass(ks))**2)
++     &         (mass(ksqd(i))**2-(mx+mass(ks))**2) ! JE Corr 171024, ksqu->ksqd
          else
            du = du
       &       + 0.25*(dsabsq(gl(ksqu(i),kx,ku))+
-@@ -323,7 +323,7 @@ c
+@@ -323,11 +372,11 @@ c
            ds = ds
       &       + 0.25*(dsabsq(gl(ksqd(i),kx,ks))+
       &                dsabsq(gr(ksqd(i),kx,ks)))/
 -     &         (mass(ksqu(i))**2)
-+     &         (mass(ksqd(i))**2)
++     &         (mass(ksqd(i))**2) ! JE Corr 171024, ksqu->ksqd
           endif
        enddo
-       gpa = du*delu+dd*deld+ds*dels ! in gev^-4
+-      gpa = du*delu+dd*deld+ds*dels ! in gev^-4
+-      gna = du*deld+dd*delu+ds*dels ! in gev^-4
++      gpa = du*delu+dd*deld+ds*dels ! in gev^-2
++      gna = du*deld+dd*delu+ds*dels ! in gev^-2
+ 
+       return
+       end
 diff -rupN darksusy-5.1.3/src/ep/dsepmstable.f ../installed/darksusy/5.1.3/src/ep/dsepmstable.f
 --- darksusy-5.1.3/src/ep/dsepmstable.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/ep/dsepmstable.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ep/dsepmstable.f	2018-07-04 22:31:57.250487877 +0100
 @@ -12,7 +12,8 @@
  
        include 'dsepcom.h'
@@ -8353,7 +8599,7 @@ diff -rupN darksusy-5.1.3/src/ep/dsepmstable.f ../installed/darksusy/5.1.3/src/e
 +
 diff -rupN darksusy-5.1.3/src/hm/dshmudfearthtab.f ../installed/darksusy/5.1.3/src/hm/dshmudfearthtab.f
 --- darksusy-5.1.3/src/hm/dshmudfearthtab.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/hm/dshmudfearthtab.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/hm/dshmudfearthtab.f	2018-07-04 22:31:57.250487877 +0100
 @@ -5,12 +5,12 @@
  *** and then lines with two columns each  with u and u*DF(u).
  *** u should be in units of km/s and u*DF(u) (or f(u)/u) in units
@@ -8411,7 +8657,7 @@ diff -rupN darksusy-5.1.3/src/hm/dshmudfearthtab.f ../installed/darksusy/5.1.3/s
        return
 diff -rupN darksusy-5.1.3/src/hm/dshmudftab.f ../installed/darksusy/5.1.3/src/hm/dshmudftab.f
 --- darksusy-5.1.3/src/hm/dshmudftab.f	2012-07-15 22:04:50.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/hm/dshmudftab.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/hm/dshmudftab.f	2018-07-04 22:31:57.250487877 +0100
 @@ -5,12 +5,12 @@
  *** and then lines with two columns each  with u and u*DF(u).
  *** u should be in units of km/s and u*DF(u) (or f(u)/u) in units
@@ -8451,7 +8697,7 @@ diff -rupN darksusy-5.1.3/src/hm/dshmudftab.f ../installed/darksusy/5.1.3/src/hm
        return
 diff -rupN darksusy-5.1.3/src/ib/dsIBffdxdy.f ../installed/darksusy/5.1.3/src/ib/dsIBffdxdy.f
 --- darksusy-5.1.3/src/ib/dsIBffdxdy.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ib/dsIBffdxdy.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ib/dsIBffdxdy.f	2018-07-04 22:31:57.254485877 +0100
 @@ -259,14 +259,14 @@ c       endif
  
  c...check that result is positive
@@ -8477,7 +8723,7 @@ diff -rupN darksusy-5.1.3/src/ib/dsIBffdxdy.f ../installed/darksusy/5.1.3/src/ib
  
 diff -rupN darksusy-5.1.3/src/ib/dsIBfsrdxdy.f ../installed/darksusy/5.1.3/src/ib/dsIBfsrdxdy.f
 --- darksusy-5.1.3/src/ib/dsIBfsrdxdy.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ib/dsIBfsrdxdy.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ib/dsIBfsrdxdy.f	2018-07-04 22:31:57.254485877 +0100
 @@ -62,10 +62,10 @@ c... from a full analytical calculation
  
  c...check that result is positive
@@ -8495,7 +8741,7 @@ diff -rupN darksusy-5.1.3/src/ib/dsIBfsrdxdy.f ../installed/darksusy/5.1.3/src/i
        endif
 diff -rupN darksusy-5.1.3/src/ib/dsIBhhdxdy.f ../installed/darksusy/5.1.3/src/ib/dsIBhhdxdy.f
 --- darksusy-5.1.3/src/ib/dsIBhhdxdy.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ib/dsIBhhdxdy.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ib/dsIBhhdxdy.f	2018-07-04 22:31:57.254485877 +0100
 @@ -80,15 +80,15 @@ c...import full IB expression for |M|**2
  
  c...check that the result is positive
@@ -8523,7 +8769,7 @@ diff -rupN darksusy-5.1.3/src/ib/dsIBhhdxdy.f ../installed/darksusy/5.1.3/src/ib
  
 diff -rupN darksusy-5.1.3/src/ib/dsIBwhdxdy.f ../installed/darksusy/5.1.3/src/ib/dsIBwhdxdy.f
 --- darksusy-5.1.3/src/ib/dsIBwhdxdy.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ib/dsIBwhdxdy.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ib/dsIBwhdxdy.f	2018-07-04 22:31:57.254485877 +0100
 @@ -205,14 +205,14 @@ c       endif
  
  c...check that result is positive
@@ -8549,7 +8795,7 @@ diff -rupN darksusy-5.1.3/src/ib/dsIBwhdxdy.f ../installed/darksusy/5.1.3/src/ib
  
 diff -rupN darksusy-5.1.3/src/ib/dsIBwwdxdy.f ../installed/darksusy/5.1.3/src/ib/dsIBwwdxdy.f
 --- darksusy-5.1.3/src/ib/dsIBwwdxdy.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ib/dsIBwwdxdy.f	2018-05-23 15:18:58.126557400 +0100
++++ ../installed/darksusy/5.1.3/src/ib/dsIBwwdxdy.f	2018-07-04 22:31:57.254485877 +0100
 @@ -137,14 +137,14 @@ c       endif
  
  c...check that result is positive
@@ -8604,7 +8850,7 @@ diff -rupN darksusy-5.1.3/src/ini/dsdirname.c.in ../installed/darksusy/5.1.3/src
 -}
 diff -rupN darksusy-5.1.3/src/ini/dsinit.f ../installed/darksusy/5.1.3/src/ini/dsinit.f
 --- darksusy-5.1.3/src/ini/dsinit.f	2013-02-10 06:43:34.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ini/dsinit.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/ini/dsinit.f	2018-07-04 22:31:57.254485877 +0100
 @@ -299,16 +299,27 @@ c... numbers are conventional, no physic
        ivtype(ksnue)=11
        ivtype(kse1)=12
@@ -8714,7 +8960,7 @@ diff -rupN darksusy-5.1.3/src/ini/dsvername.c.in ../installed/darksusy/5.1.3/src
 -}
 diff -rupN darksusy-5.1.3/src/ini/makefile ../installed/darksusy/5.1.3/src/ini/makefile
 --- darksusy-5.1.3/src/ini/makefile	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/ini/makefile	2018-05-23 15:19:02.790557317 +0100
++++ ../installed/darksusy/5.1.3/src/ini/makefile	2018-07-04 22:32:03.175523959 +0100
 @@ -0,0 +1,37 @@
 +# Makefile for ini directory
 +# Author: Joakim Edsjo, edsjo@physto.se
@@ -8755,7 +9001,7 @@ diff -rupN darksusy-5.1.3/src/ini/makefile ../installed/darksusy/5.1.3/src/ini/m
 +	$(FC) $(FFLAGS) $< -o $@
 diff -rupN darksusy-5.1.3/src/ini/makefile.in ../installed/darksusy/5.1.3/src/ini/makefile.in
 --- darksusy-5.1.3/src/ini/makefile.in	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/ini/makefile.in	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/ini/makefile.in	2018-07-04 22:31:57.254485877 +0100
 @@ -22,7 +22,7 @@ dswacom.h
  vpath %.h $(DINC)
  
@@ -8767,7 +9013,7 @@ diff -rupN darksusy-5.1.3/src/ini/makefile.in ../installed/darksusy/5.1.3/src/in
  
 diff -rupN darksusy-5.1.3/src/makefile.in ../installed/darksusy/5.1.3/src/makefile.in
 --- darksusy-5.1.3/src/makefile.in	2015-04-07 10:23:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/makefile.in	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/makefile.in	2018-07-04 22:31:57.254485877 +0100
 @@ -10,14 +10,16 @@
  #### DO NOT CHANGE ANYTHING BELOW THIS LINE ###
  ###############################################
@@ -8816,7 +9062,7 @@ diff -rupN darksusy-5.1.3/src/makefile.in ../installed/darksusy/5.1.3/src/makefi
  
 diff -rupN darksusy-5.1.3/src/nt/dsntearthdens.f ../installed/darksusy/5.1.3/src/nt/dsntearthdens.f
 --- darksusy-5.1.3/src/nt/dsntearthdens.f	2006-06-19 22:24:29.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntearthdens.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntearthdens.f	2018-07-04 22:31:57.254485877 +0100
 @@ -52,7 +52,7 @@ c      end
        include 'dsearth.h'
  
@@ -8828,7 +9074,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntearthdens.f ../installed/darksusy/5.1.3/src
       &  219.99d0,220.0d0,399.99d0,400.0d0,500.0d0,
 diff -rupN darksusy-5.1.3/src/nt/dsntearthmass.f ../installed/darksusy/5.1.3/src/nt/dsntearthmass.f
 --- darksusy-5.1.3/src/nt/dsntearthmass.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntearthmass.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntearthmass.f	2018-07-04 22:31:57.254485877 +0100
 @@ -12,7 +12,7 @@
        implicit none
  
@@ -8840,7 +9086,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntearthmass.f ../installed/darksusy/5.1.3/src
       &  878140.0d0,1128140.0d0,1228140.0d0,1228150.0d0,1378140.0d0,
 diff -rupN darksusy-5.1.3/src/nt/dsntearthpot.f ../installed/darksusy/5.1.3/src/nt/dsntearthpot.f
 --- darksusy-5.1.3/src/nt/dsntearthpot.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntearthpot.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntearthpot.f	2018-07-04 22:31:57.254485877 +0100
 @@ -16,7 +16,8 @@
        real*8 radius(42),pot(42),ppl,r,gn,dsntearthmass,
       &  dsntearthpotint
@@ -8853,7 +9099,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntearthpot.f ../installed/darksusy/5.1.3/src/
        data first/.true./
 diff -rupN darksusy-5.1.3/src/nt/dsntmuonyield.f ../installed/darksusy/5.1.3/src/nt/dsntmuonyield.f
 --- darksusy-5.1.3/src/nt/dsntmuonyield.f	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/nt/dsntmuonyield.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntmuonyield.f	2018-07-04 22:31:57.258483878 +0100
 @@ -78,21 +78,16 @@ c      call wirate(6,6,1)
           stop
        endif
@@ -8878,7 +9124,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntmuonyield.f ../installed/darksusy/5.1.3/src
  
 diff -rupN darksusy-5.1.3/src/nt/dsntsuncdens.f ../installed/darksusy/5.1.3/src/nt/dsntsuncdens.f
 --- darksusy-5.1.3/src/nt/dsntsuncdens.f	2006-06-19 22:30:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsuncdens.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsuncdens.f	2018-07-04 22:31:57.258483878 +0100
 @@ -1,6 +1,6 @@
  ***********************************************************************
  *** This routine uses a derived column density from the BP2000 model
@@ -8905,7 +9151,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsuncdens.f ../installed/darksusy/5.1.3/src/
          ti=1
 diff -rupN darksusy-5.1.3/src/nt/dsntsundens.f ../installed/darksusy/5.1.3/src/nt/dsntsundens.f
 --- darksusy-5.1.3/src/nt/dsntsundens.f	2006-06-19 22:24:29.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsundens.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsundens.f	2018-07-04 22:31:57.258483878 +0100
 @@ -7,7 +7,7 @@
  *** ApJ 555 (2001) 990.
  *** The mass fractions for heavier elements are from N. Grevesse and
@@ -8935,7 +9181,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsundens.f ../installed/darksusy/5.1.3/src/n
  
 diff -rupN darksusy-5.1.3/src/nt/dsntsunmass.f ../installed/darksusy/5.1.3/src/nt/dsntsunmass.f
 --- darksusy-5.1.3/src/nt/dsntsunmass.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunmass.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunmass.f	2018-07-04 22:31:57.258483878 +0100
 @@ -7,7 +7,7 @@
  *** ApJ 555 (2001) 990.
  *** The mass fractions for heavier elements are from N. Grevesse and
@@ -8956,7 +9202,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunmass.f ../installed/darksusy/5.1.3/src/n
        call dsntsunread
 diff -rupN darksusy-5.1.3/src/nt/dsntsunmfrac.f ../installed/darksusy/5.1.3/src/nt/dsntsunmfrac.f
 --- darksusy-5.1.3/src/nt/dsntsunmfrac.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunmfrac.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunmfrac.f	2018-07-04 22:31:57.258483878 +0100
 @@ -8,7 +8,7 @@
  *** ApJ 555 (2001) 990.
  *** The mass fractions for heavier elements are from N. Grevesse and
@@ -8978,7 +9224,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunmfrac.f ../installed/darksusy/5.1.3/src/
        call dsntsunread
 diff -rupN darksusy-5.1.3/src/nt/dsntsunne2x.f ../installed/darksusy/5.1.3/src/nt/dsntsunne2x.f
 --- darksusy-5.1.3/src/nt/dsntsunne2x.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunne2x.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunne2x.f	2018-07-04 22:31:57.258483878 +0100
 @@ -15,7 +15,7 @@
        include 'dsmpconst.h'
  
@@ -8999,7 +9245,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunne2x.f ../installed/darksusy/5.1.3/src/n
  
 diff -rupN darksusy-5.1.3/src/nt/dsntsunne.f ../installed/darksusy/5.1.3/src/nt/dsntsunne.f
 --- darksusy-5.1.3/src/nt/dsntsunne.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunne.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunne.f	2018-07-04 22:31:57.258483878 +0100
 @@ -15,7 +15,7 @@
        include 'dsmpconst.h'
  
@@ -9020,7 +9266,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunne.f ../installed/darksusy/5.1.3/src/nt/
  
 diff -rupN darksusy-5.1.3/src/nt/dsntsunpot.f ../installed/darksusy/5.1.3/src/nt/dsntsunpot.f
 --- darksusy-5.1.3/src/nt/dsntsunpot.f	2006-06-19 15:36:02.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunpot.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunpot.f	2018-07-04 22:31:57.258483878 +0100
 @@ -1,6 +1,6 @@
  ***********************************************************************
  *** This routine uses a derived potential from the BP2000 model
@@ -9049,7 +9295,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunpot.f ../installed/darksusy/5.1.3/src/nt
  c...Check if data file is loaded
 diff -rupN darksusy-5.1.3/src/nt/dsntsunx2z.f ../installed/darksusy/5.1.3/src/nt/dsntsunx2z.f
 --- darksusy-5.1.3/src/nt/dsntsunx2z.f	2006-06-19 22:30:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunx2z.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunx2z.f	2018-07-04 22:31:57.258483878 +0100
 @@ -29,12 +29,12 @@
        include 'dssun.h'
        real*8 x,rpl,dsntsuncdens
@@ -9067,7 +9313,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunx2z.f ../installed/darksusy/5.1.3/src/nt
          ti=1
 diff -rupN darksusy-5.1.3/src/nt/dsntsunz2x.f ../installed/darksusy/5.1.3/src/nt/dsntsunz2x.f
 --- darksusy-5.1.3/src/nt/dsntsunz2x.f	2006-06-19 22:30:05.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/nt/dsntsunz2x.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/nt/dsntsunz2x.f	2018-07-04 22:31:57.258483878 +0100
 @@ -7,7 +7,7 @@
  ***        the column density is either of p or n or the total
  ***        and the totals are stored in cd_sun
@@ -9104,7 +9350,7 @@ diff -rupN darksusy-5.1.3/src/nt/dsntsunz2x.f ../installed/darksusy/5.1.3/src/nt
  
 diff -rupN darksusy-5.1.3/src/rd/dsrdaddpt.f ../installed/darksusy/5.1.3/src/rd/dsrdaddpt.f
 --- darksusy-5.1.3/src/rd/dsrdaddpt.f	2008-09-09 20:51:09.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/rd/dsrdaddpt.f	2018-05-23 15:18:58.130557400 +0100
++++ ../installed/darksusy/5.1.3/src/rd/dsrdaddpt.f	2018-07-04 22:31:57.258483878 +0100
 @@ -1,10 +1,12 @@
 -      subroutine dsrdaddpt(wrate,pres,deltap)
 +      subroutine dsrdaddpt(wrate,pres,deltap,deltapminr)
@@ -9154,7 +9400,7 @@ diff -rupN darksusy-5.1.3/src/rd/dsrdaddpt.f ../installed/darksusy/5.1.3/src/rd/
        enddo
 diff -rupN darksusy-5.1.3/src/rd/dsrdcom.f ../installed/darksusy/5.1.3/src/rd/dsrdcom.f
 --- darksusy-5.1.3/src/rd/dsrdcom.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/rd/dsrdcom.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/rd/dsrdcom.f	2018-07-04 22:31:57.258483878 +0100
 @@ -14,5 +14,12 @@ c...0.996195d0 - 5 degrees, 0.999048d0 -
        data pdivr,dpres/2.0d0,0.5d0/
        data nlow,nhigh,npres,nthup,cthtest,spltest
@@ -9170,7 +9416,7 @@ diff -rupN darksusy-5.1.3/src/rd/dsrdcom.f ../installed/darksusy/5.1.3/src/rd/ds
  
 diff -rupN darksusy-5.1.3/src/rd/dsrdens.f ../installed/darksusy/5.1.3/src/rd/dsrdens.f
 --- darksusy-5.1.3/src/rd/dsrdens.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/rd/dsrdens.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/rd/dsrdens.f	2018-07-04 22:31:57.258483878 +0100
 @@ -1,5 +1,5 @@
        subroutine dsrdens(wrate,npart,kpart,mgev,dof,nrs,rm,rw,
 -     &  nt,tm,oh2,tf,ierr,iwar)
@@ -9223,7 +9469,7 @@ diff -rupN darksusy-5.1.3/src/rd/dsrdens.f ../installed/darksusy/5.1.3/src/rd/ds
  c------------------------------------------ determine integration limits
 diff -rupN darksusy-5.1.3/src/rd/dsrdspline.f ../installed/darksusy/5.1.3/src/rd/dsrdspline.f
 --- darksusy-5.1.3/src/rd/dsrdspline.f	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/rd/dsrdspline.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/rd/dsrdspline.f	2018-07-04 22:31:57.262481877 +0100
 @@ -57,7 +57,8 @@ c...jump out of loop
     11 continue
  
@@ -9236,7 +9482,7 @@ diff -rupN darksusy-5.1.3/src/rd/dsrdspline.f ../installed/darksusy/5.1.3/src/rd
  
 diff -rupN darksusy-5.1.3/src/rd/dsrdtab.f ../installed/darksusy/5.1.3/src/rd/dsrdtab.f
 --- darksusy-5.1.3/src/rd/dsrdtab.f	2010-08-06 09:27:44.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/rd/dsrdtab.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/rd/dsrdtab.f	2018-07-04 22:31:57.262481877 +0100
 @@ -1,9 +1,12 @@
 -      subroutine dsrdtab(wrate,xmin)
 +      subroutine dsrdtab(wrate,xmin,fast)
@@ -9451,7 +9697,7 @@ diff -rupN darksusy-5.1.3/src/rd/dsrdtab.f ../installed/darksusy/5.1.3/src/rd/ds
            pp2=pp(indx(i+1))
 diff -rupN darksusy-5.1.3/src/rn/dsrdomega.f ../installed/darksusy/5.1.3/src/rn/dsrdomega.f
 --- darksusy-5.1.3/src/rn/dsrdomega.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/rn/dsrdomega.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/rn/dsrdomega.f	2018-07-04 22:31:57.262481877 +0100
 @@ -12,11 +12,25 @@
  ***            3 - include only coannihilations between sfermions
  ***                and the lightest neutralino
@@ -9562,7 +9808,7 @@ diff -rupN darksusy-5.1.3/src/rn/dsrdomega.f ../installed/darksusy/5.1.3/src/rn/
           nfc=2
 diff -rupN darksusy-5.1.3/src/slha/dsfromslha.F ../installed/darksusy/5.1.3/src/slha/dsfromslha.F
 --- darksusy-5.1.3/src/slha/dsfromslha.F	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/slha/dsfromslha.F	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/slha/dsfromslha.F	2018-07-04 22:31:57.262481877 +0100
 @@ -8,6 +8,7 @@
  ***         More options on how to treat redundant information, e.g.
  ***         should Yukawas from SLHA file be used instead of letting
@@ -9599,7 +9845,7 @@ diff -rupN darksusy-5.1.3/src/slha/dsfromslha.F ../installed/darksusy/5.1.3/src/
 -
 diff -rupN darksusy-5.1.3/src/su/dsorder_flavour.f ../installed/darksusy/5.1.3/src/su/dsorder_flavour.f
 --- darksusy-5.1.3/src/su/dsorder_flavour.f	1970-01-01 01:00:00.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/su/dsorder_flavour.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/su/dsorder_flavour.f	2018-07-04 22:31:57.262481877 +0100
 @@ -0,0 +1,277 @@
 +*******************************************************************************
 +*** This routine orders all sfermions according to flavour. For sleptons,   ***
@@ -9880,7 +10126,7 @@ diff -rupN darksusy-5.1.3/src/su/dsorder_flavour.f ../installed/darksusy/5.1.3/s
 +
 diff -rupN darksusy-5.1.3/src/su/dssuconst_yukawa_running.f ../installed/darksusy/5.1.3/src/su/dssuconst_yukawa_running.f
 --- darksusy-5.1.3/src/su/dssuconst_yukawa_running.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/su/dssuconst_yukawa_running.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/su/dssuconst_yukawa_running.f	2018-07-04 22:31:57.262481877 +0100
 @@ -20,6 +20,9 @@ c=======================================
        mscale=2.d0*mass(lsp)
        alph3=dsralph3(mscale)
@@ -9893,7 +10139,7 @@ diff -rupN darksusy-5.1.3/src/su/dssuconst_yukawa_running.f ../installed/darksus
        yukawa(ktau)= aux*dsrmq(mscale,ktau)/cosbe
 diff -rupN darksusy-5.1.3/src/su/dsvertx1.f ../installed/darksusy/5.1.3/src/su/dsvertx1.f
 --- darksusy-5.1.3/src/su/dsvertx1.f	2011-11-04 23:48:05.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/su/dsvertx1.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/su/dsvertx1.f	2018-07-04 22:31:57.262481877 +0100
 @@ -616,11 +616,11 @@ c       neutrinos
            gjll=-(g2weak*neunmx(j,2)-gyweak*neunmx(j,1))/sqrt(2.0d0)
            do k=1,3
@@ -9912,7 +10158,7 @@ diff -rupN darksusy-5.1.3/src/su/dsvertx1.f ../installed/darksusy/5.1.3/src/su/d
  c       charged leptons
 diff -rupN darksusy-5.1.3/src/su/makefile.in ../installed/darksusy/5.1.3/src/su/makefile.in
 --- darksusy-5.1.3/src/su/makefile.in	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/su/makefile.in	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/su/makefile.in	2018-07-04 22:31:57.262481877 +0100
 @@ -32,7 +32,7 @@ dsrmq4loop.f dssfesct.f dsspectrum.f dss
  dssuconst_ckm.f dssuconst_couplings.f dssuconst_higgs.f \
  dssuconst_yukawa.f dssuconst_yukawa_running.f dssusy.f dsvertx.f \
@@ -9924,7 +10170,7 @@ diff -rupN darksusy-5.1.3/src/su/makefile.in ../installed/darksusy/5.1.3/src/su/
  
 diff -rupN darksusy-5.1.3/src/ucmh/dspbh_limits.f ../installed/darksusy/5.1.3/src/ucmh/dspbh_limits.f
 --- darksusy-5.1.3/src/ucmh/dspbh_limits.f	2015-04-05 02:53:52.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/ucmh/dspbh_limits.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/ucmh/dspbh_limits.f	2018-07-04 22:31:57.262481877 +0100
 @@ -8,15 +8,15 @@
  !Output:    betamax   maximum allowed value of beta
  
@@ -9956,7 +10202,7 @@ diff -rupN darksusy-5.1.3/src/ucmh/dspbh_limits.f ../installed/darksusy/5.1.3/sr
  
 diff -rupN darksusy-5.1.3/src/ucmh/dsucmh_aontsq.f ../installed/darksusy/5.1.3/src/ucmh/dsucmh_aontsq.f
 --- darksusy-5.1.3/src/ucmh/dsucmh_aontsq.f	2015-04-07 14:12:14.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/ucmh/dsucmh_aontsq.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/ucmh/dsucmh_aontsq.f	2018-07-04 22:31:57.266479878 +0100
 @@ -6,37 +6,42 @@
  !Date: 2011
  !
@@ -10012,7 +10258,7 @@ diff -rupN darksusy-5.1.3/src/ucmh/dsucmh_aontsq.f ../installed/darksusy/5.1.3/s
  
 diff -rupN darksusy-5.1.3/src/wa/dswadydth.f ../installed/darksusy/5.1.3/src/wa/dswadydth.f
 --- darksusy-5.1.3/src/wa/dswadydth.f	2015-12-20 21:43:06.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswadydth.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswadydth.f	2018-07-04 22:31:57.266479878 +0100
 @@ -8,7 +8,6 @@
        real*8 function dswadydth(cth, phim0,phim1,phim2,phie0,phieth,phithm,
       & phichi,phiwh,phifk,phifv)
@@ -10023,7 +10269,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswadydth.f ../installed/darksusy/5.1.3/src/wa/
  
 diff -rupN darksusy-5.1.3/src/wa/dswaemean.f ../installed/darksusy/5.1.3/src/wa/dswaemean.f
 --- darksusy-5.1.3/src/wa/dswaemean.f	2009-03-30 13:08:08.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswaemean.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswaemean.f	2018-07-04 22:31:57.266479878 +0100
 @@ -8,8 +8,6 @@
  
        real*8 function dswaemean(e0,m0,m1,m2)
@@ -10035,7 +10281,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswaemean.f ../installed/darksusy/5.1.3/src/wa/
  
 diff -rupN darksusy-5.1.3/src/wa/dswaifind.f ../installed/darksusy/5.1.3/src/wa/dswaifind.f
 --- darksusy-5.1.3/src/wa/dswaifind.f	2008-04-07 22:27:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswaifind.f	2018-05-23 15:18:58.134557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswaifind.f	2018-07-04 22:31:57.266479878 +0100
 @@ -6,7 +6,6 @@
        subroutine dswaifind(value,array,ipl,ii,imin,imax)
        implicit none
@@ -10046,7 +10292,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswaifind.f ../installed/darksusy/5.1.3/src/wa/
        integer imin,imax,i,inew,imint,imaxt,iold,ii
 diff -rupN darksusy-5.1.3/src/wa/dswainit.f ../installed/darksusy/5.1.3/src/wa/dswainit.f
 --- darksusy-5.1.3/src/wa/dswainit.f	2013-01-27 15:37:53.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswainit.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswainit.f	2018-07-04 22:31:57.266479878 +0100
 @@ -271,9 +271,9 @@ c     &            k,mfi
  
  c...Create mixed tables, differential in energy, integrated in theta
@@ -10069,7 +10315,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswainit.f ../installed/darksusy/5.1.3/src/wa/d
  c      data wabase/'we-res-may2012'/
 diff -rupN darksusy-5.1.3/src/wa/dswayield.f ../installed/darksusy/5.1.3/src/wa/dswayield.f
 --- darksusy-5.1.3/src/wa/dswayield.f	2011-05-24 09:54:48.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswayield.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayield.f	2018-07-04 22:31:57.266479878 +0100
 @@ -59,8 +59,6 @@
        real*8 function dswayield(mneu,e,theta,wh,kind,type,istat)
        implicit none
@@ -10081,7 +10327,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayield.f ../installed/darksusy/5.1.3/src/wa/
  
 diff -rupN darksusy-5.1.3/src/wa/dswayieldf.f ../installed/darksusy/5.1.3/src/wa/dswayieldf.f
 --- darksusy-5.1.3/src/wa/dswayieldf.f	2015-12-20 21:43:06.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswayieldf.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayieldf.f	2018-07-04 22:31:57.266479878 +0100
 @@ -52,11 +52,13 @@
  
        real*8 function dswayieldf(mwimp,e,theta,chi,wh,kind,
@@ -10121,7 +10367,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayieldf.f ../installed/darksusy/5.1.3/src/wa
        dswayieldf=0.0d0
 diff -rupN darksusy-5.1.3/src/wa/dswayieldfth.f ../installed/darksusy/5.1.3/src/wa/dswayieldfth.f
 --- darksusy-5.1.3/src/wa/dswayieldfth.f	2015-12-20 21:43:06.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswayieldfth.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayieldfth.f	2018-07-04 22:31:57.266479878 +0100
 @@ -6,7 +6,7 @@
  *****************************************************************************
  
@@ -10154,7 +10400,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayieldfth.f ../installed/darksusy/5.1.3/src/
        endif
 diff -rupN darksusy-5.1.3/src/wa/dswayield_int.f ../installed/darksusy/5.1.3/src/wa/dswayield_int.f
 --- darksusy-5.1.3/src/wa/dswayield_int.f	2015-12-20 21:43:06.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswayield_int.f	2018-05-23 15:20:19.582555942 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayield_int.f	2018-07-04 22:31:57.266479878 +0100
 @@ -1,5 +1,5 @@
        real*8 function dswayield_int(f,a,b,phichi,phiwh,phim0,phim1,phim2,
 -     & phie0,phieth,phithm,phifk,phifv)        
@@ -10204,7 +10450,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayield_int.f ../installed/darksusy/5.1.3/src
        end
 diff -rupN darksusy-5.1.3/src/wa/dswayieldone.f ../installed/darksusy/5.1.3/src/wa/dswayieldone.f
 --- darksusy-5.1.3/src/wa/dswayieldone.f	2013-01-31 21:46:16.000000000 +0000
-+++ ../installed/darksusy/5.1.3/src/wa/dswayieldone.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayieldone.f	2018-07-04 22:31:57.266479878 +0100
 @@ -105,16 +105,16 @@
  *****************************************************************************
  
@@ -10361,7 +10607,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayieldone.f ../installed/darksusy/5.1.3/src/
  
 diff -rupN darksusy-5.1.3/src/wa/dswayields2.f ../installed/darksusy/5.1.3/src/wa/dswayields2.f
 --- darksusy-5.1.3/src/wa/dswayields2.f	2009-05-08 09:54:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswayields2.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayields2.f	2018-07-04 22:31:57.266479878 +0100
 @@ -8,14 +8,14 @@
  *****************************************************************************
  
@@ -10650,7 +10896,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayields2.f ../installed/darksusy/5.1.3/src/w
        endif
 diff -rupN darksusy-5.1.3/src/wa/dswayields3.f ../installed/darksusy/5.1.3/src/wa/dswayields3.f
 --- darksusy-5.1.3/src/wa/dswayields3.f	2009-05-08 09:54:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswayields3.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayields3.f	2018-07-04 22:31:57.270477878 +0100
 @@ -8,14 +8,14 @@
  *****************************************************************************
  
@@ -10939,7 +11185,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayields3.f ../installed/darksusy/5.1.3/src/w
        endif
 diff -rupN darksusy-5.1.3/src/wa/dswayields4.f ../installed/darksusy/5.1.3/src/wa/dswayields4.f
 --- darksusy-5.1.3/src/wa/dswayields4.f	2009-05-08 09:54:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswayields4.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayields4.f	2018-07-04 22:31:57.270477878 +0100
 @@ -8,7 +8,7 @@
  *****************************************************************************
  
@@ -11081,7 +11327,7 @@ diff -rupN darksusy-5.1.3/src/wa/dswayields4.f ../installed/darksusy/5.1.3/src/w
        endif
 diff -rupN darksusy-5.1.3/src/wa/dswayields.f ../installed/darksusy/5.1.3/src/wa/dswayields.f
 --- darksusy-5.1.3/src/wa/dswayields.f	2009-05-08 09:54:47.000000000 +0100
-+++ ../installed/darksusy/5.1.3/src/wa/dswayields.f	2018-05-23 15:18:58.138557400 +0100
++++ ../installed/darksusy/5.1.3/src/wa/dswayields.f	2018-07-04 22:31:57.270477878 +0100
 @@ -8,14 +8,14 @@
  *****************************************************************************
  

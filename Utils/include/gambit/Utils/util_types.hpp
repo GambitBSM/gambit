@@ -33,6 +33,9 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
 ///
+/// \author Aaron Vincent
+///         (aaron.vincent@cparc.ca)
+///   \date 2017 Nov
 ///  *********************************************
 
 #ifndef __util_types_hpp__
@@ -60,6 +63,13 @@ namespace Gambit
   typedef std::pair<double, double> ddpair;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
+  /// Shorthand for a string-to-string-to-double map
+  typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
+  /// Shorthand for a string-to-string map
+  typedef std::map<std::string,std::string> map_str_str;
+
+  /// Shorthand for an int-int pair to double map
+  typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
 
   // Useful unqualified functions
   using std::cout;
@@ -635,6 +645,3 @@ namespace Gambit
 
 }
 #endif //defined __util_types_hpp__
-
-
-

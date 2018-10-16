@@ -267,7 +267,7 @@ ObsLikes:
 
     # Other observables
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals
@@ -535,11 +535,13 @@ Rules:
       analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
                    "ATLAS_13TeV_MultiLEP_36invfb",
                    "ATLAS_13TeV_0LEPStop_36invfb",
-                   "ATLAS_13TeV_1LEPStop_36invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
-                   "ATLAS_13TeV_RJ3L_lowmass_36invfb",
                    "ATLAS_13TeV_2bMET_36invfb"] ]
 
+                   # "ATLAS_13TeV_1LEPStop_36invfb",
+                   # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+                   # These analyses currently depend on ROOT.
+ 
   # CMS analysis setup
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer

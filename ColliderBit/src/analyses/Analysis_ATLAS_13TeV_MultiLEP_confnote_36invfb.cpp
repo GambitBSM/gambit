@@ -236,8 +236,8 @@ namespace Gambit {
         size_t nSignalJets=signalJets.size();
         size_t nSignalBJets=signalBJets.size();
 
-        vector<vector<HEPUtils::Particle*>> SFOSpairs=getSFOSpair(signalLeptons);
-        vector<vector<HEPUtils::Particle*>> OSpairs=getOSpair(signalLeptons);
+        vector<vector<HEPUtils::Particle*>> SFOSpairs=getSFOSpairs(signalLeptons);
+        vector<vector<HEPUtils::Particle*>> OSpairs=getOSpairs(signalLeptons);
 
         //Variables
         double pT_l0=0.;
@@ -1161,35 +1161,6 @@ namespace Gambit {
 
       }
 
-      vector<vector<HEPUtils::Particle*>> getSFOSpair(vector<HEPUtils::Particle*> leptons) {
-        vector<vector<HEPUtils::Particle*>> SFOSpair_container;
-        for (size_t iLe1=0;iLe1<leptons.size();iLe1++) {
-          for (size_t iLe2=0;iLe2<leptons.size();iLe2++) {
-            if (leptons.at(iLe1)->abspid()==leptons.at(iLe2)->abspid() && leptons.at(iLe1)->pid()!=leptons.at(iLe2)->pid()) {
-              vector<HEPUtils::Particle*> SFOSpair;
-              SFOSpair.push_back(leptons.at(iLe1));
-              SFOSpair.push_back(leptons.at(iLe2));
-              SFOSpair_container.push_back(SFOSpair);
-            }
-          }
-        }
-        return SFOSpair_container;
-      }
-
-      vector<vector<HEPUtils::Particle*>> getOSpair(vector<HEPUtils::Particle*> leptons) {
-        vector<vector<HEPUtils::Particle*>> OSpair_container;
-        for (size_t iLe1=0;iLe1<leptons.size();iLe1++) {
-          for (size_t iLe2=0;iLe2<leptons.size();iLe2++) {
-            if (leptons.at(iLe1)->pid()*leptons.at(iLe2)->pid()<0.) {
-              vector<HEPUtils::Particle*> OSpair;
-              OSpair.push_back(leptons.at(iLe1));
-              OSpair.push_back(leptons.at(iLe2));
-              OSpair_container.push_back(OSpair);
-            }
-          }
-        }
-        return OSpair_container;
-      }
 
       vector<HEPUtils::P4> get_W_ISR(vector<HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met) {
         HEPUtils::P4 Z_met_sys=Z+met;

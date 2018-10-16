@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Flexiblesusy model header includes for 
+///  Flexiblesusy model header includes for
 ///  SpecBit.
 ///
 ///  As new models are used in SpecBit, the new
@@ -18,7 +18,7 @@
 ///  \author Ben Farmer
 ///          (ben.farmer@gmail.com)
 ///    \date 2014 Dec, 2015 Jan
-///  
+///
 ///  *********************************************
 
 #ifndef MODELFILES_HPP
@@ -34,15 +34,15 @@
 
 
 // Make flexiblesusy interface struct for MSSMSpec template class
-// We need this so that we can match spectrum objects with different 
+// We need this so that we can match spectrum objects with different
 // routines for translating them into SLHAea objects, while still
-// creating the appropriate overloads for the Spectrum class 
-// 'getSLHAea' virtual function. 
+// creating the appropriate overloads for the Spectrum class
+// 'getSLHAea' virtual function.
 //
 // The interface class here is specific to flexiblesusy, but in order to work, it just
 // need to typedef a Model object with all the right MSSMSpec getter names (like before).
 // If extra objects are needed to do this (as in the
-// flexiblesusy case), they will need to be carried around by an instance of this interface 
+// flexiblesusy case), they will need to be carried around by an instance of this interface
 // struct, which should be used to construct the MSSMSpec.
 
 #define MAKE_INTERFACE                                                                 \
@@ -77,8 +77,8 @@
           Scales scales;   /*scales at shich coundary conditions are applied*/         \
           static const int index_offset = -1; /* indices start from 0 (1 less than Gambit convention) */ \
                                                                                        \
-          /* The rest is also internal data only. For now anyway, might need some of it     
-             accessible at some point, like the input parameters, could add more       
+          /* The rest is also internal data only. For now anyway, might need some of it
+             accessible at some point, like the input parameters, could add more
              virtual functions for that */                                             \
                                                                                        \
           /* Constructor */                                                            \
@@ -103,7 +103,7 @@
           , scales()                                                                   \
           {}                                                                           \
                                                                                        \
-          /* Make sure the slhaio object is up to date in preparation for writing 
+          /* Make sure the slhaio object is up to date in preparation for writing
              output */                                                                 \
           void fill_slhaio(SlhaIo& slhaio) const                                      \
           {                                                                            \
@@ -118,11 +118,11 @@
           }                                                                            \
                                                                                        \
       };                                                                               \
-      /* I think that there is a need to ensure that these templates actually get 
-         instantiated; was getting weird segfaults accessing the (virtual) getters 
-         via a Spectrum*. 
+      /* I think that there is a need to ensure that these templates actually get
+         instantiated; was getting weird segfaults accessing the (virtual) getters
+         via a Spectrum*.
 
-         Should add instantiations for each algorithm we want to use 
+         Should add instantiations for each algorithm we want to use
          (just one for now) */                                                         \
       /* Actually maybe we don't need these (and they cause duplicate symbol errors in clang */ \
       /*template class CAT_3(MODELNAME,_,interface)<ALGORITHM1>; */                        \
@@ -138,7 +138,7 @@
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary CMSSM model headers
 #undef MODELNAME
 
-/// {@ Versions of MSSM spectrum generators that take 
+/// {@ Versions of MSSM spectrum generators that take
 #define MODELNAME MSSM
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary MSSM model headers etc.
 #undef MODELNAME
@@ -177,13 +177,16 @@
 #undef MODELNAME
 /// @}
 
-
-#define MODELNAME SingletDMZ3
-#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDMZ3 model headers etc.
+#define MODELNAME ScalarSingletDM_Z2
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary ScalarSingletDM_Z2 model headers etc.
 #undef MODELNAME
 
-#define MODELNAME SingletDM
-#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
+#define MODELNAME ScalarSingletDM_Z3
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary ScalarSingletDM_Z3 model headers etc.
+#undef MODELNAME
+
+#define MODELNAME MDM
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary MDM model headers etc.
 #undef MODELNAME
 
 #endif

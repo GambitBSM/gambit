@@ -27,7 +27,8 @@
   SCANNER_PRINTABLE_TYPES  \
   (triplet<double>)        \
   (DM_nucleon_couplings)   \
-  (Flav_KstarMuMu_obs)
+  (Flav_KstarMuMu_obs)     \
+  (map_intpair_dbl)
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)
 // Generally needs to be the same as the printable types, i.e. should be able to retrieve everything.

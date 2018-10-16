@@ -244,7 +244,7 @@ ObsLikes:
 
     # Other observables
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals

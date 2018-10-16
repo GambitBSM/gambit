@@ -174,10 +174,6 @@ namespace Gambit {
 
     /// Run jet clustering from any P4-compatible momentum type
     template <typename MOM>
-    // _Anders
-    // std::vector<std::shared_ptr<HEPUtils::Jet>> rtn;
-    // for (const FJNS::PseudoJet& j : jets) rtn.push_back(std::make_shared<HEPUtils::Jet>(HEPUtils::mk_p4(j)));
-    // return rtn;
     inline std::vector<std::shared_ptr<HEPUtils::Jet>> get_jets(const std::vector<MOM*>& moms, double R,
                                                 double ptmin=0*GeV, FJNS::JetAlgorithm alg=FJNS::antikt_algorithm) {
       // Make PseudoJets
@@ -221,6 +217,14 @@ namespace Gambit {
     }
 
 
+    // Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
+    std::vector<std::vector<HEPUtils::Particle*>> getSFOSpairs(std::vector<HEPUtils::Particle*> particles);
+
+    // Utility function for returning a collection of oppsosite-sign particle pairs
+    std::vector<std::vector<HEPUtils::Particle*>> getOSpairs(std::vector<HEPUtils::Particle*> particles);
+
+
+    ///
 
   }
 }

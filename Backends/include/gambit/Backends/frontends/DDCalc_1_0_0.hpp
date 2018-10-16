@@ -4,17 +4,17 @@
 ///
 ///  Frontend header for the DDCalc backend.
 ///
-///  Compile-time registration of available 
+///  Compile-time registration of available
 ///  functions and variables from this backend.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
 ///  \date 2014 Jul
-/// 
+///
 ///  \author Christopher Savage
 ///          (chris@savage.name)
 ///  \date 2014 Sept
@@ -36,7 +36,7 @@
 
 // Identify backend
 #define BACKENDNAME DDCalc
-#define BACKENDLANG FORTRAN
+#define BACKENDLANG Fortran
 #define VERSION 1.0.0
 #define SAFE_VERSION 1_0_0
 
@@ -67,7 +67,7 @@ LOAD_LIBRARY
      C_DDCalc_<modulename(kinda)>_routinename>
   The 'C' is to signify routines intended for calling from C/C++
   (argument and return types are expressly declared to be type-
-  compatible with the C bool, int, and double types).  
+  compatible with the C bool, int, and double types).
  */
 
 // Default initialisation of three main classes via factory functions

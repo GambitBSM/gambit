@@ -33,6 +33,9 @@
 #include <boost/preprocessor/punctuation/paren.hpp>
 
 
+/// \name Symbol visibility macro
+#define EXPORT_SYMBOLS __attribute__ ((visibility ("default")))
+
 /// \name Compile-time error macro.
 #define FAIL(x) static_assert(false,"GAMBIT precompiler error: " x);
 
