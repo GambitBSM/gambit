@@ -545,7 +545,7 @@ BE_NAMESPACE
     slha["NMSSMRUN"][""] << 3 << Tlam->re << "# Tlam";
     slha["NMSSMRUN"][""] << 4 << Tk->re << "# Tk";
     slha["NMSSMRUN"][""] << 5 << *vS << "# vS";
-    slha["NMSSMRUN"][""] << 10 << *ms2 << "ms2";
+    slha["NMSSMRUN"][""] << 10 << *ms2 << "# ms2";
 
     // Block MSOFT
     SLHAea_add_block(slha, "MSOFT", Q);

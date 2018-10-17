@@ -43,65 +43,65 @@ Parameters:
       # prior_type: double_log_flat_join
       # ranges: [-5e3, -1e1, 1e1, 5e3]
     ml2_11:
-      fixed_value: 900
+      fixed_value: 9000000
     ml2_12:
-      fixed_value: 900
+      fixed_value: 9000000
     ml2_13:
-      fixed_value: 900
+      fixed_value: 9000000
     ml2_22:
-      fixed_value: 900
+      fixed_value: 9000000
     ml2_23:
-      fixed_value: 900
+      fixed_value: 9000000
     ml2_33:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_11:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_12:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_13:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_22:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_23:
-      fixed_value: 900
+      fixed_value: 9000000
     me2_33:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_11:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_12:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_13:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_22:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_23:
-      fixed_value: 900
+      fixed_value: 9000000
     mq2_33:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_11:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_12:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_13:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_22:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_23:
-      fixed_value: 900
+      fixed_value: 9000000
     mu2_33:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_11:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_12:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_13:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_22:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_23:
-      fixed_value: 900
+      fixed_value: 9000000
     md2_33:
-      fixed_value: 900
+      fixed_value: 9000000
     Ae_11:
        fixed_value: 0
     Ae_12:
@@ -170,7 +170,7 @@ Printer:
   #   group: "/NMSSM"
 
 Scanner:
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 

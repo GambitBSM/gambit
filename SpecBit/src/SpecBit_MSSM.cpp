@@ -754,18 +754,18 @@ namespace Gambit
 
       // Get the spectrum from the Backend
       myPipe::BEreq::SPheno_NMSSMspectrum(spectrum, inputs);
-
+ 
       // Get the SLHA struct from the spectrum object
-      SLHAstruct slha = spectrum.getSLHAea(1);
+      SLHAstruct slha = spectrum.getSLHAea(2);
 
       // Convert into a spectrum object
       spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
-
       // Drop SLHA files if requested
       spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
 
 
     }
