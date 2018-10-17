@@ -24,7 +24,7 @@
 BE_NAMESPACE
 {
 
-  // Run SPheno
+  // Convenience function to run SPheno and obtain the spectrum
   int run_SPheno(Spectrum &spectrum, const Finputs &inputs)
   {
 
@@ -140,7 +140,7 @@ BE_NAMESPACE
       *vu = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
       *vS = sqrt(2.0) * (*MuEffinput / *LambdaInput).re;
       *TanBetaMZ = *TanBeta;
-  
+ 
       //Setting VEVs used for low energy constraints 
       *vdMZ = *vd;
       *vuMZ = *vu;
@@ -163,6 +163,7 @@ BE_NAMESPACE
             for(int k=1; k<=3; k++)
                YuSM(i,j) = (*CKM)(i,k) * YuSM(k,j);
       }
+ cout << "to here" << endl;
   
       // Setting Boundary conditions 
       Flogical MZsuffix = false;
@@ -307,6 +308,19 @@ BE_NAMESPACE
 
   }
 
+  // Convenience funciton to run Spheno and obtain the decays
+  int run_SPheno_decays()
+  {
+
+   
+    // Call SPheno's function to calculate decays
+//    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
+
+    return *kont;
+  }
+
+
+  // Convenience function to convert internal SPheno variables into a Spectrum object
   Spectrum Spectrum_Out(const std::map<str, safe_ptr<double> >& input_Param)
   {
 
