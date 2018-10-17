@@ -302,7 +302,7 @@ namespace Gambit {
   
       /// Use to skip the double-append check (for receiving many points via MPI)
       template<class T, std::size_t L>
-      const PPIDpair VertexBufferNumeric1D<T,L>::null_PPID = PPIDpair(-1,-1); 
+      const PPIDpair VertexBufferNumeric1D<T,L>::null_PPID = PPIDpair(); // The default constructor for PPID includes a flag marking it as "invalid" 
 
       /// @}
 
@@ -319,7 +319,7 @@ namespace Gambit {
             if(pID!=null_PPID and pID==PPID_of_last_append)
             {
                std::ostringstream errmsg;
-               errmsg << "Error! Tried to append data to buffer "<<this->get_label()<<" (vID="<<this->get_vertexID()<<", index="<<this->get_index()<<") but supplied PPID matches PPID_of_last_append, i.e. the previous append was to the same point (rank="<<pID.rank<<", pointID="<<pID.pointID<<")! This indicates a bug in the buffer calling code.";
+               errmsg << "Error! Tried to append data to buffer "<<this->get_label()<<" (vID="<<this->get_vertexID()<<", index="<<this->get_index()<<") but supplied PPID matches PPID_of_last_append, i.e. the previous append was to the same point (rank="<<pID.rank<<", pointID="<<pID.pointID<<", [valid="<<PPID_of_last_append.valid<<"])! This indicates a bug in the buffer calling code.";
                printer_error().raise(LOCAL_INFO, errmsg.str());
             }
 

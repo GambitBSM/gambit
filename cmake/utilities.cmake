@@ -146,6 +146,19 @@ function(make_symbols_visible lib)
   endif()
 endfunction()
 
+# Function to reset the install_name of a library compiled in an external project on OSX
+function(add_install_name_tool_step proj path lib)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ExternalProject_Add_Step(${proj}
+      change-install-name-${lib}
+      COMMENT "Fixing install name for ${lib}"
+      COMMAND install_name_tool -id "@rpath/${lib}" ${path}/${lib}
+      DEPENDEES install
+    )
+  endif()
+endfunction()
+
+
 # Function to add static GAMBIT library
 function(add_gambit_library libraryname)
   cmake_parse_arguments(ARG "VISIBLE" "OPTION" "SOURCES;HEADERS" ${ARGN})
@@ -562,13 +575,15 @@ macro(BOSS_backend name backend_version)
       set(BOSS_castxml_cc "")
     endif()
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(dl "https://midas3.kitware.com/midas/download/item/318762/castxml-macosx.tar.gz")
+      set(dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
+      set(dl_filename "castxml-macosx.tar.gz")
     else()
-      set(dl "https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz")
+      set(dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
+      set(dl_filename "castxml-linux.tar.gz")
     endif()
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Check for castxml binaries and download if they do not exist
-      COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${dl}
+      COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${dl} ${dl_filename}
       # Run BOSS
       COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include

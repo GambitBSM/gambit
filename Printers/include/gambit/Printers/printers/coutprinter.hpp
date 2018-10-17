@@ -62,6 +62,9 @@ namespace Gambit
         void reset(bool force=false);
         void finalise(bool abnormal=false);
 
+        // Permanently unavailable for this printer
+        Options resume_reader_options();
+ 
         ///@}
 
         /// @{ coutPrinter specific functions

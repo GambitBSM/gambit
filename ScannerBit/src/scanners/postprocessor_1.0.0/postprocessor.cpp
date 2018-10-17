@@ -32,7 +32,7 @@
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/new_mpi_datatypes.hpp"
-#include "gambit/ScannerBit/scanners/postprocessor/postprocessor.hpp"
+#include "gambit/ScannerBit/scanners/postprocessor_1.0.0/postprocessor.hpp"
 #include "gambit/ScannerBit/objective_plugin.hpp"
 #include "gambit/ScannerBit/scanner_plugin.hpp"
 

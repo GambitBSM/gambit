@@ -363,11 +363,11 @@ namespace Gambit
             }
 
             template <typename T>
-            void Bcast (T &buffer, int root)
+            void Bcast (T &buffer, int count, int root) 
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-
-                MPI_Bcast (&buffer, 1, datatype, root, boundcomm);
+                
+                MPI_Bcast (&buffer, count, datatype, root, boundcomm);
             }
 
             template<typename T>

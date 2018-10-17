@@ -175,9 +175,9 @@ namespace Gambit {
       {
           bool readable(false);
 
-          //errorsOff();
+          errorsOff();
           hid_t file_id = H5Fopen(fname.c_str(), H5F_ACC_RDONLY, H5P_GAMBIT);
-          //errorsOn();
+          errorsOn();
           if(file_id < 0)
           {
             readable=false;

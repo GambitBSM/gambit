@@ -84,7 +84,7 @@ namespace Gambit
        /// (which should only happen in the case of an error on some other process) then
        /// a shutdown exception is raised. Otherwise, we just return a bool indicating
        /// the shutdown status
-       bool check_if_shutdown_begun();
+       EXPORT_SYMBOLS bool check_if_shutdown_begun();
 
        /// Check if emergency shutdown is in progress 
        //bool emergency_shutdown_begun();
@@ -200,7 +200,7 @@ namespace Gambit
    };
 
    /// Retrieve global instance of signal handler options struct
-   SignalData& signaldata();
+   EXPORT_SYMBOLS SignalData& signaldata();
    
    /// @{ Signal handler functions
 

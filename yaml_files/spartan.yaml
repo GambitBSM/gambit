@@ -49,8 +49,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 1000
-      tol: 0.01
+      nlive: 500
+      tol: 0.5
 
     mcmc:
       plugin: great

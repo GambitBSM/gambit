@@ -43,13 +43,14 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include "gambit/Utils/export_symbols.hpp"
 
 namespace Gambit {
 
   // Model parameter map type; used by all models
   typedef std::map<std::string, double> parameterMap;
 
-  class ModelParameters
+  class EXPORT_SYMBOLS ModelParameters
   {
 
     protected:
