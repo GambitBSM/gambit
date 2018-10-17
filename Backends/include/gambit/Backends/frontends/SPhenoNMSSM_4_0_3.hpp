@@ -123,7 +123,7 @@ BE_FUNCTION(SolveTadpoleEquations, void,
          Freal8&, // vu
          Freal8&, //vS
          Farray_Fcomplex16_1_3& // Tad1Loop
-        ), "__tadpoleequations_nmssm_MOD_solvetadpoleequations", "SPhenoNMSSM_internal")
+        ), "__tadpoles_nmssm_MOD_solvetadpoleequations", "SPhenoNMSSM_internal")
 BE_FUNCTION(OneLoopMasses, void, 
         (Farray_Freal8_1_3&, // MAh
          Farray_Freal8_1_3&, // MAh2
@@ -818,7 +818,7 @@ BE_VARIABLE(CalcTBD, Flogical, "__sphenonmssm_MOD_calctbd","SPhenoNMSSM_internal
 
 // Convenience functions (registration)
 BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPheno_NMSSMspectrum")
-BE_CONV_FUNCTION(run_SPheno_decays, int, (), "SPheno_NMSSMdecays")
+BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &), "SPheno_NMSSMdecays")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SPhenoNMSSM_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SPhenoNMSSM_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SPhenoNMSSM_internal")

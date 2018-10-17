@@ -163,12 +163,11 @@ BE_NAMESPACE
             for(int k=1; k<=3; k++)
                YuSM(i,j) = (*CKM)(i,k) * YuSM(k,j);
       }
- cout << "to here" << endl;
-  
+ 
       // Setting Boundary conditions 
       Flogical MZsuffix = false;
       SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
-  
+ 
       *kap = *KappaInput;
       *lam = *LambdaInput;
       *Tk = *AKappaInput * *KappaInput;
@@ -309,10 +308,97 @@ BE_NAMESPACE
   }
 
   // Convenience funciton to run Spheno and obtain the decays
-  int run_SPheno_decays()
+  int run_SPheno_decays(const Spectrum &spectrum)
   {
 
-   
+    // Initialize some variables
+    *CalcTBD = false;
+    *ratioWoM = 0.0;
+    *epsI = 1.0E-5;
+    *deltaM = 1.0e-6;
+    *kont =  0;
+/*
+    // Fill input parameters with spectrum information
+    *MAh  ;
+//    *MAh2 = pow(*MAh,2);
+    *MCha  ;
+ //   *MCha2 = pow(*MCha,2);
+    *MChi  ;
+//    *MChi2 = pow(*MChi,2);
+    *MFd  ;
+//    *MFd2 = pow(*MFd, 2);
+    *MFe  ;
+//    *MFe2 = pow(*MFe, 2);
+    *MFu;
+    *MFu2;
+    *MGlu;
+    *MGlu2;
+    *Mhh;
+    *Mhh2;
+    *MHpm;
+    *MHpm2;
+    *MSd;
+    *MSd2;
+    *MSe;
+    *MSe2;
+    *MSu;
+    *MSu2;
+    *MSv;
+    *MSv2;
+    *MVWm;
+    *MVWm2;
+    *MVZ;
+    *MVZ2;
+    *pG;
+    *TW;
+    *UM;
+    *UP;
+    *v;
+    *ZA;
+    *ZD;
+    *ZDL;
+    *ZDR;
+    *ZE;
+    *ZEL;
+    *ZER;
+    *ZH ;
+    *ZN;
+    *ZP;
+    *ZU;
+    *ZUL;
+    *ZUR;
+    *ZV;
+    *ZW;
+    *ZZ;
+    *betaH;
+    *vd;
+    *vu;
+    *vS;
+    *g1;
+    *g2;
+    *g3;
+    *Yd;
+    *Ye;
+    *lam;
+    *kap;
+    *Yu;
+    *Td;
+    *Te ;
+    *Tlam;
+    *Tk;
+    *Tu;
+    *mq2;
+    *ml2;
+    *mHd2;
+    *mHu2;
+    *md2;
+    *mu2;
+    *me2;
+    *ms2;
+    *M1;
+    *M2;
+    *M3;
+  */ 
     // Call SPheno's function to calculate decays
 //    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
 

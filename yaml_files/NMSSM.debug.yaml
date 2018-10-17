@@ -228,6 +228,8 @@ KeyValues:
 
   debug: true
 
+  drop_SLHA_file: true
+
   default_output_path: "runs/NMSSM/"
 
   dependency_resolution:
