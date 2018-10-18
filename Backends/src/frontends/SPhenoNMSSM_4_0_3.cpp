@@ -165,7 +165,9 @@ BE_NAMESPACE
       }
  
       // Setting Boundary conditions 
-      Flogical MZsuffix = false;
+      Flogical MZsuffix = true;
+      cout << "g1SM = " << g1SM  << endl;
+      cout << "g2SM = " << g2SM  << endl;
       SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
  
       *kap = *KappaInput;
@@ -174,7 +176,15 @@ BE_NAMESPACE
       *Tlam = *ALambdaInput * *LambdaInput;
       *vd = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))))/sqrt(1 + pow(*TanBeta,2));
       *vu = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
-      *vS = sqrt(2.0) * (*MuEffinput / *LambdaInput).re;
+      *vS = sqrt(2.0) * MuEffinput->re / LambdaInput->re;
+
+      cout << "g1 = " << *g1 << endl;
+      cout << "g2 = " << *g2 << endl;
+      cout << "MuEffInput =  " <<  MuEffinput->re << endl;
+      cout << "LambdaInput = " << LambdaInput->re << endl;
+      cout << "vS = "<< *vS << endl;
+      cout << "vd = "<< *vd << endl;
+      cout << "vu = " << *vu << endl;
   
       // Translate input form SCKM to electroweak basis 
       if(*SwitchToSCKM)
@@ -199,6 +209,8 @@ BE_NAMESPACE
       SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
   
       OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
+
+      cout << "MSd = {" << (*MSd)(1) << ", " << (*MSd)(2) << ", " << (*MSd)(3) << ", " << (*MSd)(4) << ", " << (*MSd)(5) << ", " << (*MSd)(6) << endl;
   
       // TODO: Add some checks for SignOfMassChanged
 
@@ -317,35 +329,62 @@ BE_NAMESPACE
     *epsI = 1.0E-5;
     *deltaM = 1.0e-6;
     *kont =  0;
-/*
+
     // Fill input parameters with spectrum information
-    *MAh  ;
-//    *MAh2 = pow(*MAh,2);
-    *MCha  ;
- //   *MCha2 = pow(*MCha,2);
-    *MChi  ;
-//    *MChi2 = pow(*MChi,2);
-    *MFd  ;
-//    *MFd2 = pow(*MFd, 2);
-    *MFe  ;
-//    *MFe2 = pow(*MFe, 2);
-    *MFu;
-    *MFu2;
-    *MGlu;
-    *MGlu2;
-    *Mhh;
-    *Mhh2;
-    *MHpm;
-    *MHpm2;
-    *MSd;
-    *MSd2;
-    *MSe;
-    *MSe2;
-    *MSu;
-    *MSu2;
-    *MSv;
-    *MSv2;
-    *MVWm;
+    for(int i=1; i<=2; i++)
+    {
+      (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
+      (*MAh2)(i) = pow((*MAh)(i),2);
+      (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
+      (*MCha2)(i) = pow((*MCha)(i),2);
+    }
+    for(int i=1; i<=5; i++)
+    {
+      (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
+      (*MChi2)(i) = pow((*MChi)(i),2);
+    }
+    (*MFd)(1) = spectrum.get(Par::Pole_Mass, "d_1");
+    (*MFd)(2) = spectrum.get(Par::Pole_Mass, "d_2");
+    (*MFd)(3) = spectrum.get(Par::Pole_Mass, "d_3");
+    (*MFe)(1) = spectrum.get(Par::Pole_Mass, "e-_1");
+    (*MFe)(2) = spectrum.get(Par::Pole_Mass, "e-_2");
+    (*MFe)(3) = spectrum.get(Par::Pole_Mass, "e-_3");
+    (*MFu)(1) = spectrum.get(Par::Pole_Mass, "u_1");
+    (*MFu)(2) = spectrum.get(Par::Pole_Mass, "u_2");
+    (*MFu)(3) = spectrum.get(Par::Pole_Mass, "u_3");
+    for(int i=1; i<=3; i++)
+    {
+      (*MFd2)(i) = pow((*MFd)(i),2);
+      (*MFe2)(i) = pow((*MFe)(i),2);
+      (*MFu2)(i) = pow((*MFu)(i),2);
+    }
+    *MGlu = spectrum.get(Par::Pole_Mass, "~g");
+    *MGlu2 = pow(*MGlu,2);
+    for(int i=1; i<=3; i++)
+    {
+      (*Mhh)(i) = spectrum.get(Par::Pole_Mass, "h0",i);
+      (*Mhh2)(i) = pow((*Mhh2)(i),2);
+    }
+    for(int i=1; i<=2; i++)
+    {
+      (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+",i);
+      (*MHpm2)(i) = pow((*MHpm)(i),2);
+    }
+    for(int i=1; i<=6; i++)
+    {
+      (*MSd)(i) = spectrum.get(Par::Pole_Mass, "~d",i);
+      (*MSd2)(i) = pow((*MSd)(i),2);
+      (*MSe)(i) = spectrum.get(Par::Pole_Mass, "~e-",i);
+      (*MSe2)(i) = pow((*MSe)(i),2);
+      (*MSu)(i) = spectrum.get(Par::Pole_Mass, "~u",i);
+      (*MSu2)(i) = pow((*MSu)(i),2);
+    }
+    for(int i=1; i<=3; i++)
+    {
+      (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
+      (*MSv2)(i) = pow((*MSv)(i),2);
+    }
+ /*   *MVWm;
     *MVWm2;
     *MVZ;
     *MVZ2;
@@ -400,7 +439,7 @@ BE_NAMESPACE
     *M3;
   */ 
     // Call SPheno's function to calculate decays
-//    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
+    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
 
     return *kont;
   }
@@ -431,6 +470,8 @@ BE_NAMESPACE
     slha["MODSEL"][""] << 2 << *BoundaryCondition << "# Boundary conditions";
     if(*GenerationMixing)
       slha["MODSEL"][""] << 6 << 1 << "# switching on flavour violation";
+    if(input_Param.find("Qin") != input_Param.end())
+      slha["MODSEL"][""] << 12 << *input_Param.at("Qin") << "# Qin";
 
     // Block MINPAR
     SLHAea_add_block(slha, "MINPAR");

@@ -389,7 +389,7 @@ BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_sety
 BE_FUNCTION(Set_Use_rzextr_instead_of_pzextr, Flogical, (Flogical&), "__mathematics_MOD_set_use_rzextr_instead_of_pzextr", "SPhenoNMSSM_internal")*/
 BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SPhenoNMSSM_internal")
 
-BE_FUNCTION(CalculateBR_MSSM, void, 
+BE_FUNCTION(CalculateBR, void, 
 	(Flogical&, // CalcTBD
          Freal8&, // ratioWoM
          Freal8&, // epsI
@@ -507,7 +507,7 @@ BE_FUNCTION(CalculateBR_MSSM, void,
          Farray_Freal8_1_3_1_78&, // gPFu
          Farray_Freal8_1_3&, // gTFu
          Farray_Freal8_1_3_1_78& // BRFu
-        ), "__branchingratios_nmssm_MOD_calculatebr", "SPhenoNMSSM_internal")
+        ), "__branchingratios_nmssm_MOD_calculatebr_2", "SPhenoNMSSM_internal")
 
 // Variables
 // MODSEL Variables
