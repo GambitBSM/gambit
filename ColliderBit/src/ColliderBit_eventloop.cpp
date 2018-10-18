@@ -3029,7 +3029,7 @@ namespace Gambit
       if (nFailedEvents > maxFailedEvents)
       {
         #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike: Too many failed events. Will be conservative and return a delta log-likelihood of 0." << endl;
+          cout << debug_prefix() << "calc_combined_LHC_LogLike: Too many failed events. Will be conservative and return a delta log-likelihood of 0." << endl;
         #endif
         return;
       }
@@ -3045,7 +3045,7 @@ namespace Gambit
         {
           #ifdef COLLIDERBIT_DEBUG
             cout.precision(5);
-            cout << debug_prefix() << "calc_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
+            cout << debug_prefix() << "calc_combined_LHC_LogLike: Leaving out analysis " << analysis_name << " with LogL = " << analysis_loglike << endl;
           #endif
           continue;
         }
@@ -3055,13 +3055,25 @@ namespace Gambit
 
         #ifdef COLLIDERBIT_DEBUG
           cout.precision(5);
-          cout << debug_prefix() << "calc_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
+          cout << debug_prefix() << "calc_combined_LHC_LogLike: Analysis " << analysis_name << " contributes with a LogL = " << analysis_loglike << endl;
         #endif
       }
 
       #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "COLLIDERBIT LOGLIKELIHOOD: " << result << endl;
+        cout << debug_prefix() << "calc_combined_LHC_LogLike: LHC_Combined_LogLike = " << result << endl;
       #endif
+
+      // If using capped likelihood, set result = min(result,0)
+      static const bool use_cap_loglike = runOptions->getValueOrDef<bool>(false, "cap_loglike");
+      if (use_cap_loglike)
+      {
+        result = std::min(result, 0.0);
+
+        #ifdef COLLIDERBIT_DEBUG
+          cout << debug_prefix() << "calc_combined_LHC_LogLike: LHC_Combined_LogLike (capped) = " << result << endl;
+        #endif
+      }
+
 
     }
 
