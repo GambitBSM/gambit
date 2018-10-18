@@ -154,8 +154,8 @@ ObsLikes:
     - purpose: LogLike
       capability: lnL_Z_inv
 
-    - purpose: LogLike
-      capability: lnL_Higgs_invWidth
+    #- purpose: LogLike
+    #  capability: lnL_Higgs_invWidth
 
     # Flavour physics likelihoods
     - purpose:    LogLike
@@ -394,7 +394,7 @@ Rules:
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
   - capability: unimproved_MSSM_spectrum
-    function: get_MSSMatMGUT_spectrum_FS
+    function: get_MSSMatMGUT_spectrum_FlexibleEFTHiggs
     options:
       precision_goal:        1.0e-4
       max_iterations:        0
@@ -640,8 +640,10 @@ Rules:
   # These will still be computed if listed in the analysis setup above, 
   # but their likelihood will not added to the combined likelihood.
   - capability: LHC_Combined_LogLike
+    function: calc_combined_LHC_LogLike
     options:
-     skip_analyses: ["CMS_13TeV_2LEPsoft_36invfb",
+      cap_loglike: true 
+      skip_analyses: ["CMS_13TeV_2LEPsoft_36invfb",
                      "CMS_13TeV_2LEPsoft_36invfb_nocovar",
                      "CMS_13TeV_MultiLEP_2SSLep_36invfb",
                      "CMS_13TeV_MultiLEP_3Lep_36invfb",
@@ -670,12 +672,13 @@ Rules:
   # Choose statistical settings for Monte Carlo event generator
   - capability: MC_ConvergenceSettings
     options:
-      min_nEvents: [5000]
+      min_nEvents: [25000]
       max_nEvents: [100000]
-      events_between_convergence_checks: [5000]
-      target_fractional_uncert: [0.3]
+      events_between_convergence_checks: [25000]
+      target_fractional_uncert: [0.1]
       halt_when_systematic_dominated: true
-      all_SR_must_converge: false
+      all_analyses_must_converge: true
+      all_SR_must_converge: true 
 
   # Define Monte Carlo event simulator and associated options.
   - capability:  HardScatteringSim
