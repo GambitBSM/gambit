@@ -165,7 +165,7 @@ BE_NAMESPACE
       }
  
       // Setting Boundary conditions 
-      Flogical MZsuffix = true;
+      Flogical MZsuffix = false;
       cout << "g1SM = " << g1SM  << endl;
       cout << "g2SM = " << g2SM  << endl;
       SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
@@ -331,10 +331,13 @@ BE_NAMESPACE
     *kont =  0;
 
     // Fill input parameters with spectrum information
-    for(int i=1; i<=2; i++)
+    for(int i=1; i<=3; i++)
     {
       (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
       (*MAh2)(i) = pow((*MAh)(i),2);
+    }
+    for(int i=1; i<=2; i++)
+    {
       (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
       (*MCha2)(i) = pow((*MCha)(i),2);
     }
@@ -384,32 +387,55 @@ BE_NAMESPACE
       (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
       (*MSv2)(i) = pow((*MSv)(i),2);
     }
- /*   *MVWm;
-    *MVWm2;
-    *MVZ;
-    *MVZ2;
-    *pG;
-    *TW;
-    *UM;
-    *UP;
-    *v;
-    *ZA;
-    *ZD;
-    *ZDL;
-    *ZDR;
-    *ZE;
-    *ZEL;
-    *ZER;
-    *ZH ;
-    *ZN;
-    *ZP;
-    *ZU;
-    *ZUL;
-    *ZUR;
-    *ZV;
-    *ZW;
-    *ZZ;
-    *betaH;
+    *MVWm = spectrum.get(Par::Pole_Mass, "W-");
+    *MVWm2 = pow(*MVWm,2);
+    *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
+    *MVZ2 = pow(*MVZ,2);
+    // TODO: check whether this value makes sense
+    *pG = 1;
+/*    *TW = acos(abs(;
+    *v;*/
+    for(int i=1; i<=6; i++)
+    {
+      for(int j=1; j<=6; j++)
+      {
+        (*ZD)(i,j) = spectrum.get(Par::Pole_Mixing, "~d", i, j);
+        (*ZE)(i,j) = spectrum.get(Par::Pole_Mixing, "~e-", i, j);
+        (*ZU)(i,j) = spectrum.get(Par::Pole_Mixing, "~u", i, j);
+        if(i <=3 and j <=3)
+        {
+          (*ZDL)(i,j) = 0;
+          (*ZDR)(i,j) = 0;
+          (*ZEL)(i,j) = 0;
+          (*ZER)(i,j) = 0;
+          (*ZUL)(i,j) = 0;
+          (*ZUR)(i,j) = 0;
+          if(i==j)
+          {
+            (*ZDL)(i,j) = 1;
+            (*ZDR)(i,j) = 1;
+            (*ZEL)(i,j) = 1;
+            (*ZER)(i,j) = 1;
+            (*ZUL)(i,j) = 1;
+            (*ZUR)(i,j) = 1;
+          }
+          (*ZH)(i,j) = spectrum.get(Par::Pole_Mixing, "h0", i, j);
+          (*ZA)(i,j) = spectrum.get(Par::Pole_Mixing, "A0", i, j);
+          (*ZV)(i,j) = spectrum.get(Par::Pole_Mixing, "~nu", i, j);
+        }
+        if(i<=5 and j<=5)
+          (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "chi0", i, j);
+        if(i<=2 and j<=2)
+        {
+          (*ZP)(i,j) = spectrum.get(Par::Pole_Mixing, "H+", i, j);
+          (*UM)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi-", i, j);
+          (*UP)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi+", i, j);
+        }
+    }
+   //*ZV;
+   // *ZW;
+    //*ZZ;
+/*    *betaH;
     *vd;
     *vu;
     *vS;
@@ -439,7 +465,7 @@ BE_NAMESPACE
     *M3;
   */ 
     // Call SPheno's function to calculate decays
-    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
+    //CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
 
     return *kont;
   }
