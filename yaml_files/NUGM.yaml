@@ -208,19 +208,19 @@ ObsLikes:
     - capability: PandaX_2017_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_2L_LogLikelihood
-      purpose:    LogLike
-
-    - capability: PICO_60_LogLikelihood
-      purpose:    LogLike
-
     - capability: PICO_60_2017_LogLikelihood
       purpose:    LogLike
 
-    - capability: SuperCDMS_2014_LogLikelihood
+    - capability: SIMPLE_2014_LogLikelihood
       purpose:    LogLike
 
-    - capability: SIMPLE_2014_LogLikelihood
+    - capability: CRESST_II_LogLikelihood
+      purpose:    LogLike
+      
+    - capability: CDMSlite_LogLikelihood
+      purpose:    LogLike
+      
+    - capability: DarkSide_50_LogLikelihood
       purpose:    LogLike
 
     - capability: IC79_loglike
@@ -324,9 +324,9 @@ Rules:
   #- options:
   #    drop_SLHA_file: true
 
-  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  # Choose to use capgen for solar capture
   - capability: capture_rate_Sun
-    function: capture_rate_Sun_const_xsec
+    function: capture_rate_Sun_vnqn
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -476,13 +476,6 @@ Rules:
     function: MSSM_higgs_couplings_pwid
     #function: MSSM_higgs_couplings_FH
 
-  # Observed value and uncertainty of local dark matter density (in GeV/cm^3)
-  - capability: lnL_rho0
-    function: lnL_rho0_lognormal
-    options:
-      rho0_obs: 0.4
-      rho0_obserr: 0.15
-
   # Set v0 to 240 +/- 8 km/s based on Reid et al [arXiv:1401.5377]
   - capability: lnL_v0
     function: lnL_v0_gaussian
@@ -505,13 +498,6 @@ Rules:
       sigmas_obserr: 8.0
       sigmal_obs: 50.0
       sigmal_obserr: 15.0
-
-  # Values to be used in local disk rotation speed likelihood (all values in km/s)
-  - capability: lnL_vrot
-    function: lnL_vrot_gaussian
-    options:
-      vrot_obs: 235
-      vrot_obserr: 20
 
   # Values to be used in PrecisionBit likelihood function for light quark masses
   - capability: lnL_light_quark_masses
