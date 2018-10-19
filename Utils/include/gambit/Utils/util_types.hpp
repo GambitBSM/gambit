@@ -626,7 +626,7 @@ namespace Gambit
   typedef short             Finteger2;
   typedef long int          Finteger4;
   typedef long long         Finteger8;
-  typedef bool              Flogical;
+  typedef long int          Flogical;
   typedef bool              Flogical1;
   typedef float             Freal;
   typedef float             Freal4;

@@ -177,6 +177,16 @@
 #undef MODELNAME
 /// @}
 
+#define MODELNAME MSSMatMGUTEFTHiggs
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp"// Automatically includes necessary MSSMatMGUTEFTHiggs model headers etc.
+#undef MODELNAME
+/// @}
+   
+#define MODELNAME MSSMatMGUTEFTHiggs_mAmu
+#include "gambit/SpecBit/flexiblesusy_include_automater.hpp"// Automatically includes necessary MSSMatMGUTEFTHiggs_mAmu model headers etc.
+#undef MODELNAME
+/// @}
+
 #define MODELNAME ScalarSingletDM_Z2
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary ScalarSingletDM_Z2 model headers etc.
 #undef MODELNAME

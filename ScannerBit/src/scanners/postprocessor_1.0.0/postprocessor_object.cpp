@@ -16,7 +16,7 @@
 ///
 ///  *********************************************
 
-#include "gambit/ScannerBit/scanners/postprocessor/postprocessor.hpp"
+#include "gambit/ScannerBit/scanners/postprocessor_1.0.0/postprocessor.hpp"
 #include "gambit/Utils/new_mpi_datatypes.hpp"
 #include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Utils/util_functions.hpp"

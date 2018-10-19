@@ -43,7 +43,8 @@
 ["std::map< std::pair < int, int >", double> map_intpair_dbl]
 
 # Fortran data types
-[bool, Flogical, Flogical1]
+[long int, Flogical]
+[bool, Flogical1]
 [char, Fcharacter]
 [int, Finteger]
 [short, Finteger2]

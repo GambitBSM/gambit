@@ -59,6 +59,9 @@ namespace Gambit
 
          BasePrinter* null(NULL);
          printerptr = printer_creators.at(tag)(mod_options,null);
+  
+         // Update resume flag (primary printer may have switched it off due to lack of existing output)
+         set_resume_mode(printerptr->get_resume());
       }
       else
       {
@@ -75,6 +78,48 @@ namespace Gambit
       }
     }
 
+    /// Destruct printer/reader objects
+    void PrinterManager::delete_stream(const std::string& name)
+    {
+      if(name=="")
+      {
+         std::ostringstream os;
+         os << "Tried to delete primary printer stream! Currently you are not permitted to do this. Why do you want to?";
+         printer_error().raise(LOCAL_INFO,os.str());
+      }
+      else
+      {
+         auto it = auxprinters.find(name);
+         if(it!=auxprinters.end())
+         {
+            delete it->second;
+            auxprinters.erase(it);
+         }
+         else
+         {
+            std::ostringstream os;
+            os << "Tried to delete printer stream '"<<name<<"', but could not find a print stream with that name! Perhaps it was never created, or was deleted already?";
+            printer_error().raise(LOCAL_INFO,os.str());
+         }
+      }
+    }
+
+    void PrinterManager::delete_reader(const std::string& name)
+    { 
+      auto it = readers.find(name);
+      if(it!=readers.end())
+      {
+         delete it->second;
+         readers.erase(it);
+      }
+      else
+      {
+         std::ostringstream os;
+         os << "Tried to delete reader object '"<<name<<"', but could not find a reader object with that name! Perhaps it was never created, or was deleted already?";
+         printer_error().raise(LOCAL_INFO,os.str());
+      }
+    }
+ 
     PrinterManager::~PrinterManager()
     {
       // Delete all the printer objects
@@ -127,6 +172,16 @@ namespace Gambit
        readers[readstreamname] = reader_creators.at(whichreader)(options);
     }
 
+    /// Create for reader object for previous print output ("resume reader")
+    void PrinterManager::create_resume_reader()
+    {
+       // The only difficulty here is to get the options needed to build
+       // the reader (filenames etc). This varies between different types
+       // of printers, so we have to ask the primary printer object to
+       // give us these options.  
+       new_reader("resume", get_stream()->resume_reader_options()); 
+    }
+ 
     // Retrieve pointer to named printer object
     BaseBasePrinter* PrinterManager::get_stream(const std::string& streamname)
     {

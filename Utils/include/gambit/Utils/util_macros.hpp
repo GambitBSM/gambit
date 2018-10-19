@@ -23,6 +23,7 @@
 #include "gambit/Utils/cats.hpp"
 #include "gambit/Utils/stringify.hpp"  // stringification macro
 #include "gambit/Utils/local_info.hpp" // Local information macro.
+#include "gambit/Utils/export_symbols.hpp" // macro for controlling symbol visibility
 
 #include <boost/preprocessor/seq/size.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
@@ -31,10 +32,6 @@
 #include <boost/preprocessor/arithmetic/sub.hpp>
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/preprocessor/punctuation/paren.hpp>
-
-
-/// \name Symbol visibility macro
-#define EXPORT_SYMBOLS __attribute__ ((visibility ("default")))
 
 /// \name Compile-time error macro.
 #define FAIL(x) static_assert(false,"GAMBIT precompiler error: " x);

@@ -32,6 +32,10 @@
 #include "gambit/Utils/boost_fallbacks.hpp"
 #include "gambit/Utils/factory_registry.hpp"
 #include "gambit/Utils/model_parameters.hpp"
+#include "gambit/Utils/export_symbols.hpp"
+
+// Boost
+#include <boost/preprocessor/seq/for_each_i.hpp>
 
 // Printable types
 #ifndef SCANNER_STANDALONE
@@ -65,6 +69,12 @@ namespace Gambit
     /// For debugging; print to stdout all the typeIDs for all types.
     void printAllTypeIDs(void);
 
+    /// Declare specialisations of type ID getters
+    #define DECLARE_GETTYPEID(r,data,i,elem) \
+      template<> \
+      EXPORT_SYMBOLS std::size_t getTypeID<elem>(void);
+    BOOST_PP_SEQ_FOR_EACH_I(DECLARE_GETTYPEID, _, PRINTABLE_TYPES)
+    #undef DECLARE_GETTYPEID
 
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     //% Printer class declarations                          %
@@ -94,6 +104,10 @@ namespace Gambit
         /// Initialisation function
         // Run by dependency resolver, which supplies the functors with a vector of VertexIDs whose requiresPrinting flags are set to true. (TODO: probably extend this to be a list of functors THIS printer is supposed to print, since we may want several printers handling different functors, for SLHA output or some such perhaps).
         virtual void initialise(const std::vector<int>&) = 0;
+
+        // Get options required to construct a reader object that can read
+        // the previous output of this printer.
+        virtual Options resume_reader_options() = 0;
 
         /// Set this as an auxilliary printer
         void set_as_aux() { is_aux = true; }

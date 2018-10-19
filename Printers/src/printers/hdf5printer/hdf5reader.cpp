@@ -19,6 +19,7 @@
 
 #include "gambit/Printers/printers/hdf5reader.hpp"
 #include "gambit/Printers/printers/hdf5printer.hpp"
+#include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Logs/logger.hpp"
 
@@ -34,7 +35,7 @@ namespace Gambit
 
      hid_t openfile_read(std::string file)
      {
-        hid_t file_id = H5Fopen(file.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+        hid_t file_id = HDF5::openFile(file);
         if(file_id<0)
         {
             std::ostringstream errmsg;
@@ -120,40 +121,15 @@ namespace Gambit
      /// Get next rank/ptID pair in data file
      PPIDpair HDF5Reader::get_next_point()
      {
-        // UPDATE: Don't want any of that! Need to be able to keep track of which iteration we are up to.
-        //if(current_point!=nullpoint)
-        //{
-        //   ++current_dataset_index;
-        //}
-        //bool stop_loop = false;
-        //while(not stop_loop)
-        //{
-        //   if(eoi())
-        //   {
-        //     current_point = nullpoint;
-        //     stop_loop = true;
-        //   }
-        //   else
-        //   {
-        //     bool pvalid = pointIDs_isvalid.get_entry(current_dataset_index);
-        //     bool mvalid = mpiranks_isvalid.get_entry(current_dataset_index);
-        //     if(pvalid and mvalid)
-        //     {
-        //       unsigned long pid = pointIDs.get_entry(current_dataset_index);
-        //       int mpirank       = mpiranks.get_entry(current_dataset_index);
-        //       current_point = PPIDpair(pid,mpirank);
-        //       stop_loop = true;
-        //     }
-        //     else
-        //     {
-        //       // Point didn't contain valid data, try next one.
-        //       ++current_dataset_index;
-        //     }
-        //   }
-        //}
-
-        // New method
+        // New method; just move dataset index and then try to retrieve the point
         ++current_dataset_index;
+        current_point = get_current_point();
+        return current_point;
+     }
+
+     /// Get current rank/ptID pair in data file
+     PPIDpair HDF5Reader::get_current_point()
+     {
         if(eoi())
         {
           // End of data, return nullpoint;
@@ -175,12 +151,6 @@ namespace Gambit
             current_point = nullpoint;
           }
         }
-        return current_point;
-     }
-
-     /// Get current rank/ptID pair in data file
-     PPIDpair HDF5Reader::get_current_point()
-     {
         return current_point;
      }
 

@@ -16,10 +16,10 @@
 ///  *********************************************
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
-#include "gambit/ScannerBit/scanners/postprocessor/chunks.hpp"
+#include "gambit/ScannerBit/scanners/postprocessor_1.0.0/chunks.hpp"
 
-#ifndef __postprocessor_hpp__
-#define __postprocessor_hpp__
+#ifndef __postprocessor_1_0_0_hpp__
+#define __postprocessor_1_0_0_hpp__
 
 namespace Gambit
 {
