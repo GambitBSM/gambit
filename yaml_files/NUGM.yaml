@@ -326,7 +326,7 @@ Rules:
 
   # Choose to use capgen for solar capture
   - capability: capture_rate_Sun
-    function: capture_rate_Sun_vnqn
+    function: capture_rate_Sun_const_xsec_capgen 
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
