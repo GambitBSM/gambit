@@ -645,7 +645,7 @@ Rules:
                      "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
                      "ATLAS_13TeV_4LEP_36invfb",
                      "ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb",
-                     "ATLAS_13TeV_RJ3L_3Lep_36invfb"] ]
+                     "ATLAS_13TeV_RJ3L_3Lep_36invfb"]
 
 
   # Choose Monte Carlo event simulator.
