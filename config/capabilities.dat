@@ -3715,6 +3715,9 @@ NUHM2_parameters: |
 CMSSM_parameters: |
    Parameters for the model CMSSM (see ./gambit CMSSM)
 
+NUGM_parameters: |
+   Parameters for the model NUGM (see ./gambit NUGM)
+
 NormalDist_parameters: |
    Parameters for the model NormalDist (see ./gambit NormalDist)
 

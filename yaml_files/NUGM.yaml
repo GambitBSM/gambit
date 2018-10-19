@@ -600,7 +600,7 @@ Rules:
                    "CMS_13TeV_1LEPStop_36invfb",
                    "CMS_13TeV_2LEPStop_36invfb",
                    "CMS_13TeV_MONOJET_36invfb",
-                   "CMS_13TeV_1LEPbb_36invfb",
+                   "CMS_13TeV_1LEPbb_36invfb"] ]
  
 
   # CMSnoeff analysis setup
