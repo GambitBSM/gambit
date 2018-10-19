@@ -611,6 +611,31 @@ namespace Gambit
       }
   };
 
+  // Class Flogical, needed for translations from bool to fortran logical types with are 4-bytes long
+  /*class Flogical
+  {
+    public:
+      long int _flogical;
+
+      /// Default constructor
+      Flogical() {}
+      /// Default destructor
+      ~Flogical() {}
+      /// Default copy constructor
+      Flogical(const Flogical& copy) : _flogical(copy._flogical) { }
+      /// Copy constructor with long ints 
+      Flogical(const long int& copy) : _flogical(copy) { }
+      /// Copy constructor with bools
+      Flogical(const bool& copy) : _flogical(copy) { }
+      // Assignment operator with long ints
+      Flogical& operator=(const long int& val) { _flogical = val; return *this; }
+      // Assignment operator with bools
+      Flogical& operator=(const bool& val) { _flogical = val; return *this; }
+      // Act as a bool
+      operator bool() { return _flogical; }
+
+  };*/
+
   /// Fortran type typedefs
   /// TODO: Implement compiler dependent macros ensuring that these are always correct
   typedef FcomplexT<float>  Fcomplex;
@@ -626,13 +651,14 @@ namespace Gambit
   typedef short             Finteger2;
   typedef long int          Finteger4;
   typedef long long         Finteger8;
-  typedef long int          Flogical;
-  typedef bool              Flogical1;
+  //typedef long int          Flogical;
+  //typedef bool              Flogical1;
+  typedef bool              Flogical;
+  typedef long int          Flogical1;
   typedef float             Freal;
   typedef float             Freal4;
   typedef double            Freal8;
   typedef long double       Freal16;
-
 
   /// Types used for Mathematica backends
   typedef void         MVoid;

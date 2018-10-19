@@ -165,9 +165,7 @@ BE_NAMESPACE
       }
  
       // Setting Boundary conditions 
-      Flogical MZsuffix = false;
-      cout << "g1SM = " << g1SM  << endl;
-      cout << "g2SM = " << g2SM  << endl;
+      Flogical1 MZsuffix = false;
       SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
  
       *kap = *KappaInput;
@@ -178,14 +176,6 @@ BE_NAMESPACE
       *vu = (2*sqrt(*mZ2/(pow(*g1,2) + pow(*g2,2))) * *TanBeta)/sqrt(1 + pow(*TanBeta,2));
       *vS = sqrt(2.0) * MuEffinput->re / LambdaInput->re;
 
-      cout << "g1 = " << *g1 << endl;
-      cout << "g2 = " << *g2 << endl;
-      cout << "MuEffInput =  " <<  MuEffinput->re << endl;
-      cout << "LambdaInput = " << LambdaInput->re << endl;
-      cout << "vS = "<< *vS << endl;
-      cout << "vd = "<< *vd << endl;
-      cout << "vu = " << *vu << endl;
-  
       // Translate input form SCKM to electroweak basis 
       if(*SwitchToSCKM)
       {
@@ -196,8 +186,9 @@ BE_NAMESPACE
         mq2_ckm = *mq2;
         md2_ckm = *md2;
         mu2_ckm = *mu2;
+        Flogical1 True = true;
         // TODO: Actual definition in SPhenoNMSSM and InputOutput is longer, may cause problems
-        Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, true);
+        Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, True);
         if(*InputValueforTd) *Td = Td_out;
         if(*InputValueforTu) *Tu = Tu_out;
         if(*InputValueformq2) *mq2 = mq2_out;
@@ -207,7 +198,35 @@ BE_NAMESPACE
   
       Farray_Fcomplex16_1_3 Tad1Loop;
       SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
-  
+ 
+      cout << "g1 = " << *g1 << endl;
+      cout << "g2 = " << *g2 << endl;
+      cout << "g3 = " << *g3 << endl; 
+      cout << "Yd = " << (*Yd)(1,1).re << endl;
+      cout << "Ye = " << (*Ye)(1,1).re << endl;  
+      cout << "lam = " << lam->re << endl; 
+      cout << "kap = " << kap->re << endl; 
+      cout << "Yu = " << (*Yu)(1,1).re << endl; 
+      cout << "Td = " << (*Td)(1,1).re << endl; 
+      cout << "Te = " << (*Te)(1,1).re << endl; 
+      cout << "Tlam = " << Tlam->re << endl; 
+      cout << "Tk = " << Tk->re << endl; 
+      cout << "Tu = " << (*Tu)(1,1).re << endl; 
+      cout << "mq2 = " << (*mq2)(1,1).re << endl; 
+      cout << "ml2 = " << (*ml2)(1,1).re << endl; 
+      cout << "mHd2 = " << *mHd2 << endl; 
+      cout << "mHu2 = " << *mHu2 << endl; 
+      cout << "md2 = " << (*md2)(1,1).re << endl; 
+      cout << "mu2 = " << (*mu2)(1,1).re << endl; 
+      cout << "me2 = " << (*me2)(1,1).re << endl; 
+      cout << "ms2 = " <<  *ms2 << endl; 
+      cout << "M1 = " << M1->re << endl; 
+      cout << "M2 = " << M2->re << endl; 
+      cout << "M3 = " << M3->re << endl; 
+      cout << "vd = " << *vd << endl;
+      cout << "vu = " << *vu << endl; 
+      cout << "vS = " << *vS << endl;  
+
       OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
 
       cout << "MSd = {" << (*MSd)(1) << ", " << (*MSd)(2) << ", " << (*MSd)(3) << ", " << (*MSd)(4) << ", " << (*MSd)(5) << ", " << (*MSd)(6) << endl;
@@ -331,6 +350,7 @@ BE_NAMESPACE
     *kont =  0;
 
     // Fill input parameters with spectrum information
+    // Masses
     for(int i=1; i<=3; i++)
     {
       (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
@@ -391,10 +411,8 @@ BE_NAMESPACE
     *MVWm2 = pow(*MVWm,2);
     *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
     *MVZ2 = pow(*MVZ,2);
-    // TODO: check whether this value makes sense
-    *pG = 1;
-/*    *TW = acos(abs(;
-    *v;*/
+
+    // Mixings
     for(int i=1; i<=6; i++)
     {
       for(int j=1; j<=6; j++)
@@ -402,6 +420,7 @@ BE_NAMESPACE
         (*ZD)(i,j) = spectrum.get(Par::Pole_Mixing, "~d", i, j);
         (*ZE)(i,j) = spectrum.get(Par::Pole_Mixing, "~e-", i, j);
         (*ZU)(i,j) = spectrum.get(Par::Pole_Mixing, "~u", i, j);
+        // TODO: Check if these mixings are really this
         if(i <=3 and j <=3)
         {
           (*ZDL)(i,j) = 0;
@@ -422,6 +441,18 @@ BE_NAMESPACE
           (*ZH)(i,j) = spectrum.get(Par::Pole_Mixing, "h0", i, j);
           (*ZA)(i,j) = spectrum.get(Par::Pole_Mixing, "A0", i, j);
           (*ZV)(i,j) = spectrum.get(Par::Pole_Mixing, "~nu", i, j);
+          (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
+          (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
+          (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
+          (*Td)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
+          (*Te)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
+          (*Tu)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
+          (*mq2)(i,j) = spectrum.get(Par::mass2, "mq2", i, j);
+          (*ml2)(i,j) = spectrum.get(Par::mass2, "ml2", i, j);
+          (*md2)(i,j) = spectrum.get(Par::mass2, "md2", i, j);
+          (*mu2)(i,j) = spectrum.get(Par::mass2, "mu2", i, j);
+          (*me2)(i,j) = spectrum.get(Par::mass2, "me2", i, j);
+  
         }
         if(i<=5 and j<=5)
           (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "chi0", i, j);
@@ -430,40 +461,43 @@ BE_NAMESPACE
           (*ZP)(i,j) = spectrum.get(Par::Pole_Mixing, "H+", i, j);
           (*UM)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi-", i, j);
           (*UP)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi+", i, j);
+          // TODO: Check if these mixings are really this
+          (*ZW)(i,j) = 0;
+          (*ZZ)(i,j) = 0;
+          if(i == j)
+          {
+            (*ZW)(i,j) = 1;
+            (*ZZ)(i,j) = 1; 
+          }
         }
+      }
     }
-   //*ZV;
-   // *ZW;
-    //*ZZ;
-/*    *betaH;
-    *vd;
-    *vu;
-    *vS;
-    *g1;
-    *g2;
-    *g3;
-    *Yd;
-    *Ye;
-    *lam;
-    *kap;
-    *Yu;
-    *Td;
-    *Te ;
-    *Tlam;
-    *Tk;
-    *Tu;
-    *mq2;
-    *ml2;
-    *mHd2;
-    *mHu2;
-    *md2;
-    *mu2;
-    *me2;
-    *ms2;
-    *M1;
-    *M2;
-    *M3;
-  */ 
+ 
+    // Other parameters
+    // TODO: check whether this value makes sense
+    *pG = 1;
+    *vu = spectrum.get(Par::mass1, "vu");
+    *vd = spectrum.get(Par::mass1, "vd");
+    *v = sqrt(pow(*vd,2) + pow(*vu,2));
+    *betaH = asin(abs((*ZP)(1,2)));
+    *TW = acos(abs((*ZZ)(1,1)));
+    *g1 = spectrum.get(Par::dimensionless, "g1");
+    *g2 = spectrum.get(Par::dimensionless, "g2");
+    *g3 = spectrum.get(Par::dimensionless, "g3");
+    *mHd2 = spectrum.get(Par::mass2, "mHd2");
+    *mHu2 = spectrum.get(Par::mass2, "mHu2");
+    *M1 = spectrum.get(Par::mass1, "M1");
+    *M2 = spectrum.get(Par::mass1, "M2");
+    *M3 = spectrum.get(Par::mass1, "M3");
+ 
+    // Parameters specific of the NMSSM
+    *vS = spectrum.get(Par::mass1, "vS");
+    *lam = spectrum.get(Par::dimensionless, "lam");
+    *kap = spectrum.get(Par::mass1, "kap");
+    *Tlam = spectrum.get(Par::dimensionless, "Tlam");
+    *Tk = spectrum.get(Par::mass1, "Tk");
+    *ms2 = spectrum.get(Par::mass1, "ms2");
+  
     // Call SPheno's function to calculate decays
     //CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
 
