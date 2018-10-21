@@ -626,10 +626,10 @@ namespace Gambit
   typedef short             Finteger2;
   typedef long int          Finteger4;
   typedef long long         Finteger8;
-  #if INT_MAX >> 16 == 0 // 2-byte integers
-  typedef int               Flogical;
-  #elif INT_MAX >> 64 == 0 // 4-byte integers
+  #if (INT_MAX >> 15) == 0 // 2-byte integers
   typedef long int          Flogical;
+  #elif (INT_MAX >> 31) == 0 // 4-byte integers
+  typedef int               Flogical;
   #endif
   typedef bool              Flogical1;
   typedef float             Freal;

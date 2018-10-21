@@ -1190,7 +1190,7 @@ BE_NAMESPACE
     *WriteOutputForNonConvergence = inputs.options->getValueOrDef<bool>(false, "WriteOutputForNonConvergence");
 
     // 55, calculate one loop masses
-    *CalculateOneLoopMasses = (long int) inputs.options->getValueOrDef<bool>(true, "CalculateOneLoopMasses");
+    *CalculateOneLoopMasses = inputs.options->getValueOrDef<bool>(true, "CalculateOneLoopMasses");
 
     // 57, calculate low energy observables
     // TODO: No low energy observables yet
