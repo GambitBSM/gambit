@@ -77,7 +77,7 @@ BE_FUNCTION(SetMatchingConditions, void,
          Fcomplex16&, // M1
          Fcomplex16&, // M2
          Fcomplex16&, // M3
-         Flogical1& // MZsuffix
+         Flogical& // MZsuffix
         ), "__model_data_nmssm_MOD_setmatchingconditions", "SPhenoNMSSM_internal")
 BE_FUNCTION(Switch_from_superCKM, void, 
         (Farray_Fcomplex16_1_3_1_3&, // Yd_ckm
@@ -92,7 +92,7 @@ BE_FUNCTION(Switch_from_superCKM, void,
          Farray_Fcomplex16_1_3_1_3&, // md2_out
          Farray_Fcomplex16_1_3_1_3&, // mq2_out
          Farray_Fcomplex16_1_3_1_3&, // mu2_out
-         Flogical1& // Tranposed
+         Flogical& // Tranposed
         ), "__sphenonmssm_MOD_switch_from_superckm", "SPhenoNMSSM_internal")
 BE_FUNCTION(SolveTadpoleEquations, void, 
         (Freal8&, // g1
@@ -390,7 +390,7 @@ BE_FUNCTION(Set_Use_rzextr_instead_of_pzextr, Flogical, (Flogical&), "__mathemat
 BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SPhenoNMSSM_internal")
 
 BE_FUNCTION(CalculateBR, void, 
-	(Flogical1&, // CalcTBD
+	(Flogical&, // CalcTBD
          Freal8&, // ratioWoM
          Freal8&, // epsI
          Freal8&, // delta_mass

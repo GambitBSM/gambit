@@ -555,7 +555,7 @@ BE_NAMESPACE
     *ErrorLevel = 0;
 
     // 2, SPA_convention
-    *SPA_convention = inputs.options->getValueOrDef<Flogical>(false, "SPA_convention");
+    *SPA_convention = inputs.options->getValueOrDef<bool>(false, "SPA_convention");
     if(*SPA_convention)
     {
       Freal8 scale = 1.0E6;
@@ -578,7 +578,7 @@ BE_NAMESPACE
     *RXiNew = inputs.options->getValueOrDef<Freal8>(1.0, "RXiNew");
 
     // 7, Caclulate Two Loop Higgs Masses
-    *CalculateTwoLoopHiggsMasses = inputs.options->getValueOrDef<Flogical>(true, "CalculateTwoLoopHiggsMasses");
+    *CalculateTwoLoopHiggsMasses = inputs.options->getValueOrDef<bool>(true, "CalculateTwoLoopHiggsMasses");
 
     // 8, Two Loop method 
     *TwoLoopMethod = inputs.options->getValueOrDef<Finteger>(3, "TwoLoopMethod");
@@ -594,14 +594,14 @@ BE_NAMESPACE
       *PurelyNumericalEffPot = false;
 
     // 9, GaugelessLimit
-    *GaugelessLimit = inputs.options->getValueOrDef<Flogical>(true, "GaugelessLimit");
+    *GaugelessLimit = inputs.options->getValueOrDef<bool>(true, "GaugelessLimit");
 
     // 10, TwoLoopSafeMode
-    *TwoLoopSafeMode = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopSafeMode");
+    *TwoLoopSafeMode = inputs.options->getValueOrDef<bool>(true, "TwoLoopSafeMode");
 
     // 11, whether to calculate branching ratios or not, L_BR
     // TODO: Branching ratios, not covered yet
-    //*L_BR = inputs.options->getValueOrDef<Flogical>(false, "L_BR");
+    //*L_BR = inputs.options->getValueOrDef<bool>(false, "L_BR");
     *L_BR = false;
 
 
@@ -622,7 +622,7 @@ BE_NAMESPACE
 
     // 21, whether to calculate cross sections or not, L_CS
     // TODO: Cross sections, not covered yet
-    //*L_CS = inputs.options->getValueOrDef<Flogical>(false, "L_CS");
+    //*L_CS = inputs.options->getValueOrDef<bool>(false, "L_CS");
     //*L_CS = false;
 
     // 22, CMS energy, Ecms
@@ -659,7 +659,7 @@ BE_NAMESPACE
     // 25, caluclate initial state radiation, ISR
     // TODO: Cross sections, not covered yet
     //if(p_act <= p_max)
-    //  (*ISR)(p_act) = inputs.options->getValueOrDef<Flogical>(false, "ISR");
+    //  (*ISR)(p_act) = inputs.options->getValueOrDef<bool>(false, "ISR");
     //
 
     // 26, minimal value such that a cross section is written out, SigMin
@@ -674,7 +674,7 @@ BE_NAMESPACE
        SetGUTScale(GUTScale);
 
     // 32, requires strict unification, StrictUnification
-    Flogical StrictUnification = inputs.options->getValueOrDef<Flogical>(false, "StrictUnification");
+    Flogical StrictUnification = inputs.options->getValueOrDef<bool>(false, "StrictUnification");
     if(StrictUnification)
       SetStrictUnification(StrictUnification);
 
@@ -699,7 +699,7 @@ BE_NAMESPACE
     // GAMBIT: not covered
 
     // 38, set looplevel of RGEs, TwoLoopRGE
-    *TwoLoopRGE = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopRGE");
+    *TwoLoopRGE = inputs.options->getValueOrDef<bool>(true, "TwoLoopRGE");
 
     // 39, write additional SLHA1 file, Write_SLHA1
     // GABMIT: Always false, no file output
@@ -716,52 +716,52 @@ BE_NAMESPACE
     *gamW = inputs.options->getValueOrDef<Freal8>(2.06,"gamW");
 
     // 50, RotateNegativeFermionMasses
-    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<Flogical>(true,"RotateNegativeFermionMasses");
+    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<bool>(true,"RotateNegativeFermionMasses");
 
     // 51, Switch to SCKM
-    *SwitchToSCKM = inputs.options->getValueOrDef<Flogical>(false, "SwitchToSCKM");
+    *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
-    *IgnoreNegativeMasses = inputs.options->getValueOrDef<Flogical>(false, "IgnoreNegativeMasses");
+    *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
 
     // 53, Ignore negative masses at MZ
-    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<Flogical>(false, "IgnoreNegativeMassesMZ");
+    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMassesMZ");
     // 54, Write Out for non convergence
     // GAMBIT: no output
     *WriteOutputForNonConvergence = false;
 
     // 55, calculate one loop masses
-    *CalculateOneLoopMasses = inputs.options->getValueOrDef<Flogical>(true, "CalculateOneLoopMasses");
+    *CalculateOneLoopMasses = inputs.options->getValueOrDef<bool>(true, "CalculateOneLoopMasses");
 
     // 57, calculate low energy observables
     // TODO: No low energy observables yet
     *CalculateLowEnergy = false;
 
     // 58, include delta and/or BSM delta VB
-    *IncludeDeltaVB = inputs.options->getValueOrDef<Flogical>(true, "IncludeDeltaVB");
+    *IncludeDeltaVB = inputs.options->getValueOrDef<bool>(true, "IncludeDeltaVB");
     if(*IncludeDeltaVB)
-      *IncludeBSMdeltaVB = inputs.options->getValueOrDef<Flogical>(true, "IncludeBSMdeltaVB");
+      *IncludeBSMdeltaVB = inputs.options->getValueOrDef<bool>(true, "IncludeBSMdeltaVB");
 
     // 60, kinetic mixing
-    *KineticMixing = inputs.options->getValueOrDef<Flogical>(true, "KineticMixing");
+    *KineticMixing = inputs.options->getValueOrDef<bool>(true, "KineticMixing");
 
     // 61, SM running low scale input
-    *SMrunningLowScaleInput = inputs.options->getValueOrDef<Flogical>(true, "SMrunningLowScaleInput");
+    *SMrunningLowScaleInput = inputs.options->getValueOrDef<bool>(true, "SMrunningLowScaleInput");
 
     // 62,
-    *RunningSUSYparametersLowEnergy = inputs.options->getValueOrDef<Flogical>(true, "RunningSUSYparametersLowEnergy");
+    *RunningSUSYparametersLowEnergy = inputs.options->getValueOrDef<bool>(true, "RunningSUSYparametersLowEnergy");
 
     // 63,
-    *RunningSMparametersLowEnergy = inputs.options->getValueOrDef<Flogical>(true, "RunningSMparametersLowEnergy");
+    *RunningSMparametersLowEnergy = inputs.options->getValueOrDef<bool>(true, "RunningSMparametersLowEnergy");
 
     // 64
-    *WriteParametersAtQ = inputs.options->getValueOrDef<Flogical>(false, "WriteParametersAtQ");
+    *WriteParametersAtQ = inputs.options->getValueOrDef<bool>(false, "WriteParametersAtQ");
 
     // 65
     *SolutionTadpoleNr = inputs.options->getValueOrDef<Finteger>(1, "SolutionTadpoleNr");
 
     // 70
-    *SUSYrunningFromMZ = inputs.options->getValueOrDef<Flogical>(true, "SUSYrunningFromMZ");
+    *SUSYrunningFromMZ = inputs.options->getValueOrDef<bool>(true, "SUSYrunningFromMZ");
 
     // 75,  Writes the parameter file for WHIZARD
     // GAMBIT: no output
@@ -785,7 +785,7 @@ BE_NAMESPACE
     *MaxMassNumericalZero = inputs.options->getValueOrDef<Freal8>(1.0E-8, "MaxMassNumericalZero");
 
     // 95, force mass mastrices at 1-loop to be real
-    *ForceRealMatrices = inputs.options->getValueOrDef<Flogical>(false, "ForceRealMatrices");
+    *ForceRealMatrices = inputs.options->getValueOrDef<bool>(false, "ForceRealMatrices");
 
     // 510, Write tree level tadpole solutions
     // GAMBIT: no output
@@ -800,7 +800,7 @@ BE_NAMESPACE
     *WriteEffHiggsCouplingRatios = false;
 
     // 521, Higher order diboson
-    *HigherOrderDiboson = inputs.options->getValueOrDef<Flogical>(true, "HigherOrderDiboson");
+    *HigherOrderDiboson = inputs.options->getValueOrDef<bool>(true, "HigherOrderDiboson");
 
     // 525, write higgs diphoton loop contributions
     // GAMBIT: no output
@@ -815,10 +815,10 @@ BE_NAMESPACE
     *CalcFT = true;
 
     // 551, one loop FT
-    *OneLoopFT = inputs.options->getValueOrDef<Flogical>(false, "OneLoopFT");
+    *OneLoopFT = inputs.options->getValueOrDef<bool>(false, "OneLoopFT");
 
     // 990, make Q test
-    *MakeQTEST = inputs.options->getValueOrDef<Flogical>(false, "MakeQTEST");
+    *MakeQTEST = inputs.options->getValueOrDef<bool>(false, "MakeQTEST");
 
     // 000, print debug information
     // GAMBIT: no output
@@ -1294,7 +1294,7 @@ BE_INI_FUNCTION
       invalid_point().raise(message);
     }
 
-    *GenerationMixing = runOptions->getValueOrDef<Flogical>(false, "GenerationMixing");
+    *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
       
 
 }

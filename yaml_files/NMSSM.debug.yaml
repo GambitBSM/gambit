@@ -45,61 +45,61 @@ Parameters:
     ml2_11:
       fixed_value: 9000000
     ml2_12:
-      fixed_value: 9000000
+      fixed_value: 0
     ml2_13:
-      fixed_value: 9000000
+      fixed_value: 0
     ml2_22:
       fixed_value: 9000000
     ml2_23:
-      fixed_value: 9000000
+      fixed_value: 0
     ml2_33:
       fixed_value: 9000000
     me2_11:
       fixed_value: 9000000
     me2_12:
-      fixed_value: 9000000
+      fixed_value: 0
     me2_13:
-      fixed_value: 9000000
+      fixed_value: 0
     me2_22:
       fixed_value: 9000000
     me2_23:
-      fixed_value: 9000000
+      fixed_value: 0
     me2_33:
       fixed_value: 9000000
     mq2_11:
       fixed_value: 9000000
     mq2_12:
-      fixed_value: 9000000
+      fixed_value: 0
     mq2_13:
-      fixed_value: 9000000
+      fixed_value: 0
     mq2_22:
       fixed_value: 9000000
     mq2_23:
-      fixed_value: 9000000
+      fixed_value: 0
     mq2_33:
       fixed_value: 9000000
     mu2_11:
       fixed_value: 9000000
     mu2_12:
-      fixed_value: 9000000
+      fixed_value: 0
     mu2_13:
-      fixed_value: 9000000
+      fixed_value: 0
     mu2_22:
       fixed_value: 9000000
     mu2_23:
-      fixed_value: 9000000
+      fixed_value: 0
     mu2_33:
       fixed_value: 9000000
     md2_11:
       fixed_value: 9000000
     md2_12:
-      fixed_value: 9000000
+      fixed_value: 0
     md2_13:
-      fixed_value: 9000000
+      fixed_value: 0
     md2_22:
       fixed_value: 9000000
     md2_23:
-      fixed_value: 9000000
+      fixed_value: 0
     md2_33:
       fixed_value: 9000000
     Ae_11:
@@ -206,7 +206,7 @@ Rules:
     options:
       IgnoreNegativeMasses: true
       WriteOutputForNonConvergence: true
-      CalculateOneLoopMasses: false
+      CalculateOneLoopMasses: true
       drop_SLHA_file: true
 
 

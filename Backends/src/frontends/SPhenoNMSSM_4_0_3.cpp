@@ -102,7 +102,7 @@ BE_NAMESPACE
         break;
     }
 
-   if(*MatchingOrder == -1)
+    if(*MatchingOrder == -1)
     {
       // Setting values 
       *vd = *vdIN;
@@ -165,7 +165,7 @@ BE_NAMESPACE
       }
  
       // Setting Boundary conditions 
-      Flogical1 MZsuffix = false;
+      Flogical MZsuffix = false;
       SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
  
       *kap = *KappaInput;
@@ -186,7 +186,7 @@ BE_NAMESPACE
         mq2_ckm = *mq2;
         md2_ckm = *md2;
         mu2_ckm = *mu2;
-        Flogical1 True = true;
+        Flogical True = true;
         // TODO: Actual definition in SPhenoNMSSM and InputOutput is longer, may cause problems
         Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, True);
         if(*InputValueforTd) *Td = Td_out;
@@ -199,38 +199,8 @@ BE_NAMESPACE
       Farray_Fcomplex16_1_3 Tad1Loop;
       SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
  
-      cout << "g1 = " << *g1 << endl;
-      cout << "g2 = " << *g2 << endl;
-      cout << "g3 = " << *g3 << endl; 
-      cout << "Yd = " << (*Yd)(1,1).re << endl;
-      cout << "Ye = " << (*Ye)(1,1).re << endl;  
-      cout << "lam = " << lam->re << endl; 
-      cout << "kap = " << kap->re << endl; 
-      cout << "Yu = " << (*Yu)(1,1).re << endl; 
-      cout << "Td = " << (*Td)(1,1).re << endl; 
-      cout << "Te = " << (*Te)(1,1).re << endl; 
-      cout << "Tlam = " << Tlam->re << endl; 
-      cout << "Tk = " << Tk->re << endl; 
-      cout << "Tu = " << (*Tu)(1,1).re << endl; 
-      cout << "mq2 = " << (*mq2)(1,1).re << endl; 
-      cout << "ml2 = " << (*ml2)(1,1).re << endl; 
-      cout << "mHd2 = " << *mHd2 << endl; 
-      cout << "mHu2 = " << *mHu2 << endl; 
-      cout << "md2 = " << (*md2)(1,1).re << endl; 
-      cout << "mu2 = " << (*mu2)(1,1).re << endl; 
-      cout << "me2 = " << (*me2)(1,1).re << endl; 
-      cout << "ms2 = " <<  *ms2 << endl; 
-      cout << "M1 = " << M1->re << endl; 
-      cout << "M2 = " << M2->re << endl; 
-      cout << "M3 = " << M3->re << endl; 
-      cout << "vd = " << *vd << endl;
-      cout << "vu = " << *vu << endl; 
-      cout << "vS = " << *vS << endl;  
-
       OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
 
-      cout << "MSd = {" << (*MSd)(1) << ", " << (*MSd)(2) << ", " << (*MSd)(3) << ", " << (*MSd)(4) << ", " << (*MSd)(5) << ", " << (*MSd)(6) << endl;
-  
       // TODO: Add some checks for SignOfMassChanged
 
     }
@@ -836,15 +806,19 @@ BE_NAMESPACE
       for(int j=1; j<=6; j++)
       {
         slha["DSQMIX"][""] << i << j << (*ZD)(i,j).re << "# ZD(" << i << "," << j << ")";
-        slha["IMDSQMIX"][""] << i << j << (*ZD)(i,j).im << "# Im(ZD(" << i << "," << j << "))";
+        if((*ZD)(i,j).im != 0.0)
+          slha["IMDSQMIX"][""] << i << j << (*ZD)(i,j).im << "# Im(ZD(" << i << "," << j << "))";
         slha["USQMIX"][""] << i << j << (*ZU)(i,j).re << "# ZU(" << i << "," << j << ")";
-        slha["IMUSQMIX"][""] << i << j << (*ZU)(i,j).im << "# Im(ZU(" << i << "," << j << "))";
+        if((*ZU)(i,j).im != 0.0)
+          slha["IMUSQMIX"][""] << i << j << (*ZU)(i,j).im << "# Im(ZU(" << i << "," << j << "))";
         slha["SELMIX"][""] << i << j << (*ZE)(i,j).re << "# ZE(" << i << "," << j << ")";
-        slha["IMSELMIX"][""] << i << j << (*ZE)(i,j).im << "# Im(ZE(" << i << "," << j << "))";
+        if((*ZE)(i,j).im != 0.0)
+          slha["IMSELMIX"][""] << i << j << (*ZE)(i,j).im << "# Im(ZE(" << i << "," << j << "))";
         if(i<=3 and j<=3)
         {
           slha["SNUMIX"][""] << i << j << (*ZV)(i,j).re << "# ZV(" << i << "," << j << ")";
-          slha["IMSNUMIX"][""] << i << j << (*ZV)(i,j).im << "# Im(ZV(" << i << "," << j << "))";
+          if((*ZV)(i,j).im != 0.0)
+            slha["IMSNUMIX"][""] << i << j << (*ZV)(i,j).im << "# Im(ZV(" << i << "," << j << "))";
         }
       }
 
@@ -861,9 +835,9 @@ BE_NAMESPACE
           slha["CHARGEMIX"][""] << i << j << (*ZP)(i,j) << "# ZP(" << i << "," << j << ")";
       }
 
-    // Blocks NMNIX, UMIX, VMIX
-    SLHAea_add_block(slha, "NMNMIX", Q);
-    SLHAea_add_block(slha, "INMNMIX", Q);
+    // Blocks NMIX, UMIX, VMIX
+    SLHAea_add_block(slha, "NMIX", Q);
+    SLHAea_add_block(slha, "IMNMIX", Q);
     SLHAea_add_block(slha, "UMIX", Q);
     SLHAea_add_block(slha, "IMUMIX", Q);
     SLHAea_add_block(slha, "VMIX", Q);
@@ -872,13 +846,16 @@ BE_NAMESPACE
       for(int j=1; j<=5; j++)
       {
         slha["NMIX"][""] << i << j << (*ZN)(i,j).re << "# ZN(" << i << "," << j << ")";
-        slha["IMNMIX"][""] << i << j << (*ZN)(i,j).im << "# Im(ZN(" << i << ", " << j << "))";
+        if((*ZN)(i,j).im != 0.0)
+          slha["IMNMIX"][""] << i << j << (*ZN)(i,j).im << "# Im(ZN(" << i << ", " << j << "))";
         if(i <= 2 and j <= 2)
         {
           slha["UMIX"][""] << i << j << (*UM)(i,j).re << "# UM(" << i << "," << j << ")";
-          slha["IMUMIX"][""] << i << j << (*UM)(i,j).im << "# Im(UM(" << i << "," << j << "))";
+          if((*UM)(i,j).im != 0.0)
+            slha["IMUMIX"][""] << i << j << (*UM)(i,j).im << "# Im(UM(" << i << "," << j << "))";
           slha["VMIX"][""] << i << j << (*UP)(i,j).re << "# UP(" << i << "," << j << ")";
-          slha["IMVMIX"][""] << i << j << (*UP)(i,j).im << "# Im(UP(" << i << "," << j << "))";
+          if((*UP)(i,j).im != 0.0)
+            slha["IMVMIX"][""] << i << j << (*UP)(i,j).im << "# Im(UP(" << i << "," << j << "))";
         }
       }
 
@@ -1008,7 +985,7 @@ BE_NAMESPACE
     *ErrorLevel = 0;
 
     // 2, SPA_convention
-    *SPA_convention = inputs.options->getValueOrDef<Flogical>(false, "SPA_convention");
+    *SPA_convention = inputs.options->getValueOrDef<bool>(false, "SPA_convention");
     if(*SPA_convention)
     {
       Freal8 scale = 1.0E6;
@@ -1031,7 +1008,7 @@ BE_NAMESPACE
     *RXiNew = inputs.options->getValueOrDef<Freal8>(1.0, "RXiNew");
 
     // 7, Caclulate Two Loop Higgs Masses
-    *CalculateTwoLoopHiggsMasses = inputs.options->getValueOrDef<Flogical>(true, "CalculateTwoLoopHiggsMasses");
+    *CalculateTwoLoopHiggsMasses = inputs.options->getValueOrDef<bool>(true, "CalculateTwoLoopHiggsMasses");
 
     // 8, Two Loop method 
     *TwoLoopMethod = inputs.options->getValueOrDef<Finteger>(3, "TwoLoopMethod");
@@ -1059,7 +1036,7 @@ BE_NAMESPACE
     }
 
     // 9, GaugelessLimit
-    *GaugelessLimit = inputs.options->getValueOrDef<Flogical>(true, "GaugelessLimit");
+    *GaugelessLimit = inputs.options->getValueOrDef<bool>(true, "GaugelessLimit");
 
     // 400, hstep_pn
     *hstep_pn = inputs.options->getValueOrDef<Freal8>(0.1, "hstep_pn");
@@ -1071,11 +1048,11 @@ BE_NAMESPACE
     *TwoLoopRegulatorMass = inputs.options->getValueOrDef<Freal8>(0.0, "TwoLoopRegulatorMass"); 
 
    // 10, TwoLoopSafeMode
-    *TwoLoopSafeMode = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopSafeMode");
+    *TwoLoopSafeMode = inputs.options->getValueOrDef<bool>(true, "TwoLoopSafeMode");
 
     // 11, whether to calculate branching ratios or not, L_BR
     // TODO: Branching ratios, not covered yet
-    //*L_BR = inputs.options->getValueOrDef<Flogical>(false, "L_BR");
+    //*L_BR = inputs.options->getValueOrDef<bool>(false, "L_BR");
     *L_BR = false;
 
 
@@ -1101,11 +1078,11 @@ BE_NAMESPACE
     *MatchingOrder = inputs.options->getValueOrDef<Finteger>(-2, "MatchingOrder");
 
     // 20, GetMassUncertainty
-    *GetMassUncertainty = inputs.options->getValueOrDef<Flogical>(false, "GetMassUncertainty");
+    *GetMassUncertainty = inputs.options->getValueOrDef<bool>(false, "GetMassUncertainty");
 
     // 21, whether to calculate cross sections or not, L_CS
     // TODO: Cross sections, not covered yet
-    //*L_CS = inputs.options->getValueOrDef<Flogical>(false, "L_CS");
+    //*L_CS = inputs.options->getValueOrDef<bool>(false, "L_CS");
     //*L_CS = false;
 
     // 22, CMS energy, Ecms
@@ -1142,7 +1119,7 @@ BE_NAMESPACE
     // 25, caluclate initial state radiation, ISR
     // TODO: Cross sections, not covered yet
     //if(p_act <= p_max)
-    //  (*ISR)(p_act) = inputs.options->getValueOrDef<Flogical>(false, "ISR");
+    //  (*ISR)(p_act) = inputs.options->getValueOrDef<bool>(false, "ISR");
     //
 
     // 26, minimal value such that a cross section is written out, SigMin
@@ -1157,7 +1134,7 @@ BE_NAMESPACE
        SetGUTScale(GUTScale);
 
     // 32, requires strict unification, StrictUnification
-    Flogical StrictUnification = inputs.options->getValueOrDef<Flogical>(false, "StrictUnification");
+    Flogical StrictUnification = inputs.options->getValueOrDef<bool>(false, "StrictUnification");
     if(StrictUnification)
       SetStrictUnification(StrictUnification);
 
@@ -1182,7 +1159,7 @@ BE_NAMESPACE
     // GAMBIT: not covered
 
     // 38, set looplevel of RGEs, TwoLoopRGE
-    *TwoLoopRGE = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopRGE");
+    *TwoLoopRGE = inputs.options->getValueOrDef<bool>(true, "TwoLoopRGE");
 
     // 39, write additional SLHA1 file, Write_SLHA1
     // GABMIT: Always false, no file output
@@ -1199,56 +1176,56 @@ BE_NAMESPACE
     *gamW = inputs.options->getValueOrDef<Freal8>(2.06,"gamW");
 
     // 50, RotateNegativeFermionMasses
-    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<Flogical>(true,"RotateNegativeFermionMasses");
+    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<bool>(true,"RotateNegativeFermionMasses");
 
     // 51, Switch to SCKM
-    *SwitchToSCKM = inputs.options->getValueOrDef<Flogical>(false, "SwitchToSCKM");
+    *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
-    *IgnoreNegativeMasses = inputs.options->getValueOrDef<Flogical>(false, "IgnoreNegativeMasses");
+    *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
 
     // 53, Ignore negative masses at MZ
-    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<Flogical>(false, "IgnoreNegativeMassesMZ");
+    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMassesMZ");
     // 54, Write Out for non convergence
-    *WriteOutputForNonConvergence = inputs.options->getValueOrDef<Flogical>(false, "WriteOutputForNonConvergence");
+    *WriteOutputForNonConvergence = inputs.options->getValueOrDef<bool>(false, "WriteOutputForNonConvergence");
 
     // 55, calculate one loop masses
-    *CalculateOneLoopMasses = inputs.options->getValueOrDef<Flogical>(true, "CalculateOneLoopMasses");
+    *CalculateOneLoopMasses = (long int) inputs.options->getValueOrDef<bool>(true, "CalculateOneLoopMasses");
 
     // 57, calculate low energy observables
     // TODO: No low energy observables yet
     *CalculateLowEnergy = false;
 
     // 58, include delta and/or BSM delta VB
-    *IncludeDeltaVB = inputs.options->getValueOrDef<Flogical>(true, "IncludeDeltaVB");
+    *IncludeDeltaVB = inputs.options->getValueOrDef<bool>(true, "IncludeDeltaVB");
     if(*IncludeDeltaVB)
-      *IncludeBSMdeltaVB = inputs.options->getValueOrDef<Flogical>(true, "IncludeBSMdeltaVB");
+      *IncludeBSMdeltaVB = inputs.options->getValueOrDef<bool>(true, "IncludeBSMdeltaVB");
 
     // 60, kinetic mixing
-    *KineticMixing = inputs.options->getValueOrDef<Flogical>(true, "KineticMixing");
+    *KineticMixing = inputs.options->getValueOrDef<bool>(true, "KineticMixing");
 
     // 62,
-    *RunningSUSYparametersLowEnergy = inputs.options->getValueOrDef<Flogical>(true, "RunningSUSYparametersLowEnergy");
+    *RunningSUSYparametersLowEnergy = inputs.options->getValueOrDef<bool>(true, "RunningSUSYparametersLowEnergy");
 
     // 63,
-    *RunningSMparametersLowEnergy = inputs.options->getValueOrDef<Flogical>(true, "RunningSMparametersLowEnergy");
+    *RunningSMparametersLowEnergy = inputs.options->getValueOrDef<bool>(true, "RunningSMparametersLowEnergy");
 
     // 64
-    *WriteParametersAtQ = inputs.options->getValueOrDef<Flogical>(false, "WriteParametersAtQ");
+    *WriteParametersAtQ = inputs.options->getValueOrDef<bool>(false, "WriteParametersAtQ");
 
     // 65
     *SolutionTadpoleNr = inputs.options->getValueOrDef<Finteger>(1, "SolutionTadpoleNr");
 
     // 66
-    *DecoupleAtRenScale = inputs.options->getValueOrDef<Flogical>(false, "DecoupleAtRenScale");
+    *DecoupleAtRenScale = inputs.options->getValueOrDef<bool>(false, "DecoupleAtRenScale");
 
     // 67
-    *Calculate_mh_within_SM = inputs.options->getValueOrDef<Flogical>(true, "Calculate_mh_within_SM");
+    *Calculate_mh_within_SM = inputs.options->getValueOrDef<bool>(true, "Calculate_mh_within_SM");
     if(*Calculate_mh_within_SM)
-      *Force_mh_within_SM = inputs.options->getValueOrDef<Flogical>(false, "Force_mh_within_SM");
+      *Force_mh_within_SM = inputs.options->getValueOrDef<bool>(false, "Force_mh_within_SM");
 
     // 68
-    *MatchZWpoleMasses = inputs.options->getValueOrDef<Flogical>(false, "MatchZWpolemasses");
+    *MatchZWpoleMasses = inputs.options->getValueOrDef<bool>(false, "MatchZWpolemasses");
 
     // 75,  Writes the parameter file for WHIZARD
     // GAMBIT: no output
@@ -1267,7 +1244,7 @@ BE_NAMESPACE
     *OutputForMG = false;
 
     // 79, Writes Wilson coefficients in WCXF format
-    *Write_WCXF = inputs.options->getValueOrDef<Flogical>(false, "Write_WCXF");
+    *Write_WCXF = inputs.options->getValueOrDef<bool>(false, "Write_WCXF");
 
     // 80, exit for sure with non-zero value if problem occurs, Non_Zero_Exit
     // GAMBIT: never brute exit, let GAMBIT do a controlled exit
@@ -1283,19 +1260,19 @@ BE_NAMESPACE
     *MaxMassNumericalZero = inputs.options->getValueOrDef<Freal8>(1.0E-8, "MaxMassNumericalZero");
 
     // 95, force mass mastrices at 1-loop to be real
-    *ForceRealMatrices = inputs.options->getValueOrDef<Flogical>(false, "ForceRealMatrices");
+    *ForceRealMatrices = inputs.options->getValueOrDef<bool>(false, "ForceRealMatrices");
 
     // 150, use 1l2lshifts
-    *include1l2lshift=inputs.options->getValueOrDef<Flogical>(false,"include1l2lshift");
+    *include1l2lshift=inputs.options->getValueOrDef<bool>(false,"include1l2lshift");
 
     // 151
-    *NewGBC=inputs.options->getValueOrDef<Flogical>(true,"NewGBC");
+    *NewGBC=inputs.options->getValueOrDef<bool>(true,"NewGBC");
  
     // 440
-    *TreeLevelUnitarityLimits=inputs.options->getValueOrDef<Flogical>(true,"TreeLevelUnitarityLimits");
+    *TreeLevelUnitarityLimits=inputs.options->getValueOrDef<bool>(true,"TreeLevelUnitarityLimits");
  
     // 441
-    *TrilinearUnitarity=inputs.options->getValueOrDef<Flogical>(true,"TrilinearUnitarity");
+    *TrilinearUnitarity=inputs.options->getValueOrDef<bool>(true,"TrilinearUnitarity");
  
     // 442
     *unitarity_s_min = inputs.options->getValueOrDef<Freal8>(2000,"unitarity_s_min");
@@ -1307,7 +1284,7 @@ BE_NAMESPACE
     *unitarity_steps = inputs.options->getValueOrDef<Finteger>(5,"unitarity_steps");
  
     // 445
-    *RunRGEs_unitarity=inputs.options->getValueOrDef<Flogical>(false,"RunRGEs_unitarity");
+    *RunRGEs_unitarity=inputs.options->getValueOrDef<bool>(false,"RunRGEs_unitarity");
  
     // 446
     *TUcutLevel = inputs.options->getValueOrDef<Finteger>(2,"TUcutLevel");
@@ -1325,10 +1302,10 @@ BE_NAMESPACE
     *WriteEffHiggsCouplingRatios = false;
 
     // 521, Higher order diboson
-    *HigherOrderDiboson = inputs.options->getValueOrDef<Flogical>(true, "HigherOrderDiboson");
+    *HigherOrderDiboson = inputs.options->getValueOrDef<bool>(true, "HigherOrderDiboson");
 
     // 522
-    *PoleMassesInLoops = inputs.options->getValueOrDef<Flogical>(true, "PoleMassesInLoops");
+    *PoleMassesInLoops = inputs.options->getValueOrDef<bool>(true, "PoleMassesInLoops");
 
     // 525, write higgs diphoton loop contributions
     // GAMBIT: no output
@@ -1343,16 +1320,16 @@ BE_NAMESPACE
     *CalcFT = true;
 
     // 551, one loop FT
-    *OneLoopFT = inputs.options->getValueOrDef<Flogical>(false, "OneLoopFT");
+    *OneLoopFT = inputs.options->getValueOrDef<bool>(false, "OneLoopFT");
 
     // 990, make Q test
-    *MakeQTEST = inputs.options->getValueOrDef<Flogical>(false, "MakeQTEST");
+    *MakeQTEST = inputs.options->getValueOrDef<bool>(false, "MakeQTEST");
 
     // 000, print debug information
     // GAMBIT: no output
     *PrintDebugInformation = false;
 
- 
+
     /**********************/
     /* Block DECAYOPTIONS */
     /**********************/
@@ -1864,7 +1841,7 @@ BE_INI_FUNCTION
       invalid_point().raise(message);
     }
 
-    *GenerationMixing = runOptions->getValueOrDef<Flogical>(false, "GenerationMixing");
+    *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
 
     if(Param.find("Qin") != Param.end())
     {

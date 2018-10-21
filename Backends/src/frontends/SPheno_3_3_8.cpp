@@ -724,7 +724,7 @@ BE_NAMESPACE
     *ErrorLevel = 0;
 
     // 2, SPA_convention
-    *SPA_convention = inputs.options->getValueOrDef<Flogical>(false, "SPA_convention");
+    *SPA_convention = inputs.options->getValueOrDef<bool>(false, "SPA_convention");
     if(*SPA_convention)
     {
       Freal8 scale = 1E6;
@@ -766,7 +766,7 @@ BE_NAMESPACE
 
     // 11, whether to calculate branching ratios or not, L_BR
     // TODO: Branching ratios, not covered yet
-    //*L_BR = inputs.options->getValueOrDef<Flogical>(false, "L_BR");
+    //*L_BR = inputs.options->getValueOrDef<bool>(false, "L_BR");
     *L_BR = false;
 
     // 12, minimal value such that a branching ratio is written out, BRMin
@@ -781,7 +781,7 @@ BE_NAMESPACE
 
     // 21, whether to calculate cross sections or not, L_CS
     // TODO: Cross sections, not covered yet
-    //*L_CS = inputs.options->getValueOrDef<Flogical>(false, "L_CS");
+    //*L_CS = inputs.options->getValueOrDef<bool>(false, "L_CS");
     //*L_CS = false;
 
     // 22, CMS energy, Ecms
@@ -818,7 +818,7 @@ BE_NAMESPACE
     // 25, caluclate initial state radiation, ISR
     // TODO: Cross sections, not covered yet
     //if(p_act <= p_max)
-    //  (*ISR)(p_act) = inputs.options->getValueOrDef<Flogical>(false, "ISR");
+    //  (*ISR)(p_act) = inputs.options->getValueOrDef<bool>(false, "ISR");
     //
 
     // 26, minimal value such that a cross section is written out, SigMin
@@ -833,7 +833,7 @@ BE_NAMESPACE
        SetGUTScale(GUTScale);
 
     // 32, requires strict unification, StrictUnification
-    Flogical StrictUnification = inputs.options->getValueOrDef<Flogical>(false, "StrictUnification");
+    Flogical StrictUnification = inputs.options->getValueOrDef<bool>(false, "StrictUnification");
     if(StrictUnification)
       SetStrictUnification(StrictUnification);
 
@@ -851,7 +851,7 @@ BE_NAMESPACE
     // GAMBIT: not covered
 
     // 38, set looplevel of RGEs, TwoLoopRGE
-    *TwoLoopRGE = inputs.options->getValueOrDef<Flogical>(true, "TwoLoopRGE");
+    *TwoLoopRGE = inputs.options->getValueOrDef<bool>(true, "TwoLoopRGE");
 
     // 39, write additional SLHA1 file, Write_SLHA1
     // GABMIT: Always false, no file output
@@ -877,12 +877,12 @@ BE_NAMESPACE
 
     // 90, add R-parity at low energies, Add_RParity
     // TODO: RParity, not covered yet
-    //*Add_RParity = inputs.options->getValueOrDef<Flogical>(false, "Add_RParity");
+    //*Add_RParity = inputs.options->getValueOrDef<bool>(false, "Add_RParity");
     *Add_RParity = false;
 
     // 91, fit RP parameters such that neutrino data are ok, L_Fit_RP_Parameters
     // TODO: RParity, not covered yet
-    //*L_Fit_RP_Parameters = inputs.options->getValueOrDef<Flogical>(false, "L_Fit_RP_Parameters");
+    //*L_Fit_RP_Parameters = inputs.options->getValueOrDef<bool>(false, "L_Fit_RP_Parameters");
     *L_Fit_RP_Parameters = false;
 
     // 92, for Pythia input, L_RP_Pythia
@@ -890,7 +890,7 @@ BE_NAMESPACE
 
     // 93, calculates cross section in case of RP, only partially implemented, L_CSrp
     // TODO: RParity and Cross Sections, not covered yet
-    //*L_CSrp = inputs.options->getValueOrDef<Flogical>(false, "L_CSrp");
+    //*L_CSrp = inputs.options->getValueOrDef<bool>(false, "L_CSrp");
     *L_CSrp = false;
 
     // 94, io_RP
@@ -900,12 +900,12 @@ BE_NAMESPACE
     // GAMBIT: always false, no file output, private variable, cannot import
 
     // 100, use bsstep instead of rkqs, Use_bsstep_instead_of_rkqs
-    Flogical bsstep = inputs.options->getValueOrDef<Flogical>(false, "Use_bsstep_instead_of_rkqs");
+    Flogical bsstep = inputs.options->getValueOrDef<bool>(false, "Use_bsstep_instead_of_rkqs");
     if(bsstep)
       Set_Use_bsstep_instead_of_rkqs(bsstep);
 
     // 101, use rzextr instead of pzextr, Use_rzextr_instead_of_pzextr
-    Flogical rzextr = inputs.options->getValueOrDef<Flogical>(false, "Use_rzextr_instead_of_pzextr");
+    Flogical rzextr = inputs.options->getValueOrDef<bool>(false, "Use_rzextr_instead_of_pzextr");
     if(rzextr)
       Set_Use_rzextr_instead_of_pzextr(rzextr);
 
