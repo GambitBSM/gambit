@@ -22,6 +22,10 @@
 #    \date 2014 Jan, Nov
 #    \date 2015 Feb
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#    \date 2018 Oct
+#
 #*********************************************
 import os
 import re
@@ -30,6 +34,7 @@ import sys
 import getopt
 import itertools
 import shutil
+import ctypes
 
 default_bossed_versions = "./Backends/include/gambit/Backends/default_bossed_versions.hpp"
 equiv_config = "./config/resolution_type_equivalency_classes.yaml"
@@ -67,7 +72,12 @@ def get_type_equivalencies(nses):
                 ns = key+"_"+nses[key]+"::"
                 if member.startswith(ns): member = member[len(ns):]
                 member = re.sub("\s"+ns," ",member)
-                equivalency_class.add(member)
+
+              # If the type is an alias of a native int then add int to the equivalency class
+              if re.match("int[0-9]+_t", member):
+                if ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
+                  equivalency_class.add('int')
+              equivalency_class.add(member)
             for member in equivalency_class: result[member] = list(equivalency_class)
     return result
 
@@ -348,8 +358,8 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
             cmd_i = command_index[splitline[0]]
             if splitline[cmd_i].strip() in qualifier_list:
                 splitline[cmd_i:cmd_i+2] = [" ".join(splitline[cmd_i:cmd_i+2])]
-
             functor_template_types = list([strip_ws(splitline[command_index[splitline[0]]], qualifier_list)])
+            #print be_typeset
             functor_template_types[0] = first_simple_type_equivalent(functor_template_types[0],equiv_classes,equiv_ns,be_typeset)
             if splitline[0].endswith("FUNCTION"):
                 #Get the argument types out of a BE_FUNCTION or BE_CONV_FUNCTION command
@@ -376,7 +386,6 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
         new_candidate_types = []
         for candidate_type in candidate_types:
           new_candidate_types.append(re.sub("^Gambit::", "", candidate_type))
-
         #Iterate over all the candidate types and check if they are defined.
         for candidate_type in new_candidate_types:
             candidate_type = first_simple_type_equivalent(strip_ws(candidate_type, qualifier_list),equiv_classes,equiv_ns,be_typeset)
@@ -388,13 +397,11 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
                 be_typeset.add(candidate_type)
             # Replace the argument types in the functor_template_types with the fully-qualified versions if required.
             functor_template_types = [candidate_type if entry == initial_candidate else entry for entry in functor_template_types]
-
         ptr_args = ",".join(functor_template_types[1:])
         arg_list = ",".join([x for x in functor_template_types[1:] if x != "..."])
         type_pack = functor_template_types[0] + "(*)(" + ptr_args + ")," + functor_template_types[0]
         if arg_list != "": type_pack += "," + arg_list
         type_pack_set.add(type_pack)
-
 
 # Harvest the list of rollcall headers to be searched, and the list of type headers to be searched.
 def get_headers(path,header_set,exclude_set,verbose=False):
