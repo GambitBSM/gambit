@@ -47,8 +47,8 @@ endif
 ${shared}:
 	cd ../src ; ${MAKE} F90=${F90}
 	${MAKE} F90=${F90} ${name}
-	${MAKE} F90=${F90} SPhenoNMSSM.o
-	${F90} -shared -o ../${shared} ${LFlagsB} SPhenoNMSSM.o ../lib/libSPhenoNMSSMEFT.a ../lib/libSPheno.a
+	${MAKE} F90=${F90} SPhenoNMSSMEFT.o
+	${F90} -shared -o ../${shared} ${LFlagsB} SPhenoNMSSMEFT.o ../lib/libSPhenoNMSSMEFT.a ../lib/libSPheno.a
 bin/SPhenoNMSSMEFT:
 ifeq (${cVersion},1)
 	 cd ../src ; ${MAKE} F90=${F90} 
