@@ -598,6 +598,13 @@ namespace Gambit
 
       gsl_matrix_complex_free(temp_l);
 
+      gsl_matrix_complex_free(y_u_dagger);
+      gsl_matrix_complex_free(y_d_dagger);
+      gsl_matrix_complex_free(y_l_dagger);
+      gsl_matrix_complex_free(y_u_dagger);
+      gsl_matrix_complex_free(y_d_dagger);
+      gsl_matrix_complex_free(y_l_dagger);
+
       trace.push_back(tr_u);
       trace.push_back(tr_d);
       trace.push_back(tr_l);
