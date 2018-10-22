@@ -2,19 +2,19 @@
 //   *********************************************
 ///  \file
 ///
-///  Backend macros for SPheno (SARAH version) for the NMSSM 
+///  Backend macros for SPheno (SARAH version) for the NMSSM
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Tomas Gonzalo 
+///
+///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Sep
 ///
 ///  *********************************************
 
-#define BACKENDNAME SPhenoNMSSM
+#define BACKENDNAME SARAH-SPheno_NMSSM
 #define BACKENDLANG FORTRAN
 #define VERSION 4.0.3
 #define SARAH_VERSION 4.13.0
@@ -39,17 +39,17 @@ BE_FUNCTION(CalculateRunningMasses, void, (Farray_Freal8_1_3&, //mf_l_in
                                         Freal8&, // Qhigh
                                         Farray_Freal8_1_3&, // mf_l_out
                                         Farray_Freal8_1_3&, // mf_d_out
-                                        Farray_Freal8_1_3&, // mf_u_out 
+                                        Farray_Freal8_1_3&, // mf_u_out
                                         Finteger&), //kont))
 	 "__standardmodel_MOD_calculaterunningmasses", "SPhenoNMSSM_internal")
-BE_FUNCTION(SetMatchingConditions, void, 
+BE_FUNCTION(SetMatchingConditions, void,
         (Freal8&, // g1SM
          Freal8&, // g2SM
          Freal8&, // g3SM
          Farray_Fcomplex16_1_3_1_3&, // YuSM
          Farray_Fcomplex16_1_3_1_3&, // YdSM
          Farray_Fcomplex16_1_3_1_3&, // YeSM
-         Freal8&, // vSM 
+         Freal8&, // vSM
          Freal8&, // vd
          Freal8&, // vu
          Freal8&, // vS
@@ -79,7 +79,7 @@ BE_FUNCTION(SetMatchingConditions, void,
          Fcomplex16&, // M3
          Flogical& // MZsuffix
         ), "__model_data_nmssm_MOD_setmatchingconditions", "SPhenoNMSSM_internal")
-BE_FUNCTION(Switch_from_superCKM, void, 
+BE_FUNCTION(Switch_from_superCKM, void,
         (Farray_Fcomplex16_1_3_1_3&, // Yd_ckm
          Farray_Fcomplex16_1_3_1_3&, // Yu_ckm
          Farray_Fcomplex16_1_3_1_3&, // Td_ckm
@@ -94,7 +94,7 @@ BE_FUNCTION(Switch_from_superCKM, void,
          Farray_Fcomplex16_1_3_1_3&, // mu2_out
          Flogical& // Tranposed
         ), "__sphenonmssm_MOD_switch_from_superckm", "SPhenoNMSSM_internal")
-BE_FUNCTION(SolveTadpoleEquations, void, 
+BE_FUNCTION(SolveTadpoleEquations, void,
         (Freal8&, // g1
          Freal8&, // g2
          Freal8&, // g3
@@ -124,7 +124,7 @@ BE_FUNCTION(SolveTadpoleEquations, void,
          Freal8&, //vS
          Farray_Fcomplex16_1_3& // Tad1Loop
         ), "__tadpoles_nmssm_MOD_solvetadpoleequations", "SPhenoNMSSM_internal")
-BE_FUNCTION(OneLoopMasses, void, 
+BE_FUNCTION(OneLoopMasses, void,
         (Farray_Freal8_1_3&, // MAh
          Farray_Freal8_1_3&, // MAh2
          Farray_Freal8_1_2&, // MCha
@@ -206,7 +206,7 @@ BE_FUNCTION(OneLoopMasses, void,
          Fcomplex16&, //M3
          Finteger& //  kont
         ), "__loopmasses_nmssm_MOD_oneloopmasses", "SPhenoNMSSM_internal")
-BE_FUNCTION(CalculateSpectrum, void, 
+BE_FUNCTION(CalculateSpectrum, void,
 	(Finteger&, // n_run
 	 Freal8&, // delta_mass
 	 Flogical&, // WriteOut
@@ -292,7 +292,7 @@ BE_FUNCTION(CalculateSpectrum, void,
          Fcomplex16&, // M3
          Freal8& //  m_GUT
 	), "__sphenonmssm_MOD_calculatespectrum", "SPhenoNMSSM_internal")
-BE_FUNCTION(GetScaleUncertainty, void, 
+BE_FUNCTION(GetScaleUncertainty, void,
 	(Freal8&, // delta_mass
 	 Flogical&, // WriteOut
 	 Finteger&, // kont
@@ -389,7 +389,7 @@ BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_sety
 BE_FUNCTION(Set_Use_rzextr_instead_of_pzextr, Flogical, (Flogical&), "__mathematics_MOD_set_use_rzextr_instead_of_pzextr", "SPhenoNMSSM_internal")*/
 BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SPhenoNMSSM_internal")
 
-BE_FUNCTION(CalculateBR, void, 
+BE_FUNCTION(CalculateBR, void,
 	(Flogical&, // CalcTBD
          Freal8&, // ratioWoM
          Freal8&, // epsI
@@ -568,7 +568,7 @@ BE_VARIABLE(MaxMassLoop, Freal8, "__settings_MOD_maxmassloop", "SPhenoNMSSM_inte
 BE_VARIABLE(MaxMassNumericalZero, Freal8, "__settings_MOD_maxmassnumericalzero", "SPhenoNMSSM_internal")
 BE_VARIABLE(ForceRealMatrices, Flogical, "__settings_MOD_forcerealmatrices", "SPhenoNMSSM_internal")
 BE_VARIABLE(include1l2lshift, Flogical, "__settings_MOD_include1l2lshift", "SPhenoNMSSM_internal")
-BE_VARIABLE(NewGBC, Flogical,"__settings_MOD_newgbc", "SPhenoNMSSM_internal") 
+BE_VARIABLE(NewGBC, Flogical,"__settings_MOD_newgbc", "SPhenoNMSSM_internal")
 BE_VARIABLE(TreeLevelUnitarityLimits, Flogical, "__model_data_nmssm_MOD_treelevelunitaritylimits", "SPhenoNMSSM_internal")
 BE_VARIABLE(TrilinearUnitarity, Flogical, "__model_data_nmssm_MOD_trilinearunitarity", "SPhenoNMSSM_internal")
 BE_VARIABLE(unitarity_s_min, Freal8, "__model_data_nmssm_MOD_unitarity_s_min", "SPhenoNMSSM_internal")

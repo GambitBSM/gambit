@@ -2,19 +2,19 @@
 //   *********************************************
 ///  \file
 ///
-///  Backend macros for SPheno (SARAH version) for the MSSM 
+///  Backend macros for SPheno (SARAH version) for the MSSM
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Tomas Gonzalo 
+///
+///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Dec
 ///
 ///  *********************************************
 
-#define BACKENDNAME SPhenoMSSM
+#define BACKENDNAME SARAH-SPheno_MSSM
 #define BACKENDLANG FORTRAN
 #define VERSION 3.3.8
 #define SARAH_VERSION 4.8.1
@@ -39,10 +39,10 @@ BE_FUNCTION(CalculateRunningMasses, void, (Farray_Freal8_1_3&, //mf_l_in
                                         Freal8&, // Qhigh
                                         Farray_Freal8_1_3&, // mf_l_out
                                         Farray_Freal8_1_3&, // mf_d_out
-                                        Farray_Freal8_1_3&, // mf_u_out 
+                                        Farray_Freal8_1_3&, // mf_u_out
                                         Finteger&), //kont))
 	 "__standardmodel_MOD_calculaterunningmasses", "SPhenoMSSM_internal")
-BE_FUNCTION(CalculateSpectrum, void, 
+BE_FUNCTION(CalculateSpectrum, void,
 	(Finteger&, // n_run
 	 Freal8&, // delta
 	 Flogical&, // WriteOut
@@ -142,7 +142,7 @@ BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_mssm_MOD_a
          Farray_Fcomplex16_1_3_1_3&, // Y_l
          Farray_Fcomplex16_1_3_1_3&, // Y_d
          Farray_Fcomplex16_1_3_1_3&, // Y_u
-         Farray_Fcomplex16_1_3_1_3&, // A_l 
+         Farray_Fcomplex16_1_3_1_3&, // A_l
          Farray_Fcomplex16_1_3_1_3&, // A_d
          Farray_Fcomplex16_1_3_1_3&, // A_u
          Farray_Fcomplex16_1_3&, // Mi
@@ -187,11 +187,11 @@ BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&), "__loopcouplings_mssm_MOD_a
          Freal8&, // BrTau3e
          Freal8&, // BrTau3Mu
          Freal8&, // BR_Z_e_mu
-         Freal8&, // BR_Z_e_tau 
+         Freal8&, // BR_Z_e_tau
          Freal8& // BR_Z_mu_tau
-       ), "__lowenergy_MOD_low_energy_constraints_mssm", "SPhenoMSSM_internal")    
+       ), "__lowenergy_MOD_low_energy_constraints_mssm", "SPhenoMSSM_internal")
 
-BE_FUNCTION(CalculateBR_MSSM, void, 
+BE_FUNCTION(CalculateBR_MSSM, void,
 	(Finteger&, // n_nu
          Farray_Finteger_1_3&, // id_nu
          Finteger&, // n_l
@@ -270,7 +270,7 @@ BE_FUNCTION(CalculateCrossSectionsMSSM, void,
          Fstring<20>&, // "Tesla800"
          Farray_Freal8_1_6&, //  mSup
          Farray_Fcomplex16_1_6_1_6&, // RSup
-         Farray_Freal8_1_3&, // mf_u 
+         Farray_Freal8_1_3&, // mf_u
          Farray_Freal8_1_6&, // mSdown
          Farray_Fcomplex16_1_6_1_6&, // RSdown
          Farray_Freal8_1_3&, // mf_d
@@ -288,7 +288,7 @@ BE_FUNCTION(CalculateCrossSectionsMSSM, void,
          Farray_Fcomplex16_1_2_1_2&, // U
          Farray_Fcomplex16_1_2_1_2&, // V
          Farray_Freal8_1_4&, // mChi0
-         Farray_Fcomplex16_1_4_1_4&, // N 
+         Farray_Fcomplex16_1_4_1_4&, // N
          Farray_Freal8_1_2_1_2&, // SigC
          Farray_Freal8_1_4_1_4&, // SigChi0
          Farray_Freal8_1_2&, // mS0

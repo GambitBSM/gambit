@@ -1,0 +1,78 @@
+diff -rupN SPheno-4.0.3/Makefile ../installed/sarah-spheno/4.0.3/NMSSMEFT/Makefile
+--- SPheno-4.0.3/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/Makefile	2018-10-22 18:14:23.190954520 +0100
+@@ -9,10 +9,13 @@
+ F90 = ifort
+ Model = src
+ version = 400.00
++all: bin/SPheno lib/libSPhenoNMSSMEFT.so
+ bin/SPheno:
+-	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
++	cd ${Model} ; ${MAKE} F90=${F90} comp=${FFLAGS} version=${version}
++lib/libSPhenoNMSSMEFT.so:
++	cd ${Model} ; ${MAKE} $@ F90=${F90} comp=${FFLAGS} version=${version}
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno lib/*.a *.o *~ */*.o */*~ include/*
+-.PHONY: bin/SPheno clean cleanall
++	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
++.PHONY: bin/SPheno lib/libSPhenoNMSSMEFT clean cleanall
+diff -rupN SPheno-4.0.3/src/Control.F90 ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Control.F90
+--- SPheno-4.0.3/src/Control.F90	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Control.F90	2018-10-22 16:19:50.732501247 +0100
+@@ -631,7 +631,7 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
+-  Stop "Subroutine TerminateProgram"
++ ! Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
+ 
+diff -rupN SPheno-4.0.3/src/Makefile ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Makefile
+--- SPheno-4.0.3/src/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Makefile	2018-10-22 18:07:15.616109671 +0100
+@@ -17,32 +17,32 @@ LFlagsB = -O
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fPIC
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fPIC
+ endif
+  
+ .SUFFIXES : .o .ps .f90 .F90 .a
