@@ -122,8 +122,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 2000
-      tol: 0.1
+      nlive: 250
+      tol: 0.8
       updInt: 1
 
       # No options to set, but still need the nodes at the moment...
@@ -137,8 +137,24 @@ Scanner:
 
 ObsLikes:
 
-    # ----- likelihoods ----
+    - purpose: LogLike
+      capability: global_minimum_discriminant_likelihood
+      
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
 
+    - purpose:    LogLike
+      capability: alignment_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+
+    - purpose: LogLike
+      capability: NLO_unitarity_likelihood_THDM
+      
     # - capability: theoretical_constraint_likelihood_THDM
     #   purpose: LogLike
 
@@ -148,30 +164,6 @@ ObsLikes:
     # - capability: test_THDM_spectrum_2
     #   purpose: LogLike
 
-    ## CURRENT SCAN
-
-    - capability: global_minimum_discriminant_likelihood
-      purpose: LogLike
-
-    - purpose:    LogLike
-      capability: unitarity_constraint_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: alignment_limit_likelihood_THDM
-
-    # - purpose:    LogLike
-    #   capability: perturbativity_constraint_likelihood_THDM
-    #   function: get_perturbativity_constraint_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: stability_constraint_likelihood_THDM
-      function: get_stability_likelihood_THDM
-
-    - capability: NLO_unitarity_constraint_likelihood_THDM
-      purpose: LogLike
-
-    ## END
-    #
     # - purpose:    LogLike
     #   capability: oblique_parameters_likelihood_THDM
     
@@ -183,7 +175,6 @@ ObsLikes:
     #   funtion: b2sll_likelihood
     #   purpose: LogLike
 
-    
     # - capability: SL_LL
     #   funtion: SL_likelihood
     #   purpose: LogLike
@@ -208,10 +199,6 @@ ObsLikes:
 
 
   # ----- observables ----
-
-    # - capability: THDM_Higgs_Decays_output
-    #   function: printGammaGamma_h0_2_THDM_HB
-    #   purpose: Observable
 
     - purpose: Observable
       capability: lambda1_coupling_basis
@@ -258,43 +245,37 @@ ObsLikes:
     # - capability: bsgamma
     #   function: SI_bsgamma
     #   purpose: Observable
-
-
+    # - capability: THDM_Higgs_Decays_output
+    #   function: printGammaGamma_h0_2_THDM_HB
+    #   purpose: Observable
 
 Rules:
 
-    #----THDM
-    - capability: perturbativity_constraint_likelihood_THDM
-      function: get_perturbativity_constraint_likelihood_THDM
-      options:
-        atQrunToScale: true
-
-    - capability: stability_constraint_likelihood_THDM
-      function: get_stability_likelihood_THDM
-      options:
-        betweenQinAndQrunTo: true
-
-    # - capability: Higgs_decay_rates
-    #   function: h0_1_decays_THDM
-
     - module: SpecBit
       options:
-        YukawaType: 1
-
-    # - capability: h0_2_decay_rates
-    #   function: h0_2_decays_THDM
+        yukawa_type: 1
 
     - module: ColliderBit
-      options:
-        HB_analysis_type: 1
-    #
-    - capability: HiggsBounds_4_2_1_init  # Initialization of HiggsBounds backend
       options:
         HB_analysis_type: 1
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum_FS
       # function: get_THDM_spectrum #no FS spectrum calculation
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: HiggsBounds_4_2_1_init  # Initialization of HiggsBounds backend
+      options:
+        HB_analysis_type: 1
 
     - capability: THDM_Higgs_Couplings_For_HB
       function: THDM_Couplings_For_HB
@@ -316,7 +297,13 @@ Rules:
 
     - capability: SLHA_THDM
       function: fill_THDM_SLHA
+
+    # - capability: Higgs_decay_rates
+    #   function: h0_1_decays_THDM
     
+    # - capability: h0_2_decay_rates
+    #   function: h0_2_decays_THDM
+
     # - capability: SuperIso_modelinfo
     #   function: SI_fill
     
@@ -379,10 +366,6 @@ KeyValues:
     ExampleBit_A_error: non-fatal
 
   default_output_path: "runs/thdm_test/"
-
   enable_testing: true
-
   debug: true
-
   YukawaType: 2
-

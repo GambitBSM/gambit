@@ -37,7 +37,6 @@ namespace Gambit {
      std::vector<int> m4x4   = initVector(4,4); // "
      std::vector<int> m6x6   = initVector(6,6); // "
   
-
     //  addParameter(Par::mass1, "vev");
 
      addParameter(Par::dimensionless, "g1", scalar);
@@ -58,24 +57,21 @@ namespace Gambit {
     //  addParameter(Par::Pole_Mixing, "h0",    m2x2); 
     //  addParameter(Par::Pole_Mixing, "A0",    m2x2); 
     //  addParameter(Par::Pole_Mixing, "H+",    m2x2); 
-
     // addParameter(Par::Pole_Mass, "h0",    v2);
     // addParameter(Par::Pole_Mass, "A0", scalar);
     // addParameter(Par::Pole_Mass, "H+", scalar);
-
-    addParameter(Par::dimensionless, "alpha");
-    
-    addParameter(Par::mass1, "lambda_6");
-    addParameter(Par::mass1, "lambda_7");
-
-    addParameter(Par::dimensionless, "tanb");
-    addParameter(Par::mass1, "m12_2");
 
     addParameter(Par::mass1, "lambda_1");
     addParameter(Par::mass1, "lambda_2");
     addParameter(Par::mass1, "lambda_3");
     addParameter(Par::mass1, "lambda_4");
     addParameter(Par::mass1, "lambda_5");
+    addParameter(Par::mass1, "lambda_6");
+    addParameter(Par::mass1, "lambda_7");
+
+    addParameter(Par::dimensionless, "tanb");
+    addParameter(Par::dimensionless, "alpha");
+    addParameter(Par::mass1, "m12_2");
     
   }
   

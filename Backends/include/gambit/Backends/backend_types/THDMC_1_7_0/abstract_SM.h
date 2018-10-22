@@ -4,7 +4,6 @@
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <complex>
 #include <cstddef>
 #include <iostream>
 
@@ -54,23 +53,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual const double& mtau_p_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vud_ref__BOSS() =0;
+            virtual const double& Vud_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vus_ref__BOSS() =0;
+            virtual const double& Vus_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vub_ref__BOSS() =0;
+            virtual const double& Vub_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vcd_ref__BOSS() =0;
+            virtual const double& Vcd_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vcs_ref__BOSS() =0;
+            virtual const double& Vcs_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vcb_ref__BOSS() =0;
+            virtual const double& Vcb_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vtd_ref__BOSS() =0;
+            virtual const double& Vtd_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vts_ref__BOSS() =0;
+            virtual const double& Vts_ref__BOSS() =0;
     
-            virtual const std::complex<double>& Vtb_ref__BOSS() =0;
+            virtual const double& Vtb_ref__BOSS() =0;
     
             virtual void set_alpha(double) =0;
     
@@ -126,12 +125,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual double get_CKM_element(int, int) =0;
     
-            virtual ::std::complex<double> get_CKM_element_complex(int, int) =0;
-    
-            virtual void set_CKM_element(int, int, double) =0;
-    
-            virtual void set_CKM_element_complex(int, int, ::std::complex<double>) =0;
-    
             virtual void set_lmass_pole(int, double) =0;
     
             virtual void set_qmass_pole(int, double) =0;
@@ -166,6 +159,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual double get_gamma_tWd(int) =0;
     
+            virtual void set_CKM(double, double, double, double, double, double, double, double, double) =0;
+    
             virtual const double& Q_HD_ref__BOSS() =0;
     
             virtual const bool& b_HD_ref__BOSS() =0;
@@ -177,42 +172,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual const double& mb_5_ref__BOSS() =0;
     
             virtual const double& mt_5_ref__BOSS() =0;
-    
-            virtual void clear_lookup() =0;
-    
-            virtual double& m_alpha_ref__BOSS() =0;
-    
-            virtual double& m_alpha0_ref__BOSS() =0;
-    
-            virtual double& m_GF_ref__BOSS() =0;
-    
-            virtual double& m_s2tW_ref__BOSS() =0;
-    
-            virtual double& m_alpha_s_ref__BOSS() =0;
-    
-            virtual double (&m_md_p_ref__BOSS())[3] =0;
-    
-            virtual double (&m_mu_p_ref__BOSS())[3] =0;
-    
-            virtual double (&m_ml_p_ref__BOSS())[3] =0;
-    
-            virtual double& m_MW_ref__BOSS() =0;
-    
-            virtual double& m_MZ_ref__BOSS() =0;
-    
-            virtual double& m_GammaW_ref__BOSS() =0;
-    
-            virtual double& m_GammaZ_ref__BOSS() =0;
-    
-            virtual std::complex<double> (&m_CKM_ref__BOSS())[3][3] =0;
-    
-            virtual double (&m_qmass_ms_ref__BOSS())[7] =0;
-    
-            virtual double m_threshold(double) =0;
-    
-            virtual double RQ(double, int, int) =0;
-    
-            virtual double QCD_beta(int, int) =0;
     
         public:
             virtual void pointer_assign__BOSS(Abstract_SM*) =0;

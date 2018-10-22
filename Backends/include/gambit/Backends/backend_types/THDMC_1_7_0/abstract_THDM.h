@@ -23,13 +23,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual Abstract_SM* get_SM__BOSS() =0;
     
-            virtual Abstract_SM* copy_SM__BOSS() =0;
+            virtual Abstract_SM* get_SM_pointer__BOSS() =0;
+    
+            virtual bool set_param_full(double, double, double, double, double, double, double, double, double, double, double, double, double, double) =0;
     
             virtual bool set_param_gen(double, double, double, double, double, double, double, double, double) =0;
     
             virtual bool set_param_higgs(double, double, double, double, double, double, double, double) =0;
-    
-            virtual bool set_param_higgs_beta(double, double, double, double, double, double, double, double, double) =0;
     
             virtual bool set_param_hybrid(double, double, double, double, double, double, double) =0;
     
@@ -75,45 +75,43 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual void set_yukawas_lepton(double, double, double) =0;
     
-            virtual void set_yukawas_down(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_down(double, double, double, double, double, double) =0;
     
-            virtual void set_yukawas_up(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_up(double, double, double, double, double, double) =0;
     
-            virtual void set_yukawas_lepton(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_lepton(double, double, double, double, double, double) =0;
     
             virtual void set_yukawas_inert() =0;
     
-            virtual void get_yukawas_down(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_down(double&, double&, double&) =0;
     
-            virtual void get_yukawas_up(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_up(double&, double&, double&) =0;
     
-            virtual void get_yukawas_lepton(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_lepton(double&, double&, double&) =0;
     
-            virtual void get_kappa_down(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_down(double&, double&, double&) =0;
     
-            virtual void get_kappa_up(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_up(double&, double&, double&) =0;
     
-            virtual void get_kappa_lepton(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_lepton(double&, double&, double&) =0;
     
-            virtual void get_kappa_down(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_down(double, double&, double&, double&) =0;
     
-            virtual void get_kappa_up(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_up(double, double&, double&, double&) =0;
     
-            virtual void get_kappa_lepton(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_lepton(double, double&, double&, double&) =0;
     
-            virtual void get_rho_down(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_down(double, double&, double&, double&) =0;
     
-            virtual void get_rho_up(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_up(double, double&, double&, double&) =0;
     
-            virtual void get_rho_lepton(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_lepton(double, double&, double&, double&) =0;
     
             virtual void get_coupling_hdd(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
     
             virtual void get_coupling_huu(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
     
             virtual void get_coupling_hdu(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
-    
-            virtual void get_coupling_hud(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
     
             virtual void get_coupling_hll(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
     
@@ -166,6 +164,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual void write_LesHouches__BOSS(const char*, bool, bool) =0;
     
             virtual double get_alpha() =0;
+    
+            virtual void get_unitarity_conditions(double*) =0;
+    
+            virtual void get_perturbativity_conditions(double*) =0;
+    
+            virtual void get_stability_conditions(double*) =0;
+    
+            virtual int get_yukawas_type() =0;
+    
+            virtual const double& EPS_ref__BOSS() =0;
     
         public:
             virtual void pointer_assign__BOSS(Abstract_THDM*) =0;

@@ -20,12 +20,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         public:
     
-            virtual Abstract_THDM& model_ref__BOSS() =0;
-    
-            virtual Abstract_DecayTableTHDM& operator_equal__BOSS(const Abstract_DecayTableTHDM&) =0;
-    
-            virtual void init() =0;
-    
             virtual void set_model__BOSS(Abstract_THDM&) =0;
     
             virtual Abstract_THDM* get_model__BOSS() =0;

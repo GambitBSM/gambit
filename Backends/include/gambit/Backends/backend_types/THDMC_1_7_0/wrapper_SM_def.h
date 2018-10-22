@@ -1,7 +1,7 @@
 #ifndef __wrapper_SM_def_THDMC_1_7_0_h__
 #define __wrapper_SM_def_THDMC_1_7_0_h__
 
-#include <complex>
+
 
 #include "identification.hpp"
 
@@ -145,21 +145,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_CKM_element(i, j);
     }
     
-    inline ::std::complex<double> SM::get_CKM_element_complex(int i, int j)
-    {
-        return get_BEptr()->get_CKM_element_complex(i, j);
-    }
-    
-    inline void SM::set_CKM_element(int i, int j, double Vij)
-    {
-        get_BEptr()->set_CKM_element(i, j, Vij);
-    }
-    
-    inline void SM::set_CKM_element_complex(int i, int j, ::std::complex<double> Vij)
-    {
-        get_BEptr()->set_CKM_element_complex(i, j, Vij);
-    }
-    
     inline void SM::set_lmass_pole(int l, double lmass_in)
     {
         get_BEptr()->set_lmass_pole(l, lmass_in);
@@ -245,24 +230,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_gamma_tWd(d);
     }
     
-    inline void SM::clear_lookup()
+    inline void SM::set_CKM(double ckm11, double ckm12, double ckm13, double ckm21, double ckm22, double ckm23, double ckm31, double ckm32, double ckm33)
     {
-        get_BEptr()->clear_lookup();
-    }
-    
-    inline double SM::m_threshold(double as)
-    {
-        return get_BEptr()->m_threshold(as);
-    }
-    
-    inline double SM::RQ(double as, int nf, int loops)
-    {
-        return get_BEptr()->RQ(as, nf, loops);
-    }
-    
-    inline double SM::QCD_beta(int c, int nf)
-    {
-        return get_BEptr()->QCD_beta(c, nf);
+        get_BEptr()->set_CKM(ckm11, ckm12, ckm13, ckm21, ckm22, ckm23, ckm31, ckm32, ckm33);
     }
     
     
@@ -301,21 +271,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         ms_5( get_BEptr()->ms_5_ref__BOSS()),
         mc_5( get_BEptr()->mc_5_ref__BOSS()),
         mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS()),
-        m_alpha( get_BEptr()->m_alpha_ref__BOSS()),
-        m_alpha0( get_BEptr()->m_alpha0_ref__BOSS()),
-        m_GF( get_BEptr()->m_GF_ref__BOSS()),
-        m_s2tW( get_BEptr()->m_s2tW_ref__BOSS()),
-        m_alpha_s( get_BEptr()->m_alpha_s_ref__BOSS()),
-        m_md_p( get_BEptr()->m_md_p_ref__BOSS()),
-        m_mu_p( get_BEptr()->m_mu_p_ref__BOSS()),
-        m_ml_p( get_BEptr()->m_ml_p_ref__BOSS()),
-        m_MW( get_BEptr()->m_MW_ref__BOSS()),
-        m_MZ( get_BEptr()->m_MZ_ref__BOSS()),
-        m_GammaW( get_BEptr()->m_GammaW_ref__BOSS()),
-        m_GammaZ( get_BEptr()->m_GammaZ_ref__BOSS()),
-        m_CKM( get_BEptr()->m_CKM_ref__BOSS()),
-        m_qmass_ms( get_BEptr()->m_qmass_ms_ref__BOSS())
+        mt_5( get_BEptr()->mt_5_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -356,21 +312,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         ms_5( get_BEptr()->ms_5_ref__BOSS()),
         mc_5( get_BEptr()->mc_5_ref__BOSS()),
         mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS()),
-        m_alpha( get_BEptr()->m_alpha_ref__BOSS()),
-        m_alpha0( get_BEptr()->m_alpha0_ref__BOSS()),
-        m_GF( get_BEptr()->m_GF_ref__BOSS()),
-        m_s2tW( get_BEptr()->m_s2tW_ref__BOSS()),
-        m_alpha_s( get_BEptr()->m_alpha_s_ref__BOSS()),
-        m_md_p( get_BEptr()->m_md_p_ref__BOSS()),
-        m_mu_p( get_BEptr()->m_mu_p_ref__BOSS()),
-        m_ml_p( get_BEptr()->m_ml_p_ref__BOSS()),
-        m_MW( get_BEptr()->m_MW_ref__BOSS()),
-        m_MZ( get_BEptr()->m_MZ_ref__BOSS()),
-        m_GammaW( get_BEptr()->m_GammaW_ref__BOSS()),
-        m_GammaZ( get_BEptr()->m_GammaZ_ref__BOSS()),
-        m_CKM( get_BEptr()->m_CKM_ref__BOSS()),
-        m_qmass_ms( get_BEptr()->m_qmass_ms_ref__BOSS())
+        mt_5( get_BEptr()->mt_5_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -411,21 +353,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         ms_5( get_BEptr()->ms_5_ref__BOSS()),
         mc_5( get_BEptr()->mc_5_ref__BOSS()),
         mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS()),
-        m_alpha( get_BEptr()->m_alpha_ref__BOSS()),
-        m_alpha0( get_BEptr()->m_alpha0_ref__BOSS()),
-        m_GF( get_BEptr()->m_GF_ref__BOSS()),
-        m_s2tW( get_BEptr()->m_s2tW_ref__BOSS()),
-        m_alpha_s( get_BEptr()->m_alpha_s_ref__BOSS()),
-        m_md_p( get_BEptr()->m_md_p_ref__BOSS()),
-        m_mu_p( get_BEptr()->m_mu_p_ref__BOSS()),
-        m_ml_p( get_BEptr()->m_ml_p_ref__BOSS()),
-        m_MW( get_BEptr()->m_MW_ref__BOSS()),
-        m_MZ( get_BEptr()->m_MZ_ref__BOSS()),
-        m_GammaW( get_BEptr()->m_GammaW_ref__BOSS()),
-        m_GammaZ( get_BEptr()->m_GammaZ_ref__BOSS()),
-        m_CKM( get_BEptr()->m_CKM_ref__BOSS()),
-        m_qmass_ms( get_BEptr()->m_qmass_ms_ref__BOSS())
+        mt_5( get_BEptr()->mt_5_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);

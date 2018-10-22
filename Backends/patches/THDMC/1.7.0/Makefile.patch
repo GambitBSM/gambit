@@ -1,54 +1,61 @@
 --- Makefile	2015-08-28 22:39:35.000000000 +0930
-+++ Makefile_patched	2018-09-26 15:18:41.000000000 +0930
-@@ -1,28 +1,36 @@
++++ Makefile_patched	2018-10-20 20:31:07.000000000 +1030
+@@ -1,28 +1,43 @@
 -# Makefile for 2HDMC 
 +# Makefile for 2HDMC
  
  # Choose your C++ compiler here (in general g++ on Linux systems):
 -CC = g++
 -LDFLAGS=-lgsl -lgslcblas
-+CC = $(CXX)
-+LDGSLFLAGS=-lgsl -lgslcblas
-+LDFLAGS=$(LDGSLFLAGS)
++CC = g++-6
++STD = #-std=c++11
++
++GSLINCLUDE_DIR=/usr/local/Cellar/gsl/2.5/include/
++GSLLIB_DIR=/usr/local/Cellar/gsl/2.5/lib/
++LDGSLFLAGS=-L$(GSLLIB_DIR) -lgsl -lgslcblas
  
  #Optimisation level, eg: -O3
--OPT=-O3
-+OPT=
+ OPT=-O3
  #OR debug level: -g(n=1,2,3)
 -DEBUG= 
 -
 -VPATH=src 
 -
 -CFLAGS= -Wall $(DEBUG) $(OPT)
-+DEBUG=
++DEBUG=-g
++#Warning level:
++WARNING=-Wall
  
 +VPATH=src
  OBJDIR=lib
  LIBDIR=$(OBJDIR)
 -SOURCES=THDM.cpp SM.cpp DecayTable.cpp Constraints.cpp Util.cpp runTHDM.cpp
 +
-+
-+SOURCES=THDM.cpp SM.cpp DecayTableTHDM.cpp Constraints.cpp Util.cpp runTHDM.cpp BOSS_Constraints.cpp  BOSS_DecayTableTHDM.cpp  BOSS_factory_Constraints.cpp  BOSS_factory_DecayTableTHDM.cpp  BOSS_factory_SM.cpp  BOSS_factory_THDM.cpp  BOSS_SM.cpp  BOSS_THDM.cpp  BOSS_wrapperutils.cpp
++SOURCES=THDM.cpp SM.cpp DecayTableTHDM.cpp Constraints.cpp Util.cpp runTHDM.cpp 
++SOURCES+=BOSS_Constraints.cpp  BOSS_DecayTableTHDM.cpp  BOSS_factory_Constraints.cpp  BOSS_factory_DecayTableTHDM.cpp  BOSS_factory_SM.cpp  BOSS_factory_THDM.cpp  BOSS_SM.cpp  BOSS_THDM.cpp  BOSS_wrapperutils.cpp
  OBJECTS=$(SOURCES:.cpp=.o)
++
++CFLAGS= -Wall $(DEBUG) $(OPT) -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE_DIR)
++
  LIB=lib2HDMC.a
 -LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
-+LDFLAGS+=-L$(LIBDIR) -l2HDMC $(LDGSLFLAGS) -lm
- #LDFLAGS+=-L$(LIBDIR) -l2HDMC
+-#LDFLAGS+=-L$(LIBDIR) -l2HDMC
++LDFLAGS=$(LDGSLFLAGS) -L$(LIBDIR) -l2HDMC -lm
  LIBS=
  PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
  
-+BOSS_INCLUDE = -I../../../scripts/BOSS
++TEMPINCLUDE = -I../../../scripts/BOSS
 +
 +SHAREDCFLAGS = -fPIC
 +SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(LDGSLFLAGS)
 +SHAREDLIB=lib2HDMC.so
 +
-+CFLAGS= -Wall $(DEBUG) $(OPT) $(CXXFLAGS) -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE) $(SHAREDCFLAGS) $(BOSS_INCLUDE) -std=c++14
++CFLAGS= $(WARNING) $(STD) $(DEBUG) $(OPT) $(CXXFLAGS) -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE_DIR) $(SHAREDCFLAGS) $(BOSS_INCLUDE) 
 +
  # To use HiggsBounds/HiggsSignals for Higgs constraints, put the corresponding libraries
  # in the "lib" subdirectory and uncomment the following lines.
  # Note that both programs: HiggsBounds (> 4.2.0) and HiggsSignals (> 1.4.0) must be present
-@@ -30,13 +38,24 @@
+@@ -30,12 +45,23 @@
  #LDFLAGS+=-L$(LIBDIR) -lHS -lHB -lgfortran
  #SOURCES+=HBHS.cpp
  
@@ -58,8 +65,9 @@
  all: lib $(PROG)
  
  $(OBJDIR)/%.o : %.cpp %.h
- 	$(CC) $(CFLAGS) -c $< -o $@
- 
+-	$(CC) $(CFLAGS) -c $< -o $@
++	$(CC) $(CFLAGS) $(SHAREDCFLAGS) $(TEMPINCLUDE) -c $< -o $@
++
 +boss:
 +	$(CC) $(CFLAGS) -c src/BOSS_Constraints.cpp -o lib/BOSS_Constraints.o
 +	$(CC) $(CFLAGS) -c src/BOSS_DecayTableTHDM.cpp -o lib/BOSS_DecayTableTHDM.o
@@ -70,11 +78,10 @@
 +	$(CC) $(CFLAGS) -c src/BOSS_SM.cpp -o lib/BOSS_SM.o
 +	$(CC) $(CFLAGS) -c src/BOSS_THDM.cpp -o lib/BOSS_THDM.o
 +	$(CC) $(CFLAGS) -c src/BOSS_wrapperutils.cpp -o lib/BOSS_wrapperutils.o
-+
+ 
  lib: $(addprefix $(LIBDIR)/, $(LIB))
  
- $(addprefix $(LIBDIR)/, $(LIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
-@@ -46,6 +65,15 @@
+@@ -46,6 +72,15 @@
  %: %.cpp $(addprefix $(LIBDIR)/, $(LIB))
  	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
  

@@ -12,12 +12,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Member functions: 
-    inline void Constraints::init()
-    {
-        get_BEptr()->init();
-    }
-    
-    inline void Constraints::set_THDM(THDM& mod)
+    inline void Constraints::set_THDM(THDM mod)
     {
         get_BEptr()->set_THDM__BOSS(*mod.get_BEptr());
     }
@@ -67,6 +62,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->check_charged(HpHp, HpHptau, HpHpcs);
     }
     
+    inline bool Constraints::check_NMSSMTools(bool& hZ, bool& hZ2b, bool& hZ2tau, bool& hZinv, bool& hZ2j, bool& hZ2gamma, bool& hZ4b, bool& hZ4tau, bool& hZ2b2tau, bool& hA, bool& hA4b, bool& hA4tau, bool& hA2b2tau, bool& hA6b, bool& hA6tau, bool& ZhZjj)
+    {
+        return get_BEptr()->check_NMSSMTools(hZ, hZ2b, hZ2tau, hZinv, hZ2j, hZ2gamma, hZ4b, hZ4tau, hZ2b2tau, hA, hA4b, hA4tau, hA2b2tau, hA6b, hA6tau, ZhZjj);
+    }
+    
+    inline bool Constraints::check_HiggsBounds(int& HBresult, int& chan, double& obsratio, int& ncombined)
+    {
+        return get_BEptr()->check_HiggsBounds(HBresult, chan, obsratio, ncombined);
+    }
+    
     inline double Constraints::delta_amu()
     {
         return get_BEptr()->delta_amu();
@@ -89,11 +94,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Wrappers for original constructors: 
-    inline Constraints::Constraints(THDM& mod) :
-        WrapperBase(__factory0(mod)),
-        model( get_BEptr()->model_ref__BOSS().get_init_wref()),
-        sm( get_BEptr()->sm_ref__BOSS().get_init_wref()),
-        table( get_BEptr()->table_ref__BOSS().get_init_wref())
+    inline Constraints::Constraints() :
+        WrapperBase(__factory0())
+    {
+        get_BEptr()->set_wptr(this);
+        get_BEptr()->set_delete_wrapper(false);
+    }
+    
+    inline Constraints::Constraints(THDM mod) :
+        WrapperBase(__factory1(mod))
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -101,10 +110,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Special pointer-based constructor: 
     inline Constraints::Constraints(Abstract_Constraints* in) :
-        WrapperBase(in),
-        model( get_BEptr()->model_ref__BOSS().get_init_wref()),
-        sm( get_BEptr()->sm_ref__BOSS().get_init_wref()),
-        table( get_BEptr()->table_ref__BOSS().get_init_wref())
+        WrapperBase(in)
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -112,10 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Copy constructor: 
     inline Constraints::Constraints(const Constraints& in) :
-        WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
-        model( get_BEptr()->model_ref__BOSS().get_init_wref()),
-        sm( get_BEptr()->sm_ref__BOSS().get_init_wref()),
-        table( get_BEptr()->table_ref__BOSS().get_init_wref())
+        WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);

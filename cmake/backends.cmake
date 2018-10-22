@@ -790,7 +790,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# COMMENTED OUT DUE TO BUGS
+# ~~ COMMENTED OUT DUE TO BUGS ~~
 # Lilith
 # set(name "lilith")
 # set(ver "1.1.3")
@@ -815,18 +815,14 @@ endif()
 # set_as_default_version("backend" ${name} ${ver})
 
 
-
 # THDMC
 set(name "THDMC")
 set(ver "1.7.0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/THDMC/1.7.0")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/THDMC/1.7.0")
-set(dl "http://www.dingohead.com/filip/2HDMC.zip")
-set(md5 "0f6a60e58f4216886bad49da4d0d6ff8")
-# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# set(patch "${PROJECT_SOURCE_DIR}/Backaends/patches/${name}/${ver}/patch_${name}")
+set(dl "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.7.0.tar.gz")
+set(md5 "28d70cdce026eac37d947a14f6f5246c")
 set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-# set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
 check_ditch_status(${name} ${ver})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -834,9 +830,9 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch < ${patch}/Makefile.patch
-	    # COMMAND patch -s -p0 < ${patch}/src.patch
-  	  #COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
-      #COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
+	    COMMAND patch -s -p0 < ${patch}/src.patch
+  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
+      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE=${GSL_INCLUDE_DIRS} boss
     COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib
@@ -846,60 +842,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
-# THDMC-compact
-set(name "THDMC_compact")
-set(ver "1.7.0")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/THDMC_compact/1.7.0")
-set(dl "http://www.dingohead.com/filip/2HDMC_compact.zip")
-set(md5 "fae09e7949d8211bf4ac2328887a2223")
-# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-# set(patch "${PROJECT_SOURCE_DIR}/Backaends/patches/${name}/${ver}/patch_${name}")
-set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-# set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-check_ditch_status(${name} ${ver})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE=${GSL_INCLUDE_DIRS} GSLLIBS=${GSL_LIBRARIES}
-    COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-endif()
-
- 
-# THDMC
-# set(name "THDMC")
-# set(ver "1.7.0")
-# set(thdmc_dir "${PROJECT_SOURCE_DIR}/Backends/installed/2HDMC/1.7.0")
-# set(thdmc_patch "${PROJECT_SOURCE_DIR}/Backends/patches/2HDMC/1.7.0")
-# # set(lib "2hdmc")
-# set(thdmc_dl "2HDMC-1.7.0.tar.gz")
-# ExternalProject_Add(${name}_${ver}
-#   URL http://www.hepforge.org/archive/2hdmc/${thdmc_dl}
-#   URL_MD5 28d70cdce026eac37d947a14f6f5246c
-#   DOWNLOAD_DIR ${backend_download}
-#   SOURCE_DIR ${thdmc_dir}
-#   BUILD_IN_SOURCE 1
-#   DOWNLOAD_ALWAYS 0
-#   PATCH_COMMAND patch < ${thdmc_patch}/Makefile.patch
-# 	  COMMAND patch -s -p0 < ${thdmc_patch}/src.patch
-#   	COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
-#   	COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
-#   CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} boss
-# 		COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib
-#   INSTALL_COMMAND ""
-# )
-# add_extra_targets("backend" ${name} ${ver} ${thdmc_dir} ${thdmc_dl} clean)
-# set_as_default_version("backend" ${name} ${ver})
-# BOSS_backend(${name} ${ver})
-
 
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.

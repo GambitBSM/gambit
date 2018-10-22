@@ -22,20 +22,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             static Abstract_THDM* (*__factory0)();
     
             // -- Other member variables: 
+        public:
+            const double& EPS;
     
             // Member functions: 
         public:
-            void set_SM(SM& sm_in);
+            void set_SM(SM sm_in);
     
-            SM* get_SM();
+            SM get_SM();
     
-            SM copy_SM();
+            SM* get_SM_pointer();
+    
+            bool set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba);
     
             bool set_param_gen(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta);
     
             bool set_param_higgs(double Lambda1, double Lambda2, double Lambda3, double Lambda4, double Lambda5, double Lambda6, double Lambda7, double m_Hp);
-    
-            bool set_param_higgs_beta(double Lambda1, double Lambda2, double Lambda3, double Lambda4, double Lambda5, double Lambda7, double tanb, double sba, double M22_2);
     
             bool set_param_hybrid(double mh, double mH, double cba, double Z4, double Z5, double Z7, double tanb);
     
@@ -81,45 +83,43 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             void set_yukawas_lepton(double rhoe, double rhomu, double rhotau);
     
-            void set_yukawas_down(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32);
+            void set_yukawas_down(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23);
     
-            void set_yukawas_up(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32);
+            void set_yukawas_up(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23);
     
-            void set_yukawas_lepton(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32);
+            void set_yukawas_lepton(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23);
     
             void set_yukawas_inert();
     
-            void get_yukawas_down(::std::complex<double>& rhod, ::std::complex<double>& rhos, ::std::complex<double>& rhob);
+            void get_yukawas_down(double& rhod, double& rhos, double& rhob);
     
-            void get_yukawas_up(::std::complex<double>& rhou, ::std::complex<double>& rhoc, ::std::complex<double>& rhot);
+            void get_yukawas_up(double& rhou, double& rhoc, double& rhot);
     
-            void get_yukawas_lepton(::std::complex<double>& rhoe, ::std::complex<double>& rhomu, ::std::complex<double>& rhotau);
+            void get_yukawas_lepton(double& rhoe, double& rhomu, double& rhotau);
     
-            void get_kappa_down(::std::complex<double>& kd, ::std::complex<double>& ks, ::std::complex<double>& kb);
+            void get_kappa_down(double& kd, double& ks, double& kb);
     
-            void get_kappa_up(::std::complex<double>& ku, ::std::complex<double>& kc, ::std::complex<double>& kt);
+            void get_kappa_up(double& ku, double& kc, double& kt);
     
-            void get_kappa_lepton(::std::complex<double>& ke, ::std::complex<double>& kmu, ::std::complex<double>& ktau);
+            void get_kappa_lepton(double& ke, double& kmu, double& ktau);
     
-            void get_kappa_down(double mu, ::std::complex<double>& kd, ::std::complex<double>& ks, ::std::complex<double>& kb);
+            void get_kappa_down(double mu, double& kd, double& ks, double& kb);
     
-            void get_kappa_up(double mu, ::std::complex<double>& ku, ::std::complex<double>& kc, ::std::complex<double>& kt);
+            void get_kappa_up(double mu, double& ku, double& kc, double& kt);
     
-            void get_kappa_lepton(double mu, ::std::complex<double>& ke, ::std::complex<double>& kmu, ::std::complex<double>& ktau);
+            void get_kappa_lepton(double mu, double& ke, double& kmu, double& ktau);
     
-            void get_rho_down(double mu, ::std::complex<double>& rd, ::std::complex<double>& rs, ::std::complex<double>& rb);
+            void get_rho_down(double mu, double& rd, double& rs, double& rb);
     
-            void get_rho_up(double mu, ::std::complex<double>& ru, ::std::complex<double>& rc, ::std::complex<double>& rt);
+            void get_rho_up(double mu, double& ru, double& rc, double& rt);
     
-            void get_rho_lepton(double mu, ::std::complex<double>& re, ::std::complex<double>& rmu, ::std::complex<double>& rtau);
+            void get_rho_lepton(double mu, double& re, double& rmu, double& rtau);
     
             void get_coupling_hdd(int h, int f1, int f2, ::std::complex<double>& cs, ::std::complex<double>& cp);
     
             void get_coupling_huu(int h, int f1, int f2, ::std::complex<double>& cs, ::std::complex<double>& cp);
     
             void get_coupling_hdu(int h, int d, int u, ::std::complex<double>& cs, ::std::complex<double>& cp);
-    
-            void get_coupling_hud(int h, int d, int u, ::std::complex<double>& cs, ::std::complex<double>& cp);
     
             void get_coupling_hll(int h, int f1, int f2, ::std::complex<double>& cs, ::std::complex<double>& cp);
     
@@ -172,6 +172,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             void write_LesHouches(const char* file, bool fulldecay, bool couplings);
     
             double get_alpha();
+    
+            void get_unitarity_conditions(double* conditions);
+    
+            void get_perturbativity_conditions(double* conditions);
+    
+            void get_stability_conditions(double* conditions);
+    
+            int get_yukawas_type();
     
     
             // Wrappers for original constructors: 

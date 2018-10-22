@@ -111,7 +111,7 @@ namespace Gambit
        return sthW2;
       }
 
-      // "extra" function to compute TanBeta & alpha
+      // "extra" function to compute TanBeta 
       template <class Model>
       double get_tanb(const Model& model)
       {
@@ -120,15 +120,31 @@ namespace Gambit
         return model.get_v2()/model.get_v1();
       }
 
-       template <class Model>
-       double get_alpha(const Model& model)
-       {
-         // may need to be negative as we are working in a different convention
-           return model.Alpha();
-       }
+      template <class Model>
+      double get_alpha(const Model& model)
+      {
+        double v1 = model.get_v1(), v2 = model.get_v2();
+
+        double a3 = model.get_M122();
+        double b11 = 1.0/2.0*model.get_Lambda1();
+        double b22 = 1.0/2.0*model.get_Lambda2();
+        double b33 = model.get_Lambda4() + model.get_Lambda5();
+        double b12 = model.get_Lambda3();
+        double b13 = model.get_Lambda6();
+        double b23 = model.get_Lambda7();
+ 
+        double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
+        double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
+        double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
+        double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
+        double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
+        double H3d = H3 - 2.0*V3;
+        double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
+
+        return atan(2.0*H3d/(Hc-Hm));
+      }
 
 //    extract pole masses from arrays
-
       template <class Model>
       double get_mA_pole(const Model& model)
       {
@@ -394,8 +410,8 @@ namespace Gambit
          {
             typename MTget::fmap0_extraM tmp_map;
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
-            tmp_map["alpha"]= &get_alpha<Model>;
             tmp_map["tanb"]= &get_tanb<Model>;
+            tmp_map["alpha"]= &get_alpha<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
          }
 

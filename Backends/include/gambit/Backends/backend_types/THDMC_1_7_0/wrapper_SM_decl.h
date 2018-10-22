@@ -5,7 +5,6 @@
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SM.h"
-#include <complex>
 
 #include "identification.hpp"
 
@@ -40,35 +39,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             const double& me_p;
             const double& mmu_p;
             const double& mtau_p;
-            const std::complex<double>& Vud;
-            const std::complex<double>& Vus;
-            const std::complex<double>& Vub;
-            const std::complex<double>& Vcd;
-            const std::complex<double>& Vcs;
-            const std::complex<double>& Vcb;
-            const std::complex<double>& Vtd;
-            const std::complex<double>& Vts;
-            const std::complex<double>& Vtb;
+            const double& Vud;
+            const double& Vus;
+            const double& Vub;
+            const double& Vcd;
+            const double& Vcs;
+            const double& Vcb;
+            const double& Vtd;
+            const double& Vts;
+            const double& Vtb;
             const double& Q_HD;
             const bool& b_HD;
             const double& ms_5;
             const double& mc_5;
             const double& mb_5;
             const double& mt_5;
-            double& m_alpha;
-            double& m_alpha0;
-            double& m_GF;
-            double& m_s2tW;
-            double& m_alpha_s;
-            double (&m_md_p)[3];
-            double (&m_mu_p)[3];
-            double (&m_ml_p)[3];
-            double& m_MW;
-            double& m_MZ;
-            double& m_GammaW;
-            double& m_GammaZ;
-            std::complex<double> (&m_CKM)[3][3];
-            double (&m_qmass_ms)[7];
     
             // Member functions: 
         public:
@@ -126,12 +111,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             double get_CKM_element(int i, int j);
     
-            ::std::complex<double> get_CKM_element_complex(int i, int j);
-    
-            void set_CKM_element(int i, int j, double Vij);
-    
-            void set_CKM_element_complex(int i, int j, ::std::complex<double> Vij);
-    
             void set_lmass_pole(int l, double lmass_in);
     
             void set_qmass_pole(int q, double qmass_in);
@@ -166,13 +145,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             double get_gamma_tWd(int d);
     
-            void clear_lookup();
-    
-            double m_threshold(double as);
-    
-            double RQ(double as, int nf, int loops);
-    
-            double QCD_beta(int c, int nf);
+            void set_CKM(double ckm11, double ckm12, double ckm13, double ckm21, double ckm22, double ckm23, double ckm31, double ckm32, double ckm33);
     
     
             // Wrappers for original constructors: 

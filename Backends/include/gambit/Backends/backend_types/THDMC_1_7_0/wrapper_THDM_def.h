@@ -11,19 +11,24 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Member functions: 
-    inline void THDM::set_SM(SM& sm_in)
+    inline void THDM::set_SM(SM sm_in)
     {
         get_BEptr()->set_SM__BOSS(*sm_in.get_BEptr());
     }
     
-    inline SM* THDM::get_SM()
+    inline SM THDM::get_SM()
     {
-        return get_BEptr()->get_SM__BOSS()->get_init_wptr();
+        return SM( get_BEptr()->get_SM__BOSS() );
     }
     
-    inline SM THDM::copy_SM()
+    inline SM* THDM::get_SM_pointer()
     {
-        return SM( get_BEptr()->copy_SM__BOSS() );
+        return get_BEptr()->get_SM_pointer__BOSS()->get_init_wptr();
+    }
+    
+    inline bool THDM::set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba)
+    {
+        return get_BEptr()->set_param_full(lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tan_beta, m_h, m_H, m_A, m_Hp, sba);
     }
     
     inline bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta)
@@ -34,11 +39,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     inline bool THDM::set_param_higgs(double Lambda1, double Lambda2, double Lambda3, double Lambda4, double Lambda5, double Lambda6, double Lambda7, double m_Hp)
     {
         return get_BEptr()->set_param_higgs(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, m_Hp);
-    }
-    
-    inline bool THDM::set_param_higgs_beta(double Lambda1, double Lambda2, double Lambda3, double Lambda4, double Lambda5, double Lambda7, double tanb, double sba, double M22_2)
-    {
-        return get_BEptr()->set_param_higgs_beta(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda7, tanb, sba, M22_2);
     }
     
     inline bool THDM::set_param_hybrid(double mh, double mH, double cba, double Z4, double Z5, double Z7, double tanb)
@@ -151,19 +151,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         get_BEptr()->set_yukawas_lepton(rhoe, rhomu, rhotau);
     }
     
-    inline void THDM::set_yukawas_down(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32)
+    inline void THDM::set_yukawas_down(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23)
     {
-        get_BEptr()->set_yukawas_down(rho11, rho22, rho33, rho12, rho13, rho23, rho21, rho31, rho32);
+        get_BEptr()->set_yukawas_down(rho11, rho22, rho33, rho12, rho13, rho23);
     }
     
-    inline void THDM::set_yukawas_up(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32)
+    inline void THDM::set_yukawas_up(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23)
     {
-        get_BEptr()->set_yukawas_up(rho11, rho22, rho33, rho12, rho13, rho23, rho21, rho31, rho32);
+        get_BEptr()->set_yukawas_up(rho11, rho22, rho33, rho12, rho13, rho23);
     }
     
-    inline void THDM::set_yukawas_lepton(::std::complex<double> rho11, ::std::complex<double> rho22, ::std::complex<double> rho33, ::std::complex<double> rho12, ::std::complex<double> rho13, ::std::complex<double> rho23, ::std::complex<double> rho21, ::std::complex<double> rho31, ::std::complex<double> rho32)
+    inline void THDM::set_yukawas_lepton(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23)
     {
-        get_BEptr()->set_yukawas_lepton(rho11, rho22, rho33, rho12, rho13, rho23, rho21, rho31, rho32);
+        get_BEptr()->set_yukawas_lepton(rho11, rho22, rho33, rho12, rho13, rho23);
     }
     
     inline void THDM::set_yukawas_inert()
@@ -171,62 +171,62 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         get_BEptr()->set_yukawas_inert();
     }
     
-    inline void THDM::get_yukawas_down(::std::complex<double>& rhod, ::std::complex<double>& rhos, ::std::complex<double>& rhob)
+    inline void THDM::get_yukawas_down(double& rhod, double& rhos, double& rhob)
     {
         get_BEptr()->get_yukawas_down(rhod, rhos, rhob);
     }
     
-    inline void THDM::get_yukawas_up(::std::complex<double>& rhou, ::std::complex<double>& rhoc, ::std::complex<double>& rhot)
+    inline void THDM::get_yukawas_up(double& rhou, double& rhoc, double& rhot)
     {
         get_BEptr()->get_yukawas_up(rhou, rhoc, rhot);
     }
     
-    inline void THDM::get_yukawas_lepton(::std::complex<double>& rhoe, ::std::complex<double>& rhomu, ::std::complex<double>& rhotau)
+    inline void THDM::get_yukawas_lepton(double& rhoe, double& rhomu, double& rhotau)
     {
         get_BEptr()->get_yukawas_lepton(rhoe, rhomu, rhotau);
     }
     
-    inline void THDM::get_kappa_down(::std::complex<double>& kd, ::std::complex<double>& ks, ::std::complex<double>& kb)
+    inline void THDM::get_kappa_down(double& kd, double& ks, double& kb)
     {
         get_BEptr()->get_kappa_down(kd, ks, kb);
     }
     
-    inline void THDM::get_kappa_up(::std::complex<double>& ku, ::std::complex<double>& kc, ::std::complex<double>& kt)
+    inline void THDM::get_kappa_up(double& ku, double& kc, double& kt)
     {
         get_BEptr()->get_kappa_up(ku, kc, kt);
     }
     
-    inline void THDM::get_kappa_lepton(::std::complex<double>& ke, ::std::complex<double>& kmu, ::std::complex<double>& ktau)
+    inline void THDM::get_kappa_lepton(double& ke, double& kmu, double& ktau)
     {
         get_BEptr()->get_kappa_lepton(ke, kmu, ktau);
     }
     
-    inline void THDM::get_kappa_down(double mu, ::std::complex<double>& kd, ::std::complex<double>& ks, ::std::complex<double>& kb)
+    inline void THDM::get_kappa_down(double mu, double& kd, double& ks, double& kb)
     {
         get_BEptr()->get_kappa_down(mu, kd, ks, kb);
     }
     
-    inline void THDM::get_kappa_up(double mu, ::std::complex<double>& ku, ::std::complex<double>& kc, ::std::complex<double>& kt)
+    inline void THDM::get_kappa_up(double mu, double& ku, double& kc, double& kt)
     {
         get_BEptr()->get_kappa_up(mu, ku, kc, kt);
     }
     
-    inline void THDM::get_kappa_lepton(double mu, ::std::complex<double>& ke, ::std::complex<double>& kmu, ::std::complex<double>& ktau)
+    inline void THDM::get_kappa_lepton(double mu, double& ke, double& kmu, double& ktau)
     {
         get_BEptr()->get_kappa_lepton(mu, ke, kmu, ktau);
     }
     
-    inline void THDM::get_rho_down(double mu, ::std::complex<double>& rd, ::std::complex<double>& rs, ::std::complex<double>& rb)
+    inline void THDM::get_rho_down(double mu, double& rd, double& rs, double& rb)
     {
         get_BEptr()->get_rho_down(mu, rd, rs, rb);
     }
     
-    inline void THDM::get_rho_up(double mu, ::std::complex<double>& ru, ::std::complex<double>& rc, ::std::complex<double>& rt)
+    inline void THDM::get_rho_up(double mu, double& ru, double& rc, double& rt)
     {
         get_BEptr()->get_rho_up(mu, ru, rc, rt);
     }
     
-    inline void THDM::get_rho_lepton(double mu, ::std::complex<double>& re, ::std::complex<double>& rmu, ::std::complex<double>& rtau)
+    inline void THDM::get_rho_lepton(double mu, double& re, double& rmu, double& rtau)
     {
         get_BEptr()->get_rho_lepton(mu, re, rmu, rtau);
     }
@@ -244,11 +244,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     inline void THDM::get_coupling_hdu(int h, int d, int u, ::std::complex<double>& cs, ::std::complex<double>& cp)
     {
         get_BEptr()->get_coupling_hdu(h, d, u, cs, cp);
-    }
-    
-    inline void THDM::get_coupling_hud(int h, int d, int u, ::std::complex<double>& cs, ::std::complex<double>& cp)
-    {
-        get_BEptr()->get_coupling_hud(h, d, u, cs, cp);
     }
     
     inline void THDM::get_coupling_hll(int h, int f1, int f2, ::std::complex<double>& cs, ::std::complex<double>& cp)
@@ -381,10 +376,31 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_alpha();
     }
     
+    inline void THDM::get_unitarity_conditions(double* conditions)
+    {
+        get_BEptr()->get_unitarity_conditions(conditions);
+    }
+    
+    inline void THDM::get_perturbativity_conditions(double* conditions)
+    {
+        get_BEptr()->get_perturbativity_conditions(conditions);
+    }
+    
+    inline void THDM::get_stability_conditions(double* conditions)
+    {
+        get_BEptr()->get_stability_conditions(conditions);
+    }
+    
+    inline int THDM::get_yukawas_type()
+    {
+        return get_BEptr()->get_yukawas_type();
+    }
+    
     
     // Wrappers for original constructors: 
     inline THDM::THDM() :
-        WrapperBase(__factory0())
+        WrapperBase(__factory0()),
+        EPS( get_BEptr()->EPS_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -392,7 +408,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Special pointer-based constructor: 
     inline THDM::THDM(Abstract_THDM* in) :
-        WrapperBase(in)
+        WrapperBase(in),
+        EPS( get_BEptr()->EPS_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -400,7 +417,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Copy constructor: 
     inline THDM::THDM(const THDM& in) :
-        WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
+        WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
+        EPS( get_BEptr()->EPS_ref__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);

@@ -36,19 +36,16 @@ START_CAPABILITY
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(THDM, THDMatQ)
   #undef FUNCTION
-
   #define FUNCTION get_THDM_spectrum_FS
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(THDMatQ)
   #undef FUNCTION
-
    // Convert spectrum into a standard map so that it can be printed
   #define FUNCTION get_THDM_spectrum_as_map
     START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
     DEPENDENCY(THDM_spectrum, Spectrum)
   #undef FUNCTION
-
 #undef CAPABILITY
 
 #define CAPABILITY test_THDM_spectrum_1
@@ -181,86 +178,71 @@ START_CAPABILITY
 #undef CAPABILITY
 
 
-#define CAPABILITY unitarity_constraint_likelihood_THDM
+#define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
-
-  #define FUNCTION get_unitarity_constraint_likelihood_THDM
-  START_FUNCTION(double)
-  // NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
-  #undef FUNCTION
-
-#undef CAPABILITY
-
-
-#define CAPABILITY NLO_unitarity_constraint_likelihood_THDM
-START_CAPABILITY
-  #define FUNCTION get_NLO_unitarity_constraint_likelihood_THDM
+  #define FUNCTION get_unitarity_likelihood_THDM
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY perturbativity_constraint_likelihood_THDM
-START_CAPABILITY
 
-  #define FUNCTION get_perturbativity_constraint_likelihood_THDM
+#define CAPABILITY NLO_unitarity_likelihood_THDM
+START_CAPABILITY
+  #define FUNCTION get_NLO_unitarity_likelihood_THDM
   START_FUNCTION(double)
-  // NEEDS_CLASSES_FROM(THDMC,default)
-  BACKEND_REQ(get_coupling_hhhh, (libthdmc_compact), void, (int,int,int,int,complex<double>&))
   DEPENDENCY(THDM_spectrum, Spectrum)
-  BACKEND_OPTION( (THDMC_compact), (libthdmc_compact) )
+  ALLOW_MODELS(THDM,THDMatQ)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY perturbativity_likelihood_THDM
+START_CAPABILITY
+  #define FUNCTION get_perturbativity_likelihood_THDM
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM, THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
-#define CAPABILITY stability_constraint_likelihood_THDM
+#define CAPABILITY stability_likelihood_THDM
 START_CAPABILITY
-
   #define FUNCTION get_stability_likelihood_THDM
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM, THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
-#define CAPABILITY alignment_limit_likelihood_THDM
+#define CAPABILITY alignment_likelihood_THDM
 START_CAPABILITY
-
-  #define FUNCTION get_alignment_limit_likelihood_THDM
+  #define FUNCTION get_alignment_likelihood_THDM
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
 #define CAPABILITY oblique_parameters_likelihood_THDM
 START_CAPABILITY
-
   #define FUNCTION get_oblique_parameters_likelihood_THDM
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
 #define CAPABILITY global_minimum_discriminant_likelihood
 START_CAPABILITY
-
   #define FUNCTION get_global_minimum_discriminant_likelihood
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
 #define CAPABILITY THDM_Higgs_Couplings
@@ -272,7 +254,6 @@ START_CAPABILITY
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
 #undef CAPABILITY
-
 
 #define CAPABILITY THDM_Higgs_Couplings_For_HB
 START_CAPABILITY
@@ -344,7 +325,6 @@ START_CAPABILITY
 
 // Generalised Higgs couplings
 #define CAPABILITY Higgs_Couplings
-
   #define FUNCTION THDM_higgs_couplings_pwid
   START_FUNCTION(HiggsCouplingsTable)
   DEPENDENCY(THDM_spectrum, const Spectrum*)
@@ -359,7 +339,6 @@ START_CAPABILITY
   DEPENDENCY(t_decay_rates, DecayTable::Entry)
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
-
 #undef CAPABILITY
 
 
