@@ -29,23 +29,28 @@
 #include <cmath>
 #include <iostream>
 
-namespace Gambit {
-  namespace DecayBit {
-    namespace SM_Z {
+namespace Gambit
+{
+  namespace DecayBit
+  {
+    namespace SM_Z
+    {
 
       /** 
          @brief <ahref="
          http://pdglive.lbl.gov/BranchingRatio.action?desig=9&parCode=S044
          ">PDG</a> measurement of invisible width of \f$Z\f$ boson in GeV
       */
-      constexpr struct {
+      constexpr struct
+      {
         const double mu = 499.0e-3;
         const double sigma = 1.5e-3;
       } gamma_inv;
 
 
       /** @brief The central values of nuisances from eq. 13 */
-      constexpr struct {
+      constexpr struct
+      {
         const double mh_OS = 125.7;  // GeV
         const double mt_OS = 173.2;
         const double MZ_OS = 91.1876;
@@ -56,7 +61,8 @@ namespace Gambit {
       constexpr int kRows = 12;
       constexpr int kCols = 9;
       /** @brief Coefficient data in Table 5 with MeV converted to GeV */
-      constexpr double table_5[kRows][kCols] = {
+      constexpr double table_5[kRows][kCols] =
+      {
         {83.983e-3, -0.061e-3, 0.810e-3, -0.096e-3, -0.01e-3, 0.25e-3, -1.1e-3, 286e-3, 0.001e-3},
         {83.793e-3, -0.060e-3, 0.810e-3, -0.095e-3, -0.01e-3, 0.25e-3, -1.1e-3, 285.e-3, 0.001e-3},
         {167.176e-3, -0.071e-3, 1.26e-3, -0.19e-3, -0.02e-3, 0.36e-3, -0.1e-3, 504.e-3, 0.001e-3},
@@ -82,7 +88,8 @@ namespace Gambit {
         {0.018e-3, 0.018e-3, 0.016e-3, 0.11e-3, 0.11e-3, 0.08e-3, 0.18e-3, 0.4e-3, 6.e-3, 5.e-5, 1.e-4, 6.};
 
 
-      class TwoLoop {
+      class TwoLoop
+      {
         /**
            @brief \f$Z\f$-boson observables at two-loop and the residual theory errors
            
@@ -174,7 +181,8 @@ namespace Gambit {
         double alpha_s_MSbar_MZ;
         double delta_alpha_OS;
 
-        bool nuisances_outside_ranges() {
+        bool nuisances_outside_ranges()
+        {
           /**
              @returns Whether nuisance parameters are outside the ranges of validity
              in p5
@@ -204,16 +212,19 @@ namespace Gambit {
              @param alpha_s_MSbar_MZ Strong coupling in MS-bar scheme at \f$Q = M_Z\f$
              @param delta_alpha_OS \f$\Delta\alpha\f$ parameter in OS scheme. Defined on p9
           */
-          if (nuisances_outside_ranges()) {
-            std::cerr << "SM nuisance parameters outside range of validity for "
-                         "two-loop Z formulas. Not accounting for variation in "
-                         "SM nuisance parameters" << std::endl;
+          if (nuisances_outside_ranges())
+          {
+            // std::cerr << "SM nuisance parameters outside range of validity for "
+            //             "two-loop Z formulas. Not accounting for variation in "
+            //             "SM nuisance parameters" << std::endl;
             L_H = 0.;
             delta_t = 0.;
             delta_z = 0.;
             delta_alpha_s = 0.;
             delta_delta_alpha = 0.;
-          } else {
+          }
+          else
+          {
             L_H = std::log(mh_OS / hat.mh_OS);
             delta_t = pow(mt_OS / hat.mt_OS, 2) - 1.;
             delta_z = MZ_OS / hat.MZ_OS - 1.;
@@ -229,7 +240,8 @@ namespace Gambit {
         double delta_alpha_s;
         double delta_delta_alpha;
 
-        double error(int row) const {
+        double error(int row) const
+        {
           /**
              @brief Error in observable calculated from eq. 13
              
@@ -242,7 +254,8 @@ namespace Gambit {
           return std::sqrt(pow(table_5[row][8], 2) + pow(table_6[row], 2));
         }
 
-        double observable(int row) const {
+        double observable(int row) const
+        {
           /**
              @returns The observable calculated from eq. 13
              @param row Row number of Table 5 corresponding to quantity
@@ -257,7 +270,8 @@ namespace Gambit {
                  table_5[row][7] * delta_z;
         }
 
-        double BR(int row) const {
+        double BR(int row) const 
+        {
           /*
             @param row Row number of Table 7 corresponding to quantity
             @returns Branching ratio
@@ -265,7 +279,8 @@ namespace Gambit {
           return observable(row) / gamma_total();
         }
 
-        double error_BR(int row) const {
+        double error_BR(int row) const
+        {
           /**
              @warning We propagate an error in \f$f = x / y\f$. In fact, though, we
              should propagate an error in \f$f = x / (x + y)\f$, since the partial
