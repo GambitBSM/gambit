@@ -3,12 +3,13 @@ Module EffPotFunctions
 Use Control
 Use Mathematics
 ! Use Model_Data_MSSM
+Use Settings
 
 ! squared masses lesser than MIN_MASS are set to zero
 Real(dp), parameter :: MIN_MASS = 1.0_dp
 ! for squared masses lesser than SMALL_MASS expansions are made
 Real(dp), parameter :: SMALL_MASS = 1.0_dp
-Real(dp) :: hstep_pn=0.1_dp, hstep_sa=0.001_dp
+!Real(dp) :: hstep_pn=0.1_dp, hstep_sa=0.001_dp
 
  Real(dp) :: epsD = 1E-8_dp, epsM = 1.0E-8_dp, epsMnull = 1.0E-10_dp
 

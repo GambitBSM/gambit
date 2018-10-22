@@ -1,9 +1,9 @@
-modname = NMSSM  # as an example  
+modname = NMSSMEFT  # as an example  
 PreDef = -DGENERATIONMIXING -DONLYDOUBLE
 # setting various paths  
 InDir = ../include
 Mdir = ${InDir}
-VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables
+VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM 
 name = ../lib/libSPhenoNMSSMEFT.a
 shared = lib/libSPhenoNMSSMEFT.so
  
@@ -53,24 +53,31 @@ bin/SPhenoNMSSMEFT:
 ifeq (${cVersion},1)
 	 cd ../src ; ${MAKE} F90=${F90} 
 	 ${MAKE} F90=${F90} ${name} 
-	 ${MAKE} F90=${F90} SPhenoNMSSM.o 
-	 ${F90} -o SPhenoNMSSMEFT ${LFlagsB} SPhenoNMSSM.o ../lib/libSPhenoNMSSMEFT.a ../lib/libSPheno.a
+	 ${MAKE} F90=${F90} SPhenoNMSSMEFT.o 
+	 ${F90} -c TwoLoopMasses/effpotasat.f 
+	 ${F90} -o SPhenoNMSSMEFT ${LFlagsB} SPhenoNMSSMEFT.o effpotasat.o ../lib/libSPhenoNMSSMEFT.a ../lib/libSPheno.a
 	 mv SPhenoNMSSMEFT ../bin
-	 rm SPhenoNMSSM.o  
-${name}:  ${name}(Model_Data_NMSSM.o)  \
- ${name}(RGEs_NMSSM.o)   \
- ${name}(Couplings_NMSSM.o) ${name}(TreeLevelMasses_NMSSM.o) ${name}(TadpoleEquations_NMSSM.o) \
- ${name}(LoopCouplings_NMSSM.o) ${name}(CouplingsForDecays_NMSSM.o) \
- ${name}(TreeLevel_Decays_NMSSM.o) \
- ${name}(Chi_NMSSM.o)  ${name}(Cha_NMSSM.o)  \
- ${name}(EffPotFunctions.o) ${name}(DerivativesEffPotFunctions.o) ${name}(EffectivePotential_NMSSM.o) \
- ${name}(2LPoleFunctions.o) ${name}(2LPole_NMSSM.o) \
+	 rm SPhenoNMSSMEFT.o  
+${name}:  ${name}(Settings.o) ${name}(Model_Data_NMSSMEFT.o)  \
+ ${name}(RGEs_NMSSMEFT.o)   \
+ ${name}(Couplings_NMSSMEFT.o) ${name}(TreeLevelMasses_NMSSMEFT.o) ${name}(TadpoleEquations_NMSSMEFT.o) \
+ ${name}(LoopCouplings_NMSSMEFT.o) ${name}(CouplingsForDecays_NMSSMEFT.o) \
+ ${name}(TreeLevel_Decays_NMSSMEFT.o) \
+ ${name}(Chi_NMSSMEFT.o)  ${name}(Cha_NMSSMEFT.o)  \
 ${name}(AddLoopFunctions.o) ${name}(Kinematics.o) \
- ${name}(LoopMasses_NMSSM.o) \
- ${name}(BranchingRatios_NMSSM.o) ${name}(HiggsCS_NMSSM.o) ${name}(RunSM_NMSSM.o) \
- ${name}(LowEnergy_NMSSM.o) \
-${name}(FlavorKit_LFV_NMSSM.o) ${name}(FlavorKit_QFV_NMSSM.o) ${name}(FlavorKit_Observables_NMSSM.o)\
- ${name}(Boundaries_NMSSM.o)  ${name}(InputOutput_NMSSM.o) 
+ ${name}(EffPotFunctions.o) ${name}(DerivativesEffPotFunctions.o) ${name}(EffectivePotential_NMSSMEFT.o) \
+ ${name}(2LPoleFunctions.o) ${name}(2LPole_NMSSMEFT.o) \
+ ${name}(TwoLoopHiggsMass_SARAH.o) \
+ ${name}(LoopMasses_NMSSMEFT.o) \
+ ${name}(RGEs_SM_HC.o) ${name}(Couplings_SM_HC.o) ${name}(TreeLevelMasses_SM_HC.o) ${name}(LoopMasses_SM_HC.o)   \
+${name}(CouplingsCT_NMSSMEFT.o) \
+${name}(Bremsstrahlung.o) ${name}(DecayFFS.o) ${name}(DecayFFV.o) ${name}(DecaySSS.o) ${name}(DecaySSV.o) ${name}(DecaySFF.o) ${name}(DecaySVV.o) \
+ ${name}(LoopDecayhh_NMSSMEFT.o)  ${name}(LoopDecayAh_NMSSMEFT.o)  ${name}(LoopDecayHpm_NMSSMEFT.o)  ${name}(LoopDecayChi_NMSSMEFT.o)  ${name}(LoopDecayCha_NMSSMEFT.o)  ${name}(LoopDecayFu_NMSSMEFT.o) \
+ ${name}(Wrapper_LoopDecay_hh_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Ah_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Hpm_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Chi_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Cha_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Fu_NMSSMEFT.o) ${name}(OneLoopDecays_NMSSMEFT.o) \
+ ${name}(BranchingRatios_NMSSMEFT.o) ${name}(HiggsCS_NMSSMEFT.o) ${name}(RunSM_NMSSMEFT.o) \
+ ${name}(LowEnergy_NMSSMEFT.o) \
+${name}(FlavorKit_LFV_NMSSMEFT.o) ${name}(FlavorKit_QFV_NMSSMEFT.o) ${name}(FlavorKit_Observables_NMSSMEFT.o)\
+ ${name}(Boundaries_NMSSMEFT.o)  ${name}(InputOutput_NMSSMEFT.o) 
 else 
 	 @echo -------------------------------------------------------------------  
 	 @echo ERROR:  
