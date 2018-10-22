@@ -14,7 +14,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/SARAH-SPheno_NMSSM_4_0_3.hpp"
+#include "gambit/Backends/frontends/SARAHSPheno_NMSSM_4_0_3.hpp"
 #include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"

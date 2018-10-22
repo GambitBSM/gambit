@@ -14,7 +14,7 @@
 ///
 ///  *********************************************
 
-#define BACKENDNAME SARAH-SPheno_MSSM
+#define BACKENDNAME SARAHSPheno_MSSM
 #define BACKENDLANG FORTRAN
 #define VERSION 3.3.8
 #define SARAH_VERSION 4.8.1
