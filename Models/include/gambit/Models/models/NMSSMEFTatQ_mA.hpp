@@ -21,11 +21,11 @@
 #include "gambit/Models/models/NMSSM66atQ.hpp"
 
 /// 8 parameters plus input scale
-#define MODEL NMSSMEFTatQ
-#define PARENT NMSSM66atQ
+#define MODEL NMSSMEFTatQ_mA
+#define PARENT NMSSMEFTatQ
   START_MODEL
-  DEFINEPARS(Qin,TanBeta,M1,M2,kappa,lambda,Alambda,Akappa,vS)
-  INTERPRET_AS_PARENT_FUNCTION(NMSSMEFTatQ_to_NMSSM66atQ)
+  DEFINEPARS(Qin,TanBeta,M1,M2,kappa,lambda,mA,mu,Akappa)
+  INTERPRET_AS_PARENT_FUNCTION(NMSSMEFTatQ_mA_to_NMSSMEFTatQ)
 #undef PARENT
 #undef MODEL
 

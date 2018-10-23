@@ -382,7 +382,7 @@ BE_FUNCTION(SetRGEScale, void, (Freal8&), "__model_data_nmssm_MOD_setrgescale", 
 /*BE_FUNCTION(SetHighScaleModel, Flogical, (Fstring<20>), "__sugraruns_MOD_sethighscalemodel", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetWriteMinBr, void, (Freal8&), "__inputoutput_MOD_setwriteminbr", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetWriteMinSig, void, (Freal8&), "__inputoutput_MOD_setwriteminsig", "SARAHSPheno_NMSSM_internal")*/
-BE_FUNCTION(SetGUTScale, void, (Freal8&), "__model_data_nmssm__MOD_setgutscale", "SARAHSPheno_NMSSM_internal")
+BE_FUNCTION(SetGUTScale, void, (Freal8&), "__model_data_nmssm_MOD_setgutscale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), "__model_data_nmssm_MOD_setstrictunification", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_setyukawascheme", "SARAHSPheno_NMSSM_internal")
 /*BE_FUNCTION(Set_Use_bsstep_instead_of_rkqs, Flogical, (Flogical&), "__mathematics_MOD_set_use_bsstep_instead_of_rkqs", "SARAHSPheno_NMSSM_internal")

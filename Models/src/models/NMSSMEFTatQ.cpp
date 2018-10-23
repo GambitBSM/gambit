@@ -35,7 +35,7 @@
      // Send all commmon parameter values upstream to matching parameters in parent.
      targetP.setValues(myP,false);
 
-     // Set mass and dimenionful coupling parameters for particles decoupled ("deleted" in SARAH model) to 100 TeV.
+     // Set mass and dimensionful coupling parameters for particles decoupled ("deleted" in SARAH model) to 100 TeV.
      const static std::vector<str> deleted_parameters = initVector<str>("M3",
       "mq2_11", "mq2_12", "mq2_13", "mq2_22", "mq2_23", "mq2_33",
       "ml2_11", "ml2_12", "ml2_13", "ml2_22", "ml2_23", "ml2_33",
