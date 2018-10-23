@@ -1,0 +1,42 @@
+(* ----------------------------------------------------------------------------- *) 
+(* This model was automatically created by SARAH version4.12.3  *) 
+(* SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223 *) 
+(* (c) Florian Staub, 2013  *) 
+(* ----------------------------------------------------------------------------- *) 
+(* File created at 17:34 on 22.10.2018  *) 
+(* ---------------------------------------------------------------------- *) 
+ 
+ 
+LoopContributions[Gluon2Q]={
+chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, VG][L][gt2,gt1],coup1R -> Cp[bar[Fd], Fd, VG][R][gt2,gt1]},}
+(* Ah,Fd, Internal:bar[Fd]*) 
+{{Ah,Fd,Internal->bar[Fd]},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, Ah][L][i2,gt1,i1],coup1R -> Cp[bar[Fd], Fd, Ah][R][i2,gt1,i1],coup2L -> Cp[bar[Fd], Fd, Ah][L][i3,i2,i1],coup2R -> Cp[bar[Fd], Fd, Ah][R][i3,i2,i1],coup3L -> Cp[bar[Fd], Fd, VG][L][gt2,i3],coup3R -> Cp[bar[Fd], Fd, VG][R][gt2,i3]},{mS1 -> M[Ah][i1],mF1 -> M[Fd][i2],MFin -> M[Fd][i3]-M[Fd][gt1]}  {OG2qSL,0},   {OG2qSR,0} },
+(* hh,Fd, Internal:bar[Fd]*) 
+{{hh,Fd,Internal->bar[Fd]},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, hh][L][i2,gt1,i1],coup1R -> Cp[bar[Fd], Fd, hh][R][i2,gt1,i1],coup2L -> Cp[bar[Fd], Fd, hh][L][i3,i2,i1],coup2R -> Cp[bar[Fd], Fd, hh][R][i3,i2,i1],coup3L -> Cp[bar[Fd], Fd, VG][L][gt2,i3],coup3R -> Cp[bar[Fd], Fd, VG][R][gt2,i3]},{mS1 -> M[hh][i1],mF1 -> M[Fd][i2],MFin -> M[Fd][i3]-M[Fd][gt1]}  {OG2qSL,0},   {OG2qSR,0} },
+(* VZ,Fd, Internal:bar[Fd]*) 
+{{VZ,Fd,Internal->bar[Fd]},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, VZ][L][i2,gt1],coup1R -> Cp[bar[Fd], Fd, VZ][R][i2,gt1],coup2L -> Cp[bar[Fd], Fd, VZ][L][i3,i2],coup2R -> Cp[bar[Fd], Fd, VZ][R][i3,i2],coup3L -> Cp[bar[Fd], Fd, VG][L][gt2,i3],coup3R -> Cp[bar[Fd], Fd, VG][R][gt2,i3]},{mV1 -> M[VZ],mF1 -> M[Fd][i2],MFin -> M[Fd][i3]-M[Fd][gt1]}  {OG2qSL,0},   {OG2qSR,0} },
+(* bar[Fu],Hpm, Internal:bar[Fd]*) 
+{{bar[Fu],Hpm,Internal->bar[Fd]},chargefactor -> 1,{coup1L -> Cp[bar[Fu], Fd, conj[Hpm]][L][i1,gt1,i2],coup1R -> Cp[bar[Fu], Fd, conj[Hpm]][R][i1,gt1,i2],coup2L -> Cp[bar[Fd], Fu, Hpm][L][i3,i1,i2],coup2R -> Cp[bar[Fd], Fu, Hpm][R][i3,i1,i2],coup3L -> Cp[bar[Fd], Fd, VG][L][gt2,i3],coup3R -> Cp[bar[Fd], Fd, VG][R][gt2,i3]},{mF1 -> M[Fu][i1],mS1 -> M[Hpm][i2],MFin -> M[Fd][i3]-M[Fd][gt1]}  {OG2qSL,0},   {OG2qSR,0} },
+(* bar[Fu],VWm, Internal:bar[Fd]*) 
+{{bar[Fu],VWm,Internal->bar[Fd]},chargefactor -> 1,{coup1L -> Cp[bar[Fu], Fd, conj[VWm]][L][i1,gt1],coup1R -> Cp[bar[Fu], Fd, conj[VWm]][R][i1,gt1],coup2L -> Cp[bar[Fd], Fu, VWm][L][i3,i1],coup2R -> Cp[bar[Fd], Fu, VWm][R][i3,i1],coup3L -> Cp[bar[Fd], Fd, VG][L][gt2,i3],coup3R -> Cp[bar[Fd], Fd, VG][R][gt2,i3]},{mF1 -> M[Fu][i1],mV1 -> M[VWm],MFin -> M[Fd][i3]-M[Fd][gt1]}  {OG2qSL,0},   {OG2qSR,0} },
+(* Fd,Ah, Internal:Fd*) 
+{{Fd,Ah,Internal->Fd},chargefactor -> 1,{coup3L -> Cp[bar[Fd], Fd, VG][L][i3,gt1],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,gt1],coup2L -> Cp[bar[Fd], Fd, Ah][L][i1,i3,i2],coup2R -> Cp[bar[Fd], Fd, Ah][R][i1,i3,i2],coup1L -> Cp[bar[Fd], Fd, Ah][L][gt2,i1,i2],coup1R -> Cp[bar[Fd], Fd, Ah][R][gt2,i1,i2]},{mF1 -> M[Fd][i1],mS1 -> M[Ah][i2],MFin -> M[Fd][i3]-M[Fd][gt2]}  {OG2qSL,0},   {OG2qSR,0} },
+(* Fd,hh, Internal:Fd*) 
+{{Fd,hh,Internal->Fd},chargefactor -> 1,{coup3L -> Cp[bar[Fd], Fd, VG][L][i3,gt1],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,gt1],coup2L -> Cp[bar[Fd], Fd, hh][L][i1,i3,i2],coup2R -> Cp[bar[Fd], Fd, hh][R][i1,i3,i2],coup1L -> Cp[bar[Fd], Fd, hh][L][gt2,i1,i2],coup1R -> Cp[bar[Fd], Fd, hh][R][gt2,i1,i2]},{mF1 -> M[Fd][i1],mS1 -> M[hh][i2],MFin -> M[Fd][i3]-M[Fd][gt2]}  {OG2qSL,0},   {OG2qSR,0} },
+(* Fd,VZ, Internal:Fd*) 
+{{Fd,VZ,Internal->Fd},chargefactor -> 1,{coup3L -> Cp[bar[Fd], Fd, VG][L][i3,gt1],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,gt1],coup2L -> Cp[bar[Fd], Fd, VZ][L][i1,i3],coup2R -> Cp[bar[Fd], Fd, VZ][R][i1,i3],coup1L -> Cp[bar[Fd], Fd, VZ][L][gt2,i1],coup1R -> Cp[bar[Fd], Fd, VZ][R][gt2,i1]},{mF1 -> M[Fd][i1],mV1 -> M[VZ],MFin -> M[Fd][i3]-M[Fd][gt2]}  {OG2qSL,0},   {OG2qSR,0} },
+(* Hpm,bar[Fu], Internal:Fd*) 
+{{Hpm,bar[Fu],Internal->Fd},chargefactor -> 1,{coup3L -> Cp[bar[Fd], Fd, VG][L][i3,gt1],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,gt1],coup2L -> Cp[bar[Fu], Fd, conj[Hpm]][L][i2,i3,i1],coup2R -> Cp[bar[Fu], Fd, conj[Hpm]][R][i2,i3,i1],coup1L -> Cp[bar[Fd], Fu, Hpm][L][gt2,i2,i1],coup1R -> Cp[bar[Fd], Fu, Hpm][R][gt2,i2,i1]},{mS1 -> M[Hpm][i1],mF1 -> M[Fu][i2],MFin -> M[Fd][i3]-M[Fd][gt2]}  {OG2qSL,0},   {OG2qSR,0} },
+(* VWm,bar[Fu], Internal:Fd*) 
+{{VWm,bar[Fu],Internal->Fd},chargefactor -> 1,{coup3L -> Cp[bar[Fd], Fd, VG][L][i3,gt1],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,gt1],coup2L -> Cp[bar[Fu], Fd, conj[VWm]][L][i2,i3],coup2R -> Cp[bar[Fu], Fd, conj[VWm]][R][i2,i3],coup1L -> Cp[bar[Fd], Fu, VWm][L][gt2,i2],coup1R -> Cp[bar[Fd], Fu, VWm][R][gt2,i2]},{mV1 -> M[VWm],mF1 -> M[Fu][i2],MFin -> M[Fd][i3]-M[Fd][gt2]}  {OG2qSL,0},   {OG2qSR,0} }
+(* Ah,Fd,Fd*) 
+{{Ah,Fd,Fd},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, Ah][L][i2,gt1,i1],coup1R -> Cp[bar[Fd], Fd, Ah][R][i2,gt1,i1],coup2L -> Cp[bar[Fd], Fd, Ah][L][gt2,i3,i1],coup2R -> Cp[bar[Fd], Fd, Ah][R][gt2,i3,i1],coup3L -> Cp[bar[Fd], Fd, VG][L][i3,i2],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,i2]},  {OG2qSL,2*(coup1L*coup2L*coup3R*mF2*C0C1C2[mF22, mF12, mS12] + coup1R*coup2L*coup3L*MassEx1*C12g[mF22, mF12, mS12] - coup1L*(coup2L*coup3L*mF1*C1g[mF22, mF12, mS12] + coup2R*coup3R*MassEx2*C2C12C22[mF22, mF12, mS12]))},   {OG2qSR,2*(coup1R*coup2R*coup3L*mF2*C0C1C2[mF22, mF12, mS12] + coup1L*coup2R*coup3R*MassEx1*C12g[mF22, mF12, mS12] - coup1R*(coup2R*coup3R*mF1*C1g[mF22, mF12, mS12] + coup2L*coup3L*MassEx2*C2C12C22[mF22, mF12, mS12]))} },
+(* hh,Fd,Fd*) 
+{{hh,Fd,Fd},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, hh][L][i2,gt1,i1],coup1R -> Cp[bar[Fd], Fd, hh][R][i2,gt1,i1],coup2L -> Cp[bar[Fd], Fd, hh][L][gt2,i3,i1],coup2R -> Cp[bar[Fd], Fd, hh][R][gt2,i3,i1],coup3L -> Cp[bar[Fd], Fd, VG][L][i3,i2],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,i2]},  {OG2qSL,2*(coup1L*coup2L*coup3R*mF2*C0C1C2[mF22, mF12, mS12] + coup1R*coup2L*coup3L*MassEx1*C12g[mF22, mF12, mS12] - coup1L*(coup2L*coup3L*mF1*C1g[mF22, mF12, mS12] + coup2R*coup3R*MassEx2*C2C12C22[mF22, mF12, mS12]))},   {OG2qSR,2*(coup1R*coup2R*coup3L*mF2*C0C1C2[mF22, mF12, mS12] + coup1L*coup2R*coup3R*MassEx1*C12g[mF22, mF12, mS12] - coup1R*(coup2R*coup3R*mF1*C1g[mF22, mF12, mS12] + coup2L*coup3L*MassEx2*C2C12C22[mF22, mF12, mS12]))} },
+(* VZ,Fd,Fd*) 
+{{VZ,Fd,Fd},chargefactor -> 1,{coup1L -> Cp[bar[Fd], Fd, VZ][L][i2,gt1],coup1R -> Cp[bar[Fd], Fd, VZ][R][i2,gt1],coup2L -> Cp[bar[Fd], Fd, VZ][L][gt2,i3],coup2R -> Cp[bar[Fd], Fd, VZ][R][gt2,i3],coup3L -> Cp[bar[Fd], Fd, VG][L][i3,i2],coup3R -> Cp[bar[Fd], Fd, VG][R][i3,i2]},  {OG2qSL,-4*(coup1L*coup2L*coup3L*MassEx2*C12C22[mF22, mF12, mV12] + coup2R*(-(coup1R*coup3R*MassEx1*C2C12[mF22, mF12, mV12]) + coup1L*(coup3R*mF1 + coup3L*mF2)*C2g[mF22, mF12, mV12]))},   {OG2qSR,-4*(coup1R*coup2R*coup3R*MassEx2*C12C22[mF22, mF12, mV12] + coup2L*(-(coup1L*coup3L*MassEx1*C2C12[mF22, mF12, mV12]) + coup1R*(coup3L*mF1 + coup3R*mF2)*C2g[mF22, mF12, mV12]))} },
+(* conj[Hpm],Fu,Fu*) 
+{{conj[Hpm],Fu,Fu},chargefactor -> 1,{coup1L -> Cp[bar[Fu], Fd, conj[Hpm]][L][i2,gt1,i1],coup1R -> Cp[bar[Fu], Fd, conj[Hpm]][R][i2,gt1,i1],coup2L -> Cp[bar[Fd], Fu, Hpm][L][gt2,i3,i1],coup2R -> Cp[bar[Fd], Fu, Hpm][R][gt2,i3,i1],coup3L -> Cp[bar[Fu], Fu, VG][L][i3,i2],coup3R -> Cp[bar[Fu], Fu, VG][R][i3,i2]},  {OG2qSL,2*(coup1L*coup2L*coup3R*mF2*C0C1C2[mF22, mF12, mS12] + coup1R*coup2L*coup3L*MassEx1*C12g[mF22, mF12, mS12] - coup1L*(coup2L*coup3L*mF1*C1g[mF22, mF12, mS12] + coup2R*coup3R*MassEx2*C2C12C22[mF22, mF12, mS12]))},   {OG2qSR,2*(coup1R*coup2R*coup3L*mF2*C0C1C2[mF22, mF12, mS12] + coup1L*coup2R*coup3R*MassEx1*C12g[mF22, mF12, mS12] - coup1R*(coup2R*coup3R*mF1*C1g[mF22, mF12, mS12] + coup2L*coup3L*MassEx2*C2C12C22[mF22, mF12, mS12]))} },
+(* conj[VWm],Fu,Fu*) 
+{{conj[VWm],Fu,Fu},chargefactor -> 1,{coup1L -> Cp[bar[Fu], Fd, conj[VWm]][L][i2,gt1],coup1R -> Cp[bar[Fu], Fd, conj[VWm]][R][i2,gt1],coup2L -> Cp[bar[Fd], Fu, VWm][L][gt2,i3],coup2R -> Cp[bar[Fd], Fu, VWm][R][gt2,i3],coup3L -> Cp[bar[Fu], Fu, VG][L][i3,i2],coup3R -> Cp[bar[Fu], Fu, VG][R][i3,i2]},  {OG2qSL,-4*(coup1L*coup2L*coup3L*MassEx2*C12C22[mF22, mF12, mV12] + coup2R*(-(coup1R*coup3R*MassEx1*C2C12[mF22, mF12, mV12]) + coup1L*(coup3R*mF1 + coup3L*mF2)*C2g[mF22, mF12, mV12]))},   {OG2qSR,-4*(coup1R*coup2R*coup3R*MassEx2*C12C22[mF22, mF12, mV12] + coup2L*(-(coup1L*coup3L*MassEx1*C2C12[mF22, mF12, mV12]) + coup1R*(coup3L*mF1 + coup3R*mF2)*C2g[mF22, mF12, mV12]))} }
+};
