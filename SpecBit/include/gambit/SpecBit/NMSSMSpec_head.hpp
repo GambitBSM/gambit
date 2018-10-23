@@ -119,7 +119,7 @@ namespace Gambit
      /// a safer way if we choose , while still giving the option of
      /// flexibility.
 
-     struct NMSSM_strs : MSSM_strs
+     struct NMSSM_strs
      {
        NMSSM_strs();
        /// some strings are used in multiple masses
