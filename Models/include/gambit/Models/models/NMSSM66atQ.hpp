@@ -2,13 +2,13 @@
 //   *********************************************
 ///  \file
 ///
-///  NMSSM66atQ model declaration. 
+///  NMSSM66atQ model declaration.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Tomas Gonzalo  
+///
+///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Sep
 ///
@@ -60,7 +60,6 @@
   DEFINEPARS(Au_11, Au_12, Au_13,
              Au_21, Au_22, Au_23,
              Au_31, Au_32, Au_33)
-#undef MODEL
 
 #undef MODEL
 
