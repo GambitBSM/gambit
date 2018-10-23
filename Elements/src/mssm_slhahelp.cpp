@@ -795,8 +795,8 @@ namespace Gambit
          double vu = mssmspec.get(Par::mass1,"vu");
          double vd = mssmspec.get(Par::mass1,"vd");
          SLHAea_add(slha,"HMIX",3,sqrt(vu*vu + vd*vd),"v = sqrt(vd^2 + vu^2) DRbar", true);
-         SLHAea_add_from_subspec(slha,LOCAL_INFO,mssmspec,Par::mass2,"mA2","HMIX",4,"m^2_A (tree)");
-         SLHAea_add_from_subspec(slha,LOCAL_INFO,mssmspec,Par::mass2,"BMu","HMIX",101,"Bmu DRbar");
+         if(mssmspec.has(Par::mass2, "mA2")) SLHAea_add_from_subspec(slha,LOCAL_INFO,mssmspec,Par::mass2,"mA2","HMIX",4,"m^2_A (tree)");
+         if(mssmspec.has(Par::mass2, "BMu")) SLHAea_add_from_subspec(slha,LOCAL_INFO,mssmspec,Par::mass2,"BMu","HMIX",101,"Bmu DRbar");
          SLHAea_add(slha,"HMIX",102,vd,"vd DRbar", true);
          SLHAea_add(slha,"HMIX",103,vu,"vu DRbar", true);
          // GAUGE block

@@ -15,9 +15,8 @@
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SARAHSPheno_NMSSM_4_0_3.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Elements/spectrum_factories.hpp"
-#include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
+#include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
 #include "gambit/Utils/version.hpp"
 
 // Convenience functions (definition)
@@ -309,7 +308,7 @@ BE_NAMESPACE
   }
 
   // Convenience funciton to run Spheno and obtain the decays
-  int run_SPheno_decays(const Spectrum &spectrum)
+  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays)
   {
 
     // Initialize some variables
@@ -468,8 +467,30 @@ BE_NAMESPACE
     *Tk = spectrum.get(Par::mass1, "Tk");
     *ms2 = spectrum.get(Par::mass1, "ms2");
 
+    // Declare all needed decay variables
+    Farray_Freal8_1_6_1_1245 gPSd, gPSu, BRSd, BRSu;
+    Farray_Freal8_1_6 gTSd, gTSu;
+    Farray_Freal8_1_6_1_1128 gPSe, BRSe;
+    Farray_Freal8_1_6 gTSe;
+    Farray_Freal8_1_3_1_1002 gPSv, BRSv;
+    Farray_Freal8_1_3 gTSv;
+    Farray_Freal8_1_3_1_209 gPhh, BRhh;
+    Farray_Freal8_1_3 gThh;
+    Farray_Freal8_1_3_1_207 gPAh, BRAh;
+    Farray_Freal8_1_3 gTAh;
+    Farray_Freal8_1_2_1_96 gPHpm, BRHpm;
+    Farray_Freal8_1_2 gTHpm;
+    Farray_Freal8_1_1_1_157 gPGlu, BRGlu;
+    Freal8 gTGlu;
+    Farray_Freal8_1_5_1_482 gPChi, BRChi;
+    Farray_Freal8_1_5 gTChi;
+    Farray_Freal8_1_2_1_316 gPCha, BRCha;
+    Farray_Freal8_1_2 gTCha;
+    Farray_Freal8_1_3_1_78 gPFu, BRFu;
+    Farray_Freal8_1_3 gTFu;
+
     // Call SPheno's function to calculate decays
-    //CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *gPSd, *gTSd, *BRSd, *gPSu, *gTSu, *BRSu, *gPSe, *gTSe, *BRSe, *gPSv, *gTSv, *BRSv, *gPhh, *gThh, *BRhh, *gPAh, *gTAh, *BRAh, *gPHpm, *gTHpm, *BRHpm, *gPGlu, *gTGlu, *BRGlu, *gPChi, *gTChi, *BRChi, *gPCha, *gTCha, *BRCha, *gPFu, *gTFu, *BRFu);
+    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
 
     return *kont;
   }
@@ -921,7 +942,7 @@ BE_NAMESPACE
     //Create Spectrum object
     static const Spectrum::mc_info mass_cut;
     static const Spectrum::mr_info mass_ratio_cut;
-    Spectrum spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
+    Spectrum spectrum = spectrum_from_SLHAea<NMSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
     // Add the high scale variable by hand
 //    spectrum.get_HE().set_override(Par::mass1, SLHAea::to<double>(slha.at("GAMBIT").at(1).at(1)), "high_scale", true);

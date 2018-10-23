@@ -78,10 +78,10 @@ SUSY_HIT:
 SPheno:
   3.3.8:	./Backends/installed/spheno/3.3.8/lib/libSPheno.so
 
-SARAH-SPheno_MSSM:
+SARAHSPheno_MSSM:
   3.3.8:	./Backends/installed/sarah-spheno/3.3.8/MSSM/lib/libSPhenoMSSM.so
 
-SARAH-SPheno_NMSSM:
+SARAHSPheno_NMSSM:
   4.0.3:	./Backends/installed/sarah-spheno/4.0.3/NMSSM/lib/libSPhenoNMSSM.so
 
 SUSYHD:

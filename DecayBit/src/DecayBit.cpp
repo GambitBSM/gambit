@@ -36,7 +36,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
-///  \date 2018 Feb
+///  \date 2018 Feb, Oct
 ///
 ///  *********************************************
 
@@ -3229,6 +3229,19 @@ namespace Gambit
       counter++;
       if (counter >= filenames.size()) counter = 0;
       decays = DecayTable(slha);
+    }
+
+    /// Get all the decays from SPheno
+    void all_NMSSM_decays_from_SPheno(DecayTable& decays)
+    {
+      namespace myPipe = Pipes::all_NMSSM_decays_from_SPheno;
+
+      // Get the spectrum object
+      Spectrum spectrum = *myPipe::Dep::unimproved_MSSM_spectrum;
+
+      // Get deays from SPheno
+      myPipe::BEreq::SARAHSPheno_NMSSM_decays(spectrum, decays);
+
     }
 
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates

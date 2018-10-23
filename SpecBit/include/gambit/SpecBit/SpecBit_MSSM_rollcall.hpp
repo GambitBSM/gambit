@@ -60,8 +60,8 @@
     START_FUNCTION(Spectrum)
     ALLOW_MODELS(NMSSM66atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPheno_NMSSMspectrum, (libSPhenoNMSSM), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPhenoNMSSM, 4.0.3), (libSPhenoNMSSM))
+    BACKEND_REQ(SARAHSPheno_NMSSM_spectrum, (libSPhenoNMSSM), int, (Spectrum&, const Finputs&) )
+    BACKEND_OPTION((SARAHSPheno_NMSSM, 4.0.3), (libSPhenoNMSSM))
     #undef FUNCTION
 
     // ==========================
