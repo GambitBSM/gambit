@@ -50,6 +50,7 @@
 #include "boost/math/distributions/poisson.hpp"
 #include "Eigen/Eigenvalues"
 #include "HEPUtils/FastJet.h"
+#include <gsl/gsl_sf_gamma.h>
 
 // #define COLLIDERBIT_DEBUG
 
@@ -2694,8 +2695,9 @@ namespace Gambit
                   for (size_t j = 0; j < adata.size(); ++j) {
                     const double lambda_b_j = std::max(n_pred_b_sample(j), 1e-3); //< manually avoid <= 0 rates
                     const double lambda_sb_j = std::max(n_pred_sb_sample(j), 1e-3); //< manually avoid <= 0 rates
-                    const double loglike_b_j  = n_obs(j)*log(lambda_b_j) - lambda_b_j;
-                    const double loglike_sb_j = n_obs(j)*log(lambda_sb_j) - lambda_sb_j;
+                    const double logfact_n_obs_j = gsl_sf_lnfact(n_obs(j));  //< log(n!) term common to both loglike_b_j and loglike_sb_j below
+                    const double loglike_b_j  = n_obs(j)*log(lambda_b_j) - lambda_b_j - logfact_n_obs_j;
+                    const double loglike_sb_j = n_obs(j)*log(lambda_sb_j) - lambda_sb_j - logfact_n_obs_j;
                     combined_loglike_b  += loglike_b_j;
                     combined_loglike_sb += loglike_sb_j;
                   }
