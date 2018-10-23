@@ -2587,13 +2587,18 @@ namespace Gambit
           // }
 
           // Construct vectors of SR numbers
-          Eigen::ArrayXd n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
+          Eigen::ArrayXd n_obs(adata.size()), logfact_n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
             const SignalRegionData srData = adata[SR];
 
             // Actual observed number of events
             n_obs(SR) = srData.n_observed;
+
+            // Log factorial of observed number of events.
+            // Currently use the ln(Gamma(x)) function gsl_sf_lngamma from GSL. (Need continuous function.)
+            // We may want to switch to using Sterlings approximation: ln(n!) ~ n*ln(n) - n
+            logfact_n_obs(SR) = gsl_sf_lngamma(n_obs(SR) + 1.);
 
             // A contribution to the predicted number of events that is not known exactly
             n_pred_b(SR) = srData.n_background;
@@ -2695,9 +2700,8 @@ namespace Gambit
                   for (size_t j = 0; j < adata.size(); ++j) {
                     const double lambda_b_j = std::max(n_pred_b_sample(j), 1e-3); //< manually avoid <= 0 rates
                     const double lambda_sb_j = std::max(n_pred_sb_sample(j), 1e-3); //< manually avoid <= 0 rates
-                    const double logfact_n_obs_j = gsl_sf_lnfact(n_obs(j));  //< log(n!) term common to both loglike_b_j and loglike_sb_j below
-                    const double loglike_b_j  = n_obs(j)*log(lambda_b_j) - lambda_b_j - logfact_n_obs_j;
-                    const double loglike_sb_j = n_obs(j)*log(lambda_sb_j) - lambda_sb_j - logfact_n_obs_j;
+                    const double loglike_b_j  = n_obs(j)*log(lambda_b_j) - lambda_b_j - logfact_n_obs(j);
+                    const double loglike_sb_j = n_obs(j)*log(lambda_sb_j) - lambda_sb_j - logfact_n_obs(j);
                     combined_loglike_b  += loglike_b_j;
                     combined_loglike_sb += loglike_sb_j;
                   }
