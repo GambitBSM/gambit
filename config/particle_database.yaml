@@ -161,10 +161,6 @@ OtherModels:
       PDG_context: [1000039, 0]
       description: "Gravitino"
       
-    - name: "A0"
-      PDG_context: [36, 0]
-      description: "Pseudoscalar Higgs"
-      
     - name: "H+"
       PDG_context: [37, 0]
       conjugate: "H-"
@@ -190,9 +186,13 @@ OtherModels:
   Sets:
   
     - name: "h0"
-      PDG_context: [[25, 0], [35, 0]]
+      PDG_context: [[25, 0], [35, 0], [45,0]]
       description: "Mass-ordered neutral Higgs"
       
+    - name: "A0"
+      PDG_context: [[36, 0], [46, 0]]
+      description: "Mass-ordered pseudoscalar Higgs"
+
     - name: "~d"
       PDG_context: [[1000001, 0], [1000003, 0], [1000005, 0], [2000001, 0], [2000003, 0], [2000005, 0]]
       conjugate: "~dbar"
@@ -214,7 +214,7 @@ OtherModels:
       description: "Mass-ordered sneutrinos"
       
     - name: "~chi0"
-      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0]]
+      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0], [1000045, 0]]
       description: "Mass-ordered neutralinos"
     
     - name: "~chi+"

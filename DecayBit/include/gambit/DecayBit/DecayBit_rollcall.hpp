@@ -710,6 +710,14 @@ START_MODULE
     START_FUNCTION(DecayTable)
     #undef FUNCTION
 
+    #define FUNCTION all_NMSSM_decays_from_SPheno
+    START_FUNCTION(DecayTable)
+    DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
+    BACKEND_REQ(SARAHSPheno_NMSSM_decays, (libSPhenoNMSSM), int, (const Spectrum&, DecayTable&) )
+    BACKEND_OPTION((SARAHSPheno_NMSSM, 4.0.3), (libSPhenoNMSSM))
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION
+
     #define FUNCTION all_decays
     START_FUNCTION(DecayTable)
     DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)

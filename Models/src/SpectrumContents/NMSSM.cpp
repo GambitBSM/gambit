@@ -59,7 +59,7 @@ namespace Gambit
      addParameter(Par::mass1, "vd", scalar);
      addParameter(Par::mass1, "vS", scalar); 
      addParameter(Par::mass1, "Tlambda", scalar);
-     addParameter(Par::mass2, "Tkappa", scalar);
+     addParameter(Par::mass1, "Tkappa", scalar);
 
      addParameter(Par::mass1, "TYd", m3x3);
      addParameter(Par::mass1, "TYe", m3x3);

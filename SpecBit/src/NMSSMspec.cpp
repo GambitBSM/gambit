@@ -102,7 +102,7 @@ namespace Gambit
       /// @{ Pole_Mass tagged entries
 
       // pole mass strings with no index
-/*      const std::vector<str> NMSSM_strs::pole_mass_strs = initVector( gluino, Hplus,
+      const std::vector<str> NMSSM_strs::pole_mass_strs = initVector( gluino, Hplus,
        					     Hminus, Goldstone0,
        					     Goldstoneplus,
        					     Goldstoneminus,
@@ -165,7 +165,7 @@ namespace Gambit
       /// @{ mass1 tagged entries
    
       // no index
-      const std::vector<str> NMSSM_strs::mass1_strs = initVector( M1, M2, M3, Mu, vu, vd, vS, Tlambda, Tkappa );
+      const std::vector<str> NMSSM_strs::mass1_strs = initVector( M1, M2, M3, vu, vd, vS, Tlambda, Tkappa );
       
       // two-index, 3x3 entries
       const std::vector<str> NMSSM_strs::mass1_strs_2_3x3 = initVector( TYd, TYe, TYu, ad, ae, au );
@@ -179,7 +179,7 @@ namespace Gambit
 
       // two-index, 3x3 entries
       const std::vector<str> NMSSM_strs::dimensionless_strs_2_3x3 = initVector( Yd, Yu, Ye );
-*/
+
       /// @}
       
       /// TODO: left out mass_eigenstate entries for now

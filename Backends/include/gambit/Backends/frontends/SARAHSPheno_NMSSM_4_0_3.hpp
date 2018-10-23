@@ -496,7 +496,7 @@ BE_FUNCTION(CalculateBR, void,
          Farray_Freal8_1_2&, // gTHpm
          Farray_Freal8_1_2_1_96&, // BRHpm
          Farray_Freal8_1_1_1_157&, // gPGlu
-         Freal8, // gTGlu
+         Freal8&, // gTGlu
          Farray_Freal8_1_1_1_157&, // BRGlu
          Farray_Freal8_1_5_1_482&, // gPChi
          Farray_Freal8_1_5&, // gTChi
@@ -814,11 +814,43 @@ BE_VARIABLE(Qin, Freal8, "__sphenonmssm_MOD_qin", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(ratioWoM, Freal8, "__sphenonmssm_MOD_ratiowom","SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(CalcTBD, Flogical, "__sphenonmssm_MOD_calctbd","SARAHSPheno_NMSSM_internal")
 // Branching Ratio variables
-
-
+/*BE_VARIABLE(gPSd, 
+BE_VARIABLE(gTSd
+BE_VARIABLE(BRSd
+BE_VARIABLE(gPSu
+BE_VARIABLE(gTSu
+BE_VARIABLE(BRSu
+BE_VARIABLE(gPSe
+BE_VARIABLE(gTSe
+BE_VARIABLE(BRSe
+BE_VARIABLE(gPSv
+BE_VARIABLE(gTSv
+BE_VARIABLE(BRSv
+BE_VARIABLE(gPhh
+BE_VARIABLE(gThh
+BE_VARIABLE(BRhh
+BE_VARIABLE(gPAh
+BE_VARIABLE(gTAh
+BE_VARIABLE(BRAh
+BE_VARIABLE(gPHpm
+BE_VARIABLE(gTHpm
+BE_VARIABLE(BRHpm
+BE_VARIABLE(gPGlu
+BE_VARIABLE(gTGlu
+BE_VARIABLE(BRGlu
+BE_VARIABLE(gPChi
+BE_VARIABLE(gTChi
+BE_VARIABLE(BRChi
+BE_VARIABLE(gPCha
+BE_VARIABLE(gTCha
+BE_VARIABLE(BRCha
+BE_VARIABLE(gPFu
+BE_VARIABLE(gTFu
+BE_VARIABLE(BRFu
+*/
 // Convenience functions (registration)
-BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPheno_NMSSMspectrum")
-BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &), "SPheno_NMSSMdecays")
+BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SARAHSPheno_NMSSM_spectrum")
+BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &), "SARAHSPheno_NMSSM_decays")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SARAHSPheno_NMSSM_internal")

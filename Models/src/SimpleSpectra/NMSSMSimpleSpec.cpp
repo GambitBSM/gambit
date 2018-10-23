@@ -239,7 +239,7 @@ namespace Gambit
             tmp_map["tanbeta"]= &Model::get_tanbeta;
             tmp_map["tanbeta(mZ)"]= &Model::get_tanbeta_mZ; // Special entry for reproducing MINPAR entry in SLHA
             tmp_map["sinW2"]= &Model::get_sinthW2_DRbar;
-            tmp_map["lamda"]   = &Model::get_lambda;
+            tmp_map["lambda"]   = &Model::get_lambda;
             tmp_map["kappa"]   = &Model::get_kappa;
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
