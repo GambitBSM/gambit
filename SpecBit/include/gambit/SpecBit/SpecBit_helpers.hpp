@@ -42,6 +42,11 @@ namespace Gambit
     /// Initialise QedQcd object from SMInputs data
     void setup_QedQcd(softsusy::QedQcd& oneset /*output*/, const SMInputs& sminputs /*input*/);
 
+    /// Declaration of the check for neutralino LSP.
+    bool has_neutralino_LSP(const Spectrum& result);
+
+    bool has_neutralino_LSP(const Spectrum* result);
+
   }
 }
  

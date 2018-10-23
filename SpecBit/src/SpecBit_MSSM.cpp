@@ -655,12 +655,12 @@ namespace Gambit
              mchi0 < msqu  &&
              mchi0 < msqd;
     }
+
     /// Helper to work with pointer
     bool has_neutralino_LSP(const Spectrum* result)
     {
       return has_neutralino_LSP(*result);
     }
-
 
     /// @} End module convenience functions
 
@@ -736,39 +736,6 @@ namespace Gambit
 
     }
 */
-
-    void get_NMSSM_spectrum_SPheno (Spectrum& spectrum)
-    {
-      namespace myPipe = Pipes::get_NMSSM_spectrum_SPheno;
-      const SMInputs &sminputs = *myPipe::Dep::SMINPUTS;
-
-      // Set up the input structure
-      Finputs inputs;
-      inputs.sminputs = sminputs;
-      inputs.param = myPipe::Param;
-      inputs.options = myPipe::runOptions;
-
-      // Retrieve any mass cuts
-      static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
-      static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
-
-      // Get the spectrum from the Backend
-      myPipe::BEreq::SPheno_NMSSMspectrum(spectrum, inputs);
- 
-      // Get the SLHA struct from the spectrum object
-      SLHAstruct slha = spectrum.getSLHAea(2);
-
-      // Convert into a spectrum object
-      spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
-
-      // Drop SLHA files if requested
-      spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
-
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
-
-
-    }
 
     // Runs FlexibleSUSY MSSMEFTHiggs model spectrum generator with SUSY
     // scale boundary conditions, ie accepts MSSM parameters at MSUSY,
