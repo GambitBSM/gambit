@@ -1,13 +1,12 @@
 --- Makefile	2015-08-28 22:39:35.000000000 +0930
-+++ Makefile_patched	2018-10-20 20:31:07.000000000 +1030
++++ Makefile_patched	2018-10-24 23:56:19.000000000 +1030
 @@ -1,28 +1,43 @@
 -# Makefile for 2HDMC 
 +# Makefile for 2HDMC
  
  # Choose your C++ compiler here (in general g++ on Linux systems):
--CC = g++
+ CC = g++
 -LDFLAGS=-lgsl -lgslcblas
-+CC = g++-6
 +STD = #-std=c++11
 +
 +GSLINCLUDE_DIR=/usr/local/Cellar/gsl/2.5/include/

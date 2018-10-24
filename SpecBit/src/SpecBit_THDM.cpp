@@ -59,10 +59,10 @@
 #define PI 3.14159265
 
 // Switch for debug mode
-// #define SPECBIT_DEBUG
+#define SPECBIT_DEBUG
 #define FS_THROW_POINT
 
-#ifdef SPECBIT_DEBUG
+#ifdef SPECBIT_DEBUG_VERBOSE
   bool print_debug_checkpoints = true;
 #else
   bool print_debug_checkpoints = false;
@@ -726,9 +726,9 @@ namespace Gambit
       const std::complex<double> i(0.0,1.0);
 
       quartic_couplings[1] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(cba,3)*sba*t2binv + mh2*pow(sba,4));
-      quartic_couplings[1] += -1.0/v2 * cba2*( 2.0*mA2 - 2.0*sqrt(m122)*sbinv*cbinv + (3.0*mh2 - mH2)*sba2 );
+      quartic_couplings[1] += -1.0/v2 * cba2*( 2.0*mA2 - 2.0*m122*sbinv*cbinv + (3.0*mh2 - mH2)*sba2 );
       quartic_couplings[2] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(sba,3)*cba*t2binv + mh2*pow(sba,4));
-      quartic_couplings[2] += -1.0/v2 * sba2*( 2.0*mA2 - 2.0*sqrt(m122)*sbinv*cbinv + (3.0*mH2 - mh2)*cba2 );
+      quartic_couplings[2] += -1.0/v2 * sba2*( 2.0*mA2 - 2.0*m122*sbinv*cbinv + (3.0*mH2 - mh2)*cba2 );
       quartic_couplings[3] = 1.0/v2 * (2.0*m122*sbinv*cbinv - 2.0*mC2 - mH2*cba2 - mh2*sba2 + (mH2 - mh2)*t2binv*s2b2a);
       quartic_couplings[4] = 1.0/v2 * (2.0*m122*sbinv*cbinv - (mH2 + 2.0*mh2)*cba2 - (mh2 + 2.0*mH2)*sba2 + (mH2 - mh2)*t2binv*s2b2a);
       quartic_couplings[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
@@ -796,6 +796,7 @@ namespace Gambit
 
       gsl_integration_qags (&B0_bar_int, 0, 1.0, 0, 1e-7, 1000,
                             w, &result, &error);
+      gsl_integration_workspace_free(w);
       return result;
     }
 
@@ -1361,6 +1362,9 @@ namespace Gambit
       const std::complex<double> zij_Hh = z_ij(Hh, container);
       const std::complex<double> zij_HpHm = z_ij(HpHm, container);
       const std::complex<double> zij_AA = z_ij(AA, container);
+
+      // std::cout << b_one << " | " << b_two << " | " << b_three << " | " << b_four << " | " << b_five << " | " << zij_wpwm << " | " << zij_zz << " | " \
+      // << zij_Hpwm << " | " << zij_Az << " | " << zij_hh << " | " << zij_HH << " | " << zij_hH << " | " << zij_Hh << " | " << zij_HpHm << " | " << zij_AA << std::endl;
 
       std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*b_one + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
       std::complex<double> B1_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
