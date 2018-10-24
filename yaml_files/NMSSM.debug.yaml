@@ -9,37 +9,37 @@ Parameters:
     Qin:
       fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
     TanBeta:
-      fixed_value: 10.0  # 41.709
+      fixed_value: 39.6
       # range: [1.0, 70.0]
       # prior_type: flat
     M1:
-      fixed_value: 500.0 # -4.28344
+      fixed_value: 2000.0
       # prior_type: double_log_flat_join
       # ranges: [-5e3, -1e1, 1e1, 5e3]
     M2:
-      fixed_value: 1000.0 # 646.834
+      fixed_value: 2000.0
       # prior_type: double_log_flat_join
       # ranges: [0, 0, 1e1, 5e3]
     M3:
       fixed_value: 3000
     kappa:
-      fixed_value: 0.01    # 6.76908e-05
+      fixed_value: 0.016 
       # prior_type: log
       # range: [1e-5, 1]
     lambda:
-      fixed_value: 0.01  # 0.264407
+      fixed_value: 0.091 
       # prior_type: log
       # range: [1e-5, 1]
     Akappa:
-      fixed_value: 0.01   # 0.000197751
-      # prior_type: log
-      # range: [1e-5, 1]
+      fixed_value: -35.9
+      # prior_type: double_log_flat_join
+      # range: [-5e3, -1e1, 1e1, 5e3]
     Alambda:
-      fixed_value: 0.01  # 8.1765e-05
-      # prior_type: log
-      # range: [1e-5, 1]
+      fixed_value: 8940.
+      # prior_type: double_log_flat_join
+      # range: [-5e3, -1e1, 1e1, 5e3]
     mueff:
-      fixed_value: 1000.0  # 94.0623
+      fixed_value: 163.3
       # prior_type: double_log_flat_join
       # ranges: [-5e3, -1e1, 1e1, 5e3]
     ml2_11:
@@ -200,9 +200,9 @@ ObsLikes:
     capability:   run_MSSMspectrum_test
     type:         bool
 
-  - purpose:      Observable
-    capability:   decay_rates
-    type:         DecayTable
+  # - purpose:      Observable
+  #   capability:   decay_rates
+  #   type:         DecayTable
 
 Rules:
   - capability: unimproved_MSSM_spectrum
