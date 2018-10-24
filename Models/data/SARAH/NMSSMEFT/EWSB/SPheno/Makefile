@@ -53,7 +53,6 @@ ${shared}:
 	ar x ../lib/libSPhenoNMSSMEFT.a
 	ar x ../lib/libSPheno.a
 	${F90} -shared -o ../${shared} ${LFlagsB} *.o
-	ls *.o
 	rm *.o
 bin/SPhenoNMSSMEFT:
 ifeq (${cVersion},1)
