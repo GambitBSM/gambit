@@ -93,7 +93,7 @@ BE_FUNCTION(Switch_from_superCKM, void,
          Farray_Fcomplex16_1_3_1_3&, // mq2_out
          Farray_Fcomplex16_1_3_1_3&, // mu2_out
          Flogical& // Tranposed
-        ), "__sphenonmssm_MOD_switch_from_superckm", "SARAHPhenoNMSSMEFT_internal")
+        ), "__model_data_MOD_switch_from_superckm", "SARAHPhenoNMSSMEFT_internal")
 BE_FUNCTION(SolveTadpoleEquations, void,
         (Freal8&, // g1
          Freal8&, // g2
