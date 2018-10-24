@@ -414,6 +414,9 @@ namespace Gambit
         // Add SPINFO data if not already present
         SLHAea_add_GAMBIT_SPINFO(slha);
 
+        // Add MODSEL 
+        SLHAea_add_MODSEL(slha, slha_version);
+
         // All MSSM blocks
         slhahelp::add_MSSM_spectrum_to_SLHAea(*this, slha, slha_version);
       }

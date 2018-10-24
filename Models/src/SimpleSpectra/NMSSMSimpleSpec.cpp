@@ -114,12 +114,16 @@ namespace Gambit
         // Add SPINFO data if not already present
         SLHAea_add_GAMBIT_SPINFO(slha);
 
-        // All NMSSM blocks
+        // Add MODSEL 
+        SLHAea_add_MODSEL(slha, slha_version);
+
+        // All MSSM blocks
         slhahelp::add_MSSM_spectrum_to_SLHAea(*this, slha, slha_version);
 
         // Add NMSSM specific blocks and entries
 
         // Block NMSSMRUN
+        SLHAea_delete_block(slha, "NMSSMRUN");
         SLHAea_add_block(slha, "NMSSMRUN", GetScale());
         slha["NMSSMRUN"][""] << 1 << get(Par::dimensionless, "lambda") << "# lam";
         slha["NMSSMRUN"][""] << 2 << get(Par::dimensionless, "kappa")  << "# kap";
@@ -128,16 +132,41 @@ namespace Gambit
         slha["NMSSMRUN"][""] << 5 << get(Par::mass1, "vS")  << "# vS";
         slha["NMSSMRUN"][""] << 10 << get(Par::mass2, "ms2")  << "# ms2";
 
-        // Missing masses and couplings for the extra neutralino and higgses
-        slha["MASS"][""] << 45 << get(Par::Pole_Mass, "h0", 3) << "# hh_3";
-        slha["MASS"][""] << 46 << get(Par::Pole_Mass, "A0", 2) << "# Ah_2";
-        slha["MASS"][""] << 1000045 << get(Par::Pole_Mass, "~chi0", 5) << "# Chi_5";
-        for(int i=1; i<5; i++)
+        // Remove and rewrite the full MASS block
+        SLHAea_delete_block(slha, "MASS");
+        std::vector<int> pdg_codes = {24,25,35,45,37,36,46,1000021,1000024,1000037,1000022,1000023,1000025,1000035,1000045,1000006,2000006,1000005,2000005,1000015,2000015,1000012,1000014,1000016,1000001,1000003,2000001,2000003,1000011,1000013,2000011,2000013,1000002,1000004,2000002,2000004};
+
+        for(unsigned int i=0;i<pdg_codes.size();i++)
         {
-          slha["NMIX"][""] << i << 5 << get(Par::Pole_Mixing, "~chi0", i, 5) << "~chi0 mixing matrix (" << i << ",5)";
-          slha["NMIX"][""] << 5 << i << get(Par::Pole_Mixing, "~chi0", 5, i) << "~chi0 mixing matrix (5," << i << ")";
-        }
-        slha["NMIX"][""] << 5 << 5 << get(Par::Pole_Mixing, "~chi0", 5, 5) << "~chi0 mixing matrix (5,5)";
+          str comment(Models::ParticleDB().long_name(pdg_codes[i], 0));
+          SLHAea_add_from_subspec(slha, LOCAL_INFO, *this, Par::Pole_Mass, std::pair<int, int>(pdg_codes[i],0), "MASS", comment);
+         }
+
+         // Remove and rewrite the full NMIX block
+         sspair N("NMIX","~chi0");
+         SLHAea_delete_block(slha, N.first);
+         SLHAea_add_block(slha, N.first, GetScale());
+         for(int i=1;i<6;i++) for(int j=1;j<6;j++)
+         {
+           std::ostringstream comment; 
+           comment << N.second << " mixing matrix (" << i << "," << j << ")";
+           SLHAea_add_from_subspec(slha, LOCAL_INFO, *this, Par::Pole_Mixing, N.second, i, j, N.first, i, j, comment.str());
+         }
+
+         // Remove and rewrite PSEUDOSCALARMIX and SCALARMIX.
+         SLHAea_delete_block(slha, "SCALARMIX");
+         SLHAea_delete_block(slha, "PSEUDOSCALARMIX");
+         SLHAea_add_block(slha, "SCALARMIX", GetScale());
+         SLHAea_add_block(slha, "PSEUDOSCALARMIX", GetScale());
+         for(int i=1;i<=3;i++) for(int j=1;j<=3;j++)
+         {
+           std::ostringstream comment;
+           comment << "h0 mixing matrix (" << i << "," << j << ")";
+           SLHAea_add_from_subspec(slha, LOCAL_INFO, *this, Par::Pole_Mixing, "h0",  i, j, "SCALARMIX", i, j, comment.str());
+           comment.str("");
+           comment << "A0 mixing matrix (" << i << "," << j << ")";
+           SLHAea_add_from_subspec(slha, LOCAL_INFO, *this, Par::Pole_Mixing, "A0",  i, j, "PSEUDOSCALARMIX", i, j, comment.str());
+         }
 
       }
 

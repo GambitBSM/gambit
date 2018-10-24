@@ -320,48 +320,18 @@ BE_NAMESPACE
 
     // Fill input parameters with spectrum information
     // Masses
-    for(int i=1; i<=3; i++)
-    {
-      (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
-      (*MAh2)(i) = pow((*MAh)(i),2);
-    }
-    for(int i=1; i<=2; i++)
-    {
-      (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
-      (*MCha2)(i) = pow((*MCha)(i),2);
-    }
-    for(int i=1; i<=5; i++)
-    {
-      (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
-      (*MChi2)(i) = pow((*MChi)(i),2);
-    }
-    (*MFd)(1) = spectrum.get(Par::Pole_Mass, "d_1");
-    (*MFd)(2) = spectrum.get(Par::Pole_Mass, "d_2");
-    (*MFd)(3) = spectrum.get(Par::Pole_Mass, "d_3");
-    (*MFe)(1) = spectrum.get(Par::Pole_Mass, "e-_1");
-    (*MFe)(2) = spectrum.get(Par::Pole_Mass, "e-_2");
-    (*MFe)(3) = spectrum.get(Par::Pole_Mass, "e-_3");
-    (*MFu)(1) = spectrum.get(Par::Pole_Mass, "u_1");
-    (*MFu)(2) = spectrum.get(Par::Pole_Mass, "u_2");
-    (*MFu)(3) = spectrum.get(Par::Pole_Mass, "u_3");
-    for(int i=1; i<=3; i++)
-    {
-      (*MFd2)(i) = pow((*MFd)(i),2);
-      (*MFe2)(i) = pow((*MFe)(i),2);
-      (*MFu2)(i) = pow((*MFu)(i),2);
-    }
+    SMInputs sminputs = spectrum.get_SMInputs();
+    (*MFd)(1) = sminputs.mD;
+    (*MFd)(2) = sminputs.mS;
+    (*MFd)(3) = sminputs.mBmB;
+    (*MFe)(1) = sminputs.mE;
+    (*MFe)(2) = sminputs.mMu;
+    (*MFe)(3) = sminputs.mTau;
+    (*MFu)(1) = sminputs.mU;
+    (*MFu)(2) = sminputs.mCmC;
+    (*MFu)(3) = sminputs.mT;
     *MGlu = spectrum.get(Par::Pole_Mass, "~g");
     *MGlu2 = pow(*MGlu,2);
-    for(int i=1; i<=3; i++)
-    {
-      (*Mhh)(i) = spectrum.get(Par::Pole_Mass, "h0",i);
-      (*Mhh2)(i) = pow((*Mhh2)(i),2);
-    }
-    for(int i=1; i<=2; i++)
-    {
-      (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+",i);
-      (*MHpm2)(i) = pow((*MHpm)(i),2);
-    }
     for(int i=1; i<=6; i++)
     {
       (*MSd)(i) = spectrum.get(Par::Pole_Mass, "~d",i);
@@ -370,12 +340,34 @@ BE_NAMESPACE
       (*MSe2)(i) = pow((*MSe)(i),2);
       (*MSu)(i) = spectrum.get(Par::Pole_Mass, "~u",i);
       (*MSu2)(i) = pow((*MSu)(i),2);
+      if(i <=5 )
+      {
+        (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
+        (*MChi2)(i) = pow((*MChi)(i),2);
+      }
+      if(i <= 3)
+      {
+        (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
+        (*MSv2)(i) = pow((*MSv)(i),2);
+        (*Mhh)(i) = spectrum.get(Par::Pole_Mass, "h0",i);
+        (*Mhh2)(i) = pow((*Mhh2)(i),2);
+        (*MFd2)(i) = pow((*MFd)(i),2);
+        (*MFe2)(i) = pow((*MFe)(i),2);
+        (*MFu2)(i) = pow((*MFu)(i),2);
+ 
+      }
+      if(i <= 2)
+      {
+        (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
+        (*MCha2)(i) = pow((*MCha)(i),2);
+        (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
+        (*MAh2)(i) = pow((*MAh)(i),2);
+        (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+");
+        (*MHpm2)(i) = pow((*MHpm)(i),2);
+      }
     }
-    for(int i=1; i<=3; i++)
-    {
-      (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
-      (*MSv2)(i) = pow((*MSv)(i),2);
-    }
+    //FIXME: temporary hack
+    (*MAh)(1) = 1000;
     *MVWm = spectrum.get(Par::Pole_Mass, "W-");
     *MVWm2 = pow(*MVWm,2);
     *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
@@ -410,9 +402,6 @@ BE_NAMESPACE
           (*ZH)(i,j) = spectrum.get(Par::Pole_Mixing, "h0", i, j);
           (*ZA)(i,j) = spectrum.get(Par::Pole_Mixing, "A0", i, j);
           (*ZV)(i,j) = spectrum.get(Par::Pole_Mixing, "~nu", i, j);
-          (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
-          (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
-          (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
           (*Td)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
           (*Te)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
           (*Tu)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
@@ -421,16 +410,25 @@ BE_NAMESPACE
           (*md2)(i,j) = spectrum.get(Par::mass2, "md2", i, j);
           (*mu2)(i,j) = spectrum.get(Par::mass2, "mu2", i, j);
           (*me2)(i,j) = spectrum.get(Par::mass2, "me2", i, j);
-
+          (*Yd)(i,j) = 0;
+          (*Ye)(i,j) = 0;
+          (*Yu)(i,j) = 0; 
+          if(i == j)
+          {
+            (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
+            (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
+            (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
+          }
+ 
         }
         if(i<=5 and j<=5)
-          (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "chi0", i, j);
+          (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi0", i, j);
         if(i<=2 and j<=2)
         {
           (*ZP)(i,j) = spectrum.get(Par::Pole_Mixing, "H+", i, j);
           (*UM)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi-", i, j);
           (*UP)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi+", i, j);
-          // TODO: Check if these mixings are really this
+          // TODO: Check if these mixings are really like this
           (*ZW)(i,j) = 0;
           (*ZZ)(i,j) = 0;
           if(i == j)
@@ -461,11 +459,11 @@ BE_NAMESPACE
 
     // Parameters specific of the NMSSM
     *vS = spectrum.get(Par::mass1, "vS");
-    *lam = spectrum.get(Par::dimensionless, "lam");
-    *kap = spectrum.get(Par::mass1, "kap");
-    *Tlam = spectrum.get(Par::dimensionless, "Tlam");
-    *Tk = spectrum.get(Par::mass1, "Tk");
-    *ms2 = spectrum.get(Par::mass1, "ms2");
+    *lam = spectrum.get(Par::dimensionless, "lambda");
+    *kap = spectrum.get(Par::dimensionless, "kappa");
+    *Tlam = spectrum.get(Par::mass1, "Tlambda");
+    *Tk = spectrum.get(Par::mass1, "Tkappa");
+    *ms2 = spectrum.get(Par::mass2, "ms2");
 
     // Declare all needed decay variables
     Farray_Freal8_1_6_1_1245 gPSd, gPSu, BRSd, BRSu;
@@ -491,6 +489,19 @@ BE_NAMESPACE
 
     // Call SPheno's function to calculate decays
     CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
+
+    cout << gTGlu << endl;
+
+    DecayTable::Entry entry;
+    entry.calculator = STRINGIFY(BACKENDNAME);
+    entry.calculator_version = STRINGIFY(VERSION);
+
+    entry.width_in_GeV = gTGlu;
+    entry.negative_error = 0.0; // TODO: check this
+    //for(int i=1; i<=157; i++)
+      entry.set_BF(BRGlu(1,1), 0.0, "~d_L", "dbar");
+
+    decays("~g") = entry;
 
     return *kont;
   }
@@ -621,6 +632,7 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
+ 
     // TODO: Add this
     // if(*SwitchToSCKM)
 
@@ -790,16 +802,6 @@ BE_NAMESPACE
 
     slha["MASS"][""] << 23 << *MVZ << "# VZ";
     slha["MASS"][""] << 24 << *MVWm << "# VWm";
-
-    slha["MASS"][""] << 1 << (*MFd)(1) << "# Fd_1";
-    slha["MASS"][""] << 3 << (*MFd)(2) << "# Fd_2";
-    slha["MASS"][""] << 5 << (*MFd)(3) << "# Fd_3";
-    slha["MASS"][""] << 2 << (*MFu)(1)<< "# Fu_1";
-    slha["MASS"][""] << 4 << (*MFu)(2)<< "# Fu_2";
-    slha["MASS"][""] << 6 << (*MFu)(3)<< "# Fu_3";
-    slha["MASS"][""] << 11 << (*MFe)(1)<< "# Fe_1";
-    slha["MASS"][""] << 13 << (*MFe)(2)<< "# Fe_2";
-    slha["MASS"][""] << 15 << (*MFe)(3)<< "# Fe_3";
 
     slha["MASS"][""] << 1000021 << *MGlu << "# Glu";
 

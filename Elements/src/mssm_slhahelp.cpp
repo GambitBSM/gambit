@@ -75,7 +75,7 @@ namespace Gambit
       void add_MODSEL_disclaimer(SLHAstruct& slha, const str& object)
       {
         slha.push_front("# depend on which calculator you intend this object or file to be used with.");
-        slha.push_front("# Note that block MODSEL is not automatically emitted, as its contents");
+        slha.push_front("# Note that block PDB automatically emitted, as its contents");
         slha.push_front("# This SLHA(ea) object was created from a GAMBIT "+object+" object.");
       }
 
@@ -774,7 +774,7 @@ namespace Gambit
          std::ostringstream comment;
 
          // Make sure to overwrite all entries if they exist already (from say a "hurriedly" copied SM subspectrum + unknown extra MSSM junk)
-
+        
          //SPINFO block should be added separately.
          // MINPAR block; some programs need tanbeta(mZ), so we should output it here if possible
          SLHAea_check_block(slha, "MINPAR");

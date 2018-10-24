@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
@@ -221,7 +225,7 @@ namespace Gambit
      if(it!=slha.end()) slha.erase(it);
   }
 
-  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha /*modify*/)
+  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha)
   {
      // For now we don't try to track where the data originally came from, we just label
      // it as GAMBIT-produced.
@@ -231,6 +235,18 @@ namespace Gambit
         SLHAea_add(slha, "SPINFO", 1, "GAMBIT", "Program");
         SLHAea_add(slha, "SPINFO", 2, gambit_version(), "Version number");
      }
+  }
+  
+  // Add MODSEL. Right now just the SLHA type
+  void SLHAea_add_MODSEL(SLHAstruct& slha, int slha_version)
+  {
+    if(not SLHAea_check_block(slha, "MODSEL", 1, false))
+    {
+      if(slha_version == 1)
+        SLHAea_add(slha, "MODSEL", 6, 0, "# SLHA 1, no flavour violation");
+      else if(slha_version == 2)
+        SLHAea_add(slha, "MODSEL", 6, 3, "# SLHA 2, all flavour violation");
+    }
   }
 
   /// Add an entry to an SLHAea object (if overwrite=false, only if it doesn't already exist)

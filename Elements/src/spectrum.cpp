@@ -32,6 +32,10 @@
 ///          (a.m.b.krislock@fys.uio.no)
 ///  \date 2016 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #include "gambit/Elements/spectrum.hpp"

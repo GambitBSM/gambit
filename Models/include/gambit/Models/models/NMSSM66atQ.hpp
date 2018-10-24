@@ -18,7 +18,7 @@
 #ifndef __NMSSM66atQ_hpp__
 #define __NMSSM66atQ_hpp__
 
-/// 66 parameters plus sign, plus input scale NMSSM parameterisation
+/// 66 parameters plus input scale NMSSM parameterisation
 #define MODEL NMSSM66atQ
   START_MODEL
   DEFINEPARS(Qin,TanBeta,
