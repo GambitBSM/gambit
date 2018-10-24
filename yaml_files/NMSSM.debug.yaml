@@ -200,6 +200,11 @@ ObsLikes:
     capability:   run_MSSMspectrum_test
     type:         bool
 
+  - purpose:      Observable
+    capability:   NMSSM_decay_rates_map
+    function:     get_NMSSM_decay_rates_as_map
+    type:         map_str_dbl
+
   # - purpose:      Observable
   #   capability:   decay_rates
   #   type:         DecayTable
@@ -221,6 +226,8 @@ Rules:
 
   - capability: decay_rates
     function:   all_NMSSM_decays_from_SPheno
+    options:
+      drop_SLHA_file: true
 
 
 Logger:

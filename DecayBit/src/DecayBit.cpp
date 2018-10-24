@@ -3239,10 +3239,35 @@ namespace Gambit
       // Get the spectrum object
       Spectrum spectrum = *myPipe::Dep::unimproved_MSSM_spectrum;
 
-      // Get deays from SPheno
+      // Use SPheno to fill the decay table
       myPipe::BEreq::SARAHSPheno_NMSSM_decays(spectrum, decays);
 
+      /// Spit out the full decay table as SLHA1 and SLHA2 files.
+      /// @todo Get the mass eigenstate pseudonyms working for NMSSM as well. Need it for SLHA1 decays
+      if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
+      {
+        str prefix   = myPipe::runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
+        str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
+        // decays.writeSLHAfile(1,prefix+filename+".slha1",false,psn);
+        // decays.writeSLHAfile(2,prefix+filename+".slha2",false,psn);
+        // decays.writeSLHAfile(1,prefix+filename+".slha1",false);
+        decays.writeSLHAfile(2,prefix+filename+".slha2",false);
+      }
+
     }
+
+    /// Get NMSSM decay rates as map<str,double> 
+    void get_NMSSM_decay_rates_as_map(map_str_dbl& result)
+    {
+      namespace myPipe = Pipes::get_NMSSM_decay_rates_as_map;
+
+      // Get the decay table
+      DecayTable decays = *myPipe::Dep::decay_rates;
+
+      // TODO: Add a function get_BRs_as_map to DecayTable. Call this here to fill the result map
+      result["dummy_BR"] = 1.0;
+    }
+
 
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates
     void get_mass_es_pseudonyms(mass_es_pseudonyms& result)

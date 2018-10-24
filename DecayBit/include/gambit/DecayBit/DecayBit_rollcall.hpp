@@ -703,6 +703,19 @@ START_MODULE
 
   #undef CAPABILITY
 
+
+  // Get NMSSM decay table as a map<str,double>. 
+  // (Can we turn this into a completely model independent function "get_decay_rates_as_map"?)
+  #define CAPABILITY NMSSM_decay_rates_map
+  START_CAPABILITY
+    #define FUNCTION get_NMSSM_decay_rates_as_map
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(decay_rates, DecayTable)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION    
+  #undef CAPABILITY
+
+
   #define CAPABILITY decay_rates
   START_CAPABILITY
 

@@ -499,7 +499,11 @@ BE_NAMESPACE
     entry.width_in_GeV = gTGlu;
     entry.negative_error = 0.0; // TODO: check this
     //for(int i=1; i<=157; i++)
-      entry.set_BF(BRGlu(1,1), 0.0, "~d_L", "dbar");
+
+      // Just to get something working: Passing in pairs of {PDG code, context int} to choose final state. 
+      // Probably want to use one of the other versions of set_BF...
+      entry.set_BF(BRGlu(1,1), 0.0, std::pair<int,int> {1000001, 0}, std::pair<int,int> {-1, 0});
+      // entry.set_BF(BRGlu(1,1), 0.0, "~d_L", "dbar");
 
     decays("~g") = entry;
 
