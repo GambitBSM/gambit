@@ -45,7 +45,8 @@ LFlagsB= -O -fpic -DONLYDOUBLE -mdir ${MDir} -I${InDir}
 endif
 .SUFFIXES : .o .ps .f90 .F90 .a
 ${shared}:
-	cd ../src ; rm -f *.o ; ${MAKE} F90=${F90}
+	cd ../src ; ${MAKE} F90=${F90}
+	rm -f *.o
 	${MAKE} F90=${F90} ${name}
 	${MAKE} F90=${F90} SPhenoNMSSMEFT.o
 	ar x ../lib/libSPhenoNMSSMEFT.a

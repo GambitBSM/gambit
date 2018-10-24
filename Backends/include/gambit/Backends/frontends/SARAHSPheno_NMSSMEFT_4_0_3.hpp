@@ -291,7 +291,7 @@ BE_FUNCTION(CalculateSpectrum, void,
    Fcomplex16&, // M2
    Fcomplex16&, // M3
    Freal8& //  m_GUT
-  ), "__sphenonmssm_MOD_calculatespectrum", "SARAHPhenoNMSSMEFT_internal")
+  ), "calculatespectrum.2199", "SARAHPhenoNMSSMEFT_internal")
 BE_FUNCTION(GetScaleUncertainty, void,
   (Freal8&, // delta_mass
    Flogical&, // WriteOut
@@ -507,7 +507,7 @@ BE_FUNCTION(CalculateBR, void,
    Farray_Freal8_1_3_1_78&, // gPFu
    Farray_Freal8_1_3&, // gTFu
    Farray_Freal8_1_3_1_78& // BRFu
-  ), "__branchingratios_nmssmeft_MOD_calculatebr_2", "SARAHPhenoNMSSMEFT_internal")
+  ), "__branchingratios_nmssmeft_MOD_calculatebr", "SARAHPhenoNMSSMEFT_internal")
 
 // Variables
 // MODSEL Variables
