@@ -291,7 +291,7 @@ BE_FUNCTION(CalculateSpectrum, void,
    Fcomplex16&, // M2
    Fcomplex16&, // M3
    Freal8& //  m_GUT
-  ), "calculatespectrum.2199", "SARAHPhenoNMSSMEFT_internal")
+  ), "__sphenonmssmeft_MOD_calculatespectrum", "SARAHPhenoNMSSMEFT_internal")
 BE_FUNCTION(GetScaleUncertainty, void,
   (Freal8&, // delta_mass
    Flogical&, // WriteOut
