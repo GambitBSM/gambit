@@ -2018,20 +2018,19 @@ BE_NAMESPACE
         str first;
         sline >> first;
         // Ignore the line if it is a comment
-        if(first[0] != '#')
+        if(first[0] != '#' and first != "")
         {
           // If the line starts with DECAY read up the pdg of the decaying particle
-          if(first == "DECAY")
+          if(first == "DECAY" or first == "DECAY1L")
           {
             sline >> parent_pdg;
-            cout << parent_pdg << endl;
           }
           else
           {
             // Read up the decay index as well as the pdgs for the daughters
             int index, nda, pdg;
             std::vector<std::pair<int,int> > daughter_pdgs;
-            sline >> index;
+            index = stoi(first);
             sline >> nda;
             for(int i=0; i<nda; i++)
             {
