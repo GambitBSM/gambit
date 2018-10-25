@@ -850,7 +850,7 @@ BE_VARIABLE(BRFu
 */
 // Convenience functions (registration)
 BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SARAHSPheno_NMSSM_spectrum")
-BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &), "SARAHSPheno_NMSSM_decays")
+BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &, const Finputs&), "SARAHSPheno_NMSSM_decays")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SARAHSPheno_NMSSM_internal")

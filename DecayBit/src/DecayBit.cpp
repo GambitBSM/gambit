@@ -3239,8 +3239,13 @@ namespace Gambit
       // Get the spectrum object
       Spectrum spectrum = *myPipe::Dep::unimproved_MSSM_spectrum;
 
+      // Set up the input structure
+      Finputs inputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
+
       // Use SPheno to fill the decay table
-      myPipe::BEreq::SARAHSPheno_NMSSM_decays(spectrum, decays);
+      myPipe::BEreq::SARAHSPheno_NMSSM_decays(spectrum, decays, inputs);
 
       /// Spit out the full decay table as SLHA1 and SLHA2 files.
       /// @todo Get the mass eigenstate pseudonyms working for NMSSM as well. Need it for SLHA1 decays

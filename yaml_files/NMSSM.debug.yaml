@@ -228,6 +228,7 @@ Rules:
     function:   all_NMSSM_decays_from_SPheno
     options:
       drop_SLHA_file: true
+      decays_file: "Backends/data/all_SPheno_NMSSM_decays.txt"
 
 
 Logger:

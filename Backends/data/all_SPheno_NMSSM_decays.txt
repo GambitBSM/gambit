@@ -1,7 +1,6 @@
-
-This file contains a list of all the NMSSM decays calculated by sarah-spheno_NMSSM,
-along with the corresponding INDEX used internally in sarah-spheno_NMSSM. 
-(We need this to extract the correct values.)
+#This file contains a list of all the NMSSM decays calculated by sarah-spheno_NMSSM,
+#along with the corresponding INDEX used internally in sarah-spheno_NMSSM. 
+#(We need this to extract the correct values.)
 
 
 DECAY   1000001     5.83701248E+01   # Sd_1

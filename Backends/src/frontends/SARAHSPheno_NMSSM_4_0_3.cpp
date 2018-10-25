@@ -18,10 +18,21 @@
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
 #include "gambit/Utils/version.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 // Convenience functions (definition)
 BE_NAMESPACE
 {
+
+  // Variables and functions to keep and access decay info
+  namespace Fdecays
+  {
+    static std::map<std::pair<int, int>, std::vector<std::pair<int,int> > > decay_channels;
+
+    void fill_decay_channels(str decays_file);
+
+    std::vector<std::pair<int,int> > get_decay_channel(int pdg_code, int i);
+  }
 
   // Convenience function to run SPheno and obtain the spectrum
   int run_SPheno(Spectrum &spectrum, const Finputs &inputs)
@@ -308,7 +319,7 @@ BE_NAMESPACE
   }
 
   // Convenience funciton to run Spheno and obtain the decays
-  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays)
+  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays, const Finputs& inputs)
   {
 
     // Initialize some variables
@@ -317,6 +328,24 @@ BE_NAMESPACE
     *epsI = 1.0E-5;
     *deltaM = 1.0e-6;
     *kont =  0;
+
+    // Read the file with info about decay channels
+    static bool scan_level_decays = true;
+    if (scan_level_decays)
+    {
+      str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
+      decays_file = str(GAMBIT_DIR) + '/' + decays_file;
+
+      // Make sure the file is read by one MPI process at a time
+      Utils::FileLock mylock("run_SPheno_decays");
+      mylock.get_lock();
+
+      Fdecays::fill_decay_channels(decays_file);
+
+      mylock.release_lock();
+
+      scan_level_decays = false;
+    }
 
     // Fill input parameters with spectrum information
     // Masses
@@ -366,8 +395,6 @@ BE_NAMESPACE
         (*MHpm2)(i) = pow((*MHpm)(i),2);
       }
     }
-    //FIXME: temporary hack
-    (*MAh)(1) = 1000;
     *MVWm = spectrum.get(Par::Pole_Mass, "W-");
     *MVWm2 = pow(*MVWm,2);
     *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
@@ -479,7 +506,7 @@ BE_NAMESPACE
     Farray_Freal8_1_2_1_96 gPHpm, BRHpm;
     Farray_Freal8_1_2 gTHpm;
     Farray_Freal8_1_1_1_157 gPGlu, BRGlu;
-    Freal8 gTGlu;
+    Freal8 gTGlu = 0.0;
     Farray_Freal8_1_5_1_482 gPChi, BRChi;
     Farray_Freal8_1_5 gTChi;
     Farray_Freal8_1_2_1_316 gPCha, BRCha;
@@ -490,22 +517,163 @@ BE_NAMESPACE
     // Call SPheno's function to calculate decays
     CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
 
-    cout << gTGlu << endl;
-
+    // Fill in info about the entry for all decays
     DecayTable::Entry entry;
     entry.calculator = STRINGIFY(BACKENDNAME);
     entry.calculator_version = STRINGIFY(VERSION);
+    entry.positive_error = 0.0; // TODO: check this
+    entry.negative_error = 0.0;
 
-    entry.width_in_GeV = gTGlu;
-    entry.negative_error = 0.0; // TODO: check this
-    //for(int i=1; i<=157; i++)
 
-      // Just to get something working: Passing in pairs of {PDG code, context int} to choose final state. 
-      // Probably want to use one of the other versions of set_BF...
-      entry.set_BF(BRGlu(1,1), 0.0, std::pair<int,int> {1000001, 0}, std::pair<int,int> {-1, 0});
-      // entry.set_BF(BRGlu(1,1), 0.0, "~d_L", "dbar");
+    // Sd decays
+    {
+      int pdg[] = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005};
+      int n_particles = 6, n_channels = 1245;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTSd(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRSd(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        cout << Models::ParticleDB().long_name(pdg[i],i) << endl;
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
 
-    decays("~g") = entry;
+    // Su decays
+    {
+      int pdg[] = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
+      int n_particles = 6, n_channels = 1245;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTSu(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRSu(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Se decays
+    {
+      int pdg[] = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
+      int n_particles = 3, n_channels = 1128;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTSe(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRSe(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Sv decays
+    {
+      int pdg[] = {1000012, 1000014, 1000016};
+      int n_particles = 3, n_channels = 1002;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTSv(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRSv(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // hh decays
+    {
+      int pdg[] = {25, 35, 45};
+      int n_particles = 3, n_channels = 209;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gThh(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRhh(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Ah decays
+    {
+      int pdg[] = {36, 46};
+      int n_particles = 3, n_channels = 207;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTAh(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRAh(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Hpm decays
+    {
+      int pdg[] = {37,-37};
+      int n_particles = 2, n_channels = 96;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTHpm(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRHpm(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Glu  decays
+    {
+      int pdg[] = {1000021};
+      int n_particles = 1, n_channels = 157;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTGlu;
+        for(int j=1; j<=n_channels; j++)
+        {
+          cout << Fdecays::get_decay_channel(pdg[i], j) << endl;
+          entry.set_BF(BRGlu(i,j), 0.0, Fdecays::get_decay_channel(pdg[i], j)); 
+        }
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Chi decays
+    {
+      int pdg[] = {1000022, 1000023, 1000025, 1000035, 1000045};
+      int n_particles = 5, n_channels = 482;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTChi(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRChi(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+    // Cha decays
+    {
+      int pdg[] = {1000024, 1000037};
+      int n_particles = 2, n_channels = 316;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTCha(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRCha(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+
+    // Fu decays
+    {
+      int pdg[] = {2, 4, 6};
+      int n_particles = 3, n_channels = 78;
+      for(int i=1; i<=n_particles; i++)
+      {
+        entry.width_in_GeV = gTFu(i);
+        for(int j=1; j<=n_channels; j++)
+          entry.set_BF(BRFu(i,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        decays(Models::ParticleDB().long_name(pdg[i],i)) = entry;
+      }
+    }
+
+
 
     return *kont;
   }
@@ -1836,8 +2004,60 @@ BE_NAMESPACE
 
   }
 
+  //Helper functions
+  void Fdecays::fill_decay_channels(str decays_file)
+  {
+    std::ifstream file(decays_file);
+    if(file.is_open())
+    {
+      str line;
+      int parent_pdg;
+      while(getline(file, line))  
+      {
+        std::istringstream sline(line);
+        str first;
+        sline >> first;
+        // Ignore the line if it is a comment
+        if(first[0] != '#')
+        {
+          // If the line starts with DECAY read up the pdg of the decaying particle
+          if(first == "DECAY")
+          {
+            sline >> parent_pdg;
+            cout << parent_pdg << endl;
+          }
+          else
+          {
+            // Read up the decay index as well as the pdgs for the daughters
+            int index, nda, pdg;
+            std::vector<std::pair<int,int> > daughter_pdgs;
+            sline >> index;
+            sline >> nda;
+            for(int i=0; i<nda; i++)
+            {
+              sline >> pdg;
+              daughter_pdgs.push_back(std::pair<int,int>(pdg,0));
+            }
+            decay_channels[std::pair<int,int>(parent_pdg,index)] = daughter_pdgs;
+          }
+        }
+      }
+      file.close();
+    }
+    else
+    { /* raise error */}
+  }
+
+  std::vector<std::pair<int,int> > Fdecays::get_decay_channel(int pdg_code, int i)
+  {
+    std::pair<int, int> channel {pdg_code, i};
+    if(decay_channels.find(channel) == decay_channels.end())
+    { /* raise error */ }
+    return decay_channels.at(channel);
+  }
 }
 END_BE_NAMESPACE
+
 
 // Initialisation function (definition)
 BE_INI_FUNCTION
@@ -1882,3 +2102,5 @@ BE_INI_FUNCTION
 
 }
 END_BE_INI_FUNCTION
+
+
