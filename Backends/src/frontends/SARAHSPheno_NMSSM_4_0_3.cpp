@@ -537,7 +537,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTSd(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRSd(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-        cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -552,7 +551,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTSu(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRSu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -567,7 +565,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTSe(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRSe(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-          cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -582,7 +579,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTSv(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRSv(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -597,7 +593,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gThh(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRhh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -605,14 +600,13 @@ BE_NAMESPACE
     // Ah decays
     {
       int pdg[] = {36, 46};
-      int n_particles = 3;
+      int n_particles = 2;
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
         entry.width_in_GeV = gTAh(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRAh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -627,7 +621,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTHpm(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRHpm(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -641,11 +634,7 @@ BE_NAMESPACE
         int n_channels = Fdecays::n_channels(pdg[i]);
         entry.width_in_GeV = gTGlu;
         for(int j=1; j<=n_channels; j++)
-        {
-          cout << Fdecays::get_decay_channel(pdg[i], j) << endl;
           entry.set_BF(BRGlu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i], j)); 
-        }
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -660,7 +649,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTChi(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRChi(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -675,7 +663,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTCha(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRCha(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -691,7 +678,6 @@ BE_NAMESPACE
         entry.width_in_GeV = gTFu(i+1);
         for(int j=1; j<=n_channels; j++)
           entry.set_BF(BRFu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-         cout << Models::ParticleDB().long_name(pdg[i],0) << endl;
         decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
       }
     }
