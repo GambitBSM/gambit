@@ -213,7 +213,6 @@ Rules:
   - capability: unimproved_MSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
-      IgnoreNegativeMasses: true
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       drop_SLHA_file: true

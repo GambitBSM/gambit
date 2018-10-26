@@ -331,23 +331,8 @@ BE_NAMESPACE
     *deltaM = 1.0e-6;
     *kont =  0;
 
-    // Read the file with info about decay channels
-    static bool scan_level_decays = true;
-    if (scan_level_decays)
-    {
-      str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
-      decays_file = str(GAMBIT_DIR) + '/' + decays_file;
-
-      // Make sure the file is read by one MPI process at a time
-      Utils::FileLock mylock("run_SPheno_decays");
-      mylock.get_lock();
-
-      Fdecays::fill_decay_channels(decays_file);
-
-      mylock.release_lock();
-
-      scan_level_decays = false;
-    }
+    // Read options and decay info
+    ReadingData_decays(inputs);
 
     // Fill input parameters with spectrum information
     // Masses
@@ -709,8 +694,28 @@ BE_NAMESPACE
 
     Freal8 Q = sqrt(GetRenormalizationScale());
 
-    // TODO: add this bit
-    //if(!*RotateNegativeFermionMasses)
+    // Make sure to rotate back the sign on MChi
+    // TODO: overload operators for FcomplexT and Farray so that this can be made better
+    if(not *RotateNegativeFermionMasses)
+      for(int i=1; i<=5; i++)
+      {
+        double remax = 0, immax = 0;
+        for(int j=1; j<=5; j++)
+        {
+          if(abs((*ZN)(i,j).re) > remax) remax = abs((*ZN)(i,j).re);
+          if(abs((*ZN)(i,j).im) > immax) immax = abs((*ZN)(i,j).im);
+        }
+        if(immax > remax)
+        {
+          (*MChi)(i) *= -1;
+          for(int j=1; j<=5; j++)
+          {
+            double old = (*ZN)(i,j).re;
+            (*ZN)(i,j).re = (*ZN)(i,j).im;
+            (*ZN)(i,j).im = -old;
+          }
+        }
+      }
 
     // Spectrum generator information
     SLHAea_add_block(slha, "SPINFO");
@@ -1112,8 +1117,6 @@ BE_NAMESPACE
     slha["SPheno"][""] << 2 << *SPA_convention << "# SPA_conventions";
     slha["SPheno"][""] << 8 << *TwoLoopMethod << "# Two Loop Method";
     slha["SPheno"][""] << 9 << *GaugelessLimit << "# Gauge-less limit";
-    slha["SPheno"][""] << 11 << *L_BR << "# Branching ratios";
-    //slha["SPheno"][""] << 13 << *Enable3BDecays << "# 3 Body decays";
     slha["SPheno"][""] << 31 << *mGUT << "# GUT scale";
     slha["SPheno"][""] << 33 << Q << "# Renormalization scale";
     slha["SPheno"][""] << 34 << *delta_mass << "# Precision";
@@ -1268,28 +1271,26 @@ BE_NAMESPACE
     *TwoLoopSafeMode = inputs.options->getValueOrDef<bool>(true, "TwoLoopSafeMode");
 
     // 11, whether to calculate branching ratios or not, L_BR
-    // TODO: Branching ratios, not covered yet
-    //*L_BR = inputs.options->getValueOrDef<bool>(false, "L_BR");
+    // All BR details are taken by other convenience function
     *L_BR = false;
 
-
     // 12, minimal value such that a branching ratio is written out, BRMin
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
     //Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
     //if(BrMin > 0.0)
     //  SetWriteMinBr(BrMin);
 
     // 13, 3 boday decays
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 14, run SUSY couplings to scale of decaying particle
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 15, MinWidth
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 16. OneLoopDecays
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 19, MatchingOrder: maximal number of iterations
     *MatchingOrder = inputs.options->getValueOrDef<Finteger>(-2, "MatchingOrder");
@@ -1393,16 +1394,20 @@ BE_NAMESPACE
     *gamW = inputs.options->getValueOrDef<Freal8>(2.06,"gamW");
 
     // 50, RotateNegativeFermionMasses
-    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<bool>(true,"RotateNegativeFermionMasses");
+    // Never rotate the masses, it's agains SLHA convention and Gambit cannot handle complex couplings
+    *RotateNegativeFermionMasses = false;
 
     // 51, Switch to SCKM
     *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
-    *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
+    // Alwyas ignore negative masses, otherwise SPheno terminates
+    *IgnoreNegativeMasses = true;
 
     // 53, Ignore negative masses at MZ
-    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMassesMZ");
+    // Alwyas ignore negative masses, otherwise SPheno terminates
+    *IgnoreNegativeMassesMZ = true;
+
     // 54, Write Out for non convergence
     *WriteOutputForNonConvergence = inputs.options->getValueOrDef<bool>(false, "WriteOutputForNonConvergence");
 
@@ -1741,20 +1746,51 @@ BE_NAMESPACE
 
     // No other blocks are relevant at this stage
 
-    // now some checks and additional settings
-    // This all is already covered in InitializeStandardModel
-    /**gmZ = *gamZ * *mZ;
-    *gmZ2 = pow(*gmZ, 2);
-    *mW2 = *mZ2 * (0.5 + sqrt(0.25 - *Alpha_mZ*pi / (sqrt(2) * *G_F * *mZ2))) / 0.985;
-    *mW = sqrt(*mW2); 	// mass
-    *mW_SM = *mW;
-    *gamW = 2.06;	// width
-    *gamW2 = pow(*gamW, 2);
-    *gmW = *gamW * *mW;
-    *gmW2 = pow(*gmW, 2);
-    *Alpha_mZ = Alpha_MSbar(*mZ, *mW);
-    CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);*/
+  }
 
+  void ReadingData_decays(const Finputs &inputs)
+  {
+
+    // Read the file with info about decay channels
+    static bool scan_level_decays = true;
+    if (scan_level_decays)
+    {
+      str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
+      decays_file = str(GAMBIT_DIR) + '/' + decays_file;
+
+      // Make sure the file is read by one MPI process at a time
+      Utils::FileLock mylock("run_SPheno_decays");
+      mylock.get_lock();
+
+      Fdecays::fill_decay_channels(decays_file);
+
+      mylock.release_lock();
+
+      scan_level_decays = false;
+    }
+
+    // Options
+
+    // 11, whether to calculate branching ratios or not, L_BR
+    *L_BR = true;
+
+    // 12, minimal value such that a branching ratio is written out, BRMin
+    Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
+    if(BrMin > 0.0)
+      SetWriteMinBr(BrMin);
+
+    // 13, 3 boday decays
+    *Enable3BDecaysF = inputs.options->getValueOrDef<bool>(true, "Enable3BDecaysF");
+    *Enable3BDecaysS = inputs.options->getValueOrDef<bool>(true, "Enable3BDecaysS");
+
+    // 14, run SUSY couplings to scale of decaying particle
+    *RunningCouplingsDecays = inputs.options->getValueOrDef<bool>(true, "RunningCouplingsDecays");
+
+    // 15, MinWidth
+    *MinWidth = inputs.options->getValueOrDef<Freal8>(1.0E-30, "MinWidth");
+
+    // 16. OneLoopDecays
+    *OneLoopDecays = inputs.options->getValueOrDef<bool>(true, "OneLoopDecays");
   }
 
   void InitializeStandardModel(const SMInputs &sminputs)

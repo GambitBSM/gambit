@@ -611,6 +611,13 @@ namespace Gambit
       }
   };
 
+  // Overload the << operator
+  template<typename T> std::ostream& operator<<(std::ostream& os, const FcomplexT<T>& fc)
+  {
+    os << "(" << fc.re << "," << fc.im << ")" << endl;
+    return os;
+  }  
+
   /// Fortran type typedefs
   /// TODO: Implement compiler dependent macros ensuring that these are always correct
   typedef FcomplexT<float>  Fcomplex;
