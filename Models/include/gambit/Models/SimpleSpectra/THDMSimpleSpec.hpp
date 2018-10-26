@@ -80,7 +80,6 @@ namespace Gambit
       {
          private:
             THDMModel params;
-
             typedef THDMSimpleSpec Self;
 
          public:
@@ -89,21 +88,19 @@ namespace Gambit
                 : params(p)
             {}
 
-            static int index_offset() {return -1;}
+            static int index_offset() {return 0;}
 
             /// @}
-
             // /// Wrapper-side interface functions to parameter object
-            double get_vev()        const { return params.vev;      } 
+            double get_vev()      const { return params.vev;      } 
             double get_g1()       const { return params.g1; }
             double get_g2()       const { return params.g2; }
             double get_g3()       const { return params.g3; }
-            double get_sinW2()       const { return params.sinW2; }
+            double get_sinW2()    const { return params.sinW2; }
 
             double get_Yd(int i, int j)       const { if (i==j){return params.Yd[i];}else{return 0;} }
             double get_Yu(int i, int j)       const { if (i==j){return params.Yu[i];}else{return 0;} }
             double get_Ye(int i, int j)       const { if (i==j){return params.Ye[i];}else{return 0;} }
-
 
             // void set_vev(double in)        { params.vev=in;      } 
             // void set_g1(double in)        { params.g1=in; }
@@ -115,36 +112,35 @@ namespace Gambit
             // void set_Yu(double in, int i, int j)       { if (i==j){params.Yu[i]=in;}}
             // void set_Ye(double in, int i, int j)       { if (i==j){params.Ye[i]=in;}}
 
-
             double get_mh0(int i)           const {
                                                 if      (i==1){ return params.mh0; } // Neutral Higgs(1)
                                                 else if (i==2){ return params.mH0; } // Neutral Higgs(2)
                                                 else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mh0! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
                                                 }
-            double get_mA0()           const { return params.mA0; }
-            double get_mC()            const { return params.mC; }
-            double get_tanb()                     const { return params.tanb; }
-            double get_alpha()                     const { return params.alpha; }
-            double get_m12_2()                       const { return params.m12_2; }
-            double get_lambda6()                     const { return params.lambda6; }
-            double get_lambda7()                     const { return params.lambda7; }
-            double get_yukawaCoupling()              const { return params.yukawaCoupling; }
+            double get_mA0()                const { return params.mA0; }
+            double get_mC()                 const { return params.mC; }
+            double get_tanb()               const { return params.tanb; }
+            double get_alpha()              const { return params.alpha; }
+            double get_m12_2()              const { return params.m12_2; }
+            double get_lambda6()            const { return params.lambda6; }
+            double get_lambda7()            const { return params.lambda7; }
+            double get_yukawaCoupling()     const { return params.yukawaCoupling; }
 
-            double get_lambda1()                     const { return params.lambda1;}
-            double get_lambda2()                     const { return params.lambda2;}
-            double get_lambda3()                     const { return params.lambda3;}
-            double get_lambda4()                     const { return params.lambda4;}
-            double get_lambda5()                     const { return params.lambda5;}
-            double get_MW_pole()                    const { return params.mW; } // REQUIRED output of subspectrum
-            double get_sinthW2_DRbar() const {
-                                            double sg1 = 0.6 * Utils::sqr(get_g1());
-                                            return sg1 / (sg1 + Utils::sqr(get_g2()));
-                                            }
+            double get_lambda1()            const { return params.lambda1;}
+            double get_lambda2()            const { return params.lambda2;}
+            double get_lambda3()            const { return params.lambda3;}
+            double get_lambda4()            const { return params.lambda4;}
+            double get_lambda5()            const { return params.lambda5;}
+            double get_MW_pole()            const { return params.mW; } // REQUIRED output of subspectrum
+            double get_sinthW2_DRbar()      const {
+                                                double sg1 = 0.6 * Utils::sqr(get_g1());
+                                                return sg1 / (sg1 + Utils::sqr(get_g2()));
+                                                }
 
-            void set_mh0(double in, int i)            {
-            if      (i==1){ params.mh0=in; } // Neutral Higgs(1)
-            else if (i==2){ params.mH0=in;} // Neutral Higgs(2)
-            else { utils_error().raise(LOCAL_INFO,"Invalid index input to set_mh0! Please check index range limits in wrapper SubSpectrum class!"); } // Should not return.
+            void set_mh0(double in, int i) {
+                if      (i==1){ params.mh0=in; }    // Neutral Higgs(1)
+                else if (i==2){ params.mH0=in;}     // Neutral Higgs(2)
+                else { utils_error().raise(LOCAL_INFO,"Invalid index input to set_mh0! Please check index range limits in wrapper SubSpectrum class!"); } // Should not return.
             }
             void set_mA0(double in)                         { params.mA0=in; }
             void set_mC(double in)                          { params.mC=in; }
@@ -186,7 +182,7 @@ namespace Gambit
                static const std::set<int> i12(i12v, Utils::endA(i12v));
 
                typedef typename MTget::FInfo2W FInfo2W;
-               static const int i012v[] = {0,1,2};
+               static const int i012v[] = {1,2,3};
                static const std::set<int> i012(i012v, Utils::endA(i012v));
 
                using namespace Par;
@@ -209,6 +205,13 @@ namespace Gambit
                getters[Pole_Mass].map0W["H-"]    = &Self::get_mC;
                getters[Pole_Mass].map0W["W+"]    = &Self::get_MW_pole;
 
+                // no running occuras hence set equal to pole mass
+               getters[mass1].map1W["h0"]    = FInfo1W( &Self::get_mh0, i12 );
+               getters[mass1].map0W["A0"]    = &Self::get_mA0;
+               getters[mass1].map0W["H+"]    = &Self::get_mC;
+               getters[mass1].map0W["H-"]    = &Self::get_mC;
+               getters[mass1].map0W["W+"]    = &Self::get_MW_pole;
+
                getters[dimensionless].map0W["g1"] = &Self::get_g1;
                getters[dimensionless].map0W["g2"] = &Self::get_g2;
                getters[dimensionless].map0W["g3"] = &Self::get_g3;
@@ -230,13 +233,12 @@ namespace Gambit
                static const std::set<int> i12(i12v, Utils::endA(i12v));
 
                typedef typename MTset::FInfo2W FInfo2W;
-               static const int i012v[] = {0,1,2};
+               static const int i012v[] = {1,2,3};
                static const std::set<int> i012(i012v, Utils::endA(i012v));
               
                using namespace Par;
 
                /// REFLECT TO BELOW ///
-
                setters[mass1].map0W["vev"]       = &Self::set_vev;
                setters[mass1].map0W["lambda_1"]  = &Self::set_lambda1;
                setters[mass1].map0W["lambda_2"]  = &Self::set_lambda2;

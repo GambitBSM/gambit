@@ -9,23 +9,18 @@ Parameters:
 
     THDMatQ:
         lambda_1:
-            # fixed_value: 10.8684
             range: [-12.5664, 12.5664]
             prior_type: flat
         lambda_2:
-            # fixed_value: 8.82558
             range: [-12.5664, 12.5664]
             prior_type: flat
         lambda_3:
-            # fixed_value: 4.57957
             range: [-12.5664, 12.5664]
             prior_type: flat
         lambda_4:
-            # fixed_value: -3.65164
             range: [-12.5664, 12.5664]
             prior_type: flat
         lambda_5:
-            # fixed_value: -5.07237
             range: [-12.5664, 12.5664]
             prior_type: flat
         lambda_6:
@@ -33,41 +28,15 @@ Parameters:
         lambda_7:
             fixed_value: 0.0
         m12_2:
-            # fixed_value: -45680.3
             range: [-50000, 700000]
             prior_type: flat
         tanb:
-            # fixed_value: 2.102
             range: [0.1, 100]
             prior_type: flat
         Qin:
             fixed_value: 91.1876 #mZ
-            # fixed_value: 173.15
-            # fixed_value: 80.39
         QrunTo:
-            # range: [91.1876, 82000]
             fixed_value: 750
-            # prior_type: log
-    # THDM:
-    #     mh0: 120
-    #     mH0: 150
-    #     mA: 200
-    #     mC: 300
-    #     sba: 1.
-    #     #range: [0.999, 1.]
-    #     #prior_type: flat
-    #     lambda_6:
-    #         fixed_value: 0.0
-    #     lambda_7:
-    #         fixed_value: 0.0
-    #     m12_2: 10
-    #     #range: [-4000000, 4000000]
-    #     #prior_type: flat
-    #     tb: 0.5
-    #     #range: [0.5, 60]
-    #     #prior_type: flat
-    #     y_type:
-    #         fixed_value: 1
 
 ##############################
 # Prior setup
@@ -92,7 +61,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "gambit_output.hdf5"
+    output_file: "gambit_output.txt"
     group: "/data"
     delete_file_on_restart: true
 
@@ -122,8 +91,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 250
-      tol: 0.8
+      nlive: 1000
+      tol: 0.1
       updInt: 1
 
       # No options to set, but still need the nodes at the moment...
@@ -260,8 +229,7 @@ Rules:
         HB_analysis_type: 1
 
     - capability: THDM_spectrum
-      function: get_THDM_spectrum_FS
-      # function: get_THDM_spectrum #no FS spectrum calculation
+      function: get_THDM_spectrum
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
@@ -273,7 +241,33 @@ Rules:
       options:
         check_all_scales: true
 
-    - capability: HiggsBounds_4_2_1_init  # Initialization of HiggsBounds backend
+    - capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: NLO_unitarity_likelihood_THDM
+      function: get_NLO_unitarity_likelihood_THDM
+      options:
+        check_all_scales: true
+    
+    - capability: alignment_likelihood_THDM
+      function: get_alignment_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    # - capability: oblique_parameters_likelihood_THDM
+    #   function: get_oblique_parameters_likelihood_THDM
+    #   options:
+    #     check_all_scales: true
+
+    - capability: global_minimum_discriminant_likelihood
+      function: get_global_minimum_discriminant_likelihood
+      options:
+        check_all_scales: true
+
+    # Initialization of HiggsBounds backend
+    - capability: HiggsBounds_4_2_1_init  
       options:
         HB_analysis_type: 1
 

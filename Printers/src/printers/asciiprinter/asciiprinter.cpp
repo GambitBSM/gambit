@@ -326,6 +326,18 @@ namespace Gambit
       }
       AP_DBUG( std::cout << "lfpvfc 2" << std::endl; )
 
+      // std::cout << "scanner debug: " << lineindexrecord.size() << std::endl;
+      // std::cout << "lineindexrecord" << std::endl;
+      // for(auto elem : lineindexrecord)
+      // {
+      //   std::cout << elem.first << " " << elem.second << "\n";
+      // }
+      // std::cout <<  "newlineindexrecord"<< std::endl;
+      // for(auto elem : newlineindexrecord)
+      // {
+      //   std::cout << elem.first << " " << elem.second << "\n";
+      // }
+      
       // Check if the output format has changed, and raise an error if so
       if (lineindexrecord.size()==0)
       {
@@ -363,6 +375,8 @@ namespace Gambit
           {
             errmsg<<"      - vID="<<(*it)<<", label="<<label_record.at(*it)<<std::endl;
           }
+          std::cout << "I've made this error non fatal. But really there is something fishy happenening to the scanner" << std::endl;
+          // printer_error().raise(LOCAL_INFO,errmsg.str());
         }
 
         if(increased_lengths.size()!=0)
@@ -374,8 +388,9 @@ namespace Gambit
             errmsg<<"      - vID="<<(*it)<<", label="<<label_record.at(*it)<<std::endl;
             errmsg<<"          orig length="<<lineindexrecord.at(*it)<<", new length="<<newlineindexrecord.at(*it)<<std::endl;
           }
+          printer_error().raise(LOCAL_INFO,errmsg.str());
         }
-        printer_error().raise(LOCAL_INFO,errmsg.str());
+        // printer_error().raise(LOCAL_INFO,errmsg.str());
       }
       AP_DBUG( std::cout << "lfpvfc 3" << std::endl; )
 

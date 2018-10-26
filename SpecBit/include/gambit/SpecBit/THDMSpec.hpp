@@ -307,7 +307,6 @@ namespace Gambit
          typedef typename MTget::FInfo1 FInfo1;
          typedef typename MTget::FInfo2 FInfo2;
 
-
         //  static const std::set<int> i01 = initSet(0,1);
         //  static const std::set<int> i012 = initSet(0,1,2);
         //  static const std::set<int> i0123 = initSet(0,1,2,3);

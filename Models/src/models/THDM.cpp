@@ -55,7 +55,6 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
   targetP.setValue("lambda_7", myP.getValue("lambda_7") );
   targetP.setValue("m12_2", myP.getValue("m12_2") );
   targetP.setValue("tanb", myP.getValue("tanb") );
-  targetP.setValue("y_type", myP.getValue("y_type") );
 
 
    // Done! Check that everything is ok if desired.

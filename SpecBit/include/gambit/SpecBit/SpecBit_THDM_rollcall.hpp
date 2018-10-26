@@ -36,11 +36,6 @@ START_CAPABILITY
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(THDM, THDMatQ)
   #undef FUNCTION
-  #define FUNCTION get_THDM_spectrum_FS
-    START_FUNCTION(Spectrum)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(THDMatQ)
-  #undef FUNCTION
    // Convert spectrum into a standard map so that it can be printed
   #define FUNCTION get_THDM_spectrum_as_map
     START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
@@ -310,7 +305,7 @@ START_CAPABILITY
   #define FUNCTION fill_THDM_coupling_basis
   START_FUNCTION(thdm_coupling_basis)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDMatQ)
+  ALLOW_MODELS(THDM, THDMatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -319,7 +314,7 @@ START_CAPABILITY
   #define FUNCTION fill_THDM_phys_basis
   START_FUNCTION(thdm_physical_basis)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDMatQ)
+  ALLOW_MODELS(THDM, THDMatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
