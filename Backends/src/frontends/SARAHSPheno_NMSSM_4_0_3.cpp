@@ -516,8 +516,8 @@ BE_NAMESPACE
     // Sd decays
     {
       entry.channels.clear();
-      int pdg[] = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005};
-      int n_particles = 6;
+      std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -531,8 +531,8 @@ BE_NAMESPACE
     // Su decays
     {
       entry.channels.clear();
-      int pdg[] = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
-      int n_particles = 6;
+      std::vector<int> pdg = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -546,8 +546,8 @@ BE_NAMESPACE
     // Se decays
     {
       entry.channels.clear();
-      int pdg[] = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
-      int n_particles = 3;
+      std::vector<int> pdg = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -561,8 +561,8 @@ BE_NAMESPACE
     // Sv decays
     {
       entry.channels.clear();
-      int pdg[] = {1000012, 1000014, 1000016};
-      int n_particles = 3;
+      std::vector<int> pdg = {1000012, 1000014, 1000016};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -576,8 +576,8 @@ BE_NAMESPACE
     // hh decays
     {
       entry.channels.clear();
-      int pdg[] = {25, 35, 45};
-      int n_particles = 3;
+      std::vector<int> pdg = {25, 35, 45};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -591,8 +591,8 @@ BE_NAMESPACE
     // Ah decays
     {
       entry.channels.clear();
-      int pdg[] = {36, 46};
-      int n_particles = 2;
+      std::vector<int> pdg = {36, 46};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -607,8 +607,8 @@ BE_NAMESPACE
     // Hpm decays
     {
       entry.channels.clear();
-      int pdg[] = {37,37};
-      int n_particles = 2;
+      std::vector<int> pdg = {37,37};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -622,8 +622,8 @@ BE_NAMESPACE
     // Glu  decays
     {
       entry.channels.clear();
-      int pdg[] = {1000021};
-      int n_particles = 1;
+      std::vector<int> pdg = {1000021};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -637,8 +637,8 @@ BE_NAMESPACE
     // Chi decays
     {
       entry.channels.clear();
-      int pdg[] = {1000022, 1000023, 1000025, 1000035, 1000045};
-      int n_particles = 5;
+      std::vector<int> pdg = {1000022, 1000023, 1000025, 1000035, 1000045};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -652,8 +652,8 @@ BE_NAMESPACE
     // Cha decays
     {
       entry.channels.clear();
-      int pdg[] = {1000024, 1000037};
-      int n_particles = 2;
+      std::vector<int> pdg = {1000024, 1000037};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
@@ -668,8 +668,8 @@ BE_NAMESPACE
     // Fu decays
     {
       entry.channels.clear();
-      int pdg[] = {2, 4, 6};
-      int n_particles = 3;
+      std::vector<int> pdg = {2, 4, 6};
+      int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
