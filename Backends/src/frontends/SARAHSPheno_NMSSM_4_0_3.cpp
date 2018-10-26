@@ -371,7 +371,7 @@ BE_NAMESPACE
       (*MSe2)(i) = pow((*MSe)(i),2);
       (*MSu)(i) = spectrum.get(Par::Pole_Mass, "~u",i);
       (*MSu2)(i) = pow((*MSu)(i),2);
-      if(i <=5 )
+      if(i <= 5 )
       {
         (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
         (*MChi2)(i) = pow((*MChi)(i),2);
@@ -391,8 +391,9 @@ BE_NAMESPACE
       {
         (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
         (*MCha2)(i) = pow((*MCha)(i),2);
-        (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
-        (*MAh2)(i) = pow((*MAh)(i),2);
+        // In Spheno MAh(1) is the goldstone boson
+        (*MAh)(i+1) = spectrum.get(Par::Pole_Mass, "A0",i);
+        (*MAh2)(i+1) = pow((*MAh)(i),2);
         (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+");
         (*MHpm2)(i) = pow((*MHpm)(i),2);
       }
@@ -610,9 +611,10 @@ BE_NAMESPACE
       for(int i=0; i<n_particles; i++)
       {
         int n_channels = Fdecays::n_channels(pdg[i]);
-        entry.width_in_GeV = gTAh(i+1);
+        // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+        entry.width_in_GeV = gTAh(i+2);
         for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRAh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+          entry.set_BF(BRAh(i+2,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
