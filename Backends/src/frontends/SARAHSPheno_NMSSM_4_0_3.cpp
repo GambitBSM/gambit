@@ -11,6 +11,9 @@
 ///  \author Tomas Gonzalo
 ///  \date 2018 Sep
 ///
+///  \author Anders Kvellestad
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -25,15 +28,20 @@ BE_NAMESPACE
 {
 
   // Variables and functions to keep and access decay info
+  typedef std::tuple<std::vector<int>,int,double> channel_info_triplet;  // {pdgs of daughter particles}, spheno index, correction factor
   namespace Fdecays
   {
-    static std::map<std::pair<int, int>, std::vector<std::pair<int,int> > > decay_channels;
+    // A (pdg,vector) map, where the vector contains a channel_info_triplet for each
+    // decay mode of the mother particle. (See typedef of channel_info_triplet above.)
+    static std::map<int,std::vector<channel_info_triplet> > all_channel_info;
 
-    void fill_decay_channels(str decays_file);
+    // Function that reads a table of all the possible decays in SARAHSPheno_NMSSM
+    // and fills the all_channel_info map above
+    void fill_all_channel_info(str);
 
-    int n_channels(int pdg_code);
-
-    std::vector<std::pair<int,int> > get_decay_channel(int pdg_code, int i);
+    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for 
+    // when calling the GAMBIT DecayTable::set_BF function
+    std::vector<std::pair<int,int> > get_pdg_context_pairs(std::vector<int>);
   }
 
   // Convenience function to run SPheno and obtain the spectrum
@@ -512,6 +520,10 @@ BE_NAMESPACE
     entry.positive_error = 0.0; // TODO: check this
     entry.negative_error = 0.0;
 
+    // Helper variables
+    std::vector<int> daughter_pdgs;
+    int spheno_index;
+    double corrf;
 
     // Sd decays
     {
@@ -520,10 +532,13 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTSd(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRSd(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRSd(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
@@ -535,13 +550,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTSu(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRSu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRSu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTSu(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRSu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Se decays
     {
@@ -550,13 +581,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTSe(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRSe(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-       decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRSe(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
+        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTSe(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRSe(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //    decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Sv decays
     {
@@ -565,13 +612,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTSv(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRSv(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRSv(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000012, 1000014, 1000016};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTSv(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRSv(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // hh decays
     {
@@ -580,13 +643,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gThh(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRhh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRhh(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {25, 35, 45};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gThh(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRhh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Ah decays
     {
@@ -595,14 +674,31 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
         entry.width_in_GeV = gTAh(i+2);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRAh(i+2,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRAh(i+2,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {36, 46};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+    //     entry.width_in_GeV = gTAh(i+2);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRAh(i+2,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Hpm decays
     {
@@ -611,13 +707,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTHpm(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRHpm(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRHpm(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {37,37};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTHpm(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRHpm(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Glu  decays
     {
@@ -626,13 +738,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTGlu;
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRGlu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i], j)); 
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRGlu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000021};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTGlu;
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRGlu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i], j)); 
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Chi decays
     {
@@ -641,13 +769,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTChi(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRChi(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRChi(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000022, 1000023, 1000025, 1000035, 1000045};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTChi(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRChi(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
     // Cha decays
     {
@@ -656,13 +800,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTCha(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRCha(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRCha(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {1000024, 1000037};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTCha(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRCha(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    //   }
+    // }
 
 
     // Fu decays
@@ -672,13 +832,29 @@ BE_NAMESPACE
       int n_particles = pdg.size();
       for(int i=0; i<n_particles; i++)
       {
-        int n_channels = Fdecays::n_channels(pdg[i]);
+        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
         entry.width_in_GeV = gTFu(i+1);
-        for(int j=1; j<=n_channels; j++)
-          entry.set_BF(BRFu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-        decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
+        for(channel_info_triplet ci : civ)
+        {
+          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+          entry.set_BF(BRFu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        }
+        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
       }
     }
+    // {
+    //   entry.channels.clear();
+    //   std::vector<int> pdg = {2, 4, 6};
+    //   int n_particles = pdg.size();
+    //   for(int i=0; i<n_particles; i++)
+    //   {
+    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
+    //     entry.width_in_GeV = gTFu(i+1);
+    //     for(int j=1; j<=n_channels; j++)
+    //       entry.set_BF(BRFu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
+    //     decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
+    //   }
+    // }
 
 
 
@@ -1762,7 +1938,7 @@ BE_NAMESPACE
       Utils::FileLock mylock("run_SPheno_decays");
       mylock.get_lock();
 
-      Fdecays::fill_decay_channels(decays_file);
+      Fdecays::fill_all_channel_info(decays_file);
 
       mylock.release_lock();
 
@@ -2061,7 +2237,7 @@ BE_NAMESPACE
   }
 
   //Helper functions
-  void Fdecays::fill_decay_channels(str decays_file)
+  void Fdecays::fill_all_channel_info(str decays_file)
   {
     std::ifstream file(decays_file);
     if(file.is_open())
@@ -2083,17 +2259,22 @@ BE_NAMESPACE
           }
           else
           {
-            // Read up the decay index as well as the pdgs for the daughters
+            // Read up the decay index, number of daughters, pdgs for the daughters and the correction factor
             int index, nda, pdg;
-            std::vector<std::pair<int,int> > daughter_pdgs;
+            double corrf;
+            std::vector<int> daughter_pdgs;
             index = stoi(first);
             sline >> nda;
             for(int i=0; i<nda; i++)
             {
               sline >> pdg;
-              daughter_pdgs.push_back(std::pair<int,int>(pdg,0));
+              daughter_pdgs.push_back(pdg);  //< filling a vector of (PDG code, context int) pairs
             }
-            decay_channels[std::pair<int,int>(parent_pdg,index)] = daughter_pdgs;
+            sline >> corrf;
+
+            // Now fill the map all_channel_info in the Fdecays namespace
+            std::cout << "DEBUG: Filled channel: parent_pdg=" << parent_pdg << ", index=" << index << ", corrf=" << corrf << std::endl;
+            all_channel_info[parent_pdg].push_back(channel_info_triplet (daughter_pdgs, index, corrf));
           }
         }
       }
@@ -2106,27 +2287,17 @@ BE_NAMESPACE
       invalid_point().raise(message);
     }
   }
-
-  int Fdecays::n_channels(int pdg_code)
-  {
-    int channel = 1;
-    while(decay_channels.find(std::pair<int,int>(pdg_code, channel)) != decay_channels.end())
-      channel++;
-    return channel-1;
-  }
     
-
-  std::vector<std::pair<int,int> > Fdecays::get_decay_channel(int pdg_code, int i)
+  std::vector<std::pair<int,int> > Fdecays::get_pdg_context_pairs(std::vector<int> pdgs)
   {
-    std::pair<int, int> channel {pdg_code, i};
-    if(decay_channels.find(channel) == decay_channels.end())
-    { 
-      str message = "Decay channel not in decays file";
-      logger() << message << EOM;
-      invalid_point().raise(message);
+    std::vector<std::pair<int,int> > result;
+    for(int pdg : pdgs)
+    {
+      result.push_back(std::pair<int,int> (pdg,0));
     }
-    return decay_channels.at(channel);
+    return result;
   }
+
 }
 END_BE_NAMESPACE
 
