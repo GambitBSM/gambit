@@ -2843,7 +2843,8 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+!mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+mudim=Max(mZ**2,Abs(M3)**2)
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
 End If 
@@ -3152,7 +3153,8 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+!mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+mudimNew=Max(mZ**2,Abs(M3)**2) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
 End If 
@@ -3382,14 +3384,14 @@ NameOfUnit(Iname)='Match_and_Run'
 kont=0
 FoundResult= .False.
 n_tot =1
-mass_old(n_tot:n_tot+-1) = MSd
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSv
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSu
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSe
-n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSd
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSv
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSu
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSe
+!n_tot = n_tot + 0 
 mass_old(n_tot:n_tot+2) = Mhh
 n_tot = n_tot + 3 
 mass_old(n_tot:n_tot+2) = MAh
@@ -3400,7 +3402,8 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+!mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+mudim=Max(mZ**2,Abs(M3)**2)
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
 End If 
@@ -3661,13 +3664,13 @@ End If
     Call TerminateProgram
 End If
 n_tot =1
-mass_new(n_tot:n_tot+-1) = MSd
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSv
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSu
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSe
+!mass_new(n_tot:n_tot+-1) = MSd
+!n_tot = n_tot + 0 
+! mass_new(n_tot:n_tot+-1) = MSv
+! n_tot = n_tot + 0 
+! mass_new(n_tot:n_tot+-1) = MSu
+! n_tot = n_tot + 0 
+! mass_new(n_tot:n_tot+-1) = MSe
 n_tot = n_tot + 0 
 mass_new(n_tot:n_tot+2) = Mhh
 n_tot = n_tot + 3 
@@ -3726,7 +3729,8 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+!mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+mudimNew=Max(mZ**2,Abs(M3)**2) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
 End If 

@@ -61,9 +61,10 @@ Call InitializeLoopFunctions
 i_mod = -1
 i_sm = -1
 i_par = -1
-set_mod_par = -1 
+set_mod_par = -1
 
 ErrorLevel = -1
+
 GenerationMixing=.False.
 If (l_open) Then
    Open(ErrCan,file="Messages.out",status="unknown")
@@ -1685,13 +1686,13 @@ Write(io_L,102) 1,lam_wolf,"# lambda"
 Write(io_L,102) 2,A_wolf,"# A"
 Write(io_L,102) 3,rho_wolf,"# rho bar"
 Write(io_L,102) 4,eta_wolf,"# eta bar"
-ZU_ckm = ZU(1:6,1:6) 
-ZD_ckm = ZD(1:6,1:6) 
+!ZU_ckm = ZU(1:6,1:6) 
+!ZD_ckm = ZD(1:6,1:6) 
 Call Switch_to_superCKM(Yd(1:3,1:3),Yu(1:3,1:3),Td(1:3,1:3),Tu(1:3,1:3),md2(1:3,1:3),mq2(1:3,1:3),mu2(1:3,1:3) &
 &,Td_ckm,Tu_ckm,md2_ckm,mq2_ckm,mu2_ckm, .False.&
 &,ZD_ckm,ZU_ckm,ZD,ZU,CKM_Q,Yd_ckm,Yu_ckm)
-ZE_pmns = ZE(1:6,1:6) 
-ZV_pmns = ZV(1:3,1:3) 
+!ZE_pmns = ZE(1:6,1:6) 
+!ZV_pmns = ZV(1:3,1:3) 
 Call Switch_to_superPMNS(Transpose(Ye(1:3,1:3)),id3C,Te(1:3,1:3),ml2(1:3,1:3),me2(1:3,1:3) &
 &,Te_pmns,ml2_pmns,me2_pmns,.False.&
 &,ZE_pmns,ZV_pmns,ZE,ZV,PMNS_Q,Ye_pmns)
@@ -1702,14 +1703,14 @@ Tu(1:3,1:3)=Tu_ckm
 md2(1:3,1:3)=md2_ckm 
 mu2(1:3,1:3)=mu2_ckm 
 mq2(1:3,1:3)=mq2_ckm 
-ZU(1:6,1:6)=ZU_ckm 
-ZD(1:6,1:6)=ZD_ckm 
+!ZU(1:6,1:6)=ZU_ckm 
+!ZD(1:6,1:6)=ZD_ckm 
 Ye(1:3,1:3)=Ye_pmns 
 Te(1:3,1:3)=Te_pmns 
 ml2(1:3,1:3)=ml2_pmns 
 me2(1:3,1:3)=me2_pmns 
-ZE(1:6,1:6)=ZE_pmns 
-ZV(1:3,1:3)=ZV_pmns 
+!ZE(1:6,1:6)=ZE_pmns 
+!ZV(1:3,1:3)=ZV_pmns 
 Write(io_L,106) "Block VCKM Q=",Q,"# Re(CKM) at the SUSY Scale" 
 Do i1=1,3
 Do i2=1,3
