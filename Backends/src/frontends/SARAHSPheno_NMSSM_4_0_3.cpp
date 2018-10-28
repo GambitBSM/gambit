@@ -1931,8 +1931,8 @@ BE_NAMESPACE
     static bool scan_level_decays = true;
     if (scan_level_decays)
     {
-      str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
-      decays_file = str(GAMBIT_DIR) + '/' + decays_file;
+      // str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
+      str decays_file = str(GAMBIT_DIR) + "/Backends/data/" + STRINGIFY(BACKENDNAME) + "/decays_info.dat";
 
       // Make sure the file is read by one MPI process at a time
       Utils::FileLock mylock("run_SPheno_decays");
@@ -2282,9 +2282,10 @@ BE_NAMESPACE
     }
     else
     { 
-      str message = "Unable to open decays file";
+      str message = "Unable to open decays info file " + decays_file;
       logger() << message << EOM;
-      invalid_point().raise(message);
+      backend_error().raise(LOCAL_INFO, message);
+      // invalid_point().raise(message);
     }
   }
     
