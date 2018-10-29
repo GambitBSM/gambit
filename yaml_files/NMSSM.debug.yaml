@@ -227,6 +227,7 @@ Rules:
     function:   all_NMSSM_decays_from_SPheno
     options:
       drop_SLHA_file: true
+      BRMin: 1.0e-5
 
 
 Logger:

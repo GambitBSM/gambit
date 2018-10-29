@@ -23,6 +23,8 @@
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
+#define BACKEND_DEBUG 0
+
 // Convenience functions (definition)
 BE_NAMESPACE
 {
@@ -341,6 +343,7 @@ BE_NAMESPACE
 
     // Read options and decay info
     ReadingData_decays(inputs);
+    double BRMin = inputs.options->getValueOrDef<double>(1e-5, "BRMin");
 
     // Fill input parameters with spectrum information
     // Masses
@@ -525,338 +528,65 @@ BE_NAMESPACE
     int spheno_index;
     double corrf;
 
-    // Sd decays
+    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd 
+                            1000002, 1000004, 1000006, 2000002, 2000004, 2000006, // Su
+                            1000011, 1000013, 1000015, 2000011, 2000013, 2000015, // Se
+                            1000012, 1000014, 1000016,                            // Sv
+                            25, 35, 45,                                           // hh
+                            36, 46,                                               // Ah
+                            37, 37,                                               // Hpm
+                            1000021,                                              // Glu
+                            1000022, 1000023, 1000025, 1000035, 1000045,          // Chi
+                            1000024, 1000037,                                     // Cha
+                            2, 4, 6};                                             // Fu
+    int n_particles = pdg.size();    
+    auto gT = [&](int i)  
     {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTSd(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRSd(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
+      if(i<=6) return gTSd(i);
+      else if(i<=12) return gTSu(i-6);
+      else if(i<=18) return gTSe(i-12);
+      else if(i<=21) return gTSv(i-18); 
+      else if(i<=24) return gThh(i-21);
+      // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+      else if(i<=26) return gTAh(i+1-24);
+      else if(i<=28) return gTHpm(i-26);
+      else if(i<=29) return gTGlu;
+      else if(i<=34) return gTChi(i-29);
+      else if(i<=36) return gTCha(i-34);
+      else if(i<=39) return gTFu(i-36);
+      return 0.0;
+    };
 
-    // Su decays
+    auto BR = [&](int i, int j)
     {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTSu(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRSu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000002, 1000004, 1000006, 2000002, 2000004, 2000006};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTSu(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRSu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Se decays
+      if(i<=6) return BRSd(i,j);
+      else if(i<=12) return BRSu(i-6,j);
+      else if(i<=18) return BRSe(i-12,j);
+      else if(i<=21) return BRSv(i-18,j); 
+      else if(i<=24) return BRhh(i-21,j);
+      // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+      else if(i<=26) return BRAh(i+1-24,j);
+      else if(i<=28) return BRHpm(i-26,j);
+      else if(i<=29) return BRGlu(i-28,j);
+      else if(i<=34) return BRChi(i-29,j);
+      else if(i<=36) return BRCha(i-34,j);
+      else if(i<=39) return BRFu(i-36,j);
+      return 0.0;
+    };
+   
+    for(int i=0; i<n_particles; i++)
     {
+      std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
+      entry.width_in_GeV = gT(i+1);
       entry.channels.clear();
-      std::vector<int> pdg = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
+      for(channel_info_triplet ci : civ)
       {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTSe(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRSe(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+        std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+        if(BR(i+1,spheno_index) * corrf > BRMin)
+          entry.set_BF(BR(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
+      decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
     }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000011, 1000013, 1000015, 2000011, 2000013, 2000015};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTSe(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRSe(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //    decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Sv decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000012, 1000014, 1000016};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTSv(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRSv(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000012, 1000014, 1000016};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTSv(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRSv(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // hh decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {25, 35, 45};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gThh(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRhh(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {25, 35, 45};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gThh(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRhh(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Ah decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {36, 46};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
-        entry.width_in_GeV = gTAh(i+2);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRAh(i+2,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {36, 46};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
-    //     entry.width_in_GeV = gTAh(i+2);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRAh(i+2,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Hpm decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {37,37};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTHpm(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRHpm(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {37,37};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTHpm(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRHpm(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Glu  decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000021};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTGlu;
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRGlu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000021};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTGlu;
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRGlu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i], j)); 
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Chi decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000022, 1000023, 1000025, 1000035, 1000045};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTChi(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRChi(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000022, 1000023, 1000025, 1000035, 1000045};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTChi(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRChi(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-    // Cha decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {1000024, 1000037};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTCha(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRCha(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {1000024, 1000037};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTCha(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRCha(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-    //   }
-    // }
-
-
-    // Fu decays
-    {
-      entry.channels.clear();
-      std::vector<int> pdg = {2, 4, 6};
-      int n_particles = pdg.size();
-      for(int i=0; i<n_particles; i++)
-      {
-        std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
-        entry.width_in_GeV = gTFu(i+1);
-        for(channel_info_triplet ci : civ)
-        {
-          std::tie(daughter_pdgs, spheno_index, corrf) = ci;
-          entry.set_BF(BRFu(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
-        }
-        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
-      }
-    }
-    // {
-    //   entry.channels.clear();
-    //   std::vector<int> pdg = {2, 4, 6};
-    //   int n_particles = pdg.size();
-    //   for(int i=0; i<n_particles; i++)
-    //   {
-    //     int n_channels = Fdecays::n_channels.at(pdg[i]);
-    //     entry.width_in_GeV = gTFu(i+1);
-    //     for(int j=1; j<=n_channels; j++)
-    //       entry.set_BF(BRFu(i+1,j), 0.0, Fdecays::get_decay_channel(pdg[i],j));
-    //     decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
-    //   }
-    // }
-
-
 
     return *kont;
   }
@@ -1951,9 +1681,10 @@ BE_NAMESPACE
     *L_BR = true;
 
     // 12, minimal value such that a branching ratio is written out, BRMin
-    Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
-    if(BrMin > 0.0)
-      SetWriteMinBr(BrMin);
+    // This really only affects output so we don't care
+    //Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
+    //if(BrMin > 0.0)
+    //  SetWriteMinBr(BrMin);
 
     // 13, 3 boday decays
     *Enable3BDecaysF = inputs.options->getValueOrDef<bool>(true, "Enable3BDecaysF");
@@ -2273,7 +2004,8 @@ BE_NAMESPACE
             sline >> corrf;
 
             // Now fill the map all_channel_info in the Fdecays namespace
-            std::cout << "DEBUG: Filled channel: parent_pdg=" << parent_pdg << ", index=" << index << ", corrf=" << corrf << std::endl;
+            if(BACKEND_DEBUG)
+              std::cout << "DEBUG: Filled channel: parent_pdg=" << parent_pdg << ", index=" << index << ", corrf=" << corrf << std::endl;
             all_channel_info[parent_pdg].push_back(channel_info_triplet (daughter_pdgs, index, corrf));
           }
         }
