@@ -2912,6 +2912,7 @@ Complex(dp),Intent(in) :: cplAhAhAh(3,3,3),cplAhAhhh(3,3,3),cplAhhhhh(3,3,3),cpl
 Complex(dp),Intent(in) :: cplAhAhAhAh(3,3,3,3),cplAhAhhhhh(3,3,3,3),cplAhAhHpmcHpm(3,3,2,2),cplhhhhhhhh(3,3,3,3),& 
 & cplhhhhHpmcHpm(3,3,2,2),cplHpmHpmcHpmcHpm(2,2,2,2)
 
+!S.B. these are empty arrays
 !g(1) = MSd
 !g(1) = MSd2
 !g(1) = MSv

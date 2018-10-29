@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:32 on 22.10.2018   
+! File created at 13:59 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -398,7 +398,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=2,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFuOS(gt2)+MAhOS(gt3)))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFu(gt2)+MAh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(MAhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFu(gt2))+Abs(MAh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2FuToFuAh = AmpTreeFuToFuAh
@@ -451,7 +451,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFuAh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqFuToFuAh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -669,7 +669,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=2,2
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFdOS(gt2)+MHpmOS(gt3)))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFd(gt2)+MHpm(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFdOS(gt2))+Abs(MHpmOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFd(gt2))+Abs(MHpm(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2FuToFdcHpm = AmpTreeFuToFdcHpm
@@ -722,7 +722,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFdcHpm(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqFuToFdcHpm(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -932,7 +932,7 @@ End if
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFdOS(gt2)+MVWmOS))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFd(gt2)+MVWm)))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFdOS(gt2))+Abs(MVWmOS)))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFd(gt2))+Abs(MVWm))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2FuToFdcVWm = AmpTreeFuToFdcVWm
@@ -985,7 +985,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFdcVWm(gt1, gt2).le.0._dp) Then 
+If (AmpSqFuToFdcVWm(gt1, gt2).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1195,7 +1195,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=1,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFuOS(gt2)+MhhOS(gt3)))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFu(gt2)+Mhh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(MhhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFu(gt2))+Abs(Mhh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2FuToFuhh = AmpTreeFuToFuhh
@@ -1248,7 +1248,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFuhh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqFuToFuhh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1456,7 +1456,7 @@ End if
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFuOS(gt2)+MVZOS))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFu(gt2)+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFu(gt2))+Abs(MVZ))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2FuToFuVZ = AmpTreeFuToFuVZ
@@ -1509,7 +1509,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFuVZ(gt1, gt2).le.0._dp) Then 
+If (AmpSqFuToFuVZ(gt1, gt2).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1607,7 +1607,7 @@ End If
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFuOS(gt2)+0.))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFu(gt2)+MVG)))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFu(gt2))+Abs(MVG))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_FtoFV(MFuOS(gt1),MFuOS(gt2),0._dp,AmpSumFuToFuVG(:,gt1, gt2),AmpSum2FuToFuVG(:,gt1, gt2),AmpSqFuToFuVG(gt1, gt2)) 
 Else  
@@ -1619,7 +1619,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFuVG(gt1, gt2).le.0._dp) Then 
+If (AmpSqFuToFuVG(gt1, gt2).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1713,7 +1713,7 @@ End If
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MFuOS(gt1).gt.(MFuOS(gt2)+0.))).or.((.not.OSkinematics).and.(MFu(gt1).gt.(MFu(gt2)+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MFuOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MFu(gt1)).gt.(Abs(MFu(gt2))+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_FtoFV(MFuOS(gt1),MFuOS(gt2),0._dp,AmpSumFuToFuVP(:,gt1, gt2),AmpSum2FuToFuVP(:,gt1, gt2),AmpSqFuToFuVP(gt1, gt2)) 
 Else  
@@ -1725,7 +1725,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqFuToFuVP(gt1, gt2).le.0._dp) Then 
+If (AmpSqFuToFuVP(gt1, gt2).eq.0._dp) Then 
   gP1LFu(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 

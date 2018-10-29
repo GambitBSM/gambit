@@ -1,23 +1,23 @@
 Block MODSEL      #  
-1 0               #  1/0: High/low scale input 
-2 1              # Boundary Condition  
-6 1               # Generation Mixing 
-12 1000.          # Renormalization scale 
+ 1 0               #  1/0: High/low scale input 
+ 2 1              # Boundary Condition  
+ 6 1               # Generation Mixing 
+ 12 1000.          # Renormalization scale 
 Block SMINPUTS    # Standard Model inputs 
-2 1.166370E-05    # G_F,Fermi constant 
-3 1.187000E-01    # alpha_s(MZ) SM MSbar 
-4 9.118870E+01    # Z-boson pole mass 
-5 4.180000E+00    # m_b(mb) SM MSbar 
-6 1.735000E+02    # m_top(pole) 
-7 1.776690E+00    # m_tau(pole) 
+ 2 1.166370E-05    # G_F,Fermi constant 
+ 3 1.187000E-01    # alpha_s(MZ) SM MSbar 
+ 4 9.118870E+01    # Z-boson pole mass 
+ 5 4.180000E+00    # m_b(mb) SM MSbar 
+ 6 1.735000E+02    # m_top(pole) 
+ 7 1.776690E+00    # m_tau(pole) 
 Block MINPAR      # Input parameters 
-3   1.0000000E+01    # TanBeta
+ 3   1.0000000E+01    # TanBeta
 Block EXTPAR      # Input parameters 
-61 1.0000000E-01    # LambdaInput
-62 1.1000000E-01    # KappaInput
-63 -1.5000000E+03    # ALambdaInput
-64 -3.6000000E+01    # AKappaInput
-65 9.6500000E+02    # MuEffinput
+ 61 1.0000000E-01    # LambdaInput
+ 62 1.1000000E-01    # KappaInput
+ 63 -1.5000000E+03    # ALambdaInput
+ 64 -3.6000000E+01    # AKappaInput
+ 65 9.6500000E+02    # MuEffinput
 Block SPhenoInput   # SPheno specific input 
   1 -1              # error level 
   2  0              # SPA conventions 
@@ -31,6 +31,7 @@ Block SPhenoInput   # SPheno specific input
  12 1.000E-04       # write only branching ratios larger than this value 
  15 1.000E-30       # write only decay if width larger than this value 
  16 1              # One-loop decays 
+ 19 -2              # Matching order (-2:automatic, -1:pole, 0-2: tree, one- & two-loop) 
  31 -1              # fixed GUT scale (-1: dynamical GUT scale) 
  32 0               # Strict unification 
  34 1.000E-04       # Precision of mass calculation 
@@ -52,12 +53,18 @@ Block SPhenoInput   # SPheno specific input
  78 0               # Output for MadGraph (writes also vanishing blocks)   
  79 1               # Write WCXF files (exchange format for Wilson coefficients) 
  86 0.              # Maximal width to be counted as invisible in Higgs decays; -1: only LSP 
-510 0.              # Write tree level values for tadpole solutions 
-515 0               # Write parameter values at GUT scale 
-520 1.              # Write effective Higgs couplings (HiggsBounds blocks): put 0 to use file with MadGraph! 
-521 1.              # Diphoton/Digluon widths including higher order 
-525 0.              # Write loop contributions to diphoton decay of Higgs 
-530 1.              # Write Blocks for Vevacious 
+ 440 1               # Tree-level unitarity constraints (limit s->infinity) 
+ 441 1               # Full tree-level unitarity constraints 
+ 442 1000.           # sqrt(s_min)   
+ 443 2000.           # sqrt(s_max)   
+ 444 5               # steps   
+ 445 0               # running   
+ 510 0.              # Write tree level values for tadpole solutions 
+ 515 0               # Write parameter values at GUT scale 
+ 520 1.              # Write effective Higgs couplings (HiggsBounds blocks): put 0 to use file with MadGraph! 
+ 521 1.              # Diphoton/Digluon widths including higher order 
+ 525 0.              # Write loop contributions to diphoton decay of Higgs 
+ 530 1.              # Write Blocks for Vevacious 
 Block DECAYOPTIONS   # Options to turn on/off specific decays 
 1    1     # Calc 3-Body decays of Chi 
 2    1     # Calc 3-Body decays of Cha 
@@ -73,86 +80,86 @@ Block DECAYOPTIONS   # Options to turn on/off specific decays
 1117 0.     # Use defined counter-terms 
 1118 1.     # Use everywhere loop-corrected masses for loop-induced decays 
 Block MSD2IN    #  
-1 1   0.000000E+00         # md2(1,1)
-1 2   0.000000E+00         # md2(1,2)
-1 3   0.000000E+00         # md2(1,3)
-2 1   0.000000E+00         # md2(2,1)
-2 2   0.000000E+00         # md2(2,2)
-2 3   0.000000E+00         # md2(2,3)
-3 1   0.000000E+00         # md2(3,1)
-3 2   0.000000E+00         # md2(3,2)
-3 3   0.000000E+00         # md2(3,3)
+ 1 1   0.000000E+00         # md2(1,1)
+ 1 2   0.000000E+00         # md2(1,2)
+ 1 3   0.000000E+00         # md2(1,3)
+ 2 1   0.000000E+00         # md2(2,1)
+ 2 2   0.000000E+00         # md2(2,2)
+ 2 3   0.000000E+00         # md2(2,3)
+ 3 1   0.000000E+00         # md2(3,1)
+ 3 2   0.000000E+00         # md2(3,2)
+ 3 3   0.000000E+00         # md2(3,3)
 Block MSE2IN    #  
-1 1   0.000000E+00         # me2(1,1)
-1 2   0.000000E+00         # me2(1,2)
-1 3   0.000000E+00         # me2(1,3)
-2 1   0.000000E+00         # me2(2,1)
-2 2   0.000000E+00         # me2(2,2)
-2 3   0.000000E+00         # me2(2,3)
-3 1   0.000000E+00         # me2(3,1)
-3 2   0.000000E+00         # me2(3,2)
-3 3   0.000000E+00         # me2(3,3)
+ 1 1   0.000000E+00         # me2(1,1)
+ 1 2   0.000000E+00         # me2(1,2)
+ 1 3   0.000000E+00         # me2(1,3)
+ 2 1   0.000000E+00         # me2(2,1)
+ 2 2   0.000000E+00         # me2(2,2)
+ 2 3   0.000000E+00         # me2(2,3)
+ 3 1   0.000000E+00         # me2(3,1)
+ 3 2   0.000000E+00         # me2(3,2)
+ 3 3   0.000000E+00         # me2(3,3)
 Block MSL2IN    #  
-1 1   0.000000E+00         # ml2(1,1)
-1 2   0.000000E+00         # ml2(1,2)
-1 3   0.000000E+00         # ml2(1,3)
-2 1   0.000000E+00         # ml2(2,1)
-2 2   0.000000E+00         # ml2(2,2)
-2 3   0.000000E+00         # ml2(2,3)
-3 1   0.000000E+00         # ml2(3,1)
-3 2   0.000000E+00         # ml2(3,2)
-3 3   0.000000E+00         # ml2(3,3)
+ 1 1   0.000000E+00         # ml2(1,1)
+ 1 2   0.000000E+00         # ml2(1,2)
+ 1 3   0.000000E+00         # ml2(1,3)
+ 2 1   0.000000E+00         # ml2(2,1)
+ 2 2   0.000000E+00         # ml2(2,2)
+ 2 3   0.000000E+00         # ml2(2,3)
+ 3 1   0.000000E+00         # ml2(3,1)
+ 3 2   0.000000E+00         # ml2(3,2)
+ 3 3   0.000000E+00         # ml2(3,3)
 Block MSQ2IN    #  
-1 1   0.000000E+00         # mq2(1,1)
-1 2   0.000000E+00         # mq2(1,2)
-1 3   0.000000E+00         # mq2(1,3)
-2 1   0.000000E+00         # mq2(2,1)
-2 2   0.000000E+00         # mq2(2,2)
-2 3   0.000000E+00         # mq2(2,3)
-3 1   0.000000E+00         # mq2(3,1)
-3 2   0.000000E+00         # mq2(3,2)
-3 3   0.000000E+00         # mq2(3,3)
+ 1 1   0.000000E+00         # mq2(1,1)
+ 1 2   0.000000E+00         # mq2(1,2)
+ 1 3   0.000000E+00         # mq2(1,3)
+ 2 1   0.000000E+00         # mq2(2,1)
+ 2 2   0.000000E+00         # mq2(2,2)
+ 2 3   0.000000E+00         # mq2(2,3)
+ 3 1   0.000000E+00         # mq2(3,1)
+ 3 2   0.000000E+00         # mq2(3,2)
+ 3 3   0.000000E+00         # mq2(3,3)
 Block MSU2IN    #  
-1 1   0.000000E+00         # mu2(1,1)
-1 2   0.000000E+00         # mu2(1,2)
-1 3   0.000000E+00         # mu2(1,3)
-2 1   0.000000E+00         # mu2(2,1)
-2 2   0.000000E+00         # mu2(2,2)
-2 3   0.000000E+00         # mu2(2,3)
-3 1   0.000000E+00         # mu2(3,1)
-3 2   0.000000E+00         # mu2(3,2)
-3 3   0.000000E+00         # mu2(3,3)
+ 1 1   0.000000E+00         # mu2(1,1)
+ 1 2   0.000000E+00         # mu2(1,2)
+ 1 3   0.000000E+00         # mu2(1,3)
+ 2 1   0.000000E+00         # mu2(2,1)
+ 2 2   0.000000E+00         # mu2(2,2)
+ 2 3   0.000000E+00         # mu2(2,3)
+ 3 1   0.000000E+00         # mu2(3,1)
+ 3 2   0.000000E+00         # mu2(3,2)
+ 3 3   0.000000E+00         # mu2(3,3)
 Block TDIN    #  
-1 1   0.000000E+00         # Td(1,1)
-1 2   0.000000E+00         # Td(1,2)
-1 3   0.000000E+00         # Td(1,3)
-2 1   0.000000E+00         # Td(2,1)
-2 2   0.000000E+00         # Td(2,2)
-2 3   0.000000E+00         # Td(2,3)
-3 1   0.000000E+00         # Td(3,1)
-3 2   0.000000E+00         # Td(3,2)
-3 3   0.000000E+00         # Td(3,3)
+ 1 1   0.000000E+00         # Td(1,1)
+ 1 2   0.000000E+00         # Td(1,2)
+ 1 3   0.000000E+00         # Td(1,3)
+ 2 1   0.000000E+00         # Td(2,1)
+ 2 2   0.000000E+00         # Td(2,2)
+ 2 3   0.000000E+00         # Td(2,3)
+ 3 1   0.000000E+00         # Td(3,1)
+ 3 2   0.000000E+00         # Td(3,2)
+ 3 3   0.000000E+00         # Td(3,3)
 Block TEIN    #  
-1 1   0.000000E+00         # Te(1,1)
-1 2   0.000000E+00         # Te(1,2)
-1 3   0.000000E+00         # Te(1,3)
-2 1   0.000000E+00         # Te(2,1)
-2 2   0.000000E+00         # Te(2,2)
-2 3   0.000000E+00         # Te(2,3)
-3 1   0.000000E+00         # Te(3,1)
-3 2   0.000000E+00         # Te(3,2)
-3 3   0.000000E+00         # Te(3,3)
+ 1 1   0.000000E+00         # Te(1,1)
+ 1 2   0.000000E+00         # Te(1,2)
+ 1 3   0.000000E+00         # Te(1,3)
+ 2 1   0.000000E+00         # Te(2,1)
+ 2 2   0.000000E+00         # Te(2,2)
+ 2 3   0.000000E+00         # Te(2,3)
+ 3 1   0.000000E+00         # Te(3,1)
+ 3 2   0.000000E+00         # Te(3,2)
+ 3 3   0.000000E+00         # Te(3,3)
 Block TUIN    #  
-1 1   0.000000E+00         # Tu(1,1)
-1 2   0.000000E+00         # Tu(1,2)
-1 3   0.000000E+00         # Tu(1,3)
-2 1   0.000000E+00         # Tu(2,1)
-2 2   0.000000E+00         # Tu(2,2)
-2 3   0.000000E+00         # Tu(2,3)
-3 1   0.000000E+00         # Tu(3,1)
-3 2   0.000000E+00         # Tu(3,2)
-3 3   0.000000E+00         # Tu(3,3)
+ 1 1   0.000000E+00         # Tu(1,1)
+ 1 2   0.000000E+00         # Tu(1,2)
+ 1 3   0.000000E+00         # Tu(1,3)
+ 2 1   0.000000E+00         # Tu(2,1)
+ 2 2   0.000000E+00         # Tu(2,2)
+ 2 3   0.000000E+00         # Tu(2,3)
+ 3 1   0.000000E+00         # Tu(3,1)
+ 3 2   0.000000E+00         # Tu(3,2)
+ 3 3   0.000000E+00         # Tu(3,3)
 Block MSOFTIN       #  
-1   0.000000E+00         # M1
-3   0.000000E+00         # M3
-2   0.000000E+00         # M2
+ 1   0.000000E+00         # M1
+ 3   0.000000E+00         # M3
+ 2   0.000000E+00         # M2

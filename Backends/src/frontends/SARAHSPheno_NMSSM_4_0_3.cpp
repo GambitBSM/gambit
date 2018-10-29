@@ -11,6 +11,9 @@
 ///  \author Tomas Gonzalo
 ///  \date 2018 Sep
 ///
+///  \author Anders Kvellestad
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -18,10 +21,30 @@
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
 #include "gambit/Utils/version.hpp"
+#include "gambit/Utils/file_lock.hpp"
+
+#define BACKEND_DEBUG 0
 
 // Convenience functions (definition)
 BE_NAMESPACE
 {
+
+  // Variables and functions to keep and access decay info
+  typedef std::tuple<std::vector<int>,int,double> channel_info_triplet;  // {pdgs of daughter particles}, spheno index, correction factor
+  namespace Fdecays
+  {
+    // A (pdg,vector) map, where the vector contains a channel_info_triplet for each
+    // decay mode of the mother particle. (See typedef of channel_info_triplet above.)
+    static std::map<int,std::vector<channel_info_triplet> > all_channel_info;
+
+    // Function that reads a table of all the possible decays in SARAHSPheno_NMSSM
+    // and fills the all_channel_info map above
+    void fill_all_channel_info(str);
+
+    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for 
+    // when calling the GAMBIT DecayTable::set_BF function
+    std::vector<std::pair<int,int> > get_pdg_context_pairs(std::vector<int>);
+  }
 
   // Convenience function to run SPheno and obtain the spectrum
   int run_SPheno(Spectrum &spectrum, const Finputs &inputs)
@@ -308,7 +331,7 @@ BE_NAMESPACE
   }
 
   // Convenience funciton to run Spheno and obtain the decays
-  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays)
+  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays, const Finputs& inputs)
   {
 
     // Initialize some variables
@@ -317,6 +340,10 @@ BE_NAMESPACE
     *epsI = 1.0E-5;
     *deltaM = 1.0e-6;
     *kont =  0;
+
+    // Read options and decay info
+    ReadingData_decays(inputs);
+    double BRMin = inputs.options->getValueOrDef<double>(1e-5, "BRMin");
 
     // Fill input parameters with spectrum information
     // Masses
@@ -340,7 +367,7 @@ BE_NAMESPACE
       (*MSe2)(i) = pow((*MSe)(i),2);
       (*MSu)(i) = spectrum.get(Par::Pole_Mass, "~u",i);
       (*MSu2)(i) = pow((*MSu)(i),2);
-      if(i <=5 )
+      if(i <= 5 )
       {
         (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
         (*MChi2)(i) = pow((*MChi)(i),2);
@@ -360,14 +387,13 @@ BE_NAMESPACE
       {
         (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
         (*MCha2)(i) = pow((*MCha)(i),2);
-        (*MAh)(i) = spectrum.get(Par::Pole_Mass, "A0",i);
-        (*MAh2)(i) = pow((*MAh)(i),2);
+        // In Spheno MAh(1) is the goldstone boson
+        (*MAh)(i+1) = spectrum.get(Par::Pole_Mass, "A0",i);
+        (*MAh2)(i+1) = pow((*MAh)(i),2);
         (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+");
         (*MHpm2)(i) = pow((*MHpm)(i),2);
       }
     }
-    //FIXME: temporary hack
-    (*MAh)(1) = 1000;
     *MVWm = spectrum.get(Par::Pole_Mass, "W-");
     *MVWm2 = pow(*MVWm,2);
     *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
@@ -479,7 +505,7 @@ BE_NAMESPACE
     Farray_Freal8_1_2_1_96 gPHpm, BRHpm;
     Farray_Freal8_1_2 gTHpm;
     Farray_Freal8_1_1_1_157 gPGlu, BRGlu;
-    Freal8 gTGlu;
+    Freal8 gTGlu = 0.0;
     Farray_Freal8_1_5_1_482 gPChi, BRChi;
     Farray_Freal8_1_5 gTChi;
     Farray_Freal8_1_2_1_316 gPCha, BRCha;
@@ -490,18 +516,77 @@ BE_NAMESPACE
     // Call SPheno's function to calculate decays
     CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
 
-    cout << gTGlu << endl;
-
+    // Fill in info about the entry for all decays
     DecayTable::Entry entry;
     entry.calculator = STRINGIFY(BACKENDNAME);
     entry.calculator_version = STRINGIFY(VERSION);
+    entry.positive_error = 0.0; // TODO: check this
+    entry.negative_error = 0.0;
 
-    entry.width_in_GeV = gTGlu;
-    entry.negative_error = 0.0; // TODO: check this
-    //for(int i=1; i<=157; i++)
-      entry.set_BF(BRGlu(1,1), 0.0, "~d_L", "dbar");
+    // Helper variables
+    std::vector<int> daughter_pdgs;
+    int spheno_index;
+    double corrf;
 
-    decays("~g") = entry;
+    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd 
+                            1000002, 1000004, 1000006, 2000002, 2000004, 2000006, // Su
+                            1000011, 1000013, 1000015, 2000011, 2000013, 2000015, // Se
+                            1000012, 1000014, 1000016,                            // Sv
+                            25, 35, 45,                                           // hh
+                            36, 46,                                               // Ah
+                            37, 37,                                               // Hpm
+                            1000021,                                              // Glu
+                            1000022, 1000023, 1000025, 1000035, 1000045,          // Chi
+                            1000024, 1000037,                                     // Cha
+                            2, 4, 6};                                             // Fu
+    int n_particles = pdg.size();    
+    auto gT = [&](int i)  
+    {
+      if(i<=6) return gTSd(i);
+      else if(i<=12) return gTSu(i-6);
+      else if(i<=18) return gTSe(i-12);
+      else if(i<=21) return gTSv(i-18); 
+      else if(i<=24) return gThh(i-21);
+      // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+      else if(i<=26) return gTAh(i+1-24);
+      else if(i<=28) return gTHpm(i-26);
+      else if(i<=29) return gTGlu;
+      else if(i<=34) return gTChi(i-29);
+      else if(i<=36) return gTCha(i-34);
+      else if(i<=39) return gTFu(i-36);
+      return 0.0;
+    };
+
+    auto BR = [&](int i, int j)
+    {
+      if(i<=6) return BRSd(i,j);
+      else if(i<=12) return BRSu(i-6,j);
+      else if(i<=18) return BRSe(i-12,j);
+      else if(i<=21) return BRSv(i-18,j); 
+      else if(i<=24) return BRhh(i-21,j);
+      // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
+      else if(i<=26) return BRAh(i+1-24,j);
+      else if(i<=28) return BRHpm(i-26,j);
+      else if(i<=29) return BRGlu(i-28,j);
+      else if(i<=34) return BRChi(i-29,j);
+      else if(i<=36) return BRCha(i-34,j);
+      else if(i<=39) return BRFu(i-36,j);
+      return 0.0;
+    };
+   
+    for(int i=0; i<n_particles; i++)
+    {
+      std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
+      entry.width_in_GeV = gT(i+1);
+      entry.channels.clear();
+      for(channel_info_triplet ci : civ)
+      {
+        std::tie(daughter_pdgs, spheno_index, corrf) = ci;
+        if(BR(i+1,spheno_index) * corrf > BRMin)
+          entry.set_BF(BR(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+      }
+      decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+    }
 
     return *kont;
   }
@@ -515,8 +600,28 @@ BE_NAMESPACE
 
     Freal8 Q = sqrt(GetRenormalizationScale());
 
-    // TODO: add this bit
-    //if(!*RotateNegativeFermionMasses)
+    // Make sure to rotate back the sign on MChi
+    // TODO: overload operators for FcomplexT and Farray so that this can be made better
+    if(not *RotateNegativeFermionMasses)
+      for(int i=1; i<=5; i++)
+      {
+        double remax = 0, immax = 0;
+        for(int j=1; j<=5; j++)
+        {
+          if(abs((*ZN)(i,j).re) > remax) remax = abs((*ZN)(i,j).re);
+          if(abs((*ZN)(i,j).im) > immax) immax = abs((*ZN)(i,j).im);
+        }
+        if(immax > remax)
+        {
+          (*MChi)(i) *= -1;
+          for(int j=1; j<=5; j++)
+          {
+            double old = (*ZN)(i,j).re;
+            (*ZN)(i,j).re = (*ZN)(i,j).im;
+            (*ZN)(i,j).im = -old;
+          }
+        }
+      }
 
     // Spectrum generator information
     SLHAea_add_block(slha, "SPINFO");
@@ -918,8 +1023,6 @@ BE_NAMESPACE
     slha["SPheno"][""] << 2 << *SPA_convention << "# SPA_conventions";
     slha["SPheno"][""] << 8 << *TwoLoopMethod << "# Two Loop Method";
     slha["SPheno"][""] << 9 << *GaugelessLimit << "# Gauge-less limit";
-    slha["SPheno"][""] << 11 << *L_BR << "# Branching ratios";
-    //slha["SPheno"][""] << 13 << *Enable3BDecays << "# 3 Body decays";
     slha["SPheno"][""] << 31 << *mGUT << "# GUT scale";
     slha["SPheno"][""] << 33 << Q << "# Renormalization scale";
     slha["SPheno"][""] << 34 << *delta_mass << "# Precision";
@@ -1074,28 +1177,26 @@ BE_NAMESPACE
     *TwoLoopSafeMode = inputs.options->getValueOrDef<bool>(true, "TwoLoopSafeMode");
 
     // 11, whether to calculate branching ratios or not, L_BR
-    // TODO: Branching ratios, not covered yet
-    //*L_BR = inputs.options->getValueOrDef<bool>(false, "L_BR");
+    // All BR details are taken by other convenience function
     *L_BR = false;
 
-
     // 12, minimal value such that a branching ratio is written out, BRMin
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
     //Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
     //if(BrMin > 0.0)
     //  SetWriteMinBr(BrMin);
 
     // 13, 3 boday decays
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 14, run SUSY couplings to scale of decaying particle
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 15, MinWidth
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 16. OneLoopDecays
-    // TODO: Branching ratios, not covered yet
+    // All BR details are taken by other convenience function
 
     // 19, MatchingOrder: maximal number of iterations
     *MatchingOrder = inputs.options->getValueOrDef<Finteger>(-2, "MatchingOrder");
@@ -1199,16 +1300,20 @@ BE_NAMESPACE
     *gamW = inputs.options->getValueOrDef<Freal8>(2.06,"gamW");
 
     // 50, RotateNegativeFermionMasses
-    *RotateNegativeFermionMasses = inputs.options->getValueOrDef<bool>(true,"RotateNegativeFermionMasses");
+    // Never rotate the masses, it's agains SLHA convention and Gambit cannot handle complex couplings
+    *RotateNegativeFermionMasses = false;
 
     // 51, Switch to SCKM
     *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
-    *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
+    // Alwyas ignore negative masses, otherwise SPheno terminates
+    *IgnoreNegativeMasses = true;
 
     // 53, Ignore negative masses at MZ
-    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMassesMZ");
+    // Alwyas ignore negative masses, otherwise SPheno terminates
+    *IgnoreNegativeMassesMZ = true;
+
     // 54, Write Out for non convergence
     *WriteOutputForNonConvergence = inputs.options->getValueOrDef<bool>(false, "WriteOutputForNonConvergence");
 
@@ -1547,20 +1652,52 @@ BE_NAMESPACE
 
     // No other blocks are relevant at this stage
 
-    // now some checks and additional settings
-    // This all is already covered in InitializeStandardModel
-    /**gmZ = *gamZ * *mZ;
-    *gmZ2 = pow(*gmZ, 2);
-    *mW2 = *mZ2 * (0.5 + sqrt(0.25 - *Alpha_mZ*pi / (sqrt(2) * *G_F * *mZ2))) / 0.985;
-    *mW = sqrt(*mW2); 	// mass
-    *mW_SM = *mW;
-    *gamW = 2.06;	// width
-    *gamW2 = pow(*gamW, 2);
-    *gmW = *gamW * *mW;
-    *gmW2 = pow(*gmW, 2);
-    *Alpha_mZ = Alpha_MSbar(*mZ, *mW);
-    CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);*/
+  }
 
+  void ReadingData_decays(const Finputs &inputs)
+  {
+
+    // Read the file with info about decay channels
+    static bool scan_level_decays = true;
+    if (scan_level_decays)
+    {
+      // str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
+      str decays_file = str(GAMBIT_DIR) + "/Backends/data/" + STRINGIFY(BACKENDNAME) + "/decays_info.dat";
+
+      // Make sure the file is read by one MPI process at a time
+      Utils::FileLock mylock("run_SPheno_decays");
+      mylock.get_lock();
+
+      Fdecays::fill_all_channel_info(decays_file);
+
+      mylock.release_lock();
+
+      scan_level_decays = false;
+    }
+
+    // Options
+
+    // 11, whether to calculate branching ratios or not, L_BR
+    *L_BR = true;
+
+    // 12, minimal value such that a branching ratio is written out, BRMin
+    // This really only affects output so we don't care
+    //Freal8 BrMin = inputs.options->getValueOrDef<Freal8>(0.0, "BRMin");
+    //if(BrMin > 0.0)
+    //  SetWriteMinBr(BrMin);
+
+    // 13, 3 boday decays
+    *Enable3BDecaysF = inputs.options->getValueOrDef<bool>(true, "Enable3BDecaysF");
+    *Enable3BDecaysS = inputs.options->getValueOrDef<bool>(true, "Enable3BDecaysS");
+
+    // 14, run SUSY couplings to scale of decaying particle
+    *RunningCouplingsDecays = inputs.options->getValueOrDef<bool>(true, "RunningCouplingsDecays");
+
+    // 15, MinWidth
+    *MinWidth = inputs.options->getValueOrDef<Freal8>(1.0E-30, "MinWidth");
+
+    // 16. OneLoopDecays
+    *OneLoopDecays = inputs.options->getValueOrDef<bool>(true, "OneLoopDecays");
   }
 
   void InitializeStandardModel(const SMInputs &sminputs)
@@ -1823,8 +1960,6 @@ BE_NAMESPACE
       case -1010: message = "Too many iterations in routine Tql2_QP."; break ;
     }
 
-    message = "Unspecified error";
-
     logger() << message << EOM;
     invalid_point().raise(message);
 
@@ -1832,8 +1967,73 @@ BE_NAMESPACE
 
   }
 
+  //Helper functions
+  void Fdecays::fill_all_channel_info(str decays_file)
+  {
+    std::ifstream file(decays_file);
+    if(file.is_open())
+    {
+      str line;
+      int parent_pdg;
+      while(getline(file, line))  
+      {
+        std::istringstream sline(line);
+        str first;
+        sline >> first;
+        // Ignore the line if it is a comment
+        if(first[0] != '#' and first != "")
+        {
+          // If the line starts with DECAY read up the pdg of the decaying particle
+          if(first == "DECAY" or first == "DECAY1L")
+          {
+            sline >> parent_pdg;
+          }
+          else
+          {
+            // Read up the decay index, number of daughters, pdgs for the daughters and the correction factor
+            int index, nda, pdg;
+            double corrf;
+            std::vector<int> daughter_pdgs;
+            index = stoi(first);
+            sline >> nda;
+            for(int i=0; i<nda; i++)
+            {
+              sline >> pdg;
+              daughter_pdgs.push_back(pdg);  //< filling a vector of (PDG code, context int) pairs
+            }
+            sline >> corrf;
+
+            // Now fill the map all_channel_info in the Fdecays namespace
+            if(BACKEND_DEBUG)
+              std::cout << "DEBUG: Filled channel: parent_pdg=" << parent_pdg << ", index=" << index << ", corrf=" << corrf << std::endl;
+            all_channel_info[parent_pdg].push_back(channel_info_triplet (daughter_pdgs, index, corrf));
+          }
+        }
+      }
+      file.close();
+    }
+    else
+    { 
+      str message = "Unable to open decays info file " + decays_file;
+      logger() << message << EOM;
+      backend_error().raise(LOCAL_INFO, message);
+      // invalid_point().raise(message);
+    }
+  }
+    
+  std::vector<std::pair<int,int> > Fdecays::get_pdg_context_pairs(std::vector<int> pdgs)
+  {
+    std::vector<std::pair<int,int> > result;
+    for(int pdg : pdgs)
+    {
+      result.push_back(std::pair<int,int> (pdg,0));
+    }
+    return result;
+  }
+
 }
 END_BE_NAMESPACE
+
 
 // Initialisation function (definition)
 BE_INI_FUNCTION
@@ -1878,3 +2078,5 @@ BE_INI_FUNCTION
 
 }
 END_BE_INI_FUNCTION
+
+

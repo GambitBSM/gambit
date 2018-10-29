@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:28 on 22.10.2018   
+! File created at 13:56 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -408,10 +408,10 @@ vevs_asat = 1._dp
 vevs_asat(1) = vd
 vevs_asat(2) = vu
 vevs_asat(3) = vS
-!Mglu_asat(1:2) = MGlu(1:2)
 Mglu_asat(1:2) = 0._dp ! S.B. - set these to 0 since MGlu doesn't exist...
-!ZG_asat(1:2,1:2) = ZG(1:2,1:2)
+! Mglu_asat(1:2) = MGlu(1:2)
 ZG_asat(1:2,1:2) = 0._dp
+! ZG_asat(1:2,1:2) = ZG(1:2,1:2)
 MDO_asat = 0._dp
 mo2_asat = 1._dp
 MO_asat = 0._dp
@@ -3884,7 +3884,8 @@ If (Abs(mat2(i1,i1)).gt.0._dp) Then
   ZN_1L(i1,:)= phaseM * ZN_1L(i1,:) 
 End if 
 ZNOS_p2(il,:) = ZN_1L(il,:) 
-   If (Eig(i1).Le.0._dp) Then 
+   If ((Abs(Eig(i1)).Le.MaxMassNumericalZero).and.(Eig(i1).lt.0._dp)) Eig(i1) = Abs(Eig(i1))+1.E-10_dp 
+  If (Eig(i1).Le.0._dp) Then 
     If (ErrorLevel.Ge.0) Then 
       Write(10,*) 'Warning from Subroutine '//NameOfUnit(Iname) 
       Write(10,*) 'a mass squarred is negative: ',i1,Eig(i1) 
@@ -3976,7 +3977,8 @@ If (Abs(mat2(i1,i1)).gt.0._dp) Then
   ZN_1L(i1,:)= phaseM * ZN_1L(i1,:) 
 End if 
 ZNOS_p2(il,:) = ZN_1L(il,:) 
-   If (Eig(i1).Le.0._dp) Then 
+   If ((Abs(Eig(i1)).Le.MaxMassNumericalZero).and.(Eig(i1).lt.0._dp)) Eig(i1) = Abs(Eig(i1))+1.E-10_dp 
+  If (Eig(i1).Le.0._dp) Then 
     If (ErrorLevel.Ge.0) Then 
       Write(10,*) 'Warning from Subroutine '//NameOfUnit(Iname) 
       Write(10,*) 'a mass squarred is negative: ',i1,Eig(i1) 

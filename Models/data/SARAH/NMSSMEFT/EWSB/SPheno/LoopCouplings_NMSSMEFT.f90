@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:28 on 22.10.2018   
+! File created at 13:55 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -113,9 +113,11 @@ AlphaEwDR=Alpha/(1._dp-DeltaAlpha)
  
 End Function AlphaEwDR 
  
- 
+!S.B. - remove 0 from function argument
 Real(dp) Function AlphaSDR(Q,Mhh,MAh,MHpm,MChi,MCha,MFe,MFd,MFu) 
+!Real(dp) Function AlphaSDR(Q,Mhh,MAh,MHpm,0._dp,MChi,MCha,MFe,MFd,MFu) 
 Real(dp),Intent(in)::Q,Mhh(3),MAh(3),MHpm(2),MChi(5),MCha(2),MFe(3),MFd(3),MFu(3) 
+!Real(dp),Intent(in)::Q,Mhh(3),MAh(3),MHpm(2),0.,MChi(5),MCha(2),MFe(3),MFd(3),MFu(3) 
 Integer::i1 
 Real(dp)::DeltaAlpha 
 DeltaAlpha = 0._dp 
@@ -137,6 +139,7 @@ Do i1=1,2
   DeltaAlpha=DeltaAlpha-0*Log(MHpm(i1)/ Q) 
  End If 
 End Do 
+!S.B - loop does nothing
 !Do i1=1,3
 ! If (Abs(0./ Q).gt.1._dp) Then 
 !  DeltaAlpha=DeltaAlpha-0*Log(0./ Q) 
@@ -147,6 +150,7 @@ Do i1=1,5
   DeltaAlpha=DeltaAlpha-0*Log(MChi(i1)/ Q) 
  End If 
 End Do 
+! Comment out Dynkin routine (this is a SARAH function!) -- this should go to 0 for decoupled sfermions + gluinos.
 Do i1=1,2
  If (Abs(MCha(i1)/ Q).gt.1._dp) Then 
   DeltaAlpha=DeltaAlpha!-(4*SAxDynkin(fWm,color))/3._dp*Log(MCha(i1)/ Q) 
@@ -188,9 +192,11 @@ AlphaEW_T=AlphaEW_in/(1._dp-DeltaAlpha)
  
 End Function AlphaEW_T 
  
- 
+!S.B. - remove 0 from function argument 
 Real(dp) Function AlphaS_T(AlphaS_In, Q,Mhh,MAh,MHpm,MChi,MCha,MFe,MFd,MFu) 
+! Real(dp) Function AlphaS_T(AlphaS_In, Q,Mhh,MAh,MHpm,0._dp,MChi,MCha,MFe,MFd,MFu) 
 Real(dp),Intent(in):: AlphaS_In, Q,Mhh(3),MAh(3),MHpm(2),MChi(5),MCha(2),MFe(3),MFd(3),MFu(3) 
+!Real(dp),Intent(in):: AlphaS_In, Q,Mhh(3),MAh(3),MHpm(2),0.,MChi(5),MCha(2),MFe(3),MFd(3),MFu(3) 
 Integer::i1 
 Real(dp)::DeltaAlpha 
 DeltaAlpha=0._dp 
@@ -213,6 +219,7 @@ End Do
 Do i1=1,5
 DeltaAlpha=DeltaAlpha-0*Log(MChi(i1)/ Q) 
 End Do 
+! Comment out Dynkin routine (this is a SARAH function!) -- this should go to 0 for decoupled sfermions + gluinos.
 Do i1=1,2
 DeltaAlpha=DeltaAlpha!-(4*SAxDynkin(fWm,color))/3._dp*Log(MCha(i1)/ Q) 
 End Do 
@@ -594,8 +601,9 @@ End Do
 Do i1 = 1 , 5
 coup = coup + 0*ratChi(i1)*A_onehalf(mH2p/MChi(i1)**2)
 End Do 
+! Comment out Dynkin routine (this is a SARAH function!) -- this should go to 0 for decoupled sfermions + gluinos.
 Do i1 = 1 , 2
-coup = coup !+ 2*SAxDynkin(fWm,color)*ratCha(i1)*A_onehalf(mH2p/MCha(i1)**2)
+coup = coup! + 2*SAxDynkin(fWm,color)*ratCha(i1)*A_onehalf(mH2p/MCha(i1)**2)
 End Do 
 Do i1 = 1 , 3
 coup = coup + 0*ratFe(i1)*A_onehalf(mH2p/MFe(i1)**2)
@@ -707,8 +715,9 @@ coup = 0._dp
 Do i1 =1, 5
 coup = coup + 0*ratChi(i1)*AP_onehalf(mH2p/MChi(i1)**2)
 End Do 
+! Comment out Dynkin routine (this is a SARAH function!) -- this should go to 0 for decoupled sfermions + gluinos.
 Do i1 =1, 2
-coup = coup !+ 2*SAxDynkin(fWm,color)*ratCha(i1)*AP_onehalf(mH2p/MCha(i1)**2)
+coup = coup! + 2*SAxDynkin(fWm,color)*ratCha(i1)*AP_onehalf(mH2p/MCha(i1)**2)
 End Do 
 Do i1 =1, 3
 coup = coup + 0*ratFe(i1)*AP_onehalf(mH2p/MFe(i1)**2)

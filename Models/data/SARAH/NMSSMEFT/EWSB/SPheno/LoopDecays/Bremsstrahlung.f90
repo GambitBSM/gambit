@@ -456,10 +456,10 @@ Subroutine hardphotonFFW(Mi,Mo,MW,MLambda,Qi,Qo,CL,CR,CWP,Gammatotbrems,kont)
    write(*,*) "Like that the result for hard photon emission cannot be correct!"
   End If
 
-  If ((Abs(Mi)-Abs(Mo)-Abs(MW)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard photon emission!"
-  End If
+!   If ((Abs(Mi)-Abs(Mo)-Abs(MW)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard photon emission!"
+!   End If
 
   AbbCLCLQiQi = 0._dp
   AbbCLCLQoQo = 0._dp
@@ -636,10 +636,10 @@ Subroutine hardphotonFFZ(Mi,Mo,MZ,MLambda,Qi,Qo,CL,CR,CWP,Gammatotbrems,kont)
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardphotonFFZ'
 
-  If ((Abs(Mi)-Abs(Mo)-Abs(MZ)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard photon emission!"
-  End If
+!   If ((Abs(Mi)-Abs(Mo)-Abs(MZ)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard photon emission!"
+!   End If
 
   AbbCLCLQiQi = 0._dp
   AbbCLCLQoQo = 0._dp
@@ -788,10 +788,10 @@ Subroutine hardgluonFFZW(Mi,Mo,MZ,MLambda,CasR,GStrong,CL,CR,Gammatotbrems,kont)
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardgluonFFZW'
 
-  If ((Abs(Mi)-Abs(Mo)-Abs(MZ)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-  End If
+!   If ((Abs(Mi)-Abs(Mo)-Abs(MZ)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+!   End If
 
   AbbCLCLQiQi = 0._dp
   AbbCLCLQoQo = 0._dp
@@ -949,10 +949,10 @@ Subroutine hardradiationFFS(Mi,Mo,Ms,MLambda,GC,Cas11,Cas12,Cas13,Cas22,Cas23,Ca
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardradiationFFS'
 
-  If ((Abs(Mi)-Abs(Mo)-Abs(Ms)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-End If
+!   If ((Abs(Mi)-Abs(Mo)-Abs(Ms)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+! End If
 
  if(abs(mo) .eq. 0._dp) then
      call hardradiationFFSmFzero(Mi,Ms,MLambda,GC,Cas11,Cas12,Cas13,Cas22,Cas23,Cas33,CL,CR,Gammatotbrems,kont)
@@ -1152,10 +1152,10 @@ Subroutine hardradiationFFSmFzero(Mi,Ms,MLambda,GC,Cas11,Cas12,Cas13,Cas22,Cas23
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardradiationFFS'
 
-  If ((Abs(Mi)-Abs(Mo)-Abs(Ms)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-End If
+!   If ((Abs(Mi)-Abs(Mo)-Abs(Ms)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+! End If
 
  
 
@@ -1285,10 +1285,10 @@ Subroutine hardradiationSFF(Mi,Ma,Mb,MLambda,GC,Cas11,Cas12,Cas13,Cas22,Cas23,Ca
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardradiationFFS'
 
-  If ((Abs(Mi)-Abs(Ma)-Abs(Mb)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-  End If
+!   If ((Abs(Mi)-Abs(Ma)-Abs(Mb)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+!   End If
 
   if(abs(ma) .eq. 0._dp) then
      call hardradiationSFFmzero(Mi,Mb,MLambda,GC,Cas11,Cas13,Cas33,CL,CR,Gammatotbrems,kont)
@@ -1609,10 +1609,10 @@ Subroutine hardradiationSSS(Mi,Ma,Mb,MLambda,GC,Cas11,Cas12,Cas13,Cas22,Cas23,Ca
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardradiationSSS'
 
-  If ((Abs(Mi)-Abs(Ma)-Abs(Mb)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-  End If
+!   If ((Abs(Mi)-Abs(Ma)-Abs(Mb)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+!   End If
 
   Abb11 = 0._dp
   Abb12 = 0._dp
@@ -1766,10 +1766,10 @@ Subroutine hardradiationSSV(Ma,Mb,MV,MLambda,GC,Qa,Qb,QV,CS,Gammatotbrems,kont)
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardradiationSSS'
 
-  If ((Abs(Ma)-Abs(Mb)-Abs(MV)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by Hard gluon emission!"
-  End If
+!   If ((Abs(Ma)-Abs(Mb)-Abs(MV)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by Hard gluon emission!"
+!   End If
 
   MV2=MV**2
   
@@ -1937,10 +1937,10 @@ Subroutine hardphotonSVV(Mi,M1,M2,MLambda,GC,Qi,Q1,Q2,CS,Gammatotbrems,kont)
   Iname = Iname + 1
   NameOfUnit(Iname) = 'hardphotonSVV'
 
-  If ((Abs(Mi)-Abs(M1)-Abs(M2)).LE.(0._dp)) Then
-   write(*,*) "Please have a look if the decay you are considering is kinematically"
-   write(*,*) "allowed. Error message by hard photon emission in S->VV!"
-  End If
+!   If ((Abs(Mi)-Abs(M1)-Abs(M2)).LE.(0._dp)) Then
+!    write(*,*) "Please have a look if the decay you are considering is kinematically"
+!    write(*,*) "allowed. Error message by hard photon emission in S->VV!"
+!   End If
 
   If ((Abs(Qi-Q1-Q2)).gt.(0.000001_dp)) Then
    write(*,*) "Please choose proper charge assignments in S->VV!"

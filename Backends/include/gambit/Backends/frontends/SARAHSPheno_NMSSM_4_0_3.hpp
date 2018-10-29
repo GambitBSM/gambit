@@ -379,9 +379,6 @@ BE_FUNCTION(GetScaleUncertainty, void,
         ), "__model_data_nmssm_MOD_mass_uncertainty_q", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(GetRenormalizationScale, Freal8, (), "__loopfunctions_MOD_getrenormalizationscale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetRGEScale, void, (Freal8&), "__model_data_nmssm_MOD_setrgescale", "SARAHSPheno_NMSSM_internal")
-/*BE_FUNCTION(SetHighScaleModel, Flogical, (Fstring<20>), "__sugraruns_MOD_sethighscalemodel", "SARAHSPheno_NMSSM_internal")
-BE_FUNCTION(SetWriteMinBr, void, (Freal8&), "__inputoutput_MOD_setwriteminbr", "SARAHSPheno_NMSSM_internal")
-BE_FUNCTION(SetWriteMinSig, void, (Freal8&), "__inputoutput_MOD_setwriteminsig", "SARAHSPheno_NMSSM_internal")*/
 BE_FUNCTION(SetGUTScale, void, (Freal8&), "__model_data_nmssm_MOD_setgutscale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), "__model_data_nmssm_MOD_setstrictunification", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_setyukawascheme", "SARAHSPheno_NMSSM_internal")
@@ -530,7 +527,6 @@ BE_VARIABLE(hstep_pn, Freal8, "__settings_MOD_hstep_pn", "SARAHSPheno_NMSSM_inte
 BE_VARIABLE(hstep_sa, Freal8, "__settings_MOD_hstep_sa", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(TwoLoopRegulatorMass, Freal8, "__settings_MOD_twoloopregulatormass", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(TwoLoopSafeMode, Flogical, "__settings_MOD_twoloopsafemode", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(L_BR, Flogical, "__control_MOD_l_br", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(L_CS, Flogical, "__control_MOD_l_cs", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(MatchingOrder, Finteger, "__settings_MOD_matchingorder", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(GetMassUncertainty, Flogical, "__model_data_nmssm_MOD_getmassuncertainty","SARAHSPheno_NMSSM_internal")
@@ -814,45 +810,18 @@ BE_VARIABLE(Qin, Freal8, "__sphenonmssm_MOD_qin", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(ratioWoM, Freal8, "__sphenonmssm_MOD_ratiowom","SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(CalcTBD, Flogical, "__sphenonmssm_MOD_calctbd","SARAHSPheno_NMSSM_internal")
 // Branching Ratio variables
-/*BE_VARIABLE(gPSd, 
-BE_VARIABLE(gTSd
-BE_VARIABLE(BRSd
-BE_VARIABLE(gPSu
-BE_VARIABLE(gTSu
-BE_VARIABLE(BRSu
-BE_VARIABLE(gPSe
-BE_VARIABLE(gTSe
-BE_VARIABLE(BRSe
-BE_VARIABLE(gPSv
-BE_VARIABLE(gTSv
-BE_VARIABLE(BRSv
-BE_VARIABLE(gPhh
-BE_VARIABLE(gThh
-BE_VARIABLE(BRhh
-BE_VARIABLE(gPAh
-BE_VARIABLE(gTAh
-BE_VARIABLE(BRAh
-BE_VARIABLE(gPHpm
-BE_VARIABLE(gTHpm
-BE_VARIABLE(BRHpm
-BE_VARIABLE(gPGlu
-BE_VARIABLE(gTGlu
-BE_VARIABLE(BRGlu
-BE_VARIABLE(gPChi
-BE_VARIABLE(gTChi
-BE_VARIABLE(BRChi
-BE_VARIABLE(gPCha
-BE_VARIABLE(gTCha
-BE_VARIABLE(BRCha
-BE_VARIABLE(gPFu
-BE_VARIABLE(gTFu
-BE_VARIABLE(BRFu
-*/
+BE_VARIABLE(L_BR, Flogical, "__control_MOD_l_br", "SARAHSPheno_NMSSM_internal")
+BE_VARIABLE(Enable3BDecaysF, Flogical, "__settings_MOD_enable3bdecaysf","SARAHSPheno_NMSSM_internal")
+BE_VARIABLE(Enable3BDecaysS, Flogical, "__settings_MOD_enable3bdecayss","SARAHSPheno_NMSSM_internal")
+BE_VARIABLE(RunningCouplingsDecays, Flogical, "__settings_MOD_runningcouplingsdecays", "SARAHSPheno_NMSSM_internal")
+BE_VARIABLE(MinWidth, Freal8, "__settings_MOD_minwidth", "SARAHSPheno_NMSSM_internal")
+BE_VARIABLE(OneLoopDecays, Flogical, "__settings_MOD_oneloopdecays", "SARAHSPheno_NMSSM_internal")
 // Convenience functions (registration)
 BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SARAHSPheno_NMSSM_spectrum")
-BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &), "SARAHSPheno_NMSSM_decays")
+BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &, const Finputs&), "SARAHSPheno_NMSSM_decays")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SARAHSPheno_NMSSM_internal")
+BE_CONV_FUNCTION(ReadingData_decays, void, (const Finputs&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SARAHSPheno_NMSSM_internal")
 BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SARAHSPheno_NMSSM_internal")
 

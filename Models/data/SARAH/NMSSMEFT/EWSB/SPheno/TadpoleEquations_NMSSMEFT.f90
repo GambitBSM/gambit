@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:34 on 22.10.2018   
+! File created at 14:02 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -11,6 +11,7 @@ Module Tadpoles_NMSSMEFT
  
 Use Model_Data_NMSSMEFT 
 Use TreeLevelMasses_NMSSMEFT 
+Use RGEs_NMSSMEFT 
 Use Control 
 Use Settings 
 Use Mathematics 

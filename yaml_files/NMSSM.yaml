@@ -193,7 +193,6 @@ Rules:
   - capability: unimproved_MSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
-      IgnoreNegativeMasses: true
       WriteOutputForNonConvergence: true
       drop_SLHA_file: true
 
@@ -202,6 +201,13 @@ Rules:
     function: SPheno_NMSSM_test
     options:
       drop_SLHA_file: true
+
+  - capability: decay_rates
+    function:   all_NMSSM_decays_from_SPheno
+    options:
+      drop_SLHA_file: true
+      BRMin: 1.0e-5
+
 
 
 Logger:

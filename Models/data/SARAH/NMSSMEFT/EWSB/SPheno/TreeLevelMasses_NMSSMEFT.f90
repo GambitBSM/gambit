@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:27 on 22.10.2018   
+! File created at 13:55 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -14,8 +14,7 @@ Use Mathematics
 Use MathematicsQP 
 Use Settings 
 Use Model_Data_NMSSMEFT 
-!Use StandardModel 
- 
+
  
 Logical :: SignOfMassChanged =.False.  
 Logical :: SignOfMuChanged =.False.  
@@ -54,6 +53,8 @@ kont = 0
 Call CalculateVPVZ(g1,g2,vd,vu,ZZ,MVZ,MVZ2,TW,kont)
 
 Call CalculateVWm(g2,vd,vu,ZW,MVWm,MVWm2,kont)
+
+!S.B - remove call to sfermions since they're not in our EFT spectrum.
 
 !Call CalculateMSd(ZD,MSd,MSd2,kont)
 
@@ -96,7 +97,7 @@ MFu2 = MFu**2
 & MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,             & 
 & ZZ,betaH,kont)
 
-If ((HighScaleModel.Eq."LOW").and.(.not.SUSYrunningFromMZ)) Then 
+If (MatchingOrder.eq.-1) Then 
  If (SignOfMassChanged) Then  
  If (.Not.IgnoreNegativeMasses) Then 
   Write(*,*) " Stopping calculation because of negative mass squared." 
@@ -202,13 +203,13 @@ Call CalculateVPVZEffPot(g1,g2,vd,vu,ZZ,MVZ,MVZ2,TW,kont)
 
 Call CalculateVWmEffPot(g2,vd,vu,ZW,MVWm,MVWm2,kont)
 
-!Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
+Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
 
-!Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
+Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
 
-!Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
+Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
 
-!Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
+Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
 
 Call CalculateMhhEffPot(g1,g2,lam,Tlam,kap,Tk,mHd2,mHu2,ms2,vd,vu,vS,ZH,              & 
 & Mhh,Mhh2,kont)
@@ -240,7 +241,7 @@ Call CalculateMFuEffPot(Yu,vu,ZUL,ZUR,MFu,kont)
 MFu2 = MFu**2 
 
  
- If ((HighScaleModel.Eq."LOW").and.(.not.SUSYrunningFromMZ)) Then 
+ If (MatchingOrder.eq.-1) Then 
  If (SignOfMassChanged) Then  
  If (.Not.IgnoreNegativeMasses) Then 
   Write(*,*) " Stopping calculation because of negative mass squared." 

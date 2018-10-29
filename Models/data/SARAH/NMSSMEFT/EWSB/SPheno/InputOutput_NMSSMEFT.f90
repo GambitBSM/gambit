@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:34 on 22.10.2018   
+! File created at 14:02 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -19,7 +19,7 @@ Use Boundaries_NMSSMEFT
  
 Use EffPotFunctions 
 Logical,Save::LesHouches_Format
-Character(len=8),Save,Private::versionSARAH="4.12.3"
+Character(len=8),Save,Private::versionSARAH="4.13.0"
 Integer,Private::i_cpv=0
 Integer,Save,Private::in_kont(2)
 Logical,Save::Add_Rparity= .False. 
@@ -31,7 +31,7 @@ Logical,Private::l_RP_Pythia= .False.
 Logical,Save,Private::Use_Flavour_States= .False. 
 Real(dp),Save,Private::BrMin=1.e-4_dp 
 Real(dp),Save,Private::SigMin=1.e-4_dp 
-Character(len=60)::inputFileName,outputFileName 
+Character(len=120)::inputFileName,outputFileName 
 Contains 
  
 Subroutine LesHouches_Input(kont, Ecms, Pm, Pp, l_ISR, Fgmsb) 
@@ -280,6 +280,36 @@ InputValueforme2= .True.
      End If 
     Call ReadMatrixC(99,3,3,me2IN,1, "me2IN",kont)
 
+ 
+   Else If (read_line(7:13).Eq."GAUGEIN") Then 
+    Call Read_GAUGEIN(99,0,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:15).Eq."IMGAUGEIN") Then 
+    Call Read_GAUGEIN(99,1,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:16).Eq."NMSSMRUNIN") Then 
+    Call Read_NMSSMRUNIN(99,0,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:18).Eq."IMNMSSMRUNIN") Then 
+    Call Read_NMSSMRUNIN(99,1,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:13).Eq."MSOFTIN") Then 
+    Call Read_MSOFTIN(99,0,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:15).Eq."IMMSOFTIN") Then 
+    Call Read_MSOFTIN(99,1,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:12).Eq."HMIXIN") Then 
+    Call Read_HMIXIN(99,0,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:14).Eq."IMHMIXIN") Then 
+    Call Read_HMIXIN(99,1,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:14).Eq."PHASESIN") Then 
+    Call Read_PHASESIN(99,0,i_model,set_mod_par,kont) 
+ 
+   Else If (read_line(7:16).Eq."IMPHASESIN") Then 
+    Call Read_PHASESIN(99,1,i_model,set_mod_par,kont) 
  
    Else If (read_line(7:13).Eq."GAUGEIN") Then 
     Call Read_GAUGEIN(99,0,i_model,set_mod_par,kont) 
@@ -741,8 +771,8 @@ End Subroutine Read_EXTPAR
      Case(7)
        If (wert.eq.1) then
          CalculateTwoLoopHiggsMasses=.False.
-         TwoLoopMatching = .false.
-         OneLoopMatching = .false.         
+!          TwoLoopMatching = .false.
+!          OneLoopMatching = .false.         
        Else
          CalculateTwoLoopHiggsMasses=.True.
        End if
@@ -890,6 +920,9 @@ End Subroutine Read_EXTPAR
 !      Case(26) ! minimal value such that a cross section is written out
 !       Call SetWriteMinSig(wert)
 
+     Case(19) ! maximal number of iterations
+      MatchingOrder = Int(wert)
+
      Case(20) 
       If (wert.eq.1._dp) GetMassUncertainty=.True.
 
@@ -986,8 +1019,8 @@ End Subroutine Read_EXTPAR
        CalculateOneLoopMasses=.True.
       Else
        CalculateOneLoopMasses=.False.
-       TwoLoopMatching = .false.
-       OneLoopMatching = .false.
+!        TwoLoopMatching = .false.
+!        OneLoopMatching = .false.
       End If
 
 !      Case(56)
@@ -1023,12 +1056,12 @@ End Subroutine Read_EXTPAR
        KineticMixing=.False.
       End If
 
-     Case(61)
-      If (wert.Ne.0._dp) Then
-       SMrunningLowScaleInput=.True.
-      Else
-       SMrunningLowScaleInput=.False.
-      End If
+!      Case(61)
+!       If (wert.Ne.0._dp) Then
+!        SMrunningLowScaleInput=.True.
+!       Else
+!        SMrunningLowScaleInput=.False.
+!       End If
 
      Case(62)
       If (wert.Ne.0._dp) Then
@@ -1075,12 +1108,12 @@ End Subroutine Read_EXTPAR
        MatchZWpoleMasses=.True.
       End If      
 
-     Case(70)
-      If (wert.Ne.0._dp) Then
-       SUSYrunningFromMZ=.True.
-      Else
-       SUSYrunningFromMZ=.False.
-      End If
+!      Case(70)
+!       If (wert.Ne.0._dp) Then
+!        SUSYrunningFromMZ=.True.
+!       Else
+!        SUSYrunningFromMZ=.False.
+!       End If
 
      Case(65)
       If (wert.gt.0) SolutionTadpoleNr = wert 
@@ -1149,7 +1182,42 @@ End Subroutine Read_EXTPAR
         else
          NewGBC=.true.
        end if
+       
+     Case(440)
+      If (wert.Ne.1._dp) Then
+       TreeLevelUnitarityLimits=.False.
+      Else
+       TreeLevelUnitarityLimits=.True.
+      End If    
+      
+     Case(441)
+      If (wert.Ne.1._dp) Then
+       TrilinearUnitarity=.False.
+      Else
+       TrilinearUnitarity=.True.
+      End If   
+      
+     Case(442)
+       unitarity_s_min = wert       
 
+     Case(443)
+       unitarity_s_max = wert       
+       
+     Case(444)
+       unitarity_steps = wert           
+       
+     Case(445)
+      If (wert.Ne.1._dp) Then
+       RunRGEs_unitarity=.False.
+      Else
+       RunRGEs_unitarity=.True.
+      End If 
+       
+     Case(446)
+       TUcutLevel = wert          
+       
+       
+       
      Case(510)
       If (wert.Ne.1._dp) Then
        WriteTreeLevelTadpoleSolutions=.False.
@@ -1266,7 +1334,7 @@ Read(io,*,End=200,err=200) read_line
 If (read_line(1:1).Eq."#") Cycle! this loop 
 Backspace(io)! resetting to the beginning of the line 
 If ((read_line(1:1).Eq."B").Or.(read_line(1:1).Eq."b")) Exit! this loop 
-Read(io,*,End=200) i_par,wert,read_line 
+Read(io,*,End=200) i_par,wert ,read_line 
 Select Case(i_par) 
 Case(1) 
   If (wert.ne.1) Calc3BodyDecay_Chi= .False. 
@@ -1667,9 +1735,9 @@ Write(io_L,101) 65, Aimag(MuEffinput) ,"# MuEffinput"
 End if 
 End if 
 Write(io_L,106) "Block gaugeGUT Q=",m_GUT,"# (GUT scale)" 
-Write(io_L,104) 1,g1GUT, "# g1(Q)^DRbar" 
-Write(io_L,104) 2,g2GUT, "# g2(Q)^DRbar" 
-Write(io_L,104) 3,g3GUT, "# g3(Q)^DRbar" 
+Write(io_L,104) 1,g1GUT, "# g1(Q)" 
+Write(io_L,104) 2,g2GUT, "# g2(Q)" 
+Write(io_L,104) 3,g3GUT, "# g3(Q)" 
 Write(io_L,100) "Block SMINPUTS  # SM parameters"
 Write(io_L,102) 1,1._dp/alpha_MZ,"# alpha_em^-1(MZ)^MSbar"
 Write(io_L,102) 2,G_F,"# G_mu [GeV^-2]"
@@ -1685,13 +1753,15 @@ Write(io_L,102) 1,lam_wolf,"# lambda"
 Write(io_L,102) 2,A_wolf,"# A"
 Write(io_L,102) 3,rho_wolf,"# rho bar"
 Write(io_L,102) 4,eta_wolf,"# eta bar"
-ZU_ckm = ZU(1:6,1:6) 
-ZD_ckm = ZD(1:6,1:6) 
+! Eliel - commented out
+! ZU_ckm = ZU(1:6,1:6) 
+! ZD_ckm = ZD(1:6,1:6) 
 Call Switch_to_superCKM(Yd(1:3,1:3),Yu(1:3,1:3),Td(1:3,1:3),Tu(1:3,1:3),md2(1:3,1:3),mq2(1:3,1:3),mu2(1:3,1:3) &
 &,Td_ckm,Tu_ckm,md2_ckm,mq2_ckm,mu2_ckm, .False.&
 &,ZD_ckm,ZU_ckm,ZD,ZU,CKM_Q,Yd_ckm,Yu_ckm)
-ZE_pmns = ZE(1:6,1:6) 
-ZV_pmns = ZV(1:3,1:3) 
+! Eliel - commented out
+! ZE_pmns = ZE(1:6,1:6) 
+! ZV_pmns = ZV(1:3,1:3) 
 Call Switch_to_superPMNS(Transpose(Ye(1:3,1:3)),id3C,Te(1:3,1:3),ml2(1:3,1:3),me2(1:3,1:3) &
 &,Te_pmns,ml2_pmns,me2_pmns,.False.&
 &,ZE_pmns,ZV_pmns,ZE,ZV,PMNS_Q,Ye_pmns)
@@ -1702,14 +1772,16 @@ Tu(1:3,1:3)=Tu_ckm
 md2(1:3,1:3)=md2_ckm 
 mu2(1:3,1:3)=mu2_ckm 
 mq2(1:3,1:3)=mq2_ckm 
-ZU(1:6,1:6)=ZU_ckm 
-ZD(1:6,1:6)=ZD_ckm 
+! Eliel - commented out
+! ZU(1:6,1:6)=ZU_ckm 
+! ZD(1:6,1:6)=ZD_ckm 
 Ye(1:3,1:3)=Ye_pmns 
 Te(1:3,1:3)=Te_pmns 
 ml2(1:3,1:3)=ml2_pmns 
 me2(1:3,1:3)=me2_pmns 
-ZE(1:6,1:6)=ZE_pmns 
-ZV(1:3,1:3)=ZV_pmns 
+! Eliel - commented out
+! ZE(1:6,1:6)=ZE_pmns 
+! ZV(1:3,1:3)=ZV_pmns 
 Write(io_L,106) "Block VCKM Q=",Q,"# Re(CKM) at the SUSY Scale" 
 Do i1=1,3
 Do i2=1,3
@@ -3567,6 +3639,20 @@ Write(io_L,222) "03050305" , "4242" , "00", "0", Aimag(coeffBsBs_VRRSM),  " # co
 Write(io_L,222) "03050305" , "4142" , "00", "0", Aimag(coeffBsBs_VLRSM),  " # coeffBsBs_VLRSM"  
 Write(io_L,222) "03050305" , "4343" , "00", "0", Aimag(coeffBsBs_TLLSM),  " # coeffBsBs_TLLSM"  
 Write(io_L,222) "03050305" , "4444" , "00", "0", Aimag(coeffBsBs_TRRSM),  " # coeffBsBs_TRRSM"  
+Write(io_L,100) "Block TREELEVELUNITARITY #  " 
+Write(io_L,1010) 0, TreeUnitarity,  "# Tree-level unitarity limits fulfilled or not "  
+Write(io_L,1010) 1, max_scattering_eigenvalue,  "# Maximal scattering eigenvalue "  
+If (TrilinearUnitarity) Then  
+Write(io_L,100) "Block TREELEVELUNITARITYwTRILINEARS #  " 
+Write(io_L,1010) 0, TreeUnitarityTrilinear,  "# Tree-level unitarity limits fulfilled or not "  
+Write(io_L,1010) 1, max_scattering_eigenvalue_trilinears,  "# Maximal scattering eigenvalue "  
+Write(io_L,1010) 2, unitarity_s_best,  "# best scattering energy "  
+Write(io_L,1010) 11, unitarity_s_min,  "# min scattering energy "  
+Write(io_L,1010) 12, unitarity_s_max,  "# max scattering energy "  
+Write(io_L,1010) 13, 1._dp*unitarity_steps,  "# steps "  
+End If 
+
+ 
 
  
  !-------------------------------

@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:29 on 22.10.2018   
+! File created at 13:57 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -82,7 +82,7 @@ Coup = cplAhAhhh(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MAh(i2)
 Mex3 = MAh(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Gammarealphoton(i1,i2,i3) = 0._dp 
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -1138,7 +1138,7 @@ Coup = cplAhhhhh(i3,i1,i2)
 Mex1 = Mhh(i1)
 Mex2 = Mhh(i2)
 Mex3 = MAh(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Gammarealphoton(i1,i2,i3) = 0._dp 
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -2186,7 +2186,7 @@ Coup = cplAhhhVZ(i2,i1)
 Mex1 = Mhh(i1)
 Mex2 = MAh(i2)
 Mex3 = MVZ
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Gammarealphoton(i1,i2) = 0._dp 
  GammarealGluon(i1,i2) = 0._dp 
 Else 
@@ -3053,7 +3053,7 @@ CoupR = cplcChaChahhR(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MCha(i2)
 Mex3 = MCha(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,em,0._dp,0._dp,0._dp,1._dp,-1._dp,1._dp,CoupL,CoupR,Gammarealphoton(i1,i2,i3),kont)
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -3696,7 +3696,7 @@ CoupR = cplChiChihhR(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MChi(i2)
 Mex3 = MChi(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Gammarealphoton(i1,i2,i3) = 0._dp 
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -4431,7 +4431,7 @@ CoupR = cplcFdFdhhR(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MFd(i2)
 Mex3 = MFd(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,em,0._dp,0._dp,0._dp,1._dp/3._dp,-1._dp/3._dp,1._dp/3._dp,CoupL,CoupR,Gammarealphoton(i1,i2,i3),kont)
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,gs,0._dp,0._dp,0._dp,4._dp,-4._dp,4._dp,CoupL,CoupR,Gammarealgluon(i1,i2,i3),kont)
 Else 
@@ -5116,7 +5116,7 @@ CoupR = cplcFeFehhR(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MFe(i2)
 Mex3 = MFe(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,em,0._dp,0._dp,0._dp,1._dp,-1._dp,1._dp,CoupL,CoupR,Gammarealphoton(i1,i2,i3),kont)
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -5707,7 +5707,7 @@ CoupR = cplcFuFuhhR(i2,i3,i1)
 Mex1 = Mhh(i1)
 Mex2 = MFu(i2)
 Mex3 = MFu(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,em,0._dp,0._dp,0._dp,4._dp/3._dp,-4._dp/3._dp,4._dp/3._dp,CoupL,CoupR,Gammarealphoton(i1,i2,i3),kont)
  Call hardradiationSFF(Mex1,Mex2,Mex3,MLambda,gs,0._dp,0._dp,0._dp,4._dp,-4._dp,4._dp,CoupL,CoupR,Gammarealgluon(i1,i2,i3),kont)
 Else 
@@ -6389,7 +6389,7 @@ Coup = cplhhhhhh(i1,i2,i3)
 Mex1 = Mhh(i1)
 Mex2 = Mhh(i2)
 Mex3 = Mhh(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Gammarealphoton(i1,i2,i3) = 0._dp 
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -7647,7 +7647,7 @@ Coup = cplhhHpmcHpm(i1,i3,i2)
 Mex1 = Mhh(i1)
 Mex2 = MHpm(i2)
 Mex3 = MHpm(i3)
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSSS(Mex1,Mex2,Mex3,MLambda,em,0._dp,0._dp,0._dp,1._dp,-1._dp,1._dp,Coup,Gammarealphoton(i1,i2,i3),kont)
   GammarealGluon(i1,i2,i3) = 0._dp 
 Else 
@@ -8957,7 +8957,7 @@ Coup = cplhhHpmcVWm(i1,i2)
 Mex1 = Mhh(i1)
 Mex2 = MHpm(i2)
 Mex3 = MVWm
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
  Call hardradiationSSV(Mex1,Mex2,Mex3,MLambda,em,0._dp,-1._dp,1._dp,Coup,Gammarealphoton(i1,i2),kont)
  GammarealGluon(i1,i2) = 0._dp 
 Else 
@@ -10041,7 +10041,7 @@ Coup = cplhhcVWmVWm(i1)
 Mex1 = Mhh(i1)
 Mex2 = MVWm
 Mex3 = MVWm
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
   GammarealGluon(i1) = 0._dp 
  Call hardphotonSVV(Mex1,Mex2,Mex3,MLambda,em,0._dp,1._dp,-1._dp,Coup,Gammarealphoton(i1),kont)
 Else 
@@ -11219,7 +11219,7 @@ Coup = cplhhVZVZ(i1)
 Mex1 = Mhh(i1)
 Mex2 = MVZ
 Mex3 = MVZ
-If (Mex1.gt.(Mex2+Mex3)) Then 
+If (Abs(Mex1).gt.(Abs(Mex2)+Abs(Mex3))) Then 
   GammarealGluon(i1) = 0._dp 
  Gammarealphoton(i1) = 0._dp 
 Else 

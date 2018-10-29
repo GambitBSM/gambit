@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:32 on 22.10.2018   
+! File created at 13:59 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -609,7 +609,7 @@ Subroutine Switch_from_superCKM(Y_d, Y_u, Ad_in, Au_in, MD_in, MQ_in, MU_in &
   !---------------------------------------------------------
   ! CKM matrix at Q, shifting phases according to PDG form
   !---------------------------------------------------------
-  CKM_Q =  Matmul(uU_L, Transpose(Conjg(ud_L)) )
+  CKM_Q =  Matmul(uU_R, Transpose(Conjg(ud_R)) )
   uD_L(1,:) = uD_L(1,:) / Conjg(CKM_Q(1,1)) * Abs(CKM_Q(1,1))
   uD_L(2,:) = uD_L(2,:) / Conjg(CKM_Q(1,2)) * Abs(CKM_Q(1,2))
   uU_L(2,:) = uU_L(2,:) / CKM_Q(2,3) * Abs(CKM_Q(2,3))
@@ -803,7 +803,7 @@ MFu2(1:3) = mf_u**2
 MFe = sqrt(MFe2) 
 MFd = sqrt(MFd2) 
 MFu = sqrt(MFu2) 
-alphaMZ = AlphaEwDR(mZ,MVWm,MHpm,MCha,MFe,MFd,MFu) 
+alphaMZ = AlphaEwDR(mZ,Abs(MVWm),Abs(MHpm),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
  
 MFe2(1:3) = mf_l2 
 MFd2(1:3) = mf_d2 
@@ -811,7 +811,9 @@ MFu2(1:3) = mf_u2
 MFe = sqrt(MFe2) 
 MFd = sqrt(MFd2) 
 MFu = sqrt(MFu2) 
-alpha3 = AlphaSDR(mZ,Mhh,MAh,MHpm,MChi,MCha,MFe,MFd,MFu) 
+!S.B. - remove 0 from function argument.
+alpha3 = AlphaSDR(mZ,Abs(Mhh),Abs(MAh),Abs(MHpm),Abs(MChi),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
+!alpha3 = AlphaSDR(mZ,Abs(Mhh),Abs(MAh),Abs(MHpm),Abs(0._dp),Abs(MChi),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
 If (.not.OneLoopMatching) alpha3 = AlphaS_MZ 
 If (.not.OneLoopMatching) alphaMZ= alpha_MZ_MS 
 gSU3 = Sqrt(4._dp*pi*alpha3) 
@@ -2064,7 +2066,7 @@ MFu2(1:3) = mf_u**2
 MFe = sqrt(MFe2) 
 MFd = sqrt(MFd2) 
 MFu = sqrt(MFu2) 
-alphaQ = AlphaEw_T(alphaEW_MS,mudim,MVWm,MHpm,MCha,MFe,MFd,MFu) 
+alphaQ = AlphaEw_T(alphaEW_MS,mudim,Abs(MVWm),Abs(MHpm),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
  
 MFe2(1:3) = mf_l2 
 MFd2(1:3) = mf_d2 
@@ -2072,7 +2074,9 @@ MFu2(1:3) = mf_u2
 MFe = sqrt(MFe2) 
 MFd = sqrt(MFd2) 
 MFu = sqrt(MFu2) 
-alpha3 = AlphaS_T(alphaS_MS,mudim,Mhh,MAh,MHpm,MChi,MCha,MFe,MFd,MFu) 
+!S.B. - remove 0 from function argument
+alpha3 = AlphaS_T(alphaS_MS,mudim,Abs(Mhh),Abs(MAh),Abs(MHpm),Abs(MChi),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
+!alpha3 = AlphaS_T(alphaS_MS,mudim,Abs(Mhh),Abs(MAh),Abs(MHpm),Abs(0._dp),Abs(MChi),Abs(MCha),Abs(MFe),Abs(MFd),Abs(MFu)) 
 If (.not.OneLoopMatching) alpha3 = alphaS_MS 
 gSU3 = Sqrt(4._dp*pi*alpha3) 
 g3SM = Sqrt(4._dp*pi*alpha3) 
@@ -2825,6 +2829,7 @@ NameOfUnit(Iname)='Sugra'
 kont=0
 FoundResult= .False.
 n_tot =1
+!S.B. - array indexing
 !mass_old(n_tot:n_tot+-1) = MSd
 !n_tot = n_tot + 0 
 !mass_old(n_tot:n_tot+-1) = MSv
@@ -2843,7 +2848,9 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+! Eliel - change first guess of SUSY scale to Gluino mass.
+mudim=Max(mZ**2,Abs(M3)**2)
+! mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
 End If 
@@ -2852,7 +2859,7 @@ CalculateOneLoopMassesSave = CalculateOneLoopMasses
 CalculateOneLoopMasses = .false. 
 Do j=1,niter 
 Write(*,*) "  ", j,".-iteration" 
-Write(ErrCan,*) "sugra ", j,".-iteration" 
+Write(ErrCan,*) "RGE Running ", j,".-iteration" 
 Call BoundaryEW(j,MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,               & 
 & MFu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,               & 
 & MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,             & 
@@ -3087,6 +3094,7 @@ End If
     Call TerminateProgram
 End If
 n_tot =1
+!S.B. - array indexing
 !mass_new(n_tot:n_tot+-1) = MSd
 !n_tot = n_tot + 0 
 !mass_new(n_tot:n_tot+-1) = MSv
@@ -3152,7 +3160,9 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+! Eliel - change first guess of SUSY scale to Gluino mass.
+mudimNew=Max(mZ**2,Abs(M3)**2)
+!mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
 End If 
@@ -3382,14 +3392,15 @@ NameOfUnit(Iname)='Match_and_Run'
 kont=0
 FoundResult= .False.
 n_tot =1
-mass_old(n_tot:n_tot+-1) = MSd
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSv
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSu
-n_tot = n_tot + 0 
-mass_old(n_tot:n_tot+-1) = MSe
-n_tot = n_tot + 0 
+!S.B. - array indexing
+!mass_old(n_tot:n_tot+-1) = MSd
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSv
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSu
+!n_tot = n_tot + 0 
+!mass_old(n_tot:n_tot+-1) = MSe
+!n_tot = n_tot + 0 
 mass_old(n_tot:n_tot+2) = Mhh
 n_tot = n_tot + 3 
 mass_old(n_tot:n_tot+2) = MAh
@@ -3400,7 +3411,9 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+! Eliel - change first guess of SUSY scale to Gluino mass.
+mudim=Max(mZ**2,Abs(M3)**2)
+! mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
 End If 
@@ -3410,7 +3423,7 @@ CalculateOneLoopMasses = .false.
 Lambda_MZ = 0.1_dp 
 Do j=1,niter 
 Write(*,*) "  ", j,".-iteration" 
-Write(ErrCan,*) "sugra ", j,".-iteration" 
+Write(ErrCan,*) "RGE Running ", j,".-iteration" 
 Call BoundarySM(j,Lambda_MZ,delta0,g_SM,kont)
 
 g_SM_save = g_SM 
@@ -3661,14 +3674,15 @@ End If
     Call TerminateProgram
 End If
 n_tot =1
-mass_new(n_tot:n_tot+-1) = MSd
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSv
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSu
-n_tot = n_tot + 0 
-mass_new(n_tot:n_tot+-1) = MSe
-n_tot = n_tot + 0 
+!S.B. - array indexing
+!mass_new(n_tot:n_tot+-1) = MSd
+!n_tot = n_tot + 0 
+!mass_new(n_tot:n_tot+-1) = MSv
+!n_tot = n_tot + 0 
+!mass_new(n_tot:n_tot+-1) = MSu
+!n_tot = n_tot + 0 
+!mass_new(n_tot:n_tot+-1) = MSe
+!n_tot = n_tot + 0 
 mass_new(n_tot:n_tot+2) = Mhh
 n_tot = n_tot + 3 
 mass_new(n_tot:n_tot+2) = MAh
@@ -3726,7 +3740,9 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
+! Eliel - change first guess of SUSY scale to Gluino mass.
+mudimNew =Max(mZ**2,Abs(M3)**2)
+!mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
 End If 

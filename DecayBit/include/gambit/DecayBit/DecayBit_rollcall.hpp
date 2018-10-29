@@ -703,6 +703,19 @@ START_MODULE
 
   #undef CAPABILITY
 
+
+  // Get NMSSM decay table as a map<str,double>. 
+  // (Can we turn this into a completely model independent function "get_decay_rates_as_map"?)
+  #define CAPABILITY NMSSM_decay_rates_map
+  START_CAPABILITY
+    #define FUNCTION get_NMSSM_decay_rates_as_map
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(decay_rates, DecayTable)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION    
+  #undef CAPABILITY
+
+
   #define CAPABILITY decay_rates
   START_CAPABILITY
 
@@ -713,7 +726,7 @@ START_MODULE
     #define FUNCTION all_NMSSM_decays_from_SPheno
     START_FUNCTION(DecayTable)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    BACKEND_REQ(SARAHSPheno_NMSSM_decays, (libSPhenoNMSSM), int, (const Spectrum&, DecayTable&) )
+    BACKEND_REQ(SARAHSPheno_NMSSM_decays, (libSPhenoNMSSM), int, (const Spectrum&, DecayTable&, const Finputs&) )
     BACKEND_OPTION((SARAHSPheno_NMSSM, 4.0.3), (libSPhenoNMSSM))
     ALLOW_MODELS(NMSSM66atQ)
     #undef FUNCTION

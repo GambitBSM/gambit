@@ -10,9 +10,11 @@
 ///  Authors (add name and date if you modify):
 ///  
 /// \author Tomas Gonzalo
-/// \date 2016 Apr
+/// \date 2016 Apr, 2018 Sep, Oct
 ///
 ///  *********************************************
+
+#include <map>
 
 #include "gambit/Utils/util_types.hpp"
 
@@ -101,6 +103,7 @@ namespace Gambit
         std::map<str, safe_ptr<double> > param;
         safe_ptr<Options> options;
     };
+
 }
 
 #endif // defined __SPHENO_types_hpp__
