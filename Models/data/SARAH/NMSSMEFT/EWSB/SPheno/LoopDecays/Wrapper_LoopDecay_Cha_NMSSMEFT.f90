@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:32 on 22.10.2018   
+! File created at 13:59 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -386,7 +386,7 @@ Do gt1=1,2
 i4 = isave 
   Do gt2=1,2
     Do gt3=2,3
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChaOS(gt2)+MAhOS(gt3)))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MCha(gt2)+MAh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MAhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MCha(gt2))+Abs(MAh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChaToChaAh = AmpTreeChaToChaAh
@@ -439,7 +439,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChaAh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChaToChaAh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -650,7 +650,7 @@ Do gt1=1,2
 i4 = isave 
   Do gt2=1,2
     Do gt3=1,3
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChaOS(gt2)+MhhOS(gt3)))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MCha(gt2)+Mhh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MhhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MCha(gt2))+Abs(Mhh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChaToChahh = AmpTreeChaToChahh
@@ -703,7 +703,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChahh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChaToChahh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -907,7 +907,7 @@ End if
 Do gt1=1,2
 i4 = isave 
   Do gt2=1,2
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChaOS(gt2)+MVZOS))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MCha(gt2)+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MCha(gt2))+Abs(MVZ))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2ChaToChaVZ = AmpTreeChaToChaVZ
@@ -960,7 +960,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChaVZ(gt1, gt2).le.0._dp) Then 
+If (AmpSqChaToChaVZ(gt1, gt2).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1177,7 +1177,7 @@ Do gt1=1,2
 i4 = isave 
   Do gt2=1,5
     Do gt3=2,2
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChiOS(gt2)+MHpmOS(gt3)))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MChi(gt2)+MHpm(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MHpmOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MChi(gt2))+Abs(MHpm(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChaToChiHpm = AmpTreeChaToChiHpm
@@ -1230,7 +1230,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChiHpm(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChaToChiHpm(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1440,7 +1440,7 @@ End if
 Do gt1=1,2
 i4 = isave 
   Do gt2=1,5
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChiOS(gt2)+MVWmOS))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MChi(gt2)+MVWm)))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MVWmOS)))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MChi(gt2))+Abs(MVWm))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2ChaToChiVWm = AmpTreeChaToChiVWm
@@ -1493,7 +1493,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChiVWm(gt1, gt2).le.0._dp) Then 
+If (AmpSqChaToChiVWm(gt1, gt2).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1595,7 +1595,7 @@ End If
 Do gt1=1,2
 i4 = isave 
   Do gt2=1,2
-If (((OSkinematics).and.(MChaOS(gt1).gt.(MChaOS(gt2)+0.))).or.((.not.OSkinematics).and.(MCha(gt1).gt.(MCha(gt2)+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MChaOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MCha(gt1)).gt.(Abs(MCha(gt2))+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_FtoFV(MChaOS(gt1),MChaOS(gt2),0._dp,AmpSumChaToChaVP(:,gt1, gt2),AmpSum2ChaToChaVP(:,gt1, gt2),AmpSqChaToChaVP(gt1, gt2)) 
 Else  
@@ -1607,7 +1607,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChaToChaVP(gt1, gt2).le.0._dp) Then 
+If (AmpSqChaToChaVP(gt1, gt2).eq.0._dp) Then 
   gP1LCha(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 

@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:31 on 22.10.2018   
+! File created at 13:59 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -511,7 +511,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=2,3
     Do gt3=gt2,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MAhOS(gt2)+MAhOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MAh(gt2)+MAh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MAhOS(gt2))+Abs(MAhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MAh(gt2))+Abs(MAh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhToAhAh = AmpTreeAhToAhAh
@@ -565,7 +565,7 @@ End if
 ! Calculate Partial widths 
 helfactor = 1._dp 
 If (gt2.ne.gt3) helfactor = 2._dp*helfactor 
-If (AmpSqAhToAhAh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhToAhAh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -790,7 +790,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=2,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MhhOS(gt2)+MAhOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(Mhh(gt2)+MAh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MhhOS(gt2))+Abs(MAhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(Mhh(gt2))+Abs(MAh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTohhAh = AmpTreeAhTohhAh
@@ -843,7 +843,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhTohhAh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTohhAh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1053,7 +1053,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,2
     Do gt3=1,2
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MChaOS(gt2)+MChaOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MCha(gt2)+MCha(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MChaOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MCha(gt2))+Abs(MCha(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTocChaCha = AmpTreeAhTocChaCha
@@ -1106,7 +1106,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 4._dp 
-If (AmpSqAhTocChaCha(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTocChaCha(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1313,7 +1313,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,5
     Do gt3=gt2,5
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MChiOS(gt2)+MChiOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MChi(gt2)+MChi(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MChiOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MChi(gt2))+Abs(MChi(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhToChiChi = AmpTreeAhToChiChi
@@ -1367,7 +1367,7 @@ End if
 ! Calculate Partial widths 
 helfactor = 4._dp 
 If (gt2.ne.gt3) helfactor = 2._dp*helfactor 
-If (AmpSqAhToChiChi(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhToChiChi(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1577,7 +1577,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MFdOS(gt2)+MFdOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MFd(gt2)+MFd(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MFdOS(gt2))+Abs(MFdOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MFd(gt2))+Abs(MFd(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTocFdFd = AmpTreeAhTocFdFd
@@ -1630,7 +1630,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 4._dp 
-If (AmpSqAhTocFdFd(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTocFdFd(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1835,7 +1835,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MFeOS(gt2)+MFeOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MFe(gt2)+MFe(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MFeOS(gt2))+Abs(MFeOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MFe(gt2))+Abs(MFe(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTocFeFe = AmpTreeAhTocFeFe
@@ -1888,7 +1888,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 4._dp 
-If (AmpSqAhTocFeFe(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTocFeFe(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -2098,7 +2098,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MFuOS(gt2)+MFuOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MFu(gt2)+MFu(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MFuOS(gt2))+Abs(MFuOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MFu(gt2))+Abs(MFu(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTocFuFu = AmpTreeAhTocFuFu
@@ -2151,7 +2151,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 4._dp 
-If (AmpSqAhTocFuFu(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTocFuFu(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -2370,7 +2370,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=gt2,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MhhOS(gt2)+MhhOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(Mhh(gt2)+Mhh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MhhOS(gt2))+Abs(MhhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(Mhh(gt2))+Abs(Mhh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTohhhh = AmpTreeAhTohhhh
@@ -2424,7 +2424,7 @@ End if
 ! Calculate Partial widths 
 helfactor = 1._dp 
 If (gt2.ne.gt3) helfactor = 2._dp*helfactor 
-If (AmpSqAhTohhhh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTohhhh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -2651,7 +2651,7 @@ End if
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MhhOS(gt2)+MVZOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(Mhh(gt2)+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MhhOS(gt2))+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(Mhh(gt2))+Abs(MVZ))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2AhTohhVZ = AmpTreeAhTohhVZ
@@ -2704,7 +2704,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhTohhVZ(gt1, gt2).le.0._dp) Then 
+If (AmpSqAhTohhVZ(gt1, gt2).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -2940,7 +2940,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=2,2
     Do gt3=2,2
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MHpmOS(gt2)+MHpmOS(gt3)))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MHpm(gt2)+MHpm(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MHpmOS(gt2))+Abs(MHpmOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MHpm(gt2))+Abs(MHpm(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2AhTocHpmHpm = AmpTreeAhTocHpmHpm
@@ -2993,7 +2993,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhTocHpmHpm(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhTocHpmHpm(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3214,7 +3214,7 @@ End if
 Do gt1=1,3
 i4 = isave 
   Do gt2=2,2
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MHpmOS(gt2)+MVWmOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MHpm(gt2)+MVWm)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MHpmOS(gt2))+Abs(MVWmOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MHpm(gt2))+Abs(MVWm))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2AhToHpmcVWm = AmpTreeAhToHpmcVWm
@@ -3267,7 +3267,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToHpmcVWm(gt1, gt2).le.0._dp) Then 
+If (AmpSqAhToHpmcVWm(gt1, gt2).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3356,7 +3356,7 @@ End If
 Do gt1=1,3
 i4 = isave 
   Do gt2=2,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MAhOS(gt2)+0.))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MAh(gt2)+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MAhOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MAh(gt2))+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoSV(MAhOS(gt1),MAhOS(gt2),0._dp,AmpSumAhToAhVP(:,gt1, gt2),AmpSum2AhToAhVP(:,gt1, gt2),AmpSqAhToAhVP(gt1, gt2)) 
 Else  
@@ -3368,7 +3368,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToAhVP(gt1, gt2).le.0._dp) Then 
+If (AmpSqAhToAhVP(gt1, gt2).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3454,7 +3454,7 @@ End If
 Do gt1=1,3
 i4 = isave 
   Do gt2=2,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MAhOS(gt2)+MVZOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MAh(gt2)+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MAhOS(gt2))+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MAh(gt2))+Abs(MVZ))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoSV(MAhOS(gt1),MAhOS(gt2),MVZOS,AmpSumAhToAhVZ(:,gt1, gt2),AmpSum2AhToAhVZ(:,gt1, gt2),AmpSqAhToAhVZ(gt1, gt2)) 
 Else  
@@ -3466,7 +3466,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToAhVZ(gt1, gt2).le.0._dp) Then 
+If (AmpSqAhToAhVZ(gt1, gt2).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3538,7 +3538,7 @@ Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
     Do gt3=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(0.+0.))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(0.+0.)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(0.)+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(0.)+Abs(0.))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoFF(MAhOS(gt1),0._dp,0._dp,AmpSumAhToFvcFv(:,gt1, gt2, gt3),AmpSum2AhToFvcFv(:,gt1, gt2, gt3),AmpSqAhToFvcFv(gt1, gt2, gt3)) 
 Else  
@@ -3550,7 +3550,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 4._dp 
-If (AmpSqAhToFvcFv(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqAhToFvcFv(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3652,7 +3652,7 @@ End If
 Do gt1=1,3
 i4 = isave 
   Do gt2=1,3
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MhhOS(gt2)+0.))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(Mhh(gt2)+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MhhOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(Mhh(gt2))+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoSV(MAhOS(gt1),MhhOS(gt2),0._dp,AmpSumAhTohhVP(:,gt1, gt2),AmpSum2AhTohhVP(:,gt1, gt2),AmpSqAhTohhVP(gt1, gt2)) 
 Else  
@@ -3664,7 +3664,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhTohhVP(gt1, gt2).le.0._dp) Then 
+If (AmpSqAhTohhVP(gt1, gt2).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3731,7 +3731,7 @@ Else
 End If 
 Do gt1=1,3
 i4 = isave 
-If (((OSkinematics).and.(MAhOS(gt1).gt.(0.+0.))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MVG+MVG)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(0.)+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MVG)+Abs(MVG))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoVV(MAhOS(gt1),0._dp,0._dp,AmpSumAhToVGVG(:,gt1),AmpSum2AhToVGVG(:,gt1),AmpSqAhToVGVG(gt1)) 
 Else  
@@ -3743,7 +3743,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToVGVG(gt1).le.0._dp) Then 
+If (AmpSqAhToVGVG(gt1).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3823,7 +3823,7 @@ Else
 End If 
 Do gt1=1,3
 i4 = isave 
-If (((OSkinematics).and.(MAhOS(gt1).gt.(0.+0.))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MVP+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(0.)+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MVP)+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoVV(MAhOS(gt1),0._dp,0._dp,AmpSumAhToVPVP(:,gt1),AmpSum2AhToVPVP(:,gt1),AmpSqAhToVPVP(gt1)) 
 Else  
@@ -3835,7 +3835,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToVPVP(gt1).le.0._dp) Then 
+If (AmpSqAhToVPVP(gt1).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -3924,7 +3924,7 @@ Else
 End If 
 Do gt1=1,3
 i4 = isave 
-If (((OSkinematics).and.(MAhOS(gt1).gt.(0.+MVZOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MVP+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(0.)+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MVP)+Abs(MVZ))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoVV(MAhOS(gt1),0._dp,MVZOS,AmpSumAhToVPVZ(:,gt1),AmpSum2AhToVPVZ(:,gt1),AmpSqAhToVPVZ(gt1)) 
 Else  
@@ -3936,7 +3936,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToVPVZ(gt1).le.0._dp) Then 
+If (AmpSqAhToVPVZ(gt1).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -4031,7 +4031,7 @@ Else
 End If 
 Do gt1=1,3
 i4 = isave 
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MVWmOS+MVWmOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MVWm+MVWm)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MVWmOS)+Abs(MVWmOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MVWm)+Abs(MVWm))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoVV(MAhOS(gt1),MVWmOS,MVWmOS,AmpSumAhToVWmcVWm(:,gt1),AmpSum2AhToVWmcVWm(:,gt1),AmpSqAhToVWmcVWm(gt1)) 
 Else  
@@ -4043,7 +4043,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToVWmcVWm(gt1).le.0._dp) Then 
+If (AmpSqAhToVWmcVWm(gt1).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -4129,7 +4129,7 @@ Else
 End If 
 Do gt1=1,3
 i4 = isave 
-If (((OSkinematics).and.(MAhOS(gt1).gt.(MVZOS+MVZOS))).or.((.not.OSkinematics).and.(MAh(gt1).gt.(MVZ+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MAhOS(gt1)).gt.(Abs(MVZOS)+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MAh(gt1)).gt.(Abs(MVZ)+Abs(MVZ))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_StoVV(MAhOS(gt1),MVZOS,MVZOS,AmpSumAhToVZVZ(:,gt1),AmpSum2AhToVZVZ(:,gt1),AmpSqAhToVZVZ(gt1)) 
 Else  
@@ -4141,7 +4141,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 1._dp 
-If (AmpSqAhToVZVZ(gt1).le.0._dp) Then 
+If (AmpSqAhToVZVZ(gt1).eq.0._dp) Then 
   gP1LAh(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 

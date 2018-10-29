@@ -1,12 +1,12 @@
-modname = NMSSMEFT  # as an example
+modname = NMSSMEFT  # as an example  
 PreDef = -DGENERATIONMIXING -DONLYDOUBLE
-# setting various paths
+# setting various paths  
 InDir = ../include
 Mdir = ${InDir}
-VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM
+VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM 
 name = ../lib/libSPhenoNMSSMEFT.a
 shared = lib/libSPhenoNMSSMEFT.so
-
+ 
 # check if SARAH module and SPheno are compatibel
 minV=330.00
 cVersion =$(shell expr $(version) \>= $(minV))
@@ -56,13 +56,13 @@ ${shared}:
 	rm *.o
 bin/SPhenoNMSSMEFT:
 ifeq (${cVersion},1)
-	 cd ../src ; ${MAKE} F90=${F90}
-	 ${MAKE} F90=${F90} ${name}
-	 ${MAKE} F90=${F90} SPhenoNMSSMEFT.o
-	 ${F90} -c TwoLoopMasses/effpotasat.f
+	 cd ../src ; ${MAKE} F90=${F90} 
+	 ${MAKE} F90=${F90} ${name} 
+	 ${MAKE} F90=${F90} SPhenoNMSSMEFT.o 
+	 ${F90} -c TwoLoopMasses/effpotasat.f 
 	 ${F90} -o SPhenoNMSSMEFT ${LFlagsB} SPhenoNMSSMEFT.o effpotasat.o ../lib/libSPhenoNMSSMEFT.a ../lib/libSPheno.a
 	 mv SPhenoNMSSMEFT ../bin
-	 rm SPhenoNMSSMEFT.o
+	 rm SPhenoNMSSMEFT.o  
 ${name}:  ${name}(Settings.o) ${name}(Model_Data_NMSSMEFT.o)  \
  ${name}(RGEs_NMSSMEFT.o)   \
  ${name}(Couplings_NMSSMEFT.o) ${name}(TreeLevelMasses_NMSSMEFT.o) ${name}(TadpoleEquations_NMSSMEFT.o) \
@@ -80,21 +80,22 @@ ${name}(Bremsstrahlung.o) ${name}(DecayFFS.o) ${name}(DecayFFV.o) ${name}(DecayS
  ${name}(LoopDecayhh_NMSSMEFT.o)  ${name}(LoopDecayAh_NMSSMEFT.o)  ${name}(LoopDecayHpm_NMSSMEFT.o)  ${name}(LoopDecayChi_NMSSMEFT.o)  ${name}(LoopDecayCha_NMSSMEFT.o)  ${name}(LoopDecayFu_NMSSMEFT.o) \
  ${name}(Wrapper_LoopDecay_hh_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Ah_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Hpm_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Chi_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Cha_NMSSMEFT.o)  ${name}(Wrapper_LoopDecay_Fu_NMSSMEFT.o) ${name}(OneLoopDecays_NMSSMEFT.o) \
  ${name}(BranchingRatios_NMSSMEFT.o) ${name}(HiggsCS_NMSSMEFT.o) ${name}(RunSM_NMSSMEFT.o) \
- ${name}(LowEnergy_NMSSMEFT.o) \
+ ${name}(Unitarity_NMSSMEFT.o) \
 ${name}(FlavorKit_LFV_NMSSMEFT.o) ${name}(FlavorKit_QFV_NMSSMEFT.o) ${name}(FlavorKit_Observables_NMSSMEFT.o)\
- ${name}(Boundaries_NMSSMEFT.o)  ${name}(InputOutput_NMSSMEFT.o)
-else
-	 @echo -------------------------------------------------------------------
-	 @echo ERROR:
-	 @echo The installed SPheno is version not compatibel with this module
-	 @echo Please, upgrade at least to SPheno version 3.3.0.
-	 @echo The current SPheno version can be downloaded from
-	 @echo http://www.hepforge.org/downloads/spheno
-	 @echo -------------------------------------------------------------------
-endif
-clean:
+ ${name}(LowEnergy_NMSSMEFT.o) \
+ ${name}(Boundaries_NMSSMEFT.o)  ${name}(InputOutput_NMSSMEFT.o) 
+else 
+	 @echo -------------------------------------------------------------------  
+	 @echo ERROR:  
+	 @echo The installed SPheno is version not compatibel with this module 
+	 @echo Please, upgrade at least to SPheno version 3.3.0.  
+	 @echo The current SPheno version can be downloaded from 
+	 @echo http://www.hepforge.org/downloads/spheno 
+	 @echo ------------------------------------------------------------------- 
+endif 
+clean: 
 	 rm -f *.o *~ */*.o */*~
-cleanall:
+cleanall: 
 	 rm -f bin/SPheno3 lib/*.a lib/*.so *~ */*.o */*~ include/*
 #
 # Suffix rules

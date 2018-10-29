@@ -991,8 +991,11 @@ End Function VVVloop
   Real(dp), Intent(in) :: p2,m12,m22
 
   If ((m12.eq.0._dp).and.(m22.eq.0._dp)) then
-   SA_Gloop = p2 * SA_B0(p2,m12,m22)
-
+   If (p2.eq.0._dp) Then 
+    SA_Gloop = 0._dp
+   Else 
+    SA_Gloop = p2 * SA_B0(p2,m12,m22)
+   End if
   Else If (m12.eq.0._dp) then
    SA_Gloop = - SA_A0(m22) + (p2 - m22) * SA_B0(p2,m12,m22)
 
@@ -1019,9 +1022,12 @@ End Function VVVloop
  Implicit None
 
   Real(dp), Intent(in) :: p2,m12,m22
-
+  
+  If ((p2.eq.0._dp).and.(m12.eq.0._dp).and.(m22.eq.0._dp)) Then
+  SA_Hloop = 0._dp
+  else 
   SA_Hloop = 4._dp * SA_B00(p2,m12,m22) + SA_GLoop(p2,m12,m22) 
-
+  end if
  End Function SA_Hloop
 
 
@@ -1255,15 +1261,25 @@ End Function DerVVVloop
    Return 
   End If
 
+!   If (xp.Eq.0._dp) Then
+!     If (xm1.Ne.0._dp) Then
+!     mdiff = Abs((xm1-xm2)/xm1) !to avoid problems when comparing xm1 with xm2
+!     Else If (xm2.Ne.0._dp) Then
+!     mdiff = Abs((xm1-xm2)/xm2)
+!     Else
+!     mdiff = 0._dp
+!     End If
+!    If ((mdiff.Le.controlmdiff).And.(xm1.Eq.0._dp)) Then !xp=xm1=xm2=0
+!     write(ErrCan,*) "DerB1(0,0,0) diverges!"
   If (xp.Eq.0._dp) Then
-    If (xm1.Ne.0._dp) Then
+    If (xm1.ge.controlmdiff) Then
     mdiff = Abs((xm1-xm2)/xm1) !to avoid problems when comparing xm1 with xm2
-    Else If (xm2.Ne.0._dp) Then
+    Else If (xm2.ge.controlmdiff) Then
     mdiff = Abs((xm1-xm2)/xm2)
     Else
     mdiff = 0._dp
     End If
-   If ((mdiff.Le.controlmdiff).And.(xm1.Eq.0._dp)) Then !xp=xm1=xm2=0
+   If ((mdiff.Le.controlmdiff).And.(xm1.le.controlmdiff)) Then !xp=xm1=xm2=0
     write(ErrCan,*) "DerB1(0,0,0) diverges!"
    Else If (mdiff.Le.controlmdiff) Then !xp=0, xm1=xm2
     DerB1 = - 1._dp / (12._dp * xm1)

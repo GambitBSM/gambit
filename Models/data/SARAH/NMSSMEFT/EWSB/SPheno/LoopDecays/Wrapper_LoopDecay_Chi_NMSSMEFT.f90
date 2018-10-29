@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:31 on 22.10.2018   
+! File created at 13:59 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -381,7 +381,7 @@ Do gt1=1,5
 i4 = isave 
   Do gt2=1,5
     Do gt3=2,3
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChiOS(gt2)+MAhOS(gt3)))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MChi(gt2)+MAh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MAhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MChi(gt2))+Abs(MAh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChiToChiAh = AmpTreeChiToChiAh
@@ -434,13 +434,13 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChiAh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChiToChiAh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MAhOS(gt3),helfactor*AmpSqChiToChiAh(gt1, gt2, gt3))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MAhOS(gt3),helfactor*AmpSqChiToChiAh(gt1, gt2, gt3))
 Else 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChi(gt1),MChi(gt2),MAh(gt3),helfactor*AmpSqChiToChiAh(gt1, gt2, gt3))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChi(gt1),MChi(gt2),MAh(gt3),helfactor*AmpSqChiToChiAh(gt1, gt2, gt3))
 End if 
 If ((Abs(MRPChiToChiAh(gt1, gt2, gt3)).gt.1.0E-20_dp).or.(Abs(MRGChiToChiAh(gt1, gt2, gt3)).gt.1.0E-20_dp)) Then 
   phasespacefactor = 1._dp 
@@ -449,8 +449,8 @@ End if
  ! Adding real corrections 
 If ((Abs(MRPChiToChiAh(gt1, gt2, gt3)).gt.1.0E-20_dp).or.(Abs(MRGChiToChiAh(gt1, gt2, gt3)).gt.1.0E-20_dp)) Then 
  If (.not.OnlyTreeLevelContributions) Then 
-   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*0.5_dp*helfactor*(MRPChiToChiAh(gt1, gt2, gt3) + MRGChiToChiAh(gt1, gt2, gt3)) 
-  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*0.5_dp*helfactor*(MRPChiToChiAh(gt1, gt2, gt3) + MRGChiToChiAh(gt1, gt2, gt3))
+   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*1._dp*helfactor*(MRPChiToChiAh(gt1, gt2, gt3) + MRGChiToChiAh(gt1, gt2, gt3)) 
+  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*1._dp*helfactor*(MRPChiToChiAh(gt1, gt2, gt3) + MRGChiToChiAh(gt1, gt2, gt3))
    If (DebugLoopDecays) Write(*,*) "sum",  gP1LChi(gt1,i4) 
   End if 
 End if 
@@ -652,7 +652,7 @@ Do gt1=1,5
 i4 = isave 
   Do gt2=1,2
     Do gt3=2,2
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChaOS(gt2)+MHpmOS(gt3)))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MCha(gt2)+MHpm(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MHpmOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MCha(gt2))+Abs(MHpm(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChiToChacHpm = AmpTreeChiToChacHpm
@@ -705,7 +705,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChacHpm(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChiToChacHpm(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -916,7 +916,7 @@ End if
 Do gt1=1,5
 i4 = isave 
   Do gt2=1,2
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChaOS(gt2)+MVWmOS))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MCha(gt2)+MVWm)))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChaOS(gt2))+Abs(MVWmOS)))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MCha(gt2))+Abs(MVWm))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2ChiToChacVWm = AmpTreeChiToChacVWm
@@ -969,7 +969,7 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChacVWm(gt1, gt2).le.0._dp) Then 
+If (AmpSqChiToChacVWm(gt1, gt2).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
@@ -1175,7 +1175,7 @@ Do gt1=1,5
 i4 = isave 
   Do gt2=1,5
     Do gt3=1,3
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChiOS(gt2)+MhhOS(gt3)))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MChi(gt2)+Mhh(gt3))))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MhhOS(gt3))))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MChi(gt2))+Abs(Mhh(gt3)))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2, gt3 
   AmpSum2ChiToChihh = AmpTreeChiToChihh
@@ -1228,13 +1228,13 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChihh(gt1, gt2, gt3).le.0._dp) Then 
+If (AmpSqChiToChihh(gt1, gt2, gt3).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MhhOS(gt3),helfactor*AmpSqChiToChihh(gt1, gt2, gt3))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MhhOS(gt3),helfactor*AmpSqChiToChihh(gt1, gt2, gt3))
 Else 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChi(gt1),MChi(gt2),Mhh(gt3),helfactor*AmpSqChiToChihh(gt1, gt2, gt3))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChi(gt1),MChi(gt2),Mhh(gt3),helfactor*AmpSqChiToChihh(gt1, gt2, gt3))
 End if 
 If ((Abs(MRPChiToChihh(gt1, gt2, gt3)).gt.1.0E-20_dp).or.(Abs(MRGChiToChihh(gt1, gt2, gt3)).gt.1.0E-20_dp)) Then 
   phasespacefactor = 1._dp 
@@ -1243,8 +1243,8 @@ End if
  ! Adding real corrections 
 If ((Abs(MRPChiToChihh(gt1, gt2, gt3)).gt.1.0E-20_dp).or.(Abs(MRGChiToChihh(gt1, gt2, gt3)).gt.1.0E-20_dp)) Then 
  If (.not.OnlyTreeLevelContributions) Then 
-   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*0.5_dp*helfactor*(MRPChiToChihh(gt1, gt2, gt3) + MRGChiToChihh(gt1, gt2, gt3)) 
-  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*0.5_dp*helfactor*(MRPChiToChihh(gt1, gt2, gt3) + MRGChiToChihh(gt1, gt2, gt3))
+   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*1._dp*helfactor*(MRPChiToChihh(gt1, gt2, gt3) + MRGChiToChihh(gt1, gt2, gt3)) 
+  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*1._dp*helfactor*(MRPChiToChihh(gt1, gt2, gt3) + MRGChiToChihh(gt1, gt2, gt3))
    If (DebugLoopDecays) Write(*,*) "sum",  gP1LChi(gt1,i4) 
   End if 
 End if 
@@ -1429,7 +1429,7 @@ End if
 Do gt1=1,5
 i4 = isave 
   Do gt2=1,5
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChiOS(gt2)+MVZOS))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MChi(gt2)+MVZ)))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(MVZOS)))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MChi(gt2))+Abs(MVZ))))) Then 
  If (DebugLoopDecays) Then 
   Write(*,*) gt1, gt2 
   AmpSum2ChiToChiVZ = AmpTreeChiToChiVZ
@@ -1482,13 +1482,13 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChiVZ(gt1, gt2).le.0._dp) Then 
+If (AmpSqChiToChiVZ(gt1, gt2).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MVZOS,helfactor*AmpSqChiToChiVZ(gt1, gt2))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),MVZOS,helfactor*AmpSqChiToChiVZ(gt1, gt2))
 Else 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChi(gt1),MChi(gt2),MVZ,helfactor*AmpSqChiToChiVZ(gt1, gt2))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChi(gt1),MChi(gt2),MVZ,helfactor*AmpSqChiToChiVZ(gt1, gt2))
 End if 
 If ((Abs(MRPChiToChiVZ(gt1, gt2)).gt.1.0E-20_dp).or.(Abs(MRGChiToChiVZ(gt1, gt2)).gt.1.0E-20_dp)) Then 
   phasespacefactor = 1._dp 
@@ -1497,8 +1497,8 @@ End if
  ! Adding real corrections 
 If ((Abs(MRPChiToChiVZ(gt1, gt2)).gt.1.0E-20_dp).or.(Abs(MRGChiToChiVZ(gt1, gt2)).gt.1.0E-20_dp)) Then 
  If (.not.OnlyTreeLevelContributions) Then 
-   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*0.5_dp*helfactor*(MRPChiToChiVZ(gt1, gt2) + MRGChiToChiVZ(gt1, gt2)) 
-  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*0.5_dp*helfactor*(MRPChiToChiVZ(gt1, gt2) + MRGChiToChiVZ(gt1, gt2))
+   If (DebugLoopDecays) Write(*,*) "real", phasespacefactor*1._dp*helfactor*(MRPChiToChiVZ(gt1, gt2) + MRGChiToChiVZ(gt1, gt2)) 
+  gP1LChi(gt1,i4) = gP1LChi(gt1,i4) + phasespacefactor*1._dp*helfactor*(MRPChiToChiVZ(gt1, gt2) + MRGChiToChiVZ(gt1, gt2))
    If (DebugLoopDecays) Write(*,*) "sum",  gP1LChi(gt1,i4) 
   End if 
 End if 
@@ -1576,7 +1576,7 @@ End If
 Do gt1=1,5
 i4 = isave 
   Do gt2=1,5
-If (((OSkinematics).and.(MChiOS(gt1).gt.(MChiOS(gt2)+0.))).or.((.not.OSkinematics).and.(MChi(gt1).gt.(MChi(gt2)+MVP)))) Then 
+If (((OSkinematics).and.(Abs(MChiOS(gt1)).gt.(Abs(MChiOS(gt2))+Abs(0.)))).or.((.not.OSkinematics).and.(Abs(MChi(gt1)).gt.(Abs(MChi(gt2))+Abs(MVP))))) Then 
 If (OSkinematics) Then 
   Call SquareAmp_FtoFV(MChiOS(gt1),MChiOS(gt2),0._dp,AmpSumChiToChiVP(:,gt1, gt2),AmpSum2ChiToChiVP(:,gt1, gt2),AmpSqChiToChiVP(gt1, gt2)) 
 Else  
@@ -1588,13 +1588,13 @@ End if
 
 ! Calculate Partial widths 
 helfactor = 2._dp 
-If (AmpSqChiToChiVP(gt1, gt2).le.0._dp) Then 
+If (AmpSqChiToChiVP(gt1, gt2).eq.0._dp) Then 
   gP1LChi(gt1,i4) = 0._dp 
 Else 
 If (OSkinematics) Then 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),0._dp,helfactor*AmpSqChiToChiVP(gt1, gt2))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChiOS(gt1),MChiOS(gt2),0._dp,helfactor*AmpSqChiToChiVP(gt1, gt2))
 Else 
-  gP1LChi(gt1,i4) = 1._dp*GammaTPS(MChi(gt1),MChi(gt2),MVP,helfactor*AmpSqChiToChiVP(gt1, gt2))
+  gP1LChi(gt1,i4) = 2._dp*GammaTPS(MChi(gt1),MChi(gt2),MVP,helfactor*AmpSqChiToChiVP(gt1, gt2))
 End if 
 If ((Abs(MRPChiToChiVP(gt1, gt2)).gt.1.0E-20_dp).or.(Abs(MRGChiToChiVP(gt1, gt2)).gt.1.0E-20_dp)) Then 
   phasespacefactor = 1._dp 

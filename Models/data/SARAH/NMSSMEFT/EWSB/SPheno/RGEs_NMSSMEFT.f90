@@ -1,9 +1,9 @@
 ! -----------------------------------------------------------------------------  
-! This file was automatically created by SARAH version 4.12.3 
+! This file was automatically created by SARAH version 4.13.0 
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 17:27 on 22.10.2018   
+! File created at 13:55 on 29.10.2018   
 ! ----------------------------------------------------------------------  
  
  
@@ -3350,13 +3350,12 @@ betavd1  = (vd*(-20._dp*(Abslam) + 3._dp*(g1p2) + 15._dp*(g2p2) - 60._dp*(TrYdad
  
  
 If (TwoLoopRGE) Then 
-betavd2 = (vd*(-414._dp*(g1p4) - 180*g1p2*g2p2 - 1200._dp*(g2p4) + 1200*Clamp2*lamp2 +          & 
-&  3600._dp*(TrYdadjYdYdadjYd) + 1200._dp*(TrYdadjYuYuadjYd) - 480*g1p2*TrYeadjYe +      & 
-&  1200._dp*(TrYeadjYeYeadjYe) - 9*g1p4*Xi - 90*g1p2*g2p2*Xi + 875*g2p4*Xi -             & 
-&  120*g1p2*TrYeadjYe*Xi - 600*g2p2*TrYeadjYe*Xi - 40*Abslam*(-20._dp*(Abskap) -         & 
-&  30._dp*(TrYuadjYu) + 3*g1p2*Xi + 15*g2p2*Xi) - 40*TrYdadjYd*(g1p2*(-4 +               & 
-&  9._dp*(Xi)) + 5*(32._dp*(g3p2) + 9*g2p2*Xi)) + 9*g1p4*Xip2 + 90*g1p2*g2p2*Xip2 -      & 
-&  225*g2p4*Xip2))/400._dp
+betavd2 = (vd*(-207._dp*(g1p4) - 90*g1p2*g2p2 - 600._dp*(g2p4) + 600*Clamp2*lamp2 +             & 
+&  1800._dp*(TrYdadjYdYdadjYd) + 600._dp*(TrYdadjYuYuadjYd) - 240*g1p2*TrYeadjYe +       & 
+&  600._dp*(TrYeadjYeYeadjYe) - 9*g1p4*Xi - 90*g1p2*g2p2*Xi + 325*g2p4*Xi -              & 
+&  60*g1p2*TrYeadjYe*Xi - 300*g2p2*TrYeadjYe*Xi - 20*Abslam*(-20._dp*(Abskap) -          & 
+&  30._dp*(TrYuadjYu) + 3*g1p2*Xi + 15*g2p2*Xi) - 20*TrYdadjYd*(g1p2*(-4 +               & 
+&  9._dp*(Xi)) + 5*(32._dp*(g3p2) + 9*g2p2*Xi)) + 9*g1p4*Xip2 + 90*g1p2*g2p2*Xip2))/200._dp
 
  
 Dvd = oo16pi2*( betavd1 + oo16pi2 * betavd2 ) 
@@ -3377,11 +3376,11 @@ betavu1  = (vu*(-20._dp*(Abslam) + 3*(-20._dp*(TrYuadjYu) + (g1p2 + 5._dp*(g2p2)
  
  
 If (TwoLoopRGE) Then 
-betavu2 = (vu*(-414._dp*(g1p4) - 180*g1p2*g2p2 - 1200._dp*(g2p4) + 1200*Clamp2*lamp2 +          & 
-&  1200._dp*(TrYdadjYuYuadjYd) + 3600._dp*(TrYuadjYuYuadjYu) - 9*g1p4*Xi -               & 
-&  90*g1p2*g2p2*Xi + 875*g2p4*Xi - 40*Abslam*(-20._dp*(Abskap) - 30._dp*(TrYdadjYd) -    & 
-&  10._dp*(TrYeadjYe) + 3*g1p2*Xi + 15*g2p2*Xi) - 40*TrYuadjYu*(g1p2*(8 + 9._dp*(Xi)) +  & 
-&  5*(32._dp*(g3p2) + 9*g2p2*Xi)) + 9*g1p4*Xip2 + 90*g1p2*g2p2*Xip2 - 225*g2p4*Xip2))/400._dp
+betavu2 = (vu*(-207._dp*(g1p4) - 90*g1p2*g2p2 - 600._dp*(g2p4) + 600*Clamp2*lamp2 +             & 
+&  600._dp*(TrYdadjYuYuadjYd) + 1800._dp*(TrYuadjYuYuadjYu) - 9*g1p4*Xi - 90*g1p2*g2p2*Xi +& 
+&  325*g2p4*Xi - 20*Abslam*(-20._dp*(Abskap) - 30._dp*(TrYdadjYd) - 10._dp*(TrYeadjYe) + & 
+&  3*g1p2*Xi + 15*g2p2*Xi) - 20*TrYuadjYu*(g1p2*(8 + 9._dp*(Xi)) + 5*(32._dp*(g3p2) +    & 
+&  9*g2p2*Xi)) + 9*g1p4*Xip2 + 90*g1p2*g2p2*Xip2))/200._dp
 
  
 Dvu = oo16pi2*( betavu1 + oo16pi2 * betavu2 ) 

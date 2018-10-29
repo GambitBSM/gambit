@@ -2797,7 +2797,7 @@ Integer :: i1, kont
 Real(dp) :: g1,g2,g3,v
 Complex(dp) :: Lam,Yu(3,3),Yd(3,3),Ye(3,3),Mu
 Real(dp), Intent(out) ::  mh_SM
-Real(dp) :: tz, dt, q2, mh_SM_old, pi_SM, pi2_SM
+Real(dp) :: tz, dt, q2, mh_SM_old, pi_SM, pi2_SM, rMS_save, mh2_tree
 
 Call GToParameters62_SM(g_SM,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,v)
 
@@ -2842,14 +2842,17 @@ q2 = SetRenormalizationScale(mf_u2(3))
 ! Call OneLoop_Mh_SM(v,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,mh_SM,kont)
 
 mh_SM_old=sqrt(mh2)
+mh2_tree = Real(Lam*v**2,dp)
 
+rMS_save = rMS
+rMS = 1._dp
 
 Do i1=1,100
 ! 
 ! Call Pih_SM(mh_SM_old**2, Real(Yu(3,3),dp), g1, g2, g3, Real(Lam,dp), v, pi_SM)
 ! mh_SM = sqrt(Lam*v**2  + pi_SM)
 
-Call Pi1Loop_Mh_SM(v,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,mh2,pi_SM,kont)
+Call Pi1Loop_Mh_SM(v,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,mh2_tree,pi_SM,kont)
 Call Pih_2L_SM(mh_SM,  Real(Yu(3,3),dp), g1, g2, g3, Real(Lam,dp), v, pi2_SM )
 ! 
 mh_SM = sqrt(Lam*v**2  - pi_SM + pi2_SM)
@@ -2862,6 +2865,8 @@ Else
 End if
 
 End do
+
+rMS = rMS_save
 
 q2 = SetRenormalizationScale(mudim)
 
