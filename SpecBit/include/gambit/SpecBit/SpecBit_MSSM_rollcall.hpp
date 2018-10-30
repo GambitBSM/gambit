@@ -53,17 +53,6 @@
   #define CAPABILITY unimproved_MSSM_spectrum
   START_CAPABILITY
 
-    // =========================
-    // NMSSM spectrum (from SARAH-generated SPheno)
-    //
-    #define FUNCTION get_NMSSM_spectrum_SPheno
-    START_FUNCTION(Spectrum)
-    ALLOW_MODELS(NMSSM66atQ)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SARAHSPheno_NMSSM_spectrum, (libSPhenoNMSSM), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SARAHSPheno_NMSSM, 4.0.3), (libSPhenoNMSSM))
-    #undef FUNCTION
-
     // ==========================
     // GUT MSSM parameterisations
     // (CMSSM and its various non-universal generalisations)
