@@ -1172,7 +1172,7 @@ Real(dp) :: mHu22L
 Real(dp) :: ms2Tree 
 Real(dp) :: ms21L 
 Real(dp) :: ms22L 
-Real(dp) :: mass_uncertainty_Q(24), mass_uncertainty_Yt(24), g_SM_save(62) 
+Real(dp) :: mass_uncertainty_Q(14), mass_uncertainty_Yt(14), g_SM_save(62) 
 Logical :: GetMassUncertainty = .false. 
 Integer :: SolutionTadpoleNr = 1 
 Character(len=15)::HighScaleModel
