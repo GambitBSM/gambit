@@ -190,7 +190,7 @@ ObsLikes:
     type:         bool
 
 Rules:
-  - capability: unimproved_MSSM_spectrum
+  - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
       WriteOutputForNonConvergence: true
