@@ -692,8 +692,8 @@ Implicit None
 Integer, Intent(inout) :: kont 
 Logical, Intent(in) :: WriteOut 
 Real(dp), Intent(in) :: delta 
-Real(dp) :: mass_in(14), mass_new(14) 
-Real(dp), Intent(out) :: mass_Qerror(14) 
+Real(dp) :: mass_in(15), mass_new(15) 
+Real(dp), Intent(out) :: mass_Qerror(15) 
 Real(dp) :: gD(221), Q, Qsave, Qstep, Qt, g_SM(62), mh_SM 
 Integer :: i1, i2, iupdown, ntot 
 Real(dp),Intent(in) :: g1input,g2input,g3input,mHd2input,mHu2input,ms2input
@@ -855,12 +855,12 @@ n_tot = n_tot + 2
 mass_new(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_new(n_tot:n_tot+1) = MCha
-  Do i2=1,14 
+  Do i2=1,15 
     If (Abs(mass_new(i2)-mass_in(i2)).gt.mass_Qerror(i2)) mass_Qerror(i2) = Abs(mass_new(i2)-mass_in(i2)) 
   End Do 
 End Do 
 End Do 
-  Do i2=1,14
+  Do i2=1,15
     mass_uncertainty_Yt(i2) = Abs(mass_uncertainty_Yt(i2)-mass_in(i2)) 
   End Do 
 If (kont.ne.0) Then 
