@@ -418,6 +418,31 @@ namespace Gambit
           slha.insert(slha.begin(), spectrum.begin(), spectrum.end());
           slha.push_front(block);
         }
+        else if (ModelInUse("NMSSM66atQ"))
+        {
+          // NMSSM-specific.  SLHAea in SLHA2 format, please.
+          spectrum = Dep::NMSSM_spectrum->getSLHAea(2);
+          // SLHAea::Block block("MODSEL");
+          // block.push_back("BLOCK MODSEL              # Model selection");
+
+          // SLHAea::Line line;
+          // line << 1 << 0 << "# General MSSM";
+          // std::cout << "DEBUG: Adding this: " << line.str() << std::endl;
+          // block.push_back(line);
+          // line.clear();
+
+          // line << 3 << 1 << "# NMSSM particle content";
+          // std::cout << "DEBUG: Adding this: " << line.str() << std::endl;
+          // block.push_back(line);
+
+          slha.insert(slha.begin(), spectrum.begin(), spectrum.end());
+          // slha.push_front(block);
+
+          std::cout << "DEBUG:" << std::endl;
+          std::cout << "DEBUG: Here's the slha object:" << std::endl;
+          std::cout << slha.str() << std::endl;
+          std::cout << "DEBUG:" << std::endl;
+        }
         else
         {
           ColliderBit_error().raise(LOCAL_INFO, "No spectrum object available for this model.");

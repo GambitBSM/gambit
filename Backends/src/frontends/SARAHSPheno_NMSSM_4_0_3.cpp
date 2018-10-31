@@ -634,7 +634,8 @@ BE_NAMESPACE
       slha["MODSEL"][""] << 1 << 0 << "# SUSY scale input";
     else
       slha["MODSEL"][""] << 1 << 1 << "# GUT scale input";
-    slha["MODSEL"][""] << 2 << *BoundaryCondition << "# Boundary conditions";
+    // slha["MODSEL"][""] << 2 << *BoundaryCondition << "# Boundary conditions";  // Not in the SLHA standard?
+    slha["MODSEL"][""] << 3 << 1 << "# NMSSM particle content";  // Not in the SLHA standard?
     if(*GenerationMixing)
       slha["MODSEL"][""] << 6 << 1 << "# switching on flavour violation";
     if(input_Param.find("Qin") != input_Param.end())
