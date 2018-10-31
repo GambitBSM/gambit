@@ -102,7 +102,7 @@ namespace Gambit
     {
       namespace myPipe = Pipes::SPheno_NMSSM_test;
 
-      const Spectrum& fullspectrum = *myPipe::Dep::unimproved_MSSM_spectrum;
+      const Spectrum& fullspectrum = *myPipe::Dep::NMSSM_spectrum;
 
       std::cout << fullspectrum.getSLHAea(2) << std::endl;
 

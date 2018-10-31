@@ -197,7 +197,7 @@ Scanner:
 
 ObsLikes:
   - purpose:      Observable
-    capability:   run_MSSMspectrum_test
+    capability:   run_NMSSMspectrum_test
     type:         bool
 
   - purpose:      Observable
@@ -210,7 +210,7 @@ ObsLikes:
   #   type:         DecayTable
 
 Rules:
-  - capability: unimproved_MSSM_spectrum
+  - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
       WriteOutputForNonConvergence: true

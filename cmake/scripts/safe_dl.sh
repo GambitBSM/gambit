@@ -57,7 +57,7 @@ fi
 if [ "${axel_worked}" = "0" ]; then
   if command -v wget >/dev/null; then
     if [ -z "$9" ]; then
-      wget $3 -O $1/${filename}
+      wget --no-check-certificate $3 -O $1/${filename}
     else
       wget --post-data "$9" ${10} -O $1/${filename}
     fi

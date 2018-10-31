@@ -25,14 +25,9 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum_factories.hpp"
-//#include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
-//#include "gambit/Utils/stream_overloads.hpp" // Just for more convenient output to logger
-//#include "gambit/Utils/util_macros.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
-//#include "gambit/SpecBit/QedQcdWrapper.hpp"
-//#include "gambit/SpecBit/MSSMSpec.hpp"
 
 // Switch for debug mode
 //#define SPECBIT_DEBUG
@@ -73,6 +68,70 @@ namespace Gambit
 
       // Only allow neutralino LSPs.
       if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
+    }
+
+
+    template <class Contents>
+    void fill_map_from_subspectrum(std::map<std::string,double>& specmap, const SubSpectrum& subspec)
+    {
+      /// Add everything... use spectrum contents routines to automate task
+      static const Contents contents;
+      static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
+
+      for(std::vector<SpectrumParameter>::const_iterator it = required_parameters.begin();
+           it != required_parameters.end(); ++it)
+      {
+         const Par::Tags        tag   = it->tag();
+         const std::string      name  = it->name();
+         const std::vector<int> shape = it->shape();
+
+         /// Verification routine should have taken care of invalid shapes etc, so won't check for that here.
+
+         // Check scalar case
+         if(shape.size()==1 and shape[0]==1)
+         {
+           std::ostringstream label;
+           label << name <<" "<< Par::toString.at(tag);
+           specmap[label.str()] = subspec.get(tag,name);
+         }
+         // Check vector case
+         else if(shape.size()==1 and shape[0]>1)
+         {
+           for(int i = 1; i<=shape[0]; ++i) {
+             std::ostringstream label;
+             label << name <<"_"<<i<<" "<< Par::toString.at(tag);
+             specmap[label.str()] = subspec.get(tag,name,i);
+           }
+         }
+         // Check matrix case
+         else if(shape.size()==2)
+         {
+           for(int i = 1; i<=shape[0]; ++i) {
+             for(int j = 1; j<=shape[0]; ++j) {
+               std::ostringstream label;
+               label << name <<"_("<<i<<","<<j<<") "<<Par::toString.at(tag);
+               specmap[label.str()] = subspec.get(tag,name,i,j);
+             }
+           }
+         }
+         // Deal with all other cases
+         else
+         {
+           // ERROR
+           std::ostringstream errmsg;
+           errmsg << "Error, invalid parameter received while converting SubSpectrum to map of strings! This should no be possible if the spectrum content verification routines were working correctly; they must be buggy, please report this.";
+           errmsg << "Problematic parameter was: "<< tag <<", " << name << ", shape="<< shape;
+           utils_error().forced_throw(LOCAL_INFO,errmsg.str());
+         }
+      }
+    }
+
+    void get_NMSSM_spectrum_as_map (std::map<std::string,double>& specmap)
+    {
+      namespace myPipe = Pipes::get_NMSSM_spectrum_as_map;
+      const Spectrum& nmssmspec(*myPipe::Dep::NMSSM_spectrum);
+      fill_map_from_subspectrum<SpectrumContents::SM>  (specmap, nmssmspec.get_LE());
+      fill_map_from_subspectrum<SpectrumContents::NMSSM>(specmap, nmssmspec.get_HE());
     }
 
     /// @} End Gambit module functions
