@@ -3237,7 +3237,7 @@ namespace Gambit
       namespace myPipe = Pipes::all_NMSSM_decays_from_SPheno;
 
       // Get the spectrum object
-      Spectrum spectrum = *myPipe::Dep::unimproved_MSSM_spectrum;
+      Spectrum spectrum = *myPipe::Dep::NMSSM_spectrum;
 
       // Set up the input structure
       Finputs inputs;
