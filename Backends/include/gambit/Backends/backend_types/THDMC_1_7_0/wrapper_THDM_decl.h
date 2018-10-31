@@ -173,12 +173,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             double get_alpha();
     
-            void get_unitarity_conditions(double* conditions);
-    
-            void get_perturbativity_conditions(double* conditions);
-    
-            void get_stability_conditions(double* conditions);
-    
             int get_yukawas_type();
     
     

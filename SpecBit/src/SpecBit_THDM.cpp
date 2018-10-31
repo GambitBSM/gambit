@@ -52,7 +52,10 @@
 #include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
 #include "flexiblesusy/src/numerics2.hpp"
 //#include "flexiblesusy/src/two_loop_corrections.hpp"
+#include "flexiblesusy/models/THDM_I/THDM_I_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_lepton/THDM_lepton_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
 
 #define L_MAX 1e50
@@ -61,7 +64,7 @@
 // Switch for debug mode
 // #define SPECBIT_DEBUG
 #define FS_THROW_POINT
-// #define SPECBIT_DEBUG_VERBOSE
+#define SPECBIT_DEBUG_VERBOSE
 
 #ifdef SPECBIT_DEBUG_VERBOSE
   bool print_debug_checkpoints = true;
@@ -78,22 +81,11 @@ namespace Gambit
     using namespace flexiblesusy;
     using namespace std;
 
-    enum string_code {
-      //--CHI SQAURED Type
-      less_than,
-      greater_than,
-      distance_from,
-      observable,
-      bound,
-    };
+    enum chi_options {less_than, greater_than, distance_from, observable, bound};
 
-    enum yukawa_type{
-      type_I = 1,
-      type_II,
-      lepton_specific,
-      flipped,
-      type_III,
-    };
+    enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
+
+    enum higgs_type {h0_1, h0_2, A0, Hpm};
 
     // FlexibleSUSY spectrum
     // *
@@ -282,8 +274,8 @@ namespace Gambit
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 
-    template <class THDMInputStruct>
-    void fill_THDM_FS_input(THDMInputStruct &input, const std::map<str, safe_ptr<double> >& Param)
+    template <class FS_THDM_input_struct>
+    void fill_THDM_FS_input(FS_THDM_input_struct &input, const std::map<str, safe_ptr<double> >& Param)
     { if (print_debug_checkpoints) cout << "Checkpoint: 99" << endl;
       // read in THDM model parameters
       input.TanBeta = *Param.at("tanb");
@@ -330,10 +322,10 @@ namespace Gambit
         Models::THDMModel thdm_model;
 
         //Check Yukawa Type Validity
-        int yukawa_type = myPipe::runOptions->getValueOrDef<int>(2, "yukawa_type");
-        if( yukawa_type < 1 || yukawa_type > 4 ) {
+        const int y_type = myPipe::runOptions->getValueOrDef<int>(1, "yukawa_type");
+        if( y_type < 1 || y_type > 4 ) {
           std::ostringstream msg;
-          msg << "Tried to set the Yukawa Type to "<< yukawa_type <<" . Yukawa Type should be 1-4.";
+          msg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4.";
           SpecBit_error().raise(LOCAL_INFO,msg.str());
           exit(1);
         }
@@ -349,7 +341,7 @@ namespace Gambit
         thdm_model.lambda3           = *myPipe::Param.at("lambda_3");
         thdm_model.lambda4           = *myPipe::Param.at("lambda_4");
         thdm_model.lambda5           = *myPipe::Param.at("lambda_5");
-                // 2HDMC masses
+        // 2HDMC masses
         THDMC_1_7_0::THDM THDM_object;
         THDM_object.set_param_gen(thdm_model.lambda1, thdm_model.lambda2, thdm_model.lambda3, thdm_model.lambda4, thdm_model.lambda5, *myPipe::Param.at("lambda_6"), *myPipe::Param.at("lambda_7"), \
                                   *myPipe::Param.at("m12_2"), *myPipe::Param.at("tanb"));
@@ -404,45 +396,41 @@ namespace Gambit
       }
       else if (myPipe::ModelInUse("THDMatQ")) { 
         using namespace softsusy;
-      
-        int yukawa_type = myPipe::runOptions->getValueOrDef<int>(2, "yukawa_type");
-        yukawa_type = 2;
-        THDM_II_input_parameters input;
-        fill_THDM_FS_input(input,myPipe::Param);
-
-        switch(yukawa_type)
-        { if (print_debug_checkpoints) cout << "Checkpoint: 102" << endl;
-          case 1:
-          { if (print_debug_checkpoints) cout << "Checkpoint: 103" << endl;
-            // THDM_I_input_parameters input;
-            // fill_THDM_FS_input(input,myPipe::Param);
-            // result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-            // break;
+        const int y_type = (yukawa_type)myPipe::runOptions->getValueOrDef<int>(1, "yukawa_type");
+        std::cout << "Yukawa Type: " << y_type << std::endl;
+        switch(y_type) {
+          case type_I: { 
+            if (print_debug_checkpoints) cout << "Checkpoint: 103" << endl;
+            THDM_I_input_parameters input;
+            fill_THDM_FS_input(input,myPipe::Param);
+            result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            break;
           }
-          case 2:
-          { if (print_debug_checkpoints) cout << "Checkpoint: 104" << endl;
+          case type_II: { 
+            if (print_debug_checkpoints) cout << "Checkpoint: 104" << endl;
+            THDM_II_input_parameters input;
+            fill_THDM_FS_input(input,myPipe::Param);
             result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
             break;
           }
-          case 3:
-          { if (print_debug_checkpoints) cout << "Checkpoint: 105" << endl;
-          //   THDM_lepton_input_parameters input;
-          //   fill_THDM_FS_input(input,myPipe::Param);
-          //   result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+          case lepton_specific: { 
+            if (print_debug_checkpoints) cout << "Checkpoint: 105" << endl;
+            THDM_lepton_input_parameters input;
+            fill_THDM_FS_input(input,myPipe::Param);
+            result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
             break;
           }
-          case 4:
-          { if (print_debug_checkpoints) cout << "Checkpoint: 106" << endl;
-          //   THDM_flipped_input_parameters input;
-          //   fill_THDM_FS_input(input,myPipe::Param);
-          //   result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+          case flipped: { 
+            if (print_debug_checkpoints) cout << "Checkpoint: 106" << endl;
+              THDM_flipped_input_parameters input;
+              fill_THDM_FS_input(input,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
             break;
           }
-          default:
-          { if (print_debug_checkpoints) cout << "Checkpoint: 107" << endl;
+          default: {
             std::ostringstream errmsg;
             errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-            errmsg << "Tried to set the Yukawa Type to "<< yukawa_type <<" . Yukawa Type should be 1-4." << std::endl;
+            errmsg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4." << std::endl;
             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             break;
           }
@@ -510,25 +498,36 @@ namespace Gambit
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       THDM_object->set_yukawas_type(yukawa_type);
+    }
 
-      // std:: cout << he->get(Par::mass1,"lambda_1") << std::endl;
-      // std:: cout << he->get(Par::mass1,"lambda_2") << std::endl;
-      // std:: cout << he->get(Par::mass1, "lambda_3") << std::endl;
-      // std:: cout << he->get(Par::mass1, "lambda_4") << std::endl;
-      // std:: cout << he->get(Par::mass1, "lambda_5") << std::endl;
-      // std:: cout << he->get(Par::dimensionless, "tanb") << std::endl;
-      // std:: cout << he->get(Par::mass1, "lambda_6") << std::endl;
-      // std:: cout << he->get(Par::mass1, "lambda_7") << std::endl;
-      // std:: cout << he->get(Par::mass1,"m12_2") << std::endl;
-      // std:: cout << he->get(Par::mass1, "h0", 1) << std::endl;
-      // std:: cout << he->get(Par::mass1, "h0", 2) << std::endl;
-      // std:: cout << he->get(Par::mass1, "A0") << std::endl;
-      // std:: cout << he->get(Par::mass1, "H+") << std::endl;
-      // std:: cout << he->get(Par::dimensionless, "alpha") << std::endl;
-      // std:: cout << he->get(Par::Pole_Mass, "h0", 1) << std::endl;
-      // std:: cout << he->get(Par::Pole_Mass, "h0", 2) << std::endl;
-      // std:: cout << he->get(Par::Pole_Mass, "A0") << std::endl;
-      // std:: cout << he->get(Par::Pole_Mass, "H+") << std::endl;
+    void init_THDM_object(const Spectrum& spec, THDM& THDM_object, const int yukawa_type, const double scale){
+      // deprecated
+        const std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        if(scale>0.0) he->RunToScale(scale);
+        const std::unique_ptr<SubSpectrum> SM = spec.clone_LE();
+        const SMInputs sminputs = spec.get_SMInputs();   
+        init_THDM_object(he, SM, sminputs, yukawa_type, &THDM_object);
+    }
+
+    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
+      double mh;
+       switch (higgs_number) {
+        case 1:
+          mh = he->get(Par::Pole_Mass,"h0",1);
+          break;
+        case 2:
+          mh = he->get(Par::Pole_Mass,"h0",2);
+          break;
+        case 3:
+          mh = he->get(Par::Pole_Mass,"A0");
+          break;
+        default:
+          mh = he->get(Par::Pole_Mass,"h0",1);
+          break;
+      }
+      set_SM(SM,sminputs,THDM_object);
+      THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+      THDM_object->set_yukawas_type(yukawa_type);
     }
 
     struct THDM_spectrum_container {
@@ -549,97 +548,11 @@ namespace Gambit
       init_THDM_object(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
     }
 
-    void fill_THDM_object(const Spectrum& spec, THDM& THDM_object, const int yukawa_type, double scale){
-      // deprecated
-        const std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        if(scale>0.0) he->RunToScale(scale);
-        const std::unique_ptr<SubSpectrum> SM = spec.clone_LE();
-        const SMInputs sminputs = spec.get_SMInputs();   
-        init_THDM_object(he, SM, sminputs, yukawa_type, &THDM_object);
-    }
-
-    void fill_THDM_object(const Spectrum& spec, THDM& THDM_object, const int yukawa_type){
-        // deprecated
-        fill_THDM_object(spec, THDM_object, yukawa_type, 0.0);
-    }
-
-    void fill_THDM_object_SM_Like_Model(const Spectrum& spec, THDM& THDM_object, int HiggsNumber, const int yukawa_type) { 
-        // deprecated
-        // TODO: requires rewrite of function
-        if (HiggsNumber > 0 && HiggsNumber < 5) fill_THDM_object(spec, THDM_object, yukawa_type, 0.0);
-            //Fills a 2HDMC object with SM-like input, makes use of the decoupling limit
-            //
-            // yukawa_type = 2; // for now hard code!
-            // THDMC_1_7_0::SM* SM_object = THDM_object.get_SM();
-
-            // const std::unique_ptr<SubSpectrum> SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
-            // const std::unique_ptr<SubSpectrum> he =  spec.clone_HE(); // Copy "high-energy" SubSpectrum
-            // const SMInputs& sminputs   = spec.get_SMInputs();
-
-            // // in the decoupling limit THDM-> SM
-            // double m_h;
-
-            // // which higgs mass to use as SM higgs
-            // switch (HiggsNumber)
-            // { if (print_debug_checkpoints) cout << "Checkpoint: 11" << endl;
-            //   case 1:
-            //     m_h = he->get(Par::Pole_Mass,"h0",1);
-            //     break;
-            //   case 2:
-            //     m_h = he->get(Par::Pole_Mass,"h0",2);
-            //     break;
-            //   case 3:
-            //     m_h = he->get(Par::Pole_Mass,"A0");
-            //     break;
-            //   default:
-            //     m_h = he->get(Par::Pole_Mass,"h0",1);
-            //     break;
-            // }
-
-            // // decouple
-            // double m_H = m_h*100;
-            // double m_A = m_h*100;
-            // double m_Hp = m_h*100;
-            // // set alignment
-            // double sba = 1.0;
-            // double lambda6 = 0.;
-            // double lambda7 = 0.;
-            // double m12_2 = 0.;
-            // double tan_beta = 1.;
-
-            // SM_object->set_alpha(1/(sminputs.alphainv));
-            // SM_object->set_alpha_s(sminputs.alphaS);
-            // SM_object->set_GF(sminputs.GF);
-            // SM_object->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
-            // SM_object->set_MW(SM->get(Par::Pole_Mass,"W+"));
-
-            // SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
-            // SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
-            // SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
-
-            // SM_object->set_qmass_msbar(2,sminputs.mU); //u
-            // SM_object->set_qmass_msbar(1,sminputs.mD); //d
-            // SM_object->set_qmass_msbar(4,sminputs.mCmC); //c
-            // SM_object->set_qmass_msbar(3,sminputs.mS); //s
-            // SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //t
-            // SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //b
-
-            // complex<double> CKMMatrix[2][2];
-            // get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-            // // SM_object->set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-            //         // abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
-
-            // THDM_object.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
-            // THDM_object.set_yukawas_type(yukawa_type);
-      }
-
-
-
     // Constraint helper functions
     // Necessary forward declaration
     double Z_w(void * params);
 
-    double get_chi(const double value, string_code type, string_code sign, const double value_bound, const double error) {
+    double get_chi(const double value, chi_options type, chi_options sign, const double value_bound, const double error) {
       double chi = 0.0;
       const bool use_one_sigma_bound = false;
       double sigma_limit = 0.64, sigma_rescale = 0.6;
@@ -1838,7 +1751,7 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 47" << endl;
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
-      double mh_ref = 125.0; //container.he.get(Par::Pole_Mass,"h0",1);
+      double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
@@ -1853,303 +1766,213 @@ namespace Gambit
       return chi_2;
     }
 
-    template <class T>
-    void fill_THDM_Couplings(thdmc_couplings &result, T& THDM_object) { 
-      if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
-      thdmc_couplings Couplings;
-      complex<double> cs, cp, c;
+    double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 59" << endl;
+      // -----------
+      //from arXiv 1303.5098v1
+      //"Our vacuum is the global minimum of the potential if and only if D > 0
+      //Therefore, if we only wish to make certain that we are in the global
+      //minimum of the potential, regardless of the number of those minima,
+      //requiring D > 0 is a necessary and sufficient condition."
+      // -----------
+      double lambda1 = container.he->get(Par::mass1, "lambda_1");
+      double lambda2 = container.he->get(Par::mass1, "lambda_2");
+      double lambda3 = container.he->get(Par::mass1, "lambda_3");
+      double lambda4 = container.he->get(Par::mass1, "lambda_4");
+      double lambda5 = container.he->get(Par::mass1, "lambda_5");
+      double lambda6 = container.he->get(Par::mass1, "lambda_6");
+      double lambda7 = container.he->get(Par::mass1, "lambda_7");
+      double tb = container.he->get(Par::dimensionless, "tanb");
+      double m12_2 = container.he->get(Par::mass1, "m12_2");
 
-      for (int h=1; h<5; h++) { if (print_debug_checkpoints) cout << "Checkpoint: 49" << endl;
+      // set up required quantities
+      double ctb = 1./tb;
+      double cb  = 1./sqrt(1.+tb*tb);
+      double sb  = tb*cb;
+      double sb2 = sb*sb;
+      double cb2 = cb*cb;
 
-        for (int f1=1; f1<4; f1++) { if (print_debug_checkpoints) cout << "Checkpoint: 50" << endl;
-          for (int f2=1; f2<4; f2++) { if (print_debug_checkpoints) cout << "Checkpoint: 51" << endl;
-            THDM_object.get_coupling_hdd(h,f1,f2,cs,cp);
-            Couplings.hdd_cs[h][f1][f2] = cs;
-            Couplings.hdd_cp[h][f1][f2] = cp;
-            THDM_object.get_coupling_huu(h,f1,f2,cs,cp);
-            Couplings.huu_cs[h][f1][f2] = cs;
-            Couplings.huu_cp[h][f1][f2] = cp;
-            THDM_object.get_coupling_hll(h,f1,f2,cs,cp);
-            Couplings.hll_cs[h][f1][f2] = cs;
-            Couplings.hll_cp[h][f1][f2] = cp;
-            THDM_object.get_coupling_hdu(h,f1,f2,cs,cp);
-            Couplings.hdu_cs[h][f1][f2] = cs;
-            Couplings.hdu_cp[h][f1][f2] = cp;
-            THDM_object.get_coupling_hln(h,f1,f2,cs,cp);
-            Couplings.hln_cs[h][f1][f2] = cs;
-            Couplings.hln_cp[h][f1][f2] = cp;
-          }
-        }
+      double v2= pow (1. / sqrt(sqrt(2.)*container.sminputs.GF),2);
 
-        for (int v1=1; v1<4; v1++) { if (print_debug_checkpoints) cout << "Checkpoint: 52" << endl;
-          for (int v2=1; v2<4; v2++) { if (print_debug_checkpoints) cout << "Checkpoint: 53" << endl;
-            THDM_object.get_coupling_vvh(v1,v2,h,c);
-            Couplings.vvh[v1][v2][h] = c;
-              for (int h2=1; h2<5; h2++) { if (print_debug_checkpoints) cout << "Checkpoint: 54" << endl;
-                THDM_object.get_coupling_vvhh(v1,v2,h,h2,c);
-                Couplings.vvhh[v1][v2][h][h2] = c;
-              }
-          }
+      //minimization conditions to recover m11^2 and m22^2
+      double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
+      double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
-          for (int h2=1; h2<5; h2++) { if (print_debug_checkpoints) cout << "Checkpoint: 55" << endl;
-            THDM_object.get_coupling_vhh(v1,h,h2,c);
-            Couplings.vhh[v1][h][h2] = c;
+      complex<double> lambda1_i = lambda1;
+      complex<double> lambda2_i = lambda2;
 
-          }
-        }
+      complex<double> k = pow((lambda1_i/lambda2_i),0.25);
 
-        for (int h2=1; h2<5; h2++) { if (print_debug_checkpoints) cout << "Checkpoint: 56" << endl;
-          for (int h3=1; h3<5; h3++) { if (print_debug_checkpoints) cout << "Checkpoint: 57" << endl;
-            THDM_object.get_coupling_hhh(h,h2,h3,c);
-            Couplings.hhh[h][h2][h3] = c;
-            for (int h4=1; h4<5; h4++) { if (print_debug_checkpoints) cout << "Checkpoint: 58" << endl;
-              THDM_object.get_coupling_hhhh(h,h2,h3,h4,c);
-              Couplings.hhhh[h][h2][h3][h4] = c;
-            }
-          }
-        }
+      // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
+      complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
 
-      }
-      result = Couplings;
+      double sigma = 1.;
+      double chi2 = 0.0;
+
+        // calculate chi2
+        // observable used due to zero being limit
+      chi2 += get_chi(discriminant.real(),observable,greater_than,0.0,sigma);
+      chi2 += get_chi(discriminant.imag(),observable,greater_than,0.0,sigma);
+
+      return -chi2;
     }
 
-      double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
-        if (print_debug_checkpoints) cout << "Checkpoint: 59" << endl;
-        // -----------
-        //from arXiv 1303.5098v1
-        //"Our vacuum is the global minimum of the potential if and only if D > 0
-        //Therefore, if we only wish to make certain that we are in the global
-        //minimum of the potential, regardless of the number of those minima,
-        //requiring D > 0 is a necessary and sufficient condition."
-        // -----------
+    enum thdmc_couplings_purpose{full, HiggsBounds, SM_like};
+
+    thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
+      thdmc_couplings couplings;
+      switch(purpose) {
+         case full:
+            for (int h=1; h<5; h++) {
+              // *
+              for (int f1=1; f1<4; f1++) {
+                for (int f2=1; f2<4; f2++) {
+                  container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hll(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hdu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hln(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+                }
+              }
+              // **
+              for (int v1=1; v1<4; v1++) {
+                for (int v2=1; v2<4; v2++) {
+                  container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
+                    for (int h2=1; h2<5; h2++) {
+                      container.THDM_object->get_coupling_vvhh(v1, v2, h, h2, couplings.vvhh[v1][v2][h][h2]);
+                    }
+                }
+                for (int h2=1; h2<5; h2++) {
+                  container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
+                }
+              }
+              // **
+              for (int h2=1; h2<5; h2++) {
+                for (int h3=1; h3<5; h3++) {
+                  container.THDM_object->get_coupling_hhh(h, h2, h3, couplings.hhh[h][h2][h3]);
+                  for (int h4=1; h4<5; h4++) {
+                    container.THDM_object->get_coupling_hhhh(h,h2,h3,h4,couplings.hhhh[h][h2][h3][h4]);
+                  }
+                }
+              }
+              // *
+            }
+         break;
+         case HiggsBounds:
+            for (int h=1; h<5; h++) { 
+              container.THDM_object->get_coupling_hdd(h, 3, 3, couplings.hdd_cs[h][3][3], couplings.hdd_cp[h][3][3]);
+              container.THDM_object->get_coupling_huu(h, 3, 3, couplings.huu_cs[h][3][3], couplings.huu_cp[h][3][3]);
+              container.THDM_object->get_coupling_vvh(2, 2, h, couplings.vvh[2][2][h]);
+              container.THDM_object->get_coupling_vvh(3, 3, h, couplings.vvh[3][3][h]);
+              for (int h2=1; h2<5; h2++) container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
+              }
+         break;
+         case SM_like:
+            container.THDM_object->get_coupling_hdd(1,3,3,couplings.hdd_cs[1][3][3],couplings.hdd_cp[1][3][3]);
+         break;
+      }
+      return couplings;
+    }
+
+    void get_THDM_couplings(thdmc_couplings &result) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 64" << endl;
+      using namespace Pipes::get_THDM_couplings;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+      result = fill_thdmc_couplings(container, full);
+    }
+
+    void get_THDM_couplings_for_HiggsBounds(thdmc_couplings &result) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 65" << endl;
+      using namespace Pipes::get_THDM_couplings_for_HiggsBounds;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+      result = fill_thdmc_couplings(container, HiggsBounds);
+    }
+
+    void get_THDM_couplings_SM_like_model(std::vector<thdmc_couplings> &result) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
+      using namespace Pipes::get_THDM_couplings_SM_like_model;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      std::vector<thdmc_couplings> SM_like_couplings;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+
+      for (int h=1; h<=3; h++) {
+        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        SM_like_couplings.push_back(fill_thdmc_couplings(container, SM_like));
+      }
+
+      delete container.THDM_object;
+      result = SM_like_couplings;
+    }
+
+    void fill_THDM_SLHA(SLHAstruct &result)  { 
+        if (print_debug_checkpoints) cout << "Checkpoint: 69" << endl;
+        using namespace Pipes::fill_THDM_SLHA;
+        const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+        const Spectrum spec = *Dep::THDM_spectrum;
+        THDM_spectrum_container container;
+        if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+        else init_THDM_spectrum_container(container, spec, yukawa_type);
+
+        double m_h = container.he->get(Par::Pole_Mass, "h0",1);
+        double m_H = container.he->get(Par::Pole_Mass, "h0",2);
+        double m_A = container.he->get(Par::Pole_Mass, "A0");
+        double m_Hp = container.he->get(Par::Pole_Mass, "H+");
+        double alpha = container.he->get(Par::dimensionless, "alpha");
+        double tan_beta = container.he->get(Par::dimensionless, "tanb");
+
         double lambda1 = container.he->get(Par::mass1, "lambda_1");
         double lambda2 = container.he->get(Par::mass1, "lambda_2");
         double lambda3 = container.he->get(Par::mass1, "lambda_3");
         double lambda4 = container.he->get(Par::mass1, "lambda_4");
         double lambda5 = container.he->get(Par::mass1, "lambda_5");
-        double lambda6 = container.he->get(Par::mass1, "lambda_6");
-        double lambda7 = container.he->get(Par::mass1, "lambda_7");
-        double tb = container.he->get(Par::dimensionless, "tanb");
-        double m12_2 = container.he->get(Par::mass1, "m12_2");
-
-        // set up required quantities
-        double ctb = 1./tb;
-        double cb  = 1./sqrt(1.+tb*tb);
-        double sb  = tb*cb;
-        double sb2 = sb*sb;
-        double cb2 = cb*cb;
-
-        double v2= pow (1. / sqrt(sqrt(2.)*container.sminputs.GF),2);
-
-        //minimization conditions to recover m11^2 and m22^2
-        double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
-        double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
-
-        complex<double> lambda1_i = lambda1;
-        complex<double> lambda2_i = lambda2;
-
-        complex<double> k = pow((lambda1_i/lambda2_i),0.25);
-
-        // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
-        complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
-
-        double sigma = 1.;
-        double chi2 = 0.0;
-
-         // calculate chi2
-         // observable used due to zero being limit
-        chi2 += get_chi(discriminant.real(),observable,greater_than,0.0,sigma);
-        chi2 += get_chi(discriminant.imag(),observable,greater_than,0.0,sigma);
-
-        return -chi2;
-      }
-
-
-      template <class T>
-      void fill_THDM_Couplings_For_HB(thdmc_couplings &result, T& THDM_object)
-      { if (print_debug_checkpoints) cout << "Checkpoint: 60" << endl;
-        // method to fill only those couplings required by HiggsBounds
-        // using this method will save computational time vs full fill_THDM_Couplings function
-
-        thdmc_couplings Couplings;
-
-        complex<double> cs;
-        complex<double> cp;
-        complex<double> c;
-
-        for (int h=1; h<5; h++)
-        { if (print_debug_checkpoints) cout << "Checkpoint: 61" << endl;
-
-          THDM_object.get_coupling_hdd(h,3,3,cs,cp);
-          Couplings.hdd_cs[h][3][3] = cs;
-          Couplings.hdd_cp[h][3][3] = cp;
-
-          THDM_object.get_coupling_huu(h,3,3,cs,cp);
-          Couplings.huu_cs[h][3][3] = cs;
-          Couplings.huu_cp[h][3][3] = cp;
-
-
-          THDM_object.get_coupling_vvh(2,2,h,c);
-          Couplings.vvh[2][2][h] = c;
-
-          THDM_object.get_coupling_vvh(3,3,h,c);
-          Couplings.vvh[3][3][h] = c;
-
-
-            for (int h2=1; h2<5; h2++)
-            { if (print_debug_checkpoints) cout << "Checkpoint: 62" << endl;
-              THDM_object.get_coupling_vhh(2,h,h2,c);
-              Couplings.vhh[2][h][h2] = c;
-
-            }
-          }
-
-
-        result = Couplings;
-      }
-
-      template <class T>
-      void fill_THDM_Couplings_For_HB_SMLikeComponent(thdmc_couplings &result, T& THDM_object)
-      { if (print_debug_checkpoints) cout << "Checkpoint: 63" << endl;
-        // function to fill only those couplings required by HiggsBounds
-        // and only those required for setup of the SM Like component of input.
-        // Using this method will save computational time vs fill_THDM_Couplings
-        // or fill_THDM_Couplings_For_HB functions.
-        thdmc_couplings Couplings;
-        complex<double> cs;
-        complex<double> cp;
-        THDM_object.get_coupling_hdd(1,3,3,cs,cp);
-        Couplings.hdd_cs[1][3][3] = cs;
-        Couplings.hdd_cp[1][3][3] = cp;
-        result = Couplings;
-      }
-
-      void THDM_Couplings(thdmc_couplings &result)
-      { if (print_debug_checkpoints) cout << "Checkpoint: 64" << endl;
-        using namespace Pipes::THDM_Couplings;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-        // fill the THDM object with values from the input file
-        fill_THDM_object(fullspectrum, THDM_object, yukawa_type);
-        fill_THDM_Couplings(result,THDM_object);
-      }
-
-      void THDM_Couplings_For_HB(thdmc_couplings &result) { 
-        if (print_debug_checkpoints) cout << "Checkpoint: 65" << endl;
-        using namespace Pipes::THDM_Couplings_For_HB;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-        // fill the THDM object with values from the input file
-        fill_THDM_object(fullspectrum, THDM_object, yukawa_type);
-        fill_THDM_Couplings_For_HB(result,THDM_object);
-      }
-
-      void THDM_Couplings_SM_Like_Model_h01(thdmc_couplings &result) { 
-        if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
-        using namespace Pipes::THDM_Couplings_SM_Like_Model_h01;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-        // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(fullspectrum,THDM_object,1,yukawa_type);
-        fill_THDM_Couplings_For_HB_SMLikeComponent(result,THDM_object);
-      }
-
-      void THDM_Couplings_SM_Like_Model_h02(thdmc_couplings &result) { 
-        if (print_debug_checkpoints) cout << "Checkpoint: 67" << endl;
-        using namespace Pipes::THDM_Couplings_SM_Like_Model_h02;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-        // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(fullspectrum,THDM_object,2,yukawa_type);
-        fill_THDM_Couplings_For_HB_SMLikeComponent(result,THDM_object);
-      }
-
-      void THDM_Couplings_SM_Like_Model_A0(thdmc_couplings &result) { 
-        if (print_debug_checkpoints) cout << "Checkpoint: 68" << endl;
-        using namespace Pipes::THDM_Couplings_SM_Like_Model_A0;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-        // fill the THDM object with values from a SM like set of values
-        fill_THDM_object_SM_Like_Model(fullspectrum,THDM_object,3,yukawa_type);
-        fill_THDM_Couplings_For_HB_SMLikeComponent(result,THDM_object);
-      }
-
-      void fill_THDM_SLHA(SLHAstruct &result)
-      { if (print_debug_checkpoints) cout << "Checkpoint: 69" << endl;
-        using namespace Pipes::fill_THDM_SLHA;
-
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-
-        THDMC_1_7_0::THDM THDM_object;
-        THDMC_1_7_0::SM SM_object;
-
-        int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
-
-        // fill the THDM object with values from the input file
-        fill_THDM_object(fullspectrum, THDM_object, yukawa_type);
-
-        const SubSpectrum& he = fullspectrum.get_HE();
-        const SubSpectrum& SM = fullspectrum.get_LE();
-        const SMInputs& sminputs   = fullspectrum.get_SMInputs();
-
-        double m_h = he.get(Par::Pole_Mass, "h0",1);
-        double m_H = he.get(Par::Pole_Mass, "h0",2);
-        double m_A = he.get(Par::Pole_Mass, "A0");
-        double m_Hp = he.get(Par::Pole_Mass, "H+");
-        double alpha = 0.0;//he.get(Par::dimensionless, "alpha");
-        double tan_beta = he.get(Par::dimensionless, "tanb");
-
-        double lambda1 = he.get(Par::mass1, "lambda_1");
-        double lambda2 = he.get(Par::mass1, "lambda_2");
-        double lambda3 = he.get(Par::mass1, "lambda_3");
-        double lambda4 = he.get(Par::mass1, "lambda_4");
-        double lambda5 = he.get(Par::mass1, "lambda_5");
 
         double sba = get_sba(tan_beta, alpha);
 
-        double lambda6 = he.get(Par::mass1,"lambda_6");
-        double lambda7 = he.get(Par::mass1,"lambda_7");
+        double lambda6 = container.he->get(Par::mass1,"lambda_6");
+        double lambda7 = container.he->get(Par::mass1,"lambda_7");
 
-        double m12_2 = he.get(Par::mass1,"m12_2");
+        double m12_2 = container.he->get(Par::mass1,"m12_2");
 
-        double alphaInv = sminputs.alphainv;
-        double alphaS = sminputs.alphaS;
-        double GF = sminputs.GF;
+        double alphaInv = container.sminputs.alphainv;
+        double alphaS = container.sminputs.alphaS;
+        double GF = container.sminputs.GF;
 
-        double MZ = SM.get(Par::Pole_Mass,"Z0");
-        double MW = SM.get(Par::Pole_Mass,"W+");
+        double MZ = container.SM->get(Par::Pole_Mass,"Z0");
+        double MW = container.SM->get(Par::Pole_Mass,"W+");
 
         // double gammaZ = 2.4952;
         // double gammaW = 2.085;
 
         // double Me = SM.get(Par::Pole_Mass,"e-_1");
         // double Mmu = SM.get(Par::Pole_Mass,"e-_2");
-        double Mtau = SM.get(Par::Pole_Mass,"e-_3");
+        double Mtau = container.SM->get(Par::Pole_Mass,"e-_3");
 
         // double Mu = sminputs.mU; //u
         // double Md = sminputs.mD; //d
         // double Mc = sminputs.mCmC; //c
         // double Ms = sminputs.mS; //s
-        double Mt = SM.get(Par::Pole_Mass,"u_3"); //t
-        double Mb = SM.get(Par::Pole_Mass,"d_3"); //b
+        double Mt = container.SM->get(Par::Pole_Mass,"u_3"); //t
+        double Mb = container.SM->get(Par::Pole_Mass,"d_3"); //b
 
-        double lambda = sminputs.CKM.lambda;
-        double A = sminputs.CKM.A;
-        double rho = sminputs.CKM.rhobar;
-        double eta = sminputs.CKM.etabar;
+        double lambda = container.sminputs.CKM.lambda;
+        double A = container.sminputs.CKM.A;
+        double rho = container.sminputs.CKM.rhobar;
+        double eta = container.sminputs.CKM.etabar;
 
-        double g_prime = SM_object.get_gprime();
-        double g = SM_object.get_g();
+        double g_prime = container.THDM_object->get_SM_pointer()->get_gprime();
+        double g = container.THDM_object->get_SM_pointer()->get_g();
         double g_3 = 4.*M_PI*alphaS;
 
         SLHAstruct slha;
@@ -2196,15 +2019,15 @@ namespace Gambit
         SLHAea_add(slha, "VCKMIN", 4, eta, "etabar-CKM", true);
 
         SLHAea_add_block(slha, "MASS");
-        SLHAea_add(slha, "MASS", 1, SM_object.get_qmass_pole(1), "Md - pole", true);
-        SLHAea_add(slha, "MASS", 2, SM_object.get_qmass_pole(2), "Mu - pole", true);
-        SLHAea_add(slha, "MASS", 3, SM_object.get_qmass_pole(3), "Ms - pole", true);
-        SLHAea_add(slha, "MASS", 4, SM_object.get_qmass_pole(4), "Mc - pole", true);
-        SLHAea_add(slha, "MASS", 5, SM_object.get_qmass_pole(5), "Mb - pole", true);
-        SLHAea_add(slha, "MASS", 6, SM_object.get_qmass_pole(6), "Mt - pole", true);
-        SLHAea_add(slha, "MASS", 11, SM_object.get_lmass_pole(1), "Me - pole", true);
-        SLHAea_add(slha, "MASS", 13, SM_object.get_lmass_pole(2), "Mmu - pole", true);
-        SLHAea_add(slha, "MASS", 15, SM_object.get_lmass_pole(3), "Mtau - pole", true);
+        SLHAea_add(slha, "MASS", 1, container.THDM_object->get_SM_pointer()->get_qmass_pole(1), "Md - pole", true);
+        SLHAea_add(slha, "MASS", 2, container.THDM_object->get_SM_pointer()->get_qmass_pole(2), "Mu - pole", true);
+        SLHAea_add(slha, "MASS", 3, container.THDM_object->get_SM_pointer()->get_qmass_pole(3), "Ms - pole", true);
+        SLHAea_add(slha, "MASS", 4, container.THDM_object->get_SM_pointer()->get_qmass_pole(4), "Mc - pole", true);
+        SLHAea_add(slha, "MASS", 5, container.THDM_object->get_SM_pointer()->get_qmass_pole(5), "Mb - pole", true);
+        SLHAea_add(slha, "MASS", 6, container.THDM_object->get_SM_pointer()->get_qmass_pole(6), "Mt - pole", true);
+        SLHAea_add(slha, "MASS", 11, container.THDM_object->get_SM_pointer()->get_lmass_pole(1), "Me - pole", true);
+        SLHAea_add(slha, "MASS", 13, container.THDM_object->get_SM_pointer()->get_lmass_pole(2), "Mmu - pole", true);
+        SLHAea_add(slha, "MASS", 15, container.THDM_object->get_SM_pointer()->get_lmass_pole(3), "Mtau - pole", true);
         SLHAea_add(slha, "MASS", 23, MZ, "MZ", true);
         SLHAea_add(slha, "MASS", 24, MW, "MW", true);
         SLHAea_add(slha, "MASS", 25, m_h, "Mh0_1", true);
@@ -2213,7 +2036,7 @@ namespace Gambit
         SLHAea_add(slha, "MASS", 37, m_Hp, "MHc", true);
 
         SLHAea_add_block(slha, "ALPHA");
-        SLHAea_add(slha, "ALPHA", 0, THDM_object.get_alpha(), "alpha", true);
+        SLHAea_add(slha, "ALPHA", 0, container.THDM_object->get_alpha(), "alpha", true);
 
         vector<double> matrix_u, matrix_d, matrix_l;
 
@@ -2307,9 +2130,7 @@ namespace Gambit
         result = phys_basis;
       }
 
-      // functions to print values in coupling and physical bases
-      // for testing purposes
-
+      // functions to print values to cube
       void print_lambda1_coupling_basis(double& result) {
         using namespace Pipes::print_lambda1_coupling_basis;
         const thdm_coupling_basis couplingBasis = *Dep::Coupling_Basis;
@@ -2512,7 +2333,7 @@ namespace Gambit
           double mh0_2 = spec->get(Par::Pole_Mass, "h0", 2);
           double mA0 = spec->get(Par::Pole_Mass, "A0");
           double mHm = spec->get(Par::Pole_Mass, "H+");
-          double alpha = 0.0;//spec->get(Par::dimensionless, "alpha");
+          double alpha = spec->get(Par::dimensionless, "alpha");
           double tb = spec->get(Par::dimensionless, "tanb");
           double m12_2 = spec->get(Par::mass1, "m12_2");
           double mh0_1_run = spec->get(Par::mass1, "h0", 1);
@@ -2561,7 +2382,7 @@ namespace Gambit
       double mh0_2 = spec.get(Par::Pole_Mass, "h0",2);
       double mA0 = spec.get(Par::Pole_Mass, "A0");
       double mHm = spec.get(Par::Pole_Mass, "H+");
-      double alpha = 0.0;//;spec.get(Par::dimensionless, "alpha");
+      double alpha = spec.get(Par::dimensionless, "alpha");
       double tb = spec.get(Par::dimensionless, "tanb");
       cout << "----------------------------------" << endl;
       cout << "The simple container spectrum is:" << endl;

@@ -1,0 +1,358 @@
+# Minimal GAMBIT DarkBit test initialization file (in YAML)
+
+###################################
+# Input parameter declarations
+###################################
+
+Parameters:
+    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+    THDM:
+        lambda_1:
+            fixed_value: 0.1
+        lambda_2:
+            fixed_value: 0.1
+        lambda_3:
+            fixed_value: 1.0
+        lambda_4:
+            fixed_value: -4.0
+        lambda_5:
+            fixed_value: 0.1
+        lambda_6:
+            fixed_value: 0.0
+        lambda_7:
+            fixed_value: 0.0
+        m12_2:
+            fixed_value: 0.0
+        tanb:
+            fixed_value: 1.0
+        # Qin:
+        #     fixed_value: 91.1876 #mZ
+        # QrunTo:
+        #     fixed_value: 750
+
+##############################
+# Prior setup
+##############################
+
+Priors:
+
+
+##############################
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  # (currently only ascii printer available)
+  printer: ascii
+
+  # This options node is passed on wholesale to
+  # the printer object; required options may
+  # therefore vary according to the selected
+  # printer.
+  options:
+    # name of output file
+    output_file: "gambit_output.txt"
+    group: "/data"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+  use_scanner: multinest
+
+  scanners:
+    square_grid:
+      plugin: square_grid
+      version: ">=1.0"
+      like: LogLike
+      grid_pts: 10000 #NxN grid
+
+    random:
+     plugin: random
+     point_number: 10000000
+     output_file:  output
+     like:  LogLike
+     files:
+       output_file: "weights ..."
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 250
+      tol: 0.8
+      updInt: 1
+
+      # No options to set, but still need the nodes at the moment...
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+###############################
+# Observables of interest
+###########################
+
+ObsLikes:
+
+    - purpose: LogLike
+      capability: global_minimum_discriminant_likelihood
+      
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: alignment_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+
+    - purpose: LogLike
+      capability: NLO_unitarity_likelihood_THDM
+      
+    # - capability: theoretical_constraint_likelihood_THDM
+    #   purpose: LogLike
+
+    # - capability: test_THDM_spectrum_1
+    #   purpose: LogLike
+
+    # - capability: test_THDM_spectrum_2
+    #   purpose: LogLike
+
+    # - purpose:    LogLike
+    #   capability: oblique_parameters_likelihood_THDM
+    
+    # - capability: b2sgamma_LL
+    #   function: b2sgamma_likelihood
+    #   purpose: LogLike
+    
+    # - capability: b2sll_LL
+    #   funtion: b2sll_likelihood
+    #   purpose: LogLike
+
+    # - capability: SL_LL
+    #   funtion: SL_likelihood
+    #   purpose: LogLike
+
+
+    # Calculate the LEP Higgs likelihood
+
+    # - purpose:    LogLike
+    #   capability: LEP_Higgs_LogLike
+    #   function: calc_HB_LEP_LogLike
+
+    #  Calculate the LHC Higgs likelihood
+
+    # - purpose:    LogLike
+    #   capability: LHC_Higgs_LogLike
+    #   function: calc_HS_LHC_LogLike
+
+    # # get full calcualtion from HiggsBounds - for debugging
+    # - capability: HB_LogLike_Full
+    #   function: calc_HB_LogLike_Full
+    #   purpose: LogLike
+
+
+  # ----- observables ----
+
+    - purpose: Observable
+      capability: lambda1_coupling_basis
+
+    - purpose: Observable
+      capability: lambda2_coupling_basis
+
+    - purpose: Observable
+      capability: lambda3_coupling_basis
+
+    - purpose: Observable
+      capability: lambda4_coupling_basis
+
+    - purpose: Observable
+      capability: lambda5_coupling_basis
+
+    - purpose: Observable
+      capability: tanb_coupling_basis
+
+    - purpose: Observable
+      capability: m12_2_coupling_basis
+
+    - purpose: Observable
+      capability: mh0_physical_basis
+    
+    - purpose: Observable
+      capability: mH0_physical_basis
+    
+    - purpose: Observable
+      capability: mHp_physical_basis
+    
+    - purpose: Observable
+      capability: mA_physical_basis
+    
+    - purpose: Observable
+      capability: tanb_physical_basis
+    
+    - purpose: Observable
+      capability: sba_physical_basis
+    
+    - purpose: Observable
+      capability: m12_2_physical_basis
+
+    # - capability: bsgamma
+    #   function: SI_bsgamma
+    #   purpose: Observable
+    # - capability: THDM_Higgs_Decays_output
+    #   function: printGammaGamma_h0_2_THDM_HB
+    #   purpose: Observable
+
+Rules:
+
+    - module: SpecBit
+      options:
+        yukawa_type: 1
+
+    - module: ColliderBit
+      options:
+        HB_analysis_type: 1
+
+    - capability: THDM_spectrum
+      function: get_THDM_spectrum
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: NLO_unitarity_likelihood_THDM
+      function: get_NLO_unitarity_likelihood_THDM
+      options:
+        check_all_scales: true
+    
+    - capability: alignment_likelihood_THDM
+      function: get_alignment_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    # - capability: oblique_parameters_likelihood_THDM
+    #   function: get_oblique_parameters_likelihood_THDM
+    #   options:
+    #     check_all_scales: true
+
+    - capability: global_minimum_discriminant_likelihood
+      function: get_global_minimum_discriminant_likelihood
+      options:
+        check_all_scales: true
+
+    # Initialization of HiggsBounds backend
+    - capability: HiggsBounds_4_2_1_init  
+      options:
+        HB_analysis_type: 1
+
+    - capability: THDM_Higgs_Couplings_For_HB
+      function: THDM_Couplings_For_HB
+
+    - capability: THDM_Higgs_Couplings_SM_Like_Model
+      function: THDM_Couplings_SM_Like_Model
+    
+    - capability: THDM_DecayWidths_For_HB
+      function: THDM_Decay_Widths_For_HB
+    
+    - capability: THDM_DecayWidths_SM_Like_Model
+      function: THDM_Decay_Widths_SM_Like_Model
+    
+    - capability: THDM_TotalWidths
+      function: THDM_Total_Widths
+    
+    - capability: THDM_TotalWidths_SM_Like_Model
+      function: THDM_Total_Widths_SM_Like_Model
+
+    - capability: SLHA_THDM
+      function: fill_THDM_SLHA
+
+    # - capability: Higgs_decay_rates
+    #   function: h0_1_decays_THDM
+    
+    # - capability: h0_2_decay_rates
+    #   function: h0_2_decays_THDM
+
+    # - capability: SuperIso_modelinfo
+    #   function: SI_fill
+    
+    # - capability: b2sll_M
+    #   function: b2sll_measurements
+
+    # - capability: bsgamma
+    #   function: SI_bsgamma
+    #   module: FlavBit
+
+    # - capability: Higgs_decay_rates
+    #   function: h0_1_decays_THDM
+
+    # - capability: h0_2_decay_rates
+    #   function: h0_2_decays_THDM
+
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  # Redirection of specific messages according to tags
+  # Can redirect to stdout or stderr by specifying these as the "filenames".
+  # Obviously this also means it is impossible to redirect output to actual
+  # files with these names.
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+    [Scanner]: "ScannerBit.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+    ExampleBit_A_error: non-fatal
+
+  default_output_path: "runs/thdm_test/"
+  enable_testing: true
+  debug: true
+  yukawa_type: 2

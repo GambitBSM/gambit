@@ -376,21 +376,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_alpha();
     }
     
-    inline void THDM::get_unitarity_conditions(double* conditions)
-    {
-        get_BEptr()->get_unitarity_conditions(conditions);
-    }
-    
-    inline void THDM::get_perturbativity_conditions(double* conditions)
-    {
-        get_BEptr()->get_perturbativity_conditions(conditions);
-    }
-    
-    inline void THDM::get_stability_conditions(double* conditions)
-    {
-        get_BEptr()->get_stability_conditions(conditions);
-    }
-    
     inline int THDM::get_yukawas_type()
     {
         return get_BEptr()->get_yukawas_type();

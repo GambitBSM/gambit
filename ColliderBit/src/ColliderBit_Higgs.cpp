@@ -551,10 +551,7 @@ namespace Gambit
       result = HiggsProd;
 
     }
-
-
-    // THDM EXTENSIONS
-
+    // * is this required?
     // void THDMHiggs_gambit_ModelParameters(Higgs_ModelParameters &result)
     // {
     //   using namespace Pipes::THDMHiggs_gambit_ModelParameters;
@@ -568,46 +565,23 @@ namespace Gambit
     //   result.add_charged_higgs(he.get(Par::mass1,"mC"),0.0);
     // }
 
-
-    void THDMHiggs_ModelParameters(hb_ModelParameters &result)
+    void fill_THDM_HiggsBounds_model_parameters(hb_ModelParameters &result)
     {
-      using namespace Pipes::THDMHiggs_ModelParameters;
-
+      using namespace Pipes::fill_THDM_HiggsBounds_model_parameters;
+      const Spectrum fullspectrum = *Dep::THDM_spectrum;
       // unpack THDM Couplings
-      thdmc_couplings TDHM_couplings = *Dep::THDM_Higgs_Couplings;
-      thdmc_couplings TDHM_couplings_SM_Like_h01 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_h01;
-      thdmc_couplings TDHM_couplings_SM_Like_h02 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_h02;
-      thdmc_couplings TDHM_couplings_SM_Like_A0 = *Dep::THDM_Higgs_Couplings_SM_Like_Model_A0;
-
-      thdmc_total_widths THDM_total_widths = *Dep::THDM_TotalWidths;
-      thdmc_decay_widths THDM_decay_widths = *Dep::THDM_DecayWidths;
-
-      thdmc_decay_widths THDM_decay_widths_SM_Like_h01 = *Dep::THDM_DecayWidths_SM_Like_Model_h01;
-      thdmc_decay_widths THDM_decay_widths_SM_Like_h02 = *Dep::THDM_DecayWidths_SM_Like_Model_h02;
-      thdmc_decay_widths THDM_decay_widths_SM_Like_A0 = *Dep::THDM_DecayWidths_SM_Like_Model_A0;
-
-      Spectrum fullspectrum = *Dep::THDM_spectrum;
-
-      //int YukawaType = runOptions->getValueOrDef<int>(1, "YukawaType");
+      const thdmc_couplings TDHM_couplings = *Dep::THDM_couplings;
+      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_SM_like_model;
+      const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths;
+      const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_SM_like_model;
+      const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths;
 
       const SubSpectrum& he = fullspectrum.get_HE();
       const SubSpectrum& SM = fullspectrum.get_LE();
-      const SMInputs& sminputs   = fullspectrum.get_SMInputs();
-
-      std::vector <thdmc_decay_widths> SMLikeDecayWidths(3);
-      std::vector <thdmc_couplings> SMLikeCouplings(3);
-
-      SMLikeDecayWidths[0] = THDM_decay_widths_SM_Like_h01;
-      SMLikeDecayWidths[1] = THDM_decay_widths_SM_Like_h02;
-      SMLikeDecayWidths[2] = THDM_decay_widths_SM_Like_A0;
-
-      SMLikeCouplings[0] = TDHM_couplings_SM_Like_h01;
-      SMLikeCouplings[1] = TDHM_couplings_SM_Like_h02;
-      SMLikeCouplings[2] = TDHM_couplings_SM_Like_A0;
+      const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
       // ---
       // adapted from 2HDMC code - Constraints.cpp
-
       double RWW=0.77; double RZZ=1.0-RWW;
 
       double MZ= SM.get(Par::Pole_Mass,"Z0");
@@ -685,23 +659,23 @@ namespace Gambit
 
         result.CS_tev_vbf_ratio[h] = RWW*result.CS_ud_hjWp_ratio[h]+RZZ*result.CS_dd_hjZ_ratio[h];
 
-        result.CS_gg_hj_ratio[h] = THDM_decay_widths.gamma_hgg[h+1]/SMLikeDecayWidths[h].gamma_hgg[1];
+        result.CS_gg_hj_ratio[h] = THDM_decay_widths.gamma_hgg[h+1]/THDM_decay_widths_SM_like[h].gamma_hgg[1];
 
         cs = TDHM_couplings.hdd_cs[h+1][3][3];
         cp = TDHM_couplings.hdd_cp[h+1][3][3];
-        cs_sm = SMLikeCouplings[h].hdd_cs[1][3][3];
-        cp_sm = SMLikeCouplings[h].hdd_cp[1][3][3];
+        cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
+        cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
 
         result.CS_bb_hj_ratio[h]=pow(abs(cs/cs_sm),2)+pow(abs(cp/cs_sm),2);
         result.CS_bg_hjb_ratio[h]=result.CS_bb_hj_ratio[h];
         result.CS_lep_bbhj_ratio[h] = result.CS_bb_hj_ratio[h];
 
-        result.CS_lep_tautauhj_ratio[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/SMLikeDecayWidths[h].gamma_hll[1][3][3];
+        result.CS_lep_tautauhj_ratio[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/THDM_decay_widths_SM_like[h].gamma_hll[1][3][3];
 
         cst = TDHM_couplings.huu_cs[h+1][3][3];
         cpt = TDHM_couplings.huu_cp[h+1][3][3];
-        cst_sm = SMLikeCouplings[h].huu_cs[1][3][3];
-        cpt_sm = SMLikeCouplings[h].huu_cp[1][3][3];
+        cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
+        cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
 
         result.CS_tev_tthj_ratio[h] = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
 
@@ -721,9 +695,7 @@ namespace Gambit
       result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/THDM_total_widths.gamma_tot_h[4];
       result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/THDM_total_widths.gamma_tot_h[4];
       result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/THDM_total_widths.gamma_tot_h[4];
-
       // ---
-
     }
 
 

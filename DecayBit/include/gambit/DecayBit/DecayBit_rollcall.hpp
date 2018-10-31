@@ -149,8 +149,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
+    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
 
@@ -180,8 +180,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
+    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
 
@@ -210,8 +210,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
+    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
 
@@ -238,12 +238,12 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION Hc_decays_THDM
+    #define FUNCTION Hpm_decays_THDM
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
+    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
 
@@ -844,141 +844,65 @@ START_MODULE
 
   //EXTRA THDM
 
-  #define CAPABILITY THDM_DecayWidths
+  #define CAPABILITY THDM_decay_widths
   START_CAPABILITY
 
-    #define FUNCTION THDM_Decay_Widths
+    #define FUNCTION get_THDM_decay_widths
     START_FUNCTION(thdmc_decay_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
+    ALLOW_MODEL_DEPENDENCE(THDM, THDMatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_DecayWidths_For_HB
+  #define CAPABILITY THDM_decay_widths_for_HiggsBounds
   START_CAPABILITY
 
-    #define FUNCTION THDM_Decay_Widths_For_HB
+    #define FUNCTION get_THDM_decay_widths_for_HiggsBounds
     START_FUNCTION(thdmc_decay_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
+    ALLOW_MODEL_DEPENDENCE(THDM, THDMatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_TotalWidths
+  #define CAPABILITY THDM_decay_widths_SM_like_model
   START_CAPABILITY
 
-    #define FUNCTION THDM_Total_Widths
+    #define FUNCTION get_THDM_decay_widths_SM_like_model
+    START_FUNCTION(std::vector<thdmc_decay_widths>)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL_DEPENDENCE(THDM, THDMatQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY THDM_total_widths
+  START_CAPABILITY
+
+    #define FUNCTION get_THDM_total_widths
     START_FUNCTION(thdmc_total_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
+    ALLOW_MODEL_DEPENDENCE(THDM, THDMatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_DecayWidths_SM_Like_Model_h01
+  #define CAPABILITY THDM_total_widths_SM_like_model
   START_CAPABILITY
 
-    #define FUNCTION THDM_Decay_Widths_SM_Like_Model_h01
-    START_FUNCTION(thdmc_decay_widths)
+    #define FUNCTION get_THDM_total_widths_SM_like_model
+    START_FUNCTION(std::vector<thdmc_total_widths>)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
+    ALLOW_MODEL_DEPENDENCE(THDM, THDMatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
-
-  #define CAPABILITY THDM_DecayWidths_SM_Like_Model_h02
-  START_CAPABILITY
-
-    #define FUNCTION THDM_Decay_Widths_SM_Like_Model_h02
-    START_FUNCTION(thdmc_decay_widths)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_DecayWidths_SM_Like_Model_A0
-  START_CAPABILITY
-
-    #define FUNCTION THDM_Decay_Widths_SM_Like_Model_A0
-    START_FUNCTION(thdmc_decay_widths)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_TotalWidths_SM_Like_Model_h01
-  START_CAPABILITY
-
-    #define FUNCTION THDM_Total_Widths_SM_Like_Model_h01
-    START_FUNCTION(thdmc_total_widths)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_TotalWidths_SM_Like_Model_h02
-  START_CAPABILITY
-
-    #define FUNCTION THDM_Total_Widths_SM_Like_Model_h02
-    START_FUNCTION(thdmc_total_widths)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_TotalWidths_SM_Like_Model_A0
-  START_CAPABILITY
-
-    #define FUNCTION THDM_Total_Widths_SM_Like_Model_A0
-    START_FUNCTION(thdmc_total_widths)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_Higgs_Decays_output
-  START_CAPABILITY
-
-    #define FUNCTION printGammaGamma_h0_1_THDM
-    START_FUNCTION(double)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-    #define FUNCTION printGammaGamma_h0_2_THDM
-    START_FUNCTION(double)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(h0_2_decay_rates, DecayTable::Entry)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-    #define FUNCTION printGammaGamma_h0_2_THDM_HB
-    START_FUNCTION(double)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_DecayWidths_For_HB, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
-    ALLOW_MODEL_DEPENDENCE(THDM)
-    #undef FUNCTION
-
-  #undef CAPABILITY
-
 
 #undef MODULE
 

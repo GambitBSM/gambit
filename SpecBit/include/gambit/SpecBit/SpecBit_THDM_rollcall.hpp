@@ -21,12 +21,6 @@
 #ifndef __SpecBit_THDM_hpp__
 #define __SpecBit_THDM_hpp__
 
-// ALLOW_MODEL_DEPENDENCE(StandardModel_Higgs, THDM)
-// MODEL_GROUP(higgs,   (StandardModel_Higgs))
-// MODEL_GROUP(thdm, (THDM))
-// ALLOW_MODEL_COMBINATION(higgs, thdm)
-
-  // Spectrum object for SingletDM model  (tree-level masses)
 #define CAPABILITY THDM_spectrum
 START_CAPABILITY
 // Create Spectrum object from SMInputs structs, SM Higgs parameters,
@@ -172,7 +166,6 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-
 #define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_unitarity_likelihood_THDM
@@ -181,7 +174,6 @@ START_CAPABILITY
   ALLOW_MODELS(THDM,THDMatQ)
   #undef FUNCTION
 #undef CAPABILITY
-
 
 #define CAPABILITY NLO_unitarity_likelihood_THDM
 START_CAPABILITY
@@ -240,9 +232,9 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_Higgs_Couplings
+#define CAPABILITY THDM_couplings
 START_CAPABILITY
-  #define FUNCTION THDM_Couplings
+  #define FUNCTION get_THDM_couplings
   START_FUNCTION(thdmc_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
@@ -250,9 +242,9 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_Higgs_Couplings_For_HB
+#define CAPABILITY THDM_couplings_for_HiggsBounds
 START_CAPABILITY
-  #define FUNCTION THDM_Couplings_For_HB
+  #define FUNCTION get_THDM_couplings_for_HiggsBounds
   START_FUNCTION(thdmc_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
@@ -260,30 +252,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_Higgs_Couplings_SM_Like_Model_h01
+#define CAPABILITY THDM_couplings_SM_like_model
 START_CAPABILITY
-  #define FUNCTION THDM_Couplings_SM_Like_Model_h01
-  START_FUNCTION(thdmc_couplings)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY THDM_Higgs_Couplings_SM_Like_Model_h02
-START_CAPABILITY
-  #define FUNCTION THDM_Couplings_SM_Like_Model_h02
-  START_FUNCTION(thdmc_couplings)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY THDM_Higgs_Couplings_SM_Like_Model_A0
-START_CAPABILITY
-  #define FUNCTION THDM_Couplings_SM_Like_Model_A0
-  START_FUNCTION(thdmc_couplings)
+  #define FUNCTION get_THDM_couplings_SM_like_model
+  START_FUNCTION(std::vector<thdmc_couplings>)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODELS(THDM,THDMatQ)

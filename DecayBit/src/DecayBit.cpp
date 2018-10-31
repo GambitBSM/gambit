@@ -3310,536 +3310,275 @@ namespace Gambit
 
     // THDM ROUTINES: REQUIRES CODE RESTRUCTURE
 
-   void get_CKM_from_Wolfenstein_parameters(complex<double> CKM[2][2], double lambda, double A, double rho, double eta)
-   {
-     complex<double> i_eta(0, eta);
-
-     CKM[0][0] = 1 - pow(lambda,2)/2;
-     CKM[0][1] = lambda;
-     CKM[0][2] = A*pow(lambda,3)*(rho-i_eta);
-     CKM[1][0] = -lambda;
-     CKM[1][1] = 1 - pow(lambda,2)/2;
-     CKM[1][2] = A*pow(lambda,2);
-     CKM[2][0] = A*pow(lambda,3)*(1-rho-i_eta);
-     CKM[2][1] = -A*pow(lambda,2);
-     CKM[2][2] = 1;
-   }
-
-  template <class A, class B>
-  void fill_THDM_object(A& inputTHDM, B& inputSM, Spectrum& spec)
-  {
-      //Takes in the spectrum and fills a THDM object which is defined
-      //in 2HDMC. Any 2HDMC functions can then be called on this object.
-
-      const SubSpectrum& he = spec.get_HE();
-      const SubSpectrum& SM = spec.get_LE();
-      const SMInputs& sminputs   = spec.get_SMInputs();
-
-      // double m_h = he.get(Par::Pole_Mass,"h0",1);
-      // double m_H = he.get(Par::Pole_Mass,"h0",2);
-      // double m_A = he.get(Par::Pole_Mass, "A0");
-      // double m_Hp = he.get(Par::Pole_Mass, "H+");
-      // double alpha = he.get(Par::dimensionless, "alpha");
-
-      double lambda_1 = he.get(Par::mass1,"lambda_1");
-      double lambda_2 = he.get(Par::mass1,"lambda_2");
-      double lambda_3 = he.get(Par::mass1, "lambda_3");
-      double lambda_4 = he.get(Par::mass1, "lambda_4");
-      double lambda_5 = he.get(Par::mass1, "lambda_5");
-      double tan_beta = he.get(Par::dimensionless, "tanb");
-
-      double lambda_6 = he.get(Par::mass1, "lambda_6");
-      double lambda_7 = he.get(Par::mass1, "lambda_7");
-
-      double m12_2 = he.get(Par::mass1,"m12_2");
-
-      inputSM.set_alpha(1/(sminputs.alphainv));
-      inputSM.set_alpha_s(sminputs.alphaS);
-      inputSM.set_GF(sminputs.GF);
-
-      inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-      inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
-
-      inputSM.set_gamma_Z(2.4952);
-      inputSM.set_gamma_W(2.085);
-
-      inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-      inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-      inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
-
-      // inputSM.set_qmass_msbar(2,SM.get(Par::mass1,"u_1")); //u
-      // inputSM.set_qmass_msbar(1,SM.get(Par::mass1,"d_1")); //d
-      // inputSM.set_qmass_msbar(4,SM.get(Par::mass1,"u_2")); //c
-      // inputSM.set_qmass_msbar(3,SM.get(Par::mass1,"d_2")); //s
-
-      inputSM.set_qmass_msbar(2,sminputs.mU); //u
-      inputSM.set_qmass_msbar(1,sminputs.mD); //d
-      inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-      inputSM.set_qmass_msbar(3,sminputs.mS); //s
-      inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-      inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
-
-      complex<double> CKMMatrix[2][2];
-      get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-      // inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-              // abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
-
-      inputTHDM.set_SM(inputSM);
-
-      inputTHDM.set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6, lambda_7, m12_2, tan_beta);
-      inputTHDM.set_yukawas_type(2);
-
+    void set_SM(const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object){
+      THDMC_1_7_0::SM* SM_object = THDM_object->get_SM_pointer();
+      const double md_p    = 0.0047;
+      const double mu_p    = 0.0022;
+      const double ms_p    = 0.096;
+      const double mc_p    = 1.67; // (Borzumati: 1.41)
+      const double mc_bar    = 1.273; //1802.04248
+      const double alpha0   = 1./137.035999139;
+      SM_object->set_alpha(1/(sminputs.alphainv));
+      SM_object->set_alpha0(alpha0);
+      SM_object->set_alpha_s(sminputs.alphaS);
+      SM_object->set_GF(sminputs.GF);
+      SM_object->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
+      SM_object->set_MW(SM->get(Par::Pole_Mass,"W+"));
+      SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
+      SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
+      SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
+      SM_object->set_qmass_pole(1,md_p); //t
+      SM_object->set_qmass_pole(2,mu_p); //b 
+      SM_object->set_qmass_pole(3,ms_p); //t
+      SM_object->set_qmass_pole(4,mc_p); //b  
+      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //t
+      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //b
+      SM_object->set_qmass_msbar(1,SM->get(Par::mass1,"d_1")); //d
+      SM_object->set_qmass_msbar(2,SM->get(Par::mass1,"u_1")); //u
+      SM_object->set_qmass_msbar(3,SM->get(Par::mass1,"d_2")); //s
+      SM_object->set_qmass_msbar(4,mc_bar); //c
+      SM_object->set_qmass_msbar(5,SM->get(Par::mass1,"d_3")); //u
+      SM_object->set_qmass_msbar(6,SM->get(Par::mass1,"u_3")); //s
     }
 
-   template <class A, class B>
-   void fill_THDM_object_deprecated(A& inputTHDM, B& inputSM, Spectrum& spec)
-   {
-     const SubSpectrum& he = spec.get_HE();
-     const SubSpectrum& SM = spec.get_LE();
-     const SMInputs& sminputs = spec.get_SMInputs();
-
-     double m_h = he.get(Par::mass1,"mh0");
-     double m_H = he.get(Par::mass1,"mH0");
-     double m_A = he.get(Par::mass1,"mA");
-     double m_Hp = he.get(Par::mass1,"mC");
-     double sba = he.get(Par::dimensionless,"sba");
-     double lambda6 = he.get(Par::mass1,"lambda_6");
-     double lambda7 = he.get(Par::mass1,"lambda_7");
-     double m12_2 = he.get(Par::mass1,"m12_2");
-     double tan_beta = he.get(Par::dimensionless,"tb");
-     double YukawaType = he.get(Par::dimensionless,"y_type");
-
-     inputSM.set_alpha(1/(sminputs.alphainv));
-     inputSM.set_alpha_s(sminputs.alphaS);
-     inputSM.set_GF(sminputs.GF);
-     inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-     inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
-
-     inputSM.set_gamma_Z(2.4952);
-     inputSM.set_gamma_W(2.085);
-
-     inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-     inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-     inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
-
-     inputSM.set_qmass_msbar(2,sminputs.mU); //u
-     inputSM.set_qmass_msbar(1,sminputs.mD); //d
-     inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-     inputSM.set_qmass_msbar(3,sminputs.mS); //s
-     inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-     inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
-
-     bool INPUTFOR2HDMC = false;
-
-     if (INPUTFOR2HDMC)
-     {
-       std::cout << "#### INPUT FOR 2HDMC DEMO PROGRAM ####"<<std::endl;
-       std::cout << "double mh       = " << std::setprecision(10) << m_h << ";" << std::endl;
-       std::cout << "double mH       = " << std::setprecision(10) << m_H << ";" << std::endl;
-       std::cout << "double mA       = " << std::setprecision(10) << m_A << ";" << std::endl;
-       std::cout << "double mC       = " << std::setprecision(10) << m_Hp << ";" << std::endl;
-       std::cout << "double sba      = " << std::setprecision(10) << sba << ";" << std::endl;
-       std::cout << "double lambda_6 = " << std::setprecision(10) << lambda6 << ";" << std::endl;
-       std::cout << "double lambda_7 = " << std::setprecision(10) << lambda7 << ";" << std::endl;
-       std::cout << "double m12_2    = " << std::setprecision(10) << m12_2 << ";" << std::endl;
-       std::cout << "double tb       = " << std::setprecision(10) << tan_beta << ";" << std::endl;
-       std::cout << "double lambda   = " << sminputs.CKM.lambda << ";" << std::endl;
-       std::cout << "double A        = " << sminputs.CKM.A << ";" << std::endl;
-       std::cout << "double rho      = " << sminputs.CKM.rhobar << ";" << std::endl;
-       std::cout << "double eta      = " << sminputs.CKM.etabar << ";" << std::endl;
-
-        std::cout << "sm.set_alpha(1./" << sminputs.alphainv << ");" << std::endl;
-        std::cout << "sm.set_alpha0(1./137.0359997);" << std::endl;
-        std::cout << "sm.set_alpha_s(" << sminputs.alphaS << ");" <<std::endl;
-        std::cout << "sm.set_MZ(" << std::setprecision(10) << SM.get(Par::Pole_Mass,"Z0") << ");" <<std::endl;
-        std::cout << "sm.set_MW(" << std::setprecision(10) << SM.get(Par::Pole_Mass,"W+") << ");" <<std::endl;
-        std::cout << "sm.set_gamma_Z(2.4952);" <<std::endl;
-        std::cout << "sm.set_gamma_W(2.085);" <<std::endl;
-        std::cout << "sm.set_GF(" << sminputs.GF << ");" <<std::endl;
-
-        std::cout << "sm.set_lmass_pole(1," << std::setprecision(10) << SM.get(Par::Pole_Mass,"e-_1") << ");" <<std::endl;
-        std::cout << "sm.set_lmass_pole(2," << std::setprecision(10) << SM.get(Par::Pole_Mass,"e-_2") << ");" <<std::endl;
-        std::cout << "sm.set_lmass_pole(3," << std::setprecision(10) << SM.get(Par::Pole_Mass,"e-_3") << ");" <<std::endl;
-
-        std::cout << "sm.set_qmass_msbar(2," << std::setprecision(10) << sminputs.mU << ");" <<std::endl;
-        std::cout << "sm.set_qmass_msbar(1," << std::setprecision(10) << sminputs.mD << ");" <<std::endl;
-        std::cout << "sm.set_qmass_msbar(4," << std::setprecision(10) << sminputs.mCmC << ");" <<std::endl;
-        std::cout << "sm.set_qmass_msbar(3," << std::setprecision(10) << sminputs.mS << ");" <<std::endl;
-        std::cout << "sm.set_qmass_pole(6," << std::setprecision(10) << SM.get(Par::Pole_Mass,"u_3") << ");" <<std::endl;
-        std::cout << "sm.set_qmass_pole(5," << std::setprecision(10) << SM.get(Par::Pole_Mass,"d_3") << ");" <<std::endl;
-
-        std::cout << "// after the thdm object has been defined" << std::endl;
-
-        std::cout << "model.set_yukawas_type("<<YukawaType<<");"<<std::endl;
-
-        std::cout << "#### END INPUT ####"<<std::endl;
-
+    //Takes in the spectrum and fills a THDM object which is defined
+    //in 2HDMC. Any 2HDMC functions can then be called on this object.
+    void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
+      double lambda_1 = he->get(Par::mass1,"lambda_1");
+      double lambda_2 = he->get(Par::mass1,"lambda_2");
+      double lambda_3 = he->get(Par::mass1, "lambda_3");
+      double lambda_4 = he->get(Par::mass1, "lambda_4");
+      double lambda_5 = he->get(Par::mass1, "lambda_5");
+      double tan_beta = he->get(Par::dimensionless, "tanb");
+      double lambda_6 = he->get(Par::mass1, "lambda_6");
+      double lambda_7 = he->get(Par::mass1, "lambda_7");
+      double m12_2 = he->get(Par::mass1,"m12_2");
+      double mh = he->get(Par::mass1, "h0", 1);
+      double mH = he->get(Par::mass1, "h0", 2);
+      double mA = he->get(Par::mass1, "A0");
+      double mC = he->get(Par::mass1, "H+");
+      double alpha = he->get(Par::dimensionless, "alpha");
+      double sba = sin(atan(tan_beta) - alpha);
+      set_SM(SM,sminputs,THDM_object);
+      THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
+                                  m12_2, tan_beta, mh, mH, mA, mC, sba);
+      THDM_object->set_yukawas_type(yukawa_type);
     }
 
-     complex<double> CKMMatrix[2][2];
-     get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-    //  inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-            //  abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
+    void init_THDM_object(const Spectrum& spec, THDM& THDM_object, const int yukawa_type, const double scale){
+      // deprecated
+        const std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        if(scale>0.0) he->RunToScale(scale);
+        const std::unique_ptr<SubSpectrum> SM = spec.clone_LE();
+        const SMInputs sminputs = spec.get_SMInputs();   
+        init_THDM_object(he, SM, sminputs, yukawa_type, &THDM_object);
+    }
 
-     inputTHDM.set_SM(inputSM);
+    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
+      double mh;
+       switch (higgs_number) {
+        case 1:
+          mh = he->get(Par::Pole_Mass,"h0",1);
+          break;
+        case 2:
+          mh = he->get(Par::Pole_Mass,"h0",2);
+          break;
+        case 3:
+          mh = he->get(Par::Pole_Mass,"A0");
+          break;
+        default:
+          mh = he->get(Par::Pole_Mass,"h0",1);
+          break;
+      }
+      set_SM(SM,sminputs,THDM_object);
+      THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+      THDM_object->set_yukawas_type(yukawa_type);
+    }
 
-     inputTHDM.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
-     inputTHDM.set_yukawas_type(YukawaType);
-   }
+    struct THDM_spectrum_container {
+      std::unique_ptr<SubSpectrum> he;
+      std::unique_ptr<SubSpectrum> SM;
+      SMInputs sminputs;
+      THDMC_1_7_0::THDM* THDM_object;
+      int yukawa_type;
+    };
 
-   template <class A, class B>
-   void fill_THDM_object_SM_Like_Model(A& inputTHDM, B& inputSM, Spectrum& spec, int HiggsNumber)
-   {
-     const SubSpectrum& he = spec.get_HE();
-     const SubSpectrum& SM = spec.get_LE();
-     const SMInputs& sminputs   = spec.get_SMInputs();
+    void init_THDM_spectrum_container(THDM_spectrum_container& container, const Spectrum& spec, const int yukawa_type, const double scale=0.0) {
+      container.he = spec.clone_HE(); // Copy "high-energy" SubSpectrum
+      if(scale>0.0) container.he->RunToScale(scale);
+      container.SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+      container.sminputs = spec.get_SMInputs();   
+      container.yukawa_type = yukawa_type;
+      container.THDM_object = new THDMC_1_7_0::THDM();
+      init_THDM_object(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
+    }
 
-     // in the decoupling limit THDM-> SM
-     double m_h;
+    enum thdmc_decays_purpose{full, HiggsBounds, SM_like};
 
-     // which higgs mass to use as SM higgs
-     switch (HiggsNumber)
-     {
-       case 1:
-         m_h = he.get(Par::Pole_Mass, "h0", 1);
+   thdmc_decay_widths fill_THDM_decay_widths(THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
+     thdmc_decay_widths decay_widths;
+     THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
+     switch (purpose) {
+       case full: {
+         for (int h1=1; h1<5; h1++) {
+            //*
+            for (int f1=1; f1<4; f1++) {
+              for (int f2=1; f2<4; f2++) {
+                decay_widths.gamma_uhd[f1][h1][f2] = decay_table_object.get_gamma_uhd(f1,h1,f2);
+                decay_widths.gamma_hdd[h1][f1][f2] = decay_table_object.get_gamma_hdd(h1,f1,f2);
+                decay_widths.gamma_huu[h1][f1][f2] = decay_table_object.get_gamma_huu(h1,f1,f2);
+                decay_widths.gamma_hdu[h1][f1][f2] = decay_table_object.get_gamma_hdu(h1,f1,f2);
+                decay_widths.gamma_hll[h1][f1][f2] = decay_table_object.get_gamma_hll(h1,f1,f2);
+                decay_widths.gamma_hln[h1][f1][f2] = decay_table_object.get_gamma_hln(h1,f1,f2);
+              }
+            }
+            //**
+            decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+            decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
+            //**
+            for (int v1=1; v1<4; v1++) {
+              decay_widths.gamma_hvv[h1][v1] = decay_table_object.get_gamma_hvv(h1,v1);
+              for (int h2=1; h2<5; h2++) {
+                decay_widths.gamma_hvh[h1][v1][h2] = decay_table_object.get_gamma_hvh(h1,v1,h2);
+              }
+            }
+            for (int h2=1; h2<5; h2++) {
+              for (int h3=1; h3<5; h3++) {
+                decay_widths.gamma_hhh[h1][h2][h3] = decay_table_object.get_gamma_hhh(h1,h2,h3);
+              }
+            }
+            //*
+          }
          break;
-       case 2:
-         m_h = he.get(Par::Pole_Mass, "h0", 2);
+       }
+       case HiggsBounds: {
+          decay_widths.gamma_uhd[3][4][3] = decay_table_object.get_gamma_uhd(3,4,3);
+          decay_widths.gamma_hdu[4][2][2] = decay_table_object.get_gamma_hdu(4,2,2);
+          decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
+          decay_widths.gamma_hln[4][3][3] = decay_table_object.get_gamma_hln(4,3,3);
+          //*
+          for (int h1=1; h1<5; h1++) {
+            decay_widths.gamma_hdd[h1][2][2] = decay_table_object.get_gamma_hdd(h1,2,2);
+            decay_widths.gamma_hdd[h1][3][3] = decay_table_object.get_gamma_hdd(h1,3,3);
+            decay_widths.gamma_huu[h1][2][2] = decay_table_object.get_gamma_huu(h1,2,2);
+            decay_widths.gamma_hll[h1][2][2] = decay_table_object.get_gamma_hll(h1,2,2);
+            decay_widths.gamma_hll[h1][3][3] = decay_table_object.get_gamma_hll(h1,3,3);
+            decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+            decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
+            decay_widths.gamma_hvv[h1][2] = decay_table_object.get_gamma_hvv(h1,2);
+            decay_widths.gamma_hvv[h1][3] = decay_table_object.get_gamma_hvv(h1,3);
+            for (int h2=1; h2<5; h2++) {
+                decay_widths.gamma_hhh[h1][h2][h2] = decay_table_object.get_gamma_hhh(h1,h2,h2);
+            }
+          }
+          //*
          break;
-       case 3:
-         m_h = he.get(Par::Pole_Mass, "A0");
+       }
+       case SM_like: {
+         decay_widths.gamma_hgg[1] = decay_table_object.get_gamma_hgg(1);
+         decay_widths.gamma_hll[1][3][3] = decay_table_object.get_gamma_hll(1,3,3);
          break;
-       default:
-         m_h = he.get(Par::Pole_Mass, "H+");
-         break;
+       }
      }
 
-     double m_H = m_h*100;
-     double m_A = m_h*100;
-     double m_Hp = m_h*100;
-     double sba = 1.0;
-     double lambda6 = 0.;
-     double lambda7 = 0.;
-     double m12_2 = 0.;
-     double tan_beta = 1.;
-     double YukawaType = 1;
-
-     inputSM.set_alpha(1/(sminputs.alphainv));
-     inputSM.set_alpha_s(sminputs.alphaS);
-     inputSM.set_GF(sminputs.GF);
-     inputSM.set_MZ(SM.get(Par::Pole_Mass,"Z0"));
-     inputSM.set_MW(SM.get(Par::Pole_Mass,"W+"));
-
-     inputSM.set_gamma_Z(2.4952);
-     inputSM.set_gamma_W(2.085);
-
-     inputSM.set_lmass_pole(1,SM.get(Par::Pole_Mass,"e-_1"));
-     inputSM.set_lmass_pole(2,SM.get(Par::Pole_Mass,"e-_2"));
-     inputSM.set_lmass_pole(3,SM.get(Par::Pole_Mass,"e-_3"));
-
-     inputSM.set_qmass_msbar(2,sminputs.mU); //u
-     inputSM.set_qmass_msbar(1,sminputs.mD); //d
-     inputSM.set_qmass_msbar(4,sminputs.mCmC); //c
-     inputSM.set_qmass_msbar(3,sminputs.mS); //s
-     inputSM.set_qmass_pole(6,SM.get(Par::Pole_Mass,"u_3")); //t
-     inputSM.set_qmass_pole(5,SM.get(Par::Pole_Mass,"d_3")); //b
-
-     complex<double> CKMMatrix[2][2];
-     get_CKM_from_Wolfenstein_parameters(CKMMatrix, sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
-    //  inputSM.set_CKM(abs(CKMMatrix[0][0]), abs(CKMMatrix[0][1]), abs(CKMMatrix[0][2]), abs(CKMMatrix[1][0]), abs(CKMMatrix[1][1]),
-            //  abs(CKMMatrix[1][2]), abs(CKMMatrix[2][0]), abs(CKMMatrix[2][1]), abs(CKMMatrix[2][2]));
-
-     inputTHDM.set_SM(inputSM);
-
-     inputTHDM.set_param_phys(m_h, m_H, m_A, m_Hp, sba, lambda6, lambda7, m12_2, tan_beta);
-     inputTHDM.set_yukawas_type(YukawaType);
-
+     return decay_widths;
    }
 
-   template <class T>
-   void fill_THDM_Decay_Widths(thdmc_decay_widths &result, T& thdmDecayTable)
-   {
-
-     thdmc_decay_widths Decay_widths;
-
-     for (int h1=1; h1<5; h1++)
-     {
-       for (int f1=1; f1<4; f1++)
-       {
-         for (int f2=1; f2<4; f2++)
-         {
-           Decay_widths.gamma_uhd[f1][h1][f2] = thdmDecayTable.get_gamma_uhd(f1,h1,f2);
-           Decay_widths.gamma_hdd[h1][f1][f2] = thdmDecayTable.get_gamma_hdd(h1,f1,f2);
-           Decay_widths.gamma_huu[h1][f1][f2] = thdmDecayTable.get_gamma_huu(h1,f1,f2);
-           Decay_widths.gamma_hdu[h1][f1][f2] = thdmDecayTable.get_gamma_hdu(h1,f1,f2);
-           Decay_widths.gamma_hll[h1][f1][f2] = thdmDecayTable.get_gamma_hll(h1,f1,f2);
-           Decay_widths.gamma_hln[h1][f1][f2] = thdmDecayTable.get_gamma_hln(h1,f1,f2);
-         }
-       }
-
-       Decay_widths.gamma_hgg[h1] = thdmDecayTable.get_gamma_hgg(h1);
-       Decay_widths.gamma_hgaga[h1] = thdmDecayTable.get_gamma_hgaga(h1);
-       Decay_widths.gamma_hZga[h1] = thdmDecayTable.get_gamma_hZga(h1);
-
-       for (int v1=1; v1<4; v1++)
-       {
-
-         Decay_widths.gamma_hvv[h1][v1] = thdmDecayTable.get_gamma_hvv(h1,v1);
-
-         for (int h2=1; h2<5; h2++)
-         {
-           Decay_widths.gamma_hvh[h1][v1][h2] = thdmDecayTable.get_gamma_hvh(h1,v1,h2);
-         }
-       }
-
-       for (int h2=1; h2<5; h2++)
-       {
-         for (int h3=1; h3<5; h3++)
-         {
-           Decay_widths.gamma_hhh[h1][h2][h3] = thdmDecayTable.get_gamma_hhh(h1,h2,h3);
-         }
-       }
-     }
-     result = Decay_widths;
+   void get_THDM_decay_widths(thdmc_decay_widths &result) {
+      using namespace Pipes::get_THDM_decay_widths;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+      result = fill_THDM_decay_widths(container, full);
+      delete container.THDM_object;
    }
 
-   template <class T>
-   void fill_THDM_Decay_Widths_For_HB(thdmc_decay_widths &result, T& thdmDecayTable)
-   {
-
-     thdmc_decay_widths Decay_widths;
-
-     //charged higgs
-     Decay_widths.gamma_uhd[3][4][3] = thdmDecayTable.get_gamma_uhd(3,4,3);
-     Decay_widths.gamma_hdu[4][2][2] = thdmDecayTable.get_gamma_hdu(4,2,2);
-     Decay_widths.gamma_hdu[4][3][2] = thdmDecayTable.get_gamma_hdu(4,3,2);
-     Decay_widths.gamma_hln[4][3][3] = thdmDecayTable.get_gamma_hln(4,3,3);
-
-     for (int h1=1; h1<5; h1++)
-     {
-         //neutral higgs
-         Decay_widths.gamma_hdd[h1][2][2] = thdmDecayTable.get_gamma_hdd(h1,2,2);
-         Decay_widths.gamma_hdd[h1][3][3] = thdmDecayTable.get_gamma_hdd(h1,3,3);
-         Decay_widths.gamma_huu[h1][2][2] = thdmDecayTable.get_gamma_huu(h1,2,2);
-
-         Decay_widths.gamma_hll[h1][2][2] = thdmDecayTable.get_gamma_hll(h1,2,2);
-         Decay_widths.gamma_hll[h1][3][3] = thdmDecayTable.get_gamma_hll(h1,3,3);
-
-       Decay_widths.gamma_hgg[h1] = thdmDecayTable.get_gamma_hgg(h1);
-       Decay_widths.gamma_hgaga[h1] = thdmDecayTable.get_gamma_hgaga(h1);
-       Decay_widths.gamma_hZga[h1] = thdmDecayTable.get_gamma_hZga(h1);
-
-       Decay_widths.gamma_hvv[h1][2] = thdmDecayTable.get_gamma_hvv(h1,2);
-       Decay_widths.gamma_hvv[h1][3] = thdmDecayTable.get_gamma_hvv(h1,3);
-
-       for (int h2=1; h2<5; h2++)
-       {
-           Decay_widths.gamma_hhh[h1][h2][h2] = thdmDecayTable.get_gamma_hhh(h1,h2,h2);
-       }
-     }
-     result = Decay_widths;
+   void get_THDM_decay_widths_for_HiggsBounds(thdmc_decay_widths &result) {
+      using namespace Pipes::get_THDM_decay_widths_for_HiggsBounds;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+      result = fill_THDM_decay_widths(container, HiggsBounds);
+      delete container.THDM_object;
    }
 
-   template <class T>
-   void fill_THDM_Decay_Widths_For_HB_SMLikeComponent(thdmc_decay_widths &result, T& thdmDecayTable)
-   {
+   void get_THDM_decay_widths_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
+      using namespace Pipes::get_THDM_decay_widths_SM_like_model;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      std::vector<thdmc_decay_widths> SM_like_decays;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
 
-     thdmc_decay_widths Decay_widths;
-
-    Decay_widths.gamma_hll[1][3][3] = thdmDecayTable.get_gamma_hll(1,3,3);
-    Decay_widths.gamma_hgg[1] = thdmDecayTable.get_gamma_hgg(1);
-
-     result = Decay_widths;
-   }
-
-   template <class A, class B>
-   void fill_THDM_Total_Widths(thdmc_total_widths &result, A& thdmDecayTable, B& smObject)
-   {
-     thdmc_total_widths Total_widths;
-
-     Total_widths.isValid = true;
-
-       for (int h=1; h<5; h++)
-       {
-         Total_widths.gamma_tot_h[h] = thdmDecayTable.get_gammatot_h(h);
-         if (std::isnan(Total_widths.gamma_tot_h[h])) {Total_widths.isValid = false; }
-       }
-
-      for (int v=1; v<4; v++)
-      {
-        Total_widths.gamma_tot_v[v] = thdmDecayTable.get_gammatot_v(v);
-        if (std::isnan(Total_widths.gamma_tot_v[v])) {Total_widths.isValid = false; }
+      for (int h=1; h<=3; h++) {
+        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        SM_like_decays.push_back(fill_THDM_decay_widths(container, SM_like));
       }
 
-      Total_widths.gamma_tot_t = thdmDecayTable.get_gammatot_top();
-      if (std::isnan(Total_widths.gamma_tot_t)) {Total_widths.isValid = false; }
+      delete container.THDM_object;
+      result = SM_like_decays;
+    }
 
-      Total_widths.gamma_tot_t_SM_contrib = smObject.get_gamma_top();
+  thdmc_total_widths fill_THDM_total_widths(THDM_spectrum_container& container) {
+     thdmc_total_widths total_widths;
+     total_widths.isValid = true;
+     THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
 
-     result = Total_widths;
+      for (int h=1; h<5; h++) {
+        total_widths.gamma_tot_h[h] = decay_table_object.get_gammatot_h(h);
+        if (std::isnan(total_widths.gamma_tot_h[h])) {total_widths.isValid = false; }
+      }
+      for (int v=1; v<4; v++) {
+        total_widths.gamma_tot_v[v] = decay_table_object.get_gammatot_v(v);
+        if (std::isnan(total_widths.gamma_tot_v[v])) {total_widths.isValid = false; }
+      }
+      total_widths.gamma_tot_t = decay_table_object.get_gammatot_top();
+      if (std::isnan(total_widths.gamma_tot_t)) {total_widths.isValid = false; }
+      total_widths.gamma_tot_t_SM_contrib = container.THDM_object->get_SM_pointer()->get_gamma_top();
+
+     return total_widths;
    }
 
-   void THDM_Total_Widths(thdmc_total_widths &result)
-   {
-      using namespace Pipes::THDM_Total_Widths;
-      Spectrum spec = *Dep::THDM_spectrum;
 
-      THDMC_1_7_0::THDM thdmObject;
-      THDMC_1_7_0::SM smObject;
-
-      // fill the THDM object with values from the input file
-      fill_THDM_object(thdmObject,smObject,spec);
-
-      THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-      fill_THDM_Total_Widths(result,thdmDecayTable,smObject);
+   void get_THDM_total_widths(thdmc_total_widths &result) {
+     using namespace Pipes::get_THDM_total_widths;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
+      result = fill_THDM_total_widths(container);
+      delete container.THDM_object;
    }
 
-   void THDM_Total_Widths_SM_Like_Model_h01(thdmc_total_widths &result)
-   {
-      using namespace Pipes::THDM_Total_Widths_SM_Like_Model_h01;
-      Spectrum spec = *Dep::THDM_spectrum;
+   void get_THDM_total_widths_SM_like_model(std::vector<thdmc_total_widths> &result) {
+      using namespace Pipes::get_THDM_total_widths_SM_like_model;
+      const int yukawa_type = runOptions->getValueOrDef<int>(1, "yukawa_type");
+      const Spectrum spec = *Dep::THDM_spectrum;
+      THDM_spectrum_container container;
+      std::vector<thdmc_total_widths> SM_like_total_widths;
+      if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
+      else init_THDM_spectrum_container(container, spec, yukawa_type);
 
-      THDMC_1_7_0::THDM thdmObject;
-      THDMC_1_7_0::SM smObject;
+      for (int h=1; h<=3; h++) {
+        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        SM_like_total_widths.push_back(fill_THDM_total_widths(container));
+      }
 
-      // fill the THDM object with values from the input file
-      fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,1);
-
-      THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-      fill_THDM_Total_Widths(result,thdmDecayTable,smObject);
+      delete container.THDM_object;
+      result = SM_like_total_widths;
    }
 
-   void THDM_Total_Widths_SM_Like_Model_h02(thdmc_total_widths &result)
-   {
-      using namespace Pipes::THDM_Total_Widths_SM_Like_Model_h02;
-      Spectrum spec = *Dep::THDM_spectrum;
-
-      THDMC_1_7_0::THDM thdmObject;
-      THDMC_1_7_0::SM smObject;
-
-      // fill the THDM object with values from the input file
-      fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,2);
-
-      THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-      fill_THDM_Total_Widths(result,thdmDecayTable,smObject);
-   }
-
-   void THDM_Total_Widths_SM_Like_Model_A0(thdmc_total_widths &result)
-   {
-      using namespace Pipes::THDM_Total_Widths_SM_Like_Model_A0;
-      Spectrum spec = *Dep::THDM_spectrum;
-
-      THDMC_1_7_0::THDM thdmObject;
-      THDMC_1_7_0::SM smObject;
-
-      // fill the THDM object with values from the input file
-      fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,3);
-
-      THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-      fill_THDM_Total_Widths(result,thdmDecayTable,smObject);
-   }
-
-   void THDM_Decay_Widths(thdmc_decay_widths &result)
-   {
-     using namespace Pipes::THDM_Decay_Widths;
-     Spectrum spec = *Dep::THDM_spectrum;
-
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     // fill the THDM object with values from the input file
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-     fill_THDM_Decay_Widths(result, thdmDecayTable);
-
-   }
-
-   void THDM_Decay_Widths_For_HB(thdmc_decay_widths &result)
-   {
-     using namespace Pipes::THDM_Decay_Widths_For_HB;
-     Spectrum spec = *Dep::THDM_spectrum;
-
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     // fill the THDM object with values from the input file
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-     fill_THDM_Decay_Widths_For_HB(result, thdmDecayTable);
-
-   }
-
-   void THDM_Decay_Widths_SM_Like_Model_h01(thdmc_decay_widths &result)
-   {
-     using namespace Pipes::THDM_Decay_Widths_SM_Like_Model_h01;
-     Spectrum spec = *Dep::THDM_spectrum;
-
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     // fill the THDM object with values from the input file
-     fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,1);
-
-     THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-     fill_THDM_Decay_Widths_For_HB_SMLikeComponent(result, thdmDecayTable);
-
-   }
-
-   void THDM_Decay_Widths_SM_Like_Model_h02(thdmc_decay_widths &result)
-   {
-     using namespace Pipes::THDM_Decay_Widths_SM_Like_Model_h02;
-     Spectrum spec = *Dep::THDM_spectrum;
-
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     // fill the THDM object with values from the input file
-     fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,2);
-
-     THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-     fill_THDM_Decay_Widths_For_HB_SMLikeComponent(result, thdmDecayTable);
-
-   }
-
-   void THDM_Decay_Widths_SM_Like_Model_A0(thdmc_decay_widths &result)
-   {
-     using namespace Pipes::THDM_Decay_Widths_SM_Like_Model_A0;
-     Spectrum spec = *Dep::THDM_spectrum;
-
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     // fill the THDM object with values from the input file
-     fill_THDM_object_SM_Like_Model(thdmObject,smObject,spec,3);
-
-     THDMC_1_7_0::DecayTableTHDM thdmDecayTable(thdmObject);
-
-     fill_THDM_Decay_Widths_For_HB_SMLikeComponent(result, thdmDecayTable);
-
-   }
-
-   void getParticleName(int family, int number, bool isAntiparticle, string& p_name)
-   {
-     // family guide:
-     // 1 quark up-types
-     // 2 quark down-types
-     // 3 lepton electron-types
-     // 4 lepto nuetrino-types
-     // 5 vector bosons
-     // 6 higgs bosons
-
-     switch (family)
-     {
+  //TODO: upgrade to enum
+   void get_particle_name(int family, int number, bool isAntiparticle, string& p_name) {
+     switch (family) {
        //quark up
        case 1:
          switch (number) {
@@ -3956,260 +3695,177 @@ namespace Gambit
    }
 
 
-   template <class A, class B>
-   void h_decays_THDM(DecayTable::Entry& result, A Decay_widths, B Total_widths, int higgsNumber)
-   {
-     double totalDecayWidth =  Total_widths->gamma_tot_h[higgsNumber];
-     result.width_in_GeV = totalDecayWidth;
-     result.positive_error = 0; //narrow width
-     result.negative_error = 0;
-
+   DecayTable::Entry h_decays_THDM(const thdmc_decay_widths& decay_widths, const thdmc_total_widths& total_widths, const int higgs_number) {
+     const double total_h_decay_width = total_widths.gamma_tot_h[higgs_number];
+     DecayTable::Entry decay_table_entry;
+     decay_table_entry.width_in_GeV = total_h_decay_width;
+     decay_table_entry.positive_error = 0; //narrow width
+     decay_table_entry.negative_error = 0;
 
       // TODO: update to enum structure
      string p1_name;
      string p2_name;
 
-     for(int f1=1; f1<4; f1++)
-     {
-       for(int f2=1; f2<4; f2++)
-       {
+     for(int f1=1; f1<4; f1++) {
+       for(int f2=1; f2<4; f2++) {
          //h->dd
-         getParticleName(2,f1,false,p1_name);
-         getParticleName(2,f2,true,p2_name);
-         result.set_BF((Decay_widths->gamma_hdd[higgsNumber][f1][f2]/totalDecayWidth), 0.00, p1_name,p2_name);
+         get_particle_name(2,f1,false,p1_name);
+         get_particle_name(2,f2,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hdd[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
          //h->>uu
-         getParticleName(1,f1,false,p1_name);
-         getParticleName(1,f2,true,p2_name);
-         result.set_BF((Decay_widths->gamma_huu[higgsNumber][f1][f2]/totalDecayWidth), 0.00, p1_name,p2_name);
+         get_particle_name(1,f1,false,p1_name);
+         get_particle_name(1,f2,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_huu[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
          //h->du
-         getParticleName(2,f1,false,p1_name);
-         getParticleName(1,f2,true,p2_name);
-         result.set_BF((Decay_widths->gamma_hdu[higgsNumber][f1][f2]/totalDecayWidth), 0.00, p1_name,p2_name);
+         get_particle_name(2,f1,false,p1_name);
+         get_particle_name(1,f2,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hdu[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
          //h->ll
-         getParticleName(3,f1,false,p1_name);
-         getParticleName(3,f2,true,p2_name);
-         result.set_BF((Decay_widths->gamma_hll[higgsNumber][f1][f2]/totalDecayWidth), 0.00, p1_name,p2_name);
+         get_particle_name(3,f1,false,p1_name);
+         get_particle_name(3,f2,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hll[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
          //h->ln
-         getParticleName(3,f1,false,p1_name);
-         getParticleName(4,f2,true,p2_name);
-         result.set_BF((Decay_widths->gamma_hln[higgsNumber][f1][f2]/totalDecayWidth), 0.00, p1_name,p2_name);
+         get_particle_name(3,f1,false,p1_name);
+         get_particle_name(4,f2,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hln[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
       }
-   }
+    }
      //h->gg
-     result.set_BF((Decay_widths->gamma_hgg[higgsNumber]/totalDecayWidth), 0.00, "g","g");
+     decay_table_entry.set_BF((decay_widths.gamma_hgg[higgs_number]/total_h_decay_width), 0.00, "g","g");
      //h->gamma,gamma
-     result.set_BF((Decay_widths->gamma_hgaga[higgsNumber]/totalDecayWidth), 0.00, "gamma","gamma");
+     decay_table_entry.set_BF((decay_widths.gamma_hgaga[higgs_number]/total_h_decay_width), 0.00, "gamma","gamma");
      //h->Z,gamma
-     result.set_BF((Decay_widths->gamma_hZga[higgsNumber]/totalDecayWidth), 0.00, "Z0","gamma");
+     decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "Z0","gamma");
      //h->V,V
-     result.set_BF((Decay_widths->gamma_hvv[higgsNumber][2]/totalDecayWidth), 0.00, "Z0","Z0");
-     result.set_BF((Decay_widths->gamma_hvv[higgsNumber][3]/totalDecayWidth), 0.00, "W+","W-");
+     decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][2]/total_h_decay_width), 0.00, "Z0","Z0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][3]/total_h_decay_width), 0.00, "W+","W-");
      //h->V,H
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][1][1]/totalDecayWidth), 0.00, "gamma","h0_1");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][1][2]/totalDecayWidth), 0.00, "gamma","h0_2");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][1][3]/totalDecayWidth), 0.00, "gamma","A0");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][2][1]/totalDecayWidth), 0.00, "Z0","h0_1");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][2][2]/totalDecayWidth), 0.00, "Z0","h0_2");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][2][3]/totalDecayWidth), 0.00, "Z0","A0");
-     result.set_BF((Decay_widths->gamma_hvh[higgsNumber][3][4]/totalDecayWidth), 0.00, "W+","H-");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "gamma","h0_1");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][2]/total_h_decay_width), 0.00, "gamma","h0_2");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][3]/total_h_decay_width), 0.00, "gamma","A0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][1]/total_h_decay_width), 0.00, "Z0","h0_1");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][2]/total_h_decay_width), 0.00, "Z0","h0_2");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][3]/total_h_decay_width), 0.00, "Z0","A0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][4]/total_h_decay_width), 0.00, "W+","H-");
      //h->H,H
-     for(int h2=1; h2<5; h2++)
-     {
-       for(int h3=1; h3<5; h3++)
-       {
-         getParticleName(6,h2,false,p1_name);
-         getParticleName(6,h3,true,p2_name);
-         result.set_BF((Decay_widths->gamma_hhh[higgsNumber][h2][h3]/totalDecayWidth), 0.00, p1_name,p2_name);
+     for(int h2=1; h2<5; h2++) {
+       for(int h3=1; h3<5; h3++) {
+         get_particle_name(6,h2,false,p1_name);
+         get_particle_name(6,h3,true,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hhh[higgs_number][h2][h3]/total_h_decay_width), 0.00, p1_name,p2_name);
        }
      }
    }
 
-   void create_empty_decay_table_THDM(DecayTable::Entry& result)
-   {
-     result.width_in_GeV = 0;
-     result.positive_error = 0;
-     result.negative_error = 0;
-
-     result.set_BF(0.00, 0.00, "d","dbar");
-     result.set_BF(0.00, 0.00, "s","sbar");
-     result.set_BF(0.00, 0.00, "b","bbar");
-     //h->>uu
-     result.set_BF(0.00, 0.00, "u","ubar");
-     result.set_BF(0.00, 0.00, "c","cbar");
-     result.set_BF(0.00, 0.00, "t","tbar");
-     //h->du
-     result.set_BF(0.00, 0.00, "d","ubar");
-     result.set_BF(0.00, 0.00, "s","cbar");
-     result.set_BF(0.00, 0.00, "b","tbar");
-     //h->ll
-     result.set_BF(0.00, 0.00, "e+","e-");
-     result.set_BF(0.00, 0.00, "mu+","mu-");
-     result.set_BF(0.00, 0.00, "tau+","tau-");
-     //h->ln
-     result.set_BF(0.00, 0.00, "e+","nubar_e");
-     result.set_BF(0.00, 0.00, "mu+","nubar_mu");
-     result.set_BF(0.00, 0.00, "tau+","nubar_tau");
-     //h->gg
-     result.set_BF(0.00, 0.00, "g","g");
-     //h->gamma,gamma
-     result.set_BF(0.00, 0.00, "gamma","gamma");
-     //h->Z,gamma
-     result.set_BF(0.00, 0.00, "Z0","gamma");
-     //h->V,V
-     result.set_BF(0.00, 0.00, "Z0","Z0");
-     result.set_BF(0.00, 0.00, "W+","W-");
-     //h->V,H
-     result.set_BF(0.00, 0.00, "gamma","h0_1");
-     result.set_BF(0.00, 0.00, "gamma","h0_2");
-     result.set_BF(0.00, 0.00, "gamma","A0");
-     result.set_BF(0.00, 0.00, "Z0","h0_1");
-     result.set_BF(0.00, 0.00, "Z0","h0_2");
-     result.set_BF(0.00, 0.00, "Z0","A0");
-     result.set_BF(0.00, 0.00, "W+","H-");
-     //h->H,H
-     result.set_BF(0.00, 0.00, "h0_1","h0_1");
-     result.set_BF(0.00, 0.00, "h0_2","h0_2");
-     result.set_BF(0.00, 0.00, "A0","A0");
-     result.set_BF(0.00, 0.00, "H+","H-");
+   DecayTable::Entry create_empty_decay_table_THDM() {
+     DecayTable::Entry decay_table_entry;
+     decay_table_entry.width_in_GeV = 0;
+     decay_table_entry.positive_error = 0;
+     decay_table_entry.negative_error = 0;
+     decay_table_entry.set_BF(0.00, 0.00, "d","dbar");
+     decay_table_entry.set_BF(0.00, 0.00, "s","sbar");
+     decay_table_entry.set_BF(0.00, 0.00, "b","bbar");
+     decay_table_entry.set_BF(0.00, 0.00, "u","ubar");
+     decay_table_entry.set_BF(0.00, 0.00, "c","cbar");
+     decay_table_entry.set_BF(0.00, 0.00, "t","tbar");
+     decay_table_entry.set_BF(0.00, 0.00, "d","ubar");
+     decay_table_entry.set_BF(0.00, 0.00, "s","cbar");
+     decay_table_entry.set_BF(0.00, 0.00, "b","tbar");
+     decay_table_entry.set_BF(0.00, 0.00, "e+","e-");
+     decay_table_entry.set_BF(0.00, 0.00, "mu+","mu-");
+     decay_table_entry.set_BF(0.00, 0.00, "tau+","tau-");
+     decay_table_entry.set_BF(0.00, 0.00, "e+","nubar_e");
+     decay_table_entry.set_BF(0.00, 0.00, "mu+","nubar_mu");
+     decay_table_entry.set_BF(0.00, 0.00, "tau+","nubar_tau");
+     decay_table_entry.set_BF(0.00, 0.00, "g","g");
+     decay_table_entry.set_BF(0.00, 0.00, "gamma","gamma");
+     decay_table_entry.set_BF(0.00, 0.00, "Z0","gamma");
+     decay_table_entry.set_BF(0.00, 0.00, "Z0","Z0");
+     decay_table_entry.set_BF(0.00, 0.00, "W+","W-");
+     decay_table_entry.set_BF(0.00, 0.00, "gamma","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "gamma","h0_2");
+     decay_table_entry.set_BF(0.00, 0.00, "gamma","A0");
+     decay_table_entry.set_BF(0.00, 0.00, "Z0","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "Z0","h0_2");
+     decay_table_entry.set_BF(0.00, 0.00, "Z0","A0");
+     decay_table_entry.set_BF(0.00, 0.00, "W+","H-");
+     decay_table_entry.set_BF(0.00, 0.00, "h0_1","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "h0_2","h0_2");
+     decay_table_entry.set_BF(0.00, 0.00, "A0","A0");
+     decay_table_entry.set_BF(0.00, 0.00, "H+","H-");
+     return decay_table_entry;
    }
 
-   void h0_1_decays_THDM (DecayTable::Entry& result)
-   {
+   std::string THDM_decay_table_entry_error(const std::string particle) {
+      return "WARNING: NaN encountered in total particle widths when filling THDM DecayTable Entry for " + particle + ". Continuing with empty DecayTable.";
+   }
 
+   void h0_1_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_1_decays_THDM;
+     const Spectrum spec = *Dep::THDM_spectrum;
+     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
+     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
 
-     Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths Decay_widths = *Dep::THDM_DecayWidths;
-     const thdmc_total_widths Total_widths = *Dep::THDM_TotalWidths;
-
-     const thdmc_decay_widths* Decay_widths_pointer = &Decay_widths;
-     const thdmc_total_widths* Total_widths_pointer = &Total_widths;
-
-     if (Total_widths.isValid)
-     {
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     result.calculator = "2HDMC";
-     result.calculator_version = "1.7.0";
-
-     h_decays_THDM(result, Decay_widths_pointer, Total_widths_pointer, 1);
+     if (total_widths.isValid) {
+        result = h_decays_THDM(decay_widths, total_widths, 1);
+        result.calculator = "2HDMC";
+        result.calculator_version = "1.7.0";
      }
-     else { create_empty_decay_table_THDM(result); }
-
+     else { 
+       std::cerr << THDM_decay_table_entry_error("h0_1") << std::endl;
+       result = create_empty_decay_table_THDM(); 
+      }
    }
 
-   void h0_2_decays_THDM (DecayTable::Entry& result)
-   {
-
+   void h0_2_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_2_decays_THDM;
+     const Spectrum spec = *Dep::THDM_spectrum;
+     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
+     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
 
-     Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths Decay_widths = *Dep::THDM_DecayWidths;
-     const thdmc_total_widths Total_widths = *Dep::THDM_TotalWidths;
-
-     const thdmc_decay_widths* Decay_widths_pointer = &Decay_widths;
-     const thdmc_total_widths* Total_widths_pointer = &Total_widths;
-
-     if (Total_widths.isValid)
-     {
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     result.calculator = "2HDMC";
-     result.calculator_version = "1.7.0";
-
-     h_decays_THDM(result, Decay_widths_pointer, Total_widths_pointer, 2);
+     if (total_widths.isValid) {
+        result = h_decays_THDM(decay_widths, total_widths, 2);
+        result.calculator = "2HDMC";
+        result.calculator_version = "1.7.0";
      }
-     else { create_empty_decay_table_THDM(result); }
-
+     else { 
+       std::cerr << THDM_decay_table_entry_error("h0_2") << std::endl;
+       result = create_empty_decay_table_THDM(); 
+       }
    }
-
-   void A0_decays_THDM (DecayTable::Entry& result)
-   {
-
+  
+   void A0_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::A0_decays_THDM;
+     const Spectrum spec = *Dep::THDM_spectrum;
+     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
+     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
 
-     Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths Decay_widths = *Dep::THDM_DecayWidths;
-     const thdmc_total_widths Total_widths = *Dep::THDM_TotalWidths;
-
-     const thdmc_decay_widths* Decay_widths_pointer = &Decay_widths;
-     const thdmc_total_widths* Total_widths_pointer = &Total_widths;
-
-     if (Total_widths.isValid)
-     {
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     result.calculator = "2HDMC";
-     result.calculator_version = "1.7.0";
-
-     h_decays_THDM(result, Decay_widths_pointer, Total_widths_pointer, 3);
+     if (total_widths.isValid) {
+        result = h_decays_THDM(decay_widths, total_widths, 3);
+        result.calculator = "2HDMC";
+        result.calculator_version = "1.7.0";
      }
-     else { create_empty_decay_table_THDM(result); }
+     else { 
+       std::cerr << THDM_decay_table_entry_error("A0") << std::endl;
+       result = create_empty_decay_table_THDM(); 
+       }
    }
 
-   void Hc_decays_THDM (DecayTable::Entry& result)
-   {
+   void Hpm_decays_THDM(DecayTable::Entry& result) {
+     using namespace Pipes::Hpm_decays_THDM;
+     const Spectrum spec = *Dep::THDM_spectrum;
+     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
+     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
 
-     using namespace Pipes::Hc_decays_THDM;
-
-     Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths Decay_widths = *Dep::THDM_DecayWidths;
-     const thdmc_total_widths Total_widths = *Dep::THDM_TotalWidths;
-
-     const thdmc_decay_widths* Decay_widths_pointer = &Decay_widths;
-     const thdmc_total_widths* Total_widths_pointer = &Total_widths;
-
-     if (Total_widths.isValid)
-     {
-     THDMC_1_7_0::THDM thdmObject;
-     THDMC_1_7_0::SM smObject;
-
-     fill_THDM_object(thdmObject,smObject,spec);
-
-     result.calculator = "2HDMC";
-     result.calculator_version = "1.7.0";
-
-     h_decays_THDM(result, Decay_widths_pointer, Total_widths_pointer, 4);
+     if (total_widths.isValid) {
+        result = h_decays_THDM(decay_widths, total_widths, 4);
+        result.calculator = "2HDMC";
+        result.calculator_version = "1.7.0";
      }
-     else { create_empty_decay_table_THDM(result); }
-
-   }
-
-   void printGammaGamma_h0_1_THDM(double& result)
-   {
-     using namespace Pipes::printGammaGamma_h0_1_THDM;
-
-     const DecayTable::Entry* decays = &(*Dep::Higgs_decay_rates);
-
-     result = decays->BF("gamma", "gamma");
-   }
-
-   void printGammaGamma_h0_2_THDM(double& result)
-   {
-     using namespace Pipes::printGammaGamma_h0_2_THDM;
-
-     const DecayTable::Entry* decays = &(*Dep::h0_2_decay_rates);
-
-     result = decays->BF("gamma", "gamma");
-   }
-
-   void printGammaGamma_h0_2_THDM_HB(double& result)
-   {
-     using namespace Pipes::printGammaGamma_h0_2_THDM_HB;
-
-     const thdmc_decay_widths Decay_widths = *Dep::THDM_DecayWidths_For_HB;
-     const thdmc_total_widths Total_widths = *Dep::THDM_TotalWidths;
-
-     result = Decay_widths.gamma_hgaga[2]/Total_widths.gamma_tot_h[2];
+     else { 
+       std::cerr << THDM_decay_table_entry_error("Hpm") << std::endl;
+       result = create_empty_decay_table_THDM(); 
+       }
    }
 
   }

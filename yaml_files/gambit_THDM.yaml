@@ -61,7 +61,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "gambit_output.txt"
+    output_file: "gambit_THDM_output.txt"
     group: "/data"
     delete_file_on_restart: true
 
@@ -123,18 +123,9 @@ ObsLikes:
 
     - purpose: LogLike
       capability: NLO_unitarity_likelihood_THDM
-      
-    # - capability: theoretical_constraint_likelihood_THDM
-    #   purpose: LogLike
 
-    # - capability: test_THDM_spectrum_1
-    #   purpose: LogLike
-
-    # - capability: test_THDM_spectrum_2
-    #   purpose: LogLike
-
-    # - purpose:    LogLike
-    #   capability: oblique_parameters_likelihood_THDM
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
     
     # - capability: b2sgamma_LL
     #   function: b2sgamma_likelihood
@@ -164,6 +155,12 @@ ObsLikes:
     # # get full calcualtion from HiggsBounds - for debugging
     # - capability: HB_LogLike_Full
     #   function: calc_HB_LogLike_Full
+    #   purpose: LogLike
+
+    # - capability: test_THDM_spectrum_1
+    #   purpose: LogLike
+
+    # - capability: test_THDM_spectrum_2
     #   purpose: LogLike
 
 
@@ -214,15 +211,12 @@ ObsLikes:
     # - capability: bsgamma
     #   function: SI_bsgamma
     #   purpose: Observable
-    # - capability: THDM_Higgs_Decays_output
-    #   function: printGammaGamma_h0_2_THDM_HB
-    #   purpose: Observable
 
 Rules:
 
     - module: SpecBit
       options:
-        yukawa_type: 1
+        yukawa_type: 4
 
     - module: ColliderBit
       options:
@@ -256,10 +250,10 @@ Rules:
       options:
         check_all_scales: true
 
-    # - capability: oblique_parameters_likelihood_THDM
-    #   function: get_oblique_parameters_likelihood_THDM
-    #   options:
-    #     check_all_scales: true
+    - capability: oblique_parameters_likelihood_THDM
+      function: get_oblique_parameters_likelihood_THDM
+      options:
+        check_all_scales: true
 
     - capability: global_minimum_discriminant_likelihood
       function: get_global_minimum_discriminant_likelihood
@@ -267,36 +261,36 @@ Rules:
         check_all_scales: true
 
     # Initialization of HiggsBounds backend
-    - capability: HiggsBounds_4_2_1_init  
-      options:
-        HB_analysis_type: 1
+    # - capability: HiggsBounds_4_2_1_init  
+    #   options:
+    #     HB_analysis_type: 1
 
-    - capability: THDM_Higgs_Couplings_For_HB
-      function: THDM_Couplings_For_HB
+    - capability: THDM_couplings_for_HiggsBounds
+      function: get_THDM_couplings_for_HiggsBounds
 
-    - capability: THDM_Higgs_Couplings_SM_Like_Model
-      function: THDM_Couplings_SM_Like_Model
+    - capability: THDM_couplings_SM_Like_Model
+      function: get_THDM_couplings_SM_Like_Model
     
-    - capability: THDM_DecayWidths_For_HB
-      function: THDM_Decay_Widths_For_HB
+    - capability: THDM_decay_widths_for_HiggsBounds
+      function: get_THDM_decay_widths_for_HiggsBounds
     
-    - capability: THDM_DecayWidths_SM_Like_Model
-      function: THDM_Decay_Widths_SM_Like_Model
+    - capability: THDM_decay_widths_SM_like_model
+      function: get_THDM_decay_widths_SM_like_model
     
-    - capability: THDM_TotalWidths
-      function: THDM_Total_Widths
+    - capability: THDM_total_widths
+      function: get_THDM_total_widths
     
-    - capability: THDM_TotalWidths_SM_Like_Model
-      function: THDM_Total_Widths_SM_Like_Model
+    - capability: THDM_total_widths_SM_like_model
+      function: get_THDM_total_widths_SM_like_model
 
     - capability: SLHA_THDM
       function: fill_THDM_SLHA
 
-    # - capability: Higgs_decay_rates
-    #   function: h0_1_decays_THDM
+    - capability: Higgs_decay_rates
+      function: h0_1_decays_THDM
     
-    # - capability: h0_2_decay_rates
-    #   function: h0_2_decays_THDM
+    - capability: h0_2_decay_rates
+      function: h0_2_decays_THDM
 
     # - capability: SuperIso_modelinfo
     #   function: SI_fill
@@ -307,13 +301,6 @@ Rules:
     # - capability: bsgamma
     #   function: SI_bsgamma
     #   module: FlavBit
-
-    # - capability: Higgs_decay_rates
-    #   function: h0_1_decays_THDM
-
-    # - capability: h0_2_decay_rates
-    #   function: h0_2_decays_THDM
-
 
 #########################
 # Logging setup
@@ -359,7 +346,7 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/thdm_test/"
+  default_output_path: "runs/THDM/"
   enable_testing: true
   debug: true
-  YukawaType: 2
+  yukawa_type: 2

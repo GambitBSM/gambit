@@ -165,12 +165,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual double get_alpha() =0;
     
-            virtual void get_unitarity_conditions(double*) =0;
-    
-            virtual void get_perturbativity_conditions(double*) =0;
-    
-            virtual void get_stability_conditions(double*) =0;
-    
             virtual int get_yukawas_type() =0;
     
             virtual const double& EPS_ref__BOSS() =0;

@@ -1,4 +1,4 @@
-diff -rupN src/CalcLH.cpp src_patched/CalcLH.cpp
+diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
 --- src/CalcLH.cpp	2015-08-26 22:52:52.000000000 +0930
 +++ src_patched/CalcLH.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,6 +1,6 @@
@@ -9,7 +9,7 @@ diff -rupN src/CalcLH.cpp src_patched/CalcLH.cpp
  #include <iostream>
  
  using namespace std;
-@@ -17,16 +17,16 @@ int main(int argc, char* argv[]) {
+@@ -17,16 +17,16 @@
  
    char* in_file = argv[1];
    char* out_file = argv[2];
@@ -29,7 +29,7 @@ diff -rupN src/CalcLH.cpp src_patched/CalcLH.cpp
    // Reference SM Higgs mass for EW precision observables
    double mh_ref = 125.;
  
-@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
+@@ -35,7 +35,7 @@
    model.print_param_gen();
    model.print_param_higgs();
    model.print_param_phys();
@@ -38,7 +38,7 @@ diff -rupN src/CalcLH.cpp src_patched/CalcLH.cpp
    check.print_all(mh_ref);
  
    complex <double> cs,cp;
-@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
+@@ -47,7 +47,7 @@
    pc("A-tautau",cs,cp);
    model.write_LesHouches(out_file,true,true,true,false);
  
@@ -47,7 +47,7 @@ diff -rupN src/CalcLH.cpp src_patched/CalcLH.cpp
    table.print_decays(1);
    table.print_decays(2);
    table.print_decays(3);
-diff -rupN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
+diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
 --- src/CalcMSSM.cpp	2015-08-26 22:51:12.000000000 +0930
 +++ src_patched/CalcMSSM.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,7 +1,7 @@
@@ -59,7 +59,7 @@ diff -rupN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
  
  using namespace std;
  
-@@ -11,16 +11,16 @@ int main(int argc, char* argv[]) {
+@@ -11,16 +11,16 @@
      cout << "Usage: CalcMSSM.x mA tan_beta output_filename\n";
      return -1;
    }
@@ -81,7 +81,7 @@ diff -rupN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
    if (!pset) {
      cerr << "The values given for one or more parameters were invalid\n";
      return -1;
-@@ -29,13 +29,13 @@ int main(int argc, char* argv[]) {
+@@ -29,13 +29,13 @@
    model.print_param_phys();
    model.print_param_gen();
    model.print_param_hybrid();
@@ -98,7 +98,7 @@ diff -rupN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
 +
 +
  }
-diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
+diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
 --- src/CalcPhys.cpp	2015-08-26 22:59:27.000000000 +0930
 +++ src_patched/CalcPhys.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,6 +1,6 @@
@@ -109,7 +109,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
  #include "HBHS.h"
  #include <iostream>
  
-@@ -20,15 +20,15 @@ int main(int argc, char* argv[]) {
+@@ -20,15 +20,15 @@
    double sba_in = (double)atof(argv[5]);
    double l6_in = (double)atof(argv[6]);
    double l7_in = (double)atof(argv[7]);
@@ -128,7 +128,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    model.set_SM(sm);
  
    bool pset = model.set_param_phys(mh_in,mH_in,mA_in,mHp_in,sba_in,l6_in,l7_in,m12_2_in,tb_in);
-@@ -47,11 +47,11 @@ int main(int argc, char* argv[]) {
+@@ -47,11 +47,11 @@
    model.set_yukawas_type(yt_in);
  
    // Reference SM Higgs mass for EW precision observables
@@ -142,7 +142,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
  
    Constraints check(model);
    check.print_all(mh_ref);
-@@ -67,14 +67,14 @@ int main(int argc, char* argv[]) {
+@@ -67,14 +67,14 @@
  
  // Share couplings of 2HDM model with HiggsBounds/HiggsSignals
    HB_set_input_effC(model);
@@ -161,7 +161,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    HB_run_full(hbres, hbchan, hbobs, hbcomb);
    printf("\nHiggsBounds results (full):\n");
    printf("  Higgs  res  chan       ratio        ncomb\n");
-@@ -83,16 +83,16 @@ int main(int argc, char* argv[]) {
+@@ -83,16 +83,16 @@
    }
    printf("------------------------------------------------------------\n");
    printf("  TOT %5d %6d %16.8E %5d   %s\n", hbres[0],hbchan[0],hbobs[0],hbcomb[0],hbobs[0]<1 ? "ALLOWED" : "EXCLUDED");
@@ -181,7 +181,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    HS_run(&csqmu, &csqmh, &csqtot, &nobs, &pval);
  
    printf("\nHiggsSignals results:\n");
-@@ -100,13 +100,13 @@ int main(int argc, char* argv[]) {
+@@ -100,13 +100,13 @@
    printf("  Chi^2 from mass: %16.8E\n", csqmh);
    printf("      Total chi^2: %16.8E\n", csqtot);
    printf("    # observables: %16d\n\n", nobs);
@@ -197,7 +197,7 @@ diff -rupN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    table.print_decays(1);
    table.print_decays(2);
    table.print_decays(3);
-diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
+diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
 --- src/Constraints.cpp	2015-08-26 23:04:56.000000000 +0930
 +++ src_patched/Constraints.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,5 +1,5 @@
@@ -207,7 +207,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  #include "THDM.h"
  #include "Util.h"
  #include <fstream>
-@@ -27,7 +27,7 @@ Constraints::Constraints(THDM mod) : tab
+@@ -27,7 +27,7 @@
  void Constraints::set_THDM(THDM mod) {
    model = mod;
    sm    = mod.get_SM();
@@ -216,7 +216,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  //  table.set_model(mod);
  
  }
-@@ -36,17 +36,17 @@ void Constraints::init_externals() {
+@@ -36,17 +36,17 @@
  
  // This is deprecated. Use methods defined in HBHS.h instead.
  	return;
@@ -237,7 +237,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
     // Third argument is HB analysis setting: 1='onlyL', 2='onlyH' 3='LandH'
      initialize_higgsbounds_int_(&nH0, &nHp, &hbflag);
  //  initialize_higgsbounds_(&nH0,&nHp,whichexpt);
-@@ -98,8 +98,8 @@ void Constraints::init_Hp() {
+@@ -98,8 +98,8 @@
    } else {
      cerr << "Error: Cannot open \"" << Hpf_cs << "\" for reading LEP data\n";
    }
@@ -248,7 +248,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  }
  
  void Constraints::oblique_param(double mh, double &S, double &T, double &U, double &V, double &W, double &X) {
-@@ -116,7 +116,7 @@ void Constraints::oblique_param(double m
+@@ -116,7 +116,7 @@
  
    double m2[3];
    double mu2[5];
@@ -257,7 +257,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    complex <double> q11 = model.get_qki(1,1);
    complex <double> q12 = model.get_qki(1,2);
    complex <double> q21 = model.get_qki(2,1);
-@@ -124,7 +124,7 @@ void Constraints::oblique_param(double m
+@@ -124,7 +124,7 @@
  
    m2[1] = 0.;
    m2[2] = pow(model.get_hmass(4),2);
@@ -266,7 +266,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    mu2[1] = 0.;
    mu2[2] = pow(model.get_hmass(3),2);
    mu2[3] = pow(model.get_hmass(1),2);
-@@ -181,10 +181,10 @@ void Constraints::oblique_param(double m
+@@ -181,10 +181,10 @@
    V = 0.;
    W = 0.;
    X = 0.;
@@ -279,7 +279,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    for (int b=2;b<=3;b++) {
      for (int bp=b+1;bp<=4;bp++) {
        S2 += CS*pow(ImVdV[b][bp],2)*G_fcn(mu2[b],mu2[bp],mz2);
-@@ -192,16 +192,16 @@ void Constraints::oblique_param(double m
+@@ -192,16 +192,16 @@
    }
  
    S3 += -2.*CS*UdU[2][2]*log(m2[2]/mw2);
@@ -299,7 +299,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    S=S1+S2+S3+S4+S5+S6+S7;
  
    // Oblique parameter T
-@@ -220,15 +220,15 @@ void Constraints::oblique_param(double m
+@@ -220,15 +220,15 @@
    }
  
    T4 += -CT*3.*(Fdrho(mz2,mh2)-Fdrho(mw2,mh2));
@@ -318,7 +318,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    for (int b=2;b<=3;b++) {
      for (int bp=b+1;bp<=4;bp++) {
        U3 += -CU*pow(ImVdV[b][bp],2)*G_fcn(mu2[b],mu2[bp],mz2);
-@@ -247,7 +247,7 @@ void Constraints::oblique_param(double m
+@@ -247,7 +247,7 @@
  
    // Oblique parameter V
    V1+=CV*pow((2.*pow(stw,2)-UdU[2][2]),2)*H_fcn(m2[2],m2[2],mz2);
@@ -327,7 +327,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    for (int b=2;b<=3;b++) {
      for (int bp=b+1;bp<=4;bp++) {
        V2+=CV*pow(ImVdV[b][bp],2)*H_fcn(mu2[b],mu2[bp],mz2);
-@@ -265,7 +265,7 @@ void Constraints::oblique_param(double m
+@@ -265,7 +265,7 @@
    // Oblique parameter W
    for (int b=2;b<=4;b++) {
      W+=CW*pow(abs(UdV[2][b]),2)*H_fcn(m2[2],mu2[b],mw2);
@@ -336,7 +336,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  
    for (int b=2;b<=4;b++) {
      W+=CW*pow(ImVdV[1][b],2)*Hhat_fcn(mu2[b],mw2);
-@@ -275,8 +275,8 @@ void Constraints::oblique_param(double m
+@@ -275,8 +275,8 @@
  
    // Oblique parameter X
    X = CX*(2.*pow(stw,2)-UdU[2][2])*G_fcn(m2[2],m2[2],mz2);
@@ -347,7 +347,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    S = S*4.*pow(stw,2)*pow(ctw,2)/alpha;
    T = T/alpha;
    U = U*4.*pow(stw,2)/alpha;
-@@ -303,7 +303,7 @@ double Constraints::G_fcn(double x, doub
+@@ -303,7 +303,7 @@
  
  
  double Constraints::Gtilde_fcn(double x, double y, double q) {
@@ -356,7 +356,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    double t = x+y-q;
    double r = q*q-2.*q*(x+y)+pow(x-y,2);
  
-@@ -355,7 +355,7 @@ double Constraints::H_fcn(double x, doub
+@@ -355,7 +355,7 @@
  
  
  double Constraints::Htilde_fcn(double x, double y, double q) {
@@ -365,7 +365,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    double t = x+y-q;
    double r = q*q-2.*q*(x+y)+pow(x-y,2);
    double H=0.;
-@@ -383,7 +383,7 @@ double Constraints::delta_amu() {
+@@ -383,7 +383,7 @@
    double Qd = -1./3.;
    double Qu =  2./3.;
    double Ql = -1.;
@@ -374,7 +374,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  
    double m_mu = sm.get_lmass_pole(2);
    double mt = sm.get_qmass_pole(6);
-@@ -409,7 +409,7 @@ double Constraints::delta_amu() {
+@@ -409,7 +409,7 @@
  
      // CP conservation => Either S or P coupling for each Higgs boson
      double C = max(abs(CS_mu),abs(CP_mu));
@@ -383,7 +383,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      damu_1loop += pow(C,2)/(8.*pow(M_PI,2))*dmu_L(pow(mh/m_mu,2),h);
    }
  
-@@ -426,7 +426,7 @@ double Constraints::delta_amu() {
+@@ -426,7 +426,7 @@
        complex <double> gS(0.,0.), gP(0.,0.);
        model.get_coupling_hdd(h,i,i,gS,gP);
        double m = sm.get_dmass_MSbar(i);
@@ -392,7 +392,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
        if (m > 1E-3) {
  	double mrun = sm.run_qmass_MSbar(m,m,mh,mt,mb);
  	double x = pow(mrun/mh,2);
-@@ -436,13 +436,13 @@ double Constraints::delta_amu() {
+@@ -436,13 +436,13 @@
  	damu_2loop += damu;
        }
      }
@@ -408,7 +408,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
        if (m > 1E-3) {
  	double mrun = sm.run_qmass_MSbar(m,m,mh,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
  	double x = pow(mrun/mh,2);
-@@ -458,7 +458,7 @@ double Constraints::delta_amu() {
+@@ -458,7 +458,7 @@
        complex <double> gS(0.,0.), gP(0.,0.);
        model.get_coupling_hll(h,i,i,gS,gP);
        double m = sm.get_lmass_pole(i);
@@ -417,7 +417,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
        if (m > 1E-3) {
  	double x = pow(m/mh,2);
  
-@@ -468,8 +468,8 @@ double Constraints::delta_amu() {
+@@ -468,8 +468,8 @@
        }
      }
  
@@ -428,7 +428,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    damutot = damu_1loop+damu_2loop;
  
    return damutot;
-@@ -478,9 +478,9 @@ double Constraints::delta_amu() {
+@@ -478,9 +478,9 @@
  
  double Constraints::dmu_L(double z, int h) {
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -440,7 +440,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    gsl_function F;
  
    if (h==1) F.function = Lint_s;
-@@ -488,11 +488,11 @@ double Constraints::dmu_L(double z, int 
+@@ -488,11 +488,11 @@
    if (h==3) F.function = Lint_p;
    if (h==4) F.function = Lint_c;
    F.params = &z;
@@ -455,7 +455,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      if (status!=GSL_EROUND) {
        printf ("gsl error: %s\n", gsl_strerror (status));
        exit(-1);
-@@ -507,17 +507,17 @@ double Constraints::dmu_L(double z, int 
+@@ -507,17 +507,17 @@
  
  double Constraints::dmu_f(double z) {
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -478,7 +478,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      if (status!=GSL_EROUND) {
        printf ("gsl error: %s\n", gsl_strerror (status));
        exit(-1);
-@@ -533,17 +533,17 @@ double Constraints::dmu_f(double z) {
+@@ -533,17 +533,17 @@
  
  double Constraints::dmu_g(double z) {
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -501,7 +501,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      if (status!=GSL_EROUND) {
        printf ("gsl error: %s\n", gsl_strerror (status));
        exit(-1);
-@@ -558,21 +558,21 @@ double Constraints::dmu_g(double z) {
+@@ -558,21 +558,21 @@
  
  bool Constraints::check_unitarity(double unitarity_limit) {
    return model.check_unitarity(unitarity_limit);
@@ -527,7 +527,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  
  
  bool Constraints::check_lep() {
-@@ -584,7 +584,7 @@ bool Constraints::check_masses() {
+@@ -584,7 +584,7 @@
  	cout << "Constraings::check_masses() has been obsoleted" << endl;
  	cout << "Please use new HBHS interface" << endl;
  	return true;
@@ -536,7 +536,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  //  bool HpHp,HpHptau,HpHpcs;
  //   bool test_charged = check_charged(HpHp,HpHptau,HpHpcs);
    bool test_charged = true;
-@@ -604,7 +604,7 @@ bool Constraints::check_masses() {
+@@ -604,7 +604,7 @@
    test_HiggsBounds = check_HiggsBounds(HBresult, chan, obsratio, ncombined);
  #endif
    bool test_masses=test_charged&&test_NMSSMTools&&test_HiggsBounds;
@@ -545,7 +545,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    return test_masses;
  }
  
-@@ -612,96 +612,97 @@ bool Constraints::check_charged(bool &Hp
+@@ -612,96 +612,97 @@
  
    // Limit from Z width on charged Higgs mass, hep-ex/0404012
    const double Z_LIMIT_MCH = 39.6;
@@ -667,7 +667,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    // The constraints on the neutral Higgses are collected from NMSSMTools,
    // if available
    int i;
-@@ -734,7 +735,7 @@ bool Constraints::check_NMSSMTools(bool 
+@@ -734,7 +735,7 @@
    for (i=0;i<5;i++)
      susyspec_.mneu[i]=0.;
    for (i=0;i<5;i++)
@@ -676,7 +676,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
        susyspec_.neu[i][j]=0.;
  
    sfspec_.mur=0.;
-@@ -790,7 +791,7 @@ bool Constraints::check_NMSSMTools(bool 
+@@ -790,7 +791,7 @@
    brn_.width[2]=0.;
    brn_.width[4]=0.;
    // h1,h2,h3,a1,a2 -> gluon gluon
@@ -685,7 +685,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      brn_.brjj[i]=0.;
    // h1,h2,h3,a1,a2 -> mu mu
    brn_.brmm[0]=table.get_gamma_hll(1,2,2)/brn_.width[0];
-@@ -878,7 +879,7 @@ bool Constraints::check_NMSSMTools(bool 
+@@ -878,7 +879,7 @@
    brn_.brhaz[0][2]=0.;
    brn_.brhaz[1][2]=0.;
    // a2 -> a1hi (i=1..3)
@@ -694,7 +694,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      brn_.braha[i]=0.;
    // ai -> Zhj  (i=1,2, j=1..3)
    brn_.brahz[0][0]=table.get_gamma_hvh(3,2,1)/brn_.width[3];
-@@ -894,7 +895,7 @@ bool Constraints::check_NMSSMTools(bool 
+@@ -894,7 +895,7 @@
    brn_.brhcw[2]=0.;
    brn_.brhcw[4]=0.;
    // h1,h2,h3,a1,a2 -> other Higgses
@@ -703,7 +703,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
      brn_.brhiggs[i]=0.;
    brn_.brhiggs[1]+=brn_.brhhh[0];
    for (i=0;i<2;i++) {
-@@ -959,16 +960,21 @@ bool Constraints::check_NMSSMTools(bool 
+@@ -959,16 +960,21 @@
  
    return hZ&&hZ2b&&hZ2tau&&hZinv&&hZ2j&&hZ2gamma&&hZ4b&&hZ4tau&&hZ2b2tau&&
      hA&&hA4b&&hA4tau&&hA2b2tau&&hA6b&&hA6tau&&ZhZjj;
@@ -730,7 +730,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    double CS_lep_bbhj_ratio[3];
    double CS_lep_tautauhj_ratio[3];
    double CS_lep_hjhi_ratio[3][3];
-@@ -1053,7 +1059,7 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1053,7 +1059,7 @@
      BR_hjinvisible[j]= 0.;
        for (i=0;i<3;i++) {
        BR_hjhihi[i][j]= 0.;
@@ -739,7 +739,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
        if ((GammaTotal[j]>0)&&(GammaTotal[i]>0)) BR_hjhihi[i][j]=table.get_gamma_hhh(j+1,i+1,i+1)/GammaTotal[j];
        if ((GammaTotal[j]>0)&&(GammaTotal[i]==0)) BR_hjinvisible[j]=table.get_gamma_hhh(j+1,i+1,i+1)/GammaTotal[j];
        model.get_coupling_vhh(2,j+1,i+1,c);
-@@ -1061,7 +1067,7 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1061,7 +1067,7 @@
      }
    }
  
@@ -748,7 +748,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  
    model.get_coupling_vvh(2,2,1,c);
    CS_lep_hjZ_ratio[0]=pow(abs(c)/(g/costw*MZ),2);
-@@ -1114,9 +1120,9 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1114,9 +1120,9 @@
    CS_tev_pp_vbf_ratio[2]=RWW*CS_tev_ud_hjWp_ratio[2]+RZZ*CS_tev_dd_hjZ_ratio[2];
  
  
@@ -760,7 +760,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  
    // Higgs 1
    sm_like.set_param_phys(Mh[0],Mh[0]*1e2,Mh[0]*1e2,Mh[0]*1e2,1.0,0.,0.,0.,1.);
-@@ -1133,7 +1139,7 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1133,7 +1139,7 @@
    model.get_coupling_huu(1,3,3,cst,cpt);
    sm_like.get_coupling_huu(1,3,3,cst_sm,cpt_sm);
    CS_tev_pp_tthj_ratio[0] = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
@@ -769,7 +769,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    // Higgs 2
    sm_like.set_param_phys(Mh[1],Mh[1]*1e2,Mh[1]*1e2,Mh[1]*1e2,1.0,0.,0.,0.,1.);
    sm_like.set_yukawas_type(1);
-@@ -1184,24 +1190,24 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1184,24 +1190,24 @@
  		CS_lep_hjZ_ratio,
  	        CS_lep_bbhj_ratio, CS_lep_tautauhj_ratio,
  		CS_lep_hjhi_ratio,
@@ -802,7 +802,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  	higgsbounds_charged_input_(MHplus,
  		MHplusGammaTot,
  		CS_lep_HpjHmi_ratio,
-@@ -1218,11 +1224,13 @@ bool Constraints::check_HiggsBounds(int 
+@@ -1218,11 +1224,13 @@
  //	printf("HB done\n");
  
    return HBresult==1;
@@ -818,7 +818,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    double S,T,U,V,W,X;
    double alpha = sm.get_alpha();
    oblique_param(mh, S, T, U, V, W, X);
-@@ -1234,7 +1242,7 @@ double Constraints::delta_rho(double mh)
+@@ -1234,7 +1242,7 @@
  double Constraints::Fdrho(double x, double y) {
  
    double F = 0.0;
@@ -827,7 +827,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    if ((x>0)&&(y>0)&&(abs(x-y)>delta*x)) {
      F = 0.5*(x+y)-x*y/(x-y)*log(x/y);
    } else {
-@@ -1246,10 +1254,10 @@ double Constraints::Fdrho(double x, doub
+@@ -1246,10 +1254,10 @@
  }
  
  void Constraints::print_all(double mh_ref) {
@@ -841,7 +841,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    bool HpHp,HpHptau,HpHpcs;
    bool test_charged = check_charged(HpHp,HpHptau,HpHpcs);
    bool test_NMSSMTools = true;
-@@ -1269,7 +1277,7 @@ void Constraints::print_all(double mh_re
+@@ -1269,7 +1277,7 @@
  #endif
  */
  //  bool test_masses=test_charged&&test_NMSSMTools&&test_HiggsBounds;
@@ -850,7 +850,7 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
    printf("\n");
  	printf("Constraints:\n");
    printf(" Tree-level unitarity: %u\n", model.check_unitarity());
-@@ -1281,7 +1289,7 @@ void Constraints::print_all(double mh_re
+@@ -1281,7 +1289,7 @@
  //#if defined NMSSMTools
  //  printf("  NMSSMTools           %u (hZ:%u hZ2b:%u hZ2tau:%u hZinv:%u hZ2j:%u hZ2gamma:%u hZ4b:%u hZ4tau:%u\n                        hZ2b2tau:%u hA:%u hA4b:%u hA4tau:%u hA2b2tau:%u hA6b:%u hA6tau:%u ZhZjj:%u)\n",test_NMSSMTools,hZ,hZ2b,hZ2tau,hZinv,hZ2j,hZ2gamma,hZ4b,hZ4tau,hZ2b2tau,hA,hA4b,hA4tau,hA2b2tau,hA6b,hA6tau,ZhZjj);
  //#endif
@@ -859,14 +859,14 @@ diff -rupN src/Constraints.cpp src_patched/Constraints.cpp
  //#endif
    printf("\nOblique parameters:\n");
    printf(" S            %12.5e\n", S);
-@@ -1292,4 +1300,4 @@ void Constraints::print_all(double mh_re
+@@ -1292,4 +1300,4 @@
    printf(" X            %12.5e\n", X);
    printf(" Delta_rho    %12.5e\n", delta_rho(91));
    printf(" Delta_amu    %12.5e\n\n", delta_amu());
 -}
 \ No newline at end of file
 +}
-diff -rupN src/Constraints.h src_patched/Constraints.h
+diff -ruN src/Constraints.h src_patched/Constraints.h
 --- src/Constraints.h	2015-08-21 21:00:21.000000000 +0930
 +++ src_patched/Constraints.h	2018-10-15 12:56:13.000000000 +1030
 @@ -3,26 +3,26 @@
@@ -903,7 +903,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * set_model method.
    *
    */
-@@ -31,68 +31,68 @@ class Constraints {
+@@ -31,68 +31,68 @@
  
    /**
    * @brief Constructor with model specification
@@ -993,7 +993,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  	* @see check_stability
  	*
    * @returns Boolean \a true if the potential is deemed stable, \a false otherwise
-@@ -101,28 +101,28 @@ class Constraints {
+@@ -101,28 +101,28 @@
  
    /**
    * @brief Checks the 2HDM against the combined mass constraints from LEP and Tevatron
@@ -1033,7 +1033,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * @deprecated   Use check_masses().
    */
    bool check_lep();
-@@ -130,13 +130,13 @@ class Constraints {
+@@ -130,13 +130,13 @@
  
    /**
    * @brief Checks the 2HDM against the charged Higgs mass constraints from LEP
@@ -1050,7 +1050,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * these variables is returned as output from the method.
    *
    * @param    HpHp     Channel \f$ Z \to H^+ H^- \f$, model independent
-@@ -152,18 +152,18 @@ class Constraints {
+@@ -152,18 +152,18 @@
  
    /**
    * @brief Checks the 2HDM against mass constraints from LEP using NMSSMTools
@@ -1074,7 +1074,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * @param    hZ  Channel \f$ Z \to Zh \f$, independent of decay mode for h
    *
    * @returns  Boolean \a true if the model is compliant with the constraints
-@@ -174,22 +174,22 @@ class Constraints {
+@@ -174,22 +174,22 @@
    bool check_NMSSMTools(bool &hZ, bool &hZ2b, bool &hZ2tau, bool &hZinv, bool &hZ2j,
  		 bool &hZ2gamma, bool &hZ4b, bool &hZ4tau, bool &hZ2b2tau,
  		 bool &hA, bool &hA4b, bool &hA4tau, bool &hA2b2tau,
@@ -1104,7 +1104,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    *                      this process
    * @param    ncombined  Number of Higgs bosons which contributed to the model
    *                      rate
-@@ -204,8 +204,8 @@ class Constraints {
+@@ -204,8 +204,8 @@
  
    /**
    * @brief Calculates the anomalous magnetic moment of the muon
@@ -1115,7 +1115,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * \f$ \delta a_\mu=(g-2)_\mu \f$, in the 2HDM. The calculation includes both
    * the one-loop contributions and the (often dominant) two-loop contributions
    * from Barr-Zee type diagrams with a neutral Higgs and a photon.
-@@ -213,19 +213,19 @@ class Constraints {
+@@ -213,19 +213,19 @@
    * @returns Value for \f$ \delta a_\mu \f$
    */
    double delta_amu();
@@ -1140,7 +1140,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * @see   oblique_param
    */
    double delta_rho(double mh);
-@@ -235,17 +235,17 @@ class Constraints {
+@@ -235,17 +235,17 @@
    * @brief Calculates oblique EW parameters S,T,U,V,W,X
    *
    * This method calculates the oblique EW parameters (S,T,U,V,W,X) in the 2HDM.
@@ -1163,7 +1163,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    * @param X  Result for X parameter (set by the method)
    */
    void oblique_param(double mh,double &S, double &T, double &U, double &V, double &W, double &X);
-@@ -261,11 +261,11 @@ class Constraints {
+@@ -261,11 +261,11 @@
    */
    void print_all(double mh_ref);
  
@@ -1178,7 +1178,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    double dmu_f(double z);
    double dmu_g(double z);
    double dmu_L(double z, int h);
-@@ -280,7 +280,7 @@ class Constraints {
+@@ -280,7 +280,7 @@
    double Hhat_fcn(double x, double q);
  
    void init_Hp();
@@ -1187,7 +1187,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  
  
    double *mHp1, *mHp2;
-@@ -289,7 +289,7 @@ class Constraints {
+@@ -289,7 +289,7 @@
  
    double delta;
  
@@ -1196,7 +1196,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  
  };
  
-@@ -298,7 +298,7 @@ extern "C"
+@@ -298,7 +298,7 @@
  {
    extern void initialize_();
    extern void subexp_(double par[24], double prob[37]);
@@ -1205,7 +1205,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    extern struct {
      double alsmz;
      double alemz;
-@@ -329,7 +329,7 @@ extern "C"
+@@ -329,7 +329,7 @@
      double mneu[5];
      double neu[5][5];
    } susyspec_;
@@ -1214,7 +1214,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
    extern struct {
      double smass[3];
      double scomp[3][3];
-@@ -391,7 +391,7 @@ extern "C"
+@@ -391,7 +391,7 @@
      double brsusy[5];
      double width[5];
    } brn_;
@@ -1223,7 +1223,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  }
  
  // Structs used by HiggsBounds Fortran subroutines and common blocks
-@@ -403,31 +403,31 @@ extern "C"
+@@ -403,31 +403,31 @@
    extern void initialize_higgsbounds_(int *nH0, int *nHp, char whichexpt[6]);
  
  	extern void higgsbounds_neutral_input_part_(
@@ -1268,7 +1268,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  		double CS_lhc8_pp_tthj_ratio[3],
  		double BR_hjss[3],
  		double BR_hjcc[3],
-@@ -451,8 +451,8 @@ extern "C"
+@@ -451,8 +451,8 @@
  		double BR_Hpjcs[1],
  		double BR_Hpjcb[1],
  		double BR_Hptaunu[1]);
@@ -1279,7 +1279,7 @@ diff -rupN src/Constraints.h src_patched/Constraints.h
  				    double *obsratio, int *ncombined);
  
  
-diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
+diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
 --- src/DecayTable.cpp	2015-08-28 22:39:23.000000000 +0930
 +++ src_patched/DecayTable.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,4 +1,4 @@
@@ -1288,7 +1288,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  #include "Util.h"
  #include <iostream>
  #include <gsl/gsl_integration.h>
-@@ -25,14 +25,14 @@ const static double dmtt = 10.;
+@@ -25,14 +25,14 @@
  const static double dmtb = 10.;
  
  
@@ -1306,7 +1306,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    model = mod;
    sm = mod.get_SM();
    int i,j,k;
-@@ -56,17 +56,17 @@ void DecayTable::set_model(THDM mod) {
+@@ -56,17 +56,17 @@
        }
      }
    }
@@ -1328,7 +1328,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((u<1)||(u>3)) return 0.;
    if (h!=4) return 0.;
-@@ -77,7 +77,7 @@ double DecayTable::get_gamma_uhd(int u, 
+@@ -77,7 +77,7 @@
    double M =  sm.get_umass_pole(u);
    double m1 = model.get_hmass(h);
    double m2 = sm.get_dmass_pole(d);
@@ -1337,7 +1337,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (M<(m1+m2)) {
      gamma_uhd[u][h][d]=0.;
      return gamma_uhd[u][h][d];
-@@ -88,25 +88,25 @@ double DecayTable::get_gamma_uhd(int u, 
+@@ -88,25 +88,25 @@
    cp = -cp;
  
    gamma_uhd[u][h][d] =  1./(16.*M_PI)*M*pow(1.-m1*m1/(M*M),2)*(pow(abs(cs),2)+pow(abs(cp),2));
@@ -1368,7 +1368,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>3)) return 0.;
    if ((d1<1)||(d1>3)) return 0.;
-@@ -117,7 +117,7 @@ double DecayTable::get_gamma_hdd(int h, 
+@@ -117,7 +117,7 @@
    double M = model.get_hmass(h);
    double m1p = sm.get_dmass_pole(d1);
    double m2p = sm.get_dmass_pole(d2);
@@ -1377,7 +1377,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double m1 = sm.get_dmass_MSbar(d1);
    double m2 = sm.get_dmass_MSbar(d2);
    double m1run = sm.get_dmass_MSbar(d1);
-@@ -154,7 +154,7 @@ double DecayTable::get_gamma_hdd(int h, 
+@@ -154,7 +154,7 @@
  }
  
  
@@ -1386,7 +1386,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>3)) return 0.;
    if ((u1<1)||(u1>3)) return 0.;
-@@ -170,7 +170,7 @@ double DecayTable::get_gamma_huu(int h, 
+@@ -170,7 +170,7 @@
    double m2m2 = sm.get_umass_MSbar(u2);
    double m1run = sm.get_umass_MSbar(u1);
    double m2run = sm.get_umass_MSbar(u2);
@@ -1395,7 +1395,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (m1m1 > 0) {
        double Qinit = m1m1;
        if(sm.b_HD) Qinit = SM::Q_HD;
-@@ -190,30 +190,30 @@ double DecayTable::get_gamma_huu(int h, 
+@@ -190,30 +190,30 @@
  
    complex <double> cs,cp;
    model.get_coupling_huu(h,u1,u2,cs,cp);
@@ -1435,7 +1435,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
        if (M < m1+mb+mW+dmtt) {
          gamma_huu[h][u1][u2] = 0.;
-@@ -222,28 +222,28 @@ double DecayTable::get_gamma_huu(int h, 
+@@ -222,28 +222,28 @@
        	gamma_huu[h][u1][u2] = htt;
        } else if (M < m1+m2+du*gtop) {
          double x[4], y[4];
@@ -1475,7 +1475,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      	gamma_huu[h][u1][u2] = hinter;
        }
    }
-@@ -252,7 +252,7 @@ double DecayTable::get_gamma_huu(int h, 
+@@ -252,7 +252,7 @@
  }
  
  
@@ -1484,7 +1484,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<4)||(h>4)) return 0.;
    if ((d<1)||(d>3)) return 0.;
-@@ -263,14 +263,14 @@ double DecayTable::get_gamma_hdu(int h, 
+@@ -263,14 +263,14 @@
    double M = model.get_hmass(h);
    double m1p = sm.get_dmass_pole(d);
    double m2p = sm.get_umass_pole(u);
@@ -1502,7 +1502,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (m1 > 0) {
        double Qinit = m1;
        if (d==2) {
-@@ -288,7 +288,7 @@ double DecayTable::get_gamma_hdu(int h, 
+@@ -288,7 +288,7 @@
  
    complex <double> cs,cp;
    model.get_coupling_hdu(h,d,u,cs,cp);
@@ -1511,7 +1511,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (h<4) {
  	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
  	return gamma_hdu[h][d][u];
-@@ -298,23 +298,23 @@ double DecayTable::get_gamma_hdu(int h, 
+@@ -298,23 +298,23 @@
  	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
  	return gamma_hdu[h][d][u];
    }
@@ -1539,7 +1539,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	if (M < m1p+m2p+du*gtop) {
  		double x[4], y[4];
  
-@@ -323,10 +323,10 @@ double DecayTable::get_gamma_hdu(int h, 
+@@ -323,10 +323,10 @@
  		x[2] = m1p+m2p+du*gtop;
  		x[3] = m1p+m2p+(du+1)*gtop;
  
@@ -1554,7 +1554,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
  		double hinter = cubic(M,x,y);
  		gamma_hdu[h][d][u] = hinter;
-@@ -339,15 +339,15 @@ double DecayTable::get_gamma_hdu(int h, 
+@@ -339,15 +339,15 @@
  	double hinter = htd1;
  
  	double R = (m1p+m2p)/M;
@@ -1574,7 +1574,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>3)) return 0.;
    if ((l1<1)||(l1>3)) return 0.;
-@@ -373,7 +373,7 @@ double DecayTable::get_gamma_hll(int h, 
+@@ -373,7 +373,7 @@
  }
  
  
@@ -1583,7 +1583,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>4)) return 0.;
    if ((l<1)||(l>3)) return 0.;
-@@ -393,50 +393,50 @@ double DecayTable::get_gamma_hln(int h, 
+@@ -393,50 +393,50 @@
    complex <double> cs,cp;
    model.get_coupling_hln(h,l,n,cs,cp);
  
@@ -1642,7 +1642,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>=4)) return 0.;
    if ((V<1)||(V>3)) return 0.;
-@@ -446,24 +446,24 @@ double DecayTable::get_gamma_hvv(int h, 
+@@ -446,24 +446,24 @@
    }
  
    if (gamma_hvv[h][V]>=0) return gamma_hvv[h][V];
@@ -1672,7 +1672,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (V==1) return 0;
  
    if (gamma_hvh[H][V][h]>=0) return gamma_hvh[H][V][h];
-@@ -471,10 +471,10 @@ double DecayTable::get_gamma_hvh(int H, 
+@@ -471,10 +471,10 @@
    double M  = model.get_hmass(H);
    double m1  = model.get_hmass(h);
    double m2 = sm.get_vmass(V);
@@ -1685,7 +1685,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (M<=m1) {
      gamma_hvh[H][V][h] = 0.;
      return gamma_hvh[H][V][h];
-@@ -483,31 +483,31 @@ double DecayTable::get_gamma_hvh(int H, 
+@@ -483,31 +483,31 @@
    if (M>(m1+m2+5*GV)) {
      gamma_hvh[H][V][h] = hvh_onshell(H,V,h,M);
      return gamma_hvh[H][V][h];
@@ -1726,7 +1726,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        if (status!=GSL_EROUND) {
          printf("GSL integration warning in H%1d -> VH%1d (off-shell). Please check result.\n", H, h);
          if (EXIT_ON_GSL_ERROR) exit(-1);
-@@ -516,10 +516,10 @@ double DecayTable::get_gamma_hvh(int H, 
+@@ -516,10 +516,10 @@
      old_handler = NULL;
      gsl_integration_workspace_free (w);
      w = NULL;
@@ -1739,7 +1739,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      double dV = 0.;
      double stw = sm.get_sintw();
      double ctw = sm.get_costw();
-@@ -540,13 +540,13 @@ double DecayTable::get_gamma_hvh(int H, 
+@@ -540,13 +540,13 @@
  
      double KHHV = 3.*GF/(16.*sqrt(2)*pow(M_PI,3))*pow(MW,2)*pow(abs(c),2)*M*dV;
      gamma_hvh[H][V][h] = KHHV*result;
@@ -1755,7 +1755,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        gamma_hvh[H][V][h] = max(gamma_hvh[H][V][h],G2);
      }
  
-@@ -558,7 +558,7 @@ double DecayTable::get_gamma_hvh(int H, 
+@@ -558,7 +558,7 @@
  }
  
  
@@ -1764,7 +1764,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if ((h<1)||(h>4)) return 0.;
    if ((h1<1)||(h1>4)) return 0.;
-@@ -574,7 +574,7 @@ double DecayTable::get_gamma_hhh(int h, 
+@@ -574,7 +574,7 @@
  
    complex <double> c;
    model.get_coupling_hhh(h,h1,h2,c);
@@ -1773,7 +1773,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    gamma_hhh[h][h1][h2] = 0.;
  
    if (M>(m1+m2)) {
-@@ -587,12 +587,12 @@ double DecayTable::get_gamma_hhh(int h, 
+@@ -587,12 +587,12 @@
  }
  
  
@@ -1789,7 +1789,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    gtot += get_gamma_uhd(3,4,1);
    gtot += get_gamma_uhd(3,4,2);
    gtot += get_gamma_uhd(3,4,3);
-@@ -609,14 +609,14 @@ double DecayTable::get_gammatot_top() {
+@@ -609,14 +609,14 @@
  }
  
  
@@ -1806,7 +1806,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    // Fermionic modes
    for (int i=1;i<4;i++) {
      for (int j=1;j<4;j++) {
-@@ -627,7 +627,7 @@ double DecayTable::get_gammatot_h(int h)
+@@ -627,7 +627,7 @@
         gammatot_h[h]+=get_gamma_hln(h,i,j);
      }
    }
@@ -1815,7 +1815,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    // Vector bosons
    for (int i=1;i<4;i++) {
       gammatot_h[h]+=get_gamma_hvv(h,i);
-@@ -657,25 +657,25 @@ double DecayTable::get_gammatot_h(int h)
+@@ -657,25 +657,25 @@
  }
  
  
@@ -1846,7 +1846,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double gtot = get_gammatot_top();
    double gt[12],br[12];
  
-@@ -715,7 +715,7 @@ void DecayTable::print_top_decays() {
+@@ -715,7 +715,7 @@
  }
  
  
@@ -1855,7 +1855,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double gtot = get_gammatot_top();
    double gt[12],br[12];
  
-@@ -755,22 +755,22 @@ void DecayTable::print_top_decays_LesHou
+@@ -755,22 +755,22 @@
  }
  
  
@@ -1882,7 +1882,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    double BR = 0.;
  
-@@ -778,19 +778,19 @@ double DecayTable::br(double dG, double 
+@@ -778,19 +778,19 @@
      BR = dG/G;
      if (BR<THDM::EPS) BR = 0.;
    }
@@ -1905,7 +1905,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        fprintf(output,"DECAY  25   % 16.8e   # h1 decays, lightest CP-even Higgs\n",gtot);
      else if (h==2)
        fprintf(output,"DECAY  35   % 16.8e   # h2 decays, heaviest CP-even Higgs\n",gtot);
-@@ -826,7 +826,7 @@ void DecayTable::print_decays(FILE* outp
+@@ -826,7 +826,7 @@
    double brhh[5];
    double brhZga = 0.;
    double brhgg = 0.;
@@ -1914,7 +1914,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    // Fermion decay modes
    for (int i=1;i<4;i++) {
      for (int j=1;j<4;j++) {
-@@ -871,7 +871,7 @@ void DecayTable::print_decays(FILE* outp
+@@ -871,7 +871,7 @@
        for (int i=1;i<4;i++) {
          if (les)
  	  print_decay_LesHouches(output,brdu[i][j],uPDG[j],-dPDG[i]);
@@ -1923,7 +1923,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	  print_decay(hnames[h],unames[j],dnames[i],gdu[i][j],brdu[i][j]);
        }
      }
-@@ -879,7 +879,7 @@ void DecayTable::print_decays(FILE* outp
+@@ -879,7 +879,7 @@
        for (int j=1;j<4;j++) {
          if (les)
  	  print_decay_LesHouches(output,brln[i][j],-lPDG[i],nPDG[j]);
@@ -1932,7 +1932,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	  print_decay(hnames[h],lnames[i],nnames[j],gln[i][j],brln[i][j]);
        }
      }
-@@ -889,7 +889,7 @@ void DecayTable::print_decays(FILE* outp
+@@ -889,7 +889,7 @@
          if ((i==3)&&(h!=4)) sgn = -1;
          if (les)
  	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],sgn*hPDG[j]);
@@ -1941,7 +1941,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
        }
      }
-@@ -898,11 +898,11 @@ void DecayTable::print_decays(FILE* outp
+@@ -898,11 +898,11 @@
        for (int j=1;j<4;j++) {
  	if (les)
  	  print_decay_LesHouches(output,brdd[i][j],dPDG[i],-dPDG[j]);
@@ -1955,7 +1955,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	  print_decay(hnames[h],unames[i],unames[j],guu[i][j],bruu[i][j]);
        }
      }
-@@ -910,9 +910,9 @@ void DecayTable::print_decays(FILE* outp
+@@ -910,9 +910,9 @@
        for (int j=1;j<4;j++) {
  	if (les)
  	  print_decay_LesHouches(output,brll[i][j],lPDG[i],-lPDG[j]);
@@ -1967,7 +1967,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      }
      for (int i=1;i<4;i++) {
        int sgn = 1;
-@@ -924,12 +924,12 @@ void DecayTable::print_decays(FILE* outp
+@@ -924,12 +924,12 @@
        }
      }
  
@@ -1982,7 +1982,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        print_decay_LesHouches(output,brhgg,21,21);
      else
        print_decay(hnames[h],"g ","g ",ghgg,brhgg);
-@@ -947,7 +947,7 @@ void DecayTable::print_decays(FILE* outp
+@@ -947,7 +947,7 @@
        for (int j=1;j<=3;j++) {
          if (les) {
  	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],hPDG[j]);
@@ -1991,7 +1991,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
        }
      }
-@@ -962,44 +962,44 @@ void DecayTable::print_decays(FILE* outp
+@@ -962,44 +962,44 @@
      }
  
    }
@@ -2048,7 +2048,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      if (status!=GSL_EROUND) {
        printf("GSL integration warning in H%1d -> VV (off-shell). Please check result.\n", h);
        if (EXIT_ON_GSL_ERROR) exit(-1);
-@@ -1011,7 +1011,7 @@ double DecayTable::hvv_offshell(int h, i
+@@ -1011,7 +1011,7 @@
  
    complex <double> c;
    model.get_coupling_vvh(V,V,h,c);
@@ -2057,7 +2057,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double dV = 0.;
    double stw = sm.get_sintw();
    double GF = sm.get_GF();
-@@ -1033,34 +1033,34 @@ double DecayTable::hvv_offshell(int h, i
+@@ -1033,34 +1033,34 @@
  
  }
  
@@ -2102,7 +2102,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      if (status!=GSL_EROUND) {
        printf("GSL integration warning in H%1d -> VV (off-shell). Please check the result.\n", h);
        if (EXIT_ON_GSL_ERROR) exit(-1);
-@@ -1072,7 +1072,7 @@ double DecayTable::hvv_all(int h, int V,
+@@ -1072,7 +1072,7 @@
  
    complex <double> c;
    model.get_coupling_vvh(V,V,h,c);
@@ -2111,7 +2111,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double dV = 0.;
  
    if (V==1) {
-@@ -1091,7 +1091,7 @@ double DecayTable::hvv_all(int h, int V,
+@@ -1091,7 +1091,7 @@
  }
  
  
@@ -2120,7 +2120,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double m = sm.get_vmass(V);
    double Sf = 0.;
  
-@@ -1102,14 +1102,14 @@ double DecayTable::hvv_onshell(int h, in
+@@ -1102,14 +1102,14 @@
    } else if(V==3) {
      Sf = 1.;
    } else return 0.;
@@ -2137,7 +2137,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (m>0) {
      double x = pow(M/m,2);
      M2    = 4.*pow(abs(c),2)*(3.-x+x*x/4.);
-@@ -1123,7 +1123,7 @@ double DecayTable::hvv_onshell(int h, in
+@@ -1123,7 +1123,7 @@
  }
  
  
@@ -2146,7 +2146,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double m1 = sm.get_vmass(V);
    double m2  = model.get_hmass(h);
  
-@@ -1131,16 +1131,16 @@ double DecayTable::hvh_onshell(int H, in
+@@ -1131,16 +1131,16 @@
  
    complex <double> c;
    model.get_coupling_vhh(V,H,h,c);
@@ -2166,7 +2166,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    double G = pow(abs(c),2)/(16.*M_PI)*pow(m1,2)/M*sqrt(L(pow(m2,2),pow(m1,2),pow(M,2)))*L(pow(m2,2),pow(M,2),pow(m1,2))*dV;
  
-@@ -1148,7 +1148,7 @@ double DecayTable::hvh_onshell(int H, in
+@@ -1148,7 +1148,7 @@
  }
  
  
@@ -2175,7 +2175,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double absp1 = sqrt((pow(M,2)-pow(m1+m2,2))*(pow(M,2)-pow(m1-m2,2)))/(2.*M);
    double PS = absp1/pow(M,2);
  
-@@ -1157,30 +1157,30 @@ double DecayTable::PS2(double M, double 
+@@ -1157,30 +1157,30 @@
  
  
  
@@ -2213,7 +2213,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double qd = pow(m1/M,2);
    double qu = pow(m2/M,2);
    double Q = 1.-qu-qd;
-@@ -1191,19 +1191,19 @@ double DecayTable::hpff_onshell(double M
+@@ -1191,19 +1191,19 @@
    double D_udp = 0.;
    double D_dup = 0.;
    double D_udm = 0.;
@@ -2239,7 +2239,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
       if(q > 0) {
          D_udm = DHm(qu,qd,xu,xd,sqL);
-@@ -1217,7 +1217,7 @@ double DecayTable::hpff_onshell(double M
+@@ -1217,7 +1217,7 @@
  }
  
  
@@ -2248,7 +2248,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if (M<(m1+m2)) return 0.;
  
-@@ -1232,23 +1232,23 @@ double DecayTable::hff_onshell(double M,
+@@ -1232,23 +1232,23 @@
    double Qinit = mt;
    if(sm.b_HD) Qinit = SM::Q_HD;
    double mtrun = sm.run_qmass_MSbar(mt,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
@@ -2277,7 +2277,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        if (K<0) K=0;
        G = G*K;
      } else if (h==4) {
-@@ -1263,7 +1263,7 @@ double DecayTable::hff_onshell(double M,
+@@ -1263,7 +1263,7 @@
  }
  
  
@@ -2286,7 +2286,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    if (u1!=3) return 0.;
    if ((h<1)||(h>3)) return 0.;
-@@ -1274,7 +1274,7 @@ double DecayTable::get_gamma_uhu(int u1,
+@@ -1274,7 +1274,7 @@
    double M =  sm.get_umass_pole(u1);
    double m1 = model.get_hmass(h);
    double m2 = sm.get_umass_pole(u2);
@@ -2295,7 +2295,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (M<(m1+m2)) {
      gamma_uhu[u1][h][u2]=0.;
      return gamma_uhu[u1][h][u2];
-@@ -1282,9 +1282,9 @@ double DecayTable::get_gamma_uhu(int u1,
+@@ -1282,9 +1282,9 @@
  
    complex <double> cs,cp;
    model.get_coupling_huu(h,u1,u2,cs,cp);
@@ -2307,7 +2307,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
  
    gamma_uhu[u1][h][u2] = 0;
-@@ -1294,14 +1294,14 @@ double DecayTable::get_gamma_uhu(int u1,
+@@ -1294,14 +1294,14 @@
    } else if (h==3) {
   	gamma_uhu[u1][h][u2] = real(cp*conj(cp))*M/(16*M_PI)*((1-x2)*(1-x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
    }
@@ -2325,7 +2325,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> cs, cp;
    complex <double> cs_mtp, cp_mtp;
-@@ -1314,18 +1314,18 @@ double DecayTable::htt_onshell(double M,
+@@ -1314,18 +1314,18 @@
  
    cs_mtp = cs*mtp/mtr;
    cp_mtp = cp*mtp/mtr;
@@ -2347,7 +2347,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        double mf = m1;
        double b = sqrt(1.-4.*pow(mf/M,2));
        double L = log((1.+b)/(1.-b));
-@@ -1334,22 +1334,22 @@ double DecayTable::htt_onshell(double M,
+@@ -1334,22 +1334,22 @@
        double dL2 =  gsl_sf_dilog(-x);
  
        double b2 = pow(b, 2);
@@ -2375,7 +2375,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      G = G*K;
    }
  
-@@ -1357,7 +1357,7 @@ double DecayTable::htt_onshell(double M,
+@@ -1357,7 +1357,7 @@
  }
  
  
@@ -2384,7 +2384,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> cs, cp;
    complex <double> cs_mtp, cp_mtp;
-@@ -1372,9 +1372,9 @@ double DecayTable::htt_offshell(double M
+@@ -1372,9 +1372,9 @@
    cp_mtp = cp*mtp/mtr;
  
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -2396,7 +2396,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    integration_params_tt ip;
    ip.M = M;
    ip.mt = m1;
-@@ -1385,14 +1385,14 @@ double DecayTable::htt_offshell(double M
+@@ -1385,14 +1385,14 @@
    gsl_function F;
    F.function = &htt_fcn1;
    F.params = &ip;
@@ -2415,7 +2415,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (status) {
      if (status!=GSL_EROUND) {
        printf("GSL integration warning in H%1d -> tt (offshell). Please check result.\n", h);
-@@ -1412,7 +1412,7 @@ double DecayTable::htt_offshell(double M
+@@ -1412,7 +1412,7 @@
  }
  
  
@@ -2424,7 +2424,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> I(0.0,1.0);
  
-@@ -1420,31 +1420,31 @@ double DecayTable::htb_offshell(double M
+@@ -1420,31 +1420,31 @@
    double mb  = sm.get_dmass_pole(3);
  
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -2464,7 +2464,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    if (status) {
      if (status!=GSL_EROUND) {
        printf("GSL integration warning in H+ -> tb (offshell). Please check the result.\n");
-@@ -1455,17 +1455,17 @@ double DecayTable::htb_offshell(double M
+@@ -1455,17 +1455,17 @@
    gsl_integration_workspace_free (w);
    old_handler = NULL;
    w = NULL;
@@ -2486,7 +2486,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> I(0.,1);
  
-@@ -1473,9 +1473,9 @@ double DecayTable::hgaga(int h) {
+@@ -1473,9 +1473,9 @@
    double v  		= sm.get_v();
    double v2 		= sm.get_v2();
    double mW 		= sm.get_MW();
@@ -2498,7 +2498,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    double mHp 		= model.get_hmass(4);
  
-@@ -1491,13 +1491,13 @@ double DecayTable::hgaga(int h) {
+@@ -1491,13 +1491,13 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_hdd(h,i,i,gS,gP);
      double m = sm.get_dmass_MSbar(i);
@@ -2514,7 +2514,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        double tau = M2/(4.*m_HD*m_HD);
        double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
        complex <double> Sd = 2.*Nc*pow(-1./3,2)*gS*v/mrun*F_sf(tau);
-@@ -1506,17 +1506,17 @@ double DecayTable::hgaga(int h) {
+@@ -1506,17 +1506,17 @@
        P_sum = P_sum + Pd;
      }
    }
@@ -2535,7 +2535,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        double tau = M2/(4.*m_HD*m_HD);
        double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
        complex <double> Sd = 2.*Nc*pow(2./3,2)*gS*v/mrun*F_sf(tau);
-@@ -1536,7 +1536,7 @@ double DecayTable::hgaga(int h) {
+@@ -1536,7 +1536,7 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_hll(h,i,i,gS,gP);
      double m = sm.get_lmass_pole(i);
@@ -2544,7 +2544,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      if (m > 0) {
        double tau = M2/(4.*m*m);
        complex <double> Sd = 2.*pow(-1.,2)*gS*v/m*F_sf(tau);
-@@ -1552,9 +1552,9 @@ double DecayTable::hgaga(int h) {
+@@ -1552,9 +1552,9 @@
    model.get_coupling_hhh(h,4,4,g_hhchc);
  
    g_hww = g_hww*v/(2.*pow(mW,2));
@@ -2556,7 +2556,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double G = pow(M,3)*pow(alpha,2)/(256.*pow(M_PI,3)*v2)*(pow(abs(S_sum),2)+pow(abs(P_sum),2));
  
    return G;
-@@ -1562,7 +1562,7 @@ double DecayTable::hgaga(int h) {
+@@ -1562,7 +1562,7 @@
  
  
  
@@ -2565,7 +2565,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> I(0.,1);
  
-@@ -1576,9 +1576,9 @@ double DecayTable::hZga(int h) {
+@@ -1576,9 +1576,9 @@
    double mZ2 		= mZ*mZ;
    double stw            = sm.get_sintw();
    double ctw            = sm.get_costw();
@@ -2577,7 +2577,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    double mHp 		= model.get_hmass(4);
  
-@@ -1599,7 +1599,7 @@ double DecayTable::hZga(int h) {
+@@ -1599,7 +1599,7 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_hdd(h,i,i,gS,gP);
      double m = sm.get_dmass_MSbar(i);
@@ -2586,7 +2586,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
      if (m > 0) {
        double Qinit = m;
-@@ -1620,7 +1620,7 @@ double DecayTable::hZga(int h) {
+@@ -1620,7 +1620,7 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_huu(h,i,i,gS,gP);
      double m = sm.get_umass_MSbar(i);
@@ -2595,7 +2595,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
      if (m > 0) {
        double Qinit = m;
-@@ -1635,7 +1635,7 @@ double DecayTable::hZga(int h) {
+@@ -1635,7 +1635,7 @@
  
        // QCD corrections in heavy top quark limit
        if ((!sm.b_HD)&&(qcd_on)&&(i==3)) {
@@ -2604,7 +2604,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  //        double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
  //        Sd=Sd*(1.-as/M_PI);
        }
-@@ -1648,7 +1648,7 @@ double DecayTable::hZga(int h) {
+@@ -1648,7 +1648,7 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_hll(h,i,i,gS,gP);
      double m = sm.get_lmass_pole(i);
@@ -2613,7 +2613,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
      if (m > 0) {
        double tau = (4.*m*m)/M2;
        double lambda = (4.*m*m)/mZ2;
-@@ -1670,7 +1670,7 @@ double DecayTable::hZga(int h) {
+@@ -1670,7 +1670,7 @@
  
  //  S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw*ctw-1.)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
  
@@ -2622,7 +2622,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  // The normalisation below gives same result but is not consistent with formulas 2.23 and 2.33 in Anatomy II
    S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw-1./ctw)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
  
-@@ -1680,13 +1680,13 @@ double DecayTable::hZga(int h) {
+@@ -1680,13 +1680,13 @@
  }
  
  
@@ -2639,7 +2639,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    double mt   = sm.get_qmass_MSbar(6);
  
-@@ -1698,7 +1698,7 @@ double DecayTable::hgg(int h) {
+@@ -1698,7 +1698,7 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_hdd(h,i,i,gS,gP);
      double m = sm.get_dmass_MSbar(i);
@@ -2648,7 +2648,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
      if (m > 0) {
        double Qinit = m;
-@@ -1717,12 +1717,12 @@ double DecayTable::hgg(int h) {
+@@ -1717,12 +1717,12 @@
    for (int i=1;i<=3;i++) {
      model.get_coupling_huu(h,i,i,gS,gP);
      double m = sm.get_umass_MSbar(i);
@@ -2663,7 +2663,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
        double tau = M2/(4.*mp*mp);
  
        complex <double> Sd = gS*v/mrun*F_sf(tau);
-@@ -1744,14 +1744,14 @@ double DecayTable::hgg(int h) {
+@@ -1744,14 +1744,14 @@
      KS = 1.+as/M_PI*(95./4.-7./6.*Nf)+pow(as/M_PI,2)*(156.808-5.708*log(mt*mt/M2));
      KP = 1.+as/M_PI*(97./4.-7./6.*Nf)+pow(as/M_PI,2)*(171.544-5.*log(mt*mt/M2));
    }
@@ -2680,7 +2680,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double ti = 1./t;
    complex <double> c;
    c = ti*(1.+(1.-ti)*ftau(t));
-@@ -1759,7 +1759,7 @@ complex <double> DecayTable::F_sf(double
+@@ -1759,7 +1759,7 @@
  }
  
  
@@ -2689,7 +2689,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double ti = 1./t;
    complex <double> c;
    c = ti*ftau(t);
-@@ -1767,7 +1767,7 @@ complex <double> DecayTable::F_pf(double
+@@ -1767,7 +1767,7 @@
  }
  
  
@@ -2698,7 +2698,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double ti = 1./t;
    complex <double> c;
    c = ti*(-1.+ti*ftau(t));
-@@ -1776,7 +1776,7 @@ complex <double> DecayTable::F_0(double 
+@@ -1776,7 +1776,7 @@
  }
  
  
@@ -2707,7 +2707,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    double ti = 1./t;
    complex <double> c;
    c = 2.+3.*ti+3.*ti*(2.-ti)*ftau(t);
-@@ -1785,7 +1785,7 @@ complex <double> DecayTable::F_1(double 
+@@ -1785,7 +1785,7 @@
  }
  
  
@@ -2716,7 +2716,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> c;
    complex <double> I(0.,1.);
-@@ -1804,7 +1804,7 @@ complex <double> DecayTable::ftau(double
+@@ -1804,7 +1804,7 @@
  }
  
  
@@ -2725,7 +2725,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
    complex <double> c;
    complex <double> I(0.,1.);
-@@ -1824,32 +1824,32 @@ complex <double> DecayTable::gtau(double
+@@ -1824,32 +1824,32 @@
  
  
  
@@ -2764,7 +2764,7 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
    complex <double> c;
    double ctw            = sm.get_costw();
    double stw            = sm.get_sintw();
-@@ -1857,50 +1857,50 @@ complex <double> DecayTable::FW(double t
+@@ -1857,50 +1857,50 @@
    return c;
  }
  
@@ -2830,15 +2830,15 @@ diff -rupN src/DecayTable.cpp src_patched/DecayTable.cpp
  
  	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
      B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
-@@ -1908,4 +1908,3 @@ double DecayTable::BHp(double ui, double
+@@ -1908,4 +1908,3 @@
  
  	return B;
  }
 -
-diff -rupN src/DecayTable.h src_patched/DecayTable.h
+diff -ruN src/DecayTable.h src_patched/DecayTable.h
 --- src/DecayTable.h	2015-08-28 22:13:27.000000000 +0930
 +++ src_patched/DecayTable.h	2018-10-15 12:56:13.000000000 +1030
-@@ -11,33 +11,33 @@ using namespace std;
+@@ -11,33 +11,33 @@
  
  /**
  * @brief Calculates the decay modes of 2HDM Higgs bosons
@@ -2884,7 +2884,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param model Two-Higgs doublet model for which to calculate decay modes
    */
  	void set_model(THDM model);
-@@ -45,24 +45,24 @@ class DecayTable {
+@@ -45,24 +45,24 @@
  
    /**
    * @brief Underlying 2HDM
@@ -2916,7 +2916,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @returns The decay width in GeV
    */
    double  get_gamma_huu(int h, int u1, int u2);
-@@ -70,28 +70,28 @@ class DecayTable {
+@@ -70,28 +70,28 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to d_1\overline{d}_2) \f$
@@ -2951,7 +2951,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @returns The decay width in GeV
    */
    double  get_gamma_hll(int h, int l1, int l2);
-@@ -99,14 +99,14 @@ class DecayTable {
+@@ -99,14 +99,14 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to u\overline{d}) \f$
@@ -2969,7 +2969,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @returns The decay width in GeV
    */
    double  get_gamma_hdu(int h, int d, int u);
-@@ -114,29 +114,29 @@ class DecayTable {
+@@ -114,29 +114,29 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to l\overline{\nu}_{l'}) \f$
@@ -3007,7 +3007,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @returns The decay width in GeV
    */
    double  get_gamma_hhh(int h, int h1, int h2);
-@@ -144,25 +144,25 @@ class DecayTable {
+@@ -144,25 +144,25 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to VV) \f$
@@ -3040,7 +3040,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
    * @param V  Index of vector boson (2,3 = \f$\gamma \f$,Z,W)
    * @param H  Index of final-state Higgs boson (1,2,3,4 = h,H,A,H+)
-@@ -173,10 +173,10 @@ class DecayTable {
+@@ -173,10 +173,10 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to gg) \f$
@@ -3054,7 +3054,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
  	*
    * @returns The decay width in GeV
-@@ -186,10 +186,10 @@ class DecayTable {
+@@ -186,10 +186,10 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to \gamma\gamma) \f$
@@ -3067,7 +3067,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
  	*
    * @returns The decay width in GeV
-@@ -198,10 +198,10 @@ class DecayTable {
+@@ -198,10 +198,10 @@
  
    /**
    * @brief Decay width \f$ \Gamma(h\to Z\gamma) \f$
@@ -3080,7 +3080,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
  	*
    * @returns The decay width in GeV
-@@ -210,9 +210,9 @@ class DecayTable {
+@@ -210,9 +210,9 @@
  
    /**
    * @brief Total width \f$ \Gamma_h \f$
@@ -3093,7 +3093,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h  Index of Higgs boson (1,2,3,4 = h,H,A,H+)
  	*
    * @returns Total width in GeV
-@@ -221,9 +221,9 @@ class DecayTable {
+@@ -221,9 +221,9 @@
  
    /**
    * @brief Total width \f$ \Gamma_V \f$
@@ -3106,7 +3106,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param v  Index of vector boson (2,3 = Z,W)
  	*
    * @returns Total width in GeV
-@@ -232,9 +232,9 @@ class DecayTable {
+@@ -232,9 +232,9 @@
  
    /**
    * @brief Total width \f$ \Gamma_t \f$
@@ -3119,7 +3119,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @returns Total width in GeV
    */
    double  get_gammatot_top();
-@@ -242,11 +242,11 @@ class DecayTable {
+@@ -242,11 +242,11 @@
  
    /**
    * @brief Decay width for \f$ t \to H^+X \f$
@@ -3134,7 +3134,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param u Index of decaying quark (1,2,3 = \f$ u,c,t \f$)
    * @param h Index of Higgs boson (4 = H+)
  	* @param d Index of down-type quark (1,2,3 = \f$ d,s,b \f$)
-@@ -256,12 +256,12 @@ class DecayTable {
+@@ -256,12 +256,12 @@
  
    double  get_gamma_uhu(int u1, int h, int u2);
  
@@ -3149,7 +3149,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
    */
    void    print_decays(int h);
-@@ -270,7 +270,7 @@ class DecayTable {
+@@ -270,7 +270,7 @@
    *	@brief Prints the total width of a Higgs boson
    *
    * The total decay width of Higgs boson \a h are printed to stdout
@@ -3158,7 +3158,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
    */
    void    print_width(int h);
-@@ -308,24 +308,24 @@ class DecayTable {
+@@ -308,24 +308,24 @@
    /**
    *     @brief Turns QCD corrections on or off
    *
@@ -3191,7 +3191,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    complex <double> F_sf(double t);
    complex <double> F_pf(double t);
    complex <double> F_0(double t);
-@@ -372,7 +372,7 @@ class DecayTable {
+@@ -372,7 +372,7 @@
    double  hZga(int h);
    double  hgg(int h);
    double  PS2(double M, double m1, double m2);
@@ -3200,7 +3200,7 @@ diff -rupN src/DecayTable.h src_patched/DecayTable.h
    double  interp(double R, double x, double y, double c);
  
    bool    qcd_on;
-diff -rupN src/Demo.cpp src_patched/Demo.cpp
+diff -ruN src/Demo.cpp src_patched/Demo.cpp
 --- src/Demo.cpp	2015-08-28 22:17:09.000000000 +0930
 +++ src_patched/Demo.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,14 +1,14 @@
@@ -3220,7 +3220,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
  #include <iostream>
  
  using namespace std;
-@@ -20,10 +20,10 @@ int main(int argc, char* argv[]) {
+@@ -20,10 +20,10 @@
  
    // Create SM and set parameters
    SM sm;
@@ -3235,7 +3235,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    sm.set_alpha(1./127.934);
    sm.set_alpha0(1./137.0359997);
    sm.set_alpha_s(0.119);
-@@ -45,11 +45,11 @@ int main(int argc, char* argv[]) {
+@@ -45,11 +45,11 @@
    double sba      = 0.999;
    double lambda_6 = 0.;
    double lambda_7 = 0.;
@@ -3250,7 +3250,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    if (!pset) {
      cerr << "The specified parameters are not valid\n";
      return -1;
-@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
+@@ -62,7 +62,7 @@
  
    // Set Yukawa couplings to type II
    model.set_yukawas_type(2);
@@ -3259,7 +3259,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    // Print the parameters in different parametrizations
    model.print_param_phys();
    model.print_param_gen();
-@@ -72,24 +72,24 @@ int main(int argc, char* argv[]) {
+@@ -72,24 +72,24 @@
    // Prepare to calculate observables
    Constraints constr(model);
  
@@ -3292,7 +3292,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    printf(" Oblique X: %12.5e\n", X);
    printf(" Delta_rho: %12.5e\n", constr.delta_rho(mh_ref));
    printf("\n");
-@@ -105,14 +105,14 @@ int main(int argc, char* argv[]) {
+@@ -105,14 +105,14 @@
  
  // Share couplings of 2HDM model with HiggsBounds/HiggsSignals
    HB_set_input_effC(model);
@@ -3311,7 +3311,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    HB_run_full(hbres, hbchan, hbobs, hbcomb);
    printf("\nHiggsBounds results (full):\n");
    printf("  Higgs  res  chan       ratio        ncomb\n");
-@@ -121,16 +121,16 @@ int main(int argc, char* argv[]) {
+@@ -121,16 +121,16 @@
    }
    printf("------------------------------------------------------------\n");
    printf("  TOT %5d %6d %16.8E %5d   %s\n", hbres[0],hbchan[0],hbobs[0],hbcomb[0],hbobs[0]<1 ? "ALLOWED" : "EXCLUDED");
@@ -3331,7 +3331,7 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
    HS_run(&csqmu, &csqmh, &csqtot, &nobs, &pval);
  
    printf("\nHiggsSignals results:\n");
-@@ -139,16 +139,16 @@ int main(int argc, char* argv[]) {
+@@ -139,16 +139,16 @@
    printf("      Total chi^2: %16.8E\n", csqtot);
    printf("    # observables: %16d\n\n", nobs);
  
@@ -3351,12 +3351,12 @@ diff -rupN src/Demo.cpp src_patched/Demo.cpp
  
    table.print_decays(1);
    table.print_decays(2);
-@@ -163,4 +163,3 @@ int main(int argc, char* argv[]) {
+@@ -163,4 +163,3 @@
    HS_finish();
  #endif
  }
 -
-diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
+diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
 --- src/HBHS.cpp	2015-08-26 22:47:27.000000000 +0930
 +++ src_patched/HBHS.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -1,6 +1,6 @@
@@ -3367,7 +3367,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
  #include <iostream>
  
  static bool HB_initialized = false;
-@@ -12,12 +12,12 @@ static bool HS_initialized = false;
+@@ -12,12 +12,12 @@
  void HB_init() {
    int nH0=3;
    int nHp=1;
@@ -3384,7 +3384,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
     // Third argument is HB analysis setting: 1='onlyL', 2='onlyH' 3='LandH'
      initialize_higgsbounds_int_(&nH0, &nHp, &hbflag);
  //  initialize_higgsbounds_(&nH0,&nHp,whichexpt);
-@@ -46,29 +46,29 @@ void HB_set_input_effC(THDM model) {
+@@ -46,29 +46,29 @@
      bool debug =false;
  
      double Mh[3];
@@ -3420,7 +3420,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
      double MHp[1];
  	double MHplusGammaTot[1];
  	double CS_lep_HpjHmi_ratio[1];
-@@ -77,34 +77,34 @@ void HB_set_input_effC(THDM model) {
+@@ -77,34 +77,34 @@
  	double BR_Hpjcs[1];
  	double BR_Hpjcb[1];
  	double BR_Hptaunu[1];
@@ -3464,7 +3464,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
        model.get_coupling_hdd(h,2,2,cs,cp);
  	  sm_like.get_coupling_hdd(1,2,2,cs_sm,cp_sm);
        g2hjss_s[h-1] = pow(abs(cs/cs_sm),2);
-@@ -150,7 +150,7 @@ void HB_set_input_effC(THDM model) {
+@@ -150,7 +150,7 @@
        sm_like.get_coupling_vvh(3, 3, 1, c_sm);
        g2hjWW[h-1] = pow(abs(c/c_sm),2);
        if (debug) printf("%2d %5s %16.8E\n", h, "WW", g2hjWW[h-1]);
@@ -3473,7 +3473,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
        double hgaga = table.get_gamma_hgaga(h);
        double hgaga_sm = sm_table.get_gamma_hgaga(1);
        g2hjgaga[h-1] = hgaga/hgaga_sm;
-@@ -160,14 +160,14 @@ void HB_set_input_effC(THDM model) {
+@@ -160,14 +160,14 @@
        double hZga_sm = sm_table.get_gamma_hZga(1);
        g2hjZga[h-1] = hZga/hZga_sm;
        if (debug) printf("%2d %5s %16.8E\n", h, "Zga", g2hjZga[h-1]);
@@ -3491,7 +3491,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
  		  GammaTotal[h-1] =  smgamma_h_(&mh);
  		  GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjWW[h-1] - 1.)*smbr_hww_(&mh);
  		  GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjZZ[h-1] - 1.)*smbr_hzz_(&mh);
-@@ -180,7 +180,7 @@ void HB_set_input_effC(THDM model) {
+@@ -180,7 +180,7 @@
  		  GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjcc_s[h-1] + g2hjcc_p[h-1] - 1.)*smbr_hcc_(&mh);
  		  GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjZga[h-1]-1)*smbr_hzgam_(&mh);
  		  GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjgaga[h-1]-1)*smbr_hgamgam_(&mh);
@@ -3500,7 +3500,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
  		  for (int i=1; i<=4; i++) {
  			  GammaTotal[h-1] += table.get_gamma_hhh(h,i,i);
  		  }
-@@ -190,26 +190,26 @@ void HB_set_input_effC(THDM model) {
+@@ -190,26 +190,26 @@
  			  GammaTotal[h-1] += table.get_gamma_hvh(h,j,i);
  			}
  		  }
@@ -3536,7 +3536,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
        for (int i=1;i<=3;i++) {
         BR_hjhihi[i-1][j-1]=table.get_gamma_hhh(j,i,i)/GammaTotal[j-1];
         model.get_coupling_vhh(2,j,i,c);
-@@ -222,15 +222,15 @@ void HB_set_input_effC(THDM model) {
+@@ -222,15 +222,15 @@
      higgsbounds_neutral_input_effc_(Mh,GammaTotal,
      g2hjss_s, g2hjss_p,
      g2hjcc_s, g2hjcc_p,
@@ -3556,7 +3556,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
      CS_lep_HpjHmi_ratio[0] = 1.;
  	BR_tWpb[0] = sm.get_gamma_top()/table.get_gammatot_top();
  	BR_tHpjb[0]=table.get_gamma_uhd(3,4,3)/table.get_gammatot_top();
-@@ -252,7 +252,7 @@ void HB_set_input_effC(THDM model) {
+@@ -252,7 +252,7 @@
  
  
  double HB_get_gammah(double m) {
@@ -3565,7 +3565,7 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
     return smgamma_h_(&m);
  }
  
-@@ -272,11 +272,11 @@ void HS_init() {
+@@ -272,11 +272,11 @@
  
   int nH0 = 3;
   int nHp = 1;
@@ -3579,12 +3579,12 @@ diff -rupN src/HBHS.cpp src_patched/HBHS.cpp
  }
  
  void HS_finish() {
-@@ -338,4 +338,3 @@ void HS_set_output_level(int level) {
+@@ -338,4 +338,3 @@
  }
  
  #endif
 -
-diff -rupN src/HBHS.h src_patched/HBHS.h
+diff -ruN src/HBHS.h src_patched/HBHS.h
 --- src/HBHS.h	2015-08-26 22:43:01.000000000 +0930
 +++ src_patched/HBHS.h	2018-10-15 12:56:13.000000000 +1030
 @@ -3,7 +3,7 @@
@@ -3596,7 +3596,7 @@ diff -rupN src/HBHS.h src_patched/HBHS.h
  
  using namespace std;
  
-@@ -44,58 +44,58 @@ extern "C"
+@@ -44,58 +44,58 @@
  {
  
  	extern void initialize_higgsbounds_int_(int *nH0, int *nHp, int *flag);
@@ -3675,7 +3675,7 @@ diff -rupN src/HBHS.h src_patched/HBHS.h
  		double CS_lhc8_pp_tthj_ratio[3],
  		double BR_hjss[3],
  		double BR_hjcc[3],
-@@ -119,11 +119,11 @@ extern "C"
+@@ -119,11 +119,11 @@
  		double BR_Hpjcs[1],
  		double BR_Hpjcb[1],
  		double BR_Hptaunu[1]);
@@ -3690,7 +3690,7 @@ diff -rupN src/HBHS.h src_patched/HBHS.h
  				    double obsratio[6], int ncombined[6]);
  
  	extern double smgamma_h_(double *Mh);
-@@ -139,28 +139,28 @@ extern "C"
+@@ -139,28 +139,28 @@
  	extern double smbr_hzgam_(double *Mh);
  	extern double smbr_hgamgam_(double *Mh);
  
@@ -3728,9 +3728,9 @@ diff -rupN src/HBHS.h src_patched/HBHS.h
  }
  
  #endif
-diff -rupN src/SM.cpp src_patched/SM.cpp
+diff -ruN src/SM.cpp src_patched/SM.cpp
 --- src/SM.cpp	2015-08-28 01:23:39.000000000 +0930
-+++ src_patched/SM.cpp	2018-10-22 00:51:39.000000000 +1030
++++ src_patched/SM.cpp	2018-10-31 18:38:58.000000000 +1030
 @@ -1,7 +1,7 @@
  /*******************************************************************************
   2HDMC - two-Higgs-doublet model calculator
@@ -3792,7 +3792,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    m_GammaW  = SM::GammaW;
    m_GammaZ  = SM::GammaZ;
  
-@@ -29,7 +63,7 @@ SM::SM() {
+@@ -29,7 +63,7 @@
    m_md_p[2] = SM::mb_p;
    m_mu_p[0] = SM::mu_p;
    m_mu_p[1] = SM::mc_p;
@@ -3801,7 +3801,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    m_ml_p[0] = SM::me_p;
    m_ml_p[1] = SM::mmu_p;
    m_ml_p[2] = SM::mtau_p;
-@@ -43,7 +77,7 @@ SM::SM() {
+@@ -43,7 +77,7 @@
    m_CKM[2][0]     = SM::Vtd;
    m_CKM[2][1]     = SM::Vts;
    m_CKM[2][2]     = SM::Vtb;
@@ -3810,7 +3810,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    clear_lookup();
  }
  
-@@ -147,7 +181,7 @@ double SM::get_MW() {
+@@ -147,7 +181,7 @@
    return m_MW;
  }
  
@@ -3819,7 +3819,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
  double SM::get_MZ() {
    return m_MZ;
  }
-@@ -156,7 +190,7 @@ double SM::get_MZ() {
+@@ -156,7 +190,7 @@
  double SM::get_GF() {
    return m_GF;
  }
@@ -3828,7 +3828,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
  
  double SM::get_gamma_W() {
    return m_GammaW;
-@@ -171,20 +205,20 @@ double SM::get_gamma_Z() {
+@@ -171,20 +205,20 @@
  double SM::get_gamma_V(int v) {
    if (v==2) return m_GammaZ;
    if (v==3) return m_GammaW;
@@ -3855,7 +3855,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    double Vtb = get_CKM_element(3,3);
    double GF = get_GF();
    double mt = get_umass_pole(3);
-@@ -370,8 +404,8 @@ double SM::get_qmass_MSbar(int flav) {
+@@ -370,8 +404,8 @@
  
    if ((flav>6)||(flav<1)) return 0;
  
@@ -3866,7 +3866,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    // Lookup table
    if (m_qmass_ms[flav]>=0.) return m_qmass_ms[flav];
  
-@@ -389,14 +423,14 @@ double SM::get_qmass_MSbar(int flav) {
+@@ -389,14 +423,14 @@
  
    // 1-loop conversion
    double mq_msbar = mq_p/(1.+4./3.*as);
@@ -3883,7 +3883,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    // Run to mq(mq)
    mq_msbar=run_qmass_MSbar(mq_msbar,mq_p,mq_msbar,mt,mb);
  
-@@ -408,25 +442,25 @@ double SM::get_qmass_MSbar(int flav) {
+@@ -408,25 +442,25 @@
    if ((b_HD)&&(flav==6)) {mq_msbar = mt_5;}
  
    m_qmass_ms[flav] = mq_msbar;
@@ -3915,7 +3915,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    if (alpha_in>=0) {
      m_alpha=alpha_in;
      clear_lookup();
-@@ -435,7 +469,7 @@ void SM::set_alpha(double alpha_in) {
+@@ -435,7 +469,7 @@
  
  
  void SM::set_alpha0(double alpha_in) {
@@ -3924,7 +3924,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    if (alpha_in>=0) {
      m_alpha0=alpha_in;
      clear_lookup();
-@@ -456,7 +490,7 @@ void SM::set_GF(double GF_in) {
+@@ -456,7 +490,7 @@
      m_GF=GF_in;
      clear_lookup();
    }
@@ -3933,7 +3933,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
  }
  
  
-@@ -535,7 +569,7 @@ double SM::RQ(double as, int nf, int nlo
+@@ -535,7 +569,7 @@
    const double zeta3=1.202056903;
    const double zeta4=1.082323234;
    const double zeta5=1.036927755;
@@ -3942,7 +3942,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    double beta[4] = {0.,0.,0.,0.};
    double gamma[4] = {0.,0.,0.,0.};
  
-@@ -552,7 +586,7 @@ double SM::RQ(double as, int nf, int nlo
+@@ -552,7 +586,7 @@
    if (nloops>=3) {
      beta[2] = 1./64.*(2857./2.-5033./18.*nf+325./54.*nf*nf);
      gamma[2] = 1./64.*(1249.-(2216./27.+160./3.*zeta3)*nf-140./81.*nf*nf);
@@ -3951,7 +3951,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    if (nloops>=4) {
      beta[3] = 1./256.*(149753./6.+3564.*zeta3-(1078361./162.+6508./27.*zeta3)*nf+(50065./162.+6472./81.*zeta3)*nf*nf+1093./729.*nf*nf*nf);
      gamma[3]=1./256.*(4603055./162.+135680./27.*zeta3-8800.*zeta5-(91723./27.+34192./9.-880.*zeta4-18400./9.*zeta5)*nf+(5242./243.+800./9.*zeta3-160./3.*zeta4)*nf*nf-(332./243.-64./27.*zeta3)*nf*nf);
-@@ -562,7 +596,7 @@ double SM::RQ(double as, int nf, int nlo
+@@ -562,7 +596,7 @@
  
    double C1 = gamma[1]/beta[0]-beta[1]*gamma[0]/pow(beta[0],2);
    double C2 = gamma[2]/beta[0]-beta[1]*gamma[1]/pow(beta[0],2)-beta[2]*gamma[0]/pow(beta[0],2)+pow(beta[1],2)*gamma[0]/pow(beta[0],3);
@@ -3960,7 +3960,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
  
  
    double R = pow(ras,gamma[0]/beta[0])*(1.+ras*C1+0.5*pow(ras,2)*(pow(C1,2)+C2));
-@@ -572,13 +606,13 @@ double SM::RQ(double as, int nf, int nlo
+@@ -572,13 +606,13 @@
  }
  
  // Matching function for the quark mass evolution valid at threshold,
@@ -3976,7 +3976,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
  
    double MR = 1.;
  
-@@ -586,7 +620,7 @@ double SM::m_threshold(double as) {
+@@ -586,7 +620,7 @@
  //    double ras = as/M_PI;
  //    MR = 1.+1./12.*pow(ras,2)*89./36.;
  //  }
@@ -3985,7 +3985,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    return MR;
  
  }
-@@ -600,14 +634,14 @@ double SM::run_qmass_MSbar(double quark_
+@@ -600,14 +634,14 @@
    double alphas_Qinit=run_alphas_MSbar(Qinit,mtop,mbot);
    double alphas_Qfin =run_alphas_MSbar(Qfin,mtop,mbot);
    double mcharm = get_qmass_pole(4);
@@ -4002,7 +4002,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      R_Qinit = RQ(alphas_Qinit,nf);
  
      if (Qfin <= mcharm) {
-@@ -623,7 +657,7 @@ double SM::run_qmass_MSbar(double quark_
+@@ -623,7 +657,7 @@
    } else if ((Qinit>=mcharm)&&(Qinit<mbot)) {
      nf = 4;
      R_Qinit = RQ(alphas_Qinit,nf);
@@ -4011,7 +4011,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      if ((Qfin >= mcharm)&&(Qfin<mbot)) {
        R_Qfin = RQ(alphas_Qfin,nf);
        return R_Qfin/R_Qinit*quark_mass;
-@@ -643,7 +677,7 @@ double SM::run_qmass_MSbar(double quark_
+@@ -643,7 +677,7 @@
   } else if ((Qinit>=mbot)&&(Qinit<mtop)) {
      nf = 5;
      R_Qinit = RQ(alphas_Qinit,nf);
@@ -4020,7 +4020,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      if ((Qfin >= mbot)&&(Qfin<mtop)) {
        R_Qfin = RQ(alphas_Qfin,nf);
        return R_Qfin/R_Qinit*quark_mass;
-@@ -663,7 +697,7 @@ double SM::run_qmass_MSbar(double quark_
+@@ -663,7 +697,7 @@
    } else if (Qinit >= mtop) {
      nf = 6;
      R_Qinit = RQ(alphas_Qinit,nf);
@@ -4029,7 +4029,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      if (Qfin >= mtop) {
        R_Qfin = RQ(alphas_Qfin,nf);
        return R_Qfin/R_Qinit*quark_mass;
-@@ -678,16 +712,16 @@ double SM::run_qmass_MSbar(double quark_
+@@ -678,16 +712,16 @@
  
    return 0.;
  }
@@ -4050,7 +4050,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      case 0:
       beta=11.-2.*nf/3.;
       break;
-@@ -698,7 +732,7 @@ double SM::QCD_beta(int c, int nf) {
+@@ -698,7 +732,7 @@
       beta=2857.-5033.*nf/9.+325.*nf*nf/27.;
       break;
    }
@@ -4059,7 +4059,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
    return beta;
  }
  
-@@ -712,24 +746,24 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -712,24 +746,24 @@
    double beta0, beta1, beta2, alpha_s_running, Lambda4, Lambda5,  Lambda_min, Lambda_max, Lambda_moy, alphas_min, alphas_moy;
  // double beta0, beta1, beta2, alpha_s_running, Lambda4, Lambda5, Lambda6, Lambda_min, Lambda_max, Lambda_moy, alphas_min, alphas_moy, alpha_s_match;
    int nf;
@@ -4088,7 +4088,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      if((alphas_MZ>=alphas_min)&&(alphas_MZ<=alphas_moy))
        Lambda_max=Lambda_moy;
      else Lambda_min=Lambda_moy;
-@@ -746,24 +780,24 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -746,24 +780,24 @@
  
  /*** These aren't the flavours you are looking for - please move along ***
    } if((Q>mtop)) {
@@ -4119,7 +4119,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
        if((alpha_s_match>=alphas_min)&&(alpha_s_match<=alphas_moy))
          Lambda_max=Lambda_moy;
  	  else Lambda_min=Lambda_moy;
-@@ -776,18 +810,18 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -776,18 +810,18 @@
  */
    } else {
      /* 4 active flavors */
@@ -4142,7 +4142,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      double xi_factor = 1.-alpha_s_running/pi/6.*log(pow(mratio,2))
      +pow(alpha_s_running/pi,2)*(11./12.-11./24.*log(pow(mratio,2))+1./36.*pow(log(pow(mratio,2)),2));
  
-@@ -804,15 +838,15 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -804,15 +838,15 @@
  
      while(fabs(1.-alphas_min/alpha_s_match)>=1.e-5) {
  	  alphas_min=4.*pi/beta0/log(pow(mbot/Lambda_min,2.))*(1.-2.*beta1/beta0/beta0*log(log(pow(mbot/Lambda_min,2.)))/log(pow(mbot/Lambda_min,2.))+4.*beta1*beta1/pow(beta0*beta0*log(pow(mbot/Lambda_min,2.)),2.)*(pow(log(log(pow(mbot/Lambda_min,2.)))-1./2.,2.)+beta2*beta0/8./beta1/beta1-5./4.));
@@ -4161,7 +4161,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      Lambda4=Lambda_min;
  
      alpha_s_running=4.*pi/beta0/log(pow(Q/Lambda4,2.))*(1.-2.*beta1/beta0/beta0*log(log(pow(Q/Lambda4,2.)))/log(pow(Q/Lambda4,2.))+4.*beta1*beta1/pow(beta0*beta0*log(pow(Q/Lambda4,2.)),2.)*(pow(log(log(pow(Q/Lambda4,2.)))-1./2.,2.)+beta2*beta0/8./beta1/beta1-5./4.));
-@@ -820,19 +854,19 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -820,19 +854,19 @@
      if (Q<=get_qmass_pole(4)) {
         /* 3 active flavors */
        double mcharm = get_qmass_pole(4);
@@ -4185,7 +4185,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
        double xi_factor = 1.-alpha_s_running/pi/6.*log(pow(mratio,2))+pow(alpha_s_running/pi,2)*(11./12.-11./24.*log(pow(mratio,2))+1./36.*pow(log(pow(mratio,2)),2));
  
        double alpha_s_match = alpha_s_running*pow(xi_factor,2);
-@@ -848,21 +882,21 @@ double SM::run_alphas_MSbar(double Q, do
+@@ -848,21 +882,21 @@
  
        while(fabs(1.-alphas_min/alpha_s_match)>=1.e-5) {
     	    alphas_min=4.*pi/beta0/log(pow(mcharm/Lambda_min,2.))*(1.-2.*beta1/beta0/beta0*log(log(pow(mcharm/Lambda_min,2.)))/log(pow(mcharm/Lambda_min,2.))+4.*beta1*beta1/pow(beta0*beta0*log(pow(mcharm/Lambda_min,2.)),2.)*(pow(log(log(pow(mcharm/Lambda_min,2.)))-1./2.,2.)+beta2*beta0/8./beta1/beta1-5./4.));
@@ -4213,7 +4213,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
      return alpha_s_running;
    }
  }
-@@ -878,3 +912,16 @@ void SM::clear_lookup() {
+@@ -878,3 +912,16 @@
    m_qmass_ms[6] = get_qmass_MSbar(6);
  
  }
@@ -4230,7 +4230,7 @@ diff -rupN src/SM.cpp src_patched/SM.cpp
 +    m_CKM[2][2]     = ckm33;
 +    clear_lookup();
 +}
-diff -rupN src/SM.h src_patched/SM.h
+diff -ruN src/SM.h src_patched/SM.h
 --- src/SM.h	2015-08-27 23:02:14.000000000 +0930
 +++ src_patched/SM.h	2018-10-20 20:05:34.000000000 +1030
 @@ -3,101 +3,103 @@
@@ -4378,7 +4378,7 @@ diff -rupN src/SM.h src_patched/SM.h
  
    /**
    * @brief Sets the EM coupling \f$ \alpha \f$
-@@ -113,7 +115,7 @@ class SM {
+@@ -113,7 +115,7 @@
    */
    void set_alpha0(double alpha_in);
  
@@ -4387,7 +4387,7 @@ diff -rupN src/SM.h src_patched/SM.h
    /**
    * @brief Sets the Fermi constant \f$ G_F \f$
    *
-@@ -191,7 +193,7 @@ class SM {
+@@ -191,7 +193,7 @@
    * @returns Value of \f$ g \f$
    */
    double get_g();
@@ -4396,7 +4396,7 @@ diff -rupN src/SM.h src_patched/SM.h
    /**
    * @brief Current value of hypercharge U(1) coupling \f$ g' \f$
    *
-@@ -211,7 +213,7 @@ class SM {
+@@ -211,7 +213,7 @@
    *
    * @returns Value of \f$ \alpha_s \f$
    */
@@ -4405,7 +4405,7 @@ diff -rupN src/SM.h src_patched/SM.h
  
    /**
    * @brief Current value of \f$ M_W \f$
-@@ -233,7 +235,7 @@ class SM {
+@@ -233,7 +235,7 @@
    * @returns Value of \f$ M_Z \f$ (GeV)
    */
    double get_MZ();
@@ -4414,7 +4414,7 @@ diff -rupN src/SM.h src_patched/SM.h
    /**
    * @brief Current value of \f$ \Gamma_Z \f$
    *
-@@ -260,9 +262,9 @@ class SM {
+@@ -260,9 +262,9 @@
    *
    * This method returns the mass of a given vector boson. The numbering
    * convention used throughout 2HDMC is such that (1 = photon, 2 = Z0, 3 = W+).
@@ -4426,7 +4426,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * @returns Value of \f$ m_V \f$ (GeV)
    */
    double get_vmass(int v);
-@@ -272,16 +274,16 @@ class SM {
+@@ -272,16 +274,16 @@
    *
    * This method returns the decay width of a given vector boson. The numbering
    * convention is such that (1 = photon, 2 = Z0, 3 = W+).
@@ -4446,7 +4446,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * This method sets the CKM matrix to a 3x3 unit matrix, i.e. eliminating
    * all charged current interactions between different generations.
    */
-@@ -289,102 +291,102 @@ class SM {
+@@ -289,102 +291,102 @@
  
    /**
    * @brief Full CKM matrix
@@ -4575,7 +4575,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * @returns The pole mass \f$ m_l \f$
    */
    double get_lmass_pole(int l);
-@@ -392,39 +394,39 @@ class SM {
+@@ -392,39 +394,39 @@
  
    /**
    * @brief Mass matrix for down-type quarks
@@ -4624,7 +4624,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * @see get_MD, get_MU, get_CKM
    */
    gsl_matrix* get_ML();
-@@ -432,57 +434,57 @@ class SM {
+@@ -432,57 +434,57 @@
  
    /**
    * @brief Quark \f$ \overline{\rm{MS}}\f$ mass
@@ -4699,7 +4699,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * @returns The running mass at the scale \a Qfin
    */
    double run_qmass_MSbar(double quark_mass, double Qinit, double Qfin, double mtop, double mbot);
-@@ -490,27 +492,27 @@ class SM {
+@@ -490,27 +492,27 @@
  
    /**
    * @brief Evaluates the running strong coupling
@@ -4736,7 +4736,7 @@ diff -rupN src/SM.h src_patched/SM.h
    * @returns The number of quark flavours active at this scale
    */
    int get_Nactivef(double M);
-@@ -518,36 +520,37 @@ class SM {
+@@ -518,36 +520,37 @@
  
    /**
    * @brief %SM width of the top quark
@@ -4788,7 +4788,7 @@ diff -rupN src/SM.h src_patched/SM.h
    // -------------------------------------------------------------
  
  
-@@ -569,15 +572,15 @@ class SM {
+@@ -569,15 +572,15 @@
    double m_CKM[3][3];
  
    double m_qmass_ms[7];
@@ -4807,9 +4807,9 @@ diff -rupN src/SM.h src_patched/SM.h
  };
  
  #endif
-diff -rupN src/THDM.cpp src_patched/THDM.cpp
+diff -ruN src/THDM.cpp src_patched/THDM.cpp
 --- src/THDM.cpp	2015-08-27 22:34:33.000000000 +0930
-+++ src_patched/THDM.cpp	2018-10-22 00:54:26.000000000 +1030
++++ src_patched/THDM.cpp	2018-10-31 18:38:25.000000000 +1030
 @@ -1,12 +1,12 @@
  /*******************************************************************************
   2HDMC - two-Higgs-doublet model calculator
@@ -4825,7 +4825,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  #include "Constraints.h"
  #include "HBHS.h"
  #include "Util.h"
-@@ -33,6 +33,8 @@ const char *THDM::version = "1.7.0";
+@@ -33,6 +33,8 @@
  
  using namespace std;
  
@@ -4834,7 +4834,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  /***************************************************************************
  * Method used by external codes (SusHi) to set the model parameters
  *
-@@ -46,15 +48,15 @@ int thdmc_set_param(int key, double smpa
+@@ -46,15 +48,15 @@
  
  /*
     cout << "Key="<< key << endl;
@@ -4853,7 +4853,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
       res[i] = 0.;
    }
  
-@@ -67,13 +69,13 @@ int thdmc_set_param(int key, double smpa
+@@ -67,13 +69,13 @@
     sm.set_MZ(smpara[3]);
     sm.set_qmass_msbar(5,smpara[4]);
     sm.set_qmass_pole(6,smpara[5]);
@@ -4870,7 +4870,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     double lam1 = para[0];
     double lam2 = para[1];
     double lam3 = para[2];
-@@ -84,13 +86,13 @@ int thdmc_set_param(int key, double smpa
+@@ -84,13 +86,13 @@
     double m12_2 = para[7];
     double tb = para[8];
     type = (int)para[9];
@@ -4888,7 +4888,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     double mh = para[0];
     double mH = para[1];
     double mA = para[2];
-@@ -101,13 +103,13 @@ int thdmc_set_param(int key, double smpa
+@@ -101,13 +103,13 @@
     double m12_2 = para[7];
     double tb = para[8];
     type = (int)para[9];
@@ -4906,7 +4906,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     double mh = para[0];
     double mH = para[1];
     double sba = para[2];
-@@ -120,9 +122,9 @@ int thdmc_set_param(int key, double smpa
+@@ -120,9 +122,9 @@
     bool ok = model->set_param_hybrid_sba(mh,mH,sba,Z4,Z5,Z7,tb);
     if (!ok) return -1;
     model->set_yukawas_type(type);
@@ -4918,7 +4918,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     double mh = para[0];
     double mH = para[1];
     double cba = para[2];
-@@ -135,33 +137,33 @@ int thdmc_set_param(int key, double smpa
+@@ -135,33 +137,33 @@
     bool ok = model->set_param_hybrid(mh,mH,cba,Z4,Z5,Z7,tb);
     if (!ok) return -1;
     model->set_yukawas_type(type);
@@ -4960,7 +4960,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      res[5] = (double)type;
      res[6] = S ? 1.0 : 0.0;
      res[7] = P ? 1.0 : 0.0;
-@@ -170,7 +172,7 @@ int thdmc_set_param(int key, double smpa
+@@ -170,7 +172,7 @@
      res[10] = gtoth;
      res[11] = gtotH;
      res[12] = gtotA;
@@ -4969,7 +4969,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      if (slha) {
       model->write_LesHouches("2HDMC.out",1,0,1);
      }
-@@ -185,13 +187,13 @@ THDM::THDM() {
+@@ -185,13 +187,13 @@
    init();
  }
  
@@ -4984,7 +4984,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    yukawas_type = -1;
  
    v2 = sm.get_v2();
-@@ -220,9 +222,57 @@ void THDM::init() {
+@@ -220,9 +222,57 @@
    gsl_matrix_set_zero(rho_N);
  }
  
@@ -5043,7 +5043,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  			 double lambda7, double m12_2, double tan_beta) {
  
    // tan(beta) must be greater than 0 for valid basis
-@@ -252,8 +302,8 @@ bool THDM::set_param_gen(double lambda1,
+@@ -252,8 +302,8 @@
    double c2b = cb2-sb2;
    double s3b = 3.*sb-4.*sb*sb2;
    double c3b = 4.*cb*cb2-3.*cb;
@@ -5054,7 +5054,13 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  
    // Mass of CP-odd Higgs
    double mA_2 = m12_2/(sb*cb)-0.5*v2*(2.*lambda5+lambda6*ctb+lambda7*tb);
-@@ -278,7 +328,7 @@ bool THDM::set_param_gen(double lambda1,
+@@ -273,12 +323,13 @@
+     params_set=false;
+   }
+ 
++  params_full_set = false;
+   return params_set;
+ }
  
  
  bool THDM::set_param_HHG(double Lambda1, double Lambda2, double Lambda3,
@@ -5063,7 +5069,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  			 double tan_beta) {
  
    if (tan_beta<=0) {
-@@ -287,7 +337,7 @@ bool THDM::set_param_HHG(double Lambda1,
+@@ -287,7 +338,7 @@
    }
  
    double l1,l2,l3,l4,l5,l6,l7,m12_2;
@@ -5072,7 +5078,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    l1 = 2.*(Lambda1+Lambda3);
    l2 = 2.*(Lambda2+Lambda3);
    l3 = 2.*Lambda3+Lambda4;
-@@ -308,7 +358,7 @@ bool THDM::set_param_phys(double m_h,dou
+@@ -308,7 +359,7 @@
  			  double m12_2,double tan_beta) {
  
    if (m_h>m_H) {
@@ -5081,7 +5087,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      params_set = false;
      return params_set;
    }
-@@ -337,7 +387,7 @@ bool THDM::set_param_phys(double m_h,dou
+@@ -337,7 +388,7 @@
    double ca2 = ca*ca;
  
    double cba = sqrt(1.-sba*sba);
@@ -5090,7 +5096,14 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    lambda[1]=(m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
    lambda[2]=(m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
    lambda[3]=((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-@@ -353,14 +403,14 @@ bool THDM::set_param_phys(double m_h,dou
+@@ -347,20 +398,21 @@
+   sinba = sba;
+ 
+   params_set=true;
++  params_full_set=false;
+ 
+   return params_set;
+ }
  
  
  bool THDM::set_param_higgs(double Lambda1, double Lambda2, double Lambda3,
@@ -5107,7 +5120,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    lambda[1]=Lambda1;
    lambda[2]=Lambda2;
    lambda[3]=Lambda3;
-@@ -372,7 +422,7 @@ bool THDM::set_param_higgs(double Lambda
+@@ -372,7 +424,7 @@
    m22_2=m_Hp*m_Hp-0.5*v2*Lambda3;
  
    double m_A2 = m_Hp*m_Hp-0.5*v2*(Lambda5-Lambda4);
@@ -5116,16 +5129,18 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double s2ba = -2.*Lambda6*v2;
    double c2ba = -(m_A2+(Lambda5-Lambda1)*v2);
    // Handle special case with degenerate masses
-@@ -383,7 +433,7 @@ bool THDM::set_param_higgs(double Lambda
+@@ -383,7 +435,9 @@
    } else {
      cerr << "WARNING: Requested masses m_h and m_H too close (" << m_A2+(Lambda5-Lambda1)*v2 << ", " << Lambda6 << "), precision problems expected\n";
      params_set = false;
 -  }  
 +  }
++
++  params_full_set=false;
  
    return params_set;
  }
-@@ -396,7 +446,7 @@ bool THDM::set_param_hybrid(double mh, d
+@@ -396,7 +450,7 @@
    bool params_set = true;
  
    double vsmall = 1E-10;
@@ -5134,7 +5149,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    if ((mh<0)||(abs(cba) > 1)||(abs(mh-mH)<vsmall)) {
      params_set = false;
      return params_set;
-@@ -407,13 +457,13 @@ bool THDM::set_param_hybrid(double mh, d
+@@ -407,13 +461,13 @@
    double sba = sign(cba)*sqrt(1.-cba*cba);
  
    params_set = set_param_hybrid_sba(mh,mH,sba,Z4,Z5,Z7,tanb);
@@ -5151,7 +5166,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  bool THDM::set_param_hybrid_sba(double mh, double mH, double sba, double Z4,
  			   double Z5, double Z7, double tanb) {
  
-@@ -421,7 +471,7 @@ bool THDM::set_param_hybrid_sba(double m
+@@ -421,7 +475,7 @@
  
    bool params_set = true;
    double vsmall = 1E-10;
@@ -5160,7 +5175,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    if ((mh<0)||(abs(sba) > 1)||(abs(mh-mH)<vsmall)||(abs(tanb-1.)<vsmall)) {
      params_set = false;
      return params_set;
-@@ -431,7 +481,7 @@ bool THDM::set_param_hybrid_sba(double m
+@@ -431,7 +485,7 @@
    double v2 = sm.get_v2();
  
    double Z6 = (pow(mh,2)-pow(mH,2))*cba*sba/v2;
@@ -5169,7 +5184,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    Lambda1 = 0.;
    Lambda2 = 0.;
    Lambda3 = 0.;
-@@ -442,18 +492,18 @@ bool THDM::set_param_hybrid_sba(double m
+@@ -442,18 +496,18 @@
  
    // Lambda1 fixed from Higgs masses
    Lambda1 = (mh*mh*sba*sba+mH*mH*cba*cba)/v2;
@@ -5192,7 +5207,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  	Lambda3 = Lambda345-Lambda4-Lambda5;
    } else {
      cout << "The point tanb=1 is problematic." << endl;
-@@ -471,10 +521,10 @@ bool THDM::set_param_hybrid_sba(double m
+@@ -471,10 +525,10 @@
    // First set the potential of 2HDM using input in the Higgs basis
    params_set = set_param_higgs(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, mHp);
  
@@ -5205,7 +5220,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    return params_set;
  }
  
-@@ -485,7 +535,7 @@ bool THDM::set_inert(double m_h,double m
+@@ -485,7 +539,7 @@
      params_set = false;
      return params_set;
    }
@@ -5214,7 +5229,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double v2 = sm.get_v2()/2;
  
    lambda[1]=0.5*pow(m_h,2)/v2;
-@@ -497,7 +547,7 @@ bool THDM::set_inert(double m_h,double m
+@@ -497,7 +551,7 @@
    lambda[7]=0.0;
    beta=0;
    m22_2=m_Hp*m_Hp-lambda3*v2;
@@ -5223,7 +5238,15 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    if (m_h>m_H) {
      sinba = 0.;
    } else {
-@@ -521,7 +571,7 @@ bool THDM::set_param_sm(double mh) {
+@@ -507,6 +561,7 @@
+   set_yukawas_inert();
+ 
+   params_set = true;
++  params_full_set=false;
+   return params_set;
+ }
+ 
+@@ -521,7 +576,7 @@
     bool pset = set_param_phys(mh,mA,mA,mA,1., 0., 0., m12_2_sm, 1.);
  
     set_yukawas_type(1);
@@ -5232,7 +5255,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     return pset;
  
  }
-@@ -553,7 +603,7 @@ bool THDM::set_MSSM(double mA, double ta
+@@ -553,7 +608,7 @@
    m12_2=mA*mA*cb*sb;
  
    double pset = set_param_gen(l1,l2,l3,l4,l5,l6,l7,m12_2,tan_beta);
@@ -5241,7 +5264,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    if (pset) set_yukawas_type(2);
  
    return pset;
-@@ -575,7 +625,7 @@ bool THDM::set_hMSSM(double mh, double m
+@@ -575,7 +630,7 @@
    double cb2 = cb*cb;
    double sb2 = sb*sb;
    double m_A2 = mA*mA;
@@ -5250,7 +5273,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double g = sm.get_g();
    double gp = sm.get_gprime();
  
-@@ -587,13 +637,13 @@ bool THDM::set_hMSSM(double mh, double m
+@@ -587,13 +642,13 @@
    l6 = 0.;
    l7 = 0.;
    m12_2=mA*mA*cb*sb;
@@ -5268,7 +5291,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    	double M112   =  m_A2*sb2+v2*(l1*cb2);
     	double M122   = -m_A2*sb*cb+v2*(l3+l4)*sb*cb;
     	double M222   =  m_A2*cb2+v2*l2*sb2;
-@@ -623,7 +673,7 @@ void THDM::set_kappa() {
+@@ -623,7 +678,7 @@
  void THDM::set_kappa_D() {
    gsl_matrix *md = sm.get_MD();
    gsl_matrix_memcpy(kappa_D,md);
@@ -5277,7 +5300,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    gsl_matrix_free(md);
  }
  
-@@ -685,7 +735,7 @@ void THDM::set_yukawas_type(int type) {
+@@ -685,7 +740,7 @@
      gsl_matrix_scale(rho_U,1./tan(beta));
      gsl_matrix_scale(rho_L,-tan(beta));
    }
@@ -5286,7 +5309,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -844,12 +894,12 @@ void THDM::get_kappa_down(double mu,doub
+@@ -844,12 +899,12 @@
    double kd_pole=gsl_matrix_get(kappa_D,0,0);
    double ks_pole=gsl_matrix_get(kappa_D,1,1);
    double kb_pole=gsl_matrix_get(kappa_D,2,2);
@@ -5302,7 +5325,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    kd = kd_pole;
    ks = ks_pole;
    kb = kb_pole/mb_pole*mb_run;
-@@ -859,15 +909,15 @@ void THDM::get_kappa_up(double mu, doubl
+@@ -859,15 +914,15 @@
    double ku_pole=gsl_matrix_get(kappa_U,0,0);
    double kc_pole=gsl_matrix_get(kappa_U,1,1);
    double kt_pole=gsl_matrix_get(kappa_U,2,2);
@@ -5322,7 +5345,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    ku = ku_pole;
    kc = kc_pole/mc_pole*mc_run;
    kt = kt_pole/mt_pole*mt_run;
-@@ -882,12 +932,12 @@ void THDM::get_rho_down(double mu,double
+@@ -882,12 +937,12 @@
    double rd_pole=gsl_matrix_get(rho_D,0,0);
    double rs_pole=gsl_matrix_get(rho_D,1,1);
    double rb_pole=gsl_matrix_get(rho_D,2,2);
@@ -5338,7 +5361,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    rd = rd_pole;
    rs = rs_pole;
    rb = rb_pole/mb_pole*mb_run;
-@@ -897,15 +947,15 @@ void THDM::get_rho_up(double mu, double 
+@@ -897,15 +952,15 @@
    double ru_pole=gsl_matrix_get(rho_U,0,0);
    double rc_pole=gsl_matrix_get(rho_U,1,1);
    double rt_pole=gsl_matrix_get(rho_U,2,2);
@@ -5358,7 +5381,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    ru = ru_pole;
    rc = rc_pole/mc_pole*mc_run;
    rt = rt_pole/mt_pole*mt_run;
-@@ -939,7 +989,7 @@ void THDM::get_yukawas_lepton(double &rh
+@@ -939,7 +994,7 @@
  
  
  void THDM::get_param_gen(double &lambda1, double &lambda2, double &lambda3,
@@ -5367,7 +5390,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  			 double &lambda7, double &m12_2,double &tan_beta) {
    lambda1=lambda[1];
    lambda2=lambda[2];
-@@ -954,7 +1004,7 @@ void THDM::get_param_gen(double &lambda1
+@@ -954,7 +1009,7 @@
  
  
  void THDM::get_param_HHG(double &Lambda1, double &Lambda2, double &Lambda3,
@@ -5376,7 +5399,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  			 double &tan_beta) {
  
    double sb=sin(beta);
-@@ -983,38 +1033,50 @@ void THDM::get_param_phys(double &m_h,do
+@@ -983,38 +1038,50 @@
    lambda6=lambda[6];
    lambda7=lambda[7];
    tan_beta=tan(beta);
@@ -5455,7 +5478,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  			   double &Lambda7, double &m_Hp) {
  
    double sb=sin(beta);
-@@ -1044,20 +1106,20 @@ void THDM::get_param_higgs(double &Lambd
+@@ -1044,20 +1111,20 @@
    double m12_2 = get_m12_2();
    double m11_2 = m12_2*tb-0.5*v2*(lambda[1]*cb2+(lambda[3]+lambda[4]+lambda[5])*sb2+3.*lambda[6]*sb*cb+lambda[7]*sb2*tb);
    double M22_2 = m11_2*sb2+m22_2*cb2+m12_2*s2b;
@@ -5481,7 +5504,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
     get_param_phys(mh,mH,mA,mHp,sinba,lam6,lam7,m12_2,tb);
     if ((abs(lam6)>EPS)||(abs(lam7)>EPS)) {
      printf("\nWARNING: Model has hard Z_2-violation\n");
-@@ -1140,7 +1202,7 @@ void THDM::get_coupling_hdd(int h,int f1
+@@ -1140,7 +1207,7 @@
    cp = 0.;
  
    if ((h<1)||(h>3)) return;
@@ -5490,7 +5513,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double sba = get_sba();
    double cba = get_cba();
  
-@@ -1151,7 +1213,7 @@ void THDM::get_coupling_hdd(int h,int f1
+@@ -1151,7 +1218,7 @@
      if (f1==f2) {
        double mms  = sm.get_dmass_MSbar(f1);
        double mp   = sm.get_dmass_pole(f1);
@@ -5499,7 +5522,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
        // Starting scale for MSbar mass evolution
        double Qinit = mms;
        if (f1==2) {
-@@ -1161,7 +1223,7 @@ void THDM::get_coupling_hdd(int h,int f1
+@@ -1161,7 +1228,7 @@
  
        // Starting scale for MSbar mass evolution for comp with HD
        if(sm.b_HD) Qinit = SM::Q_HD;
@@ -5508,7 +5531,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
        double mrun = sm.run_qmass_MSbar(mms,Qinit,get_hmass(h),sm.get_qmass_pole(6),sm.get_qmass_pole(5));
  
        if (mrun>0) {
-@@ -1184,7 +1246,7 @@ void THDM::get_coupling_hdd(int h,int f1
+@@ -1184,7 +1251,7 @@
        y = -I*I/sqrt(2.)*rd;
        break;
      }
@@ -5517,7 +5540,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      cs = x;
      cp = y;
    }
-@@ -1200,7 +1262,7 @@ void THDM::get_coupling_huu(int h,int f1
+@@ -1200,7 +1267,7 @@
  
  
    if ((h<1)||(h>3)) return;
@@ -5526,7 +5549,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double sba = get_sba();
    double cba = get_cba();
  
-@@ -1222,7 +1284,7 @@ void THDM::get_coupling_huu(int h,int f1
+@@ -1222,7 +1289,7 @@
          ru = ru/mp*mrun;
        }
      }
@@ -5535,7 +5558,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      switch(h) {
      case 1:
        x = -I/sqrt(2.)*(ku*sba+ru*cba);
-@@ -1237,7 +1299,7 @@ void THDM::get_coupling_huu(int h,int f1
+@@ -1237,7 +1304,7 @@
        y = -I*(-I/sqrt(2.))*ru;
        break;
      }
@@ -5544,7 +5567,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      cs = x;
      cp = y;
  
-@@ -1253,7 +1315,7 @@ void THDM::get_coupling_hll(int h,int f1
+@@ -1253,7 +1320,7 @@
    cp = 0.;
  
    if ((h<1)||(h>3)) return;
@@ -5553,7 +5576,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double sba = get_sba();
    double cba = get_cba();
  
-@@ -1275,7 +1337,7 @@ void THDM::get_coupling_hll(int h,int f1
+@@ -1275,7 +1342,7 @@
        y = -I*I/sqrt(2.)*rl;
        break;
      }
@@ -5562,7 +5585,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      cs = x;
      cp = y;
    }
-@@ -1292,11 +1354,11 @@ void THDM::get_coupling_hdu(int h,int d,
+@@ -1292,11 +1359,11 @@
    gsl_matrix* ckm = sm.get_CKM_matrix();
  
    if (h!=4) return;
@@ -5577,7 +5600,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      gsl_matrix *RU = gsl_matrix_alloc(3,3);
  
      gsl_matrix_view A = gsl_matrix_submatrix(ckm,0,0,3,3);
-@@ -1304,7 +1366,7 @@ void THDM::get_coupling_hdu(int h,int d,
+@@ -1304,7 +1371,7 @@
      gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0, &A.matrix, &B.matrix,0.0,RD);
      B = gsl_matrix_submatrix(rho_U,0,0,3,3);
      gsl_blas_dgemm(CblasConjTrans,CblasNoTrans,1.0, &B.matrix, &A.matrix,0.0,RU);
@@ -5586,7 +5609,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      double rd = gsl_matrix_get(RD,u-1,d-1);
      double ru = gsl_matrix_get(RU,u-1,d-1);
      gsl_matrix_free(RD);
-@@ -1317,7 +1379,7 @@ void THDM::get_coupling_hdu(int h,int d,
+@@ -1317,7 +1384,7 @@
      double mdp   = sm.get_dmass_pole(d);
      double mums  = sm.get_umass_MSbar(u);
      double mup   = sm.get_umass_pole(u);
@@ -5595,7 +5618,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      // Special case for strange quark not defined as ms(ms)
      if (d==2) {
       Qinit = SM::Q_ms;
-@@ -1331,15 +1393,15 @@ void THDM::get_coupling_hdu(int h,int d,
+@@ -1331,15 +1398,15 @@
      // Starting scale for MSbar mass evolution for comp with HD
      if(sm.b_HD) Qinit = SM::Q_HD;
      double murun = sm.run_qmass_MSbar(mums,Qinit,mHp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
@@ -5614,7 +5637,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      cs = -I*0.5*(rd-ru);
      cp = -I*0.5*(rd+ru);
    }
-@@ -1356,8 +1418,8 @@ void THDM::get_coupling_hln(int h,int l,
+@@ -1356,8 +1423,8 @@
    cp = 0.;
  
    if (h!=4) return;
@@ -5625,7 +5648,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      double rl = gsl_matrix_get(rho_L,n-1,l-1);
      double rn = gsl_matrix_get(rho_N,n-1,l-1);
  
-@@ -1370,19 +1432,19 @@ void THDM::get_coupling_hln(int h,int l,
+@@ -1370,19 +1437,19 @@
  void THDM::get_coupling_vhh(int v,int h1,int h2,complex <double> &c) {
    // Convention of hep-ph/0602242
    complex <double> I(0.0,1.0);
@@ -5648,7 +5671,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    // gamma
    if (v==1) {
      if ((h1==4)&&(h2==4))
-@@ -1398,7 +1460,7 @@ void THDM::get_coupling_vhh(int v,int h1
+@@ -1398,7 +1465,7 @@
    // W+  (to get coupling for W- take complex conjugate)
    if ((v==3)&&(h1<4)&&(h2==4)) {
      c=conj(-I*g/2.*get_qki(h1,2));
@@ -5657,7 +5680,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  
  }
  
-@@ -1406,14 +1468,14 @@ void THDM::get_coupling_vhh(int v,int h1
+@@ -1406,14 +1473,14 @@
  void THDM::get_coupling_vvh(int v1,int v2,int h,complex <double> &c) {
    // Convention of hep-ph/0602242
    complex <double> I(0.0,1.0);
@@ -5675,7 +5698,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    // Z Z
    if ((v1==2)&&(v2==2)&&(h<4)) {
      c=I*g/costw*MZ*real(get_qki(h,1));
-@@ -1429,12 +1491,12 @@ void THDM::get_coupling_vvh(int v1,int v
+@@ -1429,12 +1496,12 @@
  void THDM::get_coupling_vvhh(int v1,int v2,int h1,int h2,complex <double> &c) {
    // Convention of hep-ph/0602242
    complex <double> I(0.0,1.0);
@@ -5690,7 +5713,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    c=0;
    if (v1>v2) {
      int tmp=v1;
-@@ -1446,7 +1508,7 @@ void THDM::get_coupling_vvhh(int v1,int 
+@@ -1446,7 +1513,7 @@
      h1=h2;
      h2=tmp;
    }
@@ -5699,7 +5722,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    // Z Z h/H/A h/H/A
    if ((v1==2)&&(v2==2)&&(h1<4)&&(h2<4)){
      c=I/2.*g*g/costw/costw*real(conj(get_qki(h1,1))*get_qki(h2,1)+conj(get_qki(h1,2))*get_qki(h2,2));
-@@ -1485,12 +1547,12 @@ void THDM::get_coupling_vvhh(int v1,int 
+@@ -1485,12 +1552,12 @@
  void THDM::get_coupling_hhh(int h1,int h2,int h3,complex <double> &c) {
    // Conventions are according to hep-ph/0602242
    complex <double> I(0.0,1.0);
@@ -5714,7 +5737,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    c=0;
    if (h1>h2) {
      int tmp=h1;
-@@ -1532,7 +1594,7 @@ void THDM::get_coupling_hhh(int h1,int h
+@@ -1532,7 +1599,7 @@
  		  real(conj(get_qki(h[0],2))*get_qki(h[1],2)*get_qki(h[2],2)*Z7));
      }
    // Neutral and charged higgses
@@ -5723,7 +5746,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      c=-I*v*(real(get_qki(h1,1)*Z3+real(get_qki(h1,2)*Z7)));
  
    gsl_permutation_free (per);
-@@ -1542,11 +1604,11 @@ void THDM::get_coupling_hhh(int h1,int h
+@@ -1542,11 +1609,11 @@
  void THDM::get_coupling_hhhh(int h1,int h2,int h3,int h4,complex <double> &c) {
    // Conventions are according to hep-ph/0602242
    complex <double> I(0.0,1.0);
@@ -5737,7 +5760,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    c=0;
    if (h1>h2) {
      int tmp=h1;
-@@ -1636,7 +1698,7 @@ double THDM::calc_unitarity() {
+@@ -1636,7 +1703,7 @@
    // S-Matrices from Ginzburg and Ivanov, hep-ph/0508020
    double S20 = lambda[3]-lambda[4];
    if (abs(S20) > abs(egmax)) egmax = S20;
@@ -5746,7 +5769,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    double s2 = sqrt(2.);
  
    double S21_data[] = { lambda[1],    lambda[5],    s2*lambda[6],
-@@ -1660,7 +1722,7 @@ double THDM::calc_unitarity() {
+@@ -1660,7 +1727,7 @@
    gsl_eigen_symm_workspace *w3 = gsl_eigen_symm_alloc(3);
    gsl_eigen_symm_workspace *w4 = gsl_eigen_symm_alloc(4);
    gsl_vector *eval3 = gsl_vector_alloc(3);
@@ -5755,7 +5778,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  
    double eg = 0.0;
  
-@@ -1670,7 +1732,7 @@ double THDM::calc_unitarity() {
+@@ -1670,7 +1737,7 @@
      eg = gsl_vector_get(eval3,i);
      if (abs(eg)>abs(egmax)) egmax = eg;
    }
@@ -5764,7 +5787,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    gsl_eigen_symm(&S01.matrix,eval4,w4);
    for (int i=0;i<4;i++) {
      eg = gsl_vector_get(eval4,i);
-@@ -1749,7 +1811,7 @@ bool THDM::check_stability() {
+@@ -1749,7 +1816,7 @@
    if (lambda[3]<-sqrt(lambda[1]*lambda[2])) return false;
    // Check for cos(theta)=0
    if (lambda[3]+lambda[4]-lambda[5]<-sqrt(lambda[1]*lambda[2])) return false;
@@ -5773,7 +5796,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      // Check if lambda6 and lambda7 are zero
      if (lambda[3]+lambda[4]-abs(lambda[5])<-sqrt(lambda[1]*lambda[2])) return false;
      // No more conditions exist if lambda6 and lambda7 are zero
-@@ -1761,7 +1823,7 @@ bool THDM::check_stability() {
+@@ -1761,7 +1828,7 @@
    gamma=acos(sqrt((4*lambda[6]*lambda[7]-2*lambda[4]*lambda[3]+lambda[4]*lambda[2]+lambda[4]*lambda[1]-2*lambda[3]*lambda[5]+lambda[2]*lambda[5]+lambda[1]*lambda[5]-2*lambda[6]*lambda[6]-2*lambda[7]*lambda[7])*(-2*lambda[7]*lambda[7]+lambda[2]*lambda[5]+lambda[4]*lambda[2]-lambda[3]*lambda[5]-lambda[4]*lambda[3]+2*lambda[6]*lambda[7]))/(4*lambda[6]*lambda[7]-2*lambda[4]*lambda[3]+lambda[4]*lambda[2]+lambda[4]*lambda[1]-2*lambda[3]*lambda[5]+lambda[2]*lambda[5]+lambda[1]*lambda[5]-2*lambda[6]*lambda[6]-2*lambda[7]*lambda[7]));
    rho=sin(gamma)*(lambda[7]-cos(gamma)*cos(gamma)*lambda[7]+lambda[6]*cos(gamma)*cos(gamma))/(cos(gamma)*(-lambda[5]-lambda[4]+cos(gamma)*cos(gamma)*lambda[4]+cos(gamma)*cos(gamma)*lambda[5]));
    // Check abs(rho) [0,1]
@@ -5782,7 +5805,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
        // Check gamma [0,Pi/2]
        ((gamma>=0.) && (gamma<=M_PI/2.)) &&
        ((1./2.)*(-lambda[4]*lambda[3]*lambda[3]+lambda[4]*lambda[2]*lambda[1]-lambda[3]*lambda[3]*lambda[5]+lambda[2]*lambda[1]*lambda[5]-2*lambda[7]*lambda[7]*lambda[1]+4*lambda[6]*lambda[7]*lambda[3]-2*lambda[2]*lambda[6]*lambda[6])/(lambda[4]*lambda[1]+lambda[4]*lambda[2]-2*lambda[4]*lambda[3]+lambda[1]*lambda[5]-2*lambda[3]*lambda[5]+lambda[2]*lambda[5]-2*lambda[6]*lambda[6]-2*lambda[7]*lambda[7]+4*lambda[6]*lambda[7])<0))
-@@ -1770,17 +1832,17 @@ bool THDM::check_stability() {
+@@ -1770,17 +1837,17 @@
    gamma=M_PI-acos(sqrt((4*lambda[6]*lambda[7]-2*lambda[4]*lambda[3]+lambda[4]*lambda[2]+lambda[4]*lambda[1]-2*lambda[3]*lambda[5]+lambda[2]*lambda[5]+lambda[1]*lambda[5]-2*lambda[6]*lambda[6]-2*lambda[7]*lambda[7])*(-2*lambda[7]*lambda[7]+lambda[2]*lambda[5]+lambda[4]*lambda[2]-lambda[3]*lambda[5]-lambda[4]*lambda[3]+2*lambda[6]*lambda[7]))/(4*lambda[6]*lambda[7]-2*lambda[4]*lambda[3]+lambda[4]*lambda[2]+lambda[4]*lambda[1]-2*lambda[3]*lambda[5]+lambda[2]*lambda[5]+lambda[1]*lambda[5]-2*lambda[6]*lambda[6]-2*lambda[7]*lambda[7]));
    rho=sin(gamma)*(lambda[7]-cos(gamma)*cos(gamma)*lambda[7]+lambda[6]*cos(gamma)*cos(gamma))/(cos(gamma)*(-lambda[5]-lambda[4]+cos(gamma)*cos(gamma)*lambda[4]+cos(gamma)*cos(gamma)*lambda[5]));
    // Check abs(rho) [0,1]
@@ -5803,7 +5826,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
        // Check abs(gamma) [0,Pi/2]
        (abs(gamma)<=M_PI/2.) &&
        // Check stability
-@@ -1878,7 +1940,7 @@ bool THDM::check_stability() {
+@@ -1878,7 +1945,7 @@
        if ((stability_minimum(p32))&&(p32.v<0)) return false;
      }
    }
@@ -5812,7 +5835,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    return true;
  
  }
-@@ -1902,10 +1964,10 @@ void THDM::write_LesHouches(const char* 
+@@ -1902,10 +1969,10 @@
  
    fprintf(output,"##################################################################\n");
    fprintf(output,"#                                                                #\n");
@@ -5825,7 +5848,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    fprintf(output,"Block MODSEL # Select Model\n");
    fprintf(output,"    0   10    #  10 = 2HDM\n");
    fprintf(output,"Block FMODSEL # FLHA definitions, see [arXiv:1008.0762]\n");
-@@ -1997,53 +2059,53 @@ fprintf(output,"Block MINPAR    # Model 
+@@ -1997,53 +2064,53 @@
    (k1>0 ? lu[1][1] = r1/k1 : lu[1][1]=0.);
    (k2>0 ? lu[2][2] = r2/k2 : lu[2][2]=0.);
    (k3>0 ? lu[3][3] = r3/k3 : lu[3][3]=0.);
@@ -5890,7 +5913,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    fprintf(output, "Block HBRESULT\n");
    fprintf(output, "# Higgs  Result  Channel    Obsratio      Ncomb\n");
    fprintf(output, "%5d   %5d   %6d %16.8E %5d    # Full result\n", 0, hbres[0],hbchan[0],hbobs[0],hbcomb[0]);
-@@ -2051,27 +2113,27 @@ fprintf(output,"Block MINPAR    # Model 
+@@ -2051,27 +2118,27 @@
    fprintf(output, "%5d   %5d   %6d %16.8E %5d    # H\n",  2, hbres[2],hbchan[2],hbobs[2],hbcomb[2]);
    fprintf(output, "%5d   %5d   %6d %16.8E %5d    # A\n",  3, hbres[3],hbchan[3],hbobs[3],hbcomb[3]);
    fprintf(output, "%5d   %5d   %6d %16.8E %5d    # H+\n", 4, hbres[4],hbchan[4],hbobs[4],hbcomb[4]);
@@ -5923,7 +5946,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    table.set_qcd(qcd_on);
    fprintf(output,"#     PDG   Width\n");
    table.print_top_decays_LesHouches(output,fulldecay);
-@@ -2087,7 +2149,7 @@ fprintf(output,"Block MINPAR    # Model 
+@@ -2087,7 +2154,7 @@
  
      complex <double> c1;
      complex <double> c2;
@@ -5932,7 +5955,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
      fprintf(output,"BLOCK MGUSER\n");
      get_coupling_hll(1,1,1,c1,c2);
      fprintf(output,"         1     % 16.8e   # REPLGH1EE   , Real part of scalar part of h1ee coupling\n",real(c1));
-@@ -2416,7 +2478,7 @@ fprintf(output,"Block MINPAR    # Model 
+@@ -2416,7 +2483,7 @@
    }
  
    fclose(output);
@@ -5941,7 +5964,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    printf("LesHouches output written to file %s\n", file);
  }
  
-@@ -2430,7 +2492,7 @@ bool THDM::read_LesHouches(const char* f
+@@ -2430,7 +2497,7 @@
    for (int i=0;i<8;i++)  lambda[i] = 0.;
    for (int i=0;i<40;i++) masses[i] = 0.;
    for (int i=0;i<32;i++) par[i] = false;
@@ -5950,7 +5973,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    int     model     = -1;
    double  tb        = 0.;
    double  m12_2     = 0.;
-@@ -2504,7 +2566,7 @@ bool THDM::read_LesHouches(const char* f
+@@ -2504,7 +2571,7 @@
  	  if (ncmd==24) type = (int)x;
  	  if (ncmd<32) par[ncmd] = true;
  	}
@@ -5959,7 +5982,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  	if (block=="MASS") {
  	  ss >> x;
  	  if (ncmd<40) masses[ncmd]=x;
-@@ -2522,7 +2584,7 @@ bool THDM::read_LesHouches(const char* f
+@@ -2522,7 +2589,7 @@
    for (int i=1;i<=6;i++) {
      if (masses[i]>0) sm.set_qmass_pole(i,masses[i]);
    }
@@ -5968,7 +5991,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    if (masses[11]>0) sm.set_lmass_pole(1,masses[11]);
    if (masses[13]>0) sm.set_lmass_pole(2,masses[13]);
    if (masses[15]>0) sm.set_lmass_pole(3,masses[15]);
-@@ -2552,7 +2614,7 @@ bool THDM::read_LesHouches(const char* f
+@@ -2552,7 +2619,7 @@
    }
  
    return pset;
@@ -5977,7 +6000,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2576,7 +2638,7 @@ void THDM::print_yukawas() {
+@@ -2576,7 +2643,7 @@
  
  
  void THDM::print_param_gen() {
@@ -5986,7 +6009,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    get_param_gen(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,m12_2,tan_beta);
  
    printf("\n2HDM parameters in generic basis:\n");
-@@ -2586,15 +2648,15 @@ void THDM::print_param_gen() {
+@@ -2586,15 +2653,15 @@
    printf(" lambda_4: %12.5f\n",lambda4);
    printf(" lambda_5: %12.5f\n",lambda5);
    printf(" lambda_6: %12.5f\n",lambda6);
@@ -6005,7 +6028,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    get_param_gen(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,m12_2,tan_beta);
  
    printf("\n2HDM parameters in Hybrid basis:\n");
-@@ -2607,8 +2669,8 @@ void THDM::print_param_hybrid() {
+@@ -2607,8 +2674,8 @@
    printf(" cos(b-a): %12.5f\n",cba);
    printf("       Z4: %12.5f\n",Z4);
    printf("       Z5: %12.5f\n",Z5);
@@ -6016,7 +6039,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  }
  
  void THDM::print_hdecay() {
-@@ -2616,7 +2678,7 @@ void THDM::print_hdecay() {
+@@ -2616,7 +2683,7 @@
    get_param_phys(mh,mH,mA,mHp,sba,lambda6,lambda7,m12_2,tan_beta);
  
    alpha = -asin(sba)+atan(tan_beta);
@@ -6025,7 +6048,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    printf("\n2HDM output for HDECAY\n");
    printf(" *************************** 2 Higgs Doublet Model **************************\n");
    printf(" TYPE; 1 (I), 2 (II)\n");
-@@ -2659,7 +2721,7 @@ void THDM::print_param_phys() {
+@@ -2659,7 +2726,7 @@
    printf("     m_H+: %12.5f\n",mHp);
    printf(" sin(b-a): %12.5f\n",sba);
    printf(" lambda_6: %12.5f\n",lambda6);
@@ -6034,7 +6057,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
    printf("    m12^2: %12.5f\n",m12_2);
    printf("tan(beta): %12.5f\n",tan_beta);
  }
-@@ -2681,23 +2743,29 @@ void THDM::print_param_higgs() {
+@@ -2681,23 +2748,29 @@
  
  
  double THDM::get_m12_2() {
@@ -6079,7 +6102,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2705,12 +2773,16 @@ SM THDM::get_SM() {
+@@ -2705,12 +2778,16 @@
    return sm;
  }
  
@@ -6098,7 +6121,7 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2739,19 +2811,19 @@ double THDM::get_cba() {
+@@ -2739,19 +2816,19 @@
  }
  
  double THDM::get_alpha() {
@@ -6122,147 +6145,19 @@ diff -rupN src/THDM.cpp src_patched/THDM.cpp
  
  
    return a;
-@@ -2770,3 +2842,136 @@ void THDM::print_info() {
+@@ -2770,3 +2847,8 @@
    printf("*                                                  *\n");
    printf("****************************************************\n");
  }
 +
-+void THDM::get_unitarity_conditions(double conditions[13]) {
-+
-+        int ArraySize = 12;
-+        conditions[0] = ArraySize;
-+
-+        // S-Matrices from Ginzburg and Ivanov, hep-ph/0508020
-+        conditions[1] = lambda[3]-lambda[4];
-+        //if (abs(S20) > abs(egmax)) egmax = S20;
-+
-+        double s2 = sqrt(2.);
-+
-+        double S21_data[] = { lambda[1],    lambda[5],    s2*lambda[6],
-+                              lambda[5],    lambda[2],    s2*lambda[7],
-+                              s2*lambda[6], s2*lambda[7], lambda[3]+lambda[4] };
-+
-+        double S01_data[] = { lambda[1],  lambda[4],  lambda[6],  lambda[6],
-+                              lambda[4],  lambda[2],  lambda[7],  lambda[7],
-+                              lambda[6],  lambda[7],  lambda[3],  lambda[5],
-+                              lambda[6],  lambda[7],  lambda[5],  lambda[3] };
-+
-+        double S00_data[] = { 3.*lambda[1],2.*lambda[3]+lambda[4],3.*lambda[6],3.*lambda[6],
-+                              2.*lambda[3]+lambda[4],3.*lambda[2],3.*lambda[7],3.*lambda[7],
-+                              3.*lambda[6],3.*lambda[7],lambda[3]+2.*lambda[4],3.*lambda[5],
-+                              3.*lambda[6],3.*lambda[7],3.*lambda[5],lambda[3]+2.*lambda[4] };
-+
-+        gsl_matrix_view S21 = gsl_matrix_view_array(S21_data,3,3);
-+        gsl_matrix_view S01 = gsl_matrix_view_array(S01_data,4,4);
-+        gsl_matrix_view S00 = gsl_matrix_view_array(S00_data,4,4);
-+
-+        gsl_eigen_symm_workspace *w3 = gsl_eigen_symm_alloc(3);
-+        gsl_eigen_symm_workspace *w4 = gsl_eigen_symm_alloc(4);
-+        gsl_vector *eval3 = gsl_vector_alloc(3);
-+        gsl_vector *eval4 = gsl_vector_alloc(4);
-+
-+        gsl_eigen_symm(&S21.matrix,eval3,w3);
-+        for (int i=0;i<3;i++) {
-+          conditions[i+2]=gsl_vector_get(eval3,i);
-+          //if (abs(eg)>abs(egmax)) egmax = eg;
-+        }
-+
-+        gsl_eigen_symm(&S01.matrix,eval4,w4);
-+        for (int i=0;i<4;i++) {
-+          conditions[i+5] = gsl_vector_get(eval4,i);
-+          //if (abs(eg)>abs(egmax)) egmax = eg;
-+        }
-+
-+        gsl_eigen_symm(&S00.matrix,eval4,w4);
-+        for (int i=0;i<4;i++) {
-+          conditions[i+9] = gsl_vector_get(eval4,i);
-+          //if (abs(eg)>abs(egmax)) egmax = eg;
-+        }
-+
-+        gsl_eigen_symm_free(w3);
-+        gsl_eigen_symm_free(w4);
-+        gsl_vector_free(eval3);
-+        gsl_vector_free(eval4);
-+
-+}
-+
-+void THDM::get_perturbativity_conditions(double conditions[257]) {
-+
-+      	const int ArraySize = 256;
-+
-+        	static complex <double> pertCon[ArraySize+1];
-+
-+        	pertCon[0] = ArraySize;
-+          conditions[0] = ArraySize;
-+
-+        for (int i=1;i<5;i++) {
-+           for (int j=1;j<5;j++) {
-+              for (int k=1;k<5;k++) {
-+                 for (int l=1;l<5;l++) {
-+                    get_coupling_hhhh(i,j,k,l,pertCon[64*(i-1) + 16*(j-1) + 4*(k-1) + l]);
-+                    }
-+                 }
-+              }
-+           }
-+
-+           for (int i=1; i<(ArraySize+1); i++)
-+           {
-+             conditions[i] = abs(pertCon[i]);
-+           }
-+
-+}
-+
-+void THDM::get_stability_conditions(double conditions[5]) {
-+      	 const int ArraySize = 4;
-+         const static double EPS = 1E-12;
-+
-+        	conditions[0] = ArraySize;
-+
-+      	//stability_params p={{lambda[0],lambda[1],lambda[2],lambda[3],lambda[4],lambda[5],lambda[6],lambda[7]},0.,M_PI/2.,M_PI/4.,0};
-+
-+      	if ((abs(lambda[6])<EPS)&&(abs(lambda[7])<EPS)) // Check if lambda6 and lambda7 are zero
-+      	{
-+      		  // Check for gamma=0
-+      		  conditions[1] = lambda[1];
-+      		  conditions[2] = lambda[2];
-+      		  if((lambda[1]*lambda[2])<0)
-+      		  {
-+      				if(lambda[3]>0)
-+      					conditions[3] = lambda[1]*lambda[2];
-+      				else //lambda[3]<=0
-+      					conditions[3] = lambda[1]*lambda[2] + lambda[3];
-+
-+      				if((lambda[3]+lambda[4]-abs(lambda[5]))>0)
-+      					conditions[4] = lambda[1]*lambda[2];
-+      				else //<=0
-+      					conditions[4] = lambda[1]*lambda[2] + lambda[3]+lambda[4]-abs(lambda[5]);
-+      		  }
-+      		  else
-+      		  	{
-+      				conditions[3] = lambda[3]+sqrt(lambda[1]*lambda[2]);
-+      				conditions[4] = lambda[3]+lambda[4]-abs(lambda[5])+sqrt(lambda[1]*lambda[2]);
-+      			}
-+
-+        }
-+
-+        // checks that stability conditions are valid - if not return very large number
-+        for (int i=1;i<ArraySize;i++)
-+        {
-+          if (std::isnan(conditions[i]))
-+          {
-+            conditions[i] = 1E99;
-+          }
-+        }
-+
-+}
 +
 +int THDM::get_yukawas_type() {
 +  return yukawas_type;
 +}
-diff -rupN src/THDM.h src_patched/THDM.h
+diff -ruN src/THDM.h src_patched/THDM.h
 --- src/THDM.h	2015-08-26 21:40:57.000000000 +0930
-+++ src_patched/THDM.h	2018-10-22 00:45:36.000000000 +1030
-@@ -11,9 +11,9 @@ using namespace std;
++++ src_patched/THDM.h	2018-10-31 18:38:35.000000000 +1030
+@@ -11,9 +11,9 @@
  
  /**
  * \mainpage 2HDMC Class documentation
@@ -6275,7 +6170,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
  * widths, theoretical constraints and much more.
  */
  
-@@ -24,8 +24,8 @@ using namespace std;
+@@ -24,8 +24,8 @@
  * in terms of the potential parameters and Yukawa couplings necessary for
  * a full specification of the model. Several methods are available to set
  * the model parameters to various special cases.
@@ -6286,7 +6181,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
  * accessed, including Higgs-fermion, Higgs-Vector, Higgs-Higgs, 3H and 4H
  * couplings.
  */
-@@ -35,28 +35,27 @@ int thdmc_set_param(int key, double smpa
+@@ -35,28 +35,27 @@
  
  class THDM {
  
@@ -6322,19 +6217,19 @@ diff -rupN src/THDM.h src_patched/THDM.h
  
    /**
    * @brief Returns the underlying SM
-@@ -64,14 +63,21 @@ class THDM {
+@@ -64,14 +63,21 @@
    * @returns The SM object specifying the parameters used in this 2HDM
    */
    SM get_SM();
 +  SM* get_SM_pointer();
- 
--  /** 
++
 +  bool set_param_full(double lambda1, double lambda2, double lambda3,
 +                      double lambda4, double lambda5, double lambda6,
 +                      double lambda7, double m12_2, double tan_beta,
 +                      double m_h,double m_H, double m_A, double m_Hp,
 +                      double sba);
-+
+ 
+-  /** 
 +  /**
    * @brief Specifies 2HDM using generic potential
 -  *   
@@ -6348,7 +6243,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param lambda1 Value of \f$ \lambda_1 \f$
    * @param lambda2 Value of \f$ \lambda_2 \f$
    * @param lambda3 Value of \f$ \lambda_3 \f$
-@@ -81,20 +87,20 @@ class THDM {
+@@ -81,20 +87,20 @@
    * @param lambda7 Value of \f$ \lambda_7 \f$
    * @param m12_2 Soft \f$ Z_2 \f$-breaking parameter
    * @param tan_beta Ratio of vevs, \f$ \tan\beta=v_2/v_1 \f$
@@ -6375,7 +6270,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param Lambda1 Value of \f$ \Lambda_1 \f$
    * @param Lambda2 Value of \f$ \Lambda_2 \f$
    * @param Lambda3 Value of \f$ \Lambda_3 \f$
-@@ -103,16 +109,16 @@ class THDM {
+@@ -103,16 +109,16 @@
    * @param Lambda6 Value of \f$ \Lambda_6 \f$
    * @param Lambda7 Value of \f$ \Lambda_7 \f$
    * @param m_Hp    Mass of the charged Higgs
@@ -6396,7 +6291,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param mh Value of light CP-even Higgs mass \f$ m_h \f$
    * @param mH Value of heavy CP-even Higgs mass \f$ m_H \f$
    * @param cba Mixing parameter \f$ \cos(\beta-\alpha) \f$. Valid range: -1 < cba <= 1.
-@@ -120,14 +126,14 @@ class THDM {
+@@ -120,14 +126,14 @@
    * @param Z_5 Value of \f$ Z_5 \f$
    * @param Z_7 Value of \f$ Z_7 \f$
    * @param tanb Ratio of vevs, \f$ \tan\beta=v_2/v_1 \f$
@@ -6414,7 +6309,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param mh Value of light CP-even Higgs mass \f$ m_h \f$
    * @param mH Value of heavy CP-even Higgs mass \f$ m_H \f$
    * @param sba Mixing parameter \f$ \sin(\beta-\alpha) \f$. Valid range: -1 < cba <= 1.
-@@ -135,19 +141,19 @@ class THDM {
+@@ -135,19 +141,19 @@
    * @param Z_5 Value of \f$ Z_5 \f$
    * @param Z_7 Value of \f$ Z_7 \f$
    * @param tanb Ratio of vevs, \f$ \tan\beta=v_2/v_1 \f$
@@ -6439,7 +6334,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param lambda1 Value of \f$ \lambda_1 \f$
    * @param lambda2 Value of \f$ \lambda_2 \f$
    * @param lambda3 Value of \f$ \lambda_3 \f$
-@@ -155,20 +161,20 @@ class THDM {
+@@ -155,20 +161,20 @@
    * @param lambda5 Value of \f$ \lambda_5 \f$
    * @param lambda6 Value of \f$ \lambda_6 \f$
    * @param tan_beta Ratio of vevs, \f$ \tan\beta=v_2/v_1 \f$
@@ -6466,7 +6361,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param m_h  Mass of lightest CP-even Higgs \f$ h \f$
    * @param m_H  Mass of heavier CP-even Higgs \f$ H \f$
    * @param m_A  Mass of CP-odd Higgs \f$ A \f$
-@@ -178,7 +184,7 @@ class THDM {
+@@ -178,7 +184,7 @@
    * @param lambda7  Value of \f$ \lambda_7 \f$ in generic potential
    * @param m12_2    Soft \f$ Z_2 \f$-breaking parameter
    * @param tan_beta Ratio of vevs, \f$ \tan\beta=v_2/v_1 \f$
@@ -6475,7 +6370,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
    */
    bool set_param_phys(double m_h,double m_H, double m_A, double m_Hp,
-@@ -188,55 +194,55 @@ class THDM {
+@@ -188,55 +194,55 @@
    bool set_param_sm(double mh);
  
  
@@ -6546,7 +6441,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
    */
    bool set_inert(double m_h,double m_H, double m_A, double m_Hp, double lambda2, double lambda3);
-@@ -244,42 +250,42 @@ class THDM {
+@@ -244,42 +250,42 @@
  
    /**
    * @brief Returns parameter set in the generic basis
@@ -6609,7 +6504,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
                         double &Lambda7, double &m_Hp);
  
    void get_param_hybrid(double &m_h, double &m_H, double &sba,
-@@ -288,39 +294,39 @@ class THDM {
+@@ -288,39 +294,39 @@
  
    /**
    * @brief Returns parameter set in Higgs Hunter's Guide basis
@@ -6665,7 +6560,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    */
    void get_param_phys(double &m_h,double &m_H, double &m_A, double &m_Hp,
                        double &sba, double &lambda6, double &lambda7,
-@@ -329,38 +335,38 @@ class THDM {
+@@ -329,38 +335,38 @@
  
    /**
    * @brief Changes basis for the Higgs doublets
@@ -6713,7 +6608,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @returns Value of \f$ \cos(\beta-\alpha) \f$ in model
    */
    double get_cba();
-@@ -368,14 +374,14 @@ class THDM {
+@@ -368,14 +374,14 @@
  
    /**
    * @brief Higgs coupling \f$ q_{ki} \f$ factors
@@ -6731,7 +6626,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @returns The value of the coefficient \f$ q_{ki} \f$
    */
    complex <double> get_qki(int k, int i);
-@@ -386,7 +392,7 @@ class THDM {
+@@ -386,7 +392,7 @@
    *
    * This method is used to specify a type of Yukawa sector for the 2HDM.
    * The types (1-4) implemented follow the convention of <a href=""></a>.
@@ -6740,7 +6635,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param type Type of Yukawa sector (1--4)
    */
    void set_yukawas_type(int type);
-@@ -396,13 +402,13 @@ class THDM {
+@@ -396,13 +402,13 @@
    *
    * This method initializes and sets the Yukawa couplings for the down-type quarks.
    * The diagonal matrix \f$ \kappa^D \f$ is automatically specified to comply with
@@ -6757,7 +6652,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @see set_yukawas_up, set_yukawas_lepton
    */
    void set_yukawas_down(double rhod, double rhos, double rhob);
-@@ -413,13 +419,13 @@ class THDM {
+@@ -413,13 +419,13 @@
    *
    * This method initializes and sets the Yukawa couplings for the up-type quarks.
    * The diagonal matrix \f$ \kappa^U \f$ is automatically specified to comply with
@@ -6774,7 +6669,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @see set_yukawas_down, set_yukawas_lepton
    */
    void set_yukawas_up(double rhou, double rhoc, double rhot);
-@@ -429,9 +435,9 @@ class THDM {
+@@ -429,9 +435,9 @@
    *
    * This method initializes and sets the Yukawa couplings for the leptons.
    * The diagonal matrix \f$ \kappa^L \f$ is automatically specified to comply with
@@ -6786,7 +6681,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rhoe   Diagonal element of \f$ \rho^L \f$ for \f$ e \f$
    * @param rhomu  Diagonal element of \f$ \rho^L \f$ for \f$ \mu \f$
    * @param rhotau Diagonal element of \f$ \rho^L \f$ for \f$ \tau \f$
-@@ -439,7 +445,7 @@ class THDM {
+@@ -439,7 +445,7 @@
    * @see set_yukawas_down, set_yukawas_up
    */
    void set_yukawas_lepton(double rhoe, double rhomu, double rhotau);
@@ -6795,7 +6690,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
  
    /**
    * @brief Initializes and sets Yukawa couplings for down-type quarks
-@@ -448,7 +454,7 @@ class THDM {
+@@ -448,7 +454,7 @@
    * The diagonal matrix \f$ \kappa^D \f$ is automatically specified to comply with
    * the quark pole masses, whereas the symmetric matrix \f$ \rho^D \f$ is given by
    * the six elements specified as input.
@@ -6804,7 +6699,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rho11 Yukawa coupling \f$ \rho^D_{dd} \f$
    * @param rho22 Yukawa coupling \f$ \rho^D_{ss} \f$
    * @param rho33 Yukawa coupling \f$ \rho^D_{bb} \f$
-@@ -458,7 +464,7 @@ class THDM {
+@@ -458,7 +464,7 @@
    */
    void set_yukawas_down(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
  
@@ -6813,7 +6708,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    /**
    * @brief Initializes and sets Yukawa couplings for up-type quarks
    *
-@@ -466,7 +472,7 @@ class THDM {
+@@ -466,7 +472,7 @@
    * The diagonal matrix \f$ \kappa^U \f$ is automatically specified to comply with
    * the quark pole masses, whereas the symmetric matrix \f$ \rho^U \f$ is given by
    * the six elements specified as input.
@@ -6822,7 +6717,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rho11 Yukawa coupling \f$ \rho^U_{uu} \f$
    * @param rho22 Yukawa coupling \f$ \rho^U_{cc} \f$
    * @param rho33 Yukawa coupling \f$ \rho^U_{tt} \f$
-@@ -475,8 +481,8 @@ class THDM {
+@@ -475,8 +481,8 @@
    * @param rho23 Yukawa coupling \f$ \rho^U_{ct} \f$
    */
    void set_yukawas_up(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
@@ -6833,7 +6728,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    /**
    * @brief Initializes and sets Yukawa couplings for leptons
    *
-@@ -484,7 +490,7 @@ class THDM {
+@@ -484,7 +490,7 @@
    * The diagonal matrix \f$ \kappa^L \f$ is automatically specified to comply with
    * the lepton masses, whereas the symmetric matrix \f$ \rho^L \f$ is given by
    * the six elements specified as input.
@@ -6842,7 +6737,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rho11 Yukawa coupling \f$ \rho^L_{ee} \f$
    * @param rho22 Yukawa coupling \f$ \rho^L_{\mu\mu} \f$
    * @param rho33 Yukawa coupling \f$ \rho^L_{\tau\tau} \f$
-@@ -493,7 +499,7 @@ class THDM {
+@@ -493,7 +499,7 @@
    * @param rho23 Yukawa coupling \f$ \rho^L_{\mu\tau} \f$
    */
    void set_yukawas_lepton(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
@@ -6851,7 +6746,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    /**
    * @brief Initializes and sets Yukawa couplings for the inert 2HDM
    *
-@@ -503,32 +509,32 @@ class THDM {
+@@ -503,32 +509,32 @@
    */
    void set_yukawas_inert();
  
@@ -6893,7 +6788,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rhotau Returned value of \f$ \rho^L_{\tau\tau} \f$
    */
    void get_yukawas_lepton(double &rhoe, double &rhomu, double &rhotau);
-@@ -537,33 +543,33 @@ class THDM {
+@@ -537,33 +543,33 @@
    void get_kappa_down(double &kd, double &ks, double &kb);
    void get_kappa_up(double &ku, double &kc, double &kt);
    void get_kappa_lepton(double &ke, double &kmu, double &ktau);
@@ -6934,7 +6829,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param rho_L_out Returned Yukawa matrix \f$ \rho^L \f$
    */
    void get_yukawas_lepton(gsl_matrix *rho_L_out);
-@@ -571,85 +577,85 @@ class THDM {
+@@ -571,85 +577,85 @@
  
    /**
    * @brief Couplings of Higgses to down-type fermions
@@ -7043,7 +6938,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param v1 Index of first vector boson (1,2,3 = \f$ \gamma,Z,W^+ \f$)
    * @param v2 Index of second vector boson (1,2,3 = \f$ \gamma,Z,W^+ \f$)
    * @param h  Index of Higgs boson (1,2,3,4 = h,H,A,H+)
-@@ -657,26 +663,26 @@ class THDM {
+@@ -657,26 +663,26 @@
    */
    void get_coupling_vvh(int v1,int v2,int h,complex <double> &c);
  
@@ -7078,7 +6973,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param h1 Index of first Higgs boson (1,2,3,4 = h,H,A,H+)
    * @param h2 Index of second Higgs boson (1,2,3,4 = h,H,A,H+)
    * @param h3 Index of third Higgs boson (1,2,3,4 = h,H,A,H+)
-@@ -684,26 +690,26 @@ class THDM {
+@@ -684,26 +690,26 @@
    */
    void get_coupling_hhh(int h1,int h2,int h3,complex <double> &c);
  
@@ -7113,7 +7008,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * @param h1 Index of first Higgs boson (1,2,3,4 = h,H,A,H+)
    * @param h2 Index of second Higgs boson (1,2,3,4 = h,H,A,H+)
    * @param h3 Index of third Higgs boson (1,2,3,4 = h,H,A,H+)
-@@ -713,118 +719,118 @@ class THDM {
+@@ -713,118 +719,118 @@
    void get_coupling_hhhh(int h1,int h2,int h3,int h4,complex <double> &c);
  
  
@@ -7274,7 +7169,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    * This method writes the potential parameters and other selected output to
    * a specified file in LesHouches-compliant file format which can then be
    * further processed by other codes.
-@@ -832,25 +838,38 @@ class THDM {
+@@ -832,25 +838,27 @@
    * @param file The name of the file which is to be written
    * @param fulldecay If \a true, decay modes of the Higgs bosons in LesHouches
    *                  format are written to the file
@@ -7294,17 +7189,6 @@ diff -rupN src/THDM.h src_patched/THDM.h
 +  // get the mixing angle alpha
    double get_alpha();
  
-+  // Functions that fill arrays with values. Each value of the array must satisfy
-+  // the relative theoretical constraint for the overall constraint to hold.
-+  // This form is useful for generating likelihood functions for each constraint.
-+  // -----
-+  void get_unitarity_conditions(double conditions[13]);
-+
-+  void get_perturbativity_conditions(double conditions[257]);
-+
-+  void get_stability_conditions(double conditions[5]);
-+  // -----
-+
 +  // get the yukawa type
 +  int get_yukawas_type();
 +
@@ -7320,7 +7204,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
  
   private:
    double      lambda[8];
-@@ -858,7 +877,13 @@ class THDM {
+@@ -858,7 +866,13 @@
    double      m22_2;
    double      sinba;
    bool        params_set;
@@ -7334,7 +7218,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    gsl_matrix *kappa_D;
    gsl_matrix *kappa_U;
    gsl_matrix *kappa_L;
-@@ -872,8 +897,8 @@ class THDM {
+@@ -872,8 +886,8 @@
    const static char *version;
  
    SM sm;
@@ -7345,7 +7229,7 @@ diff -rupN src/THDM.h src_patched/THDM.h
    double get_m12_2();
    void set_kappa();
    void set_kappa_D();
-diff -rupN src/Util.cpp src_patched/Util.cpp
+diff -ruN src/Util.cpp src_patched/Util.cpp
 --- src/Util.cpp	2015-08-28 22:18:43.000000000 +0930
 +++ src_patched/Util.cpp	2018-10-15 12:56:13.000000000 +1030
 @@ -8,7 +8,7 @@
@@ -7357,7 +7241,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  	return 0;
  }
  
-@@ -29,7 +29,7 @@ bool stability_minimum(stability_params 
+@@ -29,7 +29,7 @@
  
    F.function = &stability_fcn;
    F.params = &p;
@@ -7366,7 +7250,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
    T = gsl_min_fminimizer_brent;
    s = gsl_min_fminimizer_alloc (T);
    gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
-@@ -43,12 +43,12 @@ bool stability_minimum(stability_params 
+@@ -43,12 +43,12 @@
        m = gsl_min_fminimizer_x_minimum (s);
        a = gsl_min_fminimizer_x_lower (s);
        b = gsl_min_fminimizer_x_upper (s);
@@ -7382,7 +7266,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
    p.m=m;
    p.v=gsl_min_fminimizer_f_minimum(s);
    gsl_min_fminimizer_free (s);
-@@ -125,7 +125,7 @@ double hvv_fcn(double y, void *params) {
+@@ -125,7 +125,7 @@
    //   A[0] = cg1/sqrt(cg);
    //   A[1] = cg + pow(cg1,2);
    //   A[2] = 1./sqrt(cg);
@@ -7391,7 +7275,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
    A[0] = k/sqrt(cg0);
    A[1] = cg0+pow(k,2);
    A[2] = 1./sqrt(cg0);
-@@ -143,25 +143,25 @@ double hvv_fcn1(double y, void *params) 
+@@ -143,25 +143,25 @@
  
  
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -7426,7 +7310,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
        if (EXIT_ON_GSL_ERROR) exit(-1);
      }
    gsl_set_error_handler(old_handler);
-@@ -200,7 +200,7 @@ double hvv_fcn2(double y, void *params) 
+@@ -200,7 +200,7 @@
       prod = bw1*bw2*gamma0*mh2*mh2;
    }
    return prod;
@@ -7435,7 +7319,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  }
  
  double htt_fcn1(double y, void *params) {
-@@ -208,30 +208,30 @@ double htt_fcn1(double y, void *params) 
+@@ -208,30 +208,30 @@
    integration_params_tt ip = *((integration_params_tt*)params);
  
    gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
@@ -7476,7 +7360,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
        if (EXIT_ON_GSL_ERROR) exit(-1);
      }
    gsl_set_error_handler(old_handler);
-@@ -258,40 +258,40 @@ double htt_fcn2(double y, void *params) 
+@@ -258,40 +258,40 @@
  
    double y1 = 1.-x1;
    double y2 = 1.-x2;
@@ -7527,7 +7411,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  }
  
  
-@@ -310,14 +310,14 @@ double hvh_fcn(double x, void *params) {
+@@ -310,14 +310,14 @@
  
    double A[3];
    A[0] = k2/sqrt(g);
@@ -7544,7 +7428,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  
    // Maple code for differential width
    double cg = (-log(A[1]) * cg6 * sqrt(cg2) + log(A[1]) * sqrt(cg2) + 0.2e1 * atan(A[0]) * cg6 - 0.2e1 * atan(A[0]) * pow(cg6, 0.2e1) - 0.2e1 * atan(A[0]) * cg6 * cg4 + 0.2e1 * atan(A[0]) * cg6 * cg0 - 0.2e1 * atan(A[0]) * cg0 + cg6 * log(cg2 - 0.2e1 * pow(cg6, 0.3e1) + cg2 * pow(cg6, 0.2e1) + pow(cg0, 0.2e1) + pow(cg6, 0.2e1) - 0.2e1 * cg6 * cg0 + pow(cg6, 0.4e1) - 0.2e1 * pow(cg0, 0.2e1) * cg6 + 0.4e1 * cg0 * pow(cg6, 0.2e1) + 0.2e1 * cg0 * cg6 * cg4 - 0.2e1 * cg4 * cg0 * pow(cg6, 0.2e1) + pow(cg0, 0.2e1) * pow(cg6, 0.2e1) + 0.2e1 * pow(cg6, 0.3e1) * cg4 - 0.2e1 * pow(cg6, 0.3e1) * cg0 + pow(cg4, 0.2e1) * pow(cg6, 0.2e1) - 0.2e1 * cg2 * cg6 - 0.2e1 * cg4 * pow(cg6, 0.2e1)) * sqrt(cg2) - 0.2e1 * cg6 * log(0.1e1 - cg6) * sqrt(cg2) - log(cg2 - 0.2e1 * pow(cg6, 0.3e1) + cg2 * pow(cg6, 0.2e1) + pow(cg0, 0.2e1) + pow(cg6, 0.2e1) - 0.2e1 * cg6 * cg0 + pow(cg6, 0.4e1) - 0.2e1 * pow(cg0, 0.2e1) * cg6 + 0.4e1 * cg0 * pow(cg6, 0.2e1) + 0.2e1 * cg0 * cg6 * cg4 - 0.2e1 * cg4 * cg0 * pow(cg6, 0.2e1) + pow(cg0, 0.2e1) * pow(cg6, 0.2e1) + 0.2e1 * pow(cg6, 0.3e1) * cg4 - 0.2e1 * pow(cg6, 0.3e1) * cg0 + pow(cg4, 0.2e1) * pow(cg6, 0.2e1) - 0.2e1 * cg2 * cg6 - 0.2e1 * cg4 * pow(cg6, 0.2e1)) * sqrt(cg2) + 0.2e1 * log(0.1e1 - cg6) * sqrt(cg2) + 0.2e1 * atan((cg4 * cg6 - cg6 * cg0 + pow(cg6, 0.2e1) - cg6 + cg0) / (-0.1e1 + cg6) * A[2]) * cg6 - 0.2e1 * atan((cg4 * cg6 - cg6 * cg0 + pow(cg6, 0.2e1) - cg6 + cg0) / (-0.1e1 + cg6) * A[2]) * pow(cg6, 0.2e1) - 0.2e1 * atan((cg4 * cg6 - cg6 * cg0 + pow(cg6, 0.2e1) - cg6 + cg0) / (-0.1e1 + cg6) * A[2]) * cg6 * cg4 + 0.2e1 * atan((cg4 * cg6 - cg6 * cg0 + pow(cg6, 0.2e1) - cg6 + cg0) / (-0.1e1 + cg6) * A[2]) * cg6 * cg0 - 0.2e1 * atan((cg4 * cg6 - cg6 * cg0 + pow(cg6, 0.2e1) - cg6 + cg0) / (-0.1e1 + cg6) * A[2]) * cg0) * A[2] / 0.2e1;
-@@ -330,9 +330,9 @@ double hvh_fcn(double x, void *params) {
+@@ -330,9 +330,9 @@
  double cubic(double v, double X[4], double Y[4]) {
  
    if (v<0) return 0;
@@ -7556,7 +7440,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
    double x0 = log(X[0]);
    double x1 = log(X[1]);
    double x2 = log(X[2]);
-@@ -341,12 +341,12 @@ double cubic(double v, double X[4], doub
+@@ -341,12 +341,12 @@
    double y1 = log(Y[1]);
    double y2 = log(Y[2]);
    double y3 = log(Y[3]);
@@ -7571,7 +7455,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
    double c = exp(A0*y0+A1*y1+A2*y2+A3*y3);
  
    return c;
-@@ -356,28 +356,28 @@ double cubic(double v, double X[4], doub
+@@ -356,28 +356,28 @@
  double htb_fcn1(double y, void *params) {
  
  	integration_params_tb ip = *((integration_params_tb*)params);
@@ -7608,7 +7492,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  		if (EXIT_ON_GSL_ERROR) exit(-1);
  	}
  	gsl_set_error_handler(old_handler);
-@@ -390,7 +390,7 @@ double htb_fcn1(double y, void *params) 
+@@ -390,7 +390,7 @@
  }
  
  
@@ -7617,7 +7501,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  {
  	integration_params_tb ip = *((integration_params_tb*)params);
  	
-@@ -404,16 +404,16 @@ double htb_fcn2(double y, void *params) 
+@@ -404,16 +404,16 @@
  	double Zu = ip.Z_u;
  	double Zd = ip.Z_d;
  	double gtop = ip.gtop;
@@ -7639,7 +7523,7 @@ diff -rupN src/Util.cpp src_patched/Util.cpp
  	return prod;
  }
  
-@@ -428,5 +428,3 @@ double sqrtlambda(double a1, double a2, 
+@@ -428,5 +428,3 @@
  	double lam = sqrt(pow(a1,2) + pow(a2,2)+pow(a3,2) - 2*(a1*a2 + a1*a3 + a2*a3));
  	return lam;
  }

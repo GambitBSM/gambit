@@ -31,22 +31,6 @@
   #define CAPABILITY HB_ModelParameters
   START_CAPABILITY
 
-   // THDM Higgs model parameters
-    #define FUNCTION THDMHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_Higgs_Couplings, thdmc_couplings)
-    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_h01, thdmc_couplings)
-    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_h02, thdmc_couplings)
-    DEPENDENCY(THDM_Higgs_Couplings_SM_Like_Model_A0, thdmc_couplings)
-    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_h01, thdmc_decay_widths)
-    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_h02, thdmc_decay_widths)
-    DEPENDENCY(THDM_DecayWidths_SM_Like_Model_A0, thdmc_decay_widths)
-    DEPENDENCY(THDM_TotalWidths, thdmc_total_widths)
-    DEPENDENCY(THDM_DecayWidths, thdmc_decay_widths)
-    ALLOW_MODELS(THDMatQ, THDM)
-    #undef FUNCTION
-
     // SM Higgs model parameters
     #define FUNCTION SMHiggs_ModelParameters
     START_FUNCTION(hb_ModelParameters)
@@ -67,6 +51,18 @@
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    // THDM Higgs model parameters
+    #define FUNCTION fill_THDM_HiggsBounds_model_parameters
+    START_FUNCTION(hb_ModelParameters)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_couplings, thdmc_couplings)
+    DEPENDENCY(THDM_couplings_SM_like_model, std::vector<thdmc_couplings>)
+    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
+    DEPENDENCY(THDM_decay_widths_SM_like_model, std::vector<thdmc_decay_widths>)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    ALLOW_MODELS(THDMatQ, THDM)
     #undef FUNCTION
 
   #undef CAPABILITY
