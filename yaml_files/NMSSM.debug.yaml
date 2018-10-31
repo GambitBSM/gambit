@@ -197,7 +197,7 @@ Scanner:
 
 ObsLikes:
   - purpose:      Observable
-    capability:   run_MSSMspectrum_test
+    capability:   run_NMSSMspectrum_test
     type:         bool
 
   - purpose:      Observable

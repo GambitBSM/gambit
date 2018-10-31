@@ -38,6 +38,16 @@
 
    #undef CAPABILITY
 
+   #define CAPABILITY run_NMSSMspectrum_test
+   START_CAPABILITY
+
+     #define FUNCTION SPheno_NMSSM_test
+     START_FUNCTION(bool)
+     DEPENDENCY(NMSSM_spectrum, Spectrum)
+     #undef FUNCTION
+
+   #undef CAPABILITY
+
    #define CAPABILITY run_MSSMspectrum_test
    START_CAPABILITY
 
@@ -50,12 +60,6 @@
      START_FUNCTION(bool)
      DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
      #undef FUNCTION
-
-     #define FUNCTION SPheno_NMSSM_test
-     START_FUNCTION(bool)
-     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-     #undef FUNCTION
-
 
    #undef CAPABILITY
 
