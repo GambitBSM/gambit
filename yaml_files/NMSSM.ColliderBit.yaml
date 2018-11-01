@@ -9,39 +9,43 @@ Parameters:
     Qin:
       fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
     TanBeta:
-      fixed_value: 39.6
+      fixed_value: 28.7   # EWMSSM
+      # fixed_value: 39.6
       # range: [1.0, 70.0]
       # prior_type: flat
     M1:
-      fixed_value: 2000.0
+      fixed_value: -50.5   # EWMSSM
+      # fixed_value: 2000.0
       # prior_type: double_log_flat_join
-      # ranges: [-5e3, -1e1, 1e1, 5e3]
+      # ranges: [-1e3, -1e1, 1e1, 1e3]
     M2:
-      fixed_value: 2000.0
+      fixed_value: 149.3   # EWMSSM
+      # fixed_value: 2000.0
       # prior_type: double_log_flat_join
-      # ranges: [0, 0, 1e1, 5e3]
+      # ranges: [0, 0, 1e1, 1e3]
     M3:
       fixed_value: 3000
     kappa:
-      fixed_value: 0.016 
-      # prior_type: log
-      # range: [1e-5, 1]
+      # fixed_value: 0.016 
+      prior_type: log
+      range: [1e-5, 1]
     lambda:
-      fixed_value: 0.091 
-      # prior_type: log
-      # range: [1e-5, 1]
+      # fixed_value: 0.091 
+      prior_type: log
+      range: [1e-5, 1]
     Akappa:
-      fixed_value: -35.9
-      # prior_type: double_log_flat_join
-      # range: [-5e3, -1e1, 1e1, 5e3]
+      # fixed_value: -35.9
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
     Alambda:
-      fixed_value: 8940.
-      # prior_type: double_log_flat_join
-      # range: [-5e3, -1e1, 1e1, 5e3]
+      # fixed_value: 8940.
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
     mueff:
-      fixed_value: 163.3
+      fixed_value: 252.7   # EWMSSM
+      # fixed_value: 163.3
       # prior_type: double_log_flat_join
-      # ranges: [-5e3, -1e1, 1e1, 5e3]
+      # ranges: [-1e3, -1e1, 1e1, 1e3]
     ml2_11:
       fixed_value: 9000000
     ml2_12:
@@ -177,7 +181,7 @@ Scanner:
     random: 
       plugin: random 
       like:  LogLike 
-      point_number: 1 
+      point_number: 100
       output_file:  output 
 
     multinest:
@@ -239,6 +243,7 @@ Rules:
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       drop_SLHA_file: true
+      ErrorLevel: -1
 
   # - capability: run_MSSMspectrum_test
   #   function: SPheno_NMSSM_test
@@ -274,8 +279,8 @@ Rules:
   # Choose statistical settings for Monte Carlo event generator
   - capability: MC_ConvergenceSettings
     options:
-      min_nEvents: [1000]
-      max_nEvents: [1000]
+      min_nEvents: [100]
+      max_nEvents: [100]
       events_between_convergence_checks: [200000]
       target_fractional_uncert: [0.1]
       halt_when_systematic_dominated: true
@@ -289,7 +294,7 @@ Rules:
       # Pythia_doc_path defaults to the xmldoc directory of the default Pythia
       # backend. So, this must only be set if the user chooses a different Pythia.
       # Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
-      Pythia_SUSY_LHC_13TeV_EWonly: ["Print:quiet = off",
+      Pythia_SUSY_LHC_13TeV_EWonly: ["Print:quiet = on",
                                      "Next:numberCount = 0",
                                      "Random:setSeed = on",
                                      "Beams:eCM = 13000",

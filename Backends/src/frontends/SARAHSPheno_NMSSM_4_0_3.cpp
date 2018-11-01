@@ -57,7 +57,7 @@ BE_NAMESPACE
 
     Set_All_Parameters_0();
 
-    Freal8 scale = 1.0E6;
+    Freal8 scale = 9.0E6;  // Q = 3 TeV. Need to avoid hardcoding this
     *Qin = SetRenormalizationScale(scale);
     *kont = 0;
     *delta_mass = 1.0E-4;
@@ -635,7 +635,7 @@ BE_NAMESPACE
     else
       slha["MODSEL"][""] << 1 << 1 << "# GUT scale input";
     // slha["MODSEL"][""] << 2 << *BoundaryCondition << "# Boundary conditions";  // Not in the SLHA standard?
-    slha["MODSEL"][""] << 3 << 1 << "# NMSSM particle content";  // Not in the SLHA standard?
+    slha["MODSEL"][""] << 3 << 1 << "# NMSSM particle content";
     if(*GenerationMixing)
       slha["MODSEL"][""] << 6 << 1 << "# switching on flavour violation";
     if(input_Param.find("Qin") != input_Param.end())
@@ -1133,13 +1133,13 @@ BE_NAMESPACE
     // 1, Error_Level
     *ErrorLevel = inputs.options->getValueOrDef<Finteger>(-1, "ErrorLevel");
     // GAMBIT: keep error level always 0 (print every warning), let GAMBIT handle errors
-    *ErrorLevel = 0;
+    // *ErrorLevel = 0;
 
     // 2, SPA_convention
     *SPA_convention = inputs.options->getValueOrDef<bool>(false, "SPA_convention");
     if(*SPA_convention)
     {
-      Freal8 scale = 1.0E6;
+      Freal8 scale = 9.0E6;  // Q = 3 TeV. Need to avoid hardcoding this
       SetRGEScale(scale);
     }
 
