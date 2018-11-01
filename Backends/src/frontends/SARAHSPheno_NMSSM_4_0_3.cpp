@@ -952,6 +952,9 @@ BE_NAMESPACE
       }
 
     // Blocks SCALARMIX, PSEUDOSCALARMIX, CHARGEMIX
+    // @todo: Can we remove these, as they shouldn't be there for the
+    //        NMSSM model that this version of SPheno is generated for...
+    //        Should rather use the names NMHMIX and NMAMIX as done below.
     SLHAea_add_block(slha, "SCALARMIX", Q);
     SLHAea_add_block(slha, "PSEUDOSCALARMIX", Q);
     SLHAea_add_block(slha, "CHARGEMIX", Q);
@@ -964,6 +967,17 @@ BE_NAMESPACE
           slha["CHARGEMIX"][""] << i << j << (*ZP)(i,j) << "# ZP(" << i << "," << j << ")";
       }
 
+    // Now write the blocks SCALARMIX and PSEUDOSCALARMIX with their proper
+    // NMSSM SLHA names: NMHMIX and NMAMIX
+    SLHAea_add_block(slha, "NMHMIX", Q);
+    SLHAea_add_block(slha, "NMAMIX", Q);
+    for(int i=1; i<=3; i++)
+      for(int j=1; j<=3; j++)
+      {
+        slha["NMHMIX"][""] << i << j << (*ZH)(i,j) << "# ZH(" << i << "," << j << ")";
+        slha["NMAMIX"][""] << i << j << (*ZA)(i,j) << "# ZA(" << i << "," << j << ")";
+      }
+
     // Blocks NMIX, UMIX, VMIX
     SLHAea_add_block(slha, "NMIX", Q);
     SLHAea_add_block(slha, "IMNMIX", Q);
@@ -971,6 +985,10 @@ BE_NAMESPACE
     SLHAea_add_block(slha, "IMUMIX", Q);
     SLHAea_add_block(slha, "VMIX", Q);
     SLHAea_add_block(slha, "IMVMIX", Q);
+    // Proper NMIX naming for the NMSSM is NMNMIX. Add this as well.
+    SLHAea_add_block(slha, "NMNMIX", Q);
+    SLHAea_add_block(slha, "IMNMNMIX", Q);
+
     for(int i=1; i<=5; i++)
       for(int j=1; j<=5; j++)
       {
@@ -986,7 +1004,13 @@ BE_NAMESPACE
           if((*UP)(i,j).im != 0.0)
             slha["IMVMIX"][""] << i << j << (*UP)(i,j).im << "# Im(UP(" << i << "," << j << "))";
         }
+
+        // NMSSM
+        slha["NMNMIX"][""] << i << j << (*ZN)(i,j).re << "# ZN(" << i << "," << j << ")";
+        if((*ZN)(i,j).im != 0.0)
+          slha["IMNMNMIX"][""] << i << j << (*ZN)(i,j).im << "# Im(ZN(" << i << ", " << j << "))";
       }
+
 
     // Blocks UELMIX, UERMIX, UDLMIX, UDRMIX, UULMIX, UURMIX
     SLHAea_add_block(slha, "UELMIX", Q);
