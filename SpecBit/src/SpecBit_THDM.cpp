@@ -1537,8 +1537,8 @@ namespace Gambit
       //set constraint values
       //-----------------------------
       // all values < 16*PI for unitarity conditions
-      double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      double sigma = 4.0*M_PI;
+      const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+      const double sigma = 4.0*M_PI;
       //-----------------------------
       //calculate the total error of each point
       double chi2 = 0.0;
@@ -1672,10 +1672,9 @@ namespace Gambit
       //set constraint values
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      double perturbativity_upper_limit = 4*M_PI;
-      double sigma = 4*M_PI;
+      const double perturbativity_upper_limit = 4*M_PI;
+      const double sigma = 4*M_PI;
       //-----------------------------
-
       double chi_2 = 0.0;
 
       complex<double> hhhh_coupling;
@@ -1711,7 +1710,7 @@ namespace Gambit
       }
 
         double chi_2 = 0;
-        double sigma = 4*M_PI;
+        const double sigma = 4*M_PI;
         //observable likelihood used as this should be covered by prior and has a central value of zero
         chi_2 += get_chi(lambda[1],observable,greater_than,0,sigma);
         chi_2 += get_chi(lambda[2],observable,greater_than,0,sigma);
@@ -1737,12 +1736,11 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 46" << endl;
       //-----------------------------
       // sin(b-a) = 1 in alignment limit -distance from alignment limit:
-      double sbaTol = 0.01;
-      double sigma = 1.;
+      const double sba_tolerance = 0.01;
+      const double sigma = 1.;
       //-----------------------------
       // chi2 function
-      double chi2 = get_chi((1.0 - container.THDM_object->get_sba()),bound,less_than,sbaTol,sigma);
-      return -chi2;
+      return -1.0*get_chi((1.0 - container.THDM_object->get_sba()),bound,less_than,sba_tolerance,sigma);
     }
 
 
@@ -1750,7 +1748,7 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 47" << endl;
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
-      double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
+      const double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
@@ -1774,38 +1772,36 @@ namespace Gambit
       //minimum of the potential, regardless of the number of those minima,
       //requiring D > 0 is a necessary and sufficient condition."
       // -----------
-      double lambda1 = container.he->get(Par::mass1, "lambda_1");
-      double lambda2 = container.he->get(Par::mass1, "lambda_2");
-      double lambda3 = container.he->get(Par::mass1, "lambda_3");
-      double lambda4 = container.he->get(Par::mass1, "lambda_4");
-      double lambda5 = container.he->get(Par::mass1, "lambda_5");
-      double lambda6 = container.he->get(Par::mass1, "lambda_6");
-      double lambda7 = container.he->get(Par::mass1, "lambda_7");
-      double tb = container.he->get(Par::dimensionless, "tanb");
-      double m12_2 = container.he->get(Par::mass1, "m12_2");
+      const double lambda1 = container.he->get(Par::mass1, "lambda_1");
+      const double lambda2 = container.he->get(Par::mass1, "lambda_2");
+      const double lambda3 = container.he->get(Par::mass1, "lambda_3");
+      const double lambda4 = container.he->get(Par::mass1, "lambda_4");
+      const double lambda5 = container.he->get(Par::mass1, "lambda_5");
+      const double lambda6 = container.he->get(Par::mass1, "lambda_6");
+      const double lambda7 = container.he->get(Par::mass1, "lambda_7");
+      const double tb = container.he->get(Par::dimensionless, "tanb");
+      const double m12_2 = container.he->get(Par::mass1, "m12_2");
 
       // set up required quantities
-      double ctb = 1./tb;
-      double cb  = 1./sqrt(1.+tb*tb);
-      double sb  = tb*cb;
-      double sb2 = sb*sb;
-      double cb2 = cb*cb;
+      const double ctb = 1./tb;
+      const double cb  = 1./sqrt(1.+tb*tb);
+      const double sb  = tb*cb;
+      const double sb2 = sb*sb;
+      const double cb2 = cb*cb;
 
-      double v2= pow (1. / sqrt(sqrt(2.)*container.sminputs.GF),2);
+      // TODO: get from FS
+      const double v2 = pow (1. / sqrt(sqrt(2.)*container.sminputs.GF),2);
 
-      //minimization conditions to recover m11^2 and m22^2
-      double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
-      double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
+      // minimization conditions to recover m11^2 and m22^2
+      // TODO: these are tree-level? Can we do better? (FS perhaps)
+      const double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
+      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
-      complex<double> lambda1_i = lambda1;
-      complex<double> lambda2_i = lambda2;
-
-      complex<double> k = pow((lambda1_i/lambda2_i),0.25);
-
+      const complex<double> k = pow((complex<double>(lambda1)/complex<double>(lambda2)),0.25);
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
-      complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
+      const complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
 
-      double sigma = 1.;
+      const double sigma = 1.;
       double chi2 = 0.0;
 
         // calculate chi2
