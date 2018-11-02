@@ -64,7 +64,7 @@
 // Switch for debug mode
 // #define SPECBIT_DEBUG
 #define FS_THROW_POINT
-#define SPECBIT_DEBUG_VERBOSE
+// #define SPECBIT_DEBUG_VERBOSE
 
 #ifdef SPECBIT_DEBUG_VERBOSE
   bool print_debug_checkpoints = true;
@@ -397,7 +397,6 @@ namespace Gambit
       else if (myPipe::ModelInUse("THDMatQ")) { 
         using namespace softsusy;
         const int y_type = (yukawa_type)myPipe::runOptions->getValueOrDef<int>(1, "yukawa_type");
-        std::cout << "Yukawa Type: " << y_type << std::endl;
         switch(y_type) {
           case type_I: { 
             if (print_debug_checkpoints) cout << "Checkpoint: 103" << endl;
