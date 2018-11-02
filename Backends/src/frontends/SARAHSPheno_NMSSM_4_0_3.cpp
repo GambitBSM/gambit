@@ -57,9 +57,7 @@ BE_NAMESPACE
 
     Set_All_Parameters_0();
 
-    Freal8 scale = 9.0E6;  // Q = 3 TeV. Need to avoid hardcoding this
-    *Qin = SetRenormalizationScale(scale);
-    *kont = 0;
+   *kont = 0;
     *delta_mass = 1.0E-4;
     *CalcTBD = false;
 
@@ -1139,7 +1137,7 @@ BE_NAMESPACE
     *SPA_convention = inputs.options->getValueOrDef<bool>(false, "SPA_convention");
     if(*SPA_convention)
     {
-      Freal8 scale = 9.0E6;  // Q = 3 TeV. Need to avoid hardcoding this
+      Freal8 scale = 1.0E6;  // SPA convention is 1 TeV
       SetRGEScale(scale);
     }
 
@@ -2091,6 +2089,8 @@ BE_INI_FUNCTION
 
     *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
 
+    Freal8 scale = 1.0E6;  // Default value if there's no input
+    *Qin = SetRenormalizationScale(scale);
     if(Param.find("Qin") != Param.end())
     {
       Freal8 RGEScale = pow(*Param.at("Qin"),2);
