@@ -421,6 +421,8 @@ Rules:
       use_higgs_2loop_at_at: true
       use_higgs_2loop_atau_atau: true
       invalid_point_fatal: false
+      mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
+
 
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
