@@ -52,8 +52,7 @@ Priors:
 Printer:
 
   # Select printer to use via string tag
-  # (currently only ascii printer available)
-  printer: ascii
+  printer: hdf5
 
   # This options node is passed on wholesale to
   # the printer object; required options may
