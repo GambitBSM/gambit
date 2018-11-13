@@ -124,24 +124,29 @@ namespace Gambit
       double get_alpha(const Model& model)
       {
         double v1 = model.get_v1(), v2 = model.get_v2();
+        double lambda345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+        double lambda6 = model.get_Lambda6(), lambda7 = model.get_Lambda7();
 
-        double a3 = model.get_M122();
-        double b11 = 1.0/2.0*model.get_Lambda1();
-        double b22 = 1.0/2.0*model.get_Lambda2();
-        double b33 = model.get_Lambda4() + model.get_Lambda5();
-        double b12 = model.get_Lambda3();
-        double b13 = model.get_Lambda6();
-        double b23 = model.get_Lambda7();
+        double A = model.get_M112() + 3.0/2.0*model.get_Lambda1()*v1*v1 + 1.0/2.0*lambda345*v2*v2 + 3.0*v1*v2*lambda6;
+        double B = model.get_M222() + 3.0/2.0*model.get_Lambda2()*v2*v2 + 1.0/2.0*lambda345*v1*v1 + 3.0*v1*v2*lambda7;
+        double C = -model.get_M122() + 3.0/2.0*v1*v2 + 3.0/2.0*(lambda6*v1*v1 + lambda7*v2*v2);
+        // double a3 = model.get_M122();
+        // double b11 = 1.0/2.0*model.get_Lambda1();
+        // double b22 = 1.0/2.0*model.get_Lambda2();
+        // double b33 = model.get_Lambda4() + model.get_Lambda5();
+        // double b12 = model.get_Lambda3();
+        // double b13 = model.get_Lambda6();
+        // double b23 = model.get_Lambda7();
  
-        double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
-        double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
-        double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
-        double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
-        double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
-        double H3d = H3 - 2.0*V3;
-        double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
+        // double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
+        // double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
+        // double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
+        // double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
+        // double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
+        // double H3d = H3 - 2.0*V3;
+        // double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
 
-        return atan(2.0*H3d/(Hc-Hm));
+        return 1.0/2.0*atan(2.0*C/(A-B));//atan(2.0*H3d/(Hc-Hm));
       }
 
 //    extract pole masses from arrays

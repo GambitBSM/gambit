@@ -91,7 +91,7 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 1000
+      nlive: 4000
       tol: 0.1
       updInt: 1
 
@@ -106,7 +106,7 @@ Scanner:
 
 ObsLikes:
 
-    - purpose: LogLike
+    - purpose:    LogLike
       capability: global_minimum_discriminant_likelihood
       
     - purpose:    LogLike
@@ -121,7 +121,7 @@ ObsLikes:
     - purpose:    LogLike
       capability: stability_likelihood_THDM
 
-    - purpose: LogLike
+    - purpose:    LogLike
       capability: NLO_unitarity_likelihood_THDM
 
     - purpose:    LogLike
@@ -216,7 +216,7 @@ Rules:
 
     - module: SpecBit
       options:
-        yukawa_type: 4
+        yukawa_type: 2
 
     - module: ColliderBit
       options:
@@ -238,27 +238,27 @@ Rules:
     - capability: unitarity_likelihood_THDM
       function: get_unitarity_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
     
     - capability: alignment_likelihood_THDM
       function: get_alignment_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: oblique_parameters_likelihood_THDM
       function: get_oblique_parameters_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: global_minimum_discriminant_likelihood
       function: get_global_minimum_discriminant_likelihood
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     # Initialization of HiggsBounds backend
     # - capability: HiggsBounds_4_2_1_init  
@@ -283,14 +283,14 @@ Rules:
     - capability: THDM_total_widths_SM_like_model
       function: get_THDM_total_widths_SM_like_model
 
-    - capability: SLHA_THDM
-      function: fill_THDM_SLHA
+    # - capability: SLHA_THDM
+    #   function: fill_THDM_SLHA
 
-    - capability: Higgs_decay_rates
-      function: h0_1_decays_THDM
+    # - capability: Higgs_decay_rates
+    #   function: h0_1_decays_THDM
     
-    - capability: h0_2_decay_rates
-      function: h0_2_decays_THDM
+    # - capability: h0_2_decay_rates
+    #   function: h0_2_decays_THDM
 
     # - capability: SuperIso_modelinfo
     #   function: SI_fill

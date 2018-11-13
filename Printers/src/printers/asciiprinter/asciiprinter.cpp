@@ -375,8 +375,8 @@ namespace Gambit
           {
             errmsg<<"      - vID="<<(*it)<<", label="<<label_record.at(*it)<<std::endl;
           }
-          std::cout << "I've made this error non fatal. But really there is something fishy happenening to the scanner" << std::endl;
-          // printer_error().raise(LOCAL_INFO,errmsg.str());
+          // std::cout << "I've made this error non fatal. But really there is something fishy happenening to the scanner" << std::endl;
+          printer_error().raise(LOCAL_INFO,errmsg.str());
         }
 
         if(increased_lengths.size()!=0)
@@ -390,7 +390,7 @@ namespace Gambit
           }
           printer_error().raise(LOCAL_INFO,errmsg.str());
         }
-        // printer_error().raise(LOCAL_INFO,errmsg.str());
+        printer_error().raise(LOCAL_INFO,errmsg.str());
       }
       AP_DBUG( std::cout << "lfpvfc 3" << std::endl; )
 

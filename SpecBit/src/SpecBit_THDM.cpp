@@ -1649,7 +1649,7 @@ namespace Gambit
         a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
 
       for(auto const& eig: eigenvalues) {
-        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,4);
+        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,9);
       }
 
       #ifdef SPECBIT_DEBUG
@@ -1795,7 +1795,7 @@ namespace Gambit
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)
       const double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
-      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
+      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2     + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
       const complex<double> k = pow((complex<double>(lambda1)/complex<double>(lambda2)),0.25);
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
@@ -1804,10 +1804,16 @@ namespace Gambit
       const double sigma = 1.;
       double chi2 = 0.0;
 
-        // calculate chi2
-        // observable used due to zero being limit
+        // calculate chi2 * observable used due to zero being limit 
       chi2 += get_chi(discriminant.real(),observable,greater_than,0.0,sigma);
       chi2 += get_chi(discriminant.imag(),observable,greater_than,0.0,sigma);
+
+      // check for NaN - should *not* happen but has crashed scans before. Most probable culprit is k when lambda_2 = 0. TODO: find workaround
+      if (std::isnan(chi2)) {
+        std::cerr << "Warning (Non-fatal): global_minimum_discriminant_likelihood_THDM is returning NaN. Setting to LMAX and continuing. Reporting calculated values:" \
+        << " k= " << k << ", m11^2 = "<< m11_2 << ", m22^2 = "<< m22_2 << std::endl;
+        chi2 = L_MAX;
+      }
 
       return -chi2;
     }

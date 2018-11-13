@@ -95,6 +95,13 @@ namespace Gambit
         // Add the MODSEL block if it is not provided by the spectrum object.
         SLHAea_add(spectrum,"MODSEL",1, 0, "General MSSM", false);
       }
+      else if(ModelInUse("THDM") or ModelInUse("THDMatQ"))
+      {
+        // Obtain SLHAea object
+        spectrum = Dep::THDM_spectrum->getSLHAea(2);
+        // Add the MODSEL block if it is not provided by the spectrum object.
+        SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false);
+      }
       else
       {
         FlavBit_error().raise(LOCAL_INFO, "Unrecognised model.");
@@ -183,6 +190,10 @@ namespace Gambit
             if (spectrum["MINPAR"][2].is_data_line()) result.m0=SLHAea::to<double>(spectrum["MINPAR"][2][1]);
             if (spectrum["MINPAR"][3].is_data_line()) result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
+          }
+          case 10:
+          {
+            if(spectrum["MINPAR"][24].is_data_line()) result.THDM_model=SLHAea::to<int>(spectrum["MINPAR"][24][1]);
           }
           default:
           {
