@@ -917,6 +917,18 @@ BE_NAMESPACE
     slha["MASS"][""] << 1000024 << (*MCha)(1) << "# Cha_1";
     slha["MASS"][""] << 1000037 << (*MCha)(2) << "# Cha_2";
 
+    auto block = slha["MASS"];
+    for(auto it = block.begin(); it != block.end(); it++)
+    {
+      if((*it)[0] != "BLOCK" and Utils::isnan(stod((*it)[1])) )
+      {
+        std::stringstream message;
+        message << "Error in spectrum generator: mass of " << Models::ParticleDB().long_name(std::pair<int,int>(stoi((*it)[0]),0)) << " is NaN";
+        logger() << message.str() << EOM;
+        invalid_point().raise(message.str());
+      }
+    }
+
     // TODO: missing
     // if(*GetMassUncertainty)
     // Block DMASS
