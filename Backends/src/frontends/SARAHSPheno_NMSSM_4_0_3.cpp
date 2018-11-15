@@ -917,6 +917,7 @@ BE_NAMESPACE
     slha["MASS"][""] << 1000024 << (*MCha)(1) << "# Cha_1";
     slha["MASS"][""] << 1000037 << (*MCha)(2) << "# Cha_2";
 
+    // Check whether any of the masses is NaN
     auto block = slha["MASS"];
     for(auto it = block.begin(); it != block.end(); it++)
     {
