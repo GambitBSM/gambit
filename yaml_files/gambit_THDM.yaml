@@ -60,7 +60,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "gambit_THDM_output.txt"
+    output_file: "gambit_THDM_output.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -313,15 +313,15 @@ Logger:
   # files with these names.
 
   redirection:
-    [Debug] : "debug.log"
-    [Default] : "default.log"
-    [DecayBit] : "DecayBit.log"
-    [DarkBit] : "DarkBit.log"
-    [PrecisionBit] : "PrecisionBit.log"
-    [ColliderBit] : "ColliderBit.log"
-    [SpecBit] : "SpecBit.log"
-    [Dependency Resolver] : "dep_resolver.log"
-    [Scanner]: "ScannerBit.log"
+    [Debug] : "stdout" #"debug.log"
+    [Default] : "stdout" #"default.log"
+    [DecayBit] : "stdout" #"DecayBit.log"
+    [DarkBit] : "stdout" #"DarkBit.log"
+    [PrecisionBit] : "stdout" #"PrecisionBit.log"
+    [ColliderBit] : "stdout" #"ColliderBit.log"
+    [SpecBit] : "stdout" #"SpecBit.log"
+    [Dependency Resolver] : "stdout" #"dep_resolver.log"
+    [Scanner]: "stdout" #"ScannerBit.log"
 
 ##########################
 # Name/Value Section
@@ -332,7 +332,7 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
-    debug: true
+    debug: false
 
   dependency_resolution:
     prefer_model_specific_functions: true
@@ -347,5 +347,5 @@ KeyValues:
 
   default_output_path: "runs/THDM/"
   enable_testing: true
-  debug: true
+  debug: false
   yukawa_type: 2
