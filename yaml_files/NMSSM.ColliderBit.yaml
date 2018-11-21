@@ -242,18 +242,22 @@ Rules:
     options:
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
-      drop_SLHA_file: true
+      CalculateTwoLoopHiggsMasses: false
+      drop_SLHA_file: false
       ErrorLevel: -1
 
   # - capability: run_MSSMspectrum_test
   #   function: SPheno_NMSSM_test
   #   options:
-  #     drop_SLHA_file: true
+  #     drop_SLHA_file: false
 
   - capability: decay_rates
     function:   all_NMSSM_decays_from_SPheno
     options:
-      drop_SLHA_file: true
+      drop_SLHA_file: false
+      OneLoopDecays: false
+      Enable3BDecaysF: false
+      Enable3BDecaysS: false
 
   ##### LHC Detector and Analysis rules #####
   #
@@ -435,13 +439,15 @@ Logger:
     [Debug] : "debug.log"
     [Default] : "default.log"
     [SpecBit] : "SpecBit.log"
-    # [PrecisionBit] : "PrecisionBit.log"
+    [DecayBit] : "DecayBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
 
 KeyValues:
 
   debug: true
 
-  drop_SLHA_file: true
+  drop_SLHA_file: false
 
   default_output_path: "runs/NMSSM/"
 
@@ -449,5 +455,6 @@ KeyValues:
     prefer_model_specific_functions: false
 
   likelihood:
-    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
 

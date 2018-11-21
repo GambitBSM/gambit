@@ -57,7 +57,7 @@ BE_NAMESPACE
 
     Set_All_Parameters_0();
 
-   *kont = 0;
+    *kont = 0;
     *delta_mass = 1.0E-4;
     *CalcTBD = false;
 
@@ -221,6 +221,9 @@ BE_NAMESPACE
 
       OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
 
+      if(*kont != 0)
+        ErrorHandling(*kont);
+
       // TODO: Add some checks for SignOfMassChanged
 
     }
@@ -248,6 +251,9 @@ BE_NAMESPACE
         }
 
         CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+
+        if(*kont != 0)
+          ErrorHandling(*kont);
 
         int n_tot = 0;
         for(int i=1; i<=6; i++)
@@ -300,9 +306,16 @@ BE_NAMESPACE
       }
 
       CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+  
+      if(*kont != 0)
+        ErrorHandling(*kont);
 
       if(*GetMassUncertainty)
+      {
         GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q);
+        if(*kont != 0)
+          ErrorHandling(*kont);
+      }
 
     }
 
@@ -513,6 +526,10 @@ BE_NAMESPACE
 
     // Call SPheno's function to calculate decays
     CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
+
+    if(*kont != 0)
+      ErrorHandling(*kont);
+
 
     // Fill in info about the entry for all decays
     DecayTable::Entry entry;
@@ -1343,12 +1360,10 @@ BE_NAMESPACE
     *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
-    // Alwyas ignore negative masses, otherwise SPheno terminates
-    *IgnoreNegativeMasses = true;
+    *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
 
     // 53, Ignore negative masses at MZ
-    // Alwyas ignore negative masses, otherwise SPheno terminates
-    *IgnoreNegativeMassesMZ = true;
+    *IgnoreNegativeMassesMZ = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMassesMZ");
 
     // 54, Write Out for non convergence
     *WriteOutputForNonConvergence = inputs.options->getValueOrDef<bool>(false, "WriteOutputForNonConvergence");
@@ -1549,8 +1564,8 @@ BE_NAMESPACE
       for(int j=1; j<=3; j++)
       {
         /********/
-	/* TUIN */
-	/********/
+        /* TUIN */
+        /********/
         std::stringstream parname;
         parname << "Au_" << i << j;
         if(inputs.param.find(parname.str()) != inputs.param.end())
@@ -1746,17 +1761,17 @@ BE_NAMESPACE
     *Delta_Alpha_Hadron = 0.027651;
 
     // Z-boson
-    *mZ = sminputs.mZ;    	// mass
-    *gamZ = 2.4952;		// width, values henceforth from StandardModel.f90
-    (*BrZqq)(1) = 0.156;	// branching ratio in d \bar{d}
-    (*BrZqq)(2) = 0.156;	// branching ratio in s \bar{s}
-    (*BrZqq)(3) = 0.151;	// branching ratio in b \bar{b}
-    (*BrZqq)(4) = 0.116;	// branching ratio in u \bar{u}
-    (*BrZqq)(5) = 0.12;		// branching ratio in c \bar{c}
-    (*BrZll)(1) = 0.0336;	// branching ratio in e+ e-
-    (*BrZll)(2) = 0.0336;	// branching ratio in mu+ mu-
-    (*BrZll)(3) = 0.0338;	// branching ratio in tau+ tau-
-    *BrZinv = 0.2;		// invisible branching ratio
+    *mZ = sminputs.mZ;          // mass
+    *gamZ = 2.4952;             // width, values henceforth from StandardModel.f90
+    (*BrZqq)(1) = 0.156;        // branching ratio in d \bar{d}
+    (*BrZqq)(2) = 0.156;        // branching ratio in s \bar{s}
+    (*BrZqq)(3) = 0.151;        // branching ratio in b \bar{b}
+    (*BrZqq)(4) = 0.116;        // branching ratio in u \bar{u}
+    (*BrZqq)(5) = 0.12;         // branching ratio in c \bar{c}
+    (*BrZll)(1) = 0.0336;       // branching ratio in e+ e-
+    (*BrZll)(2) = 0.0336;       // branching ratio in mu+ mu-
+    (*BrZll)(3) = 0.0338;       // branching ratio in tau+ tau-
+    *BrZinv = 0.2;              // invisible branching ratio
 
     *mZ2 = *mZ * *mZ;
     *gamZ2 = *gamZ * *gamZ;
@@ -1853,6 +1868,8 @@ BE_NAMESPACE
       (*mf_u_mZ)(i) = 0.0;
     }
     CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);
+    if(*kont != 0)
+      ErrorHandling(*kont);
 
   }
 
@@ -1994,6 +2011,8 @@ BE_NAMESPACE
       case -1008: message = "The size of the arrays do not match in routine Tqli_QP."; break ;
       case -1009: message = "Too many iterations in routine Tqli_QP."; break ;
       case -1010: message = "Too many iterations in routine Tql2_QP."; break ;
+      // Special GAMBIT error code
+      case -9999: message = "GAMBIT caught an error in SPheno. Check the SPheno output for more info."; break ;
     }
 
     logger() << message << EOM;
