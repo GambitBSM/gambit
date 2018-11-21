@@ -54,6 +54,10 @@
 #cmakedefine MATHEMATICA_WSTP_H "@Mathematica_WSTP_INCLUDE_DIR@/wstp.h"
 #cmakedefine MATHEMATICA_KERNEL "@Mathematica_KERNEL_EXECUTABLE@"
 
+/// Python version info
+#cmakedefine PYTHON_VERSION_MAJOR @PYTHON_VERSION_MAJOR@
+#cmakedefine PYTHON_VERSION_MINOR @PYTHON_VERSION_MINOR@
+
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 

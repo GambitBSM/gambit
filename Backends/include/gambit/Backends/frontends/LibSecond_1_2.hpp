@@ -18,9 +18,9 @@
 
 
 #define BACKENDNAME LibSecond
-#define BACKENDLANG Python3
-#define VERSION 1.1
-#define SAFE_VERSION 1_1
+#define BACKENDLANG Python
+#define VERSION 1.2
+#define SAFE_VERSION 1_2
 
 /* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */

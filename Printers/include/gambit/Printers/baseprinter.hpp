@@ -211,7 +211,7 @@ namespace Gambit
     // Note: Arguments to e.g printer_creators need to match constructor for printer object
     // e.g. printer_creators.at(tag)(args...)
     // (this is set up by the typedef)
-    registry
+    gambit_registry
     {
             typedef BasePrinter* create_printer_function(const Options&, BasePrinter* const&);
             reg_elem <create_printer_function> printer_creators;

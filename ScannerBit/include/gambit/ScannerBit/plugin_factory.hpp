@@ -46,7 +46,7 @@ namespace Gambit
     {       
         using Gambit::type_index;
         
-        registry
+        gambit_registry
         {
             typedef void* func_type(const std::vector<std::string> &, const std::string &);
             typedef void* multi_func_type(const std::map<std::string, std::vector<std::string>> &, const std::vector<std::pair<std::string, std::string>> &);

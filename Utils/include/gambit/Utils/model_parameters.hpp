@@ -87,6 +87,9 @@ namespace Gambit {
       /// Get parameter value using bracket operator
       const double & operator[](std::string const & inkey) const;
 
+      /// Get parameter value using 'at' syntax
+      const double & at(std::string const & inkey) const;
+
       /// Set single parameter value
       void setValue(std::string const &inkey,double const&value);
   

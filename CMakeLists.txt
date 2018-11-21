@@ -26,6 +26,10 @@
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Sep
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #************************************************
 
 # Require a minimum cmake version of 2.8.5
@@ -98,52 +102,63 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 include(cmake/utilities.cmake)
 
 # Check for Python interpreter
-find_package(PythonInterp 2 REQUIRED)
-if (PYTHON_VERSION_MAJOR GREATER 2 OR PYTHON_VERSION_MINOR LESS 7)
-  message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
-                      "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+# Use Python 3 if available, otherwise look for Python 2.7
+# We also need to search for PythonLibs before letting pybind11 look for them,
+# otherwise it seems to get it wrong.  Also, we need to add versions of python
+# greater than 3.3 manually, for compatibility with CMake 2.8.12.
+set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+find_package(PythonInterp 3)
+if(PYTHONINTERP_FOUND)
+   find_package(PythonLibs 3)
+else()
+    message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
+    find_package(PythonInterp 2 REQUIRED)
+    if (PYTHON_VERSION_MINOR LESS 7)
+      message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
+                          "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+    endif()
+    find_package(PythonLibs 2)
 endif()
 
-# Check for pybind11
-set(MIN_pybind11_VERSION "2.2.0")
-set(PREFERRED_pybind11_VERSION "2.2.1")
-set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
-find_package(pybind11 QUIET)
-if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
-  use_contributed_pybind11()
-endif()
-if(pybind11_FOUND)
-  if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
-    message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
-    set(pybind11_FOUND FALSE)
-  else()
-    message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
-    include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
-  endif()
+# Check for pybind11 if PythonLibs were found
+if(NOT PYTHONLIBS_FOUND)
+    message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used${ColourReset}")
 else()
-  message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
+    set(MIN_pybind11_VERSION "2.2.0")
+    set(PREFERRED_pybind11_VERSION "2.2.1")
+    set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
+    find_package(pybind11 QUIET)
+    if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
+      use_contributed_pybind11()
+    endif()
+    if(pybind11_FOUND)
+      if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
+        message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
+        set(pybind11_FOUND FALSE)
+      else()
+        message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
+        include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+      endif()
+    else()
+      message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
+    endif()
+    if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
+      message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
+      execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
+      if(${result} STREQUAL "0")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+        use_contributed_pybind11()
+        include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+      else()
+        message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
+                "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
+                "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+      endif()
+    endif()
+    set(HAVE_PYBIND11 "${pybind11_FOUND}")
 endif()
-if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
-  message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
-  execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
-  if(${result} STREQUAL "0")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
-    use_contributed_pybind11()
-    include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
-  else()
-    message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
-            "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
-            "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
-  endif()
-endif()
-set(HAVE_PYBIND11 "${pybind11_FOUND}")
 
 # Check for required Python libraries
-if(pybind11_FOUND)
-  find_package(PythonLibs REQUIRED)
-else()
-  find_package(PythonLibs)
-endif()
 foreach(module yaml os re datetime sys getopt shutil itertools)
   find_python_module(${module} REQUIRED)
 endforeach()

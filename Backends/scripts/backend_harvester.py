@@ -23,9 +23,15 @@
 #          (patscott@physics.mcgill.ca)
 #  \date 2014 Nov
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #*********************************************
 import os
-execfile("./Utils/scripts/harvesting_tools.py")
+
+toolsfile="./Utils/scripts/harvesting_tools.py"
+exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
 def main(argv):
 
@@ -39,15 +45,15 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-backends="])
     except getopt.GetoptError:
-        print 'Usage: backend_harvestor.py [flags]'
-        print ' flags:'
-        print '        -v                       : More verbose output'
-        print '        -x backend1,backend2,... : Exclude backend1, backend2, etc.'
+        print('Usage: backend_harvestor.py [flags]')
+        print(' flags:')
+        print('        -v                       : More verbose output')
+        print('        -x backend1,backend2,... : Exclude backend1, backend2, etc.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
         verbose = True
-        print 'backend_harvester.py: verbose=True'
+        print('backend_harvester.py: verbose=True')
       elif opt in ('-x','--exclude-backends'):
         exclude_backends.update(neatsplit(",",arg))
 
@@ -57,15 +63,15 @@ def main(argv):
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
 
-    print "Frontend headers identified:"
-    for h in frontend_headers:
-        print '  gambit/Backends/frontends/'+h
-    print "Backend type headers identified:"
-    for h in backend_type_headers:
-        print '  gambit/Backends/backend_types/'+h
-    for h in bossed_backend_type_headers:
-        print '  gambit/Backends/backend_types/'+h
-    if verbose: print
+    if verbose: 
+        print("Frontend headers identified:")
+        for h in frontend_headers:
+            print('  gambit/Backends/frontends/'+h)
+        print("Backend type headers identified:")
+        for h in backend_type_headers:
+            print('  gambit/Backends/backend_types/'+h)
+        for h in bossed_backend_type_headers:
+            print('  gambit/Backends/backend_types/'+h)
 
     # Generate a c++ header containing all the frontend headers we have just harvested.
     towrite = "\
@@ -168,8 +174,8 @@ def main(argv):
         f.write(towrite)
 
     if verbose:
-        print "Generated backend_rollcall.hpp."
-        print "Generated backend_types_rollcall.hpp.\n"
+        print("Generated backend_rollcall.hpp.")
+        print("Generated backend_types_rollcall.hpp.\n")
 
 
 # Handle command line arguments (verbosity)

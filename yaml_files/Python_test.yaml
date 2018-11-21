@@ -49,9 +49,9 @@ Rules:
 
   - capability:  nevents_postcuts
     backends:
-    - {capability: awesomeness, backend: LibThird, version: 1.1}
-    - {capability: someFunction, backend: LibThird, version: 1.1}
-    - {capability: SomeInt, backend: LibThird, version: 1.1}
+    - {capability: awesomeness, backend: LibThird, version: 1.2}
+    - {capability: someFunction, backend: LibThird, version: 1.2}
+    - {capability: SomeInt, backend: LibThird, version: 1.2}
 
   - capability:  function_pointer
     backends:
@@ -61,6 +61,9 @@ Rules:
     type: int
     function: event_count
     module: ExampleBit_B
+
+  - capability: xsection
+    function: test_sigma
 
   - capability: particle_id
     function: particle_identity

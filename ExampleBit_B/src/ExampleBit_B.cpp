@@ -85,7 +85,7 @@ namespace Gambit
     {
       using namespace Pipes::sigma_example;
       logger() << endl;
-      logger() << "In ExampleBit_B, function xsection." << endl;
+      logger() << "In ExampleBit_B, function sigma_example." << endl;
       if (runOptions->hasKey("scale"))
        logger() << "Running at scale: " << runOptions->getValue<double>("scale") << " TeV." << endl;
       //logger() << "Is MSSM_demo being scanned? " << ModelInUse("MSSM_demo") << endl;
@@ -99,6 +99,20 @@ namespace Gambit
       //  logger() <<info<<EOM;
       //}
       result = 5.e10;
+    }
+
+    void sigma_example_req_pars (double &result)
+    {
+      using namespace Pipes::sigma_example_req_pars;
+      logger() << endl;
+      logger() << "In ExampleBit_B, function sigma_example_req_pars." << endl;
+      // Extract model parameters from dependency pipe
+      // (they won't be in the parameter pipe!)
+      const ModelParameters& pars = *Dep::NormalDist_parameters;
+      logger() << " Parameter values are:" << endl;
+      logger() << "  mu   : "<<pars.at("mu")<<endl;
+      logger() << "  sigma: "<<pars.at("sigma")<<endl<<EOM;
+      result = pars.at("mu")*pars.at("sigma");
     }
 
     void predicted_events (int &result)

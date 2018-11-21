@@ -50,6 +50,18 @@
 #ifndef Python_LANG
   #define Python_LANG 5
 #endif
+#ifndef PYTHON2_LANG
+  #define PYTHON2_LANG 5
+#endif
+#ifndef Python2_LANG
+  #define Python2_LANG 5
+#endif
+#ifndef PYTHON3_LANG
+  #define PYTHON3_LANG 5
+#endif
+#ifndef Python3_LANG
+  #define Python3_LANG 5
+#endif
 
 /// Macro to help identifying the language of the backend
 #ifndef DEFINED_BACKENDLANG

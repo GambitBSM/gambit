@@ -26,6 +26,10 @@
 #  \date 2014 Nov, Dec
 #  \date 2015 May
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #************************************************
 
 
@@ -133,7 +137,7 @@ function(check_ditch_status name version)
     set (itch "${itch}" "${name}_${version}")
   endif()
   foreach(ditch_command ${itch})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print \"${name}_${version}\".startswith(\"${ditch_command}\")"
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".startswith(\"${ditch_command}\"))"
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                     RESULT_VARIABLE result
                     OUTPUT_VARIABLE output)

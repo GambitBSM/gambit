@@ -77,6 +77,11 @@ START_MODULE
     ALLOW_MODELS(NormalDist)
     #undef FUNCTION
 
+    #define FUNCTION sigma_example_req_pars // As sigma_example, however it obtains model parameters
+    START_FUNCTION(double)                  // as an "ordinary" dependency, rather than using ALLOW_MODELS
+    DEPENDENCY(NormalDist_parameters, ModelParameters)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 

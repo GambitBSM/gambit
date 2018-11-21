@@ -17,10 +17,10 @@
 ///  *********************************************
 
 
-#define BACKENDNAME LibSecond
-#define BACKENDLANG Python3
-#define VERSION 1.1
-#define SAFE_VERSION 1_1
+#define BACKENDNAME LibThird
+#define BACKENDLANG Python
+#define VERSION 1.2
+#define SAFE_VERSION 1_2
 
 /* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */
@@ -45,14 +45,14 @@ BE_FUNCTION(returnResult, double, (), "returnResult","returnResult_capability")
 /* We have now created the following:
  *
  * - Function pointers
- * Gambit::Backends::LibSecond::initialize       type: void (*)(int)
- * Gambit::Backends::LibSecond::someFunction     type: void (*)()
- * Gambit::Backends::LibSecond::returnResult     type: double (*)()
+ * Gambit::Backends::LibThird::initialize       type: void (*)(int)
+ * Gambit::Backends::LibThird::someFunction     type: void (*)()
+ * Gambit::Backends::LibThird::returnResult     type: double (*)()
  *
  * - Functors
- * Gambit::Backends::LibSecond::Functown::initialize       type: Gambit::backend_functor<void,int>
- * Gambit::Backends::LibSecond::Functown::someFunction     type: Gambit::backend_functor<void>
- * Gambit::Backends::LibSecond::Functown::returnResult     type: Gambit::backend_functor<double>  */
+ * Gambit::Backends::LibThird::Functown::initialize       type: Gambit::backend_functor<void,int>
+ * Gambit::Backends::LibThird::Functown::someFunction     type: Gambit::backend_functor<void>
+ * Gambit::Backends::LibThird::Functown::returnResult     type: Gambit::backend_functor<double>  */
 
 
 /* Syntax for BE_VARIABLE:
@@ -77,7 +77,7 @@ BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
  * Any additional convenience functions could be constructed below
  * using the available pointers. All convenience functions must be
  * registred/wrapped via the macro BE_CONV_FUNCTION. Implementation
- * of convenience functions can be found in LibSecond_1.1.cpp. */
+ * of convenience functions can be found in LibThird_1.1.cpp. */
 
 /* Now register any convenience functions and wrap them in functors.
  *

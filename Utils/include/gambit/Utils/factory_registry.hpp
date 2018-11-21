@@ -66,7 +66,7 @@ namespace __gambit_registry__                                                   
     }                                                                                           \
 }                                                                                                               \
 
-#define registry                                    \
+#define gambit_registry                             \
 namespace __gambit_registry__                       \
 {                                                   \
     namespace                                       \

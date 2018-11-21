@@ -101,6 +101,17 @@ namespace Gambit
      return _values.at(inkey);
    }
 
+   /// Get parameter value using 'at' operator
+   /// This is no different to the bracket operator method,
+   /// since keys cannot be added with the bracket method anyhow,
+   /// but for people who are used to maps it is nice to have.
+   const double & ModelParameters::at(std::string const & inkey) const
+   {
+     assert_contains(inkey);
+     return _values.at(inkey);
+   }
+
+
    /// Set single parameter value
    void ModelParameters::setValue(std::string const &inkey,double const&value)
    {

@@ -49,6 +49,7 @@ COMPULSORY:
  - gcc/gfortran 4.7.1 or greater, or icc/ifort 12.1.0 or greater
  - Python 2.7 or greater (Python 3 is not supported)
  - Python modules: yaml, os, re, datetime, sys, getopt, shutil and itertools.
+ - git
  - Boost 1.41 or greater
  - GNU Scientific Library (GSL) 1.10 or greater
  - Eigen 3.1.0 or greater
