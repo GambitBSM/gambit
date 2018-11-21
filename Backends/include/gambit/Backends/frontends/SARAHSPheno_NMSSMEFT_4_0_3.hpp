@@ -27,58 +27,59 @@ LOAD_LIBRARY
 BE_ALLOW_MODELS(NMSSMEFTatQ)
 
 // Functions
-BE_FUNCTION(Set_All_Parameters_0, void, (), "__model_data_nmssmeft_MOD_set_all_parameters_0", "SARAHSARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(SetRenormalizationScale, Freal8, (Freal8&), "__loopfunctions_MOD_setrenormalizationscale", "SARAHSARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(InitializeLoopFunctions, void, (), "__loopfunctions_MOD_initializeloopfunctions", "SARAHSARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(CalculateRunningMasses, void, (Farray_Freal8_1_3&, //mf_l_in
-            Farray_Freal8_1_3&, // mf_d_in
-            Farray_Freal8_1_3&, // mf_u_in
-            Freal8&, // Qlow
-            Freal8&, // Alpha
-            Freal8&, // AlphaS
-            Freal8&, // Qhigh
-            Farray_Freal8_1_3&, // mf_l_out
-            Farray_Freal8_1_3&, // mf_d_out
-            Farray_Freal8_1_3&, // mf_u_out
-            Finteger&), //kont))
-   "__standardmodel_MOD_calculaterunningmasses", "SARAHSPheno_NMSSMEFT_internal")
+BE_FUNCTION(Set_All_Parameters_0, void, (), "__model_data_nmssmeft_MOD_set_all_parameters_0", "SARAHSPheno_NMSSMEFT_internal")
+BE_FUNCTION(SetRenormalizationScale, Freal8, (Freal8&), "__loopfunctions_MOD_setrenormalizationscale", "SARAHSPheno_NMSSMEFT_internal")
+BE_FUNCTION(InitializeLoopFunctions, void, (), "__loopfunctions_MOD_initializeloopfunctions", "SARAHSPheno_NMSSMEFT_internal")
+BE_FUNCTION(CalculateRunningMasses, void, 
+            (Farray_Freal8_1_3&, //mf_l_in
+             Farray_Freal8_1_3&, // mf_d_in
+             Farray_Freal8_1_3&, // mf_u_in
+             Freal8&,            // Qlow
+             Freal8&,            // Alpha
+             Freal8&,            // AlphaS
+             Freal8&,            // Qhigh
+             Farray_Freal8_1_3&, // mf_l_out
+             Farray_Freal8_1_3&, // mf_d_out
+             Farray_Freal8_1_3&, // mf_u_out
+             Finteger&),         //kont
+            "__standardmodel_MOD_calculaterunningmasses", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(SetMatchingConditions, void,
-            (Freal8&, // g1SM
-             Freal8&, // g2SM
-             Freal8&, // g3SM
+            (Freal8&,                    // g1SM
+             Freal8&,                    // g2SM
+             Freal8&,                    // g3SM
              Farray_Fcomplex16_1_3_1_3&, // YuSM
              Farray_Fcomplex16_1_3_1_3&, // YdSM
              Farray_Fcomplex16_1_3_1_3&, // YeSM
-             Freal8&, // vSM
-             Freal8&, // vd
-             Freal8&, // vu
-             Freal8&, // vS
-             Freal8&, // g1
-             Freal8&, // g2
-             Freal8&, // g3
+             Freal8&,                    // vSM
+             Freal8&,                    // vd
+             Freal8&,                    // vu
+             Freal8&,                    // vS
+             Freal8&,                    // g1
+             Freal8&,                    // g2
+             Freal8&,                    // g3
              Farray_Fcomplex16_1_3_1_3&, // Yd
              Farray_Fcomplex16_1_3_1_3&, // Ye
-             Fcomplex16&, // lam
-             Fcomplex16&, // kap
+             Fcomplex16&,                // lam
+             Fcomplex16&,                // kap
              Farray_Fcomplex16_1_3_1_3&, // Yu
              Farray_Fcomplex16_1_3_1_3&, // Td
              Farray_Fcomplex16_1_3_1_3&, // Te
-             Fcomplex16&, // Tlam
-             Fcomplex16&, // Tk
+             Fcomplex16&,                // Tlam
+             Fcomplex16&,                // Tk
              Farray_Fcomplex16_1_3_1_3&, // Tu
              Farray_Fcomplex16_1_3_1_3&, // mq2
              Farray_Fcomplex16_1_3_1_3&, // ml2
-             Freal8&, // mHd2
-             Freal8&, // mHu2
+             Freal8&,                    // mHd2
+             Freal8&,                    // mHu2
              Farray_Fcomplex16_1_3_1_3&, // md2
              Farray_Fcomplex16_1_3_1_3&, // mu2
              Farray_Fcomplex16_1_3_1_3&, // me2
-             Freal8&, // ms2
-             Fcomplex16&, // M1
-             Fcomplex16&, // M2
-             Fcomplex16&, // M3
-             Flogical& // MZsuffix
-            ), "__model_data_nmssmeft_MOD_setmatchingconditions", "SARAHSPheno_NMSSMEFT_internal")
+             Freal8&,                    // ms2
+             Fcomplex16&,                // M1
+             Fcomplex16&,                // M2
+             Fcomplex16&,                // M3
+             Flogical&),                 // MZsuffix
+            "__model_data_nmssmeft_MOD_setmatchingconditions", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(Switch_from_superCKM, void,
             (Farray_Fcomplex16_1_3_1_3&, // Yd_ckm
              Farray_Fcomplex16_1_3_1_3&, // Yu_ckm
@@ -92,38 +93,38 @@ BE_FUNCTION(Switch_from_superCKM, void,
              Farray_Fcomplex16_1_3_1_3&, // md2_out
              Farray_Fcomplex16_1_3_1_3&, // mq2_out
              Farray_Fcomplex16_1_3_1_3&, // mu2_out
-             Flogical& // Tranposed
-            ), "__sphenonmssmeft_MOD_switch_from_superckm", "SARAHSPheno_NMSSMEFT_internal")
+             Flogical&),                 // Transposed
+            "__sphenonmssmeft_MOD_switch_from_superckm", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(SolveTadpoleEquations, void,
-            (Freal8&, // g1
-             Freal8&, // g2
-             Freal8&, // g3
+            (Freal8&,                    // g1
+             Freal8&,                    // g2
+             Freal8&,                    // g3
              Farray_Fcomplex16_1_3_1_3&, // Yd
              Farray_Fcomplex16_1_3_1_3&, // Ye
-             Fcomplex16&, // lam
-             Fcomplex16&, // kap
+             Fcomplex16&,                // lam
+             Fcomplex16&,                // kap
              Farray_Fcomplex16_1_3_1_3&, // Yu
              Farray_Fcomplex16_1_3_1_3&, // Td
              Farray_Fcomplex16_1_3_1_3&, // Te
-             Fcomplex16&, // Tlam
-             Fcomplex16&, // Tk
+             Fcomplex16&,                // Tlam
+             Fcomplex16&,                // Tk
              Farray_Fcomplex16_1_3_1_3&, // Tu
              Farray_Fcomplex16_1_3_1_3&, // mq2
              Farray_Fcomplex16_1_3_1_3&, // ml2
-             Freal8&, // mHd2
-             Freal8&, // mHu2
+             Freal8&,                    // mHd2
+             Freal8&,                    // mHu2
              Farray_Fcomplex16_1_3_1_3&, // md2
              Farray_Fcomplex16_1_3_1_3&, // mu2
              Farray_Fcomplex16_1_3_1_3&, // me2
-             Freal8&, // ms2
-             Fcomplex16&, // M1
-             Fcomplex16&, // M2
-             Fcomplex16&, // M3
-             Freal8&, // vd
-             Freal8&, // vu
-             Freal8&, //vS
-             Farray_Fcomplex16_1_3& // Tad1Loop
-            ), "__tadpoles_nmssmeft_MOD_solvetadpoleequations", "SARAHSPheno_NMSSMEFT_internal")
+             Freal8&,                    // ms2
+             Fcomplex16&,                // M1
+             Fcomplex16&,                // M2
+             Fcomplex16&,                // M3
+             Freal8&,                    // vd
+             Freal8&,                    // vu
+             Freal8&,                    //vS
+             Farray_Fcomplex16_1_3&),    // Tad1Loop
+            "__tadpoles_nmssmeft_MOD_solvetadpoleequations", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(OneLoopMasses, void,
             (Farray_Freal8_1_3&, // MAh
              Farray_Freal8_1_3&, // MAh2
@@ -137,8 +138,8 @@ BE_FUNCTION(OneLoopMasses, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&, // MGlu
-             Freal8&, // MGlu2
+             Freal8&,            // MGlu
+             Freal8&,            // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -151,66 +152,66 @@ BE_FUNCTION(OneLoopMasses, void,
              Farray_Freal8_1_6&, // MSu2
              Farray_Freal8_1_3&, // MSv
              Farray_Freal8_1_3&, // MSv2
-             Freal8&, // MVWm
-             Freal8&, // MVWm2
-             Freal8&, // MVZ
-             Freal8&, // MVZ2
-             Fcomplex16&, // pG
-             Freal8&, // TW
+             Freal8&,            // MVWm
+             Freal8&,            // MVWm2
+             Freal8&,            // MVZ
+             Freal8&,            // MVZ2
+             Fcomplex16&,        // pG
+             Freal8&,            // TW
              Farray_Fcomplex16_1_2_1_2&, // UM
              Farray_Fcomplex16_1_2_1_2&, // UP
-             Freal8&, // v
-             Farray_Freal8_1_3_1_3&, // ZA
+             Freal8&,                    // v
+             Farray_Freal8_1_3_1_3&,     // ZA
              Farray_Fcomplex16_1_6_1_6&, // ZD
              Farray_Fcomplex16_1_3_1_3&, // ZDL
              Farray_Fcomplex16_1_3_1_3&, // ZDR
              Farray_Fcomplex16_1_6_1_6&, // ZE
              Farray_Fcomplex16_1_3_1_3&, // ZEL
              Farray_Fcomplex16_1_3_1_3&, // ZER
-             Farray_Freal8_1_3_1_3&, // ZH
+             Farray_Freal8_1_3_1_3&,     // ZH
              Farray_Fcomplex16_1_5_1_5&, // ZN
-             Farray_Freal8_1_2_1_2&, // ZP
+             Farray_Freal8_1_2_1_2&,     // ZP
              Farray_Fcomplex16_1_6_1_6&, // ZU
              Farray_Fcomplex16_1_3_1_3&, // ZUL
              Farray_Fcomplex16_1_3_1_3&, // ZUR
              Farray_Fcomplex16_1_3_1_3&, // ZV
              Farray_Fcomplex16_1_2_1_2&, // ZW
-             Farray_Freal8_1_2_1_2&, // ZZ
-             Freal8&, // betaH
-             Freal8&, // vd
-             Freal8&, // vu
-             Freal8&, // vS
-             Freal8&, // g1
-             Freal8&, // g2
-             Freal8&, // g3
+             Farray_Freal8_1_2_1_2&,     // ZZ
+             Freal8&,                    // betaH
+             Freal8&,                    // vd
+             Freal8&,                    // vu
+             Freal8&,                    // vS
+             Freal8&,                    // g1
+             Freal8&,                    // g2
+             Freal8&,                    // g3
              Farray_Fcomplex16_1_3_1_3&, // Yd
              Farray_Fcomplex16_1_3_1_3&, // Ye
-             Fcomplex16&, // lam
-             Fcomplex16&, // kap
+             Fcomplex16&,                // lam
+             Fcomplex16&,                // kap
              Farray_Fcomplex16_1_3_1_3&, // Yu
              Farray_Fcomplex16_1_3_1_3&, // Td
              Farray_Fcomplex16_1_3_1_3&, // Te
-             Fcomplex16&, // Tlam
-             Fcomplex16&, // Tk
+             Fcomplex16&,                // Tlam
+             Fcomplex16&,                // Tk
              Farray_Fcomplex16_1_3_1_3&, // Tu
-             Farray_Fcomplex16_1_3_1_3& , // mq2
+             Farray_Fcomplex16_1_3_1_3&, // mq2
              Farray_Fcomplex16_1_3_1_3&, // ml2
-             Freal8&, // mHd2
-             Freal8&, // mHu2
+             Freal8&,                    // mHd2
+             Freal8&,                    // mHu2
              Farray_Fcomplex16_1_3_1_3&, // md2
              Farray_Fcomplex16_1_3_1_3&, // mu2
              Farray_Fcomplex16_1_3_1_3&, // me2
-             Freal8&, // ms2
-             Fcomplex16&, // M1
-             Fcomplex16&, // M2
-             Fcomplex16&, //M3
-             Finteger& //  kont
-            ), "__loopmasses_nmssmeft_MOD_oneloopmasses", "SARAHSPheno_NMSSMEFT_internal")
+             Freal8&,                    // ms2
+             Fcomplex16&,                // M1
+             Fcomplex16&,                // M2
+             Fcomplex16&,                // M3
+             Finteger&),                 // kont
+            "__loopmasses_nmssmeft_MOD_oneloopmasses", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(CalculateSpectrum, void,
-            (Finteger&, // n_run
-             Freal8&, // delta_mass
-             Flogical&, // WriteOut
-             Finteger&, // kont
+            (Finteger&,          // n_run
+             Freal8&,            // delta_mass
+             Flogical&,          // WriteOut
+             Finteger&,          // kont
              Farray_Freal8_1_3&, // MAh
              Farray_Freal8_1_3&, // MAh2
              Farray_Freal8_1_2&, // MCha
@@ -223,8 +224,8 @@ BE_FUNCTION(CalculateSpectrum, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&, // MGlu
-             Freal8&, // MGlu2
+             Freal8&,            // MGlu
+             Freal8&,            // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -237,61 +238,61 @@ BE_FUNCTION(CalculateSpectrum, void,
              Farray_Freal8_1_6&, // MSu2
              Farray_Freal8_1_3&, // MSv
              Farray_Freal8_1_3&, // MSv2
-             Freal8&, // MVWm
-             Freal8&, // MVWm2
-             Freal8&, // MVZ
-             Freal8&, // MVZ2
-             Fcomplex16&, // pG
-             Freal8&, // TW
+             Freal8&,            // MVWm
+             Freal8&,            // MVWm2
+             Freal8&,            // MVZ
+             Freal8&,            // MVZ2
+             Fcomplex16&,        // pG
+             Freal8&,            // TW
              Farray_Fcomplex16_1_2_1_2&, // UM
              Farray_Fcomplex16_1_2_1_2&, // UP
-             Freal8&, // v
-             Farray_Freal8_1_3_1_3&, // ZA
+             Freal8&,                    // v
+             Farray_Freal8_1_3_1_3&,     // ZA
              Farray_Fcomplex16_1_6_1_6&, // ZD
              Farray_Fcomplex16_1_3_1_3&, // ZDL
              Farray_Fcomplex16_1_3_1_3&, // ZDR
              Farray_Fcomplex16_1_6_1_6&, // ZE
              Farray_Fcomplex16_1_3_1_3&, // ZEL
              Farray_Fcomplex16_1_3_1_3&, // ZER
-             Farray_Freal8_1_3_1_3&, // ZH
+             Farray_Freal8_1_3_1_3&,     // ZH
              Farray_Fcomplex16_1_5_1_5&, // ZN
-             Farray_Freal8_1_2_1_2&, // ZP
+             Farray_Freal8_1_2_1_2&,     // ZP
              Farray_Fcomplex16_1_6_1_6&, // ZU
              Farray_Fcomplex16_1_3_1_3&, // ZUL
              Farray_Fcomplex16_1_3_1_3&, // ZUR
              Farray_Fcomplex16_1_3_1_3&, // ZV
              Farray_Fcomplex16_1_2_1_2&, // ZW
-             Farray_Freal8_1_2_1_2&, // ZZ
-             Freal8&, // betaH
-             Freal8&, // vd
-             Freal8&, // vu
-             Freal8&, // vS
-             Freal8&, // g1
-             Freal8&, // g2
-             Freal8&, // g3
+             Farray_Freal8_1_2_1_2&,     // ZZ
+             Freal8&,                    // betaH
+             Freal8&,                    // vd
+             Freal8&,                    // vu
+             Freal8&,                    // vS
+             Freal8&,                    // g1
+             Freal8&,                    // g2
+             Freal8&,                    // g3
              Farray_Fcomplex16_1_3_1_3&, // Yd
              Farray_Fcomplex16_1_3_1_3&, // Ye
-             Fcomplex16&, // lam
-             Fcomplex16&, // kap
+             Fcomplex16&,                // lam
+             Fcomplex16&,                // kap
              Farray_Fcomplex16_1_3_1_3&, // Yu
              Farray_Fcomplex16_1_3_1_3&, // Td
              Farray_Fcomplex16_1_3_1_3&, // Te
-             Fcomplex16&, // Tlam
-             Fcomplex16&, // Tk
+             Fcomplex16&,                // Tlam
+             Fcomplex16&,                // Tk
              Farray_Fcomplex16_1_3_1_3&, // Tu
-             Farray_Fcomplex16_1_3_1_3& , // mq2
+             Farray_Fcomplex16_1_3_1_3&, // mq2
              Farray_Fcomplex16_1_3_1_3&, // ml2
-             Freal8&, // mHd2
-             Freal8&, // mHu2
+             Freal8&,                    // mHd2
+             Freal8&,                    // mHu2
              Farray_Fcomplex16_1_3_1_3&, // md2
              Farray_Fcomplex16_1_3_1_3&, // mu2
              Farray_Fcomplex16_1_3_1_3&, // me2
-             Freal8&, // ms2
-             Fcomplex16&, // M1
-             Fcomplex16&, // M2
-             Fcomplex16&, // M3
-             Freal8& //  m_GUT
-            ), "__sphenonmssmeft_MOD_calculatespectrum", "SARAHSPheno_NMSSMEFT_internal")
+             Freal8&,                    // ms2
+             Fcomplex16&,                // M1
+             Fcomplex16&,                // M2
+             Fcomplex16&,                // M3
+             Freal8&                     // m_GUT
+            "__sphenonmssmeft_MOD_calculatespectrum", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(GetScaleUncertainty, void,
             (Freal8&, // delta_mass
              Flogical&, // WriteOut
@@ -379,9 +380,6 @@ BE_FUNCTION(GetScaleUncertainty, void,
             ), "__model_data_nmssmeft_MOD_mass_uncertainty_q", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(GetRenormalizationScale, Freal8, (), "__loopfunctions_MOD_getrenormalizationscale", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(SetRGEScale, void, (Freal8&), "__model_data_nmssmeft_MOD_setrgescale", "SARAHSPheno_NMSSMEFT_internal")
-/*BE_FUNCTION(SetHighScaleModel, Flogical, (Fstring<20>), "__sugraruns_MOD_sethighscalemodel", "SARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(SetWriteMinBr, void, (Freal8&), "__inputoutput_MOD_setwriteminbr", "SARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(SetWriteMinSig, void, (Freal8&), "__inputoutput_MOD_setwriteminsig", "SARAHSPheno_NMSSMEFT_internal")*/
 BE_FUNCTION(SetGUTScale, void, (Freal8&), "__model_data_nmssmeft_MOD_setgutscale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), "__model_data_nmssmeft_MOD_setstrictunification", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssmeft_MOD_setyukawascheme", "SARAHSPheno_NMSSMEFT_internal")

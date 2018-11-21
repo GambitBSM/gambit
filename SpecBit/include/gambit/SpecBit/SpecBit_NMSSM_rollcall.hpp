@@ -13,6 +13,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Oct
 ///
+///  \author Pat Scott
+///          (p.scott@imperial.ac.uk)
+///  \date 2018 Nov
+///
 ///  *********************************************
 ///
 #ifndef __SpecBit_NMSSM_hpp__
@@ -38,6 +42,7 @@
     DEPENDENCY(SMINPUTS, SMInputs)
     BACKEND_REQ(SARAHSPheno_NMSSM_spectrum, (libSPhenoNMSSM), int, (Spectrum&, const Finputs&) )
     BACKEND_OPTION((SARAHSPheno_NMSSM, 4.0.3), (libSPhenoNMSSM))
+    BACKEND_OPTION((SARAHSPheno_NMSSMEFT, 4.0.3), (libSPhenoNMSSM))
     #undef FUNCTION
 
     // ==============================
