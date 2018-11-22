@@ -15,8 +15,8 @@
 ///  *********************************************
 
 
-#ifndef __NMSSMEFTatQ_hpp__
-#define __NMSSMEFTatQ_hpp__
+#ifndef __NMSSMEFTatQ_mA_hpp__
+#define __NMSSMEFTatQ_mA_hpp__
 
 #include "gambit/Models/models/NMSSMEFTatQ.hpp"
 
