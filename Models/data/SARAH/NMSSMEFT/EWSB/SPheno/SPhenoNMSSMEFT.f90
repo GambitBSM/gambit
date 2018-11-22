@@ -7,7 +7,8 @@
 ! ----------------------------------------------------------------------  
  
  
-Program SPhenoNMSSMEFT 
+!Program SPhenoNMSSMEFT !Commented out by GAMBIT
+Module SPhenoNMSSMEFT
  
 Use Control
 Use InputOutput_NMSSMEFT
@@ -55,6 +56,10 @@ Real(dp) :: Tpar,Spar,Upar,ae,amu,atau,EDMe,EDMmu,EDMtau,dRho,BrBsGamma,ratioBsG
 & BrBtoSMuMu,ratioBtoSMuMu,BrBtoKee,ratioBtoKee,BrBtoKmumu,ratioBtoKmumu,BrBtoSnunu,     & 
 & ratioBtoSnunu,BrBtoDnunu,ratioBtoDnunu,BrKptoPipnunu,ratioKptoPipnunu,BrKltoPinunu,    & 
 & ratioKltoPinunu,DelMK,ratioDelMK,epsK,ratioepsK
+
+Contains ! Added by GAMBIT
+
+Subroutine Dummy() ! Added by GAMBIT
 
 Tpar = 0._dp 
 Spar = 0._dp 
@@ -473,7 +478,8 @@ Call LesHouches_Out(67,11,kont,MGUT,Tpar,Spar,Upar,ae,amu,atau,EDMe,EDMmu,      
 
 End if 
 Write(*,*) "Finished!" 
-Contains 
+End Subroutine Dummy ! Added by GAMBIT
+!Contains !Commented by GAMBIT
  
 Subroutine Switch_from_superCKM(Y_d, Y_u, Ad_in, Au_in, MD_in, MQ_in, MU_in &
                       &, Ad_out, Au_out, MD_out, MQ_out, MU_out, tr        &
@@ -874,4 +880,5 @@ End Subroutine GetScaleUncertainty
  
 
  
-End Program SPhenoNMSSMEFT 
+!End Program SPhenoNMSSMEFT ! Commented by GAMBIT
+End Module SPhenoNMSSMEFT ! Added by GAMBIT
