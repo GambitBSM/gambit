@@ -44,7 +44,7 @@ BE_NAMESPACE
     // and fills the all_channel_info map above
     void fill_all_channel_info(str);
 
-    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for 
+    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for
     // when calling the GAMBIT DecayTable::set_BF function
     std::vector<std::pair<int,int> > get_pdg_context_pairs(std::vector<int>);
   }
@@ -222,7 +222,7 @@ BE_NAMESPACE
       Farray_Fcomplex16_1_3 Tad1Loop;
       SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
 
-      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
+      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
 
       if(*kont != 0)
         ErrorHandling(*kont);
@@ -253,7 +253,7 @@ BE_NAMESPACE
           *GuessTwoLoopMatchingBSM = false;
         }
 
-        CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+        CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
 
         if(*kont != 0)
           ErrorHandling(*kont);
@@ -286,7 +286,7 @@ BE_NAMESPACE
         for(int i=1; i<=2; i++)
           (*mass_uncertainty_Yt)(n_tot+i) = (*MCha)(i); // difference will be taken later
         n_tot = n_tot + 2;
-        (*mass_uncertainty_Yt)(n_tot+1) = *MGlu; // difference will be taken later
+        //FIXME(*mass_uncertainty_Yt)(n_tot+1) = *MGlu; // difference will be taken later
 
         if(*CalculateOneLoopMasses and *CalculateTwoLoopHiggsMasses)
         {
@@ -308,14 +308,14 @@ BE_NAMESPACE
         }
       }
 
-      CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
-  
+      CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+
       if(*kont != 0)
         ErrorHandling(*kont);
 
       if(*GetMassUncertainty)
       {
-        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q);
+        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q);
         if(*kont != 0)
           ErrorHandling(*kont);
       }
@@ -371,8 +371,8 @@ BE_NAMESPACE
     (*MFu)(1) = sminputs.mU;
     (*MFu)(2) = sminputs.mCmC;
     (*MFu)(3) = sminputs.mT;
-    *MGlu = spectrum.get(Par::Pole_Mass, "~g");
-    *MGlu2 = pow(*MGlu,2);
+    //FIXME *MGlu = spectrum.get(Par::Pole_Mass, "~g");
+    //FIXEM *MGlu2 = pow(*MGlu,2);
     for(int i=1; i<=6; i++)
     {
       (*MSd)(i) = spectrum.get(Par::Pole_Mass, "~d",i);
@@ -395,7 +395,7 @@ BE_NAMESPACE
         (*MFd2)(i) = pow((*MFd)(i),2);
         (*MFe2)(i) = pow((*MFe)(i),2);
         (*MFu2)(i) = pow((*MFu)(i),2);
- 
+
       }
       if(i <= 2)
       {
@@ -452,14 +452,14 @@ BE_NAMESPACE
           (*me2)(i,j) = spectrum.get(Par::mass2, "me2", i, j);
           (*Yd)(i,j) = 0;
           (*Ye)(i,j) = 0;
-          (*Yu)(i,j) = 0; 
+          (*Yu)(i,j) = 0;
           if(i == j)
           {
             (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
             (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
             (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
           }
- 
+
         }
         if(i<=5 and j<=5)
           (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi0", i, j);
@@ -528,7 +528,7 @@ BE_NAMESPACE
     Farray_Freal8_1_3 gTFu;
 
     // Call SPheno's function to calculate decays
-    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
+    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
 
     if(*kont != 0)
       ErrorHandling(*kont);
@@ -546,7 +546,7 @@ BE_NAMESPACE
     int spheno_index;
     double corrf;
 
-    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd 
+    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd
                             1000002, 1000004, 1000006, 2000002, 2000004, 2000006, // Su
                             1000011, 1000013, 1000015, 2000011, 2000013, 2000015, // Se
                             1000012, 1000014, 1000016,                            // Sv
@@ -557,13 +557,13 @@ BE_NAMESPACE
                             1000022, 1000023, 1000025, 1000035, 1000045,          // Chi
                             1000024, 1000037,                                     // Cha
                             2, 4, 6};                                             // Fu
-    int n_particles = pdg.size();    
-    auto gT = [&](int i)  
+    int n_particles = pdg.size();
+    auto gT = [&](int i)
     {
       if(i<=6) return gTSd(i);
       else if(i<=12) return gTSu(i-6);
       else if(i<=18) return gTSe(i-12);
-      else if(i<=21) return gTSv(i-18); 
+      else if(i<=21) return gTSv(i-18);
       else if(i<=24) return gThh(i-21);
       // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
       else if(i<=26) return gTAh(i+1-24);
@@ -580,7 +580,7 @@ BE_NAMESPACE
       if(i<=6) return BRSd(i,j);
       else if(i<=12) return BRSu(i-6,j);
       else if(i<=18) return BRSe(i-12,j);
-      else if(i<=21) return BRSv(i-18,j); 
+      else if(i<=21) return BRSv(i-18,j);
       else if(i<=24) return BRhh(i-21,j);
       // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
       else if(i<=26) return BRAh(i+1-24,j);
@@ -591,7 +591,7 @@ BE_NAMESPACE
       else if(i<=39) return BRFu(i-36,j);
       return 0.0;
     };
-   
+
     for(int i=0; i<n_particles; i++)
     {
       std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
@@ -756,7 +756,7 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
- 
+
     // TODO: Add this
     // if(*SwitchToSCKM)
 
@@ -927,7 +927,7 @@ BE_NAMESPACE
     slha["MASS"][""] << 23 << *MVZ << "# VZ";
     slha["MASS"][""] << 24 << *MVWm << "# VWm";
 
-    slha["MASS"][""] << 1000021 << *MGlu << "# Glu";
+    //FIXME slha["MASS"][""] << 1000021 << *MGlu << "# Glu";
 
     slha["MASS"][""] << 1000022 << (*MChi)(1) << "# Chi_1";
     slha["MASS"][""] << 1000023 << (*MChi)(2) << "# Chi_2";
@@ -2033,7 +2033,7 @@ BE_NAMESPACE
     {
       str line;
       int parent_pdg;
-      while(getline(file, line))  
+      while(getline(file, line))
       {
         std::istringstream sline(line);
         str first;
@@ -2071,14 +2071,14 @@ BE_NAMESPACE
       file.close();
     }
     else
-    { 
+    {
       str message = "Unable to open decays info file " + decays_file;
       logger() << message << EOM;
       backend_error().raise(LOCAL_INFO, message);
       // invalid_point().raise(message);
     }
   }
-    
+
   std::vector<std::pair<int,int> > Fdecays::get_pdg_context_pairs(std::vector<int> pdgs)
   {
     std::vector<std::pair<int,int> > result;

@@ -30,7 +30,7 @@ BE_ALLOW_MODELS(NMSSMEFTatQ)
 BE_FUNCTION(Set_All_Parameters_0, void, (), "__model_data_nmssmeft_MOD_set_all_parameters_0", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(SetRenormalizationScale, Freal8, (Freal8&), "__loopfunctions_MOD_setrenormalizationscale", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(InitializeLoopFunctions, void, (), "__loopfunctions_MOD_initializeloopfunctions", "SARAHSPheno_NMSSMEFT_internal")
-BE_FUNCTION(CalculateRunningMasses, void, 
+BE_FUNCTION(CalculateRunningMasses, void,
             (Farray_Freal8_1_3&, //mf_l_in
              Farray_Freal8_1_3&, // mf_d_in
              Farray_Freal8_1_3&, // mf_u_in
@@ -138,8 +138,6 @@ BE_FUNCTION(OneLoopMasses, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&,            // MGlu
-             Freal8&,            // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -224,8 +222,6 @@ BE_FUNCTION(CalculateSpectrum, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&,            // MGlu
-             Freal8&,            // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -291,7 +287,7 @@ BE_FUNCTION(CalculateSpectrum, void,
              Fcomplex16&,                // M1
              Fcomplex16&,                // M2
              Fcomplex16&,                // M3
-             Freal8&                     // m_GUT
+             Freal8&),                   // m_GUT
             "__sphenonmssmeft_MOD_calculatespectrum", "SARAHSPheno_NMSSMEFT_internal")
 BE_FUNCTION(GetScaleUncertainty, void,
             (Freal8&, // delta_mass
@@ -309,8 +305,6 @@ BE_FUNCTION(GetScaleUncertainty, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&, // MGlu
-             Freal8&, // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -405,8 +399,6 @@ BE_FUNCTION(CalculateBR, void,
              Farray_Freal8_1_3&, // MFe2
              Farray_Freal8_1_3&, // MFu
              Farray_Freal8_1_3&, // MFu2
-             Freal8&, // MGlu
-             Freal8&, // MGlu2
              Farray_Freal8_1_3&, // Mhh
              Farray_Freal8_1_3&, // Mhh2
              Farray_Freal8_1_2&, // MHpm
@@ -528,7 +520,6 @@ BE_VARIABLE(hstep_pn, Freal8, "__settings_MOD_hstep_pn", "SARAHSPheno_NMSSMEFT_i
 BE_VARIABLE(hstep_sa, Freal8, "__settings_MOD_hstep_sa", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(TwoLoopRegulatorMass, Freal8, "__settings_MOD_twoloopregulatormass", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(TwoLoopSafeMode, Flogical, "__settings_MOD_twoloopsafemode", "SARAHSPheno_NMSSMEFT_internal")
-BE_VARIABLE(L_BR, Flogical, "__control_MOD_l_br", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(L_CS, Flogical, "__control_MOD_l_cs", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MatchingOrder, Finteger, "__settings_MOD_matchingorder", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(GetMassUncertainty, Flogical, "__model_data_nmssmeft_MOD_getmassuncertainty","SARAHSPheno_NMSSMEFT_interal")
@@ -683,6 +674,14 @@ BE_VARIABLE(Mhh, Farray_Freal8_1_3, "__model_data_nmssmeft_MOD_mhh", "SARAHSPhen
 BE_VARIABLE(Mhh2, Farray_Freal8_1_3, "__model_data_nmssmeft_MOD_mhh2", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MHpm, Farray_Freal8_1_2, "__model_data_nmssmeft_MOD_mhpm", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MHpm2, Farray_Freal8_1_2, "__model_data_nmssmeft_MOD_mhpm2", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSd, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_msd", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSd2, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_msd2", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSe, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_mse", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSe2, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_mse2", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSu, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_msu", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSu2, Farray_Freal8_1_6, "__model_data_nmssmeft_MOD_msu2", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSv, Farray_Freal8_1_3, "__model_data_nmssmeft_MOD_msv", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MSv2, Farray_Freal8_1_3, "__model_data_nmssmeft_MOD_msv2", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MVWm, Freal8, "__model_data_nmssmeft_MOD_mvwm", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MVWm2, Freal8, "__model_data_nmssmeft_MOD_mvwm2", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(MVZ, Freal8, "__model_data_nmssmeft_MOD_mvz", "SARAHSPheno_NMSSMEFT_internal")
@@ -801,13 +800,18 @@ BE_VARIABLE(Qin, Freal8, "__sphenonmssmeft_MOD_qin", "SARAHSPheno_NMSSMEFT_inter
 BE_VARIABLE(ratioWoM, Freal8, "__sphenonmssmeft_MOD_ratiowom","SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(CalcTBD, Flogical, "__sphenonmssmeft_MOD_calctbd","SARAHSPheno_NMSSMEFT_internal")
 // Branching Ratio variables
-
-
+BE_VARIABLE(L_BR, Flogical, "__control_MOD_l_br", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(Enable3BDecaysF, Flogical, "__settings_MOD_enable3bdecaysf","SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(Enable3BDecaysS, Flogical, "__settings_MOD_enable3bdecayss","SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(RunningCouplingsDecays, Flogical, "__settings_MOD_runningcouplingsdecays", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(MinWidth, Freal8, "__settings_MOD_minwidth", "SARAHSPheno_NMSSMEFT_internal")
+BE_VARIABLE(OneLoopDecays, Flogical, "__settings_MOD_oneloopdecays", "SARAHSPheno_NMSSMEFT_internal")
 // Convenience functions (registration)
-BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SARAHSPheno_NMSSMEFTspectrum")
-BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &), "SARAHSPheno_NMSSMEFTdecays")
+BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "NMSSM_spectrum")
+BE_CONV_FUNCTION(run_SPheno_decays, int, (const Spectrum &, DecayTable &, const Finputs&), "NMSSM_decays")
 BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const std::map<str, safe_ptr<double> >&), "SARAHSPheno_NMSSMEFT_internal")
 BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SARAHSPheno_NMSSMEFT_internal")
+BE_CONV_FUNCTION(ReadingData_decays, void, (const Finputs&), "SARAHSPheno_NMSSMEFT_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SARAHSPheno_NMSSMEFT_internal")
 BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SARAHSPheno_NMSSMEFT_internal")
 

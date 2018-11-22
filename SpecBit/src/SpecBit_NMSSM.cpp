@@ -14,7 +14,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
-///  \date 2018 Oct 
+///  \date 2018 Oct
 ///
 ///  *********************************************
 
@@ -55,8 +55,8 @@ namespace Gambit
       static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
       // Get the spectrum from the Backend
-      myPipe::BEreq::SARAHSPheno_NMSSM_spectrum(spectrum, inputs);
- 
+      myPipe::BEreq::NMSSM_spectrum(spectrum, inputs);
+
       // Get the SLHA struct from the spectrum object
       SLHAstruct slha = spectrum.getSLHAea(2);
 

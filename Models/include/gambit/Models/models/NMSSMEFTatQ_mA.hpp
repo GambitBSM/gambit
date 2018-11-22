@@ -18,7 +18,7 @@
 #ifndef __NMSSMEFTatQ_hpp__
 #define __NMSSMEFTatQ_hpp__
 
-#include "gambit/Models/models/NMSSM66atQ.hpp"
+#include "gambit/Models/models/NMSSMEFTatQ.hpp"
 
 /// 8 parameters plus input scale
 #define MODEL NMSSMEFTatQ_mA

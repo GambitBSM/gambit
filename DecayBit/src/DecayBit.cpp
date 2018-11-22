@@ -3245,7 +3245,7 @@ namespace Gambit
       inputs.options = myPipe::runOptions;
 
       // Use SPheno to fill the decay table
-      myPipe::BEreq::SARAHSPheno_NMSSM_decays(spectrum, decays, inputs);
+      myPipe::BEreq::NMSSM_decays(spectrum, decays, inputs);
 
       /// Spit out the full decay table as SLHA1 and SLHA2 files.
       /// @todo Get the mass eigenstate pseudonyms working for NMSSM as well. Need it for SLHA1 decays
@@ -3261,7 +3261,7 @@ namespace Gambit
 
     }
 
-    /// Get NMSSM decay rates as map<str,double> 
+    /// Get NMSSM decay rates as map<str,double>
     void get_NMSSM_decay_rates_as_map(map_str_dbl& result)
     {
       namespace myPipe = Pipes::get_NMSSM_decay_rates_as_map;
