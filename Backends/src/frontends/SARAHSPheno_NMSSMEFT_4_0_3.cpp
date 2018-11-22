@@ -232,6 +232,7 @@ BE_NAMESPACE
     }
     else
     {
+
       if(*GetMassUncertainty)
       {
         if(*CalculateOneLoopMasses and *CalculateTwoLoopHiggsMasses)
@@ -344,7 +345,7 @@ BE_NAMESPACE
 
   }
 
-  // Convenience funciton to run Spheno and obtain the decays
+  // Convenience function to run Spheno and obtain the decays
   int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays, const Finputs& inputs)
   {
 
@@ -2109,7 +2110,7 @@ BE_INI_FUNCTION
     /****************/
     /* Block MODSEL */
     /****************/
-    if((*ModelInUse)("NMSSMEFTatQ"))
+    if (ModelInUse("NMSSMEFTatQ"))
     {
       *HighScaleModel = "LOW";
       // BC where all NMSSM parameters are taken at the SUSY scale

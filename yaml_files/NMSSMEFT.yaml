@@ -101,9 +101,7 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] : "debug.log"
-    [Default] : "default.log"
-    [SpecBit] : "SpecBit.log"
+    [Default] : stdout
 
 KeyValues:
 
