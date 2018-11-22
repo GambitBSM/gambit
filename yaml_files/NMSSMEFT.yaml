@@ -5,7 +5,7 @@ Parameters:
   #SM nuisance parameters.
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
 
-  NMSSMEFTatQ:
+  NMSSMEFTatQ_mA:
     Qin:
       fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
     TanBeta:
@@ -48,7 +48,7 @@ Scanner:
     random:
       plugin: random
       like:  LogLike
-      point_number: 1
+      point_number: 10
       output_file:  output
 
     multinest:
@@ -74,6 +74,8 @@ ObsLikes:
 Rules:
   - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
+    backends:
+      - {capability: NMSSM_spectrum, backend: SARAHSPheno_NMSSMEFT}
     options:
       WriteOutputForNonConvergence: true
       drop_SLHA_file: true

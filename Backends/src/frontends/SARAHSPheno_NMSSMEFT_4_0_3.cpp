@@ -2109,7 +2109,7 @@ BE_INI_FUNCTION
     /****************/
     /* Block MODSEL */
     /****************/
-    if((*ModelInUse)("NMSSM66atQ"))
+    if((*ModelInUse)("NMSSMEFTatQ"))
     {
       *HighScaleModel = "LOW";
       // BC where all NMSSM parameters are taken at the SUSY scale

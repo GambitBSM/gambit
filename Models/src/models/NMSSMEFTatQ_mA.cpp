@@ -38,7 +38,7 @@
      // Translate mu to vev of S and mA to Alambda
      double mu = myP["mu"];
      double lambda = myP["lambda"];
-     double tanbeta = myP["tanbeta"];
+     double tanbeta = myP["TanBeta"];
      double mA = myP["mA"];
      targetP.setValue("vS", mu / lambda * root2);
      targetP.setValue("Alambda", mA*mA*tanbeta/(mu*(1+tanbeta*tanbeta)) - myP["kappa"]*mu/lambda);
