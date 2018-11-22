@@ -148,7 +148,7 @@ Parameters:
        fixed_value: 0
     Au_33:
       fixed_value: 0
- 
+
 Priors:
 
 Printer:
@@ -163,11 +163,11 @@ Scanner:
 
   scanners:
 
-    random: 
-      plugin: random 
-      like:  LogLike 
-      point_number: 1 
-      output_file:  output 
+    random:
+      plugin: random
+      like:  LogLike
+      point_number: 1
+      output_file:  output
 
     multinest:
       plugin: multinest
@@ -190,12 +190,17 @@ ObsLikes:
     type:         bool
 
 Rules:
+
+  # Set Higgs pole mass by hand
+  - options:
+      override_pole_masses:
+        h0_1: 125.09
+
   - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
       WriteOutputForNonConvergence: true
       drop_SLHA_file: true
-
 
   - capability: run_MSSMspectrum_test
     function: SPheno_NMSSM_test

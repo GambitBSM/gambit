@@ -181,12 +181,12 @@ namespace Gambit
 
       // Has the user chosen to override any pole mass values?
       // This will typically break consistency, but may be useful in some special cases
-      if (runOptions.hasKey("override_FS_pole_masses"))
+      if (runOptions.hasKey("override_pole_masses"))
       {
-        std::vector<str> particle_names = runOptions.getNames("override_FS_pole_masses");
+        std::vector<str> particle_names = runOptions.getNames("override_pole_masses");
         for (auto& name : particle_names)
         {
-          double mass = runOptions.getValue<double>("override_FS_pole_masses", name);
+          double mass = runOptions.getValue<double>("override_pole_masses", name);
           mssmspec.set_override(Par::Pole_Mass, mass, name);
         }
       }
@@ -697,6 +697,18 @@ namespace Gambit
       // Get the SLHA struct from the spectrum object
       SLHAstruct slha = spectrum.getSLHAea(1);
 
+      // Has the user chosen to override any pole mass values?
+      // This will typically break consistency, but may be useful in some special cases
+      if (myPipe::runOptions->hasKey("override_pole_masses"))
+      {
+        std::vector<str> particle_names = myPipe::runOptions->getNames("override_pole_masses");
+        for (auto& name : particle_names)
+        {
+          double mass = myPipe::runOptions->getValue<double>("override_pole_masses", name);
+          SLHAea_add(slha, "MASS", Models::ParticleDB().pdg_pair(name).first, mass, name, true);
+        }
+      }
+
       // Convert into a spectrum object
       spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
@@ -760,7 +772,7 @@ namespace Gambit
 
       // Only allow neutralino LSPs.
       if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
-  
+
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
@@ -821,8 +833,8 @@ namespace Gambit
      input.MSUSY = *myPipe::Param.at("Qin");
      // Fill the rest.
      // Note: This particular spectrum generator has been created with
-     // different names for parameter inputs.  We should standardise this   
-     fill_MSSM63_input_altnames(input,myPipe::Param); 
+     // different names for parameter inputs.  We should standardise this
+     fill_MSSM63_input_altnames(input,myPipe::Param);
      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
@@ -834,8 +846,8 @@ namespace Gambit
    }
    #endif
 
- 
-  
+
+
     // Runs FlexibleSUSY MSSM spectrum generator with CMSSM (GUT scale) boundary conditions
     // In principle an identical spectrum can be obtained from the function
     // get_MSSMatGUT_spectrum_FS
@@ -993,7 +1005,7 @@ namespace Gambit
    }
    #endif
 
-  
+
     // Runs FlexibleSUSY MSSM spectrum generator with GUT scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT)
@@ -1048,8 +1060,8 @@ namespace Gambit
 
    }
    #endif
-  
-  
+
+
     // Runs FlexibleSUSY MSSM spectrum generator with SUSY scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT)

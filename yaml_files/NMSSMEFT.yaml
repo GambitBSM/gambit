@@ -72,6 +72,12 @@ ObsLikes:
     type:         bool
 
 Rules:
+
+  # Set Higgs pole mass by hand
+  - options:
+      override_pole_masses:
+        h0_1: 125.09
+
   - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     backends:

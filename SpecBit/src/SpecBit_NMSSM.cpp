@@ -60,6 +60,18 @@ namespace Gambit
       // Get the SLHA struct from the spectrum object
       SLHAstruct slha = spectrum.getSLHAea(2);
 
+      // Has the user chosen to override any pole mass values?
+      // This will typically break consistency, but may be useful in some special cases
+      if (myPipe::runOptions->hasKey("override_pole_masses"))
+      {
+        std::vector<str> particle_names = myPipe::runOptions->getNames("override_pole_masses");
+        for (auto& name : particle_names)
+        {
+          double mass = myPipe::runOptions->getValue<double>("override_pole_masses", name);
+          SLHAea_add(slha, "MASS", Models::ParticleDB().pdg_pair(name).first, mass, name, true);
+        }
+      }
+
       // Convert into a spectrum object
       spectrum = spectrum_from_SLHAea<NMSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
