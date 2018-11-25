@@ -827,6 +827,8 @@ BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SARAHSPheno_NMSSM_internal"
 
 // Initialisation functions (dependencies)
 
+// Function pointer variable for error handling
+BE_VARIABLE(ErrorHandler_cptr, type_fptr_SPhenoErrorHandler, "__control_MOD_errorhandler_cptr", "SARAHSPheno_NMSSM_internal")
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"

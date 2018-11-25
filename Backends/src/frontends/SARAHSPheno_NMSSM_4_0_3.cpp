@@ -25,6 +25,19 @@
 
 #define BACKEND_DEBUG 0
 
+// Callback function for error handling
+BE_NAMESPACE
+{
+  // This function will be called from SPheno. Needs C linkage, and thus also  
+  // a backend-specific name to guard against name clashes.
+  extern "C"
+  void CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler)()
+  {
+    throw std::runtime_error("SARAHSPheno_NMSSM backend called TerminateProgram.");
+  }
+}
+END_BE_NAMESPACE
+
 // Convenience functions (definition)
 BE_NAMESPACE
 {
@@ -186,7 +199,8 @@ BE_NAMESPACE
 
       // Setting Boundary conditions
       Flogical MZsuffix = false;
-      SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix);
+      try { SetMatchingConditions(g1SM, g2SM, g3SM, YuSM, YdSM, YeSM, vSM, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, MZsuffix); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
       *kap = *KappaInput;
       *lam = *LambdaInput;
@@ -208,7 +222,9 @@ BE_NAMESPACE
         mu2_ckm = *mu2;
         Flogical True = true;
         // TODO: Actual definition in SARAH-SPheno_NMSSM and InputOutput is longer, may cause problems
-        Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, True);
+        try{ Switch_from_superCKM(Yd_ckm, Yu_ckm, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm, mu2_ckm, Td_out, Tu_out, md2_out, mq2_out, mu2_out, True); }
+        catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+
         if(*InputValueforTd) *Td = Td_out;
         if(*InputValueforTu) *Tu = Tu_out;
         if(*InputValueformq2) *mq2 = mq2_out;
@@ -217,9 +233,11 @@ BE_NAMESPACE
       }
 
       Farray_Fcomplex16_1_3 Tad1Loop;
-      SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop);
+      try{ SolveTadpoleEquations(*g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *vd, *vu, *vS, Tad1Loop); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
-      OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont);
+      try{OneLoopMasses(*MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *kont); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
       if(*kont != 0)
         ErrorHandling(*kont);
@@ -250,7 +268,8 @@ BE_NAMESPACE
           *GuessTwoLoopMatchingBSM = false;
         }
 
-        CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+        try{ CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT); }
+        catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
         if(*kont != 0)
           ErrorHandling(*kont);
@@ -305,14 +324,17 @@ BE_NAMESPACE
         }
       }
 
-      CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT);
+      try{ CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
   
       if(*kont != 0)
         ErrorHandling(*kont);
 
       if(*GetMassUncertainty)
       {
-        GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q);
+        try{ GetScaleUncertainty(*delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mass_uncertainty_Q); }
+        catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+
         if(*kont != 0)
           ErrorHandling(*kont);
       }
@@ -525,7 +547,8 @@ BE_NAMESPACE
     Farray_Freal8_1_3 gTFu;
 
     // Call SPheno's function to calculate decays
-    CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu);
+    try{ CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     if(*kont != 0)
       ErrorHandling(*kont);
@@ -613,7 +636,9 @@ BE_NAMESPACE
 
     SLHAstruct slha;
 
-    Freal8 Q = sqrt(GetRenormalizationScale());
+    Freal8 Q;
+    try{ Q = sqrt(GetRenormalizationScale()); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     // Make sure to rotate back the sign on MChi
     // TODO: overload operators for FcomplexT and Farray so that this can be made better
@@ -1114,12 +1139,14 @@ BE_NAMESPACE
   {
 
     InitializeStandardModel(inputs.sminputs);
-    InitializeLoopFunctions();
+    try{ InitializeLoopFunctions(); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     *ErrorLevel = -1;
     *GenerationMixing = false;
 
-    Set_All_Parameters_0();
+    try{ Set_All_Parameters_0(); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     *TwoLoopRGE = true;
 
@@ -1168,7 +1195,8 @@ BE_NAMESPACE
     if(*SPA_convention)
     {
       Freal8 scale = 1.0E6;  // SPA convention is 1 TeV
-      SetRGEScale(scale);
+      try {SetRGEScale(scale); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
     }
 
     // 3, External_Spectrum
@@ -1308,19 +1336,26 @@ BE_NAMESPACE
     // 31, setting a fixed GUT scale, GUTScale
     Freal8 GUTScale = inputs.options->getValueOrDef<Freal8>(0.0, "GUTScale");
     if(GUTScale > 0.0)
-       SetGUTScale(GUTScale);
+    {
+      try{ SetGUTScale(GUTScale); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+    }
 
     // 32, requires strict unification, StrictUnification
     Flogical StrictUnification = inputs.options->getValueOrDef<bool>(false, "StrictUnification");
     if(StrictUnification)
-      SetStrictUnification(StrictUnification);
+    {
+      try{ SetStrictUnification(StrictUnification); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+    }
 
     // 33, setting a fixed renormalization scale
     Freal8 RGEScale = inputs.options->getValueOrDef<Freal8>(0.0, "RGEScale");
     if(RGEScale > 0.0)
     {
       RGEScale *= RGEScale;
-      SetRGEScale(RGEScale);
+      try{ SetRGEScale(RGEScale); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
     }
 
     // 34, precision of mass calculation, delta_mass
@@ -1867,7 +1902,8 @@ BE_NAMESPACE
       (*mf_d_mZ)(i) = 0.0;
       (*mf_u_mZ)(i) = 0.0;
     }
-    CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont);
+    try{ CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
     if(*kont != 0)
       ErrorHandling(*kont);
 
@@ -2101,7 +2137,11 @@ BE_INI_FUNCTION
     // Dump all internal output
     *ErrCan = 0;
 
-    Set_All_Parameters_0();
+    // Set the function pointer in SPheno to our ErrorHandler callback function
+    *ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);
+
+    try{ Set_All_Parameters_0(); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     /****************/
     /* Block MODSEL */
@@ -2114,7 +2154,7 @@ BE_INI_FUNCTION
     }
     else
     {
-      str message = "Model nor recognised";
+      str message = "Model not recognised";
       logger() << message << EOM;
       invalid_point().raise(message);
     }
@@ -2122,11 +2162,13 @@ BE_INI_FUNCTION
     *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
 
     Freal8 scale = 1.0E6;  // Default value if there's no input
-    *Qin = SetRenormalizationScale(scale);
+    try{ *Qin = SetRenormalizationScale(scale); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
     if(Param.find("Qin") != Param.end())
     {
       Freal8 RGEScale = pow(*Param.at("Qin"),2);
-      SetRGEScale(RGEScale);
+      try{ SetRGEScale(RGEScale); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
     }
 
   }

@@ -23,6 +23,9 @@
 
 namespace Gambit
 {
+    // Typedef for function pointer to a void() function 
+    typedef void (*type_fptr_SPhenoErrorHandler)();
+
     typedef Farray<Finteger,1,3> Farray_Finteger_1_3;
     typedef Farray<Freal8,1,2> Farray_Freal8_1_2;
     typedef Farray<Freal8,1,3> Farray_Freal8_1_3;
