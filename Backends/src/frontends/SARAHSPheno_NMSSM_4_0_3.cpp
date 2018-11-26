@@ -70,6 +70,7 @@ BE_NAMESPACE
 
     Set_All_Parameters_0();
 
+    *Iname = 1;
     *kont = 0;
     *delta_mass = 1.0E-4;
     *CalcTBD = false;
@@ -368,6 +369,7 @@ BE_NAMESPACE
   {
 
     // Initialize some variables
+    *Iname = 1;
     *CalcTBD = false;
     *ratioWoM = 0.0;
     *epsI = 1.0E-5;

@@ -798,6 +798,7 @@ BE_VARIABLE(GuessTwoLoopMatchingBSM, Flogical, "__model_data_nmssm_MOD_guesstwol
 BE_VARIABLE(mass_uncertainty_Yt, Farray_Freal8_1_46, "__model_data_nmssm_MOD_mass_uncertainty_yt", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(mass_uncertainty_Q, Farray_Freal8_1_46, "__model_data_nmssm_MOD_mass_uncertainty_q", "SARAHSPheno_NMSSM_internal")
 // Control Variables
+BE_VARIABLE(Iname, Finteger, "__control_MOD_iname", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(kont, Finteger, "__sphenonmssm_MOD_kont", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(WriteOut, Flogical, "__control_MOD_writeout", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(epsI, Freal8, "__sphenonmssm_MOD_epsi", "SARAHSPheno_NMSSM_internal")
