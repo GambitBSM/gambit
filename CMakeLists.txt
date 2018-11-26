@@ -122,8 +122,9 @@ else()
       message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
       find_package(PythonInterp 2 REQUIRED)
       if (PYTHON_VERSION_MINOR LESS 7)
-        message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
-                            "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+        message(FATAL_ERROR "\nGAMBIT requires at Python 2.7 or later.  \n"
+                            "If you need to set the path to the Python interpreter manually, please use\n"
+                            "-DPYTHON_EXECUTABLE=path/to/preferred/python.")
       endif()
       find_package(PythonLibs 2)
   endif()
@@ -132,32 +133,32 @@ message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRIN
 if(PYTHONLIBS_FOUND)
   message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
   if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
-    message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}")
-    message("   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the")
-    message("   libraries are only used for providing support for Python backends at runtime.  However, if you")
-    message("   have matching versions installed, you can make this message go away by trying the following")
-    message("   (making sure to clean out your build directory in between any such changes):")
-    message("   1. invoke cmake as cmake -DFORCE_PYTHON2=True .. (or similar)")
-    message("   2. invoke cmake as cmake -DFORCE_PYTHON3=True .. (or similar)")
-    message("   3. set the following variables when invoking cmake:")
-    message("     PYTHON_LIBRARY")
-    message("     PYTHON_INCLUDE_DIR")
-    message("     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)")
-    message("     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
+    message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
+            "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
+            "   libraries are only used for providing support for Python backends at runtime.  However, if you\n"
+            "   have matching versions installed, you can make this message go away by trying the following\n"
+            "   (making sure to clean out your build directory in between any such changes):\n"
+            "   1. invoke cmake as cmake -DFORCE_PYTHON2=True .. (or similar)\n"
+            "   2. invoke cmake as cmake -DFORCE_PYTHON3=True .. (or similar)\n"
+            "   3. set the following variables when invoking cmake:\n"
+            "     PYTHON_LIBRARY\n"
+            "     PYTHON_INCLUDE_DIR\n"
+            "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
+            "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)\n")
   endif()
 endif()
 
 # Check for pybind11 if PythonLibs were found
 if(NOT PYTHONLIBS_FOUND)
-  message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}")
-  message("   If you *do* have the Python libraries installed, you should first try setting/unsetting")
-  message("   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build")
-  message("   directory in between any such changes).  If that does not work, you can manually set the")
-  message("   following variables when invoking cmake (also making sure to clean out your build dir):")
-  message("     PYTHON_LIBRARY")
-  message("     PYTHON_INCLUDE_DIR")
-  message("     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)")
-  message("     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
+  message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
+          "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
+          "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
+          "   directory in between any such changes).  If that does not work, you can manually set the\n"
+          "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
+          "     PYTHON_LIBRARY\n"
+          "     PYTHON_INCLUDE_DIR\n"
+          "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
+          "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
 else()
   set(MIN_pybind11_VERSION "2.2.0")
   set(PREFERRED_pybind11_VERSION "2.2.1")
