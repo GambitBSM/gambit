@@ -37,7 +37,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: twalk
+  use_scanner: polychord
 
   scanners:
 
