@@ -80,8 +80,6 @@ Rules:
 
   - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
-    backends:
-      - {capability: NMSSM_spectrum, backend: SARAHSPheno_NMSSMEFT}
     options:
       WriteOutputForNonConvergence: true
       drop_SLHA_file: true
