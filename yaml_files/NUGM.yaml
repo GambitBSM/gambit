@@ -257,11 +257,11 @@ ObsLikes:
       purpose:    LogLike
 
     # Vacuum Stability Likelihood for the MSSM
-    - capability:   VS_likelihood_MSSM
-      purpose:      LogLike
+    #- capability:   VS_likelihood_MSSM
+    #  purpose:      LogLike
 
-    - capability:   VS_likelihood_MSSM_thermal
-      purpose:      LogLike
+    #- capability:   VS_likelihood_MSSM_thermal
+    #  purpose:      LogLike
 
     # Other observables
     - purpose:    likelihood_details
