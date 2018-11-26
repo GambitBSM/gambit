@@ -181,7 +181,7 @@ Scanner:
     random: 
       plugin: random 
       like:  LogLike 
-      point_number: 100
+      point_number: 1000
       output_file:  output 
 
     multinest:
@@ -209,9 +209,10 @@ ObsLikes:
   # - purpose:    Observable
   #   capability: SLHA1_violation
 
-  # - purpose:    Observable
-  #   capability: MSSM_spectrum
-  #   type:       map_str_dbl
+  - purpose:    Observable
+    capability: NMSSM_spectrum
+    function:   get_NMSSM_spectrum_as_map
+    type:       map_str_dbl
 
   # - purpose:      Observable
   #   capability:   run_MSSMspectrum_test
@@ -237,14 +238,14 @@ ObsLikes:
   #   type:         DecayTable
 
 Rules:
-  - capability: NMSSM_spectrum
-    function: get_NMSSM_spectrum_SPheno
+
+  - function: get_NMSSM_spectrum_SPheno
     options:
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       CalculateTwoLoopHiggsMasses: false
       drop_SLHA_file: false
-      ErrorLevel: -1
+      ErrorLevel: 2
 
   # - capability: run_MSSMspectrum_test
   #   function: SPheno_NMSSM_test
