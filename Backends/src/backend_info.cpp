@@ -41,10 +41,12 @@ namespace Gambit
   // Public method definitions for backend_info class
 
   /// Constructor
-  Backends::backend_info::backend_info() :
-   filename(GAMBIT_DIR "/config/backend_locations.yaml"),
-   default_filename(GAMBIT_DIR "/config/backend_locations.yaml.default"),
-   python_started(false)
+  Backends::backend_info::backend_info()
+   : filename(GAMBIT_DIR "/config/backend_locations.yaml")
+   , default_filename(GAMBIT_DIR "/config/backend_locations.yaml.default")
+   #ifdef HAVE_PYBIND11
+     , python_started(false)
+   #endif
   {
     // Attempt to read user yaml configuration file
     try
@@ -333,6 +335,7 @@ namespace Gambit
           loadLibrary_Python(be, ver, sv, lang);
         #else
           works[be+ver] = false;
+          std::ostringstream err;
           err << "GAMBIT requires pybind11 to interface with Python, but it was not found in "
               << "the system. Please install it before using this backend." << endl
               << "You can do this with 'make pybind11' from the GAMBIT build directory." << endl;

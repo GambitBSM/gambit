@@ -523,6 +523,11 @@ foreach(bit ${GAMBIT_BITS})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
 endforeach()
 
+# If ColliderBit and RestFrames is used, make RestFrames a dependency of ColliderBit
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;" AND NOT EXCLUDE_RESTFRAMES)
+  add_dependencies(ColliderBit restframes)
+endif()
+
 # Add the executables
 include(cmake/executables.cmake)
 

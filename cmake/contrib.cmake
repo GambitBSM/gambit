@@ -21,6 +21,11 @@
 
 include(ExternalProject)
 
+# Define the newline strings to use for OSX-safe substitution.
+# This can be moved into externals.cmake if ever it is no longer used in this file.
+set(nl "___totally_unlikely_to_occur_naturally___")
+set(true_nl \"\\n\")
+
 #contrib/slhaea
 include_directories("${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 
@@ -44,56 +49,72 @@ include_directories("${yaml_INCLUDE_DIR}")
 add_definitions(-DYAML_CPP_DLL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
-#contrib/Delphes-3.1.2; include only if ColliderBit is in use and Delphes is not intentionally ditched.
-set (DELPHES_DIR "${PROJECT_SOURCE_DIR}/contrib/Delphes-3.1.2")
-set (DELPHES_DICTS "${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes/BTaggingWithTruthModule_dict.cc"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes/AbsoluteIsolationModule_dict.cc"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes/BTaggingWithTruthModule_dict.h"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes/AbsoluteIsolationModule_dict.h")
-string(REGEX MATCH ";D;|;De;|;Del;|;Delp;|;Delph;|;Delphe;|;Delphes" DITCH_DELPHES ";${itch};")
-include_directories("${DELPHES_DIR}" "${DELPHES_DIR}/external" "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes")
-if(DITCH_DELPHES OR NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
-  set (EXCLUDE_DELPHES TRUE)
-  add_custom_target(clean-delphes COMMAND "")
-  message("${BoldCyan} X Excluding Delphes from GAMBIT configuration.${ColourReset}")
-  foreach(DICT ${DELPHES_DICTS})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove ${DICT})
-  endforeach()
-else()
-  set (EXCLUDE_DELPHES FALSE)
-  set (DELPHES_LDFLAGS "-L${DELPHES_DIR} -lDelphes")
-  set (DELPHES_BAD_LINE "\\(..CC)\ ..patsubst\ -std=%,,..CXXFLAGS))\\)\ \\(..CXXFLAGS.\\)")
-  set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${DELPHES_DIR}")
-  ExternalProject_Add(delphes
-    SOURCE_DIR ${DELPHES_DIR}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure
-              COMMAND sed ${dashi} "/^CXXFLAGS += .* -Iexternal\\/tcl/ s/$/ ${BACKEND_CXX_FLAGS}/" <SOURCE_DIR>/Makefile
-              COMMAND sed ${dashi} "s,\ ..EXECUTABLE.,,g" <SOURCE_DIR>/Makefile
-              COMMAND sed ${dashi} "s/${DELPHES_BAD_LINE}/\\1/g" <SOURCE_DIR>/Makefile
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} all
-    INSTALL_COMMAND ""
-  )
-  message("${Yellow}-- Generating Delphes ROOT dictionaries...${ColourReset}")
-  execute_process(COMMAND ./make_dicts.sh
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes
-                  RESULT_VARIABLE result
-                 )
-  if (NOT "${result}" STREQUAL "0")
-    message(FATAL_ERROR "Could not automatically generate Delphes ROOT dictionaries.  Blame ROOT.")
+
+#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True.
+set(restframes_VERSION "1.0.2")
+set(restframes_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${restframes_VERSION}")
+if(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ColliderBit is not in use.)${ColourReset}")
+  set(EXCLUDE_RESTFRAMES TRUE)
+elseif(NOT WITH_RESTFRAMES)
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (WITH_RESTFRAMES is set to False.)${ColourReset}")
+  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
+  set(EXCLUDE_RESTFRAMES TRUE)
+elseif(NOT ROOT_FOUND)
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ROOT was not found.)${ColourReset}")
+  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
+  set(EXCLUDE_RESTFRAMES TRUE)
+else() # OK, let's include RestFrames then
+  message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
+  set(EXCLUDE_RESTFRAMES FALSE)
+  # Check if the RestFrames library already exists and print info message
+  unset(RestFrames_LIBRARY CACHE)
+  find_library(RestFrames_LIBRARY RestFrames ${restframes_CONTRIB_DIR}/lib/)
+  if(RestFrames_LIBRARY STREQUAL "RestFrames_LIBRARY-NOTFOUND")
+    message("   RestFrames library not found. RestFrames v${restframes_VERSION} will be downloaded and installed when building GAMBIT.")
+  else()
+    message("   Found RestFrames library: ${RestFrames_LIBRARY}")
   endif()
-  message("${Yellow}-- Generating Delphes ROOT dictionaries - done.${ColourReset}")
-  # Add clean info
-  foreach(DICT ${DELPHES_DICTS})
-    set(clean_files ${clean_files} ${DICT})
-  endforeach()
-  set(rmstring "${CMAKE_BINARY_DIR}/delphes-prefix/src/delphes-stamp/delphes")
-  add_custom_target(clean-delphes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
-                                  COMMAND cd ${DELPHES_DIR} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
-  add_dependencies(distclean clean-delphes)
 endif()
 
-#contrib/fjcore-3.2.0; compile only if Delphes is ditched and ColliderBit is not.
+# Add RestFrames as an external project that GAMBIT can depend on
+if(NOT EXCLUDE_RESTFRAMES)
+  set(name "restframes")
+  set(ver "${restframes_VERSION}")
+  set(dir "${restframes_CONTRIB_DIR}")
+  set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+  set(RESTFRAMES_LDFLAGS "-L${dir}/lib -lRestFrames")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
+  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.so)
+  include_directories("${dir}" "${dir}/inc")
+  ExternalProject_Add(restframes
+    DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
+             COMMAND ${CMAKE_COMMAND} -E chdir ${dir} git checkout -q v${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure -prefix=${dir}
+    # Patch RestFrames to set the CPLUS_INCLUDE_PATH environment variable correctly when RestFrames is loaded.
+    # This avoids having to run setup_RestFrames.sh.
+    PATCH_COMMAND patch -p1 < ${patch}
+          COMMAND sed ${dashi} -e "s|____replace_with_GAMBIT_version____|${GAMBIT_VERSION_FULL}|g" src/RFBase.cc src/RFBase.cc
+          COMMAND sed ${dashi} -e "s|____replace_with_RestFrames_path____|${dir}|g" src/RFBase.cc
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} 
+    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+    )
+  # Add clean-restframes and nuke-restframes
+  set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
+  add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
+    COMMAND cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
+  add_dependencies(distclean clean-restframes)
+  add_custom_target(nuke-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}" || true)
+  add_dependencies(nuke-restframes clean-restframes)
+  add_dependencies(nuke-contrib nuke-restframes)
+  add_dependencies(nuke-all nuke-restframes)
+endif()
+
+
+#contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
 include_directories("${fjcore_INCLUDE_DIR}")
 add_definitions(-DFJCORE)

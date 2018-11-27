@@ -72,8 +72,7 @@ namespace Gambit                                                            \
       extern const str backendDir;                                          \
       /* Make an easy reference to the actual backend module if it is a */  \
       /* Python backend. */                                                 \
-      BOOST_PP_IF(HAVE_PYBIND11, BOOST_PP_IF(USING_PYTHON,                  \
-      extern pybind11::module& BACKENDNAME; , ), )                          \
+      IF_USING_PYBIND11(extern pybind11::module& BACKENDNAME;)              \
     }                                                                       \
   }                                                                         \
 }                                                                           \

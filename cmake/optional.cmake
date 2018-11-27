@@ -143,18 +143,19 @@ endif()
 unset(ROOT_CONFIG_EXECUTABLE CACHE)
 find_package(ROOT)
 if (NOT ROOT_FOUND OR ROOT_VERSION VERSION_GREATER 6)
-  # Excluding Delphes and GreAT from GAMBIT
+  # Excluding GreAT and RestFrames from GAMBIT
   if (NOT ROOT_FOUND)
-    message("${BoldRed}   No ROOT installation found. Excluding Delphes and GreAT from GAMBIT configuration. ${ColourReset}")
-    set (itch "${itch}" "Delphes" "great")
+    message("${BoldRed}   No ROOT installation found. Excluding GreAT and RestFrames from GAMBIT configuration. ${ColourReset}")
+    set (EXCLUDE_ROOT TRUE)
+    set (itch "${itch}" "great" "RestFrames")
   else()
-    message("${BoldRed}   Unsupported ROOT version found: ${ROOT_VERSION}. Delphes needs ROOT 5. Excluding Delphes from GAMBIT configuration. ${ColourReset}")
-    set (itch "${itch}" "Delphes")
     set (ROOT_6_OR_LATER_FOUND 1)
     include_directories(${ROOT_INCLUDE_DIR})
+    set (EXCLUDE_ROOT FALSE)
   endif()
 else()
   include_directories(${ROOT_INCLUDE_DIR})
+  set (EXCLUDE_ROOT FALSE)
 endif()
 
 # Check for HDF5 libraries
@@ -170,5 +171,4 @@ else()
   message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
   set (itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
-
 
