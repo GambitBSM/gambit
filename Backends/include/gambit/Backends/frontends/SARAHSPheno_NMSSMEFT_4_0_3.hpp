@@ -788,6 +788,7 @@ BE_VARIABLE(GuessTwoLoopMatchingBSM, Flogical, "__model_data_nmssmeft_MOD_guesst
 BE_VARIABLE(mass_uncertainty_Yt, Farray_Freal8_1_46, "__model_data_nmssmeft_MOD_mass_uncertainty_yt", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(mass_uncertainty_Q, Farray_Freal8_1_46, "__model_data_nmssmeft_MOD_mass_uncertainty_q", "SARAHSPheno_NMSSMEFT_internal")
 // Control Variables
+BE_VARIABLE(Iname, Finteger, "__control_MOD_iname", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(kont, Finteger, "__sphenonmssmeft_MOD_kont", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(WriteOut, Flogical, "__control_MOD_writeout", "SARAHSPheno_NMSSMEFT_internal")
 BE_VARIABLE(epsI, Freal8, "__sphenonmssmeft_MOD_epsi", "SARAHSPheno_NMSSMEFT_internal")
@@ -817,6 +818,8 @@ BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SARAHSPheno_NMSSMEFT_intern
 
 // Initialisation functions (dependencies)
 
+// Function pointer variable for error handling
+BE_VARIABLE(ErrorHandler_cptr, type_fptr_SPhenoErrorHandler, "__control_MOD_errorhandler_cptr", "SARAHSPheno_NMSSMEFT_internal")
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"

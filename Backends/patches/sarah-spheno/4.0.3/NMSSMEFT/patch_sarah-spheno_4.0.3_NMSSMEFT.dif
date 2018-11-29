@@ -76,3 +76,90 @@ diff -rupN SPheno-4.0.3/src/Makefile ../installed/sarah-spheno/4.0.3/NMSSMEFT/sr
  endif
   
  .SUFFIXES : .o .ps .f90 .F90 .a
+
+diff -rupN NMSSMEFT/src/Control.F90 NMSSMEFT_patched/src/Control.F90
+--- NMSSMEFT/src/Control.F90	2018-11-29 17:32:35.150986572 +0000
++++ NMSSMEFT_patched/src/Control.F90	2018-11-29 18:16:58.238505986 +0000
+@@ -26,6 +26,22 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++! Added by GAMBIT
++Use, Intrinsic :: iso_c_binding
++Implicit none
++
++Type(c_funptr) :: ErrorHandler_cptr
++
++! Define interface of call-back routine.
++
++Abstract Interface
++  Subroutine callback ()
++    Use, Intrinsic :: iso_c_binding
++  End Subroutine callback
++End Interface
++! GAMBIT addition end
++
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -608,6 +624,7 @@ Contains
+  End Subroutine ModelNotIncluded
+ 
+ 
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -615,8 +632,10 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+ 
+   Write (ErrCan,*) "  "
+@@ -631,7 +650,16 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
+- ! Stop "Subroutine TerminateProgram"
++ 
++ ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
++  Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
+
+diff -rupN NMSSMEFT/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90 NMSSMEFT_patched/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90
+--- NMSSMEFT/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90	2018-11-29 19:03:34.934747892 +0000
++++ NMSSMEFT_patched/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90	2018-11-29 19:04:21.661825304 +0000
+@@ -203,13 +203,15 @@ Call CalculateVPVZEffPot(g1,g2,vd,vu,ZZ,
+ 
+ Call CalculateVWmEffPot(g2,vd,vu,ZW,MVWm,MVWm2,kont)
+ 
+-Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
++! GAMBIT - remove call to sfermions since they're not in our EFT spectrum.
+ 
+-Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
++!Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
+ 
+-Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
++!Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
+ 
+-Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
++!Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
++
++!Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
+ 
+ Call CalculateMhhEffPot(g1,g2,lam,Tlam,kap,Tk,mHd2,mHu2,ms2,vd,vu,vS,ZH,              & 
+ & Mhh,Mhh2,kont)
