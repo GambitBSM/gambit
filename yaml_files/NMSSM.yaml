@@ -9,14 +9,17 @@ Parameters:
     Qin:
       fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
     TanBeta:
-      range: [1.0, 70.0]
-      prior_type: flat
+      fixed_value: 28.7   # EWMSSM
+      # range: [1.0, 70.0]
+      # prior_type: flat
     M1:
-      prior_type: double_log_flat_join
-      ranges: [-5e3, -1e1, 1e1, 5e3]
+      fixed_value: -50.5   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [-2e3, -1e1, 1e1, 2e3]
     M2:
-      prior_type: double_log_flat_join
-      ranges: [0, 0, 1e1, 5e3]
+      fixed_value: 149.3   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [0, 0, 1e1, 2e3]
     M3:
       fixed_value: 5000
     kappa:
@@ -26,14 +29,15 @@ Parameters:
       prior_type: log
       range: [1e-5, 1]
     Akappa:
-      prior_type: log
-      range: [1e-5, 1]
-    Alambda:
-      prior_type: log
-      range: [1e-5, 1]
-    mueff:
       prior_type: double_log_flat_join
       ranges: [-5e3, -1e1, 1e1, 5e3]
+    Alambda:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    mueff:
+      fixed_value: 252.7   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [-2e3, -1e1, 1e1, 2e3]
     ml2_11:
       fixed_value: 900
     ml2_12:
@@ -166,7 +170,7 @@ Scanner:
     random:
       plugin: random
       like:  LogLike
-      point_number: 1
+      point_number: 100
       output_file:  output
 
     multinest:
@@ -185,9 +189,22 @@ Scanner:
 
 
 ObsLikes:
+
   - purpose:      Observable
-    capability:   run_NMSSMspectrum_test
-    type:         bool
+    capability:   NMSSM_spectrum
+    type:         Spectrum
+    printme:      false
+
+  - purpose:      Observable
+    capability:   decay_rates
+    type:         DecayTable
+    printme:      false
+
+  # # This is not implemented yet; for now it only outputs a single dummy BR
+  # - purpose:      Observable
+  #   capability:   NMSSM_decay_rates_map
+  #   function:     get_NMSSM_decay_rates_as_map
+  #   type:         map_str_dbl
 
 Rules:
 
@@ -199,20 +216,20 @@ Rules:
   - capability: NMSSM_spectrum
     function: get_NMSSM_spectrum_SPheno
     options:
+      drop_SLHA_file: true
       WriteOutputForNonConvergence: true
-      drop_SLHA_file: true
-
-  - capability: run_MSSMspectrum_test
-    function: SPheno_NMSSM_test
-    options:
-      drop_SLHA_file: true
+      CalculateOneLoopMasses: true
+      CalculateTwoLoopHiggsMasses: true
+      ErrorLevel: 2
 
   - capability: decay_rates
     function:   all_NMSSM_decays_from_SPheno
     options:
       drop_SLHA_file: true
+      OneLoopDecays: true
+      Enable3BDecaysF: true
+      Enable3BDecaysS: true
       BRMin: 1.0e-5
-
 
 
 Logger:
