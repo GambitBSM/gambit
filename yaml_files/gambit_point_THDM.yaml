@@ -13,7 +13,7 @@ Parameters:
         lambda_2:
             fixed_value: 0.1
         lambda_3:
-            fixed_value: 1.0
+            fixed_value: 3.0
         lambda_4:
             fixed_value: -4.0
         lambda_5:

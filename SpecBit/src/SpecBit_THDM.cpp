@@ -61,8 +61,8 @@
 #define L_MAX 1e50
 #define PI 3.14159265
 
-// Switch for debug mode
-// #define SPECBIT_DEBUG
+// Switches for debug mode
+#define SPECBIT_DEBUG
 #define FS_THROW_POINT
 // #define SPECBIT_DEBUG_VERBOSE
 
@@ -653,12 +653,11 @@ namespace Gambit
       gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
       const int size = 3;
 
-      const double mt = container.SM->get(Par::Pole_Mass, "u_3");
-      const std::vector<double> m_u = {0.0,1.42,mt};
-      const std::vector<double> m_d = {0.0,0.1,4.75};
-      const std::vector<double> m_l = {0.510998918E-3,0.105658367,1.77684};
+      const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
+      const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
+      const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
       const double beta = atan(container.he->get(Par::dimensionless, "tanb"));
-      const double vev = 246.0;
+      const double vev = sqrt((container.THDM_object->get_SM_pointer())->get_v2());
 
       y_u = gsl_matrix_complex_alloc(size, size);
       y_d = gsl_matrix_complex_alloc(size, size);
@@ -869,10 +868,12 @@ namespace Gambit
       std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
       
       const physical_basis_input input_pars = fill_physical_basis_input(container);
-      const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC;
+      const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      const double sba = sin(b-a), cba = cos(b-a);
+      const double sba = sin(b-a), cba = cos(b-a), sba_p = sin(b+a), cba_p = cos(b+a);
+      const double sbinv = 1.0/sin(b), cbinv = 1.0/sin(b);
+      const double s2b = sin(2*b), c2b = cos(2*b);
       const double v = sqrt((container.THDM_object->get_SM_pointer())->get_v2());
       const std::complex<double> i(0.0,1.0);
 
@@ -882,17 +883,28 @@ namespace Gambit
       cubic_couplings[4] = cubic_couplings[3];
       cubic_couplings[5] = 1.0/v * (-1.0*(mh2-mC2) * cba);
       cubic_couplings[6] = 1.0/v * (-1.0*(mh2-mA2) * cba);
-      cubic_couplings[7] = 1.0/v * (-1.0*(mH2-mC2) * sba);
-      cubic_couplings[8] = 1.0/v * (-1.0*(mH2-mA2) * sba);
+      cubic_couplings[7] = 1.0/v * (1.0*(mH2-mC2) * sba);
+      cubic_couplings[8] = 1.0/v * (1.0*(mH2-mA2) * sba);
       cubic_couplings[9] = 1.0/v * (-1.0*i*(mA2-mC2));
-      container.THDM_object->get_coupling_hhh(1,4,4,cubic_couplings[10]);
-      container.THDM_object->get_coupling_hhh(1,3,3,cubic_couplings[11]);
-      container.THDM_object->get_coupling_hhh(2,4,4,cubic_couplings[12]);
-      container.THDM_object->get_coupling_hhh(2,3,3,cubic_couplings[13]);
-      container.THDM_object->get_coupling_hhh(1,1,1,cubic_couplings[14]);
-      container.THDM_object->get_coupling_hhh(1,1,2,cubic_couplings[15]);
-      container.THDM_object->get_coupling_hhh(1,2,2,cubic_couplings[16]);
-      container.THDM_object->get_coupling_hhh(2,2,2,cubic_couplings[17]);
+
+      // container.THDM_object->get_coupling_hhh(1,4,4,cubic_couplings[10]);
+      // container.THDM_object->get_coupling_hhh(1,3,3,cubic_couplings[11]);
+      // container.THDM_object->get_coupling_hhh(2,4,4,cubic_couplings[12]);
+      // container.THDM_object->get_coupling_hhh(2,3,3,cubic_couplings[13]);
+      // container.THDM_object->get_coupling_hhh(1,1,1,cubic_couplings[14]);
+      // container.THDM_object->get_coupling_hhh(1,1,2,cubic_couplings[15]);
+      // container.THDM_object->get_coupling_hhh(1,2,2,cubic_couplings[16]);
+      // container.THDM_object->get_coupling_hhh(2,2,2,cubic_couplings[17]);
+      
+      cubic_couplings[10] = 1.0/v * (sbinv * cbinv * (m122*cba_p*sbinv*cbinv - mh2*c2b*cba) - (mh2 + 2.0*mC2) * sba);
+      cubic_couplings[11] = 1.0/v * (sbinv * cbinv * (m122*cba_p*sbinv*cbinv - mh2*c2b*cba) - (mh2 + 2.0*mA2) * sba);
+      cubic_couplings[12] = 1.0/v * (sbinv * cbinv * (m122*sba_p*sbinv*cbinv - mH2*c2b*sba) - (mH2 + 2.0*mC2) * cba);
+      cubic_couplings[13] = 1.0/v * (sbinv * cbinv * (m122*sba_p*sbinv*cbinv - mH2*c2b*sba) - (mH2 + 2.0*mA2) * cba);
+      cubic_couplings[14] = 3.0/(4.0*v*pow(s2b,2)) * ( 16.0*m122*cba_p*pow(cba,2) - mh2*(3.0*sin(3*b+a) + 3.0*sba + sin(3*b-3*a) + sin(b+3*a)) );
+      cubic_couplings[15] = 1.0/(v*s2b) * -cba*( 2.0*m122 + (mH2 + 2.0*mh2 - 3.0*m122*sbinv*cbinv)*sin(2*a) );
+      cubic_couplings[16] = 1.0/(v*s2b) * sba*( -2.0*m122 + (mh2 + 2.0*mH2 - 3.0*m122*sbinv*cbinv)*sin(2*a) );
+      cubic_couplings[17] = 3.0/(4.0*v*pow(s2b,2)) * ( 16.0*m122*sba_p*pow(sba,2) + mH2*(3.0*cos(3*b+a) + 3.0*cba + cos(3*b-3*a) + cos(b+3*a)) );
+
       return cubic_couplings;
     }
 
@@ -905,9 +917,12 @@ namespace Gambit
       const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      const double sba = sin(b-a), cba = cos(b-a), sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
+      const double sba = sin(b-a), cba = cos(b-a), sab = sin(a-b), cab = cos(a-b), sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
+      const double cba_p = cos(b+a), sba_p = sin(b+a);
       const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
-      const double c2b = cos(2.0*b), c2a = cos(2.0*a);
+      const double c2b = cos(2.0*b), c2a = cos(2.0*a), c2b2a = cos(2.0*b-2.0*a), c2a2b = cos(2.0*a-2.0*b), c2a2b_p = cos(2.0*a+2.0*b);
+      const double s4b = sin(4.0*b), c4b = cos(4.0*b), c4a = cos(4.0*a);
+      const double c4a4b = cos(4.0*a-4.0*b);
       const double v2 = container.THDM_object->get_SM_pointer()->get_v2();
       const std::complex<double> i(0.0,1.0);
 
@@ -917,25 +932,54 @@ namespace Gambit
       quartic_couplings[2] += -1.0/v2 * sba2*( 2.0*mA2 - 2.0*m122*sbinv*cbinv + (3.0*mH2 - mh2)*cba2 );
       quartic_couplings[3] = 1.0/v2 * (2.0*m122*sbinv*cbinv - 2.0*mC2 - mH2*cba2 - mh2*sba2 + (mH2 - mh2)*t2binv*s2b2a);
       quartic_couplings[4] = 1.0/v2 * (2.0*m122*sbinv*cbinv - (mH2 + 2.0*mh2)*cba2 - (mh2 + 2.0*mH2)*sba2 + (mH2 - mh2)*t2binv*s2b2a);
-      quartic_couplings[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
-      quartic_couplings[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
-      quartic_couplings[7] = 1.0/(8.0*v2*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
+      quartic_couplings[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - 2.0*mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
+      quartic_couplings[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + 2.0*mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
+      quartic_couplings[7] = 1.0/(8.0*v2*pow(s2b,2)) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
       quartic_couplings[8] = 3.0*quartic_couplings[7];
-      container.THDM_object->get_coupling_hhhh(1,1,4,4,quartic_couplings[9]);
-      container.THDM_object->get_coupling_hhhh(1,1,3,3,quartic_couplings[10]);
-      container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[11]);
-      container.THDM_object->get_coupling_hhhh(2,2,3,3,quartic_couplings[12]);
-      container.THDM_object->get_coupling_hhhh(1,2,4,4,quartic_couplings[13]);
-      container.THDM_object->get_coupling_hhhh(1,2,3,3,quartic_couplings[14]);
-      container.THDM_object->get_coupling_hhhh(1,1,1,1,quartic_couplings[15]);
-      container.THDM_object->get_coupling_hhhh(1,1,1,2,quartic_couplings[16]);
-      container.THDM_object->get_coupling_hhhh(1,1,2,2,quartic_couplings[17]);
-      container.THDM_object->get_coupling_hhhh(1,2,2,2,quartic_couplings[18]);
-      container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[19]);
-      container.THDM_object->get_coupling_hhhh(4,4,4,4,quartic_couplings[20]);
-      container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[21]);
-      container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[22]);
+
+      const double g9_1 = 2.0*pow(sbinv,2)*pow(cbinv,2) * (cos(2*a-6*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2b);
+      const double g9_2 = sbinv*cbinv * (9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2b_p);
+      const double g9_3 = 2.0*sbinv*cbinv*s2a * (3.0*s2a + sin(2*a-4*b) + 2.0*s2b);
+
+      quartic_couplings[9] = 1.0/(16.0*v2*s2b) * (g9_1*m122 - g9_2*mh2 - g9_3*mH2 - 32.0*pow(sab,2)*s2b*mC2 );
+      quartic_couplings[10] = 1.0/(16.0*v2*s2b) * (g9_1*m122 - g9_2*mh2 - g9_3*mH2 - 32.0*pow(sab,2)*s2b*mA2 );
+      quartic_couplings[11] = 1.0/(16.0*v2*s2b) * (g9_1*m122 - g9_2*mH2 - g9_3*mh2 - 32.0*pow(cab,2)*s2b*mC2 );
+      quartic_couplings[12] = 1.0/(16.0*v2*s2b) * (g9_1*m122 - g9_2*mH2 - g9_3*mh2 - 32.0*pow(cab,2)*s2b*mA2 );
+      
+      const double g13_1 = cba*sbinv*cbinv*(3.0*sba + sin(3*b-3*a) - 3.0*sin(b+3*a) - sin(3*b+a));
+      const double g13_2 = sba*sbinv*cbinv*(3.0*cba - cos(3*b-3*a) - 3.0*cos(b+3*a) + cos(3*b+a));
+      const double g13_3 = 4.0/pow(s2b,2)*(2.0*(1.0+3.0*c4b) * s2b2a - 4.0*c2b2a*s4b);
+
+      quartic_couplings[13] = 1.0/(8.0*v2*s2b) * (g13_1*mh2 + g13_2*mH2 - g13_3*m122 - 8.0*s2b2a*s2b*mC2);
+      quartic_couplings[14] = 1.0/(8.0*v2*s2b) * (g13_1*mh2 + g13_2*mH2 - g13_3*m122 - 8.0*s2b2a*s2b*mA2);
+
+      quartic_couplings[15] = 3.0/(4.0*v2*pow(s2b,2)) * (4.0*pow(cba,2)*(4.0*m122*sbinv*cbinv*pow(cba_p,2) - mH2*pow(s2a,2)) - mh2*pow((cos(-b+3*a)+3.0*cba_p),2)); 
+      quartic_couplings[16] = 1.0/(2.0*v2*pow(s2b,2)) * (3.0*s2a*(mH2*s2a*s2b2a - mh2*sba*(cos(-b+3*a) + 3.0*cba_p)) + 12.0*m122/s2b*cba*(sin(b+3*a) - sba)); 
+
+      quartic_couplings[17] = 1.0/(8.0*v2*pow(s2b,2)) * (4.0*sbinv*cbinv*(2.0 + c4b - 3.0*c4a)*m122 + 6.0*(c4a-1.0)*(mh2+mH2) + (3.0*cos(-2*b+6*a) - cos(2*b+2*a) - 2.0*cos(2*b-2*a))*(mh2-mH2) ); 
+      quartic_couplings[18] = 1.0/(2.0*v2*pow(s2b,2)) * ( 3*s2a*(mh2*s2a*s2b2a - mH2*sba*(sin(-b+3*a) - 3.0*sba_p)) + 12.0*m122/s2b*sba*(cos(b+3*a) - cba) ); 
+      quartic_couplings[19] = 3.0/(4.0*v2*pow(s2b,2)) * (4.0*pow(sba,2)*( 4.0*m122+sbinv*cbinv*pow(sba_p,2) - mh2*pow(s2a,2) ) - mH2*pow((sin(-b+3*a) - 3.0*sba_p),2) ); 
+      quartic_couplings[20] = 2.0/(v2) * ( (mH2-mh2)*c2b*sbinv*cbinv*s2b2a - mh2*pow(sba,2) - pow(cba,2)*(mH2 + 4.0*mh2/pow((tan(2*b)),2)) - 1.0/pow((tan(2*b)),2)*(mH2*pow(sba,2) - m122*sbinv*cbinv)  ); 
+      quartic_couplings[21] = quartic_couplings[20]/2;
+      quartic_couplings[22] = 3.0*quartic_couplings[20]/2;
+      
+      // container.THDM_object->get_coupling_hhhh(1,1,4,4,quartic_couplings[9]);
+      // container.THDM_object->get_coupling_hhhh(1,1,3,3,quartic_couplings[10]);
+      // container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[11]);
+      // container.THDM_object->get_coupling_hhhh(2,2,3,3,quartic_couplings[12]);
+      // container.THDM_object->get_coupling_hhhh(1,2,4,4,quartic_couplings[13]);
+      // container.THDM_object->get_coupling_hhhh(1,2,3,3,quartic_couplings[14]);
+      // container.THDM_object->get_coupling_hhhh(1,1,1,1,quartic_couplings[15]);
+      // container.THDM_object->get_coupling_hhhh(1,1,1,2,quartic_couplings[16]);
+      // container.THDM_object->get_coupling_hhhh(1,1,2,2,quartic_couplings[17]);
+      // container.THDM_object->get_coupling_hhhh(1,2,2,2,quartic_couplings[18]);
+      // container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[19]);
+      // container.THDM_object->get_coupling_hhhh(4,4,4,4,quartic_couplings[20]);
+      // container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[21]);
+      // container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[22]);
+      
       return quartic_couplings;
+
     }
 
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container& container) {
@@ -951,7 +995,8 @@ namespace Gambit
     }
 
     double A0_bar(const double m2) {
-      double mu2 = m2;
+      const double MZ = 91.15349;
+      double mu2 = pow(MZ,2);
       return m2*(-log(m2/mu2) + 1.0);
     }
     struct B0_integration_variables{
@@ -1016,7 +1061,7 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
       std::complex<double> Pi = pow(m[1],2)*(B0_bar(p2,0.,mh2) - B0_bar(0.,0.,mh2)); 
-      Pi+=pow(m[3],2)*(B0_bar(p2,0.,mh2) - B0_bar(0.,0.,mH2));
+      Pi+=pow(m[3],2)*(B0_bar(p2,0.,mH2) - B0_bar(0.,0.,mH2));
       Pi+=pow(m[5],2)*(B0_bar(p2,mC2,mh2) - B0_bar(0.,mC2,mh2));
       Pi+=pow(m[7],2)*(B0_bar(p2,mC2,mH2) - B0_bar(0.,mC2,mH2));
       Pi+=m[9]*std::conj(m[9])*(B0_bar(p2,mC2,mA2) - B0_bar(0.,mC2,mA2));
@@ -1069,10 +1114,10 @@ namespace Gambit
 
     std::complex<double> Pi_zz(void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA;
-      const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2);
+      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
+      const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[1]*A0_bar(mh2) + g[2]*A0_bar(mH2) + 2.0*g[3]*A0_bar(mH2) + g[4]*A0_bar(mA2));
+      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[1]*A0_bar(mh2) + g[2]*A0_bar(mH2) + 2.0*g[3]*A0_bar(mC2) + g[4]*A0_bar(mA2));
       Pi+=-1.0/(16.0*pow(PI,2))*pow(m[2],2)*B0_bar(0.,0.,mh2);
       Pi+=-1.0/(16.0*pow(PI,2))*pow(m[4],2)*B0_bar(0.,0.,mH2);
       Pi+=-1.0/(16.0*pow(PI,2))*pow(m[6],2)*B0_bar(0.,mA2,mh2);
@@ -1087,10 +1132,10 @@ namespace Gambit
 
     std::complex<double> Pi_zA(void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA;
-      const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2);
+      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
+      const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[5]*A0_bar(mh2) + g[6]*A0_bar(mH2) + 2.0*g[7]*A0_bar(mH2) + g[8]*A0_bar(mA2));
+      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[5]*A0_bar(mh2) + g[6]*A0_bar(mH2) + 2.0*g[7]*A0_bar(mC2) + g[8]*A0_bar(mA2));
       Pi+=-1.0/(16.0*pow(PI,2))*m[2]*m[6]*B0_bar(0.,0.,mh2);
       Pi+=-1.0/(16.0*pow(PI,2))*m[4]*m[8]*B0_bar(0.,0.,mH2);
       Pi+=-1.0/(16.0*pow(PI,2))*m[6]*m[11]*B0_bar(0.,mA2,mh2);
@@ -1649,7 +1694,7 @@ namespace Gambit
         a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
 
       for(auto const& eig: eigenvalues) {
-        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,9);
+        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,10);
       }
 
       #ifdef SPECBIT_DEBUG
