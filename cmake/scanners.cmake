@@ -141,7 +141,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LINKLIB=${pcSO_LINK}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} libchord.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LD=${pcSO_LINK}
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)

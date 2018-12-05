@@ -98,13 +98,13 @@ if(NOT EXCLUDE_RESTFRAMES)
     PATCH_COMMAND patch -p1 < ${patch}
           COMMAND sed ${dashi} -e "s|____replace_with_GAMBIT_version____|${GAMBIT_VERSION_FULL}|g" src/RFBase.cc src/RFBase.cc
           COMMAND sed ${dashi} -e "s|____replace_with_RestFrames_path____|${dir}|g" src/RFBase.cc
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} 
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
     )
   # Add clean-restframes and nuke-restframes
   set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
   add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
-    COMMAND cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
+    COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
   add_dependencies(distclean clean-restframes)
   add_custom_target(nuke-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}" || true)

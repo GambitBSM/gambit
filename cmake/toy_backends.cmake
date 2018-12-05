@@ -33,6 +33,18 @@ add_library(first SHARED examples/libfirst.cpp)
 add_library(fortran SHARED examples/libfortran.f90)
 add_library(FarrayTest SHARED examples/libFarrayTest.f90)
 
+# add dependencies to fix build order and avoid warnings about missing include dirs
+if(NOT EXCLUDE_RESTFRAMES)
+  add_dependencies(first restframes)
+  add_dependencies(fortran restframes)
+  add_dependencies(FarrayTest restframes)  
+endif()
+if(NOT EXCLUDE_FLEXIBLESUSY)
+  add_dependencies(first flexiblesusy)
+  add_dependencies(fortran flexiblesusy)
+  add_dependencies(FarrayTest flexiblesusy)
+endif()
+
 # Un-hide symbols in libfirst
 make_symbols_visible(first)
 
