@@ -2812,6 +2812,10 @@ Real(dp),Intent(inout) :: MAh(3),MAh2(3),MCha(2),MCha2(2),MChi(5),MChi2(5),MFd(3
 & MSe2(0),MSu(0),MSu2(0),MSv(0),MSv2(0),MVWm,MVWm2,MVZ,MVZ2,TW,v,ZA(3,3),ZH(3,3),        & 
 & ZP(2,2),ZZ(2,2),betaH
 
+!Variables for storing Tree level masses for NMSSMEFT in GAMBIT
+!Real(dp) :: MAh_TL(3), MAh2_TL(3), Mhh_TL(3), Mhh2_TL(3), MHpm_TL(2), MHpm2_TL(2), ZH_TL(3,3), &
+!ZA_TL(3,3), ZP_TL(2,2)
+
 Complex(dp),Intent(inout) :: pG,UM(2,2),UP(2,2),ZD(0,0),ZDL(3,3),ZDR(3,3),ZE(0,0),ZEL(3,3),ZER(3,3),               & 
 & ZN(5,5),ZU(0,0),ZUL(3,3),ZUR(3,3),ZV(0,0),ZW(2,2)
 
@@ -2848,8 +2852,8 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-! Eliel - change first guess of SUSY scale to Gluino mass.
-mudim=Max(mZ**2,Abs(M3)**2)
+! Eliel - change SUSY scale from stop mass average to Gluino mass.
+mudim=Max(mZ**2,Abs(M1*M2))
 ! mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
@@ -3160,8 +3164,8 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-! Eliel - change first guess of SUSY scale to Gluino mass.
-mudimNew=Max(mZ**2,Abs(M3)**2)
+! Eliel - change SUSY scale from stop mass average to average of Gaugino mass.
+mudimNew=Max(mZ**2,Abs(M1*M2))
 !mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
@@ -3229,14 +3233,54 @@ Else
 End if
 End If
 End Do
+
+!Saving Tree level masses and mixing matrices for NMSSMEFT in GAMBIT
+
+! Mhh_TL = Mhh
+! Mhh2_TL = Mhh2
+! ZH_TL = ZH
+! MAh_TL = MAh
+! MAh2_TL = MAh2
+! ZA_TL = ZA
+! MHpm_TL = MHpm
+! MHpm2_TL = MHpm2
+! ZP_TL = ZP
+
 If (CalculateOneLoopMassesSave) Then 
 CalculateOneLoopMasses =  CalculateOneLoopMassesSave 
+
 Write(*,*) "Calculate loop corrected masses " 
 Call OneLoopMasses(MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,              & 
 & MFu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,               & 
 & MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,             & 
 & ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,mHd2,             & 
 & mHu2,md2,mu2,me2,ms2,M1,M2,M3,kont)
+
+! Setting the output masses and mixing matrices to Tree level values for GAMBIT
+! Write(*,*) "One loop values for Higgs masses squared"
+! Write(*,*) "Neutral Higgs", Mhh2
+! Write(*,*) "Pseudo-Scalar", MAh2
+! Write(*,*) "Charged ", MHpm2
+
+! Mhh = Mhh_TL
+! Mhh2 = Mhh2_TL
+! ZH = ZH_TL
+! MAh = MAh_TL
+! MAh2 = MAh2_TL
+! ZA = ZA_TL
+! MHpm = MHpm_TL
+! MHpm2 = MHpm2_TL
+! ZP = ZP_TL
+
+! Write(*,*) "Overwritten tree level values for masses squared"
+! Write(*,*) "Neutral Higgs", Mhh2
+! Write(*,*) "Pseudo-Scalar", MAh2
+! Write(*,*) "Charged ", MHpm2
+
+! Shifting to the mixing matrix to the Higgs basis
+
+
+
 
 If (SignOfMassChanged) Then
   If (.Not.IgnoreNegativeMasses) Then
@@ -3411,8 +3455,8 @@ mass_old(n_tot:n_tot+4) = MChi
 n_tot = n_tot + 5 
 mass_old(n_tot:n_tot+1) = MCha
 If (.Not.UseFixedScale) Then 
-! Eliel - change first guess of SUSY scale to Gluino mass.
-mudim=Max(mZ**2,Abs(M3)**2)
+! Eliel - change SUSY scale from stop mass average to average of Gaugino mass.
+mudim=Max(mZ**2,Abs(M1*M2))
 ! mudim=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 Call SetRGEScale(mudim) 
 UseFixedScale= .False. 
@@ -3740,8 +3784,8 @@ If (SignOfMuChanged) Then
 End If
 mass_old=mass_new 
 If (.Not.UseFixedScale) Then 
-! Eliel - change first guess of SUSY scale to Gluino mass.
-mudimNew =Max(mZ**2,Abs(M3)**2)
+! Eliel - change SUSY scale from stop mass average to Gluino mass.
+mudimNew =Max(mZ**2,Abs(M1*M2))
 !mudimNew=Max(mZ**2,Abs(MSu(1)*MSu(6))) 
 If (HighScaleModel.eq."LOW") Call SetGUTscale(sqrt(mudimNew)) 
  UseFixedScale= .False. 
