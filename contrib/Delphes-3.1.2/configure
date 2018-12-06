@@ -1,6 +1,0 @@
-#! /bin/sh
-#
-# A (so) simple configure script.
-
-# test Makefile && make distclean
-tclsh ./doc/genMakefile.tcl > Makefile
