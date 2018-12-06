@@ -16,11 +16,15 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Oct
 ///
+///  \author José Eliel Camargo-Molina
+///        (elielcamargomolina@gmail.com)
+///  \date 2018 Dec
+///
 ///  *********************************************
 
 //#include <string>
 //#include <sstream>
-//#include <cmath>
+#include <cmath>
 //#include <complex>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -28,6 +32,8 @@
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
 // Switch for debug mode
 //#define SPECBIT_DEBUG
@@ -38,6 +44,56 @@ namespace Gambit
   namespace SpecBit
   {
     using namespace LogTags;
+
+    bool only_alignment_limit(const Spectrum& result)
+    {
+        // getting the mixing matrix for neutral scalars, from the SUSY basis to the mass basis.
+
+        boost::numeric::ublas::matrix<double> ZSusyToMassBasis (3,3);
+
+        for (int i = 1; i <= 3; i++) {
+            for (int j = 1; j <= 3; j++) {
+
+                ZSusyToMassBasis(i-1,j-1) = result.get(Par::Pole_Mixing, "h0",i,j); // causes program to stop working
+
+            }
+        }
+
+
+        double tanbeta = result.get(Par::dimensionless, "tanbeta");
+        double sinbeta = tanbeta/(sqrt(1 + tanbeta * tanbeta));
+        double cosbeta = 1/(sqrt(1 + tanbeta * tanbeta));
+
+        cout<<"Got sinbeta and cosb: " << sinbeta << " " << cosbeta <<endl;
+
+        // Writing the mixing from the Higgs Basis to the SUSY basis. It is just a rotation by angle beta
+
+        boost::numeric::ublas::matrix<double> ZHiggsToSusyBasis (3,3);
+
+        ZHiggsToSusyBasis(0,0) = cosbeta;
+        ZHiggsToSusyBasis(0,1) = -sinbeta;
+        ZHiggsToSusyBasis(0,2) = 0;
+        ZHiggsToSusyBasis(1,0) = sinbeta;
+        ZHiggsToSusyBasis(1,1) = cosbeta;
+        ZHiggsToSusyBasis(1,2) = 0;
+        ZHiggsToSusyBasis(1,0) = 0;
+        ZHiggsToSusyBasis(1,1) = 0;
+        ZHiggsToSusyBasis(1,2) = 1;
+
+
+        // Getting the mixing matrix from the Higgs Basis to the mass basis
+        // This works as SPheno gives the matrix R with h_i = R_ij \H_j where h are the mass eigenstates and j = u,d.
+        // Then having R' such that H_j = R'_jk \Phi_k where \Phi_k are in the Higgs basis,
+        // we get that h_i = R_ij R'_jk \Phi_k is the matrix taking us from the Higgs basis to the mass basis.
+        // The approximate alignment limit is when ( R R')_00 ~ 1 .
+
+        boost::numeric::ublas::matrix<double> ZHiggsToMassBasis = boost::numeric::ublas::prod(ZSusyToMassBasis,ZHiggsToSusyBasis);
+
+
+        cout<<"The H_SM component of h is: " << ZHiggsToMassBasis(0,0) <<endl;
+
+        return ZHiggsToMassBasis(0,0) > 0.9;
+    }
 
     void get_NMSSM_spectrum_SPheno (Spectrum& spectrum)
     {
@@ -80,6 +136,11 @@ namespace Gambit
 
       // Only allow neutralino LSPs.
       if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Alignment limit check
+
+      if (not only_alignment_limit(spectrum) and myPipe::runOptions->getValueOrDef<bool>(false,"only_alignment_limit") ) invalid_point().raise("No alignment limit but it has been requested.");
+
     }
 
 
