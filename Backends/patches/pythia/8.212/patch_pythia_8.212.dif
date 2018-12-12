@@ -1,6 +1,6 @@
-diff -rupN 8.212_original/include/Pythia8/ParticleData.h 8.212/include/Pythia8/ParticleData.h
---- 8.212_original/include/Pythia8/ParticleData.h	2015-09-23 17:34:38.000000000 +0200
-+++ 8.212/include/Pythia8/ParticleData.h	2018-06-19 13:46:00.943050290 +0200
+diff -rupN pythia_8.212_original/include/Pythia8/ParticleData.h pythia_8.212_patched/include/Pythia8/ParticleData.h
+--- pythia_8.212_original/include/Pythia8/ParticleData.h	2015-09-23 16:34:38.000000000 +0100
++++ pythia_8.212_patched/include/Pythia8/ParticleData.h	2018-12-12 18:42:55.377926731 +0000
 @@ -347,6 +347,10 @@ public:
    bool init(string startFile = "../xmldoc/ParticleData.xml") {
      initCommon(); return readXML(startFile);}
@@ -51,9 +51,9 @@ diff -rupN 8.212_original/include/Pythia8/ParticleData.h 8.212/include/Pythia8/P
  };
  
  //==========================================================================
-diff -rupN 8.212_original/include/Pythia8/PartonDistributions.h 8.212/include/Pythia8/PartonDistributions.h
---- 8.212_original/include/Pythia8/PartonDistributions.h	2015-09-23 17:34:38.000000000 +0200
-+++ 8.212/include/Pythia8/PartonDistributions.h	2018-06-19 13:46:00.947050268 +0200
+diff -rupN pythia_8.212_original/include/Pythia8/PartonDistributions.h pythia_8.212_patched/include/Pythia8/PartonDistributions.h
+--- pythia_8.212_original/include/Pythia8/PartonDistributions.h	2015-09-23 16:34:38.000000000 +0100
++++ pythia_8.212_patched/include/Pythia8/PartonDistributions.h	2018-12-12 18:42:55.373926717 +0000
 @@ -156,9 +156,8 @@ class MSTWpdf : public PDF {
  public:
  
@@ -137,9 +137,9 @@ diff -rupN 8.212_original/include/Pythia8/PartonDistributions.h 8.212/include/Py
    double *fXGrid;
    double *fLogXGrid;
    double *fQ2Grid;
-diff -rupN 8.212_original/include/Pythia8/Pythia.h 8.212/include/Pythia8/Pythia.h
---- 8.212_original/include/Pythia8/Pythia.h	2015-09-23 17:34:39.000000000 +0200
-+++ 8.212/include/Pythia8/Pythia.h	2018-06-19 13:46:00.947050268 +0200
+diff -rupN pythia_8.212_original/include/Pythia8/Pythia.h pythia_8.212_patched/include/Pythia8/Pythia.h
+--- pythia_8.212_original/include/Pythia8/Pythia.h	2015-09-23 16:34:39.000000000 +0100
++++ pythia_8.212_patched/include/Pythia8/Pythia.h	2018-12-12 18:42:55.373926717 +0000
 @@ -56,6 +56,11 @@ public:
    // Constructor. (See Pythia.cc file.)
    Pythia(string xmlDir = "../share/Pythia8/xmldoc", bool printBanner = true);
@@ -161,9 +161,9 @@ diff -rupN 8.212_original/include/Pythia8/Pythia.h 8.212/include/Pythia8/Pythia.
  
    // Generate the next event.
    bool next();
-diff -rupN 8.212_original/include/Pythia8/Settings.h 8.212/include/Pythia8/Settings.h
---- 8.212_original/include/Pythia8/Settings.h	2015-09-23 17:34:39.000000000 +0200
-+++ 8.212/include/Pythia8/Settings.h	2018-06-19 13:46:00.947050268 +0200
+diff -rupN pythia_8.212_original/include/Pythia8/Settings.h pythia_8.212_patched/include/Pythia8/Settings.h
+--- pythia_8.212_original/include/Pythia8/Settings.h	2015-09-23 16:34:39.000000000 +0100
++++ pythia_8.212_patched/include/Pythia8/Settings.h	2018-12-12 18:42:55.377926731 +0000
 @@ -302,6 +302,9 @@ public:
    void resetMVec(string keyIn);
    void resetPVec(string keyIn);
@@ -174,9 +174,9 @@ diff -rupN 8.212_original/include/Pythia8/Settings.h 8.212/include/Pythia8/Setti
  private:
  
    // Pointer to various information on the generation.
-diff -rupN 8.212_original/include/Pythia8/SusyLesHouches.h 8.212/include/Pythia8/SusyLesHouches.h
---- 8.212_original/include/Pythia8/SusyLesHouches.h	2015-09-23 17:34:40.000000000 +0200
-+++ 8.212/include/Pythia8/SusyLesHouches.h	2018-06-19 13:46:00.947050268 +0200
+diff -rupN pythia_8.212_original/include/Pythia8/SusyLesHouches.h pythia_8.212_patched/include/Pythia8/SusyLesHouches.h
+--- pythia_8.212_original/include/Pythia8/SusyLesHouches.h	2015-09-23 16:34:40.000000000 +0100
++++ pythia_8.212_patched/include/Pythia8/SusyLesHouches.h	2018-12-12 18:42:55.377926731 +0000
 @@ -14,6 +14,9 @@
  #define Pythia8_SLHA_H
  
@@ -225,9 +225,9 @@ diff -rupN 8.212_original/include/Pythia8/SusyLesHouches.h 8.212/include/Pythia8
  
  };
  
-diff -rupN 8.212_original/src/ParticleData.cc 8.212/src/ParticleData.cc
---- 8.212_original/src/ParticleData.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/ParticleData.cc	2018-06-19 13:46:00.951050248 +0200
+diff -rupN pythia_8.212_original/src/ParticleData.cc pythia_8.212_patched/src/ParticleData.cc
+--- pythia_8.212_original/src/ParticleData.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/ParticleData.cc	2018-12-12 18:42:55.401926818 +0000
 @@ -572,6 +572,8 @@ void ParticleData::initCommon() {
  
  void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
@@ -466,9 +466,9 @@ diff -rupN 8.212_original/src/ParticleData.cc 8.212/src/ParticleData.cc
      };
    };
  
-diff -rupN 8.212_original/src/PartonDistributions.cc 8.212/src/PartonDistributions.cc
---- 8.212_original/src/PartonDistributions.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/PartonDistributions.cc	2018-06-19 13:46:00.951050248 +0200
+diff -rupN pythia_8.212_original/src/PartonDistributions.cc pythia_8.212_patched/src/PartonDistributions.cc
+--- pythia_8.212_original/src/PartonDistributions.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/PartonDistributions.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -2133,17 +2133,10 @@ void NNPDF::init(int iFitIn, string xmlP
    for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
  
@@ -734,9 +734,9 @@ diff -rupN 8.212_original/src/PartonDistributions.cc 8.212/src/PartonDistributio
  
  //--------------------------------------------------------------------------
  
-diff -rupN 8.212_original/src/ProcessLevel.cc 8.212/src/ProcessLevel.cc
---- 8.212_original/src/ProcessLevel.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/ProcessLevel.cc	2018-06-19 13:46:00.955050226 +0200
+diff -rupN pythia_8.212_original/src/ProcessLevel.cc pythia_8.212_patched/src/ProcessLevel.cc
+--- pythia_8.212_original/src/ProcessLevel.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/ProcessLevel.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -6,6 +6,20 @@
  // Function definitions (not found in the header) for the ProcessLevel class.
  
@@ -834,9 +834,9 @@ diff -rupN 8.212_original/src/ProcessLevel.cc 8.212/src/ProcessLevel.cc
  
      // Update sum of maxima if current maximum violated.
      if (containerPtrs[iContainer]->newSigmaMax()) {
-diff -rupN 8.212_original/src/Pythia.cc 8.212/src/Pythia.cc
---- 8.212_original/src/Pythia.cc	2015-09-23 17:35:08.000000000 +0200
-+++ 8.212/src/Pythia.cc	2018-06-19 13:46:00.955050226 +0200
+diff -rupN pythia_8.212_original/src/Pythia.cc pythia_8.212_patched/src/Pythia.cc
+--- pythia_8.212_original/src/Pythia.cc	2015-09-23 16:35:08.000000000 +0100
++++ pythia_8.212_patched/src/Pythia.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -113,7 +113,9 @@ Pythia::Pythia(string xmlDir, bool print
      info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
      return;
@@ -995,9 +995,9 @@ diff -rupN 8.212_original/src/Pythia.cc 8.212/src/Pythia.cc
       << " |  |      e-mail: philten@cern.ch           "
       << "                                      |  | \n"
       << " |  |   Stephen Mrenna;  Computing Division, "
-diff -rupN 8.212_original/src/ResonanceDecays.cc 8.212/src/ResonanceDecays.cc
---- 8.212_original/src/ResonanceDecays.cc	2015-09-23 17:35:09.000000000 +0200
-+++ 8.212/src/ResonanceDecays.cc	2018-06-19 13:50:54.446386853 +0200
+diff -rupN pythia_8.212_original/src/ResonanceDecays.cc pythia_8.212_patched/src/ResonanceDecays.cc
+--- pythia_8.212_original/src/ResonanceDecays.cc	2015-09-23 16:35:09.000000000 +0100
++++ pythia_8.212_patched/src/ResonanceDecays.cc	2018-12-12 18:42:55.405926833 +0000
 @@ -92,6 +92,10 @@ bool ResonanceDecays::next( Event& proce
            idProd.push_back( idNow);
          }
@@ -1028,9 +1028,9 @@ diff -rupN 8.212_original/src/ResonanceDecays.cc 8.212/src/ResonanceDecays.cc
  
    // Else if below then retry Breit-Wigners, with simple treshold.
    if (mSum + MSAFETY < mMother) {
-diff -rupN 8.212_original/src/SusyLesHouches.cc 8.212/src/SusyLesHouches.cc
---- 8.212_original/src/SusyLesHouches.cc	2015-09-23 17:35:10.000000000 +0200
-+++ 8.212/src/SusyLesHouches.cc	2018-06-19 13:46:00.955050226 +0200
+diff -rupN pythia_8.212_original/src/SusyLesHouches.cc pythia_8.212_patched/src/SusyLesHouches.cc
+--- pythia_8.212_original/src/SusyLesHouches.cc	2015-09-23 16:35:10.000000000 +0100
++++ pythia_8.212_patched/src/SusyLesHouches.cc	2018-12-12 19:41:58.462788647 +0000
 @@ -7,6 +7,58 @@
  #include "Pythia8/SusyLesHouches.h"
  #include "Pythia8/Streams.h"
@@ -1100,7 +1100,7 @@ diff -rupN 8.212_original/src/SusyLesHouches.cc 8.212/src/SusyLesHouches.cc
    slhaFile = slhaFileIn;
    // Check that input file is OK.
    const char* cstring = slhaFile.c_str();
-@@ -635,6 +690,703 @@ int SusyLesHouches::readFile(istream& is
+@@ -635,6 +690,738 @@ int SusyLesHouches::readFile(istream& is
      return 102;
    }
    else return iFailFile;
@@ -1295,25 +1295,60 @@ diff -rupN 8.212_original/src/SusyLesHouches.cc 8.212/src/SusyLesHouches.cc
 +      // MODEL
 +      if (blockName == "modsel") {
 +        ifail = -1;
++        // The calls to set(...) below can only return ifail=0 or ifail=1
 +        try {
 +          ifail = modsel12.set(0, SLHAea::to<double>(blockIter->at(12).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
 +        } catch (std::out_of_range& e) {}
 +
 +        try {
 +          ifail = modsel21.set(0, SLHAea::to<int>(blockIter->at(21).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
 +        } catch (std::out_of_range& e) {}
 +
 +        try {
-+          ifail = modsel.set(SLHAea::to<int>(blockIter->at(1).at(0)),
-+                             SLHAea::to<int>(blockIter->at(1).at(1)));
++          ifail = modsel.set(1, SLHAea::to<int>(blockIter->at(1).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
++        } catch (std::out_of_range& e) {}
++
++        try {
++          ifail = modsel.set(3, SLHAea::to<int>(blockIter->at(3).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
++        } catch (std::out_of_range& e) {}
++
++        try {
++          ifail = modsel.set(4, SLHAea::to<int>(blockIter->at(4).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
++        } catch (std::out_of_range& e) {}
++
++        try {
++          ifail = modsel.set(5, SLHAea::to<int>(blockIter->at(5).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
++        } catch (std::out_of_range& e) {}
++
++        try {
++          ifail = modsel.set(6, SLHAea::to<int>(blockIter->at(6).at(1)));
++          if (ifail == 1) {
++            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
++          }
 +        } catch (std::out_of_range& e) {}
 +
 +        if (ifail == -1) {
-+          message(1,"readSLHAea","read error or empty line",0);
++          message(1,"readSLHAea","no MODSEL entries read.",0);
 +        }
-+        if (ifail == 1) {
-+          message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+        }
++
 +      }
 +
 +      // MODEL PARAMETERS
@@ -1804,7 +1839,7 @@ diff -rupN 8.212_original/src/SusyLesHouches.cc 8.212/src/SusyLesHouches.cc
  
  }
  
-@@ -679,6 +1431,13 @@ void SusyLesHouches::printFooter() {
+@@ -679,6 +1466,13 @@ void SusyLesHouches::printFooter() {
  
  void SusyLesHouches::printSpectrum(int ifail) {
  
