@@ -203,7 +203,8 @@ namespace Gambit
     {
       namespace myPipe = Pipes::get_NMSSM_spectrum_as_map;
       const Spectrum& nmssmspec(*myPipe::Dep::NMSSM_spectrum);
-      fill_map_from_subspectrum<SpectrumContents::SM>  (specmap, nmssmspec.get_LE());
+      fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, nmssmspec.get_LE());
+      // TODO: This line doesn't work for some reason... 
       fill_map_from_subspectrum<SpectrumContents::NMSSM>(specmap, nmssmspec.get_HE());
     }
 
