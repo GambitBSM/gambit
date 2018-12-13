@@ -28,8 +28,10 @@ BE_NAMESPACE
     logger().send("Message from 'awesomenessNotByAnders' backend convenience function in LibSecond v1.1 wrapper",LogTags::info);
     initialize(a);
     someFunction();
-    double i = pybind11::cast<double>(LibSecond.attr("hiddenFunction")(2.0));
-    std::cout << "Result of hiddenFunction by direct access to LibSecond v1.1 python module (skipping frontend): " << i << std::endl;
+    #ifdef HAVE_PYBIND11
+      double i = pybind11::cast<double>(LibSecond.attr("hiddenFunction")(2.0));
+      std::cout << "Result of hiddenFunction by direct access to LibSecond v1.1 python module (skipping frontend): " << i << std::endl;
+    #endif
     return returnResult();
   }
 }

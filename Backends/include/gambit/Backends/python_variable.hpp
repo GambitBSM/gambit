@@ -58,9 +58,11 @@ namespace Gambit
     public:
 
       /// Constructor
-      python_variable(const str& be, const str& ver, const str& symbol) : handle_works(false)
-      {
-        #ifdef HAVE_PYBIND11
+      #ifndef HAVE_PYBIND11
+        python_variable(const str&, const str&, const str&) {}
+      #else
+        python_variable(const str& be, const str& ver, const str& symbol) : handle_works(false)
+        {
           using namespace Backends;
           try
           {
@@ -105,20 +107,24 @@ namespace Gambit
             }
           }
           catch (std::exception& e) { ini_catch(e); }
-        #endif
-      }
+        }
+      #endif
 
       /// Assignment operator for python_variable from equivalent C++ type
-      python_variable& operator=(const TYPE& val)
-      {
-        #ifdef HAVE_PYBIND11
+      #ifdef HAVE_PYBIND11
+        python_variable& operator=(const TYPE& val)
+        {
           if (not handle_works) backend_error().raise(LOCAL_INFO, "Attempted to use a Python backend variable that was not successfully loaded.");
           _dict[_symbol.c_str()] = val;
           return *this;
-        #else
+        }
+      #else
+        python_variable& operator=(const TYPE&)
+        {
           backend_error().raise(LOCAL_INFO, "Attempted to assign a C++ type to a python_variable without pybind11.");
-        #endif
-      }
+          return *this;
+        }
+      #endif
 
       /// Cast operator from python_variable to equivalent C++ type
       operator TYPE const()
@@ -129,6 +135,7 @@ namespace Gambit
           return result.cast<TYPE>();
         #else
           backend_error().raise(LOCAL_INFO, "Attempted to cast a python_variable to a C++ type without pybind11.");
+          return TYPE();
         #endif
       }
 

@@ -4,7 +4,7 @@
 #                                #
 ##################################
 
-
+from __future__ import print_function
 import modules.gb as gb
 
 # ====== Module-level globals ========
@@ -34,7 +34,7 @@ class InfoMessage(object):
         """        
         if self.tag not in self.__class__.tags_done:
             self.__class__.tags_done.add(self.tag)
-            print '  - ' + self.msg
+            print('  - ' + self.msg)
 
 # ====== END: Info message base class ========
 

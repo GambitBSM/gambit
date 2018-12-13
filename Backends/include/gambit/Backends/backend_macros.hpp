@@ -155,10 +155,8 @@ namespace Gambit                                                            \
                                                                             \
       /* Make an easy reference to the actual backend module if it is a */  \
       /* Python backend. */                                                 \
-      BOOST_PP_IF(HAVE_PYBIND11, BOOST_PP_IF(USING_PYTHON,                  \
-      pybind11::module& BACKENDNAME = backendInfo().                        \
-       getPythonBackend(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));        \
-      , ), )                                                                \
+      IF_USING_PYBIND11(pybind11::module& BACKENDNAME = backendInfo().      \
+       getPythonBackend(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));)       \
     }                                                                       \
   }                                                                         \
 }                                                                           \

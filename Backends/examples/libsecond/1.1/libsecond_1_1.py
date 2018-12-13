@@ -29,25 +29,26 @@ def initialize(a):
   global someArray
   global isInitialized
   print
-  print prefix, "This is function 'initialize'."
-  someInt = a;
+  print(prefix, "This is function 'initialize'.")
+  x, y, *rest = range(10) # haha don't load this in python2 malaka.
+  someInt = a
   someArray = np.array([2.0*x for x in range(array_length)])
   someVector.append(1.5)
   someVector.append(1.6)
   isInitialized = True
-  print prefix, "Initialization done. Variable 'someInt' set to: ", someInt
+  print(prefix, "Initialization done. Variable 'someInt' set to: ", someInt)
 
 # 'calculation'
 def someFunction():
   global someDouble
   print
-  print prefix, "This is function 'someFunction'.";
+  print(prefix, "This is function 'someFunction'.")
   if (isInitialized):
-    print prefix, "Will now perform a calculation..."
-    someDouble = 3.1415*someInt;
-    print prefix, "Result stored in variable 'someDouble' is: ", someDouble;
+    print(prefix, "Will now perform a calculation...")
+    someDouble = 3.1415*someInt
+    print(prefix, "Result stored in variable 'someDouble' is: ", someDouble)
   else:
-    print prefix, "Not initialized. Cannot perform calculation.";
+    print(prefix, "Not initialized. Cannot perform calculation.")
 
 # the 'hidden function'
 def hiddenFunction(x):
@@ -55,5 +56,5 @@ def hiddenFunction(x):
 
 # return 'result'
 def returnResult():
-  print "I'm returnResult() from libsecond.py, and I'm feeling well."
+  print("I'm returnResult() from libsecond.py, and I'm feeling well.")
   return someDouble

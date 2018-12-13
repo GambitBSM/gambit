@@ -114,12 +114,6 @@ namespace Gambit
     bool useBuckFastCMSnoeffDetector;
     bool haveUsedBuckFastCMSnoeffDetector;
 
-    #ifndef EXCLUDE_DELPHES
-    bool useDelphesDetector;
-    std::vector<std::string> analysisNamesDet;
-    bool haveUsedDelphesDetector;
-    #endif
-
     bool useBuckFastIdentityDetector;
     bool haveUsedBuckFastIdentityDetector;
 
@@ -193,18 +187,12 @@ namespace Gambit
       useBuckFastCMSDetector = false;
       useBuckFastCMSnoeffDetector = false;
       useBuckFastIdentityDetector = false;
-      #ifndef EXCLUDE_DELPHES
-      useDelphesDetector = false;
-      #endif
 
       haveUsedBuckFastATLASDetector = false;
       haveUsedBuckFastATLASnoeffDetector = false;
       haveUsedBuckFastCMSDetector = false;
       haveUsedBuckFastCMSnoeffDetector = false;
       haveUsedBuckFastIdentityDetector = false;
-      #ifndef EXCLUDE_DELPHES
-      haveUsedDelphesDetector = false;
-      #endif
 
       // Retrieve run options from the YAML file (or standalone code)
       pythiaNames = runOptions->getValue<std::vector<str> >("pythiaNames");
@@ -717,70 +705,6 @@ namespace Gambit
 
     // *** Detector Simulators ***
 
-    #ifndef EXCLUDE_DELPHES
-    void getDelphes(DelphesVanilla &result)
-    {
-      using namespace Pipes::getDelphes;
-      static std::vector<bool> useDetector;
-      static std::vector<str> delphesConfigFiles;
-
-      if (*Loop::iteration == BASE_INIT)
-      {
-        // Read useDetector option
-        std::vector<bool> default_useDetector(pythiaNames.size(), false);  // Delphes is switched off by default
-        useDetector = runOptions->getValueOrDef<std::vector<bool> >(default_useDetector, "useDetector");
-        CHECK_EQUAL_VECTOR_LENGTH(useDetector,pythiaNames)
-
-        // Return if all elements in useDetector are false
-        if (std::find(useDetector.begin(), useDetector.end(), true) == useDetector.end()) return;
-
-        // Read delphesConfigFiles option
-        delphesConfigFiles = runOptions->getValue<std::vector<str> >("delphesConfigFiles");
-        CHECK_EQUAL_VECTOR_LENGTH(delphesConfigFiles,pythiaNames)
-
-        // Delphes is not threadsafe (depends on ROOT). Raise error if OMP_NUM_THREADS>1.
-        if(omp_get_max_threads()>1 and std::find(useDetector.begin(), useDetector.end(), true) != useDetector.end())
-        {
-          str errmsg = "Delphes is not threadsafe and cannot be used with OMP_NUM_THREADS>1.\n";
-          errmsg    += "Either set OMP_NUM_THREADS=1 or switch to a threadsafe detector simulator, e.g. BuckFast.";
-          ColliderBit_error().raise(LOCAL_INFO, errmsg);
-        }
-
-        return;
-      }
-
-      if (*Loop::iteration == COLLIDER_INIT)
-      {
-        result.clear();
-
-        // Get useDetector setting for the current collider
-        useDelphesDetector = useDetector[indexPythiaNames];
-        if (!useDelphesDetector) return;
-        else haveUsedDelphesDetector = true;
-
-        // Setup new Delphes for the current collider
-        std::vector<str> delphesOptions;
-        delphesOptions.push_back(delphesConfigFiles[indexPythiaNames]);
-
-        try
-        {
-          result.init(delphesOptions);
-        }
-        catch (std::runtime_error& e)
-        {
-          #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "DelphesVanilla::InitializationError caught in getDelphes. Will raise ColliderBit_error." << endl;
-          #endif
-          str errmsg = "getDelphes caught the following runtime error: ";
-          errmsg    += e.what();
-          piped_errors.request(LOCAL_INFO, errmsg);
-        }
-      }
-    }
-    #endif // not defined EXCLUDE_DELPHES
-
-
-
     void getBuckFastATLAS(BuckFastSmearATLAS &result)
     {
       using namespace Pipes::getBuckFastATLAS;
@@ -1008,107 +932,6 @@ namespace Gambit
 
 
     // *** Initialization for analyses ***
-
-
-    #ifndef EXCLUDE_DELPHES
-    void getDetAnalysisContainer(HEPUtilsAnalysisContainer& result)
-    {
-      using namespace Pipes::getDetAnalysisContainer;
-      static std::vector<std::vector<str> > analyses;
-      static bool first = true;
-
-      if (*Loop::iteration == BASE_INIT)
-      {
-        // Only run this once
-        if (first)
-        {
-          // Read analysis names from the yaml file
-          std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
-          analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
-
-          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
-          for (std::vector<str> collider_specific_analyses : analyses)
-          {
-            for (str& analysis_name : collider_specific_analyses)
-            {
-              if (!checkAnalysis(analysis_name))
-              {
-                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
-                ColliderBit_error().raise(LOCAL_INFO, errmsg);
-              }
-            }
-          }
-
-          first = false;
-        }
-      }
-
-      if (*Loop::iteration == COLLIDER_INIT)
-      {
-        if (!useDelphesDetector) return;
-
-        // Check that there are some analyses to run if the detector is switched on
-        if (analyses[indexPythiaNames].empty() and useDelphesDetector)
-        {
-          str errmsg = "The option 'useDetector' for function 'getDelphes' is set to true\n";
-          errmsg    += "for the collider '";
-          errmsg    += *iterPythiaNames;
-          errmsg    += "', but the corresponding list of analyses\n";
-          errmsg    += "(in option 'analyses' for function 'getDetAnalysisContainer') is empty.\n";
-          errmsg    += "Please correct your settings.\n";
-          ColliderBit_error().raise(LOCAL_INFO, errmsg);
-        }
-
-        return;
-      }
-
-      if (!useDelphesDetector) return;
-
-      if (*Loop::iteration == START_SUBPROCESS)
-      {
-        result.register_thread("DetAnalysisContainer");
-        result.set_current_collider(*iterPythiaNames);
-
-        // Initialize analysis container or reset all the contained analyses
-        if (!result.has_analyses())
-        {
-          try
-          {
-            result.init(analyses[indexPythiaNames]);
-          }
-          catch (std::runtime_error& e)
-          {
-            piped_errors.request(LOCAL_INFO, e.what());
-          }
-        }
-        else result.reset();
-
-        return;
-      }
-
-      if (*Loop::iteration == END_SUBPROCESS && eventsGenerated && nFailedEvents <= maxFailedEvents)
-      {
-        const double xs_fb = Dep::HardScatteringSim->xsec_pb() * 1000.;
-        const double xserr_fb = Dep::HardScatteringSim->xsecErr_pb() * 1000.;
-        result.add_xsec(xs_fb, xserr_fb);
-
-        #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "xs_fb = " << xs_fb << " +/- " << xserr_fb << endl;
-        #endif
-        return;
-      }
-
-      if (*Loop::iteration == COLLIDER_FINALIZE)
-      {
-        result.collect_and_add_signal();
-        result.collect_and_improve_xsec();
-        result.scale();
-        return;
-      }
-    }
-    #endif // not defined EXCLUDE_DELPHES
-
-
 
     void getATLASAnalysisContainer(HEPUtilsAnalysisContainer& result)
     {
@@ -1663,40 +1486,6 @@ namespace Gambit
 
     // *** Standard Event Format Functions ***
 
-    #ifndef EXCLUDE_DELPHES
-    void reconstructDelphesEvent(HEPUtils::Event& result)
-    {
-      using namespace Pipes::reconstructDelphesEvent;
-      if (*Loop::iteration <= BASE_INIT or !useDelphesDetector) return;
-      result.clear();
-
-      #pragma omp critical (Delphes)
-      {
-        try
-        {
-          (*Dep::DetectorSim).processEvent(*Dep::HardScatteringEvent, result);
-        }
-        catch (std::runtime_error& e)
-        {
-          #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "DelphesVanilla::ProcessEventError caught in reconstructDelphesEvent." << endl;
-          #endif
-
-          // Store Pythia event record in the logs
-          std::stringstream ss;
-          Dep::HardScatteringEvent->list(ss, 1);
-          logger() << LogTags::debug << "DelphesVanilla::ProcessEventError caught in reconstructDelphesEvent. Pythia record for event that failed:\n" << ss.str() << EOM;
-
-          str errmsg = "Bad point: reconstructDelphesEvent caught the following runtime error: ";
-          errmsg    += e.what();
-          piped_invalid_point.request(errmsg);
-          Loop::wrapup();
-        }
-      }
-    }
-    #endif // not defined EXCLUDE_DELPHES
-
-
     void smearEventATLAS(HEPUtils::Event& result)
     {
       using namespace Pipes::smearEventATLAS;
@@ -1859,92 +1648,6 @@ namespace Gambit
 
 
     // *** Analysis Accumulators ***
-
-
-    #ifndef EXCLUDE_DELPHES
-    void runDetAnalyses(AnalysisDataPointers& result)
-    {
-      using namespace Pipes::runDetAnalyses;
-
-      if (*Loop::iteration == BASE_INIT)
-      {
-        result.clear();
-        return;
-      }
-
-      if (!useDelphesDetector) return;
-
-      static MC_convergence_checker convergence;
-      if (*Loop::iteration == COLLIDER_INIT)
-      {
-        convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
-        return;
-      }
-
-      if (*Loop::iteration == COLLECT_CONVERGENCE_DATA)
-      {
-        // Update the convergence tracker with the new results
-        convergence.update(*Dep::DetAnalysisContainer);
-        return;
-      }
-
-      if (*Loop::iteration == CHECK_CONVERGENCE)
-      {
-        // Call quits on the event loop if every analysis in every analysis container has sufficient statistics
-        if (convergence.achieved(*Dep::DetAnalysisContainer)) Loop::wrapup();
-        return;
-      }
-
-      // #ifdef COLLIDERBIT_DEBUG
-      // if (*Loop::iteration == END_SUBPROCESS)
-      // {
-      //   for (auto& analysis_pointer_pair : Dep::DetAnalysisContainer->get_current_analyses_map())
-      //   {
-      //     for (auto& sr : analysis_pointer_pair.second->get_results().srdata)
-      //     {
-      //       cout << debug_prefix() << "runDetAnalyses: signal region " << sr.sr_label << ", n_signal = " << sr.n_signal << endl;
-      //     }
-      //   }
-      // }
-      // #endif
-
-      if (*Loop::iteration == COLLIDER_FINALIZE)
-      {
-        // The final iteration for this collider: collect results
-        for (auto& analysis_pointer_pair : Dep::DetAnalysisContainer->get_current_analyses_map())
-        {
-          #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "runDetAnalyses: Collecting result from " << analysis_pointer_pair.first << endl;
-          #endif
-
-          str warning;
-          result.push_back(analysis_pointer_pair.second->get_results_ptr(warning));
-          if (eventsGenerated && nFailedEvents <= maxFailedEvents && !warning.empty())
-          {
-            ColliderBit_error().raise(LOCAL_INFO, warning);
-          }
-        }
-        return;
-      }
-
-      if (*Loop::iteration == BASE_FINALIZE)
-      {
-        // Final iteration. Just return.
-        #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "runDetAnalyses: 'result' contains " << result.size() << " results." << endl;
-        #endif
-        return;
-      }
-
-      if (*Loop::iteration <= BASE_INIT) return;
-
-      // Loop over analyses and run them... Managed by HEPUtilsAnalysisContainer
-      Dep::DetAnalysisContainer->analyze(*Dep::ReconstructedEvent);
-
-    }
-    #endif // not defined EXCLUDE_DELPHES
-
-
 
     void runATLASAnalyses(AnalysisDataPointers& result)
     {
@@ -2376,10 +2079,6 @@ namespace Gambit
         cout << debug_prefix() << "CollectAnalyses: Dep::CMSnoeffAnalysisNumbers->size() = " << Dep::CMSnoeffAnalysisNumbers->size() << endl;
       if (haveUsedBuckFastIdentityDetector)
         cout << debug_prefix() << "CollectAnalyses: Dep::IdentityAnalysisNumbers->size() = " << Dep::IdentityAnalysisNumbers->size() << endl;
-      #ifndef EXCLUDE_DELPHES
-      if (haveUsedDelphesDetector)
-        cout << debug_prefix() << "CollectAnalyses: Dep::DetAnalysisNumbers->size()      = " << Dep::DetAnalysisNumbers->size() << endl;
-      #endif
       #endif
 
       // Add results
@@ -2393,10 +2092,6 @@ namespace Gambit
         result.insert(result.end(), Dep::CMSnoeffAnalysisNumbers->begin(), Dep::CMSnoeffAnalysisNumbers->end());
       if (haveUsedBuckFastIdentityDetector)
         result.insert(result.end(), Dep::IdentityAnalysisNumbers->begin(), Dep::IdentityAnalysisNumbers->end());
-      #ifndef EXCLUDE_DELPHES
-      if (haveUsedDelphesDetector)
-        result.insert(result.end(), Dep::DetAnalysisNumbers->begin(), Dep::DetAnalysisNumbers->end());
-      #endif
 
       // When first called, check that all analyses contain at least one signal region.
       if (first)
@@ -2560,31 +2255,30 @@ namespace Gambit
           #endif
 
 
-          // Ben: DISABLED FOR TESTING
-          // // Shortcut: if all SRs have 0 signal prediction, we know the Delta LogLike is 0.
-          // bool all_zero_signal = true;
-          // for (size_t SR = 0; SR < adata.size(); ++SR)
-          // {
-          //   if (adata[SR].n_signal != 0)
-          //   {
-          //     all_zero_signal = false;
-          //     break;
-          //   }
-          // }
-          // if (all_zero_signal)
-          // {
-          //   // Store result
-          //   result[adata.analysis_name].combination_sr_label = "all";
-          //   result[adata.analysis_name].combination_sr_index = -1;
-          //   result[adata.analysis_name].combination_loglike = 0.0;
+          // Shortcut: if all SRs have 0 signal prediction, we know the Delta LogLike is 0.
+          bool all_zero_signal = true;
+          for (size_t SR = 0; SR < adata.size(); ++SR)
+          {
+            if (adata[SR].n_signal != 0)
+            {
+              all_zero_signal = false;
+              break;
+            }
+          }
+          if (all_zero_signal)
+          {
+            // Store result
+            result[adata.analysis_name].combination_sr_label = "all";
+            result[adata.analysis_name].combination_sr_index = -1;
+            result[adata.analysis_name].combination_loglike = 0.0;
 
-          //   #ifdef COLLIDERBIT_DEBUG
-          //   cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << 0.0 << " (No signal predicted. Skipped covariance calculation.)" <<endl;
-          //   #endif
+            #ifdef COLLIDERBIT_DEBUG
+            cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << 0.0 << " (No signal predicted. Skipped covariance calculation.)" <<endl;
+            #endif
 
-          //   // Continue to next analysis
-          //   continue;
-          // }
+            // Continue to next analysis
+            continue;
+          }
 
           // Construct vectors of SR numbers
           Eigen::ArrayXd n_obs(adata.size()), logfact_n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
@@ -2856,6 +2550,7 @@ namespace Gambit
           double bestexp_dll_exp = 0, bestexp_dll_obs = 0;
           str bestexp_sr_label;
           int bestexp_sr_index;
+          double nocovar_srsum_dll_obs = 0;
 
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
@@ -2914,6 +2609,9 @@ namespace Gambit
             // Store "observed LogLike" result for this SR
             result[adata.analysis_name].sr_indices[srData.sr_label] = SR;
             result[adata.analysis_name].sr_loglikes[srData.sr_label] = llsb_obs - llb_obs;
+
+            // Add loglike to the no-correlations loglike sum over SRs
+            nocovar_srsum_dll_obs += llsb_obs - llb_obs;
           }
 
           // Check for problem
@@ -2942,6 +2640,14 @@ namespace Gambit
           result[adata.analysis_name].combination_sr_label = bestexp_sr_label;
           result[adata.analysis_name].combination_sr_index = bestexp_sr_index;
           result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
+
+          // Should we use the naive sum of SR loglikes (without correlations), instead of the best-expected SR?
+          // _Anders
+          static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+          if (combine_nocovar_SRs)
+          {
+            result[adata.analysis_name].combination_loglike = nocovar_srsum_dll_obs;
+          }
 
           #ifdef COLLIDERBIT_DEBUG
           cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_" << bestexp_sr_label << "_LogLike : " << -bestexp_dll_obs << endl;

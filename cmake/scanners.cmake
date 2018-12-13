@@ -114,15 +114,9 @@ endif()
 
 # PolyChord
 set(name "polychord")
-set(ver "1.14")
+set(ver "1.15")
 set(lib "libchord")
-set(md5 "85673d8ed12336c0f1da79ed943f9e0c")
-set(baseurl "https://ccpforge.cse.rl.ac.uk")
-set(endurl "/gf/download/frsrelease/617/9265/PolyChord_v${ver}.tar.gz")
-set(gateurl "/gf/account/?action=LoginAction")
-set(dl "${baseurl}${endurl}")
-set(dl2 "${baseurl}${gateurl}")
-set(login_data "password=${CCPForge_p1}${CCPForge_p2}${CCPForge_p3}&username=${CCPForge_user}&redirect=${endurl}")
+set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 set(pcSO_LINK "${CMAKE_Fortran_COMPILER} -shared ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
 if(MPI_Fortran_FOUND)
@@ -143,11 +137,11 @@ endif()
 check_ditch_status(${name} ${ver})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver} "null" ${login_data} ${dl2}
+    GIT_REPOSITORY https://github.com/PolyChord/PolyChordLite
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LINKLIB=${pcSO_LINK}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} libchord.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LD=${pcSO_LINK}
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)

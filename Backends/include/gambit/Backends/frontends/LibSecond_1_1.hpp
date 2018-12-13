@@ -18,7 +18,7 @@
 
 
 #define BACKENDNAME LibSecond
-#define BACKENDLANG Python
+#define BACKENDLANG Python3
 #define VERSION 1.1
 #define SAFE_VERSION 1_1
 

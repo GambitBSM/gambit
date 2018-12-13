@@ -292,7 +292,7 @@ namespace Gambit {
 
         double pT_ll=0;
         double mT=0;
-        double mT2=0;
+        // double mT2=0;
         double mll=0;
         vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
         vector<vector<HEPUtils::Particle*>> OSpair_cont = getOSpairs(signalLeptons);
@@ -307,7 +307,7 @@ namespace Gambit {
           mt2_bisect::mt2 mt2_calc;
           mt2_calc.set_momenta(pLep1,pTau,pMiss);
           mt2_calc.set_mn(mn);
-          mT2 = mt2_calc.get_mt2();
+          // mT2 = mt2_calc.get_mt2();
         }
         if (nSignalLeptons==2 || (SFOSpair_cont.size()==0 && OSpair_cont.size()==0))mT=get_mTmin(signalLeptons, event->missingmom());   
         if (SFOSpair_cont.size()>0) {

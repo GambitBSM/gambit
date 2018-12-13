@@ -64,6 +64,9 @@ namespace Gambit
   {
 
     /// Base class for thread-safe random number generators.
+    /// Must conform to the requirements of UniformRandomBitGenerator,
+    /// see e.g. https://en.cppreference.com/w/cpp/named_req/UniformRandomBitGenerator
+    /// Importantly, operator() must return UNSIGNED INTEGERS!
     class EXPORT_SYMBOLS threadsafe_rng
     {
 
@@ -79,7 +82,7 @@ namespace Gambit
 
         /// Operators for compliance with RandomNumberEngine interface -> random distribution sampling
         virtual result_type min() = 0; // Needs to connect to equivalent function in underlying rng class
-        virtual result_type max() = 0; // "   " 
+        virtual result_type max() = 0; // "   "
     };
 
     /// Give an inline implementation of the destructor, to prevent link errors but keep base class pure virtual.

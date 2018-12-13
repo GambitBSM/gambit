@@ -8,6 +8,38 @@ Parameters:
   # SM nuisance parameters fixed for now.
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_postprocessing.yaml
 
+  nuclear_params_sigmas_sigmal:
+    deltad:
+      prior_type: none
+    deltas:
+      prior_type: none
+    deltau:
+      prior_type: none
+    sigmal:
+      prior_type: none
+    sigmas:
+      prior_type: none
+  Halo_gNFW_rho0:
+
+    alpha:
+      prior_type: none
+    beta:
+      prior_type: none
+    gamma:
+      prior_type: none
+    r_sun:
+      prior_type: none
+    rho0:
+      prior_type: none
+    rs:
+      prior_type: none
+    v0:
+      prior_type: none
+    vesc:
+      prior_type: none
+    vrot:
+      prior_type: none
+
   MSSM11atQ_mA:
     Ad_3:
       prior_type: none
@@ -45,11 +77,13 @@ Printer:
   # Can switch to the ascii printer by commenting out and
   # using the ascii lines below
 
-  printer: hdf5
-  options:
-    output_file: "MSSMEW.hdf5"
-    group: "/MSSMEW"
-    delete_file_on_restart: false
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "MSSMEW.hdf5"
+  #   group: "/MSSMEW"
+  #   delete_file_on_restart: false
 
   # printer: ascii
   # options:
@@ -72,7 +106,7 @@ Scanner:
       plugin: random
       point_number: 2
       output_file:  output
-      like:  Likelihood
+      like:  LogLike
       files:
         output_file: "weights ..."
 
@@ -85,10 +119,10 @@ Scanner:
       lambdajDE: false
 
     postprocessor:
-      like: LogLike
-      reweighted_like: LogLike
-      update_interval: 1000
-      permit_discard_old_likes: true
+      like: LogLike_DM
+      reweighted_like: LogLike_combined
+      update_interval: 40
+      permit_discard_old_likes: false
       # The below don't seem to work?
       # Restrict postprocessing to values greater than this
       # cut_greater_than: {"LogLike": -68.5843} # best fit - 5sigma
@@ -96,61 +130,105 @@ Scanner:
       # discard_points_outside_cuts: true
       reader:
         type: hdf5
-        file: /insert/path/to/MSSMEW/samples/here/MSSMEW.hdf5
+        file: ./input/MSSMEW.hdf5
         group: "/MSSMEW"
 
 
 ObsLikes:
 
-    # Likelihoods for SM nuisance parameters
-    - purpose:    LogLike
-      capability: lnL_t_mass
+    # # Likelihoods for SM nuisance parameters
+    # - purpose:    LogLike
+    #   capability: lnL_t_mass
 
-    - purpose:    LogLike
-      capability: lnL_alpha_s
+    # - purpose:    LogLike
+    #   capability: lnL_alpha_s
 
-    # Combined LHC likelihood
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+    # # Combined LHC likelihood
+    # - purpose:    LogLike
+    #   capability: LHC_Combined_LogLike
 
-    # LEP likelihoods
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
+    # # LEP likelihoods
+    # - purpose:    LogLike
+    #   capability: L3_Neutralino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
+    # - purpose:    LogLike
+    #   capability: L3_Chargino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Hadronic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_SemiLeptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Leptonic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Neutralino_Hadronic_LLike
 
-    - purpose:    LogLike
-      capability: OPAL_Degenerate_Chargino_LLike
+    # - purpose:    LogLike
+    #   capability: OPAL_Degenerate_Chargino_LLike
 
-    # Likelihoods for invisible decays of Z and Higgs bosons
-    - purpose: LogLike
-      capability: lnL_Z_inv
+    # Dark matter likelihoods
+    - capability: lnL_oh2
+      purpose:    LogLike_DM
 
-    - purpose: LogLike
-      capability: lnL_Higgs_invWidth
+    - capability: lnL_FermiLATdwarfs
+      purpose:    LogLike_DM
 
-    # Observables (not included in likelihood)
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
+    - capability: LUX_2016_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: XENON1T_2018_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: PandaX_2016_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: PandaX_2017_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: PICO_60_2017_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: CRESST_II_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: CDMSlite_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: DarkSide_50_LogLikelihood
+      purpose:    LogLike_DM
+
+    - capability: IC79_loglike
+      purpose:    LogLike_DM
+
+    # # Likelihoods for invisible decays of Z and Higgs bosons
+    # - purpose: LogLike
+    #   capability: lnL_Z_inv
+
+    # - purpose: LogLike
+    #   capability: lnL_Higgs_invWidth
+
+
+    # # Observables (not included in likelihood)
+    # - purpose:    Observable
+    #   capability: LHC_signals
+
+    # - purpose:    likelihood_details
+    #   capability: LHC_LogLike_per_SR
+
+    # - purpose:    likelihood_details
+    #   capability: LHC_LogLike_SR_indices
+
+    # - purpose:    Observable
+    #   capability: LHCEventLoopInfo
 
     - purpose:    Observable
-      capability: LHC_signals
+      capability: RD_oh2
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+    # - purpose:    Observable
+    #   capability: mwimp
 
     # - purpose:    Observable
     #   capability: mw
@@ -168,15 +246,15 @@ ObsLikes:
       capability: MSSM_spectrum
       type:       map_str_dbl
 
-    # Observables for invisible decays of Z and Higgs bosons
-    - purpose: Observable
-      capability: Z_gamma_nu
+    # # Observables for invisible decays of Z and Higgs bosons
+    # - purpose: Observable
+    #   capability: Z_gamma_nu
 
-    - purpose: Observable
-      capability: Z_gamma_chi_0
+    # - purpose: Observable
+    #   capability: Z_gamma_chi_0
 
-    - purpose: Observable
-      capability: inv_Higgs_BF
+    # - purpose: Observable
+    #   capability: inv_Higgs_BF
 
 Rules:
 
@@ -211,7 +289,7 @@ Rules:
       invalid_point_fatal: false
       # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
       # LEP measurements of the Z width.
-      mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
+      # mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
 
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
@@ -249,6 +327,42 @@ Rules:
   - capability: Higgs_Couplings
     function: MSSM_higgs_couplings_pwid
 
+
+
+  # Use DarkSUSY or MicrOmegas for the relic density?
+  - capability: RD_oh2
+    function: RD_oh2_DarkSUSY
+    options:
+      omtype: 1
+    # function: RD_oh2_MicrOmegas
+    # options:
+    #   fast: 1
+    #   Beps: 1e-5
+
+  # Choose to implement the relic density likelihood as a detection or an upper bound.
+  - capability: lnL_oh2
+    function: lnL_oh2_upperlimit
+    # function: lnL_oh2_Simple
+
+  # Choose to rescale signals in direct and indirect detection by the relic density fraction
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+
+  # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
+  - capability: lnL_FermiLATdwarfs
+    function:  lnL_FermiLATdwarfs_gamLike
+
+  # Choose to use DarkSUSY yield tables for indirect detection
+  - capability: SimYieldTable
+    function: SimYieldTable_DarkSUSY
+    options:
+      allow_yield_extrapolation: true
+
+  # Use DarkSUSY for calculating direct detection couplings
+  - capability: DD_couplings
+    function: DD_couplings_DarkSUSY
+
+
   ##### LHC Detector and Analysis rules #####
   #
   # The current capability structure allows for the user to mix'n'match
@@ -273,11 +387,12 @@ Rules:
   # Choose statistical settings for Monte Carlo event generator
   - capability: MC_ConvergenceSettings
     options:
-      min_nEvents: [50000]
-      max_nEvents: [5000000]  # TODO: Test this setting
-      events_between_convergence_checks: [50000]
-      target_fractional_uncert: [0.3]  # TODO: Test this setting
+      min_nEvents: [1000000]
+      max_nEvents: [1000000]
+      events_between_convergence_checks: [10000000]
+      target_fractional_uncert: [0.1]
       halt_when_systematic_dominated: true
+      all_analyses_must_converge: true
       all_SR_must_converge: false
 
   # Define Monte Carlo event simulator and associated options.
@@ -356,7 +471,16 @@ Rules:
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_13TeV_MultiLEP_36invfb"] ]
+      analyses: [ [ "ATLAS_13TeV_4LEP_36invfb",
+                    "ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb",
+                    "ATLAS_13TeV_RJ3L_3Lep_36invfb",
+                    "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
+                    "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
+                    "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
+                    "ATLAS_13TeV_3b_24invfb",
+                    "ATLAS_13TeV_3b_discoverySR_24invfb",
+                    "ATLAS_13TeV_3b_36invfb",
+                    "ATLAS_13TeV_3b_discoverySR_36invfb" ] ]
 
   # ATLASnoeff analysis setup.
   # NOTE: Don't blindly copy this analysis list without also checking the
@@ -372,7 +496,7 @@ Rules:
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ [ "CMS_13TeV_1LEPbb_36invfb",
+      analyses: [ [ "CMS_13TeV_1LEPbb_36invfb", 
                     "CMS_13TeV_MONOJET_36invfb" ] ]
 
   # CMSnoeff analysis setup
@@ -383,7 +507,8 @@ Rules:
     options:
       analyses: [ [ "CMS_13TeV_2LEPsoft_36invfb",
                     "CMS_13TeV_2LEPsoft_36invfb_nocovar",
-                    "CMS_13TeV_MultiLEP_36invfb",
+                    "CMS_13TeV_MultiLEP_2SSLep_36invfb",
+                    "CMS_13TeV_MultiLEP_3Lep_36invfb",
                     "CMS_13TeV_2OSLEP_36invfb",
                     "CMS_13TeV_2OSLEP_36invfb_nocovar" ] ]
 
@@ -394,7 +519,14 @@ Rules:
   - capability: LHC_Combined_LogLike
     options:
       skip_analyses: [ "CMS_13TeV_2LEPsoft_36invfb_nocovar", 
-                       "CMS_13TeV_2OSLEP_36invfb_nocovar" ]
+                       "CMS_13TeV_2OSLEP_36invfb_nocovar",
+                       "ATLAS_13TeV_3b_discoverySR_24invfb",
+                       "ATLAS_13TeV_3b_discoverySR_36invfb",
+                       "ATLAS_13TeV_3b_36invfb",
+                       "ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb",
+                       "ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb",
+                       "ATLAS_13TeV_MultiLEP_3Lep_36invfb",
+                       "CMS_13TeV_MONOJET_36invfb" ]
 
   # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
   # Can change "_lognormal_" to "_gaussian_" if you prefer
@@ -429,7 +561,7 @@ Logger:
 
 KeyValues:
 
-  debug: true
+  debug: false
 
   dependency_resolution:
     prefer_model_specific_functions: true
@@ -440,7 +572,7 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/MSSMEW/"
+  default_output_path: "runs/MSSMEW_pp_DM/"
 
   # We set the errors from the physics modules to be non-fatal
   # to avoid crashing the entire scan due to a rare problem point.

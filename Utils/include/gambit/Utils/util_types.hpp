@@ -32,6 +32,7 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
+///  \date 2018 Oct
 ///
 /// \author Aaron Vincent
 ///         (aaron.vincent@cparc.ca)
@@ -625,7 +626,7 @@ namespace Gambit
   typedef short             Finteger2;
   typedef long int          Finteger4;
   typedef long long         Finteger8;
-  typedef bool              Flogical;
+  typedef int32_t           Flogical; // 4-byte integers, compiler independent
   typedef bool              Flogical1;
   typedef float             Freal;
   typedef float             Freal4;

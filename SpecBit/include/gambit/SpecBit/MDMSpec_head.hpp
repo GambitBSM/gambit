@@ -8,9 +8,9 @@
 ///
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///  <!-- add name and date if you modify -->
-///   
+///
 ///  \author James McKay
 ///          j.mckay14@imperial.ac.uk
 ///  \date 2018 Mar
@@ -27,21 +27,21 @@
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/config/config.h"
 
-namespace Gambit 
+namespace Gambit
 {
-   namespace SpecBit 
+   namespace SpecBit
    {
       template <class MI>  // "MI" for "Model_interface"
       class MDMSpec;
-   } 
+   }
 
    // For example of what kind of class MI needs to be, see
-   // SpecBit/include/model_files_and_boxes.hpp, 
+   // SpecBit/include/model_files_and_boxes.hpp,
    // MODELNAME_interface class
 
    /// Specialisation of "traits" class used to inform Spec<T> class of what
    /// "Model" and "Input" are for this derived class
-   template <>
+   //template <>
    template <class MI>
    struct SpecTraits<SpecBit::MDMSpec<MI>>
    {
@@ -65,25 +65,25 @@ namespace Gambit
             /// These typedefs are inherited, but the name lookup doesn't work so smoothly in
             /// templated wrapper classes, so need to help them along:
             typedef MDMSpec<MI> Self;
-            typedef typename Self::MTget MTget; 
-            typedef typename Self::MTset MTset; 
+            typedef typename Self::MTget MTget;
+            typedef typename Self::MTset MTset;
             typedef typename Self::GetterMaps GetterMaps;
             typedef typename Self::SetterMaps SetterMaps;
             typedef typename SpecTraits<Self>::Model Model;
             typedef typename SpecTraits<Self>::Input Input;
-           
+
             /// Interface function overrides
             static int index_offset() {return _index_offset;}
             virtual double GetScale() const;
-            virtual void SetScale(double scale);           
+            virtual void SetScale(double scale);
             virtual void RunToScaleOverride(double scale);
 
             //constructors
             MDMSpec();
             MDMSpec(MI, str backend_name, str backend_version);
 
-            //Could more constructors to interface with other generators   
-             
+            //Could more constructors to interface with other generators
+
             // These are public for now so that SpecBit_tests.cpp can access them
             MI model_interface;
 
@@ -99,11 +99,11 @@ namespace Gambit
             const Model& get_Model() const { return model_interface.model; }
             const Input& get_Input() const { return dummyinput; /*unused here, but needs to be defined for the interface*/ }
 
-  
-  
+
+
             virtual std::string AccessError(std::string state) const;
 
-  
+
             template<class MDMlike>
             void get_lowe_data_from(MDMlike &othermodel)
             {
@@ -131,7 +131,7 @@ namespace Gambit
 
       };
 
-     
+
    } // end SpecBit namespace
 } // end Gambit namespace
 

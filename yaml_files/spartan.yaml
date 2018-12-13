@@ -37,9 +37,14 @@ Printer:
 
 Scanner:
 
-  use_scanner: twalk
+  use_scanner: random
 
   scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 10
 
     de:
       plugin: diver
@@ -60,6 +65,7 @@ Scanner:
 
     twalk:
       plugin: twalk
+      like: LogLike
 
     polychord:
       plugin: polychord
