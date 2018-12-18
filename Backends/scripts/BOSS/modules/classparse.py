@@ -76,7 +76,9 @@ def run():
 
         has_copy_constructor, copy_constructor_id         = classutils.checkCopyConstructor(class_el, return_id=True)
         has_assignment_operator, assignment_is_artificial = classutils.checkAssignmentOperator(class_el)
-        
+
+        construct_copy_constructor = has_copy_constructor
+
         if has_assignment_operator and assignment_is_artificial:
             construct_assignment_operator = True
         else:
@@ -131,14 +133,16 @@ def run():
         #
         
         constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+                                      construct_assignment_operator, construct_copy_constructor, 
+                                      abstr_class_fname, file_for_gambit=False)
 
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #
         
         constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+                                      construct_assignment_operator, construct_copy_constructor, 
+                                      abstr_class_fname, file_for_gambit=True)
 
 
 
@@ -170,7 +174,8 @@ def run():
 
         generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces,
                                      original_file_name, original_file_content_nocomments, 
-                                     original_class_file_el, extras_src_file_name)
+                                     original_class_file_el, extras_src_file_name,
+                                     construct_assignment_operator, construct_copy_constructor)
         
 
         #
@@ -185,7 +190,7 @@ def run():
         #
 
         generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
-                              construct_assignment_operator, has_copy_constructor, copy_constructor_id)
+                              construct_assignment_operator, construct_copy_constructor, copy_constructor_id)
 
 
         #
@@ -243,7 +248,7 @@ def run():
 # Construct code for the abstract class header file and register it
 
 def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template,
-                                  has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
+                                  construct_assignment_operator, construct_copy_constructor, abstr_class_fname, file_for_gambit=False):
 
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
@@ -279,12 +284,15 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
     elif (is_template == True) and (class_name['long'] not in templ_spec_done):
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                         template_types=spec_template_types, construct_assignment_operator=construct_assignment_operator)
+                                                         template_types=spec_template_types, 
+                                                         construct_assignment_operator=construct_assignment_operator,
+                                                         construct_copy_constructor=construct_copy_constructor)
         class_decl += '\n'
     else:
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit,
-                                                         construct_assignment_operator=construct_assignment_operator)
+                                                         construct_assignment_operator=construct_assignment_operator,
+                                                         construct_copy_constructor=construct_copy_constructor)
         class_decl += '\n'
 
     # - Register code
@@ -449,7 +457,8 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
     
 def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces,
                                  original_file_name, original_file_content_nocomments,
-                                 original_class_file_el, extras_src_file_name):
+                                 original_class_file_el, extras_src_file_name,
+                                 construct_assignment_operator, construct_copy_constructor):
 
     # Find class name position in the original file
     class_name_pos = classutils.findClassNamePosition(class_el, original_file_content_nocomments)
@@ -585,51 +594,54 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
 
 
     # Generate pointer-based copy and assignment functions
+    if construct_assignment_operator or construct_copy_constructor:
+        # If class contains pure virtual members, do not generate any factory functions
+        if class_name['long_templ'] in gb.contains_pure_virtual_members:
+            reason = "Contains pure virtual member functions."
+            infomsg.NoPointerCopyAndAssignmentFunctions(class_name['long_templ'], reason).printMessage()
+        else:
+            n_indents = len(namespaces)
+            ptr_declaration_code = '\n'
+            ptr_implementation_code = '\n'
+            ptr_declaration_code += ' '*cfg.indent*(n_indents+1) + 'public:\n'
 
-    # If class contains pure virtual members, do not generate any factory functions
-    if class_name['long_templ'] in gb.contains_pure_virtual_members:
-        reason = "Contains pure virtual member functions."
-        infomsg.NoPointerCopyAndAssignmentFunctions(class_name['long_templ'], reason).printMessage()
-    else:
+            if construct_copy_constructor:
+                ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+                ptr_declaration_code += '\n'
 
-        n_indents = len(namespaces)
-        ptr_declaration_code = '\n'
-        ptr_implementation_code = '\n'
+            if construct_assignment_operator:
+                ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + abstr_class_name['short'] + '::pointer_assign' + gb.code_suffix + ';\n'
+                ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+            
+            ptr_implementation_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full,'identification.hpp') + '"\n'
+            ptr_implementation_code += '\n'
+            if construct_copy_constructor:
+                ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+                ptr_implementation_code += '\n'
+            if construct_assignment_operator:
+                ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+                ptr_implementation_code += '\n'
+            ptr_implementation_code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
 
-        ptr_declaration_code += ' '*cfg.indent*(n_indents+1) + 'public:\n'
-        ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
-        ptr_declaration_code += '\n'
+            # - Generate include statements for the new source file
+            include_statements = []
+            include_statements += utils.getIncludeStatements(class_el, convert_loaded_to='none', input_element='class', use_full_path=True, forward_declared='only')
+            include_statements += utils.getIncludeStatements(class_el, convert_loaded_to='wrapper', input_element='class', use_full_path=True, forward_declared='exclude')
+            include_statements.append('#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) + '"')
+            include_statements.append('#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) + '"')
 
-        ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + abstr_class_name['short'] + '::pointer_assign' + gb.code_suffix + ';\n'
-        ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
-        
-        ptr_implementation_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full,'identification.hpp') + '"\n'
-        ptr_implementation_code += '\n'
-        ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
-        ptr_implementation_code += '\n'
-        ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
-        ptr_implementation_code += '\n'
-        ptr_implementation_code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
+            if utils.isHeader(original_class_file_el):
+                use_path = utils.shortenHeaderPath(original_file_name)
+                include_statements.append( '#include "' + use_path + '"')
 
-        # - Generate include statements for the new source file
-        include_statements = []
-        include_statements += utils.getIncludeStatements(class_el, convert_loaded_to='none', input_element='class', use_full_path=True, forward_declared='only')
-        include_statements += utils.getIncludeStatements(class_el, convert_loaded_to='wrapper', input_element='class', use_full_path=True, forward_declared='exclude')
-        include_statements.append('#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) + '"')
-        include_statements.append('#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) + '"')
+            include_statements = list( OrderedDict.fromkeys(include_statements) )
+            include_statements_code = '\n'.join(include_statements) + '\n'
 
-        if utils.isHeader(original_class_file_el):
-            use_path = utils.shortenHeaderPath(original_file_name)
-            include_statements.append( '#include "' + use_path + '"')
+            # - Register the code
+            gb.new_code[original_file_name]['code_tuples'].append( (insert_pos, ptr_declaration_code) )
 
-        include_statements = list( OrderedDict.fromkeys(include_statements) )
-        include_statements_code = '\n'.join(include_statements) + '\n'
-
-        # - Register the code
-        gb.new_code[original_file_name]['code_tuples'].append( (insert_pos, ptr_declaration_code) )
-
-        gb.new_code[extras_src_file_name]['code_tuples'].append( (0, include_statements_code) )            
-        gb.new_code[extras_src_file_name]['code_tuples'].append( (-1, ptr_implementation_code) )
+            gb.new_code[extras_src_file_name]['code_tuples'].append( (0, include_statements_code) )            
+            gb.new_code[extras_src_file_name]['code_tuples'].append( (-1, ptr_implementation_code) )
 
 
 # ====== END: generateClassMemberInterface ========
@@ -683,7 +695,7 @@ def generateFactoryFunctions(class_el, class_name, is_template):
 # Generate a header containing the GAMBIT wrapper class
 
 def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
-                          construct_assignment_operator, has_copy_constructor, copy_constructor_id):
+                          construct_assignment_operator, construct_copy_constructor, copy_constructor_id):
 
     # Set file names and paths
     wrapper_decl_header_fname = gb.new_header_files[class_name['long']]['wrapper_decl']
@@ -697,7 +709,7 @@ def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, sh
     # Get code for the declaration and implementation headers
     wrapper_decl_header_content, wrapper_def_header_content = classutils.generateWrapperHeaderCode(class_el, class_name, abstr_class_name,
                                                                                                    namespaces, short_abstr_class_fname, 
-                                                                                                   construct_assignment_operator, has_copy_constructor,
+                                                                                                   construct_assignment_operator, construct_copy_constructor,
                                                                                                    copy_constructor_id=copy_constructor_id)
 
     # Code for the overall header file
