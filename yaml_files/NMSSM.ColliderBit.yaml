@@ -42,120 +42,63 @@ Parameters:
       prior_type: double_log_flat_join
       ranges: [-1e3, -1e1, 1e1, 1e3]
       # fixed_value: 252.7   # EWMSSM
-    ml2_11:
-      fixed_value: 9000000
-    ml2_12:
-      fixed_value: 0
-    ml2_13:
-      fixed_value: 0
-    ml2_22:
-      fixed_value: 9000000
-    ml2_23:
-      fixed_value: 0
-    ml2_33:
-      fixed_value: 9000000
-    me2_11:
-      fixed_value: 9000000
-    me2_12:
-      fixed_value: 0
-    me2_13:
-      fixed_value: 0
-    me2_22:
-      fixed_value: 9000000
-    me2_23:
-      fixed_value: 0
-    me2_33:
-      fixed_value: 9000000
-    mq2_11:
-      fixed_value: 9000000
-    mq2_12:
-      fixed_value: 0
-    mq2_13:
-      fixed_value: 0
-    mq2_22:
-      fixed_value: 9000000
-    mq2_23:
-      fixed_value: 0
-    mq2_33:
-      fixed_value: 9000000
-    mu2_11:
-      fixed_value: 9000000
-    mu2_12:
-      fixed_value: 0
-    mu2_13:
-      fixed_value: 0
-    mu2_22:
-      fixed_value: 9000000
-    mu2_23:
-      fixed_value: 0
-    mu2_33:
-      fixed_value: 9000000
-    md2_11:
-      fixed_value: 9000000
-    md2_12:
-      fixed_value: 0
-    md2_13:
-      fixed_value: 0
-    md2_22:
-      fixed_value: 9000000
-    md2_23:
-      fixed_value: 0
-    md2_33:
-      fixed_value: 9000000
-    Ae_11:
-       fixed_value: 0
-    Ae_12:
-       fixed_value: 0
-    Ae_13:
-       fixed_value: 0
-    Ae_21:
-       fixed_value: 0
-    Ae_22:
-       fixed_value: 0
-    Ae_23:
-       fixed_value: 0
-    Ae_31:
-       fixed_value: 0
-    Ae_32:
-       fixed_value: 0
-    Ae_33:
-       fixed_value: 0
-    Ad_11:
-       fixed_value: 0
-    Ad_12:
-       fixed_value: 0
-    Ad_13:
-       fixed_value: 0
-    Ad_21:
-       fixed_value: 0
-    Ad_22:
-       fixed_value: 0
-    Ad_23:
-       fixed_value: 0
-    Ad_31:
-       fixed_value: 0
-    Ad_32:
-       fixed_value: 0
-    Ad_33:
-       fixed_value: 0
-    Au_11:
-       fixed_value: 0
-    Au_12:
-       fixed_value: 0
-    Au_13:
-       fixed_value: 0
-    Au_21:
-       fixed_value: 0
-    Au_22:
-       fixed_value: 0
-    Au_23:
-       fixed_value: 0
-    Au_31:
-       fixed_value: 0
-    Au_32:
-       fixed_value: 0
-    Au_33:
-      fixed_value: 0
+    md2_11: 9e+06
+    md2_12: 0
+    md2_13: 0
+    md2_22: 9e+06
+    md2_23: 0
+    md2_33: 9e+06
+    me2_11: 9e+06
+    me2_12: 0
+    me2_13: 0
+    me2_22: 9e+06
+    me2_23: 0
+    me2_33: 9e+06
+    ml2_11: 9e+06
+    ml2_12: 0
+    ml2_13: 0
+    ml2_22: 9e+06
+    ml2_23: 0
+    ml2_33: 9e+06
+    mq2_11: 9e+06
+    mq2_12: 0
+    mq2_13: 0
+    mq2_22: 9e+06
+    mq2_23: 0
+    mq2_33: 9e+06
+    mu2_11: 9e+06
+    mu2_12: 0
+    mu2_13: 0
+    mu2_22: 9e+06
+    mu2_23: 0
+    mu2_33: 9e+06
+    Ad_11: 0
+    Ad_12: 0
+    Ad_13: 0
+    Ad_21: 0
+    Ad_22: 0
+    Ad_23: 0
+    Ad_31: 0
+    Ad_32: 0
+    Ad_33: 0
+    Ae_11: 0
+    Ae_12: 0
+    Ae_13: 0
+    Ae_21: 0
+    Ae_22: 0
+    Ae_23: 0
+    Ae_31: 0
+    Ae_32: 0
+    Ae_33: 0
+    Au_11: 0
+    Au_12: 0
+    Au_13: 0
+    Au_21: 0
+    Au_22: 0
+    Au_23: 0
+    Au_31: 0
+    Au_32: 0
+    Au_33: 0
  
 Priors:
 
@@ -237,10 +180,10 @@ Rules:
 
   - function: get_NMSSM_spectrum_SPheno
     options:
+      drop_SLHA_file: true
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       CalculateTwoLoopHiggsMasses: false
-      drop_SLHA_file: false
       ErrorLevel: 2
 
   # - capability: run_MSSMspectrum_test
@@ -251,7 +194,7 @@ Rules:
   - capability: decay_rates
     function:   all_NMSSM_decays_from_SPheno
     options:
-      drop_SLHA_file: false
+      drop_SLHA_file: true
       OneLoopDecays: false
       Enable3BDecaysF: false
       Enable3BDecaysS: false
@@ -439,13 +382,11 @@ Logger:
     [SpecBit] : "SpecBit.log"
     [DecayBit] : "DecayBit.log"
     [ColliderBit] : "ColliderBit.log"
-    [PrecisionBit] : "PrecisionBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
 
 KeyValues:
 
   debug: true
-
-  drop_SLHA_file: false
 
   default_output_path: "runs/NMSSM/"
 
