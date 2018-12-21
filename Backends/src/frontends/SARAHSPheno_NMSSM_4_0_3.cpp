@@ -2163,19 +2163,20 @@ BE_INI_FUNCTION
 
     *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
 
-    Freal8 scale = 1.0E6;  // Default value if there's no input
-    try{ *Qin = SetRenormalizationScale(scale); }
-    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
-    if(Param.find("Qin") != Param.end())
-    {
-      Freal8 RGEScale = pow(*Param.at("Qin"),2);
-      try{ SetRGEScale(RGEScale); }
-      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
-    }
-
   }
   scan_level = false;
 
+  *Qin = 1.0E3;  // Default value if there's no input
+  Freal8 scale_sq = pow(*Qin, 2);
+  try{ SetRenormalizationScale(scale_sq); }
+  catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+  if(Param.find("Qin") != Param.end())
+  {
+    *Qin = *Param.at("Qin");
+    scale_sq = pow(*Qin,2);
+    try{ SetRGEScale(scale_sq); }
+    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+  }
 
 }
 END_BE_INI_FUNCTION
