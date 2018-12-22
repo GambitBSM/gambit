@@ -3231,6 +3231,7 @@ namespace Gambit
       decays = DecayTable(slha);
     }
 
+
     /// Get all the decays from SPheno
     void all_NMSSM_decays_from_SPheno(DecayTable& decays)
     {
@@ -3261,16 +3262,88 @@ namespace Gambit
 
     }
 
-    /// Get NMSSM decay rates as map<str,double>
-    void get_NMSSM_decay_rates_as_map(map_str_dbl& result)
+
+    /// Convert the DecayTable to a format where we can print each individual channel's BF
+    void get_decaytable_as_map(map_str_dbl& map)
     {
-      namespace myPipe = Pipes::get_NMSSM_decay_rates_as_map;
+      using namespace Pipes::get_decaytable_as_map;
 
-      // Get the decay table
-      DecayTable decays = *myPipe::Dep::decay_rates;
+      const DecayTable* tbl = &(*Dep::decay_rates);
 
-      // TODO: Add a function get_BRs_as_map to DecayTable. Call this here to fill the result map
-      result["dummy_BR"] = 1.0;
+      std::vector<std::vector<str> > bfs;
+      std::string channel;
+      double BF = 0.0;
+      
+      // If the user specifies "printall" -- then print everything.
+      bool printall = runOptions->getValueOrDef(false, "printall");
+      if (printall)
+      {
+        // Iterate through DecayTable.
+        for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+        {
+          std::pair<int, int> pdg = it->first;
+          std::vector<str> bf = {Models::ParticleDB().partmap::long_name(pdg)};
+          bfs.push_back(bf);
+        }
+      }
+
+      /// Otherwise just print the specific, named channels
+      else
+      {
+        std::vector<std::vector<str> > BFs; // Empty set of braching fractions.
+        bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
+      }
+
+      // Iterate through branching ratios
+      for ( const auto &row : bfs )
+      {
+
+        std::string decaypart = row.front();
+        const DecayTable::Entry entry = tbl->at(decaypart); 
+
+        // If the entry is a single particle, then add every BF for this channel
+        if ( row.size() == 1 )
+        {
+          for (auto it = entry.channels.begin(); it != entry.channels.end(); ++it)
+          {
+            BF = it->second.first;
+
+            std::multiset< std::pair<int,int> > ch = it->first;              
+            std::vector<str> chan;
+
+            // Create a vector of final states by particle name.
+            for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
+            
+            // Write the name of the output channel.
+            channel = row[0] + "->" + chan[0] + "+" + chan[1];
+
+            // + 3-body decay case: add the third final state particle if needed.
+            if (chan.size() == 3) channel += "+" + chan[2];
+
+            map[channel] = BF;
+          }
+
+        }
+
+        // No 1-body decays..
+
+        // 2-body decays channel-by-channel
+        else if ( row.size() == 3 )
+        {
+          BF = entry.BF( row[1], row[2] );
+          channel = row[0] + "->" + row[1] + "+" + row[2];
+          map[channel] = BF;
+        }
+
+        // 3-body decays channel-by-channel 
+        // (SB: I don't think we have these yet. But if/when we do, they will be supported)
+        else if (row.size() == 4 )
+        {
+          BF = entry.BF( row[1], row[2], row[3] );
+          channel = row[0] + "->" + row[1] + "+" + row[2] + "+" + row[3];
+          map[channel] = BF;
+        }
+      }
     }
 
 
