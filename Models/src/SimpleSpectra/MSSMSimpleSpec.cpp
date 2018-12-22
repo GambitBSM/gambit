@@ -277,9 +277,9 @@ namespace Gambit
       double MSSMea::get_TYu(int i, int j) const { return getdata("Tu",i,j); }
       double MSSMea::get_TYe(int i, int j) const { return getdata("Te",i,j); }
 
-      double MSSMea::get_Yd(int i, int j) const { return getdata("Yd",i,j); }
-      double MSSMea::get_Yu(int i, int j) const { return getdata("Yu",i,j); }
-      double MSSMea::get_Ye(int i, int j) const { return getdata("Ye",i,j); }
+      double MSSMea::get_Yd(int i, int j) const { return get_diagonal("Yd",i,j); }
+      double MSSMea::get_Yu(int i, int j) const { return get_diagonal("Yu",i,j); }
+      double MSSMea::get_Ye(int i, int j) const { return get_diagonal("Ye",i,j); }
 
       double MSSMea::get_g1() const { return getdata("GAUGE",1)/sqrt(3./5.); } // Convert from gy (in SLHAea object) to g1
       double MSSMea::get_g2() const { return getdata("GAUGE",2); }

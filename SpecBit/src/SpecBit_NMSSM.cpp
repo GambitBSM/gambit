@@ -203,6 +203,13 @@ namespace Gambit
     {
       namespace myPipe = Pipes::get_NMSSM_spectrum_as_map;
       const Spectrum& nmssmspec(*myPipe::Dep::NMSSM_spectrum);
+
+      // @{ DEBUGGING
+      //std::cout<<"Debugging NMSSM spectrum routines..."<<std::endl;
+      //std::cout<<"Dumping SLHAea object from Spectrum object"<<std::endl;
+      //std::cout<<nmssmspec.get_HE().getSLHAea(2)<<std::endl; 
+      // @}
+
       fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, nmssmspec.get_LE());
       // TODO: This line doesn't work for some reason... 
       fill_map_from_subspectrum<SpectrumContents::NMSSM>(specmap, nmssmspec.get_HE());

@@ -107,6 +107,18 @@ namespace Gambit
          return output;
       }
 
+      // Helper function which retrieves off-diagonal elements as zero.
+      // Helps with SLHA YU,YD,YE entries, which are diagonal in SLHA2 (and
+      // therefore the off-diagonal elements are not guaranteed to be in the
+      // wrapped SLHA file)
+      // but which people may still want to retrieve the (zero) off-diagonal elements.
+      double SLHAeaModel::get_diagonal(const std::string& block, int i, int j) const
+      {
+         double r = 0;
+         if(i==j) r = getdata(block,i,j);
+         return r;
+      }
+
       /// @}
 
       /// @}
