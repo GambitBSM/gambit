@@ -578,7 +578,7 @@ Rules:
                              "HadronLevel:all = on",
                              "SUSY:all = on",
                              "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 20"]
+                             "TimeShower:pTmin = 2"]
 
       xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
 

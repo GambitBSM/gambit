@@ -26,6 +26,10 @@
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Sep
 #
+#  \author Will Handley
+#          (wh260@cam.ac.uk)
+#  \date 2018 Dec
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -282,6 +286,12 @@ function(add_gambit_executable executablename LIBRARIES)
       set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_C_LINK_FLAGS})
     endif()
   endif()
+  if(MPI_Fortran_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${MPI_Fortran_LIBRARIES})
+    if(MPI_Fortran_LINK_FLAGS)
+        set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
+    endif()
+  endif()
   if (LIBDL_FOUND)
     set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
   endif()
@@ -340,9 +350,15 @@ function(add_standalone executablename)
         set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
         set(first_module ${module})
       endif()
-      # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
-      if(module STREQUAL "SpecBit" AND EXCLUDE_FLEXIBLESUSY)
-        set(standalone_permitted 0)
+      if(module STREQUAL "SpecBit")
+        set(USES_SPECBIT TRUE)
+        # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
+        if (EXCLUDE_FLEXIBLESUSY)
+          set(standalone_permitted 0)
+        endif()
+      endif()
+      if(module STREQUAL "ColliderBit")
+        set(USES_COLLIDERBIT TRUE)
       endif()
     else()
       set(standalone_permitted 0)
@@ -370,11 +386,14 @@ function(add_standalone executablename)
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.
-    if (NOT EXCLUDE_FLEXIBLESUSY)
+    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${flexiblesusy_LDFLAGS})
     endif()
-    if (NOT EXCLUDE_RESTFRAMES)
-      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
+    if (USES_COLLIDERBIT AND NOT EXCLUDE_ROOT)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
+      if (NOT EXCLUDE_RESTFRAMES)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
+      endif()
     endif()
 
     add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
@@ -384,10 +403,10 @@ function(add_standalone executablename)
                           HEADERS ${ARG_HEADERS})
 
     # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here
-    if (NOT EXCLUDE_FLEXIBLESUSY)
+    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       add_dependencies(${executablename} flexiblesusy)
     endif()
-    if (NOT EXCLUDE_RESTFRAMES)
+    if (USES_COLLIDERBIT AND NOT EXCLUDE_RESTFRAMES)
       add_dependencies(${executablename} restframes)
     endif()
 

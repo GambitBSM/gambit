@@ -12,6 +12,7 @@
 ///  January 2016
 ///  Anders Kvellestad (anders.kvellestad@nordita.org)
 ///  March 2017
+///  December 2018
 ///
 ///  *********************************************
 
@@ -100,29 +101,63 @@ int main(int argc, char* argv[])
     //
 
     // Set up the LHC likelihood calculations
-    calc_LHC_LogLike.resolveDependency(&runATLASAnalyses);
-    calc_LHC_LogLike.resolveDependency(&runCMSAnalyses);
-    calc_LHC_LogLike.resolveDependency(&runIdentityAnalyses);
-    calc_LHC_LogLike.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_lnpiln); //treat systematics with a log normal distribution
+    calc_combined_LHC_LogLike.resolveDependency(&get_LHC_LogLike_per_analysis);
+
+    get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes); 
+
+    calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
+    calc_LHC_LogLikes.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_lnpiln); //treat systematics with a log normal distribution
+    // calc_LHC_LogLikes.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_lnpin); //treat systematics with a normal distribution
+
+    CollectAnalyses.resolveDependency(&runATLASAnalyses);
+    CollectAnalyses.resolveDependency(&runATLASnoeffAnalyses);
+    CollectAnalyses.resolveDependency(&runCMSAnalyses);
+    CollectAnalyses.resolveDependency(&runCMSnoeffAnalyses);
+    CollectAnalyses.resolveDependency(&runIdentityAnalyses);
+
+    
 
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&getPythiaFileReader);
     runATLASAnalyses.resolveDependency(&smearEventATLAS);
+    runATLASAnalyses.resolveDependency(&MC_ConvergenceSettings_from_YAML);
+
+    runATLASnoeffAnalyses.resolveDependency(&getATLASnoeffAnalysisContainer);
+    runATLASnoeffAnalyses.resolveDependency(&getPythiaFileReader);
+    runATLASnoeffAnalyses.resolveDependency(&smearEventATLASnoeff);
+    runATLASnoeffAnalyses.resolveDependency(&MC_ConvergenceSettings_from_YAML);
+
     runCMSAnalyses.resolveDependency(&getCMSAnalysisContainer);
     runCMSAnalyses.resolveDependency(&getPythiaFileReader);
     runCMSAnalyses.resolveDependency(&smearEventCMS);
+    runCMSAnalyses.resolveDependency(&MC_ConvergenceSettings_from_YAML);
+
+    runCMSnoeffAnalyses .resolveDependency(&getCMSnoeffAnalysisContainer);
+    runCMSnoeffAnalyses .resolveDependency(&getPythiaFileReader);
+    runCMSnoeffAnalyses .resolveDependency(&smearEventCMSnoeff);
+    runCMSnoeffAnalyses .resolveDependency(&MC_ConvergenceSettings_from_YAML);
+    
     runIdentityAnalyses.resolveDependency(&getIdentityAnalysisContainer);
     runIdentityAnalyses.resolveDependency(&getPythiaFileReader);
     runIdentityAnalyses.resolveDependency(&copyEvent);
+    runIdentityAnalyses.resolveDependency(&MC_ConvergenceSettings_from_YAML);
 
     getATLASAnalysisContainer.resolveDependency(&getPythiaFileReader);
+    getATLASnoeffAnalysisContainer.resolveDependency(&getPythiaFileReader);
     getCMSAnalysisContainer.resolveDependency(&getPythiaFileReader);
+    getCMSnoeffAnalysisContainer.resolveDependency(&getPythiaFileReader);
     getIdentityAnalysisContainer.resolveDependency(&getPythiaFileReader);
 
     smearEventATLAS.resolveDependency(&generatePythia8Event);
     smearEventATLAS.resolveDependency(&getBuckFastATLAS);
+    smearEventATLASnoeff.resolveDependency(&generatePythia8Event);
+    smearEventATLASnoeff.resolveDependency(&getBuckFastATLASnoeff);
+
     smearEventCMS.resolveDependency(&generatePythia8Event);
     smearEventCMS.resolveDependency(&getBuckFastCMS);
+    smearEventCMSnoeff.resolveDependency(&generatePythia8Event);
+    smearEventCMSnoeff.resolveDependency(&getBuckFastCMSnoeff);
+
     copyEvent.resolveDependency(&generatePythia8Event);
     copyEvent.resolveDependency(&getBuckFastIdentity);
 
@@ -130,38 +165,55 @@ int main(int argc, char* argv[])
 
     getPythiaFileReader.resolveLoopManager(&operateLHCLoop);
     getBuckFastATLAS.resolveLoopManager(&operateLHCLoop);
+    getBuckFastATLASnoeff.resolveLoopManager(&operateLHCLoop);
     getBuckFastCMS.resolveLoopManager(&operateLHCLoop);
+    getBuckFastCMSnoeff.resolveLoopManager(&operateLHCLoop);
     getBuckFastIdentity.resolveLoopManager(&operateLHCLoop);
 
     getATLASAnalysisContainer.resolveLoopManager(&operateLHCLoop);
+    getATLASnoeffAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getCMSAnalysisContainer.resolveLoopManager(&operateLHCLoop);
+    getCMSnoeffAnalysisContainer.resolveLoopManager(&operateLHCLoop);
     getIdentityAnalysisContainer.resolveLoopManager(&operateLHCLoop);
 
     generatePythia8Event.resolveLoopManager(&operateLHCLoop);
 
     smearEventATLAS.resolveLoopManager(&operateLHCLoop);
+    smearEventATLASnoeff.resolveLoopManager(&operateLHCLoop);
     smearEventCMS.resolveLoopManager(&operateLHCLoop);
+    smearEventCMSnoeff.resolveLoopManager(&operateLHCLoop);
     copyEvent.resolveLoopManager(&operateLHCLoop);
 
     runATLASAnalyses.resolveLoopManager(&operateLHCLoop);
+    runATLASnoeffAnalyses.resolveLoopManager(&operateLHCLoop);
     runCMSAnalyses.resolveLoopManager(&operateLHCLoop);
+    runCMSnoeffAnalyses.resolveLoopManager(&operateLHCLoop);
     runIdentityAnalyses.resolveLoopManager(&operateLHCLoop);
 
     vector<functor*> nested_functions = initVector<functor*>(&getPythiaFileReader,
-                                                                  &getBuckFastATLAS,
-                                                                  &getBuckFastCMS,
-                                                                  &getBuckFastIdentity,
-                                                                  &getATLASAnalysisContainer,
-                                                                  &getCMSAnalysisContainer,
-                                                                  &getIdentityAnalysisContainer,
-                                                                  &generatePythia8Event,
-                                                                  &smearEventATLAS,
-                                                                  &smearEventCMS,
-                                                                  &copyEvent,
-                                                                  &runATLASAnalyses,
-                                                                  &runCMSAnalyses,
-                                                                  &runIdentityAnalyses);
+                                                              &getBuckFastATLAS,
+                                                              &getBuckFastATLASnoeff,
+                                                              &getBuckFastCMS,
+                                                              &getBuckFastCMSnoeff,
+                                                              &getBuckFastIdentity,
+                                                              &getATLASAnalysisContainer,
+                                                              &getATLASnoeffAnalysisContainer,
+                                                              &getCMSAnalysisContainer,
+                                                              &getCMSnoeffAnalysisContainer,
+                                                              &getIdentityAnalysisContainer,
+                                                              &generatePythia8Event,
+                                                              &smearEventATLAS,
+                                                              &smearEventATLASnoeff,
+                                                              &smearEventCMS,
+                                                              &smearEventCMSnoeff,
+                                                              &copyEvent,
+                                                              &runATLASAnalyses,
+                                                              &runATLASnoeffAnalyses,
+                                                              &runCMSAnalyses,
+                                                              &runCMSnoeffAnalyses,
+                                                              &runIdentityAnalyses);
     operateLHCLoop.setNestedList(nested_functions);
+    operateLHCLoop.resolveDependency(&MC_ConvergenceSettings_from_YAML);
 
 
     //
@@ -201,14 +253,26 @@ int main(int argc, char* argv[])
     //
 
     //
+    // Set MC convergence settings
+    //
+
+    MC_ConvergenceSettings_from_YAML.setOption<vdouble>("min_nEvents", vdouble {5000, 5000});
+    MC_ConvergenceSettings_from_YAML.setOption<vdouble>("max_nEvents", vdouble {50000, 50000});
+    MC_ConvergenceSettings_from_YAML.setOption<vdouble>("events_between_convergence_checks", vdouble {5000, 5000});
+    MC_ConvergenceSettings_from_YAML.setOption<vdouble>("target_fractional_uncert", vdouble {0.3, 0.3});
+    MC_ConvergenceSettings_from_YAML.setOption<bool>("halt_when_systematic_dominated", true);
+    MC_ConvergenceSettings_from_YAML.setOption<bool>("all_SR_must_converge", false);
+
+
+    //
     // Settings for the LHC event loop (ColliderBit function 'operateLHCLoop')
     //
 
     // Pass the collider names to the module function responsible for the event loop
     operateLHCLoop.setOption<vstr>("pythiaNames", vstr {"Pythia_EM_8Tev", "Pythia_EM_13TeV"});
 
-    // Set number of LHC events
-    operateLHCLoop.setOption<vint>("nEvents",vint {20000, 20000});
+    // // Set number of LHC events
+    // operateLHCLoop.setOption<vint>("nEvents",vint {20000, 20000});
 
     // Should stdout be silenced during the event loop?
     operateLHCLoop.setOption<bool>("silenceLoop",false);
@@ -267,7 +331,7 @@ int main(int argc, char* argv[])
     // Specify which analyses to run and which detectors to use.
     //
     // Note: Adding more detectors and analysis containers
-    //       will require additions to the manual dependecy 
+    //       will require additions to the manual dependecy
     //       resolution at the top.
     //
 
@@ -275,27 +339,37 @@ int main(int argc, char* argv[])
     getBuckFastATLAS.setOption<vbool>("useDetector",vbool {true, true});
     getBuckFastATLAS.setOption<vdouble>("antiktR",vdouble {0.4, 0.4});
     getBuckFastATLAS.setOption<vbool>("partonOnly",vbool {true, true});
-
     getATLASAnalysisContainer.setOption<vvstr>("analyses", vvstr
-        { {"ATLAS_0LEP_20invfb"},
+        { {"ATLAS_8TeV_0LEP_20invfb"},
           {"ATLAS_13TeV_0LEP_13invfb"} });
+
+    getBuckFastATLASnoeff.setOption<vbool>("useDetector",vbool {false, false});
+    getBuckFastATLASnoeff.setOption<vdouble>("antiktR",vdouble {0.4, 0.4});
+    getBuckFastATLASnoeff.setOption<vbool>("partonOnly",vbool {true, true});
+    getATLASnoeffAnalysisContainer.setOption<vvstr>("analyses", vvstr
+        { {},
+          {} });
 
 
     // -- CMS analyses:
     getBuckFastCMS.setOption<vbool>("useDetector",vbool {false, false});
     getBuckFastCMS.setOption<vdouble>("antiktR",vdouble {0.5, 0.5});
     getBuckFastCMS.setOption<vbool>("partonOnly",vbool {true, true});
-
     getCMSAnalysisContainer.setOption<vvstr>("analyses", vvstr
-        { {"CMS_MONOJET_20invfb"},
+        { {"CMS_8TeV_MONOJET_20invfb"},
           {} });
 
+    getBuckFastCMSnoeff.setOption<vbool>("useDetector",vbool {false, false});
+    getBuckFastCMSnoeff.setOption<vdouble>("antiktR",vdouble {0.5, 0.5});
+    getBuckFastCMSnoeff.setOption<vbool>("partonOnly",vbool {true, true});
+    getCMSnoeffAnalysisContainer.setOption<vvstr>("analyses", vvstr
+        { {},
+          {} });
 
     // // -- Identity analyses (no detector sim):
     // getBuckFastIdentity.setOption<vbool>("useDetector",vbool {false, false});
     // getBuckFastIdentity.setOption<vdouble>("antiktR",vdouble {0.4, 0.4});
     // getBuckFastIdentity.setOption<vbool>("partonOnly",vbool {false, false});
-
     // getIdentityAnalysisContainer.setOption<vvstr>("analyses", vvstr { {}, {} });
 
 
@@ -314,11 +388,15 @@ int main(int argc, char* argv[])
     Pythia_8_212_EM_init.reset_and_calculate();
 
     // Run the simulation loop and calculate the LHC likelihood.
+    MC_ConvergenceSettings_from_YAML.reset_and_calculate();
     operateLHCLoop.reset_and_calculate();
-    calc_LHC_LogLike.reset_and_calculate();
+    CollectAnalyses.reset_and_calculate();
+    calc_LHC_LogLikes.reset_and_calculate();
+    get_LHC_LogLike_per_analysis.reset_and_calculate(); 
+    calc_combined_LHC_LogLike.reset_and_calculate();
 
     // Retrieve and print the LHC likelihood
-    double loglike = calc_LHC_LogLike(0);
+    double loglike = calc_combined_LHC_LogLike(0);
 
     cout.precision(5);
     cout << endl;
@@ -327,10 +405,6 @@ int main(int argc, char* argv[])
 
     // To print to the logs instead, use
     // logger() << "LHC log likelihood is " << loglike << EOM
-
-    // To output additional info such as the number of signal events
-    // predicted for a given analysis and signal region, edit the
-    // calc_LHC_LogLike module function in ColliderBit/src/ColliderBit.cpp.
 
     // Done, all is well
     return 0;

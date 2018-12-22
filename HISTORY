@@ -3,6 +3,27 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.2.0
+Feature release.
+- Support for Python backends
+- Support for Python3
+- Support for fermionic and vector Higgs Portal dark matter models
+- Support for SUSY parameterisations in terms of mA and mu
+- Support for Polychord scanner
+- Support for DDCalc 2.0.0
+- Support for Simplified Likelihoods (official covariance matrices) from CMS
+- Support for RestFrames (ATLAS recursive jigsaw)
+- Added many 13TeV analyses to ColliderBit
+- Added ability to output likelihoods for individual analyses from ColliderBit
+- Added dynamic Monte Carlo convergence test to ColliderBit
+- Improved stau_1 and chargino_1 decays for compressed spectra
+- Dropped Delphes support
+- Removed old DARWIN functions from DarkBit
+- made all symbols hidden by default
+- added invisible Z width likelihood
+- upgrade yaml-cpp to 0.6.2
+- major upgrade of postprocessor
+
 v1.1.3
 Bugfix release
 - Made Mathematica backends automatically ditch when Mathematica is missing

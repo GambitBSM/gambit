@@ -26,7 +26,7 @@
 #  \date 2016 Jan
 #
 #  \author Will Handley (wh260@cam.ac.uk)
-#  \date 2018 May
+#  \date 2018 May, Dec
 #
 #************************************************
 
@@ -118,7 +118,7 @@ set(ver "1.15")
 set(lib "libchord")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
-set(pcSO_LINK "${CMAKE_Fortran_COMPILER} -shared ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+set(pcSO_LINK "${CMAKE_Fortran_COMPILER} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS} ${CMAKE_CXX_MPI_SO_LINK_FLAGS}")
 if(MPI_Fortran_FOUND)
   set(pcFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
 else()

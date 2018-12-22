@@ -592,7 +592,6 @@ START_MODULE
     #define FUNCTION chargino_plus_1_decays_SH
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    DEPENDENCY(MSSM_spectrum, Spectrum)
     BACKEND_REQ(cb_sd_charwidth, (sh_reqd), sd_charwidth_type)
     BACKEND_REQ(cb_sd_char2body, (sh_reqd), sd_char2body_type)
     BACKEND_REQ(cb_sd_char2bodygrav, (sh_reqd), sd_char2bodygrav_type)

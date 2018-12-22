@@ -62,7 +62,7 @@ BE_FUNCTION(someOtherFunction, double, (double), "sub_module.someOtherFunction",
 
 BE_VARIABLE(SomeInt, int, "someInt", "SomeInt")
 BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
-BE_VARIABLE(SomeOtherInt, int, "sub_module.someOtherInt", "someOtherInt")
+BE_VARIABLE(SomeOtherInt, int, "sub_module.someOtherInt", "SomeOtherInt")
 
 /* We have now created the following:
  *

@@ -81,17 +81,6 @@ ObsLikes:
 
 Rules:
 
-  # The current capability structure allows for the user to mix'n'match
-  # collider settings, detector sims and analyses. The user may run BuckFastATLAS
-  # with ATLAS analyses, BuckFastCMS with CMS analyses, and Delphes with any analyses,
-  # for various configurations of Pythia.
-  #
-  # The way to turn the detectors on or off is via the boolean option useDetector for
-  # the module functions getDelphes, getBuckFastATLAS and getBuckFastCMS.
-  #
-  # In this example, we use the BuckFast simulation. For a Delphes example, see:
-  # yaml_files/ColliderBit_CMSSM.yaml
-
   # BuckFast for ATLAS rules and options
   - capability: SimpleSmearingSim
     type: "Gambit::ColliderBit::BuckFastSmearATLAS"

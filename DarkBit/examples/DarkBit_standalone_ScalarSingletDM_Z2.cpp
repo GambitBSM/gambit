@@ -28,7 +28,7 @@ using namespace DarkBit::Accessors;    // Helper functions that provide some inf
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
 QUICK_FUNCTION(DarkBit, decay_rates, NEW_CAPABILITY, createDecays, DecayTable, ())
-QUICK_FUNCTION(DarkBit, SingletDM_spectrum, OLD_CAPABILITY, createSpectrum, Spectrum, SingletDM)
+QUICK_FUNCTION(DarkBit, ScalarSingletDM_Z2_spectrum, OLD_CAPABILITY, createSpectrum, Spectrum, ScalarSingletDM_Z2)
 QUICK_FUNCTION(DarkBit, cascadeMC_gammaSpectra, OLD_CAPABILITY, CMC_dummy, DarkBit::stringFunkMap, ())
 
 
@@ -45,20 +45,20 @@ namespace Gambit
       result = sfm;
     }
 
-    // Create spectrum object from SLHA file SM.slha and SingletDM model parameters
+    // Create spectrum object from SLHA file SM.slha and ScalarSingletDM_Z2 model parameters
     void createSpectrum(Spectrum& outSpec)
     {
       using namespace Pipes::createSpectrum;
       std::string inputFileName = "DarkBit/data/SM.slha";
 
-      Models::SingletDMModel singletmodel;
+      Models::ScalarSingletDM_Z2Model singletmodel;
       singletmodel.HiggsPoleMass   = 125.;
       singletmodel.HiggsVEV        = 246.;
       singletmodel.SingletPoleMass = *Param["mS"];
       singletmodel.SingletLambda   = *Param["lambda_hS"];
 
       SLHAstruct slhaea = read_SLHA(inputFileName);
-      outSpec = spectrum_from_SLHAea<Models::ScalarSingletDMSimpleSpec, Models::SingletDMModel>(singletmodel, slhaea, Spectrum::mc_info(), Spectrum::mr_info());
+      outSpec = spectrum_from_SLHAea<Models::ScalarSingletDM_Z2SimpleSpec, Models::ScalarSingletDM_Z2Model>(singletmodel, slhaea, Spectrum::mc_info(), Spectrum::mr_info());
     }
 
     // Create decay object from SLHA file decays.slha
@@ -91,7 +91,7 @@ int main()
 
     // ---- Initialise logging and exceptions ----
 
-    initialise_standalone_logs("runs/DarkBit_standalone_SingletDM/logs/");
+    initialise_standalone_logs("runs/DarkBit_standalone_ScalarSingletDM_Z2/logs/");
     logger()<<"Running DarkBit standalone example"<<LogTags::info<<EOM;
     model_warning().set_fatal(true);
 
@@ -99,16 +99,16 @@ int main()
     // ---- Check that required backends are present ----
 
     if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
-    if (not Backends::backendInfo().works["MicrOmegas_SingletDM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for SingletDM is missing!");
+    if (not Backends::backendInfo().works["MicrOmegas_ScalarSingletDM_Z23.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for ScalarSingletDM_Z2 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.0"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.0 is missing!");
-    if (not Backends::backendInfo().works["DDCalc1.1.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 1.1.0 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.0.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.0.0 is missing!");
     if (not Backends::backendInfo().works["nulike1.0.6"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.6 is missing!");
 
 
     // ---- Initialize models ----
 
-    // Initialize SingletDM model -- Adjust the model parameters here:
-    ModelParameters* SingletDM_primary_parameters = Models::SingletDM::Functown::primary_parameters.getcontentsPtr();
+    // Initialize ScalarSingletDM_Z2 model -- Adjust the model parameters here:
+    ModelParameters* SingletDM_primary_parameters = Models::ScalarSingletDM_Z2::Functown::primary_parameters.getcontentsPtr();
     SingletDM_primary_parameters->setValue("mS", 1000.);
     SingletDM_primary_parameters->setValue("lambda_hS", 1.0);
 
@@ -148,38 +148,38 @@ int main()
 
     // ---- Initialize spectrum and decays ---
 
-    createSpectrum.notifyOfModel("SingletDM");
-    createSpectrum.resolveDependency(&Models::SingletDM::Functown::primary_parameters);
+    createSpectrum.notifyOfModel("ScalarSingletDM_Z2");
+    createSpectrum.resolveDependency(&Models::ScalarSingletDM_Z2::Functown::primary_parameters);
     createSpectrum.reset_and_calculate();
 
-    createDecays.notifyOfModel("SingletDM");
+    createDecays.notifyOfModel("ScalarSingletDM_Z2");
     createDecays.reset_and_calculate();
 
 
     // ---- Set up basic internal structures for direct & indirect detection ----
 
     // Set identifier for DM particle
-    DarkMatter_ID_SingletDM.notifyOfModel("SingletDM");
-    DarkMatter_ID_SingletDM.reset_and_calculate();
+    DarkMatter_ID_ScalarSingletDM.notifyOfModel("ScalarSingletDM_Z2");
+    DarkMatter_ID_ScalarSingletDM.reset_and_calculate();
 
     // Set up process catalog
-    TH_ProcessCatalog_SingletDM.notifyOfModel("SingletDM");
-    TH_ProcessCatalog_SingletDM.resolveDependency(&createSpectrum);
-    TH_ProcessCatalog_SingletDM.resolveDependency(&createDecays);
-    TH_ProcessCatalog_SingletDM.reset_and_calculate();
+    TH_ProcessCatalog_ScalarSingletDM_Z2.notifyOfModel("ScalarSingletDM_Z2");
+    TH_ProcessCatalog_ScalarSingletDM_Z2.resolveDependency(&createSpectrum);
+    TH_ProcessCatalog_ScalarSingletDM_Z2.resolveDependency(&createDecays);
+    TH_ProcessCatalog_ScalarSingletDM_Z2.reset_and_calculate();
 
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)
     RD_fraction_one.reset_and_calculate();
 
     // Set generic WIMP mass object
-    mwimp_generic.resolveDependency(&TH_ProcessCatalog_SingletDM);
-    mwimp_generic.resolveDependency(&DarkMatter_ID_SingletDM);
+    mwimp_generic.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    mwimp_generic.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     mwimp_generic.reset_and_calculate();
 
     // Set generic annihilation rate in late universe (v->0 limit)
-    sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_SingletDM);
-    sigmav_late_universe.resolveDependency(&DarkMatter_ID_SingletDM);
+    sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    sigmav_late_universe.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     sigmav_late_universe.reset_and_calculate();
 
     // ---- Initialize backends ----
@@ -191,17 +191,17 @@ int main()
     // Initialize gamLike backend
     gamLike_1_0_0_init.reset_and_calculate();
 
-    // Initialize MicrOmegas backend (specific for SingletDM)
-    MicrOmegas_SingletDM_3_6_9_2_init.notifyOfModel("SingletDM");
-    MicrOmegas_SingletDM_3_6_9_2_init.resolveDependency(&createSpectrum);
-    MicrOmegas_SingletDM_3_6_9_2_init.resolveDependency(&createDecays);
-    MicrOmegas_SingletDM_3_6_9_2_init.reset_and_calculate();
+    // Initialize MicrOmegas backend (specific for ScalarSingletDM_Z2)
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.notifyOfModel("ScalarSingletDM_Z2");
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.resolveDependency(&createSpectrum);
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.resolveDependency(&createDecays);
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.reset_and_calculate();
     // For the below VXdecay = 0 - no 3 body final states via virtual X
     //                         1 - annihilations to 3 body final states via virtual X
     //                         2 - (co)annihilations to 3 body final states via virtual X
-    MicrOmegas_SingletDM_3_6_9_2_init.setOption<int>("VZdecay", 1);
-    MicrOmegas_SingletDM_3_6_9_2_init.setOption<int>("VWdecay", 1);
-    MicrOmegas_SingletDM_3_6_9_2_init.reset_and_calculate();
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.setOption<int>("VZdecay", 1);
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.setOption<int>("VWdecay", 1);
+    MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
     DarkSUSY_5_1_3_init.reset_and_calculate();
@@ -218,19 +218,22 @@ int main()
     // ---- Relic density ----
 
     // Relic density calculation with MicrOmegas
-    RD_oh2_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_SingletDM_3_6_9_2::Functown::darkOmega);
+    RD_oh2_Xf_MicrOmegas.notifyOfModel("ScalarSingletDM_Z2");
+    RD_oh2_Xf_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_ScalarSingletDM_Z2_3_6_9_2::Functown::darkOmega);
+    RD_oh2_Xf_MicrOmegas.reset_and_calculate();
+    RD_oh2_MicrOmegas.resolveDependency(&RD_oh2_Xf_MicrOmegas);
     RD_oh2_MicrOmegas.reset_and_calculate();
 
     // Retrieve and print MicrOmegas result
     logger() << "Omega h^2 from MicrOmegas: " << RD_oh2_MicrOmegas(0) << LogTags::info << EOM;
 
     // Relic density calculation with GAMBIT (DarkSUSY Boltzmann solver)
-    RD_spectrum_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_SingletDM);
-    RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_SingletDM);
+    RD_spectrum_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     RD_spectrum_from_ProcessCatalog.reset_and_calculate();
 
-    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_SingletDM);
-    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_SingletDM);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
@@ -252,6 +255,7 @@ int main()
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpadd);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rddof);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
+    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
     RD_oh2_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
     RD_oh2_general.reset_and_calculate();
 
@@ -270,21 +274,21 @@ int main()
 
     // Calculate DD couplings with Micromegas
 
-    DD_couplings_MicrOmegas.notifyOfModel("SingletDM");
+    DD_couplings_MicrOmegas.notifyOfModel("ScalarSingletDM_Z2");
     DD_couplings_MicrOmegas.notifyOfModel("nuclear_params_fnq");
     DD_couplings_MicrOmegas.resolveDependency(&Models::nuclear_params_fnq::Functown::primary_parameters);
-    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_SingletDM_3_6_9_2::Functown::nucleonAmplitudes);
-    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_SingletDM_3_6_9_2::Functown::FeScLoop);
-    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_SingletDM_3_6_9_2::Functown::mocommon_);
+    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_ScalarSingletDM_Z2_3_6_9_2::Functown::nucleonAmplitudes);
+    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_ScalarSingletDM_Z2_3_6_9_2::Functown::FeScLoop);
+    DD_couplings_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_ScalarSingletDM_Z2_3_6_9_2::Functown::mocommon_);
     DD_couplings_MicrOmegas.reset_and_calculate();
 
     // Calculate DD couplings with GAMBIT
 
-    DD_couplings_SingletDM.notifyOfModel("nuclear_params_fnq");
-    DD_couplings_SingletDM.notifyOfModel("SingletDM");
-    DD_couplings_SingletDM.resolveDependency(&Models::nuclear_params_fnq::Functown::primary_parameters);
-    DD_couplings_SingletDM.resolveDependency(&createSpectrum);
-    DD_couplings_SingletDM.reset_and_calculate();
+    DD_couplings_ScalarSingletDM_Z2.notifyOfModel("nuclear_params_fnq");
+    DD_couplings_ScalarSingletDM_Z2.notifyOfModel("ScalarSingletDM_Z2");
+    DD_couplings_ScalarSingletDM_Z2.resolveDependency(&Models::nuclear_params_fnq::Functown::primary_parameters);
+    DD_couplings_ScalarSingletDM_Z2.resolveDependency(&createSpectrum);
+    DD_couplings_ScalarSingletDM_Z2.reset_and_calculate();
 
     // Set generic scattering cross-sections for later use
     double sigma_SI_p_GB, sigma_SI_p_MO;
@@ -301,38 +305,38 @@ int main()
     logger() << "sigma_SI,p with MicrOmegas: " << sigma_SI_p_simple(0) << LogTags::info << EOM;
 
     // Set generic scattering cross-sections for later use
-    sigma_SI_p_simple.resolveDependency(&DD_couplings_SingletDM);
+    sigma_SI_p_simple.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);
     sigma_SI_p_simple.reset_and_calculate();
     sigma_SI_p_GB = sigma_SI_p_simple(0);
 
-    sigma_SD_p_simple.resolveDependency(&DD_couplings_SingletDM);
+    sigma_SD_p_simple.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);
     sigma_SD_p_simple.reset_and_calculate();
 
     logger() << "sigma_SI,p with GAMBIT: " << sigma_SI_p_simple(0) << LogTags::info << EOM;
 
     // Initialize DDCalc backend
-    Backends::DDCalc_1_1_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_1_1_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment.setStatus(2);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood.setStatus(2);
 
-    DDCalc_1_1_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-    DDCalc_1_1_0_init.resolveDependency(&RD_fraction_one);
-    DDCalc_1_1_0_init.resolveDependency(&mwimp_generic);
+    DDCalc_2_0_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+    DDCalc_2_0_0_init.resolveDependency(&RD_fraction_one);
+    DDCalc_2_0_0_init.resolveDependency(&mwimp_generic);
     // Choose one of the two below lines to determine where the couplings used in the likelihood
     // calculation come from
-    DDCalc_1_1_0_init.resolveDependency(&DD_couplings_SingletDM);
-    //DDCalc_1_0_0_init.resolveDependency(&DD_couplings_MicrOmegas);
-    DDCalc_1_1_0_init.reset_and_calculate();
+    DDCalc_2_0_0_init.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);
+    //DDCalc_2_0_0_init.resolveDependency(&DD_couplings_MicrOmegas);
+    DDCalc_2_0_0_init.reset_and_calculate();
 
     // Calculate direct detection rates for LUX 2016
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment);
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_CalcRates_simple);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
     LUX_2016_Calc.reset_and_calculate();
 
     // Calculate direct detection likelihood for LUX 2016
     LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_LogLikelihood);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
     LUX_2016_GetLogLikelihood.reset_and_calculate();
 
     logger() << "LUX_2016 lnL: " << LUX_2016_GetLogLikelihood(0) << LogTags::info << EOM;
@@ -344,9 +348,9 @@ int main()
     SimYieldTable_DarkSUSY.reset_and_calculate();
 
     // Collect missing final states for simulation in cascade MC
-    GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_SingletDM);
+    GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
-    GA_missingFinalStates.resolveDependency(&DarkMatter_ID_SingletDM);
+    GA_missingFinalStates.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     GA_missingFinalStates.reset_and_calculate();
 
 
@@ -354,7 +358,7 @@ int main()
     cascadeMC_FinalStates.reset_and_calculate();
 
     // Collect decay information for cascade MC
-    cascadeMC_DecayTable.resolveDependency(&TH_ProcessCatalog_SingletDM);
+    cascadeMC_DecayTable.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     cascadeMC_DecayTable.resolveDependency(&SimYieldTable_DarkSUSY);
     cascadeMC_DecayTable.reset_and_calculate();
 
@@ -376,7 +380,7 @@ int main()
     // Generate histogram for cascade MC
     cascadeMC_Histograms.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_GenerateChain);
-    cascadeMC_Histograms.resolveDependency(&TH_ProcessCatalog_SingletDM);
+    cascadeMC_Histograms.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     cascadeMC_Histograms.resolveDependency(&SimYieldTable_DarkSUSY);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_Histograms.resolveLoopManager(&cascadeMC_LoopManager);
@@ -396,9 +400,9 @@ int main()
     cascadeMC_gammaSpectra.reset_and_calculate();
 
     // Calculate total gamma-ray yield (cascade MC + tabulated results)
-    GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_SingletDM);
+    GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
-    GA_AnnYield_General.resolveDependency(&DarkMatter_ID_SingletDM);
+    GA_AnnYield_General.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
     GA_AnnYield_General.reset_and_calculate();
 
@@ -422,7 +426,8 @@ int main()
 
 
     // Infer WIMP equilibration time in Sun
-    equilibration_time_Sun.resolveDependency(&sigmav_late_universe);
+    equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    equilibration_time_Sun.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     equilibration_time_Sun.resolveDependency(&mwimp_generic);
     equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
     equilibration_time_Sun.reset_and_calculate();
@@ -433,12 +438,10 @@ int main()
     annihilation_rate_Sun.reset_and_calculate();
 
     // Infer neutrino yield from Sun
-    nuyield_from_DS.resolveDependency(&TH_ProcessCatalog_SingletDM);
+    nuyield_from_DS.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     nuyield_from_DS.resolveDependency(&mwimp_generic);
     nuyield_from_DS.resolveDependency(&sigmav_late_universe);
-    nuyield_from_DS.resolveDependency(&sigma_SI_p_simple);
-    nuyield_from_DS.resolveDependency(&sigma_SD_p_simple);
-    nuyield_from_DS.resolveDependency(&DarkMatter_ID_SingletDM);
+    nuyield_from_DS.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsgenericwimp_nusetup);
     nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::neutrino_yield);
     nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::DS_neutral_h_decay_channels);
@@ -500,7 +503,7 @@ int main()
 
   catch (std::exception& e)
   {
-    std::cout << "DarkBit_standalone_SingletDM has exited with fatal exception: " << e.what() << std::endl;
+    std::cout << "DarkBit_standalone_ScalarSingletDM_Z2 has exited with fatal exception: " << e.what() << std::endl;
   }
 
   return 0;

@@ -6,9 +6,9 @@ Functionality/configuration demos and minimal examples
 ------------------------------------------------------
 
 spartan.yaml                     --- Simplest example of using GAMBIT: a toy-model MultiNest scan
-spartan_CMSSM.yaml               --- Simple example of using GAMBIT in a random scan of CMSSM params
+spartan_NUHM1.yaml               --- Simple example of using GAMBIT in a random scan of NUHM1 params
 
-pp_strip.yaml                    --- Simple example of using the postprocessor scanner to strip 'invalid' points out of an output file
+postprocessor_demo.yaml          --- Simple example of using the postprocessor scanner to add a new likelihood component
 
 ColliderBit_CMSSM.yaml           --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
 ColliderBit_ExternalModel.yaml   --- LHC likelihood demo on a single point of a Pythia external model
@@ -28,6 +28,9 @@ ScannerBit.yaml                  --- Example of configuring the scanner system
 SpecBit_MSSM.yaml                --- Single-point test of mass spectrum generation in MSSM sub-models
 SpecBit_vacuum_stability.yaml    --- 50x50 grid scan of vacuum stability in [mT,mH]
 
+Mathematica_test.yaml            --- Simple example demonstrating the use of Mathematica backends
+Python_test.yaml                 --- Simple example demonstrating the use of Python backends
+
 
 Physics model scan configurations
 ---------------------------------
@@ -42,6 +45,13 @@ DiracSingletDM_Z2.yaml    --- Diver scan of Dirac singlet Higgs-portal DM model 
 MajoranaSingletDM_Z2.yaml --- Diver scan of Majorana singlet Higgs-portal DM model with Z2 symmetry
 VectorSingletDM_Z2.yaml   --- Diver scan of Vector singlet Higgs-portal DM model with Z2 symmetry
 WC.yaml                   --- MultiNest scan of flavour physics Wilson Coeffs
+WC_lite.yaml              --- A lightweight version of WC.yaml, with less observables and parameters
+
+
+Plotting examples
+-----------------
+WC_lite.pip               --- plot the results of WC_lite.yaml with pippi
+spartan.pip               --- plot the results of spartan.yaml with pippi
 
 
 Config fragments containing parameters for inclusion in other steering files
@@ -49,3 +59,9 @@ Config fragments containing parameters for inclusion in other steering files
 
 StandardModel_SLHA2_defaults.yaml
 StandardModel_SLHA2_scan.yaml
+
+
+Files used for unit testing
+---------------------------
+
+Found in the validation/ directory.

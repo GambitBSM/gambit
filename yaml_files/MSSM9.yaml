@@ -492,7 +492,7 @@ Rules:
                              "HadronLevel:all = on",
                              "SUSY:all = on",
                              "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 20"]
+                             "TimeShower:pTmin = 2"]
 
       xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
 
@@ -532,17 +532,4 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   default_output_path: "runs/MSSM9/"
-
-  # We set the errors from the physics modules to be non-fatal
-  # to avoid crashing the entire scan due to a rare problem point.
-  # This means we should pay close attention to the log files...
-  exceptions:
-    ColliderBit_error: non-fatal
-    DarkBit_error: non-fatal
-    DecayBit_error: non-fatal
-    FlavBit_error: non-fatal
-    PrecisionBit_error: non-fatal
-    SpecBit_error: non-fatal
-
-
 

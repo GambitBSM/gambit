@@ -445,7 +445,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
        if(quit_flag_seen)
        {
           // Send stop signal
-          newchunk = stopchunk;
+          mychunk = stopchunk;
        } 
        else
        {

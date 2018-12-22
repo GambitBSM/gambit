@@ -1,5 +1,7 @@
 ##########################################################################
-## GAMBIT configuration for a minimal postprocessor (version 2) run
+## GAMBIT configuration for a next-to-minimal postprocessor (version 2) run
+##
+## Requires ExampleBit_A and ExampleBit_B
 ##
 ## Requires 'spartan.yaml' to be run first, as this will generate the 
 ## data that we will postprocess.
@@ -18,13 +20,13 @@ Parameters:
 
   # These parameters don't exist in the original data file, but we
   # can still use them to satisfy dependencies because they have fixed values.
-  #NUHM1:
-  #  A0: 1
-  #  M0: 2
-  #  mH: 3
-  #  M12: 4 
-  #  SignMu: 5
-  #  TanBeta: 6
+  NUHM1:
+    A0: 1
+    M0: 2
+    mH: 3
+    M12: 4 
+    SignMu: 5
+    TanBeta: 6
  
 Priors:
 
@@ -46,7 +48,7 @@ Scanner:
 
     postprocessor:
       plugin: postprocessor
-      #version: "1.0" 
+      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
        # Name of the new global likelihood contribution.
       like: New_LogLike
       # Name of the combined new+old likelihood
@@ -59,9 +61,10 @@ Scanner:
       batch_size: 100 # Number of points to distribute to worker processes each time they request more work
       # The below don't seem to work?
       # Restrict postprocessing to values greater than this
-      # cut_greater_than: {"LogLike": -68.5843} # best fit - 5sigma
-      # Throw away all points outside the cuts
-      # discard_points_outside_cuts: true
+      cut_greater_than: {"LogLike": -1e99} # Will not process invalid points
+      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 25} # Keep only points with mu<25
+       # Throw away all points outside the cuts
+      discard_points_outside_cuts: true
       # Information about input dataset to be postprocessed
       reader:
         type: hdf5
@@ -79,11 +82,11 @@ ObsLikes:
     # Test activation of new fixed model parameters that
     # don't exist in the input file (this function requires
     # e.g. NUHM1 parameters to run)
-    # - purpose:      LogLike
-    # - capability:   Example_lnL_B
-    # - type:         double
-    # - function:     ""
-    # - module:       ""
+  - purpose:      New_LogLike
+    capability:   Example_lnL_B
+    type:         double
+    function:     ""
+    module:       ""
 
 Rules:
 
@@ -122,7 +125,7 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/postprocessor_v2"
+  default_output_path: "runs/postprocessor_demo"
 
   rng: ranlux48
 
