@@ -64,6 +64,9 @@ namespace Gambit
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
+      F(CMS_13TeV_2OSLEP_chargino_stop_36invfb)      \
+      F(CMS_13TeV_2OSLEP_for_stop_36invfb)           \
+      F(CMS_13TeV_2OSLEP_for_chargino_36invfb)       \
       F(CMS_13TeV_MultiLEP_36invfb)                  \
       F(CMS_13TeV_MultiLEP_2SSLep_36invfb)           \
       F(CMS_13TeV_MultiLEP_3Lep_36invfb)             \
