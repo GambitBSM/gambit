@@ -1,7 +1,7 @@
 Parameters:
 
   #SM nuisance parameters.
-  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   NMSSM66atQ:
     Ad_11: 0
@@ -115,12 +115,6 @@ ObsLikes:
   - purpose:      Observable
     capability:   NMSSM_spectrum
     type:         map_str_dbl
-    printme:      true
-
-  # - purpose:      Observable
-  #   capability:   NMSSM_spectrum
-  #   type:         Spectrum
-  #   printme:      true
 
   - purpose:      Observable
     capability:   decay_rates
@@ -130,12 +124,6 @@ ObsLikes:
   - purpose:      Observable
     capability:   all_BFs
 
-
-  # # This is not implemented yet; for now it only outputs a single dummy BR
-  # - purpose:      Observable
-  #   capability:   NMSSM_decay_rates_map
-  #   function:     get_NMSSM_decay_rates_as_map
-  #   type:         map_str_dbl
 
 Rules:
 
