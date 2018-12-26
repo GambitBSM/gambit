@@ -412,26 +412,17 @@ namespace Gambit
         {
           // NMSSM-specific.  SLHAea in SLHA2 format, please.
           spectrum = Dep::NMSSM_spectrum->getSLHAea(2);
-          // SLHAea::Block block("MODSEL");
-          // block.push_back("BLOCK MODSEL              # Model selection");
 
-          // SLHAea::Line line;
-          // line << 1 << 0 << "# General MSSM";
-          // std::cout << "DEBUG: Adding this: " << line.str() << std::endl;
-          // block.push_back(line);
-          // line.clear();
-
-          // line << 3 << 1 << "# NMSSM particle content";
-          // std::cout << "DEBUG: Adding this: " << line.str() << std::endl;
-          // block.push_back(line);
+          // TEMP HACK: Temporary workaround for the problem with the missing SLHA entries 
+          // in the SLHAea object generated from the NMSSM spectrum object.
+          spectrum["HMIX"][""] << 4 << 0.0 << "# m^2_A(Q)";
 
           slha.insert(slha.begin(), spectrum.begin(), spectrum.end());
-          // slha.push_front(block);
 
-          std::cout << "DEBUG:" << std::endl;
-          std::cout << "DEBUG: Here's the slha object:" << std::endl;
-          std::cout << slha.str() << std::endl;
-          std::cout << "DEBUG:" << std::endl;
+          // std::cout << "DEBUG:" << std::endl;
+          // std::cout << "DEBUG: Here's the slha object:" << std::endl;
+          // std::cout << slha.str() << std::endl;
+          // std::cout << "DEBUG:" << std::endl;
         }
         else
         {
