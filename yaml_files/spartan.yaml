@@ -39,7 +39,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: twalk
+  use_scanner: multinest
 
   scanners:
 

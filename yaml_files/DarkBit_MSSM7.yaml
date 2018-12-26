@@ -197,10 +197,7 @@ ObsLikes:
     - capability: PICO_2L_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_60_F_LogLikelihood
-      purpose:    LogLike
-
-    - capability: PICO_60_2017_LogLikelihood
+    - capability: PICO_60_LogLikelihood
       purpose:    LogLike
 
     # Calculate all IceCube likelihoods (including 22 string)
@@ -275,6 +272,10 @@ Rules:
        CoannCharginosNeutralinos: true # Are charginos and neutralinos included in coannihilations?
        CoannSfermions: true # Are sfermions included in coannihilations?
        CoannMaxMass: 1.6 # Maximum sparticle mass to include in coannihilations in units of DM mass
+
+  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -372,16 +373,16 @@ Rules:
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_DarkSUSY
-    options: 
-      # If the below is true, 1 loop effects as discuseed in Drees Nojiri 
+    options:
+      # If the below is true, 1 loop effects as discuseed in Drees Nojiri
       # Phys.Rev. D48 (1993) 3483 are included (default: true)
-      loop: true 
-      # If the below is false, the squark propagator is approximated as 1/m_sq^2 
+      loop: true
+      # If the below is false, the squark propagator is approximated as 1/m_sq^2
       # (default: false)
       # pole: false
     #function: DD_couplings_MicrOmegas
     #options:
-    #  # If the below is true, the box diagram for gluon-neutralino scattering as 
+    #  # If the below is true, the box diagram for gluon-neutralino scattering as
     #  # discussed in arXiv:0803.2360 is included in the calculation
     #  loop: box
 

@@ -194,7 +194,7 @@ ObsLikes:
     - capability: XENON100_2012_LogLikelihood
       purpose:    LogLike
 
-    - capability: XENON1T_2017_LogLikelihood
+    - capability: XENON1T_2018_LogLikelihood
       purpose:    LogLike
 
     - capability: LUX_2016_LogLikelihood
@@ -209,7 +209,7 @@ ObsLikes:
     - capability: PICO_2L_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_60_F_LogLikelihood
+    - capability: PICO_60_LogLikelihood
       purpose:    LogLike
 
     - capability: PICO_60_2017_LogLikelihood
@@ -288,6 +288,14 @@ ObsLikes:
 
 
 Rules:
+
+  # Tell all functions that are able to dump SLHA files to do so.
+  #- options:
+  #    drop_SLHA_file: true
+
+  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:

@@ -1724,6 +1724,39 @@ PICO_500_BinSignal: |
 PICO_500_Bins: |
    The number of bins used in the PICO-500 direct detection analysis.
 
+DARWIN_Calculate: |
+   Perform rate and likelihood calculations for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_Events: |
+   The number of observed events for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_Background: |
+   The number of background events for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_Signal: |
+   The number of signal events for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_SignalSI: |
+   The number of spin-independent signal events for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_SignalSD: |
+   The number of spin-dependent signal events for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_LogLikelihood: |
+   Calculate the log-likelihood for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_BinBackground: |
+   The number of expected background events in each bin for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_BinEvents: |
+   The number of expected events in each bin for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_BinSignal: |
+   The number of expected signal events in each bin for the DARWIN 2015/16 direct detection projections.
+
+DARWIN_Bins: |
+   The number of bins used in the DARWIN 2015/16 direct detection projections.
+
 CDMSlite_Background: |
    The number of background events for the CDMSlite direct detection analysis.
 

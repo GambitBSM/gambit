@@ -37,6 +37,7 @@ Physics model scan configurations
 
 CMSSM.yaml                --- Diver scan of CMSSM model
 MSSM7.yaml                --- Diver scan of MSSM7 model
+MSSM9.yaml                --- Diver scan of MSSM9 model
 NUHM1.yaml                --- Diver scan of NUHM1 model
 NUHM2.yaml                --- Diver scan of NUHM2 model
 ScalarSingletDM_Z2.yaml   --- Diver scan of scalar singlet Higgs-portal DM model with Z2 symmetry

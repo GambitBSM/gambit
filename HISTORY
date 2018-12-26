@@ -18,7 +18,6 @@ Feature release.
 - Added dynamic Monte Carlo convergence test to ColliderBit
 - Improved stau_1 and chargino_1 decays for compressed spectra
 - Dropped Delphes support
-- Removed old DARWIN functions from DarkBit
 - made all symbols hidden by default
 - added invisible Z width likelihood
 - upgrade yaml-cpp to 0.6.2
