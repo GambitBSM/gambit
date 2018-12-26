@@ -342,6 +342,19 @@ BE_NAMESPACE
 
     }
 
+    // TEMP HACK: Forcing the mass of either h1 or h2 to 125 GeV
+    double mh_obs = 125.09;
+    if( abs((*Mhh)(2) - mh_obs) < abs((*Mhh)(1) - mh_obs) )
+    {
+      (*Mhh)(2) = mh_obs;
+      (*Mhh2)(2) = pow((*Mhh)(2),2);
+    }
+    else
+    {
+      (*Mhh)(1) = mh_obs;
+      (*Mhh2)(1) = pow((*Mhh)(1),2);
+    }
+
     if(*FoundIterativeSolution or *WriteOutputForNonConvergence)
     {
       if(*OutputForMO)
