@@ -412,7 +412,7 @@ BE_NAMESPACE
         (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
         (*MSv2)(i) = pow((*MSv)(i),2);
         (*Mhh)(i) = spectrum.get(Par::Pole_Mass, "h0",i);
-        (*Mhh2)(i) = pow((*Mhh2)(i),2);
+        (*Mhh2)(i) = pow((*Mhh)(i),2);
         (*MFd2)(i) = pow((*MFd)(i),2);
         (*MFe2)(i) = pow((*MFe)(i),2);
         (*MFu2)(i) = pow((*MFu)(i),2);
