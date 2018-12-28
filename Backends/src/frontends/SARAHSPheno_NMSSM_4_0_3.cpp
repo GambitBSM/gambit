@@ -355,6 +355,67 @@ BE_NAMESPACE
       (*Mhh2)(1) = pow((*Mhh)(1),2);
     }
 
+    // TEMP HACK: Quick implementation of a mass difference cuts
+    // _Anders
+    double massdiff = 0.;
+    std::vector<double> default_massdiff_cut = {0.0, 1e10};
+    std::vector<double> massdiff_cut = default_massdiff_cut;
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_2_chi0_1_massdiff_cut");
+    massdiff = abs((*MChi)(2)) - abs((*MChi)(1));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_2-chi0_1 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_3_chi0_1_massdiff_cut");
+    massdiff = abs((*MChi)(3)) - abs((*MChi)(1));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_3-chi0_1 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_4_chi0_1_massdiff_cut");
+    massdiff = abs((*MChi)(4)) - abs((*MChi)(1));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_4-chi0_1 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_3_chi0_2_massdiff_cut");
+    massdiff = abs((*MChi)(3)) - abs((*MChi)(2));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_3-chi0_2 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_4_chi0_2_massdiff_cut");
+    massdiff = abs((*MChi)(4)) - abs((*MChi)(2));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_4-chi0_2 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+    massdiff_cut = runOptions->getValueOrDef<std::vector<double> >(default_massdiff_cut, "chi0_4_chi0_3_massdiff_cut");
+    massdiff = abs((*MChi)(4)) - abs((*MChi)(3));
+    if (massdiff < massdiff_cut.at(0) || massdiff > massdiff_cut.at(1))
+    {
+        std::stringstream message;
+        message << "Point failed cut on chi0_4-chi0_3 mass difference";
+        invalid_point().raise(message.str());
+    }
+
+
     if(*FoundIterativeSolution or *WriteOutputForNonConvergence)
     {
       if(*OutputForMO)
