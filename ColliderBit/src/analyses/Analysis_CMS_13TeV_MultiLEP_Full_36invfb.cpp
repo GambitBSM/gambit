@@ -3,7 +3,7 @@
 ///  \date 2017 May
 ///
 ///  \author Anders Kvellestad
-///  \date 2018 June
+///  \date 2018 June, December
 ///
 ///  \author Martin White
 ///  \date 2018 July
@@ -20,24 +20,27 @@
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
-// Based on https://arxiv.org/pdf/1709.05406.pdf
-// This is for debugging: we have implemented all bins and will combine them
-// naively by hand after running GAMBIT
+// Based on arxiv:1709.05406 and arxiv:1801.03957 (which is a rebinning of the 3-lepton analysis in arxiv:1709.05406)
+
+// @todo Add covariance matrix for the rebinned analysis 
+// @todo Validation!
 
 using namespace std;
 
 namespace Gambit {
   namespace ColliderBit {
 
-    // This analysis class is a base class for two SR-specific analysis classes
+    // This analysis class is a base class for three SR-specific analysis classes
     // defined further down:
     // - Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
     // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb
+    // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
     class Analysis_CMS_13TeV_MultiLEP_Full_36invfb : public HEPUtilsAnalysis {
 
     protected:
       // Counters for the number of accepted events for each signal region
       std::map<string,double> _numSR = {
+        // 2SSLep SRs
         {"SS01", 0.},
         {"SS02", 0.},
         {"SS03", 0.},
@@ -68,6 +71,7 @@ namespace Gambit {
         {"SS28", 0.},
         {"SS29", 0.},
         {"SS30", 0.},
+        // 3Lep SRs
         {"A01", 0.},
         {"A02", 0.},
         {"A03", 0.},
@@ -112,6 +116,65 @@ namespace Gambit {
         {"A42", 0.},
         {"A43", 0.},
         {"A44", 0.},
+        // 3Lep_rebinned SRs
+        {"SR01", 0.},
+        {"SR02", 0.},
+        {"SR03", 0.},
+        {"SR04", 0.},
+        {"SR05", 0.},
+        {"SR06", 0.},
+        {"SR07", 0.},
+        {"SR08", 0.},
+        {"SR09", 0.},
+        {"SR10", 0.},
+        {"SR11", 0.},
+        {"SR12", 0.},
+        {"SR13", 0.},
+        {"SR14", 0.},
+        {"SR15", 0.},
+        {"SR16", 0.},
+        {"SR17", 0.},
+        {"SR18", 0.},
+        {"SR19", 0.},
+        {"SR20", 0.},
+        {"SR21", 0.},
+        {"SR22", 0.},
+        {"SR23", 0.},
+        {"SR24", 0.},
+        {"SR25", 0.},
+        {"SR26", 0.},
+        {"SR27", 0.},
+        {"SR28", 0.},
+        {"SR29", 0.},
+        {"SR30", 0.},
+        {"SR31", 0.},
+        {"SR32", 0.},
+        {"SR33", 0.},
+        {"SR34", 0.},
+        {"SR35", 0.},
+        {"SR36", 0.},
+        {"SR37", 0.},
+        {"SR38", 0.},
+        {"SR39", 0.},
+        {"SR40", 0.},
+        {"SR41", 0.},
+        {"SR42", 0.},
+        {"SR43", 0.},
+        {"SR44", 0.},
+        {"SR45", 0.},
+        {"SR46", 0.},
+        {"SR47", 0.},
+        {"SR48", 0.},
+        {"SR49", 0.},
+        {"SR50", 0.},
+        {"SR51", 0.},
+        {"SR52", 0.},
+        {"SR53", 0.},
+        {"SR45", 0.},
+        {"SR55", 0.},
+        {"SR56", 0.},
+        {"SR57", 0.},
+        {"SR58", 0.},
       };
 
     private:
@@ -294,22 +357,32 @@ namespace Gambit {
         double mT=0;
         // double mT2=0;
         double mll=0;
+        double HT=0;
         vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
         vector<vector<HEPUtils::Particle*>> OSpair_cont = getOSpairs(signalLeptons);
 
-        if (nSignalLeptons>1)pT_ll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).pT();
-        if (nSignalLightLeptons>0 && nSignalTaus>0) {
-          double pLep1[3] = {signalLightLeptons.at(0)->mass(), signalLightLeptons.at(0)->mom().px(), signalLightLeptons.at(0)->mom().py()};
-          double pTau[3] = {signalTaus.at(0)->mass(), signalTaus.at(0)->mom().px(), signalTaus.at(0)->mom().py()};
-          double pMiss[3] = {0., event->missingmom().px(), event->missingmom().py() };
-          double mn = 0.;
-
-          mt2_bisect::mt2 mt2_calc;
-          mt2_calc.set_momenta(pLep1,pTau,pMiss);
-          mt2_calc.set_mn(mn);
-          // mT2 = mt2_calc.get_mt2();
+        // Calculate HT
+        for (size_t iJet=0; iJet<signalJets.size(); iJet++){
+          double jetpT = signalJets.at(iJet)->pT();
+          if (jetpT > 30.) HT += jetpT;           
         }
-        if (nSignalLeptons==2 || (SFOSpair_cont.size()==0 && OSpair_cont.size()==0))mT=get_mTmin(signalLeptons, event->missingmom());   
+
+        // // Calculate mT2
+        // if (nSignalLeptons>1)pT_ll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).pT();
+        // if (nSignalLightLeptons>0 && nSignalTaus>0) {
+        //   double pLep1[3] = {signalLightLeptons.at(0)->mass(), signalLightLeptons.at(0)->mom().px(), signalLightLeptons.at(0)->mom().py()};
+        //   double pTau[3] = {signalTaus.at(0)->mass(), signalTaus.at(0)->mom().px(), signalTaus.at(0)->mom().py()};
+        //   double pMiss[3] = {0., event->missingmom().px(), event->missingmom().py() };
+        //   double mn = 0.;
+
+        //   mt2_bisect::mt2 mt2_calc;
+        //   mt2_calc.set_momenta(pLep1,pTau,pMiss);
+        //   mt2_calc.set_mn(mn);
+        //   // mT2 = mt2_calc.get_mt2();
+        // }
+
+        // Calculate mll and mT
+        if (nSignalLeptons==2 || (SFOSpair_cont.size()==0 && OSpair_cont.size()==0)) mT=get_mTmin(signalLeptons, event->missingmom());   
         if (SFOSpair_cont.size()>0) {
           vector<double> mll_mT= get_mll_mT(SFOSpair_cont,signalLeptons,event->missingmom(),0);
           mll=mll_mT.at(0);
@@ -320,6 +393,8 @@ namespace Gambit {
           mll=mll_mT.at(0);
           mT=mll_mT.at(1);
         }
+
+        // Low mass veto, conversion veto, preselection
         for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++) {
           double SFOSpair_mass=(SFOSpair_cont.at(iPa).at(0)->mom()+SFOSpair_cont.at(iPa).at(1)->mom()).m();
           if (SFOSpair_mass<12)low_mass_veto=false;
@@ -331,8 +406,8 @@ namespace Gambit {
         }
         if (bjet_veto && low_mass_veto)preselection=true;
 
-        //Signal regions
-        //2 same-sign leptons
+
+        // Increment signal region counters: 2 same-sign leptons
         if (preselection && nSignalLeptons==2 && nSignalTaus==0 && met>60 && conversion_veto) {
           if (signalLeptons.at(0)->pid()*signalLeptons.at(1)->pid()>0) {
             if ((signalLeptons.at(0)->abspid()==11 && signalLeptons.at(0)->pT()>25) || (signalLeptons.at(0)->abspid()==13 && signalLeptons.at(0)->pT()>20)) {
@@ -388,7 +463,7 @@ namespace Gambit {
           }
         }
         
-        //3 or more leptons
+        // Increment signal region counters: 3 leptons (binning from arxiv:1709.05406)
         if (preselection && met>50 && conversion_veto && nSignalLeptons>2) {
           
           if (nSignalTaus<2) {
@@ -452,7 +527,93 @@ namespace Gambit {
           }
           
         }
-        
+
+        // Increment signal region counters: 3 leptons (rebinning from arxiv:1801.03957)
+        if (preselection && met>50 && conversion_veto && nSignalLeptons>2) {
+          
+          if (nSignalTaus<2) {
+            if ((signalLightLeptons.at(0)->abspid()==11 && signalLightLeptons.at(0)->pT()>25) || (signalLightLeptons.at(0)->abspid()==13 && signalLightLeptons.at(0)->pT()>20 && nSignalMuons>1) || (signalLightLeptons.at(0)->abspid()==13 && signalLightLeptons.at(0)->pT()>25 && nSignalMuons==1)) {
+              if (nSignalLightLeptons==3 && nSignalTaus==0) {
+                
+                // The three light lepton signal regions
+                if(mll < 75 && mT < 100 && HT < 200 && met > 50 && met < 100) _numSR["SR01"]++;
+                if(mll < 75 && mT < 100 && HT < 200 && met > 100 && met < 150) _numSR["SR02"]++;
+                if(mll < 75 && mT < 100 && HT < 200 && met > 150 && met < 200) _numSR["SR03"]++;
+                if(mll < 75 && mT < 100 && HT < 200 && met > 200) _numSR["SR04"]++;
+
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 50 && met < 100) _numSR["SR05"]++;
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 100 && met < 150) _numSR["SR06"]++;
+                if(mll < 75 && mT > 100 && mT < 160 && HT < 200 && met > 150) _numSR["SR07"]++;
+
+                if(mll < 75 && mT > 160 && HT < 200 && met > 50 && met < 100) _numSR["SR08"]++;
+                if(mll < 75 && mT > 160 && HT < 200 && met > 100 && met < 150) _numSR["SR09"]++;
+                if(mll < 75 && mT > 160 && HT < 200 && met > 150 && met < 200) _numSR["SR10"]++;
+                if(mll < 75 && mT > 160 && HT < 200 && met > 200) _numSR["SR11"]++;
+
+                if(mll < 75 && mT < 100 && HT > 200 && met > 50) _numSR["SR12"]++;
+                if(mll < 75 && mT > 100 && mT < 160 && HT > 200 && met > 50) _numSR["SR13"]++;
+                if(mll < 75 && mT > 160 && HT > 200 && met > 50) _numSR["SR14"]++;
+
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 100 && met < 150) _numSR["SR15"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 150 && met < 200) _numSR["SR16"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 200 && met < 250) _numSR["SR17"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT < 100 && met > 250) _numSR["SR18"]++;
+
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 50 && met < 100) _numSR["SR19"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 100 && met < 150) _numSR["SR20"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 150 && met < 200) _numSR["SR21"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT < 100 && met > 200) _numSR["SR22"]++;
+
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 50 && met < 100) _numSR["SR23"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 100 && met < 150) _numSR["SR24"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 150 && met < 200) _numSR["SR25"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT < 100 && met > 200) _numSR["SR26"]++;
+
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 50 && met < 100) _numSR["SR27"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 100 && met < 150) _numSR["SR28"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 150 && met < 200) _numSR["SR29"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 200 && met < 250) _numSR["SR30"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 100 && HT < 200 && met > 250) _numSR["SR31"]++;
+
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 50 && met < 100) _numSR["SR32"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 100 && met < 150) _numSR["SR33"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 150 && met < 200) _numSR["SR34"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 100 && HT < 200 && met > 200) _numSR["SR35"]++;
+
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 50 && met < 100) _numSR["SR36"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 100 && met < 150) _numSR["SR37"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 150 && met < 200) _numSR["SR38"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 100 && HT < 200 && met > 200) _numSR["SR39"]++;
+
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 50 && met < 150) _numSR["SR40"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 150 && met < 250) _numSR["SR41"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 250 && met < 350) _numSR["SR42"]++;
+                if(mll > 75 && mll < 105 && mT < 100 && HT > 200 && met > 350) _numSR["SR43"]++;
+
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 50 && met < 100) _numSR["SR44"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 100 && met < 150) _numSR["SR45"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 150 && met < 200) _numSR["SR46"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 200 && met < 250) _numSR["SR47"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 250 && met < 300) _numSR["SR48"]++;
+                if(mll > 75 && mll < 105 && mT > 100 && mT < 160 && HT > 200 && met > 300) _numSR["SR49"]++;
+
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 50 && met < 100) _numSR["SR50"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 100 && met < 150) _numSR["SR51"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 150 && met < 200) _numSR["SR52"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 200 && met < 250) _numSR["SR53"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 250 && met < 300) _numSR["SR54"]++;
+                if(mll > 75 && mll < 105 && mT > 160 && HT > 200 && met > 300) _numSR["SR55"]++;
+
+                if(mll > 105 && mT < 100 && met > 50) _numSR["SR56"]++;
+                if(mll > 105 && mT > 100 && mT < 160 && met > 50) _numSR["SR57"]++;
+                if(mll > 105 && mT > 160 && met > 50) _numSR["SR58"]++;
+
+              }
+            }
+          }
+        }
+
+
       }
 
       
@@ -573,9 +734,70 @@ namespace Gambit {
         add_result(SignalRegionData("A42", 3., {_numSR["A42"], 0.}, {6.6, 2.1}));
         add_result(SignalRegionData("A43", 0., {_numSR["A43"], 0.}, {3.1, 1.0}));
         add_result(SignalRegionData("A44", 1., {_numSR["A44"], 0.}, {2.5, 0.8}));
+
+        add_result(SignalRegionData("SR01", 166., {_numSR["SR01"], 0.}, {175., 20.}));
+        add_result(SignalRegionData("SR02", 23., {_numSR["SR02"], 0.}, {27., 4.}));
+        add_result(SignalRegionData("SR03", 6., {_numSR["SR03"], 0.}, {5., 1.}));
+        add_result(SignalRegionData("SR04", 1., {_numSR["SR04"], 0.}, {2.5, 0.8}));
+        add_result(SignalRegionData("SR05", 56., {_numSR["SR05"], 0.}, {50., 8.}));
+        add_result(SignalRegionData("SR06", 13., {_numSR["SR06"], 0.}, {12., 3.}));
+        add_result(SignalRegionData("SR07", 1., {_numSR["SR07"], 0.}, {1.2, 0.4}));
+        add_result(SignalRegionData("SR08", 13., {_numSR["SR08"], 0.}, {12., 2.}));
+        add_result(SignalRegionData("SR09", 14., {_numSR["SR09"], 0.}, {11., 3.}));
+        add_result(SignalRegionData("SR10", 2., {_numSR["SR10"], 0.}, {2.6, 0.9}));
+        add_result(SignalRegionData("SR11", 1., {_numSR["SR11"], 0.}, {1.2, 0.5}));
+        add_result(SignalRegionData("SR12", 41., {_numSR["SR12"], 0.}, {39., 6.}));
+        add_result(SignalRegionData("SR13", 13., {_numSR["SR13"], 0.}, {10., 3.}));
+        add_result(SignalRegionData("SR14", 11., {_numSR["SR14"], 0.}, {6., 2.}));
+        add_result(SignalRegionData("SR15", 260., {_numSR["SR15"], 0.}, {286., 44.}));
+        add_result(SignalRegionData("SR16", 51., {_numSR["SR16"], 0.}, {62., 14.}));
+        add_result(SignalRegionData("SR17", 10., {_numSR["SR17"], 0.}, {20., 5.}));
+        add_result(SignalRegionData("SR18", 9., {_numSR["SR18"], 0.}, {16., 4.}));
+        add_result(SignalRegionData("SR19", 297., {_numSR["SR19"], 0.}, {321., 42.}));
+        add_result(SignalRegionData("SR20", 38., {_numSR["SR20"], 0.}, {50., 14.}));
+        add_result(SignalRegionData("SR21", 2., {_numSR["SR21"], 0.}, {5., 2.}));
+        add_result(SignalRegionData("SR22", 2., {_numSR["SR22"], 0.}, {1.1, 0.5}));
+        add_result(SignalRegionData("SR23", 18., {_numSR["SR23"], 0.}, {25., 6.}));
+        add_result(SignalRegionData("SR24", 13., {_numSR["SR24"], 0.}, {12., 5.}));
+        add_result(SignalRegionData("SR25", 5., {_numSR["SR25"], 0.}, {5., 2.}));
+        add_result(SignalRegionData("SR26", 2., {_numSR["SR26"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR27", 250., {_numSR["SR27"], 0.}, {279., 34.}));
+        add_result(SignalRegionData("SR28", 81., {_numSR["SR28"], 0.}, {87., 13.}));
+        add_result(SignalRegionData("SR29", 20., {_numSR["SR29"], 0.}, {26., 6.}));
+        add_result(SignalRegionData("SR30", 10., {_numSR["SR30"], 0.}, {8., 2.}));
+        add_result(SignalRegionData("SR31", 5., {_numSR["SR31"], 0.}, {6., 1.}));
+        add_result(SignalRegionData("SR32", 49., {_numSR["SR32"], 0.}, {54., 8.}));
+        add_result(SignalRegionData("SR33", 11., {_numSR["SR33"], 0.}, {11., 3.}));
+        add_result(SignalRegionData("SR34", 2., {_numSR["SR34"], 0.}, {2.2, 0.9}));
+        add_result(SignalRegionData("SR35", 2., {_numSR["SR35"], 0.}, {0.5, 0.4}));
+        add_result(SignalRegionData("SR36", 5., {_numSR["SR36"], 0.}, {6., 2.}));
+        add_result(SignalRegionData("SR37", 2., {_numSR["SR37"], 0.}, {3.0, 1.3}));
+        add_result(SignalRegionData("SR38", 0., {_numSR["SR38"], 0.}, {1.1, 0.4}));
+        add_result(SignalRegionData("SR39", 3., {_numSR["SR39"], 0.}, {0.9, 0.4}));
+        add_result(SignalRegionData("SR40", 292., {_numSR["SR40"], 0.}, {310., 40.}));
+        add_result(SignalRegionData("SR41", 69., {_numSR["SR41"], 0.}, {81., 18.}));
+        add_result(SignalRegionData("SR42", 23., {_numSR["SR42"], 0.}, {25., 6.}));
+        add_result(SignalRegionData("SR43", 8., {_numSR["SR43"], 0.}, {13., 3.}));
+        add_result(SignalRegionData("SR44", 45., {_numSR["SR44"], 0.}, {45., 6.}));
+        add_result(SignalRegionData("SR45", 12., {_numSR["SR45"], 0.}, {14., 3.}));
+        add_result(SignalRegionData("SR46", 5., {_numSR["SR46"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR47", 1., {_numSR["SR47"], 0.}, {1.9, 0.8}));
+        add_result(SignalRegionData("SR48", 2., {_numSR["SR48"], 0.}, {1.8, 0.8}));
+        add_result(SignalRegionData("SR49", 1., {_numSR["SR49"], 0.}, {1.0, 0.5}));
+        add_result(SignalRegionData("SR50", 12., {_numSR["SR50"], 0.}, {9., 3.}));
+        add_result(SignalRegionData("SR51", 2., {_numSR["SR51"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR52", 2., {_numSR["SR52"], 0.}, {2.0, 0.7}));
+        add_result(SignalRegionData("SR53", 2., {_numSR["SR53"], 0.}, {1.5, 0.7}));
+        add_result(SignalRegionData("SR45", 1., {_numSR["SR45"], 0.}, {0.6, 0.3}));
+        add_result(SignalRegionData("SR55", 1., {_numSR["SR55"], 0.}, {1.1, 0.5}));
+        add_result(SignalRegionData("SR56", 170., {_numSR["SR56"], 0.}, {173., 21.}));
+        add_result(SignalRegionData("SR57", 28., {_numSR["SR57"], 0.}, {44., 7.}));
+        add_result(SignalRegionData("SR58", 12., {_numSR["SR58"], 0.}, {23., 6.}));
                         
       }
       
+
+      // Helper function to calculate mll and mT
       vector<double> get_mll_mT(vector<vector<HEPUtils::Particle*>> pair_cont, vector<HEPUtils::Particle*> leptons, HEPUtils::P4 met, int type) { 
         vector<double> mll_mT;
         vector<vector<double>> mll_mT_container;
@@ -610,13 +832,14 @@ namespace Gambit {
         return mll_mT;
       }
 
+      // Helper function to get min mT 
       double get_mTmin(vector<HEPUtils::Particle*> leptons, HEPUtils::P4 met) { 
         vector<double> mT_container;
         for (size_t iLe=0;iLe<leptons.size();iLe++) {
           mT_container.push_back(sqrt(2*met.pT()*leptons.at(iLe)->pT()*(1-cos(leptons.at(iLe)->phi()-met.phi()))));
         }         
         sort(mT_container.begin(),mT_container.end());
-        if (mT_container.size()>0)return mT_container.at(0);
+        if (mT_container.size()>0) return mT_container.at(0);
         else return -1;
       }
 
@@ -805,6 +1028,94 @@ namespace Gambit {
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_3Lep_36invfb)
+
+
+
+    // 
+    // Derived analysis class for the 3Lep SRs (rebinned version)
+    // 
+    class Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb : public Analysis_CMS_13TeV_MultiLEP_Full_36invfb {
+
+    public:
+      Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb() {
+        set_analysis_name("CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb");
+      }
+
+      virtual void collect_results() {
+        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        add_result(SignalRegionData("SR01", 166., {_numSR["SR01"], 0.}, {175., 20.}));
+        add_result(SignalRegionData("SR02", 23., {_numSR["SR02"], 0.}, {27., 4.}));
+        add_result(SignalRegionData("SR03", 6., {_numSR["SR03"], 0.}, {5., 1.}));
+        add_result(SignalRegionData("SR04", 1., {_numSR["SR04"], 0.}, {2.5, 0.8}));
+        add_result(SignalRegionData("SR05", 56., {_numSR["SR05"], 0.}, {50., 8.}));
+        add_result(SignalRegionData("SR06", 13., {_numSR["SR06"], 0.}, {12., 3.}));
+        add_result(SignalRegionData("SR07", 1., {_numSR["SR07"], 0.}, {1.2, 0.4}));
+        add_result(SignalRegionData("SR08", 13., {_numSR["SR08"], 0.}, {12., 2.}));
+        add_result(SignalRegionData("SR09", 14., {_numSR["SR09"], 0.}, {11., 3.}));
+        add_result(SignalRegionData("SR10", 2., {_numSR["SR10"], 0.}, {2.6, 0.9}));
+        add_result(SignalRegionData("SR11", 1., {_numSR["SR11"], 0.}, {1.2, 0.5}));
+        add_result(SignalRegionData("SR12", 41., {_numSR["SR12"], 0.}, {39., 6.}));
+        add_result(SignalRegionData("SR13", 13., {_numSR["SR13"], 0.}, {10., 3.}));
+        add_result(SignalRegionData("SR14", 11., {_numSR["SR14"], 0.}, {6., 2.}));
+        add_result(SignalRegionData("SR15", 260., {_numSR["SR15"], 0.}, {286., 44.}));
+        add_result(SignalRegionData("SR16", 51., {_numSR["SR16"], 0.}, {62., 14.}));
+        add_result(SignalRegionData("SR17", 10., {_numSR["SR17"], 0.}, {20., 5.}));
+        add_result(SignalRegionData("SR18", 9., {_numSR["SR18"], 0.}, {16., 4.}));
+        add_result(SignalRegionData("SR19", 297., {_numSR["SR19"], 0.}, {321., 42.}));
+        add_result(SignalRegionData("SR20", 38., {_numSR["SR20"], 0.}, {50., 14.}));
+        add_result(SignalRegionData("SR21", 2., {_numSR["SR21"], 0.}, {5., 2.}));
+        add_result(SignalRegionData("SR22", 2., {_numSR["SR22"], 0.}, {1.1, 0.5}));
+        add_result(SignalRegionData("SR23", 18., {_numSR["SR23"], 0.}, {25., 6.}));
+        add_result(SignalRegionData("SR24", 13., {_numSR["SR24"], 0.}, {12., 5.}));
+        add_result(SignalRegionData("SR25", 5., {_numSR["SR25"], 0.}, {5., 2.}));
+        add_result(SignalRegionData("SR26", 2., {_numSR["SR26"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR27", 250., {_numSR["SR27"], 0.}, {279., 34.}));
+        add_result(SignalRegionData("SR28", 81., {_numSR["SR28"], 0.}, {87., 13.}));
+        add_result(SignalRegionData("SR29", 20., {_numSR["SR29"], 0.}, {26., 6.}));
+        add_result(SignalRegionData("SR30", 10., {_numSR["SR30"], 0.}, {8., 2.}));
+        add_result(SignalRegionData("SR31", 5., {_numSR["SR31"], 0.}, {6., 1.}));
+        add_result(SignalRegionData("SR32", 49., {_numSR["SR32"], 0.}, {54., 8.}));
+        add_result(SignalRegionData("SR33", 11., {_numSR["SR33"], 0.}, {11., 3.}));
+        add_result(SignalRegionData("SR34", 2., {_numSR["SR34"], 0.}, {2.2, 0.9}));
+        add_result(SignalRegionData("SR35", 2., {_numSR["SR35"], 0.}, {0.5, 0.4}));
+        add_result(SignalRegionData("SR36", 5., {_numSR["SR36"], 0.}, {6., 2.}));
+        add_result(SignalRegionData("SR37", 2., {_numSR["SR37"], 0.}, {3.0, 1.3}));
+        add_result(SignalRegionData("SR38", 0., {_numSR["SR38"], 0.}, {1.1, 0.4}));
+        add_result(SignalRegionData("SR39", 3., {_numSR["SR39"], 0.}, {0.9, 0.4}));
+        add_result(SignalRegionData("SR40", 292., {_numSR["SR40"], 0.}, {310., 40.}));
+        add_result(SignalRegionData("SR41", 69., {_numSR["SR41"], 0.}, {81., 18.}));
+        add_result(SignalRegionData("SR42", 23., {_numSR["SR42"], 0.}, {25., 6.}));
+        add_result(SignalRegionData("SR43", 8., {_numSR["SR43"], 0.}, {13., 3.}));
+        add_result(SignalRegionData("SR44", 45., {_numSR["SR44"], 0.}, {45., 6.}));
+        add_result(SignalRegionData("SR45", 12., {_numSR["SR45"], 0.}, {14., 3.}));
+        add_result(SignalRegionData("SR46", 5., {_numSR["SR46"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR47", 1., {_numSR["SR47"], 0.}, {1.9, 0.8}));
+        add_result(SignalRegionData("SR48", 2., {_numSR["SR48"], 0.}, {1.8, 0.8}));
+        add_result(SignalRegionData("SR49", 1., {_numSR["SR49"], 0.}, {1.0, 0.5}));
+        add_result(SignalRegionData("SR50", 12., {_numSR["SR50"], 0.}, {9., 3.}));
+        add_result(SignalRegionData("SR51", 2., {_numSR["SR51"], 0.}, {4., 2.}));
+        add_result(SignalRegionData("SR52", 2., {_numSR["SR52"], 0.}, {2.0, 0.7}));
+        add_result(SignalRegionData("SR53", 2., {_numSR["SR53"], 0.}, {1.5, 0.7}));
+        add_result(SignalRegionData("SR45", 1., {_numSR["SR45"], 0.}, {0.6, 0.3}));
+        add_result(SignalRegionData("SR55", 1., {_numSR["SR55"], 0.}, {1.1, 0.5}));
+        add_result(SignalRegionData("SR56", 170., {_numSR["SR56"], 0.}, {173., 21.}));
+        add_result(SignalRegionData("SR57", 28., {_numSR["SR57"], 0.}, {44., 7.}));
+        add_result(SignalRegionData("SR58", 12., {_numSR["SR58"], 0.}, {23., 6.}));
+
+        // // Covariance matrix
+        // static const vector< vector<double> > BKGCOV = {
+        //   // Turn this correlation matrix into a covariance matrix and add it here: 
+        //   // http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-17-004/CMS-SUS-17-004_Figure-aux_005.png
+        // };        
+
+        // set_covariance(BKGCOV);
+
+      }
+
+    };
+
+    // Factory fn
+    DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb)
 
 
   }
