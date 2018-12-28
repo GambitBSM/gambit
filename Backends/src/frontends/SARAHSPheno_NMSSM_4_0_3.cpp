@@ -356,7 +356,6 @@ BE_NAMESPACE
     }
 
     // TEMP HACK: Quick implementation of a mass difference cuts
-    // _Anders
     double massdiff = 0.;
     std::vector<double> default_massdiff_cut = {0.0, 1e10};
     std::vector<double> massdiff_cut = default_massdiff_cut;
