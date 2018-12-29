@@ -1096,7 +1096,7 @@ namespace Gambit {
         add_result(SignalRegionData("SR51", 2., {_numSR["SR51"], 0.}, {4., 2.}));
         add_result(SignalRegionData("SR52", 2., {_numSR["SR52"], 0.}, {2.0, 0.7}));
         add_result(SignalRegionData("SR53", 2., {_numSR["SR53"], 0.}, {1.5, 0.7}));
-        add_result(SignalRegionData("SR45", 1., {_numSR["SR45"], 0.}, {0.6, 0.3}));
+        add_result(SignalRegionData("SR54", 1., {_numSR["SR54"], 0.}, {0.6, 0.3}));
         add_result(SignalRegionData("SR55", 1., {_numSR["SR55"], 0.}, {1.1, 0.5}));
         add_result(SignalRegionData("SR56", 170., {_numSR["SR56"], 0.}, {173., 21.}));
         add_result(SignalRegionData("SR57", 28., {_numSR["SR57"], 0.}, {44., 7.}));
