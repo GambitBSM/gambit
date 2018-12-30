@@ -2658,7 +2658,6 @@ namespace Gambit
           result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
 
           // Should we use the naive sum of SR loglikes (without correlations), instead of the best-expected SR?
-          // _Anders
           static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
           if (combine_nocovar_SRs)
           {
