@@ -368,7 +368,6 @@ BE_NAMESPACE
       ErrorHandling(*kont);
 
     // TEMP HACK: Output a summary line with masses and parameters to the logger, 
-    // _Anders
     std::stringstream summary_line;
     summary_line << "SPECTRUM SUMMARY:"
                  << " mN1=" << (*MChi)(1)
