@@ -430,6 +430,32 @@ BE_NAMESPACE
 
     }
 
+    // TEMP HACK: Output a summary line with masses and parameters to the logger, 
+    // to aid quick tests/debugging of ongoing scans
+    // _Anders
+    std::stringstream summary_line;
+    summary_line << "SPECTRUM SUMMARY:"
+                 << " mN1=" << (*MChi)(1)
+                 << " mN2=" << (*MChi)(2)
+                 << " mN3=" << (*MChi)(3)
+                 << " mN4=" << (*MChi)(4)
+                 << " mN5=" << (*MChi)(5)
+                 << " mC1=" << (*MCha)(1)
+                 << " mC2=" << (*MCha)(2)
+                 << " mh1=" << (*Mhh)(1)
+                 << " mh2=" << (*Mhh)(2)
+                 << " ma2=" << (*MAh)(2)
+                 << " ma2=" << (*MAh)(2)
+                 << " M1=" << *inputs.param.at("M1")
+                 << " M2=" << *inputs.param.at("M2")
+                 << " mueff=" << *inputs.param.at("mueff")
+                 << " TanBeta=" << *inputs.param.at("TanBeta")
+                 << " lambda=" << *inputs.param.at("lambda")
+                 << " kappa=" << *inputs.param.at("kappa")
+                 << " Alambda=" << *inputs.param.at("Alambda")
+                 << " Akappa=" << *inputs.param.at("Akappa");
+    logger() << summary_line.str() << EOM;
+
     if(*kont != 0)
       ErrorHandling(*kont);
 
