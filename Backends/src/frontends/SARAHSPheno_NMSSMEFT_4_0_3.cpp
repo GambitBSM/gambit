@@ -367,6 +367,31 @@ BE_NAMESPACE
     if(*kont != 0)
       ErrorHandling(*kont);
 
+    // TEMP HACK: Output a summary line with masses and parameters to the logger, 
+    // _Anders
+    std::stringstream summary_line;
+    summary_line << "SPECTRUM SUMMARY:"
+                 << " mN1=" << (*MChi)(1)
+                 << " mN2=" << (*MChi)(2)
+                 << " mN3=" << (*MChi)(3)
+                 << " mN4=" << (*MChi)(4)
+                 << " mN5=" << (*MChi)(5)
+                 << " mC1=" << (*MCha)(1)
+                 << " mC2=" << (*MCha)(2)
+                 << " mh1=" << (*Mhh)(1)
+                 << " mh2=" << (*Mhh)(2)
+                 << " ma2=" << (*MAh)(2)
+                 << " ma2=" << (*MAh)(2)
+                 << " M1=" << *input_Param.at("M1")
+                 << " M2=" << *input_Param.at("M2")
+                 << " mueff=" << *input_Param.at("mueff")
+                 << " TanBeta=" << *input_Param.at("TanBeta")
+                 << " lambda=" << *input_Param.at("lambda")
+                 << " kappa=" << *input_Param.at("kappa")
+                 << " Alambda=" << *input_Param.at("Alambda")
+                 << " Akappa=" << *input_Param.at("Akappa");
+    logger() << summary_line.str() << EOM;
+
     return *kont;
 
   }
