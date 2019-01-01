@@ -430,11 +430,10 @@ BE_NAMESPACE
 
     }
 
-    // TEMP HACK: Output a summary line with masses and parameters to the logger, 
+    // In debug mode, output a summary line with masses and parameters to the logger, 
     // to aid quick tests/debugging of ongoing scans
-    // _Anders
     std::stringstream summary_line;
-    summary_line << "SPECTRUM SUMMARY:"
+    summary_line << "Spectrum summary:"
                  << " mN1=" << (*MChi)(1)
                  << " mN2=" << (*MChi)(2)
                  << " mN3=" << (*MChi)(3)
@@ -445,7 +444,6 @@ BE_NAMESPACE
                  << " mh1=" << (*Mhh)(1)
                  << " mh2=" << (*Mhh)(2)
                  << " ma2=" << (*MAh)(2)
-                 << " ma2=" << (*MAh)(2)
                  << " M1=" << *inputs.param.at("M1")
                  << " M2=" << *inputs.param.at("M2")
                  << " mueff=" << *inputs.param.at("mueff")
@@ -454,7 +452,7 @@ BE_NAMESPACE
                  << " kappa=" << *inputs.param.at("kappa")
                  << " Alambda=" << *inputs.param.at("Alambda")
                  << " Akappa=" << *inputs.param.at("Akappa");
-    logger() << summary_line.str() << EOM;
+    logger() << LogTags::debug << summary_line.str() << EOM;
 
     if(*kont != 0)
       ErrorHandling(*kont);
