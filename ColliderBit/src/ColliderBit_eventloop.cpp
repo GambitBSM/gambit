@@ -2677,13 +2677,20 @@ namespace Gambit
     void get_LHC_LogLike_per_analysis(map_str_dbl& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_analysis;
+
+      std::stringstream summary_line;
+      summary_line << "LHC loglikes per analysis: ";
+
       for (const std::pair<string,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const string& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;
 
         result[analysis_name] = analysis_loglikes.combination_loglike;
+
+        summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2691,10 +2698,16 @@ namespace Gambit
     void get_LHC_LogLike_per_SR(map_str_dbl& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
+
+      std::stringstream summary_line;
+      summary_line << "LHC loglikes per SR: ";
+
       for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const string& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        summary_line << analysis_name << ": ";
 
         for (const std::pair<string,double>& pair_j : analysis_loglikes.sr_loglikes)
         {
@@ -2704,10 +2717,15 @@ namespace Gambit
 
           const string key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
           result[key] = sr_loglike;
+
+          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":" << sr_loglike << ", ";
         }
 
         result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;
+
+        summary_line << "combined_LogLike:" << analysis_loglikes.combination_loglike << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2731,6 +2749,9 @@ namespace Gambit
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
 
+      std::stringstream summary_line;
+      summary_line << "LHC loglike SR indices: ";
+
       // Loop over analyses
       for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
@@ -2738,7 +2759,10 @@ namespace Gambit
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
 
         result[analysis_name] = (double) analysis_loglikes.combination_sr_index;
+
+        summary_line << analysis_name << ":" << analysis_loglikes.combination_sr_index << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2801,7 +2825,9 @@ namespace Gambit
         #endif
       }
 
-
+      std::stringstream summary_line;
+      summary_line << "LHC combined loglike:" << result;
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
