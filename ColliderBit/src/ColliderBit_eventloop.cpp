@@ -2181,6 +2181,9 @@ namespace Gambit
     {
       using namespace Pipes::calc_LHC_LogLikes;
 
+      // Use covariance matrix when available?
+      static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
+
       // Clear the result map
       result.clear();
 
@@ -2198,7 +2201,7 @@ namespace Gambit
         if (!eventsGenerated || nFailedEvents > maxFailedEvents)
         {
           // If this is an anlysis with covariance info, only add a single 0-entry in the map
-          if (adata.srcov.rows() > 0)
+          if (use_covar && adata.srcov.rows() > 0)
           {
             result[adata.analysis_name].combination_sr_label = "none";
             result[adata.analysis_name].combination_loglike = 0.0;
@@ -2247,7 +2250,7 @@ namespace Gambit
         // Loop over the signal regions inside the analysis, and work out the total (delta) log likelihood for this analysis
         /// @todo Unify the treatment of best-only and correlated SR treatments as far as possible
         /// @todo Come up with a good treatment of zero and negative predictions
-        if (adata.srcov.rows() > 0)
+        if (use_covar && adata.srcov.rows() > 0)
         {
           /// If (simplified) SR-correlation info is available, so use the
           /// covariance matrix to construct composite marginalised likelihood
@@ -2558,7 +2561,10 @@ namespace Gambit
 
         else
         {
-          // No SR-correlation info, so just take the result from the SR *expected* to be most constraining, i.e. with highest expected dLL
+          // No SR-correlation info, or user chose not to use it. 
+          // Then we either take the result from the SR *expected* to be most constraining 
+          // under the s=0 assumption (default), or naively combine the loglikes for 
+          // all SRs (if combine_SRs_without_covariances=true).
           #ifdef COLLIDERBIT_DEBUG
           cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
           #endif
