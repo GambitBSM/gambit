@@ -2155,11 +2155,16 @@ namespace Gambit
       // Clear the result map
       result.clear();
 
+      std::stringstream summary_line;
+      summary_line << "LHC signals per SR: ";
+
       // Loop over analyses and collect the predicted events into the map
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
         // AnalysisData for this analysis
         const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
+
+        summary_line << adata.analysis_name << ": ";
 
         // Loop over the signal regions inside the analysis, and save the predicted number of events for each.
         for (size_t SR = 0; SR < adata.size(); ++SR)
@@ -2170,9 +2175,13 @@ namespace Gambit
           result[key] = srData.n_signal_at_lumi;
           const double abs_uncertainty_s_stat = (srData.n_signal == 0 ? 0 : sqrt(srData.n_signal) * (srData.n_signal_at_lumi/srData.n_signal));
           const double abs_uncertainty_s_sys = srData.signal_sys;
-          result[key + "_uncert"] = HEPUtils::add_quad(abs_uncertainty_s_stat, abs_uncertainty_s_sys);
+          const double combined_uncertainty = HEPUtils::add_quad(abs_uncertainty_s_stat, abs_uncertainty_s_sys);
+          result[key + "_uncert"] = combined_uncertainty;
+
+          summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_signal_at_lumi << "+-" << combined_uncertainty << ", ";
         }
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
