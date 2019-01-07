@@ -878,8 +878,80 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
  
-    // TODO: Add this
-    // if(*SwitchToSCKM)
+    // Write output in the super-CKM basis
+    if(*SwitchToSCKM)
+    {
+      SLHAea_add_block(slha, "VCKMIN");
+      slha["VCKMIN"][""] << 1 << *lam_wolf << "# lambda";
+      slha["VCKMIN"][""] << 2 << *A_wolf << "# A";
+      slha["VCKMIN"][""] << 3 << *rho_wolf << "# rho bar";
+      slha["VCKMIN"][""] << 4 << *eta_wolf << "# eta bar";
+
+      // Initialize temporary variables
+      Farray<Fcomplex16,1,6,1,6> ZU_ckm = *ZU;
+      Farray<Fcomplex16,1,6,1,6> ZD_ckm = *ZD;
+      Farray<Fcomplex16,1,6,1,6> ZE_pmns = *ZE;
+      Farray<Fcomplex16,1,3,1,3> ZV_pmns = *ZV;
+
+      Farray<Fcomplex16,1,3,1,3> Yu_ckm, Yd_ckm, Tu_ckm, Td_ckm, mq2_ckm, mu2_ckm, md2_ckm;
+      Farray<Fcomplex16,1,3,1,3> Ye_pmns, Te_pmns, ml2_pmns, me2_pmns, Ye_transpose, id3C;
+      Farray<Fcomplex16,1,3,1,3> CKM_Q, PMNS_Q;
+      for(int i=1; i<=3; i++)
+      {
+        for(int j=1; j<=3; j++)
+        {
+          Yu_ckm(i,j) = {0.0,0.0};
+          Yd_ckm(i,j) = {0.0,0.0};
+          Tu_ckm(i,j) = {0.0,0.0};
+          Td_ckm(i,j) = {0.0,0.0};
+          mq2_ckm(i,j) = {0.0,0.0};
+          mu2_ckm (i,j) = {0.0,0.0};
+          md2_ckm(i,j) = {0.0,0.0};
+          Ye_pmns(i,j) = {0.0,0.0};
+          Te_pmns(i,j) = {0.0,0.0};
+          ml2_pmns(i,j) = {0.0,0.0};
+          me2_pmns(i,j) = {0.0,0.0};
+          Ye_transpose(i,j) = (*Ye)(j,i);
+          id3C(i,j) = {0.0,0.0};
+        }
+        id3C(i,i) = {1.0,0.0};
+      }
+      
+      // Convert to super-CKM and super-PMNS variables
+      Flogical False = false;
+      try{ Switch_to_superCKM(*Yd, *Yu, *Td, *Tu, *md2, *mq2, *mu2, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm,mu2_ckm, False, ZD_ckm, ZU_ckm, *ZD, *ZU, CKM_Q, Yd_ckm, Yu_ckm); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+      try{ Switch_to_superPMNS(Ye_transpose, id3C, *Te, *me2, *ml2, Te_pmns, me2_pmns, ml2_pmns, False, ZE_pmns, ZV_pmns, *ZE, *ZV, PMNS_Q, Ye_pmns); }
+      catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+
+      // Save rotated values to old variables
+      *Yd = Yd_ckm;
+      *Yu = Yu_ckm;
+      *Td = Td_ckm;
+      *Tu = Tu_ckm;
+      *md2 = md2_ckm;
+      *mu2 = mu2_ckm;
+      *mq2 = mq2_ckm;
+      *ZU = ZU_ckm;
+      *ZD = ZD_ckm;
+      *Ye = Ye_pmns;
+      *Te = Te_pmns;
+      *ml2 = ml2_pmns;
+      *me2 = me2_pmns;
+      *ZE = ZE_pmns;
+      *ZV = ZV_pmns;
+
+      // Write output to new blocks
+      SLHAea_add_block(slha, "VCKM", Q);
+      SLHAea_add_block(slha, "IMVCKM", Q);
+      for(int i=1; i<=3; i++)
+        for(int j=1; j<=3; j++)
+        {
+          slha["VCKM"][""] << i << j << CKM_Q(i,j).re << "V_" << i << j;
+          slha["IMVCKM"][""] << i << j << CKM_Q(i,j).im << "Im(V_" << i << j << ")";
+        }
+  
+    }
 
     // Block GAUGE
     SLHAea_add_block(slha, "GAUGE", Q);

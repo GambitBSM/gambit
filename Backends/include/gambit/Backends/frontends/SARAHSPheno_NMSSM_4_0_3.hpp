@@ -94,6 +94,45 @@ BE_FUNCTION(Switch_from_superCKM, void,
          Farray_Fcomplex16_1_3_1_3&, // mu2_out
          Flogical& // Tranposed
         ), "__sphenonmssm_MOD_switch_from_superckm", "SARAHSPheno_NMSSM_internal")
+BE_FUNCTION(Switch_to_superCKM, void,
+        (Farray_Fcomplex16_1_3_1_3&, // Yd
+         Farray_Fcomplex16_1_3_1_3&, // Yu
+         Farray_Fcomplex16_1_3_1_3&, // Td
+         Farray_Fcomplex16_1_3_1_3&, // Tu
+         Farray_Fcomplex16_1_3_1_3&, // md2
+         Farray_Fcomplex16_1_3_1_3&, // mq2
+         Farray_Fcomplex16_1_3_1_3&, // mu2
+         Farray_Fcomplex16_1_3_1_3&, // Td_ckm
+         Farray_Fcomplex16_1_3_1_3&, // Tu_ckm
+         Farray_Fcomplex16_1_3_1_3&, // md2_ckm
+         Farray_Fcomplex16_1_3_1_3&, // mq2_ckm
+         Farray_Fcomplex16_1_3_1_3&, // mu2_ckm
+         Flogical&, // Tranposed
+         Farray_Fcomplex16_1_6_1_6&, // ZD
+         Farray_Fcomplex16_1_6_1_6&, // ZU
+         Farray_Fcomplex16_1_6_1_6&, // ZD_ckm
+         Farray_Fcomplex16_1_6_1_6&, // ZU_ckm
+         Farray_Fcomplex16_1_3_1_3&, // CKM_Q
+         Farray_Fcomplex16_1_3_1_3&, // Yd_ckm
+         Farray_Fcomplex16_1_3_1_3&  // Yu_ckm
+        ), "__inputoutput_nmssm_MOD_switch_to_superckm", "SARAHSPheno_NMSSM_internal")
+BE_FUNCTION(Switch_to_superPMNS, void,
+        (Farray_Fcomplex16_1_3_1_3&, // Ye
+         Farray_Fcomplex16_1_3_1_3&, // id3C
+         Farray_Fcomplex16_1_3_1_3&, // Te
+         Farray_Fcomplex16_1_3_1_3&, // me2
+         Farray_Fcomplex16_1_3_1_3&, // ml2
+         Farray_Fcomplex16_1_3_1_3&, // Te_pmns
+         Farray_Fcomplex16_1_3_1_3&, // me2_pmns
+         Farray_Fcomplex16_1_3_1_3&, // ml2_pmns
+         Flogical&, // Tranposed
+         Farray_Fcomplex16_1_6_1_6&, // ZE
+         Farray_Fcomplex16_1_3_1_3&, // ZV
+         Farray_Fcomplex16_1_6_1_6&, // ZE_pmns
+         Farray_Fcomplex16_1_3_1_3&, // ZV_pmns
+         Farray_Fcomplex16_1_3_1_3&, // PMNS_Q
+         Farray_Fcomplex16_1_3_1_3&  // Ye_pmns
+        ), "__inputoutput_nmssm_MOD_switch_to_superpmns", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SolveTadpoleEquations, void,
         (Freal8&, // g1
          Freal8&, // g2
