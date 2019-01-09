@@ -1314,7 +1314,7 @@ BE_NAMESPACE
     catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
     *ErrorLevel = -1;
-    *GenerationMixing = false;
+    //*GenerationMixing = true;
 
     try{ Set_All_Parameters_0(); }
     catch(std::runtime_error e) { invalid_point().raise(e.what()); }
@@ -1563,7 +1563,9 @@ BE_NAMESPACE
     *RotateNegativeFermionMasses = false;
 
     // 51, Switch to SCKM
-    *SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
+    // This the default behaviour with GAMBIT
+    *SwitchToSCKM = true;
+    //*SwitchToSCKM = inputs.options->getValueOrDef<bool>(false, "SwitchToSCKM");
 
     // 52, Ignore negative masses
     *IgnoreNegativeMasses = inputs.options->getValueOrDef<bool>(false, "IgnoreNegativeMasses");
@@ -2330,7 +2332,9 @@ BE_INI_FUNCTION
       invalid_point().raise(message);
     }
 
-    *GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
+    // GAMBIT default behaviour
+    *GenerationMixing = true;
+    //*GenerationMixing = runOptions->getValueOrDef<bool>(false, "GenerationMixing");
 
   }
   scan_level = false;
