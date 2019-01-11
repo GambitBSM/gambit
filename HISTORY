@@ -3,6 +3,14 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.2.1
+External support update
+- Support for MultiNest 3.11
+- Support for nulike 1.0.7
+- Support for newer versions of axel download accelerator
+- made building with RestFrames support the default when ROOT is found
+- fixed bug associated with harvesting of BACKEND_REQ_FROM_GROUP declarations
+
 v1.2.0
 Feature release.
 - Support for Python backends

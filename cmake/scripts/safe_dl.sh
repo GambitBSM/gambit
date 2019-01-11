@@ -47,7 +47,7 @@ $2 -E make_directory $1 >/dev/null
 if command -v axel >/dev/null; then
   # Go to wget/curl if POST data have been provided
   if [ -z "$9" ]; then
-    if $2 -E chdir $1 axel $3; then
+    if $2 -E chdir $1 axel $3 -o $filename; then
       axel_worked=1
     else
       $2 -E echo "Axel failed! The link probably redirects to https. Falling back to wget/curl..."

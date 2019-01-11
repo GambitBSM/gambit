@@ -38,6 +38,7 @@ namespace Gambit
       F(ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb)      \
       F(ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb)   \
       F(ATLAS_13TeV_MultiLEP_3Lep_36invfb)           \
+      F(ATLAS_13TeV_2OSLEP_chargino_80invfb)         \
       F(ATLAS_13TeV_4LEP_36invfb)                    \
       F(ATLAS_13TeV_2bMET_36invfb)                   \
       F(ATLAS_13TeV_3b_24invfb)                      \

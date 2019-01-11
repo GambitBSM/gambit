@@ -14,6 +14,8 @@
 multinest:
   3.10:
     - lib: ./ScannerBit/installed/multinest/3.10/libnest3.so
+  3.11:
+    - lib: ./ScannerBit/installed/multinest/3.11/libnest3.so
 
 polychord:
   1.15:

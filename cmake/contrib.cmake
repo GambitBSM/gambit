@@ -50,13 +50,13 @@ add_definitions(-DYAML_CPP_DLL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
 
-#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True.
+#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True (default).
 set(restframes_VERSION "1.0.2")
 set(restframes_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${restframes_VERSION}")
 if(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ColliderBit is not in use.)${ColourReset}")
   set(EXCLUDE_RESTFRAMES TRUE)
-elseif(NOT WITH_RESTFRAMES)
+elseif(DEFINED WITH_RESTFRAMES AND NOT WITH_RESTFRAMES)
   message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (WITH_RESTFRAMES is set to False.)${ColourReset}")
   message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
   set(EXCLUDE_RESTFRAMES TRUE)
