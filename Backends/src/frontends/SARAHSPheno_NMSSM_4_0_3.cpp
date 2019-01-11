@@ -1720,7 +1720,108 @@ BE_NAMESPACE
     /**********************/
     /* Block DECAYOPTIONS */
     /**********************/
-    //TODO: Implement
+
+    // 1, Calc3BodyDecay_Glu
+    *Calc3BodyDecay_Glu = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Glu");
+
+    // 2, Calc3BodyDecay_Chi
+    *Calc3BodyDecay_Chi = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Chi");
+
+    // 3, Calc3BodyDecay_Cha
+    *Calc3BodyDecay_Cha = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Cha");
+
+    // 4, Calc3BodyDecay_Sd
+    *Calc3BodyDecay_Sd = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Sd");
+
+    // 5, Calc3BodyDecay_Su
+    *Calc3BodyDecay_Su = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Su");
+
+    // 6, Calc3BodyDecay_Se
+    *Calc3BodyDecay_Se = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Se");
+
+    // 7, Calc3BodyDecay_Sv
+    *Calc3BodyDecay_Sv = inputs.options->getValueOrDef<bool>(true, "Calc3BodyDecay_Sv");
+
+    // 1000, Loop induced only
+    *CalcLoopDecay_LoopInducedOnly = inputs.options->getValueOrDef<bool>(false, "CalcLoopDecay_LoopInducedOnly");
+
+    // 1001, CalcLoopDecay_Sd
+    *CalcLoopDecay_Sd = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Sd");
+
+    // 1002, CalcLoopDecay_Su
+    *CalcLoopDecay_Su = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Su");
+
+    // 1003, CalcLoopDecay_Se
+    *CalcLoopDecay_Se = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Se");
+
+    // 1004, CalcLoopDecay_Sv
+    *CalcLoopDecay_Sv = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Sv");
+
+    // 1005, CalcLoopDecay_hh
+    *CalcLoopDecay_hh = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_hh");
+
+    // 1006, CalcLoopDecay_Ah
+    *CalcLoopDecay_Ah = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Ah");
+
+    // 1007, CalcLoopDecay_Hpm
+    *CalcLoopDecay_Hpm = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Hpm");
+
+    // 1008, CalcLoopDecay_Glu
+    *CalcLoopDecay_Glu = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Glu");
+
+    // 1009, CalcLoopDecay_Chi
+    *CalcLoopDecay_Chi = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Chi");
+
+    // 1010, CalcLoopDecay_Cha
+    *CalcLoopDecay_Cha = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Cha");
+
+    // 1011, CalcLoopDecay_Fu
+    *CalcLoopDecay_Fu = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Fu");
+ 
+    // divonly_save
+    // divergence_save
+    // TODO: check if relevant
+
+    // 1110, Simplistic Loop Decays
+    *SimplisticLoopDecays = inputs.options->getValueOrDef<bool>(false, "SimplisticLoopDecays");
+
+    // 1111, Shift IR divergence
+    *ShiftIRdiv = inputs.options->getValueOrDef<bool>(true, "ShiftIRdiv");
+
+    // 1103, Debug loop decays
+    *DebugLoopDecays = inputs.options->getValueOrDef<bool>(false, "DebugLoopDecays");
+
+    // 1104, Only Tree Level Contributions
+    *OnlyTreeLevelContributions = inputs.options->getValueOrDef<bool>(false, "OnlyTreeLevelContributions");
+
+    // 1114, External Z factors
+    *ExternalZfactors = inputs.options->getValueOrDef<bool>(true, "ExternalZfactors");
+    if(*ExternalZfactors)
+    {
+      *UseZeroRotationMatrices = inputs.options->getValueOrDef<bool>(false, "UseZeroRotationMatrices");
+      *UseP2Matrices = inputs.options->getValueOrDef<bool>(true, "UseP2Matrices");
+    }
+
+    // 1115, OS kinematics
+    *OSkinematics = inputs.options->getValueOrDef<bool>(true, "OSkinematics");
+ 
+    // 1116, ew/yuk OS in decays
+    *ewOSinDecays = inputs.options->getValueOrDef<bool>(true, "ewOSinDecays");
+    *yukOSinDecays = inputs.options->getValueOrDef<bool>(false, "yukOSinDecays");
+
+    // 1117, CT in loop decays
+    *CTinLoopDecays = inputs.options->getValueOrDef<bool>(false, "CTinLoopDecays");
+
+    // 1118, Loop induced decays OS
+    *LoopInducedDecaysOS = inputs.options->getValueOrDef<bool>(true, "LoopInducedDecaysOS");
+
+    // 1201, Mass regulator for photon and gluon
+    *Mass_Regulator_PhotonGluon = inputs.options->getValueOrDef<Freal8>(1e-10, "Mass_Regulator_PhotonGluon");
+
+   // 1205, Extra scale for loop decays
+   *Extra_Scale_LoopDecays = inputs.options->getValueOrDef<bool>(false, "Extra_Scale_LoopDecays");
+   if(*Extra_Scale_LoopDecays)
+     *Scale_LoopDecays = inputs.options->getValue<Freal8>("Scale_LoopDecays");
 
     /****************/
     // Block MINPAR //
