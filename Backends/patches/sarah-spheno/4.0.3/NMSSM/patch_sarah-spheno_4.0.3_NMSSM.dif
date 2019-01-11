@@ -1,6 +1,6 @@
-diff -rupN sarah-spheno-4.0.3-NMSSM/Makefile sarah-spheno-4.0.3-NMSSM-patched/Makefile
---- sarah-spheno-4.0.3-NMSSM/Makefile	2017-05-22 16:02:41.000000000 +0100
-+++ sarah-spheno-4.0.3-NMSSM-patched/Makefile	2018-11-25 23:21:04.752726398 +0000
+diff -rupN SPheno-4.0.3/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/Makefile
+--- SPheno-4.0.3/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/Makefile	2018-12-20 00:15:38.595028514 +1100
 @@ -9,10 +9,13 @@
  F90 = ifort
  Model = src
@@ -17,144 +17,9 @@ diff -rupN sarah-spheno-4.0.3-NMSSM/Makefile sarah-spheno-4.0.3-NMSSM-patched/Ma
 -.PHONY: bin/SPheno clean cleanall
 +	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
 +.PHONY: bin/SPheno lib/libSPhenoNMSSM clean cleanall
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/Boundaries_NMSSM.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/Boundaries_NMSSM.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/Boundaries_NMSSM.f90	2018-11-21 18:35:54.354928488 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/Boundaries_NMSSM.f90	2018-11-25 23:18:22.396766972 +0000
-@@ -2975,13 +2975,14 @@ Call BoundaryEW(j,MAh,MAh2,MCha,MCha2,MC
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,delta0,gB,kont)
- 
- If (kont.Ne.0) Then
--Iname=Iname-1
--    Write(*,*) " Problem with boundary conditions at EW scale" 
--    Call TerminateProgram
-+  Iname=Iname-1
-+  Write(*,*) " Problem with boundary conditions at EW scale" 
-+  Call TerminateProgram
- End If
-  
- Call RunRGE(kont,0.1_dp*delta0,gB,gA,mGUT)
-- 
-+
-+
- Call GToParameters218(gA,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,              & 
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3)
- 
-@@ -2992,9 +2993,9 @@ g1 = Sqrt(3._dp/5._dp)*g1
- ! ----------------------- 
-  
- If (kont.Ne.0) Then
--Iname=Iname-1
--    Write(*,*) " RGE running not possible. Errorcode:", kont 
--    Call TerminateProgram
-+  Iname=Iname-1
-+  Write(*,*) " RGE running not possible. Errorcode:", kont 
-+  Call TerminateProgram
- End If
- mudim=GetRenormalizationScale() 
- Q=Sqrt(mudim) 
-@@ -3067,6 +3068,8 @@ Call ParametersToG221(g1,g2,g3,Yd,Ye,lam
- & mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,vd,vu,vS,gC)
- 
- Call odeint(gC,221,tz,0._dp,0.1_dp*delta0,dt,0._dp,rge221,kont)
-+
-+
- Call GToParameters221(gC,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,              & 
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,vd,vu,vS)
- 
-@@ -3106,6 +3109,8 @@ Call ParametersToG221(g1,g2,g3,Yd,Ye,lam
- tz=Log(mZ/Q)
- dt=-tz/50._dp
- Call odeint(gD,221,tz,0._dp,0.1_dp*delta0,dt,0._dp,rge221,kont)
-+
-+
- Call GToParameters221(gD,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,              & 
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,vd,vu,vS)
- 
-@@ -3184,6 +3189,8 @@ Call OneLoopMasses(MAh,MAh2,MCha,MCha2,M
- & ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,            & 
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,kont)
- 
-+
-+
-  FirstRun = .False. 
- If (kont.Ne.0) Then
- Iname=Iname-1
-@@ -3198,7 +3205,7 @@ Iname=Iname-1
-       Write(*,*) "Too many steps: Running has not converged." 
-     Else If ((kont.eq.-4).or.(kont.eq.-8)) Then 
-       Write(*,*) "No GUT scale found." 
--End If
-+    End If
-     Call TerminateProgram
- End If
- n_tot =1
-@@ -3318,12 +3325,14 @@ End Select
- If (IgnoreNegativeMassesMZ) Then 
-   SignMassChangedSave = SignOfMassChanged 
- End if 
-+
- Call TreeMasses(MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,            & 
- & MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,               & 
- & MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,             & 
- & ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,            & 
- & mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,GenerationMixing,kont)
- 
-+
- If (IgnoreNegativeMassesMZ) Then 
-   SignOfMassChanged = SignMassChangedSave  
- End if 
-@@ -3345,6 +3354,7 @@ Call OneLoopMasses(MAh,MAh2,MCha,MCha2,M
- & ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,            & 
- & ml2,mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,kont)
- 
-+
- If (SignOfMassChanged) Then
-   If (.Not.IgnoreNegativeMasses) Then
-   Write(*,*) " Mass spectrum converged, but negative mass squared present." 
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/BranchingRatios_NMSSM.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/BranchingRatios_NMSSM.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/BranchingRatios_NMSSM.f90	2018-11-21 18:35:54.354928488 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/BranchingRatios_NMSSM.f90	2018-11-25 23:18:22.396766972 +0000
-@@ -27,7 +27,7 @@ Use OneLoopDecays_NMSSM
- 
-  Contains 
-  
--Subroutine CalculateBR(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
-+Subroutine CalculateBR_2(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
- & MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,              & 
- & MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,            & 
- & ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,             & 
-@@ -102,7 +102,7 @@ Real(dp) :: vev
- Real(dp) :: gTVZ,gTVWm
- 
- Iname = Iname + 1 
--NameOfUnit(Iname) = 'CalculateBR'
-+NameOfUnit(Iname) = 'CalculateBR_2'
-  
- Write(*,*) "Calculating branching ratios and decay widths" 
- gTVWm = gamW 
-@@ -651,6 +651,6 @@ End Do
- ! No 3-body decays for Fu  
- Iname = Iname - 1 
-  
--End Subroutine CalculateBR 
-+End Subroutine CalculateBR_2
- End Module BranchingRatios_NMSSM 
-  
-\ No newline at end of file
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/InputOutput_NMSSM.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/InputOutput_NMSSM.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/InputOutput_NMSSM.f90	2018-11-21 18:35:54.362928509 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/InputOutput_NMSSM.f90	2018-11-25 23:18:22.400766992 +0000
-@@ -360,6 +360,7 @@ If (calc_ferm) Call CalculateRunningMass
- &,mf_l_mZ,mf_d_mZ,mf_u_mZ,kont)
- 
- 
-+
- Iname=Iname-1
- Contains
- Subroutine Read_MINPAR(io,i_c,i_model,set_mod_par,kont) 
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/Makefile sarah-spheno-4.0.3-NMSSM-patched/NMSSM/Makefile
---- sarah-spheno-4.0.3-NMSSM/NMSSM/Makefile	2018-11-21 18:35:54.366928519 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/Makefile	2018-11-25 23:18:22.400766992 +0000
+diff -rupN SPheno-4.0.3/NMSSM/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/Makefile
+--- SPheno-4.0.3/NMSSM/Makefile	2019-01-11 13:44:43.589909032 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/Makefile	2019-01-10 16:02:43.768467461 +1100
 @@ -5,6 +5,7 @@ InDir = ../include
  Mdir = ${InDir}
  VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM 
@@ -249,9 +114,69 @@ diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/Makefile sarah-spheno-4.0.3-NMSSM-patc
  #
  # Suffix rules
  #
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/SPhenoNMSSM.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/SPhenoNMSSM.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/SPhenoNMSSM.f90	2018-11-21 18:35:54.366928519 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/SPhenoNMSSM.f90	2018-11-25 23:18:22.400766992 +0000
+diff -rupN SPheno-4.0.3/src/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/src/Makefile
+--- SPheno-4.0.3/src/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/src/Makefile	2019-01-10 16:03:18.280828691 +1100
+@@ -17,32 +17,32 @@ LFlagsB = -O
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fpic -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fpic
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fpic -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fpic
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fpic -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fpic
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fpic -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fpic
+ endif
+  
+ .SUFFIXES : .o .ps .f90 .F90 .a
+@@ -70,11 +70,11 @@ cleanall:
+ #
+ .f90.a:
+ 	${F90} ${comp} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .F90.a:
+ 	${F90} ${comp}  ${PreDef} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .f90.o: 
+ 	${F90} ${comp}  $< 
+diff -rupN SPheno-4.0.3/NMSSM/SPhenoNMSSM.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/SPhenoNMSSM.f90
+--- SPheno-4.0.3/NMSSM/SPhenoNMSSM.f90	2019-01-11 13:44:43.593908894 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/SPhenoNMSSM.f90	2018-12-20 00:15:38.603028171 +1100
 @@ -7,7 +7,8 @@
  ! ----------------------------------------------------------------------  
   
@@ -349,97 +274,9 @@ diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/SPhenoNMSSM.f90 sarah-spheno-4.0.3-NMS
 -End Program SPhenoNMSSM 
 +!End Program SPhenoNMSSM ! Commented by GAMBIT
 +End Module SPhenoNMSSM ! Added by GAMBIT
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/TreeLevelMasses_NMSSM.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/TreeLevelMasses_NMSSM.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/TreeLevelMasses_NMSSM.f90	2018-11-21 18:35:54.366928519 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/TreeLevelMasses_NMSSM.f90	2018-11-25 23:18:22.400766992 +0000
-@@ -104,12 +104,16 @@ Call CalculateMFu(Yu,vu,ZUL,ZUR,MFu,kont
- 
- MFu2 = MFu**2 
- 
-+
-+
-  
-  Call SortGoldstones(MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,             & 
- & MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,               & 
- & MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,            & 
- & ZUR,ZV,ZW,ZZ,betaH,kont)
- 
-+
-+
- If (MatchingOrder.eq.-1) Then 
-  If (SignOfMassChanged) Then  
-  If (.Not.IgnoreNegativeMasses) Then 
-@@ -312,7 +316,7 @@ Real(dp) ::  test(2)
- 
- Iname = Iname + 1 
- NameOfUnit(Iname) = 'CalculateMSd'
-- 
-+
- mat(1,1) = 0._dp 
- mat(1,1) = mat(1,1)-(g1**2*vd**2)/24._dp
- mat(1,1) = mat(1,1)-(g2**2*vd**2)/8._dp
-@@ -451,29 +455,29 @@ End If
- Do i1=1,6
-   If (Abs(MSd2(i1)).Le.MaxMassNumericalZero) MSd2(i1) = 1.E-10_dp 
-   If (MSd2(i1).ne.MSd2(i1)) Then 
--      Write(*,*) 'NaN appearing in '//NameOfUnit(Iname) 
--      Call TerminateProgram 
--    End If 
-+    Write(*,*) 'NaN appearing in '//NameOfUnit(Iname) 
-+    Call TerminateProgram 
-+  End If 
-   If (MSd2(i1).Ge.0._dp) Then 
--  MSd(i1)=Sqrt(MSd2(i1) ) 
-+    MSd(i1)=Sqrt(MSd2(i1) ) 
-   Else 
-     If (ErrorLevel.Ge.0) Then 
-       Write(10,*) 'Warning from Subroutine '//NameOfUnit(Iname) 
-       Write(10,*) 'a mass squarred is negative: ',i1,MSd2(i1) 
-     End If 
--  MSd(i1) = 1._dp 
--     Write(ErrCan,*) 'Warning from routine '//NameOfUnit(Iname) 
--     Write(ErrCan,*) 'in the calculation of the masses' 
--     Write(ErrCan,*) 'occurred a negative mass squared!' 
--     Write(ErrCan,*) i1,MSd2(i1) 
--     Write(*,*) 'Warning from routine '//NameOfUnit(Iname) 
--     Write(*,*) 'in the calculation of the masses' 
--     Write(*,*) 'occurred a negative mass squared!' 
--     Write(*,*) i1,MSd2(i1) 
--  MSd2(i1) = 1._dp 
--   SignOfMassChanged = .True. 
--! kont = -104 
-- End if 
-+    MSd(i1) = 1._dp 
-+    Write(ErrCan,*) 'Warning from routine '//NameOfUnit(Iname) 
-+    Write(ErrCan,*) 'in the calculation of the masses' 
-+    Write(ErrCan,*) 'occurred a negative mass squared!' 
-+    Write(ErrCan,*) i1,MSd2(i1) 
-+    Write(*,*) 'Warning from routine '//NameOfUnit(Iname) 
-+    Write(*,*) 'in the calculation of the masses' 
-+    Write(*,*) 'occurred a negative mass squared!' 
-+    Write(*,*) i1,MSd2(i1) 
-+    MSd2(i1) = 1._dp 
-+    SignOfMassChanged = .True. 
-+    ! kont = -104 
-+  End if 
- End Do 
- Iname = Iname - 1 
-  
-diff -rupN sarah-spheno-4.0.3-NMSSM/NMSSM/TwoLoopMasses/2LPoleFunctions.f90 sarah-spheno-4.0.3-NMSSM-patched/NMSSM/TwoLoopMasses/2LPoleFunctions.f90
---- sarah-spheno-4.0.3-NMSSM/NMSSM/TwoLoopMasses/2LPoleFunctions.f90	2018-11-21 18:35:54.382928561 +0000
-+++ sarah-spheno-4.0.3-NMSSM-patched/NMSSM/TwoLoopMasses/2LPoleFunctions.f90	2018-11-25 23:18:22.408767031 +0000
-@@ -1782,8 +1782,6 @@ if(smallc(real(x/q2))) then
- else
- 
- 
--
--
- res = Cmplx(0._dp,0._dp)
- res=res + 0.5_dp*(x-y-z)*log(y/Q2)*log(z/Q2)
- res=res + 0.5_dp*(y-x-z)*log(x/Q2)*log(z/Q2)
-diff -rupN sarah-spheno-4.0.3-NMSSM/src/Control.F90 sarah-spheno-4.0.3-NMSSM-patched/src/Control.F90
---- sarah-spheno-4.0.3-NMSSM/src/Control.F90	2017-05-22 16:02:41.000000000 +0100
-+++ sarah-spheno-4.0.3-NMSSM-patched/src/Control.F90	2018-11-25 23:18:22.484767406 +0000
+diff -rupN SPheno-4.0.3/src/Control.F90 ../installed/sarah-spheno/4.0.3/NMSSM/src/Control.F90
+--- SPheno-4.0.3/src/Control.F90	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/src/Control.F90	2018-12-20 00:15:38.603028171 +1100
 @@ -26,6 +26,22 @@ Module Control
  !            and to write the corresponding numbers 
  !-------------------------------------------------------------------
@@ -498,49 +335,55 @@ diff -rupN sarah-spheno-4.0.3-NMSSM/src/Control.F90 sarah-spheno-4.0.3-NMSSM-pat
    Stop "Subroutine TerminateProgram"
  
   End Subroutine TerminateProgram
-diff -rupN sarah-spheno-4.0.3-NMSSM/src/Makefile sarah-spheno-4.0.3-NMSSM-patched/src/Makefile
---- sarah-spheno-4.0.3-NMSSM/src/Makefile	2017-05-22 16:02:41.000000000 +0100
-+++ sarah-spheno-4.0.3-NMSSM-patched/src/Makefile	2018-11-25 23:18:22.484767406 +0000
-@@ -17,32 +17,32 @@ LFlagsB = -O
- # Intels ifort, debug modus
- ifeq (${F90},ifortg)
-  F90 = ifort
-- comp = -c -g -module ${Mdir} -I${InDir} 
-- LFlagsB = -g  
-+ comp = -c -g -fpic -module ${Mdir} -I${InDir} 
-+ LFlagsB = -g -fpic
- endif
+diff -rupN SPheno-4.0.3/NMSSM/BranchingRatios_NMSSM.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/BranchingRatios_NMSSM.f90
+--- SPheno-4.0.3/NMSSM/BranchingRatios_NMSSM.f90	2019-01-11 13:44:43.581909306 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/BranchingRatios_NMSSM.f90	2018-12-20 00:15:38.599028343 +1100
+@@ -27,7 +27,7 @@ Use OneLoopDecays_NMSSM
  
- # gfortran
- ifeq (${F90},gfortran)
-- comp = -c -O -J${Mdir} -I${InDir}
-- LFlagsB = -O  
-+ comp = -c -O -fPIC -J${Mdir} -I${InDir}
-+ LFlagsB = -O -fPIC
- endif
- 
- # g95 
- ifeq (${F90},g95)
-- comp = -c -O -fmod=${Mdir} -I${InDir}
-- LFlagsB = -O  
-+ comp = -c -O -fpic -fmod=${Mdir} -I${InDir}
-+ LFlagsB = -O -fpic
- endif
- 
- # Lahey F95 compiler
- ifeq (${F90},lf95)
-- comp = -c -O -M ${Mdir} -I${InDir}
-- LFlagsB = -O  
-+ comp = -c -O -fpic -M ${Mdir} -I${InDir}
-+ LFlagsB = -O -fpic
- endif
+  Contains 
   
- # NAG f95/2003
- ifeq (${F90},nagfor)
-- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
-- LFlagsB = -O
-+ comp = -c -O -fpic -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
-+ LFlagsB = -O -fpic
- endif
+-Subroutine CalculateBR(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
++Subroutine CalculateBR_2(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
+ & MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,              & 
+ & MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,            & 
+ & ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,             & 
+@@ -102,7 +102,7 @@ Real(dp) :: vev
+ Real(dp) :: gTVZ,gTVWm
+ 
+ Iname = Iname + 1 
+-NameOfUnit(Iname) = 'CalculateBR'
++NameOfUnit(Iname) = 'CalculateBR_2'
   
- .SUFFIXES : .o .ps .f90 .F90 .a
+ Write(*,*) "Calculating branching ratios and decay widths" 
+ gTVWm = gamW 
+@@ -651,6 +651,6 @@ End Do
+ ! No 3-body decays for Fu  
+ Iname = Iname - 1 
+  
+-End Subroutine CalculateBR 
++End Subroutine CalculateBR_2
+ End Module BranchingRatios_NMSSM 
+  
+\ No newline at end of file
+diff -rupN SPheno-4.0.3/NMSSM/AddLoopFunctions.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/AddLoopFunctions.f90
+--- SPheno-4.0.3/NMSSM/AddLoopFunctions.f90	2019-01-11 13:44:43.581909306 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/AddLoopFunctions.f90	2019-01-11 13:14:44.944805527 +1100
+@@ -1407,14 +1407,17 @@ End Function DerVVVloop
+   VB0 = B0(xp,xm1,xm2)
+   VDerB0 = SA_DerB0(xp,xm1,xm2)
+ 
++  If ((xm1.Eq.0._dp).And.(xm2.Eq.0._dp)) Then
++    SA_DerB00 = -2._dp * xp * xp - 3._dp * xp * xp * VB0 - 3._dp * xp * xp * xp * VDerB0
++  Else
+   SA_DerB00 = 3._dp * (xm1 * xm1 - 2._dp * xm1 * xm2 &
+    & + xm2 * xm2 - xp * xp) * VB0 &
+    & - 3._dp * (xm1 - xm2) * (xm1 - xm2) * B0(0._dp,xm1,xm2) &
+    & - 3._dp * xp * (xm1 * xm1 + xm2 * xm2 + xp * xp)* VDerB0 &
+    & + 6._dp * (xm1 + xm2) * xp * xp * VDerB0 &
+    & + 6._dp * xm1 * xm2 * xp * VDerB0 - 2._dp * xp * xp
++  Endif
+   SA_DerB00 = SA_DerB00 / (36._dp * xp * xp)
+-
+   End If
+ 
+  End Function SA_DerB00
