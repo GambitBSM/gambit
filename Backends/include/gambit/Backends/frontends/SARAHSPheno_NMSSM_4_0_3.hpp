@@ -423,7 +423,7 @@ BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), "__model_data_nmssm_MOD
 BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), "__model_data_nmssm_MOD_setyukawascheme", "SARAHSPheno_NMSSM_internal")
 /*BE_FUNCTION(Set_Use_bsstep_instead_of_rkqs, Flogical, (Flogical&), "__mathematics_MOD_set_use_bsstep_instead_of_rkqs", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(Set_Use_rzextr_instead_of_pzextr, Flogical, (Flogical&), "__mathematics_MOD_set_use_rzextr_instead_of_pzextr", "SARAHSPheno_NMSSM_internal")*/
-BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SARAHSPheno_NMSSM_internal")
+// BE_FUNCTION(Alpha_MSbar, Freal8, (Freal8&, Freal8&, Freal8&), "__loopcouplings_nmssm_MOD_alpha_msbar", "SARAHSPheno_NMSSM_internal")
 
 BE_FUNCTION(CalculateBR, void,
 	(Flogical&, // CalcTBD
