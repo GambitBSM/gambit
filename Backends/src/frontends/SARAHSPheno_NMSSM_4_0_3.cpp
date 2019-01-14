@@ -859,8 +859,9 @@ BE_NAMESPACE
     slha["GAUGEGUT"][""] << 3 << *g3GUT << "# g3(mGUT)";
 
     // Block SMINPUTS
+    // _Anders 1.0/sminputs.alphainv
     SLHAea_add_block(slha, "SMINPUTS");
-    slha["SMINPUTS"][""] << 1 << 1.0 / Alpha_MSbar(*mZ, *mW) << "# alpha_em^-1(MZ)^MSbar";
+    slha["SMINPUTS"][""] << 1 << *Alpha_mZ_MS << "# alpha_em^-1(MZ)^MSbar";
     slha["SMINPUTS"][""] << 2 << *G_F << "# G_mu [GeV^-2]";
     slha["SMINPUTS"][""] << 3 << *AlphaS_mZ << "# alpha_s(MZ)^MSbar";
     slha["SMINPUTS"][""] << 4 << *mZ << "# m_Z(pole)";
@@ -2132,6 +2133,7 @@ BE_NAMESPACE
 
     // couplings: Alpha(Q=0), Alpha(mZ), Alpha_S(mZ), Fermi constant G_F
     *Alpha =  1.0/137.035999074;
+    // _Anders
     *Alpha_mZ = 1.0/sminputs.alphainv;
     *Alpha_mZ_MS = *Alpha_mZ; // from SMINPUTS
     *MZ_input = true;
