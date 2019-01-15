@@ -23,6 +23,7 @@
 #include <cstring>
 #include <chrono>  // chrono::system_clock
 #include <ctime>   // localtime
+#include <cctype>  // ::tolower function
 #include <sstream> // stringstream
 #include <string>  // string
 
@@ -161,6 +162,20 @@ namespace Gambit
       arr[len-1] = ' ';
     }
 
+    /// Perform a simple case-insensitive string comparison
+    /// From: https://stackoverflow.com/a/4119881/1447953
+    bool iequals(const std::string& a, const std::string& b, bool case_sensitive)
+    {
+        if(case_sensitive)
+            return a==b;
+        unsigned int sz = a.size();
+        if (b.size() != sz)
+            return false;
+        for (unsigned int i = 0; i < sz; ++i)
+            if (tolower(a[i]) != tolower(b[i]))
+                return false;
+        return true;
+    }
 
     /// Ensure that a path exists (and then return the path, for chaining purposes)
     const std::string& ensure_path_exists(const std::string& path)
@@ -346,12 +361,19 @@ namespace Gambit
     }
 
     // Inspired by the above. Checks whether 'str' begins with 'prefix'
-    bool startsWith(const std::string& str, const std::string& prefix)
+    bool startsWith(const std::string& str, const std::string& prefix, bool case_sensitive)
     {
       if (&prefix == &str) return true; // str and prefix are the same string
       if (prefix.length() > str.length()) return false;
       for (size_t i = 0; i < prefix.length(); ++i) {
-          if (prefix[i] != str[i]) return false;
+          if(case_sensitive)
+          {
+             if (prefix[i] != str[i]) return false;
+          }
+          else
+          {
+             if (tolower(prefix[i]) != tolower(str[i])) return false; 
+          }
       }
       return true;
     }
