@@ -31,7 +31,7 @@ namespace Gambit
 
       /// The maximal Higgs sector manageable by this class; update as needed.
       /// @{
-      const static int max_neutral_higgses = 3;
+      const static int max_neutral_higgses = 5;
       const static int max_charged_higgses = 1;
       /// @}
 

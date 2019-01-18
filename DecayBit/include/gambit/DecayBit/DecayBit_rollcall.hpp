@@ -99,6 +99,12 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+    #define FUNCTION Ref_SM_h0_2_decays_table_NMSSM
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -116,6 +122,34 @@ START_MODULE
     DEPENDENCY(FH_Couplings_output, fh_Couplings)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    #define FUNCTION Ref_SM_A0_decays_table_NMSSM
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY 
+
+  #define CAPABILITY Reference_SM_A0_2_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION Ref_SM_A0_2_decays_table_NMSSM
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY Reference_SM_h0_3_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION Ref_SM_h0_3_decays_table_NMSSM
+    START_FUNCTION(DecayTable::Entry)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    ALLOW_MODELS(NMSSM66atQ)
     #undef FUNCTION
 
   #undef CAPABILITY

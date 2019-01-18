@@ -17,6 +17,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2018 Nov
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Jan
+///
 ///  *********************************************
 ///
 #ifndef __SpecBit_NMSSM_hpp__
@@ -50,6 +54,32 @@
     #define FUNCTION get_NMSSM_spectrum_as_map
     START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
     DEPENDENCY(NMSSM_spectrum, Spectrum)
+    #undef FUNCTION
+
+
+  #undef CAPABILITY
+
+  // Generalised Higgs couplings
+  #define CAPABILITY Higgs_Couplings
+
+    // From partial widths
+    #define FUNCTION NMSSM_higgs_couplings_pwid
+    START_FUNCTION(HiggsCouplingsTable)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    // Use the DecayTable object instead of each individual decay channel... this may need to change if 
+    // we plan to use tools other than
+    DEPENDENCY(decay_rates, DecayTable)
+    DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Reference_SM_h0_3_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Reference_SM_A0_decay_rates, DecayTable::Entry)
+    DEPENDENCY(Reference_SM_A0_2_decay_rates, DecayTable::Entry)
+    // DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    // DEPENDENCY(h0_2_decay_rates, DecayTable::Entry)
+    // DEPENDENCY(A0_decay_rates, DecayTable::Entry)
+    // DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
+    // DEPENDENCY(t_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS(NMSSM66atQ)
     #undef FUNCTION
 
   #undef CAPABILITY

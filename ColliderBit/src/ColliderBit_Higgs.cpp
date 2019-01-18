@@ -296,6 +296,90 @@ namespace Gambit
       set_CS(result, *Dep::Higgs_Couplings, 3);
     }
 
+    // SB: todo
+    /// NMSSM Higgs model parameters
+    void NMSSMHiggs_ModelParameters(hb_ModelParameters &result)
+    {
+      using namespace Pipes::NMSSMHiggs_ModelParameters;
+
+      // Set up neutral Higgses
+      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "h0_3", "A0_1", "A0_2");
+
+      // Set the CP of the Higgs states.
+      for (int i = 0; i < 5; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+
+      // Retrieve higgs partial widths
+      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(5);
+      const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(1);
+      const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
+
+      // Retrieve masses
+      const Spectrum& fullspectrum = *Dep::NMSSM_spectrum;
+      const SubSpectrum& spec = fullspectrum.get_HE();
+
+      // Neutral higgs masses and errors
+      for(int i = 0; i < 5; i++)
+      {
+        result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
+        double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+        double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+        result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+      }
+
+      // Loop over all neutral Higgses, setting their branching fractions and total widths.
+      for(int i = 0; i < 5; i++)
+      {
+        result.hGammaTot[i] = h0_widths[i]->width_in_GeV;
+        result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
+        result.BR_hjcc[i] = h0_widths[i]->BF("c", "cbar");
+        result.BR_hjbb[i] = h0_widths[i]->BF("b", "bbar");
+        result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
+        result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
+        result.BR_hjWW[i] = h0_widths[i]->BF("W+", "W-");
+        result.BR_hjZZ[i] = h0_widths[i]->BF("Z0", "Z0");
+        result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
+        result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
+        result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
+        // Do decays to invisibles
+        result.BR_hjinvisible[i] = 0.;
+        for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
+        {
+          result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
+        }
+        // Do decays to other neutral higgses
+        for (int j = 0; j < 5; j++)
+        {
+          if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
+          {
+            result.BR_hjhihi[i][j] = h0_widths[i]->BF(sHneut[j],sHneut[j]);
+          }
+          else
+          {
+            result.BR_hjhihi[i][j] = 0.;
+          }
+        }
+      }
+
+      // Charged higgs masses and errors
+      result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
+      double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
+      double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
+      result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
+
+      // Set charged Higgs branching fractions and total width.
+      result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
+      result.BR_Hpjcs[0]   = H_plus_widths.BF("c", "sbar");
+      result.BR_Hpjcb[0]   = H_plus_widths.BF("c", "bbar");
+      result.BR_Hptaunu[0] = H_plus_widths.BF("tau+", "nu_tau");
+
+      // Set top branching fractions
+      result.BR_tWpb       = t_widths.BF("W+", "b");
+      result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
+
+      // Retrieve cross-section ratios from the HiggsCouplingsTable
+      set_CS(result, *Dep::Higgs_Couplings, 5);
+    }
+
 
     /// Get a LEP chisq from HiggsBounds
     void calc_HB_LEP_LogLike(double &result)

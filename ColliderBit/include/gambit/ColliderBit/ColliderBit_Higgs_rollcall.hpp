@@ -54,6 +54,14 @@
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+    // NMSSM Higgs model parameters
+    #define FUNCTION NMSSMHiggs_ModelParameters
+    START_FUNCTION(hb_ModelParameters)
+    DEPENDENCY(NMSSM_spectrum, Spectrum)
+    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+    ALLOW_MODELS(NMSSM66atQ)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
