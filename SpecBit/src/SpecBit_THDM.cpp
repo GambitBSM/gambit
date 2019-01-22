@@ -1810,6 +1810,7 @@ namespace Gambit
 
     double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 59" << endl;
+      // this is only compatible with a Z2 conserving model
       // -----------
       //from arXiv 1303.5098v1
       //"Our vacuum is the global minimum of the potential if and only if D > 0
@@ -1971,55 +1972,45 @@ namespace Gambit
         if (ModelInUse("THDMatQ")) init_THDM_spectrum_container(container, spec, yukawa_type, *Param.at("QrunTo"));
         else init_THDM_spectrum_container(container, spec, yukawa_type);
 
-        double m_h = container.he->get(Par::Pole_Mass, "h0",1);
-        double m_H = container.he->get(Par::Pole_Mass, "h0",2);
-        double m_A = container.he->get(Par::Pole_Mass, "A0");
-        double m_Hp = container.he->get(Par::Pole_Mass, "H+");
-        double alpha = container.he->get(Par::dimensionless, "alpha");
-        double tan_beta = container.he->get(Par::dimensionless, "tanb");
+        const double m_h = container.he->get(Par::Pole_Mass, "h0",1);
+        const double m_H = container.he->get(Par::Pole_Mass, "h0",2);
+        const double m_A = container.he->get(Par::Pole_Mass, "A0");
+        const double m_Hp = container.he->get(Par::Pole_Mass, "H+");
+        const double alpha = container.he->get(Par::dimensionless, "alpha");
+        const double tan_beta = container.he->get(Par::dimensionless, "tanb");
 
-        double lambda1 = container.he->get(Par::mass1, "lambda_1");
-        double lambda2 = container.he->get(Par::mass1, "lambda_2");
-        double lambda3 = container.he->get(Par::mass1, "lambda_3");
-        double lambda4 = container.he->get(Par::mass1, "lambda_4");
-        double lambda5 = container.he->get(Par::mass1, "lambda_5");
+        const double lambda1 = container.he->get(Par::mass1, "lambda_1");
+        const double lambda2 = container.he->get(Par::mass1, "lambda_2");
+        const double lambda3 = container.he->get(Par::mass1, "lambda_3");
+        const double lambda4 = container.he->get(Par::mass1, "lambda_4");
+        const double lambda5 = container.he->get(Par::mass1, "lambda_5");
+        const double sba = get_sba(tan_beta, alpha);
+        const double lambda6 = container.he->get(Par::mass1,"lambda_6");
+        const double lambda7 = container.he->get(Par::mass1,"lambda_7");
 
-        double sba = get_sba(tan_beta, alpha);
+        const double m12_2 = container.he->get(Par::mass1,"m12_2");
 
-        double lambda6 = container.he->get(Par::mass1,"lambda_6");
-        double lambda7 = container.he->get(Par::mass1,"lambda_7");
+        const double alphaInv = container.sminputs.alphainv;
+        const double alphaS = container.sminputs.alphaS;
+        const double GF = container.sminputs.GF;
 
-        double m12_2 = container.he->get(Par::mass1,"m12_2");
+        const double MZ = container.SM->get(Par::Pole_Mass,"Z0");
+        const double MW = container.SM->get(Par::Pole_Mass,"W+");
 
-        double alphaInv = container.sminputs.alphainv;
-        double alphaS = container.sminputs.alphaS;
-        double GF = container.sminputs.GF;
+        const double lambda = container.sminputs.CKM.lambda;
+        const double A = container.sminputs.CKM.A;
+        const double rho = container.sminputs.CKM.rhobar;
+        const double eta = container.sminputs.CKM.etabar;
 
-        double MZ = container.SM->get(Par::Pole_Mass,"Z0");
-        double MW = container.SM->get(Par::Pole_Mass,"W+");
+        const double g_prime = container.THDM_object->get_SM_pointer()->get_gprime();
+        const double g = container.THDM_object->get_SM_pointer()->get_g();
+        const double g_3 = 4.*M_PI*alphaS;
 
-        // double gammaZ = 2.4952;
-        // double gammaW = 2.085;
-
-        // double Me = SM.get(Par::Pole_Mass,"e-_1");
-        // double Mmu = SM.get(Par::Pole_Mass,"e-_2");
-        double Mtau = container.SM->get(Par::Pole_Mass,"e-_3");
-
-        // double Mu = sminputs.mU; //u
-        // double Md = sminputs.mD; //d
-        // double Mc = sminputs.mCmC; //c
-        // double Ms = sminputs.mS; //s
-        double Mt = container.SM->get(Par::Pole_Mass,"u_3"); //t
-        double Mb = container.SM->get(Par::Pole_Mass,"d_3"); //b
-
-        double lambda = container.sminputs.CKM.lambda;
-        double A = container.sminputs.CKM.A;
-        double rho = container.sminputs.CKM.rhobar;
-        double eta = container.sminputs.CKM.etabar;
-
-        double g_prime = container.THDM_object->get_SM_pointer()->get_gprime();
-        double g = container.THDM_object->get_SM_pointer()->get_g();
-        double g_3 = 4.*M_PI*alphaS;
+        const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
+        const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
+        const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
+        const double beta = atan(tan_beta);
+        const double vev = sqrt((container.THDM_object->get_SM_pointer())->get_v2());
 
         SLHAstruct slha;
 
@@ -2035,9 +2026,9 @@ namespace Gambit
         SLHAea_add(slha, "SMINPUTS", 2, GF, "GF", true);
         SLHAea_add(slha, "SMINPUTS", 3, alphaS, "alphaS", true);
         SLHAea_add(slha, "SMINPUTS", 4, MZ, "MZ", true);
-        SLHAea_add(slha, "SMINPUTS", 5, Mb, "Mb", true);
-        SLHAea_add(slha, "SMINPUTS", 6, Mt, "Mt - pole", true);
-        SLHAea_add(slha, "SMINPUTS", 7, Mtau, "Mtau - pole", true);
+        SLHAea_add(slha, "SMINPUTS", 5, m_d[2], "Mb", true);
+        SLHAea_add(slha, "SMINPUTS", 6, m_u[2], "Mt - pole", true);
+        SLHAea_add(slha, "SMINPUTS", 7, m_l[2], "Mtau - pole", true);
 
         SLHAea_add_block(slha, "GAUGE");
         SLHAea_add(slha, "GAUGE", 1, g, "g", true);
@@ -2065,15 +2056,15 @@ namespace Gambit
         SLHAea_add(slha, "VCKMIN", 4, eta, "etabar-CKM", true);
 
         SLHAea_add_block(slha, "MASS");
-        SLHAea_add(slha, "MASS", 1, container.THDM_object->get_SM_pointer()->get_qmass_pole(1), "Md - pole", true);
-        SLHAea_add(slha, "MASS", 2, container.THDM_object->get_SM_pointer()->get_qmass_pole(2), "Mu - pole", true);
-        SLHAea_add(slha, "MASS", 3, container.THDM_object->get_SM_pointer()->get_qmass_pole(3), "Ms - pole", true);
-        SLHAea_add(slha, "MASS", 4, container.THDM_object->get_SM_pointer()->get_qmass_pole(4), "Mc - pole", true);
-        SLHAea_add(slha, "MASS", 5, container.THDM_object->get_SM_pointer()->get_qmass_pole(5), "Mb - pole", true);
-        SLHAea_add(slha, "MASS", 6, container.THDM_object->get_SM_pointer()->get_qmass_pole(6), "Mt - pole", true);
-        SLHAea_add(slha, "MASS", 11, container.THDM_object->get_SM_pointer()->get_lmass_pole(1), "Me - pole", true);
-        SLHAea_add(slha, "MASS", 13, container.THDM_object->get_SM_pointer()->get_lmass_pole(2), "Mmu - pole", true);
-        SLHAea_add(slha, "MASS", 15, container.THDM_object->get_SM_pointer()->get_lmass_pole(3), "Mtau - pole", true);
+        SLHAea_add(slha, "MASS", 1, m_d[0], "Md - pole", true);
+        SLHAea_add(slha, "MASS", 2, m_u[0], "Mu - pole", true);
+        SLHAea_add(slha, "MASS", 3, m_d[1], "Ms - pole", true);
+        SLHAea_add(slha, "MASS", 4, m_u[1], "Mc - pole", true);
+        SLHAea_add(slha, "MASS", 5, m_d[2], "Mb - pole", true);
+        SLHAea_add(slha, "MASS", 6, m_u[2], "Mt - pole", true);
+        SLHAea_add(slha, "MASS", 11, m_l[0], "Me - pole", true);
+        SLHAea_add(slha, "MASS", 13, m_l[1], "Mmu - pole", true);
+        SLHAea_add(slha, "MASS", 15, m_l[2], "Mtau - pole", true);
         SLHAea_add(slha, "MASS", 23, MZ, "MZ", true);
         SLHAea_add(slha, "MASS", 24, MW, "MW", true);
         SLHAea_add(slha, "MASS", 25, m_h, "Mh0_1", true);
@@ -2084,7 +2075,17 @@ namespace Gambit
         SLHAea_add_block(slha, "ALPHA");
         SLHAea_add(slha, "ALPHA", 0, container.THDM_object->get_alpha(), "alpha", true);
 
-        vector<double> matrix_u, matrix_d, matrix_l;
+        // TODO: fix below for complex kappa & gamma yukawa matrices.
+        // TODO: clean below code.
+
+      std::vector<double> y_d, y_u, y_l;
+      for (int i=0; i<3; i++) {
+        y_u.push_back(m_u[i]*sqrt(2)/vev/sin(beta));
+        y_d.push_back(m_d[i]*sqrt(2)/vev/cos(beta));
+        y_l.push_back(m_l[i]*sqrt(2)/vev/cos(beta));
+      }
+
+      std::vector<double> matrix_u, matrix_d, matrix_l;
 
         for (int i=0;i<3;i++) { if (print_debug_checkpoints) cout << "Checkpoint: 70" << endl;
           for (int j=0;j<3;j++) { if (print_debug_checkpoints) cout << "Checkpoint: 71" << endl;
@@ -2095,37 +2096,36 @@ namespace Gambit
           }
         }
 
-        // TODO: fix below for complex kappa & gamma yukawa matrices
-        // ---
-        // adapted from 2HDMC code - THDMC.cpp
-        // double k1,k2,k3,r1,r2,r3;
-        // THDM_object.get_kappa_up(k1,k2,k3);
-        // THDM_object.get_yukawas_up(r1,r2,r3);
-        // (k1>0 ? matrix_u[0] = r1/k1 : matrix_u[0]=0.);
-        // (k2>0 ? matrix_u[4] = r2/k2 : matrix_u[4]=0.);
-        // (k3>0 ? matrix_u[8] = r3/k3 : matrix_u[8]=0.);
+        matrix_u[0] = y_u[0];
+        matrix_u[4] = y_u[1];
+        matrix_u[8] = y_u[2];
 
-        // THDM_object.get_kappa_down(k1,k2,k3);
-        // THDM_object.get_yukawas_down(r1,r2,r3);
-        // (k1>0 ? matrix_d[0] = r1/k1 : matrix_d[0]=0.);
-        // (k2>0 ? matrix_d[4] = r2/k2 : matrix_d[4]=0.);
-        // (k3>0 ? matrix_d[8] = r3/k3 : matrix_d[8]=0.);
+        matrix_d[0] = y_d[0];
+        matrix_d[4] = y_d[1];
+        matrix_d[8] = y_d[2];
 
-        // THDM_object.get_kappa_lepton(k1,k2,k3);
-        // THDM_object.get_yukawas_lepton(r1,r2,r3);
-        // (k1>0 ? matrix_l[0] = r1/k1 : matrix_l[0]=0.);
-        // (k2>0 ? matrix_l[4] = r2/k2 : matrix_l[4]=0.);
-        // (k3>0 ? matrix_l[8] = r3/k3 : matrix_l[8]=0.);
-        // // ---
+        matrix_l[0] = y_l[0];
+        matrix_l[4] = y_l[1];
+        matrix_l[8] = y_l[2];
 
-        // SLHAea_add_block(slha, "UCOUPL");
-        // SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);
+        SLHAea_add_block(slha, "UCOUPL");
+        SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);
 
-        // SLHAea_add_block(slha, "DCOUPL");
-        // SLHAea_add_matrix(slha, "DCOUPL", matrix_d, 3, 3, "LU", true);
+        SLHAea_add_block(slha, "DCOUPL");
+        SLHAea_add_matrix(slha, "DCOUPL", matrix_d, 3, 3, "LU", true);
 
-        // SLHAea_add_block(slha, "LCOUPL");
-        // SLHAea_add_matrix(slha, "LCOUPL", matrix_l, 3, 3, "LU", true);
+        SLHAea_add_block(slha, "LCOUPL");
+        SLHAea_add_matrix(slha, "LCOUPL", matrix_l, 3, 3, "LU", true);
+
+        std::cout << matrix_u[0] << std::endl;
+        std::cout << matrix_u[4] << std::endl;
+        std::cout << matrix_u[8] << std::endl;
+        std::cout << matrix_d[0] << std::endl;
+        std::cout << matrix_d[4] << std::endl;
+        std::cout << matrix_d[8] << std::endl;
+        std::cout << matrix_l[0] << std::endl;
+        std::cout << matrix_l[4] << std::endl;
+        std::cout << matrix_l[8] << std::endl;
 
         result = slha;
       }
