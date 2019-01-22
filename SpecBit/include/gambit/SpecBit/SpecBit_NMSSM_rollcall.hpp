@@ -67,7 +67,7 @@
     START_FUNCTION(HiggsCouplingsTable)
     DEPENDENCY(NMSSM_spectrum, Spectrum)
     // Use the DecayTable object instead of each individual decay channel... this may need to change if 
-    // we plan to use tools other than
+    // we plan to use tools other than SPheno, but the YAML file should be able to steer this.
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
     DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
@@ -78,7 +78,7 @@
     // DEPENDENCY(h0_2_decay_rates, DecayTable::Entry)
     // DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     // DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
-    // DEPENDENCY(t_decay_rates, DecayTable::Entry)
+    DEPENDENCY(t_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(NMSSM66atQ)
     #undef FUNCTION
 

@@ -310,7 +310,7 @@ namespace Gambit
 
       // Retrieve higgs partial widths
       const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(5);
-      const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(1);
+      const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
       // Retrieve masses

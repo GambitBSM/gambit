@@ -570,8 +570,8 @@ namespace Gambit
     void Ref_SM_A0_decays_table_NMSSM(DecayTable::Entry& result)
     {
       using namespace Pipes::Ref_SM_A0_decays_table_NMSSM;
-      double mA0 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0");
-      compute_SM_higgs_decays(result, mA0);
+      double mA01 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0_1");
+      compute_SM_higgs_decays(result, mA01);
     }    
     /// Reference SM Higgs decays from LHCHiggsXSWG: A0_2
     void Ref_SM_A0_2_decays_table_NMSSM(DecayTable::Entry& result)

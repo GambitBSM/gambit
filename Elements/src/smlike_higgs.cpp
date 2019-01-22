@@ -54,8 +54,12 @@ namespace Gambit
   // NMSSM
   int SMlike_higgs_PDG_code_NMSSM(const SubSpectrum& nmssm_spec)
   {
+    // SUSY basis:  Re(H_u, H_d, S)
+    // Mass basis:  (h_01, h_02, h_03)
+    // Higgs basis: (h_SM, H, H')
 
-    // Entries of the Higgs mixing matrix
+    // Rotation matrix to Higgs mass basis. This is just the pole mixings 
+    // from the spectrum object.
     double S11 = nmssm_spec.get(Par::Pole_Mixing,"h0",1,1);
     double S12 = nmssm_spec.get(Par::Pole_Mixing,"h0",1,2);
     double S21 = nmssm_spec.get(Par::Pole_Mixing,"h0",2,1);
@@ -63,27 +67,44 @@ namespace Gambit
     double S31 = nmssm_spec.get(Par::Pole_Mixing,"h0",3,1);
     double S32 = nmssm_spec.get(Par::Pole_Mixing,"h0",3,2);
 
-    double tb = nmssm_spec.get(Par::dimensionless, "tanbeta" );
+    // The mixing from the Higgs Basis to the SUSY basis is just a rotation by angle beta
+    double tb = nmssm_spec.get(Par::dimensionless, "tanbeta");
     double sb = sin(atan(tb));
     double cb = cos(atan(tb));
+
+    // beta_matrix << cb, -sb,  0,
+    //                sb,  cb,  0,
+    //                 0,   0,  1.
+
+    // Now the rotation from the Higgs basis to the mass basis is the matrix
+    // product of Higgs -> SUSY, SUSY -> Mass
+
+    double H11 = S11*cb + S12*sb;
+    double H12 = S21*cb + S22*sb;
+    double H13 = S31*cb + S32*sb;
+
+    std::cout << "H11 = " << H11 << std::endl;
+    std::cout << "H12 = " << H12 << std::endl;
+    std::cout << "H13 = " << H13 << std::endl;
 
     // Using: https://arxiv.org/pdf/1509.02452.pdf
     // Coupling to gauge bosons in the NMSSM looks like g(i)h(i)VV
     // g(i) ~ g_SM { cos(beta) S[i,2] + sin(beta) S[i,1] } 
-    double g1 = cb*S12 + sb*S11;
-    double g2 = cb*S22 + sb*S21;
-    double g3 = cb*S32 + sb*S31;
 
-    std::cout << "g1 = " << g1  << " " << abs(1-g1) << std::endl;
-    std::cout << "g2 = " << g2  << " " << abs(1-g2) << std::endl;
-    std::cout << "g3 = " << g3  << " " << abs(1-g3) << std::endl;
+    // double g1 = cb*S12 + sb*S11;
+    // double g2 = cb*S22 + sb*S21;
+    // double g3 = cb*S32 + sb*S31;
 
-    // The value closest to 1 to be most SM-like
-    if (abs(1-g1) < abs(1-g2))
+    // std::cout << "g1 = " << g1  << " " << abs(1-g1) << std::endl;
+    // std::cout << "g2 = " << g2  << " " << abs(1-g2) << std::endl;
+    // std::cout << "g3 = " << g3  << " " << abs(1-g3) << std::endl;
+
+    // The [absolute] value closest to 1 to be given 'most SM-like' status
+    if (1-abs(H11) < 1-abs(H12))
     {
-      if (abs(1-g1) < abs(1-g3)) return 25;
+      if (1-abs(H11) < 1-abs(H13)) return 25;
     }
-    else if (abs(1-g2) < abs(1-g3)) return 35;
+    else if (1-abs(H12) < 1-abs(H13)) return 35;
     return 45;
     
   }
