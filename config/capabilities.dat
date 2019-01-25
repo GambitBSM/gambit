@@ -124,11 +124,17 @@ LibSecond_1_0_init: |
 LibSecond_1_1_init: |
    Initialize the Python testing LibSecond backend, version 1.1.
 
+LibSecond_1_2_init: |
+   Initialize the Python testing LibSecond backend, version 1.2.
+
 LibThird_1_0_init: |
    Initialize the Python package testing LibThird backend, version 1.0.
 
 LibThird_1_1_init: |
    Initialize the Python package testing LibThird backend, version 1.1.
+
+LibThird_1_2_init: |
+   Initialize the Python package testing LibThird backend, version 1.2.
 
 initialize_capability: |
    Tester function for the initialization of backends.
@@ -415,18 +421,10 @@ HardScatteringEvent: |
    Uses the given HardScatteringSim to generate the next event
    of the collider simulation chain.
 
-DetectorSim: |
-   Provides a Delphes instance within a container which is
-   ready to perform detector simulation.
-
 SimpleSmearingSim: |
    Provides a set of BuckFast functions within a container
    which is ready to apply ATLAS smearing and reconstruction
    efficiencies to an event.
-
-ReconstructedEvent: |
-   Uses the given DetectorSim to perform detector simulation
-   upon the given HardScatteringEvent.
 
 ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
@@ -468,11 +466,6 @@ CMSnoeffAnalysisContainer: |
    capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-DetAnalysisContainer: |
-   Provides a container of analyses to be used with the detector simulation
-   capability DetectorSim (Delphes). The container is ready to apply each
-   analysis to each event.
-
 IdentityAnalysisContainer: |
    Provides a list of “identity” analyses (no detector
    smearing) within a container that is ready to apply
@@ -493,10 +486,6 @@ CMSAnalysisNumbers: |
 CMSnoeffAnalysisNumbers: |
    Uses the given CMSnoeffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
-
-DetAnalysisNumbers: |
-   Uses the given DetAnalysisContainer to perform all its analyses
-   upon the given ReconstructedEvent.
 
 IdentityAnalysisNumbers: |
    Uses the given IdentityAnalysisContainer
@@ -1735,104 +1724,38 @@ PICO_500_BinSignal: |
 PICO_500_Bins: |
    The number of bins used in the PICO-500 direct detection analysis.
 
-DARWIN_Ar_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_Events: |
-   The number of observed events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_Background: |
-   The number of background events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_Signal: |
-   The number of signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_SignalSD: |
-   The number of spin-dependent signal events for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_BinBackground: |
-   The number of expected background events in each bin for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_BinEvents: |
-   The number of expected events in each bin for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_BinSignal: |
-   The number of expected signal events in each bin for the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Ar_Bins: |
-   The number of bins used in the DARWIN Ar 2015 direct detection analysis.
-
-DARWIN_Xe_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_Events: |
-   The number of observed events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_Background: |
-   The number of background events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_Signal: |
-   The number of signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_SignalSI: |
-   The number of spin-independent signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_SignalSD: |
-   The number of spin-dependent signal events for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_BinBackground: |
-   The number of expected background events in each bin for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_BinEvents: |
-   The number of expected events in each bin for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_BinSignal: |
-   The number of expected signal events in each bin for the DARWIN Xe 2015 direct detection analysis.
-
-DARWIN_Xe_Bins: |
-   The number of bins used in the DARWIN Xe 2015 direct detection analysis.
-
 DARWIN_Calculate: |
-   Perform rate and likelihood calculations for the DARWIN 2015 direct detection analysis.
+   Perform rate and likelihood calculations for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_Events: |
-   The number of observed events for the DARWIN 2015 direct detection analysis.
+   The number of observed events for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_Background: |
-   The number of background events for the DARWIN 2015 direct detection analysis.
+   The number of background events for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_Signal: |
-   The number of signal events for the DARWIN 2015 direct detection analysis.
+   The number of signal events for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_SignalSI: |
-   The number of spin-independent signal events for the DARWIN 2015 direct detection analysis.
+   The number of spin-independent signal events for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_SignalSD: |
-   The number of spin-dependent signal events for the DARWIN 2015 direct detection analysis.
+   The number of spin-dependent signal events for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_LogLikelihood: |
-   Calculate the log-likelihood for the DARWIN 2015 direct detection analysis.
+   Calculate the log-likelihood for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_BinBackground: |
-   The number of expected background events in each bin for the DARWIN 2015 direct detection analysis.
+   The number of expected background events in each bin for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_BinEvents: |
-   The number of expected events in each bin for the DARWIN 2015 direct detection analysis.
+   The number of expected events in each bin for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_BinSignal: |
-   The number of expected signal events in each bin for the DARWIN 2015 direct detection analysis.
+   The number of expected signal events in each bin for the DARWIN 2015/16 direct detection projections.
 
 DARWIN_Bins: |
-   The number of bins used in the DARWIN 2015 direct detection analysis.
+   The number of bins used in the DARWIN 2015/16 direct detection projections.
 
 CDMSlite_Background: |
    The number of background events for the CDMSlite direct detection analysis.
@@ -2285,7 +2208,10 @@ nulike_1_0_5_init: |
   Initializes nulike_1_0_5.
 
 nulike_1_0_6_init: |
-  Initializes nulike_1_0_5.
+  Initializes nulike_1_0_6.
+
+nulike_1_0_7_init: |
+  Initializes nulike_1_0_7.
 
 nubounds:
   Counts, likelihoods and p-values from neutrino telescope searches for dark matter annihilation in the Sun.

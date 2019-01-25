@@ -17,9 +17,13 @@
 ///
 ///  *********************************************
 
+#include <sstream>
+
 #include "gambit/Utils/new_mpi_datatypes.hpp"
 #include "gambit/Utils/local_info.hpp"
-
+#include "gambit/Utils/export_symbols.hpp"
+#include "gambit/Utils/standalone_error_handlers.hpp"
+#
 // MPI bindings
 #include "gambit/Utils/mpiwrapper.hpp"
 

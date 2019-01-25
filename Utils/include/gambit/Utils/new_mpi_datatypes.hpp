@@ -22,8 +22,8 @@
 #ifndef __new_mpi_datatypes_hpp__
 #define __new_mpi_datatypes_hpp__
 
-// MPI bindings
-#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/mpiwrapper.hpp" // MPI bindings
+#include "gambit/Utils/export_symbols.hpp" // EXPORT_SYMBOLS macro (controls symbol visibility)
 #include <ostream>
 
 // Code!

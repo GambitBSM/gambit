@@ -194,7 +194,7 @@ ObsLikes:
     - capability: XENON100_2012_LogLikelihood
       purpose:    LogLike
 
-    - capability: XENON1T_2017_LogLikelihood
+    - capability: XENON1T_2018_LogLikelihood
       purpose:    LogLike
 
     - capability: LUX_2016_LogLikelihood
@@ -209,7 +209,7 @@ ObsLikes:
     - capability: PICO_2L_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_60_F_LogLikelihood
+    - capability: PICO_60_LogLikelihood
       purpose:    LogLike
 
     - capability: PICO_60_2017_LogLikelihood
@@ -288,6 +288,14 @@ ObsLikes:
 
 
 Rules:
+
+  # Tell all functions that are able to dump SLHA files to do so.
+  #- options:
+  #    drop_SLHA_file: true
+
+  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -492,7 +500,7 @@ Rules:
                              "HadronLevel:all = on",
                              "SUSY:all = on",
                              "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 20"]
+                             "TimeShower:pTmin = 2"]
 
       xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
 
@@ -532,17 +540,4 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   default_output_path: "runs/MSSM9/"
-
-  # We set the errors from the physics modules to be non-fatal
-  # to avoid crashing the entire scan due to a rare problem point.
-  # This means we should pay close attention to the log files...
-  exceptions:
-    ColliderBit_error: non-fatal
-    DarkBit_error: non-fatal
-    DecayBit_error: non-fatal
-    FlavBit_error: non-fatal
-    PrecisionBit_error: non-fatal
-    SpecBit_error: non-fatal
-
-
 

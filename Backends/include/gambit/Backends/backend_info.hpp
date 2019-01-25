@@ -32,7 +32,17 @@
 
 // Forward declarations
 #ifdef HAVE_MATHEMATICA
-  typedef struct WSLink* WSLINK;
+  #if MATHEMATICA_WSTP_VERSION_MAJOR > 4 || (MATHEMATICA_WSTP_VERSION_MAJOR == 4 && MATHEMATICA_WSTP_VERSION_MINOR > 25)
+    #ifndef __MLINK__
+      typedef struct MLink* WSLINK;
+      #define __MLINK__
+    #endif
+  #else
+    #ifndef __WSLINK__
+      typedef struct WSLink* WSLINK;
+      #define __WSLINK__
+    #endif
+  #endif
 #endif
 #ifdef HAVE_PYBIND11
   namespace pybind11

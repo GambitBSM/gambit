@@ -26,7 +26,7 @@
 #  \date 2016 Jan
 #
 #  \author Will Handley (wh260@cam.ac.uk)
-#  \date 2018 May
+#  \date 2018 May, Dec
 #
 #************************************************
 
@@ -118,7 +118,7 @@ set(ver "1.15")
 set(lib "libchord")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
-set(pcSO_LINK "${CMAKE_Fortran_COMPILER} -shared ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+set(pcSO_LINK "${CMAKE_Fortran_COMPILER} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS} ${CMAKE_CXX_MPI_SO_LINK_FLAGS}")
 if(MPI_Fortran_FOUND)
   set(pcFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
 else()
@@ -147,6 +147,7 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("scanner" ${name} ${ver})
 endif()
+
 
 # MultiNest
 set(name "multinest")
@@ -186,6 +187,44 @@ if(NOT ditched_${name}_${ver})
                                    -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
                                    <SOURCE_DIR>/cwrapper.f90
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# MultiNest
+set(name "multinest")
+set(ver "3.11")
+set(lib "libnest3")
+set(md5 "ebaf960c348592a1b6e3a50b3794c357")
+set(dl "https://github.com/farhanferoz/MultiNest/archive/4b3709c6d659adbd62c85e3e95ff7eeb6e6617af.tar.gz")
+set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(mnSO_LINK "${CMAKE_Fortran_COMPILER} -shared ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+if (NOT LAPACK_STATIC)
+  set(mnLAPACK "${LAPACK_LINKLIBS}")
+endif()
+if(MPI_Fortran_FOUND)
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
+else()
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
+endif()
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
+                                   -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
+                                   -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
+                                   <SOURCE_DIR>/MultiNest_v${ver}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/MultiNest_v${ver}/Makefile <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp > <SOURCE_DIR>/MultiNest_v${ver}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
+              COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
+                                   -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
+                                   <SOURCE_DIR>/MultiNest_v${ver}/cwrapper.f90
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir MultiNest_v${ver} ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)

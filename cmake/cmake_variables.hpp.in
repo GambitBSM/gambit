@@ -50,6 +50,8 @@
 #cmakedefine HAVE_MATHEMATICA 1
 #cmakedefine MATHEMATICA_WSTP_H "@Mathematica_WSTP_INCLUDE_DIR@/wstp.h"
 #cmakedefine MATHEMATICA_KERNEL "@Mathematica_KERNEL_EXECUTABLE@"
+#cmakedefine MATHEMATICA_WSTP_VERSION_MAJOR @Mathematica_WSTP_VERSION_MAJOR@
+#cmakedefine MATHEMATICA_WSTP_VERSION_MINOR @Mathematica_WSTP_VERSION_MINOR@
 
 /// Python version info
 #cmakedefine PYTHON_VERSION_MAJOR @PYTHON_VERSION_MAJOR@

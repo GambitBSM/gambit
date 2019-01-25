@@ -1217,7 +1217,7 @@ namespace Gambit
       if ( filteredVertexCandidates.size() == 1 )
         return filteredVertexCandidates[0];  // And done!
 
-      str errmsg = "Unfortuantely, the dependency resolution for";
+      str errmsg = "Unfortunately, the dependency resolution for";
       errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
       errmsg += "\nis still ambiguous.\n";
       errmsg += "\nThe candidate vertices are:\n";

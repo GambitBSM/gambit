@@ -112,12 +112,12 @@ def main(argv):
     # Get list of module type header files to search
     module_type_headers.update(retrieve_module_type_headers(verbose,".",exclude_header))
 
+    if verbose: print("Module rollcall headers identified:")
+    for h in module_rollcall_headers:
+        if verbose: print(' ',h)
+        h_parts = neatsplit('\/',h)
+        modules.add(h_parts[1])
     if verbose:
-        print("Module rollcall headers identified:")
-        for h in module_rollcall_headers:
-            print(' ',h)
-            h_parts = neatsplit('\/',h)
-            modules.add(h_parts[1])
         print("Module type headers identified:")
         for h in module_type_headers:
             print(' ',h)

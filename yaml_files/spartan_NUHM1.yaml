@@ -1,5 +1,5 @@
 ##########################################################################
-## GAMBIT configuration for an ultra-minimal random scan of the CMSSM.
+## GAMBIT configuration for an ultra-minimal random scan of the NUHM1.
 ##
 ## Only needs example modules ExampleBit_A and ExampleBit_B,
 ## plus example backends libfirst and libFortran.
@@ -68,7 +68,7 @@ Scanner:
 
 ObsLikes:
 
-  # Test CMSSM, ExampleBit_A and ExampleBit_B
+  # Test NUHM1, ExampleBit_A and ExampleBit_B
   - purpose:      LogLike
     capability:   Example_lnL_B
     type:         double
@@ -109,6 +109,7 @@ Rules:
     - {capability: someFunction, backend: LibFirst, version: 1.1}
 
   - capability:    xsection
+    module: ExampleBit_A
     options:
       scale: 15.5
 
@@ -139,7 +140,7 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/spartan_CMSSM"
+  default_output_path: "runs/spartan_NUHM1"
 
   # Some example keys and subkeys
   my_key: 123

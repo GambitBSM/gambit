@@ -426,7 +426,7 @@ int main(int argc, char* argv[])
 
 
     // -- Calculate relic density --
-    RD_eff_annrate_from_ProcessCatalog.notifyOfModel("SingletDM");
+    RD_eff_annrate_from_ProcessCatalog.notifyOfModel("ScalarSingletDM_Z2");
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
 
@@ -450,6 +450,7 @@ int main(int argc, char* argv[])
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpadd);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rddof);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
+    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::DSparticle_code);
 
 

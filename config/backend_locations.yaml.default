@@ -71,6 +71,7 @@ nulike:
   1.0.4:       ./Backends/installed/nulike/1.0.4/lib/libnulike.so
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so
   1.0.6:       ./Backends/installed/nulike/1.0.6/lib/libnulike.so
+  1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so

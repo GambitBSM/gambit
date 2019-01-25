@@ -336,7 +336,8 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
     command_index = {"BE_VARIABLE":2,
                      "BE_FUNCTION":2,
                      "BE_CONV_FUNCTION":2,
-                     "BACKEND_REQ":0}
+                     "BACKEND_REQ":0,
+                     "BACKEND_REQ_FROM_GROUP":0}
 
     line = re.sub(";", "", line)
     splitline = neatsplit('\(|\)|,|\s',line)
@@ -346,8 +347,8 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
     if len(splitline)>1 and splitline[0] in command_index.keys():
         #This line defines a backend functor and one or more of the arguments defines a candidate type
 
-        if splitline[0] == "BACKEND_REQ":
-            args = re.sub("\s*BACKEND_REQ\s*\(.*?,\s*\(.*?\)\s*,\s*", "", re.sub("\s*\)\s*$", "", line) )
+        if splitline[0].startswith("BACKEND_REQ"):
+            args = re.sub("\s*BACKEND_REQ(_FROM_GROUP)?\s*\(.*?,\s*\(.*?\)\s*,\s*", "", re.sub("\s*\)\s*$", "", line) )
             args = args.strip()
             if re.search("\)\s*\)\s*$", line):
                 #This is a backend function requirement

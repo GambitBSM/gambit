@@ -464,8 +464,12 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Pythia external model (EM)
+set(name "pythia")
 set(model "EM")
 set(ver "8.212.${model}")
+set(lib "libpythia8")
+set(dl "http://home.thep.lu.se/~torbjorn/pythia8/pythia8212.tgz")
+set(md5 "0886d1b2827d8f0cd2ae69b925045f40")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(ext_model_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ExternalModel")
@@ -540,6 +544,26 @@ set(ver "1.0.6")
 set(lib "libnulike")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "fc4c35dc867bb1213d80acd12e5c1169")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
+
+# Nulike
+set(name "nulike")
+set(ver "1.0.7")
+set(lib "libnulike")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(md5 "5c8e74d125b619abe01e196af7baf790")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver})
 if(NOT ditched_${name}_${ver})

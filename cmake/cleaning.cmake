@@ -57,6 +57,7 @@ set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/test_function_rollcall.hpp")
 
 # Arrange for the removal of generated source files with "make clean"
+set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Models/src/particle_database.cpp")
 foreach(bit ${ALL_GAMBIT_BITS})
   set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/${bit}/examples/standalone_functors.cpp")
 endforeach()
