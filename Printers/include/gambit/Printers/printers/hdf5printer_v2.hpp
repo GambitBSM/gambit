@@ -554,7 +554,7 @@ namespace Gambit
         std::string dset_name();
 
         /// Make sure buffer includes the input point (data will be set as 'invalid' unless given elsewhere)
-        virtual void update(const unsigned int mpirank, const unsigned long pointID) = 0;
+        virtual void update(const PPIDpair& ppid) = 0;
  
         /// Empty buffer to disk as a block
         virtual void block_flush(const hid_t loc_id, const std::vector<PPIDpair>& order, const std::size_t target_pos) = 0;
@@ -592,30 +592,40 @@ namespace Gambit
       public:
 
         /// Constructor
-        HDF5Buffer(const std::string& name, const bool sync)
+        HDF5Buffer(const std::string& name, const bool sync, const std::vector<PPIDpair>& buffered_points)
           : HDF5BufferBase(name,sync)
           , my_dataset(name)
           , my_dataset_valid(name+"_isvalid")
-        {}
+        {
+           // Add points known to other buffers (as 'invalid' data, for synchronisation purposes)
+           for(auto it=buffered_points.begin(); it!=buffered_points.end(); ++it)
+           {
+              update(*it);
+           }
+        }
 
         /// Make sure buffer includes the specified point (data will be set as 'invalid' unless given elsewhere)
-        void update(const unsigned int mpirank, const unsigned long pointID)
+        void update(const PPIDpair& ppid)
         {
-            PPIDpair ppid(mpirank,pointID);
             buffer[ppid]; // Create point with default value if it doesn't exist
             buffer_set.insert(ppid);
             auto it = buffer_valid.find(ppid);
             // If point not already in the buffer, set it as invalid
-            if(it==buffer_valid.end()) buffer_valid[ppid] = 0;
+            if(it==buffer_valid.end())
+            {
+                buffer_valid[ppid] = 0;
+                // DEBUG
+                //std::cout<<"Set point "<<ppid<<" to 'invalid' for buffer "<<dset_name()<<std::endl;
+            }
         }
 
         /// Insert data to print buffer at the specified point (overwrite if it already exists in the buffer)
-        void append(T const& value, unsigned int mpirank, const unsigned long pointID)
+        void append(T const& value, const PPIDpair& ppid)
         {
-            PPIDpair ppid(mpirank,pointID);
             buffer      [ppid] = value;
             buffer_valid[ppid] = 1;
             buffer_set.insert(ppid);
+            //std::cout<<"Added valid data to point "<<ppid<<" in buffer "<<dset_name()<<std::endl;
         }
 
         /// Empty the buffer to disk as block with the specified order into the target position
@@ -626,7 +636,11 @@ namespace Gambit
             if(order.size() != buffer.size())
             {
                 std::ostringstream errmsg;
-                errmsg << "Supplied buffer ordering vector is not the same size as the buffer (buffer.size()="<<buffer.size()<<", order.size()="<<order.size()<<"). This is a bug, please report it.";
+                errmsg << "Supplied buffer ordering vector is not the same size as the buffer (buffer.size()="<<buffer.size()<<", order.size()="<<order.size()<<"; dset_name()="<<dset_name()<<"). This is a bug, please report it." <<std::endl;
+                errmsg << "Extra debug information:" << std::endl;
+                errmsg << "  buffer.size()       = "<<buffer.size()<<std::endl;
+                errmsg << "  buffer_valid.size() = "<<buffer_valid.size()<<std::endl;
+                errmsg << "  buffer_set.size() = "<<buffer_set.size()<<std::endl;
                 printer_error().raise(LOCAL_INFO, errmsg.str());
             }
 
@@ -796,13 +810,14 @@ namespace Gambit
         {}
 
         /// Retrieve buffer of our type for a given label
-        HDF5Buffer<T>& get_buffer(const std::string& label)
+        // Currently buffered points need to be supplied in case we have to create and fill a new buffer
+        HDF5Buffer<T>& get_buffer(const std::string& label, const std::vector<PPIDpair>& buffered_points)
         {
             auto it=my_buffers.find(label);
             if(it==my_buffers.end())
             {
                 // No buffer with this name. Need to create one!
-                my_buffers.emplace(label,HDF5Buffer<T>(label,synchronised));
+                my_buffers.emplace(label,HDF5Buffer<T>(label,synchronised,buffered_points));
                 it=my_buffers.find(label);
             }
             return it->second;
@@ -833,9 +848,17 @@ namespace Gambit
         {
             /// Check if the point is known to be in the buffers already
             PPIDpair thispoint(mpirank,pointID);
-            auto it = std::find(buffered_points.begin(),buffered_points.end(),thispoint);
-            if(it==buffered_points.end())
+            auto it = buffered_points_set.find(thispoint);
+            if(it==buffered_points_set.end())
             {
+                /// While we are here, check that buffered_points and buffered_points_set are the same size
+                if(buffered_points.size() != buffered_points_set.size())
+                {
+                    std::stringstream msg;
+                    msg<<"Inconsistency detected between buffered_points and buffered_points_set sizes ("<<buffered_points.size()<<" vs "<<buffered_points_set.size()<<")! This is a bug, please report it."<<std::endl;
+                    printer_error().raise(LOCAL_INFO,msg.str());  
+                }
+
                 /// This is a new point! See if buffers are full and need to be flushed
                 if(is_synchronised() and buffered_points.size()>get_buffer_length())
                 {
@@ -844,31 +867,36 @@ namespace Gambit
                     msg<<"The allowed sync buffer size has somehow been exceeded! Buffers should have been flushed when they were full. This is a bug, please report it.";
                     printer_error().raise(LOCAL_INFO,msg.str());  
                 }
-                else if(buffered_points.size()>=get_buffer_length())
+                else if(buffered_points.size()==get_buffer_length())
                 {
+                    // Buffer full, flush it out
                     flush();
-
+                }
+                else if(not is_synchronised() and buffered_points.size()>get_buffer_length())
+                {
                     /// RA buffers may not have been able to fully flush, so check their length and report if it is getting big.
-                    if(not is_synchronised())
+       
+                    /// Attempt to flush again every 1000 points beyond buffer limits
+                    if((buffered_points.size()%1000)==0) 
                     {
-                        if(buffered_points.size() > MAX_BUFFER_SIZE and (buffered_points.size()%1000)==0)
-                        {
-                            std::stringstream msg;
-                            msg<<"The number of unflushable points in the non-synchronised print buffers is getting very large (current size is "<<buffered_points.size()<<"). This may indicate that some process has not been properly printing the synchronised points that it is computing. If nothing changes this process may run out of RAM for the printer buffers and crash.";
-                            printer_warning().raise(LOCAL_INFO,msg.str());  
-                        } 
+                        flush();
+
+                        std::stringstream msg;
+                        msg<<"The number of unflushable points in the non-synchronised print buffers is getting large (current buffer length is "<<buffered_points.size()<<"; soft max limit was "<<get_buffer_length()<<"). This may indicate that some process has not been properly printing the synchronised points that it is computing. If nothing changes this process may run out of RAM for the printer buffers and crash.";
+                        printer_warning().raise(LOCAL_INFO,msg.str());  
                     }
                 }
             
                 // Inform all buffers of this new point
-                update_all_buffers(mpirank,pointID);
+                update_all_buffers(thispoint);
                 // DEBUG
-                //std::cout<<"Adding point to buffer for dataset "<<label<<": "<<thispoint<<std::endl;
+                //std::cout<<"Adding point to buffered_points list: "<<thispoint<<std::endl;
                 buffered_points.push_back(thispoint);
+                buffered_points_set.insert(thispoint);
             }
 
             // Add the new data to the buffer
-            get_buffer<T>(label).append(value,mpirank,pointID);
+            get_buffer<T>(label,buffered_points).append(value,thispoint);
         }
 
         /// Empty all buffers to disk
@@ -921,6 +949,10 @@ namespace Gambit
         /// they don't track the ordering themselves).
         std::vector<PPIDpair> buffered_points;
 
+        /// We also need a set of the buffered points, so we can do fast lookup of
+        /// whether a point is in the buffer or not.
+        std::set<PPIDpair> buffered_points_set;
+
         /// Flag to specify what sort of buffer this manager is supposed to be managing
         bool synchronised;
 
@@ -929,7 +961,7 @@ namespace Gambit
 
         /// Retrieve the buffer for a given output label (and type)
         template<class T>
-        HDF5Buffer<T>& get_buffer(const std::string& label);
+        HDF5Buffer<T>& get_buffer(const std::string& label, const std::vector<PPIDpair>& buffered_points);
 
         /// Add base class point for a buffer to master buffer map  
         void update_buffer_map(const std::string& label, HDF5BufferBase& buff);
@@ -937,7 +969,7 @@ namespace Gambit
         /// Inform all buffers that data has been written to certain mpirank/pointID pair
         /// They will make sure that they have an output slot for this pair, so that all the
         /// buffers for this printer stay "synchronised".
-        void update_all_buffers(const unsigned int mpirank, const unsigned long pointID);
+        void update_all_buffers(const PPIDpair& ppid);
       
         /// Obtain positions in output datasets for a buffer of points
         std::map<PPIDpair,std::size_t> get_position_map(const std::vector<PPIDpair>& buffer) const;
@@ -981,14 +1013,14 @@ namespace Gambit
     };
    
     /// Specialisation declarations for 'get_buffer' function for each buffer type
-    template<> HDF5Buffer<int      >& HDF5MasterBuffer::get_buffer<int      >(const std::string& label);
-    template<> HDF5Buffer<uint     >& HDF5MasterBuffer::get_buffer<uint     >(const std::string& label);
-    template<> HDF5Buffer<long     >& HDF5MasterBuffer::get_buffer<long     >(const std::string& label);
-    template<> HDF5Buffer<ulong    >& HDF5MasterBuffer::get_buffer<ulong    >(const std::string& label);
-    template<> HDF5Buffer<longlong >& HDF5MasterBuffer::get_buffer<longlong >(const std::string& label);
-    template<> HDF5Buffer<ulonglong>& HDF5MasterBuffer::get_buffer<ulonglong>(const std::string& label);
-    template<> HDF5Buffer<float    >& HDF5MasterBuffer::get_buffer<float    >(const std::string& label);
-    template<> HDF5Buffer<double   >& HDF5MasterBuffer::get_buffer<double   >(const std::string& label);
+    template<> HDF5Buffer<int      >& HDF5MasterBuffer::get_buffer<int      >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<uint     >& HDF5MasterBuffer::get_buffer<uint     >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<long     >& HDF5MasterBuffer::get_buffer<long     >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<ulong    >& HDF5MasterBuffer::get_buffer<ulong    >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<longlong >& HDF5MasterBuffer::get_buffer<longlong >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<ulonglong>& HDF5MasterBuffer::get_buffer<ulonglong>(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<float    >& HDF5MasterBuffer::get_buffer<float    >(const std::string& label, const std::vector<PPIDpair>&);
+    template<> HDF5Buffer<double   >& HDF5MasterBuffer::get_buffer<double   >(const std::string& label, const std::vector<PPIDpair>&);
  
     /// The main printer class for output to HDF5 format
     class HDF5Printer2: public BasePrinter
