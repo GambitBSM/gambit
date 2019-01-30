@@ -337,6 +337,7 @@ namespace Gambit
         // result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
         // result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
         std::cout << "i = " << i << std::endl;
+        // These are all PDG context 0 from SPheno, this is different to the MSSM implementation..
         result.BR_hjss[i] = h0_widths[i]->BF("d_2", "dbar_2");
         result.BR_hjcc[i] = h0_widths[i]->BF("u_2", "ubar_2");
         result.BR_hjbb[i] = h0_widths[i]->BF("d_3", "dbar_3");

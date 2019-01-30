@@ -186,17 +186,17 @@ namespace Gambit
       else if (SMlike_higgs == 45) { higgs = 2; other_higgs = 0; yet_another_higgs = 1; }
 
       // Set the standard model decays
-      // result.set_neutral_decays_SM(higgs, sHneut[higgs], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
-      // result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
-      // result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
-      result.set_neutral_decays_SM(0, sHneut[0], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
-      result.set_neutral_decays_SM(1, sHneut[1], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
-      result.set_neutral_decays_SM(2, sHneut[2], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
+      result.set_neutral_decays_SM(higgs, sHneut[higgs], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
+      result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
+      result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
+      //result.set_neutral_decays_SM(0, sHneut[0], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
+      //result.set_neutral_decays_SM(1, sHneut[1], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
+      //result.set_neutral_decays_SM(2, sHneut[2], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
       result.set_neutral_decays_SM(3, sHneut[3], *myPipe::Dep::Reference_SM_A0_decay_rates);
       result.set_neutral_decays_SM(4, sHneut[4], *myPipe::Dep::Reference_SM_A0_2_decay_rates);
-      result.set_neutral_decays(0, sHneut[0], tbl->at("h0_1"));
-      result.set_neutral_decays(1, sHneut[1], tbl->at("h0_2"));
-      result.set_neutral_decays(2, sHneut[2], tbl->at("h0_3"));
+      result.set_neutral_decays(higgs, sHneut[higgs], tbl->at("h0_1"));
+      result.set_neutral_decays(other_higgs, sHneut[other_higgs], tbl->at("h0_2"));
+      result.set_neutral_decays(yet_another_higgs, sHneut[yet_another_higgs], tbl->at("h0_3"));
       result.set_neutral_decays(3, sHneut[3], tbl->at("A0_1"));
       result.set_neutral_decays(4, sHneut[4], tbl->at("A0_2"));
 
