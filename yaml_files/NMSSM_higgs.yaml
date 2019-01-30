@@ -141,10 +141,10 @@ ObsLikes:
     type:         Spectrum
     printme:      false
 
-  - purpose:      Observable
-    capability:   decay_rates
-    type:         DecayTable
-    printme:      false
+  # - purpose:      Observable
+  #   capability:   decay_rates
+  #   type:         DecayTable
+  #   printme:      false
 
   # LEP likelihoods
   - purpose:    LogLike
@@ -177,7 +177,9 @@ Rules:
 
   # Choose where to get the Higgs couplings from
   - capability: Higgs_Couplings
-    function: NMSSM_higgs_couplings_pwid
+    function: NMSSM_higgs_couplings_SPheno
+    options:
+      OneLoopDecays: false
 
   - capability: HB_ModelParameters
     function: NMSSMHiggs_ModelParameters

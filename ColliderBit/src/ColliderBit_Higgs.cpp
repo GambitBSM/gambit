@@ -318,53 +318,73 @@ namespace Gambit
       const SubSpectrum& spec = fullspectrum.get_HE();
 
       // Neutral higgs masses and errors
+      // TODO: errors for pole masses from SPheno spectrum do not exist yet!
       for(int i = 0; i < 5; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
-        double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-        double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-        result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+        //double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+        //double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+        //result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
       }
-
+      
       // Loop over all neutral Higgses, setting their branching fractions and total widths.
       for(int i = 0; i < 5; i++)
       {
         result.hGammaTot[i] = h0_widths[i]->width_in_GeV;
-        result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
-        result.BR_hjcc[i] = h0_widths[i]->BF("c", "cbar");
-        result.BR_hjbb[i] = h0_widths[i]->BF("b", "bbar");
-        result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
-        result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
+        // result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
+        // result.BR_hjcc[i] = h0_widths[i]->BF("c", "cbar");
+        // result.BR_hjbb[i] = h0_widths[i]->BF("b", "bbar");
+        // result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
+        // result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
+        std::cout << "i = " << i << std::endl;
+        result.BR_hjss[i] = h0_widths[i]->BF("d_2", "dbar_2");
+        result.BR_hjcc[i] = h0_widths[i]->BF("u_2", "ubar_2");
+        result.BR_hjbb[i] = h0_widths[i]->BF("d_3", "dbar_3");
+        result.BR_hjmumu[i] = h0_widths[i]->BF("e+_2", "e-_2");
+        result.BR_hjtautau[i] = h0_widths[i]->BF("e+_3", "e-_3");
         result.BR_hjWW[i] = h0_widths[i]->BF("W+", "W-");
         result.BR_hjZZ[i] = h0_widths[i]->BF("Z0", "Z0");
-        result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
-        result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
-        result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
+        // SPheno frontend needs fixing. These BFs do exist.
+        //result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
+        //result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
+        //result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
+        
         // Do decays to invisibles
         result.BR_hjinvisible[i] = 0.;
-        for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
+
+        // Some backends provide the invisible BF themselves. If they've been set, just use these.
+        if (Dep::Higgs_Couplings->BFinv_is_set) result.BR_hjinvisible[i] = Dep::Higgs_Couplings->BFinv[i];
+
+        // Otherwise use the invisibles provided by the spectrum object
+        else
         {
-          result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
-        }
-        // Do decays to other neutral higgses
-        for (int j = 0; j < 5; j++)
-        {
-          if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
+          for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
           {
-            result.BR_hjhihi[i][j] = h0_widths[i]->BF(sHneut[j],sHneut[j]);
+            result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
           }
-          else
+          // Do decays to other neutral higgses
+          for (int j = 0; j < 3; j++)
           {
-            result.BR_hjhihi[i][j] = 0.;
+            if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
+            {
+              result.BR_hjhihi[i][j] = h0_widths[i]->BF(sHneut[j],sHneut[j]);
+            }
+            else
+            {
+              result.BR_hjhihi[i][j] = 0.;
+            }
           }
         }
       }
 
+
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
-      double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
-      double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
-      result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
+
+      // TODO: errors for pole masses from SPheno spectrum do not exist yet. 
+      //double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
+      //double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
+      //result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
 
       // Set charged Higgs branching fractions and total width.
       result.HpGammaTot[0] = H_plus_widths.width_in_GeV;

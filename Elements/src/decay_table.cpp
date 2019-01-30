@@ -335,6 +335,7 @@ namespace Gambit
     for (auto p = daughters.begin(); p != daughters.end(); ++p) key.insert(Models::ParticleDB().pdg_pair(*p));
     check_particles_exist(key);
     check_BF_validity(BF, error, key);
+    //std::cout << "Setting BF to " << daughters[0] << " + " << daughters[1] << " to " << BF << std::endl;
     channels[key] = std::pair<double, double>(BF, error);
   }
 

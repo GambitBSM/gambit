@@ -145,16 +145,23 @@ namespace Gambit
     }
 
     // SB: todo
-    /// Put together the Higgs couplings for the NMSSM, from partial widths only
-    void NMSSM_higgs_couplings_pwid(HiggsCouplingsTable &result)
+    /// Put together the Higgs couplings for the NMSSM, from SPheno
+    void NMSSM_higgs_couplings_SPheno(HiggsCouplingsTable &result)
     {
-      using namespace Pipes::NMSSM_higgs_couplings_pwid;
+      namespace myPipe = Pipes::NMSSM_higgs_couplings_SPheno;
 
       // Retrieve spectrum contents
-      const SubSpectrum& spec = Dep::NMSSM_spectrum->get_HE();
+      const Spectrum& spec = *myPipe::Dep::NMSSM_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      const SMInputs &sminputs = spec.get_SMInputs();
 
-      // Get DecayTable object
-      const DecayTable* tbl = &(*Dep::decay_rates);
+      const DecayTable* tbl = &(*myPipe::Dep::decay_rates);
+
+      // Set up the input structure for SPheno
+      Finputs inputs;
+      inputs.sminputs = sminputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "h0_3", "A0_1", "A0_2");
@@ -168,7 +175,7 @@ namespace Gambit
 
       // Work out which SM values correspond to which SUSY Higgs
       //int higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 0 : 1);
-      int SMlike_higgs = SMlike_higgs_PDG_code_NMSSM(spec);
+      int SMlike_higgs = SMlike_higgs_PDG_code_NMSSM(he);
       std::cout << "Most SM-like higgs = " << SMlike_higgs << std::endl;
 
       int higgs;
@@ -178,154 +185,47 @@ namespace Gambit
       else if (SMlike_higgs == 35) { higgs = 1; other_higgs = 0; yet_another_higgs = 2; }
       else if (SMlike_higgs == 45) { higgs = 2; other_higgs = 0; yet_another_higgs = 1; }
 
-      // Set the decays
-      result.set_neutral_decays_SM(higgs, sHneut[higgs], *Dep::Reference_SM_Higgs_decay_rates);
-      result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
-      result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *Dep::Reference_SM_h0_3_decay_rates);
-      result.set_neutral_decays_SM(3, sHneut[3], *Dep::Reference_SM_A0_decay_rates);
-      result.set_neutral_decays_SM(4, sHneut[4], *Dep::Reference_SM_A0_2_decay_rates);
+      // Set the standard model decays
+      // result.set_neutral_decays_SM(higgs, sHneut[higgs], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
+      // result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
+      // result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
+      result.set_neutral_decays_SM(0, sHneut[0], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
+      result.set_neutral_decays_SM(1, sHneut[1], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
+      result.set_neutral_decays_SM(2, sHneut[2], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
+      result.set_neutral_decays_SM(3, sHneut[3], *myPipe::Dep::Reference_SM_A0_decay_rates);
+      result.set_neutral_decays_SM(4, sHneut[4], *myPipe::Dep::Reference_SM_A0_2_decay_rates);
+      result.set_neutral_decays(0, sHneut[0], tbl->at("h0_1"));
+      result.set_neutral_decays(1, sHneut[1], tbl->at("h0_2"));
+      result.set_neutral_decays(2, sHneut[2], tbl->at("h0_3"));
+      result.set_neutral_decays(3, sHneut[3], tbl->at("A0_1"));
+      result.set_neutral_decays(4, sHneut[4], tbl->at("A0_2"));
 
-      try { const DecayTable::Entry& Higgs_decays = tbl->at("h0_1"); result.set_neutral_decays(0, "h0_1", Higgs_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "h0_1 decays not provided by DecayTable."); }
+      // Fill HiggsCouplingsTable object (effective couplings) from SPheno backend )
+      myPipe::BEreq::NMSSM_HiggsCouplingsTable(spec, result, inputs);
 
-      try { const DecayTable::Entry& h0_2_decays = tbl->at("h0_2"); result.set_neutral_decays(1, "h0_2", h0_2_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "h0_2 decays not provided by DecayTable."); }
+      /// Debugging attempt: very confusing. The HiggsCouplingTable object is filled 
+      /// in the SPheno frontend but when it gets to here, it crashes. 
+      // const DecayTable::Entry& h0_decays = result.get_neutral_decays("h0_1");
 
-      try { const DecayTable::Entry& h0_3_decays = tbl->at("h0_3"); result.set_neutral_decays(2, "h0_3", h0_3_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "h0_3 decays not provided by DecayTable."); }
-
-      try { const DecayTable::Entry& A0_1_decays = tbl->at("A0_1"); result.set_neutral_decays(3, "A0_1", A0_1_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "A0_1 decays not provided by DecayTable."); }
-
-      try { const DecayTable::Entry& A0_2_decays = tbl->at("A0_2"); result.set_neutral_decays(4, "A0_2", A0_2_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "A0_2 decays not provided by DecayTable."); }
-
-      try { const DecayTable::Entry& H_plus_decays = tbl->at("H+"); result.set_charged_decays(0, "H+", H_plus_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "H+ decays not provided by DecayTable."); }
-
-      //result.set_neutral_decays_SM(higgs, sHneut[higgs], *Dep::Reference_SM_Higgs_decay_rates);
-      //result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
-      //result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
-      //result.set_neutral_decays_SM(4, sHneut[4], *Dep::Reference_SM_A0_decay_rates);
-      //result.set_neutral_decays_SM(5, sHneut[5], *Dep::Reference_SM_A0_2_decay_rates);
-      //result.set_neutral_decays(0, sHneut[0],  *Dep::Higgs_decay_rates);
-      //result.set_neutral_decays(1, sHneut[1], *Dep::h0_2_decay_rates);
-      //result.set_neutral_decays(2, sHneut[2], *Dep::h0_3_decay_rates);
-      //result.set_neutral_decays(3, sHneut[3], *Dep::A0_decay_rates);
-      //result.set_neutral_decays(4, sHneut[4], *Dep::A0_2_decay_rates);
-      //result.set_charged_decays(0, "H+", *Dep::H_plus_decay_rates);
-      //result.set_t_decays(*Dep::t_decay_rates);
-
-
-      // Currently no t decays from SPheno. In fact no SM decays... 
-      /*
-      try { const DecayTable::Entry& t_decays = tbl->at("t"); result.set_t_decays(t_decays); }
-      catch (std::exception& e) { SpecBit_error().raise(LOCAL_INFO, "top decays not provided by DecayTable."); }
-      */
-      result.set_t_decays(*Dep::t_decay_rates);
-
-      // // Use them to compute effective couplings for all neutral higgses, except for hhZ.
-      // for (int i = 0; i < 5; i++)
+      // std::cout << "SpecBit_NMSSM" << std::endl;
+      // for (auto it = h0_decays.channels.begin(); it != h0_decays.channels.end(); it++)
       // {
-      //   result.C_WW2[i] = result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0));
-      //   result.C_ZZ2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0));
-      //   result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int,int>(6, 1), std::pair<int,int>(-6, 1));
-      //   result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int,int>(5, 1), std::pair<int,int>(-5, 1));
-      //   result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int,int>(4, 1), std::pair<int,int>(-4, 1));
-      //   result.C_tautau2[i] = result.compute_effective_coupling(i, std::pair<int,int>(15, 1), std::pair<int,int>(-15, 1));
-      //   result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(22, 0), std::pair<int,int>(22, 0));
-      //   result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int,int>(21, 0), std::pair<int,int>(21, 0));
-      //   result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int,int>(13, 1), std::pair<int,int>(-13, 1));
-      //   result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(21, 0));
-      //   result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int,int>(3, 1), std::pair<int,int>(-3, 1));
+      //   //double BF = it->second.first;
+
+      //   std::multiset< std::pair<int,int> > ch = it->first;
+      //   std::cout << "Channel =";      
+      //   for (auto it2 = ch.begin(); it2 != ch.end(); ++it2)
+      //   {
+      //     std::cout << " " << it2->first << " " << it2->second << std::endl;
+      //     std::cout << " " << (Models::ParticleDB().partmap::long_name(*it2));
+      //   }
+      //   //std::cout << " & BF = " << BF << std::endl;
       // }
+      // std::cout << "SpecBit_NMSSM done." << std::endl;
 
-      // Using mass eigenstate context pairs, not flavour
-      for (int i = 0; i < 5; i++)
-      {
-        result.C_WW2[i] = result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0));
-        result.C_ZZ2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0));
-        result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int,int>(6, 0), std::pair<int,int>(-6, 0));
-        result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int,int>(5, 0), std::pair<int,int>(-5, 0));
-        result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int,int>(4, 0), std::pair<int,int>(-4, 0));
-        result.C_tautau2[i] = result.compute_effective_coupling(i, std::pair<int,int>(15, 0), std::pair<int,int>(-15, 0));
-        result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(22, 0), std::pair<int,int>(22, 0));
-        result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int,int>(21, 0), std::pair<int,int>(21, 0));
-        result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int,int>(13, 0), std::pair<int,int>(-13, 0));
-        //result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(21, 0));
-        // S.B. PDG code 22 for gamma? If so this is wrong in SpecBit_MSSM (this is Z+g which is Lorentz violating..?)
-        result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(22, 0));
-        result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int,int>(3, 0), std::pair<int,int>(-3, 0));
-      }
-
-
-      // Calculate hhZ effective couplings.  Here we scale out the kinematic prefactor
-      // of the decay width, assuming we are well above threshold if the channel is open.
-      // If not, we simply assume SM couplings.
-      const double mZ = Dep::NMSSM_spectrum->get(Par::Pole_Mass,23,0);
-      const double scaling = 8.*sqrt(2.)*pi/Dep::NMSSM_spectrum->get_SMInputs().GF;
-      for(int i = 0; i < 5; i++)
-      for(int j = 0; j < 5; j++)
-      {
-        double mhi = spec.get(Par::Pole_Mass, sHneut[i]);
-        double mhj = spec.get(Par::Pole_Mass, sHneut[j]);
-        if (mhi > mhj + mZ and result.get_neutral_decays(i).has_channel(sHneut[j], "Z0"))
-        {
-          double gamma = result.get_neutral_decays(i).width_in_GeV*result.get_neutral_decays(i).BF(sHneut[j], "Z0");
-          double k[2] = {(mhj + mZ)/mhi, (mhj - mZ)/mhi};
-          for (int l = 0; l < 2; l++) k[l] = (1.0 - k[l]) * (1.0 + k[l]);
-          double K = mhi*sqrt(k[0]*k[1]);
-          result.C_hiZ2[i][j] = scaling / (K*K*K) * gamma;
-        }
-        else // If the channel is missing from the decays or kinematically disallowed, just return the SM result.
-        {
-          result.C_hiZ2[i][j] = 1.;
-        }
-      }
-
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = result.get_neutral_decays_array(5);
-
-      for (int i=0; i < 5; i++) 
-      {
-        for (auto it = h0_widths[i]->channels.begin(); it != h0_widths[i]->channels.end(); ++it)
-        {
-          std::multiset< std::pair<int,int> > ch = it->first;
-          for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) 
-          {
-            std::cout << Models::ParticleDB().partmap::long_name(*it2) << " ";
-          }
-          std::cout << std::endl;
-        } std::cout << std::endl;
-
-      }
-
-      // Higgs BFs are to the SM mass eigenstates, not gauge eigenstates...
-      for(int i = 0; i < 5; i++)
-      {
-        std::cout << "Higgs number: " << i+1 << std::endl << std::endl;
-        std::cout << h0_widths[i]->width_in_GeV << std::endl;
-        //std::cout << h0_widths[i]->BF("s", "sbar") << std::endl;
-        // Only h0_1 seems to have any decays to s+sbar // c+cbar // W+W- ...
-        //std::cout << h0_widths[i]->BF("d_2", "dbar_2") << std::endl;
-        //std::cout << h0_widths[i]->BF("c", "cbar") << std::endl;
-        //std::cout << h0_widths[i]->BF("u_2", "ubar_2") << std::endl;
-        //std::cout << h0_widths[i]->BF("b", "bbar") << std::endl;
-        std::cout << h0_widths[i]->BF("d_3", "dbar_3") << std::endl;
-        //std::cout << h0_widths[i]->BF("mu+", "mu-") << std::endl;
-        std::cout << h0_widths[i]->BF("e+_2", "e-_2") << std::endl;
-        //std::cout << h0_widths[i]->BF("tau+", "tau-") << std::endl;
-        std::cout << h0_widths[i]->BF("e+_3", "e-_3") << std::endl;
-        std::cout << h0_widths[i]->BF("W+", "W-") << std::endl;
-        std::cout << h0_widths[i]->BF("Z0", "Z0") << std::endl;
-        // Z gamma doesn't seem to be there...?
-        //std::cout << h0_widths[i]->BF("gamma", "Z0") << std::endl;
-        std::cout << h0_widths[i]->BF("gamma", "gamma") << std::endl;
-        std::cout << h0_widths[i]->BF("g", "g") << std::endl;
-      }
-
-      // todo
-      // Work out which invisible decays are possible
-      //result.invisibles = get_invisibles(spec);
+      // The SPheno frontend provides the invisible width for each Higgs
+      // so we do not provide an list of invisibles, just flag that we
+      // have filled the invisible BF in the HiggsCouplingTable object.
     }
 
 

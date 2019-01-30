@@ -87,18 +87,6 @@ namespace Gambit
     std::cout << "H12 = " << H12 << std::endl;
     std::cout << "H13 = " << H13 << std::endl;
 
-    // Using: https://arxiv.org/pdf/1509.02452.pdf
-    // Coupling to gauge bosons in the NMSSM looks like g(i)h(i)VV
-    // g(i) ~ g_SM { cos(beta) S[i,2] + sin(beta) S[i,1] } 
-
-    // double g1 = cb*S12 + sb*S11;
-    // double g2 = cb*S22 + sb*S21;
-    // double g3 = cb*S32 + sb*S31;
-
-    // std::cout << "g1 = " << g1  << " " << abs(1-g1) << std::endl;
-    // std::cout << "g2 = " << g2  << " " << abs(1-g2) << std::endl;
-    // std::cout << "g3 = " << g3  << " " << abs(1-g3) << std::endl;
-
     // The [absolute] value closest to 1 to be given 'most SM-like' status
     if (1-abs(H11) < 1-abs(H12))
     {
