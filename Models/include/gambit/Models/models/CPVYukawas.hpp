@@ -23,12 +23,12 @@
 	// Quark Yukawas
 	DEFINEPARS(kappaU, kappaD, kappaS)
 	DEFINEPARS(kappaC, kappaB, kappaT)
-	DEFINEPARS(SinThetaU, SinThetaD, SinThetaS)
-	DEFINEPARS(SinThetaC, SinThetaB, SinThetaT)
+	DEFINEPARS(SinPhiU, SinPhiD, SinPhiS)
+	DEFINEPARS(SinPhiC, SinPhiB, SinPhiT)
 
 	// Lepton Yukawas
 	DEFINEPARS(kappaE, kappaMu, kappaTau)
-	DEFINEPARS(SinThetaE, SinThetaMu, SinThetaTau)
+	DEFINEPARS(SinPhiE, SinPhiMu, SinPhiTau)
 #undef MODEL
 
 #endif
