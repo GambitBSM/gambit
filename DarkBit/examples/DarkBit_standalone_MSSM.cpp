@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.0"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.0 is missing!");
-    if (not Backends::backendInfo().works["DDCalc1.1.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 1.1.0 is missing!");
-    if (not Backends::backendInfo().works["nulike1.0.6"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.6 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.0.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.0.0 is missing!");
+    if (not Backends::backendInfo().works["nulike1.0.7"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.7 is missing!");
 
 
     // ---- Initialize models ----
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
     // ---- Initialize backends ----
 
     // Initialize nulike backend
-    Backends::nulike_1_0_6::Functown::nulike_bounds.setStatus(2);
-    nulike_1_0_6_init.reset_and_calculate();
+    Backends::nulike_1_0_7::Functown::nulike_bounds.setStatus(2);
+    nulike_1_0_7_init.reset_and_calculate();
 
     // Initialize gamLike backend
     gamLike_1_0_0_init.reset_and_calculate();
@@ -241,9 +241,12 @@ int main(int argc, char* argv[])
     // ---- Relic density ----
 
     // Relic density calculation with MicrOmegas
-    RD_oh2_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::darkOmega);
-    RD_oh2_MicrOmegas.setOption<int>("fast", 1);  // 0: accurate; 1: fast
-    RD_oh2_MicrOmegas.setOption<double>("beps", 1e-5); // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+    RD_oh2_Xf_MicrOmegas.notifyOfModel("MSSM30atQ");
+    RD_oh2_Xf_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::darkOmega);
+    RD_oh2_Xf_MicrOmegas.setOption<int>("fast", 1);  // 0: accurate; 1: fast
+    RD_oh2_Xf_MicrOmegas.setOption<double>("Beps", 1e-5); // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+    RD_oh2_Xf_MicrOmegas.reset_and_calculate();
+    RD_oh2_MicrOmegas.resolveDependency(&RD_oh2_Xf_MicrOmegas);
     RD_oh2_MicrOmegas.reset_and_calculate();
 
     // Calculate relic density using RD_oh2_DarkSUSY (for checks only)
@@ -294,6 +297,7 @@ int main(int argc, char* argv[])
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpadd);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rddof);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
+    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
     RD_oh2_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
     RD_oh2_general.reset_and_calculate();
 
@@ -363,26 +367,26 @@ int main(int argc, char* argv[])
     DD_couplings_DarkSUSY.reset_and_calculate();
 
     // Initialize DDCalc backend
-    Backends::DDCalc_1_1_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_1_1_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-    DDCalc_1_1_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-    DDCalc_1_1_0_init.resolveDependency(&RD_fraction_one);
-    DDCalc_1_1_0_init.resolveDependency(&mwimp_generic);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment.setStatus(2);
+    Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    DDCalc_2_0_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+    DDCalc_2_0_0_init.resolveDependency(&RD_fraction_one);
+    DDCalc_2_0_0_init.resolveDependency(&mwimp_generic);
     //Choose between the two backends
-    //DDCalc_1_0_0_init.resolveDependency(&DD_couplings_MicrOmegas);
-    DDCalc_1_1_0_init.resolveDependency(&DD_couplings_DarkSUSY);
-    DDCalc_1_1_0_init.reset_and_calculate();
+    //DDCalc_2_0_0_init.resolveDependency(&DD_couplings_MicrOmegas);
+    DDCalc_2_0_0_init.resolveDependency(&DD_couplings_DarkSUSY);
+    DDCalc_2_0_0_init.reset_and_calculate();
 
     // Calculate direct detection rates for LUX 2016
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment);
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_CalcRates_simple);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
     LUX_2016_Calc.reset_and_calculate();
 
     // Calculate direct detection likelihood for LUX 2016
     LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_Experiment);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_1_1_0::Functown::DDCalc_LogLikelihood);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
     LUX_2016_GetLogLikelihood.reset_and_calculate();
 
     // Set generic scattering cross-section for later use
@@ -503,7 +507,8 @@ int main(int argc, char* argv[])
     capture_rate_Sun_const_xsec.reset_and_calculate();
 
     // Infer WIMP equilibration time in Sun
-    equilibration_time_Sun.resolveDependency(&sigmav_late_universe);
+    equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_MSSM);
+    equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
     equilibration_time_Sun.resolveDependency(&mwimp_generic);
     equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
     equilibration_time_Sun.reset_and_calculate();
@@ -517,8 +522,6 @@ int main(int argc, char* argv[])
     nuyield_from_DS.resolveDependency(&TH_ProcessCatalog_MSSM);
     nuyield_from_DS.resolveDependency(&mwimp_generic);
     nuyield_from_DS.resolveDependency(&sigmav_late_universe);
-    nuyield_from_DS.resolveDependency(&sigma_SI_p_simple);
-    nuyield_from_DS.resolveDependency(&sigma_SD_p_simple);
     nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
     nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsgenericwimp_nusetup);
     nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::neutrino_yield);
@@ -530,17 +533,17 @@ int main(int argc, char* argv[])
     IC79WH_full.resolveDependency(&mwimp_generic);
     IC79WH_full.resolveDependency(&annihilation_rate_Sun);
     IC79WH_full.resolveDependency(&nuyield_from_DS);
-    IC79WH_full.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_bounds);
+    IC79WH_full.resolveBackendReq(&Backends::nulike_1_0_7::Functown::nulike_bounds);
     IC79WH_full.reset_and_calculate();
     IC79WL_full.resolveDependency(&mwimp_generic);
     IC79WL_full.resolveDependency(&annihilation_rate_Sun);
     IC79WL_full.resolveDependency(&nuyield_from_DS);
-    IC79WL_full.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_bounds);
+    IC79WL_full.resolveBackendReq(&Backends::nulike_1_0_7::Functown::nulike_bounds);
     IC79WL_full.reset_and_calculate();
     IC79SL_full.resolveDependency(&mwimp_generic);
     IC79SL_full.resolveDependency(&annihilation_rate_Sun);
     IC79SL_full.resolveDependency(&nuyield_from_DS);
-    IC79SL_full.resolveBackendReq(&Backends::nulike_1_0_6::Functown::nulike_bounds);
+    IC79SL_full.resolveBackendReq(&Backends::nulike_1_0_7::Functown::nulike_bounds);
     IC79SL_full.reset_and_calculate();
 
     // Calculate IceCube likelihood

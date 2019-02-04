@@ -74,11 +74,11 @@ namespace Gambit
     logger() << LogTags::utils << "Random number engine " << engine << " selected." << EOM;
   }
 
-  /// Draw a single uniform random deviate using the chosen RNG engine
+  /// Draw a single uniform random deviate in the range (0,1) using the chosen RNG engine
   double Random::draw()
   {
     if (local_rng == NULL) create_rng_engine("default");
-    return (*local_rng)();
+    return std::generate_canonical<double, 32>(rng());
   }
 
 }

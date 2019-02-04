@@ -4,6 +4,7 @@
 #                              #
 ################################
 
+from __future__ import print_function
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from operator import itemgetter
@@ -14,9 +15,11 @@ import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")
 
 import modules.gb as gb
-import modules.shelltimeout as shelltimeout
+import subprocess
 import modules.exceptions as exceptions
 import modules.infomsg as infomsg
+import shlex
+import tempfile
 
 
 
@@ -336,7 +339,7 @@ def getTemplateBracket(el):
     else:
         template_bracket = '<>'
 
-    # print 'TEMPLATE BRACKET: ', template_bracket
+    # print('TEMPLATE BRACKET: ', template_bracket)
 
     # Isolate only the template variable names (last word in each entry)
     if template_bracket == '<>':
@@ -545,8 +548,23 @@ def removeComments(content, insert_blanks=False):
 
         # Find start of comment
         search_pos = content[temp_startpos:].find('/*')
+
+        # Are we done?
         if search_pos == -1:
             break
+        # Check for the potentially confusing case of comments starting with "//*"
+        elif (search_pos > 0) and (content[search_pos-1] == '/'):
+            # This is really a single-line comment which has been dealt with above,
+            # so we don't add it to the list of comment positions
+            comment_start= temp_startpos + search_pos
+            search_pos = content[comment_start:].find('\n')
+            if search_pos == -1:
+                comment_end = content_lenght - 1
+            else:
+                comment_end = comment_start + search_pos
+            # Update loop variable
+            temp_startpos = comment_end
+        # Now for the proper multi-line comments
         else:
             comment_start = temp_startpos + search_pos
 
@@ -1054,7 +1072,7 @@ def constrAbsForwardDeclHeader(file_output_path):
     current_namespaces = []
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
 
-        # print [class_name_full], [class_name_full.split('<',1)[0]], [class_name_full.split('<',1)[0].rsplit('::',1)[-1]]
+        # print([class_name_full], [class_name_full.split('<',1)[0]], [class_name_full.split('<',1)[0].rsplit('::',1)[-1]])
         namespaces    = getNamespaces(class_el)
         has_namespace = bool(len(namespaces))
         namespace_str = '::'.join(namespaces) + '::'*has_namespace
@@ -1804,7 +1822,7 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     is_known, index = isInList(type_name['long'], cfg.known_classes.keys(), return_index=True, ignore_whitespace=True)
 
                 if is_known:
-                    header_name = cfg.known_classes.values()[index]
+                    header_name = list(cfg.known_classes.values())[index]
                     if (header_name[0] == '<') and (header_name[-1] == '>'):
                         include_statements.append('#include ' + header_name)
                     else:
@@ -2147,7 +2165,7 @@ def constrEnumDeclHeader(enum_el_list, file_output_path):
 
 # Calls castxml from the shell (via modules.shelltimeout).
 
-def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=300., poll_interval=0.5, use_castxml_path=None):
+def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_castxml_path=None):
 
     # Avoid including intel headers when in "gnu mode" by
     # temporarily unsetting some environment variables
@@ -2198,55 +2216,67 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_
     castxml_cmd += ' -o ' + xml_output_path
 
     # Run castxml
-    print '  Runing command: ' + castxml_cmd
-    proc, output, timed_out = shelltimeout.shrun(castxml_cmd, timeout_limit, use_exec=True, poll_interval=poll_interval)
+    print('  Running command: ' + castxml_cmd)
+
+    did_fail = False
+    error_message = ''
+    output_tmpfile = tempfile.TemporaryFile()
+    try:
+        p = subprocess.Popen(shlex.split(castxml_cmd), stdout=output_tmpfile, stderr=output_tmpfile)
+        p.wait()
+    except subprocess.CalledProcessError as e:
+        did_fail = True
+        error_message = e.message
 
     # Reset environment variables
     if 'gnu' in cfg.castxml_cc_id:
         for var_name, value in temp_env_vars.items():
             os.environ[var_name] = value
 
-    # Check for timeout or error
-    did_fail = False
-    if timed_out:
-        print '  ' + modifyText('ERROR: CastXML timed out.','red')
-        did_fail = True
-    elif (proc.returncode != 0) or ('error: ' in output.lower()):
-        print '  ' + modifyText('ERROR: CastXML failed.','red')
+    # Get output from tempfile
+    output_tmpfile.seek(0)
+    output = output_tmpfile.read()
+    output_tmpfile.close()
+
+    # Any error that did not result in a CalledProcessError?
+    if (p.returncode != 0):
         did_fail = True
 
     if did_fail:
+        print('  ' + modifyText('ERROR: CastXML failed.','red'))       
         # Get error message
-        print
-        print modifyText('START CASTXML OUTPUT','underline')
-        print
-        print output
-        print modifyText('END CASTXML OUTPUT','underline')
-        print
-
+        print()
+        print(modifyText('START CASTXML OUTPUT','underline'))
+        print()
+        print(output)
+        print(modifyText('END CASTXML OUTPUT','underline'))
+        print()
+        if error_message != '':
+            print("CalledProcessError.message:", error_message)
+            print()
 
     # If it fails with the syste-wide castxml binary, try again with the local one
     if (did_fail and use_castxml_path==castxml_system_path and gb.has_castxml_local):
-        print '  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') 
+        print('  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path,'yellow') )
         did_fail = False
         use_castxml_path = castxml_local_path
-        castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=timeout_limit, poll_interval=poll_interval, use_castxml_path=use_castxml_path)
+        castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_castxml_path=use_castxml_path)
 
 
     # If it fails with icpc, try again with g++.
     if ("gnu" in cfg.castxml_cc_id) and ("icpc" in cfg.castxml_cc) and did_fail:
-        print
-        print '  ' + modifyText('Will retry with --castxml-cc=g++','yellow')
-        print
+        print()
+        print('  ' + modifyText('Will retry with --castxml-cc=g++','yellow'))
+        print()
         cfg.castxml_cc = 'g++'
-        castxmlRunner(input_file_path, include_paths_list, xml_output_path, timeout_limit=timeout_limit, poll_interval=poll_interval, use_castxml_path=use_castxml_path)
+        castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_castxml_path=use_castxml_path)
     # Print error report
     elif did_fail:
         raise Exception('castxml failed')
 
     else:
-        print '  ' + modifyText('Command finished successfully.','green')
-    print
+        print('  ' + modifyText('Command finished successfully.','green'))
+    print()
 
 # ====== END: castxmlRunner ========
 
@@ -2297,7 +2327,7 @@ def fillAcceptedTypesList():
 
     # Keep track of how many types have been checked
     type_counter = 0
-    print
+    print()
 
     #
     # Collect names of all fundamental, std, enumeration, known and loaded types that are acceptable
@@ -2328,7 +2358,7 @@ def fillAcceptedTypesList():
 
             type_counter += 1
             if type_counter%500 == 0:
-                print '  - %i types classified...' % (type_counter)
+                print('  - %i types classified...' % (type_counter))
 
 
             # To save a bit of time, construct class name dict once and pass to remaining checks
@@ -2395,7 +2425,7 @@ def fillAcceptedTypesList():
 
 
     # Print final number of types classified
-    print '  - %i types classified.' % (type_counter)
+    print('  - %i types classified.' % (type_counter))
 
     # Fill global list
     gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
@@ -2537,7 +2567,7 @@ def fillParentsOfLoadedClassesList():
                         # Print info
                         msg = '  - %s is parent of %s.' % (class_name['long_templ'], full_name)
                         if msg not in messages:
-                            print msg
+                            print(msg)
                             messages.append(msg)
 
 # ====== END: fillParentsOfLoadedClassesList ========
@@ -2752,38 +2782,56 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
 # ====== identifyStdIncludePaths ========
 
-def identifyStdIncludePaths(timeout_limit=60., poll_interval=0.1):
+def identifyStdIncludePaths():
 
     # Shell command: Pipe an include statement to the compiler and use
     # verbose mode to print the header search paths.
     command = 'echo "#include <iostream>" | ' + cfg.castxml_cc + ' -v -x c++ -c -'
 
     # Run command
-    print '  Runing command: ' + command
-    proc, output, timed_out = shelltimeout.shrun(command, timeout_limit, use_exec=True, poll_interval=poll_interval)
+    print('  Running command: ' + command)
 
-    # Check for timeout or error
     did_fail = False
-    if timed_out:
-        print '  ' + modifyText('ERROR: Shell command timed out.','red')
+    error_message = ''
+    output_tmpfile = tempfile.TemporaryFile()
+    try:
+        p = subprocess.Popen(shlex.split(command), stdout=output_tmpfile, stderr=output_tmpfile)
+        p.wait()
+    except subprocess.CalledProcessError as e:
         did_fail = True
-    elif proc.returncode != 0:
-        print '  ' + modifyText('ERROR: Shell command failed.','red')
+        error_message = e.message
+
+    # Reset environment variables
+    if 'gnu' in cfg.castxml_cc_id:
+        for var_name, value in temp_env_vars.items():
+            os.environ[var_name] = value
+
+    # Get output from tempfile
+    output_tmpfile.seek(0)
+    output = output_tmpfile.read()
+    output_tmpfile.close()
+
+    # Any error that did not result in a CalledProcessError?
+    if p.returncode != 0:
         did_fail = True
 
-    # Print error report
     if did_fail:
-        print
-        print modifyText('START SHELL COMMAND OUTPUT','underline')
-        print
-        print output
-        print modifyText('END SHELL COMMAND OUTPUT','red')
-        print
+        print('  ' + modifyText('ERROR: Shell command failed.','red'))
+        # Get error message
+        print()
+        print(modifyText('START SHELL COMMAND OUTPUT','underline'))
+        print()
+        print(output)
+        print(modifyText('END SHELL COMMAND OUTPUT','red'))
+        print()
+        if error_message != '':
+            print("CalledProcessError.message:", error_message)
+            print()
         raise Exception('Shell command failed')
 
     else:
-        print '  ' + modifyText('Command finished successfully.','green')
-    print
+        print('  ' + modifyText('Command finished successfully.','green'))
+    print()
 
 
     std_include_paths = []
@@ -2793,8 +2841,8 @@ def identifyStdIncludePaths(timeout_limit=60., poll_interval=0.1):
         start_i = output_lines.index("#include <...> search starts here:")
         end_i   = output_lines.index("End of search list.")
     except ValueError:
-        print '  ' + modifyText('WARNING: Could not identify standard include paths.\n  Add them manually in the config file if necessary.','yellow')
-        print
+        print('  ' + modifyText('WARNING: Could not identify standard include paths.\n  Add them manually in the config file if necessary.','yellow'))
+        print()
     else:
         for line in output_lines[start_i+1:end_i]:
             std_include_paths.append( line.strip().split()[0] )
@@ -2807,13 +2855,13 @@ def identifyStdIncludePaths(timeout_limit=60., poll_interval=0.1):
             len_after_filter = len(std_include_paths)
 
             if len_after_filter < len_before_filter:
-                print '  (Filtered out Intel paths to avoid conflicts with gcc headers.)'
-                print
+                print('  (Filtered out Intel paths to avoid conflicts with gcc headers.)')
+                print()
 
-        print '  Identified %i standard include paths:' % len(std_include_paths)
+        print('  Identified %i standard include paths:' % len(std_include_paths))
         for path in std_include_paths:
-            print '  - ' + path
-        print
+            print('  - ' + path)
+        print()
 
     # Set global list
     gb.std_include_paths = std_include_paths
@@ -2826,6 +2874,10 @@ def identifyStdIncludePaths(timeout_limit=60., poll_interval=0.1):
 # ====== isInList ========
 
 def isInList(search_entry, search_list, return_index=True, ignore_whitespace=True):
+
+    # In case search_list is passed in as a dict_keys object (Python3) 
+    # instead of as a regular list, convert it to a list
+    search_list = list(search_list)
 
     # Search for entry
     try:

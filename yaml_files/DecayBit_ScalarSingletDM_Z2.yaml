@@ -1,0 +1,94 @@
+##########################################################################
+## GAMBIT configuration for testing DecayBit, printing out decay tables
+## for the singlet DM model at 10 random model points.
+##
+## Only needs DecayBit and backend SUSYHIT.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH:
+      fixed_value: 125.9
+
+  ScalarSingletDM_Z2:
+    mS:
+      range: [45, 100]
+      prior_type: log
+    lambda_hS:
+      range: [0.005, 0.5]
+      prior_type: log
+
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 10
+      like:  LogLike
+
+
+ObsLikes:
+
+  # Test DecayBit
+  - purpose:      Test
+    capability:   decay_rates
+    type:         DecayTable
+    printme: false
+
+
+Rules:
+
+  - capability: decay_rates
+    function: all_decays
+
+  - capability: ScalarSingletDM_Z2_spectrum
+    function: get_ScalarSingletDM_Z2_spectrum
+
+  - capability: muon_gm2_SM
+    function: gm2_SM_ee
+
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "results.txt"
+
+
+Logger:
+
+  # Redirection of specific messages according to tags
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [Error] : "errors.log"
+    [Warning] : "warnings.log"
+    [Core,Error] : "core_errors.log"
+    [Core,Error,Fatal] : "fatal_core_errors.log"
+    [Dependency Resolver] : "dependency_resolver.log"
+    [DecayBit] : "DecayBit.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+
+  default_output_path: "runs/DecayBit_ScalarSingletDM_Z2"

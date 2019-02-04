@@ -4,10 +4,10 @@
 #
 #  CMake file for example backend libraries that
 #  ship with GAMBIT.
-# 
+#
 #  You don't need to add to or emulate this file
 #  if you add new backends; this file just builds
-#  the example backends easiy within the GAMBIT
+#  the example backends easily within the GAMBIT
 #  cmake system.  True backends will come with
 #  their own build systems.  Those will probably
 #  be far more painful than this. ;)
@@ -32,6 +32,21 @@
 add_library(first SHARED examples/libfirst.cpp)
 add_library(fortran SHARED examples/libfortran.f90)
 add_library(FarrayTest SHARED examples/libFarrayTest.f90)
+
+# add dependencies to fix build order and avoid warnings about missing include dirs
+if(NOT EXCLUDE_RESTFRAMES)
+  add_dependencies(first restframes)
+  add_dependencies(fortran restframes)
+  add_dependencies(FarrayTest restframes)  
+endif()
+if(NOT EXCLUDE_FLEXIBLESUSY)
+  add_dependencies(first flexiblesusy)
+  add_dependencies(fortran flexiblesusy)
+  add_dependencies(FarrayTest flexiblesusy)
+endif()
+
+# Un-hide symbols in libfirst
+make_symbols_visible(first)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set_target_properties(first PROPERTIES SUFFIX .so)

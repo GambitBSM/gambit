@@ -42,7 +42,7 @@ namespace Gambit
     (short int)(unsigned short int) \
     (long)(unsigned long)   \
     (long long)(unsigned long long)      \
-    (float)(double)
+    (float)(double) \
 
   // Bool has weird behaviour in vectors, so need a version without bool.
   #define SCANNER_SIMPLE_TYPES_NOBOOL \
@@ -72,7 +72,7 @@ namespace Gambit
     (Gambit::ModelParameters)
 
   #define SCANNER_RETRIEVABLE_TYPES  \
-    (double)                   \
+    SCANNER_SIMPLE_TYPES       \
     (std::string)              \
     (std::vector<double>)      \
     (map_str_dbl)              \

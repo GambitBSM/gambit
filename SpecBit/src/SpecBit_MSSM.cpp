@@ -583,11 +583,11 @@ namespace Gambit
 
 
   // Similar to above, except this is for MSSMEFTHiggs spectrum
-  // generator This uses different names for inputs for many
-  // parameters.
+  // generator and a few others where different names for inputs for many
+  // parameters are used. This should be standardised.
 
     template <class T>
-    void fill_MSSM63_input_EFTHiggs(T& input, const std::map<str, safe_ptr<double> >& Param )
+    void fill_MSSM63_input_altnames(T& input, const std::map<str, safe_ptr<double> >& Param )
     {
       //double valued parameters
       input.TanBeta     = *Param.at("TanBeta");
@@ -719,7 +719,7 @@ namespace Gambit
      input.MuInput  = *myPipe::Param.at("mu");
      // This FS spectrum generator has mA as the parameter
      input.mAInput = *myPipe::Param.at("mA");
-     fill_MSSM63_input_EFTHiggs(input,myPipe::Param); // Fill the rest
+     fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
@@ -750,7 +750,7 @@ namespace Gambit
      input.mHu2IN = *myPipe::Param.at("mHu2");
      input.mHd2IN = *myPipe::Param.at("mHd2");
      input.SignMu = *myPipe::Param.at("SignMu");
-     fill_MSSM63_input_EFTHiggs(input,myPipe::Param); // Fill the rest
+     fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
@@ -783,7 +783,10 @@ namespace Gambit
      // Note: Qin has been named MSUSY inside the spectrum generator
      // but it is a user-input scale in this case.
      input.MSUSY = *myPipe::Param.at("Qin");
-     fill_MSSM63_input_EFTHiggs(input,myPipe::Param); // Fill the rest
+     // Fill the rest.
+     // Note: This particular spectrum generator has been created with
+     // different names for parameter inputs.  We should standardise this   
+     fill_MSSM63_input_altnames(input,myPipe::Param); 
      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
@@ -795,6 +798,8 @@ namespace Gambit
    }
    #endif
 
+ 
+  
     // Runs FlexibleSUSY MSSM spectrum generator with CMSSM (GUT scale) boundary conditions
     // In principle an identical spectrum can be obtained from the function
     // get_MSSMatGUT_spectrum_FS
@@ -916,6 +921,43 @@ namespace Gambit
     }
     #endif
 
+  // Runs FlexibleSUSY MSSMatMGUTEFTHiggs model spectrum generator
+  // and has m3^2 and mu as EWSB outputs, so it is for the
+  // MSSMatMGUT_model.
+  #if(FS_MODEL_MSSMatMGUTEFTHiggs_IS_BUILT)
+  void get_MSSMatMGUT_spectrum_FlexibleEFTHiggs (Spectrum& result)
+  {
+     // Access the pipes for this function to get model and parameter information
+     namespace myPipe = Pipes::get_MSSMatMGUT_spectrum_FlexibleEFTHiggs;
+
+     // Get SLHA2 SMINPUTS values
+     const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
+
+     // Get input parameters (from flexiblesusy namespace)
+     MSSMatMGUTEFTHiggs_input_parameters input;
+     input.mHu2IN = *myPipe::Param.at("mHu2");
+     input.mHd2IN = *myPipe::Param.at("mHd2");
+     input.SignMu = *myPipe::Param.at("SignMu");
+     if(input.SignMu!=-1 and input.SignMu!=1)
+      {
+         std::ostringstream msg;
+         msg << "Tried to set SignMu parameter to a value that is not a sign! ("<<input.SignMu<<")! This parameter must be set to either 1 or -1. Please check your inifile and try again.";
+         SpecBit_error().raise(LOCAL_INFO,msg.str());
+      }
+
+     fill_MSSM63_input(input,myPipe::Param); // Fill the rest
+     result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Drop SLHA files if requested
+      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+
+   }
+   #endif
+
+  
     // Runs FlexibleSUSY MSSM spectrum generator with GUT scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT)
@@ -938,6 +980,40 @@ namespace Gambit
     }
     #endif
 
+  // Runs FlexibleSUSY MSSMatMGUTEFTHiggs model spectrum generator
+  // and has m3^2 and mu as EWSB outputs, so it is for the
+  // MSSMatMGUT_model.
+  #if(FS_MODEL_MSSMatMGUTEFTHiggs_mAmu_IS_BUILT)
+  void get_MSSMatMGUT_mA_spectrum_FlexibleEFTHiggs (Spectrum& result)
+  {
+     // Access the pipes for this function to get model and parameter information
+     namespace myPipe = Pipes::get_MSSMatMGUT_mA_spectrum_FlexibleEFTHiggs;
+
+     // Get SLHA2 SMINPUTS values
+     const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
+
+     // Get input parameters (from flexiblesusy namespace)
+     MSSMatMGUTEFTHiggs_mAmu_input_parameters input;
+     input.MuInput  = *myPipe::Param.at("mu");
+     // Note this spectrum generator mA2 is the parameter.
+     // However this freedom is not used in GAMBIT
+     // and not needed as mA is a DRbar mass eigenstate for a scalar
+     double mA = *myPipe::Param.at("mA");
+     input.mA2Input = mA*mA;
+
+     fill_MSSM63_input(input,myPipe::Param); // Fill the rest
+     result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Drop SLHA files if requested
+      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+
+   }
+   #endif
+  
+  
     // Runs FlexibleSUSY MSSM spectrum generator with SUSY scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT)

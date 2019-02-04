@@ -17,9 +17,13 @@
 ///
 ///  *********************************************
 
+#include <sstream>
+
 #include "gambit/Utils/new_mpi_datatypes.hpp"
 #include "gambit/Utils/local_info.hpp"
-
+#include "gambit/Utils/export_symbols.hpp"
+#include "gambit/Utils/standalone_error_handlers.hpp"
+#
 // MPI bindings
 #include "gambit/Utils/mpiwrapper.hpp"
 
@@ -51,10 +55,23 @@ namespace Gambit
      }
 
      bool operator<(const PPIDpair& l, const PPIDpair& r) {
-       return (l.pointID<r.pointID || (l.pointID==r.pointID && l.rank<r.rank));
+         // Raise error if either l or r flagged as invalid
+         if(l.valid==0)
+         {
+             std::ostringstream errmsg;
+             errmsg << "Error comparing PPIDpairs; the LHS object is flagged as invalid!";
+             utils_error().raise(LOCAL_INFO, errmsg.str()); 
+         }
+         if(r.valid==0)
+         {
+             std::ostringstream errmsg;
+             errmsg << "Error comparing PPIDpairs; the LHS object is flagged as invalid!";
+             utils_error().raise(LOCAL_INFO, errmsg.str()); 
+         }
+         return (l.pointID<r.pointID || (l.pointID==r.pointID && l.rank<r.rank));
      }
      bool operator==( const PPIDpair& l, const PPIDpair& r) {
-         return l.pointID==r.pointID && l.rank==r.rank;
+         return l.pointID==r.pointID && l.rank==r.rank && l.valid==r.valid;
      }
      bool operator!=( const PPIDpair& l, const PPIDpair& r) {
          return !( l == r );
@@ -127,6 +144,9 @@ namespace Gambit
        stream << "(" << ppid.pointID << ", " << ppid.rank << ")";
        return stream;
      }
+
+     /// Define 'nullpoint' const
+     const PPIDpair nullpoint = PPIDpair();
 
   }
 

@@ -18,11 +18,11 @@
 
 
 #define BACKENDNAME LibSecond
-#define BACKENDLANG Python
+#define BACKENDLANG Python2
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
 
-/* The following macro imports the modudle in the Python interpreter
+/* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
@@ -41,8 +41,6 @@ LOAD_LIBRARY
 BE_FUNCTION(initialize, void, (int), "initialize", "initialize_capability")
 BE_FUNCTION(someFunction, void, (), "someFunction", "someFunction")
 BE_FUNCTION(returnResult, double, (), "returnResult","returnResult_capability")
-//BE_FUNCTION(byRefExample, double, (double&), "_Z12byRefExampleRd", "refex")
-//BE_FUNCTION(byRefExample2, void, (double&, double), "_Z13byRefExample2Rdd", "refex2")
 
 /* We have now created the following:
  *

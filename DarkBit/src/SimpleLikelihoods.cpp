@@ -423,7 +423,7 @@ namespace Gambit {
       {
         for (int i = 0; i<=1200; i++)
         {
-          double energy = pow(10., i/200. - 2.);
+          double energy = pow(10., i/200. - 4.);
 
           myfile << energy << " " << spectrum->bind("E")->eval(energy) << "\n";
         }

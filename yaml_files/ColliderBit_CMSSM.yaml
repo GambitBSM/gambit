@@ -231,17 +231,8 @@ Rules:
   - capability: Higgs_Couplings
     function: MSSM_higgs_couplings_pwid
 
-  ##### LHC Detector and Analysis rules #####
-  #
-  # The current capability structure allows for the user to mix'n'match
-  # collider settings, detector sims and analyses. The user may run BuckFastATLAS
-  # with ATLAS analyses, BuckFastCMS with CMS analyses, and Delphes with any analyses,
-  # for various configurations of Pythia.
-  #
-  # The way to turn the detectors on or off is via the boolean option useDetector for
-  # the module functions getDelphes, getBuckFastATLAS and getBuckFastCMS.
-  #
-  # NOTE: The use of Delphes currently only works when running with OMP_NUM_THREADS=1
+
+  # -- LHC Detector and Analysis rules --
 
   # Choose number of events, and the type of Pythia object to run (this example here runs a SUSY example, which is what we want)
   - capability:  ColliderOperator
@@ -291,18 +282,6 @@ Rules:
 
       # Option needed if you want to use the getPythiaFileReader
       #SLHA_filenames: ["ColliderBit/data/susy_msugra_2600_350_0_10_P_softsusy.slha"]
-
-
-  # Delphes rules and options (ex. the Delphes configuration card file)
-  # NOTE: The use of Delphes currently only works when running with OMP_NUM_THREADS=1
-  - capability: DetectorSim
-    type: "Gambit::ColliderBit::DelphesVanilla"
-    function: getDelphes
-    options:
-      # useDetector defaults to false for getDelphes, which ignores all "Det" analyses and disables Delphes
-      useDetector: [false,false]
-      # Specify the location of the Delphes cards for the two Pythia instances (we assume ATLAS in both cases here)
-      delphesConfigFiles: ["ColliderBit/data/delphes_card_ATLAS.tcl","ColliderBit/data/delphes_card_ATLAS.tcl"]
 
   # BuckFast for ATLAS rules and options
   - capability: SimpleSmearingSim
@@ -386,18 +365,6 @@ Rules:
     function: getIdentityAnalysisContainer
     options:
       analyses: [ [], [] ]
-      # analyses: [ [ "ATLAS_8TeV_0LEP_20invfb",
-      #               "ATLAS_8TeV_0LEPStop_20invfb",
-      #               "ATLAS_8TeV_1LEPStop_20invfb",
-      #               "ATLAS_8TeV_2bStop_20invfb",
-      #               "ATLAS_8TeV_2LEPEW_20invfb",
-      #               "ATLAS_8TeV_2LEPStop_20invfb",
-      #               "ATLAS_8TeV_3LEPEW_20invfb",
-      #               "CMS_8TeV_1LEPDMTOP_20invfb",
-      #               "CMS_8TeV_2LEPDMTOP_20invfb",
-      #               "CMS_8TeV_3LEPEW_20invfb",
-      #               "CMS_8TeV_MONOJET_20invfb"],
-      #               [] ]
 
     # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties
     # Can change "_lognormal_" to "_gaussian_" if you prefer

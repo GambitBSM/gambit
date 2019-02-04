@@ -47,7 +47,7 @@
 
   void MODEL_NAMESPACE::MSSM9atQ_mA_to_MSSM10batQ_mA (const ModelParameters &myP, ModelParameters &targetP)
   {
-     logger()<<"Running interpret_as_parent calculations for " STRINGIFY(MODEL) " --> MSSM10batQ_mA."<<LogTags::info<<EOM;
+     logger()<<"Running interpret_as_X calculations for " STRINGIFY(MODEL) " --> MSSM10batQ_mA."<<LogTags::info<<EOM;
 
      // Send all parameter values upstream to matching parameters in parent.
      // Ignore that some parameters don't exist in the parent, as these are set below.

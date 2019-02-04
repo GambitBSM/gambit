@@ -19,9 +19,15 @@
 #          (patscott@physics.mcgill.ca)
 #    \date 2014 Nov
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #*********************************************
 import os
-execfile("./Utils/scripts/harvesting_tools.py")
+
+toolsfile="./Utils/scripts/harvesting_tools.py"
+exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
 def main(argv):
 
@@ -34,15 +40,15 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-models="])
     except getopt.GetoptError:
-        print 'Usage: model_harvestor.py [flags]'
-        print ' flags:'
-        print '        -v                   : More verbose output'
-        print '        -x model1,model2,... : Exclude model1, model2, etc.'
+        print('Usage: model_harvestor.py [flags]')
+        print(' flags:')
+        print('        -v                   : More verbose output')
+        print('        -x model1,model2,... : Exclude model1, model2, etc.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
         verbose = True
-        print 'model_harvester.py: verbose=True'
+        print('model_harvester.py: verbose=True')
       elif opt in ('-x','--exclude-models'):
         exclude_models.update(neatsplit(",",arg))
 
@@ -51,12 +57,13 @@ def main(argv):
     # Get lists of model type header files
     model_type_headers.update(retrieve_generic_headers(verbose,"./Models/include/gambit/Models/model_types","model type",exclude_models))
 
-    print "Model headers identified:"
-    for h in model_headers:
-        print '  gambit/Models/models/'+h
-    print "Model type headers identified:"
-    for h in model_type_headers:
-        print '  gambit/Models/model_types/'+h
+    if verbose:
+        print("Model headers identified:")
+        for h in model_headers:
+            print('  gambit/Models/models/'+h)
+        print("Model type headers identified:")
+        for h in model_type_headers:
+            print('  gambit/Models/model_types/'+h)
 
     # Generate a c++ header containing all the model headers we have just harvested.
     towrite = "\
@@ -140,8 +147,8 @@ def main(argv):
         f.write(towrite)
 
     if verbose:
-        print "\nGenerated model_rollcall.hpp."
-        print "Generated model_types_rollcall.hpp.\n"
+        print("\nGenerated model_rollcall.hpp.")
+        print("Generated model_types_rollcall.hpp.\n")
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":

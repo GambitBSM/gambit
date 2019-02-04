@@ -576,6 +576,12 @@ namespace Gambit
           status = missingMath;
         #endif
       }
+      else if (backendData->missingPythonVersion.at(be+version) > 0)
+      {
+        std::ostringstream status_stream;
+        status_stream << "needs Python " << backendData->missingPythonVersion.at(be+version);
+        status = status_stream.str();
+      }
       else { status = bad; }
       if (status == bad or status == badclass) no_failures = false;
       return status;

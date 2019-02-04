@@ -15,9 +15,15 @@
 #          (patscott@physics.mcgill.ca)
 #    \date 2014 Nov
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #*********************************************
 import os
-execfile("./Utils/scripts/harvesting_tools.py")
+
+toolsfile="./Utils/scripts/harvesting_tools.py"
+exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
 # Search the source tree to determine which modules are present
 def module_census(verbose,install_dir,excludes):
@@ -28,7 +34,7 @@ def module_census(verbose,install_dir,excludes):
             for x in excludes:
                 if mod.startswith(x): exclude = True
             if not exclude and mod.lower().find("bit") != -1 and mod.lower().find(".dsym") == -1:
-                if verbose: print "Located GAMBIT module '{0}'.".format(mod)
+                if verbose: print("Located GAMBIT module '{0}'.".format(mod))
                 modules+=[mod]
         break
     return modules
@@ -59,15 +65,15 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-modules="])
     except getopt.GetoptError:
-        print 'Usage: update_cmakelists.py [flags]'
-        print ' flags:'
-        print '  -v                                      : More verbose output'
-        print '  -x module1,backendA,printer2,modelX,... : Exclude module1, backendA, printer2, modelX, etc.'
+        print('Usage: update_cmakelists.py [flags]')
+        print(' flags:')
+        print('  -v                                      : More verbose output')
+        print('  -x module1,backendA,printer2,modelX,... : Exclude module1, backendA, printer2, modelX, etc.')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-v','--verbose'):
             verbose = True
-            print 'update_cmakelists.py: verbose=True'
+            print('update_cmakelists.py: verbose=True')
         elif opt in ('-x','--exclude','--exclude'):
             exclude_modules.update(neatsplit(",",arg))
             exclude_printers.update(neatsplit(",",arg))
@@ -92,17 +98,17 @@ def main(argv):
         for root,dirs,files in os.walk("./"+mod+"/src"):
             current_dirname =  os.path.basename(os.path.normpath(root))
             if mod=="Printers" and excluded(current_dirname, exclude_printers):
-                if verbose: print "    Ignoring source files for printer {0}".format(current_dirname)
+                if verbose: print("    Ignoring source files for printer {0}".format(current_dirname))
                 continue # skip this directory
             for name in files:
                 if (name.endswith(".c") or name.endswith(".cc") or name.endswith(".cpp")) and not hidden(name):
                     short_root = re.sub("\\./"+mod+"/src/?","",root)
                     if short_root != "" : short_root += "/"
                     if mod in ["Backends", "Models"] and "/backend_types/" not in short_root and excluded(name, exclude_backends | exclude_models):
-                        if verbose: print "    Ignoring {0} source file '{1}'".format(mod,short_root+name)
+                        if verbose: print("    Ignoring {0} source file '{1}'".format(mod,short_root+name))
                         excluded_components.add(os.path.splitext(name)[0])
                         continue # skip this file
-                    if verbose: print "    Located {0} source file '{1}'".format(mod,short_root+name)
+                    if verbose: print("    Located {0} source file '{1}'".format(mod,short_root+name))
                     srcs+=[short_root+name]
 
         # Retrieve the list of module header files.
@@ -110,18 +116,18 @@ def main(argv):
         for root,dirs,files in os.walk("./"+mod+"/include"):
             current_dirname =  os.path.basename(os.path.normpath(root))
             if mod=="Printers" and excluded(current_dirname, exclude_printers):
-                if verbose: print "    Ignoring header files for printer {0}".format(current_dirname)
+                if verbose: print("    Ignoring header files for printer {0}".format(current_dirname))
                 excluded_components.add(current_dirname)
                 continue # skip this directory
             for name in files:
                 short_root = re.sub("\\./"+mod+"/include/?","",root)
                 if short_root != "" : short_root += "/"
                 if mod in ["Backends", "Models", "Printers"] and "/backend_types/" not in short_root and excluded(name, exclude_backends | exclude_models | exclude_printers):
-                    if verbose: print "    Ignoring {0} header file '{1}'".format(mod,short_root+name)
+                    if verbose: print("    Ignoring {0} header file '{1}'".format(mod,short_root+name))
                     excluded_components.add(os.path.splitext(name)[0])
                     continue # skip this file
                 if (name.endswith(".h") or name.endswith(".hh") or name.endswith(".hpp")) and not hidden(name):
-                    if verbose: print "    Located {0} header file '{1}'".format(mod,short_root+name)
+                    if verbose: print("    Located {0} header file '{1}'".format(mod,short_root+name))
                     headers+=[short_root+name]
 
         # Make a candidate CMakeLists.txt file for this module.
@@ -176,7 +182,7 @@ set(source_files                                \n"
         with open(candidate,"w") as f: f.write(towrite)
         update_only_if_different(cmakelist, candidate)
 
-    if verbose: print "Finished updating module CMakeLists.txt files."
+    if verbose: print("Finished updating module CMakeLists.txt files.")
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":

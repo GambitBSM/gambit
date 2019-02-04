@@ -47,7 +47,7 @@ $2 -E make_directory $1 >/dev/null
 if command -v axel >/dev/null; then
   # Go to wget/curl if POST data have been provided
   if [ -z "$9" ]; then
-    if $2 -E chdir $1 axel $3; then
+    if $2 -E chdir $1 axel $3 -o $filename; then
       axel_worked=1
     else
       $2 -E echo "Axel failed! The link probably redirects to https. Falling back to wget/curl..."
@@ -57,7 +57,8 @@ fi
 if [ "${axel_worked}" = "0" ]; then
   if command -v wget >/dev/null; then
     if [ -z "$9" ]; then
-      wget $3 -O $1/${filename}
+      # Skip certificate checking because KIT, Hepforge, et al often haven't kept them updated
+      wget --no-check-certificate $3 -O $1/${filename}
     else
       wget --post-data "$9" ${10} -O $1/${filename}
     fi

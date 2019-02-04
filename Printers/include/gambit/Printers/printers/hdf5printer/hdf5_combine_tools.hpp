@@ -96,7 +96,7 @@ namespace Gambit
                            H5Sclose(space);
                            if(j+dim_t > data.size())
                            {
-                              if( (data.size() - j) != sizes[i])
+                              if( (data.size() - j) < sizes[i]) // was !=, but I think it is fine so long as there isn't too *little* space. TODO: might be an odds measuring bug though since I think these should indeed be == if everything has happened correctly.
                               {
                                  // This is how much space we expect to have left in the buffer
                                  // at the end. If not, something bad has happened!

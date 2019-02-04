@@ -81,17 +81,6 @@ ObsLikes:
 
 Rules:
 
-  # The current capability structure allows for the user to mix'n'match
-  # collider settings, detector sims and analyses. The user may run BuckFastATLAS
-  # with ATLAS analyses, BuckFastCMS with CMS analyses, and Delphes with any analyses,
-  # for various configurations of Pythia.
-  #
-  # The way to turn the detectors on or off is via the boolean option useDetector for
-  # the module functions getDelphes, getBuckFastATLAS and getBuckFastCMS.
-  #
-  # In this example, we use the BuckFast simulation. For a Delphes example, see:
-  # yaml_files/ColliderBit_CMSSM.yaml
-
   # BuckFast for ATLAS rules and options
   - capability: SimpleSmearingSim
     type: "Gambit::ColliderBit::BuckFastSmearATLAS"
@@ -170,9 +159,19 @@ Rules:
         - ColliderBit/data/ExternalModel_point.slha
       xsec_vetos: [0.0]   # Don't generate events if the estimated cross section upper limit is below this value [fb]
 
+  # Choose statistical settings for Monte Carlo event generator
+  - capability: MC_ConvergenceSettings
+    options:
+      min_nEvents: [5000]
+      max_nEvents: [50000]
+      events_between_convergence_checks: [5000]
+      target_fractional_uncert: [0.3]
+      halt_when_systematic_dominated: true
+      all_SR_must_converge: false
+
   # Use lognormal errors when marginalising the LHC Poisson likelihoods over systematic uncertainties.
   # Can change "_lognormal_" to "_gaussian_" if you prefer
-  - capability: LHC_Combined_LogLike
+  - capability: LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
 

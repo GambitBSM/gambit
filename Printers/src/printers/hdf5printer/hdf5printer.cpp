@@ -162,187 +162,6 @@ namespace Gambit
       signaldata().check_if_shutdown_begun(); // Will throw a shutdown exception if an emergency shutdown command is received via MPI
     }
 
-    // Helper function for iterating through HDF5 file during verification stage
-    // TODO: OBSOLETE
-    // herr_t op_func_get_dset_lengths(hid_t loc_id /*root of iteration, i.e. the group */,
-    //                                 const char *name, const H5L_info_t* /*info, unused*/, void *opdata)
-    // {
-    //   herr_t     status1, return_val = 0;
-    //   H5O_info_t infobuf;
-    //   DSetData*  data = static_cast<DSetData*>(opdata);
-
-    //   // Ensure all objects in the group are datasets
-    //   // Also retrieve their names and lengths
-    //   status1 = H5Oget_info_by_name(loc_id, name, &infobuf, H5P_DEFAULT);
-    //   if(status1<0)
-    //   {
-    //     std::ostringstream errmsg;
-    //     errmsg << "Error while verifying existing HDF5 file contents! Failed to retrieve metadata for dataset '"<<name<<"'!";
-    //     data->local_info = LOCAL_INFO;
-    //     data->errmsg = errmsg.str();
-    //     return_val = -1;
-    //     return return_val;
-    //   }
-    //   switch (infobuf.type) {
-    //     case H5O_TYPE_GROUP: {
-    //       // Error! Not a dataset
-    //       std::ostringstream errmsg;
-    //       errmsg << "Error while verifying existing HDF5 file contents! Detected an object in the target group (name="<<name<<") which is another group! Currently only datasets are written to the target group by the HDF5Printer, so this indicates an inconsistency (e.g. perhaps you are trying to resume using a different or altered yaml file from the one used to generate the existing data)";
-    //       data->local_info = LOCAL_INFO;
-    //       data->errmsg = errmsg.str();
-    //       return_val = -1;
-    //       return return_val;
-    //       break; }
-    //     case H5O_TYPE_DATASET: {
-    //       // All good, get the name and length
-
-    //       // Open the dataset located in the group identified by 'loc_id', with name 'name'.
-    //       hid_t dset_id = H5Dopen2(loc_id,name,H5P_DEFAULT);
-    //       if(dset_id<0)
-    //       {
-    //         std::ostringstream errmsg;
-    //         errmsg << "Error while verifying existing HDF5 file contents! Failed to open dataset "<<name<<"!";
-    //         data->local_info = LOCAL_INFO;
-    //         data->errmsg = errmsg.str();
-    //         return_val = -1;
-    //         return return_val;
-    //       }
-
-    //       // Get dataspace of the dataset identified by 'dset_id'
-    //       hid_t dspace = H5Dget_space(dset_id);
-    //       if(dspace<0)
-    //       {
-    //         std::ostringstream errmsg;
-    //         errmsg << "Error while verifying existing HDF5 file contents! Failed to read dataspace of dataset "<<name<<"!";
-    //         data->local_info = LOCAL_INFO;
-    //         data->errmsg = errmsg.str();
-    //         return_val = -1;
-    //         return return_val;
-    //       }
-
-    //       // Get number of dimensions
-    //       int ndims = H5Sget_simple_extent_ndims(dspace);
-    //       if(ndims<0)
-    //       {
-    //         std::ostringstream errmsg;
-    //         errmsg << "Error while verifying existing HDF5 file contents! Failed to read dimension sizes of dataset "<<name<<"!";
-    //         data->local_info = LOCAL_INFO;
-    //         data->errmsg = errmsg.str();
-    //         return_val = -1;
-    //         return return_val;
-    //       }
-
-    //       // Get sizes of dimensions
-    //       std::vector<hsize_t> dims(ndims);
-    //       ndims = H5Sget_simple_extent_dims(dspace, &dims[0], NULL);
-    //       if(ndims<0)
-    //       {
-    //         std::ostringstream errmsg;
-    //         errmsg << "Error while verifying existing HDF5 file contents! Failed to read dimension sizes of dataset "<<name<<"!";
-    //         data->local_info = LOCAL_INFO;
-    //         data->errmsg = errmsg.str();
-    //         return_val = -1;
-    //         return return_val;
-    //       }
-
-    //       // Store the name and dim[0] size (which is what we use as the "length")
-    //       logger()<<LogTags::printers<<"Reading existing dataset '"<<name<<"'; length is "<<dims[0]<<std::endl;
-    //       data->names.push_back(name);
-    //       data->lengths.push_back(dims[0]);
-
-    //       // We also need to harvest the old pointID/mpirank pairs
-    //       bool doread=false;
-    //       herr_t status = 0;
-    //       void* buffer=NULL;
-    //       hid_t memtype;
-    //       std::string label;
-    //       if( strcmp(name,"pointID")==0 )
-    //       {
-    //         logger()<<LogTags::printers<<"Setting H5Dread variables for retrieving pointID data"<<std::endl;
-    //         doread=true;
-    //         data->pointIDs.resize(dims[0]);
-    //         buffer=&(data->pointIDs[0]);
-    //         get_hdf5_data_type<unsigned long> h5t;
-    //         memtype=h5t.type();
-    //         //memtype=H5T_NATIVE_ULONG; // Should return this
-    //         label="previous pointIDs";
-    //       }
-    //       else if( strcmp(name,"pointID_isvalid")==0 )
-    //       {
-    //         logger()<<LogTags::printers<<"Setting H5Dread variables for retrieving pointID_isvalid data"<<std::endl;
-    //         doread=true;
-    //         data->pointIDs_isvalid.resize(dims[0]);
-    //         buffer=&(data->pointIDs_isvalid[0]);
-    //         get_hdf5_data_type<int> h5t;
-    //         memtype=h5t.type();
-    //         //memtype=H5T_NATIVE_INT;
-    //         label="previous pointIDs_isvalid";
-    //       }
-    //       else if( strcmp(name,"MPIrank")==0 )
-    //       {
-    //         logger()<<LogTags::printers<<"Setting H5Dread variables for retrieving MPIrank data"<<std::endl;
-    //         doread=true;
-    //         data->mpiranks.resize(dims[0]);
-    //         buffer=&(data->mpiranks[0]);
-    //         get_hdf5_data_type<unsigned int> h5t;
-    //         memtype=h5t.type();
-    //         //memtype=H5T_NATIVE_UINT;
-    //         label="previous MPI ranks";
-    //       }
-    //       else if( strcmp(name,"MPIrank_isvalid")==0 )
-    //       {
-    //         logger()<<LogTags::printers<<"Setting H5Dread variables for retrieving MPIrank_isvalid data"<<std::endl;
-    //         doread=true;
-    //         data->mpiranks_isvalid.resize(dims[0]);
-    //         buffer=&(data->mpiranks_isvalid[0]);
-    //         get_hdf5_data_type<int> h5t;
-    //         memtype=h5t.type();
-    //         //memtype=H5T_NATIVE_INT;
-    //         label="previous MPIranks_isvalid";
-    //       }
-
-    //       if(doread)
-    //       {
-    //         status = H5Dread(dset_id, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer);
-    //         if(status<0)
-    //         {
-    //           std::ostringstream errmsg;
-    //           errmsg << "Error while verifying existing HDF5 file contents! Failed to read "<<label<<" out of dataset "<<name<<"!";
-    //           data->local_info = LOCAL_INFO;
-    //           data->errmsg = errmsg.str();
-    //           return_val = -1;
-    //           return return_val;
-    //         }
-    //       }
-
-    //       // Release the dataset resources
-    //       H5Sclose(dspace);  // release dataspace
-    //       H5Dclose(dset_id); // release dataset
-    //       break; }
-    //     case H5O_TYPE_NAMED_DATATYPE: {
-    //       // Error! Not a dataset
-    //       std::ostringstream errmsg;
-    //       errmsg << "Error while verifying existing HDF5 file contents! Detected an object in the target group (name="<<name<<") which is a named datatype, not a dataset! Currently only datasets are written to the target group by the HDF5Printer, so this indicates an inconsistency (e.g. perhaps you are trying to resume using a different or altered yaml file from the one used to generate the existing data)";
-    //       data->local_info = LOCAL_INFO;
-    //       data->errmsg = errmsg.str();
-    //       return_val = -1;
-    //       return return_val;
-    //       break; }
-    //     default: {
-    //       // Error! Not a dataset
-    //       std::ostringstream errmsg;
-    //       errmsg << "Error while verifying existing HDF5 file contents! Detected an object in the target group (name="<<name<<") with an unknown type, i.e. not a dataset! Currently only datasets are written to the target group by the HDF5Printer, so this indicates an inconsistency (e.g. perhaps you are trying to resume using a different or altered yaml file from the one used to generate the existing data)";
-    //       data->local_info = LOCAL_INFO;
-    //       data->errmsg = errmsg.str();
-    //       return_val = -1;
-    //       return return_val;
-    //     }
-    //   }
-
-    //   return return_val;
-    // }
-
-
     // Helper function for examining existing HDF5 file during verification stage
     // Finds the highest PPID for our rank
     // (separate function checks datasets for consistent lengths; that should run first)
@@ -495,9 +314,21 @@ namespace Gambit
 #ifdef WITH_MPI
     , myComm() // initially attaches to MPI_COMM_WORLD
 #endif
-    , resume(options.getValue<bool>("resume"))
     {
       common_constructor(options);
+    }
+
+    // Get options required to construct a reader object that can read
+    // the previous output of this printer.
+    Options HDF5Printer::resume_reader_options()
+    {
+      Options options;
+      // Set options that we need later to construct a reader object for
+      // previous output, if required.
+      options.setValue("type", "hdf5");
+      options.setValue("file", tmp_comb_file);
+      options.setValue("group", group);
+      return options;
     }
 
     void HDF5Printer::common_constructor(const Options& options)
@@ -522,6 +353,8 @@ namespace Gambit
         // Set up this printer in primary mode
         DBUG( std::cout << "Constructing Primary HDF5Printer object..." << std::endl; )
         is_primary_printer = true;
+
+        set_resume(options.getValue<bool>("resume"));
 
         // Set up communicator context for HDF5 printer system
 #ifdef WITH_MPI
@@ -577,7 +410,7 @@ namespace Gambit
           #endif
           if(HDF5::checkFileReadable(finalfile, msg_finalfile))
           {
-            if(overwrite_file and not resume)
+            if(overwrite_file and not get_resume())
             {
               // Note: "not resume" means "start or restart"
               // Delete existing output file
@@ -625,7 +458,7 @@ namespace Gambit
           }
 
           // Deal with temporary files from previous runs
-          if(resume) // If in resume mode, need to combine any existing process-level temporary files
+          if(get_resume()) // If in resume mode, need to combine any existing process-level temporary files
           {
             logger() << LogTags::info << "Checking if temporary files from a previous scan exist" << EOM;
             std::vector<std::string> tmp_files = find_temporary_files(true); //error if they are inconsistent
@@ -642,7 +475,7 @@ namespace Gambit
             }
             else
             {
-              resume = false;  //Tell ScannerBit that it shouldn't resume and do not find highest point.
+              set_resume(false);  //Tell ScannerBit that it shouldn't resume and do not find highest point.
               logger() << LogTags::info << "No process-level temporary files found; skipping combination step." << EOM;
             }
           }
@@ -673,22 +506,13 @@ namespace Gambit
               }
             }
           } // end if(resume)
-        /*}
-        else
-        {
-#ifdef WITH_MPI
-          // Everyone wait until the master finishes pre-processing of existing files
-          // Calls 'check_for_error_messages' function while waiting, in case master fails to process the files.
-          myComm.allWaitForMasterWithFunc(PPFILES_PASS, check_for_error_messages);
-#endif
-        }*/
 
-          //std::cout <<"Rank "<<myRank<<" resume flag? "<<resume<<std::endl; 
-          if(resume)
+          std::cout <<"Rank "<<myRank<<" resume flag? "<<get_resume()<<std::endl; 
+          if(get_resume())
           {
             //long highest = 0;
             /// Check if combined output file exists
-            //std::cout <<"Rank "<<myRank<<": tmp_comb_file readable? "<<HDF5::checkFileReadable(tmp_comb_file)<<"(filename: "<<tmp_comb_file<<")"<<std::endl;
+            std::cout <<"Rank "<<myRank<<": tmp_comb_file readable? "<<HDF5::checkFileReadable(tmp_comb_file)<<"(filename: "<<tmp_comb_file<<")"<<std::endl;
             if( HDF5::checkFileReadable(tmp_comb_file) )
             {
               logger() << LogTags::info << "Scanning existing temporary combined output file, to prepare for adding new data" << EOM;
@@ -746,12 +570,12 @@ namespace Gambit
         }
         
 #ifdef WITH_MPI
-        int resume_int = resume;
+        int resume_int = get_resume();
         myComm.Barrier();
-        myComm.Bcast(resume_int, 0);
-        resume = resume_int;
+        myComm.Bcast(resume_int, 1, 0);
+        set_resume(resume_int);
 
-        if (resume)
+        if (get_resume())
         {
             unsigned long long int highest;
             myComm.Barrier();
@@ -759,7 +583,7 @@ namespace Gambit
             get_point_id() = highest;
         }
 #else
-        if (resume)
+        if (get_resume())
         {
             get_point_id() = highests[0];
         }
@@ -818,6 +642,9 @@ namespace Gambit
 
         primary_printer = dynamic_cast<HDF5Printer*>(this->get_primary_printer());
 
+        // Set resume flag to match primary printer
+        set_resume(primary_printer->get_resume());
+
         // Fix up mpi communicator (need to copy the one created by the
         // primary printer)
 #ifdef WITH_MPI
@@ -867,7 +694,7 @@ namespace Gambit
       // Make sure a barrier or similar exists outside this function to make
       // sure master node does combination before workers try to retrieve
       // previous points
-      if(not resume or not myRank==0)
+      if(not get_resume() or not myRank==0)
       {
         std::ostringstream errmsg;
         errmsg << "HDF5Printer: Tried to run function 'prepare_and_combined_tmp_files', however GAMBIT is not in 'resume' mode, and this is not the process with rank 0, so this is forbidden. This indicates a bug in the HDF5Printer logic, please report it.";

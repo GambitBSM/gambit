@@ -5,6 +5,7 @@
 #                                  #
 ####################################
 
+from __future__ import print_function
 from collections import OrderedDict
 import os
 
@@ -1238,7 +1239,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
         # # FIXME: At the moment there are problems with member variables that are pointer-to-loaded-class. For now, skip them:
         # if var_is_loaded_class and pointerness > 0:
-        #     print 'WARNING: The member variable %s is of a loaded type and has pointerness > 0. This BOSS cannot yet handle. Ignored for now...' % var_name
+        #     print('WARNING: The member variable %s is of a loaded type and has pointerness > 0. This BOSS cannot yet handle. Ignored for now...' % var_name)
         #     continue
 
 
@@ -1674,7 +1675,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
         # # FIXME: At the moment there are problems with member variables that are pointer-to-loaded-class. For now, skip them:
         # if var_is_loaded_class and pointerness > 0:
-        #     print 'WARNING: The member variable %s is of a loaded type and has pointerness > 0. This BOSS cannot yet handle. Ignored for now...' % var_name
+        #     print('WARNING: The member variable %s is of a loaded type and has pointerness > 0. This BOSS cannot yet handle. Ignored for now...' % var_name)
         #     continue
 
         # Construct common initialization list

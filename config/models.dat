@@ -399,7 +399,15 @@ StandardModel_SLHA2: |
    theta12, theta13, theta23                    - mixing angles from PMNS matrix
    GF                                           - the Fermi coupling constant
 
-SingletDMZ3: |
+ScalarSingletDM_Z3: |
+
+   The singlet DM model with a Z3 symmetry. Note that mS should either be interpreted as the tree level mass or directly as the pole mass for S. This is analogous to the treatment of the SM Higgs mass in the model StandardModel_Higgs.
+
+   lambda_hS  - coupling for vertex connecting the SM Higgs to the new scalar
+   mS         - the mass of the scalar DM candidate
+   mu3        - coefficient of S^3 Lagrangian term
+
+ScalarSingletDM_Z3_running: |
 
    The singlet DM model with a Z3 symmetry.
 
@@ -410,7 +418,7 @@ SingletDMZ3: |
 
 StandardModel_Higgs_running: |
 
-   This model provides a description of the SM Higgs sector in terms of mH , the bare Higgs mass parameter in the SM Lagrangian at scale mZ. QEWSB specifies the scale at which the electroweak symmetry-breaking (EWSB) consistency condition that the Higgs potential possess a tree-level minimum is imposed. This model is intended for use in situations where the Higgs potential is run to different scales, e.g. for calculating pole masses or investigating vacuum stability.
+   This model provides a description of the SM Higgs sector in terms of mH, the bare Higgs mass parameter in the SM Lagrangian at scale mZ. QEWSB specifies the scale at which the electroweak symmetry-breaking (EWSB) consistency condition that the Higgs potential possess a tree-level minimum is imposed. This model is intended for use in situations where the Higgs potential is run to different scales, e.g. for calculating pole masses or investigating vacuum stability.
 
 Halo_Einasto: |
    Dark matter halo model corresponding to an Einasto density profile with scale density rhos,
@@ -468,30 +476,34 @@ nuclear_params_sigmas_sigmal: |
 
    The same as nuclear_params_fnq, but with the replacement of the six quark content matrix elements by the matrix element sigma0 and the strange quark content of the nucleon sigmas. See the GAMBIT core paper for details and definitions.
 
-SingletDM: |
+ScalarSingletDM_Z2: |
 
    The scalar singlet DM model, with two parameters mS (the mass of the scalar DM), and lambda_hS, the strength of the new scalar interaction with the SM Higgs. Note that mS should either be interpreted as the tree level mass or directly as the pole mass for S. This is analogous to the treatment of the SM Higgs mass in the model StandardModel_Higgs.
 
-SingletDM_running: |
+ScalarSingletDM_Z2_running: |
 
    The scalar singlet DM model with lambda_S (the scalar self-coupling), lambda_hS (the scalar-SM Higgs interaction strength) and mS (the mass of the new scalar) defined at the scale mZ as free parameters, allowing full calculation of pole masses, renormalisation group running and vacuum stability.
 
-VectorDM: |
+MDM: |
+
+   Minimal dark matter
+
+VectorSingletDM_Z2: |
 
    The vector DM model, with two parameters mV (the mass of the vector DM), and lambda_hV, the strength of the vector DM interaction with the SM Higgs. Note that mV should either be interpreted as the tree level mass or directly as the pole mass for V. This is analogous to the treatment of the SM Higgs mass in the model StandardModel_Higgs.
 
-MajoranaDM: |
+MajoranaSingletDM_Z2: |
 
    The Majorana fermion DM model, with three parameters mX (the mass of the Majorana fermion DM), lX = lambda_{hX}/Lambda_X where Lambda_X is the EFT cut-off scale, and xi is a mixing angle, controlling the interaction between the Majorana fermion DM and the SM Higgs.
 
-MajoranaDM_sps: |
+MajoranaSingletDM_Z2_sps: |
 
-   Same as MajoranaDM, but specifying instead the scalar and pseudoscalar couplings lX_s and lX_ps of DM to the Higgs.
+   Same as MajoranaSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lX_s and lX_ps of DM to the Higgs.
 
-DiracDM: |
+DiracSingletDM_Z2: |
 
    The Dirac fermion DM model, with three parameters mF (the mass of the Dirac fermion DM), lF = lambda_{hF}/Lambda_F where Lambda_F is the EFT cut-off scale, and xi is a mixing angle, controlling the scalar-pseudoscalar interaction between the Dirac fermion DM and the SM Higgs.
 
-DiracDM_sps: |
+DiracSingletDM_Z2_sps: |
 
-   Same as DiracDM, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
+   Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.

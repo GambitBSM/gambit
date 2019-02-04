@@ -567,7 +567,21 @@ namespace Gambit {
                 cutFlowVector[j] += specificOther->cutFlowVector[j];
                 cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
             }
-            _SR4b += specificOther->_SR4b;
+
+	    _SRASF120 += specificOther->_SRASF120;
+	    _SRASF140 += specificOther->_SRASF140;
+	    _SRADF140 += specificOther->_SRADF140;
+	    _SRASF160 += specificOther->_SRASF160;
+	    _SRADF160 += specificOther->_SRADF160;
+	    _SRASF180 += specificOther->_SRASF180;
+	    _SRADF180 += specificOther->_SRADF180;
+	    _SRBSF120 += specificOther->_SRBSF120;
+	    _SRBDF120 += specificOther->_SRBDF120;
+	    _SRBSF140 += specificOther->_SRBSF140;
+	    _SRBDF140 += specificOther->_SRBDF140;
+	    _SRCSF110 += specificOther->_SRCSF110;
+	    _SRCDF110 += specificOther->_SRCDF110;
+	    _SR4b += specificOther->_SR4b;
         }
 
 

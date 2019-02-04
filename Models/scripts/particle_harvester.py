@@ -19,11 +19,17 @@
 #          (sanjay.bloor12@imperial.ac.uk)
 #    \date 2017 Aug
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #*********************************************
 import os
 import yaml
 import itertools
-execfile("./Utils/scripts/harvesting_tools.py")
+
+toolsfile="./Utils/scripts/harvesting_tools.py"
+exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
 def create_entry(macro, particle_list):
 

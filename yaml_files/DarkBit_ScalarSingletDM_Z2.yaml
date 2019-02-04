@@ -1,0 +1,447 @@
+##########################################################################
+## GAMBIT configuration for running a simple random scan of the singlet DM
+## model using likelihoods from DarkBit.
+##
+## The likelihoods include the relic density, indirect DM searches and
+## direct DM searches (plus constraints for the nuisance parameters.
+##
+## Nuisance parameters include the nuclear matrix elements, the SM Higgs
+## mass and the dark matter halo parameters.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  # Nuclear matrix parameters.
+  nuclear_params_sigmas_sigmal:
+    sigmas:
+      range:  [19, 67]
+    sigmal:
+      range:  [31, 85]
+    deltau:
+      fixed_value:  0.842
+    deltad:
+      fixed_value: -0.427
+    deltas:
+      fixed_value: -0.085
+
+  # The model nuclear_params_sigmas_sigma0 replaces the sigmal in the
+  # above model with sigma0
+
+  # You could instead choose to directly specify the hadronic matrix elements:
+  # nuclear_params_fnq:
+  #   fpd:
+  #     fixed_value: 0.0493
+  #   fpu:
+  #     fixed_value: 0.0345
+  #   fps:
+  #     fixed_value: 0.0616
+  #   fnd:
+  #     fixed_value: 0.0718
+  #   fnu:
+  #     fixed_value: 0.0236
+  #   fns:
+  #     fixed_value: 0.0616
+  #   deltau:
+  #     fixed_value:  0.842
+  #   deltad:
+  #     fixed_value: -0.427
+  #   deltas:
+  #     fixed_value: -0.085
+
+  # Singlet DM and Higgs parameters
+  StandardModel_Higgs:
+    mH:
+      range: [124.1, 127.3]
+
+  ScalarSingletDM_Z2:
+    mS:
+      range: [45., 10000.]
+      prior_type: log
+    lambda_hS:
+      range: [0.0001, 10.00]
+      prior_type: log
+
+  # Dark matter halo parameters.
+  Halo_gNFW_rho0:
+    rho0:
+      range: [.2, .8]
+    v0: 235.0
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Halo_Einasto_rho0:
+  #  rho0:
+  #    range: [.2, .8]
+  #  v0: 235.0
+  #  vesc: 550.0
+  #  vrot: 235.0
+  #  rs: 20.0
+  #  r_sun: 8.5
+  #  alpha: .17
+
+  # Halo_gNFW_rhos and Halo_Einasto_rhos replace rho0 in the above models
+  # with rhos
+
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  # These lines tell GAMBIT to use the hdf5 printer
+  # Can switch to the ascii printer by commenting out and
+  # using the ascii lines below
+
+  printer: hdf5
+  options:
+    output_file: "MSSM7.hdf5"
+    group: "/MSSM7"
+    delete_file_on_restart: true
+
+  #printer: ascii
+  #options:
+  #  output_file: "ScalarSingletDM_Z2.txt"
+  #  buffer_length: 10
+  #  delete_file_on_restart: true
+
+
+Scanner:
+
+ use_scanner: random
+
+ scanners:
+
+   multinest:
+     plugin: multinest
+     like:  LogLike
+     nlive: 5000
+     tol: 0.1
+     updInt: 1
+
+   random:
+     plugin: random
+     point_number: 100
+     like:  LogLike
+     printme: false
+
+
+ObsLikes:
+
+    # Calculate the relic density likelihood
+    - capability: lnL_oh2
+      purpose:    LogLike
+
+    # Calculate gamma ray likelihoods:
+    - capability: lnL_FermiLATdwarfs
+      purpose:    LogLike
+
+    - capability: lnL_FermiGC
+      purpose:    LogLike
+
+    - capability: lnL_HESSGC
+      purpose:    LogLike
+
+    - capability: lnL_CTAGC
+      purpose:    LogLike
+
+    # Direct detection likelihoods
+    - capability: XENON100_2012_LogLikelihood
+      purpose:    LogLike
+
+    - capability: XENON1T_2017_LogLikelihood
+      purpose:    LogLike
+
+    - capability: LUX_2013_LogLikelihood
+      purpose:    LogLike
+
+    - capability: LUX_2015_LogLikelihood
+      purpose:    LogLike
+
+    - capability: LUX_2016_LogLikelihood
+      purpose:    LogLike
+
+    - capability: PandaX_2016_LogLikelihood
+      purpose:    LogLike
+
+    - capability: SuperCDMS_2014_LogLikelihood
+      purpose:    LogLike
+
+    # Calculate all IceCube likelihoods (including 22 string)
+    - capability: IceCube_likelihood
+      purpose: LogLike
+
+    # Calculate the IceCube 79 string likelihood
+    - capability: IC79_loglike
+      purpose:    LogLike
+
+    # SI nuclear parameters likelihood (only works for nuclear_params_sigmas_sigmal model)
+    - capability: lnL_SI_nuclear_parameters
+      purpose:    LogLike
+
+    # DM Local Halo likelihoods
+    - capability: lnL_rho0
+      purpose: LogLike
+
+    - capability: lnL_vrot
+      purpose: LogLike
+
+    - capability: lnL_v0
+      purpose: LogLike
+
+    - capability: lnL_vesc
+      purpose: LogLike
+
+    # Provide the actual relic density in the output (not just the likelihood)
+    - purpose:    Observable
+      capability: RD_oh2
+
+    # Provide mwimp in the output
+    - purpose:    Observable
+      capability: mwimp
+
+    # Provide sigmav in the output
+    - purpose:    Observable
+      capability: sigmav
+
+    # Provide the spin-independent WIMP-proton cross-section in the output
+    - purpose:    Observable
+      capability: sigma_SI_p
+
+    # Provide the spin-independent WIMP-neutron cross-section in the output
+    - purpose:    Observable
+      capability: sigma_SI_n
+
+
+Rules:
+
+  # Options for Process Catalog setup
+  - function: TH_Process_Catalog_ScalarSingletDM_Z2
+    options:
+       ProcessCatalog_MinBranching: 0 # Minimum branching fraction of included processes
+
+  # Choose to implement the relic density likelihood as an upper bound, not a detection
+  - capability: lnL_oh2
+    function: lnL_oh2_upperlimit
+    options:
+       oh2_obs: 0.1188
+       oh2_obserr: 0.001
+       profile_systematics: false # Use likelihood version that has been profiled over systematics
+       oh2_fractional_theory_error: 0.05
+
+  # Uncomment these lines and comment the above lines to use the relic density likeihood as a detection (not an upper bound)
+  #- capability: lnL_oh2
+  #  function: lnL_oh2_Simple
+  #  options:
+  #     oh2_obs: 0.1188
+  #     oh2_obserr: 0.001
+  #     oh2_fractional_theory_error: 0.05
+
+  # Choose to rescale signals in direct and indirect detection by the relic density fraction
+  - capability: RD_fraction
+    #function: RD_fraction_rescaled # Rescale the local DM density
+    #options:
+    #   oh2_obs: 0.1188
+    function: RD_fraction_leq_one # Rescale the local DM density if the calculated relic density is less than the observed
+    options:
+       oh2_obs: 0.1188
+    #function: RD_fraction_one # Do not rescale the local DM density
+
+  # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
+  # values from the GAMBIT decay table (internal_decays=false).
+  - function: MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init
+    options:
+       VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+       VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+
+  # Use DarkBit native calculator or MicrOmegas for the relic density?
+  # Consult the DarkBit manual for the required options in each case
+  - capability: RD_oh2
+    function: RD_oh2_general
+    options:
+      fast: 1  # 0: standard, 1: fast (defalt)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Gamma-ray likelihoods (See DarkBit paper for details on version options)
+  -  function: lnL_FermiLATdwarfs_gamLike
+     options:
+        version: "pass8" # Other option is pass7
+
+  - function: lnL_FermiFC_gamLike
+    options:
+       version: "externalJ" # Other options are fixedJ, margJ, margJ_HEP and externalJ
+
+  - function: lnL_HESSGC_gamLike
+    options:
+       version: "spectral_externalJ"
+       # Other options are integral_fixedJ, integral_externalJ, and spectral_fixedJ
+
+  # Choose to use DarkSUSY yield tables for indirect detection
+  - capability: SimYieldTable
+    function: SimYieldTable_DarkSUSY
+    options:
+       allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
+
+  # Other options can be obtained by uncommenting the relevant lines below (and commenting the above)
+  #- capability: SimYieldTable
+  #  function: SimYieldTable_MicrOmegas
+  #    options:
+  #     allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
+
+  # More options for determination of gamma ray yields
+  - function: GA_missingFinalStates # Finds final states for which tabulated spectra do not exist
+    options:
+       ignore_all: false
+       ignore_two_body: false
+       ignore_three_body: false
+
+  - function: GA_AnnYield_General
+    options:
+       line_width: 0.03 # Relative line width used in gamma-ray spectra
+
+  # Use DarkBit or MicrOmegas for calculating direct detection couplings
+  - capability: DD_couplings
+    function: DD_couplings_ScalarSingletDM_Z2
+    #function: DD_couplings_MicrOmegas
+
+  # Nuclear SI Parameter Likelihoods (All values in MeV)
+  - capability: lnL_SI_nuclear_parameters
+    function: lnL_sigmas_sigmal
+    options:
+      sigmas_obs: 43.
+      sigmas_obserr: 8.
+      sigmal_obs: 58.
+      sigmal_obserr: 9.
+
+  # Nuclear SD Parameter Likelihoos
+  - capability: lnL_SD_nuclear_parameters
+    function: lnL_deltaq
+    options:
+      a3_obs: 1.2723
+      a3_obserr: 0.0023
+      a8_obs: 0.585
+      a8_obserr: 0.025
+      deltas_obs: -0.09
+      deltas_obserr: 0.03
+
+  # DM Halo Model Likelihoods
+  # (rho0_obserr/rho0_obs)^2 is the variance of ln(rho0/rho0_obs)
+  - capability: lnL_rho0  # Local dark matter density
+    function: lnL_rho0_lognormal
+    options:
+      rho0_obs: 0.4 # GeV/cm^3
+      rho0_obserr: .15 # GeV/cm^3
+
+  - capability: lnL_vrot  # Local disk rotation speed
+    function: lnL_vrot_gaussian
+    options:
+      vrot_obs: 235 # km/s
+      vrot_obserr: 20 # km/s
+
+  - capability: lnL_v0   # Maxwellian most-probable speed
+    function: lnL_v0_gaussian
+    options:
+      v0_obs: 235 # km/s
+      v0_obserr: 20 # km/s
+
+  - capability: lnL_vesc # Local galactic escape speed
+    function: lnL_vesc_gaussian
+    options:
+      vesc_obs: 550 # km/s
+      vesc_obserr: 35 # km/s
+
+  - function: DarkSUSY_PointInit_LocalHalo_func
+    options:
+      v_earth: 29.78 # Keplerian velocity of the Earth around the Sun in km/s
+
+  # Neutrino likelihood options
+  - function: IC22_full
+    options:
+      nulike_speed: 3
+
+  - function: IC79WH_full
+    options:
+      nulike_speed: 3
+
+  - function: IC79WL_full
+    options:
+      nulike_speed: 3
+
+  - function: IC79SL_full
+    options:
+      nulike_speed: 3
+
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
+    module: DarkBit
+
+  # Cascade decay MC options
+  - function: cascadeMC_LoopManager
+    options:
+      cMC_maxEvents: 20000 # Maximum number of cascade MC runs
+
+  - function: cascadeMC_GenerateChain
+    options:
+      cMC_maxChainLength: -1 # Maximum chain length, -1 is infinite
+      cMC_Emin: 0 #Cutoff energy for cascade particles
+
+  - function: cascadeMC_Histograms
+    options:
+      cMC_numSpecSamples: 10 # Number of samples to draw from tabulated spectra
+      cMC_NhistBins: 140 # Number of histogram bin
+      cMC_binLow: 0.001 # Histogram min energy in GeV
+      cMC_binHigh: 10000.0 # Histogram max energy in GeV
+      cMC_gammaBGPower: -2.5 # assumed power-law slope for astrophysical background
+      cMC_gammaRelError: 0.20 # max allowed relative error in bin with highest expected signal-to-background
+      cMC_endCheckFrequency: 25 # number of events to wait between successive checks of the convergence criteria
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  - capability: ScalarSingletDM_Z2_spectrum
+    function: get_ScalarSingletDM_Z2_spectrum
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Options for the likelihood in the scan
+  # Can choose a likelihood below which models are thrown away
+  likelihood:
+    model_invalid_for_lnlike_below: -1e4
+
+  debug: true
+
+  # Set the output path for the log files (relative to working directory unless absolute path is specified)
+  default_output_path: "runs/ScalarSingletDM_Z2-DarkBit/"

@@ -15,7 +15,7 @@
 ///  \date 2013 July
 ///  \date 2014 Feb
 ///
-///  \author Pat Scott 
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar, Dec
 ///
@@ -42,6 +42,7 @@
 
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/local_info.hpp"
+#include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/factory_registry.hpp"
 #include "gambit/Utils/variadic_functions.hpp"
 #include "gambit/Utils/yaml_options.hpp"
@@ -85,11 +86,11 @@ Gambit::Scanner::Errors::_warn_()                               \
 namespace Gambit
 {
     namespace Scanner
-    {       
+    {
         /**********************************/
         /****** error and warnings ********/
         /**********************************/
-        
+
         namespace Errors
         {
             inline std::stringstream &_err_()
@@ -97,13 +98,13 @@ namespace Gambit
                 static std::stringstream error;
                 return error;
             }
-            
+
             inline std::stringstream &_warn_()
             {
                 static std::stringstream warn;
                 return warn;
             }
-            
+
             inline bool &_bool_()
             {
                 static bool error;
@@ -111,14 +112,14 @@ namespace Gambit
             }
         }
         /// Scanner errors
-        error& scan_error();
+        EXPORT_SYMBOLS error& scan_error();
         /// Scanner warnings
-        warning& scan_warning();
-            
+        EXPORT_SYMBOLS warning& scan_warning();
+
         /**********************************/
         /****** zip for range loop ********/
         /**********************************/
-        
+
         /// Use for combine container in a range loop:  for (auto &&x : zip(a, b)){...}.
         template <typename... T>
         inline auto zip(const T&... containers) -> boost::iterator_range<boost::zip_iterator<decltype(boost::make_tuple(std::begin(containers)...))>>
@@ -127,24 +128,24 @@ namespace Gambit
                 boost::make_zip_iterator(boost::make_tuple(std::begin(containers)...)),
                 boost::make_zip_iterator(boost::make_tuple(std::end(containers)...)));
         }
-            
+
         /*********************************/
         /****** demangle function ********/
         /*********************************/
-        
+
         /// Demangles gnu c++ name.
         inline std::string demangle(const std::string &in)
         {
 #ifdef __GNUG__
             int status = -4;
-            char *result = abi::__cxa_demangle (in.c_str(), NULL, NULL, &status);       
+            char *result = abi::__cxa_demangle (in.c_str(), NULL, NULL, &status);
 
             if (status)
             {
                     scan_err << "Error demangling \"" << in << "\" status code:  " << status << scan_end;
                     return in;
             }
-            
+
             std::string ret(result);
             std::free(result);
             return ret;
@@ -152,11 +153,11 @@ namespace Gambit
             return in;
 #endif
         }
-            
+
         /****************************************/
         /****** get_yaml_vector function ********/
         /****************************************/
-        
+
         /// Input a vector from the yaml file of the following forms:
         /// vec: [a, b, ...]
         /// vec: a, b, ...
@@ -166,25 +167,25 @@ namespace Gambit
         {
             if (node.IsSequence())
             {
-                return node.as< std::vector<T> >(); 
+                return node.as< std::vector<T> >();
             }
             else if (node.IsScalar())
             {
                 std::string plug = node.as<std::string>();
-                
+
                 std::string::size_type pos = plug.find_first_of(",;");
                 while (pos != std::string::npos)
                 {
                     plug[pos] = ' ';
                     pos = plug.find_first_of(",;", pos + 1);
                 }
-                
+
                 std::stringstream ss;
                 ss << plug;
                 std::vector<T> ret;
                 T temp;
                 while (ss >> temp) ret.push_back(temp);
-                
+
                 return ret;
             }
             else if (node.IsMap())
@@ -194,7 +195,7 @@ namespace Gambit
                 {
                     ret.push_back(it->first.as<T>());
                 }
-                
+
                 return ret;
             }
             else
@@ -203,27 +204,27 @@ namespace Gambit
                 return std::vector <T> ();
             }
         }
-            
+
         /*****************************/
         /****** func_ptr_type ********/
         /*****************************/
-        
+
         template <typename T> struct func_ptr_type;
-        
+
         template <typename... args>
         struct func_ptr_type <void (args...)>
         {
             typedef void (*type) (args...);
         };
-        
+
         /*************************************/
         /****** input_variadic_vector ********/
         /*************************************/
-        
+
         /// Inputs a varibadic pack into a vector
         /// @{
         inline void input_variadic_vector(std::vector<void *> &){}
-        
+
         template <typename T, typename... args>
         inline void input_variadic_vector(std::vector<void *> &input, const T& value, const args&... params)
         {
@@ -231,11 +232,11 @@ namespace Gambit
             input_variadic_vector(input, params...);
         }
         /// @}
-            
+
         /*****************************/
         /****** String to Int ********/
         /*****************************/
-        
+
         /// Converts a string to an int
         inline int StringToInt(const std::string &str)
         {
@@ -246,7 +247,7 @@ namespace Gambit
             else
                     return 0;
         }
-        
+
         /// Converts a int into a string
         inline std::string IntToString(const int &in)
         {
@@ -254,36 +255,36 @@ namespace Gambit
             ss << in;
             return ss.str();
         }
-            
+
         /********************************/
         /********* pi function **********/
         /********************************/
-        
+
         /// Output pi.
         inline double pi() {return 3.14159265358979323846;}
-        
+
         /***********************************/
         /********* convert_to_map **********/
         /***********************************/
-        
+
         /// Turns a vector with enters [model::parameter, ...] into a map with [{model, parameter}, ...].
         inline std::map<std::string, std::vector<std::string>> convert_to_map(const std::vector<std::string> &vec)
         {
             std::map<std::string, std::vector<std::string>> ret;
-            
+
             for (auto it = vec.begin(), end = vec.end(); it != end; it++)
             {
                 std::string::size_type pos = it->find("::");
                 ret[it->substr(0, pos)].push_back(*it);
             }
-            
+
             return ret;
         }
-        
+
         /*******************************************/
         /********* scanner_plugin_def_ret **********/
         /*******************************************/
-        
+
         /// Turns a type into an object.  If it's a floating point number, it replaces it with a big negative number.
         /// @{
         template <typename ret>
@@ -291,18 +292,18 @@ namespace Gambit
         {
             return ret();
         }
-        
+
         template <typename ret>
         typename std::enable_if<std::is_floating_point<ret>::value, ret>::type scanner_plugin_def_ret()
         {
             return -std::pow(10.0, std::numeric_limits<double>::max_exponent10);
         };
         /// @}
-            
+
         /********************************/
         /******** pow function **********/
         /********************************/
-        
+
         /// Outputs a^i
         /// @{
         template <int i>
@@ -310,127 +311,127 @@ namespace Gambit
         {
             return a*pow<i-1>(a);
         };
-        
+
         template <>
         inline double pow<0>(const double &)
         {
             return 1.0;
         };
-        
+
         template <>
         inline double pow<1>(const double &a)
         {
             return a;
         };
-        
+
         template <int i>
         inline int pow(const int &a)
         {
             return a*pow<i-1>(a);
         };
-        
+
         template <>
         inline int pow<0>(const int &)
         {
             return 1;
         };
-        
+
         template <>
         inline int pow<1>(const int &a)
         {
             return a;
         };
         /// @}
-            
+
         /********************************/
         /****** Remove All Func *********/
         /********************************/
-        
+
         template <typename T>
         struct remove_all_func;
-        
+
         template <typename ret, typename... args>
         struct remove_all_func <ret (args...)>
         {
             typedef ret type(typename remove_all<args>::type...);
         };
-            
+
         /***************************/
         /****** return type ********/
-        /***************************/ 
-        
+        /***************************/
+
         template <typename...>
         struct return_type;
-        
+
         template <typename ret, typename... args>
         struct return_type <ret (args...)>
         {
             typedef ret type;
         };
-            
+
         /******************************/
         /****** first_arg_type ********/
-        /******************************/ 
-        
+        /******************************/
+
         template <typename...>
         struct first_arg_type;
-        
+
         template <typename ret, typename T, typename... args>
         struct first_arg_type <ret (T, args...)>
         {
             typedef T type;
         };
-        
+
         template <typename ret>
         struct first_arg_type <ret ()>
         {
             typedef void type;
         };
-            
+
         /***********************************/
         /****** is_args_convertible ********/
-        /***********************************/  
-        
+        /***********************************/
+
         template <typename... T>
         struct is_args_convertible
         {
             static const bool value = false;
         };
-        
+
         template <bool, typename T1, typename T2>
         struct __is_args_convertible__
         {
             static const bool value = is_args_convertible<T1, T2>::value;
         };
-        
+
         template <typename T1, typename T2>
         struct __is_args_convertible__<false, T1, T2>
         {
             static const bool value = false;
         };
-        
+
         template <typename ret1, typename ret2, typename arg1, typename arg2, typename... args1, typename... args2>
         struct is_args_convertible <ret1 (arg1, args1...), ret2 (arg2, args2...)>
         {
             static const bool value = __is_args_convertible__<std::is_convertible<arg1, arg2>::value, ret1 (args1...), ret2 (args2...)>::value;
         };
-        
+
         template <typename ret1, typename ret2>
         struct is_args_convertible <ret1(), ret2()>
         {
             static const bool value = true;
         };
-            
+
         /********************************************/
         /****** find_variadic_type_not_exact ********/
         /********************************************/
 
         template <typename... T>
         struct __find_variadic_type_not_exact__;
-        
+
         template <typename... T>
         struct _find_variadic_type_not_exact_;
-        
+
         template <typename T1, typename T2, typename... T>
         struct _find_variadic_type_not_exact_<T1, T2, T...>
         {
@@ -438,7 +439,7 @@ namespace Gambit
             typedef typename __find_variadic_type_not_exact__ <typename remove_all_func<T1>::type, typename remove_all_func<T2>::type, T2, T...>::func_type func_type;
             static const bool value = __find_variadic_type_not_exact__ <typename remove_all_func<T1>::type, typename remove_all_func<T2>::type, T2, T...>::value;
         };
-        
+
         template <typename... T>
         struct find_variadic_type_not_exact
         {
@@ -446,7 +447,7 @@ namespace Gambit
             typedef typename _find_variadic_type_not_exact_ <T...>::func_type func_type;
             static const bool value = _find_variadic_type_not_exact_ <T...>::value;
         };
-        
+
         template <typename... args>
         struct find_variadic_type_not_exact <void (args...)>
         {
@@ -454,7 +455,7 @@ namespace Gambit
             typedef void func_type;
             static const bool value = false;
         };
-        
+
         template <typename ret, typename... args, typename T1, typename... T>
         struct __find_variadic_type_not_exact__ <void (args...), ret (args...), T1, T...>
         {
@@ -462,7 +463,7 @@ namespace Gambit
             typedef T1 func_type;
             static const bool value = true;
         };
-        
+
         template <typename ret, typename... args, typename... args2, typename T1, typename... T>
         struct __find_variadic_type_not_exact__ <void (args...), ret (args2...), T1, T...>
         {
@@ -470,12 +471,12 @@ namespace Gambit
             typedef typename find_variadic_type_not_exact <void (args...), T...>::func_type func_type;
             static const bool value = find_variadic_type_not_exact <void (args...), T...>::value;
         };
-            
-            
+
+
         /****************************************/
         /****** find_variadic_type_exact ********/
-        /****************************************/               
-        
+        /****************************************/
+
         template <typename... T>
         struct find_variadic_type_exact;
 
@@ -502,17 +503,17 @@ namespace Gambit
             typedef void func_type;
             static const bool value = false;
         };
-            
+
         /******************************************/
         /****** find_variadic_type_convert ********/
-        /******************************************/  
-        
+        /******************************************/
+
         template<bool, typename... T>
         struct __find_variadic_type_convert__;
-        
+
         template<typename... T>
         struct _find_variadic_type_convert_;
-        
+
         template<typename Tc, typename T1, typename... T>
         struct _find_variadic_type_convert_<Tc, T1, T...>
         {
@@ -520,7 +521,7 @@ namespace Gambit
             typedef typename __find_variadic_type_convert__<is_args_convertible<Tc, T1>::value, T1, T...>::func_type func_type;
             static const bool value = __find_variadic_type_convert__<is_args_convertible<Tc, T1>::value, T1, T...>::value;
         };
-        
+
         template <typename... T>
         struct find_variadic_type_convert
         {
@@ -528,7 +529,7 @@ namespace Gambit
             typedef typename _find_variadic_type_convert_<T...>::func_type func_type;
             static const bool value = _find_variadic_type_convert_<T...>::value;
         };
-        
+
         template <typename ret, typename... args>
         struct find_variadic_type_convert<ret (args...)>
         {
@@ -536,7 +537,7 @@ namespace Gambit
             typedef void func_type;
             static const bool value = false;
         };
-        
+
         template <bool b, typename Tc, typename T1, typename... T>
         struct __find_variadic_type_convert__<b, Tc, T1, T...>
         {
@@ -544,7 +545,7 @@ namespace Gambit
             typedef typename find_variadic_type_convert<Tc, T...>::func_type func_type;
             static const bool value = find_variadic_type_convert<Tc, T...>::value;
         };
-        
+
         template <typename Tc, typename T1, typename... T>
         struct __find_variadic_type_convert__<true, Tc, T1, T...>
         {
@@ -552,11 +553,11 @@ namespace Gambit
             typedef T1 func_type;
             static const bool value = true;
         };
-            
+
         /**********************************/
         /****** find_variadic_type ********/
         /**********************************/
-        
+
         template <bool, bool, bool, typename...>
         struct __find_variadic_type__
         {
@@ -564,7 +565,7 @@ namespace Gambit
             typedef void func_type;
             static const bool value = false;
         };
-        
+
         template <typename... T>
         struct find_variadic_type
         {
@@ -572,7 +573,7 @@ namespace Gambit
             typedef typename __find_variadic_type__<find_variadic_type_exact<T...>::value,find_variadic_type_not_exact<T...>::value,find_variadic_type_convert<T...>::value, T...>::func_type func_type;
             static const bool value = __find_variadic_type__<find_variadic_type_exact<T...>::value,find_variadic_type_not_exact<T...>::value,find_variadic_type_convert<T...>::value, T...>::value;
         };
-        
+
         template <bool b1, bool b2, typename... T>
         struct __find_variadic_type__<true, b1, b2, T...>
         {
@@ -580,7 +581,7 @@ namespace Gambit
             typedef typename find_variadic_type_exact<T...>::func_type func_type;
             static const bool value = true;
         };
-        
+
         template <bool b2, typename... T>
         struct __find_variadic_type__<false, true, b2, T...>
         {
@@ -588,7 +589,7 @@ namespace Gambit
             typedef typename find_variadic_type_not_exact<T...>::func_type func_type;
             static const bool value = true;
         };
-        
+
         template <typename... T>
         struct __find_variadic_type__<false, false, true, T...>
         {
@@ -596,11 +597,11 @@ namespace Gambit
             typedef typename find_variadic_type_convert<T...>::func_type func_type;
             static const bool value = true;
         };
-            
+
         /********************************/
         /****** Stream Operators ********/
         /********************************/
-        
+
         /// Outputs containers to an output stream
         /// @{
         template <typename T>
@@ -609,8 +610,8 @@ namespace Gambit
         {
             if (in.size() == 0)
                 return out << "[]";
-            
-            
+
+
             auto it = in.begin();
             auto end = in.end();
             out << "[" << *it;
@@ -618,10 +619,10 @@ namespace Gambit
             {
                 out << ", " << *it;
             }
-            
+
             return out << "]";
         }
-        
+
         template <typename T>
         inline typename std::enable_if <is_pair<T>::value, std::ostream &>::type
         operator << (std::ostream &out, const T &in)
@@ -629,11 +630,11 @@ namespace Gambit
             return out << "{" << in.first << " : " << in.second << "}";
         }
         /// @}
-            
+
         /********************************/
         /****** Output Functions ********/
         /********************************/
-        
+
         /// Functions to output data for the plugin resume functions
         /// @{
         template<typename T>
@@ -643,7 +644,7 @@ namespace Gambit
             out.write(reinterpret_cast<char *>(&param), sizeof(T));
             //out << param << std::endl;
         };
-        
+
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, void>::type
         resume_file_output (std::ofstream &out, T &param)
@@ -653,7 +654,7 @@ namespace Gambit
                 resume_file_output(out, *it);
             }
         }
-        
+
         template <typename T>
         inline typename std::enable_if <is_pair<T>::value, void>::type
         resume_file_output (std::ofstream &out, T &param)
@@ -661,7 +662,7 @@ namespace Gambit
             resume_file_output(out, param.first);
             resume_file_output(out, param.second);
         }
-        
+
         template<typename T>
         typename std::enable_if<!is_container<T>::value && !is_pair<T>::value, void>::type
         resume_file_input(std::ifstream &in, T &param)
@@ -669,7 +670,7 @@ namespace Gambit
             in.read((char *)&param, sizeof(T));
             //in >> param;
         };
-        
+
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, void>::type
         resume_file_input (std::ifstream &in, T &param)
@@ -679,7 +680,7 @@ namespace Gambit
                 resume_file_input(in, *it);
             }
         }
-        
+
         template <typename T>
         inline typename std::enable_if <is_pair<T>::value, void>::type
         resume_file_input (std::ifstream &in, T &param)
@@ -687,38 +688,38 @@ namespace Gambit
             resume_file_input(in, param.first);
             resume_file_input(in, param.second);
         }
-        
+
         template<typename T>
         inline typename std::enable_if<!is_container<T>::value && !is_pair<T>::value, size_t>::type
         resume_size_of(T &)
         {
             return sizeof(T);
         };
-        
+
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, size_t>::type
         resume_size_of (T &param)
         {
             return param.size()*sizeof(typename is_container<T>::type);
         }
-        
+
         template <typename T>
         inline typename std::enable_if <is_pair<T>::value, size_t>::type
         resume_size_of (T &)
         {
             return sizeof(typename is_pair<T>::first_type) + sizeof(typename is_pair<T>::second_type);
         }
-        
+
         inline void resume_file_input(std::ifstream &in, std::string &param)
         {
             in.read((char *)param.c_str(), param.length());
         }
-        
+
         inline void resume_file_output(std::ofstream &out, std::string &param)
         {
             out.write((char *)param.c_str(), param.length());
         }
-        
+
         inline size_t resume_size_of(std::string &param)
         {
             return param.length();

@@ -24,11 +24,11 @@
 
 namespace Gambit
 {
-    namespace MicrOmegas
-    {
-    typedef  struct { double par[36]; }  MOcommonSTR;
-    typedef  struct { double weight; char *prtcl[5];} aChannel;
-    }
+  namespace MicrOmegas
+  {
+    typedef struct { double par[36]; } MOcommonSTR;
+    typedef struct { double weight; char*prtcl[5]; } aChannel;
+  }
 }
 
 #endif // defined __MicrOmegas_types_hpp__

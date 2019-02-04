@@ -34,6 +34,7 @@
 #include <cmath>
 #include <functional>
 #include <omp.h>
+#include <time.h> // For nanosleep (posix only)
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ExampleBit_A/ExampleBit_A_rollcall.hpp"
@@ -126,7 +127,7 @@ namespace Gambit
       logger() << "Is CMSSM being scanned? " << ModelInUse("CMSSM") << endl;
       logger() << "Is NUHM1 being scanned? " << ModelInUse("NUHM1") << endl;
       logger() << "Is NormalDist being scanned? " << ModelInUse("NormalDist") << endl;;
-      logger() << "Is SingletDM being scanned? "  << ModelInUse("SingletDM");;
+      logger() << "Is ScalarSingletDM_Z2 being scanned? "  << ModelInUse("ScalarSingletDM_Z2");;
       logger() << info << EOM;
       std::cout << "  Printing parameter values:" << std::endl;
       std::cout << "mu: " << *Param["mu"] << std::endl;
@@ -140,6 +141,7 @@ namespace Gambit
 
     /// Likelihood function for fitting the population parameters of a
     /// normal distribution (with hard-coded "observations")
+    /// Mainly used for testing scanning algorthims
     void lnL_gaussian (double &result)
     {
       using namespace Pipes::lnL_gaussian;
@@ -192,6 +194,19 @@ namespace Gambit
       if (Random::draw() < x)
       {
         invalid_point().raise("I don't like this point.");
+      }
+
+      // Artificially slow down likelihood evaluations
+      // Important for debugging new scanner plugins.
+      double eval_time = runOptions->getValueOrDef<double>(-1, "eval_time"); // Measured in seconds
+      //std::cout << "eval_time:" << eval_time <<std::endl;
+      if(eval_time>0)
+      {          
+         struct timespec sleeptime;
+         sleeptime.tv_sec = floor(eval_time);
+         sleeptime.tv_nsec = floor((eval_time-floor(eval_time))*1e9); // Allow user to choose fractions of second
+         //std::cout << "Sleeping for "<<sleeptime.tv_sec<<" seconds and "<<sleeptime.tv_nsec<<" nanoseconds" <<std::endl;
+         nanosleep(&sleeptime,NULL);
       }
 
       result = loglTotal;

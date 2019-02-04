@@ -313,6 +313,8 @@ namespace Gambit
 
 
     /*! \brief Get Weff directly from initialized DarkSUSY.
+     * Note that this function does not correct Weff for
+     * non-self-conjugate dark matter.
     */
     void RD_eff_annrate_SUSY(double(*&result)(double&))
     {
@@ -336,7 +338,9 @@ namespace Gambit
         std::string DMid= *Dep::DarkMatter_ID;
         TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
         double mDM = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
-        const double GeV2tocm3s1 = 1.16733e-17;
+
+        // If process involves non-self-conjugate DM then we need to add a factor of 1/2 to the final weff. This must be explicitly set in the process catalogue.
+        double k = (annProc.isSelfConj) ? 1. : 0.5;
 
         auto Weff = daFunk::zero("peff");
         auto peff = daFunk::var("peff");
@@ -346,10 +350,10 @@ namespace Gambit
             it != annProc.channelList.end(); ++it)
         {
           Weff = Weff +
-            it->genRate->set("v", 2*peff/sqrt(mDM*mDM+peff*peff))*s/GeV2tocm3s1;
+            k*it->genRate->set("v", 2*peff/sqrt(mDM*mDM+peff*peff))*s/gev2tocm3s1;
         }
         // Add genRateMisc to Weff
-        Weff = Weff + annProc.genRateMisc->set("v", 2*peff/sqrt(mDM*mDM+peff*peff))*s/GeV2tocm3s1;
+        Weff = Weff + k*annProc.genRateMisc->set("v", 2*peff/sqrt(mDM*mDM+peff*peff))*s/gev2tocm3s1;
         if ( Weff->getNArgs() != 1 )
           DarkBit_error().raise(LOCAL_INFO,
               "RD_eff_annrate_from_ProcessCatalog: Wrong number of arguments.\n"
@@ -509,7 +513,6 @@ namespace Gambit
         }
       }
 
-
       // follow wide res treatment for heavy Higgs adopted in DS
       double widthheavyHiggs=
              BEreq::widths->width(BEreq::particle_code("h0_2"));
@@ -618,9 +621,9 @@ namespace Gambit
 
     /*! \brief Relic density directly from a call of initialized MicrOmegas.
     */
-    void RD_oh2_MicrOmegas(double &oh2)
+    void RD_oh2_Xf_MicrOmegas(ddpair &result)
     {
-      using namespace Pipes::RD_oh2_MicrOmegas;
+      using namespace Pipes::RD_oh2_Xf_MicrOmegas;
       // Input
       int fast;     // fast: 1, accurate: 0
       double Beps;  // Beps=1e-5 recommended, Beps=1 switches coannihilation off
@@ -633,7 +636,12 @@ namespace Gambit
 
       // Output
       double Xf;
-      oh2 = BEreq::oh2(&Xf, byVal(fast), byVal(Beps));
+      double oh2 = BEreq::oh2(&Xf,byVal(fast), byVal(Beps));
+
+      result.first = oh2;
+      result.second = Xf;
+
+
       logger() << LogTags::debug << "X_f = " << Xf << " Omega h^2 = " << oh2 << EOM;
     }
 
@@ -673,6 +681,63 @@ namespace Gambit
       result = oh2;
       logger() << LogTags::debug << "RD_oh2_DarkSUSY: oh2 is " << oh2 << EOM;
     }
+
+
+
+    void RD_oh2_MicrOmegas(double &result)
+    {
+      using namespace Pipes::RD_oh2_MicrOmegas;
+
+      ddpair oh2_Xf = *Dep::RD_oh2_Xf;
+      result = oh2_Xf.first;
+    }
+
+    void Xf_MicrOmegas(double &result)
+    {
+      using namespace Pipes::Xf_MicrOmegas;
+
+      ddpair oh2_Xf = *Dep::RD_oh2_Xf;
+      result = oh2_Xf.second;
+    }
+
+
+    void print_channel_contributions_MicrOmegas(double &result)
+    {
+      using namespace Pipes::print_channel_contributions_MicrOmegas;
+
+      double Beps;  // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+      Beps = runOptions->getValueOrDef<double>(1e-5, "Beps");
+
+      double Xf = *Dep::Xf;
+
+      double cut = runOptions->getValueOrDef<double>(1e-5, "cut");
+
+      result = BEreq::momegas_print_channels(byVal(Xf),byVal(cut),byVal(Beps),byVal(1),byVal(stdout));
+    }
+
+
+    void get_semi_ann_MicrOmegas(double &result)
+    {
+      using namespace Pipes::get_semi_ann_MicrOmegas;
+
+      double Beps;  // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+      Beps = runOptions->getValueOrDef<double>(1e-5, "Beps");
+
+      double Xf = *Dep::Xf;
+
+      char*n1 =  (char *)"~SS";
+      char*n2 = (char *)"~SS";
+      char*n3 = (char *)"h";
+      char*n4 = (char *)"~ss";
+
+      result = BEreq::get_oneChannel(byVal(Xf),byVal(Beps),byVal(n1),byVal(n2),byVal(n3),byVal(n4));
+
+    }
+
+
+
+
+
 
 
     //////////////////////////////////////////////////////////////////////////

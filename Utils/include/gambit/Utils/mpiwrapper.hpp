@@ -55,6 +55,7 @@
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/local_info.hpp"
+#include "gambit/Utils/util_macros.hpp"
 
 // I wanted to keep the GAMBIT logger separate from this code so that it
 // would be more streamlined for using elsewhere. But the logger is very
@@ -161,7 +162,7 @@ namespace Gambit
       /// @}
 
       /// Main "Communicator" class
-      class Comm
+      class EXPORT_SYMBOLS Comm
       {
          public:
             /// Default Constructor; attaches to MPI_COMM_WORLD
@@ -360,28 +361,28 @@ namespace Gambit
                   if(i!=rank) Isend(buf, count, i, tag, req);
                }
             }
-            
+
             template <typename T>
-            void Bcast (T &buffer, int root) 
+            void Bcast (T &buffer, int count, int root) 
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
                 
-                MPI_Bcast (&buffer, 1, datatype, root, boundcomm);
+                MPI_Bcast (&buffer, count, datatype, root, boundcomm);
             }
-            
+
             template<typename T>
             void Scatter (std::vector<T> &sendbuf, T &recvbuf, int root)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-                
+
                 MPI_Scatter (&sendbuf[0], 1, datatype, &recvbuf, 1, datatype, root, boundcomm);
             }
-            
+
             template<typename T>
-            void Allreduce (T &sendbuf, T &recvbuf, MPI_Op op) 
+            void Allreduce (T &sendbuf, T &recvbuf, MPI_Op op)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-                
+
                 MPI_Allreduce (&sendbuf, &recvbuf, 1, datatype, op, boundcomm);
             }
 
@@ -468,19 +469,19 @@ namespace Gambit
       };
 
       /// Check if MPI_Init has been called (it is an error to call it twice)
-      bool Is_initialized();
+      EXPORT_SYMBOLS bool Is_initialized();
 
       /// Initialise MPI
-      void Init();
+      EXPORT_SYMBOLS void Init();
 
       /// Check if MPI_Finalize has been called (it is an error to do anything else after this)
-      bool Is_finalized();
+      EXPORT_SYMBOLS bool Is_finalized();
 
       /// Finalize MPI
-      void Finalize();
+      EXPORT_SYMBOLS void Finalize();
 
       /// Prepare for calling MPI_Finalize, but call MPI_abort and exit function if timeout is exceeded.
-      bool PrepareForFinalizeWithTimeout(bool use_mpi_abort);
+      EXPORT_SYMBOLS bool PrepareForFinalizeWithTimeout(bool use_mpi_abort);
 
       /// Nice wrapper for getting the message size from an MPI_status struct.
       /// Provide the type whose MPI_Datatype you want to retrieve as the
@@ -503,7 +504,8 @@ namespace Gambit
       /// @{ Helpers for registration of compound datatypes
 
       /// Structure to hold an MPI startup function plus metadata
-      class MpiIniFunc {
+      class MpiIniFunc
+      {
         private:
           std::string location;
           std::string name;

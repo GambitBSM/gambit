@@ -14,7 +14,7 @@
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
 ///    \date 2014 Sep - Dec, 2015 Jan - Mar
-///  
+///
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@adelaide.edu.au)
 ///    \date 2016 Aug
@@ -44,20 +44,23 @@ START_MODULE
 
   #include "gambit/SpecBit/SpecBit_VS_rollcall.hpp"
 
-  /// Module function declarations for SpecBit_SingletDM.cpp
-  #include "gambit/SpecBit/SpecBit_SingletDM_rollcall.hpp"
+  /// Module function declarations for SpecBit_ScalarSingletDM.cpp
+  #include "gambit/SpecBit/SpecBit_ScalarSingletDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_VectorSingletDM_Z2.cpp
+  #include "gambit/SpecBit/SpecBit_VectorSingletDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_MajoranaSingletDM_Z2.cpp
+  #include "gambit/SpecBit/SpecBit_MajoranaSingletDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_DiracSingletDM_Z2.cpp
+  #include "gambit/SpecBit/SpecBit_DiracSingletDM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_MDM.cpp
+  #include "gambit/SpecBit/SpecBit_MDM_rollcall.hpp"
 
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
-
-  /// Module function declarations for SpecBit_VectorDM.cpp
-  #include "gambit/SpecBit/SpecBit_VectorDM_rollcall.hpp"
-
-  /// Module function declarations for SpecBit_MajoranaDM.cpp
-  #include "gambit/SpecBit/SpecBit_MajoranaDM_rollcall.hpp"
-
-  /// Module function declarations for SpecBit_DiracDM.cpp
-  #include "gambit/SpecBit/SpecBit_DiracDM_rollcall.hpp"
 
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"

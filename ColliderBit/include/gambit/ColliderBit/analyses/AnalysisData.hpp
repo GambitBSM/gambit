@@ -6,11 +6,12 @@
 ///  The SignalRegionData and AnalysisData structs.
 
 #include "gambit/ColliderBit/ColliderBit_macros.hpp"
-#include "gambit/ColliderBit/Utils.hpp"
+//#include "gambit/ColliderBit/Utils.hpp" //< avoid passing this to the _types/_rollcall
 
 #include "Eigen/Core"
 
 #include <string>
+#include <map>
 #include <sstream>
 #include <vector>
 #include <cmath>
@@ -87,12 +88,12 @@ namespace Gambit {
     {
 
       /// Default constructor
-      AnalysisData() 
-      { 
+      AnalysisData()
+      {
         #ifdef ANALYSISDATA_DEBUG
           std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (default ctor)" << std::endl;
         #endif
-        clear(); 
+        clear();
       }
 
       /// Constructor with analysis name
@@ -102,17 +103,17 @@ namespace Gambit {
         #ifdef ANALYSISDATA_DEBUG
           std::cerr << "DEBUG: AnalysisData: " << this << " - Constructed (ctor with analysis name)" << std::endl;
         #endif
-        clear(); 
+        clear();
       }
 
       // A copy constructor only used for debugging
       #ifdef ANALYSISDATA_DEBUG
-      AnalysisData(const AnalysisData& copy) : 
+      AnalysisData(const AnalysisData& copy) :
         analysis_name(copy.analysis_name),
         srdata(copy.srdata),
         srdata_identifiers(copy.srdata_identifiers),
         srcov(copy.srcov)
-      { 
+      {
           std::cerr << "DEBUG: AnalysisData: " << this << " - Copy-constructed from " << &copy << std::endl;
       }
       #endif
