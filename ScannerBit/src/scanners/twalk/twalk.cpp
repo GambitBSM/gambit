@@ -144,8 +144,6 @@ namespace Gambit
                 set_resume_params(tints, talls);
             #endif
 
-            std::ofstream temp_file_out;
-
             if (mins_max > 0 and rank == 0)
             {
                 // Begin timing of TWalk run
@@ -159,12 +157,15 @@ namespace Gambit
             }
 
             // Try opening the temporary file for saving the mutliplicities etc.
-            str filename = set_resume_params.get_temp_file_name("temp");
-            temp_file_out.open(filename, std::ofstream::binary | std::ofstream::app);
-            if (not temp_file_out.is_open()) scan_error().raise(LOCAL_INFO, "Problem opening temp file " + filename + " in TWalk!");
+            std::ofstream temp_file_out;
+            std::string filename = set_resume_params.get_temp_file_name("temp");
 
             if (resumed)
             {
+                temp_file_out.open(filename, std::ofstream::binary | std::ofstream::app);
+                if (not temp_file_out.is_open()) 
+                    scan_err << "Problem opening temp file " << filename << " in TWalk!" << scan_end;
+                
                 #ifdef WITH_MPI
                     for (int i = 0; i < numtasks; i++)
                     {
@@ -180,6 +181,10 @@ namespace Gambit
             }
             else
             {
+                temp_file_out.open(filename, std::ofstream::binary | std::ofstream::trunc);
+                if (not temp_file_out.is_open()) 
+                    scan_err << "Problem opening temp file " << filename << " in TWalk!" << scan_end;
+                
                 resumed = true;
                 for (t = 0; t < NChains; t++)
                 {
