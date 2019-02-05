@@ -873,12 +873,6 @@ BE_VARIABLE(Mass_Regulator_PhotonGluon, Freal8, "__settings_MOD_mass_regulator_p
 BE_VARIABLE(Extra_Scale_LoopDecays, Flogical, "__settings_MOD_extra_scale_loopdecays", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(Scale_LoopDecays, Freal8, "__settings_MOD_scale_loopdecays", "SARAHSPheno_NMSSM_internal")
 // HiggsBounds output
-BE_VARIABLE(BRHHH, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_brhhh", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(BRAHH, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_brahh", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(BRHAA, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_brhaa", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(BRAAA, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_braaa", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(BRinvH, Farray_Freal8_1_3, "__model_data_nmssm_MOD_brinvh", "SARAHSPheno_NMSSM_internal")
-BE_VARIABLE(BRinvA, Farray_Freal8_1_3, "__model_data_nmssm_MOD_brinva", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(rHB_S_S_Fd, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_rhb_s_s_fd", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(rHB_P_P_Fd, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_rhb_p_p_fd", "SARAHSPheno_NMSSM_internal")
 BE_VARIABLE(rHB_S_S_Fu, Farray_Freal8_1_3_1_3, "__model_data_nmssm_MOD_rhb_s_s_fu", "SARAHSPheno_NMSSM_internal")

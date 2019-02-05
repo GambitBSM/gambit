@@ -83,10 +83,6 @@ namespace Gambit
     double H12 = S21*cb + S22*sb;
     double H13 = S31*cb + S32*sb;
 
-    std::cout << "H11 = " << H11 << std::endl;
-    std::cout << "H12 = " << H12 << std::endl;
-    std::cout << "H13 = " << H13 << std::endl;
-
     // The [absolute] value closest to 1 to be given 'most SM-like' status
     if (1-abs(H11) < 1-abs(H12))
     {

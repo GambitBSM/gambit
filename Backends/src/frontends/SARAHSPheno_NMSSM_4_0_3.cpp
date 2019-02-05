@@ -461,9 +461,23 @@ BE_NAMESPACE
 
   }
 
-  // Convenience function to run Spheno and obtain the decays
-  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays, const Finputs& inputs)
+  // Convenience function to pass the spectrum object to the SPheno frontend, and
+  // call the 'calculateBR' function, so that this is not repeated multiple times in the frontend.
+  void fill_spectrum_calculate_BRs(const Spectrum &spectrum, const Finputs& inputs)
   {
+    bool spectrum_changed = false;
+
+    // Check some masses to check if this function has been called before
+    // May be a _little_ hacky... 
+    if ((*MChi)(1) != spectrum.get(Par::Pole_Mass, "~chi0",1)) spectrum_changed = true;
+    if ((*MChi)(2) != spectrum.get(Par::Pole_Mass, "~chi0",2)) spectrum_changed = true;
+    if ((*MChi)(3) != spectrum.get(Par::Pole_Mass, "~chi0",3)) spectrum_changed = true;
+    if ((*MChi)(4) != spectrum.get(Par::Pole_Mass, "~chi0",4)) spectrum_changed = true;
+    if ((*Mhh)(1) != spectrum.get(Par::Pole_Mass, "h0",1)) spectrum_changed = true;
+    if ((*Mhh)(2) != spectrum.get(Par::Pole_Mass, "h0",2)) spectrum_changed = true;
+    if ((*Mhh)(3) != spectrum.get(Par::Pole_Mass, "h0",3)) spectrum_changed = true;
+
+    if (not spectrum_changed) { return; }
 
     // Initialize some variables
     *Iname = 1;
@@ -475,7 +489,6 @@ BE_NAMESPACE
 
     // Read options and decay info
     ReadingData_decays(inputs);
-    double BRMin = inputs.options->getValueOrDef<double>(1e-5, "BRMin");
 
     // Fill input parameters with spectrum information
     // Masses
@@ -649,9 +662,44 @@ BE_NAMESPACE
     try{ CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu); }
     catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
+    // Check for errors
     if(*kont != 0)
       ErrorHandling(*kont);
+  }
 
+  // Convenience function to run Spheno and obtain the decays
+  int run_SPheno_decays(const Spectrum &spectrum, DecayTable& decays, const Finputs& inputs)
+  {
+
+    double BRMin = inputs.options->getValueOrDef<double>(1e-5, "BRMin");
+
+    // Declare all needed decay variables
+    Farray_Freal8_1_6_1_1245 gPSd, gPSu, BRSd, BRSu;
+    Farray_Freal8_1_6 gTSd, gTSu;
+    Farray_Freal8_1_6_1_1128 gPSe, BRSe;
+    Farray_Freal8_1_6 gTSe;
+    Farray_Freal8_1_3_1_1002 gPSv, BRSv;
+    Farray_Freal8_1_3 gTSv;
+    Farray_Freal8_1_3_1_209 gPhh, BRhh;
+    Farray_Freal8_1_3 gThh;
+    Farray_Freal8_1_3_1_207 gPAh, BRAh;
+    Farray_Freal8_1_3 gTAh;
+    Farray_Freal8_1_2_1_96 gPHpm, BRHpm;
+    Farray_Freal8_1_2 gTHpm;
+    Farray_Freal8_1_1_1_157 gPGlu, BRGlu;
+    Freal8 gTGlu = 0.0;
+    Farray_Freal8_1_5_1_482 gPChi, BRChi;
+    Farray_Freal8_1_5 gTChi;
+    Farray_Freal8_1_2_1_316 gPCha, BRCha;
+    Farray_Freal8_1_2 gTCha;
+    Farray_Freal8_1_3_1_78 gPFu, BRFu;
+    Farray_Freal8_1_3 gTFu;
+
+    // Pass the GAMBIT spectrum to SPheno and fill the internal decay objects 
+    fill_spectrum_calculate_BRs(spectrum, inputs);
+    
+    if(*kont != 0)
+      ErrorHandling(*kont);
 
     // Fill in info about the entry for all decays
     DecayTable::Entry entry;
@@ -721,6 +769,9 @@ BE_NAMESPACE
         std::tie(daughter_pdgs, spheno_index, corrf) = ci;
         if(BR(i+1,spheno_index) * corrf > BRMin)
           entry.set_BF(BR(i+1,spheno_index) * corrf, 0.0, Fdecays::get_pdg_context_pairs(daughter_pdgs));
+        // If below the minimum BR, add the decay to the DecayTable as a zero entry.
+        else
+          entry.set_BF(0., 0., Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
       // S.B. should we always set the context to 0? 
       decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
@@ -1309,280 +1360,19 @@ BE_NAMESPACE
   // Convenience function to obtain a HiggsCouplingsTable object for HiggsBounds
   int get_HiggsCouplingsTable(const Spectrum& spectrum, HiggsCouplingsTable& hctbl, const Finputs& inputs)
   {
-    // Initialize some variables
-    *Iname = 1;
-    *CalcTBD = false;
-    *ratioWoM = 0.0;
-    *epsI = 1.0E-5;
-    *deltaM = 1.0e-6;
-    *kont =  0;
 
-    // Read options and decay info
-    ReadingData_decays(inputs);
-    double BRMin = inputs.options->getValueOrDef<double>(1e-5, "BRMin");
-
-    // Fill input parameters with spectrum information
-    // Masses
-    SMInputs sminputs = spectrum.get_SMInputs();
-    (*MFd)(1) = sminputs.mD;
-    (*MFd)(2) = sminputs.mS;
-    (*MFd)(3) = sminputs.mBmB;
-    (*MFe)(1) = sminputs.mE;
-    (*MFe)(2) = sminputs.mMu;
-    (*MFe)(3) = sminputs.mTau;
-    (*MFu)(1) = sminputs.mU;
-    (*MFu)(2) = sminputs.mCmC;
-    (*MFu)(3) = sminputs.mT;
-    *MGlu = spectrum.get(Par::Pole_Mass, "~g");
-    *MGlu2 = pow(*MGlu,2);
-    for(int i=1; i<=6; i++)
-    {
-      (*MSd)(i) = spectrum.get(Par::Pole_Mass, "~d",i);
-      (*MSd2)(i) = pow((*MSd)(i),2);
-      (*MSe)(i) = spectrum.get(Par::Pole_Mass, "~e-",i);
-      (*MSe2)(i) = pow((*MSe)(i),2);
-      (*MSu)(i) = spectrum.get(Par::Pole_Mass, "~u",i);
-      (*MSu2)(i) = pow((*MSu)(i),2);
-      if(i <= 5 )
-      {
-        (*MChi)(i) = spectrum.get(Par::Pole_Mass, "~chi0",i);
-        (*MChi2)(i) = pow((*MChi)(i),2);
-      }
-      if(i <= 3)
-      {
-        (*MSv)(i) = spectrum.get(Par::Pole_Mass, "~nu",i);
-        (*MSv2)(i) = pow((*MSv)(i),2);
-        (*Mhh)(i) = spectrum.get(Par::Pole_Mass, "h0",i);
-        (*Mhh2)(i) = pow((*Mhh)(i),2);
-        (*MFd2)(i) = pow((*MFd)(i),2);
-        (*MFe2)(i) = pow((*MFe)(i),2);
-        (*MFu2)(i) = pow((*MFu)(i),2);
- 
-      }
-      if(i <= 2)
-      {
-        (*MCha)(i) = spectrum.get(Par::Pole_Mass, "~chi+",i);
-        (*MCha2)(i) = pow((*MCha)(i),2);
-        // In Spheno MAh(1) is the goldstone boson
-        (*MAh)(i+1) = spectrum.get(Par::Pole_Mass, "A0",i);
-        (*MAh2)(i+1) = pow((*MAh)(i),2);
-        (*MHpm)(i) = spectrum.get(Par::Pole_Mass, "H+");
-        (*MHpm2)(i) = pow((*MHpm)(i),2);
-      }
-    }
-    *MVWm = spectrum.get(Par::Pole_Mass, "W-");
-    *MVWm2 = pow(*MVWm,2);
-    *MVZ = spectrum.get(Par::Pole_Mass, "Z0");
-    *MVZ2 = pow(*MVZ,2);
-
-    // Mixings
-    for(int i=1; i<=6; i++)
-    {
-      for(int j=1; j<=6; j++)
-      {
-        (*ZD)(i,j) = spectrum.get(Par::Pole_Mixing, "~d", i, j);
-        (*ZE)(i,j) = spectrum.get(Par::Pole_Mixing, "~e-", i, j);
-        (*ZU)(i,j) = spectrum.get(Par::Pole_Mixing, "~u", i, j);
-        // TODO: Check if these mixings are really this
-        if(i <=3 and j <=3)
-        {
-          (*ZDL)(i,j) = 0;
-          (*ZDR)(i,j) = 0;
-          (*ZEL)(i,j) = 0;
-          (*ZER)(i,j) = 0;
-          (*ZUL)(i,j) = 0;
-          (*ZUR)(i,j) = 0;
-          if(i==j)
-          {
-            (*ZDL)(i,j) = 1;
-            (*ZDR)(i,j) = 1;
-            (*ZEL)(i,j) = 1;
-            (*ZER)(i,j) = 1;
-            (*ZUL)(i,j) = 1;
-            (*ZUR)(i,j) = 1;
-          }
-          (*ZH)(i,j) = spectrum.get(Par::Pole_Mixing, "h0", i, j);
-          (*ZA)(i,j) = spectrum.get(Par::Pole_Mixing, "A0", i, j);
-          (*ZV)(i,j) = spectrum.get(Par::Pole_Mixing, "~nu", i, j);
-          (*Td)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
-          (*Te)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
-          (*Tu)(i,j) = spectrum.get(Par::mass1, "TYd", i, j);
-          (*mq2)(i,j) = spectrum.get(Par::mass2, "mq2", i, j);
-          (*ml2)(i,j) = spectrum.get(Par::mass2, "ml2", i, j);
-          (*md2)(i,j) = spectrum.get(Par::mass2, "md2", i, j);
-          (*mu2)(i,j) = spectrum.get(Par::mass2, "mu2", i, j);
-          (*me2)(i,j) = spectrum.get(Par::mass2, "me2", i, j);
-          (*Yd)(i,j) = 0;
-          (*Ye)(i,j) = 0;
-          (*Yu)(i,j) = 0; 
-          if(i == j)
-          {
-            (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
-            (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
-            (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
-          }
- 
-        }
-        if(i<=5 and j<=5)
-          (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi0", i, j);
-        if(i<=2 and j<=2)
-        {
-          (*ZP)(i,j) = spectrum.get(Par::Pole_Mixing, "H+", i, j);
-          (*UM)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi-", i, j);
-          (*UP)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi+", i, j);
-          // TODO: Check if these mixings are really like this
-          (*ZW)(i,j) = 0;
-          (*ZZ)(i,j) = 0;
-          if(i == j)
-          {
-            (*ZW)(i,j) = 1;
-            (*ZZ)(i,j) = 1;
-          }
-        }
-      }
-    }
-
-    // Other parameters
-    // TODO: check whether this value makes sense
-    *pG = 1;
-    *vu = spectrum.get(Par::mass1, "vu");
-    *vd = spectrum.get(Par::mass1, "vd");
-    *v = sqrt(pow(*vd,2) + pow(*vu,2));
-    *betaH = asin(abs((*ZP)(1,2)));
-    *TW = acos(abs((*ZZ)(1,1)));
-    *g1 = spectrum.get(Par::dimensionless, "g1");
-    *g2 = spectrum.get(Par::dimensionless, "g2");
-    *g3 = spectrum.get(Par::dimensionless, "g3");
-    *mHd2 = spectrum.get(Par::mass2, "mHd2");
-    *mHu2 = spectrum.get(Par::mass2, "mHu2");
-    *M1 = spectrum.get(Par::mass1, "M1");
-    *M2 = spectrum.get(Par::mass1, "M2");
-    *M3 = spectrum.get(Par::mass1, "M3");
-
-    // Parameters specific of the NMSSM
-    *vS = spectrum.get(Par::mass1, "vS");
-    *lam = spectrum.get(Par::dimensionless, "lambda");
-    *kap = spectrum.get(Par::dimensionless, "kappa");
-    *Tlam = spectrum.get(Par::mass1, "Tlambda");
-    *Tk = spectrum.get(Par::mass1, "Tkappa");
-    *ms2 = spectrum.get(Par::mass2, "ms2");
-
-    // Declare all needed decay variables
-    Farray_Freal8_1_6_1_1245 gPSd, gPSu, BRSd, BRSu;
-    Farray_Freal8_1_6 gTSd, gTSu;
-    Farray_Freal8_1_6_1_1128 gPSe, BRSe;
-    Farray_Freal8_1_6 gTSe;
-    Farray_Freal8_1_3_1_1002 gPSv, BRSv;
-    Farray_Freal8_1_3 gTSv;
-    Farray_Freal8_1_3_1_209 gPhh, BRhh;
-    Farray_Freal8_1_3 gThh;
-    Farray_Freal8_1_3_1_207 gPAh, BRAh;
-    Farray_Freal8_1_3 gTAh;
-    Farray_Freal8_1_2_1_96 gPHpm, BRHpm;
-    Farray_Freal8_1_2 gTHpm;
-    Farray_Freal8_1_1_1_157 gPGlu, BRGlu;
-    Freal8 gTGlu = 0.0;
-    Farray_Freal8_1_5_1_482 gPChi, BRChi;
-    Farray_Freal8_1_5 gTChi;
-    Farray_Freal8_1_2_1_316 gPCha, BRCha;
-    Farray_Freal8_1_2 gTCha;
-    Farray_Freal8_1_3_1_78 gPFu, BRFu;
-    Farray_Freal8_1_3 gTFu;
-
-    // Call SPheno's function to calculate decays
-    try{ CalculateBR(*CalcTBD, *ratioWoM, *epsI, *deltaM, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, gPSd, gTSd, BRSd, gPSu, gTSu, BRSu, gPSe, gTSe, BRSe, gPSv, gTSv, BRSv, gPhh, gThh, BRhh, gPAh, gTAh, BRAh, gPHpm, gTHpm, BRHpm, gPGlu, gTGlu, BRGlu, gPChi, gTChi, BRChi, gPCha, gTCha, BRCha, gPFu, gTFu, BRFu); }
-    catch(std::runtime_error e) { invalid_point().raise(e.what()); }
+    // Pass the GAMBIT spectrum to SPheno and fill the internal decay objects (if necessary)
+    fill_spectrum_calculate_BRs(spectrum, inputs);
 
     if(*kont != 0)
       ErrorHandling(*kont);
 
-    /* Neutral Higgses */
+    /* Fill in effective coupling ratios. 
+       These are the ratios of BR_BSM(channel)/BR_SM(channel) */
 
-    /* h0_1 */
+    // Fermions 
 
-    DecayTable::Entry h0_1_decays;
-
-    h0_1_decays.width_in_GeV = gThh(1); 
-    h0_1_decays.set_BF((*BRHHH)(1,2), 0.0, std::vector<str> {"h0_2", "h0_2"});  
-    h0_1_decays.set_BF((*BRHHH)(1,3), 0.0, std::vector<str> {"h0_3", "h0_3"});  
-    h0_1_decays.set_BF((*BRHAA)(1,2), 0.0, std::vector<str> {"A0_1", "A0_1"});  
-    h0_1_decays.set_BF((*BRHAA)(1,3), 0.0, std::vector<str> {"A0_2", "A0_2"}); 
-
-    /* h0_2 */
-
-    DecayTable::Entry h0_2_decays;
-
-    h0_2_decays.width_in_GeV = gThh(2); 
-    h0_2_decays.set_BF((*BRHHH)(2,1), 0.0, std::vector<str> {"h0_1", "h0_1"}); 
-    h0_2_decays.set_BF((*BRHHH)(2,3), 0.0, std::vector<str> {"h0_3", "h0_3"}); 
-    h0_2_decays.set_BF((*BRHAA)(2,2), 0.0, std::vector<str> {"A0_1", "A0_1"}); 
-    h0_2_decays.set_BF((*BRHAA)(2,3), 0.0, std::vector<str> {"A0_2", "A0_2"}); 
-
-    /* h0_3 */
-
-    DecayTable::Entry h0_3_decays;
-
-    h0_3_decays.width_in_GeV = gThh(3);
-    h0_3_decays.set_BF((*BRHHH)(3,1), 0.0, std::vector<str> {"h0_1", "h0_1"});
-    h0_3_decays.set_BF((*BRHHH)(3,2), 0.0, std::vector<str> {"h0_2", "h0_2"});
-    h0_3_decays.set_BF((*BRHAA)(3,2), 0.0, std::vector<str> {"A0_1", "A0_1"});
-    h0_3_decays.set_BF((*BRHAA)(3,3), 0.0, std::vector<str> {"A0_2", "A0_2"});
-
-    /* A0_1 */
-
-    DecayTable::Entry A0_1_decays;
-
-    A0_1_decays.width_in_GeV = gTAh(2);
-    A0_1_decays.set_BF((*BRAHH)(2,1), 0.0, std::vector<str> {"h0_1", "h0_1"}); 
-    A0_1_decays.set_BF((*BRAHH)(2,2), 0.0, std::vector<str> {"h0_2", "h0_2"}); 
-    A0_1_decays.set_BF((*BRAHH)(2,3), 0.0, std::vector<str> {"h0_3", "h0_3"}); 
-    A0_1_decays.set_BF((*BRAAA)(2,3), 0.0, std::vector<str> {"A0_2", "A0_2"}); 
-
-    /* A0_2 */
-
-    DecayTable::Entry A0_2_decays;
-
-    A0_2_decays.set_BF((*BRAHH)(3,1), 0.0, std::vector<str> {"h0_1", "h0_1"});  
-    A0_2_decays.set_BF((*BRAHH)(3,2), 0.0, std::vector<str> {"h0_2", "h0_2"});  
-    A0_2_decays.set_BF((*BRAHH)(3,3), 0.0, std::vector<str> {"h0_3", "h0_3"});  
-    A0_2_decays.set_BF((*BRAAA)(3,2), 0.0, std::vector<str> {"A0_1", "A0_1"});  
-
-    // Set the neutral decays for the HiggsCouplingsTable object
-    //hctbl.set_neutral_decays(0, "h0_1", h0_1_decays);
-    //hctbl.set_neutral_decays(1, "h0_2", h0_2_decays);
-    //hctbl.set_neutral_decays(2, "h0_3", h0_3_decays);
-    //hctbl.set_neutral_decays(3, "A0_1", A0_1_decays);
-    //hctbl.set_neutral_decays(4, "A0_2", A0_2_decays);
-
-    // Set the invisible decay widths for each channel
-    hctbl.BFinv[0] = (*BRinvH)(1);
-    hctbl.BFinv[1] = (*BRinvH)(2);
-    hctbl.BFinv[2] = (*BRinvH)(3);
-    hctbl.BFinv[3] = (*BRinvA)(2);
-    hctbl.BFinv[4] = (*BRinvA)(3);
-    hctbl.BFinv_is_set = true;
-
-    //const DecayTable::Entry& hdecs = hctbl.get_neutral_decays("h0_1");
-
-    // std::cout << "SPHENO FRONTEND" << std::endl;
-    //   for (auto it = hdecs.channels.begin(); it != hdecs.channels.end(); it++)
-    //   {
-    //     double BF = it->second.first;
-
-    //     std::multiset< std::pair<int,int> > ch = it->first;
-    //     std::cout << "Channel =";      
-    //     for (auto it2 = ch.begin(); it2 != ch.end(); ++it2)
-    //     {
-    //       std::cout << " " << (Models::ParticleDB().partmap::long_name(*it2));
-    //     }
-    //       std::cout << " & BF = " << BF << std::endl;
-    //   }
-
-
-    /* Effective couplings */
-
-    // To fermions (not squared!) 
-
+    // S.B.
     // All h0_X f fbar pseudoscalar couplings should be 0.
     // All A0_X f fbar scalar couplings should be 0.
 
@@ -1660,18 +1450,18 @@ BE_NAMESPACE
     hctbl.C_ZZ2[3] = (*rHB_P_VZ)(2);     // Coupling (A0_1 -> ZZ)
     hctbl.C_ZZ2[4] = (*rHB_P_VZ)(3);     // Coupling (A0_2 -> ZZ)
 
-    // Need to take the real part of these...
-    hctbl.C_gaga2[0] = (*ratioPP)(1).re;    // Coupling (h0_1 -> gamma gamma)    
-    hctbl.C_gaga2[1] = (*ratioPP)(2).re;    // Coupling (h0_2 -> gamma gamma)
-    hctbl.C_gaga2[2] = (*ratioPP)(3).re;    // Coupling (h0_3 -> gamma gamma)
-    hctbl.C_gaga2[3] = (*ratioPPP)(2).re;   // Coupling (A0_1 -> gamma gamma)
-    hctbl.C_gaga2[4] = (*ratioPPP)(3).re;   // Coupling (A0_2 -> gamma gamma)    
+    // Need to take the real part of these ratios - loop functions maybe?
+    hctbl.C_gaga2[0] = pow( (*ratioPP)(1).re, 2 );    // Coupling (h0_1 -> gamma gamma)    
+    hctbl.C_gaga2[1] = pow( (*ratioPP)(2).re, 2 );    // Coupling (h0_2 -> gamma gamma)
+    hctbl.C_gaga2[2] = pow( (*ratioPP)(3).re, 2 );    // Coupling (h0_3 -> gamma gamma)
+    hctbl.C_gaga2[3] = pow( (*ratioPPP)(2).re, 2 );   // Coupling (A0_1 -> gamma gamma)
+    hctbl.C_gaga2[4] = pow( (*ratioPPP)(3).re, 2 );   // Coupling (A0_2 -> gamma gamma)    
 
-    hctbl.C_gg2[0] = (*ratioGG)(1).re;      // Coupling (h0_1 -> glu glu)    
-    hctbl.C_gg2[1] = (*ratioGG)(2).re;      // Coupling (h0_2 -> glu glu)
-    hctbl.C_gg2[2] = (*ratioGG)(3).re;      // Coupling (h0_3 -> glu glu)
-    hctbl.C_gg2[3] = (*ratioPGG)(2).re;     // Coupling (A0_1 -> glu glu)
-    hctbl.C_gg2[4] = (*ratioPGG)(3).re;     // Coupling (A0_2 -> glu glu)
+    hctbl.C_gg2[0] = pow( (*ratioGG)(1).re, 2);      // Coupling (h0_1 -> glu glu)    
+    hctbl.C_gg2[1] = pow( (*ratioGG)(2).re, 2);      // Coupling (h0_2 -> glu glu)
+    hctbl.C_gg2[2] = pow( (*ratioGG)(3).re, 2);      // Coupling (h0_3 -> glu glu)
+    hctbl.C_gg2[3] = pow( (*ratioPGG)(2).re, 2);     // Coupling (A0_1 -> glu glu)
+    hctbl.C_gg2[4] = pow( (*ratioPGG)(3).re, 2);     // Coupling (A0_2 -> glu glu)
 
     hctbl.C_Zga2[0] = 0.;                 // Coupling (h0_1 -> Z gamma)
     hctbl.C_Zga2[1] = 0.;                 // Coupling (h0_2 -> Z gamma)
@@ -1706,29 +1496,7 @@ BE_NAMESPACE
     hctbl.C_hiZ2[3][4] = (*CPL_A_A_Z)(3,2).re;   // Coupling (A0_2 A0_1 Z)
     hctbl.C_hiZ2[4][4] = (*CPL_A_A_Z)(3,3).re;   // Coupling (A0_2 A0_2 Z)
 
-
-    /* Charged Higgs */
-
-    DecayTable::Entry H_plus_decays;
-
-    H_plus_decays.width_in_GeV = gTHpm(2);
-
-    H_plus_decays.set_BF((*BR_Hcs)(2), 0.0, std::vector<str> {"c", "sbar"});
-    H_plus_decays.set_BF((*BR_Hcb)(2), 0.0, std::vector<str> {"c", "bbar"});
-    H_plus_decays.set_BF((*BR_Htaunu)(2), 0.0, std::vector<str> {"tau+", "nu_tau"});
-
-    hctbl.set_charged_decays(0, "H+", H_plus_decays);
-
-    /* Top quark (since top can decay to light Higgses) */
-
-    DecayTable::Entry t_decays;
-
-    t_decays.set_BF(*BR_tWb,      0.0, std::vector<str> {"W+", "b"});
-    t_decays.set_BF((*BR_tHb)(2), 0.0, std::vector<str> {"H+", "b"});
-
-    hctbl.set_t_decays(t_decays);
-
-    // Check everything is okay...
+    // Check there's no errors
     if(*kont != 0)
       ErrorHandling(*kont);
 

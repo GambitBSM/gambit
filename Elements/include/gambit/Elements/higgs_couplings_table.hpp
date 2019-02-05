@@ -68,10 +68,6 @@ namespace Gambit
       /// Particles that higgses can decay invisibly to
       std::vector<str> invisibles;
 
-      /// The invisible branching fraction for each neutral Higgs
-      bool BFinv_is_set = false;
-      double BFinv[max_neutral_higgses];
-
       /// Effective couplings for neutral higgses
       /// @{
       double C_WW2[max_neutral_higgses];

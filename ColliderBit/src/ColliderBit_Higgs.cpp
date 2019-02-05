@@ -336,7 +336,7 @@ namespace Gambit
         // result.BR_hjbb[i] = h0_widths[i]->BF("b", "bbar");
         // result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
         // result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
-        std::cout << "i = " << i << std::endl;
+
         // These are all PDG context 0 from SPheno, this is different to the MSSM implementation..
         result.BR_hjss[i] = h0_widths[i]->BF("d_2", "dbar_2");
         result.BR_hjcc[i] = h0_widths[i]->BF("u_2", "ubar_2");
@@ -345,35 +345,28 @@ namespace Gambit
         result.BR_hjtautau[i] = h0_widths[i]->BF("e+_3", "e-_3");
         result.BR_hjWW[i] = h0_widths[i]->BF("W+", "W-");
         result.BR_hjZZ[i] = h0_widths[i]->BF("Z0", "Z0");
+
         // SPheno frontend needs fixing. These BFs do exist.
-        //result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
-        //result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
-        //result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
+        result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
+        result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
+        result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
         
         // Do decays to invisibles
         result.BR_hjinvisible[i] = 0.;
-
-        // Some backends provide the invisible BF themselves. If they've been set, just use these.
-        if (Dep::Higgs_Couplings->BFinv_is_set) result.BR_hjinvisible[i] = Dep::Higgs_Couplings->BFinv[i];
-
-        // Otherwise use the invisibles provided by the spectrum object
-        else
+        for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
         {
-          for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
+          result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
+        }
+        // Do decays to other neutral higgses
+        for (int j = 0; j < 5; j++)
+        {
+          if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
           {
-            result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
+            result.BR_hjhihi[i][j] = h0_widths[i]->BF(sHneut[j],sHneut[j]);
           }
-          // Do decays to other neutral higgses
-          for (int j = 0; j < 3; j++)
+          else
           {
-            if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
-            {
-              result.BR_hjhihi[i][j] = h0_widths[i]->BF(sHneut[j],sHneut[j]);
-            }
-            else
-            {
-              result.BR_hjhihi[i][j] = 0.;
-            }
+            result.BR_hjhihi[i][j] = 0.;
           }
         }
       }
@@ -389,13 +382,22 @@ namespace Gambit
 
       // Set charged Higgs branching fractions and total width.
       result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
-      result.BR_Hpjcs[0]   = H_plus_widths.BF("c", "sbar");
-      result.BR_Hpjcb[0]   = H_plus_widths.BF("c", "bbar");
-      result.BR_Hptaunu[0] = H_plus_widths.BF("tau+", "nu_tau");
+      // result.BR_Hpjcs[0]   = H_plus_widths.BF("c", "sbar");
+      // result.BR_Hpjcb[0]   = H_plus_widths.BF("c", "bbar");
+      // result.BR_Hptaunu[0] = H_plus_widths.BF("tau+", "nu_tau");
+
+      // Mass/flavour basis discrepancy?
+      result.BR_Hpjcs[0]   = H_plus_widths.BF("u_2", "dbar_2");
+      result.BR_Hpjcb[0]   = H_plus_widths.BF("u_2", "dbar_3");
+      result.BR_Hptaunu[0] = H_plus_widths.BF("e+_3", "nu_3");
 
       // Set top branching fractions
-      result.BR_tWpb       = t_widths.BF("W+", "b");
-      result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
+
+      // More mass/flavour discrepancy
+      //result.BR_tWpb       = t_widths.BF("W+", "b");
+      result.BR_tWpb       = t_widths.BF("W+", "d_3");
+      //result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
+      result.BR_tHpjb[0]   = t_widths.has_channel("H+", "d_3") ? t_widths.BF("H+", "d_3") : 0.0;
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
       set_CS(result, *Dep::Higgs_Couplings, 5);

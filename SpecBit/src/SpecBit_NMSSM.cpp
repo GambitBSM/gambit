@@ -144,7 +144,6 @@ namespace Gambit
 
     }
 
-    // SB: todo
     /// Put together the Higgs couplings for the NMSSM, from SPheno
     void NMSSM_higgs_couplings_SPheno(HiggsCouplingsTable &result)
     {
@@ -174,9 +173,7 @@ namespace Gambit
       result.CP[4] = -1.; //A0_2
 
       // Work out which SM values correspond to which SUSY Higgs
-      //int higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 0 : 1);
       int SMlike_higgs = SMlike_higgs_PDG_code_NMSSM(he);
-      std::cout << "Most SM-like higgs = " << SMlike_higgs << std::endl;
 
       int higgs;
       int other_higgs;
@@ -189,43 +186,30 @@ namespace Gambit
       result.set_neutral_decays_SM(higgs, sHneut[higgs], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
       result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
       result.set_neutral_decays_SM(yet_another_higgs, sHneut[yet_another_higgs], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
-      //result.set_neutral_decays_SM(0, sHneut[0], *myPipe::Dep::Reference_SM_Higgs_decay_rates);
-      //result.set_neutral_decays_SM(1, sHneut[1], *myPipe::Dep::Reference_SM_other_Higgs_decay_rates);
-      //result.set_neutral_decays_SM(2, sHneut[2], *myPipe::Dep::Reference_SM_h0_3_decay_rates);
       result.set_neutral_decays_SM(3, sHneut[3], *myPipe::Dep::Reference_SM_A0_decay_rates);
       result.set_neutral_decays_SM(4, sHneut[4], *myPipe::Dep::Reference_SM_A0_2_decay_rates);
+
+      // Set the Higgs sector decays from the DecayTable
       result.set_neutral_decays(higgs, sHneut[higgs], tbl->at("h0_1"));
       result.set_neutral_decays(other_higgs, sHneut[other_higgs], tbl->at("h0_2"));
       result.set_neutral_decays(yet_another_higgs, sHneut[yet_another_higgs], tbl->at("h0_3"));
       result.set_neutral_decays(3, sHneut[3], tbl->at("A0_1"));
       result.set_neutral_decays(4, sHneut[4], tbl->at("A0_2"));
+      result.set_charged_decays(0, "H+", tbl->at("H+"));
 
-      // Fill HiggsCouplingsTable object (effective couplings) from SPheno backend )
+      // Add t decays since t can decay to light Higgses
+
+      // S.B. Flavour/mass basis discrepancy
+      //result.set_t_decays(tbl->at("t"));
+      result.set_t_decays(tbl->at("u_3"));
+
+      // Fill HiggsCouplingsTable object from SPheno backend
+      // This fills the effective couplings (C_XX2)
       myPipe::BEreq::NMSSM_HiggsCouplingsTable(spec, result, inputs);
 
-      /// Debugging attempt: very confusing. The HiggsCouplingTable object is filled 
-      /// in the SPheno frontend but when it gets to here, it crashes. 
-      // const DecayTable::Entry& h0_decays = result.get_neutral_decays("h0_1");
-
-      // std::cout << "SpecBit_NMSSM" << std::endl;
-      // for (auto it = h0_decays.channels.begin(); it != h0_decays.channels.end(); it++)
-      // {
-      //   //double BF = it->second.first;
-
-      //   std::multiset< std::pair<int,int> > ch = it->first;
-      //   std::cout << "Channel =";      
-      //   for (auto it2 = ch.begin(); it2 != ch.end(); ++it2)
-      //   {
-      //     std::cout << " " << it2->first << " " << it2->second << std::endl;
-      //     std::cout << " " << (Models::ParticleDB().partmap::long_name(*it2));
-      //   }
-      //   //std::cout << " & BF = " << BF << std::endl;
-      // }
-      // std::cout << "SpecBit_NMSSM done." << std::endl;
-
-      // The SPheno frontend provides the invisible width for each Higgs
-      // so we do not provide an list of invisibles, just flag that we
-      // have filled the invisible BF in the HiggsCouplingTable object.
+      // The SPheno frontend provides the invisible width for each Higgs, however this requires
+      // loads of additional function calls. Just use the helper function instead.
+      result.invisibles = get_invisibles(he);
     }
 
 
