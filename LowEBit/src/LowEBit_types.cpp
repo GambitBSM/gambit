@@ -27,5 +27,15 @@ namespace Gambit
     	  for (int i = 0; i <= 2; i++)
     		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = 0;
       }
+
+      dq::dq()
+      {
+    	  u = d = s = c = b = t = 0;
+      }
+
+      dcq::dcq()
+      {
+          u = d = s = c = b = t = 0;
+      }
    }
 }
