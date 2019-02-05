@@ -151,7 +151,8 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMatQ)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -182,7 +183,8 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMatQ)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -212,7 +214,8 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMatQ)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
 
@@ -244,7 +247,8 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMatQ)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
   #undef CAPABILITY

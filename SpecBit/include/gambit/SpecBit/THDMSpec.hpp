@@ -25,9 +25,11 @@
 #include <memory>
 
 #include "gambit/cmake/cmake_variables.hpp"
-#include "gambit/Elements/subspectrum.hpp"
 #include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/thdm_slhahelp.hpp"
+#include "gambit/Elements/subspectrum.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/version.hpp"
 #include "gambit/SpecBit/THDMSpec_head.hpp"
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
@@ -64,11 +66,9 @@ namespace Gambit
       {}
 
 
-
       template <class MI>
       void THDMSpec<MI>::RunToScaleOverride(double scale)
       {
-          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE run_to(scale) " << std::endl;
         try {
           model_interface.model.run_to(scale);
         }
@@ -76,9 +76,7 @@ namespace Gambit
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
           //TODO: Terminal message here
         }
-          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | BEFORE calculate_DRbar_masses() " << std::endl;
         model_interface.model.calculate_DRbar_masses();
-          // std::cout << "THDMSpec.hpp | RunToScaleOverride() | END" << std::endl;
 
       }
       template <class MI>
@@ -92,6 +90,29 @@ namespace Gambit
       void THDMSpec<MI>::SetScale(double scale)
       {
         model_interface.model.set_scale(scale);
+      }
+
+      // Fill an SLHAea object with spectrum information
+      template <class MI>
+      void THDMSpec<MI>::add_to_SLHAea(int slha_version, SLHAstruct& slha) const
+      {
+         std::ostringstream comment;
+
+         // SPINFO block
+         // TODO: This needs to become more sophisticated to deal with data potentially
+         // produced by different LE and HE spectrum sources. For now whichever subspectrum
+         // adds this block first will "win".
+         if(not SLHAea_block_exists(slha, "SPINFO"))
+         {
+            SLHAea_add_block(slha, "SPINFO");
+            SLHAea_add(slha, "SPINFO", 1, "GAMBIT, using "+backend_name);
+            SLHAea_add(slha, "SPINFO", 2, gambit_version()+" (GAMBIT); "+backend_version+" ("+backend_name+")");
+         }
+
+         model_interface.model.print(cout);
+ 
+         // All other THDM blocks
+         slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
       }
 
       template <class MI>
@@ -153,51 +174,51 @@ namespace Gambit
       template <class Model>
       double get_mA_pole(const Model& model)
       {
-       return model.get_MAh_pole_slha(1);
+         return model.get_MAh_pole_slha(1);
       }
 
        template <class Model>
        double get_mA_running(const Model& model)
        {
-        return (model.get_DRbar_masses())(7);
+         return (model.get_DRbar_masses())(7);
        }
 
       template <class Model>
       double get_mh_2_pole(const Model& model)
       {
-       return model.get_Mhh_pole_slha(1);
+         return model.get_Mhh_pole_slha(1);
       }
 
        template <class Model>
        double get_mh_2_running(const Model& model)
        {
-           return (model.get_DRbar_masses())(5);
+         return (model.get_DRbar_masses())(5);
        }
 
 
       template <class Model>
       double get_mh_1_pole(const Model& model)
       {
-       return model.get_Mhh_pole_slha(0);
+         return model.get_Mhh_pole_slha(0);
       }
 
        template <class Model>
        double get_mh_1_running(const Model& model)
        {
-           return (model.get_DRbar_masses())(4);
+         return (model.get_DRbar_masses())(4);
        }
 
       template <class Model>
       double get_mHm_pole(const Model& model)
       {
-      //  return model.get_MHm_pole_slha(1);
-      return model.get_MHm(1);
+         //  return model.get_MHm_pole_slha(1);
+         return model.get_MHm(1);
       }
 
        template <class Model>
        double get_mHm_running(const Model& model)
        {
-           return (model.get_DRbar_masses())(9);
+         return (model.get_DRbar_masses())(9);
        }
 
        // get lambdas (running) from FS
@@ -253,22 +274,22 @@ namespace Gambit
        template <class Model>
       double get_sinthW2_DRbar(const Model& model)
       {
-       double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
+         double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
                       (0.6 * Utils::sqr(model.get_g1()) +
                       Utils::sqr(model.get_g2()));
-       return sthW2;
+         return sthW2;
       }
 
        template <class Model>
       double get_MAh1_pole_slha(const Model& model)
       {
-        return model.get_MAh_pole_slha(1);
+         return model.get_MAh_pole_slha(1);
       }
 
       template <class Model>
       double get_MHpm1_pole_slha(const Model& model)
       {
-        return model.get_MHm_pole_slha(1);
+         return model.get_MHm_pole_slha(1);
       }
 
     //    template <class Model>
@@ -428,6 +449,14 @@ namespace Gambit
             tmp_map["Yu"]= FInfo2( &Model::get_Yu, i012, i012);
             tmp_map["Ye"]= FInfo2( &Model::get_Ye, i012, i012);
 
+            // tmp_map["ReYd2"]= FInfo2( &Model::get_ReYd2, i012, i012);
+            // tmp_map["ReYu2"]= FInfo2( &Model::get_ReYu2, i012, i012);
+            // tmp_map["ReYe2"]= FInfo2( &Model::get_ReYe2, i012, i012);
+
+            // tmp_map["ImYd2"]= FInfo2( &Model::get_ImYd2, i012, i012);
+            // tmp_map["ImYu2"]= FInfo2( &Model::get_ImYu2, i012, i012);
+            // tmp_map["ImYe2"]= FInfo2( &Model::get_ImYe2, i012, i012);
+
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
          /// @}
@@ -577,6 +606,14 @@ namespace Gambit
             tmp_map["Yd"]= FInfo2( &Model::set_Yd, i012, i012);
             tmp_map["Yu"]= FInfo2( &Model::set_Yu, i012, i012);
             tmp_map["Ye"]= FInfo2( &Model::set_Ye, i012, i012);
+
+            // tmp_map["ReYd2"]= FInfo2( &Model::set_ReYd2, i012, i012);
+            // tmp_map["ReYu2"]= FInfo2( &Model::set_ReYu2, i012, i012);
+            // tmp_map["ReYe2"]= FInfo2( &Model::set_ReYe2, i012, i012);
+
+            // tmp_map["ImYd2"]= FInfo2( &Model::set_ImYd2, i012, i012);
+            // tmp_map["ImYu2"]= FInfo2( &Model::set_ImYu2, i012, i012);
+            // tmp_map["ImYe2"]= FInfo2( &Model::set_ImYe2, i012, i012);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
          }

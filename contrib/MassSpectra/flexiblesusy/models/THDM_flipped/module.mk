@@ -207,19 +207,19 @@ clean-$(MODNAME)-obj:
 		-rm -f $(LLTHDM_flipped_OBJ)
 
 # BEGIN: NOT EXPORTED ##########################################
-clean-$(MODNAME)-src:
-		-rm -f $(LIBTHDM_flipped_SRC)
-		-rm -f $(LIBTHDM_flipped_HDR)
-		-rm -f $(EXETHDM_flipped_SRC)
-		-rm -f $(LLTHDM_flipped_SRC)
-		-rm -f $(LLTHDM_flipped_MMA)
-		-rm -f $(METACODE_STAMP_THDM_flipped)
-		-rm -f $(THDM_flipped_INCLUDE_MK)
-		-rm -f $(THDM_flipped_SLHA_INPUT)
-		-rm -f $(THDM_flipped_REFERENCES)
-		-rm -f $(THDM_flipped_GNUPLOT)
+# clean-$(MODNAME)-src:
+# 		-rm -f $(LIBTHDM_flipped_SRC)
+# 		-rm -f $(LIBTHDM_flipped_HDR)
+# 		-rm -f $(EXETHDM_flipped_SRC)
+# 		-rm -f $(LLTHDM_flipped_SRC)
+# 		-rm -f $(LLTHDM_flipped_MMA)
+# 		-rm -f $(METACODE_STAMP_THDM_flipped)
+# 		-rm -f $(THDM_flipped_INCLUDE_MK)
+# 		-rm -f $(THDM_flipped_SLHA_INPUT)
+# 		-rm -f $(THDM_flipped_REFERENCES)
+# 		-rm -f $(THDM_flipped_GNUPLOT)
 
-distclean-$(MODNAME): clean-$(MODNAME)-src
+# distclean-$(MODNAME): clean-$(MODNAME)-src
 # END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj

@@ -62,7 +62,8 @@
     DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
     DEPENDENCY(THDM_decay_widths_SM_like_model, std::vector<thdmc_decay_widths>)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODELS(THDMatQ, THDM)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
   #undef CAPABILITY

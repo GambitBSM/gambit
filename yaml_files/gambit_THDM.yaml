@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMatQ:
+    THDMIIatQ:
         lambda_1:
             range: [-12.5664, 12.5664]
             prior_type: flat
@@ -283,8 +283,8 @@ Rules:
     - capability: THDM_total_widths_SM_like_model
       function: get_THDM_total_widths_SM_like_model
 
-    - capability: SLHA_THDM
-      function: fill_THDM_SLHA
+    # - capability: SLHA_THDM
+    #   function: fill_THDM_SLHA
 
     # - capability: Higgs_decay_rates
     #   function: h0_1_decays_THDM
@@ -314,15 +314,15 @@ Logger:
   # files with these names.
 
   redirection:
-    [Debug] : "stdout" #"debug.log"
-    [Default] : "stdout" #"default.log"
-    [DecayBit] : "stdout" #"DecayBit.log"
-    [DarkBit] : "stdout" #"DarkBit.log"
-    [PrecisionBit] : "stdout" #"PrecisionBit.log"
-    [ColliderBit] : "stdout" #"ColliderBit.log"
-    [SpecBit] : "stdout" #"SpecBit.log"
-    [Dependency Resolver] : "stdout" #"dep_resolver.log"
-    [Scanner]: "stdout" #"ScannerBit.log"
+    [Debug] : "sterrr" #"debug.log"
+    [Default] : "sterrr" #"default.log"
+    [DecayBit] : "sterrr" #"DecayBit.log"
+    [DarkBit] : "sterrr" #"DarkBit.log"
+    [PrecisionBit] : "sterrr" #"PrecisionBit.log"
+    [ColliderBit] : "sterrr" #"ColliderBit.log"
+    [SpecBit] : "sterrr" #"SpecBit.log"
+    [Dependency Resolver] : "sterrr" #"dep_resolver.log"
+    [Scanner]: "sterrr" #"ScannerBit.log"
 
 ##########################
 # Name/Value Section

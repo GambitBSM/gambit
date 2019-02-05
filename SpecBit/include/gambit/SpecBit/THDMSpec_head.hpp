@@ -15,6 +15,10 @@
 ///          j.mckay14@imperial.ac.uk
 ///  \date 2016 Oct
 ///
+///    Filip Rajec 
+///      filip.rajec@adelaide.edu.au
+// /   Feb 2019
+///
 ///  *********************************************
 
 #ifndef THDMSPEC_HEAD_H
@@ -78,8 +82,6 @@ namespace Gambit
             virtual void SetScale(double scale);           
             virtual void RunToScaleOverride(double scale);
         
-        
-
             //constructors
             THDMSpec();
             THDMSpec(MI, str backend_name, str backend_version);
@@ -100,10 +102,11 @@ namespace Gambit
             Input& get_Input() { return dummyinput; }
             const Model& get_Model() const { return model_interface.model; }
             const Input& get_Input() const { return dummyinput;  }
-
-  
   
             virtual std::string AccessError(std::string state) const;
+            
+            // Fill an SLHAea object with spectrum information
+            virtual void add_to_SLHAea(int slha_version, SLHAstruct& slha) const;
 
   
             template<class THDMlike>
@@ -114,7 +117,6 @@ namespace Gambit
 
               model.set_scale( othermodel.get_scale() );
               model.set_Yu( othermodel.get_Yu() );
-
 
               return;
             }

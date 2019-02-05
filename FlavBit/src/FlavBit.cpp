@@ -51,8 +51,8 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
-//#define FLAVBIT_DEBUG
-//#define FLAVBIT_DEBUG_LL
+// #define FLAVBIT_DEBUG
+// #define FLAVBIT_DEBUG_LL
 
 namespace Gambit
 {
@@ -97,10 +97,23 @@ namespace Gambit
       }
       else if(ModelInUse("THDM") or ModelInUse("THDMatQ"))
       {
+        FlavBit_error().raise(LOCAL_INFO, "Sorry Flavor Physics is not yet supported for the general THDM.");
+      }
+      else if(ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
+              ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
+              ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
+              ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ") ) {
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
         SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false);
+        // Add THDM model yukawa type info.
+        const std::vector<std::string> THDM_model_keys = {"THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
+        const std::vector<int> THDM_model_y_type = {1, 1, 2, 2, 3, 3, 4, 4};
+        for (int i=0; i < THDM_model_keys.size(); i++) {
+          // model match was found: set SLHA model value based on matched model
+          if (ModelInUse(THDM_model_keys[i])) {SLHAea_add(spectrum, "MINPAR", 24, THDM_model_y_type[i], "yukawa type", true); break;}
+        }
       }
       else
       {
@@ -193,7 +206,31 @@ namespace Gambit
           }
           case 10:
           {
+            // THDM model parameters
             if(spectrum["MINPAR"][24].is_data_line()) result.THDM_model=SLHAea::to<int>(spectrum["MINPAR"][24][1]);
+            if(spectrum["MINPAR"][3].is_data_line()) result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
+            // if(spectrum["MINPAR"][11].is_data_line()) result.lambda_1=SLHAea::to<double>(spectrum["MINPAR"][11][1]);
+            // if(spectrum["MINPAR"][12].is_data_line()) result.lambda_2=SLHAea::to<double>(spectrum["MINPAR"][12][1]);
+            // if(spectrum["MINPAR"][13].is_data_line()) result.lambda_3=SLHAea::to<double>(spectrum["MINPAR"][13][1]);
+            // if(spectrum["MINPAR"][14].is_data_line()) result.lambda_4=SLHAea::to<double>(spectrum["MINPAR"][14][1]);
+            // if(spectrum["MINPAR"][15].is_data_line()) result.lambda_5=SLHAea::to<double>(spectrum["MINPAR"][15][1]);
+            // if(spectrum["MINPAR"][16].is_data_line()) result.lambda_6=SLHAea::to<double>(spectrum["MINPAR"][16][1]);
+            // if(spectrum["MINPAR"][17].is_data_line()) result.lambda_7=SLHAea::to<double>(spectrum["MINPAR"][17][1]);
+            if(spectrum["MINPAR"][18].is_data_line()) result.m12=SLHAea::to<double>(spectrum["MINPAR"][18][1]);
+            // if(spectrum["MINPAR"][20].is_data_line()) result.sba=SLHAea::to<double>(spectrum["MINPAR"][20][1]);
+
+            // if at Q
+            if (!spectrum["MSOFT"].empty()) {
+              if (!spectrum["MSOFT"].front().empty()) result.MSOFT_Q=SLHAea::to<double>(spectrum["MSOFT"].front().at(3));
+            }
+
+            // fill yukawas
+            for(int i=1; i<4; i++){
+              result.lambda_u[i][i] = SLHAea::to<double>(spectrum["UCOUPL"].at(i,i)[2]);
+              result.lambda_d[i][i] = SLHAea::to<double>(spectrum["DCOUPL"].at(i,i)[2]);
+              result.lambda_l[i][i] = SLHAea::to<double>(spectrum["LCOUPL"].at(i,i)[2]);
+            }
+
           }
           default:
           {

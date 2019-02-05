@@ -20,8 +20,9 @@
 #define __THDDMSimpleSpec_hpp__
 
 #include "gambit/Elements/spec.hpp"
-
+#include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
+#include "gambit/Elements/thdm_slhahelp.hpp"
 
 namespace Gambit
 {     
@@ -56,6 +57,8 @@ namespace Gambit
         double vev;
         double g1, g2, g3, sinW2;
         double Yd[3], Ye[3], Yu[3];
+      //   double ReYd2[3], ReYe2[3], ReYu2[3];
+      //   double ImYd2[3], ImYe2[3], ImYu2[3];
 
         double yukawaCoupling;
       };
@@ -90,6 +93,22 @@ namespace Gambit
 
             static int index_offset() {return 0;}
 
+            /// Add SLHAea object to another
+            virtual void add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const override {
+               // Add SPINFO data if not already present
+               SLHAea_add_GAMBIT_SPINFO(slha);
+
+               // All MSSM blocks
+               slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
+            }
+
+            /// Add SLHAea object to another
+            virtual double GetScale() const override { 
+               // set default scale for inputs as MZ
+               const double MZ = 9.11876000E+01;
+               return MZ;
+            }
+
             /// @}
             // /// Wrapper-side interface functions to parameter object
             double get_vev()      const { return params.vev;      } 
@@ -101,6 +120,14 @@ namespace Gambit
             double get_Yd(int i, int j)       const { if (i==j){return params.Yd[i];}else{return 0;} }
             double get_Yu(int i, int j)       const { if (i==j){return params.Yu[i];}else{return 0;} }
             double get_Ye(int i, int j)       const { if (i==j){return params.Ye[i];}else{return 0;} }
+
+            // double get_ReYd2(int i, int j)       const { if (i==j){return params.ReYd2[i];}else{return 0;} }
+            // double get_ReYu2(int i, int j)       const { if (i==j){return params.ReYu2[i];}else{return 0;} }
+            // double get_ReYe2(int i, int j)       const { if (i==j){return params.ReYe2[i];}else{return 0;} }
+
+            // double get_ImYd2(int i, int j)       const { if (i==j){return params.ImYd2[i];}else{return 0;} }
+            // double get_ImYu2(int i, int j)       const { if (i==j){return params.ImYu2[i];}else{return 0;} }
+            // double get_ImYe2(int i, int j)       const { if (i==j){return params.ImYe2[i];}else{return 0;} }
 
             // void set_vev(double in)        { params.vev=in;      } 
             // void set_g1(double in)        { params.g1=in; }
@@ -173,6 +200,14 @@ namespace Gambit
             void set_Yu(double in, int i, int j)       { if (i==j){params.Yu[i]=in;}}
             void set_Ye(double in, int i, int j)       { if (i==j){params.Ye[i]=in;}}
 
+            // void set_ReYd2(double in, int i, int j)       { if (i==j){params.ReYd2[i]=in;}}
+            // void set_ReYu2(double in, int i, int j)       { if (i==j){params.ReYu2[i]=in;}}
+            // void set_ReYe2(double in, int i, int j)       { if (i==j){params.ReYe2[i]=in;}}
+
+            // void set_ImYd2(double in, int i, int j)       { if (i==j){params.ImYd2[i]=in;}}
+            // void set_ImYu2(double in, int i, int j)       { if (i==j){params.ImYu2[i]=in;}}
+            // void set_ImYe2(double in, int i, int j)       { if (i==j){params.ImYe2[i]=in;}}
+
             /// @{ Map fillers
             static GetterMaps fill_getter_maps()
             {
@@ -222,6 +257,14 @@ namespace Gambit
                getters[dimensionless].map2W["Yu"]= FInfo2W( &Self::get_Yu, i012, i012);
                getters[dimensionless].map2W["Ye"]= FInfo2W( &Self::get_Ye, i012, i012);
 
+               // getters[dimensionless].map2W["ReYd2"]= FInfo2W( &Self::get_ReYd2, i012, i012);
+               // getters[dimensionless].map2W["ReYu2"]= FInfo2W( &Self::get_ReYu2, i012, i012);
+               // getters[dimensionless].map2W["ReYe2"]= FInfo2W( &Self::get_ReYe2, i012, i012);
+
+               // getters[dimensionless].map2W["ImYd2"]= FInfo2W( &Self::get_ImYd2, i012, i012);
+               // getters[dimensionless].map2W["ImYu2"]= FInfo2W( &Self::get_ImYu2, i012, i012);
+               // getters[dimensionless].map2W["ImYe2"]= FInfo2W( &Self::get_ImYe2, i012, i012);
+
                return getters;
             }
 
@@ -265,6 +308,15 @@ namespace Gambit
                setters[dimensionless].map2W["Yd"]= FInfo2W( &Self::set_Yd, i012, i012);
                setters[dimensionless].map2W["Yu"]= FInfo2W( &Self::set_Yu, i012, i012);
                setters[dimensionless].map2W["Ye"]= FInfo2W( &Self::set_Ye, i012, i012);
+
+               // setters[dimensionless].map2W["ReYd2"]= FInfo2W( &Self::set_ReYd2, i012, i012);
+               // setters[dimensionless].map2W["ReYu2"]= FInfo2W( &Self::set_ReYu2, i012, i012);
+               // setters[dimensionless].map2W["ReYe2"]= FInfo2W( &Self::set_ReYe2, i012, i012);
+
+               // setters[dimensionless].map2W["ImYd2"]= FInfo2W( &Self::set_ImYd2, i012, i012);
+               // setters[dimensionless].map2W["ImYu2"]= FInfo2W( &Self::set_ImYu2, i012, i012);
+               // setters[dimensionless].map2W["ImYe2"]= FInfo2W( &Self::set_ImYe2, i012, i012);
+
 
                return setters;
             }

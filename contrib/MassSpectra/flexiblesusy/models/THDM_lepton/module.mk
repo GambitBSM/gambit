@@ -207,19 +207,19 @@ clean-$(MODNAME)-obj:
 		-rm -f $(LLTHDM_lepton_OBJ)
 
 # BEGIN: NOT EXPORTED ##########################################
-clean-$(MODNAME)-src:
-		-rm -f $(LIBTHDM_lepton_SRC)
-		-rm -f $(LIBTHDM_lepton_HDR)
-		-rm -f $(EXETHDM_lepton_SRC)
-		-rm -f $(LLTHDM_lepton_SRC)
-		-rm -f $(LLTHDM_lepton_MMA)
-		-rm -f $(METACODE_STAMP_THDM_lepton)
-		-rm -f $(THDM_lepton_INCLUDE_MK)
-		-rm -f $(THDM_lepton_SLHA_INPUT)
-		-rm -f $(THDM_lepton_REFERENCES)
-		-rm -f $(THDM_lepton_GNUPLOT)
+# clean-$(MODNAME)-src:
+# 		-rm -f $(LIBTHDM_lepton_SRC)
+# 		-rm -f $(LIBTHDM_lepton_HDR)
+# 		-rm -f $(EXETHDM_lepton_SRC)
+# 		-rm -f $(LLTHDM_lepton_SRC)
+# 		-rm -f $(LLTHDM_lepton_MMA)
+# 		-rm -f $(METACODE_STAMP_THDM_lepton)
+# 		-rm -f $(THDM_lepton_INCLUDE_MK)
+# 		-rm -f $(THDM_lepton_SLHA_INPUT)
+# 		-rm -f $(THDM_lepton_REFERENCES)
+# 		-rm -f $(THDM_lepton_GNUPLOT)
 
-distclean-$(MODNAME): clean-$(MODNAME)-src
+# distclean-$(MODNAME): clean-$(MODNAME)-src
 # END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj

@@ -29,33 +29,47 @@
 #include "gambit/Elements/spectrum.hpp"
 
 // Activate debug output
-//#define SingletDM_DBUG
+//#define THDM_DBUG
 
 using namespace Gambit::Utils;
 
-// Need to define MODEL and PARENT in order for helper macros to work correctly
+// Need to define MODEL and FRIEND in order for helper macros to work correctly
 #define MODEL  THDM
-#define PARENT THDMatQ
+#define FRIEND THDMatQ
 
 // Translation function definition
 void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParameters &targetP)
 {
-   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
-   logger()<<"Running interpret_as_parent calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
+   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
+   logger()<<"Running interpret_as_friend calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
 
   targetP.setValue("Qin",80.39);
   targetP.setValue("QrunTo", 173.15);
 
-  targetP.setValue("lambda_1", myP.getValue("lambda_1") );
-  targetP.setValue("lambda_2", myP.getValue("lambda_2") );
-  targetP.setValue("lambda_3", myP.getValue("lambda_3") );
-  targetP.setValue("lambda_4", myP.getValue("lambda_4") );
-  targetP.setValue("lambda_5", myP.getValue("lambda_5") );
-  targetP.setValue("lambda_6", myP.getValue("lambda_6") );
-  targetP.setValue("lambda_7", myP.getValue("lambda_7") );
-  targetP.setValue("m12_2", myP.getValue("m12_2") );
+  targetP.setValue("Lambda_1", myP.getValue("Lambda_1") );
+  targetP.setValue("Lambda_2", myP.getValue("Lambda_2") );
+  targetP.setValue("Lambda_3", myP.getValue("Lambda_3") );
+  targetP.setValue("Lambda_4", myP.getValue("Lambda_4") );
+  targetP.setValue("Lambda_5", myP.getValue("Lambda_5") );
+  targetP.setValue("Lambda_7", myP.getValue("Lambda_7") );
+  targetP.setValue("m22_2", myP.getValue("m22_2") );
   targetP.setValue("tanb", myP.getValue("tanb") );
+  targetP.setValue("alpha", myP.getValue("alpha") );
 
+  std::vector<std::string> yukawa_keys = {"yu2_re_11", "yu2_im_11", "yu2_re_12", "yu2_im_12", "yu2_re_13", "yu2_im_13",
+                                            "yu2_re_21", "yu2_im_21", "yu2_re_22", "yu2_im_22", "yu2_re_23", "yu2_im_23",
+                                            "yu2_re_31", "yu2_im_31", "yu2_re_32", "yu2_im_32", "yu2_re_33", "yu2_im_33",
+                                            "yd2_re_11", "yd2_im_11", "yd2_re_12", "yd2_im_12", "yd2_re_13", "yd2_im_13",
+                                            "yd2_re_21", "yd2_im_21", "yd2_re_22", "yd2_im_22", "yd2_re_23", "yd2_im_23",
+                                            "yd2_re_31", "yd2_im_31", "yd2_re_32", "yd2_im_32", "yd2_re_33", "yd2_im_33",
+                                            "yl2_re_11", "yl2_im_11", "yl2_re_12", "yl2_im_12", "yl2_re_13", "yl2_im_13",
+                                            "yl2_re_21", "yl2_im_21", "yl2_re_22", "yl2_im_22", "yl2_re_23", "yl2_im_23",
+                                            "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
+
+  for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
+  {  
+      targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
+  }
 
    // Done! Check that everything is ok if desired.
    #ifdef THDM_DBUG
@@ -64,5 +78,5 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
    #endif
 }
 
-#undef PARENT
+#undef FRIEND
 #undef MODEL

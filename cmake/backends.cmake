@@ -823,6 +823,8 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/THDMC/1.7.0")
 set(dl "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.7.0.tar.gz")
 set(md5 "28d70cdce026eac37d947a14f6f5246c")
 set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+set(GSL_LIB_FLAGS "${GSL_LIBRARIES}")
+string(REPLACE ";" " " GSL_LIB_FLAGS "${GSL_LIB_FLAGS}")
 check_ditch_status(${name} ${ver})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -834,8 +836,8 @@ if(NOT ditched_${name}_${ver})
   	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
       COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE=${GSL_INCLUDE_DIRS} boss
-    COMMAND ${CMAKE_MAKE_PROGRAM} sharedlib
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver})

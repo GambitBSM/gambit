@@ -1,6 +1,6 @@
---- Makefile	2015-08-28 22:39:35.000000000 +0930
-+++ Makefile_patched	2018-10-24 23:56:19.000000000 +1030
-@@ -1,28 +1,43 @@
+--- Makefile	2015-08-28 22:09:35.000000000 +0900
++++ Makefile_patched	2019-01-25 21:18:04.000000000 +0900
+@@ -1,28 +1,39 @@
 -# Makefile for 2HDMC 
 +# Makefile for 2HDMC
  
@@ -8,10 +8,6 @@
  CC = g++
 -LDFLAGS=-lgsl -lgslcblas
 +STD = #-std=c++11
-+
-+GSLINCLUDE_DIR=/usr/local/Cellar/gsl/2.5/include/
-+GSLLIB_DIR=/usr/local/Cellar/gsl/2.5/lib/
-+LDGSLFLAGS=-L$(GSLLIB_DIR) -lgsl -lgslcblas
  
  #Optimisation level, eg: -O3
  OPT=-O3
@@ -39,14 +35,14 @@
  LIB=lib2HDMC.a
 -LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
 -#LDFLAGS+=-L$(LIBDIR) -l2HDMC
-+LDFLAGS=$(LDGSLFLAGS) -L$(LIBDIR) -l2HDMC -lm
++LDFLAGS=$(GSLLIBS) -L$(LIBDIR) -l2HDMC -lm
  LIBS=
  PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
  
 +TEMPINCLUDE = -I../../../scripts/BOSS
 +
 +SHAREDCFLAGS = -fPIC
-+SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(LDGSLFLAGS)
++SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(GSLLIBS)
 +SHAREDLIB=lib2HDMC.so
 +
 +CFLAGS= $(WARNING) $(STD) $(DEBUG) $(OPT) $(CXXFLAGS) -I$(VPATH) -I$(LIBDIR) -I$(GSLINCLUDE_DIR) $(SHAREDCFLAGS) $(BOSS_INCLUDE) 
@@ -54,7 +50,7 @@
  # To use HiggsBounds/HiggsSignals for Higgs constraints, put the corresponding libraries
  # in the "lib" subdirectory and uncomment the following lines.
  # Note that both programs: HiggsBounds (> 4.2.0) and HiggsSignals (> 1.4.0) must be present
-@@ -30,12 +45,23 @@
+@@ -30,12 +41,23 @@
  #LDFLAGS+=-L$(LIBDIR) -lHS -lHB -lgfortran
  #SOURCES+=HBHS.cpp
  
@@ -80,7 +76,7 @@
  
  lib: $(addprefix $(LIBDIR)/, $(LIB))
  
-@@ -46,6 +72,15 @@
+@@ -46,6 +68,15 @@
  %: %.cpp $(addprefix $(LIBDIR)/, $(LIB))
  	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
  

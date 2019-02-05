@@ -17,23 +17,18 @@
 //
 //  *********************************************
 
-#ifndef __THDM_IIIatQ_hpp__
-#define __THDM_IIIatQ_hpp__
+#ifndef __THDMLSatQ_hpp__
+#define __THDMLSatQ_hpp__
 
-#define MODEL THDM_IIIatQ
+#define MODEL THDMLSatQ
   START_MODEL
-
-  DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
-  DEFINEPARS(m22_2)
-  DEFINEPARS(alpha,tanb)
   
-  DEFINEPARS(Y2ct_real,Y2tc_real,Y2tt_real)
-  DEFINEPARS(Y2ct_imag,Y2tc_imag,Y2tt_imag)
-  DEFINEPARS(Y2sb_real,Y2bs_real,Y2bb_real)
-  DEFINEPARS(Y2sb_imag,Y2bs_imag,Y2bb_imag)
+  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5)
+  DEFINEPARS(lambda_6,lambda_7,m12_2)
+  DEFINEPARS(tanb)
 
   DEFINEPARS(Qin,QrunTo)
-  
+
 #undef MODEL
 
 #endif

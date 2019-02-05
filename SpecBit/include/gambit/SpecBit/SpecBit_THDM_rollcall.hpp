@@ -28,7 +28,8 @@ START_CAPABILITY
   #define FUNCTION get_THDM_spectrum
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(THDM, THDMatQ)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
    // Convert spectrum into a standard map so that it can be printed
   #define FUNCTION get_THDM_spectrum_as_map
@@ -42,7 +43,7 @@ START_CAPABILITY
   #define FUNCTION test_THDM_spectrum_1
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDMatQ)
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -171,7 +172,8 @@ START_CAPABILITY
   #define FUNCTION get_unitarity_likelihood_THDM
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -180,7 +182,8 @@ START_CAPABILITY
   #define FUNCTION get_NLO_unitarity_likelihood_THDM
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -190,7 +193,8 @@ START_CAPABILITY
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM, THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -200,7 +204,8 @@ START_CAPABILITY
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM, THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -209,7 +214,8 @@ START_CAPABILITY
   #define FUNCTION get_alignment_likelihood_THDM
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -219,7 +225,8 @@ START_CAPABILITY
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -228,7 +235,8 @@ START_CAPABILITY
   #define FUNCTION get_global_minimum_discriminant_likelihood
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -238,7 +246,8 @@ START_CAPABILITY
   START_FUNCTION(thdmc_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -248,7 +257,8 @@ START_CAPABILITY
   START_FUNCTION(thdmc_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -258,7 +268,8 @@ START_CAPABILITY
   START_FUNCTION(std::vector<thdmc_couplings>)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -268,7 +279,8 @@ START_CAPABILITY
   START_FUNCTION(SLHAstruct)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -277,7 +289,8 @@ START_CAPABILITY
   #define FUNCTION fill_THDM_coupling_basis
   START_FUNCTION(thdm_coupling_basis)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM, THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -286,7 +299,8 @@ START_CAPABILITY
   #define FUNCTION fill_THDM_phys_basis
   START_FUNCTION(thdm_physical_basis)
   DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODELS(THDM, THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -304,7 +318,8 @@ START_CAPABILITY
   DEPENDENCY(A0_decay_rates, DecayTable::Entry)
   DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
   DEPENDENCY(t_decay_rates, DecayTable::Entry)
-  ALLOW_MODELS(THDM,THDMatQ)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
