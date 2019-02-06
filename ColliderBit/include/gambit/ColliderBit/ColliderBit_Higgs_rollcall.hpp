@@ -73,12 +73,12 @@
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_part, (libhiggsbounds), void,
-    (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
+    (double*, double*, int*, double*, double*, double*, Farray<double, 1,5, 1,5>&,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, Farray<double, 1,3, 1,3>&))
+    double*, double*, Farray<double, 1,5, 1,5>&))
     BACKEND_REQ(HiggsBounds_charged_input, (libhiggsbounds), void,
     (double*, double*, double*, double*,
     double*, double*, double*, double*))
@@ -99,12 +99,12 @@
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_part_HS, (libhiggssignals), void,
-    (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
+    (double*, double*, int*, double*, double*, double*, Farray<double, 1,5, 1,5>&,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
     double*, double*, double*, double*, double*, double*, double*,
-    double*, double*, Farray<double, 1,3, 1,3>&))
+    double*, double*, Farray<double, 1,5, 1,5>&))
     BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
     (double*, double*, double*, double*,
      double*, double*, double*, double*))

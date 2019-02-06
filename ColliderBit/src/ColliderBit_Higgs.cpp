@@ -23,6 +23,10 @@
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date 2016 Sep
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 #include <cmath>
@@ -318,13 +322,12 @@ namespace Gambit
       const SubSpectrum& spec = fullspectrum.get_HE();
 
       // Neutral higgs masses and errors
-      // TODO: errors for pole masses from SPheno spectrum do not exist yet!
       for(int i = 0; i < 5; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
-        //double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-        //double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-        //result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+        double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+        double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+        result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
       }
       
       // Loop over all neutral Higgses, setting their branching fractions and total widths.
@@ -375,10 +378,9 @@ namespace Gambit
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
 
-      // TODO: errors for pole masses from SPheno spectrum do not exist yet. 
-      //double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
-      //double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
-      //result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
+      double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
+      double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
+      result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
 
       // Set charged Higgs branching fractions and total width.
       result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
@@ -411,9 +413,9 @@ namespace Gambit
 
       hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
 
-      Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
-      Farray<double, 1,3, 1,3> BR_hjhihi;
-      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      Farray<double, 1,5, 1,5> CS_lep_hjhi_ratio;
+      Farray<double, 1,5, 1,5> BR_hjhihi;
+      for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
@@ -472,9 +474,9 @@ namespace Gambit
 
       hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
 
-      Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
-      Farray<double, 1,3, 1,3> BR_hjhihi;
-      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      Farray<double, 1,5, 1,5> CS_lep_hjhi_ratio;
+      Farray<double, 1,5, 1,5> BR_hjhihi;
+      for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
@@ -522,7 +524,7 @@ namespace Gambit
         std::ofstream f;
         f.open ("HB_ModelParameters_contents.dat");
         f<<"LHC log-likleihood";
-        for (int i = 0; i < 3; i++) f<<
+        for (int i = 0; i < 5; i++) f<<
          "             higgs index"      <<
          "                    "<<i<<":CP"<<
          "                    "<<i<<":Mh"<<
@@ -564,7 +566,7 @@ namespace Gambit
          "             "<<4<<":BR_t->H+b";
         f << endl << std::setw(18) << result;
         const int w = 24;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 5; i++)
         {
           f << std::setw(w) << i << std::setw(w) <<
            ModelParam.CP[i] << std::setw(w) <<
@@ -578,7 +580,7 @@ namespace Gambit
            ModelParam.CS_tev_tthj_ratio[i] << std::setw(w) <<
            ModelParam.CS_lhc7_tthj_ratio[i] << std::setw(w) <<
            ModelParam.CS_lhc8_tthj_ratio[i];
-          for (int j = 0; j < 3; j++) f << std::setw(w) << ModelParam.CS_lep_hjhi_ratio[i][j];
+          for (int j = 0; j < 5; j++) f << std::setw(w) << ModelParam.CS_lep_hjhi_ratio[i][j];
           f << std::setw(w) <<
            ModelParam.BR_hjss[i] << std::setw(w) <<
            ModelParam.BR_hjcc[i] << std::setw(w) <<
@@ -591,7 +593,7 @@ namespace Gambit
            ModelParam.BR_hjgaga[i] << std::setw(w) <<
            ModelParam.BR_hjgg[i] << std::setw(w) <<
            ModelParam.BR_hjinvisible[i];
-          for (int j = 0; j < 3; j++) f << std::setw(w) << ModelParam.BR_hjhihi[i][j];
+          for (int j = 0; j < 5; j++) f << std::setw(w) << ModelParam.BR_hjhihi[i][j];
         }
         f << std::setw(w) << 4 << std::setw(w) <<
          ModelParam.MHplus[0] << std::setw(w) <<

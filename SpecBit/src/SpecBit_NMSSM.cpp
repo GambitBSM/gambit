@@ -20,6 +20,10 @@
 ///        (elielcamargomolina@gmail.com)
 ///  \date 2018 Dec
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 //#include <string>
@@ -31,6 +35,7 @@
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
+#include "gambit/SpecBit/NMSSMSpec.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
 #include <boost/numeric/ublas/matrix.hpp>
@@ -131,6 +136,38 @@ namespace Gambit
 
       // Convert into a spectrum object
       spectrum = spectrum_from_SLHAea<NMSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
+      SubSpectrum& he = spectrum.get_HE();
+
+      // Add theory errors
+      static const NMSSM_strs ns;
+
+      static const std::vector<int> i12     = initVector(1,2);
+      static const std::vector<int> i123    = initVector(1,2,3);
+      static const std::vector<int> i1234   = initVector(1,2,3,4);
+      static const std::vector<int> i123456 = initVector(1,2,3,4,5,6);
+
+      // 3% theory "error"
+      he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ns.pole_mass_pred, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_pred, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ns.pole_mass_strs_1_6, i123456, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_6, i123456, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, "~chi0", i1234, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, "~chi0", i1234, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ns.pole_mass_strs_1_3, i123, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_3, i123, true);
+      he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ns.pole_mass_strs_1_2, i12,  true);
+      he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_2, i12,  true);
+
+      // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
+      // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
+      double rd_mh1 = 2.0 / he.get(Par::Pole_Mass, ns.h0, 1);
+      he.set_override(Par::Pole_Mass_1srd_high, rd_mh1, ns.h0, 1, true);
+      he.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ns.h0, 1, true);
+
+      // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
+      double rd_mW = 0.01 / he.get(Par::Pole_Mass, "W+");
+      he.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
+      he.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
 
       // Drop SLHA files if requested
       spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");

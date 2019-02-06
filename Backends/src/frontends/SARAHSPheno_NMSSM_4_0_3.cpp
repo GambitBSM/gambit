@@ -14,6 +14,10 @@
 ///  \author Anders Kvellestad
 ///  \date 2018 Oct
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
@@ -443,7 +447,9 @@ BE_NAMESPACE
                  << " mC2=" << (*MCha)(2)
                  << " mh1=" << (*Mhh)(1)
                  << " mh2=" << (*Mhh)(2)
-                 << " ma2=" << (*MAh)(2)
+                 << " mh3=" << (*Mhh)(3)
+                 << " ma1=" << (*MAh)(2)
+                 << " ma2=" << (*MAh)(3)
                  << " M1=" << *inputs.param.at("M1")
                  << " M2=" << *inputs.param.at("M2")
                  << " mueff=" << *inputs.param.at("mueff")

@@ -150,6 +150,9 @@ ObsLikes:
   - purpose:    LogLike
     capability: LEP_Higgs_LogLike
 
+  - purpose:    LogLike
+    capability: LHC_Higgs_LogLike
+
 Rules:
 
   # Set Higgs pole mass by hand

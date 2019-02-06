@@ -15,6 +15,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2018 Oct
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 #ifndef NMSSMSPEC_HEAD_H
@@ -53,6 +57,11 @@ namespace Gambit
       template <class MI>
       class NMSSMSpec : public MSSMSpec<MI>
       {
+         private:
+            str backend_name;
+            str backend_version;
+            static const int _index_offset;
+
          public:
             /// These typedefs are inherited, but the name lookup doesn't work so smoothly in
             /// templated wrapper classes, so need to help them along:

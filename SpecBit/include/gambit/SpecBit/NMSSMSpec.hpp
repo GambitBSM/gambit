@@ -16,6 +16,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2018 Oct
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 #ifndef NMSSMSPEC_H
@@ -177,6 +181,7 @@ namespace Gambit
          static const std::set<int> i01 = initSet(0,1);
          static const std::set<int> i012 = initSet(0,1,2);
          static const std::set<int> i0123 = initSet(0,1,2,3);
+         static const std::set<int> i01234 = initSet(0,1,2,3,4);
          static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
 
          // Fill the MSSM setter maps

@@ -51,14 +51,16 @@ BE_FUNCTION(finish_HiggsBounds_HS, void, (), "finish_higgsbounds_", "finish_Higg
 
 // input parameter functions
 BE_FUNCTION(HiggsBounds_input_SLHA_HS, void, (const char*), "higgsbounds_input_slha_", "HiggsBounds_input_SLHA_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_part_HS, void, (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
+BE_FUNCTION(HiggsBounds_neutral_input_part_HS, void, (double*, double*, int*, double*, double*, double*, Farray<double, 1,5, 1,5>&,
                   double*, double*, double*, double*, double*, double*, double*,
                   double*, double*, double*, double*, double*, double*, double*,
                   double*, double*, double*, double*, double*, double*, double*,
                   double*, double*, double*, double*, double*, double*, double*,
-                  double*, double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_part_", "HiggsBounds_neutral_input_part_HS")
+                  double*, double*, Farray<double, 1,5, 1,5>&), "higgsbounds_neutral_input_part_", "HiggsBounds_neutral_input_part_HS")
 BE_FUNCTION(HiggsBounds_charged_input_HS, void, (double*, double*, double*, double*,
              double*, double*, double*, double*), "higgsbounds_charged_input_", "HiggsBounds_charged_input_HS")
+
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
