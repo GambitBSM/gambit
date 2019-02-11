@@ -360,6 +360,30 @@ namespace Gambit
                   if(i!=rank) Isend(buf, count, i, tag, req);
                }
             }
+            
+            template <typename T>
+            void Bcast (T &buffer, int root) 
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+                
+                MPI_Bcast (&buffer, 1, datatype, root, boundcomm);
+            }
+            
+            template<typename T>
+            void Scatter (std::vector<T> &sendbuf, T &recvbuf, int root)
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+                
+                MPI_Scatter (&sendbuf[0], 1, datatype, &recvbuf, 1, datatype, root, boundcomm);
+            }
+            
+            template<typename T>
+            void Allreduce (T &sendbuf, T &recvbuf, MPI_Op op) 
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+                
+                MPI_Allreduce (&sendbuf, &recvbuf, 1, datatype, op, boundcomm);
+            }
 
             // Force all processes in this group (possibly all processes in
             // the "WORLD"; implementation dependent) to stop executing.

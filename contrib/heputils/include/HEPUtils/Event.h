@@ -147,7 +147,7 @@ namespace HEPUtils {
       else if (p->abspid() == 15)
         _taus.push_back(p);
       else if (p->abspid() == 12 || p->abspid() == 14 || p->abspid() == 16 ||
-               p->pid() == 1000022 || in_range(p->pid(), 50, 60))
+               p->pid() == 1000022 || p->pid() == 1000039 || in_range(p->pid(), 50, 60))
         _invisibles.push_back(p);
       else
         delete p;

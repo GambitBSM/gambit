@@ -598,7 +598,7 @@ namespace Gambit
           str x(GAMBIT_EXECUTABLE);
           int len = arg.length();
           int xlen = x.length();
-          if (len > xlen and arg.substr(len-xlen,len-1) == x)
+          if (len >= xlen and arg.substr(len-xlen,xlen) == x)
           {
             command = argv[i+1];
             break;

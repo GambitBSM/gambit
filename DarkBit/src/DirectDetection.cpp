@@ -27,8 +27,10 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 
-namespace Gambit {
-  namespace DarkBit {
+namespace Gambit
+{
+  namespace DarkBit
+  {
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -88,33 +90,25 @@ namespace Gambit {
       logger() << LogTags::debug << "\tdels = delta s = " << BEreq::ddcom->dels << EOM;
 
 
+      // Loop corrections and pole removal.
+
       // Option loop<bool>: If true, include 1-loop effects discussed in
       // Drees Nojiri Phys.Rev. D48 (1993) 3483-3501 (default: true)
+      BEreq::ddcom->dddn = runOptions->getValueOrDef<bool>(true,"loop");
 
-      // Turn on Drees Nojiri treatment by default:
-      BEreq::ddcom->dddn = 1;
+      // Option pole<bool>: If true, include pole in nuclear scattering cross-section.
+      // If false, approximate squark propagator as 1/m_sq^2 (default: false)
+      BEreq::ddcom->ddpole = runOptions->getValueOrDef<bool>(false,"pole");
 
-      if (runOptions->hasKey("loop"))
+      // Some version notes:
+      // The default in DS5 is to for both these options to be false (tree-level cross-section with pole removed).
+      // The default in DS6 is to use Drees-Nojiri (1 loop) with the pole removed, which isn't an
+      // option in the official DS5.1.3.  The version in GAMBIT is patched to implement this option though,
+      // so we use it as the default here.
+
+
+      if (*Dep::DarkSUSY_PointInit)
       {
-        if (runOptions->getValue<bool>("loop")==false) BEreq::ddcom->dddn = 0;
-      }
-
-      // Option pole<bool>: If false, approximate squark propagator as 1/m_sq^2 (set to
-      // true if loop = true) (default: false)
-      if (runOptions->hasKey("pole"))
-      {
-        if (runOptions->getValue<bool>("pole")==true) BEreq::ddcom->ddpole = 1;
-        else
-        {
-          BEreq::ddcom->ddpole = 0;
-          if ((runOptions->hasKey("loop") && runOptions->getValue<bool>("loop")==true) ||
-             !(runOptions->hasKey("loop")))
-                logger () << LogTags::debug << "pole = false ignored "
-                   "by DarkSUSY because loop = true." << EOM;
-        }
-      }
-
-      if (*Dep::DarkSUSY_PointInit) {
         // Calling DarkSUSY subroutine dsddgpgn(gps,gns,gpa,gna)
         // to set all four couplings.
         BEreq::dsddgpgn(result.gps, result.gns, result.gpa, result.gna);
@@ -130,7 +124,9 @@ namespace Gambit {
         logger() << LogTags::debug << " gns = " << result.gns << std::endl;
         logger() << LogTags::debug << " gpa = " << result.gpa << std::endl;
         logger() << LogTags::debug << " gna = " << result.gna << EOM;
-      } else {
+      }
+      else
+      {
         // Set couplings to zero if DarkSUSY point initialization
         // was not successful
         result.gps = 0.0; result.gns = 0.0;

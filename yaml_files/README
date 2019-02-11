@@ -8,6 +8,8 @@ Functionality/configuration demos and minimal examples
 spartan.yaml                    --- Simplest example of using GAMBIT: a toy-model MultiNest scan
 spartan_CMSSM.yaml              --- Simple example of using GAMBIT in a random scan of CMSSM params
 
+pp_strip.yaml                   --- Simple example of using the postprocessor scanner to strip 'invalid' points out of an output file
+
 ColliderBit_CMSSM.yaml          --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
 ColliderBit_ExternalModel.yaml  --- LHC likelihood demo on a single point of a Pythia external model
 

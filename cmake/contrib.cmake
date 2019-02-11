@@ -157,7 +157,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # SingletDMZ3 SingletDM CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu
 
   # Check if there has been command line instructions to only build with certain models. Default is to build everything!
-  if(BUILD_FS_MODELS)
+  if(BUILD_FS_MODELS AND NOT ";${BUILD_FS_MODELS};" MATCHES ";ALL_FS_MODELS;")
     # Use whatever the user has supplied!
   else()
     set(BUILD_FS_MODELS ${ALL_FS_MODELS})

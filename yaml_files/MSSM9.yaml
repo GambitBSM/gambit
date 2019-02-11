@@ -244,7 +244,7 @@ ObsLikes:
 
     # Other observables
     - purpose:    likelihood_details
-      capability: LHC_LogLikes
+      capability: LHC_LogLike_per_analysis
 
     - purpose:    Observable
       capability: LHC_signals
@@ -443,9 +443,10 @@ Rules:
       analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
                    "ATLAS_13TeV_MultiLEP_36invfb",
                    "ATLAS_13TeV_0LEPStop_36invfb",
-                   "ATLAS_13TeV_1LEPStop_36invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
                    "ATLAS_13TeV_2bMET_36invfb"] ]
+
+                   # "ATLAS_13TeV_1LEPStop_36invfb",  # Commented out due to ROOT dependence. Will be included again later.
 
   # CMS analysis setup
   - capability: CMSAnalysisContainer
@@ -500,7 +501,9 @@ Rules:
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      covariance_samples: 100000
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 100000
 
 
 Logger:

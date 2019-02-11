@@ -13,7 +13,7 @@
 
 #include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
+//#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      double _numSRA, _numSRB; 
+      double _numSRA, _numSRB;
       vector<int> cutFlowVector;
       // vector<double> cutFlowVectorATLAS_130_0;
       // vector<double> cutFlowVectorATLAS_250_0;
@@ -33,12 +33,12 @@ namespace Gambit {
       vector<string> cutFlowVector_str;
       size_t NCUTS;
 
-      // Perf_Plot* plots_2bjets;       
-      // Perf_Plot* plots_mbb;  
-      // Perf_Plot* plots_HEPmct;       
-      // Perf_Plot* plots_HEPmt;        
-      // Perf_Plot* plots_HEPnbj;       
-      // Perf_Plot* plots_HEPmbb;       
+      // Perf_Plot* plots_2bjets;
+      // Perf_Plot* plots_mbb;
+      // Perf_Plot* plots_HEPmct;
+      // Perf_Plot* plots_HEPmt;
+      // Perf_Plot* plots_HEPnbj;
+      // Perf_Plot* plots_HEPmbb;
       // ofstream cutflowFile;
 
     public:
@@ -147,27 +147,27 @@ namespace Gambit {
         vector<HEPUtils::Particle*> signalLeptons;
         vector<HEPUtils::Particle*> signalElectrons;
         vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;   
+        vector<HEPUtils::Jet*> signalJets;
         vector<HEPUtils::Jet*> signalBJets;
 
         for (size_t iEl=0;iEl<overlapElectrons2.size();iEl++) {
           if (overlapElectrons2.at(iEl)->pT()>25.)signalElectrons.push_back(overlapElectrons2.at(iEl));
         }
         ATLAS::applyTightIDElectronSelection(signalElectrons);
-        
+
         for (size_t iMu=0;iMu<overlapMuons.size();iMu++) {
-          if (overlapMuons.at(iMu)->pT()>25.)signalMuons.push_back(overlapMuons.at(iMu)); 
-        } 
-               
+          if (overlapMuons.at(iMu)->pT()>25.)signalMuons.push_back(overlapMuons.at(iMu));
+        }
+
         const vector<double> aBJet = {0,2.1,10.};
         const vector<double> bBJet = {0,30.,40.,50.,70.,10000.};
         const vector<double> cBJet={0.54,0.63,0.67,0.7,0.75,0.35,0.42,0.44,0.46,0.49};
         HEPUtils::BinnedFn2D<double> _eff2dBJet(aBJet,bBJet,cBJet);
         for (size_t iJet=0;iJet<overlapJets.size();iJet++) {
           if (overlapJets.at(iJet)->pT()>25. && overlapJets.at(iJet)->abseta()<2.40) {
-            signalJets.push_back(overlapJets.at(iJet));  
+            signalJets.push_back(overlapJets.at(iJet));
             bool hasTag=has_tag(_eff2dBJet, overlapJets.at(iJet)->eta(), overlapJets.at(iJet)->pT());
-            if (overlapJets.at(iJet)->btag() && hasTag)signalBJets.push_back(overlapJets.at(iJet));             
+            if (overlapJets.at(iJet)->btag() && hasTag)signalBJets.push_back(overlapJets.at(iJet));
           }
         }
 
@@ -182,13 +182,13 @@ namespace Gambit {
         sort(signalJets.begin(), signalJets.end(), compareJetPt);
         sort(signalLeptons.begin(), signalLeptons.end(), compareParticlePt);
 
-        //Variables     
-        double mT=0; 
+        //Variables
+        double mT=0;
         double mCT=0;
         double mbb=0;
         bool leadingBJets=isLeadingBJets(signalJets, signalBJets);
         bool lepton_overlap=true;
-        bool preselection=false; 
+        bool preselection=false;
 
         const vector<double>  aLep = {0,10.};
         const vector<double>  bLep = {0,10000.};
@@ -210,23 +210,23 @@ namespace Gambit {
           }
         }
         if (lepton_overlap && nSignalLeptons==1 && nBaselineLeptons==1 && (nSignalJets==2 || nSignalJets==3) && leadingBJets) {
-          if (nSignalMuons==1) {        
+          if (nSignalMuons==1) {
             bool hasTrig1=has_tag(_eff2dMu1,signalMuons.at(0)->eta(),signalMuons.at(0)->pT());
             bool hasTrig2=has_tag(_eff2dMu2,signalMuons.at(0)->eta(),signalMuons.at(0)->pT());
             if (signalMuons.at(0)->abseta()<1.05 && hasTrig1)preselection=true;
             if (signalMuons.at(0)->abseta()>1.05 && hasTrig2)preselection=true;
           }
-          if (nSignalElectrons==1) {    
+          if (nSignalElectrons==1) {
             bool hasTrig=has_tag(_eff2dEl,signalElectrons.at(0)->eta(),signalElectrons.at(0)->pT());
             if (hasTrig)preselection=true;
           }
         }
 
-        if (nSignalLeptons)mT=sqrt(2*signalLeptons.at(0)->pT()*met*(1-cos(signalLeptons.at(0)->phi()-event->missingmom().phi())));      
+        if (nSignalLeptons)mT=sqrt(2*signalLeptons.at(0)->pT()*met*(1-cos(signalLeptons.at(0)->phi()-event->missingmom().phi())));
         if (nSignalJets>1) {
           mCT=sqrt(2*signalJets.at(0)->pT()*signalJets.at(1)->pT()*(1+cos(signalJets.at(0)->phi()-signalJets.at(1)->phi())));
-          mbb=(signalJets.at(0)->mom()+signalJets.at(1)->mom()).m(); 
-        }       
+          mbb=(signalJets.at(0)->mom()+signalJets.at(1)->mom()).m();
+        }
 
         bool SRA=false;
         bool SRB=false;
@@ -237,9 +237,9 @@ namespace Gambit {
           }
           if (mT>130.) {
             _numSRB++;
-            SRB=true;   
+            SRB=true;
           }
-        }                      
+        }
 
         // if (preselection) {
         //   vector<double> variables={met, mCT, mbb, mT, signalJets.at(0)->pT(), signalLeptons.at(0)->pT(), (double)nSignalBJets, signalJets.at(1)->pT(),signalJets.at(0)->eta(), signalJets.at(1)->eta(), signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom())};
@@ -280,19 +280,19 @@ namespace Gambit {
         for (size_t j=0;j<NCUTS;j++){
           if(
              (j==0) ||
-             
+
              (j==1 && preselection && nSignalBJets==2) ||
-             
+
              (j==2 && preselection && nSignalBJets==2 && met>100.) ||
 
              (j==3 && preselection && nSignalBJets==2 && met>100. && mCT>160.) ||
- 
-             (j==4 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100.) ||
-             
-             (j==5 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100. && mbb>45. && mbb<195.) ||  
 
-             (j==6 && SRA) ||  
-            
+             (j==4 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100.) ||
+
+             (j==5 && preselection && nSignalBJets==2 && met>100. && mCT>160. && mT>100. && mbb>45. && mbb<195.) ||
+
+             (j==6 && SRA) ||
+
              (j==7 && SRB) ){
 
             cutFlowVector[j]++;
@@ -369,18 +369,18 @@ namespace Gambit {
         SignalRegionData results_SRA;
         results_SRA.sr_label = "SRA";
         results_SRA.n_observed = 4.;
-        results_SRA.n_background = 5.69; 
+        results_SRA.n_background = 5.69;
         results_SRA.background_sys = 1.10;
-        results_SRA.signal_sys = 0.; 
+        results_SRA.signal_sys = 0.;
         results_SRA.n_signal = _numSRA;
         add_result(results_SRA);
 
         SignalRegionData results_SRB;
         results_SRB.sr_label = "SRB";
         results_SRB.n_observed = 3.;
-        results_SRB.n_background = 2.67; 
+        results_SRB.n_background = 2.67;
         results_SRB.background_sys = 0.69;
-        results_SRB.signal_sys = 0.; 
+        results_SRB.signal_sys = 0.;
         results_SRB.n_signal = _numSRB;
         add_result(results_SRB);
 

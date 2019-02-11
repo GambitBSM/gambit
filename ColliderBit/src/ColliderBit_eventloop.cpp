@@ -29,6 +29,7 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date   2017 March
 ///  \date   2018 Jan
+///  \date   2018 May
 ///
 ///  *********************************************
 
@@ -102,8 +103,14 @@ namespace Gambit
     bool useBuckFastATLASDetector;
     bool haveUsedBuckFastATLASDetector;
 
+    bool useBuckFastATLASnoeffDetector;
+    bool haveUsedBuckFastATLASnoeffDetector;
+
     bool useBuckFastCMSDetector;
     bool haveUsedBuckFastCMSDetector;
+
+    bool useBuckFastCMSnoeffDetector;
+    bool haveUsedBuckFastCMSnoeffDetector;
 
     #ifndef EXCLUDE_DELPHES
     bool useDelphesDetector;
@@ -133,7 +140,8 @@ namespace Gambit
         result.max_nEvents = runOptions->getValue<std::vector<int> >("max_nEvents");
         result.target_stat = runOptions->getValue<std::vector<double> >("target_fractional_uncert");
         result.stop_at_sys = runOptions->getValueOrDef<bool>(true, "halt_when_systematic_dominated");
-        result.all_SR_must_converge = runOptions->getValueOrDef<bool>(true, "all_SR_must_converge");
+        result.all_analyses_must_converge = runOptions->getValueOrDef<bool>(false, "all_analyses_must_converge");
+        result.all_SR_must_converge = runOptions->getValueOrDef<bool>(false, "all_SR_must_converge");
         result.stoppingres = runOptions->getValueOrDef<std::vector<int> >(std::vector<int>(result.target_stat.size(), 200), "events_between_convergence_checks");
         if (result.min_nEvents.size() != result.max_nEvents.size() or result.min_nEvents.size() != result.target_stat.size())
         {
@@ -179,14 +187,18 @@ namespace Gambit
       nFailedEvents = 0;
 
       useBuckFastATLASDetector = false;
+      useBuckFastATLASnoeffDetector = false;
       useBuckFastCMSDetector = false;
+      useBuckFastCMSnoeffDetector = false;
       useBuckFastIdentityDetector = false;
       #ifndef EXCLUDE_DELPHES
       useDelphesDetector = false;
       #endif
 
       haveUsedBuckFastATLASDetector = false;
+      haveUsedBuckFastATLASnoeffDetector = false;
       haveUsedBuckFastCMSDetector = false;
+      haveUsedBuckFastCMSnoeffDetector = false;
       haveUsedBuckFastIdentityDetector = false;
       #ifndef EXCLUDE_DELPHES
       haveUsedDelphesDetector = false;
@@ -814,6 +826,53 @@ namespace Gambit
     }
 
 
+    void getBuckFastATLASnoeff(BuckFastSmearATLASnoeff &result)
+    {
+      using namespace Pipes::getBuckFastATLASnoeff;
+      static std::vector<bool> useDetector;
+      static std::vector<bool> partonOnly;
+      static std::vector<double> antiktR;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        // Read options
+        std::vector<bool> default_useDetector(pythiaNames.size(), false);  // BuckFastATLASnoeff is switched off by default
+        useDetector = runOptions->getValueOrDef<std::vector<bool> >(default_useDetector, "useDetector");
+        CHECK_EQUAL_VECTOR_LENGTH(useDetector,pythiaNames)
+
+        std::vector<bool> default_partonOnly(pythiaNames.size(), false);
+        partonOnly = runOptions->getValueOrDef<std::vector<bool> >(default_partonOnly, "partonOnly");
+        CHECK_EQUAL_VECTOR_LENGTH(partonOnly,pythiaNames)
+
+        std::vector<double> default_antiktR(pythiaNames.size(), 0.4);
+        antiktR = runOptions->getValueOrDef<std::vector<double> >(default_antiktR, "antiktR");
+        CHECK_EQUAL_VECTOR_LENGTH(antiktR,pythiaNames)
+
+        return;
+      }
+
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        // Get useDetector setting for the current collider
+        useBuckFastATLASnoeffDetector = useDetector[indexPythiaNames];
+        if (useBuckFastATLASnoeffDetector)
+          haveUsedBuckFastATLASnoeffDetector = true;
+
+        return;
+      }
+
+      if (*Loop::iteration == START_SUBPROCESS and useBuckFastATLASnoeffDetector)
+      {
+        // Each thread gets its own BuckFastSmearATLASnoeff.
+        // Thus, their initialization is *after* COLLIDER_INIT, within omp parallel.
+        result.init(partonOnly[indexPythiaNames], antiktR[indexPythiaNames]);
+
+        return;
+      }
+
+    }
+
+
     void getBuckFastCMS(BuckFastSmearCMS &result)
     {
       using namespace Pipes::getBuckFastCMS;
@@ -857,6 +916,49 @@ namespace Gambit
 
     }
 
+
+    void getBuckFastCMSnoeff(BuckFastSmearCMSnoeff &result)
+    {
+      using namespace Pipes::getBuckFastCMSnoeff;
+      static std::vector<bool> useDetector;
+      static std::vector<bool> partonOnly;
+      static std::vector<double> antiktR;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        // Read options
+        std::vector<bool> default_useDetector(pythiaNames.size(), false);  // BuckFastCMSnoeff is switched off by default
+        useDetector = runOptions->getValueOrDef<std::vector<bool> >(default_useDetector, "useDetector");
+        CHECK_EQUAL_VECTOR_LENGTH(useDetector,pythiaNames)
+
+        std::vector<bool> default_partonOnly(pythiaNames.size(), false);
+        partonOnly = runOptions->getValueOrDef<std::vector<bool> >(default_partonOnly, "partonOnly");
+        CHECK_EQUAL_VECTOR_LENGTH(partonOnly,pythiaNames)
+
+        std::vector<double> default_antiktR(pythiaNames.size(), 0.4);
+        antiktR = runOptions->getValueOrDef<std::vector<double> >(default_antiktR, "antiktR");
+        CHECK_EQUAL_VECTOR_LENGTH(antiktR,pythiaNames)
+
+        return;
+      }
+
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        // Get useDetector setting for the current collider
+        useBuckFastCMSnoeffDetector = useDetector[indexPythiaNames];
+        if (useBuckFastCMSnoeffDetector) haveUsedBuckFastCMSnoeffDetector = true;
+        return;
+      }
+
+      if (*Loop::iteration == START_SUBPROCESS and useBuckFastCMSnoeffDetector)
+      {
+        // Each thread gets its own BuckFastSmearCMSnoeff.
+        // Thus, their initialization is *after* COLLIDER_INIT, within omp parallel.
+        result.init(partonOnly[indexPythiaNames], antiktR[indexPythiaNames]);
+        return;
+      }
+
+    }
 
 
     void getBuckFastIdentity(Gambit::ColliderBit::BuckFastIdentity &result)
@@ -921,6 +1023,20 @@ namespace Gambit
           // Read analysis names from the yaml file
           std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
           analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
           first = false;
         }
       }
@@ -951,7 +1067,18 @@ namespace Gambit
         result.register_thread("DetAnalysisContainer");
         result.set_current_collider(*iterPythiaNames);
 
-        if (!result.has_analyses()) result.init(analyses[indexPythiaNames]); 
+        // Initialize analysis container or reset all the contained analyses
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
         else result.reset();
 
         return;
@@ -995,6 +1122,20 @@ namespace Gambit
           // Read analysis names from the yaml file
           std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
           analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
           first = false;
         }
       }
@@ -1022,35 +1163,128 @@ namespace Gambit
 
       if (*Loop::iteration == START_SUBPROCESS)
       {
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: Begin START_SUBPROCESS, indexPythiaNames = " << indexPythiaNames  << endl;
-
         // Register analysis container
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: Will run result.register_thread " << endl;
         result.register_thread("ATLASAnalysisContainer");
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: ...done" << endl;
 
         // Set current collider
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: Will run result.set_current_collider " << endl;
         result.set_current_collider(*iterPythiaNames);
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: ...done" << endl;
 
         // Initialize analysis container or reset all the contained analyses
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: Will run get_current_analyses_map" << endl;
-        if (!result.has_analyses()) result.init(analyses[indexPythiaNames]); 
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
         else result.reset();
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: ...done " << endl;
 
-        // #ifdef COLLIDERBIT_DEBUG
-        // if (my_thread == 0)
-        // {
-        //   for (auto& apair : result.get_current_analyses_map())
-        //   {
-        //     cout << debug_prefix() << "The run with " << *iterPythiaNames << " will include the analysis " << apair.first << endl;
-        //   }
-        // }
-        // #endif
+        return;
+      }
 
-        // cout << "DEBUG: thread " << my_thread << ": getATLASAnalysisContainer: End START_SUBPROCESS "  << endl;
+      if (*Loop::iteration == END_SUBPROCESS && eventsGenerated && nFailedEvents <= maxFailedEvents)
+      {
+        const double xs_fb = Dep::HardScatteringSim->xsec_pb() * 1000.;
+        const double xserr_fb = Dep::HardScatteringSim->xsecErr_pb() * 1000.;
+        result.add_xsec(xs_fb, xserr_fb);
+
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "xs_fb = " << xs_fb << " +/- " << xserr_fb << endl;
+        #endif
+        return;
+      }
+
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        result.collect_and_add_signal();
+        result.collect_and_improve_xsec();
+        result.scale();        
+        return;
+      }
+
+    }
+
+
+
+    void getATLASnoeffAnalysisContainer(HEPUtilsAnalysisContainer& result)
+    {
+      using namespace Pipes::getATLASnoeffAnalysisContainer;
+      static std::vector<std::vector<str> > analyses;
+      static bool first = true;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        // Only run this once
+        if (first)
+        {
+          // Read analysis names from the yaml file
+          std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
+          analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
+          first = false;
+        }
+      }
+
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        if (!useBuckFastATLASnoeffDetector) return;
+
+        // Check that there are some analyses to run if the detector is switched on
+        if (analyses[indexPythiaNames].empty() and useBuckFastATLASnoeffDetector)
+        {
+          str errmsg = "The option 'useDetector' for function 'getBuckFastATLASnoeff' is set to true\n";
+          errmsg    += "for the collider '";
+          errmsg    += *iterPythiaNames;
+          errmsg    += "', but the corresponding list of analyses\n";
+          errmsg    += "(in option 'analyses' for function 'getATLASnoeffAnalysisContainer') is empty.\n";
+          errmsg    += "Please correct your settings.\n";
+          ColliderBit_error().raise(LOCAL_INFO, errmsg);
+        }
+
+        return;
+      }
+
+      if (!useBuckFastATLASnoeffDetector) return;
+
+      if (*Loop::iteration == START_SUBPROCESS)
+      {
+        // Register analysis container
+        result.register_thread("ATLASnoeffAnalysisContainer");
+
+        // Set current collider
+        result.set_current_collider(*iterPythiaNames);
+
+        // Initialize analysis container or reset all the contained analyses
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
+        else result.reset();
+
         return;
       }
 
@@ -1092,6 +1326,20 @@ namespace Gambit
           // Read analysis names from the yaml file
           std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
           analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
           first = false;
         }
       }
@@ -1126,7 +1374,118 @@ namespace Gambit
         result.set_current_collider(*iterPythiaNames);
 
         // Initialize analysis container or reset all the contained analyses
-        if (!result.has_analyses()) result.init(analyses[indexPythiaNames]); 
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
+        else result.reset();
+
+        return;
+      }
+
+      if (*Loop::iteration == END_SUBPROCESS && eventsGenerated && nFailedEvents <= maxFailedEvents)
+      {
+        const double xs_fb = Dep::HardScatteringSim->xsec_pb() * 1000.;
+        const double xserr_fb = Dep::HardScatteringSim->xsecErr_pb() * 1000.;
+        result.add_xsec(xs_fb, xserr_fb);
+
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "xs_fb = " << xs_fb << " +/- " << xserr_fb << endl;
+        #endif
+        return;
+      }
+
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        result.collect_and_add_signal();
+        result.collect_and_improve_xsec();
+        result.scale();        
+        return;
+      }
+
+    }
+
+
+    void getCMSnoeffAnalysisContainer(HEPUtilsAnalysisContainer& result)
+    {
+      using namespace Pipes::getCMSnoeffAnalysisContainer;
+      static std::vector<std::vector<str> > analyses;
+      static bool first = true;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        // Only run this once
+        if (first)
+        {
+          // Read analysis names from the yaml file
+          std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
+          analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
+          first = false;
+        }
+      }
+
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        if (!useBuckFastCMSnoeffDetector) return;
+
+        // Check that there are some analyses to run if the detector is switched on
+        if (analyses[indexPythiaNames].empty() and useBuckFastCMSnoeffDetector)
+        {
+          str errmsg = "The option 'useDetector' for function 'getBuckFastCMSnoeff' is set to true\n";
+          errmsg    += "for the collider '";
+          errmsg    += *iterPythiaNames;
+          errmsg    += "', but the corresponding list of analyses\n";
+          errmsg    += "(in option 'analyses' for function 'getCMSnoeffAnalysisContainer') is empty.\n";
+          errmsg    += "Please correct your settings.\n";
+          ColliderBit_error().raise(LOCAL_INFO, errmsg);
+        }
+
+        return;
+      }
+
+      if (!useBuckFastCMSnoeffDetector) return;
+
+      if (*Loop::iteration == START_SUBPROCESS)
+      {
+        // Register analysis container
+        result.register_thread("CMSnoeffAnalysisContainer");
+
+        // Set current collider
+        result.set_current_collider(*iterPythiaNames);
+
+        // Initialize analysis container or reset all the contained analyses
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
         else result.reset();
 
         return;
@@ -1169,6 +1528,20 @@ namespace Gambit
           // Read analysis names from the yaml file
           std::vector<std::vector<str> > default_analyses;  // The default is empty lists of analyses
           analyses = runOptions->getValueOrDef<std::vector<std::vector<str> > >(default_analyses, "analyses");
+
+          // Check that the analsis names listed in the yaml file all correspond to actual ColliderBit analyses
+          for (std::vector<str> collider_specific_analyses : analyses)
+          {
+            for (str& analysis_name : collider_specific_analyses)
+            {
+              if (!checkAnalysis(analysis_name))
+              {
+                str errmsg = "The analysis " + analysis_name + " is not a known ColliderBit analysis.";
+                ColliderBit_error().raise(LOCAL_INFO, errmsg);
+              }
+            }            
+          }
+
           first = false;
         }
       }
@@ -1204,7 +1577,17 @@ namespace Gambit
         result.set_current_collider(*iterPythiaNames);
 
         // Initialize analysis container or reset all the contained analyses
-        if (!result.has_analyses()) result.init(analyses[indexPythiaNames]); 
+        if (!result.has_analyses()) 
+        {
+          try
+          {
+            result.init(analyses[indexPythiaNames]);             
+          }
+          catch (std::runtime_error& e)
+          {
+            piped_errors.request(LOCAL_INFO, e.what());
+          }
+        }
         else result.reset();
 
         return;
@@ -1344,6 +1727,38 @@ namespace Gambit
     }
 
 
+    void smearEventATLASnoeff(HEPUtils::Event& result)
+    {
+      using namespace Pipes::smearEventATLASnoeff;
+      if (*Loop::iteration <= BASE_INIT or !useBuckFastATLASnoeffDetector) return;
+      result.clear();
+
+      // Get the next event from Pythia8, convert to HEPUtils::Event, and smear it
+      try
+      {
+        (*Dep::SimpleSmearingSim).processEvent(*Dep::HardScatteringEvent, result);
+      }
+      catch (Gambit::exception& e)
+      {
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "Gambit::exception caught during event conversion in smearEventATLASnoeff. Check the ColliderBit log for details." << endl;
+        #endif
+        #pragma omp critical (event_conversion_error)
+        {
+          // Store Pythia event record in the logs
+          std::stringstream ss;
+          Dep::HardScatteringEvent->list(ss, 1);
+          logger() << LogTags::debug << "Gambit::exception error caught in smearEventATLASnoeff. Pythia record for event that failed:\n" << ss.str() << EOM;
+        }
+        str errmsg = "Bad point: smearEventATLASnoeff caught the following runtime error: ";
+        errmsg    += e.what();
+        piped_invalid_point.request(errmsg);
+        Loop::wrapup();
+        return;
+      }
+    }
+
+
     void smearEventCMS(HEPUtils::Event& result)
     {
       using namespace Pipes::smearEventCMS;
@@ -1368,6 +1783,38 @@ namespace Gambit
           logger() << LogTags::debug << "Gambit::exception error caught in smearEventCMS. Pythia record for event that failed:\n" << ss.str() << EOM;
         }
         str errmsg = "Bad point: smearEventCMS caught the following runtime error: ";
+        errmsg    += e.what();
+        piped_invalid_point.request(errmsg);
+        Loop::wrapup();
+        return;
+      }
+    }
+
+
+    void smearEventCMSnoeff(HEPUtils::Event& result)
+    {
+      using namespace Pipes::smearEventCMSnoeff;
+      if (*Loop::iteration <= BASE_INIT or !useBuckFastCMSnoeffDetector) return;
+      result.clear();
+
+      // Get the next event from Pythia8, convert to HEPUtils::Event, and smear it
+      try
+      {
+        (*Dep::SimpleSmearingSim).processEvent(*Dep::HardScatteringEvent, result);
+      }
+      catch (Gambit::exception& e)
+      {
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "Gambit::exception caught during event conversion in smearEventCMSnoeff. Check the ColliderBit log for details." << endl;
+        #endif
+        #pragma omp critical (event_conversion_error)
+        {
+          // Store Pythia event record in the logs
+          std::stringstream ss;
+          Dep::HardScatteringEvent->list(ss, 1);
+          logger() << LogTags::debug << "Gambit::exception error caught in smearEventCMSnoeff. Pythia record for event that failed:\n" << ss.str() << EOM;
+        }
+        str errmsg = "Bad point: smearEventCMSnoeff caught the following runtime error: ";
         errmsg    += e.what();
         piped_invalid_point.request(errmsg);
         Loop::wrapup();
@@ -1416,7 +1863,6 @@ namespace Gambit
     void runDetAnalyses(AnalysisDataPointers& result)
     {
       using namespace Pipes::runDetAnalyses;
-      static MC_convergence_checker convergence;
 
       if (*Loop::iteration == BASE_INIT)
       {
@@ -1426,6 +1872,7 @@ namespace Gambit
 
       if (!useDelphesDetector) return;
 
+      static MC_convergence_checker convergence;
       if (*Loop::iteration == COLLIDER_INIT)
       {
         convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
@@ -1500,7 +1947,6 @@ namespace Gambit
     void runATLASAnalyses(AnalysisDataPointers& result)
     {
       using namespace Pipes::runATLASAnalyses;
-      static MC_convergence_checker convergence;
 
       if (*Loop::iteration == BASE_INIT)
       {
@@ -1510,6 +1956,7 @@ namespace Gambit
 
       if (!useBuckFastATLASDetector) return;
 
+      static MC_convergence_checker convergence;
       if (*Loop::iteration == COLLIDER_INIT)
       {
         convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
@@ -1579,10 +2026,91 @@ namespace Gambit
     }
 
 
+    void runATLASnoeffAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runATLASnoeffAnalyses;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result.clear();
+        return;
+      }
+
+      if (!useBuckFastATLASnoeffDetector) return;
+
+      static MC_convergence_checker convergence;
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
+        return;
+      }
+
+      if (*Loop::iteration == COLLECT_CONVERGENCE_DATA)
+      {
+        // Update the convergence tracker with the new results
+        convergence.update(*Dep::ATLASnoeffAnalysisContainer);
+        return;
+      }
+
+      if (*Loop::iteration == CHECK_CONVERGENCE)
+      {
+        // Call quits on the event loop if every analysis in every analysis container has sufficient statistics
+        if (convergence.achieved(*Dep::ATLASnoeffAnalysisContainer)) Loop::wrapup();
+        return;
+      }
+
+      // #ifdef COLLIDERBIT_DEBUG
+      // if (*Loop::iteration == END_SUBPROCESS)
+      // {
+      //   for (auto& analysis_pointer_pair : Dep::ATLASnoeffAnalysisContainer->get_current_analyses_map())
+      //   {
+      //     for (auto& sr : analysis_pointer_pair.second->get_results().srdata)
+      //     {
+      //       cout << debug_prefix() << "runATLASnoeffAnalyses: signal region " << sr.sr_label << ", n_signal = " << sr.n_signal << endl;
+      //     }
+      //   }
+      // }
+      // #endif
+
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        // The final iteration for this collider: collect results
+        for (auto& analysis_pointer_pair : Dep::ATLASnoeffAnalysisContainer->get_current_analyses_map())
+        {
+          #ifdef COLLIDERBIT_DEBUG
+          cout << debug_prefix() << "runATLASnoeffAnalyses: Collecting result from " << analysis_pointer_pair.first << endl;
+          #endif
+
+          str warning;
+          result.push_back(analysis_pointer_pair.second->get_results_ptr(warning));
+          if (eventsGenerated && nFailedEvents <= maxFailedEvents && !warning.empty())
+          {
+            ColliderBit_error().raise(LOCAL_INFO, warning);
+          }
+        }
+        return;
+      }
+
+      if (*Loop::iteration == BASE_FINALIZE)
+      {
+        // Final iteration. Just return.
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "runATLASnoeffAnalyses: 'result' contains " << result.size() << " results." << endl;
+        #endif
+        return;
+      }
+
+      if (*Loop::iteration <= BASE_INIT) return;
+
+      // Loop over analyses and run them... Managed by HEPUtilsAnalysisContainer
+      Dep::ATLASnoeffAnalysisContainer->analyze(*Dep::ATLASnoeffSmearedEvent);
+
+    }
+
+
     void runCMSAnalyses(AnalysisDataPointers& result)
     {
       using namespace Pipes::runCMSAnalyses;
-      static MC_convergence_checker convergence;
 
       if (*Loop::iteration == BASE_INIT)
       {
@@ -1592,6 +2120,7 @@ namespace Gambit
 
       if (!useBuckFastCMSDetector) return;
 
+      static MC_convergence_checker convergence;
       if (*Loop::iteration == COLLIDER_INIT)
       {
         convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
@@ -1661,10 +2190,91 @@ namespace Gambit
     }
 
 
+    void runCMSnoeffAnalyses(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::runCMSnoeffAnalyses;
+
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result.clear();
+        return;
+      }
+
+      if (!useBuckFastCMSnoeffDetector) return;
+
+      static MC_convergence_checker convergence;
+      if (*Loop::iteration == COLLIDER_INIT)
+      {
+        convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
+        return;
+      }
+
+      if (*Loop::iteration == COLLECT_CONVERGENCE_DATA)
+      {
+        // Update the convergence tracker with the new results
+        convergence.update(*Dep::CMSnoeffAnalysisContainer);
+        return;
+      }
+
+      if (*Loop::iteration == CHECK_CONVERGENCE)
+      {
+        // Call quits on the event loop if every analysis in every analysis container has sufficient statistics
+        if (convergence.achieved(*Dep::CMSnoeffAnalysisContainer)) Loop::wrapup();
+        return;
+      }
+
+      // #ifdef COLLIDERBIT_DEBUG
+      // if (*Loop::iteration == END_SUBPROCESS)
+      // {
+      //   for (auto& analysis_pointer_pair : Dep::CMSnoeffAnalysisContainer->get_current_analyses_map())
+      //   {
+      //     for (auto& sr : analysis_pointer_pair.second->get_results().srdata)
+      //     {
+      //       cout << debug_prefix() << "runCMSnoeffAnalyses: signal region " << sr.sr_label << ", n_signal = " << sr.n_signal << endl;
+      //     }
+      //   }
+      // }
+      // #endif
+
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        // The final iteration for this collider: collect results
+        for (auto& analysis_pointer_pair : Dep::CMSnoeffAnalysisContainer->get_current_analyses_map())
+        {
+          #ifdef COLLIDERBIT_DEBUG
+          cout << debug_prefix() << "runCMSnoeffAnalyses: Collecting result from " << analysis_pointer_pair.first << endl;
+          #endif
+
+          str warning;
+          result.push_back(analysis_pointer_pair.second->get_results_ptr(warning));
+          if (eventsGenerated && nFailedEvents <= maxFailedEvents && !warning.empty())
+          {
+            ColliderBit_error().raise(LOCAL_INFO, warning);
+          }
+        }
+        return;
+      }
+
+      if (*Loop::iteration == BASE_FINALIZE)
+      {
+        // Final iteration. Just return.
+        #ifdef COLLIDERBIT_DEBUG
+        cout << debug_prefix() << "runCMSnoeffAnalyses: 'result' contains " << result.size() << " results." << endl;
+        #endif
+        return;
+      }
+
+      if (*Loop::iteration <= BASE_INIT) return;
+
+      // Loop over analyses and run them... Managed by HEPUtilsAnalysisContainer
+      Dep::CMSnoeffAnalysisContainer->analyze(*Dep::CMSnoeffSmearedEvent);
+
+    }
+
+
     void runIdentityAnalyses(AnalysisDataPointers& result)
     {
       using namespace Pipes::runIdentityAnalyses;
-      static MC_convergence_checker convergence;
 
       if (*Loop::iteration == BASE_INIT)
       {
@@ -1674,6 +2284,7 @@ namespace Gambit
 
       if (!useBuckFastIdentityDetector) return;
 
+      static MC_convergence_checker convergence;
       if (*Loop::iteration == COLLIDER_INIT)
       {
         convergence.init(indexPythiaNames, *Dep::MC_ConvergenceSettings);
@@ -1755,8 +2366,12 @@ namespace Gambit
       #ifdef COLLIDERBIT_DEBUG
       if (haveUsedBuckFastATLASDetector)
         cout << debug_prefix() << "CollectAnalyses: Dep::ATLASAnalysisNumbers->size()    = " << Dep::ATLASAnalysisNumbers->size() << endl;
+      if (haveUsedBuckFastATLASnoeffDetector)
+        cout << debug_prefix() << "CollectAnalyses: Dep::ATLASnoeffAnalysisNumbers->size()    = " << Dep::ATLASnoeffAnalysisNumbers->size() << endl;
       if (haveUsedBuckFastCMSDetector)
         cout << debug_prefix() << "CollectAnalyses: Dep::CMSAnalysisNumbers->size()      = " << Dep::CMSAnalysisNumbers->size() << endl;
+      if (haveUsedBuckFastCMSnoeffDetector)
+        cout << debug_prefix() << "CollectAnalyses: Dep::CMSnoeffAnalysisNumbers->size() = " << Dep::CMSnoeffAnalysisNumbers->size() << endl;
       if (haveUsedBuckFastIdentityDetector)
         cout << debug_prefix() << "CollectAnalyses: Dep::IdentityAnalysisNumbers->size() = " << Dep::IdentityAnalysisNumbers->size() << endl;
       #ifndef EXCLUDE_DELPHES
@@ -1768,8 +2383,12 @@ namespace Gambit
       // Add results 
       if (haveUsedBuckFastATLASDetector)
         result.insert(result.end(), Dep::ATLASAnalysisNumbers->begin(), Dep::ATLASAnalysisNumbers->end());
+      if (haveUsedBuckFastATLASnoeffDetector)
+        result.insert(result.end(), Dep::ATLASnoeffAnalysisNumbers->begin(), Dep::ATLASnoeffAnalysisNumbers->end());
       if (haveUsedBuckFastCMSDetector)
         result.insert(result.end(), Dep::CMSAnalysisNumbers->begin(), Dep::CMSAnalysisNumbers->end());
+      if (haveUsedBuckFastCMSnoeffDetector)
+        result.insert(result.end(), Dep::CMSnoeffAnalysisNumbers->begin(), Dep::CMSnoeffAnalysisNumbers->end());
       if (haveUsedBuckFastIdentityDetector)
         result.insert(result.end(), Dep::IdentityAnalysisNumbers->begin(), Dep::IdentityAnalysisNumbers->end());
       #ifndef EXCLUDE_DELPHES
@@ -1834,7 +2453,7 @@ namespace Gambit
         {
           // Save SR numbers and absolute uncertainties
           const SignalRegionData srData = adata[SR];
-          const str key = adata.analysis_name + "_" + srData.sr_label + "_signal";
+          const str key = adata.analysis_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__signal";
           result[key] = srData.n_signal_at_lumi;
           const double abs_uncertainty_s_stat = (srData.n_signal == 0 ? 0 : sqrt(srData.n_signal) * (srData.n_signal_at_lumi/srData.n_signal));
           const double abs_uncertainty_s_sys = srData.signal_sys;
@@ -1844,10 +2463,10 @@ namespace Gambit
     }
 
 
-    // Loop over all analyses (and SRs within one analysis) and fill a map of per-analysis likelihoods
-    void calc_LHC_LogLike_per_analysis(map_str_dbl& result)
+    // Loop over all analyses and fill a map of AnalysisLogLikes objects
+    void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
-      using namespace Pipes::calc_LHC_LogLike_per_analysis;
+      using namespace Pipes::calc_LHC_LogLikes;
 
       // Clear the result map
       result.clear();
@@ -1858,36 +2477,59 @@ namespace Gambit
         // AnalysisData for this analysis
         const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
 
+        /// If no events have been generated (xsec veto) or too many events have failed, 
+        /// short-circut the loop and return delta log-likelihood = 0 for every SR in 
+        /// each analysis.
+        /// @todo This must be made more sophisticated once we add analyses that
+        ///       don't rely on event generation.
+        if (!eventsGenerated || nFailedEvents > maxFailedEvents)
+        {
+          // If this is an anlysis with covariance info, only add a single 0-entry in the map
+          if (adata.srcov.rows() > 0)
+          {
+            result[adata.analysis_name].combination_sr_label = "none";
+            result[adata.analysis_name].combination_loglike = 0.0;
+            continue;
+          }
+          // If this is an anlysis without covariance info, add 0-entries for all SRs plus
+          // one for the combined LogLike
+          else 
+          {
+            for (size_t SR = 0; SR < adata.size(); ++SR)
+            {
+              result[adata.analysis_name].sr_indices[adata[SR].sr_label] = SR;
+              result[adata.analysis_name].sr_loglikes[adata[SR].sr_label] = 0.0;
+              continue;
+            }
+            result[adata.analysis_name].combination_sr_label = "none";
+            result[adata.analysis_name].combination_loglike = 0.0;
+            continue;
+          }
+
+        }
+
+
         #ifdef COLLIDERBIT_DEBUG
         std::streamsize stream_precision = cout.precision();  // get current precision
         cout.precision(2);  // set precision
-        cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << "Will print content of " << adata.analysis_name << " signal regions:" << endl;
+        cout << debug_prefix() << "calc_LHC_LogLikes: " << "Will print content of " << adata.analysis_name << " signal regions:" << endl;
         for (size_t SR = 0; SR < adata.size(); ++SR)
         {
           const SignalRegionData& srData = adata[SR];
           cout << std::fixed << debug_prefix() 
-                                 << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name 
+                                 << "calc_LHC_LogLikes: " << adata.analysis_name 
                                  << ", " << srData.sr_label 
                                  << ",  n_b = " << srData.n_background << " +/- " << srData.background_sys
                                  << ",  n_obs = " << srData.n_observed 
                                  << ",  excess = " << srData.n_observed - srData.n_background << " +/- " << srData.background_sys
                                  << ",  n_s = " << srData.n_signal_at_lumi
                                  << ",  (excess-n_s) = " << (srData.n_observed-srData.n_background) - srData.n_signal_at_lumi << " +/- " << srData.background_sys
+                                 << ",  n_s_MC = " << srData.n_signal
                                  << endl; 
         }
         cout.precision(stream_precision); // restore previous precision
         #endif
 
-
-        /// If no events have been generated (xsec veto) or too many events have failed, 
-        /// short-circut the loop and return delta log-likelihood = 0 for each analysis.
-        /// @todo This must be made more sophisticated once we add analyses that
-        ///       don't rely on event generation.
-        if (!eventsGenerated || nFailedEvents > maxFailedEvents)
-        {
-          result[adata.analysis_name] = 0.0;
-          continue;
-        }
 
         // Loop over the signal regions inside the analysis, and work out the total (delta) log likelihood for this analysis
         /// @todo Unify the treatment of best-only and correlated SR treatments as far as possible
@@ -1912,11 +2554,37 @@ namespace Gambit
           /// @todo Support skewness correction to the pdf.
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has a covariance matrix: computing composite loglike." << endl;
           #endif
 
+
+          // Shortcut: if all SRs have 0 signal prediction, we know the Delta LogLike is 0.
+          bool all_zero_signal = true;
+          for (size_t SR = 0; SR < adata.size(); ++SR)
+          {
+            if (adata[SR].n_signal != 0)
+            {
+              all_zero_signal = false;
+              break;
+            } 
+          }
+          if (all_zero_signal)
+          {
+            // Store result
+            result[adata.analysis_name].combination_sr_label = "all";
+            result[adata.analysis_name].combination_sr_index = -1;
+            result[adata.analysis_name].combination_loglike = 0.0;
+
+            #ifdef COLLIDERBIT_DEBUG
+            cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << 0.0 << " (No signal predicted. Skipped covariance calculation.)" <<endl;
+            #endif
+
+            // Continue to next analysis
+            continue;
+          }
+
           // Construct vectors of SR numbers
-          Eigen::VectorXd n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
+          Eigen::ArrayXd n_obs(adata.size()), n_pred_b(adata.size()), n_pred_sb(adata.size()), abs_unc_s(adata.size());
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
             const SignalRegionData srData = adata[SR];
@@ -1941,11 +2609,9 @@ namespace Gambit
           const Eigen::ArrayXd sqrtEb = Eb.sqrt();
           const Eigen::MatrixXd Vb = eig_b.eigenvectors();
           const Eigen::MatrixXd Vbinv = Vb.inverse();
-          // #ifdef COLLIDERBIT_DEBUG
-          // cout << debug_prefix() << "b covariance eigenvectors = " << endl << Vb << endl << "and eigenvalues = " << endl << Eb << endl;
-          // #endif
 
           // Construct and diagonalise the s+b covariance matrix, adding the diagonal signal uncertainties in quadrature
+          /// @todo Is this the best way, or should we just sample the s numbers independently and then be able to completely cache the cov matrix diagonalisation?
           const Eigen::MatrixXd srcov_s = abs_unc_s.array().square().matrix().asDiagonal();
           const Eigen::MatrixXd srcov_sb = adata.srcov + srcov_s;
           const Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eig_sb(srcov_sb);
@@ -1953,62 +2619,157 @@ namespace Gambit
           const Eigen::ArrayXd sqrtEsb = Esb.sqrt();
           const Eigen::MatrixXd Vsb = eig_sb.eigenvectors();
           const Eigen::MatrixXd Vsbinv = Vsb.inverse();
-          // #ifdef COLLIDERBIT_DEBUG
-          // cout << debug_prefix() << "s+b covariance eigenvectors = " << endl << Vsb << endl << "and eigenvalues = " << endl << Esb << endl;
-          // #endif
 
 
           ///////////////////
           /// @todo Split this whole chunk off into a lnlike-style utility function?
 
           // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
-          static const size_t NSAMPLE = runOptions->getValueOrDef<int>(100000, "covariance_samples");  ///< @todo Tweak default value!
+          static const double CONVERGENCE_TOLERANCE_ABS = runOptions->getValueOrDef<double>(0.05, "covariance_marg_convthres_abs");
+          static const double CONVERGENCE_TOLERANCE_REL = runOptions->getValueOrDef<double>(0.05, "covariance_marg_convthres_rel");
+          static const size_t nsample_input = runOptions->getValueOrDef<size_t>(100000, "covariance_nsamples_start");
+          size_t NSAMPLE = nsample_input;
 
-          // std::normal_distribution<> unitnormdbn{0,1};
-          Eigen::VectorXd llrsums = Eigen::VectorXd::Zero(adata.size());
+          double diff_abs = 9999;
+          double diff_rel = 1;
+          double ana_dll_prev = 0;
+          double ana_dll = 0;
+          double llrsum_prev = 0;
+          double llrsum = 0;
+          bool first_iteration = true;
 
-          #pragma omp parallel
+          // Check absolute difference between independent estimates
+          /// @todo Should also implement a check of relative difference
+          while ((diff_abs > CONVERGENCE_TOLERANCE_ABS && diff_rel > CONVERGENCE_TOLERANCE_REL) || 1.0/sqrt(NSAMPLE) > CONVERGENCE_TOLERANCE_ABS) 
           {
-            std::normal_distribution<> unitnormdbn{0,1};
-            Eigen::VectorXd llrsums_private = Eigen::VectorXd::Zero(adata.size());
+            Eigen::ArrayXd llrsums = Eigen::ArrayXd::Zero(adata.size());
 
-            #pragma omp for nowait
-            for (size_t i = 0; i < NSAMPLE; ++i) {
+            /// @note How to correct negative rates? Discard (scales badly), set to
+            /// epsilon (= discontinuous & unphysical pdf), transform to log-space
+            /// (distorts the pdf quite badly), or something else (skew term)?
+            /// We're using the "set to epsilon" version for now.
+            ///
+            /// @todo Add option for normal sampling in log(rate), i.e. "multidimensional log-normal"
 
-              Eigen::VectorXd norm_sample_b(adata.size()), norm_sample_sb(adata.size());
-              for (size_t j = 0; j < adata.size(); ++j) {
-                norm_sample_b(j) = sqrtEb(j) * unitnormdbn(Random::rng());
-                norm_sample_sb(j) = sqrtEsb(j) * unitnormdbn(Random::rng());
-              }
-
-              // Rotate rate deltas into the SR basis and shift by SR mean rates
-              const Eigen::VectorXd n_pred_b_sample = n_pred_b + Vb*norm_sample_b;
-              const Eigen::VectorXd n_pred_sb_sample = n_pred_sb + Vsb*norm_sample_sb;
-
-              // Calculate Poisson LLR and add to aggregated LL calculation
-              for (size_t j = 0; j < adata.size(); ++j) {
-                /// @note How to correct negative rates? Discard (scales badly), set to
-                /// epsilon (= discontinuous & unphysical pdf), transform to log-space
-                /// (distorts the pdf quite badly), or something else (skew term)?
-                /// We're using the "set to epsilon" version for now.
-                ///
-                /// @todo Add option for normal sampling in log(rate), i.e. "multidimensional log-normal"
-                const double lambda_b_j = std::max(n_pred_b_sample(j), 1e-3); //< manually avoid <= 0 rates
-                const double lambda_sb_j = std::max(n_pred_sb_sample(j), 1e-3); //< manually avoid <= 0 rates
-                const double llr_j = n_obs(j)*log(lambda_sb_j/lambda_b_j) - (lambda_sb_j - lambda_b_j);
-                llrsums_private(j) += llr_j;
-              }
-
-            }
-
-            #pragma omp critical
+            const bool COVLOGNORMAL = false;
+            if (!COVLOGNORMAL) 
             {
-              for (size_t j = 0; j < adata.size(); ++j) { llrsums(j) += llrsums_private(j); }
-            }
-          } // End: omp parallel
 
-          // Calculate sum of expected LLRs
-          const double ana_dll = llrsums.sum() / (double)NSAMPLE;
+              #pragma omp parallel
+              {
+                std::normal_distribution<> unitnormdbn{0,1};
+                Eigen::ArrayXd llrsums_private = Eigen::ArrayXd::Zero(adata.size());
+
+                #pragma omp for nowait
+
+                // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
+                for (size_t i = 0; i < NSAMPLE; ++i) {
+
+                  Eigen::VectorXd norm_sample_b(adata.size()), norm_sample_sb(adata.size());
+                  for (size_t j = 0; j < adata.size(); ++j) {
+                    norm_sample_b(j) = sqrtEb(j) * unitnormdbn(Random::rng());
+                    norm_sample_sb(j) = sqrtEsb(j) * unitnormdbn(Random::rng());
+                  }
+
+                  // Rotate rate deltas into the SR basis and shift by SR mean rates
+                  const Eigen::VectorXd n_pred_b_sample = n_pred_b + (Vb*norm_sample_b).array();
+                  const Eigen::VectorXd n_pred_sb_sample = n_pred_sb + (Vsb*norm_sample_sb).array();
+
+                  // Calculate Poisson LLR and add to aggregated LL calculation
+                  for (size_t j = 0; j < adata.size(); ++j) {
+                    const double lambda_b_j = std::max(n_pred_b_sample(j), 1e-3); //< manually avoid <= 0 rates
+                    const double lambda_sb_j = std::max(n_pred_sb_sample(j), 1e-3); //< manually avoid <= 0 rates
+                    const double llr_j = n_obs(j)*log(lambda_sb_j/lambda_b_j) - (lambda_sb_j - lambda_b_j);
+                    llrsums_private(j) += llr_j;
+                  }
+                }
+
+                #pragma omp critical
+                {
+                  for (size_t j = 0; j < adata.size(); ++j) { llrsums(j) += llrsums_private(j); }
+                }
+              } // End omp parallel
+            }  // End if !COVLOGNORMAL
+
+            /// @todo Check that this log-normal sampling works as expected.
+            else // COVLOGNORMAL
+            { 
+
+              const Eigen::ArrayXd ln_n_pred_b = n_pred_b.log();
+              const Eigen::ArrayXd ln_n_pred_sb = n_pred_sb.log();
+              const Eigen::ArrayXd ln_sqrtEb = (n_pred_b + sqrtEb).log() - ln_n_pred_b;
+              const Eigen::ArrayXd ln_sqrtEsb = (n_pred_sb + sqrtEsb).log() - ln_n_pred_sb;
+
+              #pragma omp parallel
+              {
+                std::normal_distribution<> unitnormdbn{0,1};
+                Eigen::ArrayXd llrsums_private = Eigen::ArrayXd::Zero(adata.size());
+
+                #pragma omp for nowait
+
+                // Sample correlated SR rates from a rotated Gaussian defined by the covariance matrix and offset by the mean rates
+                for (size_t i = 0; i < NSAMPLE; ++i) {
+                  Eigen::VectorXd ln_norm_sample_b(adata.size()), ln_norm_sample_sb(adata.size());
+                  for (size_t j = 0; j < adata.size(); ++j) {
+                    ln_norm_sample_b(j) = ln_sqrtEb(j) * unitnormdbn(Random::rng());
+                    ln_norm_sample_sb(j) = ln_sqrtEsb(j) * unitnormdbn(Random::rng());
+                  }
+
+                  // Rotate rate deltas into the SR basis and shift by SR mean rates
+                  const Eigen::ArrayXd delta_ln_n_pred_b_sample = Vb*ln_norm_sample_b;
+                  const Eigen::ArrayXd delta_ln_n_pred_sb_sample = Vsb*ln_norm_sample_sb;
+                  const Eigen::ArrayXd n_pred_b_sample = (ln_n_pred_b + delta_ln_n_pred_b_sample).exp();
+                  const Eigen::ArrayXd n_pred_sb_sample = (ln_n_pred_sb + delta_ln_n_pred_sb_sample).exp();
+
+                  // Calculate Poisson LLR and add to aggregated LL calculation
+                  for (size_t j = 0; j < adata.size(); ++j) {
+                    const double lambda_b_j = std::max(n_pred_b_sample(j), 1e-3); //< shouldn't be needed in log-space sampling
+                    const double lambda_sb_j = std::max(n_pred_sb_sample(j), 1e-3); //< shouldn't be needed in log-space sampling
+                    const double llr_j = n_obs(j)*log(lambda_sb_j/lambda_b_j) - (lambda_sb_j - lambda_b_j);
+                    llrsums_private(j) += llr_j;
+                  }
+                }
+
+                #pragma omp critical
+                {
+                  for (size_t j = 0; j < adata.size(); ++j) { llrsums(j) += llrsums_private(j); }
+                }
+              } // End omp parallel
+            }
+
+
+            // Calculate sum of expected LLRs and compare to previous independent batch
+            llrsum = llrsums.sum();
+            if (first_iteration)  // The first round must be generated twice
+            {
+              llrsum_prev = llrsum;
+              first_iteration = false;
+            } 
+            else 
+            {
+              ana_dll_prev = llrsum_prev / (double)NSAMPLE;
+              ana_dll = llrsum / (double)NSAMPLE;
+              diff_rel = fabs((ana_dll_prev - ana_dll)/ana_dll);  // Relative convergence check
+              diff_abs = fabs(ana_dll_prev - ana_dll);  // Absolute convergence check
+
+              // Update variables 
+              llrsum_prev += llrsum;  // Aggregate result. This doubles the effective batch size for llrsum_prev.
+              NSAMPLE *=2;  // This ensures that the  next batch for llrsum is as big as the current batch size for llrsum_prev.
+            }
+
+            #ifdef COLLIDERBIT_DEBUG
+              cout << debug_prefix() << "diff_rel: " << diff_rel <<  "   diff_abs: " << diff_abs << "   ana_dll_prev: " << ana_dll_prev << "   ana_dll: " << ana_dll << endl;
+              cout << debug_prefix() << "NSAMPLE for the next iteration is: " << NSAMPLE << endl;
+              cout << debug_prefix() << endl;
+            #endif
+          }  // End while loop
+
+          // Combine the independent estimates ana_dll and ana_dll_prev. 
+          // Use equal weights since the estimates are based on equal batch sizes.
+          ana_dll = 0.5*(ana_dll + ana_dll_prev);
+          #ifdef COLLIDERBIT_DEBUG
+            cout << debug_prefix() << "Combined estimate: ana_dll: " << ana_dll << "   (based on 2*NSAMPLE=" << 2*NSAMPLE << " samples)" << endl;
+          #endif
 
           // Check for problem
           if (Utils::isnan(ana_dll))
@@ -2031,60 +2792,13 @@ namespace Gambit
           }
 
           // Store result
-          result[adata.analysis_name] = ana_dll;
+          result[adata.analysis_name].combination_sr_label = "all";
+          result[adata.analysis_name].combination_sr_index = -1;
+          result[adata.analysis_name].combination_loglike = ana_dll;
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name << "_DeltaLogLike : " << ana_dll << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_LogLike : " << ana_dll << endl;
           #endif
-
-
-          ////////////////////
-
-
-          // const double n_pred_exact = 0;
-
-          // // Rotate the number vectors into the diagonal bases (in 2-element arrays, for the two bases)
-          // const Eigen::VectorXd n_obs_prime[2] = { Vb*n_obs, Vsb*n_obs };
-          // const Eigen::VectorXd n_pred_prime[2] = { Vb*n_pred_b, Vsb*n_pred_sb };
-          // const Eigen::VectorXd abs_unc2_prime[2] = { eig_b.eigenvalues(), eig_sb.eigenvalues() };
-
-          // // Sum the LLs over the b and sb transformed SRs, to compute the total analysis dLL
-          // /// @note There is no 1-to-1 mapping between b and sb SRs, but sum dLL = sum(LLb-LLsb) = sum(LLb)-sum(LLsb) over all SR indices
-          // for (size_t i = 0; i < 2; ++i) // basis: i=0 -> b-only basis, i=1 -> s+b basis
-          // {
-          //   for (size_t j = 0; j < adata.size(); ++j) // dimension/SRindex
-          //   {
-
-          //     // Observed number as a rounded integer, for use in Poisson functions
-          //     /// @todo More conservative to always round the observed downward, i.e. floor()?
-          //     const int n_obs_int = (int) round(n_obs_prime[i](j));
-
-          //     // Inexact predicted rate
-          //     const double n_pred_inexact = n_pred_prime[i](j);
-
-          //     // Relative error, for nulike marginaliser interface
-          //     const double frac_unc = sqrt(abs_unc2_prime[i](j)) / (n_pred_exact + n_pred_inexact);
-
-          //     // We need the positive direction of this rotation
-          //     /// @todo Guaranteed all +ve or all -ve? Hope so...
-          //     assert((n_obs_int >= 0 && n_pred_inexact >= 0 && frac_unc >= 0) ||
-          //            (n_obs_int <= 0 && n_pred_inexact <= 0 && frac_unc <= 0));
-
-          //     // Marginalise over systematic uncertainties on mean rates
-          //     // Use a log-normal or Gaussian distribution for the nuisance parameter, as requested
-          //     auto marginaliser = (*BEgroup::lnlike_marg_poisson == "lnlike_marg_poisson_lognormal_error")
-          //       ? BEreq::lnlike_marg_poisson_lognormal_error : BEreq::lnlike_marg_poisson_gaussian_error;
-          //     // cout << "### " << n_obs_int << ", " << n_pred_exact << ", " << n_pred_inexact << ", " << frac_unc << endl;
-          //     const double ll_obs = marginaliser(abs(n_obs_int), fabs(n_pred_exact), fabs(n_pred_inexact), fabs(frac_unc));
-
-          //     // Compute dLL contribution (-1*LL  for s+b) and add it to the total analysis dLL
-          //     ana_dll += (i == 0 ? 1 : -1) * ll_obs;
-
-          //   }
-          // }
-
-          // // Set this analysis' total dLL (with conversion to more negative dll = more exclusion convention)
-          // result[adata.analysis_name + "_DeltaLogLike"] = -ana_dll;
 
         }
 
@@ -2092,11 +2806,12 @@ namespace Gambit
         {
           // No SR-correlation info, so just take the result from the SR *expected* to be most constraining, i.e. with highest expected dLL
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
           #endif
 
           double bestexp_dll_exp = 0, bestexp_dll_obs = 0;
           str bestexp_sr_label;
+          int bestexp_sr_index;
 
           for (size_t SR = 0; SR < adata.size(); ++SR)
           {
@@ -2146,25 +2861,15 @@ namespace Gambit
               bestexp_dll_exp = dll_exp;
               bestexp_dll_obs = llb_obs - llsb_obs;
               bestexp_sr_label = srData.sr_label;
+              bestexp_sr_index = SR;
               // #ifdef COLLIDERBIT_DEBUG
               // cout << debug_prefix() << "Setting bestexp_sr_label to: " << bestexp_sr_label << ", LogL_exp = " << -bestexp_dll_exp << ", LogL_obs = " << -bestexp_dll_obs << endl;
               // #endif
             }
 
-            // // For debugging: print some useful numbers to the log.
-            // #ifdef COLLIDERBIT_DEBUG
-            // cout << endl;
-            // cout << debug_prefix() << "COLLIDER_RESULT: " << adata.analysis_name << ", SR: " << srData.sr_label << endl;
-            // cout << debug_prefix() << "  LLikes: b_ex      sb_ex     b_obs     sb_obs    (sb_obs-b_obs)" << endl;
-            // cout << debug_prefix() << "          " << llb_exp << "  " << llsb_exp << "  " << llb_obs << "  " << llsb_obs << "  " << llsb_obs-llb_obs << endl;
-            // cout << debug_prefix() << "  NEvents, not scaled to luminosity: " << srData.n_signal << endl;
-            // cout << debug_prefix() << "  NEvents, scaled  to luminosity:    " << srData.n_signal_at_lumi << endl;
-            // cout << debug_prefix() << "  NEvents: b [rel err]      sb [rel err]" << endl;
-            // cout << debug_prefix() << "           "
-            //      << n_predicted_uncertain_b << " [" << 100*frac_uncertainty_b << "%]  "
-            //      << n_predicted_uncertain_sb << " [" << 100*frac_uncertainty_sb << "%]" << endl;
-            // #endif
-
+            // Store "observed LogLike" result for this SR
+            result[adata.analysis_name].sr_indices[srData.sr_label] = SR;
+            result[adata.analysis_name].sr_loglikes[srData.sr_label] = llsb_obs - llb_obs;
           }
 
           // Check for problem
@@ -2189,10 +2894,13 @@ namespace Gambit
           }
 
           // Set this analysis' total obs dLL to that from the best-expected SR (with conversion to more negative dll = more exclusion convention)
-          result[adata.analysis_name] = -bestexp_dll_obs;
+          // result[adata.analysis_name] = -bestexp_dll_obs;
+          result[adata.analysis_name].combination_sr_label = bestexp_sr_label;
+          result[adata.analysis_name].combination_sr_index = bestexp_sr_index;
+          result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "calc_LHC_LogLike_per_analysis: " << adata.analysis_name << "_" << bestexp_sr_label << "_DeltaLogLike : " << -bestexp_dll_obs << endl;
+          cout << debug_prefix() << "calc_LHC_LogLikes: " << adata.analysis_name << "_" << bestexp_sr_label << "_LogLike : " << -bestexp_dll_obs << endl;
           #endif
         }
 
@@ -2200,11 +2908,79 @@ namespace Gambit
 
     }
 
-
-    // Compute the total likelihood for all analyses
-    void calc_LHC_LogLike(double& result)
+    // Extract the combined log likelihood for each analysis
+    void get_LHC_LogLike_per_analysis(map_str_dbl& result)
     {
-      using namespace Pipes::calc_LHC_LogLike;
+      using namespace Pipes::get_LHC_LogLike_per_analysis;
+      for (const std::pair<string,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair.first;
+        const AnalysisLogLikes& analysis_loglikes = pair.second;
+
+        result[analysis_name] = analysis_loglikes.combination_loglike;
+      }
+    }
+
+
+    // Extract the log likelihood for each SR
+    void get_LHC_LogLike_per_SR(map_str_dbl& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        for (const std::pair<string,double>& pair_j : analysis_loglikes.sr_loglikes)
+        {
+          const string& sr_label = pair_j.first;
+          const double& sr_loglike = pair_j.second;
+          const int sr_index = analysis_loglikes.sr_indices.at(sr_label);
+          
+          const string key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
+          result[key] = sr_loglike;          
+        }
+
+        result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;          
+      }
+    }
+
+
+    // Extract the labels for the SRs used in the analysis loglikes
+    void get_LHC_LogLike_SR_labels(map_str_str& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        result[analysis_name] = analysis_loglikes.combination_sr_label;
+      }
+    }
+
+
+    // Extract the indices for the SRs used in the analysis loglikes
+    // @todo Switch result type to map_str_int once we have implemented a printer for this type
+    void get_LHC_LogLike_SR_indices(map_str_dbl& result)
+    {
+      using namespace Pipes::get_LHC_LogLike_per_SR;
+
+      // Loop over analyses
+      for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      {
+        const string& analysis_name = pair_i.first;
+        const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        result[analysis_name] = (double) analysis_loglikes.combination_sr_index;
+      }
+    }
+
+
+    // Compute the total likelihood combining all analyses
+    void calc_combined_LHC_LogLike(double& result)
+    {
+      using namespace Pipes::calc_combined_LHC_LogLike;
       result = 0.0;
 
       // Read analysis names from the yaml file
@@ -2221,7 +2997,7 @@ namespace Gambit
       }
 
       // Loop over analyses and calculate the total observed dLL
-      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLikes)
+      for (auto const& analysis_loglike_pair : *Dep::LHC_LogLike_per_analysis)
       {
         const string& analysis_name = analysis_loglike_pair.first;
         const double& analysis_loglike = analysis_loglike_pair.second;

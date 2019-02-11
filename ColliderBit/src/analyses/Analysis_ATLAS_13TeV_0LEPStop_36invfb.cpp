@@ -337,7 +337,6 @@ namespace Gambit {
         }
         
         // Need to recluster jets at this point (R=0.8 and R=1.2)
-        // _Anders
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR8=get_jets(signalJets,0.8);
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR12=get_jets(signalJets,1.2);
         

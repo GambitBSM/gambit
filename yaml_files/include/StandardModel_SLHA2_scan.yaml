@@ -24,12 +24,12 @@
 alphainv:  1.27950010E+02 # alpha^{-1}(mZ)^MSbar !
            # range: [127.899, 128.001]
 GF      :  1.16637870E-05 # G_Fermi !
-alphaS  :  1.18100000E-01 # alpha_s(mZ)^MSbar @
-           # range: [0.1148, 0.1214]
+alphaS  :  # 1.18100000E-01 # alpha_s(mZ)^MSbar @
+           range: [0.1148, 0.1214]
 mZ      :  9.11876000E+01 # mZ(pole) !
 mBmB    :  4.18000000E+00 # mb(mb)^MSbar #
-mT      :  1.73340000E+02 # mtop(pole) $
-           # range: [171.06, 175.62]
+mT      :  # 1.73340000E+02 # mtop(pole) $
+           range: [171.06, 175.62]
 mTau    :  1.77686000E+00 # mtau(pole) &
 mNu3    :               0 # mnu3(pole)
 

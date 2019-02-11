@@ -27,6 +27,9 @@ namespace Gambit {
     /// @todo Move to a separate file
     HEPUtilsAnalysis* mkAnalysis(const string& name);
 
+    /// Check that an analysis exists for a given analysis name
+    bool checkAnalysis(const string& name);
+
 
     /// A class for managing collections of HEPUtilsAnalysis instances.
     class HEPUtilsAnalysisContainer

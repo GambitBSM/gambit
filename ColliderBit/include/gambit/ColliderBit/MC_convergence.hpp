@@ -12,6 +12,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2018 Jan
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2018 May
 ///  *********************************************
 
 #ifndef __MC_convergence_hpp__
@@ -33,6 +36,7 @@ namespace Gambit
       std::vector<int> stoppingres;
       std::vector<double> target_stat;
       bool stop_at_sys;
+      bool all_analyses_must_converge;
       bool all_SR_must_converge;
     };
 

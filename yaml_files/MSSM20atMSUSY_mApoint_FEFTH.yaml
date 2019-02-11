@@ -549,10 +549,11 @@ Rules:
                    "ATLAS_13TeV_MultiLEP_36invfb",
                    "ATLAS_13TeV_0LEPStop_20invfb",
                    "ATLAS_13TeV_2LEPStop_36invfb",
-                   "ATLAS_13TeV_RJ3L_lowmass_36invfb",
                    "ATLAS_13TeV_2bMET_36invfb"] ]
 
                    # "ATLAS_13TeV_1LEPStop_36invfb",
+                   # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+                   # These analyses currently depend on ROOT
 
   # CMS analysis setup
   - capability: CMSAnalysisContainer

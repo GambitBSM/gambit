@@ -92,9 +92,7 @@ scanner_plugin(polychord, version(1, 14))
       gl0 = gl0 + offset;
 
       // PolyChord algorithm options.
-      Settings settings;
-      settings.nDims = ma;
-      settings.nDerived = 2;
+      Settings settings(ma, 2);
       settings.nlive = get_inifile_value<int>("nlive", settings.nDims*25);                  // number of live points
       settings.num_repeats = get_inifile_value<int>("num_repeats", settings.nDims*5);       // length of slice sampling chain
       settings.nprior = get_inifile_value<int>("nprior", settings.nlive*10);                // number of prior samples to begin algorithm with

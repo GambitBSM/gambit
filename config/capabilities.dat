@@ -346,6 +346,20 @@ LHC_LogLikes: |
 LHC_Combined_LogLike: |
    A final, single delta-log-likelihood value for LHC searches.
 
+LHC_LogLike_per_SR: |
+   Delta-log-likelihood values for every signal region in the LHC analyses.
+
+LHC_LogLike_per_analysis: |
+   One delta-log-likelihood value per LHC analysis.
+
+LHC_LogLike_SR_indices: |
+   The indices of the signal regions whose delta-log-likelihood values contribute to
+   LHC_Combined_LogLike and LHC_LogLike_per_analysis.   
+
+LHC_LogLike_SR_labels: |
+   The indices of the signal regions whose delta-log-likelihood values contribute to 
+   LHC_Combined_LogLike and LHC_LogLike_per_analysis.                              
+ 
 MC_ConvergenceSettings : |
    Convergence settings to be used for terminating Monte Carlo event generation.
 
@@ -374,25 +388,46 @@ ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
+ATLASnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the 
+   given HardScatteringEvent. No efficiencies are applied.
+
 CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
+
+CMSnoeffSmearedEvent: |
+   Uses the given SimpleSmearingSim to apply smearing upon the 
+   given HardScatteringEvent. No efficiencies are applied.
 
 CopiedEvent: |
    Uses the given SimpleSmearingSim to do absolutely nothing to
    the given HardScatteringEvent.
 
 ATLASAnalysisContainer: |
-   Provides a list of ATLAS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASSmearedEvent. The container is ready to apply each analysis to 
+   each event.
+
+ATLASnoeffAnalysisContainer: |
+   Provides a container of ATLAS analyses to be used with the detector simulation
+   capability ATLASnoeffSmearedEvent. The container is ready to apply each analysis to 
+   each event.
 
 CMSAnalysisContainer: |
-   Provides a list of CMS analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSSmearedEvent. The container is ready to apply each analysis to 
+   each event.
+
+CMSnoeffAnalysisContainer: |
+   Provides a container of CMS analyses to be used with the detector simulation
+   capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to 
+   each event.
 
 DetAnalysisContainer: |
-   Provides a list of Delphes analyses within a container which is ready
-   to apply each analysis to an event.
+   Provides a container of analyses to be used with the detector simulation
+   capability DetectorSim (Delphes). The container is ready to apply each 
+   analysis to each event.
 
 IdentityAnalysisContainer: |
    Provides a list of “identity” analyses (no detector
@@ -403,8 +438,16 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
+ATLASnoeffAnalysisNumbers: |
+   Uses the given ATLASnoeffAnalysisContainer to perform all its
+   analyses upon the given ATLASSmearedEvent.
+
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
+   upon the given CMSSmearedEvent.
+
+CMSnoeffAnalysisNumbers: |
+   Uses the given CMSnoeffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 DetAnalysisNumbers: |
@@ -2257,11 +2300,17 @@ Reference_SM_A0_decay_rates: |
 Reference_SM_other_Higgs_decay_rates: |
    Computation of decays of SM Higgs with mass equal to the mass of the least SM-like CP-even Higgs.
 
-Z_invisible_width: |
-   Invisible decay width of the Z boson
+Z_gamma_nu: |
+   Decay width of the Z boson to neutrinos in MeV.
+   
+Z_gamma_chi_0: |
+   Decay width of the Z boson to neutralinos in MeV.
 
-lnL_Z_invisible_width: |
-   Log Likelihood for the inivislbe decay width of the Z boson
+lnL_Z_inv: |
+   Log Likelihood for the inivislbe decay width of the Z boson.
+
+inv_Higgs_BF: |
+   Invisible decay branching fraction of the SM-like Higgs boson.
 
 #-------------------------------------
 #  PrecisionBit capabilities

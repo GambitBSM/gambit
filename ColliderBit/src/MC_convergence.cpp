@@ -12,6 +12,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2018 Jan
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2018 May
 ///  *********************************************
 
 #include <omp.h>
@@ -20,7 +23,7 @@
 #include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 
-//#define COLLIDERBIT_DEBUG
+// #define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -104,57 +107,126 @@ namespace Gambit
     /// Check if convergence has been achieved across threads, and across all instances of this class
     bool MC_convergence_checker::achieved(const HEPUtilsAnalysisContainer& ac)
     {
-      // Loop over all the analyses and get their systematic errors
-      std::vector<int> n_signals_sys;
-      for (auto& analysis_pointer_pair : ac.get_current_analyses_map())
-      {
-        // Loop over all the signal regions in this analysis and get their systematics
-        for (auto& sr : analysis_pointer_pair.second->get_results()) n_signals_sys.push_back(sr.signal_sys);
-      }
 
-      // Work through the results for all the signal regions in all analyses, combining them
-      // across threads and checking if the totals get the statistical error below the target.
-      bool done;
-      for (unsigned int i = 0; i != n_signals[0].size(); ++i)
+      if (not converged)
       {
-        int total_counts = 0;
-        for (int j = 0; j != n_threads; j++)
+
+        int SR_index = -1;
+        // Loop over all analyses
+        bool analysis_converged;
+        bool all_analyses_converged = true; // Will be set to false if any analysis is not converged
+        for (auto& analysis_pointer_pair : ac.get_current_analyses_map())
         {
-          // Tally up the counts across all threads
-          total_counts += n_signals[j][i];
-        }
-        double fractional_stat_uncert = (total_counts == 0 ? 1.0 : 1.0/sqrt(total_counts));
-        double absolute_stat_uncert = total_counts * fractional_stat_uncert;
-        done = (_settings->stop_at_sys and total_counts > 0 and absolute_stat_uncert <= n_signals_sys[i]) or
-               (fractional_stat_uncert <= _settings->target_stat[_collider]);
+
+          analysis_converged = false;
+
+          // Loop over all the signal regions in this analysis
+          bool SR_converged;
+          bool all_SR_converged = true;  // Will be set to false if any SR is not converged
+          for (auto& sr : analysis_pointer_pair.second->get_results())
+          {
+            SR_converged = false;
+            SR_index += 1;
+
+            // Sum signal count across threads
+            int total_counts = 0;
+            for (int j = 0; j != n_threads; j++)
+            {
+              // Tally up the counts across all threads
+              total_counts += n_signals[j][SR_index];
+            }
+
+            double fractional_stat_uncert = (total_counts == 0 ? 1.0 : 1.0/sqrt(total_counts));
+            double absolute_stat_uncert = total_counts * fractional_stat_uncert;
+            SR_converged = (_settings->stop_at_sys and total_counts > 0 and absolute_stat_uncert <= sr.signal_sys) or
+                   (fractional_stat_uncert <= _settings->target_stat[_collider]);
+
+            if (not SR_converged) all_SR_converged = false;
+
+            #ifdef COLLIDERBIT_DEBUG
+              cerr << endl;
+              cerr << "DEBUG: SIGNAL REGION " << SR_index << " of " << n_signals[0].size() << endl;
+              cerr << "DEBUG: SR label: " << sr.sr_label << " in analysis " << analysis_pointer_pair.first << endl;
+              cerr << "DEBUG: absolute_stat_uncert vs sys: " << absolute_stat_uncert << " vs " << sr.signal_sys << endl;
+              cerr << "DEBUG: fractional_stat_uncert vs target: " << fractional_stat_uncert << " vs " << _settings->target_stat[_collider] << endl;
+              cerr << "DEBUG: Is this SR done? " << SR_converged << endl;
+            #endif
+
+            if (SR_converged)
+            {
+              // Shortcut
+              if (not _settings->all_analyses_must_converge and not _settings->all_SR_must_converge)
+              {
+                converged = true;
+                convergence_map[this] = true;
+                return true;
+              }
+
+              if (not _settings->all_SR_must_converge)
+              {
+                analysis_converged = true;
+                break; // break signal region loop
+              }
+            }
+            else  // SR not converged
+            {
+              // Shortcut
+              if (_settings->all_analyses_must_converge and _settings->all_SR_must_converge)
+              {
+                return false;
+              }
+            }
+          } // End loop over SRs
+
+          if (_settings->all_SR_must_converge) analysis_converged = all_SR_converged;
+
+          #ifdef COLLIDERBIT_DEBUG
+            cerr << endl; 
+            cerr << "DEBUG: Done looping over SRs for analysis " << analysis_pointer_pair.first << endl;
+            cerr << "DEBUG: analysis_converged =  " << analysis_converged << endl;
+          #endif
+
+          if (not analysis_converged) all_analyses_converged = false;
+
+          // Shortcut
+          if (analysis_converged and not _settings->all_analyses_must_converge) 
+          {
+            converged = true;
+            convergence_map[this] = true;
+            return true;
+          }
+          else if (not analysis_converged and _settings->all_analyses_must_converge)
+          {
+            return false;
+          }
+
+        } // End loop over analyses
+
         #ifdef COLLIDERBIT_DEBUG
-          cerr << endl << "SIGNAL REGION " << i << " of " << n_signals[0].size() << endl;
-          cerr << "absolute_stat_uncert vs sys: " << absolute_stat_uncert << " vs " << n_signals_sys[i] << endl;
-          cerr << "fractional_stat_uncert vs target: " << fractional_stat_uncert << " vs " << _settings->target_stat[_collider] << endl;
-          cerr << "Is this SR done? " << done << endl;
+          cerr << endl; 
+          cerr << "DEBUG: Done looping over analyses in this container" << endl;
+          cerr << "DEBUG: Current variable values:" << endl;
+          cerr << "DEBUG: analysis_converged = " << analysis_converged << endl;
+          cerr << "DEBUG: all-analysis_converged = " << all_analyses_converged << endl;
         #endif
-        if (_settings->all_SR_must_converge)
-        {
-          if (not done) return false;
-        }
-        else
-        {
-          if (done) break;
-        }
-      }
-      if (not done) return false;
-      converged = true;
-      convergence_map[this] = true;
+
+        if (not all_analyses_converged) return false;
+        converged = true;
+        convergence_map[this] = true;
+      } // end: if (not converged
 
       // Now check if all instances of this class have also set their entry in the convergence map to true,
       // implying that all analyses in all containers have reached convergence.
-      for (auto& it : convergence_map)
-      {
-        if (not it.second) return false;
+      if (_settings->all_analyses_must_converge)
+      {        
+        for (auto& it : convergence_map)
+        {
+          if (not it.second) return false;
+        }
+        return true;
       }
       return true;
     }
-
 
   }
 }

@@ -270,7 +270,8 @@ namespace Gambit
         /// Should only do this if scan is resuming, and if we are process rank 0.
         void prepare_and_combine_tmp_files();
 
-        PPIDpair get_highest_PPID_from_HDF5(hid_t group_id);
+        //PPIDpair get_highest_PPID_from_HDF5(hid_t group_id);
+        std::map<unsigned long, unsigned long long int> get_highest_PPID_from_HDF5(hid_t group_id);
 
         /// Search the output directory for temporary files (pre-combination)
         std::vector<std::string> find_temporary_files(const bool error_if_inconsistent=false);

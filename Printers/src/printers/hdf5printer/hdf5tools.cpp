@@ -33,7 +33,37 @@ namespace Gambit {
   namespace Printers {
 
     namespace HDF5 { 
- 
+
+      /// GAMBIT default file access property list
+      //  Sets some HDF5 properties to associate with open objects
+      //  Here we set objects to be 'evicted' from the metadata cache
+      //  when they are closed, which apparantly is not the default
+      //  which leads to massive RAM usage if we don't set this.
+      hid_t create_GAMBIT_fapl()
+      {
+         hid_t fapl(H5Pcreate(H5P_FILE_ACCESS)); // Copy defaults
+         //std::cout<<"HDF5 version:"<<H5_VERS_MAJOR<<"."<<H5_VERS_MINOR<<"."<<H5_VERS_RELEASE<<std::endl;
+         #if (H5_VERS_MAJOR > 1) || \
+             (H5_VERS_MAJOR == 1) && H5_VERS_MINOR > 10 || \
+             (H5_VERS_MAJOR == 1) && H5_VERS_MINOR == 10 && H5_VERS_RELEASE >= 1
+         hbool_t value = 1; // true?
+         // This function does not appear before v 1.10.1, however it is
+         // pretty crucial, at least in my version of HDF5, for keeping the
+         // metadata cache from consuming all my RAM. However, Anders commented
+         // it out with his older HDF5 version and still had no RAM problem.
+         // So it might be ok to just remove it for older versions.
+         // However, if you see RAM blowouts and your HDF5 version is old,
+         // then this is probably the reason.
+         H5Pset_evict_on_close(fapl, value); // Set evict_on_close = true
+         //std::cout <<"GAMBIT fapl used!"<<std::endl; // Check that this code is built...
+         #endif
+
+        return fapl;  
+      }
+
+      /// Const global for the GAMBIT fapl
+      const hid_t H5P_GAMBIT(create_GAMBIT_fapl());
+
       /// Macro to define simple wrappers with error checking for basic HDF5 tasks
       #define SIMPLE_CALL(IDTYPE_OUT, FNAME, IDTYPE_IN, H5FUNCTION, VERB, OUTPUTNAME, INPUTNAME) \
       IDTYPE_OUT FNAME(IDTYPE_IN id) \
@@ -55,17 +85,34 @@ namespace Gambit {
       } \
  
       /// Create or open hdf5 file (ignoring feedback regarding whether file already existed)
-      hid_t openFile(const std::string& fname, bool overwrite)
+      hid_t openFile(const std::string& fname, bool overwrite, const char access_type)
       {
          bool tmp;
-         return openFile(fname,overwrite,tmp);
+         return openFile(fname,overwrite,tmp,access_type);
       }
 
       /// Create or open hdf5 file
       /// third argument "oldfile" is used to report whether an existing file was opened (true if yes)
-      hid_t openFile(const std::string& fname, bool overwrite, bool& oldfile)
+      hid_t openFile(const std::string& fname, bool overwrite, bool& oldfile, const char access_type)
       {
 	  hid_t file_id;  // file handle
+
+          unsigned int atype;
+          switch(access_type)
+          {
+            case 'r':
+              atype = H5F_ACC_RDONLY;
+              break;
+            case 'w':
+              // We let 'w' mean read/write here
+              atype = H5F_ACC_RDWR;
+              break;
+            default:
+              std::ostringstream errmsg;
+              errmsg << "Unrecognised access mode requested while trying to open HDF5 file! Saw '"<<access_type<<"'; only 'r' (read-only) and 'w' (read/wrtie) are valid. File was ("<<fname<<")";
+              printer_error().raise(LOCAL_INFO, errmsg.str());
+              break;
+          }
 
           if(overwrite)
           {
@@ -82,25 +129,35 @@ namespace Gambit {
           }          
 
           errorsOff();
-          file_id = H5Fopen(fname.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+          file_id = H5Fopen(fname.c_str(), atype, H5P_GAMBIT);
           errorsOn();
           if(file_id < 0)
           {
-             /* Ok maybe file doesn't exist yet, try creating it */
-             errorsOff();
-             file_id = H5Fcreate(fname.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_DEFAULT);             
-             errorsOn();
-             if(file_id < 0)
+             if(access_type=='w')
              {
-                /* Still no good; error */
-                std::ostringstream errmsg;
-                errmsg << "Failed to open existing HDF5 file, then failed to create new one! ("<<fname<<")";
-                printer_error().raise(LOCAL_INFO, errmsg.str());
+                /* Ok maybe file doesn't exist yet, try creating it */
+                errorsOff();
+                file_id = H5Fcreate(fname.c_str(), H5F_ACC_EXCL, H5P_DEFAULT, H5P_GAMBIT);             
+                errorsOn();
+                if(file_id < 0)
+                {
+                   /* Still no good; error */
+                   std::ostringstream errmsg;
+                   errmsg << "Failed to open existing HDF5 file, then failed to create new one! ("<<fname<<")";
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                else
+                {
+                   /* successfully created new file */
+                   oldfile = false;
+                }
              }
              else
              {
-                /* successfully created new file */
-                oldfile = false;
+               // Doesn't make sense to create new file if we wanted read-only mode. Error.
+               std::ostringstream errmsg;
+               errmsg << "Failed to open existing HDF5 file, and did not create new one since read-only access was specified. ("<<fname<<")";
+               printer_error().raise(LOCAL_INFO, errmsg.str());
              }
           }
           else
@@ -113,14 +170,14 @@ namespace Gambit {
           return file_id;
       }
 
-      /// Check if hdf5 file exists and can be opened in read/write mode
+      /// Check if hdf5 file exists and can be opened in read mode
       bool checkFileReadable(const std::string& fname, std::string& msg)
       {
           bool readable(false);
 
-          errorsOff();
-          hid_t file_id = H5Fopen(fname.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
-          errorsOn();
+          //errorsOff();
+          hid_t file_id = H5Fopen(fname.c_str(), H5F_ACC_RDONLY, H5P_GAMBIT);
+          //errorsOn();
           if(file_id < 0)
           {
             readable=false;
@@ -177,7 +234,7 @@ namespace Gambit {
       /// Create hdf5 file (always overwrite existing files)
       hid_t createFile(const std::string& fname)
       {
-          hid_t file_id = H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);             
+          hid_t file_id = H5Fcreate(fname.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_GAMBIT);             
           if(file_id < 0)
           {
              /* Still no good; error */
@@ -416,6 +473,57 @@ namespace Gambit {
           std::string n = buffer;
           return n;
       }
+
+      /// Select a simple hyperslab in a 1D dataset
+      std::pair<hid_t,hid_t> selectChunk(const hid_t dset_id, std::size_t offset, std::size_t length)
+      {
+          // Open dataspace
+          hid_t dspace_id = getSpace(dset_id);
+
+          // Make sure that the requested chunk lies within the dataset extents
+          size_t dset_length = getSimpleExtentNpoints(dspace_id);
+
+          if(offset + length > dset_length)
+          {
+             std::ostringstream errmsg;
+             errmsg << "Error selecting chunk from dataset in HDF5 file. Tried to select a hyperslab which extends beyond the dataset extents:" << std::endl;
+             errmsg << "  offset = " << offset << std::endl;
+             errmsg << "  offset+length = " << length << std::endl;
+             errmsg << "  dset_length  = "<< dset_length << std::endl;
+             printer_error().raise(LOCAL_INFO, errmsg.str());
+          }
+
+          // Select a hyperslab.
+          static const size_t DSETRANK(1); // assuming 1D dataset
+          hsize_t offsets[DSETRANK];
+          offsets[0] = offset;
+          hsize_t selection_dims[DSETRANK]; // Set same as output chunks, but may have a different length
+          selection_dims[0] = length; // Adjust chunk length to input specification
+
+          herr_t err_hs = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offsets, NULL, selection_dims, NULL);        
+          if(err_hs<0) 
+          {
+             std::ostringstream errmsg;
+             errmsg << "Error selecting chunk from dataset (offset="<<offset<<", length="<<selection_dims[0]<<") in HDF5 file. H5Sselect_hyperslab failed." << std::endl;
+             printer_error().raise(LOCAL_INFO, errmsg.str());
+          }
+
+          // Define memory space
+          hid_t memspace_id = H5Screate_simple(DSETRANK, selection_dims, NULL);         
+
+          #ifdef HDF5_DEBUG 
+          std::cout << "Debug variables:" << std::endl
+                    << "  dsetdims()[0]      = " << this->dsetdims()[0] << std::endl
+                    << "  offsets[0]         = " << offsets[0] << std::endl
+                    << "  CHUNKLENGTH        = " << CHUNKLENGTH << std::endl
+                    << "  selection_dims[0] = " << selection_dims[0] << std::endl;
+          #endif
+
+          return std::make_pair(memspace_id, dspace_id); // Be sure to close these identifiers after using them!
+      }
+
+
+
 
       /// @}
     }
