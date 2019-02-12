@@ -389,6 +389,8 @@ namespace Gambit
         thdm_model.Yd[1] = sqrt2v * sminputs.mS;
         thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
 
+        // std::cout << "setting up yukawa: " << thdm_model.Yu[2] << std::endl;
+
         // Create a SubSpectrum object to wrap the EW sector information
         Models::THDMSimpleSpec thdm_spec(thdm_model);
         // Create full Spectrum object from components above

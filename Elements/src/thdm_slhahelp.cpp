@@ -137,18 +137,19 @@ namespace Gambit
           }
         }
 
-        // TODO uncomment from spectrum
-        matrix_u[0] = 0.0;//thdmspec.get(Par::dimensionless, "Yu", 1, 1);
-        matrix_u[4] = 0.1;//thdmspec.get(Par::dimensionless, "Yu", 2, 2);
-        matrix_u[8] = 0.9;//thdmspec.get(Par::dimensionless, "Yu", 3, 3);
+        matrix_u[0] = thdmspec.get(Par::dimensionless, "Yu", 1, 1);
+        matrix_u[4] = thdmspec.get(Par::dimensionless, "Yu", 2, 2);
+        matrix_u[8] = thdmspec.get(Par::dimensionless, "Yu", 3, 3);
 
-        matrix_d[0] = 0.0;//thdmspec.get(Par::dimensionless, "Yd", 1, 1);
-        matrix_d[4] = 0.01;//thdmspec.get(Par::dimensionless, "Yd", 2, 2);
-        matrix_d[8] = 0.2;//thdmspec.get(Par::dimensionless, "Yd", 3, 3);
+        // std::cout << "up yukawa: " << matrix_u[8] << std::endl;
 
-        matrix_l[0] = 0.0;//thdmspec.get(Par::dimensionless, "Yl", 1, 1);
-        matrix_l[4] = 0.01;//thdmspec.get(Par::dimensionless, "Yl", 2, 2);
-        matrix_l[8] = 0.1;//thdmspec.get(Par::dimensionless, "Yl", 3, 3);
+        matrix_d[0] = thdmspec.get(Par::dimensionless, "Yd", 1, 1);
+        matrix_d[4] = thdmspec.get(Par::dimensionless, "Yd", 2, 2);
+        matrix_d[8] = thdmspec.get(Par::dimensionless, "Yd", 3, 3);
+
+        matrix_l[0] = thdmspec.get(Par::dimensionless, "Ye", 1, 1);
+        matrix_l[4] = thdmspec.get(Par::dimensionless, "Ye", 2, 2);
+        matrix_l[8] = thdmspec.get(Par::dimensionless, "Ye", 3, 3);
 
         SLHAea_add_block(slha, "UCOUPL");
         SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);

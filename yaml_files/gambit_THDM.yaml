@@ -70,7 +70,7 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: multinest
+  use_scanner: de
 
   scanners:
     square_grid:
@@ -93,6 +93,13 @@ Scanner:
       nlive: 4000
       tol: 0.1
       updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 10000
+      convthresh: 1e-4
+      verbosity: 1
 
       # No options to set, but still need the nodes at the moment...
       aux_printer_txt_options:
@@ -213,10 +220,6 @@ ObsLikes:
       purpose: Observable
 
 Rules:
-
-    - module: SpecBit
-      options:
-        yukawa_type: 2
 
     - module: ColliderBit
       options:
@@ -349,4 +352,3 @@ KeyValues:
   default_output_path: "runs/THDM/"
   enable_testing: true
   debug: true
-  yukawa_type: 2
