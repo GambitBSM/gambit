@@ -317,15 +317,15 @@ Logger:
   # files with these names.
 
   redirection:
-    [Debug] : "sterrr" #"debug.log"
-    [Default] : "sterrr" #"default.log"
-    [DecayBit] : "sterrr" #"DecayBit.log"
-    [DarkBit] : "sterrr" #"DarkBit.log"
-    [PrecisionBit] : "sterrr" #"PrecisionBit.log"
-    [ColliderBit] : "sterrr" #"ColliderBit.log"
-    [SpecBit] : "sterrr" #"SpecBit.log"
-    [Dependency Resolver] : "sterrr" #"dep_resolver.log"
-    [Scanner]: "sterrr" #"ScannerBit.log"
+    [Debug] : "stderr" #"debug.log"
+    [Default] : "stderr" #"default.log"
+    [DecayBit] : "stderr" #"DecayBit.log"
+    [DarkBit] : "stderr" #"DarkBit.log"
+    [PrecisionBit] : "stderr" #"PrecisionBit.log"
+    [ColliderBit] : "stderr" #"ColliderBit.log"
+    [SpecBit] : "stderr" #"SpecBit.log"
+    [Dependency Resolver] : "stderr" #"dep_resolver.log"
+    [Scanner]: "stderr" #"ScannerBit.log"
 
 ##########################
 # Name/Value Section
