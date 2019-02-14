@@ -63,29 +63,27 @@ namespace Gambit
         const double m12_2 = thdmspec.get(Par::mass1,"m12_2");
         const double MW = thdmspec.get(Par::Pole_Mass,"W+");
 
-        SLHAea_add_block(slha, "MODSEL");;
-        SLHAea_add(slha, "MODSEL", 0, 10, "2HDM", true);
-        SLHAea_add(slha, "MODSEL", 1, 10, "2HDM", true);
+        std::cout << "just before error" << std::endl;
+        const double g = thdmspec.get(Par::dimensionless,"g1");
+        const double g_prime = thdmspec.get(Par::dimensionless,"g2");
+        const double g_3 = thdmspec.get(Par::dimensionless,"g3");
 
-        SLHAea_add_block(slha, "FMODSEL");
-        SLHAea_add(slha, "FMODSEL", 1, 32, "2HDM", true);
-        SLHAea_add(slha, "FMODSEL", 5, 0, "No CP-violation", true);
+        const double yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
+
+        SLHAea_add_block(slha, "MODSEL");;
+        SLHAea_add(slha, "MODSEL", 0, 10, "THDM", true); // 10 = THDM
+        SLHAea_add(slha, "MODSEL", 1, 10, "THDM", true); // 10 = THDM
+
+        SLHAea_add_block(slha, "FMODSEL"); // Flavor MODSEL
+        SLHAea_add(slha, "FMODSEL", 1, (30 + yukawa_coupling), "THDM", true); // THDM Model Type 30+yukawas_type
+        SLHAea_add(slha, "FMODSEL", 5, 0, "No CP-violation", true); // 0 = No CP-violation
 
         SLHAea_add_block(slha, "MSOFT", thdmspec.GetScale());
-        
-        // SLHAea_add_block(slha, "SMINPUTS");
-        // SLHAea_add(slha, "SMINPUTS", 1, alphaInv, "1/alpha_em", true);
-        // SLHAea_add(slha, "SMINPUTS", 2, GF, "GF", true);
-        // SLHAea_add(slha, "SMINPUTS", 3, alphaS, "alphaS", true);
-        // SLHAea_add(slha, "SMINPUTS", 4, MZ, "MZ", true);
-        // SLHAea_add(slha, "SMINPUTS", 5, m_d[2], "Mb", true);
-        // SLHAea_add(slha, "SMINPUTS", 6, m_u[2], "Mt - pole", true);
-        // SLHAea_add(slha, "SMINPUTS", 7, m_l[2], "Mtau - pole", true);
 
-        // SLHAea_add_block(slha, "GAUGE");
-        // SLHAea_add(slha, "GAUGE", 1, g, "g", true);
-        // SLHAea_add(slha, "GAUGE", 2, g_prime, "g'", true);
-        // SLHAea_add(slha, "GAUGE", 3, g_3, "g_3'", true);
+        SLHAea_add_block(slha, "GAUGE");
+        SLHAea_add(slha, "GAUGE", 1, g, "g", true);
+        SLHAea_add(slha, "GAUGE", 2, g_prime, "g'", true);
+        SLHAea_add(slha, "GAUGE", 3, g_3, "g_3'", true);
 
         SLHAea_add_block(slha, "MINPAR");
         SLHAea_add(slha, "MINPAR", 3, tan_beta, "tanb", true);
@@ -100,23 +98,7 @@ namespace Gambit
         SLHAea_add(slha, "MINPAR", 20, sba, "sin(b-a)", true);
         SLHAea_add(slha, "MINPAR", 21, sqrt(1.0-pow(sba,2)), "cos(b-a)", true);
 
-        // SLHAea_add_block(slha, "VCKMIN");
-        // SLHAea_add(slha, "VCKMIN", 1, lambda, "lambda-CKM", true);
-        // SLHAea_add(slha, "VCKMIN", 2, A, "A-CKM", true);
-        // SLHAea_add(slha, "VCKMIN", 3, rho, "rhobar-CKM", true);
-        // SLHAea_add(slha, "VCKMIN", 4, eta, "etabar-CKM", true);
-
         SLHAea_add_block(slha, "MASS");
-        // SLHAea_add(slha, "MASS", 1, m_d[0], "Md - pole", true);
-        // SLHAea_add(slha, "MASS", 2, m_u[0], "Mu - pole", true);
-        // SLHAea_add(slha, "MASS", 3, m_d[1], "Ms - pole", true);
-        // SLHAea_add(slha, "MASS", 4, m_u[1], "Mc - pole", true);
-        // SLHAea_add(slha, "MASS", 5, m_d[2], "Mb - pole", true);
-        // SLHAea_add(slha, "MASS", 6, m_u[2], "Mt - pole", true);
-        // SLHAea_add(slha, "MASS", 11, m_l[0], "Me - pole", true);
-        // SLHAea_add(slha, "MASS", 13, m_l[1], "Mmu - pole", true);
-        // SLHAea_add(slha, "MASS", 15, m_l[2], "Mtau - pole", true);
-        // SLHAea_add(slha, "MASS", 23, MZ, "MZ", true);
         SLHAea_add(slha, "MASS", 24, MW, "MW", true);
         SLHAea_add(slha, "MASS", 25, m_h, "Mh0_1", true);
         SLHAea_add(slha, "MASS", 35, m_H, "Mh0_2", true);
@@ -140,8 +122,6 @@ namespace Gambit
         matrix_u[0] = thdmspec.get(Par::dimensionless, "Yu", 1, 1);
         matrix_u[4] = thdmspec.get(Par::dimensionless, "Yu", 2, 2);
         matrix_u[8] = thdmspec.get(Par::dimensionless, "Yu", 3, 3);
-
-        // std::cout << "up yukawa: " << matrix_u[8] << std::endl;
 
         matrix_d[0] = thdmspec.get(Par::dimensionless, "Yd", 1, 1);
         matrix_d[4] = thdmspec.get(Par::dimensionless, "Yd", 2, 2);

@@ -41,6 +41,7 @@
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
 #include "gambit/Models/SimpleSpectra/SMHiggsSimpleSpec.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
+#include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
@@ -201,7 +202,6 @@ namespace Gambit
         thdmspec.set_override(Par::dimensionless, *input_Param.at("tanb"), "tanbeta(mZ)", true);
       }
 
-      
       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
       // double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
       // thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
@@ -375,7 +375,7 @@ namespace Gambit
         // gauge couplings
         thdm_model.g1 = e / sinW2;
         thdm_model.g2 = e / cosW2;
-        thdm_model.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+        thdm_model.g3 = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
         // Yukawas
         double vev        = 1. / sqrt(sqrt(2.)*sminputs.GF);
         double sqrt2v = pow(2.0,0.5)/vev;
@@ -389,10 +389,10 @@ namespace Gambit
         thdm_model.Yd[1] = sqrt2v * sminputs.mS;
         thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
 
-        // std::cout << "setting up yukawa: " << thdm_model.Yu[2] << std::endl;
+        thdm_model.yukawaCoupling = y_type;
 
         // Create a SubSpectrum object to wrap the EW sector information
-        Models::THDMSimpleSpec thdm_spec(thdm_model);
+        Models::THDMSimpleSpecSM thdm_spec(thdm_model);
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum
         // objects can due to a special copy constructor which does

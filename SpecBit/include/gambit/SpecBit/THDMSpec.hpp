@@ -23,6 +23,7 @@
 #define THDMSPEC_H
 
 #include <memory>
+#include <typeinfo>
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Elements/slhaea_helpers.hpp"
@@ -31,6 +32,10 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/SpecBit/THDMSpec_head.hpp"
+// #include "flexiblesusy/models/THDM_I/THDM_I_info.hpp"
+// #include "flexiblesusy/models/THDM_II/THDM_II_info.hpp"
+// #include "flexiblesusy/models/THDM_lepton/THDM_lepton_info.hpp"
+// #include "flexiblesusy/models/THDM_flipped/THDM_flipped_info.hpp"
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/config/config.h"
@@ -124,182 +129,181 @@ namespace Gambit
       }
 
       template <class Model>
-      double get_sinthW2_MSbar(const Model& model)
-      {
-       double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
-                      (0.6 * Utils::sqr(model.get_g1()) +
-                      Utils::sqr(model.get_g2()));
-       return sthW2;
+      double get_sinthW2_MSbar(const Model& model) {
+         double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
+         (0.6 * Utils::sqr(model.get_g1()) +
+         Utils::sqr(model.get_g2()));
+         return sthW2;
       }
 
       // "extra" function to compute TanBeta 
       template <class Model>
-      double get_tanb(const Model& model)
-      {
-        // this needs implementation!!
-        //return model.get_tanb();
-        return model.get_v2()/model.get_v1();
+      double get_tanb(const Model& model) {
+         return model.get_v2()/model.get_v1();
       }
 
       template <class Model>
-      double get_alpha(const Model& model)
-      {
-        double v1 = model.get_v1(), v2 = model.get_v2();
-        double lambda345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
-        double lambda6 = model.get_Lambda6(), lambda7 = model.get_Lambda7();
+      double get_alpha(const Model& model) {
+         double v1 = model.get_v1(), v2 = model.get_v2();
+         double lambda345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+         double lambda6 = model.get_Lambda6(), lambda7 = model.get_Lambda7();
 
-        double A = model.get_M112() + 3.0/2.0*model.get_Lambda1()*v1*v1 + 1.0/2.0*lambda345*v2*v2 + 3.0*v1*v2*lambda6;
-        double B = model.get_M222() + 3.0/2.0*model.get_Lambda2()*v2*v2 + 1.0/2.0*lambda345*v1*v1 + 3.0*v1*v2*lambda7;
-        double C = -model.get_M122() + 3.0/2.0*v1*v2 + 3.0/2.0*(lambda6*v1*v1 + lambda7*v2*v2);
-        // double a3 = model.get_M122();
-        // double b11 = 1.0/2.0*model.get_Lambda1();
-        // double b22 = 1.0/2.0*model.get_Lambda2();
-        // double b33 = model.get_Lambda4() + model.get_Lambda5();
-        // double b12 = model.get_Lambda3();
-        // double b13 = model.get_Lambda6();
-        // double b23 = model.get_Lambda7();
- 
-        // double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
-        // double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
-        // double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
-        // double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
-        // double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
-        // double H3d = H3 - 2.0*V3;
-        // double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
+         double A = model.get_M112() + 3.0/2.0*model.get_Lambda1()*v1*v1 + 1.0/2.0*lambda345*v2*v2 + 3.0*v1*v2*lambda6;
+         double B = model.get_M222() + 3.0/2.0*model.get_Lambda2()*v2*v2 + 1.0/2.0*lambda345*v1*v1 + 3.0*v1*v2*lambda7;
+         double C = -model.get_M122() + 3.0/2.0*v1*v2 + 3.0/2.0*(lambda6*v1*v1 + lambda7*v2*v2);
+         // double a3 = model.get_M122();
+         // double b11 = 1.0/2.0*model.get_Lambda1();
+         // double b22 = 1.0/2.0*model.get_Lambda2();
+         // double b33 = model.get_Lambda4() + model.get_Lambda5();
+         // double b12 = model.get_Lambda3();
+         // double b13 = model.get_Lambda6();
+         // double b23 = model.get_Lambda7();
 
-        return 1.0/2.0*atan(2.0*C/(A-B));//atan(2.0*H3d/(Hc-Hm));
+         // double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
+         // double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
+         // double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
+         // double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
+         // double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
+         // double H3d = H3 - 2.0*V3;
+         // double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
+
+         return 1.0/2.0*atan(2.0*C/(A-B));//atan(2.0*H3d/(Hc-Hm));
       }
 
-//    extract pole masses from arrays
+      //    extract pole masses from arrays
       template <class Model>
-      double get_mA_pole(const Model& model)
-      {
+      double get_mA_pole(const Model& model) {
+         // change to non-slha or remove function
          return model.get_MAh_pole_slha(1);
       }
 
-       template <class Model>
-       double get_mA_running(const Model& model)
-       {
+      template <class Model>
+      double get_mA_running(const Model& model) {
          return (model.get_DRbar_masses())(7);
-       }
+      }
 
       template <class Model>
-      double get_mh_2_pole(const Model& model)
-      {
+      double get_mh_2_pole(const Model& model) {
+        // change to non-slha or remove function
          return model.get_Mhh_pole_slha(1);
       }
 
-       template <class Model>
-       double get_mh_2_running(const Model& model)
-       {
+      template <class Model>
+      double get_mh_2_running(const Model& model) {
          return (model.get_DRbar_masses())(5);
-       }
+      }
 
 
       template <class Model>
-      double get_mh_1_pole(const Model& model)
-      {
+      double get_mh_1_pole(const Model& model) {
+         // change to non-slha or remove function
          return model.get_Mhh_pole_slha(0);
       }
 
-       template <class Model>
-       double get_mh_1_running(const Model& model)
-       {
+      template <class Model>
+      double get_mh_1_running(const Model& model) {
          return (model.get_DRbar_masses())(4);
-       }
+      }
 
       template <class Model>
-      double get_mHm_pole(const Model& model)
-      {
-         //  return model.get_MHm_pole_slha(1);
+      double get_mHm_pole(const Model& model) {
          return model.get_MHm(1);
       }
 
-       template <class Model>
-       double get_mHm_running(const Model& model)
-       {
+      template <class Model>
+      double get_mHm_running(const Model& model) {
          return (model.get_DRbar_masses())(9);
-       }
+      }
 
-       // get lambdas (running) from FS
+      // get lambdas (running) from FS
 
-       template <class Model>
-       double get_lambda1(const Model& model)
-       {
-           return model.get_Lambda1();
-       }
+      template <class Model>
+      double get_lambda1(const Model& model) {
+         return model.get_Lambda1();
+      }
 
-       template <class Model>
-       double get_lambda2(const Model& model)
-       {
-           return model.get_Lambda2();
-       }
+      template <class Model>
+      double get_lambda2(const Model& model) {
+         return model.get_Lambda2();
+      }
 
-       template <class Model>
-       double get_lambda3(const Model& model)
-       {
-           return model.get_Lambda3();
-       }
+      template <class Model>
+      double get_lambda3(const Model& model) {
+         return model.get_Lambda3();
+      }
 
-       template <class Model>
-       double get_lambda4(const Model& model)
-       {
-           return model.get_Lambda4();
-       }
+      template <class Model>
+      double get_lambda4(const Model& model) {
+         return model.get_Lambda4();
+      }
 
-       template <class Model>
-       double get_lambda5(const Model& model)
-       {
-           return model.get_Lambda5();
-       }
+      template <class Model>
+      double get_lambda5(const Model& model) {
+         return model.get_Lambda5();
+      }
 
-       template <class Model>
-       double get_lambda6(const Model& model)
-       {
-           return model.get_Lambda6();
-       }
+      template <class Model>
+      double get_lambda6(const Model& model) {
+         return model.get_Lambda6();
+      }
 
-       template <class Model>
-       double get_lambda7(const Model& model)
-       {
-           return model.get_Lambda7();
-       }
+      template <class Model>
+      double get_lambda7(const Model& model) {
+         return model.get_Lambda7();
+      }
 
-       template <class Model>
-       double get_m12_2(const Model& model)
-       {
-           return model.get_M122();
-       }
+      template <class Model>
+      double get_m12_2(const Model& model) {
+         return model.get_M122();
+      }
 
-       template <class Model>
-      double get_sinthW2_DRbar(const Model& model)
-      {
+      template <class Model>
+      double get_sinthW2_DRbar(const Model& model) {
          double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
-                      (0.6 * Utils::sqr(model.get_g1()) +
-                      Utils::sqr(model.get_g2()));
+         (0.6 * Utils::sqr(model.get_g1()) +
+         Utils::sqr(model.get_g2()));
          return sthW2;
       }
 
-       template <class Model>
-      double get_MAh1_pole_slha(const Model& model)
-      {
+      template <class Model>
+      double get_MAh1_pole_slha(const Model& model) {
          return model.get_MAh_pole_slha(1);
       }
 
       template <class Model>
-      double get_MHpm1_pole_slha(const Model& model)
-      {
+      double get_MHpm1_pole_slha(const Model& model) {
          return model.get_MHm_pole_slha(1);
       }
 
-    //    template <class Model>
+      template <class Model>
+      double get_yukawa_coupling(const Model& model) {
+         std::string spec_class_type = typeid(model).name();
+         if (spec_class_type == "N12flexiblesusy11THDM_I_slhaINS_6THDM_IINS_9Two_scaleEEEEE"){
+            return 1;
+         }
+         else if (spec_class_type == "N12flexiblesusy12THDM_II_slhaINS_7THDM_IIINS_9Two_scaleEEEEE"){
+            return 2;
+         }
+         else if (spec_class_type == "N12flexiblesusy16THDM_lepton_slhaINS_11THDM_leptonINS_9Two_scaleEEEEE"){
+            return 3;
+         }
+         else if (spec_class_type == "N12flexiblesusy17THDM_flipped_slhaINS_12THDM_flippedINS_9Two_scaleEEEEE"){
+            return 4;
+         }
+         else {
+           utils_error().raise(LOCAL_INFO,"Unknown spectrum generator requested for THDM."); return -1;
+            exit(0);
+         }
+      }
+
+    //   template <class Model>
     //   void set_Mhh_pole_slha(Model& model, double mass, int i)
     //   {
     //     cout << "set_Mhh_pole_slha: " << mass << endl;
     //     model.get_physical_slha().Mhh(i) = mass;
     //   }
 
-    //    template <class Model>
+    //   template <class Model>
     //   void set_MAh1_pole_slha(Model& model, double mass)
     //   {
     //     model.get_physical_slha().MAh(1) = mass;
@@ -332,11 +336,6 @@ namespace Gambit
 
          typedef typename MTget::FInfo1 FInfo1;
          typedef typename MTget::FInfo2 FInfo2;
-
-        //  static const std::set<int> i01 = initSet(0,1);
-        //  static const std::set<int> i012 = initSet(0,1,2);
-        //  static const std::set<int> i0123 = initSet(0,1,2,3);
-        //  static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
 
          static const int i01v[] = {0,1};
          static const std::set<int> i01(i01v, Utils::endA(i01v));
@@ -437,6 +436,7 @@ namespace Gambit
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             tmp_map["tanb"]= &get_tanb<Model>;
             tmp_map["alpha"]= &get_alpha<Model>;
+            tmp_map["yukawaCoupling"]= &get_yukawa_coupling<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
          }
 
