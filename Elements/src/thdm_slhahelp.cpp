@@ -63,7 +63,6 @@ namespace Gambit
         const double m12_2 = thdmspec.get(Par::mass1,"m12_2");
         const double MW = thdmspec.get(Par::Pole_Mass,"W+");
 
-        std::cout << "just before error" << std::endl;
         const double g = thdmspec.get(Par::dimensionless,"g1");
         const double g_prime = thdmspec.get(Par::dimensionless,"g2");
         const double g_3 = thdmspec.get(Par::dimensionless,"g3");
