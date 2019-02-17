@@ -1831,7 +1831,7 @@ namespace Gambit
         a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
 
       for(auto const& eig: eigenvalues) {
-        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,10);
+        chi2 += get_chi((abs(eig-i/2.0)),bound,less_than,unitarity_upper_limit,sigma)*pow(10,0);
       }
 
       #ifdef SPECBIT_DEBUG

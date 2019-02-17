@@ -13,7 +13,7 @@
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
-///  -modified:
+///  \ modified:
 ///   Filip Rajec
 ///   Feb 2017
 ///
@@ -32,10 +32,6 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/SpecBit/THDMSpec_head.hpp"
-// #include "flexiblesusy/models/THDM_I/THDM_I_info.hpp"
-// #include "flexiblesusy/models/THDM_II/THDM_II_info.hpp"
-// #include "flexiblesusy/models/THDM_lepton/THDM_lepton_info.hpp"
-// #include "flexiblesusy/models/THDM_flipped/THDM_flipped_info.hpp"
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/config/config.h"
@@ -170,11 +166,9 @@ namespace Gambit
          return 1.0/2.0*atan(2.0*C/(A-B));//atan(2.0*H3d/(Hc-Hm));
       }
 
-      //    extract pole masses from arrays
       template <class Model>
       double get_mA_pole(const Model& model) {
-         // change to non-slha or remove function
-         return model.get_MAh_pole_slha(1);
+         return model.get_MAh(1);
       }
 
       template <class Model>
@@ -183,21 +177,32 @@ namespace Gambit
       }
 
       template <class Model>
-      double get_mh_2_pole(const Model& model) {
-        // change to non-slha or remove function
-         return model.get_Mhh_pole_slha(1);
+      double get_mA_pole_slha(const Model& model) {
+         return model.get_MAh_pole_slha(1);
       }
 
-      template <class Model>
-      double get_mh_2_running(const Model& model) {
-         return (model.get_DRbar_masses())(5);
-      }
+      // mh
 
+      // template <class Model, class > 
+      // double get_mh_pole(const Model& model, int higgs) {
+      //    return model.get_Mhh(0);
+      // }
+
+      // template <class Model>
+      // double get_mh_running(const Model& model) {
+      //    return (model.get_DRbar_masses())(4);
+      // }
+
+      // template <class Model>
+      // double get_mh_pole_slha(const Model& model) {
+      //    return model.get_Mhh_pole_slha(0);
+      // }
+
+      // mh1
 
       template <class Model>
       double get_mh_1_pole(const Model& model) {
-         // change to non-slha or remove function
-         return model.get_Mhh_pole_slha(0);
+         return model.get_Mhh(0);
       }
 
       template <class Model>
@@ -206,15 +211,41 @@ namespace Gambit
       }
 
       template <class Model>
-      double get_mHm_pole(const Model& model) {
+      double get_mh_1_pole_slha(const Model& model) {
+         return model.get_Mhh_pole_slha(0);
+      }
+
+      // mh2
+
+      template <class Model>
+      double get_mh_2_pole(const Model& model) {
+         return model.get_Mhh(1);
+      }
+
+      template <class Model>
+      double get_mh_2_running(const Model& model) {
+         return (model.get_DRbar_masses())(5);
+      }
+
+      template <class Model>
+      double get_mh_2_pole_slha(const Model& model) {
+         return model.get_Mhh_pole_slha(1);
+      }
+
+      template <class Model>
+      double get_mHpm_pole(const Model& model) {
          return model.get_MHm(1);
       }
 
       template <class Model>
-      double get_mHm_running(const Model& model) {
+      double get_mHpm_running(const Model& model) {
          return (model.get_DRbar_masses())(9);
       }
 
+      template <class Model>
+      double get_mHpm_pole_slha(const Model& model) {
+         return model.get_MHm_pole_slha(1);
+      }
       // get lambdas (running) from FS
 
       template <class Model>
@@ -263,16 +294,6 @@ namespace Gambit
          (0.6 * Utils::sqr(model.get_g1()) +
          Utils::sqr(model.get_g2()));
          return sthW2;
-      }
-
-      template <class Model>
-      double get_MAh1_pole_slha(const Model& model) {
-         return model.get_MAh_pole_slha(1);
-      }
-
-      template <class Model>
-      double get_MHpm1_pole_slha(const Model& model) {
-         return model.get_MHm_pole_slha(1);
       }
 
       template <class Model>
@@ -349,28 +370,6 @@ namespace Gambit
          static const int i012345v[] = {0,1,2,3,4,5};
          static const std::set<int> i012345(i012345v, Utils::endA(i012345v));
 
-         /// @{ mass2 - mass dimension 2 parameters
-         //
-         // Functions utilising the "plain-vanilla" function signature
-         // (Zero index member functions of model object)
-         {  // scope so we can reuse the name 'tmp_map' several times, so that our macro works.
-            // could make a better macro, or an actual function, but I'm in a hurry
-            // ##nil
-         }
-
-         // Functions utilising the "extraM" function signature
-         // (Zero index, model object as argument)
-         {
-            // ##nil
-         }
-
-         // functions utilising the two-index "plain-vanilla" function signature
-         // (two-index member functions of model object)
-         {
-            // ##nil
-         }
-
-         /// @}
          /// @{ mass1 - mass dimension 1 parameters
          //
          // Functions utilising the "plain-vanilla" function signature
@@ -397,7 +396,7 @@ namespace Gambit
             // tmp_map["vev"]= &Model::get_vev;
 
             tmp_map["A0"] = &get_mA_running<Model>;
-            tmp_map["H+"] = &get_mHm_running<Model>;
+            tmp_map["H+"] = &get_mHpm_running<Model>;
 
             map_collection[Par::mass1].map0_extraM = tmp_map;
          }
@@ -449,14 +448,6 @@ namespace Gambit
             tmp_map["Yu"]= FInfo2( &Model::get_Yu, i012, i012);
             tmp_map["Ye"]= FInfo2( &Model::get_Ye, i012, i012);
 
-            // tmp_map["ReYd2"]= FInfo2( &Model::get_ReYd2, i012, i012);
-            // tmp_map["ReYu2"]= FInfo2( &Model::get_ReYu2, i012, i012);
-            // tmp_map["ReYe2"]= FInfo2( &Model::get_ReYe2, i012, i012);
-
-            // tmp_map["ImYd2"]= FInfo2( &Model::get_ImYd2, i012, i012);
-            // tmp_map["ImYu2"]= FInfo2( &Model::get_ImYu2, i012, i012);
-            // tmp_map["ImYe2"]= FInfo2( &Model::get_ImYe2, i012, i012);
-
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
          /// @}
@@ -483,47 +474,23 @@ namespace Gambit
             typename MTget::fmap0_extraM tmp_map;
 
             // Using wrapper functions defined above
-            tmp_map["A0"] = &get_MAh1_pole_slha<Model>;
-            tmp_map["H+"] = &get_MHpm1_pole_slha<Model>;
-
-            // Goldstones
-            // Using wrapper functions defined above
-            // tmp_map["Goldstone0"] = &get_neutral_goldstone_pole_slha<Model>;
-            // tmp_map["Goldstone+"] = &get_charged_goldstone_pole_slha<Model>;
-            // Antiparticle label (no automatic conversion for this)
-            // tmp_map["Goldstone-"] = &get_charged_goldstone_pole_slha<Model>;
+            tmp_map["A0"] = &get_mA_pole<Model>;
+            tmp_map["H+"] = &get_mHpm_pole<Model>;
 
             map_collection[Par::Pole_Mass].map0_extraM = tmp_map;
          }
 
          // Functions utilising the one-index "plain-vanilla" function signature
-         // (One-index member functions of model object)
+         // (One-index member functions of model object)s
          {
             typename MTget::fmap1 tmp_map;
 
-            tmp_map["h0"] =  FInfo1( &Model::get_Mhh_pole_slha, i01 );
+            tmp_map["h0"] =  FInfo1( &Model::get_Mhh, i01 );
             
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
 
          /// @}
-
-         /// @{ Pole_Mixing - Pole mass parameters
-         //
-         // Functions utilising the two-index "plain-vanilla" function signature
-         // (Two-index member functions of model object)
-         {
-            // typename MTget::fmap2 tmp_map;
-
-            // tmp_map["h0"] =   FInfo2( &Model::get_ZH_pole_slha, i01, i01);
-            // tmp_map["A0"] =   FInfo2( &Model::get_ZA_pole_slha, i01, i01);
-            // tmp_map["H+"] = FInfo2( &Model::get_ZP_pole_slha, i01, i01);
-
-            // map_collection[Par::Pole_Mixing].map2 = tmp_map;
-         }
-         /// @}
-
-        //  cout << "map_collection[Par::Pole_Mass]: " << map_collection[Par::Pole_Mass] << endl;
 
          return map_collection;
       }
@@ -545,22 +512,6 @@ namespace Gambit
          static const std::set<int> i0123 = initSet(0,1,2,3);
          static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
 
-         
-         /// @{ mass2 - mass dimension 2 parameters
-         //
-         // Functions utilising the "plain-vanilla" function signature
-         // (Zero index member functions of model object)
-         {  // scope so we can reuse the name 'tmp_map' several times, so that our macro works.
-            // could make a better macro, or an actual function, but I'm in a hurry
-            // ##nil
-         }
-
-         // Functions utilising the two-index "plain-vanilla" function signature
-         // (Two-index member functions of model object)
-         {
-            // ##nil
-         }
-         /// @}
 
          /// @{ mass1 - mass dimension 1 parameters
          //
@@ -571,12 +522,6 @@ namespace Gambit
             // tmp_map["vev"]= &Model::set_vev;
 
             map_collection[Par::mass1].map0 = tmp_map;
-         }
-
-         // Functions utilising the two-index "plain-vanilla" function signature
-         // (Two-index member functions of model object)
-         {
-            // ##nil
          }
 
          /// @}
@@ -623,17 +568,6 @@ namespace Gambit
           // tmp_map["A0"] = &set_MAh1_pole_slha<Model>;
           // tmp_map["H+"] = &set_MHpm1_pole_slha<Model>;
 
-            /// Note; these aren't in the particle database, so no
-            /// conversion between particle/antiparticle.
-            //   tmp_map["Goldstone0"] = &set_neutral_goldstone_pole_slha<Model>;
-            //   tmp_map["Goldstone+"] = &set_charged_goldstone_pole_slha<Model>;
-            //   tmp_map["Goldstone-"] = &set_charged_goldstone_pole_slha<Model>;
-
-            /// PA: MW is a prediction in FS and most spectrum generators
-            /// so this belongs in the HE object.
-            /// MZ is not and so belongs in LE object
-          // tmp_map["W+"] = &set_MW_pole_slha<Model>;
-
           map_collection[Par::dimensionless].map0_extraM = tmp_map;
         }
 
@@ -644,22 +578,6 @@ namespace Gambit
 
           map_collection[Par::Pole_Mass].map1_extraM = tmp_map;
         }
-
-
-        /// @{ Pole_Mixing - Pole mass parameters
-        //
-        // Functions utilising the two-index "plain-vanilla" function signature
-        // (Two-index member functions of model object)
-        {
-        //   typename MTset::fmap2_extraM tmp_map;
-
-        //   tmp_map["h0"] =   FInfo2M( &set_ZH_pole_slha, i01, i01);
-        //   tmp_map["A0"] =   FInfo2M( &set_ZA_pole_slha, i01, i01);
-        //   tmp_map["H+"] = FInfo2M( &set_ZP_pole_slha, i01, i01);
-
-        //   map_collection[Par::Pole_Mixing].map2_extraM = tmp_map;
-        }
-
 
          return map_collection;
       }
