@@ -40,20 +40,12 @@ namespace Gambit
     	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3];
 	 };
 
-     // Quark electic dipole moments
+     // Quark (chromo)electric dipole moments
      class dq
      {
         public:
            dq();
            double u, d, s, c, b, t;
-     };
-
-     // Quark chromoelectric dipole moments
-     class dcq
-     {
-         public:
-    	    dcq();
-    	    double u, d, s, c, b, t;
      };
   }
 }

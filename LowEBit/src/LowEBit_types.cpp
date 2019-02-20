@@ -32,10 +32,5 @@ namespace Gambit
       {
     	  u = d = s = c = b = t = 0;
       }
-
-      dcq::dcq()
-      {
-          u = d = s = c = b = t = 0;
-      }
    }
 }
