@@ -43,7 +43,7 @@ namespace Gambit
 
       void EDM_q_Wilson(dq &result)
 	  // Calculation of quark EDMs (at mu_had) from Wilson Coefficients
-      // TODO: Make work at any scale.
+      // TODO: Make work at any scale. Check units.
       {
          using namespace Pipes::EDM_q_Wilson;
 
@@ -57,6 +57,24 @@ namespace Gambit
          result.u = sqrt(2)*gf*2/3*e*mu*c.Cu[1];
          result.d = sqrt(2)*gf*(-1/3)*e*md*c.Cd[1];
          result.s = sqrt(2)*gf*(-1/3)*e*ms*c.Cs[1];
+         //Heavy quarks for completeness??
+      }
+
+      void CEDM_q_Wilson(dq &result)
+	  // Calculation of quark chromoEDMs (at mu_had) from Wilson Coefficients
+      // TODO: Make work at any scale. Check units.
+      {
+         using namespace Pipes::CEDM_q_Wilson;
+
+    	 double gf = Dep::SMINPUTS->GF;
+    	 double mu = Dep::SMINPUTS->mU;
+    	 double md = Dep::SMINPUTS->mD;
+    	 double ms = Dep::SMINPUTS->mS;
+
+    	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
+         result.u = -sqrt(2)*gf*mu*c.Cu[2];
+         result.d = -sqrt(2)*gf*md*c.Cd[2];
+         result.s = -sqrt(2)*gf*ms*c.Cs[2];
          //Heavy quarks for completeness??
       }
    }
