@@ -28,17 +28,17 @@ namespace Gambit
           using namespace Pipes::CPV_Wilson_q_Simple;
 
           result.Cu[1] = (*Param["kappaU"])*(*Param["SinPhiU"])
-             *8.2E-5;
+             *1.16E-4;
           result.Cd[1] = (*Param["kappaD"])*(*Param["SinPhiD"])
-             *10.1E-5;
+             *1.45E-4;
           result.Cs[1] = (*Param["kappaS"])*(*Param["SinPhiS"])
-             *10.1E-5;
+             *1.45E-5;
           result.Cu[2] = (*Param["kappaU"])*(*Param["SinPhiU"])
-             *(-6.6E-5);
+             *(-1.07E-4);
           result.Cd[2] = (*Param["kappaD"])*(*Param["SinPhiD"])
-             *(-6.6E-5);
+             *(-1.14E-4);
           result.Cs[2] = (*Param["kappaS"])*(*Param["SinPhiS"])
-             *(-6.6E-5);
+             *(-1.14E-4);
       }
 
       void EDM_q_Wilson(dq &result)
