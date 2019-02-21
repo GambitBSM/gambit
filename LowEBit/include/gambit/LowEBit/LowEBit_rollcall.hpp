@@ -44,9 +44,9 @@ START_CAPABILITY
 #undef CAPABILITY
 
 #define CAPABILITY EDM_q
-// Calculation of quark EDMs (at mu_had) from Wilson Coefficients in cm
 START_CAPABILITY
    #define FUNCTION EDM_q_Wilson
+   // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
    START_FUNCTION(dq)
    DEPENDENCY(CPV_Wilson_Coeff_q, CPV_WC_q)
    DEPENDENCY(SMINPUTS, SMInputs)
@@ -54,12 +54,24 @@ START_CAPABILITY
 #undef CAPABILITY
 
 #define CAPABILITY CEDM_q
-// Calculation of quark chromoEDMs (at mu_had) from Wilson Coefficients in cm
 START_CAPABILITY
    #define FUNCTION CEDM_q_Wilson
+   // Calculation of quark chromoEDMs (at mu_had) from Wilson Coefficients in cm
    START_FUNCTION(dq)
    DEPENDENCY(CPV_Wilson_Coeff_q, CPV_WC_q)
    DEPENDENCY(SMINPUTS, SMInputs)
+   #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY EDM_n // The EDM of the neutron
+START_CAPABILITY
+   #define FUNCTION EDM_n_quark
+   // Calculation of neutron EDM from quark EDMs and CEDMs in e cm
+   START_FUNCTION(double)
+   DEPENDENCY(SMINPUTS, SMInputs)
+   DEPENDENCY(EDM_q, dq)
+   DEPENDENCY(CEDM_q, dq)
+   ALLOW_MODELS(nEDMme)
    #undef FUNCTION
 #undef CAPABILITY
 

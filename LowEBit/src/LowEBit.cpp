@@ -42,21 +42,20 @@ namespace Gambit
       }
 
       void EDM_q_Wilson(dq &result)
-	  // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in cm
+	  // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
       // TODO: Make work at any scale.
       {
          using namespace Pipes::EDM_q_Wilson;
 
     	 double gf = Dep::SMINPUTS->GF;
-    	 double e = sqrt(4*pi/Dep::SMINPUTS->alphainv);
     	 double mu = Dep::SMINPUTS->mU;
     	 double md = Dep::SMINPUTS->mD;
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = sqrt(2)*gf*2/3*e*mu*c.Cu[1]*gevtocm;
-         result.d = sqrt(2)*gf*(-1/3)*e*md*c.Cd[1]*gevtocm;
-         result.s = sqrt(2)*gf*(-1/3)*e*ms*c.Cs[1]*gevtocm;
+         result.u = sqrt(2)*gf*2/3*mu*c.Cu[1]*gevtocm;
+         result.d = sqrt(2)*gf*(-1/3)*md*c.Cd[1]*gevtocm;
+         result.s = sqrt(2)*gf*(-1/3)*ms*c.Cs[1]*gevtocm;
          //Heavy quarks for completeness??
       }
 
@@ -77,5 +76,20 @@ namespace Gambit
          result.s = -sqrt(2)*gf*ms*c.Cs[2]*gevtocm;
          //Heavy quarks for completeness??
       }
+
+      void EDM_n_quark(double &result)
+      // Calculation of neutron EDM from quark EDMs and CEDMs in e cm
+      {
+         using namespace Pipes::EDM_n_quark;
+
+    	 double e = sqrt(4*pi/Dep::SMINPUTS->alphainv);
+         dq dEDM = *Dep::EDM_q;
+         dq dCEDM = *Dep::CEDM_q;
+
+         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)/e
+            + (*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
+			+ (*Param["gTs"])*dEDM.s;
+      }
+
    }
 }
