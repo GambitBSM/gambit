@@ -31,6 +31,7 @@ namespace Gambit
   const double pi = 3.141592653589793238462643383279502884197;
   const double root2 = sqrt(2.0);
   const double hbar = 6.582119514e-25;                          // GeV s  (http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf)
+  const double gevtocm = 197.327053e-16;                        // cm per GeV^-1
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2

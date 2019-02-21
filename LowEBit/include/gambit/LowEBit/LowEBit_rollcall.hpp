@@ -44,6 +44,7 @@ START_CAPABILITY
 #undef CAPABILITY
 
 #define CAPABILITY EDM_q
+// Calculation of quark EDMs (at mu_had) from Wilson Coefficients in cm
 START_CAPABILITY
    #define FUNCTION EDM_q_Wilson
    START_FUNCTION(dq)
@@ -53,6 +54,7 @@ START_CAPABILITY
 #undef CAPABILITY
 
 #define CAPABILITY CEDM_q
+// Calculation of quark chromoEDMs (at mu_had) from Wilson Coefficients in cm
 START_CAPABILITY
    #define FUNCTION CEDM_q_Wilson
    START_FUNCTION(dq)
