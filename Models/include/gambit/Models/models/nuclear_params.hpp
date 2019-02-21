@@ -11,7 +11,7 @@
 //  (add name and date if you modify)
 //
 //  Jonathan Cornell
-//  2015 March
+//  2015 March, 2019 Feb
 //
 //  *********************************************
 
@@ -51,6 +51,15 @@ namespace Gambit {
   INTERPRET_AS_PARENT_FUNCTION(sigmas_to_sigma0)
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
 #undef PARENT
+#undef MODEL
+
+// Neutron EDM matrix elements
+#define MODEL nEDMme
+   START_MODEL
+   // EDM matrix elements (MSbar at 2 GeV)
+   DEFINEPARS(gTu, gTd, dTs)
+   // chromoEDM matrix elements
+   DEFINEPARS(rhoU, rhoD)
 #undef MODEL
 
 #endif /* __nuclear_params_hpp__ */
