@@ -23,19 +23,19 @@ Priors:
 
 Printer:
 
-  printer: sqlite
-  options:
-    output_file: "results.sql"
-    table_name: "spartan"
-    buffer_length: 1000
-    delete_file_on_restart: true
-    buffer_length: 100000
-
-  #printer: hdf5
+  #printer: sqlite
   #options:
-  #  output_file: "results.hdf5"
-  #  group: "/spartan"
+  #  output_file: "results.sql"
+  #  table_name: "spartan"
+  #  buffer_length: 1000
   #  delete_file_on_restart: true
+
+  printer: hdf5
+  options:
+    output_file: "results.hdf5"
+    group: "/spartan"
+    delete_file_on_restart: true
+    buffer_length: 100
 
   #printer: ascii
   #options:
@@ -47,7 +47,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: multinest
+  use_scanner: twalk
 
   scanners:
 
@@ -95,7 +95,9 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-
+  - capability: normaldist_loglike   
+    options:
+        probability_of_validity: 0.9
 
 Logger:
 

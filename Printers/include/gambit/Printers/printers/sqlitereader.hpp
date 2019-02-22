@@ -17,6 +17,8 @@
 ///
 ///  *********************************************
 
+#include <sqlite3.h> // SQLite3 C interface 
+
 #include "gambit/Printers/baseprinter.hpp"
 #include "gambit/Printers/printers/sqlitebase.hpp"
 #include "gambit/Printers/printers/sqlitetypes.hpp"

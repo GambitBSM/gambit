@@ -19,10 +19,13 @@
 
 #include <map>
 #include <string>
-#include <sqlite3.h> // SQLite3 C interface 
 
 // Gambit
 #include "gambit/Utils/util_functions.hpp" // Need Utils::ci_less to make map find() functions case-insensitive, since SQLite is case insensitive
+
+// Forward declare sqlite3 objects
+struct sqlite3;
+struct sqlite3_stmt;
 
 namespace Gambit
 {
