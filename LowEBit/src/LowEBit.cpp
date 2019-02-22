@@ -91,5 +91,16 @@ namespace Gambit
 			+ (*Param["gTs"])*dEDM.s;
       }
 
+      void lnL_EDM_n_step(double &result)
+      // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
+      {
+    	  using namespace Pipes::lnL_EDM_n_step;
+
+    	  if (*Dep::EDM_n < 2.9E-26) //90% CL limit from arXiv:hep-ex/0602020
+    		  result = 0.0;
+    	  else
+    		  result = -1.0E50;
+      }
+
    }
 }

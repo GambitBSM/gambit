@@ -75,6 +75,15 @@ START_CAPABILITY
    #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY lnL_EDM_n
+START_CAPABILITY
+   #define FUNCTION lnL_EDM_n_step
+   // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
+   START_FUNCTION(double)
+   DEPENDENCY(EDM_n, double)
+   #undef FUNCTION
+#undef CAPABILITY
+
 #undef MODULE
 
 #endif
