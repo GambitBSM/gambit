@@ -82,9 +82,9 @@ namespace Gambit
         ZHiggsToSusyBasis(1,0) = sinbeta;
         ZHiggsToSusyBasis(1,1) = cosbeta;
         ZHiggsToSusyBasis(1,2) = 0;
-        ZHiggsToSusyBasis(1,0) = 0;
-        ZHiggsToSusyBasis(1,1) = 0;
-        ZHiggsToSusyBasis(1,2) = 1;
+        ZHiggsToSusyBasis(2,0) = 0;
+        ZHiggsToSusyBasis(2,1) = 0;
+        ZHiggsToSusyBasis(2,2) = 1;
 
 
         // Getting the mixing matrix from the Higgs Basis to the mass basis

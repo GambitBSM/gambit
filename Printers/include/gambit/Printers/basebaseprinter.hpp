@@ -87,8 +87,8 @@ namespace Gambit
         /// Retrieve/Set print list for this printer
         /// Required by e.g. postprocessor.
         std::set<std::string> getPrintList() {return print_list;}
-        void                  setPrintList(std::set<std::string>& in) {print_list = in;}
-        void                  addToPrintList(std::string& in) {print_list.insert(in);}
+        void                  setPrintList(const std::set<std::string>& in) {print_list = in;}
+        void                  addToPrintList(const std::string& in) {print_list.insert(in);}
 
         // Get options required to construct a reader object that can read
         // the previous output of this printer.

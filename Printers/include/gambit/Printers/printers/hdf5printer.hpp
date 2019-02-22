@@ -559,7 +559,7 @@ namespace Gambit
 
     // Register printer so it can be constructed via inifile instructions
     // First argument is string label for inifile access, second is class from which to construct printer
-    LOAD_PRINTER(hdf5, HDF5Printer)
+    LOAD_PRINTER(hdf5_v1, HDF5Printer)
 
   } // end namespace Printers
 

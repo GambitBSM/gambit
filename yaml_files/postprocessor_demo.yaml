@@ -20,13 +20,13 @@ Parameters:
 
   # These parameters don't exist in the original data file, but we
   # can still use them to satisfy dependencies because they have fixed values.
-  NUHM1:
-    A0: 1
-    M0: 2
-    mH: 3
-    M12: 4 
-    SignMu: 5
-    TanBeta: 6
+  #NUHM1:
+  #  A0: 1
+  #  M0: 2
+  #  mH: 3
+  #  M12: 4 
+  #  SignMu: 5
+  #  TanBeta: 6
  
 Priors:
 
@@ -39,6 +39,14 @@ Printer:
     output_file: "pp_results.hdf5"
     group: "/ppv2"
     delete_file_on_restart: true
+
+  #printer: sqlite
+  #options:
+  #  output_file: "pp_results.sql"
+  #  table_name: "ppv2"
+  #  buffer_length: 100
+  #  delete_file_on_restart: true
+
 
 Scanner:
 
@@ -62,14 +70,18 @@ Scanner:
       # The below don't seem to work?
       # Restrict postprocessing to values greater than this
       cut_greater_than: {"LogLike": -1e99} # Will not process invalid points
-      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 25} # Keep only points with mu<25
+      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 22} # Keep only points with mu<25
        # Throw away all points outside the cuts
       discard_points_outside_cuts: true
       # Information about input dataset to be postprocessed
+      #reader:
+      #  type: hdf5
+      #  file: "runs/spartan/samples/results.hdf5"
+      #  group: "/spartan"
       reader:
-        type: hdf5
-        file: "runs/spartan/samples/results.hdf5"
-        group: "/spartan"
+        type: sqlite
+        file: "runs/spartan/samples/results.sql"
+        table: "spartan" 
 
 ObsLikes:
 
@@ -82,11 +94,11 @@ ObsLikes:
     # Test activation of new fixed model parameters that
     # don't exist in the input file (this function requires
     # e.g. NUHM1 parameters to run)
-  - purpose:      New_LogLike
-    capability:   Example_lnL_B
-    type:         double
-    function:     ""
-    module:       ""
+    #- purpose:      New_LogLike
+    #  capability:   Example_lnL_B
+    #  type:         double
+    #  function:     ""
+    #  module:       ""
 
 Rules:
 

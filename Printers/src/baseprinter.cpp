@@ -78,7 +78,7 @@ namespace Gambit
      /// Parses a printer label and checks if it contains a single model parameter.
      /// "out" is a memory location to store the parameter name, if found.
      /// "labelroot" is a memory location to store the rest of the label (i.e. minus the parameter name)
-     bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& labelroot)
+     bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& labelroot, bool case_sensitive)
      {
         bool result = false;
         std::istringstream iss(fulllabel);
@@ -95,16 +95,16 @@ namespace Gambit
         {
           //capability is "#NormalDist_parameters", for example
           capability.erase(0,1); // cut off the first character (hash, in all potentially matching cases)
-          if(Utils::startsWith(capability,modelname))
+          if(Utils::startsWith(capability,modelname,case_sensitive))
           {
              // Cut off the modelname which matched
              capability.erase(0,modelname.size());
-             if(Utils::startsWith(capability,"_parameters"))
+             if(Utils::startsWith(capability,"_parameters",case_sensitive))
              {
                 // Still good so far, check 'rest', should be something like @NormalDist::primary_parameters::mu
                 rest.erase(0,1); // cut off the first character (@, in all potentially matching cases)
                 std::vector<str> split_rest = Utils::delimiterSplit(rest, "::");
-                if(split_rest[0]==modelname and split_rest.size()==3)
+                if(Utils::iequals(split_rest[0],modelname,case_sensitive) and split_rest.size()==3)
                 {
                   // Ok! We have a match!
                   out = split_rest[2];
