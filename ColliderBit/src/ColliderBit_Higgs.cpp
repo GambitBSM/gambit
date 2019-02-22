@@ -18,6 +18,7 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///  \date 2016 Sep
+///  \date 2019 Feb
 ///
 ///  \author James McKay
 ///          (j.mckay14@imperial.ac.uk)
@@ -51,9 +52,9 @@ namespace Gambit
   {
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios from a GAMBIT HiggsCouplingsTable
-    void set_CS(hb_ModelParameters &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
+    void set_CS(hb_ModelParameters &result, const HiggsCouplingsTable& couplings)
     {
-      for(int i = 0; i < n_neutral_higgses; i++)
+      for(int i = 0; i < couplings.get_n_neutral_higgs(); i++)
       {
         result.CS_bg_hjb_ratio[i] = couplings.C_bb2[i];
         result.CS_bb_hj_ratio[i]  = couplings.C_bb2[i];
@@ -84,7 +85,7 @@ namespace Gambit
         result.CS_lhc7_tthj_ratio[i] = couplings.C_tt2[i];
         result.CS_lhc8_tthj_ratio[i] = couplings.C_tt2[i];
 
-        for(int j = 0; j < n_neutral_higgses; j++)
+        for(int j = 0; j < couplings.get_n_neutral_higgs(); j++)
         {
           result.CS_lep_hjhi_ratio[i][j] = couplings.C_hiZ2[i][j];
         }
@@ -140,7 +141,7 @@ namespace Gambit
       }
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS(result, couplings, 1);
+      set_CS(result, couplings);
 
       // Zero all heavy neutral higgs masses, widths and effective couplings
       for(int i = 1; i < 3; i++)
@@ -224,12 +225,13 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      int n_neutral_higgses = Dep::Higgs_Couplings->get_n_neutral_higgs();
 
       // Set the CP of the Higgs states.
-      for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+      for (int i = 0; i < n_neutral_higgses; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
 
       // Retrieve higgs partial widths
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
+      const std::vector<const DecayTable::Entry*>& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array();
       const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
@@ -238,7 +240,7 @@ namespace Gambit
       const SubSpectrum& spec = fullspectrum.get_HE();
 
       // Neutral higgs masses and errors
-      for(int i = 0; i < 3; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
         double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
@@ -247,7 +249,7 @@ namespace Gambit
       }
 
       // Loop over all neutral Higgses, setting their branching fractions and total widths.
-      for(int i = 0; i < 3; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.hGammaTot[i] = h0_widths[i]->width_in_GeV;
         result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
@@ -267,7 +269,7 @@ namespace Gambit
           result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
         }
         // Do decays to other neutral higgses
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < n_neutral_higgses; j++)
         {
           if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
           {
@@ -297,10 +299,10 @@ namespace Gambit
       result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS(result, *Dep::Higgs_Couplings, 3);
+      set_CS(result, *Dep::Higgs_Couplings);
     }
 
-    // SB: todo
+    // SB: todo -- merge this with the MSSM version into one module function, using model-conditional dependencies.
     /// NMSSM Higgs model parameters
     void NMSSMHiggs_ModelParameters(hb_ModelParameters &result)
     {
@@ -308,12 +310,13 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "h0_3", "A0_1", "A0_2");
+      int n_neutral_higgses = Dep::Higgs_Couplings->get_n_neutral_higgs();
 
       // Set the CP of the Higgs states.
-      for (int i = 0; i < 5; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+      for (int i = 0; i < n_neutral_higgses; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
 
       // Retrieve higgs partial widths
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(5);
+      const std::vector<const DecayTable::Entry*>& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array();
       const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
@@ -322,16 +325,16 @@ namespace Gambit
       const SubSpectrum& spec = fullspectrum.get_HE();
 
       // Neutral higgs masses and errors
-      for(int i = 0; i < 5; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
         double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
         double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
         result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
       }
-      
+
       // Loop over all neutral Higgses, setting their branching fractions and total widths.
-      for(int i = 0; i < 5; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.hGammaTot[i] = h0_widths[i]->width_in_GeV;
         // result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
@@ -353,7 +356,7 @@ namespace Gambit
         result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
         result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
         result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
-        
+
         // Do decays to invisibles
         result.BR_hjinvisible[i] = 0.;
         for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
@@ -361,7 +364,7 @@ namespace Gambit
           result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
         }
         // Do decays to other neutral higgses
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < n_neutral_higgses; j++)
         {
           if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
           {
@@ -373,7 +376,6 @@ namespace Gambit
           }
         }
       }
-
 
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
@@ -402,7 +404,7 @@ namespace Gambit
       result.BR_tHpjb[0]   = t_widths.has_channel("H+", "d_3") ? t_widths.BF("H+", "d_3") : 0.0;
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS(result, *Dep::Higgs_Couplings, 5);
+      set_CS(result, *Dep::Higgs_Couplings);
     }
 
 

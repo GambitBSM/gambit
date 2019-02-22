@@ -8,11 +8,6 @@
 ///
 ///  Authors (add name and date if you modify):
 ///
-///  \author Abram Krislock
-///          (a.m.b.krislock@fys.uio.no)
-///
-///  \author Aldo Saavedra
-///
 ///  \author Christopher Rogan
 ///          (christophersrogan@gmail.com)
 ///  \date 2015 Apr
@@ -20,6 +15,10 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
+///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2019 Feb
 ///
 ///  *********************************************
 

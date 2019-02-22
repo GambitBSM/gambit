@@ -24,6 +24,10 @@
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Pat Scott
+///          (p.scott@imperial.ac.uk)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 //#include <string>
@@ -201,6 +205,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "h0_3", "A0_1", "A0_2");
+      result.set_n_neutral_higgs(5);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex NMSSM!
       result.CP[0] = 1.;  //h0_1
@@ -313,11 +321,11 @@ namespace Gambit
       // @{ DEBUGGING
       //std::cout<<"Debugging NMSSM spectrum routines..."<<std::endl;
       //std::cout<<"Dumping SLHAea object from Spectrum object"<<std::endl;
-      //std::cout<<nmssmspec.get_HE().getSLHAea(2)<<std::endl; 
+      //std::cout<<nmssmspec.get_HE().getSLHAea(2)<<std::endl;
       // @}
 
       fill_map_from_subspectrum<SpectrumContents::SM_slha>  (specmap, nmssmspec.get_LE());
-      // TODO: This line doesn't work for some reason... 
+      // TODO: This line doesn't work for some reason...
       fill_map_from_subspectrum<SpectrumContents::NMSSM>(specmap, nmssmspec.get_HE());
     }
 

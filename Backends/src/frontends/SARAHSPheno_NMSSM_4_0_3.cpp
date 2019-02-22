@@ -32,7 +32,7 @@
 // Callback function for error handling
 BE_NAMESPACE
 {
-  // This function will be called from SPheno. Needs C linkage, and thus also  
+  // This function will be called from SPheno. Needs C linkage, and thus also
   // a backend-specific name to guard against name clashes.
   extern "C"
   void CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler)()
@@ -54,11 +54,14 @@ BE_NAMESPACE
     // decay mode of the mother particle. (See typedef of channel_info_triplet above.)
     static std::map<int,std::vector<channel_info_triplet> > all_channel_info;
 
+    // Flag indicating whether the decays need to be computed or not.
+    static bool BRs_already_calculated = false;
+
     // Function that reads a table of all the possible decays in SARAHSPheno_NMSSM
     // and fills the all_channel_info map above
     void fill_all_channel_info(str);
 
-    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for 
+    // Helper function to turn a vector<int> into a vector<pairs<int,int> > needed for
     // when calling the GAMBIT DecayTable::set_BF function
     std::vector<std::pair<int,int> > get_pdg_context_pairs(std::vector<int>);
   }
@@ -331,7 +334,7 @@ BE_NAMESPACE
 
       try{ CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT); }
       catch(std::runtime_error e) { invalid_point().raise(e.what()); }
-  
+
       if(*kont != 0)
         ErrorHandling(*kont);
 
@@ -434,7 +437,7 @@ BE_NAMESPACE
 
     }
 
-    // In debug mode, output a summary line with masses and parameters to the logger, 
+    // In debug mode, output a summary line with masses and parameters to the logger,
     // to aid quick tests/debugging of ongoing scans
     std::stringstream summary_line;
     summary_line << "Spectrum summary:"
@@ -467,23 +470,10 @@ BE_NAMESPACE
 
   }
 
-  // Convenience function to pass the spectrum object to the SPheno frontend, and
-  // call the 'calculateBR' function, so that this is not repeated multiple times in the frontend.
+  // Helper function to pass the spectrum object to the SPheno frontend and compute the BRs.
   void fill_spectrum_calculate_BRs(const Spectrum &spectrum, const Finputs& inputs)
   {
-    bool spectrum_changed = false;
-
-    // Check some masses to check if this function has been called before
-    // May be a _little_ hacky... 
-    if ((*MChi)(1) != spectrum.get(Par::Pole_Mass, "~chi0",1)) spectrum_changed = true;
-    if ((*MChi)(2) != spectrum.get(Par::Pole_Mass, "~chi0",2)) spectrum_changed = true;
-    if ((*MChi)(3) != spectrum.get(Par::Pole_Mass, "~chi0",3)) spectrum_changed = true;
-    if ((*MChi)(4) != spectrum.get(Par::Pole_Mass, "~chi0",4)) spectrum_changed = true;
-    if ((*Mhh)(1) != spectrum.get(Par::Pole_Mass, "h0",1)) spectrum_changed = true;
-    if ((*Mhh)(2) != spectrum.get(Par::Pole_Mass, "h0",2)) spectrum_changed = true;
-    if ((*Mhh)(3) != spectrum.get(Par::Pole_Mass, "h0",3)) spectrum_changed = true;
-
-    if (not spectrum_changed) { return; }
+    if (Fdecays::BRs_already_calculated) return;
 
     // Initialize some variables
     *Iname = 1;
@@ -532,7 +522,7 @@ BE_NAMESPACE
         (*MFd2)(i) = pow((*MFd)(i),2);
         (*MFe2)(i) = pow((*MFe)(i),2);
         (*MFu2)(i) = pow((*MFu)(i),2);
- 
+
       }
       if(i <= 2)
       {
@@ -589,14 +579,14 @@ BE_NAMESPACE
           (*me2)(i,j) = spectrum.get(Par::mass2, "me2", i, j);
           (*Yd)(i,j) = 0;
           (*Ye)(i,j) = 0;
-          (*Yu)(i,j) = 0; 
+          (*Yu)(i,j) = 0;
           if(i == j)
           {
             (*Yd)(i,j) = spectrum.get(Par::dimensionless, "Yd", i, j);
             (*Ye)(i,j) = spectrum.get(Par::dimensionless, "Ye", i, j);
             (*Yu)(i,j) = spectrum.get(Par::dimensionless, "Yu", i, j);
           }
- 
+
         }
         if(i<=5 and j<=5)
           (*ZN)(i,j) = spectrum.get(Par::Pole_Mixing, "~chi0", i, j);
@@ -671,6 +661,9 @@ BE_NAMESPACE
     // Check for errors
     if(*kont != 0)
       ErrorHandling(*kont);
+
+    Fdecays::BRs_already_calculated = true;
+
   }
 
   // Convenience function to run Spheno and obtain the decays
@@ -701,9 +694,9 @@ BE_NAMESPACE
     Farray_Freal8_1_3_1_78 gPFu, BRFu;
     Farray_Freal8_1_3 gTFu;
 
-    // Pass the GAMBIT spectrum to SPheno and fill the internal decay objects 
+    // Pass the GAMBIT spectrum to SPheno and fill the internal decay objects
     fill_spectrum_calculate_BRs(spectrum, inputs);
-    
+
     if(*kont != 0)
       ErrorHandling(*kont);
 
@@ -719,7 +712,7 @@ BE_NAMESPACE
     int spheno_index;
     double corrf;
 
-    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd 
+    std::vector<int> pdg = {1000001, 1000003, 1000005, 2000001, 2000003, 2000005, // Sd
                             1000002, 1000004, 1000006, 2000002, 2000004, 2000006, // Su
                             1000011, 1000013, 1000015, 2000011, 2000013, 2000015, // Se
                             1000012, 1000014, 1000016,                            // Sv
@@ -730,13 +723,13 @@ BE_NAMESPACE
                             1000022, 1000023, 1000025, 1000035, 1000045,          // Chi
                             1000024, 1000037,                                     // Cha
                             2, 4, 6};                                             // Fu
-    int n_particles = pdg.size();    
-    auto gT = [&](int i)  
+    int n_particles = pdg.size();
+    auto gT = [&](int i)
     {
       if(i<=6) return gTSd(i);
       else if(i<=12) return gTSu(i-6);
       else if(i<=18) return gTSe(i-12);
-      else if(i<=21) return gTSv(i-18); 
+      else if(i<=21) return gTSv(i-18);
       else if(i<=24) return gThh(i-21);
       // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
       else if(i<=26) return gTAh(i+1-24);
@@ -753,7 +746,7 @@ BE_NAMESPACE
       if(i<=6) return BRSd(i,j);
       else if(i<=12) return BRSu(i-6,j);
       else if(i<=18) return BRSe(i-12,j);
-      else if(i<=21) return BRSv(i-18,j); 
+      else if(i<=21) return BRSv(i-18,j);
       else if(i<=24) return BRhh(i-21,j);
       // In Spheno the first entry of gTAh and BRAh corresponds to the goldstone boson
       else if(i<=26) return BRAh(i+1-24,j);
@@ -764,7 +757,7 @@ BE_NAMESPACE
       else if(i<=39) return BRFu(i-36,j);
       return 0.0;
     };
-   
+
     for(int i=0; i<n_particles; i++)
     {
       std::vector<channel_info_triplet> civ = Fdecays::all_channel_info.at(pdg[i]);
@@ -779,7 +772,7 @@ BE_NAMESPACE
         else
           entry.set_BF(0., 0., Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
-      // S.B. should we always set the context to 0? 
+      // S.B. should we always set the context to 0?
       decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
     }
 
@@ -935,7 +928,7 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
- 
+
     // Write output in the super-CKM basis
     if(*SwitchToSCKM)
     {
@@ -974,7 +967,7 @@ BE_NAMESPACE
         }
         id3C(i,i) = {1.0,0.0};
       }
-      
+
       // Convert to super-CKM and super-PMNS variables
       Flogical False = false;
       try{ Switch_to_superCKM(*Yd, *Yu, *Td, *Tu, *md2, *mq2, *mu2, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm,mu2_ckm, False, ZD_ckm, ZU_ckm, *ZD, *ZU, CKM_Q, Yd_ckm, Yu_ckm); }
@@ -1008,7 +1001,7 @@ BE_NAMESPACE
           slha["VCKM"][""] << i << j << CKM_Q(i,j).re << "# V_" << i << j;
           slha["IMVCKM"][""] << i << j << CKM_Q(i,j).im << "# Im(V_" << i << j << ")";
         }
-  
+
     }
 
     // Block GAUGE
@@ -1373,10 +1366,10 @@ BE_NAMESPACE
     if(*kont != 0)
       ErrorHandling(*kont);
 
-    /* Fill in effective coupling ratios. 
+    /* Fill in effective coupling ratios.
        These are the ratios of BR_BSM(channel)/BR_SM(channel) */
 
-    // Fermions 
+    // Fermions
 
     // S.B.
     // All h0_X f fbar pseudoscalar couplings should be 0.
@@ -1451,19 +1444,19 @@ BE_NAMESPACE
     hctbl.C_WW2[3] = (*rHB_P_VWm)(2);    // Coupling (A0_1 -> WW)
     hctbl.C_WW2[4] = (*rHB_P_VWm)(3);    // Coupling (A0_2 -> WW)
     hctbl.C_ZZ2[0] = (*rHB_S_VZ)(1);     // Coupling (h0_1 -> ZZ)
-    hctbl.C_ZZ2[1] = (*rHB_S_VZ)(2);     // Coupling (h0_2 -> ZZ) 
+    hctbl.C_ZZ2[1] = (*rHB_S_VZ)(2);     // Coupling (h0_2 -> ZZ)
     hctbl.C_ZZ2[2] = (*rHB_S_VZ)(3);     // Coupling (h0_3 -> ZZ)
     hctbl.C_ZZ2[3] = (*rHB_P_VZ)(2);     // Coupling (A0_1 -> ZZ)
     hctbl.C_ZZ2[4] = (*rHB_P_VZ)(3);     // Coupling (A0_2 -> ZZ)
 
     // Need to take the real part of these ratios - loop functions maybe?
-    hctbl.C_gaga2[0] = pow( (*ratioPP)(1).re, 2 );    // Coupling (h0_1 -> gamma gamma)    
+    hctbl.C_gaga2[0] = pow( (*ratioPP)(1).re, 2 );    // Coupling (h0_1 -> gamma gamma)
     hctbl.C_gaga2[1] = pow( (*ratioPP)(2).re, 2 );    // Coupling (h0_2 -> gamma gamma)
     hctbl.C_gaga2[2] = pow( (*ratioPP)(3).re, 2 );    // Coupling (h0_3 -> gamma gamma)
     hctbl.C_gaga2[3] = pow( (*ratioPPP)(2).re, 2 );   // Coupling (A0_1 -> gamma gamma)
-    hctbl.C_gaga2[4] = pow( (*ratioPPP)(3).re, 2 );   // Coupling (A0_2 -> gamma gamma)    
+    hctbl.C_gaga2[4] = pow( (*ratioPPP)(3).re, 2 );   // Coupling (A0_2 -> gamma gamma)
 
-    hctbl.C_gg2[0] = pow( (*ratioGG)(1).re, 2);      // Coupling (h0_1 -> glu glu)    
+    hctbl.C_gg2[0] = pow( (*ratioGG)(1).re, 2);      // Coupling (h0_1 -> glu glu)
     hctbl.C_gg2[1] = pow( (*ratioGG)(2).re, 2);      // Coupling (h0_2 -> glu glu)
     hctbl.C_gg2[2] = pow( (*ratioGG)(3).re, 2);      // Coupling (h0_3 -> glu glu)
     hctbl.C_gg2[3] = pow( (*ratioPGG)(2).re, 2);     // Coupling (A0_1 -> glu glu)
@@ -1477,8 +1470,8 @@ BE_NAMESPACE
 
     // hhZ effective couplings. This is symmetrised (i.e. j,i = i,j)
     hctbl.C_hiZ2[0][0] = (*CPL_H_H_Z)(1,1).re;   // Coupling (h0_1 h0_1 Z)
-    hctbl.C_hiZ2[0][1] = (*CPL_H_H_Z)(1,2).re;   // Coupling (h0_1 h0_2 Z)  
-    hctbl.C_hiZ2[1][0] = (*CPL_H_H_Z)(1,2).re;   // Coupling (h0_1 h0_2 Z)  
+    hctbl.C_hiZ2[0][1] = (*CPL_H_H_Z)(1,2).re;   // Coupling (h0_1 h0_2 Z)
+    hctbl.C_hiZ2[1][0] = (*CPL_H_H_Z)(1,2).re;   // Coupling (h0_1 h0_2 Z)
     hctbl.C_hiZ2[1][1] = (*CPL_H_H_Z)(2,2).re;   // Coupling (h0_2 h0_2 Z)
     hctbl.C_hiZ2[0][2] = (*CPL_H_H_Z)(1,3).re;   // Coupling (h0_1 h0_3 Z)
     hctbl.C_hiZ2[2][0] = (*CPL_H_H_Z)(1,3).re;   // Coupling (h0_1 h0_3 Z)
@@ -1981,7 +1974,7 @@ BE_NAMESPACE
 
     // 1011, CalcLoopDecay_Fu
     *CalcLoopDecay_Fu = inputs.options->getValueOrDef<bool>(true, "CalcLoopDecay_Fu");
- 
+
     // divonly_save
     // divergence_save
     // TODO: check if relevant
@@ -2008,7 +2001,7 @@ BE_NAMESPACE
 
     // 1115, OS kinematics
     *OSkinematics = inputs.options->getValueOrDef<bool>(true, "OSkinematics");
- 
+
     // 1116, ew/yuk OS in decays
     *ewOSinDecays = inputs.options->getValueOrDef<bool>(true, "ewOSinDecays");
     *yukOSinDecays = inputs.options->getValueOrDef<bool>(false, "yukOSinDecays");
@@ -2229,6 +2222,8 @@ BE_NAMESPACE
       str decays_file = str(GAMBIT_DIR) + "/Backends/data/" + STRINGIFY(BACKENDNAME) + "/decays_info.dat";
 
       // Make sure the file is read by one MPI process at a time
+      /// @todo: Pat: I think this actually does not need to be locked; if it only
+      /// reads (not writes) it should be OK for all MPI processes to just access it at the same time.
       Utils::FileLock mylock("run_SPheno_decays");
       mylock.get_lock();
 
@@ -2544,7 +2539,7 @@ BE_NAMESPACE
     {
       str line;
       int parent_pdg;
-      while(getline(file, line))  
+      while(getline(file, line))
       {
         std::istringstream sline(line);
         str first;
@@ -2582,14 +2577,14 @@ BE_NAMESPACE
       file.close();
     }
     else
-    { 
+    {
       str message = "Unable to open decays info file " + decays_file;
       logger() << message << EOM;
       backend_error().raise(LOCAL_INFO, message);
       // invalid_point().raise(message);
     }
   }
-    
+
   std::vector<std::pair<int,int> > Fdecays::get_pdg_context_pairs(std::vector<int> pdgs)
   {
     std::vector<std::pair<int,int> > result;
@@ -2655,6 +2650,9 @@ BE_INI_FUNCTION
     try{ SetRGEScale(scale_sq); }
     catch(std::runtime_error e) { invalid_point().raise(e.what()); }
   }
+
+  // Reset the global flag that indicates whether or not BRs have been computed yet or not for this parameter point.
+  Fdecays::BRs_already_calculated = false;
 
 }
 END_BE_INI_FUNCTION

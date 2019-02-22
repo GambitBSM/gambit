@@ -1527,6 +1527,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
       result.CP[0] = 1;  //h0_1
@@ -1603,6 +1607,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // Work out which SM values correspond to which SUSY Higgs
       int higgs = (SMlike_higgs_PDG_code(spec) == 25 ? 0 : 1);
