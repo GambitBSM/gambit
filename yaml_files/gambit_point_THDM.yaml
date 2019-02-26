@@ -7,25 +7,25 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDM:
+    THDMII:
         lambda_1:
-            fixed_value: 0.1
+            fixed_value: 2.6652508
         lambda_2:
-            fixed_value: 0.1
+            fixed_value: 2.9129095
         lambda_3:
-            fixed_value: 3.0
+            fixed_value: 5.8515929
         lambda_4:
-            fixed_value: -4.0
+            fixed_value: -4.8501829
         lambda_5:
-            fixed_value: 0.1
+            fixed_value: -2.9138192
         lambda_6:
             fixed_value: 0.0
         lambda_7:
             fixed_value: 0.0
         m12_2:
-            fixed_value: 0.0
+            fixed_value: 2570.547
         tanb:
-            fixed_value: 1.0
+            fixed_value: 20.0
         # Qin:
         #     fixed_value: 91.1876 #mZ
         # QrunTo:
@@ -46,7 +46,7 @@ Printer:
 
   # Select printer to use via string tag
   # (currently only ascii printer available)
-  printer: ascii
+  printer: hdf5
 
   # This options node is passed on wholesale to
   # the printer object; required options may
@@ -54,7 +54,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "gambit_output.txt"
+    output_file: "gambit_output.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -64,7 +64,7 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: multinest
+  use_scanner: random
 
   scanners:
     square_grid:
@@ -75,7 +75,7 @@ Scanner:
 
     random:
      plugin: random
-     point_number: 10000000
+     point_number: 1
      output_file:  output
      like:  LogLike
      files:
@@ -162,47 +162,47 @@ ObsLikes:
 
   # ----- observables ----
 
-    - purpose: Observable
-      capability: lambda1_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda1_coupling_basis
 
-    - purpose: Observable
-      capability: lambda2_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda2_coupling_basis
 
-    - purpose: Observable
-      capability: lambda3_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda3_coupling_basis
 
-    - purpose: Observable
-      capability: lambda4_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda4_coupling_basis
 
-    - purpose: Observable
-      capability: lambda5_coupling_basis
+    # - purpose: Observable
+    #   capability: lambda5_coupling_basis
 
-    - purpose: Observable
-      capability: tanb_coupling_basis
+    # - purpose: Observable
+    #   capability: tanb_coupling_basis
 
-    - purpose: Observable
-      capability: m12_2_coupling_basis
+    # - purpose: Observable
+    #   capability: m12_2_coupling_basis
 
-    - purpose: Observable
-      capability: mh0_physical_basis
+    # - purpose: Observable
+    #   capability: mh0_physical_basis
     
-    - purpose: Observable
-      capability: mH0_physical_basis
+    # - purpose: Observable
+    #   capability: mH0_physical_basis
     
-    - purpose: Observable
-      capability: mHp_physical_basis
+    # - purpose: Observable
+    #   capability: mHp_physical_basis
     
-    - purpose: Observable
-      capability: mA_physical_basis
+    # - purpose: Observable
+    #   capability: mA_physical_basis
     
-    - purpose: Observable
-      capability: tanb_physical_basis
+    # - purpose: Observable
+    #   capability: tanb_physical_basis
     
-    - purpose: Observable
-      capability: sba_physical_basis
+    # - purpose: Observable
+    #   capability: sba_physical_basis
     
-    - purpose: Observable
-      capability: m12_2_physical_basis
+    # - purpose: Observable
+    #   capability: m12_2_physical_basis
 
     # - capability: bsgamma
     #   function: SI_bsgamma
@@ -260,30 +260,30 @@ Rules:
         check_all_scales: true
 
     # Initialization of HiggsBounds backend
-    - capability: HiggsBounds_4_2_1_init  
-      options:
-        HB_analysis_type: 1
+    # - capability: HiggsBounds_4_2_1_init  
+    #   options:
+    #     HB_analysis_type: 1
 
-    - capability: THDM_Higgs_Couplings_For_HB
-      function: THDM_Couplings_For_HB
+    # - capability: THDM_Higgs_Couplings_For_HB
+    #   function: THDM_Couplings_For_HB
 
-    - capability: THDM_Higgs_Couplings_SM_Like_Model
-      function: THDM_Couplings_SM_Like_Model
+    # - capability: THDM_Higgs_Couplings_SM_Like_Model
+    #   function: THDM_Couplings_SM_Like_Model
     
-    - capability: THDM_DecayWidths_For_HB
-      function: THDM_Decay_Widths_For_HB
+    # - capability: THDM_DecayWidths_For_HB
+    #   function: THDM_Decay_Widths_For_HB
     
-    - capability: THDM_DecayWidths_SM_Like_Model
-      function: THDM_Decay_Widths_SM_Like_Model
+    # - capability: THDM_DecayWidths_SM_Like_Model
+    #   function: THDM_Decay_Widths_SM_Like_Model
     
-    - capability: THDM_TotalWidths
-      function: THDM_Total_Widths
+    # - capability: THDM_TotalWidths
+    #   function: THDM_Total_Widths
     
-    - capability: THDM_TotalWidths_SM_Like_Model
-      function: THDM_Total_Widths_SM_Like_Model
+    # - capability: THDM_TotalWidths_SM_Like_Model
+    #   function: THDM_Total_Widths_SM_Like_Model
 
-    - capability: SLHA_THDM
-      function: fill_THDM_SLHA
+    # - capability: SLHA_THDM
+    #   function: fill_THDM_SLHA
 
     # - capability: Higgs_decay_rates
     #   function: h0_1_decays_THDM
@@ -355,4 +355,3 @@ KeyValues:
   default_output_path: "runs/thdm_test/"
   enable_testing: true
   debug: true
-  yukawa_type: 2

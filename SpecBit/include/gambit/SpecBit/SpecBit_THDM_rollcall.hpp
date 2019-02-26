@@ -55,117 +55,117 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY lambda1_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_lambda1_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY lambda1_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_lambda1_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY lambda2_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_lambda2_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY lambda2_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_lambda2_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY lambda3_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_lambda3_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY lambda3_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_lambda3_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY lambda4_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_lambda4_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY lambda4_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_lambda4_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY lambda5_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_lambda5_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY lambda5_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_lambda5_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY tanb_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_tanb_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY tanb_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_tanb_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY m12_2_coupling_basis
-START_CAPABILITY
-  #define FUNCTION print_m12_2_coupling_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY m12_2_coupling_basis
+// START_CAPABILITY
+//   #define FUNCTION print_m12_2_coupling_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Coupling_Basis, thdm_coupling_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY mh0_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_mh0_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY mh0_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_mh0_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY mH0_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_mH0_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY mH0_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_mH0_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY mHp_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_mHp_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY mHp_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_mHp_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY mA_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_mA_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY mA_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_mA_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY tanb_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_tanb_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY tanb_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_tanb_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY sba_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_sba_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY sba_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_sba_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY m12_2_physical_basis
-START_CAPABILITY
-  #define FUNCTION print_m12_2_phys_basis
-  START_FUNCTION(double)
-  DEPENDENCY(Physical_Basis, thdm_physical_basis)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY m12_2_physical_basis
+// START_CAPABILITY
+//   #define FUNCTION print_m12_2_phys_basis
+//   START_FUNCTION(double)
+//   DEPENDENCY(Physical_Basis, thdm_physical_basis)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
 #define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
@@ -273,36 +273,36 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY SLHA_THDM
-START_CAPABILITY
-  #define FUNCTION fill_THDM_SLHA
-  START_FUNCTION(SLHAstruct)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY SLHA_THDM
+// START_CAPABILITY
+//   #define FUNCTION fill_THDM_SLHA
+//   START_FUNCTION(SLHAstruct)
+//   NEEDS_CLASSES_FROM(THDMC,default)
+//   DEPENDENCY(THDM_spectrum, Spectrum)
+//   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+//   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY Coupling_Basis
-START_CAPABILITY
-  #define FUNCTION fill_THDM_coupling_basis
-  START_FUNCTION(thdm_coupling_basis)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY Coupling_Basis
+// START_CAPABILITY
+//   #define FUNCTION fill_THDM_coupling_basis
+//   START_FUNCTION(thdm_coupling_basis)
+//   DEPENDENCY(THDM_spectrum, Spectrum)
+//   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+//   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
-#define CAPABILITY Physical_Basis
-START_CAPABILITY
-  #define FUNCTION fill_THDM_phys_basis
-  START_FUNCTION(thdm_physical_basis)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
+// #define CAPABILITY Physical_Basis
+// START_CAPABILITY
+//   #define FUNCTION fill_THDM_phys_basis
+//   START_FUNCTION(thdm_physical_basis)
+//   DEPENDENCY(THDM_spectrum, Spectrum)
+//   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+//   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+//   #undef FUNCTION
+// #undef CAPABILITY
 
 // Generalised Higgs couplings
 #define CAPABILITY Higgs_Couplings

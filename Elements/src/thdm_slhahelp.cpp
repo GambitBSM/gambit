@@ -3,8 +3,6 @@
 ///  \file
 ///
 ///  Definitions of routines to help users / Bits
-///  translate between SLHA2 sfermions
-///  and SLHA1 (or similar) sfermions
 ///
 ///  *********************************************
 ///
@@ -67,7 +65,7 @@ namespace Gambit
         const double g_prime = thdmspec.get(Par::dimensionless,"g2");
         const double g_3 = thdmspec.get(Par::dimensionless,"g3");
 
-        const double yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
+        const int yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
 
         SLHAea_add_block(slha, "MODSEL");;
         SLHAea_add(slha, "MODSEL", 0, 10, "THDM", true); // 10 = THDM
@@ -107,7 +105,7 @@ namespace Gambit
         SLHAea_add_block(slha, "ALPHA");
         SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
 
-      std::vector<double> matrix_u, matrix_d, matrix_l;
+        std::vector<double> matrix_u, matrix_d, matrix_l;
 
         for (int i=0;i<3;i++) {
           for (int j=0;j<3;j++) {

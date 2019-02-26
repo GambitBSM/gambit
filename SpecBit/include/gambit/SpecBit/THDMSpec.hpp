@@ -109,8 +109,6 @@ namespace Gambit
             SLHAea_add(slha, "SPINFO", 1, "GAMBIT, using "+backend_name);
             SLHAea_add(slha, "SPINFO", 2, gambit_version()+" (GAMBIT); "+backend_version+" ("+backend_name+")");
          }
-
-         model_interface.model.print(cout);
  
          // All other THDM blocks
          slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
@@ -132,43 +130,25 @@ namespace Gambit
          return sthW2;
       }
 
-      // "extra" function to compute TanBeta 
+      template <class Model>
+      double get_vev(const Model& model) {
+         return sqrt(pow(model.get_v1(),2) + pow(model.get_v2(),2));
+      }
+
+      // function to compute TanBeta from VEVs
       template <class Model>
       double get_tanb(const Model& model) {
          return model.get_v2()/model.get_v1();
       }
 
       template <class Model>
-      double get_alpha(const Model& model) {
-         double v1 = model.get_v1(), v2 = model.get_v2();
-         double lambda345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
-         double lambda6 = model.get_Lambda6(), lambda7 = model.get_Lambda7();
-
-         double A = model.get_M112() + 3.0/2.0*model.get_Lambda1()*v1*v1 + 1.0/2.0*lambda345*v2*v2 + 3.0*v1*v2*lambda6;
-         double B = model.get_M222() + 3.0/2.0*model.get_Lambda2()*v2*v2 + 1.0/2.0*lambda345*v1*v1 + 3.0*v1*v2*lambda7;
-         double C = -model.get_M122() + 3.0/2.0*v1*v2 + 3.0/2.0*(lambda6*v1*v1 + lambda7*v2*v2);
-         // double a3 = model.get_M122();
-         // double b11 = 1.0/2.0*model.get_Lambda1();
-         // double b22 = 1.0/2.0*model.get_Lambda2();
-         // double b33 = model.get_Lambda4() + model.get_Lambda5();
-         // double b12 = model.get_Lambda3();
-         // double b13 = model.get_Lambda6();
-         // double b23 = model.get_Lambda7();
-
-         // double H1 = 4*pow(v1,2)*b11 + 2.0*v1*v2*b13 + pow(v2,2)*b33;
-         // double H2 = pow(v1,2)*b33 + 2*v1*v2*b23 + 4.0*pow(v2,2)*b22;
-         // double H3 = pow(v1,2)*b13 + v1*v2*(2.0*b12+b33) + pow(v2,2)*b23;
-         // double V3 = a3 + 2.0*b33*v1*v2 + b13*pow(v1,2) + b23*pow(v2,2);
-         // double Hm = (-1.0*V3*(v2/(2.0*v1) - v1/(2.0*v2))) + H1 - H2;
-         // double H3d = H3 - 2.0*V3;
-         // double Hc = sqrt(pow(Hm,2) + 4.0*pow(H3d,2));
-
-         return 1.0/2.0*atan(2.0*C/(A-B));//atan(2.0*H3d/(Hc-Hm));
+      double get_mW_running(const Model& model) {
+         return (model.get_DRbar_masses())(19);
       }
 
       template <class Model>
-      double get_mA_pole(const Model& model) {
-         return model.get_MAh(1);
+      double get_mW_pole_slha(const Model& model) {
+         return model.get_MVWm_pole_slha();
       }
 
       template <class Model>
@@ -181,28 +161,14 @@ namespace Gambit
          return model.get_MAh_pole_slha(1);
       }
 
-      // mh
-
-      // template <class Model, class > 
-      // double get_mh_pole(const Model& model, int higgs) {
-      //    return model.get_Mhh(0);
-      // }
-
-      // template <class Model>
-      // double get_mh_running(const Model& model) {
-      //    return (model.get_DRbar_masses())(4);
-      // }
-
-      // template <class Model>
-      // double get_mh_pole_slha(const Model& model) {
-      //    return model.get_Mhh_pole_slha(0);
-      // }
-
-      // mh1
+      template <class Model>
+      double get_mA_goldstone_running(const Model& model) {
+         return (model.get_DRbar_masses())(6);
+      }
 
       template <class Model>
-      double get_mh_1_pole(const Model& model) {
-         return model.get_Mhh(0);
+      double get_mA_goldstone_pole_slha(const Model& model) {
+         return model.get_MAh_pole_slha(0);
       }
 
       template <class Model>
@@ -213,13 +179,6 @@ namespace Gambit
       template <class Model>
       double get_mh_1_pole_slha(const Model& model) {
          return model.get_Mhh_pole_slha(0);
-      }
-
-      // mh2
-
-      template <class Model>
-      double get_mh_2_pole(const Model& model) {
-         return model.get_Mhh(1);
       }
 
       template <class Model>
@@ -233,11 +192,6 @@ namespace Gambit
       }
 
       template <class Model>
-      double get_mHpm_pole(const Model& model) {
-         return model.get_MHm(1);
-      }
-
-      template <class Model>
       double get_mHpm_running(const Model& model) {
          return (model.get_DRbar_masses())(9);
       }
@@ -246,7 +200,87 @@ namespace Gambit
       double get_mHpm_pole_slha(const Model& model) {
          return model.get_MHm_pole_slha(1);
       }
+
+      template <class Model>
+      double get_mHpm_goldstone_running(const Model& model) {
+         return (model.get_DRbar_masses())(8);
+      }
+
+      template <class Model>
+      double get_mHpm_goldstone_pole_slha(const Model& model) {
+         return model.get_MHm_pole_slha(0);
+      }
       // get lambdas (running) from FS
+
+      template <class Model>
+      double get_Lambda1(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
+      }
+
+      template <class Model>
+      double get_Lambda2(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
+      }
+
+      template <class Model>
+      double get_Lambda3(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam3 = model.get_Lambda3(), lam345 = lam3 + model.get_Lambda4() + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
+      }
+
+      template <class Model>
+      double get_Lambda4(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam4 = model.get_Lambda4(), lam345 = model.get_Lambda3() + lam4 + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
+      }
+
+      template <class Model>
+      double get_Lambda5(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam5 = model.get_Lambda5(), lam345 = model.get_Lambda3() + model.get_Lambda4() + lam5;
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
+      }
+
+      template <class Model>
+      double get_Lambda6(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return -0.5*s2b*(lam1*pow(cb,2)-lam2*pow(sb,2)-lam345*c2b) + cb*cos(3.*b)*lam6 + sb*sin(3.*b)*lam7;
+      }
+
+      template <class Model>
+      double get_Lambda7(const Model& model) {
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)-lam345*c2b) + sb*sin(3.*b)*lam6 + cb*cos(3.*b)*lam7;
+      }
+
+      template <class Model>
+      double get_M12_2(const Model& model) {
+         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
+         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return 0.5*(m11_2-m22_2)*s2b + m12_2*c2b;
+      }
+
+      template <class Model>
+      double get_M11_2(const Model& model) {
+         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
+         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
+      }
+
+      template <class Model>
+      double get_M22_2(const Model& model) {
+         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
+         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
+      }
 
       template <class Model>
       double get_lambda1(const Model& model) {
@@ -289,6 +323,16 @@ namespace Gambit
       }
 
       template <class Model>
+      double get_m11_2(const Model& model) {
+         return model.get_M112();
+      }
+
+      template <class Model>
+      double get_m22_2(const Model& model) {
+         return model.get_M222();
+      }
+
+      template <class Model>
       double get_sinthW2_DRbar(const Model& model) {
          double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
          (0.6 * Utils::sqr(model.get_g1()) +
@@ -317,37 +361,32 @@ namespace Gambit
          }
       }
 
-    //   template <class Model>
-    //   void set_Mhh_pole_slha(Model& model, double mass, int i)
-    //   {
-    //     cout << "set_Mhh_pole_slha: " << mass << endl;
-    //     model.get_physical_slha().Mhh(i) = mass;
-    //   }
+      // function to calculate alpha from mixing matrix
+      template <class Model>
+      double get_alpha(const Model& model) {
+         // double cosa = (model.get_DRbar_masses_and_mixings())(22);
+         // double sina =  (model.get_DRbar_masses_and_mixings())(23);
+         // double a = acos(cosa);
+         // if (a<0){
+         //    a = a+M_PI;
+         // }
+         // return a;
+         double v_1 = model.get_v1(), v_2 = model.get_v2();
+         double b = atan(v_2/v_1);
+         double v2 = pow(v_1,2) + pow(v_2,2);
+         double mh = get_mh_1_pole_slha(model), mH = get_mh_2_pole_slha(model), mA = get_mA_pole_slha(model);
+         double mh2 = pow(mh,2), mH2 = pow(mH,2), mA_2 = pow(mA,2);
+         double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
 
-    //   template <class Model>
-    //   void set_MAh1_pole_slha(Model& model, double mass)
-    //   {
-    //     model.get_physical_slha().MAh(1) = mass;
-    //   }
+        double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
+        double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
+        double c2ba = s2ba/tan2ba;
 
-    //   template <class Model>
-    //   void set_MHpm1_pole_slha(Model& model, double mass)
-    //   {
-    //     model.get_physical_slha().MHm(1) = mass;
-    //   }
+        double ba = 0.5*acos(c2ba);
+        double alpha = b - ba;
 
-    //  //PA:  setting MZ and MW is necessary because we may have them as ouptuts
-    //  template <class Model>
-    //  void set_MZ_pole_slha(Model& model, double mass)
-    //  {
-    //     model.get_physical_slha().MVZ = mass;
-    //  }
-
-    //  template <class Model>
-    //  void set_MW_pole_slha(Model& model, double mass)
-    //  {
-    //     model.get_physical_slha().MVWm = mass;
-    //  }
+        return alpha;
+      }
 
       template <class MI>
       typename THDMSpec<MI>::GetterMaps THDMSpec<MI>::fill_getter_maps()
@@ -376,7 +415,8 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTget::fmap0 tmp_map;
-            // tmp_map["vev"]= &Model::get_vev;
+
+            
 
             map_collection[Par::mass1].map0 = tmp_map;
          }
@@ -385,6 +425,9 @@ namespace Gambit
          // (Zero index, model object as argument)
          {
             typename MTget::fmap0_extraM tmp_map;
+            // coupling basis potential parameters
+            tmp_map["m11_2"]= &get_m11_2<Model>;
+            tmp_map["m22_2"]= &get_m22_2<Model>;
             tmp_map["m12_2"]= &get_m12_2<Model>;
             tmp_map["lambda_1"]= &get_lambda1<Model>;
             tmp_map["lambda_2"]= &get_lambda2<Model>;
@@ -393,10 +436,28 @@ namespace Gambit
             tmp_map["lambda_5"]= &get_lambda5<Model>;
             tmp_map["lambda_6"]= &get_lambda6<Model>;
             tmp_map["lambda_7"]= &get_lambda7<Model>;
-            // tmp_map["vev"]= &Model::get_vev;
-
+            // higgs basis potential parameters
+            tmp_map["M11_2"]= &get_M11_2<Model>;
+            tmp_map["M22_2"]= &get_M22_2<Model>;
+            tmp_map["M12_2"]= &get_M12_2<Model>;
+            tmp_map["Lambda_1"]= &get_Lambda1<Model>;
+            tmp_map["Lambda_2"]= &get_Lambda2<Model>;
+            tmp_map["Lambda_3"]= &get_Lambda3<Model>;
+            tmp_map["Lambda_4"]= &get_Lambda4<Model>;
+            tmp_map["Lambda_5"]= &get_Lambda5<Model>;
+            tmp_map["Lambda_6"]= &get_Lambda6<Model>;
+            tmp_map["Lambda_7"]= &get_Lambda7<Model>;
+            // physical basis running masses
             tmp_map["A0"] = &get_mA_running<Model>;
             tmp_map["H+"] = &get_mHpm_running<Model>;
+            tmp_map["H-"] = &get_mHpm_running<Model>;
+            tmp_map["G0"] = &get_mA_goldstone_running<Model>;
+            tmp_map["G+"] = &get_mHpm_goldstone_running<Model>;
+            tmp_map["G-"] = &get_mHpm_goldstone_running<Model>;
+            tmp_map["W+"] = &get_mW_running<Model>;
+            tmp_map["W-"] = &get_mW_running<Model>;
+            // vev
+            tmp_map["vev"]= &get_vev<Model>;
 
             map_collection[Par::mass1].map0_extraM = tmp_map;
          }
@@ -463,7 +524,7 @@ namespace Gambit
 	    /// so we need this.  One tricky question is how to interface
 	    /// spectrum generators which have different input / outputs
 	    /// *may* be ok to still mimic the FS way
-            tmp_map["W+"] = &Model::get_MVWm_pole_slha;
+            
 
             map_collection[Par::Pole_Mass].map0 = tmp_map;
          }
@@ -474,8 +535,14 @@ namespace Gambit
             typename MTget::fmap0_extraM tmp_map;
 
             // Using wrapper functions defined above
-            tmp_map["A0"] = &get_mA_pole<Model>;
-            tmp_map["H+"] = &get_mHpm_pole<Model>;
+            tmp_map["A0"] = &get_mA_pole_slha<Model>;
+            tmp_map["H+"] = &get_mHpm_pole_slha<Model>;
+            tmp_map["H-"] = &get_mHpm_pole_slha<Model>;
+            tmp_map["G0"] = &get_mA_goldstone_pole_slha<Model>;
+            tmp_map["G+"] = &get_mHpm_goldstone_pole_slha<Model>;
+            tmp_map["G-"] = &get_mHpm_goldstone_pole_slha<Model>;
+            tmp_map["W+"] = &get_mW_pole_slha<Model>;
+            tmp_map["W-"] = &get_mW_pole_slha<Model>;
 
             map_collection[Par::Pole_Mass].map0_extraM = tmp_map;
          }
@@ -485,7 +552,7 @@ namespace Gambit
          {
             typename MTget::fmap1 tmp_map;
 
-            tmp_map["h0"] =  FInfo1( &Model::get_Mhh, i01 );
+            tmp_map["h0"] =  FInfo1( &Model::get_Mhh_pole_slha, i01 );
             
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }

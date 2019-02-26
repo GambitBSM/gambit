@@ -82,29 +82,6 @@ namespace Gambit
     double gamma_tot_h[5], gamma_tot_t, gamma_tot_t_SM_contrib, gamma_tot_v[4];
     bool isValid;
   };
-
-  struct thdm_coupling_basis
-  {
-    double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7;
-    double tanb, m12_2;
-  };
-
-  struct thdm_physical_basis
-  {
-    double mh0, mH0, mHp, mA;
-    double tanb, sba;
-
-    double lambda6, lambda7;
-    double m12_2;
-  };
-
-  // Note: this is not the higgs basis as defined in THDMC where beta is taken zero.
-  // To enter this Higgs basis into THDMC use conversion functions as offered by SpecBit.
-  struct thdm_higgs_basis
-  {
-      double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda7;
-      double tanb, sba, M22_2;
-  };
    
 
 }

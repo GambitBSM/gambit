@@ -62,24 +62,23 @@ namespace Gambit
            double get_mu()             const;
            double get_ms()             const;
 
-           double get_vev()      const;
-           double get_g1()       const;
-           double get_g2()       const;
-           double get_g3()       const;
-           double get_sinW2()    const;
+           double get_vev()            const;
+           double get_g1()             const;
+           double get_g2()             const;
+           double get_g3()             const;
+           double get_sinW2()          const;
 
-           double get_Yd(int i, int j)       const;
-           double get_Yu(int i, int j)       const;
-           double get_Ye(int i, int j)       const;
+           double get_Yd(int i, int j)     const;
+           double get_Yu(int i, int j)     const;
+           double get_Ye(int i, int j)     const;
 
            double get_mh0(int i)           const;
            double get_mA0()                const;
            double get_mC()                 const;
+           double get_mG0()                 const;
+           double get_mGC()                 const;
            double get_tanb()               const;
            double get_alpha()              const;
-           double get_m12_2()              const;
-           double get_lambda6()            const;
-           double get_lambda7()            const;
            double get_yukawaCoupling()     const;
 
            double get_lambda1()            const;
@@ -87,6 +86,22 @@ namespace Gambit
            double get_lambda3()            const;
            double get_lambda4()            const;
            double get_lambda5()            const;
+           double get_lambda6()            const;
+           double get_lambda7()            const;
+           double get_m11_2()              const;
+           double get_m22_2()              const;
+           double get_m12_2()              const;
+
+           double get_Lambda1()            const;
+           double get_Lambda2()            const;
+           double get_Lambda3()            const;
+           double get_Lambda4()            const;
+           double get_Lambda5()            const;
+           double get_Lambda6()            const;
+           double get_Lambda7()            const;
+           double get_M11_2()              const;
+           double get_M22_2()              const;
+           double get_M12_2()              const;
       //      double get_sinthW2_DRbar()      const;
            /// @}
       };

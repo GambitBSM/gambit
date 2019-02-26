@@ -32,29 +32,15 @@ namespace Gambit
       /// to include THDM parameters for models whwere there is no running.
       struct THDMModel
       {
-        double mh0;
-        double mH0;
-        double mA0;
-        double mC;
-        
-        double lambda1;
-        double lambda2;
-        double lambda3;
-        double lambda4;
-        double lambda5;
-        double lambda6;
-        double lambda7;
-
-        double tanb;
-        double alpha;
-        double m12_2;
-
+        double mh0, mH0, mA0, mC, mG0, mGC;
+        double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7;
+        double tanb, alpha, m11_2, m12_2, m22_2;
+        double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
+        double M11_2, M12_2, M22_2;
         double mW;
-
         double vev;
         double g1, g2, g3, sinW2;
         double Yd[3], Ye[3], Yu[3];
-
         double yukawaCoupling;
       };
   
@@ -124,11 +110,10 @@ namespace Gambit
                                                 }
             double get_mA0()                const { return params.mA0; }
             double get_mC()                 const { return params.mC; }
+            double get_mG0()                const { return params.mG0; }
+            double get_mGC()                const { return params.mGC; }
             double get_tanb()               const { return params.tanb; }
             double get_alpha()              const { return params.alpha; }
-            double get_m12_2()              const { return params.m12_2; }
-            double get_lambda6()            const { return params.lambda6; }
-            double get_lambda7()            const { return params.lambda7; }
             double get_yukawaCoupling()     const { return params.yukawaCoupling; }
 
             double get_lambda1()            const { return params.lambda1;}
@@ -136,11 +121,26 @@ namespace Gambit
             double get_lambda3()            const { return params.lambda3;}
             double get_lambda4()            const { return params.lambda4;}
             double get_lambda5()            const { return params.lambda5;}
-            double get_MW_pole()            const { return 80.0; } // REQUIRED output of subspectrum
+            double get_lambda6()            const { return params.lambda6;}
+            double get_lambda7()            const { return params.lambda7;}
+            double get_m11_2()              const { return params.m11_2; }
+            double get_m12_2()              const { return params.m12_2; }
+            double get_m22_2()              const { return params.m22_2; }
+            double get_MW_pole()            const { return params.mW; } // REQUIRED output of subspectrum
             double get_sinthW2_DRbar()      const {
                                                 double sg1 = 0.6 * Utils::sqr(get_g1());
                                                 return sg1 / (sg1 + Utils::sqr(get_g2()));
                                                 }
+            double get_Lambda1()            const { return params.Lambda1;}
+            double get_Lambda2()            const { return params.Lambda2;}
+            double get_Lambda3()            const { return params.Lambda3;}
+            double get_Lambda4()            const { return params.Lambda4;}
+            double get_Lambda5()            const { return params.Lambda5;}
+            double get_Lambda6()            const { return params.Lambda6;}
+            double get_Lambda7()            const { return params.Lambda7;}
+            double get_M11_2()              const { return params.M11_2; }
+            double get_M12_2()              const { return params.M12_2; }
+            double get_M22_2()              const { return params.M22_2; }
 
             ///  @}
 
@@ -154,10 +154,9 @@ namespace Gambit
 
             void set_mA0(double in)                         { params.mA0=in; }
             void set_mC(double in)                          { params.mC=in; }
+            void set_mG0(double in)                         { params.mG0=in; }
+            void set_mGC(double in)                         { params.mGC=in; }
             void set_tanb(double in)                        { params.tanb=in; }
-            void set_m12_2(double in )                      { params.m12_2=in; }
-            void set_lambda6(double in)                     { params.lambda6=in; }
-            void set_lambda7(double in)                     { params.lambda7=in; }
             void set_yukawaCoupling(double in)              { params.yukawaCoupling=in; }
 
             void set_lambda1(double in)               { params.lambda1=in; }
@@ -165,6 +164,22 @@ namespace Gambit
             void set_lambda3(double in)               { params.lambda3=in; }
             void set_lambda4(double in)               { params.lambda4=in; }
             void set_lambda5(double in)               { params.lambda5=in; }
+            void set_lambda6(double in)               { params.lambda6=in; }
+            void set_lambda7(double in)               { params.lambda7=in; }
+            void set_m11_2(double in )                { params.m11_2=in; }
+            void set_m22_2(double in )                { params.m22_2=in; }
+            void set_m12_2(double in )                { params.m12_2=in; }
+
+            void set_Lambda1(double in)               { params.Lambda1=in; }
+            void set_Lambda2(double in)               { params.Lambda2=in; }
+            void set_Lambda3(double in)               { params.Lambda3=in; }
+            void set_Lambda4(double in)               { params.Lambda4=in; }
+            void set_Lambda5(double in)               { params.Lambda5=in; }
+            void set_Lambda6(double in)               { params.Lambda6=in; }
+            void set_Lambda7(double in)               { params.Lambda7=in; }
+            void set_M11_2(double in )                { params.M11_2=in; }
+            void set_M22_2(double in )                { params.M22_2=in; }
+            void set_M12_2(double in )                { params.M12_2=in; }
 
             void set_vev(double in)             { params.vev=in; } 
             void set_g1(double in)              { params.g1=in; }
@@ -202,7 +217,20 @@ namespace Gambit
                getters[mass1]        .map0W["lambda_5"]  = &Self::get_lambda5;
                getters[mass1]        .map0W["lambda_6"]  = &Self::get_lambda6;
                getters[mass1]        .map0W["lambda_7"]  = &Self::get_lambda7;
+               getters[mass1]        .map0W["m11_2"]  = &Self::get_m11_2;
+               getters[mass1]        .map0W["m22_2"]  = &Self::get_m22_2;
                getters[mass1]        .map0W["m12_2"]  = &Self::get_m12_2;
+
+               getters[mass1]        .map0W["Lambda_1"]  = &Self::get_Lambda1;
+               getters[mass1]        .map0W["Lambda_2"]  = &Self::get_Lambda2;
+               getters[mass1]        .map0W["Lambda_3"]  = &Self::get_Lambda3;
+               getters[mass1]        .map0W["Lambda_4"]  = &Self::get_Lambda4;
+               getters[mass1]        .map0W["Lambda_5"]  = &Self::get_Lambda5;
+               getters[mass1]        .map0W["Lambda_6"]  = &Self::get_Lambda6;
+               getters[mass1]        .map0W["Lambda_7"]  = &Self::get_Lambda7;
+               getters[mass1]        .map0W["M11_2"]  = &Self::get_M11_2;
+               getters[mass1]        .map0W["M22_2"]  = &Self::get_M22_2;
+               getters[mass1]        .map0W["M12_2"]  = &Self::get_M12_2;
 
                getters[dimensionless].map0W["tanb"] = &Self::get_tanb;
 
@@ -210,13 +238,21 @@ namespace Gambit
                getters[Pole_Mass].map0W["A0"]    = &Self::get_mA0;
                getters[Pole_Mass].map0W["H+"]    = &Self::get_mC;
                getters[Pole_Mass].map0W["H-"]    = &Self::get_mC;
+               getters[Pole_Mass].map0W["G0"]    = &Self::get_mG0;
+               getters[Pole_Mass].map0W["G+"]    = &Self::get_mGC;
+               getters[Pole_Mass].map0W["G-"]    = &Self::get_mGC;
                getters[Pole_Mass].map0W["W+"]    = &Self::get_MW_pole;
+               getters[Pole_Mass].map0W["W-"]    = &Self::get_MW_pole;
 
                getters[mass1].map1W["h0"]    = FInfo1W( &Self::get_mh0, i12 );
                getters[mass1].map0W["A0"]    = &Self::get_mA0;
                getters[mass1].map0W["H+"]    = &Self::get_mC;
                getters[mass1].map0W["H-"]    = &Self::get_mC;
+               getters[mass1].map0W["G0"]    = &Self::get_mG0;
+               getters[mass1].map0W["G+"]    = &Self::get_mGC;
+               getters[mass1].map0W["G-"]    = &Self::get_mGC;
                getters[mass1].map0W["W+"]    = &Self::get_MW_pole;
+               getters[mass1].map0W["W-"]    = &Self::get_MW_pole;
 
                getters[dimensionless].map0W["g1"] = &Self::get_g1;
                getters[dimensionless].map0W["g2"] = &Self::get_g2;
@@ -254,7 +290,20 @@ namespace Gambit
                setters[mass1].map0W["lambda_5"]  = &Self::set_lambda5;
                setters[mass1].map0W["lambda_6"]  = &Self::set_lambda6;
                setters[mass1].map0W["lambda_7"]  = &Self::set_lambda7;
+               setters[mass1].map0W["m11_2"]     = &Self::set_m11_2;
+               setters[mass1].map0W["m22_2"]     = &Self::set_m22_2;
                setters[mass1].map0W["m12_2"]     = &Self::set_m12_2;
+
+               setters[mass1].map0W["Lambda_1"]  = &Self::set_Lambda1;
+               setters[mass1].map0W["Lambda_2"]  = &Self::set_Lambda2;
+               setters[mass1].map0W["Lambda_3"]  = &Self::set_Lambda3;
+               setters[mass1].map0W["Lambda_4"]  = &Self::set_Lambda4;
+               setters[mass1].map0W["Lambda_5"]  = &Self::set_Lambda5;
+               setters[mass1].map0W["Lambda_6"]  = &Self::set_Lambda6;
+               setters[mass1].map0W["Lambda_7"]  = &Self::set_Lambda7;
+               setters[mass1].map0W["M11_2"]     = &Self::set_M11_2;
+               setters[mass1].map0W["M22_2"]     = &Self::set_M22_2;
+               setters[mass1].map0W["M12_2"]     = &Self::set_M12_2;
 
                setters[dimensionless].map0W["tanb"] = &Self::set_tanb;
 
@@ -264,12 +313,26 @@ namespace Gambit
                setters[dimensionless].map0W["sinW2"] = &Self::set_sinW2;
 
                setters[dimensionless].map0W["yukawaCoupling"] = &Self::set_yukawaCoupling;
+
+               setters[mass1].map1W["h0"]    = FInfo1W( &Self::set_mh0, i12 );
+               setters[mass1].map0W["A0"]    = &Self::set_mA0;
+               setters[mass1].map0W["H+"]    = &Self::set_mC;
+               setters[mass1].map0W["H-"]    = &Self::set_mC;
+               setters[mass1].map0W["G0"]    = &Self::set_mG0;
+               setters[mass1].map0W["G+"]    = &Self::set_mGC;
+               setters[mass1].map0W["G-"]    = &Self::set_mGC;
+               setters[mass1].map0W["W+"]    = &Self::set_MW_pole;
+               setters[mass1].map0W["W-"]    = &Self::set_MW_pole;
                
                setters[Pole_Mass].map1W["h0"]    = FInfo1W( &Self::set_mh0, i12 );
                setters[Pole_Mass].map0W["A0"]    = &Self::set_mA0;
                setters[Pole_Mass].map0W["H+"]    = &Self::set_mC;
                setters[Pole_Mass].map0W["H-"]    = &Self::set_mC;
+               setters[Pole_Mass].map0W["G0"]    = &Self::set_mG0;
+               setters[Pole_Mass].map0W["G+"]    = &Self::set_mGC;
+               setters[Pole_Mass].map0W["G-"]    = &Self::set_mGC;
                setters[Pole_Mass].map0W["W+"]    = &Self::set_MW_pole;
+               setters[Pole_Mass].map0W["W-"]    = &Self::set_MW_pole;
    
                setters[dimensionless].map2W["Yd"]= FInfo2W( &Self::set_Yd, i012, i012);
                setters[dimensionless].map2W["Yu"]= FInfo2W( &Self::set_Yu, i012, i012);
