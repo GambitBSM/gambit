@@ -25,7 +25,6 @@
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/NMSSMSimpleSpec.hpp"
 #include "gambit/Utils/version.hpp"
-#include "gambit/Utils/file_lock.hpp"
 
 #define BACKEND_DEBUG 0
 
@@ -772,8 +771,7 @@ BE_NAMESPACE
         else
           entry.set_BF(0., 0., Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
-      // S.B. should we always set the context to 0?
-      decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
+      decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
     }
 
     return *kont;
@@ -2261,15 +2259,7 @@ BE_NAMESPACE
       // str decays_file = inputs.options->getValueOrDef<str>("", "decays_file");
       str decays_file = str(GAMBIT_DIR) + "/Backends/data/" + STRINGIFY(BACKENDNAME) + "/decays_info.dat";
 
-      // Make sure the file is read by one MPI process at a time
-      /// @todo: Pat: I think this actually does not need to be locked; if it only
-      /// reads (not writes) it should be OK for all MPI processes to just access it at the same time.
-      Utils::FileLock mylock("run_SPheno_decays");
-      mylock.get_lock();
-
       Fdecays::fill_all_channel_info(decays_file);
-
-      mylock.release_lock();
 
       scan_level_decays = false;
     }
@@ -2630,7 +2620,7 @@ BE_NAMESPACE
     std::vector<std::pair<int,int> > result;
     for(int pdg : pdgs)
     {
-      result.push_back(std::pair<int,int> (pdg,0));
+      result.push_back(std::pair<int,int> (pdg,1));
     }
     return result;
   }
