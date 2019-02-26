@@ -29,4 +29,6 @@ namespace Gambit
   /// Needs expansion to work with non-MSSM (e.g. *HDM) models
   int SMlike_higgs_PDG_code(const SubSpectrum&);
 
+  int SMlike_higgs_PDG_code_NMSSM(const SubSpectrum&);
+
 }

@@ -518,7 +518,7 @@ namespace Gambit
       using namespace Pipes::Ref_SM_A0_decays_table;
       double mA0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "A0");
       compute_SM_higgs_decays(result, mA0);
-    }
+    }    
 
     /// Reference SM Higgs decays from FeynHiggs: h0_1
     void Ref_SM_Higgs_decays_FH(DecayTable::Entry& result)
@@ -544,6 +544,41 @@ namespace Gambit
       using namespace Pipes::Ref_SM_A0_decays_FH;
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
       set_FH_neutral_h_decay(result, 3, *Dep::FH_Couplings_output, *(Dep::SLHA_pseudonyms), invalidate, true);
+    }
+
+    // NMSSM-specific
+
+    /// Reference SM Higgs decays from LHCHiggsXSWG: h0_2
+    void Ref_SM_h0_2_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_h0_2_decays_table_NMSSM;
+      const SubSpectrum& spec = Dep::NMSSM_spectrum->get_HE();
+      int other_higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 35 : 25);
+      double m_other = Dep::NMSSM_spectrum->get(Par::Pole_Mass, other_higgs, 0);
+      compute_SM_higgs_decays(result, m_other);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: h0_3
+    void Ref_SM_h0_3_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_h0_3_decays_table_NMSSM;
+      const SubSpectrum& spec = Dep::NMSSM_spectrum->get_HE();
+      int yet_another_higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 45 : 25);
+      double m_another = Dep::NMSSM_spectrum->get(Par::Pole_Mass, yet_another_higgs, 0);
+      compute_SM_higgs_decays(result, m_another);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: A0
+    void Ref_SM_A0_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_A0_decays_table_NMSSM;
+      double mA01 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0_1");
+      compute_SM_higgs_decays(result, mA01);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: A0_2
+    void Ref_SM_A0_2_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_A0_2_decays_table_NMSSM;
+      double mA02 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0_2");
+      compute_SM_higgs_decays(result, mA02);
     }
     /// @}
 

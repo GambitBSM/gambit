@@ -1,0 +1,227 @@
+# Inifile for testing SpecBit features
+
+Parameters:
+
+  #SM nuisance parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  NMSSM66atQ:
+    Qin:
+      fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
+    TanBeta:
+      fixed_value: 28.7   # EWMSSM
+      # range: [1.0, 70.0]
+      # prior_type: flat
+    M1:
+      fixed_value: -50.5   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [-2e3, -1e1, 1e1, 2e3]
+    M2:
+      fixed_value: 149.3   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [0, 0, 1e1, 2e3]
+    M3:
+      fixed_value: 3000
+    kappa:
+      prior_type: log
+      range: [1e-5, 1]
+    lambda:
+      prior_type: log
+      range: [1e-5, 1]
+    Akappa:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    Alambda:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    mueff:
+      fixed_value: 252.7   # EWMSSM
+      # prior_type: double_log_flat_join
+      # ranges: [-2e3, -1e1, 1e1, 2e3]
+    md2_11: 9e+06
+    md2_12: 0
+    md2_13: 0
+    md2_22: 9e+06
+    md2_23: 0
+    md2_33: 9e+06
+    me2_11: 9e+06
+    me2_12: 0
+    me2_13: 0
+    me2_22: 9e+06
+    me2_23: 0
+    me2_33: 9e+06
+    ml2_11: 9e+06
+    ml2_12: 0
+    ml2_13: 0
+    ml2_22: 9e+06
+    ml2_23: 0
+    ml2_33: 9e+06
+    mq2_11: 9e+06
+    mq2_12: 0
+    mq2_13: 0
+    mq2_22: 9e+06
+    mq2_23: 0
+    mq2_33: 9e+06
+    mu2_11: 9e+06
+    mu2_12: 0
+    mu2_13: 0
+    mu2_22: 9e+06
+    mu2_23: 0
+    mu2_33: 9e+06
+    Ad_11: 0
+    Ad_12: 0
+    Ad_13: 0
+    Ad_21: 0
+    Ad_22: 0
+    Ad_23: 0
+    Ad_31: 0
+    Ad_32: 0
+    Ad_33: 0
+    Ae_11: 0
+    Ae_12: 0
+    Ae_13: 0
+    Ae_21: 0
+    Ae_22: 0
+    Ae_23: 0
+    Ae_31: 0
+    Ae_32: 0
+    Ae_33: 0
+    Au_11: 0
+    Au_12: 0
+    Au_13: 0
+    Au_21: 0
+    Au_22: 0
+    Au_23: 0
+    Au_31: 0
+    Au_32: 0
+    Au_33: 0
+
+Priors:
+
+Printer:
+
+  # printer: cout 
+
+  printer: hdf5
+  options:
+    output_file: "NMSSM.hdf5"
+    delete_file_on_restart: true
+    group: "/NMSSM"
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like:  LogLike
+      point_number: 1000
+      output_file:  output
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+
+  - purpose:      Observable
+    capability:   NMSSM_spectrum
+    type:         Spectrum
+    printme:      false
+
+  # - purpose:      Observable
+  #   capability:   decay_rates
+  #   type:         DecayTable
+  #   printme:      false
+
+  # LEP likelihoods
+  - purpose:    LogLike
+    capability: LEP_Higgs_LogLike
+
+  - purpose:    LogLike
+    capability: LHC_Higgs_LogLike
+
+Rules:
+
+  # Set Higgs pole mass by hand
+  - options:
+      override_pole_masses:
+        h0_1: 125.09
+
+  - capability: NMSSM_spectrum
+    function: get_NMSSM_spectrum_SPheno
+    options:
+      drop_SLHA_file: true
+      WriteOutputForNonConvergence: true
+      CalculateOneLoopMasses: true
+      CalculateTwoLoopHiggsMasses: true
+      ErrorLevel: 2
+
+  - capability: decay_rates
+    function:   all_NMSSM_decays_from_SPheno
+    options:
+      drop_SLHA_file: true
+      OneLoopDecays: false
+      Enable3BDecaysF: false
+      Enable3BDecaysS: false
+      BRMin: 1.0e-5
+
+  # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: NMSSM_higgs_couplings_SPheno
+    options:
+      OneLoopDecays: false
+
+  - capability: HB_ModelParameters
+    function: NMSSMHiggs_ModelParameters
+
+  # Choose to use functions that get Higgs decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_h0_2_decays_table_NMSSM
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table_NMSSM
+  # - capability: Higgs_decay_rates
+  #   function: MSSM_h0_1_decays
+  # - capability: h0_2_decay_rates
+  #   function: h0_2_decays
+  # - capability: A0_decay_rates
+  #   function: A0_decays
+  # - capability: H_plus_decay_rates
+  #   function: H_plus_decays
+  # - capability: t_decay_rates
+  #   function: t_decays
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [SpecBit] : "SpecBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+
+KeyValues:
+
+  debug: true
+
+  default_output_path: "runs/NMSSM/"
+
+  dependency_resolution:
+    prefer_model_specific_functions: false
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+

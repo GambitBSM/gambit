@@ -233,7 +233,12 @@ namespace Gambit
     void SQLitePrinter::finalise(bool /*abnormal*/)
     {
         // Dump buffer to disk. Nothing special needed for early shutdown.
-        SQLitePrinter::dump_buffer();
+        dump_buffer();
+    }
+
+    void SQLitePrinter::flush()
+    {
+        dump_buffer();  
     }
 
     // Reader construction options for constructing a reader

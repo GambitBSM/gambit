@@ -332,7 +332,7 @@ namespace Gambit
 
     HDF5MasterBuffer::HDF5MasterBuffer(const std::string& filename, const std::string& groupname, const bool sync, const std::size_t buflen)
         : synchronised(sync)
-        , buffer_length(buflen)
+        , buffer_length(sync ? buflen : MAX_BUFFER_SIZE) // Use buflen for the bufferlength if this is a sync buffer, otherwise use MAX_BUFFER_SIZE
         , file(filename)
         , group(groupname)
         , file_id(-1)
@@ -414,6 +414,7 @@ namespace Gambit
                 it->second->block_flush(location_id,buffered_points,target_pos);
             }
             buffered_points.clear();
+            buffered_points_set.clear();
         } 
         else
         {     
@@ -441,7 +442,9 @@ namespace Gambit
                     sub_buffer.push_back(*it);
                 }
                 if(it==buffered_points.end()) done=true;
-                
+                //std::cout<<"Getting dataset positions for "<<sub_buffer.size()<<" points"<<std::endl;
+                //std::cout<<"("<<buffered_points.size()-sub_buffer.size()<<" points remaining)"<<std::endl;
+                 
                 // Obtain locations on disk of all points in sub_buffer
                 const std::map<PPIDpair,std::size_t> position_map(get_position_map(sub_buffer));
 
@@ -481,6 +484,15 @@ namespace Gambit
                 }
             }
             buffered_points = remaining_buffered_points;
+            buffered_points_set = set_diff(buffered_points_set, done_points);
+            /// While we are here, check that buffered_points and buffered_points_set are the same size
+            if(buffered_points.size() != buffered_points_set.size())
+            {
+                std::stringstream msg;
+                msg<<"Inconsistency detected between buffered_points and buffered_points_set sizes after subtracting done_points ("<<buffered_points.size()<<" vs "<<buffered_points_set.size()<<")! This is a bug, please report it."<<std::endl;
+                printer_error().raise(LOCAL_INFO,msg.str());  
+            }
+            //std::cout<<buffered_points.size()<<" points failed to flush from random-access buffer."<<std::endl;
         }
 
         // Release lock on output file
@@ -583,6 +595,7 @@ namespace Gambit
         }
         close_and_unlock_file();
         buffered_points.clear();
+        buffered_points_set.clear();
     }
 
     /// Add base class point for a buffer to master buffer map  
@@ -599,11 +612,11 @@ namespace Gambit
     /// Inform all buffers that data has been written to certain mpirank/pointID pair
     /// They will make sure that they have an output slot for this pair, so that all the
     /// buffers for this printer stay "synchronised".
-    void HDF5MasterBuffer::update_all_buffers(const unsigned int mpirank, const unsigned long pointID)
+    void HDF5MasterBuffer::update_all_buffers(const PPIDpair& ppid)
     {
         for(auto it=all_buffers.begin(); it!=all_buffers.end(); ++it)
         {
-            it->second->update(mpirank,pointID);
+            it->second->update(ppid);
         }
     }
 
@@ -865,9 +878,9 @@ namespace Gambit
     /// Specialisation declarations for 'get_buffer' function for each buffer type
     #define DEFINE_GET_BUFFER(TYPE)\
     template<>\
-    HDF5Buffer<TYPE>& HDF5MasterBuffer::get_buffer<TYPE>(const std::string& label)\
+    HDF5Buffer<TYPE>& HDF5MasterBuffer::get_buffer<TYPE>(const std::string& label, const std::vector<PPIDpair>& buffered_points)\
     {\
-        HDF5Buffer<TYPE>& out_buffer = CAT(hdf5_buffers_,TYPE).get_buffer(label);\
+        HDF5Buffer<TYPE>& out_buffer = CAT(hdf5_buffers_,TYPE).get_buffer(label,buffered_points);\
         update_buffer_map(label,out_buffer);\
         return out_buffer;\
     }
@@ -1128,10 +1141,16 @@ namespace Gambit
     }
 
     // Clear all data in buffers and on disk for this printer
-    void HDF5Printer2::reset(bool force)
+    void HDF5Printer2::reset(bool /*force*/)
     {
         //TODO: force flag currently not used; do we need it?
         buffermaster.reset();
+    }
+
+    // Flush data in buffers to disk
+    void HDF5Printer2::flush()
+    {
+        buffermaster.flush();
     }
 
     // Make sure printer output is fully on disk and safe

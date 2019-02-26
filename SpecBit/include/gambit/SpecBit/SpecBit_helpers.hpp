@@ -47,6 +47,9 @@ namespace Gambit
 
     bool has_neutralino_LSP(const Spectrum* result);
 
+    // Gets invisible channels for Higgs decays in the (N)MSSM
+    std::vector<str> get_invisibles(const SubSpectrum& spec);
+
   }
 }
  

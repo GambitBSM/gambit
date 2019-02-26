@@ -27,8 +27,8 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if(scan_level)
   {
-    int nHneut = 3; // number of neutral higgses
-    int nHplus = 1; // number of charged higgses
+    int nHneut;  // number of neutral higgses
+    int nHplus;  // number of charged higgses
     int pdf = 2;    // choose which pdf style to use for Higgs lineshape; 2 = Gaussian
     // Initialize HiggsSignals. Do this one-by-one for each MPI process with
     // locks, as HS calls HB, which writes files then reads them back in later (crazy).
@@ -36,6 +36,18 @@ BE_INI_FUNCTION
     // because we need to make sure that neither this function nor the HB ini function
     // run at the same time, beccause both of them cause the HiggsBounds files to be
     // written.
+
+    if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
+    {
+      nHneut = 3;
+      nHplus = 1;
+    }
+    else if (ModelInUse("NMSSM66atQ"))
+    {
+      nHneut = 5;
+      nHplus = 1;
+    }
+
 
     // Find all the versions of HiggsBounds that have been successfully loaded, and get
     // their locks.
