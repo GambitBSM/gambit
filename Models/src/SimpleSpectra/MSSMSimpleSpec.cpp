@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+/// \author Tomas Gonzalo
+///         (tomas.gonzalo@monash.edu)
+///  \date 2019 Feb
+///
 ///  *********************************************
 
 #include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"

@@ -1143,9 +1143,49 @@ BE_NAMESPACE
       }
     }
 
-    // TODO: missing
-    // if(*GetMassUncertainty)
     // Block DMASS
+    if(*GetMassUncertainty)
+    {
+      slha["DMASS"][""] << 1000001 << sqrt(pow((*mass_uncertainty_Q)(1),2)+pow((*mass_uncertainty_Yt)(1),2)) << "# Sd_1";
+      slha["DMASS"][""] << 1000003 << sqrt(pow((*mass_uncertainty_Q)(2),2)+pow((*mass_uncertainty_Yt)(2),2)) << "# Sd_2";
+      slha["DMASS"][""] << 1000005 << sqrt(pow((*mass_uncertainty_Q)(3),2)+pow((*mass_uncertainty_Yt)(3),2)) << "# Sd_3";
+      slha["DMASS"][""] << 2000001 << sqrt(pow((*mass_uncertainty_Q)(4),2)+pow((*mass_uncertainty_Yt)(4),2)) << "# Sd_4";
+      slha["DMASS"][""] << 2000003 << sqrt(pow((*mass_uncertainty_Q)(5),2)+pow((*mass_uncertainty_Yt)(5),2)) << "# Sd_5";
+      slha["DMASS"][""] << 2000005 << sqrt(pow((*mass_uncertainty_Q)(6),2)+pow((*mass_uncertainty_Yt)(6),2)) << "# Sd_6";
+      slha["DMASS"][""] << 1000012 << sqrt(pow((*mass_uncertainty_Q)(7),2)+pow((*mass_uncertainty_Yt)(7),2)) << "# Sv_1";
+      slha["DMASS"][""] << 1000014 << sqrt(pow((*mass_uncertainty_Q)(8),2)+pow((*mass_uncertainty_Yt)(8),2)) << "# Sv_2";
+      slha["DMASS"][""] << 1000016 << sqrt(pow((*mass_uncertainty_Q)(9),2)+pow((*mass_uncertainty_Yt)(9),2)) << "# Sv_3";
+      slha["DMASS"][""] << 1000002 << sqrt(pow((*mass_uncertainty_Q)(10),2)+pow((*mass_uncertainty_Yt)(10),2)) << "# Su_1";
+      slha["DMASS"][""] << 1000004 << sqrt(pow((*mass_uncertainty_Q)(11),2)+pow((*mass_uncertainty_Yt)(12),2)) << "# Su_2";
+      slha["DMASS"][""] << 1000006 << sqrt(pow((*mass_uncertainty_Q)(12),2)+pow((*mass_uncertainty_Yt)(13),2)) << "# Su_3";
+      slha["DMASS"][""] << 2000002 << sqrt(pow((*mass_uncertainty_Q)(13),2)+pow((*mass_uncertainty_Yt)(14),2)) << "# Su_4";
+      slha["DMASS"][""] << 2000004 << sqrt(pow((*mass_uncertainty_Q)(14),2)+pow((*mass_uncertainty_Yt)(14),2)) << "# Su_5";
+      slha["DMASS"][""] << 2000006 << sqrt(pow((*mass_uncertainty_Q)(15),2)+pow((*mass_uncertainty_Yt)(15),2)) << "# Su_6";
+      slha["DMASS"][""] << 1000011 << sqrt(pow((*mass_uncertainty_Q)(16),2)+pow((*mass_uncertainty_Yt)(16),2)) << "# Se_1";
+      slha["DMASS"][""] << 1000013 << sqrt(pow((*mass_uncertainty_Q)(17),2)+pow((*mass_uncertainty_Yt)(17),2)) << "# Se_2";
+      slha["DMASS"][""] << 1000015 << sqrt(pow((*mass_uncertainty_Q)(18),2)+pow((*mass_uncertainty_Yt)(18),2)) << "# Se_3";
+      slha["DMASS"][""] << 2000011 << sqrt(pow((*mass_uncertainty_Q)(19),2)+pow((*mass_uncertainty_Yt)(19),2)) << "# Se_4";
+      slha["DMASS"][""] << 2000013 << sqrt(pow((*mass_uncertainty_Q)(20),2)+pow((*mass_uncertainty_Yt)(20),2)) << "# Se_5";
+      slha["DMASS"][""] << 2000015 << sqrt(pow((*mass_uncertainty_Q)(21),2)+pow((*mass_uncertainty_Yt)(21),2)) << "# Se_6";
+
+      slha["DMASS"][""] << 25 << sqrt(pow((*mass_uncertainty_Q)(22),2)+pow((*mass_uncertainty_Yt)(22),2)) << "# hh_1";
+      slha["DMASS"][""] << 35 << sqrt(pow((*mass_uncertainty_Q)(23),2)+pow((*mass_uncertainty_Yt)(23),2)) << "# hh_2";
+      slha["DMASS"][""] << 45 << sqrt(pow((*mass_uncertainty_Q)(24),2)+pow((*mass_uncertainty_Yt)(24),2)) << "# hh_3";
+      slha["DMASS"][""] << 36 << sqrt(pow((*mass_uncertainty_Q)(26),2)+pow((*mass_uncertainty_Yt)(26),2)) << "# Ah_2";
+      slha["DMASS"][""] << 46 << sqrt(pow((*mass_uncertainty_Q)(27),2)+pow((*mass_uncertainty_Yt)(27),2)) << "# Ah_3";
+      slha["DMASS"][""] << 37 << sqrt(pow((*mass_uncertainty_Q)(29),2)+pow((*mass_uncertainty_Yt)(29),2)) << "# Hpm_2";
+  
+      slha["DMASS"][""] << 1000022 << sqrt(pow((*mass_uncertainty_Q)(30),2)+pow((*mass_uncertainty_Yt)(30),2)) << "# Chi_1";
+      slha["DMASS"][""] << 1000023 << sqrt(pow((*mass_uncertainty_Q)(31),2)+pow((*mass_uncertainty_Yt)(32),2)) << "# Chi_2";
+      slha["DMASS"][""] << 1000025 << sqrt(pow((*mass_uncertainty_Q)(32),2)+pow((*mass_uncertainty_Yt)(32),2)) << "# Chi_3";
+      slha["DMASS"][""] << 1000035 << sqrt(pow((*mass_uncertainty_Q)(33),2)+pow((*mass_uncertainty_Yt)(33),2)) << "# Chi_4";
+      slha["DMASS"][""] << 1000045 << sqrt(pow((*mass_uncertainty_Q)(34),2)+pow((*mass_uncertainty_Yt)(34),2)) << "# Chi_5";
+      slha["DMASS"][""] << 1000024 << sqrt(pow((*mass_uncertainty_Q)(35),2)+pow((*mass_uncertainty_Yt)(35),2)) << "# Cha_1";
+      slha["DMASS"][""] << 1000037 << sqrt(pow((*mass_uncertainty_Q)(36),2)+pow((*mass_uncertainty_Yt)(36),2)) << "# Cha_2";
+  
+      slha["DMASS"][""] << 1000021 << sqrt(pow((*mass_uncertainty_Q)(37),2)+pow((*mass_uncertainty_Yt)(37),2)) << "# Glu";
+  
+   }
 
     // TODO: maybe add this one too
     // Block LSP
