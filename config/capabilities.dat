@@ -3822,3 +3822,21 @@ cap_sun_saturation: |
 
 cap_Sun_vnqn_isoscalar: |
   Compute v^n or q^n solar capture rate.
+
+#---------------------------------
+#  LowEBit capabilities
+#---------------------------------
+
+CEDM_q: |
+
+CPVYukawas_parameters: |
+
+CPV_Wilson_Coeff_q: |
+
+EDM_q: |
+
+lnL_nEDM: |
+
+
+
+
