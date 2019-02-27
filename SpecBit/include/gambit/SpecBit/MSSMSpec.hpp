@@ -724,6 +724,10 @@ namespace Gambit
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
 
+        /// @{ Pole_Mass - Pole mass parameters
+
+        // Functions utilising the one-index "plain-vanilla" function signature
+        // (One-index member functions of model object)
         {
           typename MTset::fmap0_extraM tmp_map;
           tmp_map["~g"] = &set_MGluino_pole_slha<Model>;

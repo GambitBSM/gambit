@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  "Header" declarations for MSSMSpec class
+///  "Header" declarations for NMSSMSpec class
 ///  (definitions in another header file due to
 ///  this being a template class)
 ///

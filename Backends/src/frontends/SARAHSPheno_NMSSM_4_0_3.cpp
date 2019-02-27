@@ -771,7 +771,11 @@ BE_NAMESPACE
         else
           entry.set_BF(0., 0., Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
-      decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
+      // SM fermions in flavour basis, everything else in mass basis
+      if(pdg[i] < 17)
+        decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
+      else
+        decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
     }
 
     return *kont;
@@ -2620,7 +2624,11 @@ BE_NAMESPACE
     std::vector<std::pair<int,int> > result;
     for(int pdg : pdgs)
     {
-      result.push_back(std::pair<int,int> (pdg,1));
+      // SM fermions in flavour basis, everything else in mass basis
+      if(pdg < 17)
+        result.push_back(std::pair<int,int> (pdg,1));
+      else
+        result.push_back(std::pair<int,int> (pdg,0));
     }
     return result;
   }
