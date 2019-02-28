@@ -76,12 +76,11 @@ Scanner:
       verbosity: 1
       convthresh: 0.001
 
-#    The below isn't working for some reason.....
 #    grid:
 #      plugin: grid
 #      like: LogLike
 #      grid_pts: [1000, 1000, 1000, 1000, 1000, 1000]
-#      parameters: ["kappaU", "kappaD", "kappaS", "SinPhiU", "SinPhiD", "SinPhiS"]
+#      parameters: ["CPVYukawas::kappaU", "CPVYukawas::kappaD", "CPVYukawas::kappaS", "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
 
 
 ObsLikes:
