@@ -57,7 +57,7 @@ namespace Gambit {
 #define MODEL nEDMme
    START_MODEL
    // EDM matrix elements (MSbar at 2 GeV)
-   DEFINEPARS(gTu, gTd, dTs)
+   DEFINEPARS(gTu, gTd, gTs)
    // chromoEDM matrix elements
    DEFINEPARS(rhoU, rhoD)
 #undef MODEL
