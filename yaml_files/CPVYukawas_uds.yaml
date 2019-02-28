@@ -1,0 +1,107 @@
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  CPVYukawas:
+    kappaU:
+      range: [0.,5.]
+      prior_type: flat
+    kappaD:
+      range: [0.,5.]
+      prior_type: flat
+    kappaS:
+      range: [0.,25.]
+      prior_type: flat
+    kappaC: 1.
+    kappaT: 1.
+    kappaB: 1.
+    SinPhiU:
+      range: [-1.,1.]
+      prior_type: flat
+    SinPhiD: 
+      range: [-1,1.]
+      prior_type: flat
+    SinPhiS: 
+      range: [-1.,1.]
+      prior_type: flat
+    SinPhiC: 0.
+    SinPhiT: 0.
+    SinPhiB: 0.
+    
+    kappaE: 1.
+    kappaMu: 1.
+    kappaTau: 1.
+    SinPhiE: 0.
+    SinPhiMu: 0.
+    SinPhiTau: 0.   
+
+  nEDMme:
+    gTu: -0.204
+    gTd: 0.784
+    gTs: -0.0027
+    rhoU: 0.55
+    rhoD: 1.10
+
+Printer:
+
+  # printer: cout
+
+  printer: hdf5
+  options:
+    output_file: "CPVYukawas.hdf5"
+    group: "/CPVYukawas"
+    delete_file_on_restart: true
+
+  # printer: ascii
+  # options:
+  #   output_file: "CPVYukawas.out"
+  #   delete_file_on_restart: true
+
+
+Scanner:
+  use_scanner: diver
+
+  scanners:
+    multinest:
+      plugin: multinest
+      like: LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    diver:
+      plugin: diver
+      like: LogLike
+      NP: 5000
+      verbosity: 1
+      convthresh: 0.001
+
+#    The below isn't working for some reason.....
+#    grid:
+#      plugin: grid
+#      like: LogLike
+#      grid_pts: [1000, 1000, 1000, 1000, 1000, 1000]
+#      parameters: ["kappaU", "kappaD", "kappaS", "SinPhiU", "SinPhiD", "SinPhiS"]
+
+
+ObsLikes:
+  - capability: lnL_EDM_n
+    purpose: LogLike
+
+  - capability: EDM_n
+    purpose: Observable
+
+Logger:
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"  
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+
+  default_output_path: "runs/CPVYukawas_uds"
+
+  debug: true
