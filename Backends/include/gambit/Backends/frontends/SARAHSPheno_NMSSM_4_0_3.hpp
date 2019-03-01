@@ -415,7 +415,7 @@ BE_FUNCTION(GetScaleUncertainty, void,
          Fcomplex16&, // M2
          Fcomplex16&, // M3
          Farray_Freal8_1_46&// mass_uncertainty_Q
-        ), "__model_data_nmssm_MOD_mass_uncertainty_q", "SARAHSPheno_NMSSM_internal")
+        ), "__sphenonmssm_MOD_getscaleuncertainty", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(GetRenormalizationScale, Freal8, (), "__loopfunctions_MOD_getrenormalizationscale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetRGEScale, void, (Freal8&), "__model_data_nmssm_MOD_setrgescale", "SARAHSPheno_NMSSM_internal")
 BE_FUNCTION(SetGUTScale, void, (Freal8&), "__model_data_nmssm_MOD_setgutscale", "SARAHSPheno_NMSSM_internal")

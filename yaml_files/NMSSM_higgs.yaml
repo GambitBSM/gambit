@@ -167,6 +167,7 @@ Rules:
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       CalculateTwoLoopHiggsMasses: true
+      GetMassUncertainty: true
       ErrorLevel: 2
 
   - capability: decay_rates

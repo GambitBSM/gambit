@@ -274,7 +274,6 @@ BE_NAMESPACE
           *TwoLoopMatching = false;
           *GuessTwoLoopMatchingBSM = false;
         }
-
         try{ CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT); }
         catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
@@ -330,7 +329,6 @@ BE_NAMESPACE
           *GuessTwoLoopMatchingBSM = false;
         }
       }
-
       try{ CalculateSpectrum(*n_run, *delta_mass, *WriteOut, *kont, *MAh, *MAh2, *MCha, *MCha2, *MChi, *MChi2, *MFd, *MFd2, *MFe, *MFe2, *MFu, *MFu2, *MGlu, *MGlu2, *Mhh, *Mhh2, *MHpm, *MHpm2, *MSd, *MSd2, *MSe, *MSe2, *MSu, *MSu2, *MSv, *MSv2, *MVWm, *MVWm2, *MVZ, *MVZ2, *pG, *TW, *UM, *UP, *v, *ZA, *ZD, *ZDL, *ZDR, *ZE, *ZEL, *ZER, *ZH, *ZN, *ZP, *ZU, *ZUL, *ZUR, *ZV, *ZW, *ZZ, *betaH, *vd, *vu, *vS, *g1, *g2, *g3, *Yd, *Ye, *lam, *kap, *Yu, *Td, *Te, *Tlam, *Tk, *Tu, *mq2, *ml2, *mHd2, *mHu2, *md2, *mu2, *me2, *ms2, *M1, *M2, *M3, *mGUT); }
       catch(std::runtime_error e) { invalid_point().raise(e.what()); }
 
@@ -772,7 +770,7 @@ BE_NAMESPACE
           entry.set_BF(0., 0., Fdecays::get_pdg_context_pairs(daughter_pdgs));
       }
       // SM fermions in flavour basis, everything else in mass basis
-      if(pdg[i] < 17)
+      if(abs(pdg[i]) < 17)
         decays(Models::ParticleDB().long_name(pdg[i],1)) = entry;
       else
         decays(Models::ParticleDB().long_name(pdg[i],0)) = entry;
@@ -1199,6 +1197,7 @@ BE_NAMESPACE
     // Block DMASS
     if(*GetMassUncertainty)
     {
+     SLHAea_add_block(slha, "DMASS");
       slha["DMASS"][""] << 1000001 << sqrt(pow((*mass_uncertainty_Q)(1),2)+pow((*mass_uncertainty_Yt)(1),2)) << "# Sd_1";
       slha["DMASS"][""] << 1000003 << sqrt(pow((*mass_uncertainty_Q)(2),2)+pow((*mass_uncertainty_Yt)(2),2)) << "# Sd_2";
       slha["DMASS"][""] << 1000005 << sqrt(pow((*mass_uncertainty_Q)(3),2)+pow((*mass_uncertainty_Yt)(3),2)) << "# Sd_3";
@@ -2625,7 +2624,7 @@ BE_NAMESPACE
     for(int pdg : pdgs)
     {
       // SM fermions in flavour basis, everything else in mass basis
-      if(pdg < 17)
+      if(abs(pdg) < 17)
         result.push_back(std::pair<int,int> (pdg,1));
       else
         result.push_back(std::pair<int,int> (pdg,0));

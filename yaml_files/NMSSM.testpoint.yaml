@@ -22,8 +22,8 @@ Parameters:
     Ae_31: 0
     Ae_32: 0
     Ae_33: 0
-    Akappa: -7.58578
-    Alambda: 1359.42
+    Akappa: -18.4392
+    Alambda: 2743.17
     Au_11: 0
     Au_12: 0
     Au_13: 0
@@ -38,8 +38,8 @@ Parameters:
     M3: 3000
     Qin: 3000
     TanBeta: 28.7
-    kappa: 0.0281386
-    lambda: 0.00380821
+    kappa: 3.41457e-05
+    lambda: 0.00158187
     md2_11: 9e+06
     md2_12: 0
     md2_13: 0
@@ -139,6 +139,7 @@ Rules:
       WriteOutputForNonConvergence: true
       CalculateOneLoopMasses: true
       CalculateTwoLoopHiggsMasses: true
+      GetMassUncertainty: true
       ErrorLevel: 2
 
   - capability: decay_rates
