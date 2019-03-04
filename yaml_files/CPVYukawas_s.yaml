@@ -3,9 +3,9 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   CPVYukawas:
-    kappaU: 0.
-    kappaD: 0.
-    kappaS:
+    kappaU: 1.
+    kappaD: 1.
+    kappaS: 
       range: [0.,25.]
       prior_type: flat
     kappaC: 1.
@@ -13,7 +13,7 @@ Parameters:
     kappaB: 1.
     SinPhiU: 0.
     SinPhiD: 0.
-    SinPhiS: 
+    SinPhiS:
       range: [-1.,1.]
       prior_type: flat
     SinPhiC: 0.
@@ -71,7 +71,7 @@ Scanner:
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [500, 500]
+      grid_pts: [250, 250]
       parameters: ["CPVYukawas::kappaS", "CPVYukawas::SinPhiS"]
 
 
@@ -91,7 +91,7 @@ Logger:
 KeyValues:
 
   likelihood:
-    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below: -1e60
 
   default_output_path: "runs/CPVYukawas_s"
 
