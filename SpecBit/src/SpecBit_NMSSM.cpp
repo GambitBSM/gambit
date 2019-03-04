@@ -163,10 +163,9 @@ namespace Gambit
       he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_2, i12,  true);
 */
 
-      // TODO: Get higgs and W mass errors
       // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
       // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
-      double rd_mh1 = 2.0 / he.get(Par::Pole_Mass, ns.h0, 1);
+/*      double rd_mh1 = 2.0 / he.get(Par::Pole_Mass, ns.h0, 1);
       he.set_override(Par::Pole_Mass_1srd_high, rd_mh1, ns.h0, 1, true);
       he.set_override(Par::Pole_Mass_1srd_low,  rd_mh1, ns.h0, 1, true);
 
@@ -174,7 +173,7 @@ namespace Gambit
       double rd_mW = 0.01 / he.get(Par::Pole_Mass, "W+");
       he.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
       he.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
-
+*/
       // Drop SLHA files if requested
       spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
