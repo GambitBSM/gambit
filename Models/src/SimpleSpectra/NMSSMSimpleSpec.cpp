@@ -51,22 +51,24 @@ namespace Gambit
       double NMSSMea::get_ms2()      const{ return getdata("NMSSMRUN",10); } // ms2
 
 
-      double NMSSMea::get_Mhh_pole_slha(int i) const
+      /*double NMSSMea::get_Mhh_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
          else if (i==2){ return getdata("MASS",35); } // Neutral Higgs(2)
          else if (i==3){ return getdata("MASS",45); } // Neutral Higgs(3)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_Mhh_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
+      }*/
+      GET_MX_POLE_1(Mhh,NMSSM,_slha,25,35,45) // Neutral Higgs
 
-      double NMSSMea::get_MAh_pole_slha (int i) const
+      /*double NMSSMea::get_MAh_pole_slha (int i) const
       {
          if      (i==1){ return getdata("MASS",36); } // CP-odd Neutral Higgs(1)
          else if (i==2){ return getdata("MASS",46); } // CP-odd Neutral Higgs(2)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_Ahh_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
+      }*/
+      GET_MX_POLE_1(MAh,NMSSM,_slha,36,46) // CP-odd Neutral Higgs
 
-      double NMSSMea::get_MChi_pole_slha(int i) const
+      /*double NMSSMea::get_MChi_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000022); } // Neutralino(1)
          else if (i==2){ return getdata("MASS",1000023); } // Neutralino(2)
@@ -74,7 +76,8 @@ namespace Gambit
          else if (i==4){ return getdata("MASS",1000035); } // Neutralino(4)
          else if (i==5){ return getdata("MASS",1000045); } // Neutralino(5)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MChi_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
+      }*/
+      GET_MX_POLE_1(MChi,NMSSM,_slha,1000022,1000023,1000025,1000035,1000045)
 
       /// @}
 
@@ -84,23 +87,20 @@ namespace Gambit
       /// @{ Constructors
 
       /// Default Constructor
-      NMSSMSimpleSpec::NMSSMSimpleSpec(double uncert)
+      NMSSMSimpleSpec::NMSSMSimpleSpec()
       {
-        set_pole_mass_uncertainties(uncert);
       }
 
       /// Constructor via SLHAea object
-      NMSSMSimpleSpec::NMSSMSimpleSpec(const SLHAea::Coll& input, double uncert)
+      NMSSMSimpleSpec::NMSSMSimpleSpec(const SLHAea::Coll& input)
         : SLHASimpleSpec(input)
       {
-        set_pole_mass_uncertainties(uncert);
       }
 
       /// Copy constructor: needed by clone function.
-      NMSSMSimpleSpec::NMSSMSimpleSpec(const NMSSMSimpleSpec& other, double uncert)
+      NMSSMSimpleSpec::NMSSMSimpleSpec(const NMSSMSimpleSpec& other)
         : SLHASimpleSpec(other)
       {
-        set_pole_mass_uncertainties(uncert);
       }
 
       /// @}
@@ -173,35 +173,11 @@ namespace Gambit
       /// Retrieve the PDG translation map
       const std::map<int, int>& NMSSMSimpleSpec::PDG_translator() const { return slhawrap.PDG_translator(); }
 
-      /// Set pole mass uncertainties
-      void NMSSMSimpleSpec::set_pole_mass_uncertainties(double uncert)
-      {
-        const std::vector<int> i12        = initVector(1,2);
-        const std::vector<int> i123       = initVector(1,2,3);
-        const std::vector<int> i12345     = initVector(1,2,3,4,5);
-        const std::vector<int> i123456    = initVector(1,2,3,4,5,6);
-        const std::vector<str> sbosons1   = initVector<str>("~g","H+","H-","W+","W-");
-        const std::vector<str> sbosons2   = initVector<str>("~chi+","~chi-","A0");
-        const std::vector<str> sfermions1 = initVector<str>("~u","~d","~e-","~ubar","~dbar","~e+");
-        const std::vector<str> sfermions2 = initVector<str>("~nu","~nubar");
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, sfermions1, i123456, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, sfermions1, i123456, true);
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, sfermions2, i123, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, sfermions2, i123, true);
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, sbosons1, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, sbosons1, true);
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, sbosons2, i12, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, sbosons2, i12, true);
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, "h0", i123, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, "h0", i123, true); 
-        set_override_vector(Par::Pole_Mass_1srd_high, uncert, "~chi0", i12345, true);
-        set_override_vector(Par::Pole_Mass_1srd_low,  uncert, "~chi0", i12345, true);
-      }
-
       // Map fillers
 
       NMSSMSimpleSpec::GetterMaps NMSSMSimpleSpec::fill_getter_maps()
       {
+
          GetterMaps map_collection;
 
          typedef MTget::FInfo1 FInfo1;
@@ -214,6 +190,9 @@ namespace Gambit
          static const int i123v[] = {1,2,3};
          static const std::set<int> i123(i123v, Utils::endA(i123v));
 
+         static const int i1234v[] = {1,2,3,4};
+         static const std::set<int> i1234(i1234v, Utils::endA(i1234v));
+
          static const int i12345v[] = {1,2,3,4,5};
          static const std::set<int> i12345(i12345v, Utils::endA(i12345v));
 
@@ -223,6 +202,8 @@ namespace Gambit
          // Running parameters
          {
             MTget::fmap0 tmp_map;
+            tmp_map["BMu"] = &Model::get_BMu;
+            tmp_map["mA2"] = &Model::get_mA2;
             tmp_map["mHd2"] = &Model::get_mHd2;
             tmp_map["mHu2"] = &Model::get_mHu2;
             tmp_map["ms2"]  = &Model::get_ms2;
@@ -246,8 +227,8 @@ namespace Gambit
             tmp_map["vu"]= &Model::get_vu;
             tmp_map["vd"]= &Model::get_vd;
             tmp_map["vS"]= &Model::get_vS;
-            tmp_map["Tlambda"] = &Model::get_Tlambda;
-            tmp_map["Tkappa"]  = &Model::get_Tkappa;
+            tmp_map["Tlambda"]= &Model::get_Tlambda;
+            tmp_map["Tkappa"]= &Model::get_Tkappa;
             map_collection[Par::mass1].map0 = tmp_map;
          }
          {
@@ -268,8 +249,8 @@ namespace Gambit
             tmp_map["tanbeta"]= &Model::get_tanbeta;
             tmp_map["tanbeta(mZ)"]= &Model::get_tanbeta_mZ; // Special entry for reproducing MINPAR entry in SLHA
             tmp_map["sinW2"]= &Model::get_sinthW2_DRbar;
-            tmp_map["lambda"]   = &Model::get_lambda;
-            tmp_map["kappa"]   = &Model::get_kappa;
+            tmp_map["lambda"]= &Model::get_lambda;
+            tmp_map["kappa"]= &Model::get_kappa;
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
          {
@@ -279,7 +260,6 @@ namespace Gambit
             tmp_map["Ye"]= FInfo2( &Model::get_Ye, i123, i123);
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
-
          // "Physical" parameters
          {
             MTget::fmap0 tmp_map;
@@ -291,13 +271,31 @@ namespace Gambit
             map_collection[Par::Pole_Mass].map0 = tmp_map;
          }
          {
+            MTget::fmap0 tmp_map;
+            tmp_map["~g"] = &Model::get_MGlu_pole_1srd_high;
+            tmp_map["H+"] = &Model::get_MHpm_pole_1srd_high;
+            // Antiparticle label
+            tmp_map["H-"] = &Model::get_MHpm_pole_1srd_high;
+            tmp_map["W+"] = &Model::get_MW_pole_1srd_high;
+            map_collection[Par::Pole_Mass_1srd_high].map0 = tmp_map;
+         }
+         {
+            MTget::fmap0 tmp_map;
+            tmp_map["~g"] = &Model::get_MGlu_pole_1srd_low;
+            tmp_map["H+"] = &Model::get_MHpm_pole_1srd_low;
+            // Antiparticle label
+            tmp_map["H-"] = &Model::get_MHpm_pole_1srd_low;
+            tmp_map["W+"] = &Model::get_MW_pole_1srd_low;
+            map_collection[Par::Pole_Mass_1srd_low].map0 = tmp_map;
+         }
+         {
             MTget::fmap1 tmp_map;
             tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_slha, i123456 );
             tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_slha, i123456 );
             tmp_map["~e-"] =   FInfo1( &Model::get_MSe_pole_slha, i123456 );
             tmp_map["~nu"] =   FInfo1( &Model::get_MSv_pole_slha, i123 );
-            tmp_map["A0"] =    FInfo1( &Model::get_MAh_pole_slha, i12 );
             tmp_map["h0"] =    FInfo1( &Model::get_Mhh_pole_slha, i123 );
+            tmp_map["A0"] =    FInfo1( &Model::get_MAh_pole_slha, i12 );
             tmp_map["~chi+"] = FInfo1( &Model::get_MCha_pole_slha, i12 );
             tmp_map["~chi0"] = FInfo1( &Model::get_MChi_pole_slha, i12345 );
 
@@ -309,6 +307,46 @@ namespace Gambit
             tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_slha, i12 );
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
+         {
+            MTget::fmap1 tmp_map;
+            tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_1srd_high, i123456 );
+            tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_1srd_high, i123456 );
+            tmp_map["~e-"] =   FInfo1( &Model::get_MSe_pole_1srd_high, i123456 );
+            tmp_map["~nu"] =   FInfo1( &Model::get_MSv_pole_1srd_high, i123 );
+            tmp_map["h0"] =    FInfo1( &Model::get_Mhh_pole_1srd_high, i123 );
+            tmp_map["A0"] =    FInfo1( &Model::get_MAh_pole_1srd_high, i12 );
+            tmp_map["~chi+"] = FInfo1( &Model::get_MCha_pole_1srd_high, i12 );
+            tmp_map["~chi0"] = FInfo1( &Model::get_MChi_pole_1srd_high, i12345 );
+
+            // Antiparticles (same getters, just different string name)
+            tmp_map["~dbar"] = FInfo1( &Model::get_MSd_pole_1srd_high, i123456 );
+            tmp_map["~ubar"] = FInfo1( &Model::get_MSu_pole_1srd_high, i123456 );
+            tmp_map["~e+"]   = FInfo1( &Model::get_MSe_pole_1srd_high, i123456 );
+            tmp_map["~nubar"]= FInfo1( &Model::get_MSv_pole_1srd_high, i123 );
+            tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_1srd_high, i12 );
+            map_collection[Par::Pole_Mass_1srd_high].map1 = tmp_map;
+         }
+         {
+
+            MTget::fmap1 tmp_map;
+            tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_1srd_low, i123456 );
+            tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_1srd_low, i123456 );
+            tmp_map["~e-"] =   FInfo1( &Model::get_MSe_pole_1srd_low, i123456 );
+            tmp_map["~nu"] =   FInfo1( &Model::get_MSv_pole_1srd_low, i123 );
+            tmp_map["h0"] =    FInfo1( &Model::get_Mhh_pole_1srd_low, i123 );
+            tmp_map["A0"] =    FInfo1( &Model::get_MAh_pole_1srd_low, i12 );
+            tmp_map["~chi+"] = FInfo1( &Model::get_MCha_pole_1srd_low, i12 );
+            tmp_map["~chi0"] = FInfo1( &Model::get_MChi_pole_1srd_low, i12345 );
+
+            // Antiparticles (same getters, just different string name)
+            tmp_map["~dbar"] = FInfo1( &Model::get_MSd_pole_1srd_low, i123456 );
+            tmp_map["~ubar"] = FInfo1( &Model::get_MSu_pole_1srd_low, i123456 );
+            tmp_map["~e+"]   = FInfo1( &Model::get_MSe_pole_1srd_low, i123456 );
+            tmp_map["~nubar"]= FInfo1( &Model::get_MSv_pole_1srd_low, i123 );
+            tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_1srd_low, i12 );
+            map_collection[Par::Pole_Mass_1srd_low].map1 = tmp_map;
+         }
+
          {
             MTget::fmap2 tmp_map;
             tmp_map["~d"] =    FInfo2( &Model::get_ZD_pole_slha, i123456, i123456);
@@ -326,6 +364,7 @@ namespace Gambit
 
          return map_collection;
       }
+
 
 
 } // end Gambit namespace

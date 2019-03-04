@@ -145,7 +145,7 @@ namespace Gambit
       // Add theory errors
       static const NMSSM_strs ns;
 
-      static const std::vector<int> i12     = initVector(1,2);
+/*      static const std::vector<int> i12     = initVector(1,2);
       static const std::vector<int> i123    = initVector(1,2,3);
       static const std::vector<int> i1234   = initVector(1,2,3,4);
       static const std::vector<int> i123456 = initVector(1,2,3,4,5,6);
@@ -161,7 +161,9 @@ namespace Gambit
       he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_3, i123, true);
       he.set_override_vector(Par::Pole_Mass_1srd_high, 0.03, ns.pole_mass_strs_1_2, i12,  true);
       he.set_override_vector(Par::Pole_Mass_1srd_low,  0.03, ns.pole_mass_strs_1_2, i12,  true);
+*/
 
+      // TODO: Get higgs and W mass errors
       // Do the lightest Higgs mass separately.  The default in most codes is 3 GeV. That seems like
       // an underestimate if the stop masses are heavy enough, but an overestimate for most points.
       double rd_mh1 = 2.0 / he.get(Par::Pole_Mass, ns.h0, 1);

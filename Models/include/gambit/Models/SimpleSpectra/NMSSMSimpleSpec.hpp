@@ -47,10 +47,13 @@ namespace Gambit
            double get_Tlambda() const;
            double get_Tkappa() const;
 
-           double get_Mhh_pole_slha(int i) const;
-           double get_MAh_pole_slha(int i) const;
+           //double get_Mhh_pole_slha(int i) const;
+           DEC_MX_POLE_1(Mhh,_slha)
+           //double get_MAh_pole_slha(int i) const;
+           DEC_MX_POLE_1(MAh,_slha)
 
-           double get_MChi_pole_slha(int i) const;
+           //double get_MChi_pole_slha(int i) const;
+           DEC_MX_POLE_1(MChi,_slha)
 
            /// @}
       };
@@ -71,16 +74,14 @@ namespace Gambit
       class NMSSMSimpleSpec : public SLHASimpleSpec<NMSSMSimpleSpec>
       {
          private:
-            /// Set pole mass uncertainties
-            void set_pole_mass_uncertainties(double);
 
          public:
             /// Constructors.
             /// The optional double uncert is the uncertainty to assign to pole masses (default is 3%).
             /// @{
-            NMSSMSimpleSpec(double uncert = 0.03);
-            NMSSMSimpleSpec(const SLHAstruct&, double uncert = 0.03);
-            NMSSMSimpleSpec(const NMSSMSimpleSpec&, double uncert = 0.03);
+            NMSSMSimpleSpec();
+            NMSSMSimpleSpec(const SLHAstruct&);
+            NMSSMSimpleSpec(const NMSSMSimpleSpec&);
             /// @}
 
             /// Destructor

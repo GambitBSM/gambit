@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Mar
+///  
 ///  *********************************************
 
 #ifndef __MSSMSimpleSpec_hpp__
@@ -24,6 +28,71 @@
 #include "gambit/Elements/spec.hpp"
 #include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
+#include  <boost/preprocessor/control/iif.hpp>
+
+
+/// Macros to declare and define pole mass getters
+/// Each macro declares or defines getters for pole masses and uncertainties
+/// @{
+
+// Macros for the declaration of getters
+// with no index
+#define DEC_MX_POLE_0(NAME, SUFFIX)                                       \
+  double CAT_4(get_,NAME,_pole,SUFFIX)() const;                           \
+  double CAT_3(get_,NAME,_pole_1srd_high)() const;                        \
+  double CAT_3(get_,NAME,_pole_1srd_low)() const;
+
+// with 1 index
+#define DEC_MX_POLE_1(NAME,SUFFIX)                        \
+  double CAT_4(get_,NAME,_pole,SUFFIX)(int i) const;      \
+  double CAT_3(get_,NAME,_pole_1srd_high)(int i) const;   \
+  double CAT_3(get_,NAME,_pole_1srd_low)(int i) const;
+
+// Macro for the definitions of getters
+// with no index
+#define GET_MX_POLE_0(NAME,PREFFIX,SUFFIX,PDG)                                          \
+  double CAT_5(PREFFIX,ea::get_,NAME,_pole,SUFFIX)() const                          \
+  {                                                                             \
+    return getdata("MASS",PDG);                                                 \
+  }                                                                             \
+  double CAT_4(PREFFIX,ea::get_,NAME,_pole_1srd_high)() const                       \
+  {                                                                             \
+    return finddata("DMASS",PDG) ? getdata("DMASS",PDG) : default_uncert;       \
+  }                                                                             \
+  double CAT_4(PREFFIX,ea::get_,NAME,_pole_1srd_low)() const                        \
+  {                                                                             \
+    return finddata("DMASS",PDG) ? getdata("DMASS",PDG) : default_uncert;       \
+  }
+
+// with 1 index
+#define GET_MX_POLE_1(NAME,PREFFIX,SUFFIX,...)                                                  \
+  double CAT_5(PREFFIX,ea::get_,NAME,_pole,SUFFIX)(int i) const                             \
+  {                                                                                     \
+    std::vector<int> pdgs = {__VA_ARGS__};                                                       \
+    if(i > 0 and unsigned(i) <= pdgs.size())                                                      \
+      return getdata("MASS",pdgs[i-1]);                                                 \
+    else                                                                                \
+      utils_error().raise(LOCAL_INFO, "Invalid index input to CAT_3(get_,NAME,_pole)! Please check index range limits in wrapper SubSpectrum class"); return -1;                  \
+  }                                                                                     \
+  double CAT_4(PREFFIX,ea::get_,NAME,_pole_1srd_high)(int i) const                          \
+  {                                                                                     \
+    std::vector<int> pdgs = {__VA_ARGS__};                                                       \
+    if(i > 0 and unsigned(i) <= pdgs.size())                                                      \
+      return finddata("DMASS",pdgs[i-1]) ? getdata("DMASS",pdgs[i-1]) : default_uncert; \
+    else                                                                                \
+      utils_error().raise(LOCAL_INFO, "Invalid index input to CAT_3(get_,NAME,_pole_1srd_high)! Please check index range limits in wrapper SubSpectrum class"); return -1;        \
+  }                                                                                     \
+  double CAT_4(PREFFIX,ea::get_,NAME,_pole_1srd_low)(int i) const                           \
+  {                                                                                     \
+    std::vector<int> pdgs = {__VA_ARGS__};                                                       \
+    if(i > 0 and unsigned(i) <= pdgs.size())                                                      \
+      return finddata("DMASS",pdgs[i-1]) ? getdata("DMASS",pdgs[i-1]) : default_uncert; \
+    else                                                                                \
+      utils_error().raise(LOCAL_INFO, "Invalid index input to CAT_3(get_,NAME,_pole_1srd_low)! Please check index range limits in wrapper SubSpectrum class"); return -1;         \
+  }
+ 
+/// @}
+
 
 namespace Gambit
 {
@@ -32,6 +101,10 @@ namespace Gambit
       /// Some common functions defined in base class
       class MSSMea: public SLHAeaModel
       {
+
+         protected:
+           double default_uncert = 0.03;
+
          public:
            /// @{ Constructors
            MSSMea();
@@ -73,19 +146,19 @@ namespace Gambit
            double get_g3() const;
            double get_sinthW2_DRbar() const;
 
-           double get_MGlu_pole() const;
+           DEC_MX_POLE_0(MGlu,)
 
-           double get_Mhh_pole_slha(int i) const;
-           double get_MAh_pole () const;
-           double get_MHpm_pole() const;
-           double get_MW_pole()   const;
+           DEC_MX_POLE_1(Mhh,_slha)
+           DEC_MX_POLE_0(MAh,)
+           DEC_MX_POLE_0(MHpm,)
+           DEC_MX_POLE_0(MW,)
 
-           double get_MCha_pole_slha(int i) const;
-           double get_MSd_pole_slha(int i) const;
-           double get_MSu_pole_slha(int i) const;
-           double get_MSe_pole_slha(int i) const;
-           double get_MSv_pole_slha(int i) const;
-           double get_MChi_pole_slha(int i) const;
+           DEC_MX_POLE_1(MCha,_slha)
+           DEC_MX_POLE_1(MSd,_slha)
+           DEC_MX_POLE_1(MSu,_slha)
+           DEC_MX_POLE_1(MSe,_slha)
+           DEC_MX_POLE_1(MSv,_slha)
+           DEC_MX_POLE_1(MChi,_slha)
 
            // Pole Mixings
            double get_ZD_pole_slha(int i, int j) const;
@@ -118,15 +191,15 @@ namespace Gambit
       {
          private:
             /// Set pole mass uncertainties
-            void set_pole_mass_uncertainties(double);
+            //void set_pole_mass_uncertainties(double);
 
          public:
             /// Constructors.
             /// The optional double uncert is the uncertainty to assign to pole masses (default is 3%).
             /// @{
-            MSSMSimpleSpec(double uncert = 0.03);
-            MSSMSimpleSpec(const SLHAstruct&, double uncert = 0.03);
-            MSSMSimpleSpec(const MSSMSimpleSpec&, double uncert = 0.03);
+            MSSMSimpleSpec(/*double uncert = 0.03*/);
+            MSSMSimpleSpec(const SLHAstruct&/*, double uncert = 0.03*/);
+            MSSMSimpleSpec(const MSSMSimpleSpec&/*, double uncert = 0.03*/);
             /// @}
 
             /// Destructor

@@ -289,6 +289,7 @@ namespace Gambit
     template <class MI>
     typename NMSSMSpec<MI>::GetterMaps NMSSMSpec<MI>::fill_getter_maps()
     {
+
       typename NMSSMSpec<MI>::GetterMaps map_collection;
       typedef typename MI::Model Model;
       typedef typename MTget::FInfo1 FInfo1;

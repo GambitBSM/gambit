@@ -16,9 +16,9 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
-/// \author Tomas Gonzalo
+///  \author Tomas Gonzalo
 ///         (tomas.gonzalo@monash.edu)
-///  \date 2019 Feb
+///  \date 2019 Feb, Mar
 ///
 ///  *********************************************
 
@@ -294,25 +294,33 @@ namespace Gambit
         return sg1 / (sg1 + Utils::sqr(get_g2()));
       }
 
-      double MSSMea::get_MGlu_pole() const { return getdata("MASS",1000021); }
+      //double MSSMea::get_MGlu_pole() const { return getdata("MASS",1000021); }
+      //double MSSMea::get_MGlu_pole_1srd_high() const { return finddata("DMASS", 1000021) ? getdata("DMASS",1000021) : default_uncert; }
+      //double MSSMea::get_MGlu_pole_1srd_low() const { return finddata("DMASS", 1000021) ? getdata("DMASS",1000021) : default_uncert; }
+      GET_MX_POLE_0(MGlu,MSSM,,1000021) // Gluino
 
-      double MSSMea::get_Mhh_pole_slha(int i) const
+      /*double MSSMea::get_Mhh_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
          else if (i==2){ return getdata("MASS",35); } // Neutral Higgs(2)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_Mhh_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MAh_pole () const { return getdata("MASS",36); }
-      double MSSMea::get_MHpm_pole() const { return getdata("MASS",37); }
-      double MSSMea::get_MW_pole()    const { return getdata("MASS",24); } // REQUIRED output of MSSM-compatible subspectrum
+      }*/
+      GET_MX_POLE_1(Mhh,MSSM,_slha,25,35) // Neutral Higgs
+      //double MSSMea::get_MAh_pole () const { return getdata("MASS",36); }
+      GET_MX_POLE_0(MAh,MSSM,,36) // Pseudoscalar Higgs
+      //double MSSMea::get_MHpm_pole() const { return getdata("MASS",37); }
+      GET_MX_POLE_0(MHpm,MSSM,,37) // Charged Higgs
+      //double MSSMea::get_MW_pole()    const { return getdata("MASS",24); } // REQUIRED output of MSSM-compatible subspectrum
+      GET_MX_POLE_0(MW,MSSM,,24) // W boson
 
-      double MSSMea::get_MCha_pole_slha(int i) const
+      /*double MSSMea::get_MCha_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000024); } // Chargino(1)
          else if (i==2){ return getdata("MASS",1000037); } // Chargino(2)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MCha_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MSd_pole_slha(int i) const
+      }*/
+      GET_MX_POLE_1(MCha,MSSM,_slha,1000024,1000037) // Chargino
+      /*double MSSMea::get_MSd_pole_slha(int i) const
       {
          static std::map<int,int> match;
 
@@ -323,8 +331,9 @@ namespace Gambit
          else if (i==5){ return getdata("MASS",2000003); } // d-type squark(5)
          else if (i==6){ return getdata("MASS",2000005); } // d-type squark(6)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MSd_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MSu_pole_slha(int i) const
+      }*/
+      GET_MX_POLE_1(MSd,MSSM,_slha,1000001,1000003,1000005,2000001,2000003,2000005) // d-type squark
+      /*double MSSMea::get_MSu_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000002); } // u-type squark(1)
          else if (i==2){ return getdata("MASS",1000004); } // u-type squark(2)
@@ -333,8 +342,9 @@ namespace Gambit
          else if (i==5){ return getdata("MASS",2000004); } // u-type squark(5)
          else if (i==6){ return getdata("MASS",2000006); } // u-type squark(6)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MSd_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MSe_pole_slha(int i) const
+      }*/
+      GET_MX_POLE_1(MSu,MSSM,_slha,1000002,1000004,1000006,2000002,2000004,2000006) // u-type squark
+      /*double MSSMea::get_MSe_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000011); } // charged slepton(1)
          else if (i==2){ return getdata("MASS",1000013); } // charged slepton(2)
@@ -343,22 +353,25 @@ namespace Gambit
          else if (i==5){ return getdata("MASS",2000013); } // charged slepton(5)
          else if (i==6){ return getdata("MASS",2000015); } // charged slepton(6)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MSd_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MSv_pole_slha(int i) const
+      }*/
+      GET_MX_POLE_1(MSe,MSSM,_slha,1000011,1000013,1000015,2000011,2000013,2000015) // charged slepton
+      /*double MSSMea::get_MSv_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000012); } // Sneutrino(1)
          else if (i==2){ return getdata("MASS",1000014); } // Sneutrino(2)
          else if (i==3){ return getdata("MASS",1000016); } // Sneutrino(3)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MSd_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
-      double MSSMea::get_MChi_pole_slha(int i) const
+      }*/
+      GET_MX_POLE_1(MSv,MSSM,_slha,1000012,1000014,1000016) // Sneutrino
+      /*double MSSMea::get_MChi_pole_slha(int i) const
       {
          if      (i==1){ return getdata("MASS",1000022); } // Neutralino(1)
          else if (i==2){ return getdata("MASS",1000023); } // Neutralino(2)
          else if (i==3){ return getdata("MASS",1000025); } // Neutralino(3)
          else if (i==4){ return getdata("MASS",1000035); } // Neutralino(4)
          else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_MChi_pole_slha! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
-      }
+      }*/
+      GET_MX_POLE_1(MChi,MSSM,_slha,1000022,1000023,1000025,1000035) // Neutralino
 
       // Pole Mixings
       double MSSMea::get_ZD_pole_slha(int i, int j) const { return getdata("DSQMIX",i,j); }
@@ -384,23 +397,23 @@ namespace Gambit
       /// @{ Constructors
 
       /// Default Constructor
-      MSSMSimpleSpec::MSSMSimpleSpec(double uncert)
+      MSSMSimpleSpec::MSSMSimpleSpec(/*double uncert*/)
       {
-        set_pole_mass_uncertainties(uncert);
+        //set_pole_mass_uncertainties(uncert);
       }
 
       /// Constructor via SLHAea object
-      MSSMSimpleSpec::MSSMSimpleSpec(const SLHAea::Coll& input, double uncert)
+      MSSMSimpleSpec::MSSMSimpleSpec(const SLHAea::Coll& input/*, double uncert*/)
         : SLHASimpleSpec(input)
       {
-        set_pole_mass_uncertainties(uncert);
+        //set_pole_mass_uncertainties(uncert);
       }
 
       /// Copy constructor: needed by clone function.
-      MSSMSimpleSpec::MSSMSimpleSpec(const MSSMSimpleSpec& other, double uncert)
+      MSSMSimpleSpec::MSSMSimpleSpec(const MSSMSimpleSpec& other/*, double uncert*/)
         : SLHASimpleSpec(other)
       {
-        set_pole_mass_uncertainties(uncert);
+        //set_pole_mass_uncertainties(uncert);
       }
 
       /// @}
@@ -429,7 +442,7 @@ namespace Gambit
       const std::map<int, int>& MSSMSimpleSpec::PDG_translator() const { return slhawrap.PDG_translator(); }
 
       /// Set pole mass uncertainties
-      void MSSMSimpleSpec::set_pole_mass_uncertainties(double uncert)
+      /*void MSSMSimpleSpec::set_pole_mass_uncertainties(double uncert)
       {
         const std::vector<int> i12        = initVector(1,2);
         const std::vector<int> i123       = initVector(1,2,3);
@@ -449,7 +462,7 @@ namespace Gambit
         set_override_vector(Par::Pole_Mass_1srd_low,  uncert, sbosons2, i12, true);
         set_override_vector(Par::Pole_Mass_1srd_high, uncert, "~chi0", i1234, true);
         set_override_vector(Par::Pole_Mass_1srd_low,  uncert, "~chi0", i1234, true);
-      }
+      }*/
 
       // Map fillers
 
@@ -541,6 +554,26 @@ namespace Gambit
             map_collection[Par::Pole_Mass].map0 = tmp_map;
          }
          {
+            MTget::fmap0 tmp_map;
+            tmp_map["~g"] = &Model::get_MGlu_pole_1srd_high;
+            tmp_map["A0"] = &Model::get_MAh_pole_1srd_high;
+            tmp_map["H+"] = &Model::get_MHpm_pole_1srd_high;
+            // Antiparticle label
+            tmp_map["H-"] = &Model::get_MHpm_pole_1srd_high;
+            tmp_map["W+"] = &Model::get_MW_pole_1srd_high;
+            map_collection[Par::Pole_Mass_1srd_high].map0 = tmp_map;
+         }
+         {
+            MTget::fmap0 tmp_map;
+            tmp_map["~g"] = &Model::get_MGlu_pole_1srd_low;
+            tmp_map["A0"] = &Model::get_MAh_pole_1srd_low;
+            tmp_map["H+"] = &Model::get_MHpm_pole_1srd_low;
+            // Antiparticle label
+            tmp_map["H-"] = &Model::get_MHpm_pole_1srd_low;
+            tmp_map["W+"] = &Model::get_MW_pole_1srd_low;
+            map_collection[Par::Pole_Mass_1srd_low].map0 = tmp_map;
+         }
+         {
             MTget::fmap1 tmp_map;
             tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_slha, i123456 );
             tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_slha, i123456 );
@@ -558,6 +591,44 @@ namespace Gambit
             tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_slha, i12 );
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
+         {
+            MTget::fmap1 tmp_map;
+            tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_1srd_high, i123456 );
+            tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_1srd_high, i123456 );
+            tmp_map["~e-"] =   FInfo1( &Model::get_MSe_pole_1srd_high, i123456 );
+            tmp_map["~nu"] =   FInfo1( &Model::get_MSv_pole_1srd_high, i123 );
+            tmp_map["h0"] =    FInfo1( &Model::get_Mhh_pole_1srd_high, i12 );
+            tmp_map["~chi+"] = FInfo1( &Model::get_MCha_pole_1srd_high, i12 );
+            tmp_map["~chi0"] = FInfo1( &Model::get_MChi_pole_1srd_high, i1234 );
+
+            // Antiparticles (same getters, just different string name)
+            tmp_map["~dbar"] = FInfo1( &Model::get_MSd_pole_1srd_high, i123456 );
+            tmp_map["~ubar"] = FInfo1( &Model::get_MSu_pole_1srd_high, i123456 );
+            tmp_map["~e+"]   = FInfo1( &Model::get_MSe_pole_1srd_high, i123456 );
+            tmp_map["~nubar"]= FInfo1( &Model::get_MSv_pole_1srd_high, i123 );
+            tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_1srd_high, i12 );
+            map_collection[Par::Pole_Mass_1srd_high].map1 = tmp_map;
+         }
+         {
+
+            MTget::fmap1 tmp_map;
+            tmp_map["~d"] =    FInfo1( &Model::get_MSd_pole_1srd_low, i123456 );
+            tmp_map["~u"] =    FInfo1( &Model::get_MSu_pole_1srd_low, i123456 );
+            tmp_map["~e-"] =   FInfo1( &Model::get_MSe_pole_1srd_low, i123456 );
+            tmp_map["~nu"] =   FInfo1( &Model::get_MSv_pole_1srd_low, i123 );
+            tmp_map["h0"] =    FInfo1( &Model::get_Mhh_pole_1srd_low, i12 );
+            tmp_map["~chi+"] = FInfo1( &Model::get_MCha_pole_1srd_low, i12 );
+            tmp_map["~chi0"] = FInfo1( &Model::get_MChi_pole_1srd_low, i1234 );
+
+            // Antiparticles (same getters, just different string name)
+            tmp_map["~dbar"] = FInfo1( &Model::get_MSd_pole_1srd_low, i123456 );
+            tmp_map["~ubar"] = FInfo1( &Model::get_MSu_pole_1srd_low, i123456 );
+            tmp_map["~e+"]   = FInfo1( &Model::get_MSe_pole_1srd_low, i123456 );
+            tmp_map["~nubar"]= FInfo1( &Model::get_MSv_pole_1srd_low, i123 );
+            tmp_map["~chi-"] = FInfo1( &Model::get_MCha_pole_1srd_low, i12 );
+            map_collection[Par::Pole_Mass_1srd_low].map1 = tmp_map;
+         }
+
          {
             MTget::fmap2 tmp_map;
             tmp_map["~d"] =    FInfo2( &Model::get_ZD_pole_slha, i123456, i123456);

@@ -18,6 +18,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Mar
+///
 ///  *********************************************
 
 #ifndef __SLHASimpleSpec_hpp__
@@ -64,6 +68,12 @@ namespace Gambit
            // wrapped SLHA file)
            // but which people may still want to retrieve the (zero) off-diagonal elements.
            double get_diagonal(const std::string& block, int i, int j) const; 
+
+           // Helper functions to check whether a block or index exists
+           bool finddata(const std::string& block) const;
+           bool finddata(const std::string& block, int index) const;
+           bool finddata(const std::string& block, int i, int j) const;
+   
       };
 
       template<class Derived>
