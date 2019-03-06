@@ -258,7 +258,7 @@ namespace Gambit
       double get_Lambda7(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
          double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
-         return -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)-lam345*c2b) + sb*sin(3.*b)*lam6 + cb*cos(3.*b)*lam7;
+         return -0.5*s2b*(lam1*sb*sb-lam2*cb*cb+lam345*c2b)+sb*sin(3.*b)*lam6+cb*cos(3.*b)*lam7;
       }
 
       template <class Model>

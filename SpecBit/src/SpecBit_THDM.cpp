@@ -30,6 +30,9 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 
+#include <Eigen/Eigenvalues>
+#include <Eigen/Dense> 
+
 // TODO: Check headers
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
@@ -369,7 +372,7 @@ namespace Gambit
         double Lam4 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
         double Lam5 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
         double Lam6 = -0.5*s2b*(lam1*pow(cb,2)-lam2*pow(sb,2)-lam345*c2b) + cb*cos(3.*b)*lam6 + sb*sin(3.*b)*lam7;
-        double Lam7 = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)-lam345*c2b) + sb*sin(3.*b)*lam6 + cb*cos(3.*b)*lam7;
+        double Lam7 = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)+lam345*c2b) + sb*sin(3.*b)*lam6 + cb*cos(3.*b)*lam7;
         double M12_2 = (m11_2-m22_2)*s2b + m12_2*c2b;
         double M11_2 = m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
         double M22_2 = m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
@@ -1009,53 +1012,58 @@ namespace Gambit
       return q;
     }
 
-    std::complex<double> get_cubic_coupling_hhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type j, particle_type k, particle_type l) {
+    std::complex<double> get_cubic_coupling_hhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
+      const particle_type j = particles[0], k = particles[1], l = particles[2], m = particles[3];
       const double Lam1 = container.thdm_pars.Lambda1, Lam34 = container.thdm_pars.Lambda3 + container.thdm_pars.Lambda4;
-      const double Lam5 = container.thdm_pars.Lambda5, Lam6 = container.thdm_pars.Lambda6, Lam7 = container.thdm_pars.Lambda7;
+      const double Lam5 = container.thdm_pars.Lambda5, Lam6 = -container.thdm_pars.Lambda6, Lam7 = -container.thdm_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
-      c += q[j][1]*std::conj(q[k][1])*Lam1;
-      c += q[j][2]*std::conj(q[k][2])*Lam34;
+      c += q[j][1]*std::conj(q[k][1])*(q[l][1]).real()*Lam1;
+      c += q[j][2]*std::conj(q[k][2])*(q[l][1]).real()*Lam34;
       c += (std::conj(q[j][1])*q[k][2]*q[l][2]*Lam5).real();
-      c += ((2.0*q[j][1] + std::conj(q[j][2]))*std::conj(q[k][1])*q[l][2]*Lam6).real();
+      c += ((2.0*q[j][1] + std::conj(q[j][1]))*std::conj(q[k][1])*q[l][2]*Lam6).real();
       c += (std::conj(q[j][2])*q[k][2]*q[l][2]*Lam7).real();
       return sqrt(get_vev2(container))*0.5*c;
     }
 
     std::complex<double> get_cubic_coupling_hHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*(q[k][1]).real() * container.thdm_pars.Lambda3 + (q[k][2] * container.thdm_pars.Lambda7).real();
+      return sqrt(get_vev2(container))*((q[k][1]).real() * container.thdm_pars.Lambda3 + (q[k][2] * -1.0*container.thdm_pars.Lambda7).real());
     }
 
     std::complex<double> get_cubic_coupling_hGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*((q[k][1]).real() * container.thdm_pars.Lambda1 + (q[k][2]* container.thdm_pars.Lambda6).real());
+      return sqrt(get_vev2(container))*((q[k][1]).real() * container.thdm_pars.Lambda1 + (q[k][2]* -1.0*container.thdm_pars.Lambda6).real());
     }
 
     std::complex<double> get_cubic_coupling_hGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*0.5*(std::conj(q[k][2]) * container.thdm_pars.Lambda4 + q[k][2]* container.thdm_pars.Lambda5 + 2.0*(q[k][1]).real()*container.thdm_pars.Lambda6);
+      return sqrt(get_vev2(container))*0.5*(std::conj(q[k][2]) * container.thdm_pars.Lambda4 + q[k][2]* container.thdm_pars.Lambda5 + 2.0*(q[k][1]).real()*-1.0*container.thdm_pars.Lambda6);
     }
 
-    std::complex<double> get_quartic_coupling_hhhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type j, particle_type k, particle_type l, particle_type m) {
+    std::complex<double> get_quartic_coupling_hhhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
+      const particle_type j = particles[0], k = particles[1], l = particles[2], m = particles[3];
       const double Lam1 = container.thdm_pars.Lambda1, Lam2 = container.thdm_pars.Lambda2, Lam34 = container.thdm_pars.Lambda3 + container.thdm_pars.Lambda4;
-      const double Lam5 = container.thdm_pars.Lambda5, Lam6 = container.thdm_pars.Lambda6, Lam7 = container.thdm_pars.Lambda7;
+      const double Lam5 = container.thdm_pars.Lambda5, Lam6 = -container.thdm_pars.Lambda6, Lam7 = -container.thdm_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
       c += q[j][1] * q[k][1] * std::conj(q[l][1]) * std::conj(q[m][1]) * Lam1;
       c += q[j][2] * q[k][2] * std::conj(q[l][2]) * std::conj(q[m][2]) * Lam2;
       c += 2.0 * q[j][1] * std::conj(q[k][1]) * q[l][2] *std::conj(q[m][2]) * Lam34;
       c += 2.0 * (std::conj(q[j][1]) * std::conj(q[k][1]) * q[l][2] * q[m][2] * Lam5).real();
-      c += 4.0 * (q[j][1] + std::conj(q[k][1]) * std::conj(q[k][1]) * q[m][2] * Lam6).real();
-      c += 4.0 * (std::conj(q[j][1]) + q[k][2] * q[l][2] * std::conj(q[m][2]) * Lam7).real();
+      c += 4.0 * (q[j][1] * std::conj(q[k][1]) * std::conj(q[l][1]) * q[m][2] * Lam6).real();
+      c += 4.0 * (std::conj(q[j][1]) * q[k][2] * q[l][2] * std::conj(q[m][2]) * Lam7).real();
       return 0.125*c;
     }
 
-    std::complex<double> get_quartic_coupling_hhGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type j, particle_type k) {
-      return 0.5 * q[j][1] * std::conj(q[k][1]) * container.thdm_pars.Lambda1 + q[j][2] * std::conj(q[k][2]) * container.thdm_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * container.thdm_pars.Lambda6).real();
+    std::complex<double> get_quartic_coupling_hhGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
+      const particle_type j = particles[0], k = particles[1];
+      return 0.5 * (q[j][1] * std::conj(q[k][1]) * container.thdm_pars.Lambda1 + q[j][2] * std::conj(q[k][2]) * container.thdm_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * -1.0*container.thdm_pars.Lambda6).real());
     }
 
-    std::complex<double> get_quartic_coupling_hhHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type j, particle_type k) {
-      return 0.5 * q[j][2] * std::conj(q[k][2]) * container.thdm_pars.Lambda2 + q[j][1] * std::conj(q[k][1]) * container.thdm_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * container.thdm_pars.Lambda7).real();
+    std::complex<double> get_quartic_coupling_hhHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
+      const particle_type j = particles[0], k = particles[1];
+      return 0.5 * (q[j][2] * std::conj(q[k][2]) * container.thdm_pars.Lambda2 + q[j][1] * std::conj(q[k][1]) * container.thdm_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * -1.0*container.thdm_pars.Lambda7).real());
     }
 
-    std::complex<double> get_quartic_coupling_hhGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type j, particle_type k) {
-      const double Lam4 = container.thdm_pars.Lambda4, Lam5 = container.thdm_pars.Lambda5, Lam6 = container.thdm_pars.Lambda6, Lam7 = container.thdm_pars.Lambda7;
+    std::complex<double> get_quartic_coupling_hhGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
+      const particle_type j = particles[0], k = particles[1];
+      const double Lam4 = container.thdm_pars.Lambda4, Lam5 = container.thdm_pars.Lambda5, Lam6 = - container.thdm_pars.Lambda6, Lam7 = - container.thdm_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
       c += q[j][1] * std::conj(q[k][2]) * Lam4;
       c += std::conj(q[j][1]) * q[k][2] * Lam5;
@@ -1064,29 +1072,53 @@ namespace Gambit
       return 0.5*c;
     }
 
-    bool particles_match(int p1, int p2, int test_p1, int test_p2){
-      if (p1 == test_p1 && p2 == test_p2) return true;
-      if (p1 == test_p2 && p1 == test_p2) return true;
-      return false;
-    }
-
-    bool particles_match(int p1, int p2, int p3, int p4, int test_p1, int test_p2, int test_p3, int test_p4){
-      if (p1 == test_p1 && p2 == test_p2 || p1 == test_p2 && p1 == test_p2) {
-        if (p3 == test_p3 && p4 == test_p4) return true;
-        if (p4 == test_p3 && p3 == test_p4) return true;
-        return false;
-      }
-      if (p3 == test_p1 && p4 == test_p2 || p4 == test_p2 && p3 == test_p2) {
-        if (p1 == test_p1 && p2 == test_p2) return true;
-        if (p1 == test_p2 && p1 == test_p2) return true;
-        return false;
-      }
-      return false;
-    }
-
     bool is_neutral(int p1){
       if (p1 == h0 || p1 == H0 || p1 == A0 || p1 == G0) return true;
       return false;
+    }
+
+    bool is_goldstone(int p1){
+      if (p1 == G0 || p1 == Gp || p1 == Gm) return true;
+      return false;
+    }
+
+    std::vector<std::vector<particle_type>> get_neutral_particle_permutations(std::vector<particle_type> particles) {
+        int neutral_index = 0, neutral_index_identical = 0, identical_counter = 0;
+        std::vector<std::vector<particle_type>> particle_permutations;
+        // check if particle 0 is neutral
+        if(!is_neutral(particles[0])) return {particles};
+        // cycle through particles to find index of last neutral particle
+        while(is_neutral(particles[++neutral_index]) && neutral_index<(particles.size()));
+        neutral_index--;
+        // count identical neutral particles
+        std::vector<int> identical_particles;
+        // std::cout << "particles: " << particles << std::endl;
+        // std::cout << "neutral index: " << neutral_index << std::endl;
+        while (neutral_index_identical < neutral_index){
+          identical_counter = 1;
+          while (neutral_index_identical < neutral_index 
+                && particles[neutral_index_identical] == particles[++neutral_index_identical]) {
+            // std::cout << "incremented index | equality: " << neutral_index_identical << " | " << particles[neutral_index_identical-1] << " == " << particles[neutral_index_identical] << std::endl;
+            identical_counter++;
+            // if(neutral_index_identical == neutral_index) break;
+          }
+          // std::cout << "permutations done: " << neutral_index_identical << std::endl;
+          identical_particles.push_back(identical_counter);
+        }
+        // calculate symmetry factor from identical neutral particles
+        const int symmetry_factor = get_symmetry_factor(identical_particles);
+        // std::cout << "identical_particles: " << identical_particles << std::endl;
+        //  std::cout << std::endl << "symmetry_factor: " << symmetry_factor << std::endl;
+        // use std::next_permutation to generate all permutations
+        do {
+            //append permutation symmetry factor number of times
+            for(int sf_temp=0; sf_temp<symmetry_factor; sf_temp++) particle_permutations.push_back(particles);
+        } while ( std::next_permutation(particles.begin(), particles.begin() + neutral_index + 1 ) );
+        return particle_permutations;
+    }
+
+    bool particles_match(std::vector<particle_type> particles, std::vector<particle_type> test_particles) {
+      return particles == test_particles;
     }
 
     std::complex<double> get_cubic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3) {
@@ -1095,20 +1127,21 @@ namespace Gambit
       const double ba = atan(container.thdm_pars.tanb) - atan(container.thdm_pars.alpha);
       const std::vector<std::vector<complex<double>>> q = get_qij(ba);
 
-      if (!is_neutral(p1)){ 
-        int p_temp = p1; p1 = p2; p2 = (particle_type)p_temp; // p1 <-> p2
-        if (!is_neutral(p1)) int p_temp = p1; p1 = p3; p3 = (particle_type)p_temp; // p1 <-> p3
-      } // flip around particles st p1 is neutral
+      std::vector<particle_type> particles = {p1,p2,p3};
+      std::sort(particles.begin(), particles.end()); // flip around particles st p1 is neutral
+      p1 = particles[0]; p2 = particles[1]; p3 = particles[2];
 
-      if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3)) {
-        c = get_symmetry_factor({3}) * get_cubic_coupling_hhh(container, q, p1, p2, p3);
-      }
-      else if (is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3)) {
-             if (particles_match(p2, p3, Hp, Hm)) c = get_symmetry_factor({2}) * get_cubic_coupling_hHpHm(container, q, p1);
-        else if (particles_match(p2, p3, Gp, Gm)) c = get_symmetry_factor({2}) * get_cubic_coupling_hGpGm(container, q, p1);
-        else if (particles_match(p2, p3, Gm, Hp)) c = get_cubic_coupling_hGmHp(container, q, p1); 
-        else if (particles_match(p2, p3, Gp, Hm)) c = std::conj(get_cubic_coupling_hGmHp(container, q, p1)); 
-      }
+        if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3)) {
+          for(auto const& particles_perm: get_neutral_particle_permutations(particles)) {
+            c += get_cubic_coupling_hhh(container, q, particles_perm);
+          }
+        }
+        else if (is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3)) {
+               if (!is_goldstone(p2) && !is_goldstone(p3)) c += get_cubic_coupling_hHpHm(container, q, p1);
+          else if (is_goldstone(p2) && is_goldstone(p3)) c += get_cubic_coupling_hGpGm(container, q, p1);
+          else if (particles_match(particles, { p1, Hp, Gm })) c += get_cubic_coupling_hGmHp(container, q, p1); 
+          else if (particles_match(particles, { p1, Hm, Gp })) c += std::conj(get_cubic_coupling_hGmHp(container, q, p1)); 
+        }
 
       return -i*c;
     }
@@ -1118,32 +1151,37 @@ namespace Gambit
       const std::complex<double> i(0.0,1.0);
       const double ba = atan(container.thdm_pars.tanb) - atan(container.thdm_pars.alpha);
       const std::vector<std::vector<complex<double>>> q = get_qij(ba);
-      
-      if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3) && is_neutral(p4)) {
-          c = get_symmetry_factor({4}) * get_quartic_coupling_hhhh(container, q, p1, p2, p3, p4);
-      }
-      else if (is_neutral(p1) && is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
-             if (particles_match(p3, p4, Hp, Hm)) c = get_symmetry_factor({2,2}) * get_quartic_coupling_hhHpHm(container, q, p1, p2);
-        else if (particles_match(p3, p4, Gp, Gm)) c = get_symmetry_factor({2,2}) * get_quartic_coupling_hhGpGm(container, q, p1, p2);
-        else if (particles_match(p3, p4, Gm, Hp)) c = get_symmetry_factor({2}) * get_quartic_coupling_hhGmHp(container, q, p1, p2); 
-        else if (particles_match(p3, p4, Gp, Hm)) c = get_symmetry_factor({2}) * std::conj(get_quartic_coupling_hhGmHp(container, q, p1, p2)); 
-      }
-      else if (!is_neutral(p1) && !is_neutral(p2) && is_neutral(p3) && is_neutral(p4)) {
-             if (particles_match(p1, p2, Hp, Hm)) c = get_symmetry_factor({2,2}) * get_quartic_coupling_hhHpHm(container, q, p3, p4);
-        else if (particles_match(p1, p2, Gp, Gm)) c = get_symmetry_factor({2,2}) * get_quartic_coupling_hhGpGm(container, q, p3, p4);
-        else if (particles_match(p1, p2, Gm, Hp)) c = get_symmetry_factor({2}) * get_quartic_coupling_hhGmHp(container, q, p3, p4); 
-        else if (particles_match(p1, p2, Gp, Hm)) c = get_symmetry_factor({2}) * std::conj(get_quartic_coupling_hhGmHp(container, q, p3, p4)); 
-      }
-      else if (!is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
-             if (particles_match(p1, p2, p3, p4, Gp, Gm, Gp, Gm) || particles_match(p1, p2, p3, p4, Gp, Gp, Gm, Gm)) c = get_symmetry_factor({4}) * 0.5*container.thdm_pars.Lambda1;
-        else if (particles_match(p1, p2, p3, p4, Hp, Hm, Hp, Hm) || particles_match(p1, p2, p3, p4, Hp, Hp, Hm, Hm)) c = get_symmetry_factor({4}) * 0.5*container.thdm_pars.Lambda2;
-        else if (particles_match(p1, p2, p3, p4, Gp, Gm, Hp, Hm)) c = get_symmetry_factor({2,2}) * (container.thdm_pars.Lambda3 + container.thdm_pars.Lambda4);
-        else if (particles_match(p1, p2, p3, p4, Hp, Hp, Gm, Gm)) c = get_symmetry_factor({2,2}) * 0.5*container.thdm_pars.Lambda5;
-        else if (particles_match(p1, p2, p3, p4, Hm, Hm, Gp, Gp)) c = get_symmetry_factor({2,2}) * std::conj(0.5*container.thdm_pars.Lambda5);
-        else if (particles_match(p1, p2, p3, p4, Gp, Gm, Hp, Gm)) c = get_symmetry_factor({3}) * container.thdm_pars.Lambda6;
-        else if (particles_match(p1, p2, p3, p4, Gp, Gm, Hm, Gp)) c = get_symmetry_factor({3}) * std::conj(container.thdm_pars.Lambda6);
-        else if (particles_match(p1, p2, p3, p4, Hp, Hm, Hp, Gm)) c = get_symmetry_factor({3}) * container.thdm_pars.Lambda7;
-        else if (particles_match(p1, p2, p3, p4, Hp, Hm, Hm, Gp)) c = get_symmetry_factor({3}) * std::conj(container.thdm_pars.Lambda7);
+
+      std::vector<particle_type> particles = {p1,p2,p3,p4};
+      std::sort(particles.begin(), particles.end()); // flip around particles st p1 is neutral
+      p1 = particles[0]; p2 = particles[1]; p3 = particles[2]; p4 = particles[3];
+      for(auto const& particles_perm: get_neutral_particle_permutations(particles)) {
+             if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3) && is_neutral(p4)) c += get_quartic_coupling_hhhh(container, q, particles_perm);
+        else if (is_neutral(p1) && is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
+
+               if (!is_goldstone(p3) && !is_goldstone(p4)) c += get_quartic_coupling_hhHpHm(container, q, particles_perm);
+          else if (is_goldstone(p3) && is_goldstone(p4)) c += get_quartic_coupling_hhGpGm(container, q, particles_perm); 
+          else if (is_goldstone(p3) && !is_goldstone(p4) || !is_goldstone(p3) && is_goldstone(p4)) {
+
+                   if (particles_match(particles,{p1,p2,Hp,Gm})) c += get_quartic_coupling_hhGmHp(container, q, particles_perm); 
+              else if (particles_match(particles,{p1,p2,Hm,Gp})) c += std::conj(get_quartic_coupling_hhGmHp(container, q, particles_perm)); 
+
+          }
+
+        }
+        else if (!is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
+
+               if (is_goldstone(p1) && is_goldstone(p2) && is_goldstone(p3) && is_goldstone(p4)) c += 4.0*0.5*container.thdm_pars.Lambda1;
+          else if (!is_goldstone(p1) && !is_goldstone(p2) && !is_goldstone(p3) && !is_goldstone(p4)) c += 4.0*0.5*container.thdm_pars.Lambda2;
+          else if (particles_match(particles, { Hp, Hm, Gp, Gm })) c += 4.0*(container.thdm_pars.Lambda3 + container.thdm_pars.Lambda4);
+          else if (particles_match(particles, { Hp, Hp, Gm, Gm })) c += 1.0*0.5*container.thdm_pars.Lambda5;
+          else if (particles_match(particles, { Hm, Hm, Gp, Gp })) c += 1.0*std::conj(0.5*container.thdm_pars.Lambda5);
+          else if (particles_match(particles, { Hp, Gp, Gm, Gm })) c += 2.0*-1.0*container.thdm_pars.Lambda6;
+          else if (particles_match(particles, { Hm, Gp, Gp, Gm })) c += 4.0*std::conj(-1.0*container.thdm_pars.Lambda6);
+          else if (particles_match(particles, { Hp, Hp, Hm, Gm })) c += 2.0*-1.0*container.thdm_pars.Lambda7;
+          else if (particles_match(particles, { Hp, Hm, Hm, Gp })) c += 4.0*std::conj(-1.0*container.thdm_pars.Lambda7);
+
+        }
       }
       
       return -i*c;
@@ -1883,6 +1921,90 @@ namespace Gambit
       lambda.push_back(container.he->get(Par::mass1, "lambda_6"));
       lambda.push_back(container.he->get(Par::mass1, "lambda_7"));
 
+      // // Scattering matrix (7a) Y=2 sigma=1
+      // Eigen::MatrixXd S_21(3,3);
+      // S_21(0,0) = lambda[1];
+      // S_21(0,1) = lambda[5];
+      // S_21(0,2) = sqrt(2.0)*lambda[6];
+      
+      // S_21(1,0) = std::conj(lambda[5]);
+      // S_21(1,1) = lambda[2];
+      // S_21(1,2) = sqrt(2.0)*std::conj(lambda[7]);
+
+      // S_21(2,0) = sqrt(2.0)*std::conj(lambda[6]);
+      // S_21(2,1) = sqrt(2.0)*lambda[7];
+      // S_21(2,2) = lambda[3] + lambda[4];
+
+      // Eigen::EigenSolver<Eigen::MatrixXd> eigensolver_S_21(S_21);
+      // std::cout << eigensolver_S_21.eigenvalues() << std::endl;
+
+      // // Scattering matrix (7b) Y=2 sigma=0
+      // std::complex<double> S_20 = lambda[3]-lambda[4];
+
+      // // Scattering matrix (7c) Y=0 sigma=1
+      // Eigen::MatrixXd S_01(4,4);
+      // S_01(0,0) = lambda[1];
+      // S_01(0,1) = lambda[4];
+      // S_01(0,2) = lambda[6];
+      // S_01(0,3) = std::conj(lambda[6]);
+      
+      // S_01(1,0) = lambda[4];
+      // S_01(1,1) = lambda[2];
+      // S_01(1,2) = lambda[7];
+      // S_01(1,3) = std::conj(lambda[7]);
+
+      // S_01(2,0) = std::conj(lambda[6]);
+      // S_01(2,1) = std::conj(lambda[7]);
+      // S_01(2,2) = lambda[3];
+      // S_01(2,3) = lambda[5];
+
+      // S_01(3,0) = lambda[6];
+      // S_01(3,1) = lambda[7];
+      // S_01(3,2) = lambda[5];
+      // S_01(3,3) = lambda[3];
+
+
+      // Eigen::EigenSolver<Eigen::MatrixXd> eigensolver_S_01(S_01);
+      // std::cout << eigensolver_S_01.eigenvalues() << std::endl;
+
+      // // Scattering matrix (7d) Y=0 sigma=0
+      // Eigen::MatrixXd S_00(4,4);
+      // S_00(0,0) = 3.0*lambda[1];
+      // S_00(0,1) = 2.0*lambda[3] + lambda[4];
+      // S_00(0,2) = 3.0*lambda[6];
+      // S_00(0,3) = 3.0*std::conj(lambda[6]);
+      
+      // S_00(1,0) = 2.0*lambda[3] + lambda[4];
+      // S_00(1,1) = 3.0*lambda[2];
+      // S_00(1,2) = 3.0*lambda[7];
+      // S_00(1,3) = 3.0*std::conj(lambda[7]);
+
+      // S_00(2,0) = 3.0*std::conj(lambda[6]);
+      // S_00(2,1) = 3.0*std::conj(lambda[7]);
+      // S_00(2,2) = lambda[3] + 2.0*lambda[4];
+      // S_00(2,3) = 3.0*std::conj(lambda[5]);
+
+      // S_00(3,0) = 3.0*lambda[6];
+      // S_00(3,1) = 3.0*lambda[7];
+      // S_00(3,2) = 3.0*lambda[5];
+      // S_00(3,3) = lambda[3] + 2.0*lambda[4];
+
+      // Eigen::EigenSolver<Eigen::MatrixXd> eigensolver_S_00(S_00);
+      // std::cout << eigensolver_S_00.eigenvalues() << std::endl;
+
+
+      // cout << "The eigenvalues of A are:" << endl << es.eigenvalues() << endl;
+      // cout << "The matrix of eigenvectors, V, is:" << endl << es.eigenvectors() << endl << endl;
+      // complex<double> lambda = es.eigenvalues()[0];
+      // cout << "Consider the first eigenvalue, lambda = " << lambda << endl;
+      // VectorXcd v = es.eigenvectors().col(0);
+      // cout << "If v is the corresponding eigenvector, then lambda * v = " << endl << lambda * v << endl;
+      // cout << "... and A * v = " << endl << A.cast<complex<double> >() * v << endl << endl;
+      // MatrixXcd D = es.eigenvalues().asDiagonal();
+      // MatrixXcd V = es.eigenvectors();
+      // cout << "Finally, V * D * V^(-1) = " << endl << V * D * V.inverse() << endl;
+
+
       const int array_size = 12;
       double eigs[array_size+1];
       eigs[0] = array_size;
@@ -2080,18 +2202,41 @@ namespace Gambit
       //-----------------------------
       double chi_2 = 0.0;
 
-      complex<double> hhhh_coupling;
+      complex<double> hhhh_coupling, hhh_coupling;
+      complex<double> hhhh_coupling_2HDMC, hhh_coupling_2HDMC;
       // double mh0, mH, mA, mHp, sba, lambda6, lambda7, m122, tan_beta;
       // container.THDM_object->get_param_phys(mh0, mH, mA, mHp, sba, lambda6, lambda7, m122, tan_beta);
 
+      // debug
+      const double Lam1 = container.thdm_pars.Lambda1, Lam2 = container.thdm_pars.Lambda2, Lam3 = container.thdm_pars.Lambda3, Lam4 = container.thdm_pars.Lambda4;
+      const double Lam5 = container.thdm_pars.Lambda5, Lam6 = container.thdm_pars.Lambda6, Lam7 = container.thdm_pars.Lambda7;
+
+      double Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp;
+      container.THDM_object->get_param_higgs(Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp);
+
       // calculate the chi^2 from all possible 4 higgs interactions
-      for (int i=1;i<5;i++) {
-        for (int j=1;j<5;j++) {
-          for (int k=1;k<5;k++) {
-            for (int l=1;l<5;l++) {
+      // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
+      // loop over h0,H0,A0,Hpm
+      for (int p1=1;p1<6;p1++) {
+        for (int p2=1;p2<6;p2++) {
+          for (int p3=1;p3<6;p3++) {
+            for (int p4=1;p4<6;p4++) {
+                if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
+                  hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
+                  // hhh_coupling = get_cubic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3);
+                  // int p1_temp = p1, p2_temp = p2, p3_temp = p3, p4_temp = p4;
+                  // if (p1_temp == 5) p1_temp--;
+                  // if (p2_temp == 5) p2_temp--;
+                  // if (p3_temp == 5) p3_temp--;
+                  // if (p4_temp == 5) p4_temp--;
+                  // container.THDM_object->get_coupling_hhhh(p1_temp,p2_temp,p3_temp,p4_temp,hhhh_coupling_2HDMC);
+                  // container.THDM_object->get_coupling_hhh(p1_temp,p2_temp,p3_temp,hhh_coupling_2HDMC);
+                  // std::cout << p1 << p2 << p3 << p4 << std::endl;
+                  // std::cout << "calc | 2HDMC hhhh : " << hhhh_coupling << " | " << hhhh_coupling_2HDMC << std::endl;
+                  // std::cout << "calc | 2HDMC hhh : " << hhh_coupling << " | " << hhh_coupling_2HDMC << std::endl;
+                  chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
+                }
                 // TODO: This (may be) slow; prefer filling a coupling spectrum and then attaining from there
-                container.THDM_object->get_coupling_hhhh(i,j,k,l,hhhh_coupling);
-                chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
             }
           }
         }
