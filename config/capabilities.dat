@@ -3792,6 +3792,106 @@ calculate_amu_2loop_non_tan_beta_resummed: |
 calculate_uncertainty_amu_2loop: |
    Calculates the uncertainty on the anomalous magnetic moment of the muon at 2 loops.
 
+#----------------------------
+#  Axion-related capabilities
+#----------------------------
+
+GeneralALP_parameters: |
+   Parameters of the GeneralALP model (gagg, gaee, fa, ma0, Tchi, beta, thetai).
+   See also ./gambit GeneralALP
+
+QCDAxion_parameters: |
+   Parameters of the QCDAxion model (EoverN, CaggQCD, Caee, fa, LambdaChi, Tchi, beta, thetai).
+   See also ./gambit QCDAxion
+
+KSVZAxion_parameters: |
+   Parameters of the KSVZAxion model (EoverN, CaggQCD, fa, LambdaChi, Tchi, beta, thetai).
+   See also ./gambit KSVZAxion
+
+DFSZAxion_I_parameters: |
+   Parameters of the DFSZAxion_I model (EoverN, CaggQCD, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
+   See also ./gambit DFSZAxion_I
+
+DFSZAxion_II_parameters: |
+   Parameters of the DFSZAxion_II model (EoverN, CaggQCD, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
+   See also ./gambit DFSZAxion_II
+
+ConstantMassALP_parameters: |
+   Parameters of the ConstantMassALP model (Cagg, Caee, fa, Lambda, thetai).
+   See also ./gambit ConstantMassALP
+
+QCDAxion_ZeroTemperatureMass: |
+   Nuisance likelihood for the QCD-related energy scale LambdaChi, which defines the low-energy QCD axion mass.
+
+QCDAxion_TemperatureDependence: |
+   Nuisance likelihood for the parameters beta and Tchi, which define the temperature dependence of the QCD axion mass for high temperatures.
+
+QCDAxion_AxionPhotonConstant: |
+   Nuisance likelihood for the contribution of axion-pion interactions in the chiral Lagrangian to the axion-photon coupling.
+
+AxionOscillationTemperature: |
+   Calculates the temperature scale at which the axion field starts to oscillate.
+
+ALPS1_signal_vac: |
+   Calculates the signal prediction for one data frame of the ALPS 1 experiment (evacuated setup).
+
+ALPS1_signal_gas: |
+   Calculates the signal prediction for one data frame of the ALPS 1 experiment (setup filled with Argon gas).
+
+lnL_ALPS1: |
+   Loglikelihood for all runs of the ALPS 1 experiment.
+
+CAST2007_signal_vac : |
+   Signal prediction for a 2004 vacuum run of the CAST experiment.
+
+CAST2017_signal_vac : |
+   Signal prediction for the combined 2013, 2014 and 2015 vacuum runs of the CAST experiment.
+
+lnL_CAST2007: |
+   Loglikelihood for CAST 2007 experimental results.
+
+lnL_CAST2017: |
+   Loglikelihood for CAST 2017 experimental results.
+
+Haloscope_signal: |
+   Calculates the relative expected signal for a haloscope ignoring experimental parameters and mass dependence.
+
+lnL_Haloscope_ADMX1: |
+   Loglikelihood for the combined ADMX 1998 to 2011 experimental results.
+
+lnL_Haloscope_ADMX2: |
+   Loglikelihood for the ADMX 2018 experimental result.
+
+lnL_Haloscope_RBF: |
+   Loglikelihood for the RBF experiment.
+
+lnL_Haloscope_UF: |
+   Loglikelihood for the UF experiment.
+
+RParameter: |
+   Calculates the expected R parameter for a system with axions.
+
+lnL_RParameter: |
+   Loglikelihood for the observed R parameter.
+
+lnL_WDVar_G117B15A: |
+   LogLikelihood for the White Dwarf G117-B15A (cooling hint).
+
+lnL_WDVar_R548: |
+   Loglikelihood for the White Dwarf R548 (cooling hint).
+
+lnL_WDVar_PG1351489: |
+   Loglikelihood for the White Dwarf PG 1351+489 (cooling hint).
+
+lnL_WDVar_L192: |
+   Loglikelihood for the White Dwarf L19-2 (cooling hint).
+
+lnL_SN1987A: |
+   Loglikelihood for an axion signal from SN1987A.
+
+lnL_HESS_GCMF: |
+   LogLikelihood for H.E.S.S. constraints on axions (Galactic Centre magnetic field result).
+
 
 #------------------------------
 #  SUSYHD capabilities

@@ -64,6 +64,11 @@
 ///         (sanjay.bloor12@imperial.ac.uk)
 /// \date 2017 Dec
 /// \date 2018 Aug
+///  \author Sebastian Hoof
+///          (s.hoof15@imperial.ac.uk)
+///  \date 2016 Oct
+///  \date 2017 Feb, Sep, Dec
+///  \date 2018 Jan, Mar, Apr
 ///
 ///  *********************************************
 
@@ -214,6 +219,12 @@ START_MODULE
       DEPENDENCY(RD_oh2_Xf, ddpair)
     #undef FUNCTION
 
+    // Routine for axion energy density today
+    #define FUNCTION RD_oh2_Axions
+      START_FUNCTION(double)
+        ALLOW_MODEL(GeneralALP)
+        DEPENDENCY(AxionOscillationTemperature, double)
+    #undef FUNCTION
   #undef CAPABILITY
 
 
@@ -1273,5 +1284,211 @@ START_MODULE
     ALLOW_MODELS(Halo_gNFW, Halo_Einasto)
     #undef FUNCTION
   #undef CAPABILITY
+
+  // Axion likelihoods and functions -----------------------
+
+  #define CAPABILITY QCDAxion_ZeroTemperatureMass
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_ZeroTemperatureMass_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY QCDAxion_TemperatureDependence
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_TemperatureDependence_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY QCDAxion_AxionPhotonConstant
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_AxionPhotonConstant_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ALPS1_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_ALPS1_signal_vac
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ALPS1_signal_gas
+  START_CAPABILITY
+    #define FUNCTION calc_ALPS1_signal_gas
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+  #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_ALPS1
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_ALPS1
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(ALPS1_signal_vac, double)
+    DEPENDENCY(ALPS1_signal_gas, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY CAST2007_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_CAST2007_signal_vac
+    START_FUNCTION(std::vector<double>)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY CAST2017_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_CAST2017_signal_vac
+    START_FUNCTION(std::vector<std::vector<double>>)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_CAST2007
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_CAST2007
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(CAST2007_signal_vac, std::vector<double>)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_CAST2017
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_CAST2017
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(CAST2017_signal_vac, std::vector<std::vector<double>>)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Haloscope_signal
+  START_CAPABILITY
+    #define FUNCTION calc_Haloscope_signal
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_ADMX1
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_ADMX1
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_ADMX2
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_ADMX2
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_RBF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_RBF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_UF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_UF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RParameter
+  START_CAPABILITY
+    #define FUNCTION calc_RParameter
+    START_FUNCTION(double)
+    DEPENDENCY(GeneralALP_parameters, ModelParameters)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_RParameter
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_RParameter
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(RParameter, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_G117B15A
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_G117B15A
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_R548
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_R548
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_PG1351489
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_PG1351489
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_L192
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_L192
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_SN1987A
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_SN1987A
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_HESS_GCMF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_HESS_GCMF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY AxionOscillationTemperature
+  START_CAPABILITY
+    #define FUNCTION calc_AxionOscillationTemperature
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 #undef MODULE
 #endif /* defined(__DarkBit_rollcall_hpp__) */

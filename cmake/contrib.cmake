@@ -256,7 +256,6 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # Set up include paths
   include_directories("${FS_DIR}/..")
   include_directories("${FS_DIR}/src")
-  include_directories("${FS_DIR}/legacy")
   include_directories("${FS_DIR}/config")
   include_directories("${FS_DIR}/slhaea")
   # Dig through flexiblesusy "models" directory and add all subdirectories to the include list
