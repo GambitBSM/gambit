@@ -570,7 +570,7 @@ namespace Gambit
       using namespace Pipes::fill_THDM_HiggsBounds_model_parameters;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
       // unpack THDM Couplings
-      const thdmc_couplings TDHM_couplings = *Dep::THDM_couplings;
+      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings;
       const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_SM_like_model;
       const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths;
       const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_SM_like_model;
@@ -637,11 +637,11 @@ namespace Gambit
           }
           else{ result.BR_hjinvisible[h] = 0; }
 
-          c = TDHM_couplings.vhh[2][h2+1][h+1];
+          c = THDM_couplings.vhh[2][h2+1][h+1];
           result.CS_lep_hjhi_ratio[h][h2] = pow(abs(c)/(g/2./costw),2);
         }
 
-        c = TDHM_couplings.vvh[2][2][h+1];
+        c = THDM_couplings.vvh[2][2][h+1];
         result.CS_lep_hjZ_ratio[h]=pow(abs(c)/(g/costw*MZ),2);
         result.CS_dd_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
         result.CS_uu_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
@@ -651,7 +651,7 @@ namespace Gambit
 
         result.CS_gg_hjZ_ratio[h]=0.;
 
-        c = TDHM_couplings.vvh[3][3][h+1];
+        c = THDM_couplings.vvh[3][3][h+1];
         result.CS_ud_hjWp_ratio[h] = pow(abs(c)/(g*MW),2);
         result.CS_ud_hjWm_ratio[h] = result.CS_ud_hjWp_ratio[h];
         result.CS_cs_hjWp_ratio[h] = result.CS_ud_hjWp_ratio[h];
@@ -661,8 +661,8 @@ namespace Gambit
 
         result.CS_gg_hj_ratio[h] = THDM_decay_widths.gamma_hgg[h+1]/THDM_decay_widths_SM_like[h].gamma_hgg[1];
 
-        cs = TDHM_couplings.hdd_cs[h+1][3][3];
-        cp = TDHM_couplings.hdd_cp[h+1][3][3];
+        cs = THDM_couplings.hdd_cs[h+1][3][3];
+        cp = THDM_couplings.hdd_cp[h+1][3][3];
         cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
         cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
 
@@ -672,8 +672,8 @@ namespace Gambit
 
         result.CS_lep_tautauhj_ratio[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/THDM_decay_widths_SM_like[h].gamma_hll[1][3][3];
 
-        cst = TDHM_couplings.huu_cs[h+1][3][3];
-        cpt = TDHM_couplings.huu_cp[h+1][3][3];
+        cst = THDM_couplings.huu_cs[h+1][3][3];
+        cpt = THDM_couplings.huu_cp[h+1][3][3];
         cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
         cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
 

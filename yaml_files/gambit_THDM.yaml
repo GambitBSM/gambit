@@ -96,7 +96,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 20000
+      NP: 250
       convthresh: 1e-4
       verbosity: 1
 
@@ -111,8 +111,8 @@ Scanner:
 
 ObsLikes:
 
-    - purpose:    LogLike
-      capability: global_minimum_discriminant_likelihood
+    # - purpose:    LogLike
+    #   capability: global_minimum_discriminant_likelihood
       
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
@@ -136,83 +136,28 @@ ObsLikes:
       function: b2sgamma_likelihood
       purpose: LogLike
     
-    - capability: b2sll_LL
-      funtion: b2sll_likelihood
-      purpose: LogLike
+    # - capability: b2sll_LL
+    #   funtion: b2sll_likelihood
+    #   purpose: LogLike
 
-    - capability: SL_LL
-      funtion: SL_likelihood
-      purpose: LogLike
+    # - capability: SL_LL
+    #   funtion: SL_likelihood
+    #   purpose: LogLike
 
 
     # Calculate the LEP Higgs likelihood
 
-    # - purpose:    LogLike
-    #   capability: LEP_Higgs_LogLike
-    #   function: calc_HB_LEP_LogLike
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+      function: calc_HB_LEP_LogLike
 
     #  Calculate the LHC Higgs likelihood
 
-    # - purpose:    LogLike
-    #   capability: LHC_Higgs_LogLike
-    #   function: calc_HS_LHC_LogLike
-
-    # Get full calcualtion from HiggsBounds - for debugging
-
-    # - capability: HB_LogLike_Full
-    #   function: calc_HB_LogLike_Full
-    #   purpose: LogLike
-
-    # - capability: test_THDM_spectrum_1
-    #   purpose: LogLike
-
-    # - capability: test_THDM_spectrum_2
-    #   purpose: LogLike
-
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
+      function: calc_HS_LHC_LogLike
 
   # ----- observables ----
-
-    # - purpose: Observable
-    #   capability: lambda1_coupling_basis
-
-    # - purpose: Observable
-    #   capability: lambda2_coupling_basis
-
-    # - purpose: Observable
-    #   capability: lambda3_coupling_basis
-
-    # - purpose: Observable
-    #   capability: lambda4_coupling_basis
-
-    # - purpose: Observable
-    #   capability: lambda5_coupling_basis
-
-    # - purpose: Observable
-    #   capability: tanb_coupling_basis
-
-    # - purpose: Observable
-    #   capability: m12_2_coupling_basis
-
-    # - purpose: Observable
-    #   capability: mh0_physical_basis
-    
-    # - purpose: Observable
-    #   capability: mH0_physical_basis
-    
-    # - purpose: Observable
-    #   capability: mHp_physical_basis
-    
-    # - purpose: Observable
-    #   capability: mA_physical_basis
-    
-    # - purpose: Observable
-    #   capability: tanb_physical_basis
-    
-    # - purpose: Observable
-    #   capability: sba_physical_basis
-    
-    # - purpose: Observable
-    #   capability: m12_2_physical_basis
 
     - capability: bsgamma
       function: SI_bsgamma
@@ -220,9 +165,9 @@ ObsLikes:
 
 Rules:
 
-    - module: ColliderBit
-      options:
-        HB_analysis_type: 1
+    # - module: ColliderBit
+    #   options:
+    #     HB_analysis_type: 1
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum
@@ -257,15 +202,10 @@ Rules:
       options:
         check_all_scales: false
 
-    - capability: global_minimum_discriminant_likelihood
-      function: get_global_minimum_discriminant_likelihood
-      options:
-        check_all_scales: false
-
-    # Initialization of HiggsBounds backend
-    # - capability: HiggsBounds_4_2_1_init  
+    # - capability: global_minimum_discriminant_likelihood
+    #   function: get_global_minimum_discriminant_likelihood
     #   options:
-    #     HB_analysis_type: 1
+    #     check_all_scales: false
 
     - capability: THDM_couplings_for_HiggsBounds
       function: get_THDM_couplings_for_HiggsBounds
@@ -284,15 +224,6 @@ Rules:
     
     - capability: THDM_total_widths_SM_like_model
       function: get_THDM_total_widths_SM_like_model
-
-    # - capability: SLHA_THDM
-    #   function: fill_THDM_SLHA
-
-    # - capability: Higgs_decay_rates
-    #   function: h0_1_decays_THDM
-    
-    # - capability: h0_2_decay_rates
-    #   function: h0_2_decays_THDM
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -316,15 +247,15 @@ Logger:
   # files with these names.
 
   redirection:
-    [Debug] :  "debug.log"
-    [Default] :  "default.log"
-    [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
-    [PrecisionBit] :  "PrecisionBit.log"
-    [ColliderBit] :  "ColliderBit.log"
-    [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "dep_resolver.log"
-    [Scanner]:  "ScannerBit.log"
+    [Debug] :  "stderr"
+    [Default] :  "stderr"
+    [DecayBit] :  "stderr"
+    [DarkBit] :  "stderr"
+    [PrecisionBit] :  "stderr"
+    [ColliderBit] :  "stderr"
+    [SpecBit] :  "stderr"
+    [Dependency Resolver] :  "stderr"
+    [Scanner]:  "stderr"
 
 ##########################
 # Name/Value Section
@@ -348,6 +279,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM/"
+  default_output_path: "runs/THDM_debug/"
   enable_testing: true
   debug: true
