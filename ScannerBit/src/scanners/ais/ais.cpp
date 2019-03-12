@@ -280,7 +280,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             MPI_Cancel(&reqs[r-1]);
         }
         
-        std::cout << "Initializing complated." << std::endl;
+        std::cout << "Initializing completed." << std::endl;
     }
     else
     {
