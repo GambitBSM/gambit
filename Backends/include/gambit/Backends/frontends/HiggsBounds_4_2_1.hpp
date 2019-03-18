@@ -41,6 +41,7 @@ LOAD_LIBRARY
 
 BE_FUNCTION(initialize_HiggsBounds_int, void, (int&, int&, int&), "initialize_higgsbounds_int_", "initialize_HiggsBounds_int")
 BE_FUNCTION(run_HiggsBounds_classic, void, (int&, int&, double&, int&), "run_higgsbounds_classic_", "run_HiggsBounds_classic")
+BE_FUNCTION(run_HiggsBounds_full, void, (int*, int*, double*, int*), "run_higgsbounds_full_", "run_HiggsBounds_full")
 BE_FUNCTION(finish_HiggsBounds, void, (), "finish_higgsbounds_", "finish_HiggsBounds")
 BE_FUNCTION(HiggsBounds_set_mass_uncertainties, void, (double*, double*), "higgsbounds_set_mass_uncertainties_", "HiggsBounds_set_mass_uncertainties")
 

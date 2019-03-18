@@ -3454,6 +3454,22 @@ namespace Gambit
     // end of THDM container functions
     // }
 
+
+    void nan_warning(std::string var_name) {
+       std::ostringstream msg;
+       msg << "DecayBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
+       DecayBit_warning().raise(LOCAL_INFO,msg.str());
+       std::cerr << msg.str();
+    }
+
+    void check_nan(std::complex<double> var, std::string var_name) {
+      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
+    }
+
+    void check_nan(double var, std::string var_name) {
+      if (std::isnan(var)) nan_warning(var_name);
+    }
+
    enum thdmc_decays_purpose{full, HiggsBounds, SM_like};
 
    thdmc_decay_widths fill_THDM_decay_widths(THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
@@ -3471,22 +3487,34 @@ namespace Gambit
                 decay_widths.gamma_hdu[h1][f1][f2] = decay_table_object.get_gamma_hdu(h1,f1,f2);
                 decay_widths.gamma_hll[h1][f1][f2] = decay_table_object.get_gamma_hll(h1,f1,f2);
                 decay_widths.gamma_hln[h1][f1][f2] = decay_table_object.get_gamma_hln(h1,f1,f2);
+                check_nan(decay_widths.gamma_uhd[f1][h1][f2], "uhd width "+std::to_string(f1)+std::to_string(h1)+std::to_string(f2));
+                check_nan(decay_widths.gamma_hdd[h1][f1][f2], "hdd width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
+                check_nan(decay_widths.gamma_huu[h1][f1][f2], "huu width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
+                check_nan(decay_widths.gamma_hdu[h1][f1][f2], "hdu width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
+                check_nan(decay_widths.gamma_hll[h1][f1][f2], "hll width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
+                check_nan(decay_widths.gamma_hln[h1][f1][f2], "hln width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
               }
             }
             //**
             decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
             decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
+            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hgaga[h1], "hgammagamma width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hZga[h1], "hZgamma width "+std::to_string(h1));
             //**
             for (int v1=1; v1<4; v1++) {
               decay_widths.gamma_hvv[h1][v1] = decay_table_object.get_gamma_hvv(h1,v1);
+              check_nan(decay_widths.gamma_hvv[h1][v1], "hvv width "+std::to_string(h1)+std::to_string(v1)+std::to_string(v1));
               for (int h2=1; h2<5; h2++) {
                 decay_widths.gamma_hvh[h1][v1][h2] = decay_table_object.get_gamma_hvh(h1,v1,h2);
+                check_nan(decay_widths.gamma_hvh[h1][v1][h2], "hvh width "+std::to_string(h1)+std::to_string(v1)+std::to_string(h2));
               }
             }
             for (int h2=1; h2<5; h2++) {
               for (int h3=1; h3<5; h3++) {
                 decay_widths.gamma_hhh[h1][h2][h3] = decay_table_object.get_gamma_hhh(h1,h2,h3);
+                check_nan(decay_widths.gamma_hhh[h1][h2][h3], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h3));
               }
             }
             //*
@@ -3498,6 +3526,10 @@ namespace Gambit
           decay_widths.gamma_hdu[4][2][2] = decay_table_object.get_gamma_hdu(4,2,2);
           decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
           decay_widths.gamma_hln[4][3][3] = decay_table_object.get_gamma_hln(4,3,3);
+          check_nan(decay_widths.gamma_uhd[3][4][3], "uhd width 343");
+          check_nan(decay_widths.gamma_hdu[4][2][2], "hdu width 422");
+          check_nan(decay_widths.gamma_hdu[4][3][2], "hdu width 432");
+          check_nan(decay_widths.gamma_hln[4][3][3], "hln width 433");
           //*
           for (int h1=1; h1<5; h1++) {
             decay_widths.gamma_hdd[h1][2][2] = decay_table_object.get_gamma_hdd(h1,2,2);
@@ -3510,8 +3542,19 @@ namespace Gambit
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
             decay_widths.gamma_hvv[h1][2] = decay_table_object.get_gamma_hvv(h1,2);
             decay_widths.gamma_hvv[h1][3] = decay_table_object.get_gamma_hvv(h1,3);
+            check_nan(decay_widths.gamma_hdd[h1][2][2], "hss width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hdd[h1][3][3], "hbb width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_huu[h1][2][2], "hcc width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hll[h1][2][2], "hl2l2 width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hll[h1][3][3], "hl3l3 width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hgg[h1], "hgg width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hgaga[h1], "hgammagamma width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hZga[h1], "hZgamma width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hvv[h1][2], "hv2v2 width " +std::to_string(h1));
+            check_nan(decay_widths.gamma_hvv[h1][3], "hv3v3 width " +std::to_string(h1));
             for (int h2=1; h2<5; h2++) {
                 decay_widths.gamma_hhh[h1][h2][h2] = decay_table_object.get_gamma_hhh(h1,h2,h2);
+                check_nan(decay_widths.gamma_hhh[h1][h2][h2], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h2));
             }
           }
           //*
@@ -3519,7 +3562,9 @@ namespace Gambit
        }
        case SM_like: {
          decay_widths.gamma_hgg[1] = decay_table_object.get_gamma_hgg(1);
+         check_nan(decay_widths.gamma_hgg[1], "hgg width");
          decay_widths.gamma_hll[1][3][3] = decay_table_object.get_gamma_hll(1,3,3);
+         check_nan(decay_widths.gamma_hll[1][3][3], "hll width 133");
          break;
        }
      }
@@ -3588,15 +3633,19 @@ namespace Gambit
 
       for (int h=1; h<5; h++) {
         total_widths.gamma_tot_h[h] = decay_table_object.get_gammatot_h(h);
+        check_nan(total_widths.gamma_tot_h[h], "gamma total h " + std::to_string(h));
         if (std::isnan(total_widths.gamma_tot_h[h])) {total_widths.isValid = false; }
       }
       for (int v=1; v<4; v++) {
         total_widths.gamma_tot_v[v] = decay_table_object.get_gammatot_v(v);
+        check_nan(total_widths.gamma_tot_v[v], "gamma total v " + std::to_string(v));
         if (std::isnan(total_widths.gamma_tot_v[v])) {total_widths.isValid = false; }
       }
       total_widths.gamma_tot_t = decay_table_object.get_gammatot_top();
+      check_nan(total_widths.gamma_tot_t, "gamma total top");
       if (std::isnan(total_widths.gamma_tot_t)) {total_widths.isValid = false; }
       total_widths.gamma_tot_t_SM_contrib = container.THDM_object->get_SM_pointer()->get_gamma_top();
+      check_nan(total_widths.gamma_tot_t_SM_contrib, "gamma total top (SM contribution)");
 
      return total_widths;
    }

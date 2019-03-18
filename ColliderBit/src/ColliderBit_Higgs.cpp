@@ -37,8 +37,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 
-//#define COLLIDERBIT_DEBUG
-
+// #define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -336,25 +335,90 @@ namespace Gambit
 
       BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam.deltaMHplus[0]);
 
+      #ifdef COLLIDERBIT_DEBUG
+        std::cout << "HB input: " << std::endl << \
+        " Mh " << ModelParam.Mh[0] << std::endl << \
+        " hGammaTot  " << ModelParam.hGammaTot[0] << std::endl << \
+        " CP " << ModelParam.CP[0] << std::endl << \
+        " CS_lep_hjZ_ratio " << ModelParam.CS_lep_hjZ_ratio[0] << std::endl << \
+        " CS_lep_bbhj_ratio " << ModelParam.CS_lep_bbhj_ratio[0] << std::endl << \
+        " CS_lep_tautauhj_ratio " << ModelParam.CS_lep_tautauhj_ratio[0] << std::endl << \
+        " CS_gg_hj_ratio " <<  ModelParam.CS_gg_hj_ratio[0] << std::endl << \
+        " CS_bb_hj_ratio " << ModelParam.CS_bb_hj_ratio[0] << std::endl << \
+        " CS_bg_hjb_ratio " << ModelParam.CS_bg_hjb_ratio[0] << std::endl << \
+        " CS_ud_hjWp_ratio " << ModelParam.CS_ud_hjWp_ratio[0] << std::endl << \
+        " CS_cs_hjWp_ratio " << ModelParam.CS_cs_hjWp_ratio[0] << std::endl << \
+        " CS_ud_hjWm_ratio " << ModelParam.CS_ud_hjWm_ratio[0] << std::endl << \
+        " CS_cs_hjWm_ratio " << ModelParam.CS_cs_hjWm_ratio[0] << std::endl << \
+        " CS_gg_hjZ_ratio " << ModelParam.CS_gg_hjZ_ratio[0] << std::endl << \
+        " CS_dd_hjZ_ratio " << ModelParam.CS_dd_hjZ_ratio[0] << std::endl << \
+        " CS_uu_hjZ_ratio " << ModelParam.CS_uu_hjZ_ratio[0] << std::endl << \
+        " CS_ss_hjZ_ratio " << ModelParam.CS_ss_hjZ_ratio[0] << std::endl << \
+        " CS_cc_hjZ_ratio " << ModelParam.CS_cc_hjZ_ratio[0] << std::endl << \
+        " CS_bb_hjZ_ratio " << ModelParam.CS_bb_hjZ_ratio[0] << std::endl << \
+        " CS_tev_vbf_ratio " << ModelParam.CS_tev_vbf_ratio[0] << std::endl << \
+        " CS_tev_tthj_ratio " << ModelParam.CS_tev_tthj_ratio[0] << std::endl << \
+        " CS_lhc7_vbf_ratio " << ModelParam.CS_lhc7_vbf_ratio[0] << std::endl << \
+        " CS_lhc7_tthj_ratio " << ModelParam.CS_lhc7_tthj_ratio[0] << std::endl << \
+        " CS_lhc8_vbf_ratio " << ModelParam.CS_lhc8_vbf_ratio[0] << std::endl << \
+        " CS_lhc8_tthj_ratio " << ModelParam.CS_lhc8_tthj_ratio[0] << std::endl << \
+        " BR_hjss " << ModelParam.BR_hjss[0] << std::endl << \
+        " BR_hjcc " << ModelParam.BR_hjcc[0] << std::endl << \
+        " BR_hjbb " << ModelParam.BR_hjbb[0] << std::endl << \
+        " BR_hjmumu " << ModelParam.BR_hjmumu[0] << std::endl << \
+        " BR_hjtautau " << ModelParam.BR_hjtautau[0] << std::endl << \
+        " BR_hjWW " << ModelParam.BR_hjWW[0] << std::endl << \
+        " BR_hjZZ " << ModelParam.BR_hjZZ[0] << std::endl << \
+        " BR_hjZga " << ModelParam.BR_hjZga[0] << std::endl << \
+        " BR_hjgaga " << ModelParam.BR_hjgaga[0] << std::endl << \
+        " BR_hjgg " << ModelParam.BR_hjgg[0] << std::endl << \
+        " BR_hjinvisible " << ModelParam.BR_hjinvisible[0] << std::endl;
+      #endif
+
       // run Higgs bounds 'classic'
-      double obsratio;
-      int HBresult, chan, ncombined;
+       double obsratio;
+       int HBresult, chan, ncombined;
+
       BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
+      
+      // previous routine to find likelihood
+      /*
+        // extract the LEP chisq
+        double chisq_withouttheory,chisq_withtheory;
+        int chan2;
+        double theor_unc = 1.5; // theory uncertainty
+        BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
 
-      // extract the LEP chisq
-      double chisq_withouttheory,chisq_withtheory;
-      int chan2;
-      double theor_unc = 1.5; // theory uncertainty
-      BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
+        // Catch HiggsBound's error value, chisq = -999
+        if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+        {
+          std::ostringstream err;
+          err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
+          // ColliderBit_warning().raise(LOCAL_INFO,err.str());
+          // chisq_withouttheory = 0.0;
+          invalid_point().raise(err.str());
+        } 
+        result = -0.5*chisq_withouttheory;
+      */
 
-      // Catch HiggsBound's error value, chisq = -999
-      if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
-      {
-        ColliderBit_warning().raise(LOCAL_INFO, "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0.");
-        chisq_withouttheory = 0.0;
+      #ifdef COLLIDERBIT_DEBUG
+        std::cout << "HB output: " << std::endl << \
+        "hbres: " << HBresult << std::endl \
+        "hbchan: "<< chan << std::endl \
+        "hbobs: " << obsratio << std::endl \
+        "hbcomb: " << ncombined << std::endl;
+      #endif
+
+      if (HBresult != -1 && obsratio>0.0) {
+      		if (obsratio<1.0) result = 0.0;
+      		else result = -pow((obsratio - 1.0),2);
       }
-
-      result = -0.5*chisq_withouttheory;
+      else {
+        std::ostringstream err;
+        err << "HB_LEP_Likelihood is invalid." << std::endl;
+        invalid_point().raise(err.str());
+      }
+      
     }
 
     /// Get an LHC chisq from HiggsSignals
@@ -371,8 +435,6 @@ namespace Gambit
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
-
-      cout << "higgs mass for HS: " << ModelParam.Mh[0] << endl;
 
       BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
                  &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
@@ -413,6 +475,14 @@ namespace Gambit
       result = -0.5*csqtot;
 
       #ifdef COLLIDERBIT_DEBUG
+        std::cout << "HS output: " << std::endl << \
+        "csqmu: " << csqmu << std::endl \
+        "csqmh: "<< csqmh << std::endl \
+        "csqtot: " << csqtot << std::endl \
+        "nobs: " << nobs << std::endl \
+        "pval: " << Pvalue << std::endl << \
+        "(using Higgs mass): " << ModelParam.Mh[0] << std::endl;
+        //
         std::ofstream f;
         f.open ("HB_ModelParameters_contents.dat");
         f<<"LHC log-likleihood";
@@ -582,14 +652,14 @@ namespace Gambit
 
       // ---
       // adapted from 2HDMC code - Constraints.cpp
-      double RWW=0.77; double RZZ=1.0-RWW;
+      double RWW=0.77; 
+      double RZZ=1.0-RWW;
 
-      double MZ= SM.get(Par::Pole_Mass,"Z0");
-      double MW= SM.get(Par::Pole_Mass,"W+");
+      double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
 
       double GF = sminputs.GF;
       double v = 1./sqrt(sqrt(2)*GF);
-      double g= 2.*MW/v;
+      double g = 2.*MW/v;
 
       double sintw = sqrt(1.-MW*MW/(MZ*MZ));
       double costw = sqrt(1.-sintw*sintw);
@@ -677,6 +747,8 @@ namespace Gambit
         cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
         cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
 
+        // std::cout << "ColliderBit_Higgs.cpp higgsbounds filling: " << " " << cst << " " << cst_sm << " " << cpt << std::endl;
+
         result.CS_tev_tthj_ratio[h] = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
 
         result.CS_lhc7_vbf_ratio[h] = result.CS_tev_vbf_ratio[h];
@@ -697,7 +769,5 @@ namespace Gambit
       result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/THDM_total_widths.gamma_tot_h[4];
       // ---
     }
-
-
   }
 }

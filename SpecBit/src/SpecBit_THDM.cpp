@@ -64,8 +64,9 @@
 
 // Switches for debug mode
 // #define SPECBIT_DEBUG
-#define FS_THROW_POINT
 // #define SPECBIT_DEBUG_VERBOSE
+
+#define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
 #ifdef SPECBIT_DEBUG_VERBOSE
   bool print_debug_checkpoints = true;
@@ -424,17 +425,15 @@ namespace Gambit
         thdm_model.M22_2 = M22_2;
         thdm_model.M12_2 = M12_2;
 
-        if (mh0_2_k[0] < 0.0) thdm_model.mh0 = -sqrt(-mh0_2_k[0]);
-        else thdm_model.mh0 = sqrt(mh0_2_k[0]);
-
-        if (mh0_2_k[1] < 0.0) thdm_model.mH0 = -sqrt(-mh0_2_k[1]);
-        else thdm_model.mH0 = sqrt(mh0_2_k[1]);
-
-        if (mh0_2_k[2] < 0.0) thdm_model.mA0 = -sqrt(-mh0_2_k[2]);
-        else thdm_model.mA0 = sqrt(mh0_2_k[2]);
-
-        if (mC_2 < 0.0) thdm_model.mC = -sqrt(-mC_2);
-        else thdm_model.mC = sqrt(mC_2);
+        if (mh0_2_k[0] < 0.0 || mh0_2_k[1] < 0.0 || mh0_2_k[2] < 0.0 || mC_2 < 0.0) {
+          std::ostringstream msg;
+          msg << "Negative mass encountered. Point invalidated." << std::endl;
+          invalid_point().raise(msg.str());
+        }
+        thdm_model.mh0 = sqrt(mh0_2_k[0]);
+        thdm_model.mH0 = sqrt(mh0_2_k[1]);
+        thdm_model.mA0 = sqrt(mh0_2_k[2]);
+        thdm_model.mC = sqrt(mC_2);
 
         thdm_model.mG0 = 0.0;
         thdm_model.mGC = 0.0;
@@ -1753,7 +1752,7 @@ namespace Gambit
     }
 
     void print_constraint_at_scale_warning(const std::string constraint_name) {
-      std::cout << "SpecBit warning (non-fatal): requested " << constraint_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular likelihood." << std::endl;
+      std::cerr << "SpecBit warning (non-fatal): requested " << constraint_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular likelihood." << std::endl;
     }
 
     void get_unitarity_likelihood_THDM(double& result) {
@@ -2240,12 +2239,30 @@ namespace Gambit
 
       // check for NaN - should *not* happen but has crashed scans before. Most probable culprit is k when lambda_2 = 0. TODO: find workaround
       if (std::isnan(chi2)) {
-        std::cerr << "Warning (Non-fatal): global_minimum_discriminant_likelihood_THDM is returning NaN. Setting to LMAX and continuing. Reporting calculated values:" \
+        std::ostringstream msg;
+        msg << "SpecBit warning (non-fatal): global_minimum_discriminant_likelihood_THDM is returning NaN. Ivnvalidating point. Reporting calculated values:" \
         << " k= " << k << ", m11^2 = "<< m11_2 << ", m22^2 = "<< m22_2 << std::endl;
-        chi2 = L_MAX;
+        SpecBit_warning().raise(LOCAL_INFO,msg.str());
+        std::cerr << msg.str();
+        invalid_point().raise(msg.str());
       }
 
       return -chi2;
+    }
+
+    void nan_warning(std::string var_name) {
+       std::ostringstream msg;
+       msg << "SpecBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
+       SpecBit_warning().raise(LOCAL_INFO,msg.str());
+       std::cerr << msg.str();
+    }
+
+    void check_nan(std::complex<double> var, std::string var_name) {
+      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
+    }
+
+    void check_nan(double var, std::string var_name) {
+      if (std::isnan(var)) nan_warning(var_name);
     }
 
     enum thdmc_couplings_purpose{full, HiggsBounds, SM_like};
@@ -2253,6 +2270,7 @@ namespace Gambit
     thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
       thdmc_couplings couplings;
+      std::complex<double> test_coupling_s,test_coupling_p;
       switch(purpose) {
          case full:
             for (int h=1; h<5; h++) {
@@ -2261,29 +2279,43 @@ namespace Gambit
                 for (int f2=1; f2<4; f2++) {
                   container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
                   container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hll(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hdu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hln(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hll(h, f1, f2, couplings.hll_cs[h][f1][f2], couplings.hll_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hdu(h, f1, f2, couplings.hdu_cs[h][f1][f2], couplings.hdu_cp[h][f1][f2]);
+                  container.THDM_object->get_coupling_hln(h, f1, f2, couplings.hln_cs[h][f1][f2], couplings.hln_cp[h][f1][f2]);
+                  check_nan(couplings.hdd_cs[h][f1][f2], "hdd coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hdd_cp[h][f1][f2], "hdd coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
+                  check_nan(couplings.huu_cs[h][f1][f2], "huu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.huu_cp[h][f1][f2], "huu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
+                  check_nan(couplings.hll_cs[h][f1][f2], "hll coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hll_cp[h][f1][f2], "hll coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
+                  check_nan(couplings.hdu_cs[h][f1][f2], "hdu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hdu_cp[h][f1][f2], "hdu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
+                  check_nan(couplings.hln_cs[h][f1][f2], "hln coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hln_cp[h][f1][f2], "hln coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
                 }
               }
+
+              // container.THDM_object->get_coupling_huu(h, 3, 3, test_coupling_s, test_coupling_p);       
+              // std::cout << "SpecBit.cpp: filling spec for HB: " << couplings.huu_cs[h][3][3] << " | "<< test_coupling_s <<  std::endl;
+
               // **
               for (int v1=1; v1<4; v1++) {
-                for (int v2=1; v2<4; v2++) {
+                for (int v2=1; v2<4; v2 ++) {
                   container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
+                  check_nan(couplings.vvh[v1][v2][h], "vvh coupling "+std::to_string(v1)+std::to_string(v2)+std::to_string(h));
                     for (int h2=1; h2<5; h2++) {
                       container.THDM_object->get_coupling_vvhh(v1, v2, h, h2, couplings.vvhh[v1][v2][h][h2]);
+                      check_nan(couplings.vvhh[v1][v2][h][h2], "vvhh coupling "+std::to_string(v1)+std::to_string(v2)+std::to_string(h)+std::to_string(h2));
                     }
                 }
                 for (int h2=1; h2<5; h2++) {
                   container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
+                  check_nan(couplings.vhh[v1][h][h2], "vhh coupling "+std::to_string(v1)+std::to_string(h)+std::to_string(h2));
                 }
               }
               // **
               for (int h2=1; h2<5; h2++) {
                 for (int h3=1; h3<5; h3++) {
                   container.THDM_object->get_coupling_hhh(h, h2, h3, couplings.hhh[h][h2][h3]);
+                  check_nan(couplings.hhh[h][h2][h3], "hhh coupling "+std::to_string(h)+std::to_string(h2)+std::to_string(h3));
                   for (int h4=1; h4<5; h4++) {
                     container.THDM_object->get_coupling_hhhh(h,h2,h3,h4,couplings.hhhh[h][h2][h3][h4]);
+                    check_nan(couplings.hhhh[h][h2][h3][h4], "hhhh coupling "+std::to_string(h)+std::to_string(h2)+std::to_string(h3)+std::to_string(h4));
                   }
                 }
               }
@@ -2296,11 +2328,21 @@ namespace Gambit
               container.THDM_object->get_coupling_huu(h, 3, 3, couplings.huu_cs[h][3][3], couplings.huu_cp[h][3][3]);
               container.THDM_object->get_coupling_vvh(2, 2, h, couplings.vvh[2][2][h]);
               container.THDM_object->get_coupling_vvh(3, 3, h, couplings.vvh[3][3][h]);
-              for (int h2=1; h2<5; h2++) container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
+              check_nan(couplings.hdd_cs[h][3][3], "hbb coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][3][3], "hbb coupling " +std::to_string(h));
+              check_nan(couplings.huu_cs[h][3][3], "htt coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "htt coupling " +std::to_string(h));
+              check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
+              check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
+              for (int h2=1; h2<5; h2++) {
+                container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
+                check_nan(couplings.vhh[2][h][h2], "vhh coupling 2"+std::to_string(h)+std::to_string(h2));
               }
+            }
          break;
          case SM_like:
             container.THDM_object->get_coupling_hdd(1,3,3,couplings.hdd_cs[1][3][3],couplings.hdd_cp[1][3][3]);
+            container.THDM_object->get_coupling_huu(1,3,3,couplings.huu_cs[1][3][3],couplings.huu_cp[1][3][3]);
+            check_nan(couplings.hdd_cs[1][3][3], "hbb coupling"); check_nan(couplings.hdd_cp[1][3][3], "hbb coupling");
+            check_nan(couplings.huu_cs[1][3][3], "htt coupling"); check_nan(couplings.huu_cp[1][3][3], "htt coupling");
          break;
       }
       return couplings;
@@ -2324,7 +2366,7 @@ namespace Gambit
     }
 
     void get_THDM_couplings_for_HiggsBounds(thdmc_couplings &result) { 
-      if (print_debug_checkpoints) cout << "Checkpoint: 64" << endl; 
+      if (print_debug_checkpoints) cout << "Checkpoint: 65" << endl; 
       using namespace Pipes::get_THDM_couplings_for_HiggsBounds;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
@@ -2387,7 +2429,7 @@ namespace Gambit
         using namespace Pipes::obs_mHpm_pole;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "Hp");
+        result = he->get(Par::Pole_Mass, "H+");
       }
 
       void obs_mh0_running(double& result) {
@@ -2415,7 +2457,7 @@ namespace Gambit
         using namespace Pipes::obs_mHpm_running;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Hp");
+        result = he->get(Par::mass1, "H+");
       }
 
       /// Put together the Higgs couplings for the THDM, from partial widths only

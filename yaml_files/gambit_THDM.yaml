@@ -96,7 +96,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 250
+      NP: 2000
       convthresh: 1e-4
       verbosity: 1
 
@@ -114,27 +114,27 @@ ObsLikes:
     # - purpose:    LogLike
     #   capability: global_minimum_discriminant_likelihood
       
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: unitarity_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: alignment_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: alignment_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: perturbativity_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: stability_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: stability_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: NLO_unitarity_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: NLO_unitarity_likelihood_THDM
 
-    - purpose:    LogLike
-      capability: oblique_parameters_likelihood_THDM
+    # - purpose:    LogLike
+    #   capability: oblique_parameters_likelihood_THDM
     
-    - capability: b2sgamma_LL
-      function: b2sgamma_likelihood
-      purpose: LogLike
+    # - capability: b2sgamma_LL
+    #   function: b2sgamma_likelihood
+    #   purpose: LogLike
     
     # - capability: b2sll_LL
     #   funtion: b2sll_likelihood
@@ -163,11 +163,23 @@ ObsLikes:
       function: SI_bsgamma
       purpose: Observable
 
-Rules:
+    - capability: obs_mh0
+      function: obs_mh0_pole
+      purpose: Observable
 
-    # - module: ColliderBit
-    #   options:
-    #     HB_analysis_type: 1
+    - capability: obs_mH0
+      function: obs_mH0_pole
+      purpose: Observable
+
+    - capability: obs_mA0
+      function: obs_mA0_pole
+      purpose: Observable
+
+    - capability: obs_mHpm
+      function: obs_mHpm_pole
+      purpose: Observable
+
+Rules:
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum
