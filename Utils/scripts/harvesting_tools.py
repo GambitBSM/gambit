@@ -85,15 +85,9 @@ def get_type_equivalencies(nses):
               # If the type is an alias of a native int then add int to the equivalency class
               if re.match("int[0-9]+_t", member):
                 if ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
-                  if 'int' not in equivalency_class:
-                    equivalency_class+=['int']
-              if member not in equivalency_class:
-                equivalency_class += [member]
-            for member in equivalency_class: result[member] = equivalency_class
-
-    # Debug output
-    # print('Type equivalencies:')
-    # print(result)
+                  equivalency_class.append('int')
+              equivalency_class.append(member)
+            for member in equivalency_class: result[member] = list(equivalency_class)
     return result
 
 # Remove C/C++ comments from 'text' (From http://stackoverflow.com/questions/241327/python-snippet-to-remove-c-and-c-comments)
@@ -374,8 +368,8 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
             cmd_i = command_index[splitline[0]]
             if splitline[cmd_i].strip() in qualifier_list:
                 splitline[cmd_i:cmd_i+2] = [" ".join(splitline[cmd_i:cmd_i+2])]
-
             functor_template_types = list([strip_ws(splitline[command_index[splitline[0]]], qualifier_list)])
+            #print be_typeset
             functor_template_types[0] = first_simple_type_equivalent(functor_template_types[0],equiv_classes,equiv_ns,be_typeset)
             if splitline[0].endswith("FUNCTION"):
                 #Get the argument types out of a BE_FUNCTION or BE_CONV_FUNCTION command
@@ -402,7 +396,6 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
         new_candidate_types = []
         for candidate_type in candidate_types:
           new_candidate_types.append(re.sub("^Gambit::", "", candidate_type))
-
         #Iterate over all the candidate types and check if they are defined.
         for candidate_type in new_candidate_types:
             candidate_type = first_simple_type_equivalent(strip_ws(candidate_type, qualifier_list),equiv_classes,equiv_ns,be_typeset)
@@ -414,13 +407,11 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
                 be_typeset.add(candidate_type)
             # Replace the argument types in the functor_template_types with the fully-qualified versions if required.
             functor_template_types = [candidate_type if entry == initial_candidate else entry for entry in functor_template_types]
-
         ptr_args = ",".join(functor_template_types[1:])
         arg_list = ",".join([x for x in functor_template_types[1:] if x != "..."])
         type_pack = functor_template_types[0] + "(*)(" + ptr_args + ")," + functor_template_types[0]
         if arg_list != "": type_pack += "," + arg_list
         type_pack_set.add(type_pack)
-
 
 # Harvest the list of rollcall headers to be searched, and the list of type headers to be searched.
 def get_headers(path,header_set,exclude_set,verbose=False):

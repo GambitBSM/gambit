@@ -316,13 +316,13 @@ namespace Gambit
       struct calc_nElem<limL,limU,_lims...>
       {
         enum{val= (limU-limL+1)*calc_nElem<_lims... >::val};
-        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
       template<int limL, int limU>
       struct calc_nElem<limL,limU>
       {
         enum{val=(limU-limL+1)};
-        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
     public:
       typedef calc_nElem<lims... > nElem;
@@ -611,6 +611,13 @@ namespace Gambit
       }
   };
 
+  // Overload the << operator
+  template<typename T> std::ostream& operator<<(std::ostream& os, const FcomplexT<T>& fc)
+  {
+    os << "(" << fc.re << "," << fc.im << ")" << endl;
+    return os;
+  }  
+
   /// Fortran type typedefs
   /// TODO: Implement compiler dependent macros ensuring that these are always correct
   typedef FcomplexT<float>  Fcomplex;
@@ -632,7 +639,6 @@ namespace Gambit
   typedef float             Freal4;
   typedef double            Freal8;
   typedef long double       Freal16;
-
 
   /// Types used for Mathematica backends
   typedef void         MVoid;

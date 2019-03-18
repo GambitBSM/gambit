@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Mar
+///
 ///  *********************************************
 
 #include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
@@ -105,6 +109,47 @@ namespace Gambit
            utils_error().raise(LOCAL_INFO,errmsg.str());
          }
          return output;
+      }
+
+      // Helper function which retrieves off-diagonal elements as zero.
+      // Helps with SLHA YU,YD,YE entries, which are diagonal in SLHA2 (and
+      // therefore the off-diagonal elements are not guaranteed to be in the
+      // wrapped SLHA file)
+      // but which people may still want to retrieve the (zero) off-diagonal elements.
+      double SLHAeaModel::get_diagonal(const std::string& block, int i, int j) const
+      {
+         double r = 0;
+         if(i==j) r = getdata(block,i,j);
+         return r;
+      }
+
+      // Helper functions to check whether a block or index exists
+      // Block only
+      bool SLHAeaModel::finddata(const std::string &block) const
+      {
+        if(data.find(block) != data.end())
+          return true;
+        return false;
+      }
+
+      // One index
+      bool SLHAeaModel::finddata(const std::string &block, int index) const
+      {
+        std::vector<std::string> key = { std::to_string(index) };
+        if(finddata(block))
+          if(data.at(block).find(key) != data.at(block).end())
+            return true;
+        return false;
+      }
+
+      // Two indices
+      bool SLHAeaModel::finddata(const std::string &block, int i, int j) const
+      {
+        std::vector<std::string> key = { std::to_string(i), std::to_string(j) };
+        if(finddata(block))
+          if(data.at(block).find(key) != data.at(block).end())
+            return true;
+        return false;
       }
 
       /// @}

@@ -31,9 +31,21 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if(scan_level)
   {
-    int nHneut = 3; // number of neutral higgses
-    int nHplus = 1; // number of charged higgses
-    int ANA = 1;    // indicates LEP-only analysis
+
+    int nHneut;  // number of neutral higgses
+    int nHplus;  // number of charged higgses
+    int ANA = 1; // indicates LEP-only analysis
+
+    if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
+    {
+      nHneut = 3;
+      nHplus = 1;
+    }
+    else if (ModelInUse("NMSSM66atQ"))
+    {
+      nHneut = 5;
+      nHplus = 1;
+    }
     // Initialize HiggsBounds. Do this one-by-one for each MPI process with
     // locks, as HB writes files here then reads them back in later (crazy). 
     Utils::FileLock mylock("HiggsBounds_" STRINGIFY(SAFE_VERSION) "_init");

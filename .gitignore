@@ -36,8 +36,8 @@ a.out
 .*
 
 # Output data
-runs/*
-results/*
+runs/
+results/
 
 # Executables and build files
 /gambit

@@ -15,7 +15,7 @@ Parameters:
   # Choose here the model and parameters to be tested, as well as the equivalent function below
 
   CMSSM:
-    M0:
+    M0: 
       range: [1500, 1600]
     M12: 301.79
     A0: 3150.25
@@ -148,7 +148,8 @@ Rules:
     #function:     get_CMSSM_spectrum_FS
     #function:     get_MSSMatMGUT_spectrum_FS
     #function:     get_MSSMatQ_spectrum_FS
-    function:     get_MSSM_spectrum_SPheno
+    #function:     get_MSSM_spectrum_SPheno
+    function:     get_MSSM_spectrum_SPhenoMSSM
     options:
     # FlexibleSUSY options
       precision_goal:        1.0e-4

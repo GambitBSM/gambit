@@ -1,12 +1,12 @@
 diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
 --- SPheno-3.3.8/Makefile	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/Makefile	2017-06-10 23:38:28.663649893 +0200
++++ ../installed/spheno/3.3.8/Makefile	2017-12-15 20:01:17.859424741 +0100
 @@ -3,16 +3,19 @@
  # cases NAG's nagfor, gfortran, g95, Lahey's lf95 and Intels ifort
  # Please uncomment the corresponding line
  # F90 = nagfor
 -# F90 = gfortran
-+F90 = gfortran
++#F90 = gfortran
  # F90 = g95
  # F90 = lf95
 -F90 = ifort
@@ -28,8 +28,8 @@ diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
 +.PHONY: bin/SPheno lib/libSPheno.so clean cleanall
 diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 --- SPheno-3.3.8/src/Makefile	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/src/Makefile	2017-06-10 23:38:28.667649893 +0200
-@@ -4,15 +4,17 @@ PreDef = -DGENERATIONMIXING  -DONLYDOUBL
++++ ../installed/spheno/3.3.8/src/Makefile	2017-12-15 20:07:33.867442678 +0100
+@@ -4,50 +4,63 @@ PreDef = -DGENERATIONMIXING  -DONLYDOUBL
  InDir = ../include
  Mdir = ${InDir}
  name = ../lib/libSPheno.a
@@ -45,12 +45,17 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 -comp = -c -O -module ${Mdir} -I${InDir} 
 -LFlagsB = -O  
 +#F90 = ifort
-+#comp = -c -O -module ${Mdir} -I${InDir} 
-+#LFlagsB = -O  
++#comp = -c -g -fpic -module ${Mdir} -I${InDir} 
++#LFlagsB = -g -pic  
  
  # Intels ifort, debug modus
  ifeq (${F90},ifortg)
-@@ -23,8 +25,8 @@ endif
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fPIC 
+ endif
  
  # gfortran
  ifeq (${F90},gfortran)
@@ -60,10 +65,35 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 + comp = -c ${LFlagsB} -J${Mdir} -I${InDir} # Modified by GAMBIT  
  endif
  
++# /usr/bin/gfortran
++ifeq (${F90},/usr/bin/gfortran)
++ LFlagsB = -w -O2 -fPIC # Modified by GAMBIT
++ comp = -c ${LFlagsB} -J${Mdir} -I${InDir} # Modified by GAMBIT  
++endif
++
++
  # g95 
-@@ -44,10 +46,14 @@ ifeq (${F90},nagfor)
-  comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
-  LFlagsB = -O
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O  
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -M ${Mdir} -I${InDir}
++ LFlagsB = -O  
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O
  endif
 +
 +.NOTPARALLEL:
@@ -77,7 +107,7 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  	mv SPheno ../bin
  ${name}: ${name}(Control.o)  ${name}(Mathematics.o)  ${name}(RGEs.o)       \
      ${name}(MathematicsQP.o)  ${name}(LoopFunctions.o) ${name}(StandardModel.o) \
-@@ -61,6 +67,7 @@ ${name}: ${name}(Control.o)  ${name}(Mat
+@@ -61,6 +74,7 @@ ${name}: ${name}(Control.o)  ${name}(Mat
    ${name}(LoopMasses.o) ${name}(SugraRuns.o) ${name}(Experiment.o) \
    ${name}(LowEnergy.o) ${name}(NMSSM_tools.o) ${name}(RPtools.o) \
    ${name}(LHC_observables.o) ${name}(InputOutput.o) 
@@ -85,7 +115,7 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  clean:
  	rm -f *.o *~ */*.o */*~
  cleanall:
-@@ -78,6 +85,8 @@ cleanall:
+@@ -78,6 +92,8 @@ cleanall:
  	rm -f $*.o
  .f90.o: 
  	${F90} ${comp}  $< 
@@ -96,7 +126,7 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  .h.ps:
 diff -rupN SPheno-3.3.8/src/SPheno3.f90 ../installed/spheno/3.3.8/src/SPheno3.f90
 --- SPheno-3.3.8/src/SPheno3.f90	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/src/SPheno3.f90	2017-06-10 23:38:28.667649893 +0200
++++ ../installed/spheno/3.3.8/src/SPheno3.f90	2017-12-15 19:59:16.163418935 +0100
 @@ -12,7 +12,9 @@
  !     the email above, if possible with a copy of the screen output 
  ! written by Werner Porod

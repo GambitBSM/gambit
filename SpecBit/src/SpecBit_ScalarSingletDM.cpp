@@ -25,6 +25,7 @@
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_macros.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
 
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
@@ -63,10 +64,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -86,7 +87,7 @@ namespace Gambit
       // gauge couplings
       singletmodel.g1 = e / sinW2;
       singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -123,10 +124,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -148,7 +149,7 @@ namespace Gambit
       // gauge couplings
       singletmodel.g1 = e / sinW2;
       singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -324,7 +325,7 @@ namespace Gambit
       std::unique_ptr<SubSpectrum> ScalarSingletDM = spec.clone_HE();
       double step = log10(scale) / pts;
       double runto;
-      double ul = 4.0 * Pi;
+      double ul = 4.0 * pi;
 
       for (int i=0;i<pts;i++)
       {
@@ -342,9 +343,9 @@ namespace Gambit
           std::ostringstream label;
           label << name <<" "<< Par::toString.at(tag);
 
-          if (name == "lambda_S"){ul =  Pi;}
-          else if (name == "lambda_h"){ul =  2*Pi;}
-          else if (name == "lambda_hS"){ul =  4*Pi;}
+          if (name == "lambda_S"){ul =  pi;}
+          else if (name == "lambda_h"){ul =  2*pi;}
+          else if (name == "lambda_hS"){ul =  4*pi;}
           else {ul = 100;}
 
           if(shape.size()==1 and shape[0]==1)
@@ -580,6 +581,9 @@ namespace Gambit
       else SpecBit_error().raise(LOCAL_INFO, "No valid model for ScalarSingletDM_higgs_couplings_pwid.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
 
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays
@@ -591,7 +595,9 @@ namespace Gambit
         result.invisibles = initVector<str>("S");
       else
         result.invisibles.clear();
-      // Leave all the effective couplings for all neutral higgses set to unity (done at construction).
+
+      // Set the effective couplings
+      result.set_effective_couplings_to_unity();
     }
 
     /// Print ScalarSingletDM spectra out. Stripped down copy of MSSM version with variable names changed

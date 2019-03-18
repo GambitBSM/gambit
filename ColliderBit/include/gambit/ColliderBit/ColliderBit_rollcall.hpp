@@ -73,6 +73,7 @@ START_MODULE
     NEEDS_CLASSES_FROM(Pythia, default)
     DEPENDENCY(decay_rates, DecayTable)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(NMSSM_spectrum, Spectrum, NMSSM66atQ)
     #undef FUNCTION
 
     #define FUNCTION getPythiaFileReader

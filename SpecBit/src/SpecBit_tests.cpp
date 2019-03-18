@@ -97,6 +97,18 @@ namespace Gambit
       result = 0;
     }
 
+    // Testing function for SPhenoNMSSM
+    void SPheno_NMSSM_test(bool &result)
+    {
+      namespace myPipe = Pipes::SPheno_NMSSM_test;
+
+      const Spectrum& fullspectrum = *myPipe::Dep::NMSSM_spectrum;
+
+      std::cout << fullspectrum.getSLHAea(2) << std::endl;
+
+      result = 0;
+    }
+
     /// Verify consistency of the contents of a Spectrum object of capability MSSMspectrum.
     /// (derived from old 'exampleRead' function)
     void MSSMspectrum_test (bool &result)

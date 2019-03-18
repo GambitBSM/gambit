@@ -1,0 +1,254 @@
+# Inifile for testing SpecBit features
+
+Parameters:
+
+  #SM nuisance parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  NMSSM66atQ:
+    Qin:
+      fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
+    TanBeta:
+      fixed_value: 39.6
+      # range: [1.0, 70.0]
+      # prior_type: flat
+    M1:
+      fixed_value: 2000.0
+      # prior_type: double_log_flat_join
+      # ranges: [-5e3, -1e1, 1e1, 5e3]
+    M2:
+      fixed_value: 2000.0
+      # prior_type: double_log_flat_join
+      # ranges: [0, 0, 1e1, 5e3]
+    M3:
+      fixed_value: 3000
+    kappa:
+      fixed_value: 0.016 
+      # prior_type: log
+      # range: [1e-5, 1]
+    lambda:
+      fixed_value: 0.091 
+      # prior_type: log
+      # range: [1e-5, 1]
+    Akappa:
+      fixed_value: -35.9
+      # prior_type: double_log_flat_join
+      # range: [-5e3, -1e1, 1e1, 5e3]
+    Alambda:
+      fixed_value: 8940.
+      # prior_type: double_log_flat_join
+      # range: [-5e3, -1e1, 1e1, 5e3]
+    mueff:
+      fixed_value: 163.3
+      # prior_type: double_log_flat_join
+      # ranges: [-5e3, -1e1, 1e1, 5e3]
+    ml2_11:
+      fixed_value: 9000000
+    ml2_12:
+      fixed_value: 0
+    ml2_13:
+      fixed_value: 0
+    ml2_22:
+      fixed_value: 9000000
+    ml2_23:
+      fixed_value: 0
+    ml2_33:
+      fixed_value: 9000000
+    me2_11:
+      fixed_value: 9000000
+    me2_12:
+      fixed_value: 0
+    me2_13:
+      fixed_value: 0
+    me2_22:
+      fixed_value: 9000000
+    me2_23:
+      fixed_value: 0
+    me2_33:
+      fixed_value: 9000000
+    mq2_11:
+      fixed_value: 9000000
+    mq2_12:
+      fixed_value: 0
+    mq2_13:
+      fixed_value: 0
+    mq2_22:
+      fixed_value: 9000000
+    mq2_23:
+      fixed_value: 0
+    mq2_33:
+      fixed_value: 9000000
+    mu2_11:
+      fixed_value: 9000000
+    mu2_12:
+      fixed_value: 0
+    mu2_13:
+      fixed_value: 0
+    mu2_22:
+      fixed_value: 9000000
+    mu2_23:
+      fixed_value: 0
+    mu2_33:
+      fixed_value: 9000000
+    md2_11:
+      fixed_value: 9000000
+    md2_12:
+      fixed_value: 0
+    md2_13:
+      fixed_value: 0
+    md2_22:
+      fixed_value: 9000000
+    md2_23:
+      fixed_value: 0
+    md2_33:
+      fixed_value: 9000000
+    Ae_11:
+       fixed_value: 0
+    Ae_12:
+       fixed_value: 0
+    Ae_13:
+       fixed_value: 0
+    Ae_21:
+       fixed_value: 0
+    Ae_22:
+       fixed_value: 0
+    Ae_23:
+       fixed_value: 0
+    Ae_31:
+       fixed_value: 0
+    Ae_32:
+       fixed_value: 0
+    Ae_33:
+       fixed_value: 0
+    Ad_11:
+       fixed_value: 0
+    Ad_12:
+       fixed_value: 0
+    Ad_13:
+       fixed_value: 0
+    Ad_21:
+       fixed_value: 0
+    Ad_22:
+       fixed_value: 0
+    Ad_23:
+       fixed_value: 0
+    Ad_31:
+       fixed_value: 0
+    Ad_32:
+       fixed_value: 0
+    Ad_33:
+       fixed_value: 0
+    Au_11:
+       fixed_value: 0
+    Au_12:
+       fixed_value: 0
+    Au_13:
+       fixed_value: 0
+    Au_21:
+       fixed_value: 0
+    Au_22:
+       fixed_value: 0
+    Au_23:
+       fixed_value: 0
+    Au_31:
+       fixed_value: 0
+    Au_32:
+       fixed_value: 0
+    Au_33:
+      fixed_value: 0
+ 
+Priors:
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "NMSSM.hdf5"
+  #   delete_file_on_restart: true
+  #   group: "/NMSSM"
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+
+    random: 
+      plugin: random 
+      like:  LogLike 
+      point_number: 1 
+      output_file:  output 
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+  - purpose:      Observable
+    capability:   run_NMSSMspectrum_test
+    type:         bool
+
+  - purpose:      Observable
+    capability:   NMSSM_decay_rates_map
+    function:     get_NMSSM_decay_rates_as_map
+    type:         map_str_dbl
+
+  # - purpose:      Observable
+  #   capability:   decay_rates
+  #   type:         DecayTable
+
+Rules:
+  - capability: NMSSM_spectrum
+    function: get_NMSSM_spectrum_SPheno
+    options:
+      WriteOutputForNonConvergence: true
+      CalculateOneLoopMasses: true
+      drop_SLHA_file: true
+
+
+  - capability: run_MSSMspectrum_test
+    function: SPheno_NMSSM_test
+    options:
+      drop_SLHA_file: true
+
+  - capability: decay_rates
+    function:   all_NMSSM_decays_from_SPheno
+    options:
+      drop_SLHA_file: true
+      BRMin: 1.0e-5
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [SpecBit] : "SpecBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+
+KeyValues:
+
+  debug: true
+
+  drop_SLHA_file: true
+
+  default_output_path: "runs/NMSSM/"
+
+  dependency_resolution:
+    prefer_model_specific_functions: false
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+

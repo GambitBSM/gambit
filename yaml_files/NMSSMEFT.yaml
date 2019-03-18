@@ -1,0 +1,115 @@
+# Inifile for testing SpecBit features
+
+Parameters:
+
+  #SM nuisance parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  NMSSMEFTatQ_mA:
+    Qin:
+      fixed_value: 3000  # 3000 = sqrt(mQL3*mUR3) = mSUSY, since we have mQL3 = mUR3 = mq2 = (3000)^2
+    TanBeta:
+      range: [1.0, 70.0]
+      prior_type: flat
+    M1:
+      prior_type: double_log_flat_join
+      ranges: [-5e3, -1e1, 1e1, 5e3]
+    M2:
+      prior_type: double_log_flat_join
+      ranges: [0, 0, 1e1, 5e3]
+    mu:
+      prior_type: double_log_flat_join
+      ranges: [0, 0, 1e1, 5e3]
+    mA: 10000
+    kappa:
+      prior_type: log
+      range: [1e-5, 1]
+    lambda:
+      prior_type: log
+      range: [1e-5, 1]
+    Akappa:
+      prior_type: log
+      range: [1e-5, 1]
+
+Priors:
+
+Printer:
+  printer: hdf5
+  options:
+    output_file: "NMSSMEFT.hdf5"
+    delete_file_on_restart: true
+    group: "/NMSSMEFT"
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like:  LogLike
+      point_number: 10
+      output_file:  output
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+  - purpose:      Observable
+    capability:   run_NMSSMspectrum_test
+    type:         bool
+
+Rules:
+
+  # Set Higgs pole mass by hand
+  - options:
+      override_pole_masses:
+        h0_1: 125.09
+
+  - capability: NMSSM_spectrum
+    function: get_NMSSM_spectrum_SPheno
+    options:
+      WriteOutputForNonConvergence: true
+      drop_SLHA_file: true
+
+  - capability: run_MSSMspectrum_test
+    function: SPheno_NMSSM_test
+    options:
+      drop_SLHA_file: true
+
+  - capability: decay_rates
+    function:   all_NMSSM_decays_from_SPheno
+    options:
+      drop_SLHA_file: true
+      BRMin: 1.0e-5
+
+
+Logger:
+
+  redirection:
+    [Default] : stdout
+
+KeyValues:
+
+  debug: true
+
+  default_output_path: "runs/NMSSMEFT/"
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+

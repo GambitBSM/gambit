@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
@@ -115,9 +119,7 @@ namespace Gambit
   }
 
   /// Check if a block exists in an SLHAea object, add it if not, and check if it has an entry at a given index
-  // TODO: Ben: I just found this, and I can't say I understand the logic related to "overwrite". It also makes
-  // overloading for two indices very difficult, so I'm going to delete it.
-  bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index) /*, const bool overwrite)*/
+  bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index)
   {
     bool found;
     // Check if block exists and create it if it doesn't
@@ -128,7 +130,7 @@ namespace Gambit
     SLHAea::Block::key_type key(1);
     key[0] = i.str();
     //std::cout << "Searching block "<<block<<" for key "<<key[0]<<std::endl;
-    if( slha[block].find(key) != slha[block].end()) 
+    if( slha[block].find(key) != slha[block].end())
     {
       found = true;
     }
@@ -139,7 +141,7 @@ namespace Gambit
     return found;
   }
 
-  bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index1, const int index2) /*, const bool overwrite)*/
+  bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index1, const int index2)
   {
     bool found;
     // Check if block exists and create it if it doesn't
@@ -151,7 +153,7 @@ namespace Gambit
     key[0] = i.str();
     key[1] = j.str();
     //std::cout << "Searching block "<<block<<" for key "<<key[0]<<", "<<key[1]<<std::endl;
-    if( slha[block].find(key) != slha[block].end() ) 
+    if( slha[block].find(key) != slha[block].end() )
     {
       found = true;
     }
@@ -221,7 +223,7 @@ namespace Gambit
      if(it!=slha.end()) slha.erase(it);
   }
 
-  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha /*modify*/)
+  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha)
   {
      // For now we don't try to track where the data originally came from, we just label
      // it as GAMBIT-produced.
@@ -231,6 +233,18 @@ namespace Gambit
         SLHAea_add(slha, "SPINFO", 1, "GAMBIT", "Program");
         SLHAea_add(slha, "SPINFO", 2, gambit_version(), "Version number");
      }
+  }
+
+  // Add MODSEL. Right now just the SLHA type
+  void SLHAea_add_MODSEL(SLHAstruct& slha, int slha_version)
+  {
+    if(not SLHAea_check_block(slha, "MODSEL", 1, false))
+    {
+      if(slha_version == 1)
+        SLHAea_add(slha, "MODSEL", 6, 0, "# SLHA 1, no flavour violation");
+      else if(slha_version == 2)
+        SLHAea_add(slha, "MODSEL", 6, 3, "# SLHA 2, all flavour violation");
+    }
   }
 
   /// Add an entry to an SLHAea object (if overwrite=false, only if it doesn't already exist)

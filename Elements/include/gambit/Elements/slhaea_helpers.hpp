@@ -19,7 +19,11 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015
 ///
-///  *********************************************
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2018 Oct
+///
+/////  *********************************************
 
 #ifndef __slha_helpers_hpp__
 #define __slha_helpers_hpp__
@@ -63,7 +67,10 @@ namespace Gambit
   bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index1, const int index2);
 
   /// Write the SPINFO block with GAMBIT name and version number
-  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha /*modify*/);
+  void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha);
+
+  /// Write the MODSEL block with the Flavour violation entry, which identifies whether we use SLHA1 or SLHA2
+  void SLHAea_add_MODSEL(SLHAstruct& slha, int slha_version);
 
   /// Add an entry to an SLHAea object (if overwrite=false, only if it doesn't already exist)
   /// @{

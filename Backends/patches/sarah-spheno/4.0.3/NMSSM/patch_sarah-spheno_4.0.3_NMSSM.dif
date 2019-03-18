@@ -1,0 +1,389 @@
+diff -rupN SPheno-4.0.3/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/Makefile
+--- SPheno-4.0.3/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/Makefile	2018-12-20 00:15:38.595028514 +1100
+@@ -9,10 +9,13 @@
+ F90 = ifort
+ Model = src
+ version = 400.00
++all: bin/SPheno lib/libSPhenoNMSSM.so
+ bin/SPheno:
+ 	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
++lib/libSPhenoNMSSM.so:
++	cd ${Model} ; ${MAKE} $@ F90=${F90} version=${version}
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno lib/*.a *.o *~ */*.o */*~ include/*
+-.PHONY: bin/SPheno clean cleanall
++	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
++.PHONY: bin/SPheno lib/libSPhenoNMSSM clean cleanall
+diff -rupN SPheno-4.0.3/NMSSM/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/Makefile
+--- SPheno-4.0.3/NMSSM/Makefile	2019-01-11 13:44:43.589909032 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/Makefile	2019-01-10 16:02:43.768467461 +1100
+@@ -5,6 +5,7 @@ InDir = ../include
+ Mdir = ${InDir}
+ VPATH = 3-Body-Decays:LoopDecays:TwoLoopMasses:Observables:SM 
+ name = ../lib/libSPhenoNMSSM.a
++shared = lib/libSPhenoNMSSM.so
+  
+ # check if SARAH module and SPheno are compatibel  
+ minV=330.00 
+@@ -13,45 +14,55 @@ cVersion =$(shell expr $(version) \>= $(
+ # options for various compilers  
+ #  
+ # Default Compiler  
+-F90=gfortran
+-comp= -c -O -module ${Mdir} -I${InDir}  
+-LFlagsB= -O  
++ifeq (${F90},/usr/bin/gfortran)
++override F90=gfortran
++endif
++#F90=gfortran
++#comp= -c -O -fPIC -module ${Mdir} -I${InDir}  
++#comp= -c -O -fPIC -I${InDir}  
++#LFlagsB= -O  fPIC
+ # Intels ifort,debug modus  
+ ifeq (${F90},ifortg)  
+ F90=ifort  
+-comp= -c -g -module ${Mdir} -I${InDir}  
+-LFlagsB= -g  
++comp= -c -g -fpic -module ${Mdir} -I${InDir}  
++LFlagsB= -g -fpic 
+ endif  
+ # gfortran  
+ ifeq (${F90},gfortran)  
+-comp= -c -g -ffree-line-length-none -J${Mdir} -I${InDir}  
+-LFlagsB= -g  
++comp= -c -g -fPIC --free-line-length-none -J${Mdir} -I${InDir}  
++LFlagsB= -g -fPIC 
+ endif  
+ # g95  
+ ifeq (${F90},g95)  
+-comp= -c -O -fmod=${Mdir} -I${InDir}  
+-LFlagsB= -O  
++comp= -c -O -fpic -fmod=${Mdir} -I${InDir}  
++LFlagsB= -O -fpic 
+ endif  
+ # Lahey F95 compiler  
+ ifeq (${F90},lf95)  
+-comp=-c -O -M ${Mdir} -I${InDir}  
+-LFlagsB=-O  
++comp=-c -O -fpic -M ${Mdir} -I${InDir}  
++LFlagsB=-O -fpic  
+ endif  
+ # NAG f95/2003  
+ ifeq (${F90},nagfor)  
+-comp= -c -O -mdir ${Mdir} -I${InDir}  
+-LFlagsB= -O -DONLYDOUBLE -mdir ${MDir} -I${InDir}  
++comp= -c -O -fpic -mdir ${Mdir} -I${InDir}  
++LFlagsB= -O -fpic -DONLYDOUBLE -mdir ${MDir} -I${InDir}  
+ endif   
+ .SUFFIXES : .o .ps .f90 .F90 .a 
+-bin/SPhenoNMSSM:
++${shared}:
++	cd ../src ; ${MAKE} F90=${F90}
++	${MAKE} F90=${F90} ${name}
++	${MAKE} F90=${F90} SPhenoNMSSM.o
++	${F90} -c -fPIC TwoLoopMasses/effpotasat.f
++	${F90} -shared -o ../${shared} ${LFlagsB} SPhenoNMSSM.o effpotasat.o ../lib/libSPhenoNMSSM.a ../lib/libSPheno.a
+ ifeq (${cVersion},1)
+-	 cd ../src ; ${MAKE} F90=${F90} 
+-	 ${MAKE} F90=${F90} ${name} 
+-	 ${MAKE} F90=${F90} SPhenoNMSSM.o 
+-	 ${F90} -c TwoLoopMasses/effpotasat.f 
+-	 ${F90} -o SPhenoNMSSM ${LFlagsB} SPhenoNMSSM.o effpotasat.o ../lib/libSPhenoNMSSM.a ../lib/libSPheno.a
+-	 mv SPhenoNMSSM ../bin
+-	 rm SPhenoNMSSM.o  
++bin/SPhenoNMSSM:
++	cd ../src ; ${MAKE} F90=${F90} 
++	${MAKE} F90=${F90} ${name} 
++	${MAKE} F90=${F90} SPhenoNMSSM.o 
++	${F90} -c TwoLoopMasses/effpotasat.f 
++	${F90} -o SPhenoNMSSM ${LFlagsB} SPhenoNMSSM.o effpotasat.o ../lib/libSPhenoNMSSM.a ../lib/libSPheno.a
++	mv SPhenoNMSSM ../bin
++	rm SPhenoNMSSM.o  
+ ${name}:  ${name}(Settings.o) ${name}(Model_Data_NMSSM.o)  \
+  ${name}(RGEs_NMSSM.o)   \
+  ${name}(Couplings_NMSSM.o) ${name}(TreeLevelMasses_NMSSM.o) ${name}(TadpoleEquations_NMSSM.o) \
+@@ -85,7 +96,7 @@ endif
+ clean: 
+ 	 rm -f *.o *~ */*.o */*~
+ cleanall: 
+-	 rm -f bin/SPheno3 lib/*.a *~ */*.o */*~ include/*
++	 rm -f bin/SPheno3 lib/*.a lib/*.so *~ */*.o */*~ include/*
+ #
+ # Suffix rules
+ #
+diff -rupN SPheno-4.0.3/src/Makefile ../installed/sarah-spheno/4.0.3/NMSSM/src/Makefile
+--- SPheno-4.0.3/src/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/src/Makefile	2019-01-10 16:03:18.280828691 +1100
+@@ -17,32 +17,32 @@ LFlagsB = -O
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fpic -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fpic
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fpic -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fpic
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fpic -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fpic
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fpic -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fpic
+ endif
+  
+ .SUFFIXES : .o .ps .f90 .F90 .a
+@@ -70,11 +70,11 @@ cleanall:
+ #
+ .f90.a:
+ 	${F90} ${comp} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .F90.a:
+ 	${F90} ${comp}  ${PreDef} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .f90.o: 
+ 	${F90} ${comp}  $< 
+diff -rupN SPheno-4.0.3/NMSSM/SPhenoNMSSM.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/SPhenoNMSSM.f90
+--- SPheno-4.0.3/NMSSM/SPhenoNMSSM.f90	2019-01-11 13:44:43.593908894 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/SPhenoNMSSM.f90	2018-12-20 00:15:38.603028171 +1100
+@@ -7,7 +7,8 @@
+ ! ----------------------------------------------------------------------  
+  
+  
+-Program SPhenoNMSSM 
++!Program SPhenoNMSSM ! Commented by GAMBIT
++Module SPhenoNMSSM ! Added by GAMBIt
+  
+ Use Control
+ Use InputOutput_NMSSM
+@@ -56,6 +57,9 @@ Real(dp) :: Tpar,Spar,Upar,ae,amu,atau,E
+ & ratioBtoSnunu,BrBtoDnunu,ratioBtoDnunu,BrKptoPipnunu,ratioKptoPipnunu,BrKltoPinunu,    & 
+ & ratioKltoPinunu,DelMK,ratioDelMK,epsK,ratioepsK
+ 
++Contains ! Added by GAMBIT
++
++Subroutine Dummy() ! Added by GAMBIT
+ Tpar = 0._dp 
+ Spar = 0._dp 
+ Upar = 0._dp 
+@@ -395,7 +399,7 @@ If ((L_BR).And.(kont.Eq.0)) Then
+ vev=Sqrt(mZ2*(1._dp-sinW2)*SinW2/(pi*alpha_mZ))
+ vdMZ=vev/Sqrt(1._dp+tanbetaMZ**2)
+ vuMZ=tanbetaMZ*vdMZ 
+-Call CalculateBR(CalcTBD,ratioWoM,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,               & 
++Call CalculateBR_2(CalcTBD,ratioWoM,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,               & 
+ & MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,              & 
+ & MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,               & 
+ & ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,               & 
+@@ -475,7 +479,9 @@ Call LesHouches_Out(67,11,kont,MGUT,Tpar
+ 
+ End if 
+ Write(*,*) "Finished!" 
+-Contains 
++
++End Subroutine Dummy ! Added by GAMBIT
++!Contains ! Commented by GAMBIT
+  
+ Subroutine Switch_from_superCKM(Y_d, Y_u, Ad_in, Au_in, MD_in, MQ_in, MU_in &
+                       &, Ad_out, Au_out, MD_out, MQ_out, MU_out, tr        &
+@@ -597,6 +603,7 @@ Subroutine Switch_from_superCKM(Y_d, Y_u
+    End If
+ 
+  End Subroutine Switch_from_superCKM
++
+ Subroutine CalculateSpectrum(n_run,delta,WriteOut,kont,MAh,MAh2,MCha,MCha2,           & 
+ & MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,              & 
+ & MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,               & 
+@@ -631,29 +638,27 @@ Call FirstGuess(MAh,MAh2,MCha,MCha2,MChi
+ & ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,            & 
+ & mHd2,mHu2,md2,mu2,me2,ms2,M1,M2,M3,kont)
+ 
+-!If (kont.ne.0) Call TerminateProgram 
++If (kont.ne.0) Call TerminateProgram 
+  
+ If (SPA_Convention) Call SetRGEScale(1.e3_dp**2) 
+  
+ If (.not.DecoupleAtRenScale) Then 
+-Call Sugra(delta,MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,           & 
+-& MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,               & 
+-& MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,             & 
+-& ZV,ZW,ZZ,betaH,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,mHd2,mHu2,           & 
+-& md2,mu2,me2,ms2,M1,M2,M3,mGut,kont,WriteOut,n_run)
+-
++  Call Sugra(delta,MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,           & 
++  & MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,               & 
++  & MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,             & 
++  & ZV,ZW,ZZ,betaH,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,mHd2,mHu2,           & 
++  & md2,mu2,me2,ms2,M1,M2,M3,mGut,kont,WriteOut,n_run)
+ Else 
+-Call Match_and_Run(delta,MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,            & 
+-& MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,           & 
+-& MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,            & 
+-& ZUR,ZV,ZW,ZZ,betaH,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,mHd2,            & 
+-& mHu2,md2,mu2,me2,ms2,M1,M2,M3,mGut,kont,WriteOut,n_run)
+-
++  Call Match_and_Run(delta,MAh,MAh2,MCha,MCha2,MChi,MChi2,MFd,MFd2,MFe,MFe2,            & 
++  & MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,MSe,MSe2,MSu,MSu2,MSv,MSv2,           & 
++  & MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,            & 
++  & ZUR,ZV,ZW,ZZ,betaH,g1,g2,g3,Yd,Ye,lam,kap,Yu,Td,Te,Tlam,Tk,Tu,mq2,ml2,mHd2,            & 
++  & mHu2,md2,mu2,me2,ms2,M1,M2,M3,mGut,kont,WriteOut,n_run)
+ End If 
+  
++
+ If (kont.ne.0) Then 
+  Write(*,*) "Error appeared in calculation of masses "
+- 
+  Call TerminateProgram 
+ End If 
+  
+@@ -878,4 +883,5 @@ End Subroutine GetScaleUncertainty
+  
+ 
+  
+-End Program SPhenoNMSSM 
++!End Program SPhenoNMSSM ! Commented by GAMBIT
++End Module SPhenoNMSSM ! Added by GAMBIT
+diff -rupN SPheno-4.0.3/src/Control.F90 ../installed/sarah-spheno/4.0.3/NMSSM/src/Control.F90
+--- SPheno-4.0.3/src/Control.F90	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/sarah-spheno/4.0.3/NMSSM/src/Control.F90	2018-12-20 00:15:38.603028171 +1100
+@@ -26,6 +26,22 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++! Added by GAMBIT
++Use, Intrinsic :: iso_c_binding
++Implicit none
++
++Type(c_funptr) :: ErrorHandler_cptr
++
++! Define interface of call-back routine.
++
++Abstract Interface
++  Subroutine callback ()
++    Use, Intrinsic :: iso_c_binding
++  End Subroutine callback
++End Interface
++! GAMBIT addition end
++
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -608,6 +624,7 @@ Contains
+  End Subroutine ModelNotIncluded
+ 
+ 
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -615,8 +632,10 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+ 
+   Write (ErrCan,*) "  "
+@@ -631,6 +650,15 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
++
++  ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
+   Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
+diff -rupN SPheno-4.0.3/NMSSM/BranchingRatios_NMSSM.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/BranchingRatios_NMSSM.f90
+--- SPheno-4.0.3/NMSSM/BranchingRatios_NMSSM.f90	2019-01-11 13:44:43.581909306 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/BranchingRatios_NMSSM.f90	2018-12-20 00:15:38.599028343 +1100
+@@ -27,7 +27,7 @@ Use OneLoopDecays_NMSSM
+ 
+  Contains 
+  
+-Subroutine CalculateBR(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
++Subroutine CalculateBR_2(CTBD,fac3,epsI,deltaM,kont,MAh,MAh2,MCha,MCha2,MChi,           & 
+ & MChi2,MFd,MFd2,MFe,MFe2,MFu,MFu2,MGlu,MGlu2,Mhh,Mhh2,MHpm,MHpm2,MSd,MSd2,              & 
+ & MSe,MSe2,MSu,MSu2,MSv,MSv2,MVWm,MVWm2,MVZ,MVZ2,pG,TW,UM,UP,v,ZA,ZD,ZDL,ZDR,            & 
+ & ZE,ZEL,ZER,ZH,ZN,ZP,ZU,ZUL,ZUR,ZV,ZW,ZZ,betaH,vd,vu,vS,g1,g2,g3,Yd,Ye,lam,             & 
+@@ -102,7 +102,7 @@ Real(dp) :: vev
+ Real(dp) :: gTVZ,gTVWm
+ 
+ Iname = Iname + 1 
+-NameOfUnit(Iname) = 'CalculateBR'
++NameOfUnit(Iname) = 'CalculateBR_2'
+  
+ Write(*,*) "Calculating branching ratios and decay widths" 
+ gTVWm = gamW 
+@@ -651,6 +651,6 @@ End Do
+ ! No 3-body decays for Fu  
+ Iname = Iname - 1 
+  
+-End Subroutine CalculateBR 
++End Subroutine CalculateBR_2
+ End Module BranchingRatios_NMSSM 
+  
+\ No newline at end of file
+diff -rupN SPheno-4.0.3/NMSSM/AddLoopFunctions.f90 ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/AddLoopFunctions.f90
+--- SPheno-4.0.3/NMSSM/AddLoopFunctions.f90	2019-01-11 13:44:43.581909306 +1100
++++ ../installed/sarah-spheno/4.0.3/NMSSM/NMSSM/AddLoopFunctions.f90	2019-01-11 13:14:44.944805527 +1100
+@@ -1407,14 +1407,17 @@ End Function DerVVVloop
+   VB0 = B0(xp,xm1,xm2)
+   VDerB0 = SA_DerB0(xp,xm1,xm2)
+ 
++  If ((xm1.Eq.0._dp).And.(xm2.Eq.0._dp)) Then
++    SA_DerB00 = -2._dp * xp * xp - 3._dp * xp * xp * VB0 - 3._dp * xp * xp * xp * VDerB0
++  Else
+   SA_DerB00 = 3._dp * (xm1 * xm1 - 2._dp * xm1 * xm2 &
+    & + xm2 * xm2 - xp * xp) * VB0 &
+    & - 3._dp * (xm1 - xm2) * (xm1 - xm2) * B0(0._dp,xm1,xm2) &
+    & - 3._dp * xp * (xm1 * xm1 + xm2 * xm2 + xp * xp)* VDerB0 &
+    & + 6._dp * (xm1 + xm2) * xp * xp * VDerB0 &
+    & + 6._dp * xm1 * xm2 * xp * VDerB0 - 2._dp * xp * xp
++  Endif
+   SA_DerB00 = SA_DerB00 / (36._dp * xp * xp)
+-
+   End If
+ 
+  End Function SA_DerB00

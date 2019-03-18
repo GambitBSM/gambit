@@ -50,6 +50,7 @@
 #  \author Tomas Gonzalo
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Apr, Dec
+#  \date 2017 Nov
 #
 #  \author James McKay
 #          (j.mckay14@imperial.ac.uk)
@@ -856,13 +857,102 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} $F90=${CMAKE_Fortran_COMPILER} FFLAGS=${BACKEND_Fortran_FLAGS} ${lib}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} F90=${CMAKE_Fortran_COMPILER} FFLAGS=${BACKEND_Fortran_FLAGS} ${lib}
     INSTALL_COMMAND ""
   )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} cleanall)
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# SARAH-SPheno MSSM model
+set(name "sarah-spheno")
+set(model "MSSM")
+set(ver "3.3.8")
+set(lib "lib/libSPheno${model}.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(sarahdir "${PROJECT_SOURCE_DIR}/Models/data/SARAH/${model}/EWSB/SPheno")
+file(GLOB sarahfiles  "${sarahdir}/[a-zA-Z0-9]*")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/${model}"
+             COMMAND cp -r "${sarahfiles}" "${dir}/${model}"
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} Model=${model} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} cleanall)
+  set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
+
+# SARAH-SPheno NMSSM model
+set(name "sarah-spheno")
+set(model "NMSSM")
+set(ver "4.0.3")
+set(lib "lib/libSPheno${model}.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(sarahdir "${PROJECT_SOURCE_DIR}/Models/data/SARAH/${model}/EWSB/SPheno")
+file(GLOB sarahfiles  "${sarahdir}/[a-zA-Z0-9]*")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/${model}"
+             COMMAND cp -r "${sarahfiles}" "${dir}/${model}"
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} Model=${model} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} cleanall)
+  set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
+
+# SARAH-SPheno NMSSM EFT model
+set(name "sarah-spheno")
+set(model "NMSSMEFT")
+set(ver "4.0.3")
+set(lib "lib/libSPheno${model}.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(sarahdir "${PROJECT_SOURCE_DIR}/Models/data/SARAH/${model}/EWSB/SPheno")
+file(GLOB sarahfiles  "${sarahdir}/[a-zA-Z0-9]*")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/${model}"
+             COMMAND cp -r "${sarahfiles}" "${dir}/${model}"
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} Model=${model} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} cleanall)
+  set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
 
 # gm2calc
 set(name "gm2calc")

@@ -18,6 +18,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Mar
+///
 ///  *********************************************
 
 #ifndef __SLHASimpleSpec_hpp__
@@ -57,6 +61,19 @@ namespace Gambit
            /// Helper functions to do error checking for SLHAea object contents
            double getdata(const std::string& block, int index) const;
            double getdata(const std::string& block, int i, int j) const;
+
+           // Helper function which retrieves off-diagonal elements as zero.
+           // Helps with SLHA YU,YD,YE entries, which are diagonal in SLHA2 (and
+           // therefore the off-diagonal elements are not guaranteed to be in the
+           // wrapped SLHA file)
+           // but which people may still want to retrieve the (zero) off-diagonal elements.
+           double get_diagonal(const std::string& block, int i, int j) const; 
+
+           // Helper functions to check whether a block or index exists
+           bool finddata(const std::string& block) const;
+           bool finddata(const std::string& block, int index) const;
+           bool finddata(const std::string& block, int i, int j) const;
+   
       };
 
       template<class Derived>

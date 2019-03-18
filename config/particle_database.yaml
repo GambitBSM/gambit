@@ -151,7 +151,7 @@ OtherModels:
   # add_particle
   Particles:
   
-    - comment: " ---- MSSM sparticle mass eigenstates (context = 0) ---- (TODO to be extended to NMSSM) \n      // Defined according to SLHA2 (http://arxiv.org/pdf/0801.0045v3.pdf, see eq. 28 - 31) where applicable."
+    - comment: " ---- (N)MSSM sparticle mass eigenstates (context = 0) ---- \n      // Defined according to SLHA2 (http://arxiv.org/pdf/0801.0045v3.pdf, see eq. 28 - 31) where applicable."
     
     - name: "~g"
       PDG_context: [1000021, 0]
@@ -160,10 +160,6 @@ OtherModels:
     - name: "~G"
       PDG_context: [1000039, 0]
       description: "Gravitino"
-      
-    - name: "A0"
-      PDG_context: [36, 0]
-      description: "Pseudoscalar Higgs"
       
     - name: "H+"
       PDG_context: [37, 0]
@@ -190,9 +186,13 @@ OtherModels:
   Sets:
   
     - name: "h0"
-      PDG_context: [[25, 0], [35, 0]]
+      PDG_context: [[25, 0], [35, 0], [45,0]]
       description: "Mass-ordered neutral Higgs"
       
+    - name: "A0"
+      PDG_context: [[36, 0], [46, 0]]
+      description: "Mass-ordered pseudoscalar Higgs"
+
     - name: "~d"
       PDG_context: [[1000001, 0], [1000003, 0], [1000005, 0], [2000001, 0], [2000003, 0], [2000005, 0]]
       conjugate: "~dbar"
@@ -214,7 +214,7 @@ OtherModels:
       description: "Mass-ordered sneutrinos"
       
     - name: "~chi0"
-      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0]]
+      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0], [1000045, 0]]
       description: "Mass-ordered neutralinos"
     
     - name: "~chi+"

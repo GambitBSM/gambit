@@ -113,12 +113,15 @@ namespace Gambit
     void SM_higgs_couplings(HiggsCouplingsTable &result)
     {
       using namespace Pipes::SM_higgs_couplings;
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays
       result.set_neutral_decays_SM(0, "h0_1", *Dep::Higgs_decay_rates);
       result.set_neutral_decays(0, "h0_1", *Dep::Higgs_decay_rates);
-      // Leave all the effective couplings for all neutral higgses set to unity (done at construction).
+      result.set_effective_couplings_to_unity();
     }
 
     /// @} End Gambit module functions

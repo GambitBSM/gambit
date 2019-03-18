@@ -36,7 +36,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
-///  \date 2018 Feb
+///  \date 2018 Feb, Oct
 ///
 ///  *********************************************
 
@@ -518,7 +518,7 @@ namespace Gambit
       using namespace Pipes::Ref_SM_A0_decays_table;
       double mA0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "A0");
       compute_SM_higgs_decays(result, mA0);
-    }
+    }    
 
     /// Reference SM Higgs decays from FeynHiggs: h0_1
     void Ref_SM_Higgs_decays_FH(DecayTable::Entry& result)
@@ -544,6 +544,41 @@ namespace Gambit
       using namespace Pipes::Ref_SM_A0_decays_FH;
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
       set_FH_neutral_h_decay(result, 3, *Dep::FH_Couplings_output, *(Dep::SLHA_pseudonyms), invalidate, true);
+    }
+
+    // NMSSM-specific
+
+    /// Reference SM Higgs decays from LHCHiggsXSWG: h0_2
+    void Ref_SM_h0_2_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_h0_2_decays_table_NMSSM;
+      const SubSpectrum& spec = Dep::NMSSM_spectrum->get_HE();
+      int other_higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 35 : 25);
+      double m_other = Dep::NMSSM_spectrum->get(Par::Pole_Mass, other_higgs, 0);
+      compute_SM_higgs_decays(result, m_other);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: h0_3
+    void Ref_SM_h0_3_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_h0_3_decays_table_NMSSM;
+      const SubSpectrum& spec = Dep::NMSSM_spectrum->get_HE();
+      int yet_another_higgs = (SMlike_higgs_PDG_code_NMSSM(spec) == 25 ? 45 : 25);
+      double m_another = Dep::NMSSM_spectrum->get(Par::Pole_Mass, yet_another_higgs, 0);
+      compute_SM_higgs_decays(result, m_another);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: A0
+    void Ref_SM_A0_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_A0_decays_table_NMSSM;
+      double mA01 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0_1");
+      compute_SM_higgs_decays(result, mA01);
+    }    
+    /// Reference SM Higgs decays from LHCHiggsXSWG: A0_2
+    void Ref_SM_A0_2_decays_table_NMSSM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::Ref_SM_A0_2_decays_table_NMSSM;
+      double mA02 = Dep::NMSSM_spectrum->get(Par::Pole_Mass, "A0_2");
+      compute_SM_higgs_decays(result, mA02);
     }
     /// @}
 
@@ -3230,6 +3265,122 @@ namespace Gambit
       if (counter >= filenames.size()) counter = 0;
       decays = DecayTable(slha);
     }
+
+
+    /// Get all the decays from SPheno
+    void all_NMSSM_decays_from_SPheno(DecayTable& decays)
+    {
+      namespace myPipe = Pipes::all_NMSSM_decays_from_SPheno;
+
+      // Get the spectrum object
+      Spectrum spectrum = *myPipe::Dep::NMSSM_spectrum;
+
+      // Set up the input structure
+      Finputs inputs;
+      inputs.param = myPipe::Param;
+      inputs.options = myPipe::runOptions;
+
+      // Use SPheno to fill the decay table
+      myPipe::BEreq::NMSSM_decays(spectrum, decays, inputs);
+
+      /// Spit out the full decay table as SLHA1 and SLHA2 files.
+      /// @todo Get the mass eigenstate pseudonyms working for NMSSM as well. Need it for SLHA1 decays
+      if (myPipe::runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
+      {
+        str prefix   = myPipe::runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
+        str filename = myPipe::runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
+        // decays.writeSLHAfile(1,prefix+filename+".slha1",false,psn);
+        // decays.writeSLHAfile(2,prefix+filename+".slha2",false,psn);
+        // decays.writeSLHAfile(1,prefix+filename+".slha1",false);
+        decays.writeSLHAfile(2,prefix+filename+".slha2",false);
+      }
+
+    }
+
+
+    /// Convert the DecayTable to a format where we can print each individual channel's BF
+    void get_decaytable_as_map(map_str_dbl& map)
+    {
+      using namespace Pipes::get_decaytable_as_map;
+
+      const DecayTable* tbl = &(*Dep::decay_rates);
+
+      std::vector<std::vector<str> > bfs;
+      std::string channel;
+      double BF = 0.0;
+      
+      // If the user specifies "printall" -- then print everything.
+      bool printall = runOptions->getValueOrDef(false, "printall");
+      if (printall)
+      {
+        // Iterate through DecayTable.
+        for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+        {
+          std::pair<int, int> pdg = it->first;
+          std::vector<str> bf = {Models::ParticleDB().partmap::long_name(pdg)};
+          bfs.push_back(bf);
+        }
+      }
+
+      /// Otherwise just print the specific, named channels
+      else
+      {
+        std::vector<std::vector<str> > BFs; // Empty set of braching fractions.
+        bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
+      }
+
+      // Iterate through branching ratios
+      for ( const auto &row : bfs )
+      {
+
+        std::string decaypart = row.front();
+        const DecayTable::Entry entry = tbl->at(decaypart); 
+
+        // If the entry is a single particle, then add every BF for this channel
+        if ( row.size() == 1 )
+        {
+          for (auto it = entry.channels.begin(); it != entry.channels.end(); ++it)
+          {
+            BF = it->second.first;
+
+            std::multiset< std::pair<int,int> > ch = it->first;              
+            std::vector<str> chan;
+
+            // Create a vector of final states by particle name.
+            for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
+            
+            // Write the name of the output channel.
+            channel = row[0] + "->" + chan[0] + "+" + chan[1];
+
+            // + 3-body decay case: add the third final state particle if needed.
+            if (chan.size() == 3) channel += "+" + chan[2];
+
+            map[channel] = BF;
+          }
+
+        }
+
+        // No 1-body decays..
+
+        // 2-body decays channel-by-channel
+        else if ( row.size() == 3 )
+        {
+          BF = entry.BF( row[1], row[2] );
+          channel = row[0] + "->" + row[1] + "+" + row[2];
+          map[channel] = BF;
+        }
+
+        // 3-body decays channel-by-channel 
+        // (SB: I don't think we have these yet. But if/when we do, they will be supported)
+        else if (row.size() == 4 )
+        {
+          BF = entry.BF( row[1], row[2], row[3] );
+          channel = row[0] + "->" + row[1] + "+" + row[2] + "+" + row[3];
+          map[channel] = BF;
+        }
+      }
+    }
+
 
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates
     void get_mass_es_pseudonyms(mass_es_pseudonyms& result)

@@ -43,6 +43,7 @@
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
 #    \date 2018 Oct
+#
 #*********************************************
 
 import pickle
@@ -291,7 +292,7 @@ namespace Gambit                                  \n\
 ///  *********************************************\n\
                                                   \n\
 #ifndef __module_functor_types_hpp__              \n\
-#define __moduel_functor_types_hpp__              \n\
+#define __module_functor_types_hpp__              \n\
                                                   \n\
 #include \"gambit/Elements/types_rollcall.hpp\"   \n\
 #include \"gambit/Elements/functor_definitions.hpp\"\n\

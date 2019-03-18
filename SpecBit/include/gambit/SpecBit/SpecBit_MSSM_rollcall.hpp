@@ -19,7 +19,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
-///  \date 2016 Jue, 2017 Jan
+///  \date 2016 Jue, 2017 Jan, 2018 Sep
 ///
 ///  *********************************************
 ///
@@ -62,8 +62,9 @@
     START_FUNCTION(Spectrum)
     ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPheno, 3.3.8), (libSPheno))
+    BACKEND_REQ(SPheno_MSSM_spectrum, (MSSMspectrum), int, (Spectrum&, const Finputs&) )
+    BACKEND_OPTION((SPheno, 3.3.8), (MSSMspectrum))
+    BACKEND_OPTION((SARAHSPheno_MSSM, 3.3.8), (MSSMspectrum))
     #undef FUNCTION
 
     /// Get MSSM spectrum from CMSSM boundary conditions

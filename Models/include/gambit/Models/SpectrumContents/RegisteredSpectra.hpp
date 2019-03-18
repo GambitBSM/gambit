@@ -18,6 +18,10 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Aug
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2018 Oct
+///
 ///  *********************************************
 
 #ifndef __registeredspectra_hpp__
@@ -36,6 +40,7 @@ namespace Gambit
     struct SM_slha              : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
     struct SMHiggs              : SubSpectrumContents { SMHiggs(); };
     struct MSSM                 : SubSpectrumContents { MSSM(); };
+    struct NMSSM                : SubSpectrumContents { NMSSM(); };
     struct MDM                  : SubSpectrumContents { MDM(); };
     struct ScalarSingletDM_Z2   : SubSpectrumContents { ScalarSingletDM_Z2(); };
     struct ScalarSingletDM_Z3   : SubSpectrumContents { ScalarSingletDM_Z3(); };

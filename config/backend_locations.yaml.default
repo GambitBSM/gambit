@@ -77,7 +77,16 @@ SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
 SPheno:
-  3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
+  3.3.8:	./Backends/installed/spheno/3.3.8/lib/libSPheno.so
+
+SARAHSPheno_MSSM:
+  3.3.8:	./Backends/installed/sarah-spheno/3.3.8/MSSM/lib/libSPhenoMSSM.so
+
+SARAHSPheno_NMSSM:
+  4.0.3:	./Backends/installed/sarah-spheno/4.0.3/NMSSM/lib/libSPhenoNMSSM.so
+
+SARAHSPheno_NMSSMEFT:
+  4.0.3:	./Backends/installed/sarah-spheno/4.0.3/NMSSMEFT/lib/libSPhenoNMSSMEFT.so
 
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m

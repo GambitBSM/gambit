@@ -42,6 +42,10 @@ START_MODULE
   /// Module function declarations for SpecBit_MSSM.cpp
   #include "gambit/SpecBit/SpecBit_MSSM_rollcall.hpp"
 
+  /// Module function declarations for SpecBit_NMSSM.cpp
+  #include "gambit/SpecBit/SpecBit_NMSSM_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_VS.cpp
   #include "gambit/SpecBit/SpecBit_VS_rollcall.hpp"
 
   /// Module function declarations for SpecBit_ScalarSingletDM.cpp
@@ -68,7 +72,7 @@ START_MODULE
   /// Functions to change the capability associated with a Spectrum object to "SM_spectrum"
   /// @{
   QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_MSSM_to_SM,  Spectrum, (MSSM63atQ, MSSM63atMGUT), (MSSM_spectrum, Spectrum))
-  QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_NMSSM_to_SM,  Spectrum, (NMSSM_does_not_exist_yet), (NMSSM_spectrum, Spectrum))
+  QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_NMSSM_to_SM,  Spectrum, (NMSSM66atQ), (NMSSM_spectrum, Spectrum))
   QUICK_FUNCTION(MODULE, SM_spectrum, OLD_CAPABILITY, convert_E6MSSM_to_SM, Spectrum, (E6MSSM_does_not_exist_yet), (E6MSSM_spectrum, Spectrum))
   /// @}
 

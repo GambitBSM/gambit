@@ -408,6 +408,22 @@ namespace Gambit
           slha.insert(slha.begin(), spectrum.begin(), spectrum.end());
           slha.push_front(block);
         }
+        else if (ModelInUse("NMSSM66atQ"))
+        {
+          // NMSSM-specific.  SLHAea in SLHA2 format, please.
+          spectrum = Dep::NMSSM_spectrum->getSLHAea(2);
+
+          // TEMP HACK: Temporary workaround for the problem with the missing SLHA entries 
+          // in the SLHAea object generated from the NMSSM spectrum object.
+          spectrum["HMIX"][""] << 4 << 0.0 << "# m^2_A(Q)";
+
+          slha.insert(slha.begin(), spectrum.begin(), spectrum.end());
+
+          // std::cout << "DEBUG:" << std::endl;
+          // std::cout << "DEBUG: Here's the slha object:" << std::endl;
+          // std::cout << slha.str() << std::endl;
+          // std::cout << "DEBUG:" << std::endl;
+        }
         else
         {
           ColliderBit_error().raise(LOCAL_INFO, "No spectrum object available for this model.");
@@ -2139,11 +2155,16 @@ namespace Gambit
       // Clear the result map
       result.clear();
 
+      std::stringstream summary_line;
+      summary_line << "LHC signals per SR: ";
+
       // Loop over analyses and collect the predicted events into the map
       for (size_t analysis = 0; analysis < Dep::AllAnalysisNumbers->size(); ++analysis)
       {
         // AnalysisData for this analysis
         const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
+
+        summary_line << adata.analysis_name << ": ";
 
         // Loop over the signal regions inside the analysis, and save the predicted number of events for each.
         for (size_t SR = 0; SR < adata.size(); ++SR)
@@ -2154,9 +2175,13 @@ namespace Gambit
           result[key] = srData.n_signal_at_lumi;
           const double abs_uncertainty_s_stat = (srData.n_signal == 0 ? 0 : sqrt(srData.n_signal) * (srData.n_signal_at_lumi/srData.n_signal));
           const double abs_uncertainty_s_sys = srData.signal_sys;
-          result[key + "_uncert"] = HEPUtils::add_quad(abs_uncertainty_s_stat, abs_uncertainty_s_sys);
+          const double combined_uncertainty = HEPUtils::add_quad(abs_uncertainty_s_stat, abs_uncertainty_s_sys);
+          result[key + "_uncert"] = combined_uncertainty;
+
+          summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_signal_at_lumi << "+-" << combined_uncertainty << ", ";
         }
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2164,6 +2189,9 @@ namespace Gambit
     void calc_LHC_LogLikes(map_str_AnalysisLogLikes& result)
     {
       using namespace Pipes::calc_LHC_LogLikes;
+
+      // Use covariance matrix when available?
+      static const bool use_covar = runOptions->getValueOrDef<bool>(true, "use_covariances");
 
       // Clear the result map
       result.clear();
@@ -2182,7 +2210,7 @@ namespace Gambit
         if (!eventsGenerated || nFailedEvents > maxFailedEvents)
         {
           // If this is an anlysis with covariance info, only add a single 0-entry in the map
-          if (adata.srcov.rows() > 0)
+          if (use_covar && adata.srcov.rows() > 0)
           {
             result[adata.analysis_name].combination_sr_label = "none";
             result[adata.analysis_name].combination_loglike = 0.0;
@@ -2231,7 +2259,7 @@ namespace Gambit
         // Loop over the signal regions inside the analysis, and work out the total (delta) log likelihood for this analysis
         /// @todo Unify the treatment of best-only and correlated SR treatments as far as possible
         /// @todo Come up with a good treatment of zero and negative predictions
-        if (adata.srcov.rows() > 0)
+        if (use_covar && adata.srcov.rows() > 0)
         {
           /// If (simplified) SR-correlation info is available, so use the
           /// covariance matrix to construct composite marginalised likelihood
@@ -2542,7 +2570,10 @@ namespace Gambit
 
         else
         {
-          // No SR-correlation info, so just take the result from the SR *expected* to be most constraining, i.e. with highest expected dLL
+          // No SR-correlation info, or user chose not to use it. 
+          // Then we either take the result from the SR *expected* to be most constraining 
+          // under the s=0 assumption (default), or naively combine the loglikes for 
+          // all SRs (if combine_SRs_without_covariances=true).
           #ifdef COLLIDERBIT_DEBUG
           cout << debug_prefix() << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
           #endif
@@ -2642,7 +2673,6 @@ namespace Gambit
           result[adata.analysis_name].combination_loglike = -bestexp_dll_obs;
 
           // Should we use the naive sum of SR loglikes (without correlations), instead of the best-expected SR?
-          // _Anders
           static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
           if (combine_nocovar_SRs)
           {
@@ -2662,13 +2692,20 @@ namespace Gambit
     void get_LHC_LogLike_per_analysis(map_str_dbl& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_analysis;
+
+      std::stringstream summary_line;
+      summary_line << "LHC loglikes per analysis: ";
+
       for (const std::pair<string,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
       {
         const string& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;
 
         result[analysis_name] = analysis_loglikes.combination_loglike;
+
+        summary_line << analysis_name << ":" << analysis_loglikes.combination_loglike << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2676,10 +2713,16 @@ namespace Gambit
     void get_LHC_LogLike_per_SR(map_str_dbl& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
+
+      std::stringstream summary_line;
+      summary_line << "LHC loglikes per SR: ";
+
       for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
         const string& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
+
+        summary_line << analysis_name << ": ";
 
         for (const std::pair<string,double>& pair_j : analysis_loglikes.sr_loglikes)
         {
@@ -2689,10 +2732,15 @@ namespace Gambit
 
           const string key = analysis_name + "__" + sr_label + "__i" + std::to_string(sr_index) + "__LogLike";
           result[key] = sr_loglike;
+
+          summary_line << sr_label + "__i" + std::to_string(sr_index) << ":" << sr_loglike << ", ";
         }
 
         result[analysis_name + "__combined_LogLike"] = analysis_loglikes.combination_loglike;
+
+        summary_line << "combined_LogLike:" << analysis_loglikes.combination_loglike << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2716,6 +2764,9 @@ namespace Gambit
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
 
+      std::stringstream summary_line;
+      summary_line << "LHC loglike SR indices: ";
+
       // Loop over analyses
       for (const std::pair<string,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
       {
@@ -2723,7 +2774,10 @@ namespace Gambit
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
 
         result[analysis_name] = (double) analysis_loglikes.combination_sr_index;
+
+        summary_line << analysis_name << ":" << analysis_loglikes.combination_sr_index << ", ";
       }
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 
@@ -2786,7 +2840,9 @@ namespace Gambit
         #endif
       }
 
-
+      std::stringstream summary_line;
+      summary_line << "LHC combined loglike:" << result;
+      logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
 

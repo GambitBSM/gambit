@@ -682,8 +682,10 @@ namespace Gambit
             ChunkSet::iterator current_done_chunk=done_chunks.begin(); // Used to skip past points that are already done
             while(not stop_loop) // while not end of input
             {
-               //std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
-               //std::cout << "Current loopi: "<<loopi<<std::endl;
+               // std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
+               // std::cout << "Current loopi: "<<loopi<<std::endl;
+               // std::cout << "Current printer pointID: "<<Gambit::Printers::get_point_id()<<std::endl;
+               // std::cout << "eoi?: "<<getReader().eoi()<<std::endl;
 
                // Cancel processing of iterations beyond our assigned range
                if(loopi>mychunk.end)
@@ -700,7 +702,11 @@ namespace Gambit
                }   
  
                // Inelegant signal checking. TODO: Think about how this can be shifted over to ScannerBit
-               quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
+               if(not quit)
+               {
+                  quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
+               }
+
                if(not quit)
                {
                   // Inelegant bit @{
@@ -717,9 +723,9 @@ namespace Gambit
                   unsigned int       MPIrank = current_point.rank;
                   unsigned long long pointID = current_point.pointID; 
 
-                  //std::cout << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
-                  //std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
-                  //std::cout << "Current loopi: "<<loopi<<std::endl;
+                  // std::cout << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
+                  // std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
+                  // std::cout << "Current loopi: "<<loopi<<std::endl;
 
                   // Make sure we didn't somehow get desynchronised from the reader's internal index
                   if(loopi!=getReader().get_current_index())
@@ -741,10 +747,12 @@ namespace Gambit
 
                   // If we have moved past the end of the currently selected batch of "done"
                   // points, then select the next batch (if there are any left)
-                  //if(current_done_chunk!=done_chunks.end()) std::cout << "Rank "<<rank<<": loopi="<<loopi<<", current_done_chunk=["<<current_done_chunk->start<<","<<current_done_chunk->end<<"]"<<std::endl;
-                  if(current_done_chunk!=done_chunks.end() and loopi > current_done_chunk->end)
+                  // if(current_done_chunk!=done_chunks.end()) std::cout << "Rank "<<rank<<": loopi="<<loopi<<", current_done_chunk=["<<current_done_chunk->start<<","<<current_done_chunk->end<<"]"<<std::endl;
+                  while(current_done_chunk!=done_chunks.end() and loopi > current_done_chunk->end)
                   {
+                     //std::cout<<"Rank "<<rank<<": loopi > current_done_chunk->end ("<<loopi<<" > "<<current_done_chunk->end<<"). Moving to next done chunk..."<<std::endl;
                      ++current_done_chunk;
+                     //std::cout<<"Rank "<<rank<<": ...which is ["<<current_done_chunk->start<<","<<current_done_chunk->end<<"]"<<std::endl;
                   }
 
                   // Skip loop ahead to the batch of points we are assigned to process,
@@ -752,7 +760,7 @@ namespace Gambit
                   if(loopi<mychunk.start or (current_done_chunk!=done_chunks.end() and current_done_chunk->iContain(loopi)))
                   {
                      //std::cout<<"Skipping point (not in our batch)"<<std::endl;
-                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl;
+                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl; 
                      current_point = getReader().get_next_point();
                      loopi++;
                      continue;
@@ -789,7 +797,7 @@ namespace Gambit
                      loopi++;
                      continue;
                   }
-                  //std::cout << "Rank: "<<rank<<", current iteration: "<<loopi<<", current point:" << MPIrank << ", " << pointID << std::endl;
+                  //std::cout << "Rank: "<<rank<<", Ready to process! current iteration: "<<loopi<<", current point:" << MPIrank << ", " << pointID << std::endl;
 
                   /// @{ Retrieve the old parameter values from previous output
 
@@ -880,6 +888,7 @@ namespace Gambit
 
                      // Print the index of the point in the input dataset, so that we can easily figure out later which ones
                      // were postprocessed
+                     //std::cout<<"Rank "<<rank<<": Printing new data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
                      getPrinter().print(loopi, "input_dataset_index", MPIrank, pointID);
 
                      // Add old likelihood components as requested in the inifile
@@ -967,6 +976,7 @@ namespace Gambit
                      /// No postprocessing to be done, but we still should copy across the modelparameters
                      /// and point ID data, since the copying routines below assume that these were taken
                      /// care of by the likelihood routine, which we never ran.
+                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl;
                      getPrinter().print(MPIrank, "MPIrank", MPIrank, pointID);
                      getPrinter().print(pointID, "pointID", MPIrank, pointID);
 
@@ -992,9 +1002,11 @@ namespace Gambit
                   if(not cuts_passed and discard_points_outside_cuts)
                   {
                      // Don't copy in this case, just discard the old data.
+                     //std::cout<<"Rank "<<rank<<": Discarding old data for point ("<<MPIrank<<", "<<pointID<<") (didn't pass the cuts)"<<std::endl;
                   }
                   else
                   {
+                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
                      for(std::set<std::string>::iterator it = data_labels_copy.begin(); it!=data_labels_copy.end(); ++it)
                      {
                         // Check if this input label has been mapped to a different output label.
@@ -1033,7 +1045,7 @@ namespace Gambit
          // Check if we finished because of reaching the end of the input
          if(getReader().eoi() and loopi!=mychunk.end)
          {
-            std::cout << "Postprocessor (rank "<<rank<<") reached the end of the input file! (debug: was this the end of our batch? (loopi="<<loopi<<", mychunk.end="<<mychunk.end<<", total_length = "<<total_length<<")"<<std::endl;
+            //std::cout << "Postprocessor (rank "<<rank<<") reached the end of the input file! (debug: was this the end of our batch? (loopi="<<loopi<<", mychunk.end="<<mychunk.end<<", total_length = "<<total_length<<")"<<std::endl;
          }
 
          // We now set the return code to inform the calling code of why we stopped.

@@ -1,0 +1,165 @@
+diff -rupN SPheno-4.0.3/Makefile ../installed/sarah-spheno/4.0.3/NMSSMEFT/Makefile
+--- SPheno-4.0.3/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/Makefile	2018-10-22 18:14:23.190954520 +0100
+@@ -9,10 +9,13 @@
+ F90 = ifort
+ Model = src
+ version = 400.00
++all: bin/SPheno lib/libSPhenoNMSSMEFT.so
+ bin/SPheno:
+-	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
++	cd ${Model} ; ${MAKE} F90=${F90} comp=${FFLAGS} version=${version}
++lib/libSPhenoNMSSMEFT.so:
++	cd ${Model} ; ${MAKE} $@ F90=${F90} comp=${FFLAGS} version=${version}
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno lib/*.a *.o *~ */*.o */*~ include/*
+-.PHONY: bin/SPheno clean cleanall
++	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
++.PHONY: bin/SPheno lib/libSPhenoNMSSMEFT clean cleanall
+diff -rupN SPheno-4.0.3/src/Control.F90 ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Control.F90
+--- SPheno-4.0.3/src/Control.F90	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Control.F90	2018-10-22 16:19:50.732501247 +0100
+@@ -631,7 +631,7 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
+-  Stop "Subroutine TerminateProgram"
++ ! Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
+ 
+diff -rupN SPheno-4.0.3/src/Makefile ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Makefile
+--- SPheno-4.0.3/src/Makefile	2017-05-22 16:02:41.000000000 +0100
++++ ../installed/sarah-spheno/4.0.3/NMSSMEFT/src/Makefile	2018-10-22 18:07:15.616109671 +0100
+@@ -17,32 +17,32 @@ LFlagsB = -O
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fPIC
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fPIC
+ endif
+  
+ .SUFFIXES : .o .ps .f90 .F90 .a
+
+diff -rupN NMSSMEFT/src/Control.F90 NMSSMEFT_patched/src/Control.F90
+--- NMSSMEFT/src/Control.F90	2018-11-29 17:32:35.150986572 +0000
++++ NMSSMEFT_patched/src/Control.F90	2018-11-29 18:16:58.238505986 +0000
+@@ -26,6 +26,22 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++! Added by GAMBIT
++Use, Intrinsic :: iso_c_binding
++Implicit none
++
++Type(c_funptr) :: ErrorHandler_cptr
++
++! Define interface of call-back routine.
++
++Abstract Interface
++  Subroutine callback ()
++    Use, Intrinsic :: iso_c_binding
++  End Subroutine callback
++End Interface
++! GAMBIT addition end
++
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -608,6 +624,7 @@ Contains
+  End Subroutine ModelNotIncluded
+ 
+ 
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -615,8 +632,10 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+ 
+   Write (ErrCan,*) "  "
+@@ -631,7 +650,16 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
+- ! Stop "Subroutine TerminateProgram"
++ 
++ ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
++  Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
+
+diff -rupN NMSSMEFT/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90 NMSSMEFT_patched/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90
+--- NMSSMEFT/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90	2018-11-29 19:03:34.934747892 +0000
++++ NMSSMEFT_patched/NMSSMEFT/TreeLevelMasses_NMSSMEFT.f90	2018-11-29 19:04:21.661825304 +0000
+@@ -203,13 +203,15 @@ Call CalculateVPVZEffPot(g1,g2,vd,vu,ZZ,
+ 
+ Call CalculateVWmEffPot(g2,vd,vu,ZW,MVWm,MVWm2,kont)
+ 
+-Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
++! GAMBIT - remove call to sfermions since they're not in our EFT spectrum.
+ 
+-Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
++!Call CalculateMSdEffPot(ZD,MSd,MSd2,kont)
+ 
+-Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
++!Call CalculateMSvEffPot(ZV,MSv,MSv2,kont)
+ 
+-Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
++!Call CalculateMSuEffPot(ZU,MSu,MSu2,kont)
++
++!Call CalculateMSeEffPot(ZE,MSe,MSe2,kont)
+ 
+ Call CalculateMhhEffPot(g1,g2,lam,Tlam,kap,Tk,mHd2,mHu2,ms2,vd,vu,vS,ZH,              & 
+ & Mhh,Mhh2,kont)

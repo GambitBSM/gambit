@@ -427,9 +427,12 @@ namespace Gambit
             int i = 0;
             while (temp_file_in.read((char *)&info, sizeof(point_info)))
             {i++;
+                //std::cout<<"Twalk rank "<<rank<<" printing mult and chain for "<<i<<"th point of posterior chain (rank="<<info.rank<<", pointID="<<info.id<<")"<<std::endl;
                 out_stream->print(info.mult, "mult", info.rank, info.id);
                 out_stream->print(info.chain, "chain", info.rank, info.id);
             }
+            out_stream->flush();
+
             std::cout << "TWalk has finished in process " << rank << "." << std::endl;
 
             return;
