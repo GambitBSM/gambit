@@ -1,0 +1,11 @@
+--- HiggsBounds-5.3.2beta/usefulbits.f90	2019-03-18 17:58:58.000000000 -0400
++++ ../installed/higgsbounds/5.3.2beta/usefulbits.f90	2019-03-18 17:59:10.000000000 -0400
+@@ -16,7 +16,7 @@ module usefulbits
+  integer :: using_likelihood = 0
+ 
+ ! For the LEP chisq extension:
+- logical :: chisqcut_at_mumax = .False.
++ logical :: chisqcut_at_mumax = .True.
+  
+ ! HB-5:
+  logical :: BRdirectinput = .False.

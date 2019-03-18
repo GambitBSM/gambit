@@ -720,6 +720,44 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# HiggsBounds 5.3.2 beta
+set(name "higgsbounds")
+set(ver "5.3.2beta")
+set(lib "libhiggsbounds")
+set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+set(md5 "4f145c9e27ce025128d87c67269e1db2")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(hb_tab_name "higgsbounds_tables")
+set(hb_tab_ver "0.0")
+set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
+check_ditch_status(${name} ${ver})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS ${hb_tab_name}_${hb_tab_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
+              COMMAND sed ${dashi} -e "s|clsbtablesdir=.*|clsbtablesdir=\"${hb_tab_dir}/\"|" my_configure
+              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
+              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
+              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
+              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
+              COMMAND ./my_configure
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
 
 # HiggsBounds
 set(name "higgsbounds")
