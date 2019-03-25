@@ -337,7 +337,7 @@ namespace Gambit
 
       #ifdef COLLIDERBIT_DEBUG
         std::cout << "HB input: " << std::endl << \
-        " Mh " << ModelParam.Mh[0] << std::endl << \
+        " Mh " << ModelParam.Mh[0] << " " << ModelParam.Mh[1] << std::endl << \
         " hGammaTot  " << ModelParam.hGammaTot[0] << std::endl << \
         " CP " << ModelParam.CP[0] << std::endl << \
         " CS_lep_hjZ_ratio " << ModelParam.CS_lep_hjZ_ratio[0] << std::endl << \
@@ -403,15 +403,16 @@ namespace Gambit
 
       #ifdef COLLIDERBIT_DEBUG
         std::cout << "HB output: " << std::endl << \
-        "hbres: " << HBresult << std::endl \
-        "hbchan: "<< chan << std::endl \
-        "hbobs: " << obsratio << std::endl \
+        "hbres: " << HBresult << std::endl << \
+        "hbchan: "<< chan << std::endl << \
+        "hbobs: " << obsratio << std::endl << \
         "hbcomb: " << ncombined << std::endl;
       #endif
 
-      if (HBresult != -1 && obsratio>0.0) {
-      		if (obsratio<1.0) result = 0.0;
-      		else result = -pow((obsratio - 1.0),2);
+      if (HBresult != -1) {
+      		// if (obsratio<1.0) result = 0.0;
+      		// else result = -pow((obsratio - 1.0),2);
+          result = -pow((obsratio),2);
       }
       else {
         std::ostringstream err;
@@ -472,14 +473,66 @@ namespace Gambit
       int nobs;
       BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
 
-      result = -0.5*csqtot;
+      result = -0.5*csqmu;
 
       #ifdef COLLIDERBIT_DEBUG
+        // likelihood plots
+        // csqmh
+        ofstream csqmhdbg;
+        csqmhdbg.open("HS_debug_csqmh.txt",std::ofstream::out | std::ofstream::app);
+        csqmhdbg << csqmh << " " << ModelParam.Mh[0] << "\n";
+        csqmhdbg.close();
+
+        ofstream csqmudbg;
+        csqmudbg.open("HS_debug_csqmu.txt",std::ofstream::out | std::ofstream::app);
+        csqmudbg << csqmu;
+        //
+        for (int i = 0; i < 3; i++)
+        {
+           csqmudbg << " " << i << " " <<
+           ModelParam.CP[i] << " " <<
+           ModelParam.Mh[i] << " " <<
+           ModelParam.hGammaTot[i] << " " <<
+           ModelParam.CS_lep_hjZ_ratio[i] << " " <<
+           ModelParam.CS_tev_vbf_ratio[i] << " " <<
+           ModelParam.CS_lep_bbhj_ratio[i] << " " <<
+           ModelParam.CS_lep_tautauhj_ratio[i] << " " <<
+           ModelParam.CS_gg_hj_ratio[i] << " " <<
+           ModelParam.CS_tev_tthj_ratio[i] << " " <<
+           ModelParam.CS_lhc7_tthj_ratio[i] << " " <<
+           ModelParam.CS_lhc8_tthj_ratio[i];
+          for (int j = 0; j < 3; j++) csqmudbg << " " << ModelParam.CS_lep_hjhi_ratio[i][j];
+          csqmudbg << " " <<
+           ModelParam.BR_hjss[i] << " " <<
+           ModelParam.BR_hjcc[i] << " " <<
+           ModelParam.BR_hjbb[i] << " " <<
+           ModelParam.BR_hjmumu[i] << " " <<
+           ModelParam.BR_hjtautau[i] << " " <<
+           ModelParam.BR_hjWW[i] << " " <<
+           ModelParam.BR_hjZZ[i] << " " <<
+           ModelParam.BR_hjZga[i] << " " <<
+           ModelParam.BR_hjgaga[i] << " " <<
+           ModelParam.BR_hjgg[i] << " " <<
+           ModelParam.BR_hjinvisible[i];
+          for (int j = 0; j < 3; j++) csqmudbg << " " << ModelParam.BR_hjhihi[i][j];
+        }
+        csqmudbg << " " << 4 << " " <<
+         ModelParam.MHplus[0] << " " <<
+         ModelParam.HpGammaTot[0] << " " <<
+         ModelParam.CS_lep_HpjHmi_ratio[0] << " " <<
+         ModelParam.BR_Hpjcs[0] << " " <<
+         ModelParam.BR_Hpjcb[0] << " " <<
+         ModelParam.BR_Hptaunu[0] << " " <<
+         ModelParam.BR_tWpb << " " <<
+         ModelParam.BR_tHpjb[0] << "\n";
+        //
+        csqmudbg.close();
+
         std::cout << "HS output: " << std::endl << \
-        "csqmu: " << csqmu << std::endl \
-        "csqmh: "<< csqmh << std::endl \
-        "csqtot: " << csqtot << std::endl \
-        "nobs: " << nobs << std::endl \
+        "csqmu: " << csqmu << std::endl << \
+        "csqmh: "<< csqmh << std::endl << \
+        "csqtot: " << csqtot << std::endl << \
+        "nobs: " << nobs << std::endl << \
         "pval: " << Pvalue << std::endl << \
         "(using Higgs mass): " << ModelParam.Mh[0] << std::endl;
         //
@@ -671,11 +724,23 @@ namespace Gambit
       result.Mh[2] = he.get(Par::Pole_Mass,"A0");
       result.MHplus[0] = he.get(Par::Pole_Mass,"H+");
 
-      result.deltaMh[0] = 0.;
-      result.deltaMh[1] = 0.;
-      result.deltaMh[2] = 0.;
+      bool has_high_err = he.has(Par::Pole_Mass_1srd_high, 25, 0);
+      bool has_low_err = he.has(Par::Pole_Mass_1srd_low, 25, 0);
+      if (has_high_err and has_low_err)
+      {
+        double upper = he.get(Par::Pole_Mass_1srd_high, 25, 0);
+        double lower = he.get(Par::Pole_Mass_1srd_low, 25, 0);
+        result.deltaMh[0] = result.Mh[0] * std::max(upper,lower);
+      }
+      else
+      {
+        result.deltaMh[0] = 0.;
+      }
 
-      result.deltaMHplus[0] = 0.;
+      result.deltaMh[1] = 0.0;
+      result.deltaMh[2] = 0.0;
+
+      result.deltaMHplus[0] = 0.0;
 
       result.CP[0] = 1;
       result.CP[1] = 1;

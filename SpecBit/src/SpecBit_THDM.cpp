@@ -425,15 +425,26 @@ namespace Gambit
         thdm_model.M22_2 = M22_2;
         thdm_model.M12_2 = M12_2;
 
+        //for debug reasons may choose to continue with negative mass
+        bool continue_with_negative_mass = false;
+
         if (mh0_2_k[0] < 0.0 || mh0_2_k[1] < 0.0 || mh0_2_k[2] < 0.0 || mC_2 < 0.0) {
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
-          invalid_point().raise(msg.str());
+          if (!continue_with_negative_mass) invalid_point().raise(msg.str());
         }
+        
         thdm_model.mh0 = sqrt(mh0_2_k[0]);
         thdm_model.mH0 = sqrt(mh0_2_k[1]);
         thdm_model.mA0 = sqrt(mh0_2_k[2]);
         thdm_model.mC = sqrt(mC_2);
+
+        if (continue_with_negative_mass) {
+          if (mh0_2_k[0] < 0.0) thdm_model.mh0 = -sqrt(-mh0_2_k[0]);
+          if (mh0_2_k[1] < 0.0) thdm_model.mH0 = -sqrt(-mh0_2_k[1]);
+          if (mh0_2_k[2] < 0.0) thdm_model.mA0 = -sqrt(-mh0_2_k[2]);
+          if (mC_2 < 0.0) thdm_model.mC = -sqrt(-mC_2);
+        }
 
         thdm_model.mG0 = 0.0;
         thdm_model.mGC = 0.0;
@@ -740,18 +751,18 @@ namespace Gambit
       return chi;
     }
 
-    void get_CKM_from_Wolfenstein_parameters(complex<double> CKM[2][2], double lambda, double A, double rho, double eta) {
-      std::complex<double> i_eta(0, eta);
-      CKM[0][0] = 1 - pow(lambda,2)/2;
-      CKM[0][1] = lambda;
-      CKM[0][2] = A*pow(lambda,3)*(rho-i_eta);
-      CKM[1][0] = -lambda;
-      CKM[1][1] = 1 - pow(lambda,2)/2;
-      CKM[1][2] = A*pow(lambda,2);
-      CKM[2][0] = A*pow(lambda,3)*(1-rho-i_eta);
-      CKM[2][1] = -A*pow(lambda,2);
-      CKM[2][2] = 1;
-    }
+    // void get_CKM_from_Wolfenstein_parameters(complex<double> CKM[2][2], double lambda, double A, double rho, double eta) {
+    //   std::complex<double> i_eta(0, eta);
+    //   CKM[0][0] = 1 - pow(lambda,2)/2;
+    //   CKM[0][1] = lambda;
+    //   CKM[0][2] = A*pow(lambda,3)*(rho-i_eta);
+    //   CKM[1][0] = -lambda;
+    //   CKM[1][1] = 1 - pow(lambda,2)/2;
+    //   CKM[1][2] = A*pow(lambda,2);
+    //   CKM[2][0] = A*pow(lambda,3)*(1-rho-i_eta);
+    //   CKM[2][1] = -A*pow(lambda,2);
+    //   CKM[2][2] = 1;
+    // }
 
     //calculate sba
     double get_sba(double tanb, double alpha) {
@@ -2201,6 +2212,7 @@ namespace Gambit
       //minimum of the potential, regardless of the number of those minima,
       //requiring D > 0 is a necessary and sufficient condition."
       // -----------
+
       const double lambda1 = container.he->get(Par::mass1, "lambda_1");
       const double lambda2 = container.he->get(Par::mass1, "lambda_2");
       const double lambda3 = container.he->get(Par::mass1, "lambda_3");
@@ -2210,6 +2222,16 @@ namespace Gambit
       const double lambda7 = container.he->get(Par::mass1, "lambda_7");
       const double tb = container.he->get(Par::dimensionless, "tanb");
       const double m12_2 = container.he->get(Par::mass1, "m12_2");
+
+      // check that model is Z2 conserving
+      if (lambda6!=0.0 || lambda7!=0.0) {
+        std::ostringstream msg;
+        msg << "SpecBit warning (non-fatal): global_minimum_discriminant_likelihood_THDM is only compatible with Z2 conserving models. \
+        This likelikehood will terminate and return zero." << std::endl;
+        SpecBit_warning().raise(LOCAL_INFO,msg.str());
+        std::cerr << msg.str();
+        return 0.0;
+      }
 
       // set up required quantities
       const double ctb = 1./tb;
@@ -2290,9 +2312,6 @@ namespace Gambit
                 }
               }
 
-              // container.THDM_object->get_coupling_huu(h, 3, 3, test_coupling_s, test_coupling_p);       
-              // std::cout << "SpecBit.cpp: filling spec for HB: " << couplings.huu_cs[h][3][3] << " | "<< test_coupling_s <<  std::endl;
-
               // **
               for (int v1=1; v1<4; v1++) {
                 for (int v2=1; v2<4; v2 ++) {
@@ -2357,10 +2376,18 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
+      // TODO: create two different coupling containers 
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       result = fill_thdmc_couplings(container, full);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
     }
@@ -2374,10 +2401,18 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
+
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       result = fill_thdmc_couplings(container, HiggsBounds);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
     }
@@ -2391,10 +2426,18 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
+
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       std::vector<thdmc_couplings> SM_like_couplings;
       for (int h=1; h<=3; h++) {
         init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
@@ -2459,6 +2502,162 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::mass1, "H+");
       }
+
+      void obs_lambda_1(double& result) {
+        using namespace Pipes::obs_lambda_1;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_1");
+      }
+
+      void obs_lambda_2(double& result) {
+        using namespace Pipes::obs_lambda_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_2");
+      }
+
+      void obs_lambda_3(double& result) {
+        using namespace Pipes::obs_lambda_3;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_3");
+      }
+
+      void obs_lambda_4(double& result) {
+        using namespace Pipes::obs_lambda_4;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_4");
+      }
+
+      void obs_lambda_5(double& result) {
+        using namespace Pipes::obs_lambda_5;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_5");
+      }
+
+      void obs_lambda_6(double& result) {
+        using namespace Pipes::obs_lambda_6;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_6");
+      }
+
+      void obs_lambda_7(double& result) {
+        using namespace Pipes::obs_lambda_7;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "lambda_7");
+      }
+
+      void obs_m12_2(double& result) {
+        using namespace Pipes::obs_m12_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "m12_2");
+      }
+
+      void obs_m11_2(double& result) {
+        using namespace Pipes::obs_m11_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "m11_2");
+      }
+
+      void obs_m22_2(double& result) {
+        using namespace Pipes::obs_m22_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "m22_2");
+      }
+
+      void obs_Lambda_1(double& result) {
+        using namespace Pipes::obs_Lambda_1;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_1");
+      }
+
+      void obs_Lambda_2(double& result) {
+        using namespace Pipes::obs_Lambda_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_2");
+      }
+
+      void obs_Lambda_3(double& result) {
+        using namespace Pipes::obs_Lambda_3;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_3");
+      }
+
+      void obs_Lambda_4(double& result) {
+        using namespace Pipes::obs_Lambda_4;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_4");
+      }
+
+      void obs_Lambda_5(double& result) {
+        using namespace Pipes::obs_Lambda_5;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_5");
+      }
+
+      void obs_Lambda_6(double& result) {
+        using namespace Pipes::obs_Lambda_6;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_6");
+      }
+
+      void obs_Lambda_7(double& result) {
+        using namespace Pipes::obs_Lambda_7;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "Lambda_7");
+      }
+
+      void obs_M12_2(double& result) {
+        using namespace Pipes::obs_M12_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "M12_2");
+      }
+
+      void obs_M11_2(double& result) {
+        using namespace Pipes::obs_M11_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "M11_2");
+      }
+
+      void obs_M22_2(double& result) {
+        using namespace Pipes::obs_M22_2;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::mass1, "M22_2");
+      }
+
+      void obs_tanb(double& result) {
+        using namespace Pipes::obs_tanb;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::dimensionless, "tanb");
+      }
+
+      void obs_alpha(double& result) {
+        using namespace Pipes::obs_alpha;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::dimensionless, "alpha");
+      }
+
+
 
       /// Put together the Higgs couplings for the THDM, from partial widths only
       void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result)

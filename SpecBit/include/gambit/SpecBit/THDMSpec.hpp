@@ -374,8 +374,8 @@ namespace Gambit
          double v_1 = model.get_v1(), v_2 = model.get_v2();
          double b = atan(v_2/v_1);
          double v2 = pow(v_1,2) + pow(v_2,2);
-         double mh = get_mh_1_pole_slha(model), mH = get_mh_2_pole_slha(model), mA = get_mA_pole_slha(model);
-         double mh2 = pow(mh,2), mH2 = pow(mH,2), mA_2 = pow(mA,2);
+         double mA = get_mA_pole_slha(model);
+         double mA_2 = pow(mA,2);
          double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
 
         double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);

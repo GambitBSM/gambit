@@ -3580,10 +3580,17 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       result = fill_THDM_decay_widths(container, full);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
    }
@@ -3596,10 +3603,17 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       result = fill_THDM_decay_widths(container, HiggsBounds);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
    }
@@ -3611,10 +3625,17 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      THDM_spectrum_container container;
+     THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       std::vector<thdmc_decay_widths> SM_like_decays;
 
       for (int h=1; h<=3; h++) {
@@ -3658,10 +3679,17 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       result = fill_THDM_total_widths(container);
       delete container.THDM_object;
    }
@@ -3674,10 +3702,17 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type, scale);
+      // initializes couplings at scale or not
+      bool init_at_scale = false;
+      if (init_at_scale) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        init_THDM_spectrum_container(container, spec, y_type, scale);
+      }
+      else {
+        init_THDM_spectrum_container(container, spec, y_type);
+      }
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
       for (int h=1; h<=3; h++) {
