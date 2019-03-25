@@ -739,8 +739,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure-with-chisq my_configure
-              COMMAND sed ${dashi} -e "s|clsbtablesdir=.*|clsbtablesdir=\"${hb_tab_dir}/\"|" my_configure
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
               COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
               COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
               COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
@@ -748,7 +747,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
-              COMMAND ./my_configure
+              COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
