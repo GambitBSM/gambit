@@ -245,9 +245,7 @@ namespace Gambit
 
       // Add t decays since t can decay to light Higgses
 
-      // S.B. Flavour/mass basis discrepancy
-      //result.set_t_decays(tbl->at("t"));
-      result.set_t_decays(tbl->at("u_3"));
+      result.set_t_decays(tbl->at("t"));
 
       // Fill HiggsCouplingsTable object from SPheno backend
       // This fills the effective couplings (C_XX2)

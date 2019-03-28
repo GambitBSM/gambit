@@ -45,20 +45,12 @@
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
-    // MSSM Higgs model parameters
-    #define FUNCTION MSSMHiggs_ModelParameters
+    // MSSM-like Higgs model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
+    #define FUNCTION MSSMLikeHiggs_ModelParameters
     START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(MSSM_spectrum, Spectrum)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(NMSSM_spectrum, Spectrum, NMSSM66atQ)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
-    #undef FUNCTION
-
-    // NMSSM Higgs model parameters
-    #define FUNCTION NMSSMHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(NMSSM_spectrum, Spectrum)
-    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-    ALLOW_MODELS(NMSSM66atQ)
     #undef FUNCTION
 
   #undef CAPABILITY

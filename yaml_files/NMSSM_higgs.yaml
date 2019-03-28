@@ -186,7 +186,7 @@ Rules:
       OneLoopDecays: false
 
   - capability: HB_ModelParameters
-    function: NMSSMHiggs_ModelParameters
+    function: MSSMLikeHiggs_ModelParameters
 
   # Choose to use functions that get Higgs decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Reference_SM_Higgs_decay_rates

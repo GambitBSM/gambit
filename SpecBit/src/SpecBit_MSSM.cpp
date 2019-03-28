@@ -767,7 +767,7 @@ namespace Gambit
       input.MuInput  = *myPipe::Param.at("mu");
       // This FS spectrum generator has mA as the parameter
       input.mAInput = *myPipe::Param.at("mA");
-      fill_MSSM63_input_EFTHiggs(input,myPipe::Param); // Fill the rest
+      fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
       result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
