@@ -9,23 +9,23 @@ Parameters:
 
     THDMII:
         lambda_1:
-            fixed_value: 0.1
+            fixed_value: 6.14316
         lambda_2:
-            fixed_value: 0.1
+            fixed_value: 1.47745
         lambda_3:
-            fixed_value: 3.0
+            fixed_value: 1.75200
         lambda_4:
-            fixed_value: -4.0
+            fixed_value: -2.08753
         lambda_5:
-            fixed_value: 0.1
+            fixed_value: -2.08753
         lambda_6:
             fixed_value: 0.0
         lambda_7:
             fixed_value: 0.0
         m12_2:
-            fixed_value: 100000.0
+            fixed_value: 15800.00000
         tanb:
-            fixed_value: 1.0
+            fixed_value: 1.40498
         # Qin:
         #     fixed_value: 80.0 #mZ
         # QrunTo:
@@ -104,28 +104,28 @@ Scanner:
 
 ObsLikes:
 
-    # - purpose:    LogLike
-    #   capability: global_minimum_discriminant_likelihood
+    - purpose:    LogLike
+      capability: global_minimum_discriminant_likelihood
       
-    # - purpose:    LogLike
-    #   capability: unitarity_likelihood_THDM
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: alignment_likelihood_THDM
+    - purpose:    LogLike
+      capability: alignment_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: perturbativity_likelihood_THDM
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: stability_likelihood_THDM
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
 
     - purpose:    LogLike
       capability: NLO_unitarity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: oblique_parameters_likelihood_THDM
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
     
-    # - capability: b2sgamma_LL
+    # - capability:  b2sgamma_LL
     #   function: b2sgamma_likelihood
     #   purpose: LogLike
     
@@ -146,9 +146,14 @@ ObsLikes:
 
     #  Calculate the LHC Higgs likelihood
 
-    # - purpose:    LogLike
-    #   capability: LHC_Higgs_LogLike
-    #   function: calc_HS_LHC_LogLike
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
+      function: calc_HS_LHC_LogLike
+
+    - purpose:    LogLike
+      capability: higgs_mass_likelihood_THDM
+      function: higgs_mass_likelihood
+
 
   # ----- observables ----
 
@@ -284,6 +289,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_point/"
   enable_testing: true
   debug: true

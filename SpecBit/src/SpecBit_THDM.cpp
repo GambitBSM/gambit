@@ -391,14 +391,43 @@ namespace Gambit
         const std::vector<std::vector<complex<double>>> q = {{0.0, 0.0, 0.0}, {0.0, sba, -cba}, {0.0, cba, sba}, {0.0, 0.0, i}, {0.0, i, 0.0}};
        
         double A_h0_2 = M22_2 + 0.5*v2*(Lam3 + Lam4 - Lam5);
+
         std::vector<double> mh0_2_k;
         for(int k=1; k<4; k++) {
-           double mk = (q[k][2] * std::conj(q[k][2]) * A_h0_2).real();
-           mk += v2 * pow(q[k][1],2).real() * Lam1;
-           mk += v2 * (q[k][2]).real() * (q[k][2]*Lam5).real();
-           mk += v2 * 2.0 * q[k][1].real() * (q[k][2]*Lam6).real();
+           double mk = 0.0;
+          // --------
+          // METHOD 1
+          // original method for calculating these masses for GAMBIT:
+          // this method is consistent with Higgs Basis masses
+          // NOTE: will revert to METHOD 1 later
+          // -------
+          //  (q[k][2] * std::conj(q[k][2]) * A_h0_2).real();
+          //  mk += v2 * pow(q[k][1],2).real() * Lam1;
+          //  mk += v2 * (q[k][2]).real() * (q[k][2]*Lam5).real();
+          //  mk += v2 * 2.0 * q[k][1].real() * (q[k][2]*Lam6).real();
+          // --------
            mh0_2_k.push_back(mk);
         }
+
+        // --------
+        // METHOD 2
+        // alternative method for calculating these masses for debugging:
+        // original tree-level conversion below
+        // this conversion is from 2HDMC
+        // NOTE: will revert to METHOD 1 later
+        // -------
+        if (tb>0) {
+          mh0_2_k[2]=m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
+        } else {
+          mh0_2_k[2]=m22_2+0.5*v2*(lam3+lam4-lam5);
+        }
+        double m_Hp2  =  mh0_2_k[2]+0.5*v2*(lam5-lam4);
+        double M112   =  mh0_2_k[2]*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
+        double M122   = -mh0_2_k[2]*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
+        double M222   =  mh0_2_k[2]*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
+        mh0_2_k[0]   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+        mh0_2_k[1]   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+        // --------
 
         thdm_model.tanb = tanb;
         thdm_model.alpha = alpha;
@@ -2749,7 +2778,7 @@ namespace Gambit
         cout <<  "mH0 = " << spec->get(Par::Pole_Mass, "h0", 2) << endl;
         cout <<  "mA = " << spec->get(Par::Pole_Mass, "A0") << endl;
         cout << "mC = " <<  spec->get(Par::Pole_Mass, "H+") << endl;
-        // cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
+        cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
         cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tanb") << endl;
         cout <<  "m12_2 = " << spec->get(Par::mass1, "m12_2") << endl;
         cout <<  "sin(theta_W) = " << spec->get(Par::dimensionless, "sinW2") << endl;

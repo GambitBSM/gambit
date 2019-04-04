@@ -76,7 +76,7 @@ Scanner:
       plugin: square_grid
       version: ">=1.0"
       like: LogLike
-      grid_pts: 50000 #NxN grid
+      grid_pts: 1000 #NxN grid
 
     random:
      plugin: random
@@ -135,14 +135,18 @@ ObsLikes:
     - capability: b2sgamma_LL
       function: b2sgamma_likelihood
       purpose: LogLike
-    
-    - capability: b2sll_LL
-      funtion: b2sll_likelihood
-      purpose: LogLike
 
-    - capability: SL_LL
-      funtion: SL_likelihood
-      purpose: LogLike
+    - purpose:    LogLike
+      capability: SM_higgs_mass_likelihood_THDM
+      function: SM_higgs_mass_likelihood
+    
+    # - capability: b2sll_LL
+    #   funtion: b2sll_likelihood
+    #   purpose: LogLike
+
+    # - capability: SL_LL
+    #   funtion: SL_likelihood
+    #   purpose: LogLike
 
     # Calculate the LEP & LHC Higgs likelihoodw
 
@@ -240,6 +244,9 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
+    # - capability: test_THDM_spectrum_1
+    #   function: test_THDM_spectrum_1
+    #   purpose: LogLike
 
 Rules:
 
@@ -353,6 +360,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM/"
+  default_output_path: "runs/THDM_debug/"
   enable_testing: true
   debug: true
