@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -178,6 +178,7 @@ namespace HEPUtils {
     }
 
     /// Set the p coordinates and energy simultaneously
+    /// @warning For numerical stability, prefer setPM when possible
     P4& setPE(double px, double py, double pz, double E) {
       if (E < 0)
         throw std::invalid_argument("Negative energy given as argument");

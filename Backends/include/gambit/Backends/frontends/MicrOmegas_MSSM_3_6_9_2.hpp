@@ -26,6 +26,8 @@ LOAD_LIBRARY
 BE_ALLOW_MODELS(MSSM63atQ, Halo_gNFW, Halo_gNFW_rho0, Halo_gNFW_rhos, Halo_Einasto, Halo_Einasto_rho0, Halo_Einasto_rhos)
 // The presence of the various halo models is just a workaround to allow initializing MO without MSSM model
 
+BE_FUNCTION(oneChannel, double, (double,double,char*,char*,char*,char*), "oneChannel", "get_oneChannel", (MSSM63atQ))
+
 BE_FUNCTION(assignVal, int, (char*,double),"assignVal","assignVal", (MSSM63atQ))
 BE_FUNCTION(vSigma, double, (double, double, int), "vSigma","vSigma", (MSSM63atQ))
 BE_FUNCTION(darkOmega, double, (double*, int, double), "darkOmega", "oh2", (MSSM63atQ))

@@ -21,6 +21,11 @@
 
 include(ExternalProject)
 
+# Define the newline strings to use for OSX-safe substitution.
+# This can be moved into externals.cmake if ever it is no longer used in this file.
+set(nl "___totally_unlikely_to_occur_naturally___")
+set(true_nl \"\\n\")
+
 #contrib/slhaea
 include_directories("${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 
@@ -38,61 +43,78 @@ add_gambit_library(mkpath OPTION OBJECT
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/mkpath/include/mkpath/mkpath.h)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:mkpath>)
 
-#contrib/yaml-cpp-0.5.3
-set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.5.3/include)
+#contrib/yaml-cpp-0.6.2
+set(yaml_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2/include)
 include_directories("${yaml_INCLUDE_DIR}")
-add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.5.3 EXCLUDE_FROM_ALL)
+add_definitions(-DYAML_CPP_DLL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
-#contrib/Delphes-3.1.2; include only if ColliderBit is in use and Delphes is not intentionally ditched.
-set (DELPHES_DIR "${PROJECT_SOURCE_DIR}/contrib/Delphes-3.1.2")
-set (DELPHES_DICTS "${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes/BTaggingWithTruthModule_dict.cc"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes/AbsoluteIsolationModule_dict.cc"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes/BTaggingWithTruthModule_dict.h"
-                   "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes/AbsoluteIsolationModule_dict.h")
-string(REGEX MATCH ";D;|;De;|;Del;|;Delp;|;Delph;|;Delphe;|;Delphes" DITCH_DELPHES ";${itch};")
-include_directories("${DELPHES_DIR}" "${DELPHES_DIR}/external" "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/delphes")
-if(DITCH_DELPHES OR NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
-  set (EXCLUDE_DELPHES TRUE)
-  add_custom_target(clean-delphes COMMAND "")
-  message("${BoldCyan} X Excluding Delphes from GAMBIT configuration.${ColourReset}")
-  foreach(DICT ${DELPHES_DICTS})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove ${DICT})
-  endforeach()
-else()
-  set (EXCLUDE_DELPHES FALSE)
-  set (DELPHES_LDFLAGS "-L${DELPHES_DIR} -lDelphes")
-  set (DELPHES_BAD_LINE "\\(..CC)\ ..patsubst\ -std=%,,..CXXFLAGS))\\)\ \\(..CXXFLAGS.\\)")
-  set (CMAKE_INSTALL_RPATH "${DELPHES_DIR}")
-  ExternalProject_Add(delphes
-    SOURCE_DIR ${DELPHES_DIR}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure
-              COMMAND sed ${dashi} "/^CXXFLAGS += .* -Iexternal\\/tcl/ s/$/ ${CMAKE_CXX_FLAGS}/" <SOURCE_DIR>/Makefile
-              COMMAND sed ${dashi} "s,\ ..EXECUTABLE.,,g" <SOURCE_DIR>/Makefile
-              COMMAND sed ${dashi} "s/${DELPHES_BAD_LINE}/\\1/g" <SOURCE_DIR>/Makefile
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} all
-    INSTALL_COMMAND ""
-  )
-  message("${Yellow}-- Generating Delphes ROOT dictionaries...${ColourReset}")
-  execute_process(COMMAND ./make_dicts.sh
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ColliderBit/src/delphes
-                  RESULT_VARIABLE result
-                 )
-  if (NOT "${result}" STREQUAL "0")
-    message(FATAL_ERROR "Could not automatically generate Delphes ROOT dictionaries.  Blame ROOT.")
+
+#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True (default).
+set(restframes_VERSION "1.0.2")
+set(restframes_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${restframes_VERSION}")
+if(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ColliderBit is not in use.)${ColourReset}")
+  set(EXCLUDE_RESTFRAMES TRUE)
+elseif(DEFINED WITH_RESTFRAMES AND NOT WITH_RESTFRAMES)
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (WITH_RESTFRAMES is set to False.)${ColourReset}")
+  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
+  set(EXCLUDE_RESTFRAMES TRUE)
+elseif(NOT ROOT_FOUND)
+  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ROOT was not found.)${ColourReset}")
+  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
+  set(EXCLUDE_RESTFRAMES TRUE)
+else() # OK, let's include RestFrames then
+  message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
+  set(EXCLUDE_RESTFRAMES FALSE)
+  # Check if the RestFrames library already exists and print info message
+  unset(RestFrames_LIBRARY CACHE)
+  find_library(RestFrames_LIBRARY RestFrames ${restframes_CONTRIB_DIR}/lib/)
+  if(RestFrames_LIBRARY STREQUAL "RestFrames_LIBRARY-NOTFOUND")
+    message("   RestFrames library not found. RestFrames v${restframes_VERSION} will be downloaded and installed when building GAMBIT.")
+  else()
+    message("   Found RestFrames library: ${RestFrames_LIBRARY}")
   endif()
-  message("${Yellow}-- Generating Delphes ROOT dictionaries - done.${ColourReset}")
-  # Add clean info
-  foreach(DICT ${DELPHES_DICTS})
-    set(clean_files ${clean_files} ${DICT})
-  endforeach()
-  set(rmstring "${CMAKE_BINARY_DIR}/delphes-prefix/src/delphes-stamp/delphes")
-  add_custom_target(clean-delphes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
-                                  COMMAND cd ${DELPHES_DIR} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
-  add_dependencies(distclean clean-delphes)
 endif()
 
-#contrib/fjcore-3.2.0; compile only if Delphes is ditched and ColliderBit is not.
+# Add RestFrames as an external project that GAMBIT can depend on
+if(NOT EXCLUDE_RESTFRAMES)
+  set(name "restframes")
+  set(ver "${restframes_VERSION}")
+  set(dir "${restframes_CONTRIB_DIR}")
+  set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+  set(RESTFRAMES_LDFLAGS "-L${dir}/lib -lRestFrames")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
+  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.so)
+  include_directories("${dir}" "${dir}/inc")
+  ExternalProject_Add(restframes
+    DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
+             COMMAND ${CMAKE_COMMAND} -E chdir ${dir} git checkout -q v${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure -prefix=${dir}
+    # Patch RestFrames to set the CPLUS_INCLUDE_PATH environment variable correctly when RestFrames is loaded.
+    # This avoids having to run setup_RestFrames.sh.
+    PATCH_COMMAND patch -p1 < ${patch}
+          COMMAND sed ${dashi} -e "s|____replace_with_GAMBIT_version____|${GAMBIT_VERSION_FULL}|g" src/RFBase.cc src/RFBase.cc
+          COMMAND sed ${dashi} -e "s|____replace_with_RestFrames_path____|${dir}|g" src/RFBase.cc
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+    )
+  # Add clean-restframes and nuke-restframes
+  set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
+  add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
+    COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && ${CMAKE_MAKE_PROGRAM} distclean) || true)
+  add_dependencies(distclean clean-restframes)
+  add_custom_target(nuke-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${dir}" || true)
+  add_dependencies(nuke-restframes clean-restframes)
+  add_dependencies(nuke-contrib nuke-restframes)
+  add_dependencies(nuke-all nuke-restframes)
+endif()
+
+
+#contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
 include_directories("${fjcore_INCLUDE_DIR}")
 add_definitions(-DFJCORE)
@@ -109,8 +131,8 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set (EXCLUDE_FLEXIBLESUSY FALSE)
 
   # Always use -O2 for flexiblesusy to ensure fast spectrum generation.
-  set(FS_CXX_FLAGS "${GAMBIT_CXX_FLAGS} -Wno-missing-field-initializers")
-  set(FS_Fortran_FLAGS "${GAMBIT_Fortran_FLAGS}")
+  set(FS_CXX_FLAGS "${BACKEND_CXX_FLAGS} -Wno-missing-field-initializers")
+  set(FS_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(FS_CXX_FLAGS "${FS_CXX_FLAGS} -O2")
     set(FS_Fortran_FLAGS "${FS_Fortran_FLAGS} -O2")
@@ -118,14 +140,13 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lgfortran -lm")
+    set(flexiblesusy_compilerlibs "-lgfortran -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lg2c -lm")
+    set(flexiblesusy_compilerlibs "-lg2c -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
-    set(flexiblesusy_extralibs "${flexiblesusy_extralibs} -lifcore -limf -ldl -lintlc -lsvml")
+    set(flexiblesusy_compilerlibs "-lifcore -limf -ldl -lintlc -lsvml")
   endif()
-  #message("${Yellow}-- Determined FlexibleSUSY compiler library dependencies: ${flexiblesusy_extralibs}${ColourReset}")
-  set(flexiblesusy_LDFLAGS "${flexiblesusy_LDFLAGS} ${flexiblesusy_extralibs}")
+  set(flexiblesusy_LDFLAGS ${flexiblesusy_LDFLAGS} ${flexiblesusy_compilerlibs})
 
   # Silence the deprecated-declarations warnings comming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
@@ -133,6 +154,9 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # Silence the unused parameter and variable warnings comming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)
   set_compiler_warning("no-unused-variable" FS_CXX_FLAGS)
+
+  # Construct the command to create the shared library
+  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
 
   # FlexibleSUSY configure options
   set(FS_OPTIONS ${FS_OPTIONS}
@@ -147,6 +171,9 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --with-lapack-libs=${LAPACK_LINKLIBS}
        --with-blas-libs=${LAPACK_LINKLIBS}
        --disable-librarylink
+       --enable-shared-libs
+       --with-shared-lib-ext=.so
+       --with-shared-lib-cmd=${FS_SO_LINK_COMMAND}
       #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
      )
 
@@ -155,6 +182,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Models turned off
   # SingletDMZ3 SingletDM CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu
+  # current_head: set(ALL_FS_MODELS MDM CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu MSSMatMGUTEFTHiggs MSSMatMGUTEFTHiggs_mAmu ScalarSingletDM_Z3 ScalarSingletDM_Z2)
 
   # Check if there has been command line instructions to only build with certain models. Default is to build everything!
   if(BUILD_FS_MODELS AND NOT ";${BUILD_FS_MODELS};" MATCHES ";ALL_FS_MODELS;")
@@ -163,7 +191,6 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
     set(BUILD_FS_MODELS ${ALL_FS_MODELS})
   endif()
 
-  #set(BUILD_FS_MODELS CMSSM MSSM MSSMatMGUT)
   set(EXCLUDED_FS_MODELS "")
 
   # Check that all the models the user asked for are in fact valid models
@@ -213,22 +240,27 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   ExternalProject_Add(flexiblesusy
     SOURCE_DIR ${FS_DIR}
     BUILD_IN_SOURCE 1
-    BUILD_COMMAND $(MAKE) alllib
     CONFIGURE_COMMAND ${config_command}
+    BUILD_COMMAND $(MAKE) alllib
     INSTALL_COMMAND ""
   )
 
   # Set linking commands.  Link order matters! The core flexiblesusy libraries need to come after the model libraries but before the other link flags.
-  # for v 1.5.1 add "-L${FS_DIR}/legacy -llegacy"  after "-lflexiblesusy"
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FS_DIR}/src")
   set(flexiblesusy_LDFLAGS "-L${FS_DIR}/src -lflexisusy ${flexiblesusy_LDFLAGS}")
+  add_install_name_tool_step(flexiblesusy ${FS_DIR}/src libflexisusy.so)
   foreach(_MODEL ${BUILD_FS_MODELS})
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FS_DIR}/models/${_MODEL}")
     set(flexiblesusy_LDFLAGS "-L${FS_DIR}/models/${_MODEL} -l${_MODEL} ${flexiblesusy_LDFLAGS}")
+    add_install_name_tool_step(flexiblesusy ${FS_DIR}/models/${_MODEL} lib${_MODEL}.so)
   endforeach()
+
+  # Strip out leading and trailing whitespace
+  string(STRIP "${flexiblesusy_LDFLAGS}" flexiblesusy_LDFLAGS)
 
   # Set up include paths
   include_directories("${FS_DIR}/..")
   include_directories("${FS_DIR}/src")
-  include_directories("${FS_DIR}/legacy")
   include_directories("${FS_DIR}/config")
   include_directories("${FS_DIR}/slhaea")
   # Dig through flexiblesusy "models" directory and add all subdirectories to the include list
@@ -236,9 +268,6 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   foreach(_MODEL ${BUILD_FS_MODELS})
     include_directories("${FS_DIR}/models/${_MODEL}")
   endforeach()
-
-  # Strip out leading and trailing whitespace
-  string(STRIP "${flexiblesusy_LDFLAGS}" flexiblesusy_LDFLAGS)
 
 else()
 

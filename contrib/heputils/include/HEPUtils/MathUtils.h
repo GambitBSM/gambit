@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2015 Andy Buckley <andy.buckley@cern.ch>
+// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -30,29 +30,30 @@ namespace HEPUtils {
 
   /// Convenience function for getting the sign of a number
   template <typename N1>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value, int>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value, int>::type
   sign(const N1& val) {
-    if (val == 0) return 0;
-    return (val < 0) ? -1 : 1;
+    // if (val == 0) return 0;
+    // return (val < 0) ? -1 : 1;
+    return (val == 0) ? 0 : (val < 0) ? -1 : 1;
   }
 
   /// Convenience function for squaring (better than repeating long expressions/calcs or using intermediates)
   template <typename N1>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value, N1>::type
-  sqr(const N1& val) {
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value, N1>::type
+  sqr(const N1 val) {
     return val * val;
   }
 
   /// Convenience function for adding two numbers in quadrature
   template <typename N1, typename N2>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value, typename std::common_type<N1,N2>::type>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value, typename std::common_type<N1,N2>::type>::type
   add_quad(const N1& a, const N2& b) {
     return sqrt(a*a + b*b);
   }
 
   /// Convenience function for adding three numbers in quadrature
   template <typename N1, typename N2, typename N3>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, typename std::common_type<N1,N2,N3>::type>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, typename std::common_type<N1,N2,N3>::type>::type
   add_quad(const N1& a, const N2& b, const N3& c) {
     return sqrt(a*a + b*b + c*c);
   }
@@ -67,7 +68,7 @@ namespace HEPUtils {
   ///
   /// @note The interval is closed (inclusive) at the low end, and open (exclusive) at the high end.
   template <typename N1, typename N2, typename N3>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
   in_range(const N1& val, const N2& low, const N3& high) {
     return val >= low && val < high;
   }
@@ -76,7 +77,7 @@ namespace HEPUtils {
   ///
   /// @note The interval is closed at both ends.
   template <typename N1, typename N2, typename N3>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
   in_closed_range(const N1& val, const N2& low, const N3& high) {
     return val >= low && val <= high;
   }
@@ -85,7 +86,7 @@ namespace HEPUtils {
   ///
   /// @note The interval is open at both ends.
   template <typename N1, typename N2, typename N3>
-  inline typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
+  constexpr typename std::enable_if<std::is_arithmetic<N1>::value && std::is_arithmetic<N2>::value && std::is_arithmetic<N3>::value, bool>::type
   in_open_range(const N1& val, const N2& low, const N3& high) {
     return val > low && val < high;
   }

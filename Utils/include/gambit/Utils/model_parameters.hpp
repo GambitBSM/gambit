@@ -43,13 +43,14 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include "gambit/Utils/export_symbols.hpp"
 
 namespace Gambit {
 
   // Model parameter map type; used by all models
   typedef std::map<std::string, double> parameterMap;
 
-  class ModelParameters
+  class EXPORT_SYMBOLS ModelParameters
   {
 
     protected:
@@ -85,6 +86,9 @@ namespace Gambit {
 
       /// Get parameter value using bracket operator
       const double & operator[](std::string const & inkey) const;
+
+      /// Get parameter value using 'at' syntax
+      const double & at(std::string const & inkey) const;
 
       /// Set single parameter value
       void setValue(std::string const &inkey,double const&value);

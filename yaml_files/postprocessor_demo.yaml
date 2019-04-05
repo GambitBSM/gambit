@@ -1,0 +1,135 @@
+##########################################################################
+## GAMBIT configuration for a next-to-minimal postprocessor (version 2) run
+##
+## Requires ExampleBit_A and ExampleBit_B
+##
+## Requires 'spartan.yaml' to be run first, as this will generate the 
+## data that we will postprocess.
+##
+##########################################################################
+
+
+Parameters:
+  # In this example we will simply be fitting the mean and standard deviation of a normal distribution.
+  # Parameters to be read from the input data file need to have prior_type: none.
+  NormalDist:
+    mu:
+      prior_type: none
+    sigma:
+      prior_type: none
+
+  # These parameters don't exist in the original data file, but we
+  # can still use them to satisfy dependencies because they have fixed values.
+  NUHM1:
+    A0: 1
+    M0: 2
+    mH: 3
+    M12: 4 
+    SignMu: 5
+    TanBeta: 6
+ 
+Priors:
+
+  # None used
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "pp_results.hdf5"
+    group: "/ppv2"
+    delete_file_on_restart: true
+
+Scanner:
+
+  use_scanner: postprocessor
+
+  scanners:
+
+    postprocessor:
+      plugin: postprocessor
+      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
+       # Name of the new global likelihood contribution.
+      like: New_LogLike
+      # Name of the combined new+old likelihood
+      reweighted_like: Comb_LogLike
+      # Add LogLike in the old output to New_LogLike in the new output.   
+      add_to_like: [LogLike]                                             
+      # Allow overwriting of the old output with the new output (e.g. if you would rather name New_LogLike as LogLike)
+      permit_discard_old_likes: false
+      update_interval: 1000 # Frequency to print status update message
+      batch_size: 100 # Number of points to distribute to worker processes each time they request more work
+      # The below don't seem to work?
+      # Restrict postprocessing to values greater than this
+      cut_greater_than: {"LogLike": -1e99} # Will not process invalid points
+      cut_less_than: {"#NormalDist_parameters @NormalDist::primary_parameters::mu": 25} # Keep only points with mu<25
+       # Throw away all points outside the cuts
+      discard_points_outside_cuts: true
+      # Information about input dataset to be postprocessed
+      reader:
+        type: hdf5
+        file: "runs/spartan/samples/results.hdf5"
+        group: "/spartan"
+
+ObsLikes:
+
+    # Test normal distribution likelihood
+  - purpose:      New_LogLike
+    capability:   normaldist_loglike
+    module:       ExampleBit_A
+    type:         double
+
+    # Test activation of new fixed model parameters that
+    # don't exist in the input file (this function requires
+    # e.g. NUHM1 parameters to run)
+  - purpose:      New_LogLike
+    capability:   Example_lnL_B
+    type:         double
+    function:     ""
+    module:       ""
+
+Rules:
+
+  - capability: normaldist_loglike
+    function: lnL_gaussian
+    options:
+       # Set sleep time between evaluations (in seconds)
+       #eval_time: 0.01
+
+  # Rules for satisfying dependencies related to Example_lnL_B
+  # (Just lifted from spartan_NUHM1.yaml)
+  - capability:   LibFirst_1_1_init
+    dependencies:
+    - {capability: nevents, module: ExampleBit_A}
+
+  - capability:    nevents_postcuts
+    type: int
+    dependencies:
+    - {capability: particle_id, module: ExampleBit_B}
+    backends:
+    - {capability: awesomeness, backend: LibFirst, version: 1.1}
+    - {capability: someFunction, backend: LibFirst, version: 1.1}
+
+  - capability:    function_pointer
+    backends:
+    - {function: externalFunction2}
+
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+
+
+KeyValues:
+
+  default_output_path: "runs/postprocessor_demo"
+
+  rng: ranlux48
+
+  print_timing_data: false
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6

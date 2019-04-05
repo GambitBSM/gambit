@@ -42,13 +42,14 @@ Please see the above list of GAMBIT papers for the main documentation on the des
 Supported Compilers and Library Dependencies
 --
 
-GAMBIT is built using the CMake system (version 2.8.5 or greater required). The following libraries and packages must be installed prior to configuration:
+GAMBIT is built using the CMake system (version 2.8.12 or greater required). The following libraries and packages must be installed prior to configuration:
 
 COMPULSORY:
 
- - gcc/gfortran 4.7.1 or greater, or icc/ifort 12.1.0 or greater
- - Python 2.7 or greater (Python 3 is not supported)
+ - gcc/gfortran 4.8.4 or greater, or icc/ifort 12.1.0 or greater
+ - Python 2.7 or greater (Python 3 *is* now supported)
  - Python modules: yaml, os, re, datetime, sys, getopt, shutil and itertools.
+ - git
  - Boost 1.41 or greater
  - GNU Scientific Library (GSL) 1.10 or greater
  - Eigen 3.1.0 or greater
@@ -57,11 +58,11 @@ COMPULSORY:
 
 OPTIONAL:
 
+ - HDF5 (for use of the hdf5 printer)
  - the h5py python module (for use of the hdf5 printer)
  - MPI (required for parallel sampling)
  - axel (speeds up downloads of backends and scanners)
  - graphviz (required for model hierarchy and dependency tree plots)
- - HDF5 (for use of the hdf5 printer)
  - ROOT (required for the Delphes detector simulation, or the GreAT scanner from ScannerBit)
 
 
@@ -135,7 +136,7 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-interfaces with external packages (via a "backend" system), a complete
+
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.

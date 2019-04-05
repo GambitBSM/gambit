@@ -152,6 +152,11 @@ namespace Gambit                                                            \
       /* Make backend path easily available to convenience functions. */    \
       extern const str backendDir = backendInfo().                          \
        path_dir(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));                \
+                                                                            \
+      /* Make an easy reference to the actual backend module if it is a */  \
+      /* Python backend. */                                                 \
+      IF_USING_PYBIND11(pybind11::module& BACKENDNAME = backendInfo().      \
+       getPythonBackend(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));)       \
     }                                                                       \
   }                                                                         \
 }                                                                           \

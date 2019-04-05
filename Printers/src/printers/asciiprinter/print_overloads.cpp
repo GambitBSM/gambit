@@ -114,6 +114,22 @@ namespace Gambit
       m["upper"] = value.upper;
       _print(m, label, vID, mpirank, pointID);
     }
+    
+    void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    {
+      std::vector<std::string> channels;
+      std::vector<double> vdvalue;
+      channels.reserve(value.size());
+      vdvalue.reserve(value.size());
+      for (map_intpair_dbl::const_iterator it = value.begin(); it != value.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first.first<<it->first.second;
+        channels.push_back( ss.str() );
+        vdvalue.push_back( it->second );
+      }
+      addtobuffer(vdvalue,channels,IDcode,thread,pointID);
+    }
 
     #ifndef SCANNER_STANDALONE // All the types inside ASCII_MODULE_BACKEND_TYPES need to go inside this def guard.
 

@@ -26,6 +26,10 @@
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Sep
 #
+#  \author Ben Farmer
+#          (b.farmer@imperial.ac.uk)
+#  \date 2018 Oct
+#
 #************************************************
 
 # Require a minimum cmake version of 2.8.5
@@ -49,6 +53,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
   )
   if(POLICY ${p})
@@ -68,7 +73,6 @@ endif()
 if (CMAKE_CXX_COMPILER MATCHES "gcc$")
   message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to gcc.  I don't think that means what you think it means.  Do you really want to compile C++ with gcc rather than g++?")
 endif()
-
 
 # Use ccache to speed up re-compiling if it is available
 #find_program(CCACHE_FOUND ccache)
@@ -98,56 +102,101 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 include(cmake/utilities.cmake)
 
 # Check for Python interpreter
-find_package(PythonInterp 2 REQUIRED)
-if (PYTHON_VERSION_MAJOR GREATER 2 OR PYTHON_VERSION_MINOR LESS 7)
-  message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
-                      "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+# We also need to search for PythonLibs before letting pybind11 look for them,
+# otherwise it seems to get it wrong.  Also, we need to add versions of python
+# greater than 3.3 manually, for compatibility with CMake 2.8.12.
+set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+if (FORCE_PYTHON2)
+  message("${BoldYellow}   Python 2 requested; searching for Python 2.7${ColourReset}")
+  find_package(PythonInterp 2.7 REQUIRED)
+  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+elseif (FORCE_PYTHON3)
+  message("${BoldYellow}   Python 3 requested; searching for Python 3.x${ColourReset}")
+  find_package(PythonInterp 3 REQUIRED)
+  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+else()
+  find_package(PythonInterp 3)
+  if(PYTHONINTERP_FOUND)
+    find_package(PythonLibs 3)
+  else()
+    message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
+    find_package(PythonInterp 2 REQUIRED)
+    if (PYTHON_VERSION_MINOR LESS 7)
+      message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
+                          "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+    endif()
+    find_package(PythonLibs 2)
+  endif()
+endif()
+message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.${ColourReset}")
+if(PYTHONLIBS_FOUND)
+  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
+  if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
+    message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
+            "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
+            "   libraries are only used for providing support for Python backends at runtime.  However, if you\n"
+            "   have matching versions installed, you can make this message go away by trying the following\n"
+            "   (making sure to clean out your build directory in between any such changes):\n"
+            "   1. invoke cmake as cmake -DFORCE_PYTHON2=True .. (or similar)\n"
+            "   2. invoke cmake as cmake -DFORCE_PYTHON3=True .. (or similar)\n"
+            "   3. set the following variables when invoking cmake:\n"
+            "     PYTHON_LIBRARY\n"
+            "     PYTHON_INCLUDE_DIR\n"
+            "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
+            "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)\n")
+  endif()
 endif()
 
-# Check for pybind11
-set(MIN_pybind11_VERSION "2.2.0")
-set(PREFERRED_pybind11_VERSION "2.2.1")
-set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
-find_package(pybind11 QUIET)
-if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
-  use_contributed_pybind11()
-endif()
-if(pybind11_FOUND)
-  if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
-    message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
-    set(pybind11_FOUND FALSE)
-  else()
-    message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
-    include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
-  endif()
+# Check for pybind11 if PythonLibs were found
+if(NOT PYTHONLIBS_FOUND)
+  message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
+          "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
+          "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
+          "   directory in between any such changes).  If that does not work, you can manually set the\n"
+          "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
+          "     PYTHON_LIBRARY\n"
+          "     PYTHON_INCLUDE_DIR\n"
+          "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
+          "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
 else()
-  message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
-endif()
-if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
-  message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
-  execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
-  if(${result} STREQUAL "0")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+  set(MIN_pybind11_VERSION "2.2.4")
+  set(PREFERRED_pybind11_VERSION "2.2.4")
+  set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
+  find_package(pybind11 QUIET)
+  if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
     use_contributed_pybind11()
-    include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
-  else()
-    message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
-            "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
-            "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
   endif()
+  if(pybind11_FOUND)
+    if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
+      message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
+      set(pybind11_FOUND FALSE)
+    else()
+      message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
+      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+    endif()
+  else()
+    message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
+  endif()
+  if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
+    message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
+    execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
+    if(${result} STREQUAL "0")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+      use_contributed_pybind11()
+      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+    else()
+      message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
+              "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
+              "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+    endif()
+  endif()
+  set(HAVE_PYBIND11 "${pybind11_FOUND}")
 endif()
-set(HAVE_PYBIND11 "${pybind11_FOUND}")
 
 # Check for required Python libraries
-if(pybind11_FOUND)
-  find_package(PythonLibs REQUIRED)
-else()
-  find_package(PythonLibs)
-endif()
 foreach(module yaml os re datetime sys getopt shutil itertools)
   find_python_module(${module} REQUIRED)
 endforeach()
-
 
 # Check for axel
 find_program(axel_FOUND axel)
@@ -250,7 +299,7 @@ else()
 endif()
 
 # Check for Mathematica
-string(REGEX MATCH ";M;|;Ma;|;Mat;|;Math;|;Mathe;|;Mathem;|;Mathema;|;Mathemat;|;Mathemati;|;Mathematic;|;Mathematica" DITCH_MATHEMATICA ";${itch};")
+string(REGEX MATCH ";M;|;Ma;|;Mat;|;Math;|;Mathe;|;Mathem;|;Mathema;|;Mathemat;|;Mathemati;|;Mathematic;|;Mathematica;|;m;|;ma;|;mat;|;math;|;mathe;|;mathem;|;mathema;|;mathemat;|;mathemati;|;mathematic;|;mathematica" DITCH_MATHEMATICA ";${itch};")
 if(DITCH_MATHEMATICA)
   set(HAVE_MATHEMATICA 0)
   message("${BoldCyan} X Excluding Mathematica from GAMBIT configuration. All backends using Mathematica will be disabled${ColourReset}")
@@ -259,27 +308,27 @@ else()
   if(LIBUUID)
     message("   Found library libuuid")
     find_package(Mathematica 10.0)
-    if(Mathematica_FOUND AND NOT DEFINED Mathematica_Invalid_License)
+    if(Mathematica_FOUND AND (NOT DEFINED Mathematica_Invalid_License OR IGNORE_MATHEMATICA_LICENSE))
       message("${BoldYellow}   Found Mathematica.${ColourReset}")
       if(Mathematica_WSTP_FOUND)
         message("${BoldYellow}   Found Wolfram Symbolic Transfer Protocol. Mathematica backends enabled.${ColourReset}")
         set(HAVE_MATHEMATICA 1)
         set(MATHEMATICA_WSTP_H "${Mathematica_WSTP_INCLUDE_DIR}/wstp.h")
         set(MATHEMATICA_KERNEL "${Mathematica_KERNEL_EXECUTABLE}")
+        set(MATHEMATICA_WSTP_VERSION_MAJOR ${Mathematica_WSTP_VERSION_MAJOR})
+        set(MATHEMATICA_WSTP_VERSION_MINOR ${Mathematica_WSTP_VERSION_MINOR})
       else()
         message("${BoldRed}  WSTP not found. Please make sure it is installed before attempting to use Mathematica backends.${ColourReset}")
         set(HAVE_MATHEMATICA 0)
       endif()
-    elseif(DEFINED Mathematica_Invalid_License)
+    elseif(DEFINED Mathematica_Invalid_License AND NOT IGNORE_MATHEMATICA_LICENSE)
       message("${BoldRed}   Mathematica found but with an invalid license. Backends using Mathematica will be disabled.${ColourReset}")
+      message("${BoldRed}   To ignore this license check, add -DIGNORE_MATHEMATICA_LICENSE=True to your cmake command.${ColourReset}")
       set(HAVE_MATHEMATICA 0)
     else()
       message("${BoldRed}   Mathematica not found. Backends using Mathematica will be disabled.${ColourReset}")
       set(HAVE_MATHEMATICA 0)
     endif()
-  elseif(DEFINED Mathematica_Invalid_License)
-    message("${BoldRed}   Mathematica found but with an invalid license. Backends using Mathematica will be disabled.${ColourReset}")
-    set(HAVE_MATHEMATICA 0)
   else()
     message("${BoldRed}   Missing library libuuid required for WSTP. Mathematica will be disabled.${ColourReset}")
     set(HAVE_MATHEMATICA 0)
@@ -293,10 +342,13 @@ include(cmake/FindLibDL.cmake)
 include(cmake/warnings.cmake)
 
 # Construct the full set of compiler flags to be used for external projects
+set(BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_C_FLAGS}")
+set(BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_CXX_FLAGS}")
+set(BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS "${CMAKE_Fortran_FLAGS}")
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
   # Unless invoked with FORCE_O3, drop down to -O2 optimisation for more reasonable compile time.
   if (NOT DEFINED FORCE_O3)
@@ -304,25 +356,35 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     string(REGEX REPLACE "(-O3)" "-O2" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
     string(REGEX REPLACE "(-O3)" "-O2" CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE}")
   endif()
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}")
   # Never send the -O3 from cmake's release build config onwards to backends, as some are touchy.
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_C_FLAGS "${GAMBIT_C_FLAGS}")
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_CXX_FLAGS "${GAMBIT_CXX_FLAGS}")
-  string(REGEX REPLACE "(-O3)" "-O2" GAMBIT_Fortran_FLAGS "${GAMBIT_Fortran_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  string(REGEX REPLACE "(-O3)" "-O2" BACKEND_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELWITHDEBINFO}")
 elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_MINSIZEREL}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_MINSIZEREL}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_MINSIZEREL}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_MINSIZEREL}")
 else()
-  set(GAMBIT_C_FLAGS "${CMAKE_C_FLAGS}")
-  set(GAMBIT_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  set(GAMBIT_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+  set(BACKEND_C_FLAGS "${CMAKE_C_FLAGS}")
+  set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+endif()
+
+# Make symbols hidden by default when compiling GAMBIT source files only
+if(${CMAKE_MAJOR_VERSION} MATCHES "2")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fvisibility=hidden")
+else()
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+  set(CMAKE_Fortran_VISIBILITY_PRESET hidden)
+  set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 endif()
 
 # Check for optional packages and disable sections of GAMBIT accordingly
@@ -444,11 +506,11 @@ include(cmake/externals.cmake)
 # Add GAMBIT subdirectories.
 add_subdirectory(Logs)
 add_subdirectory(Utils)
+add_subdirectory_if_present(Core)
 add_subdirectory_if_present(Models)
 add_subdirectory_if_present(Backends)
 add_subdirectory_if_present(Elements)
 add_subdirectory_if_present(Printers)
-add_subdirectory_if_present(Core)
 
 # Lists of different GAMBIT object files to link
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:Logs> $<TARGET_OBJECTS:Utils>)
@@ -459,6 +521,11 @@ foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
 endforeach()
+
+# If ColliderBit and RestFrames is used, make RestFrames a dependency of ColliderBit
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;" AND NOT EXCLUDE_RESTFRAMES)
+  add_dependencies(ColliderBit restframes)
+endif()
 
 # Add the executables
 include(cmake/executables.cmake)

@@ -73,7 +73,7 @@ default_implicit_types = {
 #                           'integer*2'        : 'short',
 #                           'integer*4'        : 'long int',
 #                           'integer*8'        : 'long long int',
-#                           'logical'          : 'int',
+#                           'logical'          : 'long int',
 #                           'logical*1'        : 'bool',
 #                           'logical*2'        : 'unsigned short int',
 #                           'logical*4'        : 'unsigned long int',

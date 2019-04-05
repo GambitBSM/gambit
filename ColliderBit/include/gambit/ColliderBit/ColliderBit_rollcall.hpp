@@ -84,16 +84,6 @@ START_MODULE
 
 
   /// Detector sim capabilities
-  #ifndef EXCLUDE_DELPHES
-    #define CAPABILITY DetectorSim
-    START_CAPABILITY
-      #define FUNCTION getDelphes
-      START_FUNCTION(Gambit::ColliderBit::DelphesVanilla)
-      NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
-      NEEDS_CLASSES_FROM(Pythia, default)
-      #undef FUNCTION
-    #undef CAPABILITY
-  #endif
 
   #define CAPABILITY SimpleSmearingSim
   START_CAPABILITY
@@ -171,18 +161,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #ifndef EXCLUDE_DELPHES
-  #define CAPABILITY DetAnalysisContainer
-  START_CAPABILITY
-    #define FUNCTION getDetAnalysisContainer
-    START_FUNCTION(HEPUtilsAnalysisContainer)
-    NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
-    DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
-    #undef FUNCTION
-  #undef CAPABILITY
-  #endif // not defined EXCLUDE_DELPHES
-
-
 
   /// Event capabilities
   #define CAPABILITY HardScatteringEvent
@@ -196,19 +174,6 @@ START_MODULE
   #undef CAPABILITY
 
   /// Detector simulators that directly produce the standard event format
-  #ifndef EXCLUDE_DELPHES
-    #define CAPABILITY ReconstructedEvent
-    START_CAPABILITY
-      #define FUNCTION reconstructDelphesEvent
-      START_FUNCTION(HEPUtils::Event)
-      NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
-      NEEDS_CLASSES_FROM(Pythia, default)
-      DEPENDENCY(HardScatteringEvent, Pythia8::Event)
-      DEPENDENCY(DetectorSim, Gambit::ColliderBit::DelphesVanilla)
-      #undef FUNCTION
-    #undef CAPABILITY
-  #endif
-
   #define CAPABILITY ATLASSmearedEvent
   START_CAPABILITY
     #define FUNCTION smearEventATLAS
@@ -261,19 +226,6 @@ START_MODULE
 
   // A capability that calculates the log likelihood
   // Runs all analyses and fills vector of analysis results
-  #ifndef EXCLUDE_DELPHES
-  #define CAPABILITY DetAnalysisNumbers
-  START_CAPABILITY
-    #define FUNCTION runDetAnalyses
-    START_FUNCTION(AnalysisDataPointers)
-    NEEDS_MANAGER_WITH_CAPABILITY(ColliderOperator)
-    DEPENDENCY(MC_ConvergenceSettings, convergence_settings)
-    DEPENDENCY(ReconstructedEvent, HEPUtils::Event)
-    DEPENDENCY(HardScatteringSim, Gambit::ColliderBit::SpecializablePythia)
-    DEPENDENCY(DetAnalysisContainer, HEPUtilsAnalysisContainer)
-    #undef FUNCTION
-  #undef CAPABILITY
-  #endif // not defined EXCLUDE_DELPHES
 
   #define CAPABILITY ATLASAnalysisNumbers
   START_CAPABILITY
@@ -345,9 +297,6 @@ START_MODULE
     DEPENDENCY(CMSAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(CMSnoeffAnalysisNumbers, AnalysisDataPointers)
     DEPENDENCY(IdentityAnalysisNumbers, AnalysisDataPointers)
-    #ifndef EXCLUDE_DELPHES
-      DEPENDENCY(DetAnalysisNumbers, AnalysisDataPointers)
-    #endif
     #undef FUNCTION
   #undef CAPABILITY
 

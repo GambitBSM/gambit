@@ -136,6 +136,14 @@ namespace Gambit
             static double inv(double x) {return std::asin(1.0/std::sqrt(x));}
             static double prior(double x){return -std::log(std::tan(x));}
         };
+        
+        struct arccosprior
+        {
+            inline static double SQR(double x){return x*x;}
+            static double limits(double x) {return std::acos(x);}
+            static double inv(double x) {return std::cos(x);}
+            static double prior(double x) { return 1.0/std::sqrt(1-SQR(x));}
+        };
 
         /// Template class for 1d priors which need only a "range" option in their constructor
         // See factory function map to see how to use this class to quickly create new priors of this kind
@@ -220,6 +228,7 @@ namespace Gambit
         LOAD_PRIOR(sin, RangePrior1D<sinprior>)
         LOAD_PRIOR(tan, RangePrior1D<tanprior>)
         LOAD_PRIOR(cot, RangePrior1D<cotprior>)
+        LOAD_PRIOR(arccos, RangePrior1D<arccosprior>) 
    }
 }
 

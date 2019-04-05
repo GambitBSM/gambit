@@ -90,7 +90,7 @@ namespace Gambit
     template <typename T>
     T load_backend_symbol(str symbol_name, str be, str ver)
     {
-      T result;
+      T result = nullptr;
       try
       {
         // Get the pointer to the backend

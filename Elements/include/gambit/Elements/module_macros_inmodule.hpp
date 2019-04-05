@@ -2,18 +2,18 @@
 //   *********************************************
 ///  \file
 ///
-///  Generic observable and likelihood function 
+///  Generic observable and likelihood function
 ///  macro definitions, for inclusion from actual
 ///  module source code.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
-///  \date 2012 Nov  
-///  \date 2013 All year 
+///  \date 2012 Nov
+///  \date 2013 All year
 ///  \date 2014 Foreverrrrr
 ///
 ///  \author Abram Krislock
@@ -44,7 +44,7 @@
 #include "gambit/Models/safe_param_map.hpp"
 
 /// \name Rollcall macros
-/// These are called from within rollcall headers in each module to 
+/// These are called from within rollcall headers in each module to
 /// register module functions, their capabilities, return types, dependencies,
 /// and backend requirements.
 /// @{
@@ -57,24 +57,26 @@
                                                           MODULE_DECLARE_FUNCTION(MODULE, FUNCTION, TYPE, CAN_MANAGE)
 #define DEPENDENCY(DEP, TYPE)                             MODULE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, NOT_MODEL)
 #define LONG_DEPENDENCY(MODULE, FUNCTION, DEP, TYPE)      MODULE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, NOT_MODEL)
-#define NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)            MODULE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)                                  
+#define NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)            MODULE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)
 #define ALLOWED_MODEL(MODULE,FUNCTION,MODEL)              MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL)
-#define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL) 
+#define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL)
 #define ALLOW_MODEL_COMBINATION(...)                      DUMMYARG(__VA_ARGS__)
 #define MODEL_GROUP(GROUPNAME, GROUP)                     DUMMYARG(GROUPNAME, GROUP)
 
 #define BE_GROUP(GROUP)                                   MODULE_BE_GROUP(GROUP)
 #define DECLARE_BACKEND_REQ(GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
-                                                          MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) 
+                                                          MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE)
 #define LONG_DECLARE_BACKEND_REQ(MODULE, C, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
-                                                          MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) 
-#define ACTIVATE_BACKEND_REQ_FOR_MODELS(MODELS,TAGS)      DUMMYARG(MODELS,TAGS)                   
+                                                          MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE)
+#define ACTIVATE_BACKEND_REQ_FOR_MODELS(MODELS,TAGS)      DUMMYARG(MODELS,TAGS)
 #define START_CONDITIONAL_DEPENDENCY(TYPE)                MODULE_DEPENDENCY(CONDITIONAL_DEPENDENCY, TYPE, MODULE, FUNCTION, NOT_MODEL)
 #define ACTIVATE_DEP_BE(BACKEND_REQ, BACKEND, VERSTRING)  DUMMYARG(BACKEND_REQ, BACKEND, VERSTRING)
 #define ACTIVATE_FOR_MODELS(...)                          DUMMYARG(__VA_ARGS__)
 #define MODEL_CONDITIONAL_DEPENDENCY(DEP, TYPE, ...)      MODULE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, NOT_MODEL)
 #define BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)         DUMMYARG(BACKEND_AND_VERSIONS,TAGS)
-#define FORCE_SAME_BACKEND(...)                           DUMMYARG(__VA_ARGS__)                               
+#define LONG_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS) \
+                                                          DUMMYARG(BACKEND_AND_VERSIONS,TAGS)
+#define FORCE_SAME_BACKEND(...)                           DUMMYARG(__VA_ARGS__)
 #define CLASSLOAD_NEEDED(...)                             DUMMYARG(__VA_ARGS__)
 /// @}
 
@@ -83,7 +85,7 @@
 /// \name In-module rollcall macros
 /// @{
 
-/// Redirection of \link START_MODULE() START_MODULE\endlink when 
+/// Redirection of \link START_MODULE() START_MODULE\endlink when
 /// invoked from within a module.
 #define MODULE_START_MODULE                                                    \
                                                                                \
@@ -102,13 +104,13 @@
   }                                                                            \
 
 
-/// Redirection of \link START_CAPABILITY() START_CAPABILITY\endlink when 
+/// Redirection of \link START_CAPABILITY() START_CAPABILITY\endlink when
 /// invoked from within a module.
 #define MODULE_START_CAPABILITY(MODULE)                                        \
   IF_TOKEN_UNDEFINED(MODULE,FAIL("You must define MODULE before calling "      \
    "START_CAPABILITY."))                                                       \
 
-/// Redirection of \link START_FUNCTION() START_FUNCTION\endlink when invoked 
+/// Redirection of \link START_FUNCTION() START_FUNCTION\endlink when invoked
 /// from within a module.
 #define MODULE_DECLARE_FUNCTION(MODULE, FUNCTION, TYPE, CAN_MANAGE)            \
                                                                                \
@@ -153,7 +155,7 @@
   }                                                                            \
 
 
-/// Redirection of NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN) when invoked from 
+/// Redirection of NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN) when invoked from
 /// within a module.
 #define MODULE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)                          \
                                                                                \
@@ -260,7 +262,7 @@
   }                                                                            \
 
 
-/// Redirection of BACKEND_REQ(GROUP, REQUIREMENT, (TAGS), TYPE, [(ARGS)]) 
+/// Redirection of BACKEND_REQ(GROUP, REQUIREMENT, (TAGS), TYPE, [(ARGS)])
 /// for declaring backend requirements when invoked from within a module.
 #define MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQ, TAGS, TYPE, ARGS,     \
                            IS_VARIABLE)                                        \
@@ -290,5 +292,5 @@
 
 /// @}
 
-#endif // defined __module_macros_inmodule_hpp__ 
+#endif // defined __module_macros_inmodule_hpp__
 

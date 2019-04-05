@@ -106,7 +106,11 @@ namespace Gambit
         void initialise(const std::vector<int>&);
         void reset(bool force=false);
         void finalise(bool abnormal=false);
-
+    
+        // Get options required to construct a reader object that can read
+        // the previous output of this printer.
+        Options resume_reader_options();
+ 
         /// Ask the printer for the highest ID number known for a given rank
         /// process (needed for resuming, so the scanner can resume assigning
         /// point ID from this value.

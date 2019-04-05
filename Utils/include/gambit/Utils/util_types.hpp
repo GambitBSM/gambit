@@ -32,7 +32,11 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
+///  \date 2018 Oct
 ///
+/// \author Aaron Vincent
+///         (aaron.vincent@cparc.ca)
+///   \date 2017 Nov
 ///  *********************************************
 
 #ifndef __util_types_hpp__
@@ -64,6 +68,9 @@ namespace Gambit
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
+
+  /// Shorthand for an int-int pair to double map
+  typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
 
   // Useful unqualified functions
   using std::cout;
@@ -619,7 +626,7 @@ namespace Gambit
   typedef short             Finteger2;
   typedef long int          Finteger4;
   typedef long long         Finteger8;
-  typedef bool              Flogical;
+  typedef int32_t           Flogical; // 4-byte integers, compiler independent
   typedef bool              Flogical1;
   typedef float             Freal;
   typedef float             Freal4;
@@ -639,6 +646,3 @@ namespace Gambit
 
 }
 #endif //defined __util_types_hpp__
-
-
-

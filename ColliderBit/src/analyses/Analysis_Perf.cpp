@@ -21,8 +21,8 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
-// ROOT (abusing the EXCLUDE_DELPHES macro)
-#ifndef EXCLUDE_DELPHES
+// Only include these headers if ROOT is present
+#ifndef EXCLUDE_ROOT
 #include "TH1.h"
 #include "TVirtualPad.h"
 #include "TApplication.h"
@@ -41,7 +41,7 @@ namespace Gambit {
     class Analysis_Perf : public HEPUtilsAnalysis {
     private:
 
-      #ifndef EXCLUDE_DELPHES
+      #ifndef EXCLUDE_ROOT
       TH1F *_hElectron1Pt, *_hElectron1Eta, *_hElectron1Phi;
       TH1F *_hElectron2Pt, *_hElectron2Eta, *_hElectron2Phi;
       TH1F *_hMuon1Pt;
@@ -70,7 +70,7 @@ namespace Gambit {
     public:
 
       ~Analysis_Perf() {
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
         if(_hasTFile)
           delete _ROOToutFile;
         #endif
@@ -78,7 +78,7 @@ namespace Gambit {
 
 
       Analysis_Perf() {
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
 
         _output_filename = "SimOutput.root";
         _hasTFile = false;
@@ -234,7 +234,7 @@ namespace Gambit {
         // We now have the signal electrons, muons and jets; fill the histograms
 
 
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
 
         // MET
         _hmet->Fill(event->met());
@@ -347,7 +347,7 @@ namespace Gambit {
         HEPUtilsAnalysis::add(other);
 
         // Add the subclass member variables
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
         Analysis_Perf* specificOther = dynamic_cast<Analysis_Perf*>(other);
         _hElectron1Pt->Add(specificOther->_hElectron1Pt);
         _hElectron1Eta->Add(specificOther->_hElectron1Eta);
@@ -403,7 +403,7 @@ namespace Gambit {
       void scale(double) {
         // NOTE: previously called finalize, but I got rid of that crap. --Abram
 
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
         if (_hasTFile)
           _ROOToutFile->Write();
         //_ROOToutFile->Close();
@@ -429,7 +429,7 @@ namespace Gambit {
 
    protected:
       void clear() {
-        #ifndef EXCLUDE_DELPHES
+        #ifndef EXCLUDE_ROOT
         _hElectron1Pt->Reset();
         _hElectron1Eta->Reset();
         _hElectron1Phi->Reset();
@@ -495,7 +495,7 @@ namespace Gambit {
 
     DEFINE_ANALYSIS_FACTORY(Perf);
 
-    #ifndef EXCLUDE_DELPHES
+    #ifndef EXCLUDE_ROOT
     // Static member initialization
     bool Analysis_Perf::_openTFile = false;
     #endif

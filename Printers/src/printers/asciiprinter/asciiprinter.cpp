@@ -182,6 +182,17 @@ namespace Gambit
       // Currently don't seem to need this... could use it to check if all VertexID's have submitted print requests.
     }
 
+    // Get options required to construct a reader object that can read
+    // the previous output of this printer.
+    // TODO: Currently unavailable
+    Options asciiPrinter::resume_reader_options()
+    {
+      std::ostringstream err;
+      err << "Sorry, the asciiPrinter is currently in a state of neglect, and lacks features necessary for constructing reader objects for resume data. If you really want these features then please file a bug to make your desires known :)." << std::endl;
+      printer_error().raise(LOCAL_INFO, err.str());
+      return Options();
+    }
+ 
     /// Do final buffer dumps
     void asciiPrinter::finalise(bool /*abnormal*/)
     {

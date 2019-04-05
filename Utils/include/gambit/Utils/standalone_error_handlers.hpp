@@ -8,8 +8,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott 
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///
@@ -18,15 +18,16 @@
 #ifndef __standalone_error_handlers_hpp__
 #define __standalone_error_handlers_hpp__
 
+#include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/exceptions.hpp"
 
 namespace Gambit
 {
 
   /// Utility errors
-  error& utils_error();
+  EXPORT_SYMBOLS error& utils_error();
   /// Utility warnings
-  warning& utils_warning();
+  EXPORT_SYMBOLS warning& utils_warning();
 
   /// Backend errors
   error& backend_error();
@@ -49,9 +50,9 @@ namespace Gambit
   namespace Printers
   {
     /// Printer errors
-    error& printer_error();
+    EXPORT_SYMBOLS error& printer_error();
     /// Printer warnings
-    warning& printer_warning();
+    EXPORT_SYMBOLS warning& printer_warning();
   }
 
   namespace IniParser
@@ -61,7 +62,7 @@ namespace Gambit
     /// IniFile warnings
     warning& inifile_warning();
   }
-  
+
 }
 
 #endif //#ifndef __standalone_error_handlers_hpp__

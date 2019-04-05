@@ -18,7 +18,8 @@
 ///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2013 May, Jul, Aug, Nov
-///  \date 2014 Jan, Mar, Apr, Dec
+///        2014 Jan, Mar, Apr, Dec
+///        2018 Sep, Nov
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu)
@@ -1195,8 +1196,7 @@ namespace Gambit
             true, "dependency_resolution", "prefer_model_specific_functions")
           and filteredVertexCandidates.size() > 1)
       {
-        filteredVertexCandidates =
-          closestCandidateForModel(filteredVertexCandidates);
+        filteredVertexCandidates = closestCandidateForModel(filteredVertexCandidates);
         logger() << "A subset of vertex candidates is tailor-made for the scanned model." << endl;
         logger() << "This is used as additional constraint since the YAML rules alone" << endl;
         logger() << "are not constraining enough. These vertices are:" << endl;
@@ -1217,7 +1217,7 @@ namespace Gambit
       if ( filteredVertexCandidates.size() == 1 )
         return filteredVertexCandidates[0];  // And done!
 
-      str errmsg = "Unfortuantely, the dependency resolution for";
+      str errmsg = "Unfortunately, the dependency resolution for";
       errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
       errmsg += "\nis still ambiguous.\n";
       errmsg += "\nThe candidate vertices are:\n";
@@ -1331,8 +1331,7 @@ namespace Gambit
       // that are accessible via INTERPRET_AS_X links, as these are all considered to be equally 'far'
       // from the model being scanned, with the 'distance' being one step further than the most distant
       // ancestor.
-      if ( vertexCandidates.size() > 1 and not ( boundIniFile->hasKey("dependency_resolution", "prefer_model_specific_functions") and not
-           boundIniFile->getValue<bool>("dependency_resolution", "prefer_model_specific_functions") ) )
+      if ( vertexCandidates.size() > 1 and boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions") )
       {
         // Work up the model ancestry one step at a time, and stop as soon as one or more valid model-specific functors is
         // found at a given level in the hierarchy.
@@ -1372,9 +1371,8 @@ namespace Gambit
                 + "\nneeded by " + depEntry->module + "::" + depEntry->function
                 +  "\nCheck your inifile for typos, your modules for consistency, etc.";
         }
-        if ( boundIniFile->hasKey("dependency_resolution", "prefer_model_specific_functions") and not
-        boundIniFile->getValue<bool>("dependency_resolution", "prefer_model_specific_functions") )
-        errmsg += "\nAlso consider turning on prefer_model_specific_functions in your inifile.";
+        if (not boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions"))
+         errmsg += "\nAlso consider turning on prefer_model_specific_functions in your inifile.";
         errmsg += "\nCandidate module functions are:";
         for (std::vector<DRes::VertexID>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
         {
@@ -1809,9 +1807,9 @@ namespace Gambit
      const IniParser::ObservableType * auxEntry, VertexID vertex, std::vector<functor*> previous_successes,
      bool allow_deferral, str group)
     {
-      std::vector<functor *> vertexCandidates;
-      std::vector<functor *> vertexCandidatesWithIniEntry;
-      std::vector<functor *> disabledVertexCandidates;
+      std::vector<functor*> vertexCandidates;
+      std::vector<functor*> vertexCandidatesWithIniEntry;
+      std::vector<functor*> disabledVertexCandidates;
 
       // Loop over all existing backend vertices, and make a list of
       // functors that are available and fulfill the backend requirement
@@ -1872,6 +1870,7 @@ namespace Gambit
           else
           {
             // otherwise, add it to disabled vertex candidate list
+            if (not disabled) (*itf)->setStatus(1);
             disabledVertexCandidates.push_back(*itf);
           }
         }
@@ -2040,7 +2039,36 @@ namespace Gambit
         {
           return NULL;
         }
-        else  // If not, the game is up.
+
+        // If not, we have just one more trick up our sleeves... use the models scanned to narrow things down.
+        if (boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions"))
+        {
+          // Prefer backend functors that are more specifically tailored for the model being scanned. Do not
+          // consider backend functors that are accessible via INTERPRET_AS_X links, as these are all considered
+          // to be equally 'far' from the model being scanned, with the 'distance' being one step further than
+          // the most distant ancestor.
+          std::vector<functor*> newCandidates;
+          std::set<str> s = boundClaw->get_activemodels();
+          std::vector<str> parentModelList(s.begin(), s.end());
+          while (newCandidates.size() == 0 and not parentModelList.empty())
+          {
+            for (std::vector<str>::iterator mit = parentModelList.begin(); mit != parentModelList.end(); ++mit)
+            {
+              // Test each vertex candidate to see if it has been explicitly set up to work with the model *mit
+              for (std::vector<functor*>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
+              {
+                if ( (*it)->modelExplicitlyAllowed(*mit) ) newCandidates.push_back(*it);
+              }
+              // Step up a level in the model hierarchy for this model.
+              *mit = boundClaw->get_parent(*mit);
+            }
+            parentModelList.erase(std::remove(parentModelList.begin(), parentModelList.end(), "none"), parentModelList.end());
+          }
+          if (newCandidates.size() != 0) vertexCandidates = newCandidates;
+        }
+
+        // Still more than one candidate, so the game is up.
+        if (vertexCandidates.size() > 1)
         {
           str errmsg = "Found too many candidates for backend requirement ";
           if (reqs.size() == 1) errmsg += reqs.begin()->first + " (" + reqs.begin()->second + ")";

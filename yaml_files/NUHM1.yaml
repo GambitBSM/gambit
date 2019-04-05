@@ -159,6 +159,9 @@ ObsLikes:
     - purpose:    LogLike
       capability: b2sgamma_LL
 
+    - purpose:    LogLike
+      capability: LUV_LL
+
     # Precision physics likelihoods
     - capability: lnL_W_mass
       purpose:    LogLike
@@ -182,10 +185,7 @@ ObsLikes:
     - capability: XENON100_2012_LogLikelihood
       purpose:    LogLike
 
-    - capability: XENON1T_2017_LogLikelihood
-      purpose:    LogLike
-
-    - capability: LUX_2015_LogLikelihood
+    - capability: XENON1T_2018_LogLikelihood
       purpose:    LogLike
 
     - capability: LUX_2016_LogLikelihood
@@ -194,10 +194,13 @@ ObsLikes:
     - capability: PandaX_2016_LogLikelihood
       purpose:    LogLike
 
+    - capability: PandaX_2017_LogLikelihood
+      purpose:    LogLike
+
     - capability: PICO_2L_LogLikelihood
       purpose:    LogLike
 
-    - capability: PICO_60_F_LogLikelihood
+    - capability: PICO_60_LogLikelihood
       purpose:    LogLike
 
     - capability: PICO_60_2017_LogLikelihood
@@ -246,6 +249,15 @@ ObsLikes:
       purpose:    LogLike
 
     # Other observables
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_analysis
+
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
     - purpose:    Observable
       capability: RD_oh2
 
@@ -286,6 +298,10 @@ Rules:
   # Tell all functions that are able to dump SLHA files to do so.
   #- options:
   #    drop_SLHA_file: true
+
+  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -449,11 +465,6 @@ Rules:
       rho0_obs: 0.4
       rho0_obserr: 0.15
 
-  # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
-  - capability: LHC_Combined_LogLike
-    backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
-
   # Values to be used in local disk rotation speed likelihood (all values in km/s)
   - capability: lnL_vrot
     function: lnL_vrot_gaussian
@@ -503,32 +514,52 @@ Rules:
     function: getBuckFastCMS
     options:
       partonOnly: [false]
-      antiktR: [0.5]
+      antiktR: [0.4]
       useDetector: [true]
 
   # ATLAS analysis setup.
   - capability: ATLASAnalysisContainer
     function: getATLASAnalysisContainer
     options:
-      analyses: [ ["ATLAS_0LEP_20invfb","ATLAS_0LEPStop_20invfb",
-                   "ATLAS_1LEPStop_20invfb","ATLAS_2bStop_20invfb",
-                   "ATLAS_2LEPEW_20invfb","ATLAS_2LEPStop_20invfb",
-                   "ATLAS_3LEPEW_20invfb"] ]
+      analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
+                   "ATLAS_13TeV_MultiLEP_36invfb",
+                   "ATLAS_13TeV_0LEPStop_36invfb",
+                   "ATLAS_13TeV_2LEPStop_36invfb",
+                   "ATLAS_13TeV_2bMET_36invfb"] ]
+
+                   # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
+                   # "ATLAS_13TeV_1LEPStop_36invfb",
+                   # These analyses currently depend on ROOT.
 
   # CMS analysis setup
   - capability: CMSAnalysisContainer
     function: getCMSAnalysisContainer
     options:
-      analyses: [ ["CMS_1LEPDMTOP_20invfb","CMS_2LEPDMTOP_20invfb",
-                   "CMS_3LEPEW_20invfb","CMS_MONOJET_20invfb"] ]
+      analyses: [ ["CMS_13TeV_0LEP_36invfb",
+                   "CMS_13TeV_1LEPbb_36invfb",
+                   "CMS_13TeV_2OSLEP_36invfb",
+                   "CMS_13TeV_2LEPsoft_36invfb",
+                   "CMS_13TeV_1LEPStop_36invfb",
+                   "CMS_13TeV_2LEPStop_36invfb",
+                   "CMS_13TeV_MultiLEP_36invfb",
+                   "CMS_13TeV_MONOJET_36invfb" ] ]
 
-  # Choose Monte Carlo event simulator and number of events to run.
+  # Choose Monte Carlo event simulator.
   - capability:  ColliderOperator
     function: operateLHCLoop
     options:
-      nEvents: [20000]
-      pythiaNames: ["Pythia_SUSY_LHC_8TeV"]
+      pythiaNames: ["Pythia_SUSY_LHC_13TeV"]
       silenceLoop: true
+
+  # Choose statistical settings for Monte Carlo event generator
+  - capability: MC_ConvergenceSettings
+    options:
+      min_nEvents: [5000]
+      max_nEvents: [50000]
+      events_between_convergence_checks: [5000]
+      target_fractional_uncert: [0.3]
+      halt_when_systematic_dominated: true
+      all_SR_must_converge: false
 
   # Define Monte Carlo event simulator and associated options.
   - capability:  HardScatteringSim
@@ -537,15 +568,25 @@ Rules:
       # Pythia_doc_path defaults to the xmldoc directory of the default Pythia
       # backend. So, this must only be set if the user chooses a different Pythia.
       # Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
-      Pythia_SUSY_LHC_8TeV: ["Print:quiet = on",
+      Pythia_SUSY_LHC_13TeV: ["Print:quiet = on",
                              "PartonLevel:MPI = off",
                              "PartonLevel:ISR = on",
                              "PartonLevel:FSR = on",
                              "HadronLevel:all = on",
                              "SUSY:all = on",
                              "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 20"]
-      xsec_vetos: [0.048]  # 0.048 fb correspond to ~1 expected event at L = 20.7 fb^-1.
+                             "TimeShower:pTmin = 2"]
+
+      xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+
+  # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 100000
 
 
 Logger:
@@ -573,4 +614,4 @@ KeyValues:
 
   default_output_path: "runs/NUHM1/"
 
-  debug: false
+  debug: true

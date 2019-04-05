@@ -38,12 +38,12 @@ namespace Gambit
     template <typename T>
     bool is_numeric()
     {
-      return (boost::is_same<T, int>::value or
-              boost::is_same<T, const int>::value or
-              boost::is_same<T, float>::value or
-              boost::is_same<T, const float>::value or
-              boost::is_same<T, double>::value or
-              boost::is_same<T, const double>::value);
+      return (std::is_same<T, int>::value or
+              std::is_same<T, const int>::value or
+              std::is_same<T, float>::value or
+              std::is_same<T, const float>::value or
+              std::is_same<T, double>::value or
+              std::is_same<T, const double>::value);
     }
 
     /// Sneaky template classes that allow one to declare dummy 'instances' of voids (as ints) in templates

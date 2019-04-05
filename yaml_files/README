@@ -5,39 +5,54 @@ GAMBIT steering files
 Functionality/configuration demos and minimal examples
 ------------------------------------------------------
 
-spartan.yaml                    --- Simplest example of using GAMBIT: a toy-model MultiNest scan
-spartan_CMSSM.yaml              --- Simple example of using GAMBIT in a random scan of CMSSM params
+spartan.yaml                     --- Simplest example of using GAMBIT: a toy-model MultiNest scan
+spartan_NUHM1.yaml               --- Simple example of using GAMBIT in a random scan of NUHM1 params
 
-pp_strip.yaml                   --- Simple example of using the postprocessor scanner to strip 'invalid' points out of an output file
+postprocessor_demo.yaml          --- Simple example of using the postprocessor scanner to add a new likelihood component
 
-ColliderBit_CMSSM.yaml          --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
-ColliderBit_ExternalModel.yaml  --- LHC likelihood demo on a single point of a Pythia external model
+ColliderBit_CMSSM.yaml           --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
+ColliderBit_ExternalModel.yaml   --- LHC likelihood demo on a single point of a Pythia external model
 
-DarkBit_MSSM7.yaml              --- DM constraint demo with a MultiNest scan of the MSSM7 model
-DarkBit_SingletDM.yaml          --- DarkBit demo with a simple of MultiNest scan of Singlet DM model
+DarkBit_MSSM7.yaml               --- DM constraint demo with a MultiNest scan of the MSSM7 model
+DarkBit_ScalarSingletDM_Z2.yaml  --- DarkBit demo with a simple of MultiNest scan of Singlet DM model
 
-DecayBit_MSSM20.yaml            --- Test of DecayBit, printing out a decay table for MSSM20 at a single model point
-DecayBit_SingletDM.yaml         --- Test of DecayBit, printing out a decay table for Singlet DM at 10 model points
+DecayBit_MSSM20.yaml             --- Test of DecayBit, printing out a decay table for MSSM20 at a single model point
+DecayBit_ScalarSingletDM_Z2.yaml --- Test of DecayBit, printing out a decay table for Singlet DM at 10 model points
 
-FlavBit_CMSSM.yaml              --- Flavour physics fits to CMSSM with Diver scan
+FlavBit_CMSSM.yaml               --- Flavour physics fits to CMSSM with Diver scan
 
-PrecisionBit_MSSM20.yaml        --- Precision EW observable demo on a single MSSM20 point
+PrecisionBit_MSSM20.yaml         --- Precision EW observable demo on a single MSSM20 point
 
-ScannerBit.yaml                 --- Example of configuring the scanner system
+ScannerBit.yaml                  --- Example of configuring the scanner system
 
-SpecBit_MSSM.yaml               --- Single-point test of mass spectrum generation in MSSM sub-models
-SpecBit_vacuum_stability.yaml   --- 50x50 grid scan of vacuum stability in [mT,mH]
+SpecBit_MSSM.yaml                --- Single-point test of mass spectrum generation in MSSM sub-models
+SpecBit_vacuum_stability.yaml    --- 50x50 grid scan of vacuum stability in [mT,mH]
+
+Mathematica_test.yaml            --- Simple example demonstrating the use of Mathematica backends
+Python_test.yaml                 --- Simple example demonstrating the use of Python backends
 
 
 Physics model scan configurations
 ---------------------------------
 
-CMSSM.yaml      --- Diver scan on CMSSM model
-MSSM7.yaml      --- Diver scan on MSSM7 model
-NUHM1.yaml      --- Diver scan on NUHM1 model
-NUHM2.yaml      --- Diver scan on NUHM2 model
-SingletDM.yaml  --- Diver scan on Singlet DM model
-WC.yaml         --- MultiNest scan of flavour physics Wilson Coeffs
+CMSSM.yaml                --- Diver scan of CMSSM model
+MSSM7.yaml                --- Diver scan of MSSM7 model
+MSSM9.yaml                --- Diver scan of MSSM9 model
+NUHM1.yaml                --- Diver scan of NUHM1 model
+NUHM2.yaml                --- Diver scan of NUHM2 model
+ScalarSingletDM_Z2.yaml   --- Diver scan of scalar singlet Higgs-portal DM model with Z2 symmetry
+ScalarSingletDM_Z3.yaml   --- Diver scan of scalar singlet Higgs-portal DM model with Z3 symmetry
+DiracSingletDM_Z2.yaml    --- Diver scan of Dirac singlet Higgs-portal DM model with Z2 symmetry
+MajoranaSingletDM_Z2.yaml --- Diver scan of Majorana singlet Higgs-portal DM model with Z2 symmetry
+VectorSingletDM_Z2.yaml   --- Diver scan of Vector singlet Higgs-portal DM model with Z2 symmetry
+WC.yaml                   --- MultiNest scan of flavour physics Wilson Coeffs
+WC_lite.yaml              --- A lightweight version of WC.yaml, with less observables and parameters
+
+
+Plotting examples
+-----------------
+WC_lite.pip               --- plot the results of WC_lite.yaml with pippi
+spartan.pip               --- plot the results of spartan.yaml with pippi
 
 
 Config fragments containing parameters for inclusion in other steering files
@@ -45,3 +60,9 @@ Config fragments containing parameters for inclusion in other steering files
 
 StandardModel_SLHA2_defaults.yaml
 StandardModel_SLHA2_scan.yaml
+
+
+Files used for unit testing
+---------------------------
+
+Found in the validation/ directory.

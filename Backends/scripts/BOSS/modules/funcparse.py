@@ -4,10 +4,9 @@
 #                             #
 ###############################
 
-import xml.etree.ElementTree as ET
+from __future__ import print_function
 from collections import OrderedDict
 import os
-import copy
 
 import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")
@@ -49,8 +48,8 @@ def run():
 
 
         # Print current function
-        print
-        print '  ' + utils.modifyText('Function:','underline') + ' ' + func_name['long_templ_args']
+        print()
+        print('  ' + utils.modifyText('Function:','underline') + ' ' + func_name['long_templ_args'])
 
 
         # Check if this function is accepted
@@ -70,7 +69,7 @@ def run():
         if is_template == True:
             template_bracket, template_types = utils.getTemplateBracket(func_el)
             spec_template_types = utils.getSpecTemplateTypes(func_el)
-            print 'TEMPLATE: ', template_bracket, template_types, spec_template_types
+            print('TEMPLATE: ', template_bracket, template_types, spec_template_types)
 
 
         #
@@ -180,7 +179,7 @@ def run():
         gb.functions_done.append(func_name)
         gb.wr_func_names.append(wr_func_name)
 
-        print
+        print()
 
     #
     # End loop over functions

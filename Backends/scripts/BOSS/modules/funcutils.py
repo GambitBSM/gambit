@@ -5,10 +5,9 @@
 #                                  #
 ####################################
 
-import xml.etree.ElementTree as ET
+from __future__ import print_function
 from collections import OrderedDict
 import copy
-import warnings
 
 import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")
@@ -239,7 +238,7 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
                         arg_dict['type'] = arg_dict['type'] + '&'
 
             # else:
-            #     print 'INFO: ' + 'The argument "%s" is of a native type "%s" that BOSS is not parsing. The function using this should be ignored.' % (arg_dict['name'], arg_dict['type'])
+            #     print('INFO: ' + 'The argument "%s" is of a native type "%s" that BOSS is not parsing. The function using this should be ignored.' % (arg_dict['name'], arg_dict['type']))
 
     return w_args
 

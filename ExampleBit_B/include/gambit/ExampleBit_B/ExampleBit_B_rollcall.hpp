@@ -77,6 +77,11 @@ START_MODULE
     ALLOW_MODELS(NormalDist)
     #undef FUNCTION
 
+    #define FUNCTION sigma_example_req_pars // As sigma_example, however it obtains model parameters
+    START_FUNCTION(double)                  // as an "ordinary" dependency, rather than using ALLOW_MODELS
+    DEPENDENCY(NormalDist_parameters, ModelParameters)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -107,13 +112,14 @@ START_MODULE
     BACKEND_REQ(varex, (common_be), double, (int, etc))
     BACKEND_REQ(varex2, (common_be), double, (int, etc))
     BACKEND_REQ(runMe, (), void, (double (*)(int&), int&))
-    BACKEND_REQ(SomeInt, (model_dependent_reqs, libfirst11_or_libsecond_only), python_variable<int>)
-    BACKEND_REQ(someFunction, (libfirst11_or_libsecond_only), void, ())
+    BACKEND_REQ(SomeInt, (model_dependent_reqs, not_libfirst10), python_variable<int>)
+    BACKEND_REQ(someFunction, (not_libfirst10), void, ())
 
     ACTIVATE_BACKEND_REQ_FOR_MODELS( (CMSSM, demo_B, nonexistent_model), (model_dependent_reqs) )
-    BACKEND_OPTION( (LibFirst, 1.1), (libfirst11_or_libsecond_only, lib123) )
-    BACKEND_OPTION( (LibSecond), (libfirst11_or_libsecond_only, lib123) )
-    BACKEND_OPTION( (LibThird, 1.2, 1.3 , 1.5), (lib123) )
+    BACKEND_OPTION( (LibFirst), (lib123) )
+    BACKEND_OPTION( (LibFirst, 1.1), (not_libfirst10) )
+    BACKEND_OPTION( (LibSecond), (not_libfirst10, lib123) )
+    BACKEND_OPTION( (LibThird), (not_libfirst10, lib123) )
     FORCE_SAME_BACKEND(common_be)
 
     #define CONDITIONAL_DEPENDENCY particle_id             // A dependency that only counts under certain conditions (must come after all BACKEND_REQs)

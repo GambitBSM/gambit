@@ -69,6 +69,7 @@ namespace Gambit
       private:
         int rank;
         std::set<std::string> print_list; // List of names of data that may be printed (i.e. with printme=true)
+        bool resume; // Flag to query to determine if printer is appending points to existing output 
 
       public:
         BaseBasePrinter(): rank(0), printer_enabled(true) {}
@@ -88,6 +89,13 @@ namespace Gambit
         std::set<std::string> getPrintList() {return print_list;}
         void                  setPrintList(std::set<std::string>& in) {print_list = in;}
         void                  addToPrintList(std::string& in) {print_list.insert(in);}
+
+        // Get options required to construct a reader object that can read
+        // the previous output of this printer.
+        virtual Options resume_reader_options() = 0;
+
+        bool get_resume() { return resume; }
+        void set_resume(bool rflag) { resume = rflag; }
 
         /// Signal printer that scan is finished, and final output needs to be performed
         virtual void finalise(bool abnormal=false) = 0;

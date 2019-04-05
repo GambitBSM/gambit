@@ -394,6 +394,10 @@ namespace Gambit
 
       // Declare DM annihilation process
       TH_Process process(DMid, DMid);
+      
+      // Explicitly state that Neutralino DM is self-conjugate
+      process.isSelfConj = true;
+      
       double M_DM = catalog.getParticleProperty(DMid).mass;
       // Helper variables
       int index;

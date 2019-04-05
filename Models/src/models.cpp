@@ -3,7 +3,7 @@
 ///  \file
 ///
 ///  Library of Models methods.
-///  
+///
 ///  Duties:
 ///  * Activate primary_model_functors according to
 ///    the model(s) being scanned
@@ -46,7 +46,7 @@ namespace Gambit
     /// @{
 
     // Public functions and data members
-        
+
     /// Model activation function
     /// Returns a vector of primary_model_functors to be activated, according to the model(s) being scanned
     primodel_vec ModelFunctorClaw::getPrimaryModelFunctorsToActivate (std::set<str> selectedmodels, const primodel_vec& primaryModelFunctors)
@@ -54,10 +54,10 @@ namespace Gambit
       // Holder for result
       primodel_vec result;
       // Iterator to elements of 'selectedmodels'
-      std::set<str>::iterator el;      
+      std::set<str>::iterator el;
 
       // Loop through functor list and activate functor if it matches a member of 'selectedmodels'.
-      for (primodel_vec::const_iterator 
+      for (primodel_vec::const_iterator
           it  = primaryModelFunctors.begin();
           it != primaryModelFunctors.end();
           ++it)
@@ -77,7 +77,7 @@ namespace Gambit
           activemodels.insert(*el);
           // Remove it from the input 'selectedmodels' list
           selectedmodels.erase(el);
-        } 
+        }
       }
 
       // Check that all requested models have been activated
@@ -87,7 +87,7 @@ namespace Gambit
         str errmsg = "Error! Some of the requested models could not be activated for \n";
         errmsg    += "scanning! Probably they have not been defined, or you spelled  \n";
         errmsg    += "their name wrong in the ini file.                              \n";
-        errmsg    += "Un-activatable models:                                         \n";
+        errmsg    += "Models that cannot be activated:                               \n";
         for (std::set<str>::iterator m = selectedmodels.begin(); m != selectedmodels.end(); ++m)
         {
           errmsg    += ("  " + *m + "\n");
@@ -98,7 +98,7 @@ namespace Gambit
       return result;
 
     }
-   
+
     /// Return set of all models recognised by GAMBIT
     const std::set<str>& ModelFunctorClaw::get_allmodels() const { return allmodelnames; }
 
@@ -117,20 +117,20 @@ namespace Gambit
       primary_model_functor* functorPtr;
       // Loop through functor list and check that their statuses have all been
       // set to 2 ("active"). If not, it means that some of them were not
-      // activated by the dependency resolver and thus are not used for 
+      // activated by the dependency resolver and thus are not used for
       // computing anything.
-      for(activemodel_it it  = activeModelFunctors.begin(); 
-                         it != activeModelFunctors.end(); it++) 
+      for(activemodel_it it  = activeModelFunctors.begin();
+                         it != activeModelFunctors.end(); it++)
       {
         modelname  = it->first;
         functorPtr = it->second;
-        
+
         if ( functorPtr->status()!=2 )
         {
           unusedmodels.push_back( modelname );
-        } 
-      }     
-    
+        }
+      }
+
       // If we found unused models throw an error
       if ( unusedmodels.size() > 0 )
       {
@@ -144,7 +144,7 @@ namespace Gambit
         }
         model_error().raise(LOCAL_INFO,errmsg);
       }
-      
+
     }
 
     /// Add a new model to the model database.
@@ -164,26 +164,26 @@ namespace Gambit
         // Add the parent to the parents database.
         myParentsDB[model] = parent;
         // Inherit friends from the model's parent.
-        myFriendsDB[model] = myFriendsDB[parent]; 
+        myFriendsDB[model] = myFriendsDB[parent];
         // Inherit lineage from the model's parent.
         myLineageDB[model] = myLineageDB[parent];
       }
       else
       {
         // Seed empty friend sets and inheritance vector.
-        myFriendsDB[model] = std::set<str>(); 
-        myBestFriendsDB[model] = std::set<str>(); 
+        myFriendsDB[model] = std::set<str>();
+        myBestFriendsDB[model] = std::set<str>();
         myLineageDB[model] = std::vector<str>();
       }
       // Add the new model to its own lineage vector.
       myLineageDB[model].push_back(model);
       // Register the model in each of its parents' descendents vectors.
-      for (std::set<str>::iterator parent = allmodelnames.begin(); parent != allmodelnames.end(); ++parent)               
+      for (std::set<str>::iterator parent = allmodelnames.begin(); parent != allmodelnames.end(); ++parent)
       {
-        // If this model descends from parent, add it to the parent's descendents vector                               
+        // If this model descends from parent, add it to the parent's descendents vector
         if (descended_from(model,*parent)) myDescendantsDB[*parent].push_back(model);
-      }                                                                    
-    }          
+      }
+    }
 
     /// Add a friend, and all its friends and ancestors, to a model's list of friends
     void ModelFunctorClaw::add_friend (const str &model, const str &newfriend)
@@ -203,7 +203,7 @@ namespace Gambit
       // Also inherit the new friend's friends as regular friends.
       set_union(temp1.begin(), temp1.end(), myFriendsDB[newfriend].begin(), myFriendsDB[newfriend].end(), inserter(temp2, temp2.begin()));
       myFriendsDB[model] = temp2;
-    }                                                                      
+    }
 
     /// Indicate whether a model is recognised by GAMBIT or not
     bool ModelFunctorClaw::model_exists (const str &model) const
@@ -217,8 +217,8 @@ namespace Gambit
       str temp = "";
       for (std::set<str>::iterator it = allmodelnames.begin(); it != allmodelnames.end(); ++it)
       {
-        temp += "\n" + *it; 
-      } 
+        temp += "\n" + *it;
+      }
       return temp;
     }
 
@@ -230,7 +230,7 @@ namespace Gambit
         str errmsg = "Model \"";
         errmsg += model + "\" is not in the GAMBIT database.";
         errmsg += "\nRecognised models are:" + list_models();
-        model_error().raise(LOCAL_INFO,errmsg); 
+        model_error().raise(LOCAL_INFO,errmsg);
       }
     }
 
@@ -248,19 +248,19 @@ namespace Gambit
 
     /// Retrieve the lineage for a given model
     std::vector<str> ModelFunctorClaw::get_lineage (const str &model) const
-    {      
+    {
       return myLineageDB.find(model) == myLineageDB.end() ? std::vector<str>() : myLineageDB.at(model);
     }
 
     /// Retrieve the friends for a given model
     std::set<str> ModelFunctorClaw::get_friends (const str &model) const
-    {      
+    {
       return myFriendsDB.find(model) == myFriendsDB.end() ? std::set<str>() : myFriendsDB.at(model);
     }
 
     /// Retrieve the best friends for a given model
     std::set<str> ModelFunctorClaw::get_best_friends (const str &model) const
-    {      
+    {
       return myBestFriendsDB.find(model) == myBestFriendsDB.end() ? std::set<str>() : myBestFriendsDB.at(model);
     }
 
@@ -268,10 +268,10 @@ namespace Gambit
     bool ModelFunctorClaw::descended_from (const str &model1, const str &model2) const
     {
       verify_model(model1);
-      auto lineage = myLineageDB.at(model1);         
+      auto lineage = myLineageDB.at(model1);
       for (std::vector<str>::const_iterator it = lineage.begin(); it != lineage.end(); ++it)
       {
-        if (model2==*it) return true; 
+        if (model2==*it) return true;
       }
       return false;
     }
@@ -301,7 +301,7 @@ namespace Gambit
     }
 
     /// @}
-    
+
   }
 
 }

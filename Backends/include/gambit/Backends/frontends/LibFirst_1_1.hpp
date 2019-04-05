@@ -29,7 +29,7 @@
 LOAD_LIBRARY
 
 // Set models that this backend can be used with.  If absent, all models are allowed.
-BE_ALLOW_MODELS(NUHM1,SingletDMZ3,WC)
+BE_ALLOW_MODELS(NUHM1,ScalarSingletDM_Z3,WC)
 
 // Functions
 BE_FUNCTION(initialize, void, (int), "_Z10initializei", "initialize_capability")
@@ -52,7 +52,7 @@ BE_VARIABLE(SomeVector, std::vector<double>, "someVector", "test_vector")
 BE_INI_DEPENDENCY(nevents, int)
 
 // Convenience functions (registration)
-BE_CONV_FUNCTION(awesomenessByAnders, double, (int), "awesomeness", (NUHM1,SingletDM))
+BE_CONV_FUNCTION(awesomenessByAnders, double, (int), "awesomeness", (NUHM1,ScalarSingletDM_Z3))
 BE_CONV_FUNCTION(variadicConvenience, double, (int, etc), "varex2")
 
 // Initialisation function (definition)

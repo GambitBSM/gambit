@@ -109,12 +109,11 @@ BE_NAMESPACE
   /// yields for a generic WIMP.
   void dsgenericwimp_nusetup(const double (&annihilation_bf)[29], const double (&Higgs_decay_BFs_neutral)[29][3],
    const double (&Higgs_decay_BFs_charged)[15], const double (&Higgs_masses_neutral)[3], const double &Higgs_mass_charged,
-   const double &mwimp, const double &sigmav, const double &sigma_sip, const double &sigma_sdp)
+   const double &mwimp)
   {
 
-    // Transfer WIMP mass and sigmav to common blocks.
+    // Transfer WIMP mass common block.
     wabranch->wamwimp = mwimp;
-    wabranch->wasv = sigmav;
 
     // Transfer branching fractions to WIMP annihilation common blocks.
     // For channel indices, see dswayieldone.f
@@ -144,10 +143,6 @@ BE_NAMESPACE
       wabranch->was0m(i) = Higgs_masses_neutral[i-1];                   // Neutral Higgses
     }
     wabranch->wascm = Higgs_mass_charged;                               // Charged Higgses
-
-    // Transfer proton scattering cross-sections to common blocks.
-    wabranch->wasigsip = sigma_sip;                   // cm^2 SI scattering cross section
-    wabranch->wasigsdp = sigma_sdp;                   // cm^2 SD scattering cross section
 
     // Tell DarkSUSY we've taken care of business.
     wabranch->dswasetupcalled = true;

@@ -26,6 +26,10 @@
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Sep
 #
+#  \author Will Handley
+#          (wh260@cam.ac.uk)
+#  \date 2018 Dec
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -137,9 +141,31 @@ function(add_subdirectory_if_present dir)
   endif()
 endfunction()
 
+# Function to make symbols visible for a code component
+function(make_symbols_visible lib)
+  if(${CMAKE_MAJOR_VERSION} MATCHES "2")
+    set_target_properties(${lib} PROPERTIES COMPILE_OPTIONS "-fvisibility=default")
+  else()
+    set_target_properties(${lib} PROPERTIES CXX_VISIBILITY_PRESET default)
+  endif()
+endfunction()
+
+# Function to reset the install_name of a library compiled in an external project on OSX
+function(add_install_name_tool_step proj path lib)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ExternalProject_Add_Step(${proj}
+      change-install-name-${lib}
+      COMMENT "Fixing install name for ${lib}"
+      COMMAND install_name_tool -id "@rpath/${lib}" ${path}/${lib}
+      DEPENDEES install
+    )
+  endif()
+endfunction()
+
+
 # Function to add static GAMBIT library
 function(add_gambit_library libraryname)
-  cmake_parse_arguments(ARG "" "OPTION" "SOURCES;HEADERS" ${ARGN})
+  cmake_parse_arguments(ARG "VISIBLE" "OPTION" "SOURCES;HEADERS" ${ARGN})
 
   add_library(${libraryname} ${ARG_OPTION} ${ARG_SOURCES} ${ARG_HEADERS})
   add_dependencies(${libraryname} model_harvest)
@@ -160,6 +186,11 @@ function(add_gambit_library libraryname)
 
   if(${ARG_OPTION} STREQUAL SHARED AND APPLE)
     set_property(TARGET ${libraryname} PROPERTY SUFFIX .so)
+  endif()
+
+  # Reveal symbols if requested
+  if(${ARG_VISIBLE})
+    make_symbols_visible(${libraryname})
   endif()
 
   # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
@@ -255,6 +286,12 @@ function(add_gambit_executable executablename LIBRARIES)
       set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_C_LINK_FLAGS})
     endif()
   endif()
+  if(MPI_Fortran_FOUND)
+    set(LIBRARIES ${LIBRARIES} ${MPI_Fortran_LIBRARIES})
+    if(MPI_Fortran_LINK_FLAGS)
+        set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
+    endif()
+  endif()
   if (LIBDL_FOUND)
     set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
   endif()
@@ -313,9 +350,15 @@ function(add_standalone executablename)
         set(STANDALONE_OBJECTS $<TARGET_OBJECTS:${module}>)
         set(first_module ${module})
       endif()
-      # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
-      if(module STREQUAL "SpecBit" AND EXCLUDE_FLEXIBLESUSY)
-        set(standalone_permitted 0)
+      if(module STREQUAL "SpecBit")
+        set(USES_SPECBIT TRUE)
+        # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
+        if (EXCLUDE_FLEXIBLESUSY)
+          set(standalone_permitted 0)
+        endif()
+      endif()
+      if(module STREQUAL "ColliderBit")
+        set(USES_COLLIDERBIT TRUE)
       endif()
     else()
       set(standalone_permitted 0)
@@ -343,11 +386,14 @@ function(add_standalone executablename)
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.
-    if (NOT EXCLUDE_FLEXIBLESUSY)
+    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${flexiblesusy_LDFLAGS})
     endif()
-    if (NOT EXCLUDE_DELPHES)
-      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${DELPHES_LDFLAGS} ${ROOT_LIBRARIES} ${ROOT_LIBRARY_DIR}/libEG.so)
+    if (USES_COLLIDERBIT AND NOT EXCLUDE_ROOT)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
+      if (NOT EXCLUDE_RESTFRAMES)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
+      endif()
     endif()
 
     add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
@@ -357,11 +403,11 @@ function(add_standalone executablename)
                           HEADERS ${ARG_HEADERS})
 
     # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here
-    if (NOT EXCLUDE_FLEXIBLESUSY)
+    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       add_dependencies(${executablename} flexiblesusy)
     endif()
-    if (NOT EXCLUDE_DELPHES)
-      add_dependencies(${executablename} delphes)
+    if (USES_COLLIDERBIT AND NOT EXCLUDE_RESTFRAMES)
+      add_dependencies(${executablename} restframes)
     endif()
 
     # Add the new executable to the standalones target
@@ -516,6 +562,7 @@ endmacro()
 set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
+
 macro(BOSS_backend name backend_version)
 
   # Replace "." by "_" in the backend version number
@@ -546,7 +593,16 @@ macro(BOSS_backend name backend_version)
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
       set(BOSS_castxml_cc "")
     endif()
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
+      set(dl_filename "castxml-macosx.tar.gz")
+    else()
+      set(dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
+      set(dl_filename "castxml-linux.tar.gz")
+    endif()
     ExternalProject_Add_Step(${name}_${ver} BOSS
+      # Check for castxml binaries and download if they do not exist
+      COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${dl} ${dl_filename}
       # Run BOSS
       COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
@@ -557,4 +613,3 @@ macro(BOSS_backend name backend_version)
     )
   endif()
 endmacro()
-

@@ -24,6 +24,8 @@
   SCANNER_PRINTABLE_TYPES                   \
   (std::string)                             \
   (triplet<double>)                         \
+  (map_intpair_dbl)                         \
+
 
 #define ASCII_MODULE_BACKEND_TYPES          \
   (DM_nucleon_couplings)                    \

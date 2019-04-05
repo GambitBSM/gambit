@@ -15,32 +15,30 @@
 # ./boss configs/some_config_file.py
 #
 
+from __future__ import print_function
 import xml.etree.ElementTree as ET
 import os
 import sys
-import warnings
 import shutil
 import glob
 import subprocess
 import pickle
-import copy
 from collections import OrderedDict
 from optparse import OptionParser
-
 
 # ====== main ========
 
 def main():
 
-    # print
-    # print
-    # print '  ========================================'
-    # print '  ||                                    ||'
-    # print '  ||  BOSS - Backend-On-a-Stick-Script  ||'
-    # print '  ||                                    ||'
-    # print '  ========================================'
-    # print
-    # print
+    # print()
+    # print()
+    # print('  ========================================')
+    # print('  ||                                    ||')
+    # print('  ||  BOSS - Backend-On-a-Stick-Script  ||')
+    # print('  ||                                    ||')
+    # print('  ========================================')
+    # print()
+    # print()
 
 
     # Parse command line arguments and options
@@ -98,11 +96,24 @@ def main():
     (options, args) = parser.parse_args()
 
 
+    # Print banner
+    msg = '''\033[1m
+
+  ========================================
+  ||                                    ||
+  ||  BOSS - Backend-On-a-Stick-Script  ||
+  ||                                    ||
+  ========================================
+    \033[0m'''
+    # msg = utils.modifyText(msg,'bold')
+    print( msg)
+
+
     # Check for conflicting options
     if options.generate_only_flag and options.types_header_flag:
-        print
-        print 'Conflicting flags: --generate-only and --types-header'
-        print
+        print()
+        print('Conflicting flags: --generate-only and --types-header')
+        print()
 
         sys.exit()
 
@@ -110,9 +121,9 @@ def main():
     # Check that arguments list is not empty
     if (len(args) < 1) and not (options.types_header_flag or options.reset_info_file_name):
 
-        print
-        print 'Missing input arguments. For instructions, run: boss.py --help'
-        print
+        print()
+        print('Missing input arguments. For instructions, run: boss.py --help')
+        print()
 
         sys.exit()
 
@@ -120,12 +131,47 @@ def main():
     # Check platform
     if not (sys.platform.startswith('linux') or sys.platform == 'darwin'):
 
-        print
-        print 'Platform "%s" is not supported.' % (sys.platform)
-        print
+        print()
+        print('Platform "%s" is not supported.' % (sys.platform))
+        print()
 
         sys.exit()
 
+
+    # Check that CastXML is found and get the correct path 
+    # (system-wide executable or prebuilt binary in castxml/bin/castxml)
+    boss_abs_dir = os.path.dirname(os.path.abspath(__file__))
+    local_castxml_path = os.path.join(boss_abs_dir,"castxml/bin/castxml")
+    has_castxml_system = True
+    has_castxml_local = True
+    try: 
+        subprocess.check_output(["which","castxml"])
+    except subprocess.CalledProcessError:
+        print()
+        print("Cannot find a system-wide 'castxml' executable.")
+        print("CastXML can be installed with 'apt install castxml' (Linux) or 'brew install castxml' (OS X).")
+        has_castxml_system = False
+        print("Will now look for a prebuilt CastXML binary in %s" % (local_castxml_path))
+
+    try: 
+        subprocess.check_output(["which",local_castxml_path])
+    except subprocess.CalledProcessError:
+        print()
+        print("Cannot find 'castxml' binary in %s." % (local_castxml_path))
+        print("To get the prebuilt castxml binary for your system, download a tarball from ")
+        print()
+        print("  https://midas3.kitware.com/midas/download/item/318227/castxml-linux.tar.gz (for Linux)")
+        print()
+        print("or ")
+        print()
+        print("  https://midas3.kitware.com/midas/download/item/318762/castxml-macosx.tar.gz (for OS X)")
+        print()
+        print("and extract it in the main BOSS directory: %s/" % (boss_abs_dir))
+        print()
+        has_castxml_local = False        
+
+    # Quit if no version of CastXML is found
+    if (not has_castxml_system) and (not has_castxml_local): sys.exit()
 
 
     # Get the config file name from command line. Import the correct config module.
@@ -144,10 +190,10 @@ def main():
         active_cfg.module_name = input_cfg_modulename
 
     try:
-        exec("import configs." + active_cfg.module_name + " as cfg")
+        exec("import configs." + active_cfg.module_name + " as cfg", globals())
     except ImportError as e:
-        print "Failed to import config module '%s'. Are you sure the file %s exists?" % (input_cfg_modulename, os.path.join('configs', input_cfg_modulename + '.py'))
-        print
+        print("Failed to import config module '%s'. Are you sure the file %s exists?" % (input_cfg_modulename, os.path.join('configs', input_cfg_modulename + '.py')))
+        print()
         sys.exit()
 
     import modules.gb as gb
@@ -159,21 +205,13 @@ def main():
     import modules.filehandling as filehandling
     import modules.infomsg as infomsg
 
+    # Write the result of the castxml checks to gb
+    gb.has_castxml_system = has_castxml_system
+    gb.has_castxml_local = has_castxml_local
 
     # Construct file name for the BOSS reset file to be created
     reset_info_file_name = 'reset_info.' + gb.gambit_backend_name_full + '.boss'
 
-    # Print banner
-    msg = '''
-
-  ========================================
-  ||                                    ||
-  ||  BOSS - Backend-On-a-Stick-Script  ||
-  ||                                    ||
-  ========================================
-    '''
-    msg = utils.modifyText(msg,'bold')
-    print msg
 
     # Convert all input and final output paths in the config file to absolute paths
     cfg.input_files = [(gb.boss_dir + '/' + x if not x.startswith('/') else x) for x in cfg.input_files]
@@ -200,21 +238,21 @@ def main():
     # If types_header_flag is True: Load saved variables, parse factory function files and generate loaded_types.hpp
     #
     if options.types_header_flag:
-        with open('savefile.boss') as f:
+        with open('savefile.boss', 'rb') as f:
             gb.classes_done, gb.factory_info = pickle.load(f)
 
-        print '(Continuing from saved state.)'
+        print('(Continuing from saved state.)')
 
-        print
-        print
-        print utils.modifyText('Generating file loaded_types.hpp:','underline')
-        print
+        print()
+        print()
+        print( utils.modifyText('Generating file loaded_types.hpp:','underline'))
+        print()
 
         filehandling.createLoadedTypesHeader()
 
-        print
-        print utils.modifyText('Done!','bold')
-        print
+        print()
+        print( utils.modifyText('Done!','bold'))
+        print()
 
         sys.exit()
 
@@ -222,12 +260,12 @@ def main():
     # If reset option is used: Run the reset function and then quit
     #
     if options.reset_info_file_name != '':
-        print
-        print
-        print utils.modifyText('Reset source code:','underline')
-        print
-        print '  Input file: ' + options.reset_info_file_name
-        print
+        print()
+        print()
+        print( utils.modifyText('Reset source code:','underline'))
+        print()
+        print('  Input file: ' + options.reset_info_file_name)
+        print()
 
         filehandling.resetSourceCode(options.reset_info_file_name)
 
@@ -239,12 +277,12 @@ def main():
     #
     check_file = os.path.join(cfg.header_files_to, gb.gambit_backend_incl_dir, 'backend_undefs.hpp')
     if os.path.isfile(check_file):
-        print
-        print utils.modifyText('The backend source tree seems to already have been BOSSed.','yellow')
-        print
-        print '  If you want to reBOSS the source tree you must first revert it to the original state with the command:'
-        print '  python boss.py -r ' + reset_info_file_name
-        print
+        print()
+        print( utils.modifyText('The backend source tree seems to already have been BOSSed.','yellow'))
+        print()
+        print('  If you want to reBOSS the source tree you must first revert it to the original state with the command:')
+        print('  python boss.py -r ' + reset_info_file_name)
+        print()
 
         sys.exit()
 
@@ -254,7 +292,7 @@ def main():
     if (not options.list_flag) and (not options.types_header_flag):
         try:
             shutil.rmtree(gb.boss_output_dir)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 2:
                 pass
             else:
@@ -266,9 +304,9 @@ def main():
     # Identify standard include paths
     #
     if cfg.auto_detect_stdlib_paths:
-        print
-        print utils.modifyText('Identifying standard include paths:','underline')
-        print
+        print()
+        print( utils.modifyText('Identifying standard include paths:','underline'))
+        print()
 
         utils.identifyStdIncludePaths()
 
@@ -278,9 +316,9 @@ def main():
     # Run castxml for all input header/source files
     #
 
-    print
-    print utils.modifyText('Parsing the input files:','underline')
-    print
+    print()
+    print( utils.modifyText('Parsing the input files:','underline'))
+    print()
 
     # Create the temp output dir if it does not exist
     filehandling.createOutputDirectories(selected_dirs=['temp'])
@@ -301,18 +339,15 @@ def main():
         # List all include paths
         # include_paths_list = [cfg.include_path] + cfg.additional_include_paths
 
-        # Timeout limit and process poll interval [seconds]
-        timeout = 600.
-        poll = 0.2
-
         # Run castxml
         try:
-            utils.castxmlRunner(input_file_path, cfg.include_paths, xml_output_path, timeout_limit=timeout, poll_interval=poll)
-        except:
-            print
-            print "  The initial CastXML command failed. Some problems can be solved by simply specifying"
-            print "  a different C++ compiler in the 'castxml_cc' option in %s. It is currently set to '%s'." % (input_cfg_path, cfg.castxml_cc)
-            print
+            utils.castxmlRunner(input_file_path, cfg.include_paths, xml_output_path)
+        except Exception as e:
+            print()
+            print("  The initial CastXML command failed. Some problems can be solved by simply specifying")
+            print("  a different C++ compiler in the 'castxml_cc' option in %s. It is currently set to '%s'." % (input_cfg_path, cfg.castxml_cc))
+            print()
+            raise e
             sys.exit(1)
 
         # Append xml file to list of xml files
@@ -321,11 +356,11 @@ def main():
     #
     # END: Run castxml on input files
     #
-    print
+    print()
 
 
     #
-    # If -l option is given, print a list of all classes and functions, then exit.
+    # If -l option is given, printa list of all classes and functions, then exit.
     #
 
     if options.list_flag:
@@ -374,16 +409,16 @@ def main():
         all_function_names = list(OrderedDict.fromkeys(all_function_names))
 
         # Output lists
-        print utils.modifyText('Classes:','underline')
-        print
+        print( utils.modifyText('Classes:','underline'))
+        print()
         for demangled_class_name in all_class_names:
-            print '  - ' + demangled_class_name
-        print
-        print utils.modifyText('Functions:','underline')
-        print
+            print('  - ' + demangled_class_name)
+        print()
+        print( utils.modifyText('Functions:','underline'))
+        print()
         for demangled_func_name in all_function_names:
-            print '  - ' + demangled_func_name
-        print
+            print('  - ' + demangled_func_name)
+        print()
 
         # Exit
         sys.exit()
@@ -394,10 +429,10 @@ def main():
     # Analyse types and functions
     #
 
-    print utils.modifyText('Analysing types and functions:','underline')
-    print
-    print '  (This may take a little while.)'
-    print
+    print( utils.modifyText('Analysing types and functions:','underline'))
+    print()
+    print('  (This may take a little while.)')
+    print()
     #
     # Read all xml elements of all files and store in two dict of dicts:
     #
@@ -513,7 +548,7 @@ def main():
                 except KeyError:
                     func_name_long_templ_args = 'UNKNOWN_NAME'
                 except:
-                    print '  ERROR: Unexpected error!'
+                    print('  ERROR: Unexpected error!')
                     raise
 
                 if func_name_long_templ_args in cfg.load_functions:
@@ -531,27 +566,27 @@ def main():
 
     # Check that we have something to do...
     if (len(cfg.load_classes) == 0) and (len(cfg.load_functions) == 0):
-        print
-        print
-        print '  - No classes or functions to load!'
-        print
-        print utils.modifyText('Done!','bold')
+        print()
+        print()
+        print('  - No classes or functions to load!')
+        print()
+        print( utils.modifyText('Done!','bold'))
 
         sys.exit()
 
 
 
-    print
-    print
-    print utils.modifyText('Generating code:','underline')
+    print()
+    print()
+    print( utils.modifyText('Generating code:','underline'))
 
     for xml_file in xml_files:
 
         # Output xml file name
-        print
-        print
-        print '  ' + utils.modifyText('Current XML file:', 'underline') + ' ' + xml_file
-        print
+        print()
+        print()
+        print('  ' + utils.modifyText('Current XML file:', 'underline') + ' ' + xml_file)
+        print()
 
         #
         # Initialise global dicts with the current XML file
@@ -605,12 +640,12 @@ def main():
 
     # Check that we have done something...
     if (len(gb.classes_done) == 0) and (len(gb.functions_done) == 0):
-        print
-        print
-        print '  - No classes or functions loaded!'
-        print
-        print utils.modifyText('Done!','bold')
-        print
+        print()
+        print()
+        print('  - No classes or functions loaded!')
+        print()
+        print( utils.modifyText('Done!','bold'))
+        print()
 
         sys.exit()
 
@@ -630,7 +665,7 @@ def main():
     filehandling.createOutputDirectories()
 
     # File writing loop
-    for src_file_name, code_dict in gb.new_code.iteritems():
+    for src_file_name, code_dict in gb.new_code.items():
 
         add_include_guard = code_dict['add_include_guard']
         code_tuples = code_dict['code_tuples']
@@ -647,7 +682,7 @@ def main():
             try:
                 f = open(src_file_name + '.backup.boss', 'r')
                 boss_backup_exists = True
-            except IOError, e:
+            except IOError as e:
                 if e.errno != 2:
                     raise e
                 f = open(src_file_name, 'r')
@@ -732,10 +767,10 @@ def main():
     # Copy files to the correct locations within the source tree of the original code
     #
 
-    print
-    print
-    print utils.modifyText('Copying generated files to original source tree:','underline')
-    print
+    print()
+    print()
+    print( utils.modifyText('Copying generated files to original source tree:','underline'))
+    print()
 
     manipulated_files, new_files, new_dirs = filehandling.copyFilesToSourceTree(verbose=True)
 
@@ -743,7 +778,7 @@ def main():
     # filehandling.createOutputDirectories(selected_dirs=['reset'])
 
     # Save source_target_tuples to be able to undo the changes at a later time
-    with open(reset_info_file_name, 'w') as f:
+    with open(reset_info_file_name, 'wb') as f:
         pickle.dump([manipulated_files, new_files, new_dirs], f)
 
 
@@ -752,13 +787,13 @@ def main():
     #
 
     if options.generate_only_flag:
-        with open('savefile.boss', 'w') as f:
+        with open('savefile.boss', 'wb') as f:
             pickle.dump([gb.classes_done, gb.factory_info], f)
-        print
-        print
-        print 'Done with code generation. Program state saved.'
-        print 'To generate loaded_types.hpp, run: boss.py --types-header'
-        print
+        print()
+        print()
+        print('Done with code generation. Program state saved.')
+        print('To generate loaded_types.hpp, run: boss.py --types-header')
+        print()
         sys.exit()
 
 
@@ -767,10 +802,10 @@ def main():
     # Generate header file 'loaded_types.hpp'
     #
 
-    print
-    print
-    print utils.modifyText('Generating file loaded_types.hpp:','underline')
-    print
+    print()
+    print()
+    print( utils.modifyText('Generating file loaded_types.hpp:','underline'))
+    print()
 
     filehandling.createLoadedTypesHeader()
 
@@ -779,10 +814,10 @@ def main():
     # Parse any source files for global functions using castxml
     #
 
-    print
-    print
-    print utils.modifyText('Parsing the generated function source files:','underline')
-    print
+    print()
+    print()
+    print( utils.modifyText('Parsing the generated function source files:','underline'))
+    print()
 
     function_xml_files = filehandling.parseFunctionSourceFiles()
 
@@ -791,10 +826,10 @@ def main():
     # Generate GAMBIT frontend header file ''
     #
 
-    print
-    print
-    print utils.modifyText('Generating GAMBIT frontend header file:','underline')
-    print
+    print()
+    print()
+    print( utils.modifyText('Generating GAMBIT frontend header file:','underline'))
+    print()
 
     filehandling.createFrontendHeader(function_xml_files)
 
@@ -803,19 +838,19 @@ def main():
     # Done!
     #
 
-    print
-    print utils.modifyText('Done!','bold')
-    print
-    print "  To prepare this backend for use with GAMBIT, do the following:"
-    print
-    print "    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to)
-    print "       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name)
-    print "    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name)
-    print "    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT."
-    print "    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete)
-    print "    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path)
-    print
-    print
+    print()
+    print( utils.modifyText('Done!','bold'))
+    print()
+    print("  To prepare this backend for use with GAMBIT, do the following:")
+    print()
+    print("    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to))
+    print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
+    print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
+    print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
+    print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
+    print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
+    print()
+    print()
 
 # ====== END: main ========
 

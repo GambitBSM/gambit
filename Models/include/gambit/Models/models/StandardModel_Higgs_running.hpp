@@ -1,7 +1,7 @@
 //   GAMBIT: Global and Modular BSM Inference Tool
 //   *********************************************
 ///
-///  
+///
 ///  Standard Model Higgs sector parameters
 ///  with running Lagrangian Higgs mass parameter
 ///
@@ -24,10 +24,10 @@
 #define MODEL StandardModel_Higgs_running
   START_MODEL
 
-  DEFINEPARS(mH,QEWSB)
+  DEFINEPARS(mH,Qin,QEWSB)
 
  #undef MODEL
-#endif 
+#endif
 
 
 

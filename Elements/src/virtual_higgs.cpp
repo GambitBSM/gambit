@@ -82,7 +82,13 @@ namespace Gambit
         utils_error().raise(LOCAL_INFO, "intermediate and high-mass SM higgs tables do not meet cleanly.");
       initialised = true;
     }
-
+		/*
+    if (channel == "Sh")
+    {
+			return 0;
+		}
+		*/
+		
     // Exit if the requested channel is unknown.
     if (std::find(colnames.begin(), colnames.end(), channel) == colnames.end())
     {
@@ -91,6 +97,7 @@ namespace Gambit
       for (auto it = colnames.begin(); it != colnames.end(); it++) if (*it != "mass") msg << endl << "  " << *it;
       utils_error().raise(LOCAL_INFO, msg.str());
     }
+    
 
     // Exit if the requested mass is out of range.
     if (mh < minmass or mh > maxmass)

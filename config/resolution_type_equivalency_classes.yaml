@@ -39,8 +39,12 @@
 # Int to double triplet map
 ["std::map<int, triplet<double> >", map_int_triplet_dbl]
 
+#Int pair to double map
+["std::map< std::pair < int, int >", double> map_intpair_dbl]
+
 # Fortran data types
-[bool, Flogical, Flogical1]
+[int32_t, Flogical]
+[bool, Flogical1]
 [char, Fcharacter]
 [int, Finteger]
 [short, Finteger2]

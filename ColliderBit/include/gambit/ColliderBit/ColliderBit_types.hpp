@@ -40,7 +40,6 @@
 
 #include "gambit/ColliderBit/MC_convergence.hpp"
 #include "gambit/ColliderBit/colliders/SpecializablePythia.hpp"
-#include "gambit/ColliderBit/detectors/DelphesVanilla.hpp"
 #include "gambit/ColliderBit/detectors/BuckFastSmear.hpp"
 #include "gambit/ColliderBit/analyses/HEPUtilsAnalysisContainer.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
@@ -50,8 +49,6 @@
 #include "gambit/ColliderBit/limits/L3SleptonLimits.hpp"
 #include "gambit/ColliderBit/limits/OPALGauginoLimits.hpp"
 #include "gambit/ColliderBit/limits/OPALDegenerateCharginoLimits.hpp"
-
-
 /// TODO: see if we can use this one:
 //#include "gambit/ColliderBit/limits/L3SmallDeltaMGauginoLimits.hpp"
 
@@ -77,7 +74,7 @@ namespace Gambit
       int combination_sr_index;
       double combination_loglike;
 
-      AnalysisLogLikes() : 
+      AnalysisLogLikes() :
         combination_sr_label("undefined"),
         combination_sr_index(-2),
         combination_loglike(0.0)

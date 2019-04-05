@@ -173,6 +173,18 @@ OtherModels:
     - name: "S"
       PDG_context: [9900001, 0]
       description: "Scalar Singlet"
+      
+    - name: "F"
+      PDG_context: [9900002, 0]
+      description: "Dirac Singlet"
+      
+    - name: "X"
+      PDG_context: [9900003, 0]
+      description: "Majorana Singlet"
+      
+    - name: "V"
+      PDG_context: [9900004, 0]
+      description: "Vector Singlet"
 
   # add_particle_set
   Sets:

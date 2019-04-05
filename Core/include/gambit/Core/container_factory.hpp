@@ -47,7 +47,7 @@
 namespace Gambit
 {
 
-  registry
+  gambit_registry
   {
     typedef void* factory_type(const std::map<str, primary_model_functor *> &, 
      DRes::DependencyResolver &b, IniParser::IniFile &c, const str &purpose, Printers::BaseBasePrinter& p

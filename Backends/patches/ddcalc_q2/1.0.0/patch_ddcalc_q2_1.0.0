@@ -1,0 +1,94 @@
+diff -rupN src/DDTypes.f90 ../../DDCalc_q2/1.0.0/src/DDTypes.f90
+--- src/DDTypes.f90	2016-08-22 21:25:54.000000000 +0930
++++ ../../DDCalc_q2/1.0.0/src/DDTypes.f90	2016-08-22 21:26:04.000000000 +0930
+@@ -208,6 +208,10 @@ TYPE, PUBLIC :: DetectorStruct
+   ! retabulated to that of the E array.  Sub-interval efficiencies are
+   ! dropped if intervals=.FALSE.
+   REAL*8, ALLOCATABLE :: eff0(:,:)
++
++  ! Array of size [1:NE,1:Niso] containing the momentum transfer [GeV]
++  ! corresponding to the tabulated energies and target isotopes.
++  REAL*8, ALLOCATABLE :: q(:,:)
+   
+   ! Form factors -------------------------------
+   ! Tabulated spin-independent or spin-dependent form factors combined
+--- src/DDDetectors.f90	2016-08-22 21:25:54.000000000 +0930
++++ ../../DDCalc_q2/1.0.0/src/DDDetectors.f90	2016-08-22 21:26:04.000000000 +0930
+@@ -643,7 +643,17 @@ SUBROUTINE SetDetector(D,mass,time,expos
+     CALL RetabulateEfficiency(D%NEeff,D%Eeff,D%Neff,D%eff,          &
+                               D%NE,D%E,D%intervals,D%eff0)
+   END IF
+-  
++
++  ! Initialise elements of q(1:NE,1:Niso) using EtoQ function
++  IF ((iso_change .OR. E_change) .AND. (D%Niso .GE. 0)                 &
++      .AND. (D%NE .GE. 0)) THEN
++    IF (ALLOCATED(D%q)) DEALLOCATE(D%q)
++    ALLOCATE(D%q(D%NE,D%Niso))
++    DO Kiso = 1,D%Niso
++      D%q(:,Kiso) = EToQ(D%E,D%Miso(Kiso))
++    END DO
++  END IF
++ 
+   ! Weighted form factors (SI)
+   IF (PRESENT(NE) .AND. PRESENT(Niso) .AND. PRESENT(Wsi)) THEN
+     IF (ALLOCATED(D%Wsi)) DEALLOCATE(D%Wsi)
+@@ -655,11 +665,12 @@ SUBROUTINE SetDetector(D,mass,time,expos
+     ALLOCATE(D%Wsi(-1:1,D%NE,D%Niso))
+     DO Kiso = 1,D%Niso
+       CALL CalcWSI(D%Ziso(Kiso),D%Aiso(Kiso),D%NE,                   &
+-                   EToQ(D%E,D%Miso(Kiso)),D%Wsi(:,:,Kiso))
++                   D%q(:,Kiso),D%Wsi(:,:,Kiso))
+     END DO
+   END IF
+-  
+-  ! Weighted form factors (SD)
++
++  ! Call the weighted form factors (SI) for the (q/2m)^2 dependent term
++  ! and store them inside Wsd array
+   IF (PRESENT(NE) .AND. PRESENT(Niso) .AND. PRESENT(Wsd)) THEN
+     IF (ALLOCATED(D%Wsd)) DEALLOCATE(D%Wsd)
+     ALLOCATE(D%Wsd(-1:1,NE,Niso))
+@@ -669,8 +680,8 @@ SUBROUTINE SetDetector(D,mass,time,expos
+     IF (ALLOCATED(D%Wsd)) DEALLOCATE(D%Wsd)
+     ALLOCATE(D%Wsd(-1:1,D%NE,D%Niso))
+     DO Kiso = 1,D%Niso
+-      CALL CalcWSD(D%Ziso(Kiso),D%Aiso(Kiso),D%NE,                   &
+-                   EToQ(D%E,D%Miso(Kiso)),D%Wsd(:,:,Kiso))
++      CALL CalcWSI(D%Ziso(Kiso),D%Aiso(Kiso),D%NE,                   &
++                   D%q(:,Kiso),D%Wsd(:,:,Kiso))
+     END DO
+   END IF
+   
+--- src/DDRates.f90	2016-08-22 21:25:54.000000000 +0930
++++ ../../DDCalc_q2/1.0.0/src/DDRates.f90	2016-08-22 21:26:04.000000000 +0930
+@@ -329,23 +329,26 @@ SUBROUTINE CalcRates(D,WIMP,Halo)
+            * Halo%rho * D%eta(:,Kiso)                                  &
+            * D%Wsi(-1,:,Kiso) * WIMP%GnSI0**2                          &
+            * TO_CPD_KG_KEV
+-    ! SD proton term
++    ! SI proton term (for the (q/2m)^2 dependent term)
+     D%dRdEsd0(+1,:) = D%dRdEsd0(+1,:)                                 &
+         +  D%fiso(Kiso) / (2 * WIMP%m)                                 &
+            * Halo%rho * D%eta(:,Kiso)                                  &
+            * D%Wsd(+1,:,Kiso) * WIMP%GpSD0**2                          &
++           * (D%q(:,Kiso) / (2 * WIMP%m))**2                           &    ! (q/2m)^2 term
+            * TO_CPD_KG_KEV
+-    ! SD cross term
++    ! SI cross term (for the (q/2m)^2 dependent term)
+     D%dRdEsd0( 0,:) = D%dRdEsd0( 0,:)                                 &
+         +  D%fiso(Kiso) / (2 * WIMP%m)                                 &
+            * Halo%rho * D%eta(:,Kiso)                                  &
+            * D%Wsd( 0,:,Kiso) * WIMP%GpSD0*WIMP%GnSD0                  &
++           * (D%q(:,Kiso) / (2 * WIMP%m))**2                           &    ! (q/2m)^2 term
+            * TO_CPD_KG_KEV
+-    ! SD neutron term
++    ! SI neutron term (for the (q/2m)^2 dependent term)
+     D%dRdEsd0(-1,:) = D%dRdEsd0(-1,:)                                 &
+         +  D%fiso(Kiso) / (2 * WIMP%m)                                 &
+            * Halo%rho * D%eta(:,Kiso)                                  &
+            * D%Wsd(-1,:,Kiso) * WIMP%GnSD0**2                          &
++           * (D%q(:,Kiso) / (2 * WIMP%m))**2                           &    ! (q/2m)^2 term
+            * TO_CPD_KG_KEV
+   END DO
+   

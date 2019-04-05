@@ -1,0 +1,178 @@
+# An example YAML file for QCD axion scans
+# Author: Sebastian Hoof (s.hoof15@imperial.ac.uk)
+
+#################################
+ # Input parameter declarations
+#################################
+
+Parameters:
+  QCDAxion:
+    fa:
+      range: [1.0E6, 1.0E16]
+      prior_type: log
+    LambdaChi:
+      range: [73.0, 78.0]
+      prior_type: flat
+    Tchi:
+      range: [143.0, 151.0]
+      prior_type: flat
+    beta:
+      range: [7.7, 8.2]
+      prior_type: flat
+    CaggQCD:
+      range: [1.72, 2.12]
+      prior_type: flat
+    EoverN:
+      range: [-1.333333, 174.666667]
+      prior_type: flat
+    Caee:
+      range: [1.0E-4, 1.0E4]
+      prior_type: log
+    thetai:
+      range: [-3.14159, 3.14159]
+      prior_type: flat
+  Halo_gNFW_rho0:
+    rho0:
+      range: [0.2, 0.8]
+      prior_type: flat
+    v0: 235.0
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+#################################
+ # Prior setup
+#################################
+
+#Priors:
+
+#################################
+ # Printer setup
+#################################
+
+Printer:
+  printer: hdf5
+  options:
+    output_file: "QCDAxion_test.hdf5"
+    group: "/QCDAxion"
+
+#################################
+ # Scanner setup
+#################################
+
+Scanner:
+  use_scanner: de
+
+  scanners:
+    mn:
+      plugin: multinest
+      like: LogLike
+      nlive: 20000
+      tol: 1.0E-4
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 20000
+      convthresh: 1.0E-4
+      jDE: true
+      lambdajDE: false
+      verbosity: 1
+    tw:
+      plugin: twalk
+      like: LogLike
+      sqrtR: 1.01
+
+#################################
+ # likelihoods and observables
+#################################
+
+ObsLikes:
+  # Dark matter likelihoods
+  - capability: lnL_rho0
+    purpose: LogLike
+  - capability: lnL_oh2
+    purpose: LogLike
+    function: lnL_oh2_upperlimit
+  # Experimental searches
+  - capability: lnL_CAST2007
+    purpose: LogLike
+  - capability: lnL_CAST2017
+    purpose: LogLike
+  - capability: lnL_ALPS1
+    purpose: LogLike
+  - capability: lnL_SN1987A
+    purpose: LogLike
+  - capability: lnL_Haloscope_ADMX1
+    purpose: LogLike
+  - capability: lnL_Haloscope_ADMX2
+    purpose: LogLike
+  - capability: lnL_Haloscope_RBF
+    purpose: LogLike
+  - capability: lnL_Haloscope_UF
+    purpose: LogLike
+  - capability: lnL_HESS_GCMF
+    purpose: LogLike
+  - capability: lnL_RParameter
+    purpose: LogLike
+  # QCD nuisance likelihoods
+  - capability: QCDAxion_ZeroTemperatureMass
+    purpose: LogLike
+  - capability: QCDAxion_TemperatureDependence
+    purpose: LogLike
+  - capability: QCDAxion_AxionPhotonConstant
+    purpose: LogLike
+  # Cooling-related likelihoods
+  - capability: lnL_WDVar_G117B15A
+    purpose: LogLike
+  - capability: lnL_WDVar_R548
+    purpose: LogLike
+  - capability: lnL_WDVar_PG1351489
+    purpose: LogLike
+  - capability: lnL_WDVar_L192
+    purpose: LogLike
+
+  # Observables
+  - capability: AxionOscillationTemperature
+    purpose: Observable
+  - capability: RD_oh2
+    function: RD_oh2_Axions
+    purpose: Observable
+
+#########################
+ # Rules
+#########################
+
+Rules:
+  - capability: RD_oh2
+    function: RD_oh2_Axions
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+
+#########################
+ # Logging setup
+#########################
+
+Logger:
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DarkBit] : "DarkBit.log"
+
+#########################
+ # Global options
+#########################
+
+KeyValues:
+  default_output_path: "runs/QCDAxion"
+  dependency_resolution:
+    prefer_model_specific_functions: true
+  likelihood:
+    model_invalid_for_lnlike_below: -1.0E6
+    lnlike_offset: -1.0E3
+  debug: true
+
+# End of file

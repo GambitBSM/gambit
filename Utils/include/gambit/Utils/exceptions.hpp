@@ -7,12 +7,12 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott 
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///
-///  Distantly inspired by SUFIT classes of the 
+///  Distantly inspired by SUFIT classes of the
 ///  same name by Johan Lundberg, Aug 2011.
 ///
 ///  *********************************************
@@ -27,6 +27,7 @@
 #include <vector>
 #include <utility>
 
+#include "gambit/Utils/util_macros.hpp"
 #include "gambit/Logs/log_tags.hpp"
 
 namespace Gambit
@@ -36,7 +37,7 @@ namespace Gambit
   class functor;
 
   /// GAMBIT exception base class.
-  class exception : virtual public std::exception
+  class EXPORT_SYMBOLS exception : virtual public std::exception
   {
     public:
 
@@ -72,8 +73,8 @@ namespace Gambit
       virtual const char* what() const throw();
 
       /// Raise the exception.
-      /// Log the exception and, if it is considered fatal, actually throw it. 
-      /// This is the canonical way to trigger a GAMBIT error or warning. 
+      /// Log the exception and, if it is considered fatal, actually throw it.
+      /// This is the canonical way to trigger a GAMBIT error or warning.
       void raise(const std::string&, const std::string&);
 
       /// Force a throw of the exception.
@@ -84,7 +85,7 @@ namespace Gambit
       /// As per forced_throw but without logging.
       void silent_forced_throw();
       /// @}
-    
+
       /// Get a read-only map of pointers to all instances of this class.
       static const std::map<const char*,exception*>& all_exceptions();
 
@@ -132,7 +133,7 @@ namespace Gambit
 
 
   /// GAMBIT error class.
-  class error : public exception
+  class EXPORT_SYMBOLS error : public exception
   {
 
     public:
@@ -161,7 +162,7 @@ namespace Gambit
 
 
   /// GAMBIT warning class.
-  class warning : public exception
+  class EXPORT_SYMBOLS warning : public exception
   {
 
     public:
@@ -190,7 +191,7 @@ namespace Gambit
 
 
   /// GAMBIT special exception class.  Not logged, meant for always catching.
-  class special_exception : virtual public std::exception
+  class EXPORT_SYMBOLS special_exception : virtual public std::exception
   {
     public:
 
@@ -208,7 +209,7 @@ namespace Gambit
 
       /// Raise the exception, i.e. throw it.
       virtual void raise(const std::string&);
-    
+
     private:
 
       /// What this exception is (for returning with what method).
@@ -246,7 +247,7 @@ namespace Gambit
 
       /// Raise the exception, i.e. throw it.
       virtual void raise(const std::string&);
-    
+
   };
 
   /// Gambit piped invalid point exception class.
@@ -266,6 +267,39 @@ namespace Gambit
       bool flag;
       std::string message;
   };
+
+  /// Global instance of piped invalid point class.
+  extern Piped_invalid_point piped_invalid_point;
+
+  /// Gambit piped error class.
+  class EXPORT_SYMBOLS Piped_exceptions
+  {
+    public:
+      typedef std::pair<std::string,std::string> description;
+      /// Constructor
+      Piped_exceptions(size_t maxExceptions) : flag(false), maxExceptions(maxExceptions) {};
+
+      /// Request an exception.
+      void request(std::string origin, std::string message);
+      void request(description desc);
+
+      /// Check whether any exceptions were requested, and raise them.
+      void check(exception &excep);
+
+      /// Check whether any exceptions were requested without handling them.
+      bool inquire();
+
+    private:
+      bool flag;
+      size_t maxExceptions;
+      std::vector<description> exceptions;
+  };
+
+  /// Global instance of Piped_exceptions class for errors.
+  extern Piped_exceptions piped_errors;
+
+  /// Global instance of Piped_exceptions class for warnings.
+  extern Piped_exceptions piped_warnings;
 
   /// Special exception used during clean exit from diagnostics
   class SilentShutdownException : public std::exception
@@ -304,39 +338,6 @@ namespace Gambit
     private:
       std::string myWhat;
   };
-
-  /// Global instance of piped invalid point class.
-  extern Piped_invalid_point piped_invalid_point;
-
-  /// Gambit piped error class.
-  class Piped_exceptions
-  {
-    public:
-      typedef std::pair<std::string,std::string> description;
-      /// Constructor
-      Piped_exceptions(size_t maxExceptions) : flag(false), maxExceptions(maxExceptions) {};
-
-      /// Request an exception.
-      void request(std::string origin, std::string message);
-      void request(description desc);
-
-      /// Check whether any exceptions were requested, and raise them.
-      void check(exception &excep);
-
-      /// Check whether any exceptions were requested without handling them.
-      bool inquire();
-
-    private:
-      bool flag;    
-      size_t maxExceptions;
-      std::vector<description> exceptions;
-  };
-
-  /// Global instance of Piped_exceptions class for errors.
-  extern Piped_exceptions piped_errors;
-
-  /// Global instance of Piped_exceptions class for warnings.
-  extern Piped_exceptions piped_warnings;
 
 }
 

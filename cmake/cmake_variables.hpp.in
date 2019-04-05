@@ -46,19 +46,28 @@
 /// Found Graphviz
 #cmakedefine HAVE_GRAPHVIZ 1
 
-/// Leave Delphes out of the compile
-#cmakedefine EXCLUDE_DELPHES 1
-
 /// Found Mathematica
 #cmakedefine HAVE_MATHEMATICA 1
 #cmakedefine MATHEMATICA_WSTP_H "@Mathematica_WSTP_INCLUDE_DIR@/wstp.h"
 #cmakedefine MATHEMATICA_KERNEL "@Mathematica_KERNEL_EXECUTABLE@"
+#cmakedefine MATHEMATICA_WSTP_VERSION_MAJOR @Mathematica_WSTP_VERSION_MAJOR@
+#cmakedefine MATHEMATICA_WSTP_VERSION_MINOR @Mathematica_WSTP_VERSION_MINOR@
+
+/// Python version info
+#cmakedefine PYTHON_VERSION_MAJOR @PYTHON_VERSION_MAJOR@
+#cmakedefine PYTHON_VERSION_MINOR @PYTHON_VERSION_MINOR@
 
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 
 /// Found ROOT version 6 or later
 #cmakedefine ROOT_6_OR_LATER_FOUND 1
+
+/// Leave out ROOT
+#cmakedefine EXCLUDE_ROOT 1
+
+/// Leave out RestFrames
+#cmakedefine EXCLUDE_RESTFRAMES 1
 
 /// Version info
 /// @{

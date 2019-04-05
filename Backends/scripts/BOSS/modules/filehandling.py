@@ -4,11 +4,10 @@
 #                                    #
 ######################################
 
+from __future__ import print_function
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import os
-import warnings
-import subprocess
 import shutil
 import glob
 import pickle
@@ -20,7 +19,6 @@ exec("import configs." + active_cfg.module_name + " as cfg")
 import modules.gb as gb
 import modules.utils as utils
 import modules.funcutils as funcutils
-import modules.infomsg as infomsg
 
 
 # ====== createOutputDirectories ========
@@ -33,7 +31,7 @@ def createOutputDirectories(selected_dirs=['all']):
     if ('boss_output_dir' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs(gb.boss_output_dir)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17:
                 pass
             else:
@@ -43,7 +41,7 @@ def createOutputDirectories(selected_dirs=['all']):
         if gb.boss_temp_dir != '':
             try:
                 os.makedirs(gb.boss_temp_dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == 17:
                     pass
                 else:
@@ -53,7 +51,7 @@ def createOutputDirectories(selected_dirs=['all']):
     #     if gb.boss_reset_dir != '':
     #         try:
     #             os.makedirs(gb.boss_reset_dir)
-    #         except OSError, e:
+    #         except OSError as e:
     #             if e.errno == 17:
     #                 pass
     #             else:
@@ -63,7 +61,7 @@ def createOutputDirectories(selected_dirs=['all']):
         if gb.backend_types_basedir != '':
             try:
                 os.makedirs( os.path.join(gb.boss_output_dir, gb.backend_types_basedir) )
-            except OSError, e:
+            except OSError as e:
                 if e.errno == 17:
                     pass
                 else:
@@ -71,7 +69,7 @@ def createOutputDirectories(selected_dirs=['all']):
     if ('backend_types_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs( gb.backend_types_dir_complete )
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17:
                 pass
             else:
@@ -80,7 +78,7 @@ def createOutputDirectories(selected_dirs=['all']):
     if ('for_gambit_basedir' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs( gb.for_gambit_basedir )
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17:
                 pass
             else:
@@ -89,7 +87,7 @@ def createOutputDirectories(selected_dirs=['all']):
     if ('for_gambit_backend_types_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs( gb.for_gambit_backend_types_dir_complete )
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17:
                 pass
             else:
@@ -98,7 +96,7 @@ def createOutputDirectories(selected_dirs=['all']):
     if ('frontend_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs( gb.frontend_dir_complete )
-        except OSError, e:
+        except OSError as e:
             if e.errno == 17:
                 pass
             else:
@@ -524,7 +522,7 @@ def copyFilesToSourceTree(verbose=False):
             while n_spaces == 2:
                 n_spaces = max(sep-len(cp_source), 2)
                 sep += 20
-            print '  ' + cp_source + ' '*n_spaces  + '--->   ' + cp_target + '  (directory)'*is_dir
+            print('  ' + cp_source + ' '*n_spaces  + '--->   ' + cp_target + '  (directory)'*is_dir)
 
 
     # Construct list of new directories
@@ -632,13 +630,9 @@ def parseFunctionSourceFiles():
         # List all include paths
         # include_paths_list = [cfg.include_path] + cfg.additional_include_paths
 
-        # Timeout limit and process poll interval [seconds]
-        timeout = 300.
-        poll = 0.2
-
         # Run castxml
         try:
-            utils.castxmlRunner(function_source_path, cfg.include_paths, xml_output_path, timeout_limit=timeout, poll_interval=poll)
+            utils.castxmlRunner(function_source_path, cfg.include_paths, xml_output_path)
         except:
             raise
 
@@ -822,7 +816,7 @@ def createFrontendHeader(function_xml_files_dict):
 def resetSourceCode(reset_info_file_name):
 
     # Load reset info file
-    with open(reset_info_file_name) as f:
+    with open(reset_info_file_name, 'rb') as f:
         manipulated_files, new_files, new_dirs = pickle.load(f)
 
 
@@ -833,9 +827,9 @@ def resetSourceCode(reset_info_file_name):
         # Check if target file exists
         try:
             f = open(target_path, 'r')
-        except IOError, e:
+        except IOError as e:
             if e.errno == 2:
-                print "  WARNING: Could not find %s. No reset action permformed." % (target_path)
+                print("  WARNING: Could not find %s. No reset action permformed." % (target_path))
                 continue
             else:
                 raise e
@@ -844,16 +838,16 @@ def resetSourceCode(reset_info_file_name):
         backup_file_path = target_path + '.backup.boss'
         try:
             f = open(backup_file_path, 'r')
-        except IOError, e:
+        except IOError as e:
             if e.errno == 2:
-                print "  WARNING: Could not find backup file %s. No reset action permformed." % (backup_file_path)
+                print("  WARNING: Could not find backup file %s. No reset action permformed." % (backup_file_path))
                 continue
             else:
                 raise e
 
         # If backup exists, use it to replace target file
         shutil.move(backup_file_path, target_path)
-        print "  Restored %s from %s" % (target_path, backup_file_path)
+        print("  Restored %s from %s" % (target_path, backup_file_path))
 
 
     # Delete new files that BOSS added to the source tree.
@@ -862,15 +856,15 @@ def resetSourceCode(reset_info_file_name):
         # Check if target file exists
         try:
             f = open(target_path, 'r')
-        except IOError, e:
+        except IOError as e:
             if e.errno == 2:
-                print "  WARNING: Could not find %s. No reset action permformed." % (target_path)
+                print("  WARNING: Could not find %s. No reset action permformed." % (target_path))
                 continue
             else:
                 raise e
 
         os.remove(target_path)
-        print "  Deleted %s" % (target_path)
+        print("  Deleted %s" % (target_path))
 
 
     # Remove new directories created by BOSS.
@@ -878,15 +872,15 @@ def resetSourceCode(reset_info_file_name):
 
         try:
             os.removedirs(dir_path)
-            print "  Removed directory %s" % (dir_path)
-        except OSError, e:
+            print("  Removed directory %s" % (dir_path))
+        except OSError as e:
             if e.errno == 2:
-                print "  WARNING: Could not find directory %s. No reset action permformed." % (dir_path)
+                print("  WARNING: Could not find directory %s. No reset action permformed." % (dir_path))
                 continue
             else:
                 raise e
 
-    print
+    print()
 
 # ====== END: resetSourceCode ========
 

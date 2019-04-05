@@ -155,6 +155,10 @@ namespace Gambit
         void reset(bool force=false);
         void finalise(bool abnormal=false);
 
+        // Get options required to construct a reader object that can read
+        // the previous output of this printer.
+        Options resume_reader_options();
+ 
         ///@}
 
         ///@{ Print functions
@@ -259,9 +263,6 @@ namespace Gambit
 
         /// Move head dataset sync position
         void increment_sync_pos() { sync_pos+=1; }
-
-        /// Retrieve the "resume" flag
-        bool get_resume() { return resume; }
 
         /// Clear previous points list
         void clear_previous_points() { std::vector<PPIDpair>().swap(previous_points); } // This technique also shrinks the capacity of the vector, which 'clear' does not do.
@@ -388,11 +389,6 @@ namespace Gambit
         // but will be "global" data about the whole scan (e.g. max log likelihood
         // found, scan statistics, etc.)
         bool global = false;
-
-        /// Flag to trigger "resume" mode.
-        /// i.e. during initialisation, we attempt to read the output file and
-        /// work out where to write new data.
-        bool resume;
 
         /// Position to start writing new output. Should be zero unless we are in
         /// resume mode.

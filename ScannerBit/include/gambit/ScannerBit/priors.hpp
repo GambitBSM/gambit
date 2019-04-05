@@ -37,7 +37,7 @@ namespace Gambit
 {
     namespace Priors
     {
-        registry
+        gambit_registry
         { 
             typedef BasePrior* create_prior_function(const std::vector<std::string> &, const Options &);
             reg_elem <create_prior_function> prior_creators;
