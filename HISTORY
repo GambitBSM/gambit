@@ -3,6 +3,13 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.3.0
+Feature release
+- Added routines for axions and ALPs.
+- Improved support for backend and scanner downloads in situations
+  where external website certificates have expired
+- some minor bugfixes for standalones and pippi support
+
 v1.2.1
 External support update
 - Support for MultiNest 3.11
