@@ -361,6 +361,11 @@ namespace Gambit
          }
       }
 
+      // example code
+      inline double get_test_number(){
+         return 3.1495;
+      }
+
       // function to calculate alpha from mixing matrix
       template <class Model>
       double get_alpha(const Model& model) {

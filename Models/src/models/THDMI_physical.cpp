@@ -32,48 +32,20 @@
 
 // #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/sminputs.hpp"
+#include "gambit/Specbit/THDMSpec.hpp"
 
 // Activate debug output
 //#define THDM_DBUG
 
 using namespace Gambit::Utils;
 
-// Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMI_physical
-#define PARENT THDM
-#define FRIEND THDMI
-
-// Translation function definition
-void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelParameters &targetP)
-{
-  USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMI_physical --> THDMI"<<LogTags::info<<EOM;
-
-  double GF = Dep::SMINPUTS->GF;
-  double v2 = 1./(sqrt(2)*GF);
-
-  double m_h = myP.getValue("m_h");
-  double m_H = myP.getValue("m_H");
-  double m_A = myP.getValue("m_A");
-  double m_Hp = myP.getValue("m_Hp");
-  double m12_2 = myP.getValue("m12_2");
-  double tanb = myP.getValue("tanb");
-  double sba = myP.getValue("sba");
-
-  double lambda6 = myP.getValue("lambda_6");
-  double lambda7 = myP.getValue("lambda_7");
-
-  // Problematic parameter choices
-  if (m_h>m_H) {
-    cerr << "WARNING: Cannot set physical masses such that m_H < m_h\n"; 
-    // throw error
-  }
-  if ((tanb<=0)||(abs(sba)>1)||(m_h<0)||(m_H<0)||(m_A<0)||(m_Hp<0)) {
-    cerr << "WARNING: Problematic input parameter choice.\n"; 
-    // throw error
-  }
-
+std::vector<double> physical_to_coupling_THDM(double m_h, double m_H, double m_A, \
+                                              double m_Hp, double m12_2, double tanb, \
+                                              double sba, double lambda6, double lambda7, double v2) {
+  std::vector<double> coupling_basis;
   double beta=atan(tanb);
+
+  // this is the code from THDMC please rewrite!
 
   double sb	 = sin(beta);
   double sb2 = sb*sb;
@@ -95,19 +67,68 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelP
   double lambda3 = ((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
   double lambda4 = ((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
   double lambda5 = (m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  // m22_2 = -0.5/sb*(pow(m_h,2)*ca*sba+pow(m_H,2)*sa*cba)+m12_2*ctb;
 
-  // ----
+  coupling_basis.push_back(lambda1);
+  coupling_basis.push_back(lambda2);
+  coupling_basis.push_back(lambda3);
+  coupling_basis.push_back(lambda4);
+  coupling_basis.push_back(lambda5);
+  coupling_basis.push_back(lambda6);
+  coupling_basis.push_back(lambda7);
+  coupling_basis.push_back(m12_2);
+  coupling_basis.push_back(tanb);
+  return coupling_basis;
+}
 
-  targetP.setValue("lambda_1", lambda1 );
-  targetP.setValue("lambda_2", lambda2 );
-  targetP.setValue("lambda_3", lambda3 );
-  targetP.setValue("lambda_4", lambda4 );
-  targetP.setValue("lambda_5", lambda5 );
-  targetP.setValue("lambda_6", lambda6 );
-  targetP.setValue("lambda_7", lambda7 );
-  targetP.setValue("m12_2", m12_2 );
-  targetP.setValue("tanb", tanb );
+// Need to define MODEL and FRIEND in order for helper macros to work correctly
+#define MODEL  THDMI_physical
+#define PARENT THDM
+#define FRIEND THDMI
+
+// Translation function definition
+void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelParameters &targetP)
+{
+  USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
+  logger()<<"Running interpret_as_FRIEND calculations for THDMI_physical --> THDMI"<<LogTags::info<<EOM;
+
+  double GF = Dep::SMINPUTS->GF;
+  double v2 = 1.0/(sqrt(2)*GF);
+
+  std::cout << SpecBit::get_test_number() << std::endl;
+
+  double m_h = myP.getValue("m_h");
+  double m_H = myP.getValue("m_H");
+  double m_A = myP.getValue("m_A");
+  double m_Hp = myP.getValue("m_Hp");
+  double m12_2 = myP.getValue("m12_2");
+  double tanb = myP.getValue("tanb");
+  double sba = myP.getValue("sba");
+  double lambda6 = myP.getValue("lambda_6");
+  double lambda7 = myP.getValue("lambda_7");
+
+    // Problematic parameter choices
+  if (m_h>m_H) {
+    cerr << "WARNING: Cannot set physical masses such that m_H < m_h\n"; 
+    // throw error
+  }
+  if ((tanb<=0)||(abs(sba)>1)||(m_h<0)||(m_H<0)||(m_A<0)||(m_Hp<0)) {
+    cerr << "WARNING: Problematic input parameter choice.\n"; 
+    // throw error
+  }
+
+  std::vector<double> coupling_basis = physical_to_coupling_THDM(m_h, m_H, m_A, m_Hp, m12_2, tanb, \
+                                              sba, lambda6, lambda7, v2);
+
+
+  targetP.setValue("lambda_1", coupling_basis[0] );
+  targetP.setValue("lambda_2", coupling_basis[1] );
+  targetP.setValue("lambda_3", coupling_basis[2] );
+  targetP.setValue("lambda_4", coupling_basis[3] );
+  targetP.setValue("lambda_5", coupling_basis[4] );
+  targetP.setValue("lambda_6", coupling_basis[5] );
+  targetP.setValue("lambda_7", coupling_basis[6] );
+  targetP.setValue("m12_2", coupling_basis[7] );
+  targetP.setValue("tanb", coupling_basis[8] );
 
 
   // Done! Check that everything is ok if desired.

@@ -28,7 +28,7 @@ Parameters:
             range: [-50000, 700000]
             prior_type: flat
         sba:
-            range: [-1.57, 1.57]
+            range: [0.9, 1.0]
             prior_type: flat
         tanb:
             range: [0.1, 100]
@@ -114,27 +114,27 @@ ObsLikes:
     # - purpose:    LogLike
     #   capability: global_minimum_discriminant_likelihood
       
-    # - purpose:    LogLike
-    #   capability: unitarity_likelihood_THDM
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: alignment_likelihood_THDM
+    - purpose:    LogLike
+      capability: alignment_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: perturbativity_likelihood_THDM
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: stability_likelihood_THDM
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: NLO_unitarity_likelihood_THDM
+    - purpose:    LogLike
+      capability: NLO_unitarity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: oblique_parameters_likelihood_THDM
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
     
-    # - capability: b2sgamma_LL
-    #   function: b2sgamma_likelihood
-    #   purpose: LogLike
+    - capability: b2sgamma_LL
+      function: b2sgamma_likelihood
+      purpose: LogLike
 
     - purpose:    LogLike
       capability: SM_higgs_mass_likelihood_THDM
