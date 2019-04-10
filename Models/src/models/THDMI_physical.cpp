@@ -49,6 +49,9 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelP
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
   logger()<<"Running interpret_as_FRIEND calculations for THDMI_physical --> THDMI"<<LogTags::info<<EOM;
 
+  double GF = Dep::SMINPUTS->GF;
+  double v2 = 1./(sqrt(2)*GF);
+
   double m_h = myP.getValue("m_h");
   double m_H = myP.getValue("m_H");
   double m_A = myP.getValue("m_A");
@@ -70,7 +73,7 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelP
     // throw error
   }
 
-  beta=atan(tan_beta);
+  double beta=atan(tanb);
 
   double sb	 = sin(beta);
   double sb2 = sb*sb;
@@ -131,7 +134,6 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDM (const ModelParameters &myP, ModelP
 
   // const SMInputs& SM = *Dep::SMINPUTS;
   double GF = Dep::SMINPUTS->GF;
-
   double v2 = 1./(sqrt(2)*GF);
   // double v2 = 247.0*247.0;
 

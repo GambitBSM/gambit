@@ -857,7 +857,7 @@ namespace Gambit
         << "Lam7= " << fullspectrum.get(Par::mass1, "Lambda_7") << std::endl \
         << "mHp= " << fullspectrum.get(Par::mass1, "H+") << std::endl \
         << "alpha= " << fullspectrum.get(Par::dimensionless, "alpha") << std::endl; \
-        std::cout << "mass1: " << mh << " Pole_mass: " << mh_pole << std::endl; \
+        std::cout << "mass1: " << mh << " Pole_mass: " << mh_pole << std::endl;
       #endif
 
       result = - pow( (mh - massSMHiggs) / h_sigma,2);

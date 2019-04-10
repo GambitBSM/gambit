@@ -39,6 +39,7 @@ namespace Gambit {
   DEFINEPARS(sba,tanb)
   
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMI_physical_to_THDMI)
+  INTERPRET_AS_X_DEPENDENCY(FRIEND ,SMINPUTS, SMInputs)
   INTERPRET_AS_PARENT_FUNCTION(THDMI_physical_to_THDM)
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
   // Translation functions defined in THDMI_physical.cpp
