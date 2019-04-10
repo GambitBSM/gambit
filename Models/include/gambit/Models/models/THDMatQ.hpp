@@ -1,7 +1,7 @@
 //  GAMBIT: Global and Modular BSM Inference Tool
 //  *********************************************
 //
-//  Two Higgs Doublet Model
+//  Two Higgs Doublet Model (Higgs Basis)
 //  *********************************************
 //
 //  Authors

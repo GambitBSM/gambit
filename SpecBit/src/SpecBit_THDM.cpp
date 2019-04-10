@@ -427,6 +427,8 @@ namespace Gambit
         double M222   =  mh0_2_k[2]*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
         mh0_2_k[0]   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
         mh0_2_k[1]   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+        // try to then recover alpha from the mixing of the higgs?
+        // and compare
         // --------
 
         thdm_model.tanb = tanb;

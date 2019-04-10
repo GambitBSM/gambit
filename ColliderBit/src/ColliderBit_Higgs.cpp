@@ -474,7 +474,7 @@ namespace Gambit
       int nobs;
       BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
 
-      result = -0.5*csqmu;
+      result = -0.5*csqtot;
 
       #ifdef COLLIDERBIT_DEBUG
         // likelihood plots
@@ -841,6 +841,7 @@ namespace Gambit
       using namespace Pipes::SM_higgs_mass_likelihood;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
       const double mh = fullspectrum.get(Par::mass1, "h0", 1); // Higgs boson mass - GeV
+      const double mh_pole = fullspectrum.get(Par::Pole_Mass, "h0", 1); // Higgs boson mass - GeV
       double massSMHiggs = 125.09;
       double h_sigma = 0.32;
 
@@ -855,7 +856,8 @@ namespace Gambit
         << "Lam6= " << fullspectrum.get(Par::mass1, "Lambda_6") << std::endl \
         << "Lam7= " << fullspectrum.get(Par::mass1, "Lambda_7") << std::endl \
         << "mHp= " << fullspectrum.get(Par::mass1, "H+") << std::endl \
-        << "alpha= " << fullspectrum.get(Par::dimensionless, "alpha") << std::endl;
+        << "alpha= " << fullspectrum.get(Par::dimensionless, "alpha") << std::endl; \
+        std::cout << "mass1: " << mh << " Pole_mass: " << mh_pole << std::endl; \
       #endif
 
       result = - pow( (mh - massSMHiggs) / h_sigma,2);
