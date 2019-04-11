@@ -748,6 +748,8 @@ namespace Gambit
       gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
       const int size = 3;
 
+      std::cout << "CHECK 1" << std::endl;
+
       const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
       const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
       const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
@@ -892,6 +894,8 @@ namespace Gambit
       trace.push_back(tr_d2);
       trace.push_back(tr_l2);
       trace.push_back(tr_du);
+
+      std::cout << "CHECK 2" << std::endl;
 
       return trace;
     }
