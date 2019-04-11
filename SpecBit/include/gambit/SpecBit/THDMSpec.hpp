@@ -421,9 +421,9 @@ namespace Gambit
                                              "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // fill entries in basis
          for(const auto& each_basis_key : basis_keys){
-           std::cout << basis_keys << ": ";
+           std::cout << each_basis_key << ": ";
            if (basis[each_basis_key]!= EMPTY) std::cout << basis[each_basis_key] << std::endl;
-           else std::cout << "NOT ENTERED" << std::endl;
+           else std::cout << "NOT FILLED" << std::endl;
          }
       }
 
