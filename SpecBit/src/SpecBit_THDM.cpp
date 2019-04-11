@@ -393,6 +393,8 @@ namespace Gambit
         thdm_model.mA0 = basis["m_A"];
         thdm_model.mC = basis["m_C"];
 
+        std::cout << "DEBUG MASSES: " << basis["m_h"] << " " << basis["m_H"] << " " << basis["m_A"] << std::endl;
+
         //for debug reasons may choose to continue with negative mass
         bool continue_with_negative_mass = false;
 
