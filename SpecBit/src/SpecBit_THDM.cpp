@@ -843,8 +843,6 @@ namespace Gambit
       gsl_matrix_complex_mul_elements(temp_u,temp_u);
       tr_u2 =  gsl_matrix_complex_trace_complex(temp_u);
 
-      gsl_matrix_complex_free(temp_u);
-
       //calculate traces - down
       gsl_matrix_complex *temp_d;
       gsl_matrix_complex *temp_d_2;
@@ -863,6 +861,7 @@ namespace Gambit
       gsl_matrix_complex_mul_elements(temp_d,temp_d);
       tr_d2 =  gsl_matrix_complex_trace_complex(temp_d);
 
+      gsl_matrix_complex_free(temp_u);
       gsl_matrix_complex_free(temp_d);
 
       // caluculate trace for down*up
