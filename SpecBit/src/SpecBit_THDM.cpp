@@ -900,7 +900,7 @@ namespace Gambit
       trace.push_back(tr_l2);
       trace.push_back(tr_du);
 
-      std::cout << "CHECK 2" << std::endl;
+      // std::cout << "CHECK 2" << std::endl;
 
       return trace;
     }
