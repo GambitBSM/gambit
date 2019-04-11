@@ -63,7 +63,7 @@
 #define PI 3.14159265
 
 // Switches for debug mode
-// #define SPECBIT_DEBUG
+#define SPECBIT_DEBUG
 // #define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
@@ -355,13 +355,16 @@ namespace Gambit
         basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
         basis["lambda4"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
         basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
-        std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
+        // std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
                   << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
         
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
+        #ifdef SPECBIT_DEBUG
+          print_THDM_spectrum(basis);
+        #endif
 
-        std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
+        // std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
                   << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
         // copy any info that will be reused
         double alpha = basis["alpha"];

@@ -566,13 +566,13 @@ namespace Gambit
             std::cout << m_h2 << std::endl;
             // set the masses
             // invalidate point at this stage?
-            if (m_h2 < 0.0) input_basis["m_h"] = -sqrt(m_h2);
+            if (m_h2 < 0.0) input_basis["m_h"] = -sqrt(-m_h2);
             else input_basis["m_h"] = sqrt(m_h2);
-            if (m_H2 < 0.0) input_basis["m_H"] = -sqrt(m_H2);
+            if (m_H2 < 0.0) input_basis["m_H"] = -sqrt(-m_H2);
             else input_basis["m_H"] = sqrt(m_H2);
-            if (m_A2 < 0.0) input_basis["m_A"] = -sqrt(m_A2);
+            if (m_A2 < 0.0) input_basis["m_A"] = -sqrt(-m_A2);
             else input_basis["m_A"] = sqrt(m_A2);
-            if (m_Hp2 < 0.0) input_basis["m_Hp"] = -sqrt(m_Hp2);
+            if (m_Hp2 < 0.0) input_basis["m_Hp"] = -sqrt(-m_Hp2);
             else input_basis["m_Hp"] = sqrt(m_Hp2);
          }
          //otherwise try to fill from higgs basis
@@ -670,9 +670,6 @@ namespace Gambit
          // else
          basis["sba"] = sin(beta - alpha);
          // input_basis["alpha"] = beta - asin(input_basis["sba"]);
-
-         print_THDM_spectrum(basis);
-
       }
 
       template <class MI>
