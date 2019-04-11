@@ -410,7 +410,6 @@ namespace Gambit
          // fill entries in basis
          for(const auto& each_basis_key : basis_keys){
            basis.insert(std::make_pair(each_basis_key, EMPTY));
-           std::cout << "DEBUGGING PAIRS:  " << each_basis_key << " " << basis[each_basis_key] << std::endl;
          }
          return basis;
       }
@@ -418,7 +417,6 @@ namespace Gambit
       inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis){
          const double EMPTY = -1E10;
          for(const auto& each_basis_key : basis_keys){
-            std::cout << each_basis_key << " comparison: " << basis_map_contains(basis, each_basis_key) << " " << basis[each_basis_key] << std::endl;
             if (!basis_map_contains(basis, each_basis_key) | basis[each_basis_key] == EMPTY) return false;
          }
          return true;
@@ -625,7 +623,9 @@ namespace Gambit
             errmsg << "SpecBit error (fatal): A problem was encountered during spectrum generation." << std::endl;
             errmsg << "Incomplete basis was sent to tree-level generator." << std::endl;
             // SpecBit_error().raise(LOCAL_INFO,errmsg.str());
-            std::cout << "Exiting SpecBit error " << std::endl;
+            std::cout << "SpecBit error (fatal): A problem was encountered during spectrum generation." << std::endl;
+            std::cout << "Incomplete basis was sent to tree-level generator." << std::endl;
+            std::cout << "Force Exiting SpecBit!" << std::endl;
             exit(0);
             return;
          }
