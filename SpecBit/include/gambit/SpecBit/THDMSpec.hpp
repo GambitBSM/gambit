@@ -664,7 +664,8 @@ namespace Gambit
          double s2ba = -(2.0*Lambda6*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
          double c2ba = s2ba/tan2ba;
          double ba = 0.5*acos(c2ba);
-         basis["alpha"] = beta - ba;
+         double alpha = beta - ba;
+         basis["alpha"] = alpha
          // else
          basis["sba"] = sin(beta - alpha);
          // input_basis["alpha"] = beta - asin(input_basis["sba"]);
