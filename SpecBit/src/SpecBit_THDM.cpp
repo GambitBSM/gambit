@@ -748,7 +748,7 @@ namespace Gambit
       gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
       const int size = 3;
 
-      std::cout << "CHECK 1" << std::endl;
+      // std::cout << "CHECK 1" << std::endl;
 
       const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
       const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
@@ -832,13 +832,13 @@ namespace Gambit
       gsl_matrix_complex *temp_u_2;
       temp_u = gsl_matrix_complex_alloc(size, size);
       temp_u_2 = gsl_matrix_complex_alloc(size, size);
-      std::cout << "CHECK 1A" << std::endl;
+      // std::cout << "CHECK 1A" << std::endl;
       gsl_matrix_complex_memcpy(temp_u,y_u);
 
       gsl_matrix_complex_mul_elements(temp_u,y_u_dagger);
       tr_u =  gsl_matrix_complex_trace_complex(temp_u);
 
-      std::cout << "CHECK 1B" << std::endl;
+      // std::cout << "CHECK 1B" << std::endl;
       gsl_matrix_complex_memcpy(temp_u_2,temp_u);
       gsl_matrix_complex_mul_elements(temp_u,temp_u);
       tr_u2 =  gsl_matrix_complex_trace_complex(temp_u);
@@ -848,15 +848,15 @@ namespace Gambit
       gsl_matrix_complex *temp_d_2;
       temp_d = gsl_matrix_complex_alloc(size, size);
       temp_d_2 = gsl_matrix_complex_alloc(size, size);
-      std::cout << "CHECK 1C" << std::endl;
+      // std::cout << "CHECK 1C" << std::endl;
       gsl_matrix_complex_memcpy(temp_d,y_d);
-      std::cout << "CHECK 1D" << std::endl;
+      // std::cout << "CHECK 1D" << std::endl;
       gsl_matrix_complex_memcpy(temp_d_2,y_d);
 
       gsl_matrix_complex_mul_elements(temp_d,y_d_dagger);
       tr_d =  gsl_matrix_complex_trace_complex(temp_d);
 
-      std::cout << "CHECK 1E" << std::endl;
+      // std::cout << "CHECK 1E" << std::endl;
       gsl_matrix_complex_memcpy(temp_d_2,temp_u);
       gsl_matrix_complex_mul_elements(temp_d,temp_d);
       tr_d2 =  gsl_matrix_complex_trace_complex(temp_d);
@@ -874,7 +874,7 @@ namespace Gambit
       //calculate traces - lepton
       gsl_matrix_complex *temp_l;
       temp_l = gsl_matrix_complex_alloc(size, size);
-      std::cout << "CHECK 1F" << std::endl;
+      // std::cout << "CHECK 1F" << std::endl;
       gsl_matrix_complex_memcpy(temp_l,y_l);
 
       gsl_matrix_complex_mul_elements(temp_l,y_l_dagger);
