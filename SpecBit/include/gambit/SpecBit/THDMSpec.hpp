@@ -563,7 +563,6 @@ namespace Gambit
             double M222 = m_A2*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
             double m_h2 = 0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
             double m_H2 = 0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-            std::cout << m_h2 << std::endl;
             // set the masses
             // invalidate point at this stage?
             if (m_h2 < 0.0) input_basis["m_h"] = -sqrt(-m_h2);
