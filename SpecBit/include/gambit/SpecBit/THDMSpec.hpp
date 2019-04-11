@@ -623,6 +623,7 @@ namespace Gambit
             errmsg << "SpecBit error (fatal): A problem was encountered during spectrum generation." << std::endl;
             errmsg << "Incomplete basis was sent to tree-level generator." << std::endl;
             // SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+            std::cout << "Exiting SpecBit error " << std::endl;
             exit(0);
             return;
          }
@@ -649,7 +650,6 @@ namespace Gambit
          basis["alpha"] = beta - ba;
          // else
          // input_basis["alpha"] = beta - asin(input_basis["sba"]);
-
 
       }
 
