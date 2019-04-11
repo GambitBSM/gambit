@@ -404,9 +404,9 @@ namespace Gambit
          const double EMPTY = -1E10;
          std::map<std::string, double> basis;
          // create a complete list of keys for basis
-         std::vector<std::string> basis_keys{"lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, m11_2, m22_2 \
-                                             Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M12_2, M11_2, M22_2 \
-                                             m_h, m_H, m_A, m_Hp, tanb, sba","alpha"};
+         const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7,", "m12_2", "m11_2", "m22_2", \
+                                             "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2" \
+                                             "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // fill entries in basis
          for(const auto& each_basis_key : basis_keys){
            basis.insert(std::make_pair(each_basis_key, EMPTY));
@@ -600,9 +600,9 @@ namespace Gambit
          const double EMPTY = -1E10;
          // validate basis entries
          // create a complete list of keys for basis
-         const std::vector<std::string> basis_keys{"lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, m11_2, m22_2 \
-                                          Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M12_2, M11_2, M22_2 \
-                                          m_h, m_H, m_A, m_Hp, tanb, sba", "alpha"};
+         const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7,", "m12_2", "m11_2", "m22_2", \
+                                             "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2" \
+                                             "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // validate entries in basis
          for(const auto& each_basis_key : basis_keys){
             if (!basis_map_contains(basis, each_basis_key)) basis.insert(std::make_pair(each_basis_key, EMPTY));
