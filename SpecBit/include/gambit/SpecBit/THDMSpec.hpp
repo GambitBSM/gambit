@@ -554,13 +554,13 @@ namespace Gambit
             // invalidate point at this stage?
             if (m_h2 < 0.0) input_basis["m_h"] = -sqrt(m_h2);
             else input_basis["m_h"] = sqrt(m_h2);
-            if (m_H2 < 0.0) input_basis["m_H2"] = -sqrt(m_H2);
-            else input_basis["m_H2"] = sqrt(m_H2);
-            if (m_A2 < 0.0) input_basis["m_A2"] = -sqrt(m_A2);
-            else input_basis["m_A2"] = sqrt(m_A2);
-            if (m_Hp2 < 0.0) input_basis["m_Hp2"] = -sqrt(m_Hp2);
-            else input_basis["m_Hp2"] = sqrt(m_Hp2);
-            std::cout <<"filling spectrum: " << m_h2 << " " << m_H2 << " " << m_A2 << " " << m_Hp2 << std::endl;
+            if (m_H2 < 0.0) input_basis["m_H"] = -sqrt(m_H2);
+            else input_basis["m_H"] = sqrt(m_H2);
+            if (m_A2 < 0.0) input_basis["m_A"] = -sqrt(m_A2);
+            else input_basis["m_A"] = sqrt(m_A2);
+            if (m_Hp2 < 0.0) input_basis["m_Hp"] = -sqrt(m_Hp2);
+            else input_basis["m_Hp"] = sqrt(m_Hp2);
+            std::cout <<"filling spectrum: " << input_basis["m_h"] << " " << input_basis["m_H"] << " " << input_basis["m_A"] << " " << input_basis["m_Hp"] << std::endl;
          }
          //otherwise try to fill from higgs basis
          else if (check_basis(higgs_basis_keys, input_basis)) {

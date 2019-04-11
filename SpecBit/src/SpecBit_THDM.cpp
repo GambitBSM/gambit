@@ -318,6 +318,8 @@ namespace Gambit
         if (myPipe::ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
 
+      std::cout <<"model in use debug: "<< y_type << " | " << is_at_Q << std::endl;
+
       if (y_type < 0 | y_type > 5) {
         // by definition this error should never be raised due to ALLOWED_MODELS protection in rollcall file
         std::ostringstream errmsg;
@@ -391,7 +393,7 @@ namespace Gambit
         thdm_model.mh0 = basis["m_h"];
         thdm_model.mH0 = basis["m_H"];
         thdm_model.mA0 = basis["m_A"];
-        thdm_model.mC = basis["m_C"];
+        thdm_model.mC = basis["m_Hp"];
 
         std::cout << "DEBUG MASSES: " << basis["m_h"] << " " << basis["m_H"] << " " << basis["m_A"] << std::endl;
 
