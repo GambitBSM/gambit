@@ -348,137 +348,67 @@ namespace Gambit
         
         // Initialise an object to carry the THDM sector information
         Models::THDMModel thdm_model;
-        
-        // quantities needed to fill container spectrum, intermediate calculations
-        double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
-        double sinW2 = 0.5 - pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5), cosW2 = 0.5 + pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5);
-        double e = pow( 4*Pi*( alpha_em ),0.5), v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
-        // Coupling basis input parameters
-        double lam1 = *myPipe::Param.at("lambda_1"), lam2 = *myPipe::Param.at("lambda_2"), lam3 = *myPipe::Param.at("lambda_3");
-        double lam4 = *myPipe::Param.at("lambda_4"), lam5 = *myPipe::Param.at("lambda_5"), lam6 = *myPipe::Param.at("lambda_6");
-        double lam7 = *myPipe::Param.at("lambda_7"), tanb = *myPipe::Param.at("tanb"), m12_2 = *myPipe::Param.at("m12_2");
 
-        // all other THDM calculations
-        double b = atan(tanb), sb = sin(b), cb = cos(b), s2b = sin(2.0*b), c2b = cos(2.0*b), sb2 = sb*sb, cb2 = cb*cb, tb	 = tan(b), ctb = 1.0/tb;
-        double lam345 = lam3 + lam4 + lam5;
+        // create empty basis
+        std::map<std::string, double> basis = create_empty_THDM_basis();
+         // fill coupling basis
+        basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
+        basis["lambda5"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
+        basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
+        // run tree level spectrum generator
+        generate_THDM_spectrum_tree_level(basis, sminputs);
 
-        double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb); 
-        double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb);
+        // copy any info that will be reused
+        double alpha = basis["alpha"];
+        double beta = atan(basis["tanb"]);
 
-        double Lam1 = lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
-        double Lam2 = lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
-        double Lam3 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
-        double Lam4 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
-        double Lam5 = 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
-        double Lam6 = -0.5*s2b*(lam1*pow(cb,2)-lam2*pow(sb,2)-lam345*c2b) + cb*cos(3.*b)*lam6 + sb*sin(3.*b)*lam7;
-        double Lam7 = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)+lam345*c2b) + sb*sin(3.*b)*lam6 + cb*cos(3.*b)*lam7;
-        double M12_2 = (m11_2-m22_2)*s2b + m12_2*c2b;
-        double M11_2 = m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
-        double M22_2 = m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
-
-        double mC_2 = M22_2 + 0.5*v2*Lam3;
-        double mA_2 = mC_2 - 0.5*v2*(Lam5 - Lam4);
-
-        double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
-        double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
-        double c2ba = s2ba/tan2ba;
-
-        double ba = 0.5*acos(c2ba);
-        double alpha = b - ba;
-        double sba = sin(ba), cba = cos(ba);
-
-        const std::complex<double> i(0.0,1.0);
-        const std::vector<std::vector<complex<double>>> q = {{0.0, 0.0, 0.0}, {0.0, sba, -cba}, {0.0, cba, sba}, {0.0, 0.0, i}, {0.0, i, 0.0}};
-       
-        double A_h0_2 = M22_2 + 0.5*v2*(Lam3 + Lam4 - Lam5);
-
-        std::vector<double> mh0_2_k;
-        for(int k=1; k<4; k++) {
-           double mk = 0.0;
-          // --------
-          // METHOD 1
-          // original method for calculating these masses for GAMBIT:
-          // this method is consistent with Higgs Basis masses
-          // NOTE: will revert to METHOD 1 later
-          // -------
-          //  (q[k][2] * std::conj(q[k][2]) * A_h0_2).real();
-          //  mk += v2 * pow(q[k][1],2).real() * Lam1;
-          //  mk += v2 * (q[k][2]).real() * (q[k][2]*Lam5).real();
-          //  mk += v2 * 2.0 * q[k][1].real() * (q[k][2]*Lam6).real();
-          // --------
-           mh0_2_k.push_back(mk);
-        }
-
-        // --------
-        // METHOD 2
-        // alternative method for calculating these masses for debugging:
-        // original tree-level conversion below
-        // this conversion is from 2HDMC
-        // NOTE: will revert to METHOD 1 later
-        // -------
-        if (tb>0) {
-          mh0_2_k[2]=m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
-        } else {
-          mh0_2_k[2]=m22_2+0.5*v2*(lam3+lam4-lam5);
-        }
-        double m_Hp2  =  mh0_2_k[2]+0.5*v2*(lam5-lam4);
-        double M112   =  mh0_2_k[2]*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
-        double M122   = -mh0_2_k[2]*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
-        double M222   =  mh0_2_k[2]*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
-        mh0_2_k[0]   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-        mh0_2_k[1]   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-        // try to then recover alpha from the mixing of the higgs?
-        // and compare
-        // --------
-
-        thdm_model.tanb = tanb;
+        // fill spectrum container
+        thdm_model.tanb = basis["tanb"];
         thdm_model.alpha = alpha;
 
-        thdm_model.lambda1 = lam1;
-        thdm_model.lambda2 = lam2;
-        thdm_model.lambda3 = lam3;
-        thdm_model.lambda4 = lam4;
-        thdm_model.lambda5 = lam5;
-        thdm_model.lambda6 = lam6;
-        thdm_model.lambda7 = lam7;
-        thdm_model.m11_2 = m11_2;
-        thdm_model.m22_2 = m22_2;
-        thdm_model.m12_2 = m12_2;
+        thdm_model.lambda1 = basis["lambda1"];
+        thdm_model.lambda2 = basis["lambda2"];
+        thdm_model.lambda3 = basis["lambda3"];
+        thdm_model.lambda4 = basis["lambda4"];
+        thdm_model.lambda5 = basis["lambda5"];
+        thdm_model.lambda6 = basis["lambda6"];
+        thdm_model.lambda7 = basis["lambda7"];
+        thdm_model.m11_2 = basis["m11_2"];
+        thdm_model.m22_2 = basis["m22_2"];
+        thdm_model.m12_2 = basis["m12_2"];
 
-        thdm_model.Lambda1 = Lam1;
-        thdm_model.Lambda2 = Lam2;
-        thdm_model.Lambda3 = Lam3;
-        thdm_model.Lambda4 = Lam4;
-        thdm_model.Lambda5 = Lam5;
-        thdm_model.Lambda6 = Lam6;
-        thdm_model.Lambda7 = Lam7;
-        thdm_model.M11_2 = M11_2;
-        thdm_model.M22_2 = M22_2;
-        thdm_model.M12_2 = M12_2;
+        thdm_model.Lambda1 = basis["Lambda1"];
+        thdm_model.Lambda2 = basis["Lambda2"];
+        thdm_model.Lambda3 = basis["Lambda3"];
+        thdm_model.Lambda4 = basis["Lambda4"];
+        thdm_model.Lambda5 = basis["Lambda5"];
+        thdm_model.Lambda6 = basis["Lambda6"];
+        thdm_model.Lambda7 = basis["Lambda7"];
+        thdm_model.M11_2 = basis["M11_2"];
+        thdm_model.M22_2 = basis["M22_2"];
+        thdm_model.M12_2 = basis["M12_2"];
+
+        thdm_model.mh0 = basis["m_h"];
+        thdm_model.mH0 = basis["m_H"];
+        thdm_model.mA0 = basis["m_A"];
+        thdm_model.mC = basis["m_C"];
 
         //for debug reasons may choose to continue with negative mass
         bool continue_with_negative_mass = false;
 
-        if (mh0_2_k[0] < 0.0 || mh0_2_k[1] < 0.0 || mh0_2_k[2] < 0.0 || mC_2 < 0.0) {
+        if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_C"] < 0.0) {
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
           if (!continue_with_negative_mass) invalid_point().raise(msg.str());
         }
-        
-        thdm_model.mh0 = sqrt(mh0_2_k[0]);
-        thdm_model.mH0 = sqrt(mh0_2_k[1]);
-        thdm_model.mA0 = sqrt(mh0_2_k[2]);
-        thdm_model.mC = sqrt(mC_2);
-
-        if (continue_with_negative_mass) {
-          if (mh0_2_k[0] < 0.0) thdm_model.mh0 = -sqrt(-mh0_2_k[0]);
-          if (mh0_2_k[1] < 0.0) thdm_model.mH0 = -sqrt(-mh0_2_k[1]);
-          if (mh0_2_k[2] < 0.0) thdm_model.mA0 = -sqrt(-mh0_2_k[2]);
-          if (mC_2 < 0.0) thdm_model.mC = -sqrt(-mC_2);
-        }
-
+    
         thdm_model.mG0 = 0.0;
         thdm_model.mGC = 0.0;
+
+        // // quantities needed to fill container spectrum, intermediate calculations
+        double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+        double sinW2 = 0.5 - pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5), cosW2 = 0.5 + pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5);
+        double e = pow( 4*Pi*( alpha_em ),0.5), v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
 
         // Standard model
         thdm_model.sinW2 = sinW2;
@@ -489,7 +419,7 @@ namespace Gambit
         thdm_model.mW = sminputs.mZ*cosW2;
         // Yukawas
         
-        double sqrt2v = pow(2.0,0.5)/vev, ca = cos(alpha), sa = sin(alpha);
+        double sqrt2v = pow(2.0,0.5)/vev, ca = cos(alpha), sa = sin(alpha), cb = cos(beta), sb = sin(beta);
         double rescale_Yu, rescale_Yd, rescale_Ye;
         switch (y_type) {
           case type_I:

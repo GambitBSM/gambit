@@ -39,47 +39,6 @@
 
 using namespace Gambit::Utils;
 
-std::vector<double> physical_to_coupling_THDM(double m_h, double m_H, double m_A, \
-                                              double m_Hp, double m12_2, double tanb, \
-                                              double sba, double lambda6, double lambda7, double v2) {
-  std::vector<double> coupling_basis;
-  double beta=atan(tanb);
-
-  // this is the code from THDMC please rewrite!
-
-  double sb	 = sin(beta);
-  double sb2 = sb*sb;
-  double cb	 = cos(beta);
-  double cb2 = cb*cb;
-  double tb	 = tan(beta);
-  double ctb = 1./tb;
-
-  double alpha = -asin(sba)+beta;
-  double sa  = sin(alpha);
-  double sa2 = sa*sa;
-  double ca  = cos(alpha);
-  double ca2 = ca*ca;
-
-  double cba = sqrt(1.-sba*sba);
- 
-  double lambda1 = (m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
-  double lambda2 = (m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
-  double lambda3 = ((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  double lambda4 = ((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  double lambda5 = (m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-
-  coupling_basis.push_back(lambda1);
-  coupling_basis.push_back(lambda2);
-  coupling_basis.push_back(lambda3);
-  coupling_basis.push_back(lambda4);
-  coupling_basis.push_back(lambda5);
-  coupling_basis.push_back(lambda6);
-  coupling_basis.push_back(lambda7);
-  coupling_basis.push_back(m12_2);
-  coupling_basis.push_back(tanb);
-  return coupling_basis;
-}
-
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
 #define MODEL  THDMI_physical
 #define PARENT THDM
@@ -91,44 +50,50 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelP
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
   logger()<<"Running interpret_as_FRIEND calculations for THDMI_physical --> THDMI"<<LogTags::info<<EOM;
 
-  double GF = Dep::SMINPUTS->GF;
-  double v2 = 1.0/(sqrt(2)*GF);
+  // SMInputs& sminputs();
+  // fill only what is necessary for conversion
+  // sminputs.GF =  Dep::SMINPUTS->GF;
+  // Gambit::dep_bucket<Gambit::SMInputs> sminputs =;
+  // sminputs = sminputs->;
 
-  std::cout << SpecBit::get_test_number() << std::endl;
+  const SMInputs& sminputs = *Dep::SMINPUTS;
 
-  double m_h = myP.getValue("m_h");
-  double m_H = myP.getValue("m_H");
-  double m_A = myP.getValue("m_A");
-  double m_Hp = myP.getValue("m_Hp");
-  double m12_2 = myP.getValue("m12_2");
-  double tanb = myP.getValue("tanb");
-  double sba = myP.getValue("sba");
-  double lambda6 = myP.getValue("lambda_6");
-  double lambda7 = myP.getValue("lambda_7");
+  // double GF = Dep::SMINPUTS->GF;
+  // double v2 = 1.0/(sqrt(2)*GF);
 
-    // Problematic parameter choices
-  if (m_h>m_H) {
-    cerr << "WARNING: Cannot set physical masses such that m_H < m_h\n"; 
-    // throw error
-  }
-  if ((tanb<=0)||(abs(sba)>1)||(m_h<0)||(m_H<0)||(m_A<0)||(m_Hp<0)) {
-    cerr << "WARNING: Problematic input parameter choice.\n"; 
-    // throw error
-  }
+  std::map<std::string, double> basis = SpecBit::create_empty_THDM_basis();
 
-  std::vector<double> coupling_basis = physical_to_coupling_THDM(m_h, m_H, m_A, m_Hp, m12_2, tanb, \
-                                              sba, lambda6, lambda7, v2);
+  basis["m_h"] = myP.getValue("m_h");
+  basis["m_H"] = myP.getValue("m_H");
+  basis["m_A"]= myP.getValue("m_A");
+  basis["m_Hp"]= myP.getValue("m_Hp");
+  basis["m12_2"] = myP.getValue("m12_2");
+  basis["tanb"] = myP.getValue("tanb");
+  basis["sba"] = myP.getValue("sba");
+  basis["lambda6"] = myP.getValue("lambda_6");
+  basis["lambda7"] = myP.getValue("lambda_7");
 
+  // // Check for problematic parameter choices
+  // if (m_h>m_H) {
+  //   cerr << "WARNING: Cannot set physical masses such that m_H < m_h\n"; 
+  //   // throw error
+  // }
+  // if ((tanb<=0)||(abs(sba)>1)||(m_h<0)||(m_H<0)||(m_A<0)||(m_Hp<0)) {
+  //   cerr << "WARNING: Problematic input parameter choice.\n"; 
+  //   // throw error
+  // }
 
-  targetP.setValue("lambda_1", coupling_basis[0] );
-  targetP.setValue("lambda_2", coupling_basis[1] );
-  targetP.setValue("lambda_3", coupling_basis[2] );
-  targetP.setValue("lambda_4", coupling_basis[3] );
-  targetP.setValue("lambda_5", coupling_basis[4] );
-  targetP.setValue("lambda_6", coupling_basis[5] );
-  targetP.setValue("lambda_7", coupling_basis[6] );
-  targetP.setValue("m12_2", coupling_basis[7] );
-  targetP.setValue("tanb", coupling_basis[8] );
+  SpecBit::fill_generic_THDM_basis(basis, sminputs);
+
+  targetP.setValue("lambda_1", basis["lambda1"] );
+  targetP.setValue("lambda_2", basis["lambda2"] );
+  targetP.setValue("lambda_3", basis["lambda3"] );
+  targetP.setValue("lambda_4", basis["lambda4"] );
+  targetP.setValue("lambda_5", basis["lambda5"] );
+  targetP.setValue("lambda_6", basis["lambda6"] );
+  targetP.setValue("lambda_7", basis["lambda7"] );
+  targetP.setValue("m12_2", basis["m12_2"] );
+  targetP.setValue("tanb", basis["tanb"] );
 
 
   // Done! Check that everything is ok if desired.
