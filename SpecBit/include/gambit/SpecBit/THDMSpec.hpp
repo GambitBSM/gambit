@@ -414,6 +414,19 @@ namespace Gambit
          return basis;
       }
 
+      inline void print_THDM_spectrum(std::map<std::string, double>& basis){
+         const double EMPTY = -1E10;
+         const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7,", "m12_2", "m11_2", "m22_2", \
+                                             "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2", \
+                                             "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
+         // fill entries in basis
+         for(const auto& each_basis_key : basis_keys){
+           std::cout << basis_keys << ": ";
+           if (basis[each_basis_key]!= EMPTY) std::cout << basis[each_basis_key] << std::endl;
+           else std::cout << "NOT ENTERED" << std::endl;
+         }
+      }
+
       inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis){
          const double EMPTY = -1E10;
          for(const auto& each_basis_key : basis_keys){
@@ -630,6 +643,8 @@ namespace Gambit
             return;
          }
 
+         std::cout << "Basis filled: " << coupling_filled << higgs_filled << physical_filled << std::endl;
+
          if (!coupling_filled) fill_generic_THDM_basis(basis, sminputs);
          if (!higgs_filled) fill_higgs_THDM_basis(basis, sminputs);
          if (!physical_filled) fill_physical_THDM_basis(basis, sminputs);
@@ -652,6 +667,8 @@ namespace Gambit
          basis["alpha"] = beta - ba;
          // else
          // input_basis["alpha"] = beta - asin(input_basis["sba"]);
+
+         print_THDM_spectrum(basis);
 
       }
 

@@ -313,7 +313,7 @@ namespace Gambit
 
       // set THDM model type
       int y_type = -1; bool is_at_Q = false;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (myPipe::ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -355,9 +355,14 @@ namespace Gambit
         basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
         basis["lambda4"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
         basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
+        std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
+                  << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
+        
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
 
+        std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
+                  << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
         // copy any info that will be reused
         double alpha = basis["alpha"];
         double beta = atan(basis["tanb"]);
@@ -2342,7 +2347,7 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -2367,7 +2372,7 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings_for_HiggsBounds;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -2392,7 +2397,7 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings_SM_like_model;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
