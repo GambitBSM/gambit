@@ -560,7 +560,6 @@ namespace Gambit
             else input_basis["m_A"] = sqrt(m_A2);
             if (m_Hp2 < 0.0) input_basis["m_Hp"] = -sqrt(m_Hp2);
             else input_basis["m_Hp"] = sqrt(m_Hp2);
-            std::cout <<"filling spectrum: " << input_basis["m_h"] << " " << input_basis["m_H"] << " " << input_basis["m_A"] << " " << input_basis["m_Hp"] << std::endl;
          }
          //otherwise try to fill from higgs basis
          else if (check_basis(higgs_basis_keys, input_basis)) {
