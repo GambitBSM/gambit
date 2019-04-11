@@ -1731,7 +1731,7 @@ namespace Gambit
       using namespace Pipes::get_unitarity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1747,7 +1747,7 @@ namespace Gambit
       using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1763,7 +1763,7 @@ namespace Gambit
       using namespace Pipes::get_perturbativity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1779,7 +1779,7 @@ namespace Gambit
       using namespace Pipes::get_stability_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1795,7 +1795,7 @@ namespace Gambit
       using namespace Pipes::get_alignment_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1811,7 +1811,7 @@ namespace Gambit
       using namespace Pipes::get_oblique_parameters_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
@@ -1827,7 +1827,7 @@ namespace Gambit
       using namespace Pipes::get_global_minimum_discriminant_likelihood;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }

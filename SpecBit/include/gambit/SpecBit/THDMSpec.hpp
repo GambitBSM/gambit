@@ -410,6 +410,7 @@ namespace Gambit
          // fill entries in basis
          for(const auto& each_basis_key : basis_keys){
            basis.insert(std::make_pair(each_basis_key, EMPTY));
+           std::cout << "DEBUGGING PAIRS:  " << each_basis_key << " " << basis[each_basis_key] << std::endl;
          }
          return basis;
       }
