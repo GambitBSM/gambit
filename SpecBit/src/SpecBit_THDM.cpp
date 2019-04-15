@@ -576,13 +576,6 @@ namespace Gambit
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       THDM_object->set_yukawas_type(yukawa_type);
-       // aplha debug tests
-      std::cout << "OUR CALC: " << alpha << std::endl;
-      std::cout << "THDMC CALC (our basis): " << THDM_object->get_alpha() << std::endl;
-      THDMC_1_7_0::THDM* THDM_object_2 = new THDMC_1_7_0::THDM();
-      THDM_object_2->set_param_gen(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
-                                  m12_2, tan_beta);
-      std::cout << "THDMC CALC (their basis): " << THDM_object_2->get_alpha() << std::endl;
     }
 
     struct thdm_params { double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, tanb, alpha, m11_2, m22_2, m12_2, mh, mH, mC, mA, mh_run, mH_run, mC_run, mA_run, Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M11_2, M22_2, M12_2, yukawa_type; };
