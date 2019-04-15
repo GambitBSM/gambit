@@ -63,8 +63,8 @@
 #define PI 3.14159265
 
 // Switches for debug mode
-#define SPECBIT_DEBUG
-#define SPECBIT_DEBUG_VERBOSE
+// #define SPECBIT_DEBUG
+// #define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
@@ -355,17 +355,13 @@ namespace Gambit
         basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
         basis["lambda4"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
         basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
-        // std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
-                  << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
-        
+       
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
         #ifdef SPECBIT_DEBUG
           print_THDM_spectrum(basis);
         #endif
 
-        // std::cout << basis["lambda1"] << " " << basis["lambda2"] << " " << basis["lambda3"] << " " << basis["lambda4"] << " " << basis["lambda5"] \
-                  << " " << basis["lambda6"] << " " << basis["lambda7"] << " " << basis["tanb"] << " " << basis["m12_2"] << std::endl;
         // copy any info that will be reused
         double alpha = basis["alpha"];
         double beta = atan(basis["tanb"]);
@@ -570,16 +566,23 @@ namespace Gambit
       double lambda_6 = he->get(Par::mass1, "lambda_6");
       double lambda_7 = he->get(Par::mass1, "lambda_7");
       double m12_2 = he->get(Par::mass1,"m12_2");
-      double mh = he->get(Par::mass1, "h0", 1);
-      double mH = he->get(Par::mass1, "h0", 2);
-      double mA = he->get(Par::mass1, "A0");
-      double mC = he->get(Par::mass1, "H+");
+      double mh = he->get(Par::Pole_Mass, "h0", 1);
+      double mH = he->get(Par::Pole_Mass, "h0", 2);
+      double mA = he->get(Par::Pole_Mass, "A0");
+      double mC = he->get(Par::Pole_Mass, "H+");
       double alpha = he->get(Par::dimensionless, "alpha");
       double sba = sin(atan(tan_beta) - alpha);
       set_SM(SM,sminputs,THDM_object);
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       THDM_object->set_yukawas_type(yukawa_type);
+       // aplha debug tests
+      std::cout << "OUR CALC: " << alpha << std::endl;
+      std::cout << "THDMC CALC (our basis): " << THDM_object->get_alpha() << std::endl;
+      THDMC_1_7_0::THDM* THDM_object_2;
+      THDM_object_2->set_param_gen(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
+                                  m12_2, tan_beta);
+      std::cout << "THDMC CALC (their basis): " << THDM_object_2->get_alpha() << std::endl;
     }
 
     struct thdm_params { double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, tanb, alpha, m11_2, m22_2, m12_2, mh, mH, mC, mA, mh_run, mH_run, mC_run, mA_run, Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M11_2, M22_2, M12_2, yukawa_type; };

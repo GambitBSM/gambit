@@ -32,7 +32,7 @@ Parameters:
             prior_type: flat
         tanb:
             range: [0.1, 100]
-            prior_type: flat
+            prior_type: log
         # Qin:
         #     fixed_value: 91.1876 #mZ
         # QrunTo:
@@ -96,7 +96,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 500
+      NP: 2500
       convthresh: 1e-4
       verbosity: 1
 
@@ -111,8 +111,8 @@ Scanner:
 
 ObsLikes:
 
-    # - purpose:    LogLike
-    #   capability: global_minimum_discriminant_likelihood
+    - purpose:    LogLike
+      capability: global_minimum_discriminant_likelihood
       
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
@@ -136,9 +136,9 @@ ObsLikes:
       function: b2sgamma_likelihood
       purpose: LogLike
 
-    - purpose:    LogLike
-      capability: SM_higgs_mass_likelihood_THDM
-      function: SM_higgs_mass_likelihood
+    # - purpose:    LogLike
+    #   capability: SM_higgs_mass_likelihood_THDM
+    #   function: SM_higgs_mass_likelihood
     
     # - capability: b2sll_LL
     #   funtion: b2sll_likelihood
@@ -150,13 +150,13 @@ ObsLikes:
 
     # Calculate the LEP & LHC Higgs likelihoodw
 
-    # - purpose:    LogLike
-    #   capability: LEP_Higgs_LogLike
-    #   function: calc_HB_LEP_LogLike
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+      function: calc_HB_LEP_LogLike
 
-    # - purpose:    LogLike
-    #   capability: LHC_Higgs_LogLike
-    #   function: calc_HS_LHC_LogLike
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
+      function: calc_HS_LHC_LogLike
 
   # ----- observables ----
 
@@ -244,10 +244,6 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
-    # - capability: test_THDM_spectrum_1
-    #   function: test_THDM_spectrum_1
-    #   purpose: LogLike
-
 Rules:
 
     - capability: THDM_spectrum
@@ -256,17 +252,17 @@ Rules:
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: unitarity_likelihood_THDM
       function: get_unitarity_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM

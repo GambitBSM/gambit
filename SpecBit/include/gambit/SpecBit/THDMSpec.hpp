@@ -378,14 +378,14 @@ namespace Gambit
          double mA_2 = pow(mA,2);
          double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
 
-        double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
-        double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
-        double c2ba = s2ba/tan2ba;
+         double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
+         double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
+         double c2ba = s2ba/tan2ba;
 
-        double ba = 0.5*acos(c2ba);
-        double alpha = b - ba;
+         double ba = 0.5*acos(c2ba);
+         double alpha = b - ba;
 
-        return alpha;
+         return alpha;
       }
 
       // ----------
@@ -439,7 +439,7 @@ namespace Gambit
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          // necessary definitions
-         double v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
+         double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = input_basis["tanb"];
          double beta = atan(tanb);
          double sb = sin(beta), cb = cos(beta), tb = tan(beta);
@@ -472,6 +472,7 @@ namespace Gambit
             // get values from physical basis
             double m_h = input_basis["m_h"], m_H = input_basis["m_H"], m_A = input_basis["m_A"], m_Hp = input_basis["m_Hp"];
             double lambda6 = input_basis["lambda6"], lambda7 = input_basis["lambda7"], sba = input_basis["sba"], m12_2 = input_basis["m12_2"];
+            // TODO : check that sba follows through here
             // set values of coupling basis
             double alpha = beta - asin(input_basis["sba"]);
             double ca = cos(alpha), sa = sin(alpha);
@@ -496,11 +497,11 @@ namespace Gambit
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
           // necessary definitions
-         double v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
+         double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = input_basis["tanb"];
          double beta = atan(tanb);
          double sb = sin(beta), cb = cos(beta), tb = tan(beta);
-         double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
+         double ctb = 1./tb;
          double s2b = sin(2.*beta), c2b = cos(2.*beta);
          //initially try to fill from scalar basis
          if (check_basis(generic_basis_keys, input_basis)) {
@@ -539,12 +540,11 @@ namespace Gambit
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
          // necessary definitions
-         double v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
+         double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = input_basis["tanb"];
          double beta = atan(tanb);
          double sb = sin(beta), cb = cos(beta), tb = tan(beta);
          double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
-         double s2b = sin(2.*beta), c2b = cos(2.*beta);
          //initially try to fill from higgs basis
          if(check_basis(generic_basis_keys, input_basis)) {
             // get values from coupling basis
@@ -643,21 +643,18 @@ namespace Gambit
             return;
          }
 
-         std::cout << "Basis filled: " << coupling_filled << higgs_filled << physical_filled << std::endl;
-
          if (!coupling_filled) fill_generic_THDM_basis(basis, sminputs);
          if (!higgs_filled) fill_higgs_THDM_basis(basis, sminputs);
          if (!physical_filled) fill_physical_THDM_basis(basis, sminputs);
 
          // calculate alpha 2 methods for now
          // fill alpha
-         double v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
+         double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = basis["tanb"];
          double beta = atan(tanb);
          double sb = sin(beta), cb = cos(beta), tb = tan(beta);
-         double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
-         double Lambda1 = basis["Lambda1"], Lambda2 = basis["Lambda2"], Lambda3 = basis["Lambda3"], Lambda4 = basis["Lambda4"], Lambda5 = basis["Lambda5"];
-         double Lambda6 = basis["Lambda6"], Lambda7 = basis["Lambda7"], M22_2 = basis["M22_2"];
+         double Lambda1 = basis["Lambda1"], Lambda3 = basis["Lambda3"], Lambda4 = basis["Lambda4"], Lambda5 = basis["Lambda5"];
+         double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
          double mC_2 = M22_2 + 0.5*v2*Lambda3;
          double mA_2 = mC_2 - 0.5*v2*(Lambda5 - Lambda4);
          double tan2ba = (2.0*Lambda6*v2)/(mA_2 + (Lambda5-Lambda1)*v2);
@@ -665,10 +662,9 @@ namespace Gambit
          double c2ba = s2ba/tan2ba;
          double ba = 0.5*acos(c2ba);
          double alpha = beta - ba;
+         if (alpha > M_PI/2) alpha = alpha - M_PI;
          basis["alpha"] = alpha;
-         // else
          basis["sba"] = sin(beta - alpha);
-         // input_basis["alpha"] = beta - asin(input_basis["sba"]);
       }
 
       template <class MI>
