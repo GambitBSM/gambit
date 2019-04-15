@@ -430,7 +430,7 @@ namespace Gambit
       inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis){
          const double EMPTY = -1E10;
          for(const auto& each_basis_key : basis_keys){
-            if (!basis_map_contains(basis, each_basis_key) | basis[each_basis_key] == EMPTY) return false;
+            if (!basis_map_contains(basis, each_basis_key) || basis[each_basis_key] == EMPTY) return false;
          }
          return true;
       }

@@ -37,7 +37,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 
-// #define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -858,7 +858,24 @@ namespace Gambit
         << "mHp= " << fullspectrum.get(Par::mass1, "H+") << std::endl \
         << "alpha= " << fullspectrum.get(Par::dimensionless, "alpha") << std::endl; \
         std::cout << "mass1: " << mh << " Pole_mass: " << mh_pole << std::endl;
+        std::unique_ptr<SubSpectrum> he = fullspectrum.clone_HE();
+        he -> RunToScale(750.0);
+        std::cout << "SM higgs mass likelihood debug output" << std::endl \
+        << "mh= " << he->get(Par::mass1, "h0", 1) << std::endl \
+        << "Lam1= " << he->get(Par::mass1, "Lambda_1") << std::endl \
+        << "Lam2= " << he->get(Par::mass1, "Lambda_2") << std::endl \
+        << "Lam3= " << he->get(Par::mass1, "Lambda_3") << std::endl \
+        << "Lam4= " << he->get(Par::mass1, "Lambda_4") << std::endl \
+        << "Lam5= " << he->get(Par::mass1, "Lambda_5") << std::endl \
+        << "Lam6= " << he->get(Par::mass1, "Lambda_6") << std::endl \
+        << "Lam7= " << he->get(Par::mass1, "Lambda_7") << std::endl \
+        << "mHp= " << he->get(Par::mass1, "H+") << std::endl \
+        << "alpha= " << he->get(Par::dimensionless, "alpha") << std::endl; \
+        std::cout << "mass1: " << he->get(Par::mass1, "h0", 1) << " Pole_mass: " << he->get(Par::Pole_Mass, "h0", 1) << std::endl;
+
       #endif
+
+      
 
       result = - pow( (mh - massSMHiggs) / h_sigma,2);
     } 
