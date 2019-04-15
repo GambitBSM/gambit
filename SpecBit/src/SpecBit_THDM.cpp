@@ -579,7 +579,7 @@ namespace Gambit
        // aplha debug tests
       std::cout << "OUR CALC: " << alpha << std::endl;
       std::cout << "THDMC CALC (our basis): " << THDM_object->get_alpha() << std::endl;
-      THDMC_1_7_0::THDM* THDM_object_2;
+      THDMC_1_7_0::THDM* THDM_object_2 = new THDMC_1_7_0::THDM();
       THDM_object_2->set_param_gen(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta);
       std::cout << "THDMC CALC (their basis): " << THDM_object_2->get_alpha() << std::endl;
