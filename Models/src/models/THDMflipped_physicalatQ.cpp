@@ -1,7 +1,7 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  THDMI_physicalatQ to THDMIatQ
+///  THDMflipped_physicalatQ to THDMflippedatQ
 ///
 ///
 ///  *********************************************
@@ -24,8 +24,8 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMI_physical.hpp"
-#include "gambit/Models/models/THDMIatQ.hpp"
+#include "gambit/Models/models/THDMflipped_physical.hpp"
+#include "gambit/Models/models/THDMflippedatQ.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
@@ -36,14 +36,14 @@
 using namespace Gambit::Utils;
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMI_physicalatQ
-#define FRIEND THDMIatQ
+#define MODEL  THDMflipped_physicalatQ
+#define FRIEND THDMflippedatQ
 
 // Translation function definition
-void MODEL_NAMESPACE::THDMI_physicalatQ_to_THDMIatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMflipped_physicalatQ_to_THDMflippedatQ(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMI_physicalatQ --> THDMIatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpret_as_FRIEND calculations for THDMflipped_physicalatQ --> THDMflippedatQ"<<LogTags::info<<EOM;
 
   const SMInputs& sminputs = *Dep::SMINPUTS;
   std::map<std::string, double> basis = SpecBit::create_empty_THDM_basis();
@@ -76,8 +76,8 @@ void MODEL_NAMESPACE::THDMI_physicalatQ_to_THDMIatQ(const ModelParameters &myP, 
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
-    std::cout << "THDMI_physicalatQ parameters:" << myP << std::endl;
-    std::cout << "THDMIatQ parameters   :" << targetP << std::endl;
+    std::cout << "THDMflipped_physicalatQ parameters:" << myP << std::endl;
+    std::cout << "THDMflippedatQ parameters   :" << targetP << std::endl;
   #endif
 }
 

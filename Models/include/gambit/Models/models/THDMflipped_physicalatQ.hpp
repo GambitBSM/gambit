@@ -17,34 +17,31 @@
 //
 //  *********************************************
 
-#ifndef __THDMLS_physical_hpp__
-#define __THDMLS_physical_hpp__
+#ifndef __THDMflipped_physicalatQ_hpp__
+#define __THDMflipped_physicalatQ_hpp__
 
 // Must include models which are targets of translation functions
-#include "gambit/Models/models/THDMLS.hpp"
-#include "gambit/Models/models/THDM.hpp"
+#include "gambit/Models/models/THDMIatQ.hpp"
 
 // Forward declaration of needed types
 namespace Gambit {
   class SMInputs;
 }
 
-#define MODEL THDMLS_physical
-#define PARENT THDM
-#define FRIEND THDMLS
+#define MODEL THDMflipped_physicalatQ
+#define FRIEND THDMflippedatQ
   START_MODEL
   
   DEFINEPARS(m_h,m_H,m_A,m_Hp)
   DEFINEPARS(lambda_6,lambda_7,m12_2)
   DEFINEPARS(sba,tanb)
+
+  DEFINEPARS(Qin,QrunTo)
   
-  INTERPRET_AS_X_FUNCTION(FRIEND, THDMLS_physical_to_THDMLS)
+  INTERPRET_AS_X_FUNCTION(FRIEND, THDMflipped_physicalatQ_to_THDMflippedatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND ,SMINPUTS, SMInputs)
-  INTERPRET_AS_PARENT_FUNCTION(THDMLS_physical_to_THDM)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-  // Translation functions defined in THDMLS_physical.cpp
+  // Translation functions defined in THDMflipped_physicalatQ.cpp
 #undef FRIEND
-#undef PARENT
 #undef MODEL
 
 #endif
