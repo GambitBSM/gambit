@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII_physical:
+    THDMII_physicalatQ:
         m_h:
             range: [125.0, 126.0]
             prior_type: flat
@@ -33,10 +33,10 @@ Parameters:
         tanb:
             range: [0.1, 100]
             prior_type: log
-        # Qin:
-        #     fixed_value: 91.1876 #mZ
-        # QrunTo:
-        #     fixed_value: 750
+        Qin:
+            fixed_value: 91.1876 #mZ
+        QrunTo:
+            fixed_value: 750
 
 ##############################
 # Prior setup
@@ -134,6 +134,10 @@ ObsLikes:
     
     - capability: b2sgamma_LL
       function: b2sgamma_likelihood
+      purpose: LogLike
+
+    - capability:  deltaMB_LL
+      function: deltaMB_likelihood
       purpose: LogLike
 
     # - purpose:    LogLike
