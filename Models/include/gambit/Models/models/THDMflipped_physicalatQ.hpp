@@ -21,7 +21,7 @@
 #define __THDMflipped_physicalatQ_hpp__
 
 // Must include models which are targets of translation functions
-#include "gambit/Models/models/THDMIatQ.hpp"
+#include "gambit/Models/models/THDMflippedatQ.hpp"
 
 // Forward declaration of needed types
 namespace Gambit {
