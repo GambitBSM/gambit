@@ -24,7 +24,7 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMflipped_physical.hpp"
+#include "gambit/Models/models/THDMflipped_physicalatQ.hpp"
 #include "gambit/Models/models/THDMflippedatQ.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
