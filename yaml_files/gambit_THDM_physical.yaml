@@ -315,6 +315,13 @@ Rules:
     - capability: bsgamma
       function: SI_bsgamma
       module: FlavBit
+      
+    - capability: FH_FlavourObs
+      function: fh_FlavourObs
+
+    - capability: DeltaMs
+      function: FH_DeltaMs
+      module: FlavBit
 
 #########################
 # Logging setup

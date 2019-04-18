@@ -464,6 +464,8 @@ START_MODULE
     BACKEND_REQ(FHFlavour, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(THDM, THDMI, THDMII, THDMLS, THDMflipped)
+    ALLOW_MODELS(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
