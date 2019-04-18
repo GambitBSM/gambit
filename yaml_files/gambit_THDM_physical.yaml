@@ -136,10 +136,6 @@ ObsLikes:
       function: b2sgamma_likelihood
       purpose: LogLike
 
-    # - capability:  deltaMB_LL
-    #   function: deltaMB_likelihood
-    #   purpose: LogLike
-
     # - purpose:    LogLike
     #   capability: SM_higgs_mass_likelihood_THDM
     #   function: SM_higgs_mass_likelihood
@@ -167,10 +163,6 @@ ObsLikes:
     - capability: bsgamma
       function: SI_bsgamma
       purpose: Observable
-
-    # - capability: DeltaMs
-    #   function: FH_DeltaMs
-    #   purpose: Observable
 
     - capability: mh0_pole
       function: obs_mh0_pole
@@ -310,6 +302,10 @@ Rules:
     - capability: THDM_total_widths_SM_like_model
       function: get_THDM_total_widths_SM_like_model
 
+    - capability: HB_ModelParameters
+      function: SMHiggs_ModelParameters
+      module: ColliderBit
+
     - capability: SuperIso_modelinfo
       function: SI_fill
     
@@ -319,13 +315,7 @@ Rules:
     - capability: bsgamma
       function: SI_bsgamma
       module: FlavBit
-      
-    # - capability: FH_FlavourObs
-    #   function: fh_FlavourObs
 
-    # - capability: DeltaMs
-    #   function: FH_DeltaMs
-    #   module: FlavBit
 
 #########################
 # Logging setup
