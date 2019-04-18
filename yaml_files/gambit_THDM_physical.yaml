@@ -136,9 +136,9 @@ ObsLikes:
       function: b2sgamma_likelihood
       purpose: LogLike
 
-    - capability:  deltaMB_LL
-      function: deltaMB_likelihood
-      purpose: LogLike
+    # - capability:  deltaMB_LL
+    #   function: deltaMB_likelihood
+    #   purpose: LogLike
 
     # - purpose:    LogLike
     #   capability: SM_higgs_mass_likelihood_THDM
