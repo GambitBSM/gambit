@@ -132,9 +132,9 @@ ObsLikes:
     - purpose:    LogLike
       capability: oblique_parameters_likelihood_THDM
     
-    # - capability: b2sgamma_LL
-    #   function: b2sgamma_likelihood
-    #   purpose: LogLike
+    - capability: b2sgamma_LL
+      function: b2sgamma_likelihood
+      purpose: LogLike
 
     # - purpose:    LogLike
     #   capability: SM_higgs_mass_likelihood_THDM
@@ -150,13 +150,13 @@ ObsLikes:
 
     # Calculate the LEP & LHC Higgs likelihoodw
 
-    # - purpose:    LogLike
-    #   capability: LEP_Higgs_LogLike
-    #   function: calc_HB_LEP_LogLike
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+      function: calc_HB_LEP_LogLike
 
-    # - purpose:    LogLike
-    #   capability: LHC_Higgs_LogLike
-    #   function: calc_HS_LHC_LogLike
+    - purpose:    LogLike
+      capability: LHC_Higgs_LogLike
+      function: calc_HS_LHC_LogLike
 
   # ----- observables ----
 
@@ -283,6 +283,10 @@ Rules:
       function: get_global_minimum_discriminant_likelihood
       options:
         check_all_scales: false
+
+    - capability: HB_ModelParameters
+      function: fill_THDM_HiggsBounds_model_parameters
+      module: ColliderBit
 
     - capability: THDM_couplings_for_HiggsBounds
       function: get_THDM_couplings_for_HiggsBounds
