@@ -1175,7 +1175,9 @@ namespace Gambit
             /// sure every single calculated point is on disk. This way the
             /// RA buffers should be able to fully empty themselves.
             logger()<<"Synchronised buffers flushed for rank "<<myRank<<" printers. Waiting for all processes to flush their sync data before we try to write the RA data."<<EOM;
+#ifdef WITH_MPI
             myComm.Barrier();
+#endif
 
             /// Need to know final nominal dataset size to ensure unsynchronised datasets match synchronised ones.
             buffermaster.lock_and_open_file();

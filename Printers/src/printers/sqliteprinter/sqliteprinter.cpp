@@ -28,6 +28,7 @@
 
 // Gambit
 #include "gambit/Printers/printers/sqliteprinter.hpp"
+#include "gambit/Logs/logger.hpp"
 
 // Define this macro to dump attempted SQL statements during exceptions
 #define SQL_DEBUG

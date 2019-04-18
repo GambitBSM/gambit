@@ -19,7 +19,7 @@
 
 
 #include "gambit/Printers/printers/sqliteprinter.hpp"
-
+#include "gambit/Utils/stream_overloads.hpp"
 
 namespace Gambit
 {
