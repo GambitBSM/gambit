@@ -74,6 +74,7 @@ namespace Gambit
           model_interface.model.run_to(scale);
         }
         catch(...){
+          std::cout << "SpecBit throwing invalid point @ running" << std::endl;
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
           //TODO: Terminal message here
         }

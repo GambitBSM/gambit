@@ -233,7 +233,7 @@ namespace Gambit
          else
          { if (print_debug_checkpoints) cout << "Checkpoint: 97" << endl;
             #ifdef FS_THROW_POINT
-
+            std::cout << "SpecBit throwing invalid point" << std::endl;
             /// Check what the problem was
             /// see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
             std::ostringstream msg;
