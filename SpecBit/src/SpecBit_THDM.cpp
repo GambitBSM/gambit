@@ -63,8 +63,8 @@
 #define PI 3.14159265
 
 // Switches for debug mode
-// #define SPECBIT_DEBUG
-// #define SPECBIT_DEBUG_VERBOSE
+#define SPECBIT_DEBUG
+#define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
@@ -1958,6 +1958,7 @@ namespace Gambit
       for (auto eachEig : abs_eigenvalues) {
             chi2 += get_chi(eachEig,bound,less_than,unitarity_upper_limit,sigma);
       }
+      if (print_debug_checkpoints) cout << "Checkpoint: 29A " << chi2 << endl;
       return -chi2;
     }
 
