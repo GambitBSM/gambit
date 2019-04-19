@@ -111,6 +111,13 @@ Scanner:
 
 ObsLikes:
 
+
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+
     - purpose:    LogLike
       capability: global_minimum_discriminant_likelihood
       
@@ -119,12 +126,6 @@ ObsLikes:
 
     - purpose:    LogLike
       capability: alignment_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: stability_likelihood_THDM
 
     - purpose:    LogLike
       capability: NLO_unitarity_likelihood_THDM
