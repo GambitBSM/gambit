@@ -63,8 +63,8 @@
 #define PI 3.14159265
 
 // Switches for debug mode
-#define SPECBIT_DEBUG
-#define SPECBIT_DEBUG_VERBOSE
+// #define SPECBIT_DEBUG
+// #define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
@@ -279,11 +279,7 @@ namespace Gambit
       static const Spectrum::mr_info mass_ratio_cut = runOptions.getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
-        if (print_debug_checkpoints) {
-          model_interface.model.print(cout);
-          model_interface.model.calculate_DRbar_masses();
-          model_interface.model.print(cout);
-        }
+        if (print_debug_checkpoints) model_interface.model.calculate_DRbar_masses();
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 
@@ -1860,14 +1856,8 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 29" << endl;
 
       std::vector<double> lambda, abs_eigenvalues;
-      lambda.push_back(0.0); //empty s.t. lambda_i matches index i
-      lambda.push_back(container.he->get(Par::mass1, "lambda_1"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_2"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_3"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_4"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_5"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_6"));
-      lambda.push_back(container.he->get(Par::mass1, "lambda_7"));
+      lambda = get_lambdas_from_spectrum(container)
+      lambda.insert(lambda.begin(), 0.0); // add zero to first element to align with index lambda_i
 
       // Scattering matrix (7a) Y=2 sigma=1
       Eigen::MatrixXcd S_21(3,3);
@@ -1959,7 +1949,7 @@ namespace Gambit
       //-----------------------------
       //calculate the total error of each point
       double chi2 = 0.0;
-      for (auto eachEig : abs_eigenvalues) {
+      for (auto const& eachEig : abs_eigenvalues) {
             chi2 += get_chi(eachEig,bound,less_than,unitarity_upper_limit,sigma);
       }
       if (print_debug_checkpoints) cout << "Checkpoint: 29A " << chi2 << endl;
@@ -2082,6 +2072,13 @@ namespace Gambit
       return -chi2;
   }
 
+    double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) {
+      if (print_debug_checkpoints) cout << "Checkpoint: 37A" << endl;
+      // when scanning in the
+
+      return -chi_2;
+    }
+
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 38" << endl;
       // fill the THDM object with values from the input file
@@ -2093,10 +2090,26 @@ namespace Gambit
       //-----------------------------
       double chi_2 = 0.0;
 
+      // if not scanning in the generic prior, simply check lambda_i (generic)
+      // first check if the prior is generic
+      const std::vector<std::string> = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"}
+      for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
+        // physical model match was found
+        if (myPipe::ModelInUse(THDM_physical_model_keys[i])) {
+          // calculate the chi2 from the generic couplings
+          if (print_debug_checkpoints) cout << "Checkpoint: 38A" << endl;
+          std::vector<double> lambda = get_lambdas_from_spectrum(container);
+          // loop over all lambdas
+          for(auto const& each_lambda: lambda) {
+            chi_2 += get_chi(abs(each_lambda),bound,less_than,perturbativity_upper_limit,sigma);
+            }
+          return chi_2;
+        }
+      }
+
+      // using generic model so calculate chi^2 from all possible 4 higgs interactions
+      if (print_debug_checkpoints) cout << "Checkpoint: 38B" << endl;
       complex<double> hhhh_coupling;
-
-
-      // calculate the chi^2 from all possible 4 higgs interactions
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
       // loop over h0,H0,A0,Hp,Hm
       for (int p1=1;p1<7;p1++) {

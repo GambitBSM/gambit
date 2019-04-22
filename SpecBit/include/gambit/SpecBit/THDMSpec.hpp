@@ -79,7 +79,6 @@ namespace Gambit
           //TODO: Terminal message here
         }
         model_interface.model.calculate_DRbar_masses();
-        model_interface.model.print(cout);
 
       }
       template <class MI>
