@@ -1794,7 +1794,7 @@ namespace Gambit
       const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"};
       for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
         // physical model match was found change to generic likelihood
-        if (myPipe::ModelInUse(THDM_physical_model_keys[i])) {
+        if (ModelInUse(THDM_physical_model_keys[i])) {
           likelihood_function = perturbativity_likelihood_generic_THDM;
         }
       }
