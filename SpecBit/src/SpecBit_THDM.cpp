@@ -2112,6 +2112,7 @@ namespace Gambit
       const double sigma = 4*M_PI;
       //-----------------------------
       double chi_2 = 0.0;
+      double chi_2_gaussian = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
       complex<double> hhhh_coupling;
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
@@ -2123,6 +2124,7 @@ namespace Gambit
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
                   chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
+                  chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
                 }
             }
           }
