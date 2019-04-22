@@ -34,7 +34,7 @@ Parameters:
             range: [0.1, 100]
             prior_type: flat
         Qin:
-            fixed_value: 91.1876 #mZ
+            fixed_value: 91.1876 # Qin = mZ
         QrunTo:
             fixed_value: 750
 
@@ -105,11 +105,13 @@ Scanner:
       aux_printer_stats_options:
       aux_printer_live_options:
 
-###############################
-# Observables of interest
-###########################
-
 ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    ## theoretical likelihoods
 
     - purpose:    LogLike
       capability: global_minimum_discriminant_likelihood
@@ -132,6 +134,8 @@ ObsLikes:
     - purpose:    LogLike
       capability: oblique_parameters_likelihood_THDM
     
+    ## flavor physics likelihoods
+
     - capability: b2sgamma_LL
       function: b2sgamma_likelihood
       purpose: LogLike
@@ -148,7 +152,7 @@ ObsLikes:
       funtion: SL_likelihood
       purpose: LogLike
 
-    # Calculate the LEP & LHC Higgs likelihoodw
+    ## LHC & LEP likelihoods
 
     - purpose:    LogLike
       capability: LEP_Higgs_LogLike
@@ -158,11 +162,11 @@ ObsLikes:
       capability: LHC_Higgs_LogLike
       function: calc_HS_LHC_LogLike
 
-  # ----- observables ----
+    #################
+    # Observables
+    #################
 
-    - capability: bsgamma
-      function: SI_bsgamma
-      purpose: Observable
+    ## physical basis
 
     - capability: mh0_pole
       function: obs_mh0_pole
@@ -195,6 +199,8 @@ ObsLikes:
     - capability: mHpm_running
       function: obs_mHpm_running
       purpose: Observable
+
+    ## generic basis
 
     - capability: lambda_1
       function: obs_lambda_1
@@ -235,6 +241,8 @@ ObsLikes:
     - capability: m22_2
       function: obs_m22_2
       purpose: Observable
+
+    ## mixing angles
 
     - capability: tanb
       function: obs_tanb
