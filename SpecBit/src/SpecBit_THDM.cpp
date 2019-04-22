@@ -1717,6 +1717,7 @@ namespace Gambit
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container);
+    double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container);
     double stability_likelihood_THDM(THDM_spectrum_container& container);
     double alignment_likelihood_THDM(THDM_spectrum_container& container);
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
@@ -1784,7 +1785,20 @@ namespace Gambit
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_constraint_at_scale_warning("get_perturbativity_likelihood_THDM");
       }
+      // perturbativity can either be checked at the level of the generic potential couplings
+      // or then all four point Higgs interactions in the Higgs basis. The latter is default
+      // unless scanning in the mass basis then the generic potential couplings should suffice
+      // to help guide the scanner.
+      
       std::function<double(THDM_spectrum_container&)> likelihood_function = perturbativity_likelihood_THDM;
+      const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"}
+      for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
+        // physical model match was found change to generic likelihood
+        if (myPipe::ModelInUse(THDM_physical_model_keys[i])) {
+          likelihood_function = perturbativity_likelihood_generic_THDM;
+        }
+      }
+      
       result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
@@ -2072,43 +2086,32 @@ namespace Gambit
       return -chi2;
   }
 
-    double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) {
-      if (print_debug_checkpoints) cout << "Checkpoint: 37A" << endl;
-      // when scanning in the
-
+    double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) { 
+      // if not scanning in the generic prior, simply check lambda_i (generic)
+      // calculate the chi2 from the generic couplings
+       //-----------------------------
+      // all values < 4*PI for perturbativity conditions
+      const double perturbativity_upper_limit = 4*M_PI;
+      const double sigma = 4*M_PI;
+      //-----------------------------
+      double chi_2 = 0.0;
+      std::vector<double> lambda = get_lambdas_from_spectrum(container);
+      // loop over all lambdas
+      for(auto const& each_lambda: lambda) {
+        chi_2 += get_chi(abs(each_lambda),bound,less_than,perturbativity_upper_limit,sigma);
+        }
       return -chi_2;
     }
 
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 38" << endl;
-      // fill the THDM object with values from the input file
-      // set constraint values
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
       const double sigma = 4*M_PI;
       //-----------------------------
       double chi_2 = 0.0;
-
-      // if not scanning in the generic prior, simply check lambda_i (generic)
-      // first check if the prior is generic
-      const std::vector<std::string> = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"}
-      for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
-        // physical model match was found
-        if (myPipe::ModelInUse(THDM_physical_model_keys[i])) {
-          // calculate the chi2 from the generic couplings
-          if (print_debug_checkpoints) cout << "Checkpoint: 38A" << endl;
-          std::vector<double> lambda = get_lambdas_from_spectrum(container);
-          // loop over all lambdas
-          for(auto const& each_lambda: lambda) {
-            chi_2 += get_chi(abs(each_lambda),bound,less_than,perturbativity_upper_limit,sigma);
-            }
-          return chi_2;
-        }
-      }
-
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
-      if (print_debug_checkpoints) cout << "Checkpoint: 38B" << endl;
       complex<double> hhhh_coupling;
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
       // loop over h0,H0,A0,Hp,Hm
@@ -2124,7 +2127,6 @@ namespace Gambit
           }
         }
       }
-
       return -chi_2;
     }
 
