@@ -279,7 +279,11 @@ namespace Gambit
       static const Spectrum::mr_info mass_ratio_cut = runOptions.getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
-        if (print_debug_checkpoints) model_interface.model.print(cout);
+        if (print_debug_checkpoints) {
+          model_interface.model.print(cout);
+          model_interface.model.calculate_DRbar_masses();
+          model_interface.model.print(cout);
+        }
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 

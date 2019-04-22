@@ -78,8 +78,8 @@ namespace Gambit
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
           //TODO: Terminal message here
         }
+        model_interface.model.calculate_DRbar_masses();
         model_interface.model.print(cout);
-        // model_interface.model.calculate_DRbar_masses();
 
       }
       template <class MI>
