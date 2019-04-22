@@ -15,7 +15,7 @@
 ///
 ///  \ modified:
 ///   Filip Rajec
-///   Feb 2017
+///   Feb 2017-2019
 ///
 ///  *********************************************
 
@@ -78,7 +78,7 @@ namespace Gambit
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
           //TODO: Terminal message here
         }
-        model_interface.model.calculate_DRbar_masses();
+        // model_interface.model.calculate_DRbar_masses();
 
       }
       template <class MI>
