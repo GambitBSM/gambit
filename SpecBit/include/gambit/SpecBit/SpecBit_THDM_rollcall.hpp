@@ -324,8 +324,8 @@ START_CAPABILITY
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   // physical models are checked in this likelihood so must be allowed
-  ALLOW_MODEL(THDM_physical, THDMI_physical, THDMII_physical, THDMLS_physical, THDMflipped_physical)     
-  ALLOW_MODEL(THDM_physicalatQ, THDMI_physicalatQ, THDMII_physicalatQ, THDMLS_physicalatQ, THDMflipped_physicalatQ)
+  ALLOW_MODEL(THDMI_physical, THDMII_physical, THDMLS_physical, THDMflipped_physical)     
+  ALLOW_MODEL(THDMI_physicalatQ, THDMII_physicalatQ, THDMLS_physicalatQ, THDMflipped_physicalatQ)
   #undef FUNCTION
 #undef CAPABILITY
 
