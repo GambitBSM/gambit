@@ -146,7 +146,7 @@ namespace Gambit
       double chi2 = -0.5*pow(theory-obs,2)/errsq;
       double norm = profile_systematics ? log(2.0*pi*obserr*theoryerr) : 0.5*log(2.0*pi*errsq);
 
-      std::cout << "(gaussian_loglikelihood debug) " << chi2 - norm <<" | errsq: " <<  errsq << " | chi2: " << chi2 << " | norm: " << norm << std::endl;
+      // std::cout << "(gaussian_loglikelihood debug) " << chi2 - norm <<" | errsq: " <<  errsq << " | chi2: " << chi2 << " | norm: " << norm << std::endl;
 
       return chi2 - norm;
     }

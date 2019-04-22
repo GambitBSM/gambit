@@ -2130,7 +2130,7 @@ namespace Gambit
           }
         }
       }
-      std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
+      //std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
       return -chi_2;
     }
 
