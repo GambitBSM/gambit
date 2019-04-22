@@ -2124,13 +2124,13 @@ namespace Gambit
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
                   chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
-                  chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
+                  if (abs(hhhh_coupling) > perturbativity_upper_limit) chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
                 }
             }
           }
         }
       }
-      //std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
+      std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
       return -chi_2;
     }
 
