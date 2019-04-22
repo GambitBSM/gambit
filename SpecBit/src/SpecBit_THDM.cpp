@@ -1973,7 +1973,7 @@ namespace Gambit
             chi2 += get_chi(eachEig,bound,less_than,unitarity_upper_limit,sigma);
       }
       if (print_debug_checkpoints) cout << "Checkpoint: 29A " << endl;
-      return -chi2;
+      return chi2;
     }
 
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2089,7 +2089,7 @@ namespace Gambit
         }
       #endif
 
-      return -chi2;
+      return chi2;
   }
 
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) { 
@@ -2107,7 +2107,7 @@ namespace Gambit
       for(auto const& each_lambda: lambda) {
         chi_2 += get_chi(abs(each_lambda),bound,less_than,perturbativity_upper_limit,sigma);
         }
-      return -chi_2;
+      return chi_2;
     }
 
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2137,7 +2137,7 @@ namespace Gambit
         }
       }
       // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
-      return -chi_2;
+      return chi_2;
     }
 
     double stability_likelihood_THDM(THDM_spectrum_container& container) {
@@ -2159,7 +2159,7 @@ namespace Gambit
         chi_2 += get_chi(lambda[2],observable,greater_than,0,sigma);
 
         if (std::isnan(sqrt(lambda[1]*lambda[2]))) {
-            chi_2 = L_MAX;
+            chi_2 = -L_MAX;
         }
         else {
             chi_2 += get_chi(lambda[3],bound,greater_than,-sqrt(lambda[1]*lambda[2]),sigma);
@@ -2170,7 +2170,7 @@ namespace Gambit
               chi_2 += get_chi(lambda[3]+lambda[4]-lambda[5],observable, greater_than, -sqrt(lambda[1]*lambda[2]),sigma);
             }
         }
-        return -chi_2;
+        return chi_2;
     }
 
     double alignment_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2273,7 +2273,7 @@ namespace Gambit
         invalid_point().raise(msg.str());
       }
 
-      return -chi2;
+      return chi2;
     }
 
     void nan_warning(std::string var_name) {
