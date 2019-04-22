@@ -63,8 +63,8 @@
 #define PI 3.14159265
 
 // Switches for debug mode
-// #define SPECBIT_DEBUG
-// #define SPECBIT_DEBUG_VERBOSE
+#define SPECBIT_DEBUG
+#define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
