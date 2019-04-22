@@ -308,8 +308,9 @@ Rules:
     - capability: b2sll_M
       function: b2sll_measurements
 
-    - capability: b2ll_M
-      function: b2sll_measurements
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
 
     - capability: bsgamma
       function: SI_bsgamma
