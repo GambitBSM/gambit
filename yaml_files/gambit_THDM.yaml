@@ -136,17 +136,17 @@ ObsLikes:
       function: b2sgamma_likelihood
       purpose: LogLike
 
-    - purpose:    LogLike
-      capability: SM_higgs_mass_likelihood_THDM
-      function: SM_higgs_mass_likelihood
-    
-    # - capability: b2sll_LL
-    #   funtion: b2sll_likelihood
-    #   purpose: LogLike
+    - capability: b2sll_LL
+      funtion: b2sll_likelihood
+      purpose: LogLike
 
-    # - capability: SL_LL
-    #   funtion: SL_likelihood
-    #   purpose: LogLike
+    - capability: b2ll_LL
+      funtion: b2ll_likelihood
+      purpose: LogLike
+
+    - capability: SL_LL
+      funtion: SL_likelihood
+      purpose: LogLike
 
     # Calculate the LEP & LHC Higgs likelihoodw
 
@@ -244,10 +244,6 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
-    # - capability: test_THDM_spectrum_1
-    #   function: test_THDM_spectrum_1
-    #   purpose: LogLike
-
 Rules:
 
     - capability: THDM_spectrum
@@ -310,6 +306,9 @@ Rules:
       function: SI_fill
     
     - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: b2ll_M
       function: b2sll_measurements
 
     - capability: bsgamma
