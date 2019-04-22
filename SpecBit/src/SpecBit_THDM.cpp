@@ -2087,6 +2087,7 @@ namespace Gambit
   }
 
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 38A" << endl;
       // if not scanning in the generic prior, simply check lambda_i (generic)
       // calculate the chi2 from the generic couplings
        //-----------------------------
