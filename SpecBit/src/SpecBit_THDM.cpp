@@ -1789,9 +1789,9 @@ namespace Gambit
       // or then all four point Higgs interactions in the Higgs basis. The latter is default
       // unless scanning in the mass basis then the generic potential couplings should suffice
       // to help guide the scanner.
-      
+
       std::function<double(THDM_spectrum_container&)> likelihood_function = perturbativity_likelihood_THDM;
-      const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"}
+      const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"};
       for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
         // physical model match was found change to generic likelihood
         if (myPipe::ModelInUse(THDM_physical_model_keys[i])) {
@@ -1870,7 +1870,7 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 29" << endl;
 
       std::vector<double> lambda, abs_eigenvalues;
-      lambda = get_lambdas_from_spectrum(container)
+      lambda = get_lambdas_from_spectrum(container);
       lambda.insert(lambda.begin(), 0.0); // add zero to first element to align with index lambda_i
 
       // Scattering matrix (7a) Y=2 sigma=1
