@@ -2130,6 +2130,7 @@ namespace Gambit
           }
         }
       }
+      std::cout << chi_2_gaussian << std::endl;
       return -chi_2;
     }
 
