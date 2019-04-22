@@ -666,7 +666,8 @@ namespace Gambit
                         return 0;
                     }
                     else {
-                        return pow(((value-value_bound)/error),2);
+                        return Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+                        // pow(((value-value_bound)/error),2);
                     }
                 break;
                 case greater_than:
@@ -674,11 +675,13 @@ namespace Gambit
                         return 0;
                         }
                     else {
-                        return pow(((value-value_bound)/error),2);
+                        return Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+                        //pow(((value-value_bound)/error),2);
                     }
                 break;
             case distance_from:
-              chi = pow(((value-value_bound)/error),2);
+              chi = Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+              //pow(((value-value_bound)/error),2);
                 break;
             default:
               return chi;
@@ -692,7 +695,8 @@ namespace Gambit
                 return 0;
               }
               else {
-                return pow(((sigma_rescale*value)/(value_bound)-1.0),2);
+                return Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+                //pow(((sigma_rescale*value)/(value_bound)-1.0),2);
               }
             break;
             case greater_than:
@@ -700,11 +704,13 @@ namespace Gambit
                 return 0;
               }
               else {
-                return pow(((sigma_rescale*value)/(value_bound)-1.0),2);
+                return Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+                //pow(((sigma_rescale*value)/(value_bound)-1.0),2);
               }
             break;
             case distance_from:
-              return pow(((sigma_rescale*value)/(value_bound)-1.0),2);
+              return Stats::gaussian_loglikelihood(value,value_bound,0.0,error,true);
+              //pow(((sigma_rescale*value)/(value_bound)-1.0),2);
             break;
             default:
               return chi;
@@ -2124,13 +2130,13 @@ namespace Gambit
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
                   chi_2 += get_chi(abs(hhhh_coupling),bound,less_than,perturbativity_upper_limit,sigma);
-                  if (abs(hhhh_coupling) > perturbativity_upper_limit) chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
+                  // if (abs(hhhh_coupling) > perturbativity_upper_limit) chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
                 }
             }
           }
         }
       }
-      std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
+      // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
       return -chi_2;
     }
 

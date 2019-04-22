@@ -321,17 +321,14 @@ Rules:
 
     - capability: SuperIso_modelinfo
       function: SI_fill
-    
-    # - capability: b2sll_M
-    #   function: b2sll_measurements
 
     - capability: bsgamma
       function: SI_bsgamma
       module: FlavBit
 
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-    module: FlavBit
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
 
 
 #########################
