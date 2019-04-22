@@ -1791,7 +1791,7 @@ namespace Gambit
       // to help guide the scanner.
 
       std::function<double(THDM_spectrum_container&)> likelihood_function = perturbativity_likelihood_THDM;
-      const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical, THDMI_physicalatQ, THDMII_physical, THDMII_physicalatQ, THDMLS_physical, THDMLS_physicalatQ , THDMflipped_physical, THDMflipped_physicalatQ"};
+      const std::vector<std::string> THDM_physical_model_keys = {"THDMI_physical", "THDMI_physicalatQ", "THDMII_physical", "THDMII_physicalatQ", "THDMLS_physical", "THDMLS_physicalatQ" , "THDMflipped_physical", "THDMflipped_physicalatQ"};
       for (int i=0; unsigned(i) < THDM_physical_model_keys.size(); i++) {
         // physical model match was found change to generic likelihood
         if (ModelInUse(THDM_physical_model_keys[i])) {
@@ -1966,7 +1966,7 @@ namespace Gambit
       for (auto const& eachEig : abs_eigenvalues) {
             chi2 += get_chi(eachEig,bound,less_than,unitarity_upper_limit,sigma);
       }
-      if (print_debug_checkpoints) cout << "Checkpoint: 29A " << chi2 << endl;
+      if (print_debug_checkpoints) cout << "Checkpoint: 29A " << endl;
       return -chi2;
     }
 
