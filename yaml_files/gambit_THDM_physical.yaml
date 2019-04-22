@@ -329,6 +329,10 @@ Rules:
       function: SI_bsgamma
       module: FlavBit
 
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    module: FlavBit
+
 
 #########################
 # Logging setup
