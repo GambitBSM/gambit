@@ -1176,6 +1176,7 @@ namespace Gambit
       {
         for (int j=0; j<pmc.dim; ++j)
         {
+          std::cout << "chi2 b2sll (" << i << ", " << j << "): " << Chi2 << std::endl;
           Chi2+= diff[i] * cov_inv(i,j)*diff[j] ;
         }
       }
