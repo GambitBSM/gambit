@@ -324,6 +324,15 @@ Rules:
       function: SI_bsgamma
       module: FlavBit
 
+    # Choose to use gm2calc for g-2
+    - capability: muon_gm2
+      function: GM2C_SUSY
+
+    # Choose to base the SM prediction for g-2 on e+e- data
+    - capability: muon_gm2_SM
+      function: gm2_SM_ee
+
+
 #########################
 # Logging setup
 #########################

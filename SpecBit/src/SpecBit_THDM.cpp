@@ -1965,7 +1965,7 @@ namespace Gambit
       //-----------------------------
       // all values < 16*PI for unitarity conditions
       const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      const double sigma = 4.0*M_PI;
+      const double sigma = 1.;
       //-----------------------------
       //calculate the total error of each point
       double chi2 = 0.0;
@@ -2099,7 +2099,7 @@ namespace Gambit
        //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 4*M_PI;
+      const double sigma = 1.;
       //-----------------------------
       double chi_2 = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
@@ -2115,7 +2115,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 4*M_PI;
+      const double sigma = 1.;
       //-----------------------------
       double chi_2 = 0.0;
       double chi_2_gaussian = 0.0;
@@ -2153,7 +2153,7 @@ namespace Gambit
       }
 
         double chi_2 = 0;
-        const double sigma = 4*M_PI;
+        const double sigma = 1.;
         //observable likelihood used as this should be covered by prior and has a central value of zero
         chi_2 += get_chi(lambda[1],observable,greater_than,0,sigma);
         chi_2 += get_chi(lambda[2],observable,greater_than,0,sigma);
