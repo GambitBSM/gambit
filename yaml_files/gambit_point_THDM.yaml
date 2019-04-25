@@ -7,25 +7,25 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII:
+    THDMIIatQ:
         lambda_1:
-            fixed_value: 6.14316
+            fixed_value: 4.53828
         lambda_2:
-            fixed_value: 1.47745
+            fixed_value: 0.564302
         lambda_3:
-            fixed_value: 1.75200
+            fixed_value: -0.187929
         lambda_4:
-            fixed_value: -2.08753
+            fixed_value: -0.237934
         lambda_5:
-            fixed_value: -2.08753
+            fixed_value: 0.989264
         lambda_6:
             fixed_value: 0.0
         lambda_7:
             fixed_value: 0.0
         m12_2:
-            fixed_value: 15800.00000
+            fixed_value: 657797
         tanb:
-            fixed_value: 1.40498
+            fixed_value: 78.5969
         # Qin:
         #     fixed_value: 80.0 #mZ
         # QrunTo:
@@ -150,9 +150,9 @@ ObsLikes:
       capability: LHC_Higgs_LogLike
       function: calc_HS_LHC_LogLike
 
-    - purpose:    LogLike
-      capability: higgs_mass_likelihood_THDM
-      function: higgs_mass_likelihood
+    # - purpose:    LogLike
+    #   capability: higgs_mass_likelihood_THDM
+    #   function: higgs_mass_likelihood
 
 
   # ----- observables ----

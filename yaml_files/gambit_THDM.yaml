@@ -152,6 +152,15 @@ ObsLikes:
       funtion: SL_likelihood
       purpose: LogLike
 
+    - purpose:    LogLike
+      capability: LUV_LL
+
+    ## PrecisionBit Liklelihood
+
+    - capability: lnL_gm2
+      funtion: lnL_gm2_chi2
+      purpose: LogLike
+
     ## LHC & LEP likelihoods
 
     - purpose:    LogLike
