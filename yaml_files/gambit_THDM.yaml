@@ -335,7 +335,7 @@ Rules:
 
     # Choose to use gm2calc for g-2
     - capability: muon_gm2
-      function: GM2C_SUSY
+      function: SI_muon_gm2
 
     # Choose to base the SM prediction for g-2 on e+e- data
     - capability: muon_gm2_SM
