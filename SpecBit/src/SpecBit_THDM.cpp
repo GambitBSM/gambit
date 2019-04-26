@@ -649,7 +649,7 @@ namespace Gambit
     // Constraint helper functions
     // Necessary forward declaration
     double Z_w(void * params);
-    
+
     // void get_CKM_from_Wolfenstein_parameters(complex<double> CKM[2][2], double lambda, double A, double rho, double eta) {
     //   std::complex<double> i_eta(0, eta);
     //   CKM[0][0] = 1 - pow(lambda,2)/2;
@@ -1660,15 +1660,15 @@ namespace Gambit
     double get_likelihood(std::function<double(THDM_spectrum_container&)> likelihood_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, spec, yukawa_type);
-      const double chi_2 = likelihood_function(container);
-      double chi_2_at_Q = -L_MAX;
+      const double loglike = likelihood_function(container);
+      double loglike_at_Q = -L_MAX;
       if (scale>0.0) {
         THDM_spectrum_container container_at_scale;
         init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
-        chi_2_at_Q = likelihood_function(container_at_scale);
+        loglike_at_Q = likelihood_function(container_at_scale);
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
-      return std::max(chi_2,chi_2_at_Q);
+      return std::max(loglike,loglike_at_Q);
     }
 
     void print_constraint_at_scale_warning(const std::string constraint_name) {
@@ -2029,13 +2029,13 @@ namespace Gambit
       const double perturbativity_upper_limit = 4*M_PI;
       const double sigma = 1.;
       //-----------------------------
-      double chi_2 = 0.0;
+      double loglike = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
       // loop over all lambdas
       for(auto const& each_lambda: lambda) {
-        chi_2 += Stats::gaussian_lower_limit(abs(each_lambda),perturbativity_upper_limit,0.0,sigma,false)
+        loglike += Stats::gaussian_lower_limit(abs(each_lambda),perturbativity_upper_limit,0.0,sigma,false);
         }
-      return chi_2;
+      return loglike;
     }
 
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2045,8 +2045,7 @@ namespace Gambit
       const double perturbativity_upper_limit = 4*M_PI;
       const double sigma = 1.;
       //-----------------------------
-      double chi_2 = 0.0;
-      double chi_2_gaussian = 0.0;
+      double loglike = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
       complex<double> hhhh_coupling;
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
@@ -2057,15 +2056,15 @@ namespace Gambit
             for (int p4=1;p4<7;p4++) {
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
-                  chi_2 += Stats::gaussian_lower_limit(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,false);
-                  // if (abs(hhhh_coupling) > perturbativity_upper_limit) chi_2_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
+                  loglike += Stats::gaussian_lower_limit(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,false);
+                  // if (abs(hhhh_coupling) > perturbativity_upper_limit) loglike_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
                 }
             }
           }
         }
       }
-      // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << chi_2_gaussian << std::endl;
-      return chi_2;
+      // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << loglike_gaussian << std::endl;
+      return loglike;
     }
 
     double stability_likelihood_THDM(THDM_spectrum_container& container) {
@@ -2080,25 +2079,25 @@ namespace Gambit
         return 0.0;
       }
 
-        double chi_2 = 0;
+        double loglike = 0;
         const double sigma = 1.;
 
-        chi_2 += Stats::gaussian_upper_limit(lambda[1],0.0,0.0,sigma,false);
-        chi_2 += Stats::gaussian_upper_limit(lambda[2],0.0,0.0,sigma,false);
+        loglike += Stats::gaussian_upper_limit(lambda[1],0.0,0.0,sigma,false);
+        loglike += Stats::gaussian_upper_limit(lambda[2],0.0,0.0,sigma,false);
 
         if (std::isnan(sqrt(lambda[1]*lambda[2]))) {
-            chi_2 = -L_MAX;
+            loglike = -L_MAX;
         }
         else {
-            chi_2 += Stats::gaussian_upper_limit(lambda[3],-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
+            loglike += Stats::gaussian_upper_limit(lambda[3],-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
             if (lambda[6] == 0.0 || lambda[7]==0.0) {
-              chi_2 += Stats::gaussian_upper_limit(lambda[3]+lambda[4]-abs(lambda[5]),-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
+              loglike += Stats::gaussian_upper_limit(lambda[3]+lambda[4]-abs(lambda[5]),-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
             }
             else {
-              chi_2 += Stats::gaussian_upper_limit(lambda[3]+lambda[4]-lambda[5],-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
+              loglike += Stats::gaussian_upper_limit(lambda[3]+lambda[4]-lambda[5],-sqrt(lambda[1]*lambda[2]),0.0,sigma,false);
             }
         }
-        return chi_2;
+        return loglike;
     }
 
     double alignment_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2123,15 +2122,15 @@ namespace Gambit
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
-      double chi_2 = 0.0;
-      chi_2 +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
-      chi_2 +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
-      chi_2 +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
-      chi_2 +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
-      chi_2 +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
-      chi_2 +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
+      double loglike = 0.0;
+      loglike +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
+      loglike +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
+      loglike +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
+      loglike +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
+      loglike +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
+      loglike +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
 
-      return chi_2;
+      return loglike;
     }
 
     double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2188,8 +2187,8 @@ namespace Gambit
       double chi2 = 0.0;
 
         // calculate chi2 * observable used due to zero being limit 
-      chi2 += Stats::gaussian_upper_limit(discriminant.real(),-sqrt(lambda[1]*lambda[2]),0.0,sigma,false); 
-      chi2 += Stats::gaussian_upper_limit(discriminant.imag(),-sqrt(lambda[1]*lambda[2]),0.0,sigma,false); 
+      chi2 += Stats::gaussian_upper_limit(discriminant.real(),0.0,0.0,sigma,false); 
+      chi2 += Stats::gaussian_upper_limit(discriminant.imag(),0.0,0.0,sigma,false); 
 
       // check for NaN - should *not* happen but has crashed scans before. Most probable culprit is k when lambda_2 = 0. TODO: find workaround
       if (std::isnan(chi2)) {
