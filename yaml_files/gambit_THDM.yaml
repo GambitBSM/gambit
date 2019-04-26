@@ -32,7 +32,7 @@ Parameters:
             prior_type: flat
         tanb:
             range: [0.1, 100]
-            prior_type: flat
+            prior_type: log
         Qin:
             fixed_value: 91.1876 # Qin = mZ
         QrunTo:
