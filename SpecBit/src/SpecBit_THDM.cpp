@@ -2056,8 +2056,8 @@ namespace Gambit
             for (int p4=1;p4<7;p4++) {
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
-                  loglike += Stats::gaussian_upper_limit(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,false);
-                  // if (abs(hhhh_coupling) > perturbativity_upper_limit) loglike_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
+                  if (abs(hhhh_coupling) > 0.0) loglike += Stats::gaussian_upper_limit(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,false);
+                  //  loglike_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
                 }
             }
           }
