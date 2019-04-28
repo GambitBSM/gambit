@@ -1000,7 +1000,7 @@ namespace Gambit
     /// Measurement for Delta Bs (Bs mass splitting)
     void SI_Delta_MBs(double &result)
     {
-      using namespace Pipes::SI_Delta_MB;
+      using namespace Pipes::SI_Delta_MBs;
       if (flav_debug) cout<<"Starting SI_Delta_MBs"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
