@@ -155,6 +155,10 @@ ObsLikes:
     - purpose:    LogLike
       capability: LUV_LL
 
+    - capability: deltaMB_LL
+      funtion: deltaMB_likelihood
+      purpose: LogLike
+
     ## PrecisionBit Liklelihood
 
     - capability: lnL_gm2
@@ -341,6 +345,10 @@ Rules:
     - capability: muon_gm2_SM
       function: gm2_SM_ee
 
+    # Choose to use superiso for DeltaMBs calc
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+        
 
 #########################
 # Logging setup
