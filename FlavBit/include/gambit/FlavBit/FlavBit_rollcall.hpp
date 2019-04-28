@@ -474,8 +474,25 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(FH_FlavourObs, fh_FlavourObs)
     #undef FUNCTION
+    //
+    #define FUNCTION SI_Delta_MBs
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Delta_MBs, (libsuperiso),  double, (const parameters*))
+    BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
+    #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: B_d mass difference
+  #define CAPABILITY DeltaMd
+  START_CAPABILITY
+    #define FUNCTION SI_Delta_MB
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Delta_MB, (libsuperiso),  double, (const parameters*))
+    BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
 
   //###############################################
   //  Likelihoods

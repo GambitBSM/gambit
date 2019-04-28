@@ -984,6 +984,32 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_AI_BKstarmumu_zero"<<endl;
     }
 
+    /// Measurement for Delta Bd (Bd mass splitting)
+    void SI_Delta_MB(double &result)
+    {
+      using namespace Pipes::SI_Delta_MB;
+      if (flav_debug) cout<<"Starting SI_Delta_MB"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::Delta_MB(&param);
+
+      if (flav_debug) printf("Delta_MB=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Delta_MB"<<endl;
+    }
+
+    /// Measurement for Delta Bs (Bs mass splitting)
+    void SI_Delta_MBs(double &result)
+    {
+      using namespace Pipes::SI_Delta_MB;
+      if (flav_debug) cout<<"Starting SI_Delta_MBs"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::Delta_MBs(&param);
+
+      if (flav_debug) printf("Delta_MBs=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Delta_MBs"<<endl;
+    }
+
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FH_FlavourObs(fh_FlavourObs &result)

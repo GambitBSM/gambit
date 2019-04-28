@@ -79,6 +79,9 @@ BE_FUNCTION(BRBDlnu, double, (int, int, double,  double, double*, const paramete
 BE_FUNCTION(BRBDstarlnu, double, (int, int, double,  double, double*, const parameters*), "BRBDstarlnu", "BRBDstarlnu")
 BE_FUNCTION(mb_1S, double , (const parameters*), "mb_1S", "mb_1S")
 
+BE_FUNCTION(Delta_MB, double , (const parameters*), "Delta_MB", "Delta_MB")
+BE_FUNCTION(Delta_MBs, double , (const parameters*), "Delta_MBs", "Delta_MBs")
+
 // Convenience functions:
 BE_CONV_FUNCTION(BKstarmumu_CONV, Flav_KstarMuMu_obs, (const parameters*, double, double), "BKstarmumu_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDMI, THDMII, THDMLS, THDMflipped, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ))
 BE_CONV_FUNCTION(RKstar_CONV, double, (const parameters*, double, double), "RKstar_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDMI, THDMII, THDMLS, THDMflipped, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ))
