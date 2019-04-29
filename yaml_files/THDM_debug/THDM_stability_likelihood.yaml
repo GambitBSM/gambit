@@ -59,7 +59,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "gambit_THDM_output.hdf5"
+    output_file: "THDM_output_stability_likelihood.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -111,69 +111,8 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    ## theoretical likelihoods
-
-    - purpose:    LogLike
-      capability: global_minimum_discriminant_likelihood
-      
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: alignment_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
-
     - purpose:    LogLike
       capability: stability_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: NLO_unitarity_likelihood_THDM
-
-    - purpose:    LogLike
-      capability: oblique_parameters_likelihood_THDM
-    
-    ## flavor physics likelihoods
-
-    - capability: b2sgamma_LL
-      function: b2sgamma_likelihood
-      purpose: LogLike
-
-    - capability: b2sll_LL
-      funtion: b2sll_likelihood
-      purpose: LogLike
-
-    - capability: b2ll_LL
-      funtion: b2ll_likelihood
-      purpose: LogLike
-
-    - capability: SL_LL
-      funtion: SL_likelihood
-      purpose: LogLike
-
-    - purpose:    LogLike
-      capability: LUV_LL
-
-    - capability: deltaMB_LL
-      funtion: deltaMB_likelihood
-      purpose: LogLike
-
-    ## PrecisionBit Liklelihood
-
-    - capability: lnL_gm2
-      funtion: lnL_gm2_chi2
-      purpose: LogLike
-
-    ## LHC & LEP likelihoods
-
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
-      function: calc_HB_LEP_LogLike
-
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
-      function: calc_HS_LHC_LogLike
 
     #################
     # Observables
