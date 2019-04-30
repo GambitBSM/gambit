@@ -18,6 +18,8 @@
 using namespace Gambit;
 using namespace LogTags;
 
+Printers::PrinterManager *global_printer;
+
 namespace Gambit
 {
     
@@ -29,8 +31,8 @@ namespace Gambit
             
             #ifdef WITH_MPI
                 bool use_mpi_abort = true; // Set later via inifile value
-            #endif
-
+            #endif                                                                                                             
+            
             /// Cleanup function
             void do_cleanup()
             {
@@ -169,7 +171,7 @@ namespace Gambit
 
                         // Set up the printer manager for redirection of scan output.
                         Printers::PrinterManager printerManager(iniFile.getPrinterNode(),resume);
-
+                        global_printer = &printerManager;
                         // Set up dependency resolver
                         //rm: DRes::DependencyResolver dependencyResolver(Core(), Models::ModelDB(), iniFile, Utils::typeEquivalencies(), *(printerManager.printerptr));
 
@@ -363,6 +365,16 @@ public:
 extern "C"
 {
 
+    void __attribute__ ((visibility ("default"))) print_parameters(std::unordered_map<std::string, double> &key_map)                         
+    {                                                                                                               
+        using Gambit::Printers::get_main_param_id;                                                                  
+        Gambit::Scanner::printer *printer = global_printer->get_stream();                                             
+        for (auto it = key_map.begin(), end = key_map.end(); it != end; ++it)                                 
+        {                                                                                                           
+            printer->print(it->second, it->first, get_main_param_id(it->first), printer->getRank(), Gambit::Printers::get_point_id());          
+        }                                                                                                           
+    }
+    
     int __attribute__ ((visibility ("default"))) run_scan_node(YAML::Node *node, const Gambit::Scanner::Factory_Base *factory, Gambit::Priors::BasePrior *user_prior, bool resume)
     {
         IniFileParser iniFile;

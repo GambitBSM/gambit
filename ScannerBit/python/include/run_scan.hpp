@@ -52,17 +52,19 @@ namespace Gambit
             
         namespace Python
         {
-
+            typedef void (*print_type)(std::unordered_map<std::string, double> &);
             class python_function_base : public Gambit::Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
             {
             private:
+                void (*print)(std::unordered_map<std::string, double> &);
                 boost::python::object obj;
                 
             public:
-                python_function_base(boost::python::object obj) : obj(obj) {}
+                python_function_base(boost::python::object obj, print_type print) : obj(obj), print(print) {}
                 
                 double main(std::unordered_map<std::string, double> &map)
                 {
+                    print(map);
                     return double(boost::python::extract<double>(obj(boost::ref(map))));
                 }
                 
@@ -71,10 +73,11 @@ namespace Gambit
             class python_factory : public Factory_Base
             {
             private:
+                void (*print)(std::unordered_map<std::string, double> &);
                 boost::python::dict map;
                 
             public:
-                python_factory(boost::python::object obj)
+                python_factory(boost::python::object obj, print_type print) : print(print)
                 {
                     if (std::string(boost::python::extract<std::string>(obj.attr("__class__").attr("__name__"))) == "dict")
                         map = boost::python::dict(obj);
@@ -84,7 +87,7 @@ namespace Gambit
                 
                 void *operator()(const std::string &purpose) const
                 {
-                    return new python_function_base(map[purpose]);
+                    return new python_function_base(map[purpose], print);
                 }
             };
             

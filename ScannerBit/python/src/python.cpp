@@ -35,12 +35,14 @@ namespace Gambit
                 typedef int (*run_scan_str_type)(std::string *, const Gambit::Scanner::Factory_Base *, Gambit::Priors::BasePrior *, bool);
                 typedef diagnostics *(*diag_factory_type)();
                 typedef void (*diag_del_type)(diagnostics *);
+                typedef void (*print_type)(std::unordered_map<std::string, double> &key_map);
                     
                 void *plugin;
                 std::shared_ptr<diagnostics> diag;
                 
                 run_scan_str_type run_scan_str;
                 run_scan_node_type run_scan_node;
+                print_type print;
                 
             public:
                 scan()
@@ -52,6 +54,7 @@ namespace Gambit
                         run_scan_node = (run_scan_node_type)dlsym(plugin, "run_scan_node");
                         diag_factory_type factory = (diag_factory_type)dlsym(plugin, "get_diagnostics");
                         diag_del_type diag_del = (diag_del_type)dlsym(plugin, "del_diagnostics");
+                        print = (print_type)dlsym(plugin, "print_parameters");
                         
                         const char *errmesg = dlerror();
                         if (errmesg != NULL)
@@ -92,7 +95,7 @@ namespace Gambit
                         
                         if (std::string(py::extract<std::string>(func_obj.attr("__class__").attr("__name__"))) != "str")
                         {
-                            factory = new scanpy::python_factory(func_obj);
+                            factory = new scanpy::python_factory(func_obj, print);
                         }
                         
                         if (std::string(py::extract<std::string>(prior_obj.attr("__class__").attr("__name__"))) != "str")
