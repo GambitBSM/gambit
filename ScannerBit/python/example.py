@@ -4,6 +4,7 @@ import ScannerBit as scan
 # define likelihood, technically optional
 def like(m):
     a = m["model1::x"]
+    scan.print("my_param", 0.5) # can print custom parameters 
     
     return -a*a/2.0
 

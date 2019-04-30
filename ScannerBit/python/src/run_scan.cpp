@@ -365,7 +365,14 @@ public:
 extern "C"
 {
 
-    void __attribute__ ((visibility ("default"))) print_parameters(std::unordered_map<std::string, double> &key_map)                         
+    void __attribute__ ((visibility ("default"))) print_aux_parameters(const std::string &key, const double &value)                         
+    {                                                                                                               
+        using Gambit::Printers::get_aux_param_id;                                                                  
+        Gambit::Scanner::printer *printer = global_printer->get_stream();                                             
+        printer->print(value, key, get_aux_param_id(key), printer->getRank(), Gambit::Printers::get_point_id());
+    }
+    
+    void __attribute__ ((visibility ("default"))) print_main_parameters(std::unordered_map<std::string, double> &key_map)                         
     {                                                                                                               
         using Gambit::Printers::get_main_param_id;                                                                  
         Gambit::Scanner::printer *printer = global_printer->get_stream();                                             
@@ -391,4 +398,5 @@ extern "C"
         
         return Gambit::Scanner::Python::run_scan(iniFile, factory, user_prior, resume);
     }
+    
 }

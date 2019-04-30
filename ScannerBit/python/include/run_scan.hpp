@@ -56,8 +56,8 @@ namespace Gambit
             class python_function_base : public Gambit::Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
             {
             private:
-                void (*print)(std::unordered_map<std::string, double> &);
                 boost::python::object obj;
+                void (*print)(std::unordered_map<std::string, double> &);
                 
             public:
                 python_function_base(boost::python::object obj, print_type print) : obj(obj), print(print) {}
@@ -73,8 +73,8 @@ namespace Gambit
             class python_factory : public Factory_Base
             {
             private:
-                void (*print)(std::unordered_map<std::string, double> &);
                 boost::python::dict map;
+                void (*print)(std::unordered_map<std::string, double> &);
                 
             public:
                 python_factory(boost::python::object obj, print_type print) : print(print)

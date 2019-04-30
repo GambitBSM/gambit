@@ -28,6 +28,9 @@ namespace Gambit
         namespace Python
         {
             
+            typedef void (*print_aux_type)(const std::string &, const double &);
+            static print_aux_type aux_printer;
+            
             class scan
             {
             private:
@@ -35,14 +38,14 @@ namespace Gambit
                 typedef int (*run_scan_str_type)(std::string *, const Gambit::Scanner::Factory_Base *, Gambit::Priors::BasePrior *, bool);
                 typedef diagnostics *(*diag_factory_type)();
                 typedef void (*diag_del_type)(diagnostics *);
-                typedef void (*print_type)(std::unordered_map<std::string, double> &key_map);
-                    
+                typedef void (*print_main_type)(std::unordered_map<std::string, double> &key_map);
+                
                 void *plugin;
                 std::shared_ptr<diagnostics> diag;
                 
                 run_scan_str_type run_scan_str;
                 run_scan_node_type run_scan_node;
-                print_type print;
+                print_main_type main_printer;
                 
             public:
                 scan()
@@ -54,7 +57,8 @@ namespace Gambit
                         run_scan_node = (run_scan_node_type)dlsym(plugin, "run_scan_node");
                         diag_factory_type factory = (diag_factory_type)dlsym(plugin, "get_diagnostics");
                         diag_del_type diag_del = (diag_del_type)dlsym(plugin, "del_diagnostics");
-                        print = (print_type)dlsym(plugin, "print_parameters");
+                        main_printer = (print_main_type)dlsym(plugin, "print_main_parameters");
+                        aux_printer = (print_aux_type)dlsym(plugin, "print_aux_parameters");
                         
                         const char *errmesg = dlerror();
                         if (errmesg != NULL)
@@ -85,6 +89,11 @@ namespace Gambit
                     
                     return py::object();
                 }
+                
+                static void print(const std::string &key, const double &value)
+                {
+                    (*aux_printer)(key, value);
+                }
             
                 int run(py::object file_obj, py::object func_obj, py::object prior_obj, bool restart)
                 {
@@ -95,7 +104,7 @@ namespace Gambit
                         
                         if (std::string(py::extract<std::string>(func_obj.attr("__class__").attr("__name__"))) != "str")
                         {
-                            factory = new scanpy::python_factory(func_obj, print);
+                            factory = new scanpy::python_factory(func_obj, main_printer);
                         }
                         
                         if (std::string(py::extract<std::string>(prior_obj.attr("__class__").attr("__name__"))) != "str")
@@ -232,6 +241,8 @@ BOOST_PYTHON_MODULE(ScannerBit)
         .def("run", &scanpy::scan::run, (py::arg("inifile"), py::arg("lnlike")="", py::arg("prior")="", py::arg("restart")=false))
         .def("diagnostics", py::raw_function(&scanpy::scan::dianostic));
     
+    py::def("print", &scanpy::scan::print);
+        
     py::def("ensure_size", &scanpy::ensure_size_vec);
     
     py::def("ensure_size", &scanpy::ensure_size_fake);
