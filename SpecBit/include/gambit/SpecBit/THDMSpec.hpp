@@ -36,11 +36,8 @@
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/config/config.h"
 
-
 namespace Gambit
 {
-
-
    namespace SpecBit
    {
       template <class MI>
@@ -66,7 +63,8 @@ namespace Gambit
       THDMSpec<MI>::~THDMSpec()
       {}
 
-
+      // runs to scale, throws an invalid point if FS fails to validate model
+      // by default if FS fails to validate model the scan stops
       template <class MI>
       void THDMSpec<MI>::RunToScaleOverride(double scale)
       {
@@ -74,19 +72,18 @@ namespace Gambit
           model_interface.model.run_to(scale);
         }
         catch(...){
-          std::cout << "SpecBit throwing invalid point @ running" << std::endl;
+          std::cout << "Debug: SpecBit throwing invalid point when running" << std::endl; // TODO: remove this
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
-          //TODO: Terminal message here
         }
+        // run masses
         model_interface.model.calculate_DRbar_masses();
-
       }
+
       template <class MI>
       double THDMSpec<MI>::GetScale() const
       {
         return model_interface.model.get_scale();
       }
-
 
       template <class MI>
       void THDMSpec<MI>::SetScale(double scale)
@@ -99,7 +96,7 @@ namespace Gambit
       void THDMSpec<MI>::add_to_SLHAea(int slha_version, SLHAstruct& slha) const
       {
          std::ostringstream comment;
-
+         // comment carried over
          // SPINFO block
          // TODO: This needs to become more sophisticated to deal with data potentially
          // produced by different LE and HE spectrum sources. For now whichever subspectrum
@@ -110,8 +107,7 @@ namespace Gambit
             SLHAea_add(slha, "SPINFO", 1, "GAMBIT, using "+backend_name);
             SLHAea_add(slha, "SPINFO", 2, gambit_version()+" (GAMBIT); "+backend_version+" ("+backend_name+")");
          }
- 
-         // All other THDM blocks
+         // All other THDM blocks using THDMSLHA helper
          slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
       }
 
@@ -123,8 +119,18 @@ namespace Gambit
         return errormsg;
       }
 
+      // wrapper getter methods for
+
       template <class Model>
       double get_sinthW2_MSbar(const Model& model) {
+         double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
+         (0.6 * Utils::sqr(model.get_g1()) +
+         Utils::sqr(model.get_g2()));
+         return sthW2;
+      }
+
+      template <class Model>
+      double get_sinthW2_DRbar(const Model& model) {
          double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
          (0.6 * Utils::sqr(model.get_g1()) +
          Utils::sqr(model.get_g2()));
@@ -136,12 +142,8 @@ namespace Gambit
          return sqrt(pow(model.get_v1(),2) + pow(model.get_v2(),2));
       }
 
-      // function to compute TanBeta from VEVs
-      template <class Model>
-      double get_tanb(const Model& model) {
-         return model.get_v2()/model.get_v1();
-      }
-
+      // wrapper getter methods for
+      // physical masses
       template <class Model>
       double get_mW_running(const Model& model) {
          return (model.get_DRbar_masses())(19);
@@ -211,7 +213,9 @@ namespace Gambit
       double get_mHpm_goldstone_pole_slha(const Model& model) {
          return model.get_MHm_pole_slha(0);
       }
-      // get lambdas (running) from FS
+
+      // wrapper getter methods for
+      // higgs basis parameters
 
       template <class Model>
       double get_Lambda1(const Model& model) {
@@ -283,6 +287,8 @@ namespace Gambit
          return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
       }
 
+      // wrapper getter methods for
+      // generic basis parameters
       template <class Model>
       double get_lambda1(const Model& model) {
          return model.get_Lambda1();
@@ -333,14 +339,9 @@ namespace Gambit
          return model.get_M222();
       }
 
-      template <class Model>
-      double get_sinthW2_DRbar(const Model& model) {
-         double sthW2 = Utils::sqr(model.get_g1()) * 0.6 /
-         (0.6 * Utils::sqr(model.get_g1()) +
-         Utils::sqr(model.get_g2()));
-         return sthW2;
-      }
-
+      // wrapper getter method for
+      // yukawa couplings
+      // TODO: find a 'nicer' way to do this
       template <class Model>
       double get_yukawa_coupling(const Model& model) {
          std::string spec_class_type = typeid(model).name();
@@ -362,9 +363,28 @@ namespace Gambit
          }
       }
 
-      // function to calculate alpha from mixing matrix
+      // wrapper getter methods for
+      // mixing angles
+      template <class Model>
+      double get_tanb(const Model& model) {
+         return model.get_v2()/model.get_v1();
+      }
+
       template <class Model>
       double get_alpha(const Model& model) {
+         double v_1 = model.get_v1(), v_2 = model.get_v2();
+         double b = atan(v_2/v_1);
+         double v2 = pow(v_1,2) + pow(v_2,2);
+         double mA = get_mA_pole_slha(model);
+         double mA_2 = pow(mA,2);
+         double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
+         double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
+         double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
+         double c2ba = s2ba/tan2ba;
+         double ba = 0.5*acos(c2ba);
+         double alpha = b - ba;
+         return alpha;
+         // method for extracting from mixing matricies
          // double cosa = (model.get_DRbar_masses_and_mixings())(22);
          // double sina =  (model.get_DRbar_masses_and_mixings())(23);
          // double a = acos(cosa);
@@ -372,35 +392,25 @@ namespace Gambit
          //    a = a+M_PI;
          // }
          // return a;
-         double v_1 = model.get_v1(), v_2 = model.get_v2();
-         double b = atan(v_2/v_1);
-         double v2 = pow(v_1,2) + pow(v_2,2);
-         double mA = get_mA_pole_slha(model);
-         double mA_2 = pow(mA,2);
-         double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
-
-         double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
-         double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
-         double c2ba = s2ba/tan2ba;
-
-         double ba = 0.5*acos(c2ba);
-         double alpha = b - ba;
-
-         return alpha;
       }
 
       // ----------
       // THDM tree-level basis transformations for use throughout GAMBIT
       // to use these functions you must include this header
+      // 
+      // these functions exist to improve code reuse (at a developer level)
+      // they must be inline to avoid multiple library linking
+      // unfortunately this means they do not improve code reuse in the final build
       // ----------
 
-      // for C++<20 we cannot use contains on std::map instead we write basis_map_contains fucntion
+      // for C++<20 (in use) we cannot use contains on std::map instead we write basis_map_contains function
       inline bool basis_map_contains(std::map<std::string, double> basis, std::string par_key) {
          std::map<std::string, double>::iterator it = basis.find(par_key);
          if(it != basis.end()) return true; //found
          return false;
       }
 
+      // initiate a THDM basis map
       inline std::map<std::string, double> create_empty_THDM_basis(){
          const double EMPTY = -1E10;
          std::map<std::string, double> basis;
@@ -415,6 +425,7 @@ namespace Gambit
          return basis;
       }
 
+      // print a THDM basis map
       inline void print_THDM_spectrum(std::map<std::string, double>& basis){
          const double EMPTY = -1E10;
          const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7", "m12_2", "m11_2", "m22_2", \
@@ -424,10 +435,11 @@ namespace Gambit
          for(const auto& each_basis_key : basis_keys){
            std::cout << each_basis_key << ": ";
            if (basis[each_basis_key]!= EMPTY) std::cout << basis[each_basis_key] << std::endl;
-           else std::cout << "NOT FILLED" << std::endl;
+           else std::cout << "entry not filled" << std::endl;
          }
       }
 
+      // checks that the basis map contains all necessary basis keys
       inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis){
          const double EMPTY = -1E10;
          for(const auto& each_basis_key : basis_keys){
@@ -436,6 +448,8 @@ namespace Gambit
          return true;
       }
 
+      // fills the generic basis parameters in a THDM basis map
+      // input basis must have either Higgs or physical basis filled (or both)
       inline void fill_generic_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
@@ -490,10 +504,13 @@ namespace Gambit
          }
          else{
             // fail
+            // TODO: Handle this case
          }
-
       }
 
+      // fills the Higgs basis parameters in a THDM basis map
+      // input basis must have generic basis filled
+      // TODO: allow physical basis
       inline void fill_higgs_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
@@ -527,16 +544,18 @@ namespace Gambit
          }
          //otherwise try to fill from physical basis
          else if(check_basis(physical_basis_keys, input_basis)) {
-            // get values from physical basis
-            // double m_h = input_basis["m_h"], m_H = input_basis["m_H"], m_A = input_basis["m_A"], m_Hp = input_basis["m_Hp"];
-            // double sba = input_basis["sba"], m12_2 = input_basis["m12_2"];
-            // -----TODO------ implement this
+            // fail
+            // TODO: Handle this case
          }
          else{
             // fail
+            // TODO: Handle this case
          }
       }
 
+      // fills the physical basis parameters in a THDM basis map
+      // input basis must have generic basis filled
+      // TODO: allow higgs basis (currently in dev.)
       inline void fill_physical_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
@@ -604,9 +623,14 @@ namespace Gambit
          }
          else{
             // fail
+            // TODO: Handle this case
          }
       }
       
+      // this is the main method called to generate a THDM spectrum (tree-level)
+      // takes in an THDM basis map with at least one filled in basis
+      // and returns a complete THDM basis map
+      // this routines also calculates alpha
       inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs)
       {
          const double EMPTY = -1E10;
@@ -668,6 +692,7 @@ namespace Gambit
          basis["sba"] = sin(beta - alpha);
       }
 
+      // Filler function for getter function pointer maps
       template <class MI>
       typename THDMSpec<MI>::GetterMaps THDMSpec<MI>::fill_getter_maps()
       {
@@ -695,9 +720,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTget::fmap0 tmp_map;
-
-            
-
+            // none
             map_collection[Par::mass1].map0 = tmp_map;
          }
 
@@ -738,7 +761,6 @@ namespace Gambit
             tmp_map["W-"] = &get_mW_running<Model>;
             // vev
             tmp_map["vev"]= &get_vev<Model>;
-
             map_collection[Par::mass1].map0_extraM = tmp_map;
          }
 
@@ -746,9 +768,7 @@ namespace Gambit
          // (Two-index member functions of model object)
         {
             typename MTget::fmap1 tmp_map;
-
             tmp_map["h0"] =  FInfo1( &Model::get_Mhh, i01 );
-            
             map_collection[Par::mass1].map1 = tmp_map;
          }
 
@@ -763,9 +783,6 @@ namespace Gambit
             tmp_map["g1"]= &Model::get_g1;
             tmp_map["g2"]= &Model::get_g2;
             tmp_map["g3"]= &Model::get_g3;
-
-            // tmp_map["tanb"]= &Model::get_tanb;
-
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
 
@@ -784,11 +801,9 @@ namespace Gambit
          // (Two-index member functions of model object)
          {
             typename MTget::fmap2 tmp_map;
-
             tmp_map["Yd"]= FInfo2( &Model::get_Yd, i012, i012);
             tmp_map["Yu"]= FInfo2( &Model::get_Yu, i012, i012);
             tmp_map["Ye"]= FInfo2( &Model::get_Ye, i012, i012);
-
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
          /// @}
@@ -799,13 +814,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTget::fmap0 tmp_map;
-
-	    /// PA: W mass is a prediction in most spectrum generators
-	    /// so we need this.  One tricky question is how to interface
-	    /// spectrum generators which have different input / outputs
-	    /// *may* be ok to still mimic the FS way
-            
-
+            // none
             map_collection[Par::Pole_Mass].map0 = tmp_map;
          }
 
@@ -813,8 +822,6 @@ namespace Gambit
          // (Zero index, model object as argument)
          {
             typename MTget::fmap0_extraM tmp_map;
-
-            // Using wrapper functions defined above
             tmp_map["A0"] = &get_mA_pole_slha<Model>;
             tmp_map["H+"] = &get_mHpm_pole_slha<Model>;
             tmp_map["H-"] = &get_mHpm_pole_slha<Model>;
@@ -823,7 +830,6 @@ namespace Gambit
             tmp_map["G-"] = &get_mHpm_goldstone_pole_slha<Model>;
             tmp_map["W+"] = &get_mW_pole_slha<Model>;
             tmp_map["W-"] = &get_mW_pole_slha<Model>;
-
             map_collection[Par::Pole_Mass].map0_extraM = tmp_map;
          }
 
@@ -831,12 +837,9 @@ namespace Gambit
          // (One-index member functions of model object)s
          {
             typename MTget::fmap1 tmp_map;
-
             tmp_map["h0"] =  FInfo1( &Model::get_Mhh_pole_slha, i01 );
-            
             map_collection[Par::Pole_Mass].map1 = tmp_map;
          }
-
          /// @}
 
          return map_collection;
@@ -848,17 +851,11 @@ namespace Gambit
       {
          typename THDMSpec<MI>::SetterMaps map_collection;
          typedef typename MI::Model Model;
-
          typedef typename MTset::FInfo2 FInfo2;
-
-        //  typedef typename MTset::FInfo1M FInfo1M;
-        //  typedef typename MTset::FInfo2M FInfo2M;
-
          static const std::set<int> i01 = initSet(0,1);
          static const std::set<int> i012 = initSet(0,1,2);
          static const std::set<int> i0123 = initSet(0,1,2,3);
          static const std::set<int> i012345 = initSet(0,1,2,3,4,5);
-
 
          /// @{ mass1 - mass dimension 1 parameters
          //
@@ -866,8 +863,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTset::fmap0 tmp_map;
-            // tmp_map["vev"]= &Model::set_vev;
-
+            / /none
             map_collection[Par::mass1].map0 = tmp_map;
          }
 
@@ -882,56 +878,34 @@ namespace Gambit
             tmp_map["g1"]= &Model::set_g1;
             tmp_map["g2"]= &Model::set_g2;
             tmp_map["g3"]= &Model::set_g3;
-
-            // tmp_map["tanb"]= &Model::set_tanb;
-
             map_collection[Par::dimensionless].map0 = tmp_map;
          }
-
-         
 
          // Functions utilising the two-index "plain-vanilla" function signature
          // (Two-index member functions of model object)
          {
             typename MTset::fmap2 tmp_map;
-
             tmp_map["Yd"]= FInfo2( &Model::set_Yd, i012, i012);
             tmp_map["Yu"]= FInfo2( &Model::set_Yu, i012, i012);
             tmp_map["Ye"]= FInfo2( &Model::set_Ye, i012, i012);
-
-            // tmp_map["ReYd2"]= FInfo2( &Model::set_ReYd2, i012, i012);
-            // tmp_map["ReYu2"]= FInfo2( &Model::set_ReYu2, i012, i012);
-            // tmp_map["ReYe2"]= FInfo2( &Model::set_ReYe2, i012, i012);
-
-            // tmp_map["ImYd2"]= FInfo2( &Model::set_ImYd2, i012, i012);
-            // tmp_map["ImYu2"]= FInfo2( &Model::set_ImYu2, i012, i012);
-            // tmp_map["ImYe2"]= FInfo2( &Model::set_ImYe2, i012, i012);
-
             map_collection[Par::dimensionless].map2 = tmp_map;
          }
 
         {
           typename MTset::fmap0_extraM tmp_map;
-          // tmp_map["A0"] = &set_MAh1_pole_slha<Model>;
-          // tmp_map["H+"] = &set_MHpm1_pole_slha<Model>;
-
+          // none
           map_collection[Par::dimensionless].map0_extraM = tmp_map;
         }
 
         {
           typename MTset::fmap1_extraM tmp_map;
-
-          // tmp_map["h0"] =  FInfo1M( &set_Mhh_pole_slha<Model>, i01 );
-
+          // none
           map_collection[Par::Pole_Mass].map1_extraM = tmp_map;
         }
-
          return map_collection;
       }
 
    } // end SpecBit namespace
-
-
 } // end Gambit namespace
 
 #endif

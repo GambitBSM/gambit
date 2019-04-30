@@ -9,27 +9,27 @@ Parameters:
 
     THDMIIatQ:
         lambda_1:
-            fixed_value: 4.53828
+            fixed_value: 5.619667872440925
         lambda_2:
-            fixed_value: 0.564302
+            fixed_value: 0.15222300473269493
         lambda_3:
-            fixed_value: -0.187929
+            fixed_value: 2.413895240260478
         lambda_4:
-            fixed_value: -0.237934
+            fixed_value: -0.716641453706563
         lambda_5:
-            fixed_value: 0.989264
+            fixed_value: -1.5483557481266095
         lambda_6:
             fixed_value: 0.0
         lambda_7:
             fixed_value: 0.0
         m12_2:
-            fixed_value: 657797
+            fixed_value: 428505.9113631655
         tanb:
-            fixed_value: 78.5969
-        # Qin:
-        #     fixed_value: 80.0 #mZ
-        # QrunTo:
-        #     fixed_value: 80.0
+            fixed_value: 40.40953520309777
+        Qin:
+            fixed_value: 80.0 #mZ
+        QrunTo:
+            fixed_value: 750.0
 
 ##############################
 # Prior setup
@@ -157,24 +157,91 @@ ObsLikes:
 
   # ----- observables ----
 
-    - capability: bsgamma
-      function: SI_bsgamma
-      purpose: Observable
+
+    ## physical basis
 
     - capability: mh0_pole
       function: obs_mh0_pole
+      purpose: Observable
+
+    - capability: mh0_running
+      function: obs_mh0_running
       purpose: Observable
 
     - capability: mH0_pole
       function: obs_mH0_pole
       purpose: Observable
 
+    - capability: mH0_running
+      function: obs_mH0_running
+      purpose: Observable
+
     - capability: mA0_pole
       function: obs_mA0_pole
       purpose: Observable
 
+    - capability: mA0_running
+      function: obs_mA0_running
+      purpose: Observable
+
     - capability: mHpm_pole
       function: obs_mHpm_pole
+      purpose: Observable
+
+    - capability: mHpm_running
+      function: obs_mHpm_running
+      purpose: Observable
+
+    ## generic basis
+
+    - capability: lambda_1
+      function: obs_lambda_1
+      purpose: Observable
+
+    - capability: lambda_2
+      function: obs_lambda_2
+      purpose: Observable
+
+    - capability: lambda_3
+      function: obs_lambda_3
+      purpose: Observable
+
+    - capability: lambda_4
+      function: obs_lambda_4
+      purpose: Observable
+
+    - capability: lambda_5
+      function: obs_lambda_5
+      purpose: Observable
+
+    - capability: lambda_6
+      function: obs_lambda_6
+      purpose: Observable
+
+    - capability: lambda_7
+      function: obs_lambda_7
+      purpose: Observable
+
+    - capability: m12_2
+      function: obs_m12_2
+      purpose: Observable
+
+    - capability: m11_2
+      function: obs_m11_2
+      purpose: Observable
+
+    - capability: m22_2
+      function: obs_m22_2
+      purpose: Observable
+
+    ## mixing angles
+
+    - capability: tanb
+      function: obs_tanb
+      purpose: Observable
+
+    - capability: alpha
+      function: obs_alpha
       purpose: Observable
 
 Rules:
