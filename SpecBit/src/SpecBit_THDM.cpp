@@ -2045,6 +2045,7 @@ namespace Gambit
       const double perturbativity_upper_limit = 4*M_PI;
       const double sigma = 1.;
       //-----------------------------
+      double error = 0.0;
       double loglike = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
       complex<double> hhhh_coupling;
@@ -2056,14 +2057,14 @@ namespace Gambit
             for (int p4=1;p4<7;p4++) {
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
-                  if (abs(hhhh_coupling) > 0.0) loglike += Stats::gaussian_upper_limit(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,false);
-                  //  loglike_gaussian += Stats::gaussian_loglikelihood(abs(hhhh_coupling),perturbativity_upper_limit,0.0,sigma,true);
+                  if (abs(hhhh_coupling) > perturbativity_upper_limit) error += abs(hhhh_coupling) - perturbativity_upper_limit;
                 }
             }
           }
         }
       }
       // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << loglike_gaussian << std::endl;
+      loglike += Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
       return loglike;
     }
 
