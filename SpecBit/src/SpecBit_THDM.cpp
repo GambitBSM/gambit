@@ -2055,16 +2055,16 @@ namespace Gambit
         for (int p2=1;p2<7;p2++) {
           for (int p3=1;p3<7;p3++) {
             for (int p4=1;p4<7;p4++) {
-                if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
+                // if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
                   if (abs(hhhh_coupling) > perturbativity_upper_limit) error += abs(hhhh_coupling) - perturbativity_upper_limit;
-                }
+                // }
             }
           }
         }
       }
       // std::cout << "(Debug) Gaussian likelihood for perturbativity_likelihood_THDM: " << loglike_gaussian << std::endl;
-      loglike += Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
+      loglike = Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
       return loglike;
     }
 
