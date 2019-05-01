@@ -863,7 +863,7 @@ namespace Gambit
          // (Zero index member functions of model object)
          {
             typename MTset::fmap0 tmp_map;
-            / /none
+            //none
             map_collection[Par::mass1].map0 = tmp_map;
          }
 
