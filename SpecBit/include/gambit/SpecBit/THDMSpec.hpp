@@ -217,6 +217,10 @@ namespace Gambit
       // wrapper getter methods for
       // higgs basis parameters
 
+      // forward declaration as needed
+      template <class Model>
+      double get_tanb(const Model& model);
+
       template <class Model>
       double get_Lambda1(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
