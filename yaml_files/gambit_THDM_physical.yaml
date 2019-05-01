@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII_physicalatQ:
+    THDMII_physical:
         m_h:
             range: [125.0, 126.0]
             prior_type: flat
@@ -33,10 +33,10 @@ Parameters:
         tanb:
             range: [0.1, 100]
             prior_type: log
-        Qin:
-            fixed_value: 91.1876 #mZ
-        QrunTo:
-            fixed_value: 750
+        # Qin:
+        #     fixed_value: 91.1876 #mZ
+        # QrunTo:
+        #     fixed_value: 750
 
 ##############################
 # Prior setup
@@ -115,10 +115,7 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    ## theoretical likelihoods
-
-    - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
+      ## theoretical likelihoods
 
     - purpose:    LogLike
       capability: global_minimum_discriminant_likelihood
@@ -128,6 +125,9 @@ ObsLikes:
 
     - purpose:    LogLike
       capability: alignment_likelihood_THDM
+
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
 
     - purpose:    LogLike
       capability: stability_likelihood_THDM
@@ -154,6 +154,19 @@ ObsLikes:
 
     - capability: SL_LL
       funtion: SL_likelihood
+      purpose: LogLike
+
+    - purpose:    LogLike
+      capability: LUV_LL
+
+    - capability: deltaMB_LL
+      funtion: deltaMB_likelihood
+      purpose: LogLike
+
+    ## PrecisionBit Liklelihood
+
+    - capability: lnL_gm2
+      funtion: lnL_gm2_chi2
       purpose: LogLike
 
     ## LHC & LEP likelihoods
@@ -256,7 +269,6 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
-
 Rules:
 
     - capability: THDM_spectrum
@@ -265,17 +277,17 @@ Rules:
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: unitarity_likelihood_THDM
       function: get_unitarity_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM
@@ -297,10 +309,6 @@ Rules:
       options:
         check_all_scales: false
 
-    - capability: HB_ModelParameters
-      function: fill_THDM_HiggsBounds_model_parameters
-      module: ColliderBit
-
     - capability: THDM_couplings_for_HiggsBounds
       function: get_THDM_couplings_for_HiggsBounds
 
@@ -321,14 +329,30 @@ Rules:
 
     - capability: SuperIso_modelinfo
       function: SI_fill
+    
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
 
     - capability: bsgamma
       function: SI_bsgamma
       module: FlavBit
 
-    - capability: Bsmumu_untag
-      function: SI_Bsmumu_untag
-      module: FlavBit
+    # Choose to use gm2calc for g-2
+    - capability: muon_gm2
+      function: SI_muon_gm2
+
+    # Choose to base the SM prediction for g-2 on e+e- data
+    - capability: muon_gm2_SM
+      function: gm2_SM_ee
+
+    # Choose to use superiso for DeltaMBs calc
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+        
 
 
 #########################
