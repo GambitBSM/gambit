@@ -30,6 +30,8 @@
 
   DEFINEPARS(Qin,QrunTo)
 
+  INTERPRET_AS_PARENT_FUNCTION(THDMIIatQ_to_THDMatQ)
+
 #undef PARENT
 #undef MODEL
 
