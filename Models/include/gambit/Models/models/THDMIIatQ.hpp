@@ -21,6 +21,7 @@
 #define __THDMIIatQ_hpp__
 
 #define MODEL THDMIIatQ
+#define PARENT THDMatQ
   START_MODEL
   
   DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5)
@@ -29,6 +30,7 @@
 
   DEFINEPARS(Qin,QrunTo)
 
+#undef PARENT
 #undef MODEL
 
 #endif

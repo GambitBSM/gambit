@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII_physical:
+    THDMII_physicalatQ:
         m_h:
             range: [125.0, 126.0]
             prior_type: flat
@@ -33,10 +33,10 @@ Parameters:
         tanb:
             range: [0.1, 100]
             prior_type: log
-        # Qin:
-        #     fixed_value: 91.1876 #mZ
-        # QrunTo:
-        #     fixed_value: 750
+        Qin:
+            fixed_value: 91.1876 #mZ
+        QrunTo:
+            fixed_value: 750
 
 ##############################
 # Prior setup
@@ -115,7 +115,7 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-      ## theoretical likelihoods
+    ## theoretical likelihoods
 
     - purpose:    LogLike
       capability: global_minimum_discriminant_likelihood
@@ -171,9 +171,12 @@ ObsLikes:
 
     ## LHC & LEP likelihoods
 
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - capability: LEP_Higgs_LogLike
       function: calc_HB_LEP_LogLike
+      dependencies:
+        - capability: HB_ModelParameters
+          function: fill_THDM_HiggsBounds_model_parameters
+          module: ColliderBit
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -309,23 +312,23 @@ Rules:
       options:
         check_all_scales: false
 
-    - capability: THDM_couplings_for_HiggsBounds
-      function: get_THDM_couplings_for_HiggsBounds
+    # - capability: THDM_couplings_for_HiggsBounds
+    #   function: get_THDM_couplings_for_HiggsBounds
 
-    - capability: THDM_couplings_SM_Like_Model
-      function: get_THDM_couplings_SM_Like_Model
+    # - capability: THDM_couplings_SM_Like_Model
+    #   function: get_THDM_couplings_SM_Like_Model
     
-    - capability: THDM_decay_widths_for_HiggsBounds
-      function: get_THDM_decay_widths_for_HiggsBounds
+    # - capability: THDM_decay_widths_for_HiggsBounds
+    #   function: get_THDM_decay_widths_for_HiggsBounds
     
-    - capability: THDM_decay_widths_SM_like_model
-      function: get_THDM_decay_widths_SM_like_model
+    # - capability: THDM_decay_widths_SM_like_model
+    #   function: get_THDM_decay_widths_SM_like_model
     
-    - capability: THDM_total_widths
-      function: get_THDM_total_widths
+    # - capability: THDM_total_widths
+    #   function: get_THDM_total_widths
     
-    - capability: THDM_total_widths_SM_like_model
-      function: get_THDM_total_widths_SM_like_model
+    # - capability: THDM_total_widths_SM_like_model
+    #   function: get_THDM_total_widths_SM_like_model
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -352,7 +355,6 @@ Rules:
     # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
-        
 
 
 #########################

@@ -59,6 +59,7 @@
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
 
+
 #define L_MAX 1e50
 #define PI 3.14159265
 
@@ -235,22 +236,23 @@ namespace Gambit
             #ifdef FS_THROW_POINT
             std::cout << "SpecBit throwing invalid point" << std::endl;
             /// Check what the problem was
-            /// see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
+            // / see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
             std::ostringstream msg;
-            //msg << "";
-            //if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
-            //if( have_tachyon()       ) msg << "tachyon" << std::endl;
-            //if( have_thrown()        ) msg << "error" << std::endl;
-            //if( have_non_perturbative_parameter()   ) msg << "non-perturb. param" << std::endl; // TODO: check which
-            //if( have_failed_pole_mass_convergence() ) msg << "fail pole mass converg." << std::endl; // TODO: check which
-            //if( no_ewsb()            ) msg << "no ewsb" << std::endl;
-            //if( no_convergence()     ) msg << "no converg." << std::endl;
-            //if( no_perturbative()    ) msg << "no pertub." << std::endl;
-            //if( no_rho_convergence() ) msg << "no rho converg." << std::endl;
-            //if( msg.str()=="" ) msg << " Unrecognised problem! ";
+            // msg << "";
+            // if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
+            // if( have_tachyon()       ) msg << "tachyon" << std::endl;
+            // if( have_thrown()        ) msg << "error" << std::endl;
+            // if( have_non_perturbative_parameter()   ) msg << "non-perturb. param" << std::endl; // TODO: check which
+            // if( have_failed_pole_mass_convergence() ) msg << "fail pole mass converg." << std::endl; // TODO: check which
+            // if( no_ewsb()            ) msg << "no ewsb" << std::endl;
+            // if( no_convergence()     ) msg << "no converg." << std::endl;
+            // if( no_perturbative()    ) msg << "no pertub." << std::endl;
+            // if( no_rho_convergence() ) msg << "no rho converg." << std::endl;
+            // if( msg.str()=="" ) msg << " Unrecognised problem! ";
 
             /// Fast way for now:
             problems.print_problems(msg);
+            std::cout << msg.str() << std::endl;
             invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
             #endif 
          }
