@@ -669,6 +669,7 @@ set ({0}_plugin_lib_paths_{1}
             towrite += """
 set ({0}_plugin_rpath_{1}
                 ${{PROJECT_SOURCE_DIR}}/contrib/yaml-cpp-0.6.2/build
+                "\$ORIGIN"
 """.format(plug_type[i], directory)
 
             if plug_type[i] in scanbit_libs:

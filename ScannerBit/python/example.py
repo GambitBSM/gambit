@@ -1,4 +1,11 @@
+import os
+import sys
+import ctypes
 import yaml
+
+flags = sys.getdlopenflags()
+sys.setdlopenflags(flags | ctypes.RTLD_GLOBAL)
+
 import ScannerBit as scan 
 
 # define likelihood, technically optional
@@ -11,12 +18,12 @@ def like(m):
 # define prior, optional
 def prior(vec, map):
     # tell ScannerBit that the hypergrid dimension is 1
-    vec.ensure_size(1) # this needs to be the first line!
+    scan.ensure_size(vec, 1) # this needs to be the first line!
     
     map["model1::x"] = 5.0 - 10.0*vec[0]
 
 # declare scan object
-myscan = scan.scan()
+myscan = scan.scan(True)
 
 # run scan
 myscan.run(inifile="ScannerBit.yaml", lnlike={"LogLike": like}, prior=prior, restart=True)

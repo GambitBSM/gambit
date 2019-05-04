@@ -28,53 +28,26 @@ namespace Gambit
         namespace Python
         {
             
-            std::shared_ptr<printer_interface> printer_manager;
+            std::shared_ptr<printer_wrapper> printer_manager;
             
-            struct printer_interface_cont{std::shared_ptr<printer_interface> printer;};
+            struct printer_wrapper_cont{std::shared_ptr<printer_wrapper> printer;};
             
             class scan
             {
             private:
-                typedef std::shared_ptr<diagnostics>(*diag_factory_type)();
-                typedef std::shared_ptr<scan_interface>(*scan_factory_type)();
-                
-                void *plugin;
-                std::shared_ptr<diagnostics> diag;
-                std::shared_ptr<scan_interface> gambit_scan;
-                std::shared_ptr<printer_interface> printer; 
+                scan_interface gambit_scan;
+                diagnostics diag;
+                std::shared_ptr<printer_wrapper> printer; 
                 
             public:
-                scan()
+                scan(bool init_mpi) : gambit_scan(init_mpi)
                 {
-                    plugin = dlopen ("lib/libScannerBit.so", RTLD_NOW|RTLD_GLOBAL);
-                    if (bool(plugin))
-                    {
-                        diag_factory_type diag_factory = (diag_factory_type)dlsym(plugin, "get_diagnostics");
-                        scan_factory_type scan_factory = (scan_factory_type)dlsym(plugin, "get_gambit_interface");
-                        
-                        const char *errmesg = dlerror();
-                        if (errmesg != NULL)
-                        {
-                            std::string msg = "error loading lib/libScannerBit.so: " + std::string(errmesg) + "\n";
-                            throw std::runtime_error(msg);
-                        }
-                        else
-                        {
-                            diag = diag_factory();
-                            gambit_scan = scan_factory();
-                            printer_manager = printer = gambit_scan->get_printer();
-                        }
-                    }
-                    else
-                    {
-                        std::string msg = "Cannot open lib/libScannerBit.so: " + std::string(dlerror());
-                        throw std::runtime_error(msg);
-                    }
+                    printer_manager = printer = gambit_scan.get_printer();
                 }
                 
-                std::shared_ptr<printer_interface_cont> get_printer()
+                std::shared_ptr<printer_wrapper_cont> get_printer()
                 {
-                    return std::shared_ptr<printer_interface_cont>(new printer_interface_cont{printer});
+                    return std::shared_ptr<printer_wrapper_cont>(new printer_wrapper_cont{printer});
                 }
                 
                 static py::object dianostic(py::tuple args, py::dict)
@@ -83,7 +56,7 @@ namespace Gambit
                     
                     for (int i = 1, end = py::len(args); i < end; i++)
                     {
-                        (*self.diag.get())(std::string(py::extract<std::string>(args[i])));
+                        self.diag(std::string(py::extract<std::string>(args[i])));
                     }
                     
                     return py::object();
@@ -135,13 +108,13 @@ namespace Gambit
                         {
                             std::string filename = std::string(py::extract<std::string>(file_obj));
                         
-                            return gambit_scan->run_scan_str(&filename, factory, prior, !restart);
+                            return gambit_scan.run_scan_str(&filename, factory, prior, !restart);
                         }
                         else if (pytype(file_obj) == "dict")
                         {
                             YAML::Node node = pyyamlconvert(file_obj);
                             
-                            return gambit_scan->run_scan_node(&node, factory, prior, !restart);
+                            return gambit_scan.run_scan_node(&node, factory, prior, !restart);
                         }
                         else
                         {
@@ -155,8 +128,6 @@ namespace Gambit
                         return -1;
                     }
                 }
-                
-                ~scan(){dlclose(plugin);}
             };
 
             std::shared_ptr<vec_type> std_vector_init( py::object l)
@@ -233,17 +204,17 @@ namespace Gambit
                 return ss.str();
             }
             
-            void printer_aux(scanpy::printer_interface_cont &in, const std::string &key, const double &val)
+            void printer_aux(scanpy::printer_wrapper_cont &in, const std::string &key, const double &val)
             {
                 in.printer->aux_printer(key, val);
             }
             
-            void printer_main1(scanpy::printer_interface_cont &in, const std::string &key, const double &val)
+            void printer_main1(scanpy::printer_wrapper_cont &in, const std::string &key, const double &val)
             {
                 in.printer->main_printer(key, val);
             }
             
-            void printer_main2(scanpy::printer_interface_cont &in, map_type &map)
+            void printer_main2(scanpy::printer_wrapper_cont &in, map_type &map)
             {
                 in.printer->main_printer(map);
             }
@@ -272,7 +243,7 @@ namespace Gambit
 
 BOOST_PYTHON_MODULE(BoostScannerBit)
 {
-    py::class_<scanpy::scan>("scan", py::init<>())
+    py::class_<scanpy::scan>("scan", py::init<bool>())
         .def("run", &scanpy::scan::run, (py::arg("inifile"), py::arg("lnlike")="", py::arg("prior")="", py::arg("restart")=false))
         .def("diagnostics", py::raw_function(&scanpy::scan::dianostic))
         .def("get_printer", &scanpy::scan::get_printer);
@@ -303,7 +274,7 @@ BOOST_PYTHON_MODULE(BoostScannerBit)
         .def("ensure_size", &scanpy::ensure_size_fake)
         .def(py::vector_indexing_suite< scanpy::fake_vector >());
        
-    py::class_<scanpy::printer_interface_cont, std::shared_ptr<scanpy::printer_interface_cont>>("printer_manager")
+    py::class_<scanpy::printer_wrapper_cont, std::shared_ptr<scanpy::printer_wrapper_cont>>("printer_manager")
         .def("aux_printer", scanpy::printer_aux)
         .def("main_printer", scanpy::printer_main1)
         .def("main_printer", scanpy::printer_main2);

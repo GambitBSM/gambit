@@ -2,7 +2,7 @@
 #define __SCANNERBIT_PYTHON_RUN_SCAN_HPP__
 
 #include <memory>
-//#include "gambit/ScannerBit/factory_defs.hpp"
+#include "gambit/ScannerBit/factory_defs.hpp"
 #include "gambit/ScannerBit/base_prior.hpp"
 #include <yaml-cpp/yaml.h>
 #include "interface.hpp"
@@ -12,43 +12,6 @@ namespace Gambit
     
     namespace Scanner
     {
-        
-        template<typename T>
-        class Function_Base;
-        
-        template<typename ret, typename... args>
-        class Function_Base <ret (args...)> : public std::enable_shared_from_this<Function_Base <ret (args...)>>
-        {
-        private:
-            void *main_printer;
-            Priors::BasePrior *prior;
-            std::string purpose;
-            int myRealRank; 
-            double purpose_offset;
-            bool use_alternate_min_LogL;
-            bool _scanner_can_quit;
-
-            virtual void deleter(Function_Base <ret (args...)> *in) const
-            {
-                delete in;
-            }
-
-            virtual const std::type_info & type() const {return typeid(ret (args...));}
-
-        public:
-            Function_Base(double offset = 0.) : myRealRank(0), purpose_offset(offset), use_alternate_min_LogL(false), _scanner_can_quit(false) {}
-            virtual ret main(const args&...) = 0;
-            virtual ~Function_Base(){}
-        };
-        
-        class Factory_Base
-        {
-        public:
-                virtual void * operator() (const std::string &purpose) const = 0;
-                virtual ~Factory_Base() {};
-        };
-            
-            
             
         namespace Python
         {
@@ -58,7 +21,7 @@ namespace Gambit
             class python_function_base : public Gambit::Scanner::Function_Base<double (std::unordered_map<std::string, double> &)>
             {
             private:
-                typedef std::shared_ptr<printer_interface> print_ptr;
+                typedef std::shared_ptr<printer_wrapper> print_ptr;
                 py::object obj;
                 print_ptr print;
                 
@@ -76,7 +39,7 @@ namespace Gambit
             class python_factory : public Factory_Base
             {
             private:
-                typedef std::shared_ptr<printer_interface> print_ptr;
+                typedef std::shared_ptr<printer_wrapper> print_ptr;
                 py::dict map;
                 print_ptr print;
                 

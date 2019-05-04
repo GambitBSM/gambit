@@ -76,7 +76,7 @@ namespace Gambit
                 }
                 else
                 {
-                    throw std::runtime_error("Error converting python dictionary to YAML node:  " + type + " type not recognized.");
+                    throw std::invalid_argument("Error converting python dictionary to YAML node:  " + type + " type not recognized.");
                 }
                 
                 return node;
