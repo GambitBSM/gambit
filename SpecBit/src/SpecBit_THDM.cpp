@@ -508,8 +508,11 @@ namespace Gambit
             msg << "The point is non-perturbative, as a result, the scanner will not pass it to FS & it will be invalidated." << std::endl;
             SpecBit_warning().raise(LOCAL_INFO,msg.str());
             std::cerr << msg.str();
+            std::cout << msg.str() << std::endl;
           }
         }
+
+        std::cout << "CONTINUING? "<< std::endl;
 
         using namespace softsusy;
         switch(y_type) {
