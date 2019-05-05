@@ -498,21 +498,13 @@ namespace Gambit
           std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4", \
                                           "lambda_5", "lambda_6", "lambda_7"};
           for(auto const& each_lambda : lambda_keys) {
-            if (*myPipe::Param.at(each_lambda) > 4*PI) {
+            if (*myPipe::Param.at(each_lambda) > 4.*PI) {
               is_perturbative = false;
               break;
             }
           }
-          if (!is_perturbative) {
-            std::ostringstream msg;
-            msg << "The point is non-perturbative, as a result, the scanner will not pass it to FS & it will be invalidated." << std::endl;
-            SpecBit_warning().raise(LOCAL_INFO,msg.str());
-            std::cerr << msg.str();
-            std::cout << msg.str() << std::endl;
-          }
+          if (!is_perturbative) invalid_point().raise("FS Invalid Point: Perturbativity Failed");
         }
-
-        std::cout << "CONTINUING? "<< std::endl;
 
         using namespace softsusy;
         switch(y_type) {

@@ -3,18 +3,15 @@
 ///
 ///  THDMII_physical to THDMII
 ///
-///
 ///  *********************************************
 ///
 ///  Authors
 ///  =======
 ///
-///  (add name and date if you modify)
+///  Filip Rajec (filip.rajec@adelaide.edu.au)
+///  2019 
 ///
-///  \author Filip Rajec
-///  2019
 ///  *********************************************
-
 #include <string>
 #include <vector>
 

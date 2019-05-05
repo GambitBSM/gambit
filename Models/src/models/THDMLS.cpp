@@ -1,19 +1,16 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  THDM to THDMatQ
-///
+///  THDMLS to THDMLSatQ
 ///
 ///  *********************************************
 ///
 ///  Authors
 ///  =======
 ///
-///  (add name and date if you modify)
+///  Filip Rajec (filip.rajec@adelaide.edu.au)
+///  2019 
 ///
-///  \author James McKay
-///          (j.mckay14@imperial.ac.uk)
-//   \date 2015 November
 ///  *********************************************
 
 #include <string>
