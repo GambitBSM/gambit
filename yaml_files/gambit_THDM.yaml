@@ -269,6 +269,8 @@ Rules:
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum
+      options:
+        check_perturbativity: true
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM

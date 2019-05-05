@@ -276,6 +276,8 @@ Rules:
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum
+      options:
+        check_perturbativity: true
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
@@ -329,6 +331,10 @@ Rules:
     
     # - capability: THDM_total_widths_SM_like_model
     #   function: get_THDM_total_widths_SM_like_model
+
+    - capability: HB_ModelParameters
+      function: fill_THDM_HiggsBounds_model_parameters
+      module: ColliderBit
 
     - capability: SuperIso_modelinfo
       function: SI_fill

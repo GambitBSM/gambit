@@ -492,6 +492,25 @@ namespace Gambit
         result = full_spectrum;
       }
       else {
+        // check perturbativity if key exists in yaml
+        if(runOptions->getValueOrDef<bool>(false, "check_perturbativity")) {
+          bool is_perturbative = true;
+          std::vector<double> lambdas = [*Param.at("lambda_1"), *Param.at("lambda_2"), *Param.at("lambda_3"), *Param.at("lambda_4"), \
+                                          *Param.at("lambda_5"), *Param.at("lambda_6"), *Param.at("lambda_7")];
+          foreach(const auto each_lambda : lambdas) {
+            if (each_lambda > 4*PI) {
+              is_perturbative = false;
+              break;
+            }
+          }
+          if (!is_perturbative) {
+            std::ostringstream msg;
+            msg << "The point is non-perturbative, as a result, the scanner will not pass it to FS & it will be invalidated." << std::endl;
+            SpecBit_warning().raise(LOCAL_INFO,msg.str());
+            std::cerr << msg.str();
+          }
+        }
+
         using namespace softsusy;
         switch(y_type) {
           case type_I: { 
