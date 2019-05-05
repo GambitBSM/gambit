@@ -495,10 +495,10 @@ namespace Gambit
         // check perturbativity if key exists in yaml
         if(myPipe::runOptions->getValueOrDef<bool>(false, "check_perturbativity")) {
           bool is_perturbative = true;
-          std::vector<double> lambdas = {*Param.at("lambda_1"), *Param.at("lambda_2"), *Param.at("lambda_3"), *Param.at("lambda_4"), \
-                                          *Param.at("lambda_5"), *Param.at("lambda_6"), *Param.at("lambda_7")};
-          for(auto const& each_lambda : lambdas) {
-            if (each_lambda > 4*PI) {
+          std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4", \
+                                          "lambda_5", "lambda_6", "lambda_7"};
+          for(auto const& each_lambda : lambda_keys) {
+            if (*Param.at(each_lambda) > 4*PI) {
               is_perturbative = false;
               break;
             }
