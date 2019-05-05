@@ -498,7 +498,7 @@ namespace Gambit
           std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4", \
                                           "lambda_5", "lambda_6", "lambda_7"};
           for(auto const& each_lambda : lambda_keys) {
-            if (*Param.at(each_lambda) > 4*PI) {
+            if (*myPipe::Param.at(each_lambda) > 4*PI) {
               is_perturbative = false;
               break;
             }
