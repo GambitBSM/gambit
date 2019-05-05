@@ -497,7 +497,7 @@ namespace Gambit
           bool is_perturbative = true;
           std::vector<double> lambdas = [*Param.at("lambda_1"), *Param.at("lambda_2"), *Param.at("lambda_3"), *Param.at("lambda_4"), \
                                           *Param.at("lambda_5"), *Param.at("lambda_6"), *Param.at("lambda_7")];
-          foreach(const auto each_lambda : lambdas) {
+          or(auto const& each_lambda : lambdas) {
             if (each_lambda > 4*PI) {
               is_perturbative = false;
               break;
