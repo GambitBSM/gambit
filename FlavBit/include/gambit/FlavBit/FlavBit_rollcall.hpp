@@ -507,6 +507,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY deltaMBd_LL
+  START_CAPABILITY
+    #define FUNCTION deltaMBd_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(DeltaMd, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // b -> s gamma likelihood
   #define CAPABILITY b2sgamma_LL
   START_CAPABILITY

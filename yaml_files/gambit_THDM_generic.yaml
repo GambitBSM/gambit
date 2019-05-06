@@ -159,6 +159,10 @@ ObsLikes:
       funtion: deltaMB_likelihood
       purpose: LogLike
 
+    - capability: deltaMBd_LL
+      funtion: deltaMBd_likelihood
+      purpose: LogLike
+
     ## PrecisionBit Liklelihood
 
     - capability: lnL_gm2

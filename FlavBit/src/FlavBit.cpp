@@ -1250,6 +1250,42 @@ namespace Gambit
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMs_err, profile);
     }
 
+    /// Likelihood for Delta Md
+    void deltaMBd_likelihood(double &result)
+    {
+      using namespace Pipes::deltaMBd_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_DeltaMd_err, th_err;
+
+      if (flav_debug) cout << "Starting Delta_Md_likelihood"<<endl;
+
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in Delta_Md_likelihood"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "DeltaMd");
+        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_DeltaMd_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_DeltaMd_err << " " << th_err << endl;
+
+      // Now we do the stuff that actually depends on the parameters
+      double theory_prediction = *Dep::DeltaMd;
+      double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_DeltaMd_err<<endl;
+
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMd_err, profile);
+    }
+
 
     /// Likelihood for b->s gamma
     void b2sgamma_likelihood(double &result)
