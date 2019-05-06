@@ -5,7 +5,7 @@
 ###################################
 
 Parameters:
-    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+    StandardModel_SLHA2: !import ../include/StandardModel_SLHA2_defaults.yaml
 
     THDMIIatQ:
         lambda_1:
@@ -118,6 +118,40 @@ ObsLikes:
     #################
     # Observables
     #################
+
+    ## relevant likelihood observables
+
+    - capability: RD
+      function: SI_RD
+      purpose: Observable
+
+    - capability: RDstar
+      function: SI_RDstar
+      purpose: Observable
+
+    - capability: BDmunu
+      function: SI_BDmunu
+      purpose: Observable
+
+    - capability: BDstarmunu
+      function: SI_BDstarmunu
+      purpose: Observable
+
+    - capability: Btaunu
+      function: SI_Btaunu
+      purpose: Observable
+
+    - capability: Dstaunu
+      function: SI_Dstaunu
+      purpose: Observable
+
+    - capability: Dsmunu
+      function: SI_Dsmunu
+      purpose: Observable
+
+    - capability: Dmunu
+      function: SI_Dmunu
+      purpose: Observable
 
     ## physical basis
 

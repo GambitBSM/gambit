@@ -5,7 +5,7 @@
 ###################################
 
 Parameters:
-    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+    StandardModel_SLHA2: !import ../include/StandardModel_SLHA2_defaults.yaml
 
     THDMIIatQ:
         lambda_1:
@@ -118,6 +118,12 @@ ObsLikes:
     #################
     # Observables
     #################
+
+    ## relevant likelihood observables
+
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+      purpose: Observable
 
     ## physical basis
 

@@ -5,7 +5,7 @@
 ###################################
 
 Parameters:
-    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+    StandardModel_SLHA2: !import ../include/StandardModel_SLHA2_defaults.yaml
 
     THDMIIatQ:
         lambda_1:
