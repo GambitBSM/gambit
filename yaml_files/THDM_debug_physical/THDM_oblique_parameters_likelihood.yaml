@@ -7,21 +7,18 @@
 Parameters:
     StandardModel_SLHA2: !import ../include/StandardModel_SLHA2_defaults.yaml
 
-    THDMIIatQ:
-        lambda_1:
-            range: [-12.5664, 12.5664]
+    THDMII_physical:
+        m_h:
+            range: [125.0, 126.0]
             prior_type: flat
-        lambda_2:
-            range: [-12.5664, 12.5664]
+        m_H:
+            range: [130.0, 5000.0]
             prior_type: flat
-        lambda_3:
-            range: [-12.5664, 12.5664]
+        m_A:
+            range: [130.0, 5000.0]
             prior_type: flat
-        lambda_4:
-            range: [-12.5664, 12.5664]
-            prior_type: flat
-        lambda_5:
-            range: [-12.5664, 12.5664]
+        m_Hp:
+            range: [130.0, 5000.0]
             prior_type: flat
         lambda_6:
             fixed_value: 0.0
@@ -30,13 +27,12 @@ Parameters:
         m12_2:
             range: [-50000, 700000]
             prior_type: flat
+        sba:
+            range: [0.9, 1.0]
+            prior_type: flat
         tanb:
             range: [0.1, 100]
             prior_type: log
-        Qin:
-            fixed_value: 91.1876 # Qin = mZ
-        QrunTo:
-            fixed_value: 750
 
 ##############################
 # Prior setup
@@ -59,7 +55,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "THDM_output_global_minimum_discriminant_likelihood.hdf5"
+    output_file: "THDM_output_oblique_parameters_likelihood.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -111,10 +107,8 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    ## theoretical likelihoods
-
     - purpose:    LogLike
-      capability: global_minimum_discriminant_likelihood
+      capability: oblique_parameters_likelihood_THDM
 
     #################
     # Observables
@@ -335,6 +329,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_physical/"
   enable_testing: true
   debug: true

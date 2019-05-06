@@ -59,7 +59,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "THDM_output_unitarity_likelihood.hdf5"
+    output_file: "THDM_output_b2ll_likelihood.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -111,12 +111,23 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
+    - capability: b2ll_LL
+      funtion: b2ll_likelihood
+      purpose: LogLike
 
     #################
     # Observables
     #################
+
+    ## relevant likelihood observables
+
+    - capability: Bmumu
+      function: SI_Bmumu
+      purpose: Observable
+
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      purpose: Observable
 
     ## physical basis
 
@@ -333,6 +344,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_generic/"
   enable_testing: true
   debug: true

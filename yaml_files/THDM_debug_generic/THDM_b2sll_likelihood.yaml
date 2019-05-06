@@ -59,7 +59,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "THDM_output_HB_likelihood.hdf5"
+    output_file: "THDM_output_b2sll_likelihood.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -111,14 +111,40 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
-      function: calc_HB_LEP_LogLike
+    - capability: b2sll_LL
+      funtion: b2sll_likelihood
+      purpose: LogLike
 
     #################
     # Observables
     #################
 
+    ## relevant likelihood observables
+
+    - capability: BKstarmumu_11_25
+      function: SI_BKstarmumu_11_25
+      purpose: Observable
+
+    - capability: BKstarmumu_25_40
+      function: SI_BKstarmumu_25_40
+      purpose: Observable
+
+    - capability: BKstarmumu_40_60
+      function: SI_BKstarmumu_40_60
+      purpose: Observable
+
+    - capability: BKstarmumu_60_80
+      function: SI_BKstarmumu_60_80
+      purpose: Observable
+
+    - capability: BKstarmumu_15_17
+      function: SI_BKstarmumu_15_17
+      purpose: Observable
+
+    - capability: BKstarmumu_17_19
+      function: SI_BKstarmumu_17_19
+      purpose: Observable
+    
     ## physical basis
 
     - capability: mh0_pole
@@ -334,6 +360,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_generic/"
   enable_testing: true
   debug: true

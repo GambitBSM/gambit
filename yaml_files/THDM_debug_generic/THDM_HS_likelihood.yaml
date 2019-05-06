@@ -334,6 +334,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_generic/"
   enable_testing: true
   debug: true

@@ -59,7 +59,7 @@ Printer:
   # printer.
   options:
     # name of output file
-    output_file: "THDM_output_oblique_parameters_likelihood.hdf5"
+    output_file: "THDM_output_perturbativity_likelihood.hdf5"
     group: "/data"
     delete_file_on_restart: true
 
@@ -112,7 +112,7 @@ ObsLikes:
     ###########################
 
     - purpose:    LogLike
-      capability: oblique_parameters_likelihood_THDM
+      capability: perturbativity_likelihood_THDM
 
     #################
     # Observables
@@ -333,6 +333,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_debug_generic/"
   enable_testing: true
   debug: true
