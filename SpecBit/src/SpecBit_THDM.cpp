@@ -2021,7 +2021,7 @@ namespace Gambit
         a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
 
       for(auto const& eig: eigenvalues) {
-        if(abs(eig-i/2.0) > unitarity_upper_limit) error += (abs(eig-i/2.0) - unitarity_upper_limit;
+        if(abs(eig-i/2.0) > unitarity_upper_limit) error += abs(eig-i/2.0) - unitarity_upper_limit;
       }
 
       #ifdef SPECBIT_DEBUG
@@ -2092,14 +2092,14 @@ namespace Gambit
         return 0.0;
       }
 
-        double error = 0;
+        double error = 0.;
         const double sigma = 1.;
 
         if (lambda[1] < 0.0) error += abs(lambda[1]);
         if (lambda[2] < 0.0) error += abs(lambda[2]);
 
         if (std::isnan(sqrt(lambda[1]*lambda[2]))) {
-            loglike = -L_MAX;
+            return -L_MAX;
         }
         else {
             if (lambda[3] < -sqrt(lambda[1]*lambda[2])) error += abs(lambda[3] - (-sqrt(lambda[1]*lambda[2])));
@@ -2393,7 +2393,7 @@ namespace Gambit
     }
 
       void obs_mh0_pole(double& result) {
-        using namespace Pipes::obs_mh0_pole; 
+        using namespace Pipes::obs_mh0_pole;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::Pole_Mass, "h0", 1);
