@@ -29,9 +29,8 @@ namespace Gambit {
 #define FRIEND THDMII
   START_MODEL
   
-  DEFINEPARS(m_h,m_H,Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5)
-  DEFINEPARS(Lambda_7,M12_2)
-  DEFINEPARS(tanb)
+  DEFINEPARS(m_h,m_H,Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
+  DEFINEPARS(tanb, sba)
   
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMII_hybrid_to_THDMII)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
