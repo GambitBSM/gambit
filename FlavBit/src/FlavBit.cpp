@@ -985,16 +985,16 @@ namespace Gambit
     }
 
     /// Measurement for Delta Bd (Bd mass splitting)
-    void SI_Delta_MB(double &result)
+    void SI_Delta_MBd(double &result)
     {
-      using namespace Pipes::SI_Delta_MB;
-      if (flav_debug) cout<<"Starting SI_Delta_MB"<<endl;
+      using namespace Pipes::SI_Delta_MBd;
+      if (flav_debug) cout<<"Starting SI_Delta_MBd"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::Delta_MB(&param);
 
-      if (flav_debug) printf("Delta_MB=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Delta_MB"<<endl;
+      if (flav_debug) printf("Delta_MBd=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Delta_MBd"<<endl;
     }
 
     /// Measurement for Delta Bs (Bs mass splitting)

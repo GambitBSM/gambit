@@ -486,7 +486,7 @@ START_MODULE
   // Observable: B_d mass difference
   #define CAPABILITY DeltaMd
   START_CAPABILITY
-    #define FUNCTION SI_Delta_MB
+    #define FUNCTION SI_Delta_MBd
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Delta_MB, (libsuperiso),  double, (const parameters*))
