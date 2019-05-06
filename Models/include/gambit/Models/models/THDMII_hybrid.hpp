@@ -29,7 +29,7 @@ namespace Gambit {
 #define FRIEND THDMII
   START_MODEL
   
-  DEFINEPARS(m_h,m_H,Lambda1,Lambda_2,Lambda_3,Lambda_4,Lambda_5)
+  DEFINEPARS(m_h,m_H,Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5)
   DEFINEPARS(Lambda_7,M12_2)
   DEFINEPARS(tanb)
   
