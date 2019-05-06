@@ -20,6 +20,9 @@
 #ifndef __THDMIIatQ_hpp__
 #define __THDMIIatQ_hpp__
 
+// Must include models which are targets of translation functions
+#include "gambit/Models/models/THDMatQ.hpp"
+
 #define MODEL THDMIIatQ
 #define PARENT THDMatQ
   START_MODEL
