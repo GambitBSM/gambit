@@ -2393,7 +2393,7 @@ namespace Gambit
     }
 
       void obs_mh0_pole(double& result) {
-        using namespace Pipes::obs_mh0_pole;
+        using namespace Pipes::obs_mh0_pole; 
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::Pole_Mass, "h0", 1);
