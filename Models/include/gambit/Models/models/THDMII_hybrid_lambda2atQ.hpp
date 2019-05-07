@@ -26,7 +26,7 @@ namespace Gambit {
 }
 
 #define MODEL THDMII_hybrid_lambda2atQ
-#define FRIEND THDMII
+#define FRIEND THDMIIatQ
   START_MODEL
   
   DEFINEPARS(m_h, sba)

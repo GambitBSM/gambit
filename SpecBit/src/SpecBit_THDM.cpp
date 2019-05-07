@@ -20,6 +20,7 @@
 #include <sstream>
 #include <cmath>
 #include <complex>
+#include <math.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_permutation.h>
@@ -61,7 +62,6 @@
 
 
 #define L_MAX 1e50
-#define PI 3.14159265
 
 // Switches for debug mode
 // #define SPECBIT_DEBUG
@@ -498,7 +498,7 @@ namespace Gambit
           std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4", \
                                           "lambda_5", "lambda_6", "lambda_7"};
           for(auto const& each_lambda : lambda_keys) {
-            if (*myPipe::Param.at(each_lambda) > 4.*PI) {
+            if (*myPipe::Param.at(each_lambda) > 4.*M_PI) {
               is_perturbative = false;
               break;
             }
@@ -1322,7 +1322,7 @@ namespace Gambit
       Pi+=pow(m[5],2)*(B0_bar(p2,mC2,mh2) - B0_bar(0.,mC2,mh2));
       Pi+=pow(m[7],2)*(B0_bar(p2,mC2,mH2) - B0_bar(0.,mC2,mH2));
       Pi+=m[9]*std::conj(m[9])*(B0_bar(p2,mC2,mA2) - B0_bar(0.,mC2,mA2));
-      return -1.0/(16.0*pow(PI,2))*Pi;
+      return -1.0/(16.0*pow(M_PI,2))*Pi;
     }
     double Pi_tilde_wpwm_re(const double p2, void * params) { return Pi_tilde_wpwm(p2, params).real(); }
     double Pi_tilde_wpwm_im(const double p2, void * params) { return Pi_tilde_wpwm(p2, params).imag(); }
@@ -1336,7 +1336,7 @@ namespace Gambit
       Pi+=pow(m[4],2)*(B0_bar(p2,0.,mH2) - B0_bar(0.,0.,mH2));
       Pi+=pow(m[6],2)*(B0_bar(p2,mA2,mh2) - B0_bar(0.,mA2,mh2));
       Pi+=pow(m[8],2)*(B0_bar(p2,mA2,mH2) - B0_bar(0.,mA2,mH2));
-      return -1.0/(16.0*pow(PI,2))*Pi;
+      return -1.0/(16.0*pow(M_PI,2))*Pi;
     }
     double Pi_tilde_zz_re(const double p2, void * params) { return Pi_tilde_zz(p2, params).real(); }
     double Pi_tilde_zz_im(const double p2, void * params) { return Pi_tilde_zz(p2, params).imag(); }
@@ -1350,7 +1350,7 @@ namespace Gambit
       Pi+=m[3]*m[7]*(B0_bar(p2,0.,mH2) - B0_bar(0.,0.,mH2));
       Pi+=m[5]*m[10]*(B0_bar(p2,mC2,mh2) - B0_bar(0.,mC2,mh2));
       Pi+=m[7]*m[12]*(B0_bar(p2,mC2,mH2) - B0_bar(0.,mC2,mH2));
-      return -1.0/(16.0*pow(PI,2))*Pi;
+      return -1.0/(16.0*pow(M_PI,2))*Pi;
     }
     double Pi_tilde_wpHm_re(const double p2, void * params) { return Pi_tilde_wpHm(p2, params).real(); }
     double Pi_tilde_wpHm_im(const double p2, void * params) { return Pi_tilde_wpHm(p2, params).imag(); }
@@ -1364,7 +1364,7 @@ namespace Gambit
       Pi+=m[4]*m[8]*(B0_bar(p2,0.,mH2) - B0_bar(0.,0.,mH2));
       Pi+=m[6]*m[11]*(B0_bar(p2,mA2,mh2) - B0_bar(0.,mA2,mh2));
       Pi+=m[8]*m[13]*(B0_bar(p2,mA2,mH2) - B0_bar(0.,mA2,mH2));
-      return -1.0/(16.0*pow(PI,2))*Pi;
+      return -1.0/(16.0*pow(M_PI,2))*Pi;
     }
     double Pi_tilde_zA_re(const double p2, void * params) { return Pi_tilde_zA(p2, params).real(); }
     double Pi_tilde_zA_im(const double p2, void * params) { return Pi_tilde_zA(p2, params).imag(); }
@@ -1374,11 +1374,11 @@ namespace Gambit
       const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[1]*A0_bar(mh2) + g[2]*A0_bar(mH2) + 2.0*g[3]*A0_bar(mC2) + g[4]*A0_bar(mA2));
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[2],2)*B0_bar(0.,0.,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[4],2)*B0_bar(0.,0.,mH2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[6],2)*B0_bar(0.,mA2,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[8],2)*B0_bar(0.,mA2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(g[1]*A0_bar(mh2) + g[2]*A0_bar(mH2) + 2.0*g[3]*A0_bar(mC2) + g[4]*A0_bar(mA2));
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[2],2)*B0_bar(0.,0.,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[4],2)*B0_bar(0.,0.,mH2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[6],2)*B0_bar(0.,mA2,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[8],2)*B0_bar(0.,mA2,mH2);
       return Pi;
     }
     double Pi_zz_re(void * params) { return Pi_zz(params).real(); }
@@ -1392,11 +1392,11 @@ namespace Gambit
       const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[5]*A0_bar(mh2) + g[6]*A0_bar(mH2) + 2.0*g[7]*A0_bar(mC2) + g[8]*A0_bar(mA2));
-      Pi+=-1.0/(16.0*pow(PI,2))*m[2]*m[6]*B0_bar(0.,0.,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*m[4]*m[8]*B0_bar(0.,0.,mH2);
-      Pi+=-1.0/(16.0*pow(PI,2))*m[6]*m[11]*B0_bar(0.,mA2,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*m[8]*m[13]*B0_bar(0.,mA2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(g[5]*A0_bar(mh2) + g[6]*A0_bar(mH2) + 2.0*g[7]*A0_bar(mC2) + g[8]*A0_bar(mA2));
+      Pi+=-1.0/(16.0*pow(M_PI,2))*m[2]*m[6]*B0_bar(0.,0.,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*m[4]*m[8]*B0_bar(0.,0.,mH2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*m[6]*m[11]*B0_bar(0.,mA2,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*m[8]*m[13]*B0_bar(0.,mA2,mH2);
       return Pi;
     }
     double Pi_zA_re(void * params) { return Pi_zA(params).real(); }
@@ -1411,15 +1411,15 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
       const double beta = atan(tanb), sba = sin(beta-alpha), cba = cos(beta-alpha);
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(2.0*g[9]*A0_bar(mC2) + g[10]*A0_bar(mA2) + g[15]*A0_bar(mh2) + g[17]*A0_bar(mH2));
-      Pi+=-1.0/(32.0*pow(PI,2))*(2.0*pow(m[1],2)+pow(m[2],2))*B0_bar(p2,0,0);
-      Pi+=-1.0/(32.0*pow(PI,2))*4.0*pow(m[5],2)*B0_bar(p2,0.,mC2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[6],2)*B0_bar(p2,0.,mA2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[10],2)*B0_bar(p2,mC2,mC2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[11],2)*B0_bar(p2,mA2,mA2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[14],2)*B0_bar(p2,mh2,mh2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[15],2)*B0_bar(p2,mH2,mh2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[16],2)*B0_bar(p2,mH2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[9]*A0_bar(mC2) + g[10]*A0_bar(mA2) + g[15]*A0_bar(mh2) + g[17]*A0_bar(mH2));
+      Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*pow(m[1],2)+pow(m[2],2))*B0_bar(p2,0,0);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*pow(m[5],2)*B0_bar(p2,0.,mC2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[6],2)*B0_bar(p2,0.,mA2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[10],2)*B0_bar(p2,mC2,mC2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[11],2)*B0_bar(p2,mA2,mA2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[14],2)*B0_bar(p2,mh2,mh2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[15],2)*B0_bar(p2,mH2,mh2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[16],2)*B0_bar(p2,mH2,mH2);
       Pi+=-pow(sba,2)*Pi_zz(params) - 2.0*sba*cba*Pi_zA(params) + (Z_w(params)-1.0)*(mh2+mZw2(params)*pow(cba,2));
       return Pi;
     }
@@ -1432,15 +1432,15 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
       const double beta = atan(tanb), sba = sin(beta-alpha), cba = cos(beta-alpha);
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(2.0*g[11]*A0_bar(mC2) + g[12]*A0_bar(mA2) + g[17]*A0_bar(mh2) + g[19]*A0_bar(mH2));
-      Pi+=-1.0/(32.0*pow(PI,2))*(2.0*pow(m[3],2)+pow(m[4],2))*B0_bar(p2,0,0);
-      Pi+=-1.0/(32.0*pow(PI,2))*4.0*pow(m[7],2)*B0_bar(p2,0.,mC2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[8],2)*B0_bar(p2,0.,mA2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[12],2)*B0_bar(p2,mC2,mC2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[13],2)*B0_bar(p2,mA2,mA2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[15],2)*B0_bar(p2,mh2,mh2);
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*pow(m[16],2)*B0_bar(p2,mH2,mh2);
-      Pi+=-1.0/(32.0*pow(PI,2))*pow(m[17],2)*B0_bar(p2,mH2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[11]*A0_bar(mC2) + g[12]*A0_bar(mA2) + g[17]*A0_bar(mh2) + g[19]*A0_bar(mH2));
+      Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*pow(m[3],2)+pow(m[4],2))*B0_bar(p2,0,0);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*pow(m[7],2)*B0_bar(p2,0.,mC2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[8],2)*B0_bar(p2,0.,mA2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[12],2)*B0_bar(p2,mC2,mC2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[13],2)*B0_bar(p2,mA2,mA2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[15],2)*B0_bar(p2,mh2,mh2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*pow(m[16],2)*B0_bar(p2,mH2,mh2);
+      Pi+=-1.0/(32.0*pow(M_PI,2))*pow(m[17],2)*B0_bar(p2,mH2,mH2);
       Pi+=-pow(cba,2)*Pi_zz(params) + 2.0*sba*cba*Pi_zA(params) + (Z_w(params)-1.0)*(mH2+mZw2(params)*pow(sba,2));
       return Pi;
     }
@@ -1453,15 +1453,15 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
       const double beta = atan(tanb), sba = sin(beta-alpha), cba = cos(beta-alpha);
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(2.0*g[13]*A0_bar(mC2) + g[14]*A0_bar(mA2) + g[16]*A0_bar(mh2) + g[18]*A0_bar(mH2)); 
-      Pi+=-1.0/(32.0*pow(PI,2))*(2.0*m[1]*m[3]+m[2]*m[4])*B0_bar(p2,0,0); 
-      Pi+=-1.0/(32.0*pow(PI,2))*4.0*m[5]*m[7]*B0_bar(p2,0.,mC2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*m[6]*m[8]*B0_bar(p2,0.,mA2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*m[10]*m[12]*B0_bar(p2,mC2,mC2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*m[11]*m[13]*B0_bar(p2,mA2,mA2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*m[14]*m[15]*B0_bar(p2,mh2,mh2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*2.0*m[15]*m[16]*B0_bar(p2,mH2,mh2); 
-      Pi+=-1.0/(32.0*pow(PI,2))*m[16]*m[17]*B0_bar(p2,mH2,mH2); 
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[13]*A0_bar(mC2) + g[14]*A0_bar(mA2) + g[16]*A0_bar(mh2) + g[18]*A0_bar(mH2)); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*m[1]*m[3]+m[2]*m[4])*B0_bar(p2,0,0); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*m[5]*m[7]*B0_bar(p2,0.,mC2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*m[6]*m[8]*B0_bar(p2,0.,mA2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*m[10]*m[12]*B0_bar(p2,mC2,mC2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*m[11]*m[13]*B0_bar(p2,mA2,mA2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*m[14]*m[15]*B0_bar(p2,mh2,mh2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*2.0*m[15]*m[16]*B0_bar(p2,mH2,mh2); 
+      Pi+=-1.0/(32.0*pow(M_PI,2))*m[16]*m[17]*B0_bar(p2,mH2,mH2); 
       Pi+=-sba*cba*Pi_zz(params) - (pow(cba,2) - pow(sba,2))*Pi_zA(params) - (Z_w(params)-1.0)*(mZw2(params)*sba*cba);
       return Pi;
     }
@@ -1473,12 +1473,12 @@ namespace Gambit
       const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[9]*A0_bar(mh2) + g[11]*A0_bar(mH2) + 2.0*g[20]*A0_bar(mC2) + g[21]*A0_bar(mA2));
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[5],2)*B0_bar(p2,0.,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[7],2)*B0_bar(p2,0.,mH2);
-      Pi+=-1.0/(16.0*pow(PI,2))*std::conj(m[9])*m[9]*B0_bar(p2,0.,mA2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[10],2)*B0_bar(p2,mC2,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[12],2)*B0_bar(p2,mC2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(g[9]*A0_bar(mh2) + g[11]*A0_bar(mH2) + 2.0*g[20]*A0_bar(mC2) + g[21]*A0_bar(mA2));
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[5],2)*B0_bar(p2,0.,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[7],2)*B0_bar(p2,0.,mH2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*std::conj(m[9])*m[9]*B0_bar(p2,0.,mA2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[10],2)*B0_bar(p2,mC2,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[12],2)*B0_bar(p2,mC2,mH2);
       Pi+=(Z_w(params)-1.0)*(mC2 + mZw2(params));
       return Pi;
     }
@@ -1490,12 +1490,12 @@ namespace Gambit
       const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      std::complex<double> Pi = 1.0/(32.0*pow(PI,2))*(g[10]*A0_bar(mh2) + g[12]*A0_bar(mH2) + 2.0*g[21]*A0_bar(mC2) + g[22]*A0_bar(mA2));
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[6],2)*B0_bar(p2,0.,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[8],2)*B0_bar(p2,0.,mH2);
-      Pi+=-1.0/(16.0*pow(PI,2))*2.0*std::conj(m[9])*m[9]*B0_bar(p2,0.,mC2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[11],2)*B0_bar(p2,mA2,mh2);
-      Pi+=-1.0/(16.0*pow(PI,2))*pow(m[13],2)*B0_bar(p2,mA2,mH2);
+      std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(g[10]*A0_bar(mh2) + g[12]*A0_bar(mH2) + 2.0*g[21]*A0_bar(mC2) + g[22]*A0_bar(mA2));
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[6],2)*B0_bar(p2,0.,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[8],2)*B0_bar(p2,0.,mH2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*2.0*std::conj(m[9])*m[9]*B0_bar(p2,0.,mC2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[11],2)*B0_bar(p2,mA2,mh2);
+      Pi+=-1.0/(16.0*pow(M_PI,2))*pow(m[13],2)*B0_bar(p2,mA2,mH2);
       Pi+=(Z_w(params)-1.0)*(mA2 + mZw2(params));
       return Pi;
     }
@@ -1546,7 +1546,7 @@ namespace Gambit
       gsl_deriv_central (&F_re, m_in, 1e-8, &result_re, &abserr_re);
       gsl_deriv_central (&F_im, m_in, 1e-8, &result_im, &abserr_im);
       const complex<double> Z_ii = 1.0 + 0.5*(result_re + i*result_im);
-      return 16.0*pow(PI,2)*(Z_ii-1.0);
+      return 16.0*pow(M_PI,2)*(Z_ii-1.0);
     }
 
     std::complex<double> z_ij(const wavefunction_renormalization type, THDM_spectrum_container& container){
@@ -1582,7 +1582,7 @@ namespace Gambit
           z_ij = z_ii(type, input_pars);
           return z_ij;
       }
-      return 16.0*pow(PI,2)*z_ij/(pow(m1,2) - pow(m2,2));
+      return 16.0*pow(M_PI,2)*z_ij/(pow(m1,2) - pow(m2,2));
     }
 
     double Z_w(void * params){
@@ -1607,7 +1607,7 @@ namespace Gambit
       std::complex<double> beta = 12.0*pow(Lambda[1],2) + 4.0*pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 2.0*pow(Lambda[4],2) + 2.0*pow(Lambda[5],2);
       beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[1] - 9.0*pow(g2,2)*Lambda[1];
       beta += 4.0*Lambda[1]*(a[1]*tr_l + 3.0*a[2]*tr_d + 3*a[3]*tr_u) - 4.0*(a[4]*tr_l2 + 3.0*a[5]*tr_d2 + 3*a[6]*tr_u2);
-      return 1.0/(16.0*pow(PI,2))*(beta);
+      return 1.0/(16.0*pow(M_PI,2))*(beta);
     }
 
     std::complex<double> beta_two(THDM_spectrum_container& container) {
@@ -1620,7 +1620,7 @@ namespace Gambit
       std::complex<double> beta = 12.0*pow(Lambda[2],2)+4.0*pow(Lambda[3],2)+4*Lambda[3]*Lambda[4]+2.0*pow(Lambda[4],2)+2.0*pow(Lambda[5],2);
       beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[2] - 9.0*pow(g2,2)*Lambda[2];
       beta += 4.0*Lambda[2]*(a[7]*tr_l + 3.0*a[8]*tr_d + 3*a[9]*tr_u) - 4.0*(a[10]*tr_l2 + 3.0*a[11]*tr_d2 + 3*a[12]*tr_u2);
-      return 1.0/(16.0*pow(PI,2))*beta;
+      return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
     std::complex<double> beta_three(THDM_spectrum_container& container) {
@@ -1633,7 +1633,7 @@ namespace Gambit
       std::complex<double> beta = 4.0*pow(Lambda[3],2) +2.0*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6.0*Lambda[3]+2.0*Lambda[4]) + 2.0*pow(Lambda[5],2);
       beta += -3.0*Lambda[3]*(3*pow(g2,2) + pow(g1,2)) + 9.0/4.0*pow(g2,4) + 3.0/4.0*pow(g1,4) - 3.0/2.0*pow(g1,2)*pow(g2,2);
       beta += 2*Lambda[3]*(a[13]*tr_l + 3.0*a[14]*tr_d + 3.0*a[15]*tr_u) - 12.0*a[16]*tr_du;
-      return 1.0/(16.0*pow(PI,2))*beta;
+      return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
     std::complex<double> beta_four(THDM_spectrum_container& container) {
@@ -1646,7 +1646,7 @@ namespace Gambit
       std::complex<double> beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3])*Lambda[4] + 4.0*pow(Lambda[4],2) + 8.0*pow(Lambda[5],2);
       beta += -3.0*Lambda[4]*(3.0*pow(g2,2) + pow(g1,2)) + 3.0*pow(g1,2)*pow(g1,2);
       beta += 2.0*Lambda[4]*(a[17]*tr_l + 3.0*a[18]*tr_d + 3.0*a[19]*tr_u) + 12.0*a[20]*tr_du;
-      return 1.0/(16.0*pow(PI,2))*beta;
+      return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
     std::complex<double> beta_five(THDM_spectrum_container& container) {
@@ -1659,7 +1659,7 @@ namespace Gambit
       std::complex<double> beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3] + 12.0*Lambda[4])*Lambda[5];
       beta += -3.0*Lambda[5]*(3.0*pow(g2,2) + pow(g1,2));
       beta += 2.0*Lambda[5]*(a[21]*tr_l +3.0*a[22]*tr_d + 3.0*a[23]*tr_u);
-      return 1.0/(16.0*pow(PI,2))*beta;
+      return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
 // Likelihood Functions
@@ -1946,72 +1946,72 @@ namespace Gambit
       const std::complex<double> zij_HpHm = z_ij(HpHm, container);
       const std::complex<double> zij_AA = z_ij(AA, container);
 
-      std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*b_one + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
-      std::complex<double> B1_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
-      B1_z += 1.0/(16.0*pow(PI,2)) * ((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
+      std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
+      std::complex<double> B1_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+      B1_z += 1.0/(16.0*pow(M_PI,2)) * ((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
       B1 += -3.0/2.0 * Lambda[1] * B1_z;
 
-      std::complex<double> B2 = -3.0*Lambda[2] + (9.0/2.0)*b_two + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(9.0*pow(Lambda[2],2) + pow((2.0*Lambda[3]+Lambda[4]),2));
-      std::complex<double> B2_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
-      B2_z += 1.0/(16.0*pow(PI,2)) * (-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
+      std::complex<double> B2 = -3.0*Lambda[2] + (9.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[2],2) + pow((2.0*Lambda[3]+Lambda[4]),2));
+      std::complex<double> B2_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+      B2_z += 1.0/(16.0*pow(M_PI,2)) * (-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
       B2 += -3.0/2.0 * Lambda[2] * B2_z;
 
-      std::complex<double> B3 = - (2.0*Lambda[3]+Lambda[4]) + (3.0/2.0)*(2.0*b_three+b_four) + 3.0/(16.0*pow(PI,2))*(i*PI-1.)*(Lambda[1]+Lambda[2])*(2.0*Lambda[3]+Lambda[4]);
-      std::complex<double> B3_z = 1.0/(16.0*pow(PI,2)) * ( zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz );
+      std::complex<double> B3 = - (2.0*Lambda[3]+Lambda[4]) + (3.0/2.0)*(2.0*b_three+b_four) + 3.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1]+Lambda[2])*(2.0*Lambda[3]+Lambda[4]);
+      std::complex<double> B3_z = 1.0/(16.0*pow(M_PI,2)) * ( zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz );
       B3 += -1.0/2.0 * (2.0*Lambda[3]+Lambda[4]) * B3_z;
 
-      std::complex<double> B4 = - (Lambda[3] + 2.0*Lambda[4]) + (3.0/2.0)*(b_three + 2.0*b_four) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 4.0*pow(Lambda[4],2) + 9.0*pow(Lambda[5],2));
+      std::complex<double> B4 = - (Lambda[3] + 2.0*Lambda[4]) + (3.0/2.0)*(b_three + 2.0*b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 4.0*pow(Lambda[4],2) + 9.0*pow(Lambda[5],2));
       B4 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
       
-      std::complex<double> B6 = -3.0*Lambda[5] + (9.0/2.0)*b_five + (6.0/(16.0*pow(PI,2)))*(i*PI-1.)*(Lambda[3] + 2.0*Lambda[4])*Lambda[5];
+      std::complex<double> B6 = -3.0*Lambda[5] + (9.0/2.0)*b_five + (6.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[3] + 2.0*Lambda[4])*Lambda[5];
       B6 += -1.0/2.0 * (Lambda[4]+2.0*Lambda[5]) * B3_z;
       
-      std::complex<double> B7 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[1],2)+pow(Lambda[4],2));
+      std::complex<double> B7 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2)+pow(Lambda[4],2));
       B7 += -1.0/2.0 * Lambda[1] * B1_z;
 
-      std::complex<double> B8 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[2],2)+pow(Lambda[4],2));
+      std::complex<double> B8 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2)+pow(Lambda[4],2));
       B8 += -1.0/2.0 * Lambda[2] * B2_z;
 
-      std::complex<double> B9 = -Lambda[4] + (3.0/2.0)*b_four + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; 
+      std::complex<double> B9 = -Lambda[4] + (3.0/2.0)*b_four + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; 
       B9 += -1.0/2.0 * Lambda[4] * B3_z;
 
-      std::complex<double> B13 = -Lambda[3] + (3.0/2.0)*b_three + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2));
+      std::complex<double> B13 = -Lambda[3] + (3.0/2.0)*b_three + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2));
       B13 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
 
-      std::complex<double> B15 = -Lambda[5] + (3.0/2.0)*b_five + (2.0/(16.0*pow(PI,2)))*(i*PI-1.)*Lambda[3]*Lambda[5];
+      std::complex<double> B15 = -Lambda[5] + (3.0/2.0)*b_five + (2.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*Lambda[3]*Lambda[5];
       B15 += -1.0/2.0 * (Lambda[4]-2.0*Lambda[5]) * B3_z;
 
-      std::complex<double> B19 = -(Lambda[3]-Lambda[4]) + (3.0/2.0)*(b_three - b_four) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]-Lambda[4]),2);
+      std::complex<double> B19 = -(Lambda[3]-Lambda[4]) + (3.0/2.0)*(b_three - b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]-Lambda[4]),2);
       B19 += -1.0/2.0 * (Lambda[3]-Lambda[5]) * B3_z;
 
-      std::complex<double> B20 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));  
-      std::complex<double> B20_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
+      std::complex<double> B20 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));  
+      std::complex<double> B20_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
       B20 += -1.0 * Lambda[1] * B20_z;
 
-      std::complex<double> B21 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(PI,2))*(i*PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
-      std::complex<double> B21_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
+      std::complex<double> B21 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
+      std::complex<double> B21_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
       B21 += -1.0 * Lambda[2] * B21_z;
 
-      std::complex<double> B22 = -Lambda[5] + (3.0/2.0)*b_five + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
-      std::complex<double> B22_z = 1.0/(16.0*pow(PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
+      std::complex<double> B22 = -Lambda[5] + (3.0/2.0)*b_five + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
+      std::complex<double> B22_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
       B22 += -1.0 * Lambda[5] * B22_z;
       
-      std::complex<double> B30 = -(Lambda[3]+Lambda[4]) + (3.0/2.0)*(b_three+b_four) + (1.0/(16.0*pow(PI,2)))*(i*PI-1.)*pow((Lambda[3]+Lambda[4]),2);
+      std::complex<double> B30 = -(Lambda[3]+Lambda[4]) + (3.0/2.0)*(b_three+b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]+Lambda[4]),2);
       B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
       
       // eigenvalues
-      std::complex<double> a00_even_plus = 1.0/(32.0*PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
-      std::complex<double> a00_even_minus = 1.0/(32.0*PI) * ((B1 + B2) - sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
-      std::complex<double> a00_odd_plus = 1.0/(32.0*PI) * (2.*B4 + 2.*B6);
-      std::complex<double> a00_odd_minus = 1.0/(32.0*PI) * (2.*B4 - 2.*B6);
-      std::complex<double> a01_even_plus = 1.0/(32.0*PI) * (B7 + B8 + sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
-      std::complex<double> a01_even_minus = 1.0/(32.0*PI) * (B7 + B8 - sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
-      std::complex<double> a01_odd_plus = 1.0/(32.0*PI) * (2.*B13 + 2.*B15);
-      std::complex<double> a01_odd_minus = 1.0/(32.0*PI) * (2.*B13 - 2.*B15);
-      std::complex<double> a10_odd = 1.0/(32.0*PI) * (2.*B19);
-      std::complex<double> a11_even_plus = 1.0/(32.0*PI) * (B20 + B21 + sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
-      std::complex<double> a11_even_minus = 1.0/(32.0*PI) * (B20 + B21 - sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
-      std::complex<double> a11_odd = 1.0/(32.0*PI) * (2.*B30);
+      std::complex<double> a00_even_plus = 1.0/(32.0*M_PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
+      std::complex<double> a00_even_minus = 1.0/(32.0*M_PI) * ((B1 + B2) - sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
+      std::complex<double> a00_odd_plus = 1.0/(32.0*M_PI) * (2.*B4 + 2.*B6);
+      std::complex<double> a00_odd_minus = 1.0/(32.0*M_PI) * (2.*B4 - 2.*B6);
+      std::complex<double> a01_even_plus = 1.0/(32.0*M_PI) * (B7 + B8 + sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
+      std::complex<double> a01_even_minus = 1.0/(32.0*M_PI) * (B7 + B8 - sqrt(pow((B7-B8),2) + 4.*pow(B9,2)));
+      std::complex<double> a01_odd_plus = 1.0/(32.0*M_PI) * (2.*B13 + 2.*B15);
+      std::complex<double> a01_odd_minus = 1.0/(32.0*M_PI) * (2.*B13 - 2.*B15);
+      std::complex<double> a10_odd = 1.0/(32.0*M_PI) * (2.*B19);
+      std::complex<double> a11_even_plus = 1.0/(32.0*M_PI) * (B20 + B21 + sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
+      std::complex<double> a11_even_minus = 1.0/(32.0*M_PI) * (B20 + B21 - sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
+      std::complex<double> a11_odd = 1.0/(32.0*M_PI) * (2.*B30);
 
       const double unitarity_upper_limit = 0.5;
       const double sigma = 1;
@@ -2712,7 +2712,7 @@ namespace Gambit
         std::vector<double> lambdas = {lambda_1,lambda_2,lambda_3,lambda_4,lambda_5};
         double check_pertubativity = true;
         for(int i=0; i<int(lambdas.size()); i++) {
-          if(abs(lambdas[i]) > 4*PI) check_pertubativity = false ;
+          if(abs(lambdas[i]) > 4*M_PI) check_pertubativity = false ;
         }
 
         if(check_pertubativity) {

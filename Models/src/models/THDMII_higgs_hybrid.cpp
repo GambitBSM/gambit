@@ -56,8 +56,8 @@ void MODEL_NAMESPACE::THDMII_higgs_hybrid_to_THDMII(const ModelParameters &myP, 
 
   const double ba = asin(sba);
   // check that beta-alpha is in the required quadrant
-  if (ba < -M_PI/2) ba + M_PI/2;
-  if (ba > M_PI/2) ba - M_PI/2;
+  if (ba < -M_PI/2) ba += M_PI/2;
+  if (ba > M_PI/2) ba -= M_PI/2;
   const double cba = cos(ba);
   const double s2ba = 2.0*sba*cba;
   const double GF = Dep::SMINPUTS->GF;
