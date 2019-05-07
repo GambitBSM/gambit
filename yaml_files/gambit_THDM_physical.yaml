@@ -145,28 +145,32 @@ ObsLikes:
       purpose: LogLike
 
     - capability: b2sll_LL
-      funtion: b2sll_likelihood
+      function: b2sll_likelihood
       purpose: LogLike
 
     - capability: b2ll_LL
-      funtion: b2ll_likelihood
+      function: b2ll_likelihood
       purpose: LogLike
 
     - capability: SL_LL
-      funtion: SL_likelihood
+      function: SL_likelihood
       purpose: LogLike
 
     - purpose:    LogLike
       capability: LUV_LL
 
     - capability: deltaMB_LL
-      funtion: deltaMB_likelihood
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: deltaMBd_LL
+      function: deltaMBd_likelihood
       purpose: LogLike
 
     ## PrecisionBit Liklelihood
 
     - capability: lnL_gm2
-      funtion: lnL_gm2_chi2
+      function: lnL_gm2_chi2
       purpose: LogLike
 
     ## LHC & LEP likelihoods
