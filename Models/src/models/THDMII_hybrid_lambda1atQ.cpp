@@ -14,6 +14,7 @@
 ///  *********************************************
 #include <string>
 #include <vector>
+#include <math.h>
 
 #include "gambit/Models/model_macros.hpp"
 #include "gambit/Models/model_helpers.hpp"
@@ -49,8 +50,8 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
   const double beta = atan(tanb);
   const double ba = asin(sba);
   // check that beta-alpha is in the required quadrant
-  if (ba < -PI/2) ba + PI/2;
-  if (ba > PI/2) ba - PI/2;
+  if (ba < -M_PI/2) ba + M_PI/2;
+  if (ba > M_PI/2) ba - M_PI/2;
   const double alpha = beta - ba;
   const double cb = cos(beta), sb = sin(beta), ca = cos(alpha), sa = sin(alpha), cotb = 1./tanb;
   const double GF = Dep::SMINPUTS->GF;
