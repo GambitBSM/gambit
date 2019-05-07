@@ -96,7 +96,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 2500
+      NP: 10000
       convthresh: 1e-4
       verbosity: 1
 
@@ -407,6 +407,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_physical/"
   enable_testing: true
   debug: true

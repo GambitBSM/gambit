@@ -7,7 +7,7 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII_hybrid_lambda2:
+    THDMII_hybrid_lambda2atQ:
         m_h:
             range: [125.0, 126.0]
             prior_type: flat
@@ -37,10 +37,10 @@ Parameters:
         m12_2:
             range: [-50000, 700000]
             prior_type: flat
-        # Qin:
-        #     fixed_value: 91.1876 # Qin = mZ
-        # QrunTo:
-        #     fixed_value: 750
+        Qin:
+            fixed_value: 91.1876 # Qin = mZ
+        QrunTo:
+            fixed_value: 750
 
 ##############################
 # Prior setup
@@ -100,7 +100,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 2000
+      NP: 10000
       convthresh: 1e-4
       verbosity: 1
 
@@ -411,6 +411,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug/"
+  default_output_path: "runs/THDM_hybrid_lambda2/"
   enable_testing: true
   debug: true
