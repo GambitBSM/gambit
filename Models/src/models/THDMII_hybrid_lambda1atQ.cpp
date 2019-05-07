@@ -48,7 +48,7 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
       m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
 
   const double beta = atan(tanb);
-  const double ba = asin(sba);
+  double ba = asin(sba);
   // check that beta-alpha is in the required quadrant
   if (ba < -M_PI/2) ba += M_PI/2;
   if (ba > M_PI/2) ba -= M_PI/2;

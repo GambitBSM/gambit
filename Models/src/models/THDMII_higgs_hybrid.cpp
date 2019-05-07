@@ -54,7 +54,7 @@ void MODEL_NAMESPACE::THDMII_higgs_hybrid_to_THDMII(const ModelParameters &myP, 
   basis["Lambda5"] = myP.getValue("Lambda_5");
   basis["Lambda7"] = myP.getValue("Lambda_7");
 
-  const double ba = asin(sba);
+  double ba = asin(sba);
   // check that beta-alpha is in the required quadrant
   if (ba < -M_PI/2) ba += M_PI/2;
   if (ba > M_PI/2) ba -= M_PI/2;
