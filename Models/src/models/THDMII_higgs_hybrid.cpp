@@ -1,7 +1,7 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  Translation functions for THDMII_hybrid
+///  Translation functions for THDMII_higgs_hybrid
 ///
 ///  *********************************************
 ///
@@ -20,7 +20,7 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMII_hybrid.hpp"
+#include "gambit/Models/models/THDMII_higgs_hybrid.hpp"
 #include "gambit/Models/models/THDMII.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
@@ -32,14 +32,14 @@
 using namespace Gambit::Utils;
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMII_hybrid
+#define MODEL  THDMII_higgs_hybrid
 #define FRIEND THDMII
 
 // Translation function definition
-void MODEL_NAMESPACE::THDMII_hybrid_to_THDMII(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMII_higgs_hybrid_to_THDMII(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid --> THDMII"<<LogTags::info<<EOM;
+  logger()<<"Running interpret_as_FRIEND calculations for THDMII_higgs_hybrid --> THDMII"<<LogTags::info<<EOM;
 
   const SMInputs& sminputs = *Dep::SMINPUTS;
   std::map<std::string, double> basis = SpecBit::create_empty_THDM_basis();
@@ -53,7 +53,11 @@ void MODEL_NAMESPACE::THDMII_hybrid_to_THDMII(const ModelParameters &myP, ModelP
   basis["Lambda5"] = myP.getValue("Lambda_5");
   basis["Lambda7"] = myP.getValue("Lambda_7");
 
-  const double cba = sqrt(1-sba*sba);
+  const double ba = asin(sba);
+  // check that beta-alpha is in the required quadrant
+  if (ba < -PI/2) ba + PI/2;
+  if (ba > PI/2) ba - PI/2;
+  const double cba = cos(ba);
   const double s2ba = 2.0*sba*cba;
   const double GF = Dep::SMINPUTS->GF;
   const double v2 = 1./(sqrt(2)*GF);
@@ -77,7 +81,7 @@ void MODEL_NAMESPACE::THDMII_hybrid_to_THDMII(const ModelParameters &myP, ModelP
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
-    std::cout << "THDMII_hybrid parameters:" << myP << std::endl;
+    std::cout << "THDMII_higgs_hybrid parameters:" << myP << std::endl;
     std::cout << "THDMII parameters   :" << targetP << std::endl;
   #endif
 }

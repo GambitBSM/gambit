@@ -14,8 +14,8 @@
 //
 //  *********************************************
 
-#ifndef __THDMII_hybrid_hpp__
-#define __THDMII_hybrid_hpp__
+#ifndef __THDMII_hybrid_lambda1_hpp__
+#define __THDMII_hybrid_lambda1_hpp__
 
 // Must include models which are targets of translation functions
 #include "gambit/Models/models/THDMII.hpp"
@@ -25,16 +25,18 @@ namespace Gambit {
   class SMInputs;
 }
 
-#define MODEL THDMII_hybrid
+#define MODEL THDMII_hybrid_lambda1
 #define FRIEND THDMII
   START_MODEL
   
-  DEFINEPARS(m_h,m_H,Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
-  DEFINEPARS(tanb, sba)
+  DEFINEPARS(m_h, sba)
+  DEFINEPARS(lambda_2,lambda_3,lambda_4,lambda_5)
+  DEFINEPARS(lambda_6,lambda_7,m12_2)
+  DEFINEPARS(tanb)
   
-  INTERPRET_AS_X_FUNCTION(FRIEND, THDMII_hybrid_to_THDMII)
+  INTERPRET_AS_X_FUNCTION(FRIEND, THDMII_hybrid_lambda1_to_THDMII)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
-  // Translation functions defined in THDMII_hybrid.cpp
+  // Translation functions defined in THDMII_hybrid_lambda1.cpp
 #undef FRIEND
 #undef MODEL
 
