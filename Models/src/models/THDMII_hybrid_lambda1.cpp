@@ -66,7 +66,7 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1_to_THDMII(const ModelParameters &myP
   targetP.setValue("lambda_5", myP.getValue("lambda_5") );
   targetP.setValue("lambda_6", myP.getValue("lambda_6") );
   targetP.setValue("lambda_7", myP.getValue("lambda_7") );
-  targetP.setValue("m12_2", , m12_2 );
+  targetP.setValue("m12_2", m12_2 );
   targetP.setValue("tanb", tanb );
 
   // Done! Check that everything is ok if desired.
