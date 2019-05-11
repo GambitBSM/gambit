@@ -405,6 +405,12 @@ namespace Gambit
         }
       }
       else {
+        // run Higgs bounds 'v4'
+        double obsratio[6];
+        int HBresult[6], chan[6], ncombined[6];
+
+        BEreq::run_HiggsBounds_full(HBresult,chan,obsratio,ncombined);
+
         // extract the LEP chisq
         double chisq_withouttheory,chisq_withtheory;
         int chan2;
