@@ -376,14 +376,34 @@ namespace Gambit
         " BR_hjinvisible " << ModelParam.BR_hjinvisible[0] << std::endl;
       #endif
 
-      // run Higgs bounds 'classic'
-       double obsratio;
-       int HBresult, chan, ncombined;
+      bool use_classic = false;
 
-      BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
-      
-      // previous routine to find likelihood
-      /*
+      if (use_classic) {
+        // run Higgs bounds 'classic'
+        double obsratio;
+        int HBresult, chan, ncombined;
+
+        BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
+
+        #ifdef COLLIDERBIT_DEBUG
+          std::cout << "HB output: " << std::endl << \
+          "hbres: " << HBresult << std::endl << \
+          "hbchan: "<< chan << std::endl << \
+          "hbobs: " << obsratio << std::endl << \
+          "hbcomb: " << ncombined << std::endl;
+        #endif
+
+        if (HBresult != -1) {
+            if (obsratio < 1.0) result = 0.0;
+            else result = Stats::gaussian_upper_limit((obsratio - 1.0),0.0,0.0,1.0,false);
+        }
+        else {
+          std::ostringstream err;
+          err << "HB_LEP_Likelihood is invalid." << std::endl;
+          invalid_point().raise(err.str());
+        }
+      }
+      else {
         // extract the LEP chisq
         double chisq_withouttheory,chisq_withtheory;
         int chan2;
@@ -400,25 +420,6 @@ namespace Gambit
           invalid_point().raise(err.str());
         } 
         result = -0.5*chisq_withouttheory;
-      */
-
-      #ifdef COLLIDERBIT_DEBUG
-        std::cout << "HB output: " << std::endl << \
-        "hbres: " << HBresult << std::endl << \
-        "hbchan: "<< chan << std::endl << \
-        "hbobs: " << obsratio << std::endl << \
-        "hbcomb: " << ncombined << std::endl;
-      #endif
-
-      if (HBresult != -1) {
-      		// if (obsratio<1.0) result = 0.0;
-      		// else result = -pow((obsratio - 1.0),2);
-          result = -pow((obsratio),2);
-      }
-      else {
-        std::ostringstream err;
-        err << "HB_LEP_Likelihood is invalid." << std::endl;
-        invalid_point().raise(err.str());
       }
       
     }

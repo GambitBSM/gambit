@@ -2084,17 +2084,13 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 40" << endl;// Get Yukawa Type & scale from YAML
       std::vector<double> lambda(8);
       double m122, tanb;
+      const double sigma = 1.;
+      double error = 0.;
 
       container.THDM_object->get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tanb);
 
       //do the full check first - if fails continue with chi^2 calculation to guide scanner
-      if (container.THDM_object->check_stability()){
-        return 0.0;
-      }
-
-        double error = 0.;
-        const double sigma = 1.;
-
+      if (!container.THDM_object->check_stability()) {
         if (lambda[1] < 0.0) error += abs(lambda[1]);
         if (lambda[2] < 0.0) error += abs(lambda[2]);
 
@@ -2110,7 +2106,9 @@ namespace Gambit
               if (lambda[3]+lambda[4]-lambda[5]< -sqrt(lambda[1]*lambda[2])) error += abs(lambda[3]+lambda[4]-lambda[5] - (-sqrt(lambda[1]*lambda[2])));
             }
         }
-        return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
+      }
+
+      return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
     }
 
     double alignment_likelihood_THDM(THDM_spectrum_container& container) { 
