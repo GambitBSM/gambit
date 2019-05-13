@@ -16,11 +16,14 @@
 ///
 ///  *********************************************
 
+// C/C++ headers
 #include <string>
 #include <sstream>
 #include <cmath>
 #include <complex>
 #include <math.h>
+
+// GSL headers
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_permutation.h>
@@ -31,8 +34,13 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 
+// Eigen headers
 #include <Eigen/Eigenvalues>
 #include <Eigen/Dense> 
+
+// intorduce FlavBit helper routines for likelihood calculations
+#include "gambit/FlavBit/FlavBit_types.hpp"
+#include "gambit/FlavBit/flav_utils.hpp"
 
 // TODO: Check headers
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -50,6 +58,7 @@
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "flexiblesusy/src/spectrum_generator_settings.hpp"
+
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/src/ew_input.hpp"
 #include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
@@ -59,7 +68,6 @@
 #include "flexiblesusy/models/THDM_lepton/THDM_lepton_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
-
 
 #define L_MAX 1e50
 
@@ -83,6 +91,7 @@ namespace Gambit
     using namespace LogTags;
     using namespace flexiblesusy;
     using namespace std;
+    namespace ublas = boost::numeric::ublas;
 
     enum chi_options {less_than, greater_than, distance_from, observable, bound};
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
@@ -2133,15 +2142,55 @@ namespace Gambit
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
-      double loglike = 0.0;
-      loglike +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
-      loglike +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
-      loglike +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
-      loglike +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
-      loglike +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
-      loglike +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
+      const int dim = 6;
 
-      return loglike;
+      //calculating a diff
+      std::vector<double> value_exp = {S,T,U,V,W,X};
+      std::vector<double> value_th = {0.014, 0.03, 0.06, 0.30, 0.11, 0.38};
+      std::vector<double> err = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
+      std::vector<double> diff;
+
+      boost::numeric::ublas::matrix<double> cov_exp(dim,dim), cov_th(dim,dim), cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+
+      // fill with zeros
+      for (int i=0; i< 3; i++) {
+        for (int j=0; j<3; j++) corr(i,j) = 0.0;
+      }
+
+      corr(0,0) = 1.0; corr(0,1) = 0.9; corr(0,2) = -0.59;
+      corr(1,0) = 0.9; corr(1,1) = 1.0; corr(1,2) = -0.83; 
+      corr(2,0) = -0.59; corr(2,1) = -0.83; corr(2,2) = 1.0;
+      corr(3,3) = 1.0; 
+      corr(4,4) = 1.0; 
+      corr(5,5) = 1.0;
+
+      // adding theory and experimental covariance
+      cov = cov_exp + cov_th;
+
+      for (int i=0; i< 3; i++) {
+        for (int j=0; j<3; j++) cov(i,j)=err[i]*err[j]*corr(i,j);
+      }
+
+      for (int i=0;i<dim;++i) diff.push_back(value_exp[i] - value_th[i]);
+
+      FlavBit::InvertMatrix(cov, cov_inv);
+
+      // calculating the chi2
+      double chi2=0;
+
+      for (int i=0; i < dim; ++i) {
+        for (int j=0; j< dim; ++j) chi2+= diff[i] * cov_inv(i,j)*diff[j];
+      }
+
+      // double loglike = 0.0;
+      // loglike +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
+      // loglike +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
+      // loglike +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
+      // loglike +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
+      // loglike +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
+      // loglike +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
+
+      return -0.5*chi2;;
     }
 
     double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
