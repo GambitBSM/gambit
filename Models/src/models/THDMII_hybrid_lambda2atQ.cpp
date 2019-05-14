@@ -45,7 +45,7 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda2atQ_to_THDMIIatQ(const ModelParameter
   const SMInputs& sminputs = *Dep::SMINPUTS;
 
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
+      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda_1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -57,8 +57,8 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda2atQ_to_THDMIIatQ(const ModelParameter
   const double GF = Dep::SMINPUTS->GF;
   const double v2 = 1./(sqrt(2)*GF);
 
-  const double lambda_1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+  const double lambda_2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda_1", lambda_1 );
   targetP.setValue("lambda_2", lambda_2 );

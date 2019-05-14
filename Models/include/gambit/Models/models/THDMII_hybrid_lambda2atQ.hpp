@@ -30,7 +30,7 @@ namespace Gambit {
   START_MODEL
   
   DEFINEPARS(m_h, sba)
-  DEFINEPARS(lambda_2,lambda_3,lambda_4,lambda_5)
+  DEFINEPARS(lambda_1,lambda_3,lambda_4,lambda_5)
   DEFINEPARS(lambda_6,lambda_7,m12_2)
   DEFINEPARS(tanb)
 

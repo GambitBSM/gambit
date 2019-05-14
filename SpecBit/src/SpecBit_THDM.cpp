@@ -2147,10 +2147,13 @@ namespace Gambit
       //calculating a diff
       std::vector<double> value_exp = {S,T,U,V,W,X};
       std::vector<double> value_th = {0.014, 0.03, 0.06, 0.30, 0.11, 0.38};
-      std::vector<double> err = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
-      std::vector<double> diff;
+      std::vector<double> error;
 
-      boost::numeric::ublas::matrix<double> cov_exp(dim,dim), cov_th(dim,dim), cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+      for (int i=0;i<dim;++i) error.push_back(value_exp[i] - value_th[i]);
+
+      // calculating the covariance matrix
+      boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+      std::vector<double> sigma = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
 
       // fill with zeros
       for (int i=0; i< 3; i++) {
@@ -2164,33 +2167,18 @@ namespace Gambit
       corr(4,4) = 1.0; 
       corr(5,5) = 1.0;
 
-      // adding theory and experimental covariance
-      cov = cov_exp + cov_th;
-
       for (int i=0; i< 3; i++) {
-        for (int j=0; j<3; j++) cov(i,j)=err[i]*err[j]*corr(i,j);
+        for (int j=0; j<3; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
       }
-
-      for (int i=0;i<dim;++i) diff.push_back(value_exp[i] - value_th[i]);
-
-      FlavBit::InvertMatrix(cov, cov_inv);
 
       // calculating the chi2
       double chi2=0;
-
+      FlavBit::InvertMatrix(cov, cov_inv);
       for (int i=0; i < dim; ++i) {
-        for (int j=0; j< dim; ++j) chi2+= diff[i] * cov_inv(i,j)*diff[j];
+        for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
       }
 
-      // double loglike = 0.0;
-      // loglike +=  Stats::gaussian_loglikelihood(S,0.014,0.0,0.10, true);
-      // loglike +=  Stats::gaussian_loglikelihood(T,0.03,0.0,0.11, true);
-      // loglike +=  Stats::gaussian_loglikelihood(U,0.06,0.0,0.10,true); // 0.2
-      // loglike +=  Stats::gaussian_loglikelihood(V,0.30,0.0,0.38, true); // 0.3
-      // loglike +=  Stats::gaussian_loglikelihood(W,0.11,0.0,4.7, true);
-      // loglike +=  Stats::gaussian_loglikelihood(X,0.38,0.0,0.59, true); // 0.2
-
-      return -0.5*chi2;;
+      return -0.5* chi2;;
     }
 
     double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
