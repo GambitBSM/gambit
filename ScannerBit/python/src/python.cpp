@@ -202,11 +202,11 @@ PYBIND11_MODULE(ScannerBit, m)
     .def("keys", [](py::handle o) -> py::list
     {
         return py::list(py::iter(o));
-    })
+    }, py::keep_alive<0, 1>())
     .def("items", [](py::handle o) -> py::list
     {
         return py::list(o.begin());
-    })
+    }, py::keep_alive<0, 1>())
     .def("values", [](py::handle o) -> py::list
     {
         py::list l;
@@ -214,7 +214,7 @@ PYBIND11_MODULE(ScannerBit, m)
             l.append(i.second);
         
         return l;
-    });
+    }, py::keep_alive<0, 1>());
     
     py::implicitly_convertible<py::dict, std::unordered_map<std::string, double>>();
     

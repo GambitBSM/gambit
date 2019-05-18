@@ -62,7 +62,7 @@ namespace Gambit
                 {
                     node = pyconvert<int>(o);
                 }
-                else if (type == "str")
+                else if (type == "str" || type == "unicode")
                 {
                     node = pyconvert<std::string>(o);
                 }
