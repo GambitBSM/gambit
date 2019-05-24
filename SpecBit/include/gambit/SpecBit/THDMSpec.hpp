@@ -347,7 +347,7 @@ namespace Gambit
       // yukawa couplings
       // TODO: find a 'nicer' way to do this
       template <class Model>
-      double get_yukawa_coupling(const Model& model) {
+      double get_yukawa_type(const Model& model) {
          std::string spec_class_type = typeid(model).name();
          if (spec_class_type == "N12flexiblesusy11THDM_I_slhaINS_6THDM_IINS_9Two_scaleEEEEE"){
             return 1;
@@ -797,7 +797,7 @@ namespace Gambit
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             tmp_map["tanb"]= &get_tanb<Model>;
             tmp_map["alpha"]= &get_alpha<Model>;
-            tmp_map["yukawaCoupling"]= &get_yukawa_coupling<Model>;
+            tmp_map["yukawaCoupling"]= &get_yukawa_type<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
          }
 
