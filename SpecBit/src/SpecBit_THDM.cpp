@@ -2156,8 +2156,8 @@ namespace Gambit
       std::vector<double> sigma = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
 
       // fill with zeros
-      for (int i=0; i< 3; i++) {
-        for (int j=0; j<3; j++) corr(i,j) = 0.0;
+      for (int i=0; i< dim; i++) {
+        for (int j=0; j<dim; j++) corr(i,j) = 0.0;
       }
 
       corr(0,0) = 1.0; corr(0,1) = 0.9; corr(0,2) = -0.59;
@@ -2167,8 +2167,8 @@ namespace Gambit
       corr(4,4) = 1.0; 
       corr(5,5) = 1.0;
 
-      for (int i=0; i< 3; i++) {
-        for (int j=0; j<3; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
+      for (int i=0; i< dim; i++) {
+        for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
       }
 
       // calculating the chi2
