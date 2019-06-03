@@ -114,9 +114,6 @@ ObsLikes:
     ## theoretical likelihoods
 
     - purpose:    LogLike
-      capability: global_minimum_discriminant_likelihood
-      
-    - purpose:    LogLike
       capability: unitarity_likelihood_THDM
 
     - purpose:    LogLike
@@ -269,6 +266,18 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
+    - capability: sba
+      function: obs_sba
+      purpose: Observable
+
+    - capability: cba
+      function: obs_cba
+      purpose: Observable
+
+    - capability: vacuum_global_minimum
+      function: check_vacuum_global_minimum
+      purpose: Observable  
+      
 Rules:
 
     - capability: THDM_spectrum

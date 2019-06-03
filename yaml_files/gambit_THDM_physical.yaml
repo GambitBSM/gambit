@@ -276,6 +276,14 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
+    - capability: sba
+      function: obs_sba
+      purpose: Observable
+
+    - capability: cba
+      function: obs_cba
+      purpose: Observable
+
 Rules:
 
     - capability: THDM_spectrum

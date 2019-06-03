@@ -1671,8 +1671,57 @@ namespace Gambit
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
-// Likelihood Functions
+    // Warnings & checks
 
+    int check_Z2(const double lambda6, const double lambda7, const std::string calculation_name) {
+      if (lambda6!=0.0 || lambda7!=0.0) {
+        std::ostringstream msg;
+        msg << "SpecBit warning (fatal): " << calculation_name << " is only compatible with Z2 conserving models. \
+        This calculation will terminate and return zero." << std::endl;
+        SpecBit_warning().raise(LOCAL_INFO,msg.str());
+        std::cerr << msg.str();
+        return -1;
+      }
+      return 0;
+    }
+
+    void print_calculation_at_scale_warning(const std::string calculation_name) {
+      std::cerr << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation." << std::endl;
+    }
+
+    void nan_warning(std::string var_name) {
+       std::ostringstream msg;
+       msg << "SpecBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
+       SpecBit_warning().raise(LOCAL_INFO,msg.str());
+       std::cerr << msg.str();
+    }
+
+    void check_nan(std::complex<double> var, std::string var_name) {
+      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
+    }
+
+    void check_nan(double var, std::string var_name) {
+      if (std::isnan(var)) nan_warning(var_name);
+    }
+
+    // Helpers
+
+    double specbit_function_between_scales_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
+      THDM_spectrum_container container;
+      init_THDM_spectrum_container(container, spec, yukawa_type);
+      const double loglike = specbit_function(container);
+      double loglike_at_Q = -L_MAX;
+      if (scale>0.0) {
+        THDM_spectrum_container container_at_scale;
+        init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
+        loglike_at_Q = specbit_function(container_at_scale);
+      }
+      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      return std::max(loglike,loglike_at_Q);
+    }
+
+
+    // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container);
@@ -1680,25 +1729,8 @@ namespace Gambit
     double stability_likelihood_THDM(THDM_spectrum_container& container);
     double alignment_likelihood_THDM(THDM_spectrum_container& container);
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
-    double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container);
-
-    double get_likelihood(std::function<double(THDM_spectrum_container&)> likelihood_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
-      THDM_spectrum_container container;
-      init_THDM_spectrum_container(container, spec, yukawa_type);
-      const double loglike = likelihood_function(container);
-      double loglike_at_Q = -L_MAX;
-      if (scale>0.0) {
-        THDM_spectrum_container container_at_scale;
-        init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
-        loglike_at_Q = likelihood_function(container_at_scale);
-      }
-      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
-      return std::max(loglike,loglike_at_Q);
-    }
-
-    void print_constraint_at_scale_warning(const std::string constraint_name) {
-      std::cerr << "SpecBit warning (non-fatal): requested " << constraint_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular likelihood." << std::endl;
-    }
+    // Observable Functions (forrward declatations)
+    double global_minimum_discriminant_THDM(THDM_spectrum_container& container);
 
     void get_unitarity_likelihood_THDM(double& result) {
       using namespace Pipes::get_unitarity_likelihood_THDM;
@@ -1710,10 +1742,10 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_unitarity_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = unitarity_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_NLO_unitarity_likelihood_THDM(double& result) {
@@ -1726,10 +1758,10 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = NLO_unitarity_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_perturbativity_likelihood_THDM(double& result) {
@@ -1742,7 +1774,7 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_perturbativity_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_perturbativity_likelihood_THDM");
       }
       // perturbativity can either be checked at the level of the generic potential couplings
       // or then all four point Higgs interactions in the Higgs basis. The latter is default
@@ -1758,7 +1790,7 @@ namespace Gambit
         }
       }
       
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_stability_likelihood_THDM(double& result) {
@@ -1771,10 +1803,10 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_stability_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_stability_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = stability_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_alignment_likelihood_THDM(double& result) {
@@ -1787,10 +1819,10 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_alignment_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = alignment_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_oblique_parameters_likelihood_THDM(double& result) {
@@ -1803,14 +1835,14 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_oblique_parameters_likelihood_THDM");
+        else print_calculation_at_scale_warning("get_oblique_parameters_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = oblique_parameters_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
-    void get_global_minimum_discriminant_likelihood(double& result) {
-      using namespace Pipes::get_global_minimum_discriminant_likelihood;
+    void check_vacuum_global_minimum(int& result) {
+      using namespace Pipes::check_vacuum_global_minimum;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
@@ -1819,10 +1851,10 @@ namespace Gambit
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_constraint_at_scale_warning("get_global_minimum_discriminant_likelihood");
+        else print_calculation_at_scale_warning("check_vacuum_global_minimum");
       }
-      std::function<double(THDM_spectrum_container&)> likelihood_function = global_minimum_discriminant_likelihood_THDM;
-      result = get_likelihood(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      std::function<double(THDM_spectrum_container&)> check_discriminant_function = global_minimum_discriminant_THDM;
+      result = specbit_function_between_scales_helper(check_discriminant_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     double unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -1933,7 +1965,11 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 31" << endl;
       const std::complex<double> i(0.0,1.0);
 
-      std::vector<double> Lambda = get_lambdas_from_spectrum(container);
+      const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
+
+      // check that model is Z2 conserving
+      if (check_Z2(Lambda[6], Lambda[7], "NLO_unitarity_likelihood_THDM") < 0.0) return 0.0;
+
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a= container.he->get(Par::dimensionless, "alpha");
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
 
@@ -2178,12 +2214,11 @@ namespace Gambit
         for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
       }
 
-      return -0.5* chi2;;
+      return -0.5*chi2;;
     }
 
-    double global_minimum_discriminant_likelihood_THDM(THDM_spectrum_container& container) { 
+    double global_minimum_discriminant_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 59" << endl;
-      // this is only compatible with a Z2 conserving model
       // -----------
       //from arXiv 1303.5098v1
       //"Our vacuum is the global minimum of the potential if and only if D > 0
@@ -2203,14 +2238,7 @@ namespace Gambit
       const double m12_2 = container.he->get(Par::mass1, "m12_2");
 
       // check that model is Z2 conserving
-      if (lambda6!=0.0 || lambda7!=0.0) {
-        std::ostringstream msg;
-        msg << "SpecBit warning (non-fatal): global_minimum_discriminant_likelihood_THDM is only compatible with Z2 conserving models. \
-        This likelikehood will terminate and return zero." << std::endl;
-        SpecBit_warning().raise(LOCAL_INFO,msg.str());
-        std::cerr << msg.str();
-        return 0.0;
-      }
+      if (check_Z2(lambda6, lambda7, "global_minimum_discriminant_THDM") < 0.0) return 0.0;
 
       // set up required quantities
       const double ctb = 1./tb;
@@ -2231,16 +2259,8 @@ namespace Gambit
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
       const complex<double> discriminant = m12_2*(m11_2 - pow(k,2)*m22_2)*(tb-k);
 
-      const double sigma = 1.;
-      double error = 0.0;
-    
-      // calculate error & loglike
-      if (discriminant.real() < 0.0) error += abs(discriminant.real());
-      if (discriminant.imag() < 0.0) error += abs(discriminant.imag());
-      const double loglike = Stats::gaussian_lower_limit(error,0.0,0.0,sigma,false); 
-
       // check for NaN - should *not* happen but has crashed scans before. Most probable culprit is k when lambda_2 = 0. TODO: find workaround
-      if (std::isnan(loglike)) {
+      if (std::isnan(discriminant.real()) || std::isnan(discriminant.imag()) ) {
         std::ostringstream msg;
         msg << "SpecBit warning (non-fatal): global_minimum_discriminant_likelihood_THDM is returning NaN. Ivnvalidating point. Reporting calculated values:" \
         << " k= " << k << ", m11^2 = "<< m11_2 << ", m22^2 = "<< m22_2 << std::endl;
@@ -2248,23 +2268,12 @@ namespace Gambit
         std::cerr << msg.str();
         invalid_point().raise(msg.str());
       }
+    
+      // calculate error & loglike
+      if (discriminant.real() < 0.0) return 0;
+      if (discriminant.imag() < 0.0) return 0;
 
-      return loglike;
-    }
-
-    void nan_warning(std::string var_name) {
-       std::ostringstream msg;
-       msg << "SpecBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
-       SpecBit_warning().raise(LOCAL_INFO,msg.str());
-       std::cerr << msg.str();
-    }
-
-    void check_nan(std::complex<double> var, std::string var_name) {
-      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
-    }
-
-    void check_nan(double var, std::string var_name) {
-      if (std::isnan(var)) nan_warning(var_name);
+      return 1;
     }
 
     enum thdmc_couplings_purpose{full, HiggsBounds, SM_like};
@@ -2635,6 +2644,21 @@ namespace Gambit
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::dimensionless, "alpha");
+      }
+
+      void obs_sba(double& result) {
+        using namespace Pipes::obs_sba;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        result = he->get(Par::dimensionless, "sba");
+      }
+
+      void obs_cba(double& result) {
+        using namespace Pipes::obs_cba;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double sba = he->get(Par::dimensionless, "sba");
+        result = sqrt(1-pow(sba,2));
       }
 
 

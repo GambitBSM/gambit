@@ -135,6 +135,22 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY sba
+START_CAPABILITY
+  #define FUNCTION obs_sba
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY cba
+START_CAPABILITY
+  #define FUNCTION obs_cba
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
 #define CAPABILITY lambda_1
 START_CAPABILITY
   #define FUNCTION obs_lambda_1
@@ -361,10 +377,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY global_minimum_discriminant_likelihood
+#define CAPABILITY vacuum_global_minimum
 START_CAPABILITY
-  #define FUNCTION get_global_minimum_discriminant_likelihood
-  START_FUNCTION(double)
+  #define FUNCTION check_vacuum_global_minimum
+  START_FUNCTION(int)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
