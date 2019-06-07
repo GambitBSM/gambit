@@ -62,14 +62,14 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: square_grid
+  use_scanner: random
 
   scanners:
     square_grid:
       plugin: square_grid
       version: ">=1.0"
       like: LogLike
-      grid_pts: 10 #NxN grid
+      grid_pts: 1000 #NxN grid
 
     random:
      plugin: random
@@ -89,7 +89,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 1000
+      NP: 10000
       convthresh: 1e-4
       verbosity: 1
 
@@ -98,20 +98,16 @@ Scanner:
       aux_printer_stats_options:
       aux_printer_live_options:
 
-###############################
-# Observables of interest
-###########################
-
 ObsLikes:
 
-    - purpose:    LogLike
-      capability: global_minimum_discriminant_likelihood
-      
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
+    ###########################
+    # Likelihoods
+    ###########################
+
+    ## theoretical likelihoods
 
     - purpose:    LogLike
-      capability: alignment_likelihood_THDM
+      capability: unitarity_likelihood_THDM
 
     - purpose:    LogLike
       capability: perturbativity_likelihood_THDM
@@ -125,38 +121,54 @@ ObsLikes:
     - purpose:    LogLike
       capability: oblique_parameters_likelihood_THDM
     
-    # - capability:  b2sgamma_LL
-    #   function: b2sgamma_likelihood
-    #   purpose: LogLike
-    
-    # - capability: b2sll_LL
-    #   funtion: b2sll_likelihood
-    #   purpose: LogLike
+    ## flavor physics likelihoods
 
-    # - capability: SL_LL
-    #   funtion: SL_likelihood
-    #   purpose: LogLike
+    - capability: b2sgamma_LL
+      function: b2sgamma_likelihood
+      purpose: LogLike
 
+    - capability: b2sll_LL
+      function: b2sll_likelihood
+      purpose: LogLike
 
-    # Calculate the LEP Higgs likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
 
-    # - purpose:    LogLike
-    #   capability: LEP_Higgs_LogLike
-    #   function: calc_HB_LEP_LogLike
+    - capability: SL_LL
+      function: SL_likelihood
+      purpose: LogLike
 
-    #  Calculate the LHC Higgs likelihood
+    - purpose:    LogLike
+      capability: LUV_LL
+
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: deltaMBd_LL
+      function: deltaMBd_likelihood
+      purpose: LogLike
+
+    ## PrecisionBit Liklelihood
+
+    - capability: lnL_gm2
+      function: lnL_gm2_chi2
+      purpose: LogLike
+
+    ## LHC & LEP likelihoods
+
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
+      function: calc_HB_LEP_LogLike
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
       function: calc_HS_LHC_LogLike
 
-    # - purpose:    LogLike
-    #   capability: higgs_mass_likelihood_THDM
-    #   function: higgs_mass_likelihood
-
-
-  # ----- observables ----
-
+    #################
+    # Observables
+    #################
 
     ## physical basis
 
@@ -244,20 +256,34 @@ ObsLikes:
       function: obs_alpha
       purpose: Observable
 
+    - capability: sba
+      function: obs_sba
+      purpose: Observable
+
+    - capability: cba
+      function: obs_cba
+      purpose: Observable
+
+    - capability: vacuum_global_minimum
+      function: check_vacuum_global_minimum
+      purpose: Observable  
+      
 Rules:
 
     - capability: THDM_spectrum
       function: get_THDM_spectrum
+      options:
+        check_perturbativity: true
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: true
+        check_all_scales: false
 
     - capability: unitarity_likelihood_THDM
       function: get_unitarity_likelihood_THDM
@@ -268,21 +294,16 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
-    
-    - capability: alignment_likelihood_THDM
-      function: get_alignment_likelihood_THDM
-      options:
-        check_all_scales: false
 
     - capability: oblique_parameters_likelihood_THDM
       function: get_oblique_parameters_likelihood_THDM
       options:
         check_all_scales: false
 
-    # - capability: global_minimum_discriminant_likelihood
-    #   function: get_global_minimum_discriminant_likelihood
-    #   options:
-    #     check_all_scales: false
+    - capability: vacuum_global_minimum
+      function: check_vacuum_global_minimum
+      options:
+        check_all_scales: false
 
     - capability: THDM_couplings_for_HiggsBounds
       function: get_THDM_couplings_for_HiggsBounds
@@ -308,9 +329,26 @@ Rules:
     - capability: b2sll_M
       function: b2sll_measurements
 
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
+
     - capability: bsgamma
       function: SI_bsgamma
       module: FlavBit
+
+    # Choose to use gm2calc for g-2
+    - capability: muon_gm2
+      function: SI_muon_gm2
+
+    # Choose to base the SM prediction for g-2 on e+e- data
+    - capability: muon_gm2_SM
+      function: gm2_SM_ee
+
+    # Choose to use superiso for DeltaMBs calc
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+        
 
 #########################
 # Logging setup
@@ -324,15 +362,15 @@ Logger:
   # files with these names.
 
   redirection:
-    [Debug] :  "debug.log"
-    [Default] :  "default.log"
-    [DecayBit] :  "decaybit.log"
-    [DarkBit] :  "darkbit.log"
-    [PrecisionBit] :  "precisionbit.log"
-    [ColliderBit] :  "colliderbit.log"
-    [SpecBit] :  "specbit.log"
-    [Dependency Resolver] :  "dep.log"
-    [Scanner]:  "scanner.log"
+    [Debug] :  "stderr"
+    [Default] :  "stderr"
+    [DecayBit] :  "stderr"
+    [DarkBit] :  "stderr"
+    [PrecisionBit] :  "stderr"
+    [ColliderBit] :  "stderr"
+    [SpecBit] :  "stderr"
+    [Dependency Resolver] :  "stderr"
+    [Scanner]:  "stderr"
 
 ##########################
 # Name/Value Section
@@ -356,6 +394,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_debug_point/"
+  default_output_path: "runs/THDM_point/"
   enable_testing: true
   debug: true
