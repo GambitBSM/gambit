@@ -635,9 +635,7 @@ namespace Gambit
       // takes in an THDM basis map with at least one filled in basis
       // and returns a complete THDM basis map
       // this routines also calculates alpha
-      inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs)
-      {
-         std::cout << "DEBUG: generate_THDM_spectrum_tree_level" << std::endl;
+      inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs) {
          const double EMPTY = -1E10;
          // validate basis entries
          // create a complete list of keys for basis
