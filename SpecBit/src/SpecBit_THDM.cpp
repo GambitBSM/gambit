@@ -2650,8 +2650,8 @@ namespace Gambit
         using namespace Pipes::obs_sba;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const beta = atan(he->get(Par::dimensionless, "tanb"));
-        const alpha = he->get(Par::dimensionless, "alpha");
+        const double beta = atan(he->get(Par::dimensionless, "tanb"));
+        const double alpha = he->get(Par::dimensionless, "alpha");
         result = sin(beta - alpha);
       }
 
@@ -2659,8 +2659,8 @@ namespace Gambit
         using namespace Pipes::obs_cba;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const beta = atan(he->get(Par::dimensionless, "tanb"));
-        const alpha = he->get(Par::dimensionless, "alpha");
+        const double beta = atan(he->get(Par::dimensionless, "tanb"));
+        const double alpha = he->get(Par::dimensionless, "alpha");
         const double sba = sin(beta - alpha);
         result = sqrt(1-pow(sba,2));
       }
