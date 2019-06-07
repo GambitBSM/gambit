@@ -112,7 +112,7 @@ ObsLikes:
     ###########################
 
     ## theoretical likelihoods
-
+      
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
 
@@ -165,9 +165,12 @@ ObsLikes:
 
     ## LHC & LEP likelihoods
 
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - capability: LEP_Higgs_LogLike
       function: calc_HB_LEP_LogLike
+      dependencies:
+        - capability: HB_ModelParameters
+          function: fill_THDM_HiggsBounds_model_parameters
+          module: ColliderBit
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -274,7 +277,7 @@ ObsLikes:
     - capability: vacuum_global_minimum
       function: check_vacuum_global_minimum
       purpose: Observable  
-      
+
 Rules:
 
     - capability: THDM_spectrum
@@ -301,34 +304,25 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
+    
+    - capability: alignment_likelihood_THDM
+      function: get_alignment_likelihood_THDM
+      options:
+        check_all_scales: false
 
     - capability: oblique_parameters_likelihood_THDM
       function: get_oblique_parameters_likelihood_THDM
       options:
         check_all_scales: false
 
-    - capability: vacuum_global_minimum
-      function: check_vacuum_global_minimum
+    - capability: global_minimum_discriminant_likelihood
+      function: get_global_minimum_discriminant_likelihood
       options:
         check_all_scales: false
 
-    - capability: THDM_couplings_for_HiggsBounds
-      function: get_THDM_couplings_for_HiggsBounds
-
-    - capability: THDM_couplings_SM_Like_Model
-      function: get_THDM_couplings_SM_Like_Model
-    
-    - capability: THDM_decay_widths_for_HiggsBounds
-      function: get_THDM_decay_widths_for_HiggsBounds
-    
-    - capability: THDM_decay_widths_SM_like_model
-      function: get_THDM_decay_widths_SM_like_model
-    
-    - capability: THDM_total_widths
-      function: get_THDM_total_widths
-    
-    - capability: THDM_total_widths_SM_like_model
-      function: get_THDM_total_widths_SM_like_model
+    - capability: HB_ModelParameters
+      function: fill_THDM_HiggsBounds_model_parameters
+      module: ColliderBit
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -355,7 +349,6 @@ Rules:
     # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
-        
 
 #########################
 # Logging setup
