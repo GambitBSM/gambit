@@ -1950,7 +1950,7 @@ namespace Gambit
       //-----------------------------
       // all values < 16*PI for unitarity conditions
       const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      const double sigma = 1.;
+      const double sigma = 0.1;
       //-----------------------------
       //calculate the total error of each point
       double error = 0.0;
@@ -2059,7 +2059,7 @@ namespace Gambit
       std::complex<double> a11_odd = 1.0/(32.0*M_PI) * (2.*B30);
 
       const double unitarity_upper_limit = 0.5;
-      const double sigma = 1;
+      const double sigma = 0.1;
       double error = 0.0;
 
       std::vector<std::complex<double>> eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus, \
@@ -2088,7 +2088,7 @@ namespace Gambit
        //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 1.;
+      const double sigma = 0.1;
       //-----------------------------
       double error = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
@@ -2104,7 +2104,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 1.;
+      const double sigma = 0.1;
       //-----------------------------
       double error = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
@@ -2163,7 +2163,7 @@ namespace Gambit
       //-----------------------------
       // sin(b-a) = 1 in alignment limit -distance from alignment limit:
       const double sba_tolerance = 0.01;
-      const double sigma = 1.;
+      const double sigma = 0.1;
       //-----------------------------
       // loglike function
       return Stats::gaussian_upper_limit((1.0 - sba),sba_tolerance,0.0,sigma,false);

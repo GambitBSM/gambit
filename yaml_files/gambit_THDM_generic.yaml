@@ -117,9 +117,6 @@ ObsLikes:
       capability: unitarity_likelihood_THDM
 
     - purpose:    LogLike
-      capability: alignment_likelihood_THDM
-
-    - purpose:    LogLike
       capability: perturbativity_likelihood_THDM
 
     - purpose:    LogLike
@@ -304,19 +301,14 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
-    
-    - capability: alignment_likelihood_THDM
-      function: get_alignment_likelihood_THDM
-      options:
-        check_all_scales: false
 
     - capability: oblique_parameters_likelihood_THDM
       function: get_oblique_parameters_likelihood_THDM
       options:
         check_all_scales: false
 
-    - capability: global_minimum_discriminant_likelihood
-      function: get_global_minimum_discriminant_likelihood
+    - capability: vacuum_global_minimum
+      function: check_vacuum_global_minimum
       options:
         check_all_scales: false
 
