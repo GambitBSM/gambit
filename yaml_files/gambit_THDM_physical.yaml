@@ -105,10 +105,6 @@ Scanner:
       aux_printer_stats_options:
       aux_printer_live_options:
 
-###############################
-# Observables of interest
-###########################
-
 ObsLikes:
 
     ###########################
@@ -116,7 +112,6 @@ ObsLikes:
     ###########################
 
     ## theoretical likelihoods
-      
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
 
@@ -169,12 +164,9 @@ ObsLikes:
 
     ## LHC & LEP likelihoods
 
-    - capability: LEP_Higgs_LogLike
+    - purpose:    LogLike
+      capability: LEP_Higgs_LogLike
       function: calc_HB_LEP_LogLike
-      dependencies:
-        - capability: HB_ModelParameters
-          function: fill_THDM_HiggsBounds_model_parameters
-          module: ColliderBit
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -281,7 +273,6 @@ ObsLikes:
     - capability: vacuum_global_minimum
       function: check_vacuum_global_minimum
       purpose: Observable  
-
 Rules:
 
     - capability: THDM_spectrum
@@ -308,19 +299,14 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
-    
-    - capability: alignment_likelihood_THDM
-      function: get_alignment_likelihood_THDM
-      options:
-        check_all_scales: false
 
     - capability: oblique_parameters_likelihood_THDM
       function: get_oblique_parameters_likelihood_THDM
       options:
         check_all_scales: false
 
-    - capability: global_minimum_discriminant_likelihood
-      function: get_global_minimum_discriminant_likelihood
+    - capability: vacuum_global_minimum
+      function: check_vacuum_global_minimum
       options:
         check_all_scales: false
 
@@ -353,7 +339,7 @@ Rules:
     # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
-
+        
 
 #########################
 # Logging setup
