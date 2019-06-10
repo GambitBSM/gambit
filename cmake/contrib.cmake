@@ -98,7 +98,7 @@ if(NOT EXCLUDE_RESTFRAMES)
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
     )
   # Add install name tool step for OSX
-  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.so)
+  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.dylib)
   # Add clean-restframes and nuke-restframes
   set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
   add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
