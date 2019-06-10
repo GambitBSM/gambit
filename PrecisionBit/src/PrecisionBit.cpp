@@ -24,6 +24,18 @@
 
 #include <algorithm>
 
+// GSL headers
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_eigen.h>
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_permute.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_min.h>
+#include <gsl/gsl_integration.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_deriv.h>
+
+
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
@@ -1245,9 +1257,8 @@ namespace Gambit
       }
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
-      const double loglike = oblique_parameters_likelihood_THDM(container);
+      result = oblique_parameters_likelihood_THDM(container);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
-      return loglike;
     }
 
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
