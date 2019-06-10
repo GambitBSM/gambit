@@ -484,6 +484,14 @@ namespace Gambit
 
       result = -0.5*csqtot;
 
+      // Add one-sided Gaussian drop in loglike when the lightest Higgs
+      // mass is > 150 GeV. This avoids a completely flat loglike 
+      // from HS in parameter regions with far too high Higgs mass.
+      if (ModelParam.Mh[0] > 150.)
+      {
+        result -= 0.5 * pow(ModelParam.Mh[0] - 150., 2) / pow(10., 2);
+      }
+      
       #ifdef COLLIDERBIT_DEBUG
         // likelihood plots
         // csqmh
