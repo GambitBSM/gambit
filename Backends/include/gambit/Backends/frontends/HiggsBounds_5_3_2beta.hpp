@@ -23,7 +23,7 @@
 #define BACKENDNAME HiggsBounds
 #define BACKENDLANG FORTRAN
 #define VERSION 5.3.2beta
-#define SAFE_VERSION 5_3_2
+#define SAFE_VERSION 5_3_2beta
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
@@ -65,6 +65,8 @@ BE_FUNCTION(HiggsBounds_charged_input, void, (double*, double*, double*, double*
                 double*, double*, double*, double*), "higgsbounds_charged_input_", "HiggsBounds_charged_input")
 
 BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
+
+BE_INI_FUNCTION{} END_BE_INI_FUNCTION
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
