@@ -112,9 +112,6 @@ ObsLikes:
     ###########################
 
     ## theoretical likelihoods
-      
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
 
     - purpose:    LogLike
       capability: perturbativity_likelihood_THDM
@@ -288,37 +285,17 @@ Rules:
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: false
-
-    - capability: unitarity_likelihood_THDM
-      function: get_unitarity_likelihood_THDM
-      options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
-    
-    - capability: alignment_likelihood_THDM
-      function: get_alignment_likelihood_THDM
-      options:
-        check_all_scales: false
-
-    - capability: oblique_parameters_likelihood_THDM
-      function: get_oblique_parameters_likelihood_THDM
-      options:
-        check_all_scales: false
-
-    - capability: global_minimum_discriminant_likelihood
-      function: get_global_minimum_discriminant_likelihood
-      options:
-        check_all_scales: false
 
     - capability: HB_ModelParameters
       function: fill_THDM_HiggsBounds_model_parameters

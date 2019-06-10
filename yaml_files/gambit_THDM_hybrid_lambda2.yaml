@@ -108,6 +108,7 @@ Scanner:
       aux_printer_txt_options:
       aux_printer_stats_options:
       aux_printer_live_options:
+      
 
 ObsLikes:
 
@@ -116,8 +117,6 @@ ObsLikes:
     ###########################
 
     ## theoretical likelihoods
-    - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
 
     - purpose:    LogLike
       capability: perturbativity_likelihood_THDM
@@ -168,9 +167,12 @@ ObsLikes:
 
     ## LHC & LEP likelihoods
 
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - capability: LEP_Higgs_LogLike
       function: calc_HB_LEP_LogLike
+      dependencies:
+        - capability: HB_ModelParameters
+          function: fill_THDM_HiggsBounds_model_parameters
+          module: ColliderBit
 
     - purpose:    LogLike
       capability: LHC_Higgs_LogLike
@@ -277,6 +279,7 @@ ObsLikes:
     - capability: vacuum_global_minimum
       function: check_vacuum_global_minimum
       purpose: Observable  
+
 Rules:
 
     - capability: THDM_spectrum
@@ -287,32 +290,17 @@ Rules:
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: false
-
-    - capability: unitarity_likelihood_THDM
-      function: get_unitarity_likelihood_THDM
-      options:
-        check_all_scales: false
+        check_all_scales: true
 
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: true
-
-    - capability: oblique_parameters_likelihood_THDM
-      function: get_oblique_parameters_likelihood_THDM
-      options:
-        check_all_scales: false
-
-    - capability: vacuum_global_minimum
-      function: check_vacuum_global_minimum
-      options:
-        check_all_scales: false
 
     - capability: HB_ModelParameters
       function: fill_THDM_HiggsBounds_model_parameters
@@ -343,7 +331,6 @@ Rules:
     # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
-        
 
 #########################
 # Logging setup
