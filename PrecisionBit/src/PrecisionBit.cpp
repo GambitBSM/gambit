@@ -35,6 +35,9 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 
+// intorduce FlavBit helper routines for likelihood calculations
+#include "gambit/FlavBit/FlavBit_types.hpp"
+#include "gambit/FlavBit/flav_utils.hpp"
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
