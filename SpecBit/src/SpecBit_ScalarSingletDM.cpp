@@ -568,7 +568,7 @@ namespace Gambit
     void ScalarSingletDM_higgs_couplings_pwid(HiggsCouplingsTable &result)
     {
       using namespace Pipes::ScalarSingletDM_higgs_couplings_pwid;
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running"))
       {
         spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;

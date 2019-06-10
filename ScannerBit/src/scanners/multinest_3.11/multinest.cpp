@@ -157,7 +157,7 @@ scanner_plugin(multinest, version(3, 11))
       Gambit::Scanner::assign_aux_numbers("Posterior","LastLive");
 
       // Create the object that interfaces to the MultiNest LogLike callback function
-      Gambit::MultiNest::LogLikeWrapper loglwrapper(LogLike, get_printer(), ndims);
+      Gambit::MultiNest::LogLikeWrapper loglwrapper(LogLike, get_printer());
       Gambit::MultiNest::global_loglike_object = &loglwrapper;
 
       //Run MultiNest, passing callback functions for the loglike and dumper.
@@ -205,8 +205,8 @@ namespace Gambit {
 
 
       /// LogLikeWrapper Constructor
-      LogLikeWrapper::LogLikeWrapper(scanPtr loglike, printer_interface& printer, int ndim)
-        : boundLogLike(loglike), boundPrinter(printer), my_ndim(ndim), dumper_runonce(false)
+      LogLikeWrapper::LogLikeWrapper(scanPtr loglike, printer_interface& printer)
+        : boundLogLike(loglike), boundPrinter(printer), dumper_runonce(false)
       { }
 
       /// Main interface function from MultiNest to ScannerBit-supplied loglikelihood function
@@ -230,10 +230,6 @@ namespace Gambit {
       {
          //convert C style array to C++ vector class
          std::vector<double> unitpars(Cube, Cube + ndim);
-
-         ///TODO: Something broke with these; fix later
-         //if (ndim!=my_ndim) {scan_error().raise(LOCAL_INFO,"ndim!=my_ndim in multinest LogLike function!");}
-         //if (ndim!=parameter_keys.size()) {scan_error().raise(LOCAL_INFO,"ndim!=parameter_keys.size() in multinest LogLike function!");}
 
          double lnew = boundLogLike(unitpars);
 

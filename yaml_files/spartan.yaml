@@ -47,7 +47,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
@@ -77,7 +77,7 @@ Scanner:
       plugin: twalk
       like: LogLike
       sqrtR: 1.001
- 
+
     polychord:
       plugin: polychord
       like:  LogLike
@@ -95,7 +95,7 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike   
+  - capability: normaldist_loglike
     options:
         probability_of_validity: 0.9
 
@@ -111,7 +111,9 @@ KeyValues:
 
   default_output_path: "runs/spartan"
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   print_timing_data: true
 

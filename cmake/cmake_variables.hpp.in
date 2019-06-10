@@ -60,9 +60,6 @@
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 
-/// Found ROOT version 6 or later
-#cmakedefine ROOT_6_OR_LATER_FOUND 1
-
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1
 

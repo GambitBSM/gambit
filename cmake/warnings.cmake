@@ -42,14 +42,13 @@ set_compiler_warning("no-misleading-indentation" CMAKE_CXX_FLAGS)
 
 if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
   set_compiler_warning("no-ignored-attributes" CMAKE_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-register" CMAKE_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
 endif()
 
 # Suppress additional warnings when using clang and ccache
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  EXEC_PROGRAM(sh
-               ARGS ${CMAKE_SOURCE_DIR}/cmake/check_for_ccache.sh ${CMAKE_CXX_COMPILER}
-               RETURN_VALUE ret)
-  if (${ret})
+	if (CMAKE_CXX_COMPILER MATCHES "ccache")
     message(STATUS "Using ccache with clang - disabling some warnings")
     CHECK_CXX_COMPILER_FLAG("-Qunused-arguments" CXX_SUPPORTS_QUNUSED_ARGUMENTS)
     if (CXX_SUPPORTS_QUNUSED_ARGUMENTS)
@@ -57,7 +56,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     endif()
     CHECK_CXX_COMPILER_FLAG("-Wno-self-assign" CXX_SUPPORTS_WNO_SELF_ASSIGN)
     if (CXX_SUPPORTS_WNO_SELF_ASSIGN)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} Wno-self-assign")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-self-assign")
     endif()
   endif()
 endif()

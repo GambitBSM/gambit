@@ -913,7 +913,7 @@ namespace Gambit
       using namespace Pipes::GM2C_SUSY;
       const SubSpectrum& mssm = Dep::MSSM_spectrum->get_HE();
 
-      gm2calc::MSSMNoFV_onshell model;
+      gm2calc_default::gm2calc::MSSMNoFV_onshell model;
 
       try
       {
@@ -1030,17 +1030,10 @@ namespace Gambit
         }
 
       }
-      catch (const gm2calc_1_2_0::gm2calc::Abstract_Error& e)
+      catch (const gm2calc_default::gm2calc::Error& e)
       {
         std::ostringstream err;
-        err << "gm2calc 1.2.0 routine convert_to_onshell raised error: "
-        << e.what() << ".";
-        invalid_point().raise(err.str());
-      }
-      catch (const gm2calc_1_3_0::gm2calc::Abstract_Error& e)
-      {
-        std::ostringstream err;
-        err << "gm2calc 1.3.0 routine convert_to_onshell raised error: "
+        err << "gm2calc routine convert_to_onshell raised error: "
         << e.what() << ".";
         invalid_point().raise(err.str());
       }

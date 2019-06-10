@@ -9,7 +9,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-//
+///
 ///  \author Ben Farmer
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Sep
@@ -85,7 +85,7 @@ namespace Gambit
          // to skip a point doesn't cost much CPU, so we can just do it again.
 
          // We build up the set of "done" points as chunks.
-         
+
          std::size_t previous_index = 0;
          bool building_chunk = false;
          std::size_t chunk_start;
@@ -113,7 +113,7 @@ namespace Gambit
                   // Reader didn't progress, error.
                   std::ostringstream err;
                   err << "'resume_reader' object returned the same value for 'input_dataset_index' twice! This means that it either didn't increment properly during this postprocessor run, or the input dataset contains the same point twice! Either case indicates a bug in the postprocessor, please report it.";
-                  Scanner::scan_error().raise(LOCAL_INFO,err.str()); 
+                  Scanner::scan_error().raise(LOCAL_INFO,err.str());
                }
                else
                {
@@ -128,14 +128,14 @@ namespace Gambit
             }
 
             resume_reader.get_next_point(); // Move reader to next previously processed point
-         } 
+         }
          // Need to close off last chunk
          if(building_chunk)
          {
             chunk_end = previous_index;
             done_chunks.insert(Chunk(chunk_start,chunk_end));
          }
- 
+
          return merge_chunks(done_chunks); // Simplify the chunks and return them
       }
 
@@ -241,9 +241,7 @@ namespace Gambit
         , discard_old_logl()
         , logl_purpose_name()
         , reweighted_loglike_name()
-        , firstloop()
         , root()
-        , numtasks()
         , rank()
         #ifdef WITH_MPI
         , comm(NULL)
@@ -280,17 +278,15 @@ namespace Gambit
         , discard_old_logl           (o.discard_old_logl           )
         , logl_purpose_name          (o.logl_purpose_name          )
         , reweighted_loglike_name    (o.reweighted_loglike_name    )
-        , firstloop(true)
         , root                       (o.root                       )
-        , numtasks                   (o.numtasks                   )
         , rank                       (o.rank                       )
         #ifdef WITH_MPI
         , comm                       (o.comm                       )
         #endif
     {
          // Retrieve "visibile" parameter and model names
-         // This will ignore parameters with fixed values in the yaml file, 
-         // allowing those to be input or overridden manually    
+         // This will ignore parameters with fixed values in the yaml file,
+         // allowing those to be input or overridden manually
          std::vector<std::string> keys = getLogLike()->getPrior().getShownParameters();
 
          // Pull the keys apart into model-name, parameter-name pairs
@@ -622,10 +618,10 @@ namespace Gambit
          std::size_t ppi = 0; // track number of points actually processed
          std::size_t n_passed = 0; // Number which have passed any user-specified cuts.
          bool found_chunk_start = false; // Make sure we start processing from the correct place
-    
+
          //std::cout << "Chunk to process: "<<mychunk.start<<" -> "<<mychunk.end<<std::endl;
- 
-         if(mychunk.eff_length==0)  
+
+         if(mychunk.eff_length==0)
          {
             // Don't bother doing any processing for zero length chunks
             // Just check whether the calling code wants us to shut down early
@@ -634,7 +630,7 @@ namespace Gambit
             // which is a little clumsy because I ideally wanted to leave this up to the
             // likelihood container. But doing this locks the postprocessor into using
             // the GAMBIT signal handling methods. TODO: is there another way?
-  
+
             quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
             if(not quit)
             {
@@ -651,22 +647,8 @@ namespace Gambit
          }
          else
          {
-            // Loop over the old points
-            //PPIDpair current_point;
-            //if(firstloop)
-            //{
-            //   current_point = getReader().get_current_point(); // Get first point
-            //   firstloop = false;
-            //}
-            //else
-            //{
-            //   current_point = getReader().get_next_point();
-            //}
             PPIDpair current_point = getReader().get_current_point();
             loopi = getReader().get_current_index();
- 
-            //if(rank==0) std::cout << "Starting loop over old points ("<<total_length<<" in total)" << std::endl;
-            //std::cout << "This task (rank "<<rank<<" of "<<numtasks<<"), will process iterations "<<mychunk.start<<" through to "<<mychunk.end<<", excluding any points that may have already been processed as recorded by resume data. This leaves "<<mychunk.eff_length<<" points for this rank to process."<<std::endl;
 
             // Disable auto-incrementing of pointID's in the likelihood container. We will set these manually.
             Gambit::Printers::auto_increment() = false;
@@ -699,8 +681,8 @@ namespace Gambit
                if(getReader().eoi())
                {
                   quit = true;
-               }   
- 
+               }
+
                // Inelegant signal checking. TODO: Think about how this can be shifted over to ScannerBit
                if(not quit)
                {
@@ -717,11 +699,11 @@ namespace Gambit
                   }
                   // @}
                }
-           
+
                if(not quit)
                {
                   unsigned int       MPIrank = current_point.rank;
-                  unsigned long long pointID = current_point.pointID; 
+                  unsigned long long pointID = current_point.pointID;
 
                   // std::cout << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
                   // std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
@@ -1030,7 +1012,7 @@ namespace Gambit
 
                   /// Go to next point
                   if(not stop_loop)
-                  { 
+                  {
                      current_point = getReader().get_next_point();
                      loopi++;
                   }
@@ -1159,7 +1141,7 @@ namespace Gambit
                   if(donechunk->iContain(next_point)) point_is_done = true;
                }
 
-               if(not point_is_done) 
+               if(not point_is_done)
                {
                   chunk_length++; // Point needs to be processed, count it towards total processing length
                   if(not found_start)
@@ -1173,7 +1155,7 @@ namespace Gambit
                {
                   // Stop early because we hit the end of the dataset
                   chunk_end = total_length;
-                  stop = true; 
+                  stop = true;
                }
                else if(chunk_length == chunksize)
                {
@@ -1191,7 +1173,7 @@ namespace Gambit
                {
                   std::ostringstream err;
                   err << "Error generating chunk to be processed; length of generated chunk exceeds allocated size. Something has gone wrong for this to happen, please report this as a postprocessor bug." << std::endl;
-                  Scanner::scan_error().raise(LOCAL_INFO,err.str()); 
+                  Scanner::scan_error().raise(LOCAL_INFO,err.str());
                }
 
                next_point++;
@@ -1201,7 +1183,7 @@ namespace Gambit
          // Return to the chunk to be processed
          //std::cout<<"chunk_start :"<<chunk_start<<std::endl;
          //std::cout<<"chunk_end   :"<<chunk_end<<std::endl;
-         //std::cout<<"chunk_length:"<<chunk_length<<std::endl;          
+         //std::cout<<"chunk_length:"<<chunk_length<<std::endl;
          return Chunk(chunk_start,chunk_end,chunk_length);
       }
 

@@ -41,7 +41,7 @@ namespace Gambit
   namespace Logging
   {
     /// Forward declarations
-    class Message;
+    struct Message;
     class BaseLogger;
 
     /// Logging "controller" object

@@ -1002,7 +1002,7 @@ namespace Gambit
                              std::cerr << "  No output dataset for '"<<*it<<"' found amongst those created during copying of primary parameters, preparing to create it." << std::endl;
                              #endif
 
-                             hid_t type, type2;
+                             hid_t type=-1, type2=-1;
                              if(valid_dset<0)
                              {
                                 // No valid dset open, but we are supposed to copy something? Error.

@@ -66,7 +66,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
   // Retrieve an integer from an environment variable
   int getintenv(const std::string& name)
   {
-     int x;
+     int x = 0;
      if(const char* env_p = std::getenv(name.c_str()))
      {
        std::stringstream env_s(env_p);

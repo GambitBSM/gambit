@@ -19,8 +19,9 @@
 #define __nuclear_params_hpp__
 
 // Forward declaration of needed types
-namespace Gambit {
-  class SMInputs;
+namespace Gambit
+{
+  struct SMInputs;
 }
 
 // Explicitly defined hadronic matrix elements. deltaq are the

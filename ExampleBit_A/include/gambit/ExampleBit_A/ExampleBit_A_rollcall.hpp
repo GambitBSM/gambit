@@ -14,7 +14,7 @@
 ///  Don't put typedefs or other type definitions
 ///  in this file; see
 ///  Elements/include/gambit/Elements/types_rollcall.hpp
-///  for further instructions on how to add new 
+///  for further instructions on how to add new
 ///  types.
 ///
 ///  *********************************************
@@ -79,12 +79,12 @@ START_MODULE
 
     #define FUNCTION exampleEventGen
     START_FUNCTION(float)
-    NEEDS_MANAGER_WITH_CAPABILITY(eventLoopManagement) // Declares that the module function can only run inside a loop, and that the loop
-    #undef FUNCTION                                    // must be managed by another module function that has CAPABILITY eventLoopManagement
-                                                       // (and has been declared as a potential manager with the flag CAN_MANAGE_LOOPS).
+    NEEDS_MANAGER(eventLoopManagement) // Declares that the module function can only run inside a loop, and that the loop
+    #undef FUNCTION                    // must be managed by another module function that has CAPABILITY eventLoopManagement
+                                       // (and has been declared as a potential manager with the flag CAN_MANAGE_LOOPS).
     #define FUNCTION exampleCut
     START_FUNCTION(int)
-    NEEDS_MANAGER_WITH_CAPABILITY(eventLoopManagement)
+    NEEDS_MANAGER(eventLoopManagement)
     DEPENDENCY(event, float)
     #undef FUNCTION
 
@@ -96,7 +96,7 @@ START_MODULE
 
     #define FUNCTION eventAccumulator
     START_FUNCTION(int, CANNOT_MANAGE_LOOPS)
-    NEEDS_MANAGER_WITH_CAPABILITY(eventLoopManagement)
+    NEEDS_MANAGER(eventLoopManagement)
     DEPENDENCY(event, int)
     #undef FUNCTION
 
@@ -114,7 +114,7 @@ START_MODULE
 
 
   // Mock muon (g-2) anomalous contribution; an example of how to interact with models
-  #define CAPABILITY damu                   
+  #define CAPABILITY damu
   START_CAPABILITY
     #define FUNCTION example_damu
     START_FUNCTION(double)
@@ -123,9 +123,9 @@ START_MODULE
     MODEL_GROUP(group1, (NormalDist))
     MODEL_GROUP(group2, (CMSSM, SingletDM))
     MODEL_GROUP(group3, (CMSSM, NormalDist))
-    ALLOW_MODEL_COMBINATION(group1, group2)     
+    ALLOW_MODEL_COMBINATION(group1, group2)
       // A dependency that only counts under certain conditions (must come after all BACKEND_REQs)
-      #define CONDITIONAL_DEPENDENCY xsection   
+      #define CONDITIONAL_DEPENDENCY xsection
       START_CONDITIONAL_DEPENDENCY(double)
       ACTIVATE_FOR_MODELS(CMSSM)
       #undef CONDITIONAL_DEPENDENCY
@@ -134,7 +134,7 @@ START_MODULE
 
 
   // Test function for fulfilling the dependency of nevents
-  #define CAPABILITY xsection               
+  #define CAPABILITY xsection
   START_CAPABILITY
      #define FUNCTION test_sigma
      START_FUNCTION(double)
@@ -143,7 +143,7 @@ START_MODULE
 
 
   // A test likelihood: normal distribution
-  #define CAPABILITY normaldist_loglike     
+  #define CAPABILITY normaldist_loglike
   START_CAPABILITY
     #define FUNCTION lnL_gaussian
     START_FUNCTION(double)
@@ -170,14 +170,14 @@ START_MODULE
     #define FUNCTION do_Farray_stuff
     START_FUNCTION(double)
     BACKEND_REQ(libFarrayTestCommonBlock, (match), libFarrayTest_CB_type)
-    BACKEND_REQ(libFarrayTestCommonBlock2, (match), libFarrayTest_CB2_type)    
-    BACKEND_REQ(libFarrayTestCommonBlock3, (match), libFarrayTest_CB3_type)    
+    BACKEND_REQ(libFarrayTestCommonBlock2, (match), libFarrayTest_CB2_type)
+    BACKEND_REQ(libFarrayTestCommonBlock3, (match), libFarrayTest_CB3_type)
     BACKEND_REQ(libFarrayTest_printStuff, (match), void, ())
     BACKEND_REQ(libFarrayTest_fillArrays, (match), void, ())
     BACKEND_REQ(libFarrayTest_fptrRoutine, (match), void, (Farray< Fdouble,1,3>&, Finteger&, Fdouble(*)(Farray< Fdouble,1,3>&)))
     BACKEND_REQ(libFarrayTest_doubleFuncArray, (match), Fdouble, (Farray< Fdouble,1,3>&))
-    BACKEND_REQ(libFarrayTest_doubleFuncArray2, (match), Fdouble, (Fdouble*))  
-    BACKEND_REQ(libFarrayTest_doubleFuncArray3, (match), Fdouble, (Farray<Fdouble, 1,2, 2,3>&))        
+    BACKEND_REQ(libFarrayTest_doubleFuncArray2, (match), Fdouble, (Fdouble*))
+    BACKEND_REQ(libFarrayTest_doubleFuncArray3, (match), Fdouble, (Farray<Fdouble, 1,2, 2,3>&))
     BACKEND_OPTION((LibFarrayTest), (match))
     #undef FUNCTION
   #undef CAPABILITY
@@ -209,7 +209,7 @@ START_MODULE
   #define CAPABILITY test_BE_Array
   START_CAPABILITY
     #define FUNCTION Backend_array_test
-    START_FUNCTION(double)   
+    START_FUNCTION(double)
     BACKEND_REQ(example_be_array_1D, (), double, (double*))
     BACKEND_REQ(example_be_array_2D, (), double, (double(*)[10]))
     BACKEND_REQ(example_be_array_3D, (), double, (double(*)[10][10]))

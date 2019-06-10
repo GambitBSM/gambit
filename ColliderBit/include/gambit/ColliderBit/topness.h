@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cmath>
 
+#include "gambit/Utils/threadsafe_rng.hpp"
 
 // ****** Copy from https://github.com/michaelgraesser/topness *****
 // ****** arXiv:1212.4495 ******************************************
@@ -13,7 +14,24 @@
     centre-of-mass energy are dropped since in events with low jet
     multiplicity the second b jet is often not identified.
     In these cases, the discriminating power of the topness variable
-    is reduced when a light-flavour jet is used instead in the calculation.*/
+    is reduced when a light-flavour jet is used instead in the calculation.
+
+    Modified further by Pat Scott, Feb 9 2019, to use GAMBIT random
+    number generator.
+
+    This is a BSD License. Code written by Michael L. Graesser.
+
+    Copyright (c) 2016, Los Alamos National Security, LLC
+    All rights reserved.
+    Copyright 2016. Los Alamos National Security, LLC. This software was produced under U.S. Government contract DE-AC52-06NA25396 for Los Alamos National Laboratory (LANL), which is operated by Los Alamos National Security, LLC for the U.S. Department of Energy. The U.S. Government has rights to use, reproduce, and distribute this software.  NEITHER THE GOVERNMENT NOR LOS ALAMOS NATIONAL SECURITY, LLC MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS SOFTWARE.  If software is modified to produce derivative works, such modified software should be clearly marked, so as not to confuse it with the version available from LANL.
+
+    Additionally, redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1.       Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2.      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3.      Neither the name of Los Alamos National Security, LLC, Los Alamos National Laboratory, LANL, the U.S. Government, nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
 
 // using namespace std;
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -191,14 +209,12 @@ class my_Nelder_Mead {
   int d;
   int Ntry;      // N cycles of Nelder-Mead algorithm
   double eps;
-  double Deltastep; // step to take when restarting after finding a new minimum
-  int n;
 
  public:
   my_func *f;
   my_simplex simplex;
   bool convergeYes; // set to True when algorithm has converged
-  my_Nelder_Mead(int, double, double, double, int, double, double, int, my_func *);
+  my_Nelder_Mead(int, double, double, double, int, double, my_func *);
   bool one_cycle(my_simplex *);
   bool find_global_min(double xin[DMAX*(DMAX+1)]);
   double yfinal;
@@ -601,7 +617,7 @@ void my_simplex::print_all()
 }
 
 
-my_Nelder_Mead::my_Nelder_Mead(int dd, double alpha, double beta, double gamma, int NNtry, double eeps, double DDeltastep, int nn, my_func *ff): d(dd), Ntry(NNtry), eps(eeps), Deltastep(DDeltastep), n(nn), f(ff), simplex(dd, alpha, beta, gamma, f){}
+my_Nelder_Mead::my_Nelder_Mead(int dd, double alpha, double beta, double gamma, int NNtry, double eeps, my_func *ff): d(dd), Ntry(NNtry), eps(eeps), f(ff), simplex(dd, alpha, beta, gamma, f){}
 
 bool my_Nelder_Mead::one_cycle(my_simplex *s)
 {
@@ -703,7 +719,7 @@ minimum  */
       //std::cout << std::endl << std::endl << std::endl;
       // double yavg=simplex.get_yavg();
       //  double sigma=simplex.get_sigma();
-      if (abs(ynewmax -ynewmin)/(abs(ynewmax)+abs(ynewmin)+eps) < eps)
+      if (std::abs(ynewmax -ynewmin)/(std::abs(ynewmax)+std::abs(ynewmin)+eps) < eps)
       {
 	    convergeYes=true;
 
@@ -715,27 +731,6 @@ minimum  */
 		//		std::cout << "final i=" << i << ", ymin = " << ynewmin << ", ymax = " << ynewmax << std::endl;
 		break;
 	      }
-	    // create new starting point using best minimum
-	    /*
-	    for (int j=0; j<d*(d+1); j++)
-	      {
-		 double rndm=(rand()%n)+1;
-		 double start= (rndm/n-0.5); // between -1/2 and 1/2
-		 double rndm2=(rand()%n)+1;
-		 double rndmscale=(rndm2/n); // between 0 and 1
-		 double scale;
-		 if (rndmscale!=0)
-		   {
-		     scale=rndmscale;
-		   }
-		 else
-		   {
-		     scale=0.1;
-		   }
-		 xnew[j]=xfinal[j]/scale +start*Deltastep;
-     	      }
-	    simplex.my_SetUp(xnew);
-	    */
 	}
     }
 
@@ -764,16 +759,6 @@ double topnesscompute(double pb1[4], double pl[4], double MET[4], double sigmat,
   int Ntry=100000;    // maximum number of Nelder-Mead cycles to perform for a given initial seed
   int Nattempts=15; //   number of initial starts
 
-  // get random seed (once)
-  // default c++ "random number" generator good enough here
-  srand((unsigned)time(0));
-  double rndm, start ;
-  int n=3000;
-  // get going
-  for (int i=0; i<100; i++)
-    {
-      rndm=(rand()%n)+1;
-    }
   double edir[]={1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
   double ybest=1000000000.; // a big number
   double ybest1=100000000.;
@@ -790,8 +775,8 @@ double topnesscompute(double pb1[4], double pl[4], double MET[4], double sigmat,
 //  my_func topstat2(pb2,pb1,pl,MET,sigmat,sigmaW,1.0); // other combination
 
   // initialize topness computation
-  my_Nelder_Mead my_check1(d,alpha,beta,gamma, Ntry, eps, Deltastep, n, &topstat1);
-//  my_Nelder_Mead my_check2(d,alpha,beta,gamma, Ntry, eps, Deltastep, n, &topstat2);
+  my_Nelder_Mead my_check1(d,alpha,beta,gamma, Ntry, eps, &topstat1);
+//  my_Nelder_Mead my_check2(d,alpha,beta,gamma, Ntry, eps, &topstat2);
   double yl;
   // begin loop over Nattempts
   for (k=0; k<Nattempts; k++)
@@ -803,9 +788,7 @@ double topnesscompute(double pb1[4], double pl[4], double MET[4], double sigmat,
             {
               if (i==0)
                 {
-                  rndm=(rand()%n)+1;
-                  start= (rndm/n-0.5);
-                  xin[0][j]=8000.0*start;
+                  xin[0][j]=8000.0*(Gambit::Random::draw()-0.5);
                 }
               else
                 {

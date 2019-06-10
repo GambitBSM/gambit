@@ -1,9 +1,26 @@
-#pragma once
 //   GAMBIT: Global and Modular BSM Inference Tool
-//   *********************************************
-///  \file
+//  *********************************************
 ///
-///  Functions that do super fast ATLAS detector simulation based on four-vector smearing.
+///  \file
+///  Functions that do super fast ATLAS detector
+///  simulation based on four-vector smearing.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Andy Buckley
+///  \author Abram Krislock
+///  \author Anders Kvellestad
+///  \author Matthias Danninger
+///  \author Rose Kudzman-Blais
+///
+///  *********************************************
+
+
+#pragma once
+
+#include <cfloat>
 
 #include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/Utils/threadsafe_rng.hpp"
@@ -12,16 +29,19 @@
 #include "HEPUtils/BinnedFn.h"
 #include "HEPUtils/Event.h"
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+
+  namespace ColliderBit
+  {
 
 
     /// ATLAS-specific efficiency and smearing functions for super fast detector simulation
-    /// @note See also BuckFastSmearATLAS
-    namespace ATLAS {
+    namespace ATLAS
+    {
 
       /// @name ATLAS detector efficiency functions
-      //@{
+      ///@{
 
         // /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
         // /// @todo Remove? This is not the electron efficiency
@@ -84,8 +104,7 @@ namespace Gambit {
         /// @note From Delphes 3.1.2
         /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
         inline void applyTauEfficiencyR1(std::vector<HEPUtils::Particle*>& taus) {
-          // No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-          filtereff(taus, 0.40, false);
+          filtereff(taus, 0.40);
         }
 
 
@@ -111,7 +130,7 @@ namespace Gambit {
           //   add EfficiencyFormula {2} {0.60}
           //   add EfficiencyFormula {-1} {0.02}
           //   add EfficiencyFormula {-2} {0.01}
-          // filtereff(taus, 0.65, false);
+          // filtereff(taus, 0.65);
 
           // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
           const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
@@ -122,7 +141,7 @@ namespace Gambit {
           // 85% 1-prong, 15% >=3-prong
           const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
           const static HEPUtils::BinnedFn1D<double> _eff_pt_avg(binedges_pt, bineffs_pt_avg);
-          filtereff_pt(taus, _eff_pt_avg, false);
+          filtereff_pt(taus, _eff_pt_avg);
 
         }
 
@@ -139,7 +158,7 @@ namespace Gambit {
                                                               0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, //
                                                               0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 };
           const static HEPUtils::BinnedFn2D<double> _eff_etapt(binedges_eta, binedges_pt, bineffs_etapt);
-          filtereff_etapt(photons, _eff_etapt, false);
+          filtereff_etapt(photons, _eff_etapt);
         }
 
 
@@ -240,6 +259,25 @@ namespace Gambit {
             /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
             jet->set_mom(HEPUtils::P4::mkXYZM(jet->mom().px()*smear_factor, jet->mom().py()*smear_factor, jet->mom().pz()*smear_factor, jet->mass()));
           }
+        }
+
+
+        /// Randomly smear the MET vector by parameterised resolutions
+        inline void smearMET(HEPUtils::P4& pmiss, double set) {
+          // Smearing function from ATLAS Run 1 performance paper, converted from Rivet
+          // cf. https://arxiv.org/pdf/1108.5602v2.pdf, Figs 14 and 15
+
+          // Linearity offset (Fig 14)
+          if (pmiss.pT() < 25) pmiss *= 1.05;
+          else if (pmiss.pT() < 40) pmiss *= (1.05 - (0.04/15)*(pmiss.pT() - 25)); //< linear decrease
+          else pmiss *= 1.01;
+
+          // Smear by a Gaussian with width given by the resolution(sumEt) ~ 0.45 sqrt(sumEt) GeV
+          const double resolution = 0.45 * sqrt(set);
+          std::normal_distribution<> d(pmiss.pT(), resolution);
+          const double smearedmet = std::max(d(Random::rng()), 0.);
+
+          pmiss *= smearedmet / pmiss.pT();
         }
 
 
@@ -481,7 +519,7 @@ namespace Gambit {
         }
 
 
-        //@}
+        ///@}
 
       }
    }
