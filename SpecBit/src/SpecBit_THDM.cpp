@@ -101,7 +101,6 @@ namespace Gambit
     const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
     const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
 
-
     struct physical_basis_input { double mh, mH, mC, mA, mG, mGC, tanb, sba, lambda6, lambda7, m122, alpha; };
     
     // FlexibleSUSY spectrum
@@ -1728,7 +1727,6 @@ namespace Gambit
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container);
     double stability_likelihood_THDM(THDM_spectrum_container& container);
     double alignment_likelihood_THDM(THDM_spectrum_container& container);
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
     // Observable Functions (forrward declatations)
     double global_minimum_discriminant_THDM(THDM_spectrum_container& container);
 
@@ -1822,22 +1820,6 @@ namespace Gambit
         else print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = alignment_likelihood_THDM;
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
-    }
-
-    void get_oblique_parameters_likelihood_THDM(double& result) {
-      using namespace Pipes::get_oblique_parameters_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
-      }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_oblique_parameters_likelihood_THDM");
-      }
-      std::function<double(THDM_spectrum_container&)> likelihood_function = oblique_parameters_likelihood_THDM;
       result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
@@ -2167,54 +2149,6 @@ namespace Gambit
       //-----------------------------
       // loglike function
       return Stats::gaussian_upper_limit((1.0 - sba),sba_tolerance,0.0,sigma,false);
-    }
-
-
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
-      if (print_debug_checkpoints) cout << "Checkpoint: 47" << endl;
-      THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
-
-      const double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
-      double S, T, U, V, W, X;
-      constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
-
-      const int dim = 6;
-
-      //calculating a diff
-      std::vector<double> value_exp = {S,T,U,V,W,X};
-      std::vector<double> value_th = {0.014, 0.03, 0.06, 0.30, 0.11, 0.38};
-      std::vector<double> error;
-
-      for (int i=0;i<dim;++i) error.push_back(value_exp[i] - value_th[i]);
-
-      // calculating the covariance matrix
-      boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
-      std::vector<double> sigma = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
-
-      // fill with zeros
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) corr(i,j) = 0.0;
-      }
-
-      corr(0,0) = 1.0; corr(0,1) = 0.9; corr(0,2) = -0.59;
-      corr(1,0) = 0.9; corr(1,1) = 1.0; corr(1,2) = -0.83; 
-      corr(2,0) = -0.59; corr(2,1) = -0.83; corr(2,2) = 1.0;
-      corr(3,3) = 1.0; 
-      corr(4,4) = 1.0; 
-      corr(5,5) = 1.0;
-
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
-      }
-
-      // calculating the chi2
-      double chi2=0;
-      FlavBit::InvertMatrix(cov, cov_inv);
-      for (int i=0; i < dim; ++i) {
-        for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
-      }
-
-      return -0.5*chi2;;
     }
 
     double global_minimum_discriminant_THDM(THDM_spectrum_container& container) { 

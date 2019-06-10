@@ -1114,5 +1114,190 @@ namespace Gambit
 
     }
 
+    // THDM requirements
+    // {
+   // functions to create and distribute THDM container
+   // the THDM container combines the Spectrum and THDMC objects to optimise code efficiency
+
+    void set_SM(const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object){
+      THDMC_1_7_0::SM* SM_object = THDM_object->get_SM_pointer();
+      SM_object->set_alpha(1/(sminputs.alphainv));
+      SM_object->set_alpha_s(sminputs.alphaS);
+      SM_object->set_GF(sminputs.GF);
+      SM_object->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
+      SM_object->set_MW(SM->get(Par::Pole_Mass,"W+"));
+      SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
+      SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
+      SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
+      SM_object->set_qmass_msbar(1,SM->get(Par::mass1,"d_1")); //d
+      SM_object->set_qmass_msbar(2,SM->get(Par::mass1,"u_1")); //u
+      SM_object->set_qmass_msbar(3,SM->get(Par::mass1,"d_2")); //s
+      SM_object->set_qmass_msbar(4,sminputs.mCmC); //c
+      SM_object->set_qmass_msbar(5,SM->get(Par::mass1,"d_3")); //u
+      SM_object->set_qmass_msbar(6,SM->get(Par::mass1,"u_3")); //s
+    }
+
+    void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
+      //Takes in the spectrum and fills a THDM object which is defined
+      //in 2HDMC. Any 2HDMC functions can then be called on this object.
+      double lambda_1 = he->get(Par::mass1,"lambda_1");
+      double lambda_2 = he->get(Par::mass1,"lambda_2");
+      double lambda_3 = he->get(Par::mass1, "lambda_3");
+      double lambda_4 = he->get(Par::mass1, "lambda_4");
+      double lambda_5 = he->get(Par::mass1, "lambda_5");
+      double tan_beta = he->get(Par::dimensionless, "tanb");
+      double lambda_6 = he->get(Par::mass1, "lambda_6");
+      double lambda_7 = he->get(Par::mass1, "lambda_7");
+      double m12_2 = he->get(Par::mass1,"m12_2");
+      double mh = he->get(Par::Pole_Mass, "h0", 1);
+      double mH = he->get(Par::Pole_Mass, "h0", 2);
+      double mA = he->get(Par::Pole_Mass, "A0");
+      double mC = he->get(Par::Pole_Mass, "H+");
+      double alpha = he->get(Par::dimensionless, "alpha");
+      double sba = sin(atan(tan_beta) - alpha);
+      set_SM(SM,sminputs,THDM_object);
+      THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
+                                  m12_2, tan_beta, mh, mH, mA, mC, sba);
+      THDM_object->set_yukawas_type(yukawa_type);
+    }
+
+    struct thdm_params { double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, tanb, alpha, m11_2, m22_2, m12_2, mh, mH, mC, mA, mh_run, mH_run, mC_run, mA_run, Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M11_2, M22_2, M12_2, yukawa_type; };
+    void init_THDM_pars(const std::unique_ptr<SubSpectrum>& he, const int yukawa_type, thdm_params& thdm_pars) {
+        thdm_pars.lambda1 = he->get(Par::mass1,"lambda_1");
+        thdm_pars.lambda2 = he->get(Par::mass1,"lambda_2");
+        thdm_pars.lambda3 = he->get(Par::mass1, "lambda_3");
+        thdm_pars.lambda4 = he->get(Par::mass1, "lambda_4");
+        thdm_pars.lambda5 = he->get(Par::mass1, "lambda_5");
+        thdm_pars.lambda6 = he->get(Par::mass1, "lambda_6");
+        thdm_pars.lambda7 = he->get(Par::mass1, "lambda_7");
+        thdm_pars.tanb = he->get(Par::dimensionless, "tanb");
+        thdm_pars.alpha = he->get(Par::dimensionless,"alpha");
+        thdm_pars.m11_2 = he->get(Par::mass1,"m11_2");
+        thdm_pars.m22_2 = he->get(Par::mass1,"m22_2");
+        thdm_pars.m12_2 = he->get(Par::mass1,"m12_2");
+        thdm_pars.mh = he->get(Par::Pole_Mass, "h0", 1);
+        thdm_pars.mH = he->get(Par::Pole_Mass, "h0", 2);
+        thdm_pars.mC = he->get(Par::Pole_Mass, "H+");
+        thdm_pars.mA = he->get(Par::Pole_Mass, "A0");
+        thdm_pars.mh_run = he->get(Par::mass1, "h0", 1);
+        thdm_pars.mH_run = he->get(Par::mass1, "h0", 2);
+        thdm_pars.mC_run = he->get(Par::mass1, "H+");
+        thdm_pars.mA_run = he->get(Par::mass1, "A0");
+        thdm_pars.Lambda1 = he->get(Par::mass1,"Lambda_1");
+        thdm_pars.Lambda2 = he->get(Par::mass1,"Lambda_2");
+        thdm_pars.Lambda3 = he->get(Par::mass1,"Lambda_3");
+        thdm_pars.Lambda4 = he->get(Par::mass1,"Lambda_4");
+        thdm_pars.Lambda5 = he->get(Par::mass1,"Lambda_5");
+        thdm_pars.Lambda6 = he->get(Par::mass1,"Lambda_6");
+        thdm_pars.Lambda7 = he->get(Par::mass1,"Lambda_7");
+        thdm_pars.M11_2 = he->get(Par::mass1,"M11_2");
+        thdm_pars.M22_2 = he->get(Par::mass1,"M22_2");
+        thdm_pars.M12_2 = he->get(Par::mass1,"M12_2");
+        thdm_pars.yukawa_type = he->get(Par::dimensionless,"yukawaCoupling");
+    }
+
+    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
+      double mh = he->get(Par::Pole_Mass,"h0",1);
+      if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
+      if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
+      set_SM(SM,sminputs,THDM_object);
+      // tree level conversion will be used for any basis changes
+      THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+      THDM_object->set_yukawas_type(yukawa_type);
+    }
+
+    struct THDM_spectrum_container {
+      std::unique_ptr<SubSpectrum> he;
+      std::unique_ptr<SubSpectrum> SM;
+      SMInputs sminputs;
+      THDMC_1_7_0::THDM* THDM_object;
+      thdm_params thdm_pars;
+      int yukawa_type;
+    };
+
+    void init_THDM_spectrum_container(THDM_spectrum_container& container, const Spectrum& spec, const int yukawa_type, const double scale=0.0) {
+      container.he = spec.clone_HE(); // Copy "high-energy" SubSpectrum
+      if(scale>0.0) container.he->RunToScale(scale);
+      container.SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
+      container.sminputs = spec.get_SMInputs();   
+      container.yukawa_type = yukawa_type;
+      container.THDM_object = new THDMC_1_7_0::THDM();
+      init_THDM_pars(container.he, container.yukawa_type, container.thdm_pars);
+      init_THDM_object(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
+    }
+
+    enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
+    enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
+
+    const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
+    const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
+    const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
+
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
+
+    void get_oblique_parameters_likelihood_THDM(double& result) {
+      using namespace Pipes::get_oblique_parameters_likelihood_THDM;
+      // set THDM model type
+      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      }
+      THDM_spectrum_container container;
+      init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
+      const double loglike = oblique_parameters_likelihood_THDM(container);
+      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      return loglike;
+    }
+
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
+      THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
+
+      const double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
+      double S, T, U, V, W, X;
+      constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
+
+      const int dim = 6;
+
+      //calculating a diff
+      std::vector<double> value_exp = {S,T,U,V,W,X};
+      std::vector<double> value_th = {0.014, 0.03, 0.06, 0.30, 0.11, 0.38};
+      std::vector<double> error;
+
+      for (int i=0;i<dim;++i) error.push_back(value_exp[i] - value_th[i]);
+
+      // calculating the covariance matrix
+      boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+      std::vector<double> sigma = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
+
+      // fill with zeros
+      for (int i=0; i< dim; i++) {
+        for (int j=0; j<dim; j++) corr(i,j) = 0.0;
+      }
+
+      corr(0,0) = 1.0; corr(0,1) = 0.9; corr(0,2) = -0.59;
+      corr(1,0) = 0.9; corr(1,1) = 1.0; corr(1,2) = -0.83; 
+      corr(2,0) = -0.59; corr(2,1) = -0.83; corr(2,2) = 1.0;
+      corr(3,3) = 1.0; 
+      corr(4,4) = 1.0; 
+      corr(5,5) = 1.0;
+
+      for (int i=0; i< dim; i++) {
+        for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
+      }
+
+      // calculating the chi2
+      double chi2=0;
+      FlavBit::InvertMatrix(cov, cov_inv);
+      for (int i=0; i < dim; ++i) {
+        for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
+      }
+
+      return -0.5*chi2;;
+    }
+
+    // end of THDM container functions
+    // }
+
   }
 }
