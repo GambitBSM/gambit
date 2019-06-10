@@ -61,6 +61,7 @@ namespace Gambit
         void initialise(const std::vector<int>&);
         void reset(bool force=false);
         void finalise(bool abnormal=false);
+        void flush() {}; // No buffers with this printer, so flush function doesn't need to do anything
 
         // Permanently unavailable for this printer
         Options resume_reader_options();

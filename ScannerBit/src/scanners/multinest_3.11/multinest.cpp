@@ -363,6 +363,10 @@ namespace Gambit {
              // }
              // //live_stream->print(parameters, "Parameters", myrank, pointID);
           }
+          
+          // Flush these printers to disk
+          txt_stream->flush();
+          live_stream->flush();
 
       }
 

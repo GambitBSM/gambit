@@ -200,11 +200,24 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
   include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
   message("-- Found HDF5 libraries: ${HDF5_LIBRARIES}")
-  if (VERBOSE)
+  if(VERBOSE)
     message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
   endif()
 else()
   message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
-  set (itch "${itch}" "hdf5printer" "hdf5reader")
+  set(itch "${itch}" "hdf5printer" "hdf5reader")
+endif()
+
+# Check for SQLite libraries
+find_package(SQLite3 QUIET COMPONENTS C)
+if(SQLITE3_FOUND)
+  include_directories(${SQLITE3_INCLUDE_DIRS})
+  message("-- Found SQLite3 libraries: ${SQLITE3_LIBRARIES}")
+  if(VERBOSE)
+      message(STATUS ${SQLITE3_INCLUDE_DIRS})
+  endif()
+else()
+  message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+  set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 

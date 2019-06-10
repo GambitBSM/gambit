@@ -28,6 +28,7 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 June
+///        2019 May
 ///
 ///  *********************************************
 
@@ -647,6 +648,27 @@ namespace Gambit
         }
         invalid_point_exception* e = masterGraph[*it]->retrieve_invalid_point_exception();
         if (e != NULL) throw(*e);
+      }
+      // Reset the cout output precision, in case any backends have messed with it during the ObsLike evaluation.
+      cout << std::setprecision(boundCore->get_outprec());
+    }
+
+    // Prints the results of an ObsLike vertex
+    void DependencyResolver::printObsLike(VertexID vertex, const int pointID)
+    {
+      // pointID is supplied by the scanner, and is used to tell the printer which model
+      // point the results should be associated with.
+
+      if (SortedParentVertices.find(vertex) == SortedParentVertices.end())
+        core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
+      std::vector<VertexID> order = SortedParentVertices.at(vertex);
+
+      for (std::vector<VertexID>::iterator it = order.begin(); it != order.end(); ++it)
+      {
+        std::ostringstream ss;
+        ss << "Printing " << masterGraph[*it]->name() << " from " << masterGraph[*it]->origin() << "...";
+        logger() << LogTags::dependency_resolver << LogTags::info << LogTags::debug << ss.str() << EOM;
+
         if (not typeComp(masterGraph[*it]->type(),  "void", *boundTEs, false))
         {
           // Note that this prints from thread index 0 only, i.e. results created by
@@ -659,8 +681,6 @@ namespace Gambit
           masterGraph[*it]->print(boundPrinter,pointID);
         }
       }
-      // Reset the cout output precision, in case any backends have messed with it during the ObsLike evaluation.
-      cout << std::setprecision(boundCore->get_outprec());
     }
 
     /// Getter for print_timing flag (used by LikelihoodContainer)

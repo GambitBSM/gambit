@@ -23,11 +23,19 @@ Priors:
 
 Printer:
 
+  #printer: sqlite
+  #options:
+  #  output_file: "results.sql"
+  #  table_name: "spartan"
+  #  buffer_length: 1000
+  #  delete_file_on_restart: true
+
   printer: hdf5
   options:
     output_file: "results.hdf5"
     group: "/spartan"
     delete_file_on_restart: true
+    buffer_length: 100
 
   #printer: ascii
   #options:
@@ -39,14 +47,14 @@ Printer:
 
 Scanner:
 
-  use_scanner: multinest
+  use_scanner: de
 
   scanners:
 
     random:
       plugin: random
       like: LogLike
-      point_number: 10
+      point_number: 10000
 
     de:
       plugin: diver
@@ -56,8 +64,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 500
-      tol: 0.5
+      nlive: 2000
+      tol: 0.1
 
     mcmc:
       plugin: great
@@ -68,7 +76,8 @@ Scanner:
     twalk:
       plugin: twalk
       like: LogLike
-
+      sqrtR: 1.001
+ 
     polychord:
       plugin: polychord
       like:  LogLike
@@ -86,7 +95,9 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-
+  - capability: normaldist_loglike   
+    options:
+        probability_of_validity: 0.9
 
 Logger:
 

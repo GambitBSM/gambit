@@ -331,6 +331,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             std::cout << "Postprocessing resume analysis completed." << std::endl;
         }
 
+        // DEBUG
         //std::cout << "Rank "<<rank<<" believes that the following chunks have already been processed:"<<std::endl;
         //for(auto chunk=done_chunks.begin(); chunk!=done_chunks.end(); ++chunk)
         //{
@@ -453,10 +454,10 @@ scanner_plugin(postprocessor, version(2, 0, 0))
        }
        #endif
 
-       //if((rank==0 and numtasks==1) or (rank!=0 and numtasks>1))
-       //{
-       //   std::cout << "Rank "<<rank<<": Chunk to process is ["<<mychunk.start<<", "<<mychunk.end<<"; eff_len="<<mychunk.eff_length<<"]"<<std::endl;
-       //}
+       if((rank==0 and numtasks==1) or (rank!=0 and numtasks>1))
+       {
+          //std::cout << "Rank "<<rank<<": Chunk to process is ["<<mychunk.start<<", "<<mychunk.end<<"; eff_len="<<mychunk.eff_length<<"]"<<std::endl;
+       }
 
        // Progress report
        unsigned long long npi = driver.next_point_index();
