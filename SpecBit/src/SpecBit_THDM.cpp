@@ -2599,8 +2599,6 @@ namespace Gambit
         result = sqrt(1-pow(sba,2));
       }
 
-
-
       /// Put together the Higgs couplings for the THDM, from partial widths only
       void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result)
       { if (print_debug_checkpoints) cout << "Checkpoint: 88" << endl;

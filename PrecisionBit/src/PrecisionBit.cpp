@@ -1271,18 +1271,28 @@ namespace Gambit
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
-      const int dim = 6;
+      // if new physics in the low energy scale 
+      // move to basis as introduced in arxiv:9407203
+      const bool use_low_energy = true;
+      if (use_low_energy) {
+        const double sinW2 = container.he->get(Par::dimensionless, "sinW2");
+        const double cosW2 = 1. - sinW2;
+        S = S + 4.*sinW2*cosW2*V + 4.*(cosW2-sinW2)*X;
+        T = T + V;
+        U = U - 4.*sinW2*cosW2*V + 8.*sinW2*X;
+      }
 
       //calculating a diff
-      std::vector<double> value_exp = {S,T,U,V,W,X};
-      std::vector<double> value_th = {0.014, 0.03, 0.06, 0.30, 0.11, 0.38};
+      std::vector<double> value_exp = {S,T,U};
+      std::vector<double> value_th = {0.014, 0.03, 0.06};
       std::vector<double> error;
+      const int dim = value_exp.size();
 
       for (int i=0;i<dim;++i) error.push_back(value_exp[i] - value_th[i]);
 
       // calculating the covariance matrix
       boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
-      std::vector<double> sigma = {0.10, 0.11, 0.10, 0.38, 4.7, 0.59};
+      std::vector<double> sigma = {0.10, 0.11, 0.10};
 
       // fill with zeros
       for (int i=0; i< dim; i++) {
@@ -1292,9 +1302,6 @@ namespace Gambit
       corr(0,0) = 1.0; corr(0,1) = 0.9; corr(0,2) = -0.59;
       corr(1,0) = 0.9; corr(1,1) = 1.0; corr(1,2) = -0.83; 
       corr(2,0) = -0.59; corr(2,1) = -0.83; corr(2,2) = 1.0;
-      corr(3,3) = 1.0; 
-      corr(4,4) = 1.0; 
-      corr(5,5) = 1.0;
 
       for (int i=0; i< dim; i++) {
         for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
@@ -1306,10 +1313,9 @@ namespace Gambit
       for (int i=0; i < dim; ++i) {
         for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
       }
-
-      return -0.5*chi2;;
+        
+      return -0.5*chi2;
     }
-
     // end of THDM container functions
     // }
 
