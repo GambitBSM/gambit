@@ -47,8 +47,9 @@ BE_INI_FUNCTION
       mylocks.back()->get_lock();
     }
 
-    // initialize HiggsSignals with the latest results and set pdf shape
-    initialize_HiggsSignals_latestresults(nHneut,nHplus);
+    // initialize HiggsSignals with the latest results (or custom experimental table) and set pdf shape
+    std::string Expt_string = runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string");
+    initialize_HiggsSignals(nHneut,nHplus,Expt_string);
     setup_pdf(pdf);
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)
