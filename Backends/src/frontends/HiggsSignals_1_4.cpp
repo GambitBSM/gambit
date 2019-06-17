@@ -48,7 +48,8 @@ BE_INI_FUNCTION
     }
 
     // initialize HiggsSignals with the latest results (or custom experimental table) and set pdf shape
-    const char* Expt_string = runOptions->getValueOrDef<char*>("latestresults", "HS_Expt_string");
+    const char* default_Exp_string = "latestresults";
+    const char* Expt_string = runOptions->getValueOrDef<char*>(default_Exp_string, "HS_Expt_string");
     initialize_HiggsSignals(nHneut,nHplus,Expt_string);
     setup_pdf(pdf);
 
