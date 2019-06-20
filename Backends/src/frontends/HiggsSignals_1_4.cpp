@@ -21,6 +21,8 @@
 #include "gambit/Backends/frontends/HiggsSignals_1_4.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
+#include <algorithm>
+
 BE_INI_FUNCTION
 {
 
