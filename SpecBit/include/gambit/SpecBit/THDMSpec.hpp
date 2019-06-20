@@ -388,23 +388,23 @@ namespace Gambit
          double ba = 0.5*acos(c2ba);
          double alpha = b - ba;
          return alpha;
-         // method for extracting from mixing matricies
-         // double cosa = (model.get_DRbar_masses_and_mixings())(22);
-         // double sina =  (model.get_DRbar_masses_and_mixings())(23);
-         // double a = acos(cosa);
-         // if (a<0){
-         //    a = a+M_PI;
-         // }
-         // return a;
+            // method for extracting from mixing matricies
+            // double cosa = (model.get_DRbar_masses_and_mixings())(22);
+            // double sina =  (model.get_DRbar_masses_and_mixings())(23);
+            // double a = acos(cosa);
+            // if (a<0){
+            //    a = a+M_PI;
+            // }
+            // return a;
       }
 
       // ----------
-      // THDM tree-level basis transformations for use throughout GAMBIT
-      // to use these functions you must include this header
+      // ** THDM tree-level basis transformations for use throughout GAMBIT
+      // to use include this header
       // 
       // these functions exist to improve code reuse (at a developer level)
       // they must be inline to avoid multiple library linking
-      // unfortunately this means they do not improve code reuse in the final build
+      // unfortunately this means they do not improve code reuse in the build 
       // ----------
 
       // for C++<20 (in use) we cannot use contains on std::map instead we write basis_map_contains function
