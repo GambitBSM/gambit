@@ -50,10 +50,10 @@ BE_INI_FUNCTION
     // initialize HiggsSignals with the latest results (or custom experimental table) and set pdf shape
     std::string Expt_string = runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string");
     char * Expt_string_cstr = new char [Expt_string.length()+1];
+    std::strcpy (Expt_string_cstr, Expt_string.c_str());
     for(int j=0;j<Expt_string.length()+1; j++) {
       std::cout << Expt_string_cstr[j] << std::endl;
     }
-    std::strcpy (Expt_string_cstr, Expt_string.c_str());
     initialize_HiggsSignals(nHneut,nHplus,Expt_string_cstr);
     setup_pdf(pdf);
 
