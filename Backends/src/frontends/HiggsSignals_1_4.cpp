@@ -60,7 +60,7 @@ BE_INI_FUNCTION
     // std::cout << Expt_string_cstr << std::endl;
 
     char* fstring;
-    std::size_t fstring_len = sizeof fstring[0];
+    std::size_t fstring_len = sizeof fstring;
     const char* cstring = "latestresults";
 
     std::size_t inlen = std::strlen(cstring);
