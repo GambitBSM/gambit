@@ -51,7 +51,7 @@ BE_INI_FUNCTION
     std::string Expt_string = runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string");
     char * Expt_string_cstr = new char [Expt_string.length()+1];
     for(int j=0;j<Expt_string.length()+1; j++) {
-      std::cout << Expt_string_cstr << std::endl;
+      std::cout << Expt_string_cstr[j] << std::endl;
     }
     std::strcpy (Expt_string_cstr, Expt_string.c_str());
     initialize_HiggsSignals(nHneut,nHplus,Expt_string_cstr);
