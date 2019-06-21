@@ -84,7 +84,7 @@ BE_INI_FUNCTION
 
     // std::cout << "HERE 3" << std::endl;
 
-    initialize_HiggsSignals(nHneut,nHplus,fstring);
+    initialize_HiggsSignals(nHneut,nHplus,Expt_string_cstr);
     setup_pdf(pdf);
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)
