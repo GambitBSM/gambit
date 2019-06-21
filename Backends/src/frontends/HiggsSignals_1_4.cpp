@@ -71,6 +71,8 @@ BE_INI_FUNCTION
         // TODO: truncation error or warning
     }
 
+    std::cout << "HERE" << std::endl;
+
     std::copy(cstring, cstring + cpylen, fstring);
     std::fill(fstring + cpylen, fstring + fstring_len, ' ');
 
