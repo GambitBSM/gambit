@@ -74,7 +74,11 @@ BE_INI_FUNCTION
     std::cout << "HERE" << std::endl;
 
     std::copy(cstring, cstring + cpylen, fstring);
+    std::cout << "HERE 2" << std::endl;
+
     std::fill(fstring + cpylen, fstring + fstring_len, ' ');
+
+    std::cout << "HERE 3" << std::endl;
 
     initialize_HiggsSignals(nHneut,nHplus,fstring);
     setup_pdf(pdf);
