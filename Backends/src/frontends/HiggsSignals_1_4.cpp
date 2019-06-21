@@ -61,7 +61,7 @@ BE_INI_FUNCTION
 
     char* fstring;
     std::size_t fstring_len = sizeof fstring;
-    const char* cstring = "latestresults";
+    const char* cstring = "latestresults\0";
 
     std::size_t inlen = std::strlen(cstring);
     std::size_t cpylen = std::min(inlen, fstring_len);
