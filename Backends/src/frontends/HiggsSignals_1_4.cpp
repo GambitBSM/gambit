@@ -73,6 +73,10 @@ BE_INI_FUNCTION
 
     std::cout << "HERE" << std::endl;
 
+    std::cout << cstring << std::endl;
+    std::cout << cpylen << std::endl;
+    std::cout << fstring << std::endl;
+
     std::copy(cstring, cstring + cpylen, fstring);
     std::cout << "HERE 2" << std::endl;
 
