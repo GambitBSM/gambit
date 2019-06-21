@@ -149,6 +149,10 @@ namespace HEPUtils {
     int abspid() const { return abs(_pdgId); }
     /// Set PDG ID code
     void set_pid(int pid) { _pdgId = pid; }
+    /// Electron check
+    bool isElectron() const { return abspid() == 11; }
+    /// Muon check
+    bool isMuon() const { return abspid() == 13; }
 
     //@}
 
