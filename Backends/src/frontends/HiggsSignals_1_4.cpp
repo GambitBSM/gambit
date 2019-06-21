@@ -21,7 +21,7 @@
 #include "gambit/Backends/frontends/HiggsSignals_1_4.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
-#include <algorithm>
+#include "gambit/Backends/frontend_macros.hpp"
 
 BE_INI_FUNCTION
 {
@@ -61,7 +61,7 @@ BE_INI_FUNCTION
 
     // Fixed string length in nulike (from nulike fortran header nucommon.h)
       const int clen = 300;
-      const char Expt_string[clen];
+      char Expt_string[clen];
       Utils::strcpy2f(Expt_string, clen, runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string"));
 
     // char* fstring;
