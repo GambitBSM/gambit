@@ -354,7 +354,7 @@ namespace Gambit
 
         // SRLowMETLowDM
         if (preselection_2l &&
-            met > 120. && met > 200. &&
+            met > 120. && met > 200. 
             // TODO
             // -
             // -
