@@ -1304,7 +1304,7 @@ namespace Gambit
 
       for (int i=0;i<dim;++i) {
         std::cout << "DEBUG OBLIQUE: " << i << std::endl;
-        error.push_back_back(value_exp[i] - value_th[i]);
+        error.push_back(value_exp[i] - value_th[i]);
       }
 
       // calculating the covariance matrix
@@ -1347,7 +1347,7 @@ namespace Gambit
         if (isnan(chi2)) {
           // save point
           std::ofstream debug_stream("oblique_nan_debug.txt");
-          for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k]+"\n" << std::endl;
+          for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
           debug_stream.close();
 
           std::ostringstream err;
