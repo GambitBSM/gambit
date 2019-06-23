@@ -1277,12 +1277,12 @@ namespace Gambit
 
       // add oblique params to nan debug output
       if (nan_debug) {
-        nan_debug_vals.push(S);
-        nan_debug_vals.push(T);
-        nan_debug_vals.push(U);
-        nan_debug_vals.push(V);
-        nan_debug_vals.push(W);
-        nan_debug_vals.push(X);
+        nan_debug_vals.push_back(S);
+        nan_debug_vals.push_back(T);
+        nan_debug_vals.push_back(U);
+        nan_debug_vals.push_back(V);
+        nan_debug_vals.push_back(W);
+        nan_debug_vals.push_back(X);
       }
     
       // if new physics in the low energy scale 
@@ -1304,7 +1304,7 @@ namespace Gambit
 
       for (int i=0;i<dim;++i) {
         std::cout << "DEBUG OBLIQUE: " << i << std::endl;
-        error.push_back(value_exp[i] - value_th[i]);
+        error.push_back_back(value_exp[i] - value_th[i]);
       }
 
       // calculating the covariance matrix
@@ -1327,7 +1327,7 @@ namespace Gambit
       // add cov to nan debug output
       if (nan_debug) {
         for (int i=0; i < dim; ++i) {
-          for (int j=0; j< dim; ++j) nan_debug_vals.push(cov(i,j));
+          for (int j=0; j< dim; ++j) nan_debug_vals.push_back(cov(i,j));
         }
       }
 
@@ -1341,13 +1341,13 @@ namespace Gambit
       // add cov_inv to nan debug output
       if (nan_debug) {
         for (int i=0; i < dim; ++i) {
-          for (int j=0; j< dim; ++j) nan_debug_vals.push(cov_inv(i,j));
+          for (int j=0; j< dim; ++j) nan_debug_vals.push_back(cov_inv(i,j));
         }
         // is chi2 NaN? If so continue print debug & invalidate point
         if (isnan(chi2)) {
           // save point
           std::ofstream debug_stream("oblique_nan_debug.txt");
-          for (int k=0; k< nan_debug_vals.length(); k++) debug_stream << nan_debug_vals[k]+"\n" << std::endl;
+          for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k]+"\n" << std::endl;
           debug_stream.close();
 
           std::ostringstream err;
