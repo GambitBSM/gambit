@@ -1366,7 +1366,6 @@ namespace Gambit
           std::vector<double> Lambdas = get_lambdas_from_spectrum(container);
           for(int k=0; k< Lambdas.size(); k++) debug_stream << Lambdas[k] << std::endl;
           debug_stream << container.he->get(Par::mass1, "m12_2") << std::endl;
-          debug_stream << container.he->get(Par::dimensionless, "sba") << std::endl;
           debug_stream << container.he->get(Par::dimensionless, "tanb") << std::endl;
           debug_stream << container.he->get(Par::dimensionless, "alpha") << std::endl;
           debug_stream << "*****" << std::endl;
