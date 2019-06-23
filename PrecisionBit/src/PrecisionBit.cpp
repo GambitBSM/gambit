@@ -1271,6 +1271,20 @@ namespace Gambit
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
+      // nan debug currently reuqired
+      const bool nan_debug = true;
+      std::vector<double> nan_debug_vals;
+
+      // add oblique params to nan debug output
+      if (nan_debug) {
+        nan_debug_vals.push(S);
+        nan_debug_vals.push(T);
+        nan_debug_vals.push(U);
+        nan_debug_vals.push(V);
+        nan_debug_vals.push(W);
+        nan_debug_vals.push(X);
+      }
+    
       // if new physics in the low energy scale 
       // move to basis as introduced in arxiv:9407203
       const bool use_low_energy = true;
@@ -1288,7 +1302,10 @@ namespace Gambit
       std::vector<double> error;
       const int dim = value_exp.size();
 
-      for (int i=0;i<dim;++i) error.push_back(value_exp[i] - value_th[i]);
+      for (int i=0;i<dim;++i) {
+        std::cout << "DEBUG OBLIQUE: " << i << std::endl;
+        error.push_back(value_exp[i] - value_th[i]);
+      }
 
       // calculating the covariance matrix
       boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
@@ -1307,11 +1324,36 @@ namespace Gambit
         for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
       }
 
+      // add cov to nan debug output
+      if (nan_debug) {
+        for (int i=0; i < dim; ++i) {
+          for (int j=0; j< dim; ++j) nan_debug_vals.push(cov(i,j));
+        }
+      }
+
       // calculating the chi2
       double chi2=0;
       FlavBit::InvertMatrix(cov, cov_inv);
       for (int i=0; i < dim; ++i) {
         for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
+      }
+
+      // add cov_inv to nan debug output
+      if (nan_debug) {
+        for (int i=0; i < dim; ++i) {
+          for (int j=0; j< dim; ++j) nan_debug_vals.push(cov_inv(i,j));
+        }
+        // is chi2 NaN? If so continue print debug & invalidate point
+        if (isnan(chi2)) {
+          // save point
+          std::ofstream debug_stream("oblique_nan_debug.txt");
+          for (int k=0; k< nan_debug_vals.length(); k++) debug_stream << nan_debug_vals[k]+"\n" << std::endl;
+          debug_stream.close();
+
+          std::ostringstream err;
+          err << "Oblique parameters likelihood THDM returned NaN. Problemetic output saved to debug_oblique.txt. Point invalidated.";
+          invalid_point().raise(err.str());
+        }
       }
         
       return -0.5*chi2;
