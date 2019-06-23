@@ -50,45 +50,9 @@ BE_INI_FUNCTION
     }
 
     // initialize HiggsSignals with the latest results (or custom experimental table) and set pdf shape
-    // std::string Expt_string = ;
-    // char * Expt_string_cstr = new char [Expt_string.length()+1];
-    // std::strcpy (Expt_string_cstr, Expt_string.c_str());
-    // Expt_string_cstr[Expt_string.length()] = '0';
-    // for(int j=0;j<Expt_string.length()+1; j++) {
-    //   std::cout << Expt_string_cstr[j] << std::endl;
-    // }
-    // std::cout << Expt_string_cstr << std::endl;
-
-    // Fixed string length in nulike (from nulike fortran header nucommon.h)
-      const int clen = 300;
-      char Expt_string[clen];
-      Utils::strcpy2f(Expt_string, clen, runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string"));
-
-    // char* fstring;
-    // std::size_t fstring_len = sizeof fstring;
-    // const char* cstring = "latestresults\0";
-
-    // std::size_t inlen = std::strlen(cstring);
-    // std::size_t cpylen = std::min(inlen, fstring_len);
-
-    // if (inlen > fstring_len)
-    // {
-    //     // TODO: truncation error or warning
-    // }
-
-    // std::cout << "HERE" << std::endl;
-
-    // std::cout << cstring << std::endl;
-    // std::cout << cpylen << std::endl;
-    // std::cout << fstring << std::endl;
-
-    // std::copy(cstring, cstring + cpylen, fstring);
-    // std::cout << "HERE 2" << std::endl;
-
-    // std::fill(fstring + cpylen, fstring + fstring_len, ' ');
-
-    // std::cout << "HERE 3" << std::endl;
-
+    const int clen = 100; // Fixed string length
+    char Expt_string[clen];
+    Utils::strcpy2f(Expt_string, clen, runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string"));
     initialize_HiggsSignals(nHneut,nHplus,Expt_string);
     setup_pdf(pdf);
 

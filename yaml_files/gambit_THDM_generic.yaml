@@ -301,6 +301,9 @@ Rules:
       function: fill_THDM_HiggsBounds_model_parameters
       module: ColliderBit
 
+    - options:
+        HS_Expt_string: latestresults-1.4.0-LHCinclusive
+
     - capability: SuperIso_modelinfo
       function: SI_fill
     
