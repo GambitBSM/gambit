@@ -1264,6 +1264,18 @@ namespace Gambit
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
     }
 
+    std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container& container) {
+      std::vector<double> Lambda(8);
+      Lambda[1] = container.he->get(Par::mass1, "lambda_1");
+      Lambda[2] = container.he->get(Par::mass1, "lambda_2");
+      Lambda[3] = container.he->get(Par::mass1, "lambda_3");
+      Lambda[4] = container.he->get(Par::mass1, "lambda_4");
+      Lambda[5] = container.he->get(Par::mass1, "lambda_5");
+      Lambda[6] = container.he->get(Par::mass1, "lambda_6");
+      Lambda[7] = container.he->get(Par::mass1, "lambda_7");
+      return Lambda;
+    }
+
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
@@ -1349,7 +1361,15 @@ namespace Gambit
           // save point
           std::ofstream debug_stream;
           debug_stream.open ("oblique_nan_debug.txt", std::ofstream::out | std::ofstream::app);
+          debug_stream << "*****";
           for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
+          std::vector<double> Lambdas = get_lambdas_from_spectrum(container);
+          for(int k=0; k< Lambdas.size(); k++) debug_stream << Lambdas[k] << std::endl;
+          debug_stream << container.he->get(Par::mass1, "m12_2") << std::endl;
+          debug_stream << container.he->get(Par::dimensionless, "sba") << std::endl;
+          debug_stream << container.he->get(Par::dimensionless, "tanb") << std::endl;
+          debug_stream << container.he->get(Par::dimensionless, "alpha") << std::endl;
+          debug_stream << "*****" << std::endl;
           debug_stream.close();
 
           std::ostringstream err;
