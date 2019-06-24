@@ -53,6 +53,7 @@ BE_INI_FUNCTION
     const int clen = 100; // Fixed string length
     char Expt_string[clen];
     Utils::strcpy2f(Expt_string, clen, runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string"));
+    std::cout << "(HS DEBUG) Input filename (C++ string): " << runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string") << " (strcpy2f Fortran string): " << Expt_string << std::endl;
     initialize_HiggsSignals(nHneut,nHplus,Expt_string);
     setup_pdf(pdf);
 
