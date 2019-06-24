@@ -387,6 +387,25 @@ namespace Gambit
          double c2ba = s2ba/tan2ba;
          double ba = 0.5*acos(c2ba);
          double alpha = b - ba;
+         const bool debug_nan_alpha = true;
+         if (debug_nan_alpha && std::isnan(alpha)) {
+            std::ofstream debug_stream;
+            debug_stream.open ("alpha_nan_debug.txt", std::ofstream::out | std::ofstream::app);
+            debug_stream << "*****" << std::endl;
+            debug_stream << v_1 << std::endl;
+            debug_stream << v_2 << std::endl;
+            debug_stream << b << std::endl;
+            debug_stream << mA << std::endl;
+            debug_stream << Lam1 << std::endl;
+            debug_stream << Lam5 << std::endl;
+            debug_stream << Lam6 << std::endl;
+            debug_stream << tan2ba << std::endl;
+            debug_stream << s2ba << std::endl;
+            debug_stream << c2ba << std::endl;
+            debug_stream << ba << std::endl;
+            debug_stream << "*****" << std::endl << std::endl;
+            debug_stream.close();
+         }
          return alpha;
             // method for extracting from mixing matricies
             // double cosa = (model.get_DRbar_masses_and_mixings())(22);

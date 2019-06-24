@@ -1355,7 +1355,7 @@ namespace Gambit
           for (int j=0; j< dim; ++j) nan_debug_vals.push_back(cov_inv(i,j));
         }
         // is chi2 NaN? If so continue print debug & invalidate point
-        if (isnan(chi2)) {
+        if (std::isnan(chi2)) {
           std::ofstream debug_stream;
           debug_stream.open ("oblique_nan_debug.txt", std::ofstream::out | std::ofstream::app);
           debug_stream << "*****" << std::endl;
