@@ -35,10 +35,12 @@ namespace Gambit
 
       // Counters for the number of accepted events for each signal region
       std::map<string,double> _numSR = {
-        {"SRLowMETLowDM", 0},
-        {"SRLowMETHighDM", 0},
-        {"SRHighMET", 0},
-        {"SR1l1T", 0},
+        {"SR_chi_lowMET_lowDM", 0},
+        {"SR_chi_lowMET_highDM", 0},
+        {"SR_chi_highMET", 0},
+        {"SR_chi_1l1T", 0},
+        {"SR_sl_lowMET",0},
+        {"SR_sl_highMET",0}
       };
 
        vector<Cutflow> _cutflow;
@@ -325,7 +327,6 @@ namespace Gambit
                                (minPhi  > 0.4) &&
                                (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
                                  
-        }
 
         // Preselecton cuts for 1l1T region
         bool preselection_1l1T = (nSignalLeptons == 1 && nSignalTracks >= 1) && 
@@ -341,63 +342,131 @@ namespace Gambit
                                  (minPhi > 0.4) &&
                                  (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
 
-        // Signal regions
-        // Variable         Low-MET, Low-DeltaM    Low-MET, High-Deltam    High-MET                           1l1T
-        // -------------------------------------------------------------------------------------------------------
-        // MET                        [120,200]               [120,200]      > 200                           > 200 // done
-        // MET/HTlep                  > 10                    < 10           -                               > 30  // TODO
-        // DPhi(lep,ptot)             -                       -              -                               < 1.0 // done
-        // l2 or track pT             -                       > 5 + mll/4    > min(10, 2+mll/3)              < 5   // done
-        // MTS                        < 50                    -              -                               -     // TODO
-        // mTl1                       -                       [10,60]        < 60                            -     // TODO
-        // RISR                       -                       [0.8,1.0]      [max(0.85, 0.98-0.02 mll),1.0]  -     // TODO
+        // EWino Signal regions
+        // Variable         EW, 2l, Low-MET, Low-DeltaM    EW, 2l, Low-MET, High-DeltaM    EW, 2l, High-MET              EW, 1l1T
+        // ----------------------------------------------------------------------------------------------------------------------
+        // MET                        [120,200]                    [120,200]               > 200                           > 200 // done
+        // MET/HTlep                  > 10                         < 10                    -                               > 30  // done
+        // DPhi(lep,ptot)             -                            -                       -                               < 1.0 // done
+        // l2 or track pT             -                            > 5 + mll/4             > min(10, 2+mll/3)              < 5   // done
+        // MTS                        < 50                         -                       -                               -     // done
+        // mTl1                       -                            [10,60]                 < 60                            -     // done
+        // RISR                       -                            [0.8,1.0]               [max(0.85, 0.98-0.02 mll),1.0]  -     // done
 
-        // SRLowMETLowDM
+        // mTl1 variable
+        double mTl1 = 0.0;
+        if (nSignalLeptons > 0)
+        {
+         mTl1 = sqrt(2*(signalLeptons.at(0)->mom().E()*met - signalLeptons.at(0)->mom().dot3(ptot)));
+        }
+
+        // MTS variable
+        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
+        double MTS = 0.0;
+        if (nSignalLeptons > 1)
+        {
+          P4 PS = ptot + signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
+          MTS = sqrt(PS.m2() + PS.px2() + PS.py2());
+        }
+
+        // RISR variable
+        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
+        double RISR = 0.0;
+        if (nSignalJets > 0)
+        {
+          RISR = met / signalJets.at(0)->pT();
+        }
+
+        // SR_chi_lowMET_lowDM
         if (preselection_2l &&
-            met > 120. && met > 200. 
-            // TODO
+            met > 120. && met > 200. && 
+            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. && 
             // -
             // -
-            // TODO
+            MTS < 50.
             // -
             // -
            )
-          _numSR["SRLowMETLowDM"]++;
+          _numSR["SR_chi_lowMET_lowDM"]++;
  
-        // SRLowMETHighDM
+        // SR_chi_lowMET_highDM
         if (preselection_2l &&
             met > 120. && met > 200. &&
-            // TODO
+            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) < 10. &&
             // -
             signalLeptons.at(1)->pT() > 5. + mll/4. &&
             // -
-            // TODO
-            // TODO
+            mTl1 >= 10. && mTl1 <= 60 &&
+            RISR >= 0.8 && RISR <= 1.0
            ) 
-          _numSR["SRLowMETHighDM"]++;
+          _numSR["SR_chi_lowMET_highDM"]++;
 
-        // SRHighMET
+        // SR_chi_highMET
         if (preselection_2l &&
             met > 200. &&
             // -
             // -
             signalLeptons.at(1)->pT() > min(10., 2.+mll/3) &&
             // -
-            // TODO
-            // TODO
+            mTl1 < 60. &&
+            RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0
            )
-          _numSR["SRHighMET"]++;
+          _numSR["SR_chi_highMET"]++;
  
+        // SR_chi_1l1T
         if (preselection_1l1T &&
             met > 200. &&
-            // TODO 
+            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. && // This limit is shown inconsistently in text and table, so be wary of it
             fabs(signalLeptons.at(0)->phi() - ptot.phi()) > 1.0 &&
             signalTracks.at(0)->pT() < 5.
             // -
             // -
             // -
            )
-          _numSR["SR1l1T"]++;
+          _numSR["SR_chi_1l1T"]++;
+
+        // Slepton Signal regions
+        // Variable           Sl, Low-MET                     Sl, High-MET 
+        // ----------------------------------------------------------------------------------------------
+        // MET                [150,200]                       > 200                                       // done
+        // mT2                < 140                           < 140                                       // done
+        // pTl2               > min(15, 7.5+0.75(mT2-100))    > min(20, 2.5+2.5(mT2-100)                  // done
+        // RISR               [0.8, 1.0]                      [max(0.85, 0.98 − 0.02 × (mT2 − 100)), 1.0] // done
+
+        // mT2 variable
+        double mT2 = 0;
+        if(nSignalLeptons > 1)
+        {
+          double pa[3] = { 0, signalLeptons.at(0)->mom().px(), signalLeptons.at(0)->mom().py() };
+          double pb[3] = { 0, signalLeptons.at(1)->mom().px(), signalLeptons.at(1)->mom().py() };
+          double pmiss[3] = { 0, ptot.px(), ptot.py() };
+          double mn = 0.;
+
+          mt2_bisect::mt2 mt2_calc;
+          mt2_calc.set_momenta(pa,pb,pmiss);
+          mt2_calc.set_mn(mn);
+          mT2 = mt2_calc.get_mt2();
+        }
+
+
+        // SR_sl_lowMET
+        if (preselection_2l &&
+            met >= 150. && met <= 200. &&
+            mT2 < 140. &&
+            signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2-100.)) &&
+            RISR >= 0.8 && RISR <= 1.0
+           )
+          _numSR["SR_sl_lowMET"]++;
+
+        // SR_sl_highMET
+        if (preselection_2l &&
+           met > 200. &&
+           mT2 < 140. &&
+           signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2-100.)) &&
+           RISR >= max(0.85, 0.98 - 0.02*(mT2 - 100.)) && RISR <= 1.0
+           )
+          _numSR["SR_sl_highMET"]++;
+ 
 
       }
 
@@ -419,6 +488,13 @@ namespace Gambit
       {
 
         // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
+        // TODO: no signal yields provided as table
+        //add_result(SignalRegionData("SR_chi_lowMET_lowDM", n_obs, {s, s_sys}, {b, b_sys}));
+        //add_result(SignalRegionData("SR_chi_lowMET_highDM", n_obs, {s, s_sys}, {b, b_sys}));
+        //add_result(SignalRegionData("SR_chi_highMET", n_obs, {s, s_sys}, {b, b_sys}));
+        //add_result(SignalRegionData("SR_chi_1l1T", n_obs, {s, s_sys}, {b, b_sys}));
+        //add_result(SignalRegionData("SR_sl_lowMET", n_obs, {s, s_sys}, {b, b_sys}));
+        //add_result(SignalRegionData("SR_sl_highMET", n_obs, {s, s_sys}, {b, b_sys}));
 
         #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;
