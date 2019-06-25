@@ -377,14 +377,15 @@ namespace Gambit
       template <class Model>
       double get_alpha(const Model& model) {
          double v_1 = model.get_v1(), v_2 = model.get_v2();
-         double b = atan(v_2/v_1);
+         double b = atan(v_2/v_1); 
          double v2 = pow(v_1,2) + pow(v_2,2);
          double mA = get_mA_pole_slha(model);
          double mA_2 = pow(mA,2);
          double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
-         double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
-         double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
-         double c2ba = s2ba/tan2ba;
+         // double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
+         // double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
+         // double c2ba = s2ba/tan2ba;
+         double c2ba = -(mA_2 + (Lam5-Lam1)*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
          double ba = 0.5*acos(c2ba);
          double alpha = b - ba;
          const bool debug_nan_alpha = true;
@@ -399,8 +400,8 @@ namespace Gambit
             debug_stream << Lam1 << std::endl;
             debug_stream << Lam5 << std::endl;
             debug_stream << Lam6 << std::endl;
-            debug_stream << tan2ba << std::endl;
-            debug_stream << s2ba << std::endl;
+            // debug_stream << tan2ba << std::endl;
+            // debug_stream << s2ba << std::endl;
             debug_stream << c2ba << std::endl;
             debug_stream << ba << std::endl;
             debug_stream << "*****" << std::endl << std::endl;
