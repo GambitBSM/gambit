@@ -6,6 +6,9 @@ import yaml
 flags = sys.getdlopenflags()
 sys.setdlopenflags(flags | ctypes.RTLD_GLOBAL)
 
+# NOTE: If you want to ScannerBit from a different directory
+#       put this directory (ScannerBit/python) in the
+#       python environment variable "PYTHONPATH".
 import ScannerBit as scan 
 
 # define likelihood, technically optional
