@@ -16,7 +16,7 @@
 ///
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@uclouvain.be)
-///  \date 2019 Jun
+///  \date 2019 Jul
 ///
 ///  *********************************************
 
@@ -34,6 +34,7 @@ BE_INI_FUNCTION
     int nHneut = 3; // number of neutral higgses
     int nHplus = 1; // number of charged higgses
     int pdf = 2;    // choose which pdf style to use for Higgs lineshape; 2 = Gaussian
+    
     // Initialize HiggsSignals. Do this one-by-one for each MPI process with
     // locks, as HS calls HB, which writes files then reads them back in later (crazy).
     // Note that this is the Higgs*Bounds* lock, as in the HiggsBounds ini function,
@@ -51,8 +52,8 @@ BE_INI_FUNCTION
       mylocks.back()->get_lock();
     }
 
-    // initialize HiggsSignals with the latest results and set pdf shape
-    initialize_HiggsSignals_latestresults(nHneut,nHplus);
+    // Initialize HiggsSignals with 13 TeV LHC results and set pdf shape
+    initialize_HiggsSignals_LHC13(nHneut,nHplus);
     setup_pdf(pdf);
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)

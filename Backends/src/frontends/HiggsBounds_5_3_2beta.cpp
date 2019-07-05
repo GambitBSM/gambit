@@ -20,7 +20,7 @@
 ///
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@uclouvain.be)
-///  \date 2019 Jun
+///  \date 2019 Jul
 ///
 ///  *********************************************
 
@@ -38,14 +38,17 @@ BE_INI_FUNCTION
     int nHneut = 3; // number of neutral higgses
     int nHplus = 1; // number of charged higgses
     int ANA = 1;    // indicates LEP-only analysis
+
     // Initialize HiggsBounds. Do this one-by-one for each MPI process with
     // locks, as HB writes files here then reads them back in later (crazy). 
     Utils::FileLock mylock("HiggsBounds_" STRINGIFY(SAFE_VERSION) "_init");
     mylock.get_lock();
+    
     // --braces just for dramatic effect--
     { 
       // initialize LEP chisq tables
       initialize_HiggsBounds_chisqtables();
+      
       // initialize HiggsBounds to LEP only
       initialize_HiggsBounds_int(nHneut,nHplus,ANA);
     }

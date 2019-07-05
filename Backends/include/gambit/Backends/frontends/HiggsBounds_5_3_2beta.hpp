@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-/// Frontend for HiggsBounds backend
+///  Frontend for HiggsBounds backend
 ///
 ///  *********************************************
 ///
@@ -15,7 +15,7 @@
 ///  \date Aug 2016
 ///
 ///  \author Ankit Beniwal
-///  \date Jun 2019
+///  \date Jul 2019
 ///
 ///  *****************************************
 
@@ -55,15 +55,29 @@ BE_FUNCTION(finish_HiggsBounds_chisqtables, void, (), "finish_higgsbounds_chisqt
 
 // Input sub-routines
 BE_FUNCTION(HiggsBounds_input_SLHA, void, (const char&), "higgsbounds_input_slha_", "HiggsBounds_input_SLHA")
-BE_FUNCTION(HiggsBounds_neutral_input_part, void, (double*, double*, int*, double*, double*, double*, Farray<double, 1,5, 1,5>&,
-               double*, double*, double*, double*, double*, double*, double*,
-               double*, double*, double*, double*, double*, double*, double*,
-               double*, double*, double*, double*, double*, double*, double*,
-               double*, double*, double*, double*, double*, double*, double*,
-               double*, double*, Farray<double, 1,5, 1,5>&), "higgsbounds_neutral_input_part_", "HiggsBounds_neutral_input_part")
-BE_FUNCTION(HiggsBounds_charged_input, void, (double*, double*, double*, double*,
-                double*, double*, double*, double*), "higgsbounds_charged_input_", "HiggsBounds_charged_input")
+BE_FUNCTION(HiggsBounds_neutral_input_properties, void, (double*, double*, double*), "higgsbounds_neutral_input_properties_", "HiggsBounds_neutral_input_properties")
+BE_FUNCTION(HiggsBounds_neutral_input_effC, void, (double*, double*, double*, double*,
+						   double*, double*, double*, double*,
+                                                   double*, double*, double*, double*,
+                                                   double*, double*, double*, double*,
+                                                   double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC")
 
+BE_FUNCTION(HiggsBounds_neutral_input_SMBR, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*),
+	    "higgsbounds_neutral_input_smbr_", "HiggsBounds_neutral_input_SMBR")
+BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR, void, (double*, Farray<double, 1,3, 1,3, 1,3>&, Farray<double, 1,3, 1,3>&, double*, double*, double*, Farray<double, 1,3>&),
+	    "higgsbounds_neutral_input_nonsmbr_", "HiggsBounds_neutral_input_nonSMBR")
+
+BE_FUNCTION(HiggsBounds_neutral_input_LEP, void, (double*, double*, double*, Farray<double, 1,3, 1,3>&),
+	    "higgsbounds_neutral_input_lep_", "HiggsBounds_neutral_input_LEP")
+BE_FUNCTION(HiggsBounds_neutral_input_hadr, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
+	    "higgsbounds_neutral_input_hadr_", "HiggsBounds_neutral_input_hadr")
+
+BE_FUNCTION(HiggsBounds_charged_input, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3>&),
+	    "higgsbounds_charged_input_", "HiggsBounds_charged_input")
+BE_FUNCTION(HiggsBounds_charged_input_hadr, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3>&),
+	    "higgsbounds_charged_input_hadr_","HiggsBounds_charged_input_hadr")
+
+// Allowed model usage
 BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
 
 // Undefine macros to avoid conflict with other backends
