@@ -326,7 +326,7 @@ set( {0}_plugin_headers_{1}
             else:
               for x in exclude_list:
                 cmakelist_txt_out += """
-message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${ColourReset}\")
+message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourReset}}\")
 """.format(x)
 
     # Loop over all plugin types
