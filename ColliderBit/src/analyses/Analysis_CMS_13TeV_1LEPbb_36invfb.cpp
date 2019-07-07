@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 using namespace std;
@@ -20,10 +20,10 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_1LEPbb_36invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_13TeV_1LEPbb_36invfb : public Analysis {
     private:
 
-      double _numSRA, _numSRB; 
+      double _numSRA, _numSRB;
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -42,6 +42,9 @@ namespace Gambit {
       // ofstream cutflowFile;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       Analysis_CMS_13TeV_1LEPbb_36invfb() {
 
@@ -71,19 +74,19 @@ namespace Gambit {
       }
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
+
         double met = event->met();
 
         // Baseline objects
-        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_043_ttbar.pdf 
+        //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_043_ttbar.pdf
         const vector<double> aEl={0,0.8,10.};
         const vector<double> bEl={0,40.,50.,10000.};
         const vector<double> cEl={0.654,0.705,0.731,0.665,0.655,0.722};
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         vector<HEPUtils::Particle*> baselineElectrons;
         for (HEPUtils::Particle* electron : event->electrons()) {
-          bool isEl=has_tag(_eff2dEl, electron->eta(), electron->pT()); 
+          bool isEl=has_tag(_eff2dEl, electron->eta(), electron->pT());
           if (electron->pT()>5. && electron->abseta()<2.5 && isEl)baselineElectrons.push_back(electron);
         }
 
@@ -94,7 +97,7 @@ namespace Gambit {
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
         vector<HEPUtils::Particle*> baselineMuons;
         for (HEPUtils::Particle* muon : event->muons()) {
-          bool isMu=has_tag(_eff2dMu, muon->eta(), muon->pT()); 
+          bool isMu=has_tag(_eff2dMu, muon->eta(), muon->pT());
           if (muon->pT()>5. && muon->abseta()<2.4 && isMu)baselineMuons.push_back(muon);
         }
 
@@ -112,27 +115,27 @@ namespace Gambit {
         vector<HEPUtils::Particle*> signalLeptons;
         vector<HEPUtils::Particle*> signalElectrons;
         vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;   
+        vector<HEPUtils::Jet*> signalJets;
         vector<HEPUtils::Jet*> signalBJets;
 
         for (size_t iEl=0;iEl<baselineElectrons.size();iEl++) {
           if (baselineElectrons.at(iEl)->pT()>30. && baselineElectrons.at(iEl)->abseta()<1.44)signalElectrons.push_back(baselineElectrons.at(iEl));
-        } 
-       
+        }
+
         for (size_t iMu=0;iMu<baselineMuons.size();iMu++) {
           if (baselineMuons.at(iMu)->pT()>25. && baselineMuons.at(iMu)->abseta()<2.1)signalMuons.push_back(baselineMuons.at(iMu));
         }
 
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
           if (baselineJets.at(iJet)->pT()>30.) {
-            signalJets.push_back(baselineJets.at(iJet));                
+            signalJets.push_back(baselineJets.at(iJet));
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
         vector<HEPUtils::Jet*> signalBJets_temp=signalBJets;
         CMS::applyCSVv2MediumBtagEff(signalBJets_temp);
         if (signalBJets_temp.size()>0) {
-          CMS::applyCSVv2LooseBtagEff(signalBJets_temp);        
+          CMS::applyCSVv2LooseBtagEff(signalBJets_temp);
           for (size_t iJet=0;iJet<signalBJets_temp.size();iJet++) {
             if (find(signalBJets.begin(),signalBJets.end(),signalBJets_temp.at(iJet))==signalBJets.end())signalBJets.push_back(signalBJets_temp.at(iJet));
           }
@@ -148,7 +151,7 @@ namespace Gambit {
         int nSignalBJets=signalBJets.size();
 
         //Variables
-        bool preselection=false;        
+        bool preselection=false;
         bool lepton2_veto=true;
         bool tau_veto=true;
         double mCT=0;
@@ -186,7 +189,7 @@ namespace Gambit {
           //SRA
           if (met>125. && met<200.)_numSRA++;
           //SRB
-          if (met>200.)_numSRB++;   
+          if (met>200.)_numSRB++;
         }
 
         cutFlowVector_str[0] = "All events";
@@ -200,60 +203,60 @@ namespace Gambit {
         cutFlowVector_str[8] = "$E_{T}^{miss} > 125 GeV$";
         cutFlowVector_str[9] = "$m_{T} > 150 GeV$";
 
-        // cutFlowVectorCMS_225_75[0]=7297.6;   
-        // cutFlowVectorCMS_225_75[1]=1320.5;   
-        // cutFlowVectorCMS_225_75[2]=1265.3;   
-        // cutFlowVectorCMS_225_75[3]=1259.0;   
-        // cutFlowVectorCMS_225_75[4]=680.8;    
-        // cutFlowVectorCMS_225_75[5]=299.0;    
-        // cutFlowVectorCMS_225_75[6]=258.4;    
-        // cutFlowVectorCMS_225_75[7]=50.9;     
-        // cutFlowVectorCMS_225_75[8]=38.4;     
-        // cutFlowVectorCMS_225_75[9]=4.7;      
+        // cutFlowVectorCMS_225_75[0]=7297.6;
+        // cutFlowVectorCMS_225_75[1]=1320.5;
+        // cutFlowVectorCMS_225_75[2]=1265.3;
+        // cutFlowVectorCMS_225_75[3]=1259.0;
+        // cutFlowVectorCMS_225_75[4]=680.8;
+        // cutFlowVectorCMS_225_75[5]=299.0;
+        // cutFlowVectorCMS_225_75[6]=258.4;
+        // cutFlowVectorCMS_225_75[7]=50.9;
+        // cutFlowVectorCMS_225_75[8]=38.4;
+        // cutFlowVectorCMS_225_75[9]=4.7;
 
-        // cutFlowVectorCMS_250_1[0]=4901.0;    
-        // cutFlowVectorCMS_250_1[1]=1035.1;    
-        // cutFlowVectorCMS_250_1[2]=994.3;     
-        // cutFlowVectorCMS_250_1[3]=989.6;     
-        // cutFlowVectorCMS_250_1[4]=542.3;     
-        // cutFlowVectorCMS_250_1[5]=242.6;     
-        // cutFlowVectorCMS_250_1[6]=214.4;     
-        // cutFlowVectorCMS_250_1[7]=67.2;      
-        // cutFlowVectorCMS_250_1[8]=54.8;      
-        // cutFlowVectorCMS_250_1[9]=17.6;      
+        // cutFlowVectorCMS_250_1[0]=4901.0;
+        // cutFlowVectorCMS_250_1[1]=1035.1;
+        // cutFlowVectorCMS_250_1[2]=994.3;
+        // cutFlowVectorCMS_250_1[3]=989.6;
+        // cutFlowVectorCMS_250_1[4]=542.3;
+        // cutFlowVectorCMS_250_1[5]=242.6;
+        // cutFlowVectorCMS_250_1[6]=214.4;
+        // cutFlowVectorCMS_250_1[7]=67.2;
+        // cutFlowVectorCMS_250_1[8]=54.8;
+        // cutFlowVectorCMS_250_1[9]=17.6;
 
-        // cutFlowVectorCMS_350_100[0]=1309.1;  
-        // cutFlowVectorCMS_350_100[1]=328.1;   
-        // cutFlowVectorCMS_350_100[2]=316.6;   
-        // cutFlowVectorCMS_350_100[3]=315.3;   
-        // cutFlowVectorCMS_350_100[4]=162.9;   
-        // cutFlowVectorCMS_350_100[5]=74.9;    
-        // cutFlowVectorCMS_350_100[6]=65.6;    
-        // cutFlowVectorCMS_350_100[7]=26.7;    
-        // cutFlowVectorCMS_350_100[8]=22.9;    
-        // cutFlowVectorCMS_350_100[9]=10.7;    
+        // cutFlowVectorCMS_350_100[0]=1309.1;
+        // cutFlowVectorCMS_350_100[1]=328.1;
+        // cutFlowVectorCMS_350_100[2]=316.6;
+        // cutFlowVectorCMS_350_100[3]=315.3;
+        // cutFlowVectorCMS_350_100[4]=162.9;
+        // cutFlowVectorCMS_350_100[5]=74.9;
+        // cutFlowVectorCMS_350_100[6]=65.6;
+        // cutFlowVectorCMS_350_100[7]=26.7;
+        // cutFlowVectorCMS_350_100[8]=22.9;
+        // cutFlowVectorCMS_350_100[9]=10.7;
 
-        // cutFlowVectorCMS_500_1[0]=290.2;     
-        // cutFlowVectorCMS_500_1[1]=89;        
-        // cutFlowVectorCMS_500_1[2]=85.8;      
-        // cutFlowVectorCMS_500_1[3]=85.5;      
-        // cutFlowVectorCMS_500_1[4]=42.3;      
-        // cutFlowVectorCMS_500_1[5]=19.7;      
-        // cutFlowVectorCMS_500_1[6]=17.5;      
-        // cutFlowVectorCMS_500_1[7]=11.9;      
-        // cutFlowVectorCMS_500_1[8]=10.9;      
-        // cutFlowVectorCMS_500_1[9]=7.1;       
+        // cutFlowVectorCMS_500_1[0]=290.2;
+        // cutFlowVectorCMS_500_1[1]=89;
+        // cutFlowVectorCMS_500_1[2]=85.8;
+        // cutFlowVectorCMS_500_1[3]=85.5;
+        // cutFlowVectorCMS_500_1[4]=42.3;
+        // cutFlowVectorCMS_500_1[5]=19.7;
+        // cutFlowVectorCMS_500_1[6]=17.5;
+        // cutFlowVectorCMS_500_1[7]=11.9;
+        // cutFlowVectorCMS_500_1[8]=10.9;
+        // cutFlowVectorCMS_500_1[9]=7.1;
 
-        // cutFlowVectorCMS_500_125[0]=290.3;   
-        // cutFlowVectorCMS_500_125[1]=86.9;    
-        // cutFlowVectorCMS_500_125[2]=84.1;    
-        // cutFlowVectorCMS_500_125[3]=83.9;    
-        // cutFlowVectorCMS_500_125[4]=41.1;    
-        // cutFlowVectorCMS_500_125[5]=19.5;    
-        // cutFlowVectorCMS_500_125[6]=17.6;    
-        // cutFlowVectorCMS_500_125[7]=10.9;    
-        // cutFlowVectorCMS_500_125[8]=9.9;     
-        // cutFlowVectorCMS_500_125[9]=6.5;     
+        // cutFlowVectorCMS_500_125[0]=290.3;
+        // cutFlowVectorCMS_500_125[1]=86.9;
+        // cutFlowVectorCMS_500_125[2]=84.1;
+        // cutFlowVectorCMS_500_125[3]=83.9;
+        // cutFlowVectorCMS_500_125[4]=41.1;
+        // cutFlowVectorCMS_500_125[5]=19.5;
+        // cutFlowVectorCMS_500_125[6]=17.6;
+        // cutFlowVectorCMS_500_125[7]=10.9;
+        // cutFlowVectorCMS_500_125[8]=9.9;
+        // cutFlowVectorCMS_500_125[9]=6.5;
 
         for (size_t j=0;j<NCUTS;j++){
           if(
@@ -271,10 +274,10 @@ namespace Gambit {
 
              (j==6 && preselection && mbb>90 && mbb<150) ||
 
-             (j==7 && preselection && mbb>90 && mbb<150 && mCT>170.) ||            
- 
+             (j==7 && preselection && mbb>90 && mbb<150 && mCT>170.) ||
+
              (j==8 && preselection && mbb>90 && mbb<150 && mCT>170. && met>125.) ||
-             
+
              (j==9 && preselection && mbb>90 && mbb<150 && mCT>170. && met>125. && mT>150.) )
 
             cutFlowVector[j]++;
@@ -282,15 +285,12 @@ namespace Gambit {
 
       }
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_13TeV_1LEPbb_36invfb* specificOther
+                = dynamic_cast<const Analysis_CMS_13TeV_1LEPbb_36invfb*>(other);
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_CMS_13TeV_1LEPbb_36invfb* specificOther
-                = dynamic_cast<Analysis_CMS_13TeV_1LEPbb_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j = 0; j < NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
@@ -306,7 +306,7 @@ namespace Gambit {
         // string path = "ColliderBit/results/cutflow_";
         // path.append(analysis_name());
         // path.append(".txt");
-        // cutflowFile.open(path.c_str()); 
+        // cutflowFile.open(path.c_str());
 
  //        if (analysis_name().find("225_75") != string::npos) {
  //          cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/h, [\\tilde{\\chi}_{2}^{0}\\tilde{\\chi}_{1}^{\\pm},\\tilde{\\chi}_{1}^{0}]: [225,75] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
@@ -387,18 +387,18 @@ namespace Gambit {
         SignalRegionData results_SRA;
         results_SRA.sr_label = "SRA";
         results_SRA.n_observed = 11.;
-        results_SRA.n_background = 7.5; 
+        results_SRA.n_background = 7.5;
         results_SRA.background_sys = 2.5;
-        results_SRA.signal_sys = 0.; 
+        results_SRA.signal_sys = 0.;
         results_SRA.n_signal = _numSRA;
         add_result(results_SRA);
 
         SignalRegionData results_SRB;
         results_SRB.sr_label = "SRB";
         results_SRB.n_observed = 7.;
-        results_SRB.n_background = 8.7; 
+        results_SRB.n_background = 8.7;
         results_SRB.background_sys = 2.2;
-        results_SRB.signal_sys = 0.; 
+        results_SRB.signal_sys = 0.;
         results_SRB.n_signal = _numSRB;
         add_result(results_SRB);
 
@@ -406,10 +406,10 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numSRA=0;
         _numSRB=0;
-        
+
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 

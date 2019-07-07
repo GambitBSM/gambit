@@ -35,10 +35,10 @@ namespace Gambit
     {
       strip_whitespace_except_after_const(s);
       s = strip_leading_namespace(s, "Gambit");
-      // Loop over all the default versions of BOSSed backends and strip off any corresponding leading namespace.
+      // Loop over all the default versions of BOSSed backends and replace any corresponding leading namespace.
       for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
       {
-        s = Utils::strip_leading_namespace(s, it->first+"_"+it->second);
+        s = Utils::replace_leading_namespace(s, it->first+"_default", it->first+"_"+it->second);
       }
       return s;
     }

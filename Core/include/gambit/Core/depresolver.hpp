@@ -132,7 +132,7 @@ namespace Gambit
         std::vector<VertexID> getObsLikeOrder();
 
         /// Calculate a single target vertex.
-        void calcObsLike(VertexID, const int);
+        void calcObsLike(VertexID);
 
         /// Print a single target vertex.
         void printObsLike(VertexID, const int);

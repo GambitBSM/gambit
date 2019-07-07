@@ -13,11 +13,11 @@
 #
 
 #
-# *** Special note for OS X *** 
-# 
+# *** Special note for OS X ***
+#
 # BOSS will most likely fail if 'g++' points to the Clang compiler.
-# Install GNU g++ and point the castxml_cc variable below the GNU 
-# g++ executable.   
+# Install GNU g++ and point the castxml_cc variable below the GNU
+# g++ executable.
 #
 
 castxml_cc_id  = 'gnu'         # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
@@ -35,12 +35,12 @@ gambit_base_namespace  = ''
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = ['../../../Backends/installed/pythia/'+gambit_backend_version+'/include/Pythia8/Pythia.h']
-include_paths = ['../../../Backends/installed/pythia/'+gambit_backend_version+'/include', '../../../contrib/slhaea/include']
-base_paths    = ['../../../Backends/installed/pythia/'+gambit_backend_version+'/']
+input_files   = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h']
+include_paths = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include', '../../../contrib/slhaea/include']
+base_paths    = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/']
 
-header_files_to = '../../../Backends/installed/pythia/'+gambit_backend_version+'/include'
-src_files_to    = '../../../Backends/installed/pythia/'+gambit_backend_version+'/src'
+header_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include'
+src_files_to    = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src'
 
 
 load_classes = [

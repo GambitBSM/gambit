@@ -8,21 +8,21 @@
 ///
 ///  Authors (add name and date if you modify):
 ///
-///  Martin White (martin.white@adelaide.edu.au)
-///  January 2016
-///  Anders Kvellestad (anders.kvellestad@nordita.org)
-///  March 2017
-///  December 2018
+///  \author Martin White
+///  (martin.white@adelaide.edu.au)
+///  \date January 2016
+///
+///  \author Anders Kvellestad
+///  (anders.kvellestad@nordita.org)
+///  \date March 2017
+///  \date December 2018
+///
+///  \author Pat Scott
+///  (p.scott@imperial.ac.uk)
+///  \date January 2019
 ///
 ///  *********************************************
 
-
-//
-// Note:
-// For this example we use the GAMBIT backend Pythia 8.212.EM, which is connected to GAMBIT
-// vis BOSS. For this to work, make sure that this version of Pythia is specificed in
-// Backends/include/gambit/Backends/default_bossed_versions.hpp (use: #define Default_Pythia 8_212_EM).
-//
 
 // Always required for the standalone main file
 #include "gambit/Elements/standalone_module.hpp"
@@ -79,8 +79,8 @@ int main(int argc, char* argv[])
     const string inputFileName = argv[1];
 
 
-    // Check that required backends are present
-    if (not Backends::backendInfo().works["Pythia8.212.EM"]) backend_error().raise(LOCAL_INFO, "Pythia 8.212.EM is missing!");
+    // Check that required backends are present. For this example we use the GAMBIT backend Pythia_EM 8.212, which is connected to GAMBIT via BOSS.
+    if (not Backends::backendInfo().works["Pythia_EM8.212"]) backend_error().raise(LOCAL_INFO, "Pythia_EM 8.212 is missing!");
     if (not Backends::backendInfo().works["nulike1.0.7"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.7 is missing!");
 
     // Output some info about ColliderBit
@@ -114,8 +114,6 @@ int main(int argc, char* argv[])
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runCMSnoeffAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
-
-
 
     runATLASAnalyses.resolveDependency(&getATLASAnalysisContainer);
     runATLASAnalyses.resolveDependency(&getPythiaFileReader);
@@ -319,7 +317,7 @@ int main(int argc, char* argv[])
 
 
     // Set the correct XML path for Pythia
-    getPythiaFileReader.setOption<string>("Pythia_doc_path","Backends/installed/pythia/8.212.EM/share/Pythia8/xmldoc/"); // specify the Pythia xml file location
+    getPythiaFileReader.setOption<string>("Pythia_doc_path","Backends/installed/pythia_em/8.212/share/Pythia8/xmldoc/"); // specify the Pythia xml file location
 
     // Specify the SLHA input file.
     // For this example we take the command line argument stored in 'inputFileName'.
@@ -385,7 +383,7 @@ int main(int argc, char* argv[])
 
     // Call the initialisation functions for all backends that are in use.
     nulike_1_0_7_init.reset_and_calculate();
-    Pythia_8_212_EM_init.reset_and_calculate();
+    Pythia_EM_8_212_init.reset_and_calculate();
 
     // Run the simulation loop and calculate the LHC likelihood.
     MC_ConvergenceSettings_from_YAML.reset_and_calculate();

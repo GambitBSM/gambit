@@ -96,6 +96,28 @@ namespace Gambit
       return s;
     }
 
+    /// Replaces a namespace at the start of a string, or after "const".
+    str replace_leading_namespace(str s, str ns, str ns_new)
+    {
+      #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
+        regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
+        s = regex_replace(s, expression, str("\\1")+ns_new+"::");
+      #else                                // Using lame-o methods >:(
+        int len = ns.length() + 2;
+        if (s.substr(0,len) == ns+str("::")) s.replace(0,len,ns_new+"::");
+        boost::replace_all(s, str(",")+ns+"::", str(",")+ns_new+"::");
+        boost::replace_all(s, str("*")+ns+"::", str("*")+ns_new+"::");
+        boost::replace_all(s, str("&")+ns+"::", str("&")+ns_new+"::");
+        boost::replace_all(s, str("(")+ns+"::", str("(")+ns_new+"::");
+        boost::replace_all(s, str("[")+ns+"::", str("[")+ns_new+"::");
+        for (int i = 0; i != 5; i++)
+        {
+          boost::replace_all(s, whitespaces[i]+ns+"::", whitespaces[i]+ns_new+"::");
+        }
+      #endif
+      return s;
+    }
+
     /// Strips all whitespaces from a string, but re-inserts a single regular space after "const".
     void strip_whitespace_except_after_const(str &s)
     {

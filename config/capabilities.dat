@@ -379,7 +379,7 @@ DummyColliderObservable: |
    to satisfy the normal GAMBIT model requrements in a minimal way. Used
    for testing.
 
-ColliderOperator: |
+RunMC: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
@@ -421,16 +421,32 @@ HardScatteringEvent: |
    Uses the given HardScatteringSim to generate the next event
    of the collider simulation chain.
 
-SimpleSmearingSim: |
-   Provides a set of BuckFast functions within a container
-   which is ready to apply ATLAS smearing and reconstruction
-   efficiencies to an event.
+ATLASDetectorSim: |
+   Provides a set functions within a container ready to apply ATLAS
+   smearing and reconstruction efficiencies to an event.
+
+ATLASmultieffDetectorSim: |
+   Provides a set functions within a container ready to apply ATLAS
+   smearing to an event.  Effiencies must be applied on a per-analysis
+   basis.
+
+CMSDetectorSim: |
+   Provides a set functions within a container ready to apply CMS
+   smearing and reconstruction efficiencies to an event.
+
+CMSmultieffDetectorSim: |
+   Provides a set functions within a container ready to apply CMS
+   smearing to an event.  Effiencies must be applied on a per-analysis
+   basis.
+
+IdentityDetectorSim: |
+   Provides a fake detector sim, which simply returns truth-level events.
 
 ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
-ATLASnoeffSmearedEvent: |
+ATLASmultieffSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing upon the
    given HardScatteringEvent. No efficiencies are applied.
 
@@ -438,7 +454,7 @@ CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
-CMSnoeffSmearedEvent: |
+CMSmultieffSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing upon the
    given HardScatteringEvent. No efficiencies are applied.
 
@@ -451,9 +467,9 @@ ATLASAnalysisContainer: |
    capability ATLASSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-ATLASnoeffAnalysisContainer: |
+ATLASmultieffAnalysisContainer: |
    Provides a container of ATLAS analyses to be used with the detector simulation
-   capability ATLASnoeffSmearedEvent. The container is ready to apply each analysis to
+   capability ATLASmultieffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
 CMSAnalysisContainer: |
@@ -461,9 +477,9 @@ CMSAnalysisContainer: |
    capability CMSSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-CMSnoeffAnalysisContainer: |
+CMSmultieffAnalysisContainer: |
    Provides a container of CMS analyses to be used with the detector simulation
-   capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to
+   capability CMSmultieffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
 IdentityAnalysisContainer: |
@@ -475,16 +491,16 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
-ATLASnoeffAnalysisNumbers: |
-   Uses the given ATLASnoeffAnalysisContainer to perform all its
+ATLASmultieffAnalysisNumbers: |
+   Uses the given ATLASmultieffAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
-CMSnoeffAnalysisNumbers: |
-   Uses the given CMSnoeffAnalysisContainer to perform all its analyses
+CMSmultieffAnalysisNumbers: |
+   Uses the given CMSmultieffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 IdentityAnalysisNumbers: |
@@ -1057,8 +1073,8 @@ LEP208_xsec_staurstaurbar: |
    The LEP pair production cross-section for sfermion
    eigenstates 'staur' and 'staurbar' at centre of mass energy 208 GeV.
 
-Pythia_8_212_EM_init: |
-   Initializes Pythia 8.212 EM.
+Pythia_EM_8_212_init: |
+   Initializes Pythia_EM 8.212.
 
 Pythia_8_212_init: |
    Initializes Pythia 8.212.

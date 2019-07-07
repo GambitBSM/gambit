@@ -75,7 +75,8 @@
                BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,                        \
                BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))   \
                BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)),      \
-              STRINGIFY(BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,               \
+              STRINGIFY(BOOST_PP_SEQ_ELEM(2,data)_default::                           \
+               BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,                        \
                BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))   \
                BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem))       \
              );                                                                       \
@@ -86,14 +87,17 @@
                                                                                       \
       }                                                                               \
                                                                                       \
-      BOOST_PP_SEQ_FOR_EACH_I(START_NAMESPACE, ,                                      \
-       BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))           \
-      typedef BOOST_PP_SEQ_ELEM(1,data)::BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER,\
-       , BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
-       BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)                \
-       BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem);               \
-      BOOST_PP_REPEAT(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),END_NAMESPACE, )        \
-                                                                                      \
+      namespace CAT(BOOST_PP_SEQ_ELEM(2,data),_default)                               \
+      {                                                                               \
+        BOOST_PP_SEQ_FOR_EACH_I(START_NAMESPACE, ,                                    \
+         BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
+        typedef BOOST_PP_SEQ_ELEM(1,data)::                                           \
+         BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,                              \
+         BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
+         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)              \
+         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem);             \
+        BOOST_PP_REPEAT(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),END_NAMESPACE, )      \
+      }                                                                               \
   }                                                                                   \
 
 #else
@@ -105,13 +109,17 @@
   #define TYPEDEFAULT(r,data,elem)                                                    \
     namespace Gambit                                                                  \
     {                                                                                 \
-      BOOST_PP_SEQ_FOR_EACH_I(START_NAMESPACE, ,                                      \
-       BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))           \
-      typedef BOOST_PP_SEQ_ELEM(1,data)::BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER,\
-       , BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
-       BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)                \
-       BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem);               \
-      BOOST_PP_REPEAT(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),END_NAMESPACE, )        \
+      namespace CAT(BOOST_PP_SEQ_ELEM(2,data),_default)                               \
+      {                                                                               \
+        BOOST_PP_SEQ_FOR_EACH_I(START_NAMESPACE, ,                                    \
+         BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
+        typedef BOOST_PP_SEQ_ELEM(1,data)::                                           \
+         BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,                              \
+         BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))         \
+         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)              \
+         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem);             \
+        BOOST_PP_REPEAT(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),END_NAMESPACE, )      \
+      }                                                                               \
     }
 
 #endif //__gambit_main_hpp__
@@ -123,7 +131,7 @@
 /// Set default backend version for BOSSed types.
 #define SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BE, VER, DEFAULT)                       \
 REGISTER_DEFAULT(BE, VER, DEFAULT)                                                    \
-BOOST_PP_SEQ_FOR_EACH(PRE_TYPEDEFAULT, (CAT_3(BE,_,VER))(CAT_3(BE,_,DEFAULT)),        \
+BOOST_PP_SEQ_FOR_EACH(PRE_TYPEDEFAULT, (CAT_3(BE,_,VER))(CAT_3(BE,_,DEFAULT))(BE),    \
  CAT_5(BE,_,DEFAULT,_,all_data) )
 
 /// Open a namespace

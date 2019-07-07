@@ -173,8 +173,6 @@ namespace Gambit
       private:
         gsl_interp_accel *acc[17];
         gsl_spline *spline[17];
-        gsl_interp_accel *acc_parabola;
-        gsl_spline *spline_parabola;
     };
 
     // Class creator. Needs path to tabulated H.E.S.S. data.
@@ -525,8 +523,6 @@ namespace Gambit
         std::vector<gsl_interp_accel*> gaee_acc;
         std::vector<gsl_spline*> gagg_linear_interp;
         std::vector<gsl_spline*> gaee_linear_interp;
-        gsl_interp_accel* eff_exp_acc;
-        gsl_spline* eff_exp_linear_interp;
     };
 
     // Class creators for CAST_SolarModel_Interpolator

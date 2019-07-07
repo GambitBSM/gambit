@@ -44,7 +44,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -71,7 +71,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -97,7 +97,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -134,7 +134,7 @@ if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
 else()
   set(pcFFLAGS "${pcFFLAGS} -fno-stack-arrays")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     GIT_REPOSITORY https://github.com/PolyChord/PolyChordLite
@@ -170,7 +170,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver} "null" ${login_data} ${dl2}
@@ -208,7 +208,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -238,11 +238,13 @@ set(ver "1.0.0")
 set(lib "libgreat")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+set(patch "${PROJECT_SOURCE_DIR}/ScannerBit/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     GIT_REPOSITORY https://gitlab.in2p3.fr/derome/GreAT.git
     SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS}
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}

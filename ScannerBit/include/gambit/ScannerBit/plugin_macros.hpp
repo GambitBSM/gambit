@@ -14,7 +14,7 @@
 ///  \date 2014 Feb
 ///
 ///  \author Pat Scott
-///          (p.scott@imperial.ac.uk)   
+///          (p.scott@imperial.ac.uk)
 ///  \date 2014 Dec
 ///
 ///  *********************************************
@@ -29,7 +29,12 @@ using Gambit::type_index;
 #ifndef SCANNER_PLUGIN_MACROS_HPP
 #define SCANNER_PLUGIN_MACROS_HPP
 
-/// \name gambit plugin macros 
+// Tell clang not to warn about usage of extern "C" even when the types involved are C++ (we just use it to avoid name-mangling)
+#ifdef __clang__
+  #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
+
+/// \name gambit plugin macros
 /// The main macros to be used by the user.
 /// @{
 /// Makes an abstract type of type "name" available to the plugin interface.
@@ -408,7 +413,7 @@ namespace __gambit_plugin_ ## plug_name ## __t__ ## plug_type ## __v__ ## plug_v
 
 #define GAMBIT_PLUGIN_1(plugin_name)                                                                        \
         _GAMBIT_PLUGIN_(plug_name,, __PLUGIN_no_version)                                                    \
-        
+
 #define GAMBIT_PLUGIN_2(plugin_name, plug_type)                                                             \
         _GAMBIT_PLUGIN_(plug_name, plug_type, __PLUGIN__no_version)                                         \
 
@@ -443,5 +448,5 @@ GAMBIT_PLUGIN(__VA_ARGS__)                                                      
     setup                                                                                                   \
 }                                                                                                           \
 __GAMBIT_PLUGIN_NAMESPACE__(__VA_ARGS__)                                                                    \
-        
+
 #endif

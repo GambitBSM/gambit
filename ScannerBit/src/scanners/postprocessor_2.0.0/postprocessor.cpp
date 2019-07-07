@@ -52,7 +52,7 @@ using namespace Gambit::PostProcessor;
 // Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
 extern template std::size_t Gambit::Printers::getTypeID<double>();
 
-// The reweigher Scanner plugin
+// The reweighter Scanner plugin
 scanner_plugin(postprocessor, version(2, 0, 0))
 {
   reqd_inifile_entries("like","reader");
@@ -64,9 +64,10 @@ scanner_plugin(postprocessor, version(2, 0, 0))
   int numtasks;
   int rank;
 
-  // Tags for messages
-  const int request_work_tag=10;
-  const int quit_tag=11;
+  #ifdef WITH_MPI
+    /// Tag for messages
+    const int request_work_tag=10;
+  #endif
 
   /// The reader object in use for the scan
   Gambit::Printers::BaseBaseReader* reader;
@@ -80,7 +81,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
   // Retrieve an integer from an environment variable
   int getintenv(const std::string& name)
   {
-     int x;
+     int x = 0;
      if(const char* env_p = std::getenv(name.c_str()))
      {
        std::stringstream env_s(env_p);
@@ -110,15 +111,14 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     // Get MPI data. No communication is needed, we just need to know how to
     // split up the workload. Just a straight division among all processes is
     // used, nothing fancy.
-#ifdef WITH_MPI
-    MPI_Comm_size(MPI_COMM_WORLD, &s_numtasks); // MPI requires unsigned ints here, so we'll just convert afterwards
-    MPI_Comm_rank(MPI_COMM_WORLD, &s_rank);
-
-#else
-    s_numtasks = 1;
-    s_rank = 0;
-#endif
-    numtasks = s_numtasks;
+    #ifdef WITH_MPI
+      MPI_Comm_size(MPI_COMM_WORLD, &s_numtasks); // MPI requires unsigned ints here, so we'll just convert afterwards
+      MPI_Comm_rank(MPI_COMM_WORLD, &s_rank);
+    #else
+      s_numtasks = 1;
+      s_rank = 0;
+    #endif
+      numtasks = s_numtasks;
     rank = s_rank;
 
     if(rank==0) std::cout << "Initialising 'postprocessor' plugin for ScannerBit..." << std::endl;
@@ -160,12 +160,12 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     if(get_inifile_value<bool>("use_virtual_rank",false))
     {
         #ifdef WITH_MPI
-        if(numtasks>1)
-        {
-          std::ostringstream err;
-          err << "You have set the 'use_virtual_rank' option for the postprocessor scanner plugin to 'true', which will allow the plugin to act as if it is part of an MPI ensemble when it really isn't, however you are also running this task in an MPI batch with size > 1! You cannot use the virtual rank system at the same time as running a real MPI job! Please choose one configuration or the other and rerun the job.";
-          scan_error().raise(LOCAL_INFO,err.str());
-        }
+          if(numtasks>1)
+          {
+            std::ostringstream err;
+            err << "You have set the 'use_virtual_rank' option for the postprocessor scanner plugin to 'true', which will allow the plugin to act as if it is part of an MPI ensemble when it really isn't, however you are also running this task in an MPI batch with size > 1! You cannot use the virtual rank system at the same time as running a real MPI job! Please choose one configuration or the other and rerun the job.";
+            scan_error().raise(LOCAL_INFO,err.str());
+          }
         #endif
         rank     = getintenv("RANK");
         numtasks = getintenv("SIZE");
@@ -207,9 +207,9 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         std::ostringstream err;
         err<<"Detected 'print_timing_data: true' in master YAML file. At present this option is not compatible with\
  the postprocessor, sorry! Please set 'print_timing_data: false' and try again"<<std::endl;
-        Scanner::scan_error().raise(LOCAL_INFO,err.str()); 
+        Scanner::scan_error().raise(LOCAL_INFO,err.str());
     }
- 
+
   }
 
   /// Main run function
@@ -249,20 +249,20 @@ scanner_plugin(postprocessor, version(2, 0, 0))
 
     // Ask the printer if this is a resumed run or not
     bool resume = get_printer().resume_mode();
- 
-    // Vector to record which processes have been told by the master to stop. 
+
+    // Vector to record which processes have been told by the master to stop.
     // Master cannot stop until all other processes have stopped.
     std::vector<bool> process_has_stopped(numtasks); // For end of run
 
     // Rank 0 needs to figure out which points are already processesed (if resuming)
     std::cout << "PP resume flag? "<<resume<<std::endl;
     if(resume)
-    { 
+    {
         if(rank==0)
         {
             std::cout << "Analysing previous output to determine remaining postprocessing work (may take a little time for large datasets)..." << std::endl;
- 
-            // Set up reader object for temporary output file, if one exists 
+
+            // Set up reader object for temporary output file, if one exists
             //Gambit::Options resume_reader_options = get_inifile_node("resume_reader");
             //get_printer().new_reader("done_points",resume_reader_options);
 
@@ -270,14 +270,14 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             // There is a special function for this
             // Resume reader is always called "resume".
             get_printer().create_resume_reader();
-            Gambit::Printers::BaseBaseReader* resume_reader = get_printer().get_reader("resume"); 
+            Gambit::Printers::BaseBaseReader* resume_reader = get_printer().get_reader("resume");
             done_chunks = get_done_points(*resume_reader);
 
             // Delete the reader object
-            get_printer().delete_reader("resume"); 
-            std::cout << "Distributing information about remaining work to all processes..." << std::endl; 
+            get_printer().delete_reader("resume");
+            std::cout << "Distributing information about remaining work to all processes..." << std::endl;
         }
- 
+
         #ifdef WITH_MPI
         if(numtasks>1)
         {
@@ -303,14 +303,14 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                       chunkdata[1] = chunk->end;
                       chunkdata[2] = chunk->eff_length;
                       chunk++;
-                   } 
+                   }
                    else
                    {
                       std::ostringstream err;
                       err << "Iterated past end of done_chunks!";
-                      scan_error().raise(LOCAL_INFO,err.str()); 
+                      scan_error().raise(LOCAL_INFO,err.str());
                    }
-                }   
+                }
 
                 ppComm.Bcast(chunkdata, 3, 0); // Broadcast to all workers from master
 
@@ -326,7 +326,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         }
         #endif
 
-        if(rank==0) 
+        if(rank==0)
         {
             std::cout << "Postprocessing resume analysis completed." << std::endl;
         }
@@ -336,7 +336,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         //for(auto chunk=done_chunks.begin(); chunk!=done_chunks.end(); ++chunk)
         //{
         //   std::cout << "   "<<chunk->start<<" -> "<<chunk->end<<std::endl;
-        //} 
+        //}
 
     }
 
@@ -359,7 +359,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             mychunk = driver.get_new_chunk();
          }
          else if(rank==0)
-         { 
+         {
             // Master checks for work requests from other processes
             for(int worker=1; worker<numtasks; worker++)
             {
@@ -447,10 +447,10 @@ scanner_plugin(postprocessor, version(2, 0, 0))
        {
           // Send stop signal
           mychunk = stopchunk;
-       } 
+       }
        else
        {
-          mychunk = driver.get_new_chunk(); 
+          mychunk = driver.get_new_chunk();
        }
        #endif
 
@@ -461,7 +461,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
 
        // Progress report
        unsigned long long npi = driver.next_point_index();
-       unsigned long long this_ri = npi / settings.update_interval;       
+       unsigned long long this_ri = npi / settings.update_interval;
        if(this_ri > ri)
        {
           // Issue progress report if we have crossed into a new reporting interval
@@ -543,7 +543,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
           err << "Postprocessing on "<<rank<<" terminated with an unrecognised return code ("<<exit_code<<"). This indicates a bug in the postprocessor, please report it.";
           scan_error().raise(LOCAL_INFO,err.str());
        }
-       
+
     }
     //if(rank==0) std::cout << "Done!" << std::endl;
     std::cout << "Rank "<< rank<< ": Done!" << std::endl;

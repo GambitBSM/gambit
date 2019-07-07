@@ -50,20 +50,26 @@
 #  \author Tomas Gonzalo
 #          (t.e.gonzalo@fys.uio.no)
 #  \date 2016 Apr, Dec
+#  \date 2017 Nov
 #
 #  \author James McKay
 #          (j.mckay14@imperial.ac.uk)
 #  \date 2016 Aug
 #
 #  \author Ankit Beniwal
-#  	   (ankit.beniwal@adelaide.edu.au)
+#  	   (ankit.beniwal@uclouvain.be)
 #  \date 2016 Aug
 #  \date 2017 Jun
 #  \date 2018 Aug
+#  \date 2019 Jun
 #
 #  \author Aaron Vincent
 #          (aaron.vincent@cparc.ca)
 #  \date 2017 Sep, Nov
+#
+#  \author Jonathan Cornell
+#          (jonathan.cornell@uc.edu)
+#  \date 2019 Mar
 #
 #************************************************
 
@@ -75,7 +81,7 @@ set(ver "1.0")
 set(lib "gencaplib")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     GIT_REPOSITORY https://github.com/aaronvincent/captngen.git
@@ -98,7 +104,7 @@ set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
 set(md5 "ca95ffa083941a469469710fab2f3c97")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -126,8 +132,7 @@ set(lib "libsuperiso")
 set(dl "http://dingohead.com/${name}_v${ver}.tgz")
 set(md5 "df864ceeccb72467bfbe572a8da9711d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -159,7 +164,7 @@ set(md5 "0c0da22b84721fc1d945f8039a4686c9")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -180,7 +185,7 @@ set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "47191564385379dd70aeba4811cd7c3b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -200,7 +205,7 @@ set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "93b894b80b360159264f0d634cd7387e")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -220,7 +225,7 @@ set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "504cb95a298fa62d11097793dc318549")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/")
 set(ddcalc_flags "${BACKEND_Fortran_FLAGS} -${FMODULE} ${dir}/build")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -255,7 +260,7 @@ set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -277,7 +282,7 @@ set(dl "http://lapth.cnrs.fr/micromegas/downloadarea/code/${name}_${ver}.tgz")
 set(md5 "72807f6d0ef80737554d8702b6b212c1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -309,7 +314,7 @@ endif()
 # MicrOmegas MSSM model
 set(model "MSSM")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -327,7 +332,7 @@ endif()
 # MicrOmegas ScalarSingletDM_Z2 model
 set(model "ScalarSingletDM_Z2")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -345,7 +350,7 @@ endif()
 # MicrOmegas ScalarSingletDM_Z3 model
 set(model "ScalarSingletDM_Z3")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -363,7 +368,7 @@ endif()
 # MicrOmegas VectorSingletDM_Z2 model
 set(model "VectorSingletDM_Z2")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -381,7 +386,7 @@ endif()
 # MicrOmegas MajoranaSingletDM_Z2 model
 set(model "MajoranaSingletDM_Z2")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -399,7 +404,7 @@ endif()
 # MicrOmegas DiracSingletDM_Z2 model
 set(model "DiracSingletDM_Z2")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_${model}")
-check_ditch_status(${name}_${model} ${ver})
+check_ditch_status(${name}_${model} ${ver} ${dir})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_Add(${name}_${model}_${ver}
     DOWNLOAD_COMMAND ""
@@ -427,8 +432,12 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 set(pythia_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fast") # -fast sometimes makes xsecs come out as NaN, but we catch that and invalidate those points.
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fno-math-errno -funsafe-math-optimizations -fno-rounding-math -fno-signaling-nans -fcx-limited-range") # Including all flags from -ffast-math except -ffinite-math-only which has proved to cause incorrect results.
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  # Include all flags from -ffast-math, except -ffinite-math-only (which has proved to cause incorrect results), and -fno-rounding-math -fno-signaling-nans (which don't exist in Clang and are defaults anyway for gcc).
+  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fno-math-errno -funsafe-math-optimizations")
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -fcx-limited-range") # Clang doesn't have this one.
+  endif()
   set_compiler_warning("no-extra" pythia_CXXFLAGS)
   set_compiler_warning("no-deprecated-declarations" pythia_CXXFLAGS)
 endif()
@@ -450,7 +459,7 @@ endif()
 set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURCE_DIR}/contrib/slhaea/include")
 
 # - Actual configure and compile commands
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -467,16 +476,16 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Pythia external model (EM)
-set(name "pythia")
-set(model "EM")
-set(ver "8.212.${model}")
+set(model "em")
+set(name "pythia_${model}")
+set(ver "8.212")
 set(lib "libpythia8")
 set(dl "http://home.thep.lu.se/~torbjorn/pythia8/pythia8212.tgz")
 set(md5 "0886d1b2827d8f0cd2ae69b925045f40")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(ext_model_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/ExternalModel")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -498,6 +507,7 @@ if(NOT ditched_${name}_${ver})
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 
@@ -508,7 +518,7 @@ set(lib "libnulike")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "47649992d19984ee53df6a1655c48227")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -528,7 +538,7 @@ set(lib "libnulike")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "20cee73a38fb3560298b6a3acdd4d83a")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -548,7 +558,7 @@ set(lib "libnulike")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "fc4c35dc867bb1213d80acd12e5c1169")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -568,7 +578,7 @@ set(lib "libnulike")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "5c8e74d125b619abe01e196af7baf790")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -597,7 +607,7 @@ if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
   set(susyhit_Fortran_FLAGS "${susyhit_Fortran_FLAGS} -O0")
 endif()
 
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -623,7 +633,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(FH_Fortran_FLAGS "${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}") #For skipping -O2, which seems to cause issues
 set(FH_C_FLAGS "${BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS}")             #For skipping -O2, which seems to cause issues
 set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For skipping -O2, which seems to cause issues
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -652,7 +662,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(FH_Fortran_FLAGS "${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}") #For skipping -O2, which seems to cause issues
 set(FH_C_FLAGS "${BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS}")             #For skipping -O2, which seems to cause issues
 set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For skipping -O2, which seems to cause issues
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -682,7 +692,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(FH_Fortran_FLAGS "${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}") #For skipping -O2, which seems to cause issues
 set(FH_C_FLAGS "${BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS}")             #For skipping -O2, which seems to cause issues
 set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For skipping -O2, which seems to cause issues
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -708,7 +718,7 @@ set(ver "0.0")
 set(dl "https://higgsbounds.hepforge.org/downloads/csboutput_trans_binary.tar.gz")
 set(md5 "004decca30335ddad95654a04dd034a6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
@@ -723,6 +733,45 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# HiggsBounds 5.3.2 beta
+set(name "higgsbounds")
+set(ver "5.3.2beta")
+set(lib "libhiggsbounds")
+set(dl "https://${name}.hepforge.org/downloads/HiggsBounds-${ver}.tar.gz")
+set(md5 "4f145c9e27ce025128d87c67269e1db2")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(hb_tab_name "higgsbounds_tables")
+set(hb_tab_ver "0.0")
+set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS ${hb_tab_name}_${hb_tab_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
+              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
+              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
+              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
+              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
+              COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+
 # HiggsBounds
 set(name "higgsbounds")
 set(ver "4.3.1")
@@ -734,7 +783,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_$
 set(hb_tab_name "higgsbounds_tables")
 set(hb_tab_ver "0.0")
 set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${hb_tab_name}_${hb_tab_ver}
@@ -773,7 +822,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(hb_tab_name "higgsbounds_tables")
 set(hb_tab_ver "0.0")
 set(hb_tab_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_tab_name}/${hb_tab_ver}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS ${hb_tab_name}_${hb_tab_ver}
@@ -801,6 +850,43 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# HiggsSignals 2.2.3 Beta
+set(name "higgssignals")
+set(ver "2.2.3beta")
+set(lib "libhiggssignals")
+set(dl "https://higgsbounds.hepforge.org/downloads/HiggsSignals-${ver}.tar.gz")
+set(md5 "80ea8f4ac59d0b2dfe727bd8d5e98f42")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(hb_name "higgsbounds")
+set(hb_ver "5.3.2beta")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS higgsbounds_${hb_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
+              COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F77C =.*|F77C = ${CMAKE_Fortran_COMPILER}|" my_configure
+              COMMAND sed ${dashi} -e "s|F90FLAGS =.*|F90FLAGS = ${BACKEND_Fortran_FLAGS}|" my_configure
+              COMMAND sed ${dashi} -e "s|\\.SUFFIXES|.NOTPARALLEL:${nl}${nl}.SUFFIXES|" makefile.in
+              COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
+              COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
+              COMMAND ./my_configure --hbpath=../../${hb_name}/${hb_ver}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+
 # HiggsSignals
 set(name "higgssignals")
 set(ver "1.4.0")
@@ -811,7 +897,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(hb_name "higgsbounds")
 set(hb_ver "4.3.1")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DEPENDS higgsbounds_${hb_ver}
@@ -851,7 +937,7 @@ set(dl "https://${name}.hepforge.org/downloads/SPheno-${ver}.tar.gz")
 set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
@@ -877,7 +963,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -903,7 +989,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}")
 # - Silence the deprecated-declarations warnings coming from Eigen3
 set(GM2CALC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
 set_compiler_warning("no-deprecated-declarations" GM2CALC_CXX_FLAGS)
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}

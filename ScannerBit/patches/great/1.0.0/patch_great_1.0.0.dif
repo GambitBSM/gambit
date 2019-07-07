@@ -1,0 +1,25 @@
+diff -rupN 1.0.0/CMakeLists.txt 1.0.0.pathched/CMakeLists.txt
+--- 1.0.0/CMakeLists.txt	2019-06-10 23:10:59.450680352 +0100
++++ 1.0.0.pathched/CMakeLists.txt	2019-06-10 23:10:51.446680495 +0100
+@@ -65,18 +65,8 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN
+ # Check for ROOT required for GreAT
+ find_package(ROOT REQUIRED)
+ if(ROOT_FOUND)
+-  include_directories(${ROOT_INCLUDE_DIR})
+-
+-  if(ROOT_VERSION VERSION_GREATER 6)
+-    # Check for C++14 support
+-    include(CheckCXXCompilerFlag)
+-    check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
+-    if(COMPILER_SUPPORTS_CXX14)
+-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+-    else()
+-      message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support needed for ROOT 6. Please use a different C++ compiler or an older ROOT version.")
+-    endif()
+-  else()
++  include_directories(${ROOT_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
++  if(NOT ROOT_VERSION VERSION_GREATER 6)
+     # Add workaround for ROOT bug preventing the use of sstream on some systems.
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DR__ACCESS_IN_SYMBOL")
+   endif()
+Binary files 1.0.0/.git/index and 1.0.0.pathched/.git/index differ

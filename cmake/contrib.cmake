@@ -49,32 +49,29 @@ include_directories("${yaml_INCLUDE_DIR}")
 add_definitions(-DYAML_CPP_DLL)
 add_subdirectory(${PROJECT_SOURCE_DIR}/contrib/yaml-cpp-0.6.2 EXCLUDE_FROM_ALL)
 
+#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=ON.
+option(WITH_RESTFRAMES "Compile with RestFrames enabled" OFF)
+if(NOT WITH_RESTFRAMES)
+  message("${BoldCyan} X RestFrames is deactivated. Set -DWITH_RESTFRAMES=ON to activate RestFrames.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding RestFrames from GAMBIT configuration.${ColourReset}")
+  set(WITH_RESTFRAMES OFF)
+elseif(NOT ROOT_FOUND)
+  message("${BoldCyan} X Not compiling with ROOT support: excluding RestFrames from GAMBIT configuration.${ColourReset}")
+  set(WITH_RESTFRAMES OFF)
+endif()
 
-#contrib/RestFrames; include only if ColliderBit is in use, ROOT is found and WITH_RESTFRAMES=True (default).
 set(restframes_VERSION "1.0.2")
 set(restframes_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/RestFrames-${restframes_VERSION}")
-if(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
-  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ColliderBit is not in use.)${ColourReset}")
-  set(EXCLUDE_RESTFRAMES TRUE)
-elseif(DEFINED WITH_RESTFRAMES AND NOT WITH_RESTFRAMES)
-  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (WITH_RESTFRAMES is set to False.)${ColourReset}")
-  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
-  set(EXCLUDE_RESTFRAMES TRUE)
-elseif(NOT ROOT_FOUND)
-  message("${BoldCyan} X Excluding RestFrames from GAMBIT configuration. (ROOT was not found.)${ColourReset}")
-  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
-  set(EXCLUDE_RESTFRAMES TRUE)
-else() # OK, let's include RestFrames then
+set(RestFrames_LIBRARY ${restframes_CONTRIB_DIR}/lib/librestframes.so)
+if(WITH_RESTFRAMES)
   message("-- RestFrames-dependent analyses in ColliderBit will be activated.")
+  message("   RestFrames v${restframes_VERSION} will be downloaded and installed when building GAMBIT.")
   set(EXCLUDE_RESTFRAMES FALSE)
-  # Check if the RestFrames library already exists and print info message
-  unset(RestFrames_LIBRARY CACHE)
-  find_library(RestFrames_LIBRARY RestFrames ${restframes_CONTRIB_DIR}/lib/)
-  if(RestFrames_LIBRARY STREQUAL "RestFrames_LIBRARY-NOTFOUND")
-    message("   RestFrames library not found. RestFrames v${restframes_VERSION} will be downloaded and installed when building GAMBIT.")
-  else()
-    message("   Found RestFrames library: ${RestFrames_LIBRARY}")
-  endif()
+else()
+  message("   RestFrames-dependent analyses in ColliderBit will be deactivated.")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${restframes_CONTRIB_DIR})
+  set(EXCLUDE_RESTFRAMES TRUE)
 endif()
 
 # Add RestFrames as an external project that GAMBIT can depend on
@@ -85,7 +82,6 @@ if(NOT EXCLUDE_RESTFRAMES)
   set(patch "${PROJECT_SOURCE_DIR}/contrib/patches/${name}/${ver}/patch_${name}_${ver}.dif")
   set(RESTFRAMES_LDFLAGS "-L${dir}/lib -lRestFrames")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
-  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.so)
   include_directories("${dir}" "${dir}/inc")
   ExternalProject_Add(restframes
     DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
@@ -101,6 +97,8 @@ if(NOT EXCLUDE_RESTFRAMES)
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
     )
+  # Add install name tool step for OSX
+  add_install_name_tool_step(${name} ${dir}/lib libRestFrames.dylib)
   # Add clean-restframes and nuke-restframes
   set(rmstring "${CMAKE_BINARY_DIR}/restframes-prefix/src/restframes-stamp/restframes")
   add_custom_target(clean-restframes COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
@@ -131,7 +129,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set (EXCLUDE_FLEXIBLESUSY FALSE)
 
   # Always use -O2 for flexiblesusy to ensure fast spectrum generation.
-  set(FS_CXX_FLAGS "${BACKEND_CXX_FLAGS} -Wno-missing-field-initializers")
+  set(FS_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set(FS_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(FS_CXX_FLAGS "${FS_CXX_FLAGS} -O2")
@@ -148,12 +146,18 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   endif()
   set(flexiblesusy_LDFLAGS ${flexiblesusy_LDFLAGS} ${flexiblesusy_compilerlibs})
 
-  # Silence the deprecated-declarations warnings comming from Eigen3
+  # Silence the deprecated-declarations warnings coming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
 
-  # Silence the unused parameter and variable warnings comming from FlexibleSUSY
+  # Silence the mass of compiler warnings coming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)
   set_compiler_warning("no-unused-variable" FS_CXX_FLAGS)
+  set_compiler_warning("no-unused-private-field" FS_CXX_FLAGS)
+  set_compiler_warning("no-unused-lambda-capture" FS_CXX_FLAGS)
+  set_compiler_warning("no-missing-field-initializers" FS_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" FS_CXX_FLAGS)
+  set_compiler_warning("no-mismatched-tags" FS_CXX_FLAGS)
+  set_compiler_warning("no-unneeded-internal-declaration" FS_CXX_FLAGS)
 
   # Construct the command to create the shared library
   set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
@@ -212,29 +216,10 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
     endif()
   endforeach()
 
-  # Explain how to build each of the flexiblesusy spectrum generators we need.  Configure now, serially, to prevent parallel build issues.
+  # Explain how to build each of the flexiblesusy spectrum generators we need.
   string (REPLACE ";" "," BUILD_FS_MODELS_COMMAS "${BUILD_FS_MODELS}")
   string (REPLACE ";" "," EXCLUDED_FS_MODELS_COMMAS "${EXCLUDED_FS_MODELS}")
-   set(config_command ./configure ${FS_OPTIONS} --with-models=${BUILD_FS_MODELS_COMMAS})
-  add_custom_target(configure-flexiblesusy COMMAND cd ${FS_DIR} && ${config_command})
-  message("${Yellow}-- Configuring FlexibleSUSY for models: ${BoldYellow}${BUILD_FS_MODELS_COMMAS}${ColourReset}")
-  if (NOT "${EXCLUDED_FS_MODELS_COMMAS}" STREQUAL "")
-    message("${Red}   Switching OFF FlexibleSUSY support for models: ${BoldRed}${EXCLUDED_FS_MODELS_COMMAS}${ColourReset}")
-  endif()
-  #message("${Yellow}-- Using configure command \n${config_command}${output}${ColourReset}" )
-  execute_process(COMMAND ${config_command}
-                  WORKING_DIRECTORY ${FS_DIR}
-                  RESULT_VARIABLE result
-                  OUTPUT_VARIABLE output
-                 )
-  if (NOT "${result}" STREQUAL "0")
-     message("${BoldRed}-- Configuring FlexibleSUSY failed.  Here's what I tried to do:\n${config_command}\n${output}${ColourReset}" )
-     message(FATAL_ERROR "Configuring FlexibleSUSY failed." )
-  endif()
-  set(rmstring "${CMAKE_BINARY_DIR}/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E touch ${rmstring}-configure)
-
-  message("${Yellow}-- Configuring FlexibleSUSY - done.${ColourReset}")
+  set(config_command ./configure ${FS_OPTIONS} --with-models=${BUILD_FS_MODELS_COMMAS})
 
   # Add FlexibleSUSY as an external project
   ExternalProject_Add(flexiblesusy
@@ -268,6 +253,27 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   foreach(_MODEL ${BUILD_FS_MODELS})
     include_directories("${FS_DIR}/models/${_MODEL}")
   endforeach()
+
+  # Configure now, serially, to prevent parallel build issues.
+  message("${Yellow}-- Configuring FlexibleSUSY for models: ${BoldYellow}${BUILD_FS_MODELS_COMMAS}${ColourReset}")
+  if (NOT "${EXCLUDED_FS_MODELS_COMMAS}" STREQUAL "")
+    message("${Red}   Switching OFF FlexibleSUSY support for models: ${BoldRed}${EXCLUDED_FS_MODELS_COMMAS}${ColourReset}")
+  endif()
+  #message("${Yellow}-- Using configure command \n${config_command}${output}${ColourReset}" )
+  execute_process(COMMAND ${config_command}
+                  WORKING_DIRECTORY ${FS_DIR}
+                  RESULT_VARIABLE result
+                  OUTPUT_VARIABLE output
+                 )
+  if (NOT "${result}" STREQUAL "0")
+     message("${BoldRed}-- Configuring FlexibleSUSY failed.  Here's what I tried to do:\n${config_command}\n${output}${ColourReset}" )
+     message(FATAL_ERROR "Configuring FlexibleSUSY failed." )
+  endif()
+  set(rmstring "${CMAKE_BINARY_DIR}/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E touch ${rmstring}-configure)
+
+  message("${Yellow}-- Configuring FlexibleSUSY - done.${ColourReset}")
+
 
 else()
 

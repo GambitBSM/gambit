@@ -146,6 +146,24 @@ namespace Gambit
     {
       using namespace Pipes::lnL_gaussian;
 
+      cout << "Checking for LHC option... ";
+      if (runOptions->hasKey("LHC"))
+      {
+        cout << "found." << endl;
+        YAML::Node colNode = runOptions->getValue<YAML::Node>("LHC");
+        cout << "extracted LHC" << endl;
+        Options colOptions(colNode);
+        double xsec_veto_fb = colOptions.getValueOrDef<double>(2.0, "xsec_veto");
+        cout << "extracted xsec_veto: " << xsec_veto_fb << endl;
+        if (colOptions.hasKey("analyses"))
+        {
+          std::vector<str> analyses = colNode["analyses"].as<std::vector<str> >();
+          cout << analyses << endl;
+        }
+      }
+      else cout << "not found." << endl;
+
+
       // Say we have a sample of 20 drawn from a normal distribution with
       // parameters muTrue and sigmaTrue. Let the sample mean and standard
       // deviation be as follows (this is our data):
@@ -201,7 +219,7 @@ namespace Gambit
       double eval_time = runOptions->getValueOrDef<double>(-1, "eval_time"); // Measured in seconds
       //std::cout << "eval_time:" << eval_time <<std::endl;
       if(eval_time>0)
-      {          
+      {
          struct timespec sleeptime;
          sleeptime.tv_sec = floor(eval_time);
          sleeptime.tv_nsec = floor((eval_time-floor(eval_time))*1e9); // Allow user to choose fractions of second
@@ -478,7 +496,7 @@ namespace Gambit
                                     Backends::backendInfo().default_version("Pythia") +
                                     "/share/Pythia8/xmldoc/";
 
-      Pythia8::Pythia pythia(default_doc_path, false);
+      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
 
       pythia.readString("Beams:eCM = 8000.");
       pythia.readString("HardQCD:all = on");
@@ -490,7 +508,7 @@ namespace Gambit
 
       pythia.init();
 
-      Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
+      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
       // Begin event loop. Generate event. Skip if error. List first one.
       for (int iEvent = 0; iEvent < 2; ++iEvent) {
         if (!pythia.next()) continue;

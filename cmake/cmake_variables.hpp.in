@@ -37,6 +37,9 @@
 /// Compiler supports C++14 features
 #cmakedefine COMPILER_SUPPORTS_CXX14 1
 
+/// Compiler supports C++17 features
+#cmakedefine COMPILER_SUPPORTS_CXX17 1
+
 /// Found regex in STL
 #cmakedefine HAVE_REGEX_H 1
 
@@ -59,9 +62,6 @@
 
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
-
-/// Found ROOT version 6 or later
-#cmakedefine ROOT_6_OR_LATER_FOUND 1
 
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1

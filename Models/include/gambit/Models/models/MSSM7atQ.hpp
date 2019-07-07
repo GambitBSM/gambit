@@ -2,13 +2,13 @@
 //   *********************************************
 ///  \file
 ///
-///  MSSM7atQ model definition. 
+///  MSSM7atQ model definition.
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott  
+///
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Sep
 ///
@@ -18,11 +18,12 @@
 #define __MSSM7atQ_hpp__
 
 // Parent model must be declared first! Include it here to ensure that this happens.
-#include "gambit/Models/models/MSSM9atQ.hpp" 
+#include "gambit/Models/models/MSSM9atQ.hpp"
 
 // Forward declaration of needed types
-namespace Gambit { 
-  class SMInputs;
+namespace Gambit
+{
+  struct SMInputs;
 }
 
 #define MODEL MSSM7atQ
