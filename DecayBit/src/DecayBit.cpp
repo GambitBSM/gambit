@@ -2476,7 +2476,7 @@ namespace Gambit
         double gamma_a = 0.562;
 
         // Integrand
-        std::function<double(double)> N_3pi_integrand = [&g,&m_N,&m_C,&m_N2,&m_C2,&O11L,&O11R,&O11L2,&O11R2,&f_pi2,&m_a,&gamma_a](double q2)
+        std::function<double(double)> N_3pi_integrand = [&g,&m_N,&m_C,&m_N2,&m_C2,&O11L,&O11R,&O11L2,&O11R2,&m_a,&gamma_a](double q2)
         {
           double BW_imag_term = m_a * gamma_a * g(q2)/g(pow2(m_a));
 
@@ -2850,7 +2850,7 @@ namespace Gambit
 
       // Get the spectrum information
       bool self_conjugate = true;
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running"))
       {
         spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;

@@ -29,13 +29,13 @@ void MODEL_NAMESPACE::QCDAxion_to_GeneralALP (const ModelParameters &myparams, M
 {
     logger()<<"Running interpret_as_parent calculations for QCDAxion -> GeneralALP ..."<<EOM;
 
-    const double alpha_red = alpha_EM/sqrt(2.0*pi);
+    const double alpha_red = alpha_EM/(2.0*pi);
     double fa  = myparams["fa"];
     double L2  = myparams["LambdaChi"]*myparams["LambdaChi"];
     double EoN = myparams["EoverN"];
     double CG  = myparams["CaggQCD"];
 
-    parentparams.setValue("gagg", 1E-9*alpha_red*std::fabs(EoN-CG)/fa);
+    parentparams.setValue("gagg", alpha_red*std::fabs(EoN-CG)/fa);
     parentparams.setValue("gaee", m_electron*myparams["Caee"]/fa);
     parentparams.setValue("fa", fa);
     parentparams.setValue("ma0", 1E+3*L2/fa);
@@ -113,15 +113,15 @@ void MODEL_NAMESPACE::ConstantMassALP_to_GeneralALP (const ModelParameters &mypa
 {
     logger()<<"Running interpret_as_parent calculations for ConstantMassALP -> GeneralALP ..."<<EOM;
 
-    const double alpha_red = alpha_EM/sqrt(2.0*pi);
+    const double alpha_red = alpha_EM/(2.0*pi);
 
     double L2 = myparams["Lambda"]*myparams["Lambda"];
-    double FA = myparams["fa"];
+    double fa = myparams["fa"];
 
-    parentparams.setValue("gagg", 1E-9*alpha_red*myparams["Cagg"]/FA);
-    parentparams.setValue("gaee", m_electron*myparams["Caee"]/FA);
-    parentparams.setValue("fa", FA);
-    parentparams.setValue("ma0", 1E+3*L2/FA);
+    parentparams.setValue("gagg", alpha_red*myparams["Cagg"]/fa);
+    parentparams.setValue("gaee", m_electron*myparams["Caee"]/fa);
+    parentparams.setValue("fa", fa);
+    parentparams.setValue("ma0", 1E+3*L2/fa);
     parentparams.setValue("Tchi", 1.0E99);
     parentparams.setValue("beta", 0);
     parentparams.setValue("thetai", myparams["thetai"]);

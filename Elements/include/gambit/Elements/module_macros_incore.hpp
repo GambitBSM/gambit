@@ -110,9 +110,11 @@
 
 /// Indicates that the current \link FUNCTION() FUNCTION\endlink of the current
 /// \link MODULE() MODULE\endlink must be managed by another function (in the same
-/// module or another) that calls it from within a loop.  That other function must
-/// provide capability \em LOOPMAN.
-#define NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)            CORE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)
+/// module or another) that calls it from within a loop.  May be called with one or
+/// two arguments: \em LOOPMAN (capability of the required manager; required) and
+/// \em TYPE (type of the required manager; not required).  Will provide a dependency
+/// pipe within the function if and only if \em TYPE is present and non-void.
+#define NEEDS_MANAGER(...)                                CORE_NEEDS_MANAGER(__VA_ARGS__)
 
 /// Indicate that the current \link FUNCTION() FUNCTION\endlink depends on the
 /// presence of another module function that can supply capability \em DEP, with
@@ -407,7 +409,7 @@
                                                                                \
       /* Resolve backend requirement BE_REQ in function TAG */                 \
       template <typename BE_REQ, typename TAG>                                 \
-      void resolve_backendreq(functor* be_functor)                             \
+      void resolve_backendreq(functor*)                                        \
       {                                                                        \
         cout<<STRINGIFY(MODULE)<<" does not"<<endl;                            \
         cout<<"have this backend requirement for this function.";              \
@@ -617,20 +619,35 @@
    Accessors::provides<Gambit::Tags::CAPABILITY>, Pipes::FUNCTION::runOptions);\
 
 // Determine whether to make registration calls to the Core in the
-// CORE_NEEDS_MANAGER_WITH_CAPABILITY macro, depending on STANDALONE flag
+// CORE_NEEDS_MANAGER macro, depending on STANDALONE flag
 #ifdef STANDALONE
-  #define CORE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)                          \
-          CORE_NEEDS_MANAGER_WITH_CAPABILITY_MAIN(LOOPMAN)
+  #define CORE_NEEDS_MANAGER(...)                                              \
+          CORE_NEEDS_MANAGER_REDIRECT(__VA_ARGS__)
 #else
-  #define CORE_NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN)                          \
-          CORE_NEEDS_MANAGER_WITH_CAPABILITY_MAIN(LOOPMAN)                     \
+  #define CORE_NEEDS_MANAGER(...)                                              \
+          CORE_NEEDS_MANAGER_REDIRECT(__VA_ARGS__)                             \
           namespace Gambit { namespace MODULE { const int CAT(FUNCTION,        \
            _registered3) = register_management_req(Functown::FUNCTION); } }
 #endif
 
-/// Main redirection of NEEDS_MANAGER_WITH_CAPABILITY(LOOPMAN) when invoked from
-/// within the core.
-#define CORE_NEEDS_MANAGER_WITH_CAPABILITY_MAIN(LOOPMAN)                       \
+/// Variadic redirection for NEEDS_MANAGER when invoked within the Core
+/// @{
+#define CORE_NEEDS_MANAGER_REDIRECT_2(_1, _2) CORE_NEEDS_MANAGER_2(_1,  _2)
+#define CORE_NEEDS_MANAGER_REDIRECT_1(_1)     CORE_NEEDS_MANAGER_1(_1)
+#define CORE_NEEDS_MANAGER_REDIRECT(...)      VARARG(CORE_NEEDS_MANAGER_REDIRECT, __VA_ARGS__)
+/// @}
+
+/// Redirection of NEEDS_MANAGER(LOOPMAN) when invoked from within the Core.
+#define CORE_NEEDS_MANAGER_1(LOOPMAN)                                          \
+  CORE_NEEDS_MANAGER_MAIN(LOOPMAN, any)
+
+/// Redirection of NEEDS_MANAGER(LOOPMAN,TYPE) when invoked from within the Core.
+#define CORE_NEEDS_MANAGER_2(LOOPMAN,TYPE)                                     \
+  CORE_NEEDS_MANAGER_MAIN(LOOPMAN,TYPE)                                        \
+  DEPENDENCY(LOOPMAN,TYPE)
+
+/// Main redirection of NEEDS_MANAGER(LOOPMAN,TYPE) when invoked from within the Core.
+#define CORE_NEEDS_MANAGER_MAIN(LOOPMAN,TYPE)                                  \
                                                                                \
   IF_TOKEN_UNDEFINED(MODULE,FAIL("You must define MODULE before calling "      \
    "NEEDS_MANAGER_WITH_CAPABILITY."))                                          \
@@ -666,7 +683,8 @@
       template <>                                                              \
       void rt_register_function_nesting<Tags::FUNCTION> ()                     \
       {                                                                        \
-        Functown::FUNCTION.setLoopManagerCapability(STRINGIFY(LOOPMAN));       \
+        Functown::FUNCTION.setLoopManagerCapType(STRINGIFY(LOOPMAN),           \
+                                                 STRINGIFY(TYPE));             \
         Pipes::FUNCTION::Loop::iteration = Functown::FUNCTION.iterationPtr();  \
       }                                                                        \
                                                                                \

@@ -1,4 +1,4 @@
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 namespace Gambit {
@@ -7,7 +7,7 @@ namespace Gambit {
 
 
     /// Dummy analysis code with a hard-coded return including a SR covariance matrix
-    class Analysis_Covariance : public HEPUtilsAnalysis {
+    class Analysis_Covariance : public Analysis{
     private:
 
       // Variables that holds the number of events passing
@@ -16,21 +16,23 @@ namespace Gambit {
 
     public:
 
-      Analysis_Covariance() {
+      // Required detector sim
+      static constexpr const char* detector = "ATLAS";
+
+      Analysis_Covariance()
+      {
         set_analysis_name("Covariance");
         set_luminosity(30.); // fb
       }
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
-        // if ((int)num_events() % 100 == 0) cout << num_events() << endl;
-      }
+      void run(const HEPUtils::Event*) {}
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis*) {}
 
-      void collect_results() {
-        // cout << "$$$ " << num_events() << endl;
-
+      void collect_results()
+      {
         // Now fill a results object with the result for two signal regions
         SignalRegionData results_SR1;
         results_SR1.sr_label = "SR1"; // label must be unique for each signal region
@@ -57,7 +59,7 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numSR = 0;
       }
 

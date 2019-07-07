@@ -13,7 +13,7 @@
 #include <memory>
 #include <iomanip>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 using namespace std;
@@ -23,8 +23,8 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    
-    class Analysis_ATLAS_13TeV_3b_36invfb : public HEPUtilsAnalysis {
+
+    class Analysis_ATLAS_13TeV_3b_36invfb : public Analysis {
 
     protected:
       // Signal region map
@@ -38,7 +38,7 @@ namespace Gambit {
         {"SR-4b-meff2-B", 0.},
         {"SR-4b-meff1-A-disc", 0.}   // Discovery regions, SR-4b-meff1-A and SR-4b-meff2-A are subsets
       };
-      
+
     private:
 
       // Cut-flows
@@ -48,16 +48,19 @@ namespace Gambit {
       vector<double> cutFlowVectorATLAS;
 
     public:
-      
+
+      // Required detector sim
+      static constexpr const char* detector = "ATLAS";
+
       static bool sortByPT(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
 
       Analysis_ATLAS_13TeV_3b_36invfb() {
 
         set_analysis_name("ATLAS_13TeV_3b_36invfb");
         set_luminosity(36.1);
-        
+
         NCUTS=14;
- 
+
         for(size_t i=0;i<NCUTS;i++){
           cutFlowVector.push_back(0);
           cutFlowVectorATLAS.push_back(0);
@@ -124,8 +127,7 @@ namespace Gambit {
         return mT;
       }
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
 
         // Get the missing energy in the event
         double met = event->met();
@@ -134,12 +136,19 @@ namespace Gambit {
         // Now define vectors of baseline objects, including:
         // - retrieval of electron, muon and jets from the event
         // - application of basic pT and eta cuts
+
+        // Electrons
         vector<HEPUtils::Particle*> electrons;
         for (HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 5.
               && fabs(electron->eta()) < 2.47)
             electrons.push_back(electron);
         }
+
+        // Apply electron efficiency
+        ATLAS::applyElectronEff(electrons);
+
+        // Muons
         vector<HEPUtils::Particle*> muons;
         for (HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 5.
@@ -147,12 +156,15 @@ namespace Gambit {
             muons.push_back(muon);
         }
 
+        // Apply muon efficiency
+        ATLAS::applyMuonEff(muons);
+
         vector<HEPUtils::Jet*> candJets;
         for (HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
             candJets.push_back(jet);
         }
-        
+
    	    // Jets
         vector<HEPUtils::Jet*> bJets;
         vector<HEPUtils::Jet*> nonbJets;
@@ -169,7 +181,7 @@ namespace Gambit {
           // Non b-jet
           else nonbJets.push_back(jet);
         }
-        
+
         // Overlap removal
         JetLeptonOverlapRemoval(nonbJets,electrons,0.2);
         LeptonJetOverlapRemoval(electrons,nonbJets);
@@ -201,7 +213,7 @@ namespace Gambit {
           jet_survivors.push_back(jet);
         }
         std::sort(jet_survivors.begin(), jet_survivors.end(), sortByPT);
-        
+
         // Number of objects
         size_t nbJets = bJets_survivors.size();
         size_t nnonbJets = nonbJets_survivors.size();
@@ -226,13 +238,13 @@ namespace Gambit {
         for(HEPUtils::Jet* jet : nonbJets_survivors){
           if(signalJets.size() < 4) signalJets.push_back(jet);
         }
-        
+
         // Effective mass (using the four jets used in Higgses)
         double meff = met;
         for(HEPUtils::Jet* jet : signalJets){
           meff += jet->pT();
         }
-        
+
         // Find Higgs candidates
         double mlead = 0;  double msubl = 0;
         double m1 = 0;  double m2 = 0;
@@ -270,7 +282,7 @@ namespace Gambit {
           //cout << mlead << " " << msubl << endl;
         }
 
-        
+
         // Transverse mass for leading b-jets
         double mTmin = 10E6;
         for(int i = 0; i < min(3,(int)nbJets); i++){
@@ -278,7 +290,7 @@ namespace Gambit {
           if(mT < mTmin) mTmin = mT;
         }
         //cout << "mTmin " << mTmin << endl;
-        
+
         // Increment cutFlowVector elements
         // Cut flow strings
 //        cutFlowVector_str[0]  = "No cuts ";
@@ -295,7 +307,7 @@ namespace Gambit {
 //        cutFlowVector_str[11]  = "m_{eff} > 600 GeV";
 //        cutFlowVector_str[12]  = "$N_{b-jet} \\ge 4$";
 //        cutFlowVector_str[13]  = "$0.4 \\le \\Delta R_{max}^{bb} \\le 1.4$";
-        
+
         // Cut flow from paper
         // Higgsino 300 GeV
 //        cutFlowVectorATLAS[0] = 10276.0;
@@ -390,28 +402,25 @@ namespace Gambit {
         if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600.) _numSR["SR-4b-meff1-A-disc"]++;
 
         return;
-        
+
       } // End of analyze
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_ATLAS_13TeV_3b_36invfb* specificOther
+          = dynamic_cast<const Analysis_ATLAS_13TeV_3b_36invfb*>(other);
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region number and total # events combination across threads
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_ATLAS_13TeV_3b_36invfb* specificOther
-          = dynamic_cast<Analysis_ATLAS_13TeV_3b_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j=0; j<NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
-        
+
         for (auto& el : _numSR) {
-          el.second += specificOther->_numSR[el.first];
+          el.second += specificOther->_numSR.at(el.first);
         }
- 
+
       }
 
 
@@ -435,7 +444,7 @@ namespace Gambit {
 //          cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << ATLAS_abs << "\t" << GAMBIT_scaled << "\t" << "\t" << ratio << "\t\t" << cutFlowVector_str[i] << endl;
 //        }
 //        cout << "DEBUG:" << endl;
-        
+
         // Now fill a results object with the results for each SR
         // Only exclusion regions here
         // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
@@ -446,11 +455,11 @@ namespace Gambit {
         add_result(SignalRegionData("SR-4b-meff1-B", 2., {_numSR["SR-4b-meff1-B"], 0.}, {2.6, 0.9}));
         add_result(SignalRegionData("SR-4b-meff2-A", 1., {_numSR["SR-4b-meff2-A"], 0.}, {0.43, 0.27}));
         add_result(SignalRegionData("SR-4b-meff2-B", 0., {_numSR["SR-4b-meff2-B"], 0.}, {1.3, 0.6}));
-        
+
         return;
       }
 
-      void clear() {
+      void analysis_specific_reset() {
         // Clear signal regions
         for (auto& el : _numSR) { el.second = 0.;}
 
@@ -463,8 +472,8 @@ namespace Gambit {
     };
 
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3b_36invfb)
-    
-    
+
+
     //
     // Class for collecting results for discovery regions as a derived class
     //
@@ -486,6 +495,6 @@ namespace Gambit {
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_3b_discoverySR_36invfb)
 
-    
+
   }
 }

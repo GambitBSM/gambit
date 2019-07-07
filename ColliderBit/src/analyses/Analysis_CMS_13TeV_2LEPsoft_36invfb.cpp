@@ -18,7 +18,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -29,9 +29,9 @@ namespace Gambit {
 
     // This analysis class is also a base class for the class
     // Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar defined further down.
-    // This is the same analysis, but it does not make use of the 
-    // SR covariance information. 
-    class Analysis_CMS_13TeV_2LEPsoft_36invfb : public HEPUtilsAnalysis {
+    // This is the same analysis, but it does not make use of the
+    // SR covariance information.
+    class Analysis_CMS_13TeV_2LEPsoft_36invfb : public Analysis {
 
     protected:
 
@@ -49,7 +49,7 @@ namespace Gambit {
         {"SR10", 0},
         {"SR11", 0},
         {"SR12", 0},
-      }; 
+      };
 
     private:
 
@@ -63,6 +63,9 @@ namespace Gambit {
       // ofstream cutflowFile;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       struct ptComparison {
         bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
@@ -85,8 +88,8 @@ namespace Gambit {
       }
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
+
         double met = event->met();
 
         // Signal objects
@@ -100,13 +103,13 @@ namespace Gambit {
         //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
         const vector<double> aEl={0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX};   // Bin edges in eta
         const vector<double> bEl={0., 5., 10., 15., 20., 25., DBL_MAX}; // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cEl={                 
-                          // pT:  (0,5),  (5,10),  (10,15),  (15,20),  (20,25),  (25,inf)     
+        const vector<double> cEl={
+                          // pT:  (0,5),  (5,10),  (10,15),  (15,20),  (20,25),  (25,inf)
                                    0.0,    0.336,   0.412,    0.465,    0.496,    0.503,   // eta: (0, 0.8)
                                    0.0,    0.344,   0.402,    0.448,    0.476,    0.482,   // eta: (0.8, 1.4429)
                                    0.0,    0.233,   0.229,    0.250,    0.261,    0.255,   // eta: (1.442, 1.556)
                                    0.0,    0.309,   0.359,    0.394,    0.408,    0.418,   // eta: (1.556, 2)
-                                   0.0,    0.243,   0.287,    0.327,    0.341,    0.352,   // eta: (2, 2.5) 
+                                   0.0,    0.243,   0.287,    0.327,    0.341,    0.352,   // eta: (2, 2.5)
                                    0.0,    0.0,     0.0,      0.0,      0.0,      0.0,     // eta > 2.5
                                   };
         // const vector<double> aEl={0,0.8,1.442,1.556,2.,2.5};
@@ -122,8 +125,8 @@ namespace Gambit {
         //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
         const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
         const vector<double> bMu={0., 3.5, 10., 15., 20., 25., DBL_MAX};  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cMu={                 
-                          // pT:  (0,3.5),  (3.5,10),  (10,15),  (15,20),  (20,25),  (25,inf)     
+        const vector<double> cMu={
+                          // pT:  (0,3.5),  (3.5,10),  (10,15),  (15,20),  (20,25),  (25,inf)
                                    0.0,      0.647,     0.718,    0.739,    0.760,    0.763,    // eta: (0, 0.9)
                                    0.0,      0.627,     0.662,    0.694,    0.725,    0.733,    // eta: (0.9, 1.2)
                                    0.0,      0.610,     0.660,    0.678,    0.685,    0.723,    // eta: (1.2, 2.1)
@@ -148,7 +151,7 @@ namespace Gambit {
         // Apply b-tag efficiencies and b-tag misidentification rate
         // for the CSVv2Loose working point
         CMS::applyCSVv2LooseBtagEffAndMisId(signalJets,signalBJets);
-        
+
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
@@ -165,9 +168,9 @@ namespace Gambit {
         double metcorr=0;
         vector<double> mT;
 
-        bool preselection=false; 
+        bool preselection=false;
         bool OS=false;
-        
+
         // Muon corrected ETmiss
         double metcorrx = event->missingmom().px();
         double metcorry = event->missingmom().py();
@@ -177,11 +180,11 @@ namespace Gambit {
         }
         metcorr = sqrt(metcorrx*metcorrx+metcorry*metcorry);
 
-        
+
         if (nSignalLeptons == 2) {
           m_ll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).m();
           pT_ll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).pT();
-          
+
           // Calculation of $M_{\tau\tau}$ variable
           double determinant = signalLeptons.at(0)->mom().px()*signalLeptons.at(1)->mom().py()-signalLeptons.at(0)->mom().py()*signalLeptons.at(1)->mom().px();
           double xi_1 = (event->missingmom().px()*signalLeptons.at(1)->mom().py()-signalLeptons.at(1)->mom().px()*event->missingmom().py())/determinant;
@@ -199,7 +202,7 @@ namespace Gambit {
           mT.push_back(999);
         }
         if (nSignalLeptons==1)mT.push_back(999);
-        
+
         if (nSignalLeptons==2) OS=signalLeptons.at(0)->pid()*signalLeptons.at(1)->pid()<0.;
 
         if (nSignalLeptons==2 && nSignalBJets==0 && nSignalJets>0) {
@@ -209,7 +212,7 @@ namespace Gambit {
             }
           }
         }
-        
+
 
         // Signal Regions
         // In the low ETmiss region, for each passing event we add 0.65 due to trigger efficiency
@@ -247,7 +250,7 @@ namespace Gambit {
         cutFlowVector_str[12] = "$M(\\tau\\tau)$ veto";
         cutFlowVector_str[13] = "$M_{T}(\\mu_{x},p^{miss}_{T}), x = 1,2 < 70$ GeV";
 
-        
+
         // Cut flow from CMS email
         cutFlowVectorCMS_150_130[0] = 172004.;
         cutFlowVectorCMS_150_130[1] = 1250.4;
@@ -291,36 +294,32 @@ namespace Gambit {
              (j==11 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0) ||
 
              (j==12 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0  && (mTauTau<0. || mTauTau>160.)) ||
-            
+
              (j==13 && nSignalMuons==2 && OS && pT_ll>3. && (m_ll>4. && m_ll<50.) && (m_ll<9. || m_ll>10.5) && (met>125. && metcorr > 125. && met<200.) && nSignalJets>0 && hT>100. && (met/hT<1.4 && met/hT>0.6) && nSignalBJets==0  && (mTauTau<0. || mTauTau>160.) && (mT.at(0)<70. && mT.at(1)<70.)))
           cutFlowVector[j]++;
         }
       }
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_13TeV_2LEPsoft_36invfb* specificOther
+                = dynamic_cast<const Analysis_CMS_13TeV_2LEPsoft_36invfb*>(other);
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_CMS_13TeV_2LEPsoft_36invfb* specificOther
-                = dynamic_cast<Analysis_CMS_13TeV_2LEPsoft_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j = 0; j < NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
 
-        for (auto& el : _numSR) { 
-          el.second += specificOther->_numSR[el.first];
+        for (auto& el : _numSR) {
+          el.second += specificOther->_numSR.at(el.first);
         }
 
       }
 
 
-      virtual void collect_results() {        
+      virtual void collect_results() {
 
         // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
         add_result(SignalRegionData("SR1",  2.,  {_numSR["SR1"],  0.}, {3.5, 1.}));
@@ -357,10 +356,10 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
 
         for (auto& el : _numSR) { el.second = 0.;}
-        
+
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
@@ -370,9 +369,9 @@ namespace Gambit {
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_2LEPsoft_36invfb)
 
 
-    // 
+    //
     // Derived analysis class that does not make use of the SR covariance matrix
-    // 
+    //
     class Analysis_CMS_13TeV_2LEPsoft_36invfb_nocovar : public Analysis_CMS_13TeV_2LEPsoft_36invfb {
 
     public:

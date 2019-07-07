@@ -23,9 +23,9 @@
 ///
 ///  *********************************************
 
-#ifndef __ColliderBit_Higgs_rollcall_hpp__
-#define __ColliderBit_Higgs_rollcall_hpp__
+#pragma once
 
+#define MODULE ColliderBit
 
   // HiggsBounds input model parameters
   #define CAPABILITY HB_ModelParameters
@@ -121,4 +121,4 @@
   #undef CAPABILITY
 
 
-#endif /* defined __ColliderBit_Higgs_rollcall_hpp__ */
+#undef MODULE

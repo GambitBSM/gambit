@@ -76,6 +76,9 @@ namespace Gambit
     /// Strips namespace from the start of a string, or after "const".
     EXPORT_SYMBOLS str strip_leading_namespace(str s, str ns);
 
+    /// Replaces a namespace at the start of a string, or after "const".
+    EXPORT_SYMBOLS str replace_leading_namespace(str s, str ns, str ns_new);
+
     /// Strip all whitespace except that following "const",
     /// in which case the whitespace is replaced by a single space.
     EXPORT_SYMBOLS void strip_whitespace_except_after_const(str&);

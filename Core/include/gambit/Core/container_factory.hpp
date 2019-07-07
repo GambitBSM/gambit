@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christoph Weniger
 ///    (c.weniger@uva.nl)
 ///  \date 2013 May, June, July
@@ -40,7 +40,6 @@
 #include "gambit/ScannerBit/priors_rollcall.hpp"
 #include "gambit/ScannerBit/scanner_utils.hpp"
 #include "gambit/ScannerBit/scan.hpp"
-#include "gambit/Utils/mpiwrapper.hpp"
 
 #define LOAD_SCANNER_FUNCTION(tag, ...) REGISTER(__scanner_factories__, tag, __VA_ARGS__)
 
@@ -49,33 +48,22 @@ namespace Gambit
 
   gambit_registry
   {
-    typedef void* factory_type(const std::map<str, primary_model_functor *> &, 
-     DRes::DependencyResolver &b, IniParser::IniFile &c, const str &purpose, Printers::BaseBasePrinter& p
-     #ifdef WITH_MPI
-     , GMPI::Comm& comm
-     #endif
-     );
+    typedef void* factory_type(const std::map<str, primary_model_functor *> &,
+     DRes::DependencyResolver &b, IniParser::IniFile &c, const str &purpose, Printers::BaseBasePrinter& p);
     reg_elem <factory_type> __scanner_factories__;
   }
-  
+
   class Likelihood_Container_Factory : public Scanner::Factory_Base
   {
     private:
       DRes::DependencyResolver &dependencyResolver;
       IniParser::IniFile &iniFile;
-      std::map<str, primary_model_functor *> functorMap;   
+      std::map<str, primary_model_functor *> functorMap;
       Printers::BaseBasePrinter &printer;
-      #ifdef WITH_MPI
-      GMPI::Comm& myComm;
-      #endif
 
     public:
-      Likelihood_Container_Factory(const gambit_core &core, DRes::DependencyResolver &dependencyResolver, 
-       IniParser::IniFile &iniFile, Printers::BaseBasePrinter& printer
-       #ifdef WITH_MPI
-       , GMPI::Comm& comm
-       #endif
-       );
+      Likelihood_Container_Factory(const gambit_core &core, DRes::DependencyResolver &dependencyResolver,
+       IniParser::IniFile &iniFile, Printers::BaseBasePrinter& printer);
       ~Likelihood_Container_Factory(){}
       void * operator() (const str &purpose) const;
   };

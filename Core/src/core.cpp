@@ -156,8 +156,7 @@ namespace Gambit
         {
           case 1:
           {
-            // Display version number and shutdown.
-            if (GET_RANK == 0) cout << "\nThis is GAMBIT v" + gambit_version() << endl;
+            // Shut down.
             logger().disable();
             throw SilentShutdownException();
           }
@@ -703,7 +702,6 @@ namespace Gambit
       // Disable all but the master MPI node
       if (mpirank == 0)
       {
-        cout << "\nThis is GAMBIT." << endl << endl;
         if (command == "modules") module_diagnostic();
         if (command == "backends") backend_diagnostic();
         if (command == "models") model_diagnostic();

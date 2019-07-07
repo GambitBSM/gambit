@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -23,7 +23,7 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2OSLEP_confnote_36invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_13TeV_2OSLEP_confnote_36invfb : public Analysis {
     private:
 
       // Numbers passing cuts
@@ -37,6 +37,9 @@ namespace Gambit {
       // ofstream cutflowFile;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       struct ptComparison {
         bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
@@ -55,11 +58,11 @@ namespace Gambit {
         _numSR2=0;
         _numSR3=0;
         _numSR4=0;
-        _numSR5=0; 
+        _numSR5=0;
         _numSR6=0;
-        _numSR7=0; 
-        _numSR8=0; 
-        _numSR9=0; 
+        _numSR7=0;
+        _numSR8=0;
+        _numSR9=0;
 
         NCUTS=13;
         // xsecCMS_550_200=30.2;
@@ -72,8 +75,8 @@ namespace Gambit {
       }
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
+
         double met = event->met();
 
         // Baseline objects
@@ -101,9 +104,9 @@ namespace Gambit {
         vector<HEPUtils::Particle*> signalLeptons;
         vector<HEPUtils::Particle*> signalElectrons;
         vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;   
-        vector<HEPUtils::Jet*> signalBJets;   
-        
+        vector<HEPUtils::Jet*> signalJets;
+        vector<HEPUtils::Jet*> signalBJets;
+
         //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_034_ttbar.pdf
         const vector<double> aEl={0,0.8,1.442,1.556,2.,2.5};
         const vector<double> bEl={0.,25.,30.,40.,50.,10000.};  // Assuming flat efficiency above pT = 200 GeV, where the CMS map stops.
@@ -126,7 +129,7 @@ namespace Gambit {
 
         sort(baselinePhotons.begin(),baselinePhotons.end(),comparePt);
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
-          bool overlap=false;            
+          bool overlap=false;
           for (size_t iLe=0;iLe<baselineElectrons.size();iLe++) {
             if (fabs(baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
           }
@@ -149,8 +152,8 @@ namespace Gambit {
         int nSignalJets = signalJets.size();
         int nSignalBJets = signalBJets.size();
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
-        sort(signalJets.begin(),signalJets.end(),compareJetPt);       
-        sort(signalBJets.begin(),signalBJets.end(),compareJetPt); 
+        sort(signalJets.begin(),signalJets.end(),compareJetPt);
+        sort(signalBJets.begin(),signalBJets.end(),compareJetPt);
 
         // Variables + Preselection
         bool preselection=false;
@@ -161,7 +164,7 @@ namespace Gambit {
         double mbb=0;
         double pT_j1=0;
         double deltaPhi_met_j0=0;
-        double deltaPhi_met_j1=0;       
+        double deltaPhi_met_j1=0;
 
         vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
         for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++) {
@@ -261,16 +264,12 @@ namespace Gambit {
 
       }
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb* specificOther
+                = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb*>(other);
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_CMS_13TeV_2OSLEP_confnote_36invfb* specificOther
-                = dynamic_cast<Analysis_CMS_13TeV_2OSLEP_confnote_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j = 0; j < NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
@@ -344,7 +343,7 @@ namespace Gambit {
           {  4.5,  2.5,  0.4,  0.3,  6.5,  1.8,  0.4},
           {  5.1,  2.0,  0.3,  0.1,  1.8,  2.4,  0.4},
           {  1.2,  0.7,  0.1,  0.1,  0.4,  0.4,  0.2},
-        };        
+        };
 
         set_covariance(BKGCOV);
 
@@ -354,9 +353,9 @@ namespace Gambit {
         // SignalRegionData results_SR1;
         // results_SR1.sr_label = "SR1";
         // results_SR1.n_observed = 793.;
-        // results_SR1.n_background = 793.; 
+        // results_SR1.n_background = 793.;
         // results_SR1.background_sys = 32.2;
-        // results_SR1.signal_sys = 0.; 
+        // results_SR1.signal_sys = 0.;
         // results_SR1.n_signal = _numSR1;
         // add_result(results_SR1);
 
@@ -488,17 +487,17 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numSR1=0;
         _numSR2=0;
         _numSR3=0;
         _numSR4=0;
-        _numSR5=0; 
+        _numSR5=0;
         _numSR6=0;
-        _numSR7=0; 
-        _numSR8=0; 
+        _numSR7=0;
+        _numSR8=0;
         _numSR9=0;
-        
+
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 

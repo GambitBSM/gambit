@@ -582,6 +582,7 @@ set( PLUGIN_INCLUDE_DIRECTORIES
                 ${Boost_INCLUDE_DIR}
                 ${GSL_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIR}
+                ${ROOT_INCLUDE_DIRS}
                 ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit
 )\n
 if( ${PLUG_VERBOSE} )
@@ -784,7 +785,7 @@ endif()
 if ({0}_FOUND)
     set ({1}_plugin_includes_{2}
         ${{{1}_plugin_includes_{2}}}
-        ${ROOT_INCLUDE_DIRS}
+        ${{ROOT_INCLUDE_DIRS}}
     )
     set ({1}_plugin_found_incs_{2} \"${{{1}_plugin_found_incs_{2}}}\\\"{0}\\\": ${{ROOT_INCLUDE_DIRS}}\\n\")
 endif()

@@ -104,6 +104,7 @@ namespace Gambit
 
       int ie,je;
 
+      result.model=-1;
       if (!spectrum["MODSEL"].empty())
       {
         if (spectrum["MODSEL"][1].is_data_line()) result.model=SLHAea::to<int>(spectrum["MODSEL"][1][1]);

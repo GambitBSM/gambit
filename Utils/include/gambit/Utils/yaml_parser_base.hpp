@@ -31,6 +31,7 @@
 #include "gambit/Utils/yaml_options.hpp"
 
 #include "yaml-cpp/yaml.h"
+#include <limits>
 
 
 namespace Gambit
