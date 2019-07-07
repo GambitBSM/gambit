@@ -633,6 +633,7 @@ endif()
 
             towrite += """
 set ({0}_ok_flag_{1} \"\")
+
 set ({0}_compile_flags_{1} \"${{PLUGIN_COMPILE_FLAGS}}""".format(plug_type[i], directory)
             if plug_type[i] in scanbit_cxx_flags:
                 if directory in scanbit_cxx_flags[plug_type[i]]:
