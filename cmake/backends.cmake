@@ -1064,7 +1064,7 @@ set(md5 "28d70cdce026eac37d947a14f6f5246c")
 set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 set(GSL_LIB_FLAGS "${GSL_LIBRARIES}")
 string(REPLACE ";" " " GSL_LIB_FLAGS "${GSL_LIB_FLAGS}")
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
