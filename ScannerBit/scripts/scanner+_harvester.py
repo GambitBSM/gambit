@@ -362,7 +362,8 @@ message(\"${{BoldCyan}} X Excluding {0} from ScannerBit configuration.${{ColourR
             for current_location_file in location_files:
 
                 # Load the locations yaml file, and work out which libs are present
-                yaml_file = yaml.load(open(current_location_file))
+                yaml_loader = yaml.full_load if hasattr(yaml, 'full_load') else yaml.load
+                yaml_file = yaml_loader(open(current_location_file))
 
                 if yaml_file:
                     if plugin_name in yaml_file and plugin[1] == plugin_type:
@@ -630,6 +631,7 @@ endif()
 """.format(plug_type[i], directory)
 
             towrite += """
+set ({0}_ok_flag_{1} \"\")
 set ({0}_compile_flags_{1} \"${{PLUGIN_COMPILE_FLAGS}}""".format(plug_type[i], directory)
             if plug_type[i] in scanbit_cxx_flags:
                 if directory in scanbit_cxx_flags[plug_type[i]]:
@@ -638,16 +640,11 @@ set ({0}_compile_flags_{1} \"${{PLUGIN_COMPILE_FLAGS}}""".format(plug_type[i], d
             towrite += "\")\n"
 
             for plug in scanbit_plugins[plug_type[i]][directory]:
-                nothing_excluded = True
                 if plug[3] == "excluded":
                     nothing_excluded = False
                     towrite += """
-set ({0}_ok_flag_{1} \"    user: {2}\\n\")
-""".format(plug_type[i], directory, plug[4])
-            if (nothing_excluded):
-                towrite += """
-set ({0}_ok_flag_{1} \"\")
-""".format(plug_type[i], directory)
+set ({0}_ok_flag_{1} \"${{{0}_ok_flag_{1}}} \\n    - user excluded plugin: \\\"{2}\\\"\")
+""".format(plug_type[i], directory, plug[4].split("__t__")[0])
 
             towrite += """
 set ({0}_plugin_libraries_{1}
@@ -754,9 +751,13 @@ endif()
 """.format(lib, plug_type[i], directory)
                         else:
                             towrite += """
+unset({0}_{1}_{2}_LIBRARY CACHE)
 find_library( {0}_{1}_{2}_LIBRARY {2} HINTS ${{{0}_plugin_lib_paths_{1}}} )
 if( {0}_{1}_{2}_LIBRARY STREQUAL \"{0}_{1}_{2}_LIBRARY-NOTFOUND\" )
     message(\"-- Did not find {0} library {2} for {1}. Disabling scanners that depend on this.\")
+    # next line will exclude plugins if no lib found.  Note that if you un-comment this line
+    # all plugins defined in this library will be excluded.
+    # set ({0}_ok_flag_{1} \"${{{0}_ok_flag_{1}}} \\n    - library missing: \\\"lib{2}.so\\\"\")
 else()
     get_filename_component(lib_path ${{{0}_{1}_{2}_LIBRARY}} PATH)
     get_filename_component(lib_name ${{{0}_{1}_{2}_LIBRARY}} NAME_WE)
@@ -783,15 +784,16 @@ endif()
 if ({0}_FOUND)
     set ({1}_plugin_includes_{2}
         ${{{1}_plugin_includes_{2}}}
-        ${ROOT_INCLUDE_DIR}
+        ${ROOT_INCLUDE_DIRS}
     )
-    set ({1}_plugin_found_incs_{2} \"${{{1}_plugin_found_incs_{2}}}\\\"{0}\\\": ${{ROOT_INCLUDE_DIR}}\\n\")
+    set ({1}_plugin_found_incs_{2} \"${{{1}_plugin_found_incs_{2}}}\\\"{0}\\\": ${{ROOT_INCLUDE_DIRS}}\\n\")
 endif()
 """.format(inc, plug_type[i], directory)
 
                         else:
                             inc_name = plug_type[i] + "_" + directory + "_" + re.sub(r";|/|\.", "_", inc) + "_INCLUDE_PATH"
                             towrite += """
+unset({0} CACHE)
 find_path( {0} \"{1}\" HINTS ${{{2}_plugin_includes_{3}}})
 if( NOT {0} STREQUAL \"{0}-NOTFOUND\" )
     set ({2}_plugin_includes_{3}
@@ -801,8 +803,8 @@ if( NOT {0} STREQUAL \"{0}-NOTFOUND\" )
     set ({2}_plugin_found_incs_{3} \"${{{2}_plugin_found_incs_{3}}}    \\\"{1}\\\": ${{{0}}}\\n\")
     message(\"-- Found {2} header: ${{inc_name}}/{1}\")
 else()
-    set ({2}_ok_flag_{3} \"    file_missing: \\\"{1}\\\"\")
     message(\"-- Did not find {2} header {1}. Disabling scanners that depend on this.\")
+    set ({2}_ok_flag_{3} \"${{{2}_ok_flag_{3}}} \\n    - file missing: \\\"{1}\\\"\")
 endif()
 """.format(inc_name, inc, plug_type[i], directory)
                             
@@ -829,7 +831,7 @@ if ( {0}_ok_flag_{1} STREQUAL \"\" )
     target_link_libraries( {0}_{1} ${{{0}_plugin_lib_full_paths_{1}}})
     set (SCANNERBIT_PLUGINS  ${{SCANNERBIT_PLUGINS}} {0}_{1})
 else()
-    set ( exclude_lib_output \"${{exclude_lib_output}}lib{0}_{1}.so:\\n  plugins:\\n{2}\\n  reason: \\n${{{0}_ok_flag_{1}}}\\n\" )
+    set ( exclude_lib_output \"${{exclude_lib_output}}lib{0}_{1}.so:\\n  plugins:\\n{2}\\n  reason: ${{{0}_ok_flag_{1}}}\\n\\n\" )
 endif()
 """.format(plug_type[i], directory, "\\n".join(["    - {0}".format(plug[4]) for plug in scanbit_plugins[plug_type[i]][directory]]))
 

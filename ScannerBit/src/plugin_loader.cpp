@@ -163,15 +163,18 @@ namespace Gambit
 
                             if (it->second["reason"])
                             {
-                                if(it->second["reason"].IsScalar())
+                                for (auto rea : it->second["reason"])
                                 {
-                                    reason.push_back(it->second["reason"].as<std::string>());
-                                }
-                                if(it->second["reason"].IsMap())
-                                {
-                                    for (auto it2 = it->second["reason"].begin(), end2 = it->second["reason"].end(); it2 != end2; ++it2)
+                                    if(rea.IsScalar())
                                     {
-                                        reason.push_back(it2->first.as<std::string>() + ":  " + it2->second.as<std::string>());
+                                        reason.push_back(rea.as<std::string>());
+                                    }
+                                    if(rea.IsMap())
+                                    {
+                                        for (auto it2 = rea.begin(), end2 = rea.end(); it2 != end2; ++it2)
+                                        {
+                                            reason.push_back(it2->first.as<std::string>() + ":  " + it2->second.as<std::string>());
+                                        }
                                     }
                                 }
                             }
