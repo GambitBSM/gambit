@@ -132,6 +132,7 @@ set(lib "libsuperiso")
 set(dl "http://dingohead.com/${name}_v${ver}.tgz")
 set(md5 "df864ceeccb72467bfbe572a8da9711d")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
