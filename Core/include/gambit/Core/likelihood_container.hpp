@@ -22,6 +22,10 @@
 ///  \date 2013 Aug
 ///  \date 2014 May, June
 ///
+///  \author Tomas Gonzalo
+///    (tomas.gonzalo@monash.edu)
+///  \date 2019 May
+///
 ///  *********************************************
 
 #ifndef __likelihood_container_hpp__
@@ -71,6 +75,9 @@ namespace Gambit
 
       /// Active value for the minimum log likelihood (one of the above two values, whichever is currently in-use)
       double active_min_valid_lnlike;
+
+      /// Switch to print or not print invalid points to the output file
+      bool print_invalid_points;
 
       /// Map of return types of target functors
       std::map<DRes::VertexID,str> return_types;

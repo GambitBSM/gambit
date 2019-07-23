@@ -12,6 +12,10 @@
 ///          (gregory.david.martinez@gmail.com)
 ///  \date 2015 Feb, Mar
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu
+///  \date 2019 May
+///
 ///  *********************************************
 
 #ifndef __FACTORY_DEFS_HPP__
@@ -318,10 +322,10 @@ namespace Gambit
                 double ret_val = (*this)->operator()(map);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
-                (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
                 (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
+                (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
 
                 return ret_val + (*this)->getPurposeOffset();
             }
@@ -333,10 +337,10 @@ namespace Gambit
                 double ret_val = (*this)->operator()(map);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
-                (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
                 if (vec.size() > 0) (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
+                (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
                 // Return the value of the function, offset by any offset set
                 return ret_val + (*this)->getPurposeOffset();
             }

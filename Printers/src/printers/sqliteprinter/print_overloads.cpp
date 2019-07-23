@@ -84,7 +84,7 @@ namespace Gambit
       for (auto it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
-        ss<<label<<"::"<<it->first;
+        ss<<label<<"::("<<it->first.first<<","<<it->first.second<<")";
         _print(it->second, ss.str(), vID, mpirank, pointID);
       }
     }
