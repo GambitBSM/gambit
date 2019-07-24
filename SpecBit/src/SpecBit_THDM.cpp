@@ -2319,7 +2319,7 @@ namespace Gambit
       THDM_spectrum_container container;
       thdmc_couplings couplings; 
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
-      couplings = fill_thdmc_couplings(container, thdmc_couplings_purpose);
+      couplings = fill_thdmc_couplings(container, purpose);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return couplings;
     }

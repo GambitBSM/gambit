@@ -917,7 +917,7 @@ namespace Gambit
 
       // extract spectrum object
       const SubSpectrum& he = fullspectrum.get_HE();
-      const SubSpectrum& S = fullspectrum.get_LE();
+      const SubSpectrum& SM = fullspectrum.get_LE();
       const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
       // -----------------------------------------
@@ -968,7 +968,7 @@ namespace Gambit
 
       // cycle over neutral scalars & fill HB input
       for (int h=0; h<3; h++) {
-        const double gamma_h = THDM_total_widths.gamma_tot_h[h+1]
+        const double gamma_h = THDM_total_widths.gamma_tot_h[h+1];
         result.hGammaTot[h] = gamma_h;
         result.BR_hjss[h] = THDM_decay_widths.gamma_hdd[h+1][2][2]/gamma_h;
         result.BR_hjcc[h] = THDM_decay_widths.gamma_huu[h+1][2][2]/gamma_h;
@@ -999,7 +999,7 @@ namespace Gambit
         }
 
         c = THDM_couplings.vvh[2][2][h+1];
-        const double CS_lep_hjz_ratio = pow(abs(c)/(g/costw*MZ),2)
+        const double CS_lep_hjz_ratio = pow(abs(c)/(g/costw*MZ),2);
         result.CS_lep_hjZ_ratio[h]= CS_lep_hjz_ratio;
         result.CS_dd_hjZ_ratio[h] = CS_lep_hjz_ratio;
         result.CS_uu_hjZ_ratio[h] = CS_lep_hjz_ratio;
@@ -1009,7 +1009,7 @@ namespace Gambit
         result.CS_gg_hjZ_ratio[h] = 0.0;
 
         c = THDM_couplings.vvh[3][3][h+1];
-        const double CS_ud_hjWp_ratio = pow(abs(c)/(g*MW),2)
+        const double CS_ud_hjWp_ratio = pow(abs(c)/(g*MW),2);
         result.CS_ud_hjWp_ratio[h] = CS_ud_hjWp_ratio;
         result.CS_ud_hjWm_ratio[h] = CS_ud_hjWp_ratio;
         result.CS_cs_hjWp_ratio[h] = CS_ud_hjWp_ratio;
@@ -1023,7 +1023,7 @@ namespace Gambit
         cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
 
         const double CS_bb_hj_ratio = pow(abs(cs/cs_sm),2) + pow(abs(cp/cs_sm),2);
-        result.CS_bb_hj_ratio[h] = CS_bb_hj_ratio
+        result.CS_bb_hj_ratio[h] = CS_bb_hj_ratio;
         result.CS_bg_hjb_ratio[h] = CS_bb_hj_ratio;
         result.CS_lep_bbhj_ratio[h] = CS_bb_hj_ratio;
 
@@ -1047,7 +1047,7 @@ namespace Gambit
       }
 
       // fill charged scalar input
-      const double gamma_Hc = THDM_total_widths.gamma_tot_h[4]
+      const double gamma_Hc = THDM_total_widths.gamma_tot_h[4];
       result.HpGammaTot[0] = gamma_Hc;
 
       result.CS_lep_HpjHmi_ratio[0] = 1.0;

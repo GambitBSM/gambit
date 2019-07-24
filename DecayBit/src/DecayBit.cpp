@@ -3806,7 +3806,7 @@ namespace Gambit
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
       for (int h=1; h<=3; h++) {
         init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
-        SM_like_widths.push_back(fill_thdmc_couplings(container, purpose));
+        SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return SM_like_widths;
