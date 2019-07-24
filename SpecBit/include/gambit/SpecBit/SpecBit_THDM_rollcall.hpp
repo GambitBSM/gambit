@@ -387,9 +387,9 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_for_HiggsBounds
+#define CAPABILITY THDM_couplings_HB
 START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_for_HiggsBounds
+  #define FUNCTION get_THDM_couplings_HB
   START_FUNCTION(thdmc_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
@@ -398,9 +398,31 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_SM_like_model
+#define CAPABILITY THDM_couplings_HB_SM_like_model
 START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_SM_like_model
+  #define FUNCTION get_THDM_couplings_HB_SM_like_model
+  START_FUNCTION(std::vector<thdmc_couplings>)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY THDM_couplings_HB_effc
+START_CAPABILITY
+  #define FUNCTION get_THDM_couplings_HB_effc
+  START_FUNCTION(thdmc_couplings)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY THDM_couplings_HB_effc_SM_like_model
+START_CAPABILITY
+  #define FUNCTION get_THDM_couplings_HB_effc_SM_like_model
   START_FUNCTION(std::vector<thdmc_couplings>)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)

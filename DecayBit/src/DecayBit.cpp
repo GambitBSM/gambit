@@ -3509,10 +3509,10 @@ namespace Gambit
         tau, SM_Z::gamma_inv.sigma, false);
     }
 
-    //
     // THDM Routines
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
+    enum thdmc_decays_purpose{full, HB_decays, HB_SM_like_decays, HB_effc_decays, HB_effc_SM_like_decays};
     const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
     const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
     const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
@@ -3630,7 +3630,6 @@ namespace Gambit
     // end of THDM container functions
     // }
 
-
     void nan_warning(std::string var_name) {
        std::ostringstream msg;
        msg << "DecayBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
@@ -3646,11 +3645,14 @@ namespace Gambit
       if (std::isnan(var)) nan_warning(var_name);
     }
 
-   enum thdmc_decays_purpose{full, HiggsBounds, SM_like};
-
    thdmc_decay_widths fill_THDM_decay_widths(THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
      thdmc_decay_widths decay_widths;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
+     // select purpose for decay widths struct
+     // this is to save computational time as not all of struct must be filled for different uses
+     // full: fills all values
+     // HiggsBounds: fills widths for HB input
+     // SM_like: minimal fill, for SM like model limits
      switch (purpose) {
        case full: {
          for (int h1=1; h1<5; h1++) {
@@ -3697,7 +3699,7 @@ namespace Gambit
           }
          break;
        }
-       case HiggsBounds: {
+       case HB_decays: {
           decay_widths.gamma_uhd[3][4][3] = decay_table_object.get_gamma_uhd(3,4,3);
           decay_widths.gamma_hdu[4][2][2] = decay_table_object.get_gamma_hdu(4,2,2);
           decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
@@ -3736,11 +3738,50 @@ namespace Gambit
           //*
          break;
        }
-       case SM_like: {
+       case HB_SM_like_decays: {
          decay_widths.gamma_hgg[1] = decay_table_object.get_gamma_hgg(1);
          check_nan(decay_widths.gamma_hgg[1], "hgg width");
          decay_widths.gamma_hll[1][3][3] = decay_table_object.get_gamma_hll(1,3,3);
          check_nan(decay_widths.gamma_hll[1][3][3], "hll width 133");
+         break;
+       }
+        case HB_effc_decays: {
+          // fill neutral sacalar widths
+          for (int h1=1; h1<4; h1++) {
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+            decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
+            decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
+            check_nan(decay_widths.gamma_hgaga[h1], "hgaga width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hZga[h1], "hZga width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
+            for (int h2=1; h2<5; h2++) {
+              decay_widths.gamma_hhh[h1][h2][h2] = decay_table_object.get_gamma_hhh(h1,h2,h2);
+              check_nan(decay_widths.gamma_hhh[h1][h2][h2], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h2));
+              for(int v=1; v<4; v++) {
+                  decay_widths.gamma_hvh[h1][v][h2] = decay_table_object.get_gamma_hvh(h1,v,h2);
+                  check_nan(decay_widths.gamma_hvh[h1][v][h2], "hvh width "+std::to_string(h1)+std::to_string(v)+std::to_string(h2));
+              }
+            }
+          }
+          // fill charged Higgs
+          decay_widths.gamma_uhd[4,2,2] = decay_table_object.get_gamma_uhd(4,2,2);
+          decay_widths.gamma_hdu[4,3,2] = decay_table_object.get_gamma_hdu(4,3,2);
+          decay_widths.gamma_hln[4,3,3] = decay_table_object.get_gamma_hln(4,3,3);
+          check_nan(decay_widths.gamma_uhd[4,2,2], "uhd width 422");
+          check_nan(decay_widths.gamma_hdu[4,3,2], "hdu width 432");
+          check_nan(decay_widths.gamma_hln[4,3,3], "hln width 433");
+         break;
+       }
+        case HB_effc_SM_like_decays: {
+          // fill neutral sacalar widths
+          for (int h1=1; h1<4; h1++) {
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+            decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
+            decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
+            check_nan(decay_widths.gamma_hgaga[h1], "hgaga width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hZga[h1], "hZga width "+std::to_string(h1));
+            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
+          }
          break;
        }
      }
@@ -3748,6 +3789,32 @@ namespace Gambit
      return decay_widths;
    }
 
+    // **
+    // THDM width DecayBit helper functions
+    thdmc_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, const double scale, thdmc_decays_purpose purpose) {
+      THDM_spectrum_container container;
+      thdmc_decay_widths widths; 
+      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      widths = fill_THDM_decay_widths(container, thdmc_couplings_purpose);
+      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      return widths;
+    }
+
+    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_decays_purpose purpose) {
+      THDM_spectrum_container container;
+      std::vector<thdmc_decay_widths> SM_like_widths; 
+      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      for (int h=1; h<=3; h++) {
+        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        SM_like_widths.push_back(fill_thdmc_couplings(container, purpose));
+      }
+      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      return SM_like_widths;
+    }
+    // **
+
+    // **
+    // THDM width DecayBit front facing functions 
    void get_THDM_decay_widths(thdmc_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths;
       // set THDM model type
@@ -3756,72 +3823,58 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      THDM_spectrum_container container;
-      const Spectrum spec = *Dep::THDM_spectrum;
-      // initializes couplings at scale or not
-      bool init_at_scale = false;
-      if (init_at_scale) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        init_THDM_spectrum_container(container, spec, y_type, scale);
-      }
-      else {
-        init_THDM_spectrum_container(container, spec, y_type);
-      }
-      result = fill_THDM_decay_widths(container, full);
-      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      if (is_at_Q) scale = *Param.at("QrunTo");
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, full);
    }
 
-   void get_THDM_decay_widths_for_HiggsBounds(thdmc_decay_widths &result) {
-      using namespace Pipes::get_THDM_decay_widths_for_HiggsBounds;
+   void get_THDM_decay_widths_HB(thdmc_decay_widths &result) {
+      using namespace Pipes::get_THDM_decay_widths_HB;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
       for (int i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-      THDM_spectrum_container container;
-      const Spectrum spec = *Dep::THDM_spectrum;
-      // initializes couplings at scale or not
-      bool init_at_scale = false;
-      if (init_at_scale) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        init_THDM_spectrum_container(container, spec, y_type, scale);
-      }
-      else {
-        init_THDM_spectrum_container(container, spec, y_type);
-      }
-      result = fill_THDM_decay_widths(container, HiggsBounds);
-      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      if (is_at_Q) scale = *Param.at("QrunTo");
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_decays);
    }
 
-   void get_THDM_decay_widths_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
-      using namespace Pipes::get_THDM_decay_widths_SM_like_model;
+   void get_THDM_decay_widths_HB_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
+       using namespace Pipes::get_THDM_decay_widths_HB_SM_like_model;
+      // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
       for (int i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
-     THDM_spectrum_container container;
-      const Spectrum spec = *Dep::THDM_spectrum;
-      // initializes couplings at scale or not
-      bool init_at_scale = false;
-      if (init_at_scale) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        init_THDM_spectrum_container(container, spec, y_type, scale);
-      }
-      else {
-        init_THDM_spectrum_container(container, spec, y_type);
-      }
-      std::vector<thdmc_decay_widths> SM_like_decays;
-
-      for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
-        SM_like_decays.push_back(fill_THDM_decay_widths(container, SM_like));
-      }
-
-      delete container.THDM_object;
-      result = SM_like_decays;
+      if (is_at_Q) scale = *Param.at("QrunTo");
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_decays);
     }
+
+    void get_THDM_decay_widths_HB_effc(thdmc_decay_widths &result) {
+      using namespace Pipes::get_THDM_decay_widths_HB_effc;
+      // set THDM model type
+      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      for (int i=0; i < THDM_model_keys.size(); i++) {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      }
+      if (is_at_Q) scale = *Param.at("QrunTo");
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_effc_decays);
+   }
+
+   void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
+       using namespace Pipes::get_THDM_decay_widths_HB_effc_SM_like_model;
+      // set THDM model type
+      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      for (int i=0; i < THDM_model_keys.size(); i++) {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      }
+      if (is_at_Q) scale = *Param.at("QrunTo");
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_decays);
+    }
+    // **
 
   thdmc_total_widths fill_THDM_total_widths(THDM_spectrum_container& container) {
      thdmc_total_widths total_widths;

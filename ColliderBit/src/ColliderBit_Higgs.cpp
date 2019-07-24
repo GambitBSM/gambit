@@ -691,6 +691,7 @@ namespace Gambit
       result = HiggsProd;
 
     }
+
     // * is this required?
     // void THDMHiggs_gambit_ModelParameters(Higgs_ModelParameters &result)
     // {
@@ -705,108 +706,397 @@ namespace Gambit
     //   result.add_charged_higgs(he.get(Par::mass1,"mC"),0.0);
     // }
 
+    void fill_THDM_HiggsBounds_model_parameters_effC(hb_ModelParameters_effC &result)
+    {
+        using namespace Pipes::fill_THDM_HiggsBounds_model_parameters_effC;
+        const Spectrum fullspectrum = *Dep::THDM_spectrum;
+
+        // get THDM coupling struct
+        const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB_effc;
+        // get vector of SM-like (multiple limits) THDM coupling structs
+        const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_effc_SM_like_model;
+        // get THDM decay width struct
+        const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB_effc;
+        // get vector of SM-like (multiple limits) THDM decay widths
+        const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_effc_SM_like_model;
+        // get total widths
+        const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths;
+
+        // extract spectrum object
+        const SubSpectrum& he = fullspectrum.get_HE();
+        const SubSpectrum& le = fullspectrum.get_LE();
+        const SMInputs& sminputs = fullspectrum.get_SMInputs();
+
+        double Mh[3];
+        double GammaTotal[3];
+        double g2hjss_s[3];
+        double g2hjss_p[3];
+        double g2hjcc_s[3];
+        double g2hjcc_p[3];
+        double g2hjbb_s[3];
+        double g2hjbb_p[3];
+        double g2hjtt_s[3];
+        double g2hjtt_p[3];
+        double g2hjmumu_s[3];
+        double g2hjmumu_p[3];
+        double g2hjtautau_s[3];
+        double g2hjtautau_p[3];
+        double g2hjWW[3];
+        double g2hjZZ[3];
+        double g2hjZga[3];
+        double g2hjgaga[3];
+        double g2hjgg[3];
+        double g2hjggZ[3];
+        double g2hjhiZ[3][3];
+        double BR_hjinvisible[3];
+        double BR_hjhihi[3][3];
+
+        double MHp[1];
+        double MHplusGammaTot[1];
+        double CS_lep_HpjHmi_ratio[1];
+        double BR_tWpb[1];
+        double BR_tHpjb[1];
+        double BR_Hpjcs[1];
+        double BR_Hpjcb[1];
+        double BR_Hptaunu[1];
+
+        // double sba = he.get, tanb, lam6, lam7, m122;
+        // model.get_param_phys(Mh[0], Mh[1], Mh[2], MHp[0], sba, lam6, lam7, m122, tanb);
+        const double mh = he.get(Par::Pole_Mass, "h0", 1), mH = he.get(Par::Pole_Mass, "h0", 2);
+        const double mA = he.get(Par::Pole_Mass, "A0"), mC = he.get(Par::Pole_Mass, "H+");
+        const double lam6 = he.get(Par::mass1, "lambda_6"), lam7 = he.get(Par::mass1, "lambda_7");
+        const double m122 = he.get(Par::mass1, "m12_2");
+        const double tanb = he.get(Par::dimensionless, "tanb"), a = he.>get(Par::dimensionless, "alpha");
+        const double sba = sin(atan(tanb)-a);
+        ///HERE
+
+        // THDM sm_like;
+        // DecayTableTHDM table(model), sm_table(sm_like);
+
+        // SM sm = model.get_SM();
+
+        const double RWW = 0.77; 
+        const double RZZ = 1.0-RWW;
+
+        const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
+
+        const double GF = sminputs.GF;
+        const double v = 1./sqrt(sqrt(2)*GF);
+        const double g = 2.*MW/v;
+
+        const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
+        const double costw = sqrt(1.-sintw*sintw);
+
+        const double mt = SM.get(Par::Pole_mass,"u_3")
+
+        std::complex<double> c,cs,cp,c_sm,cs_sm,cp_sm;
+
+        for (int h=1;h<=3;h++) {
+          // get SM model
+          // get THDM model & create a ratio of the two
+          double mh = Mh[h-1];
+             // sm_like.set_param_phys(Mh[h-1], Mh[h-1]*10., Mh[h-1]*10., Mh[h-1]*10., 1.0, 0., 0., 0., 1.0);
+            // sm_like.set_param_sm(Mh[h-1]);
+            // sm_like.set_yukawas_type(1);
+
+            // table.set_model(model);
+            // sm_table.set_model(sm_like);
+
+        cs = THDM_couplings.hdd_cs[h][2][2];
+        cp = THDM_couplings.hdd_cp[h][2][2];
+        cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][2][2];
+        cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][2][2];
+
+          g2hjss_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjss_p[h-1] = pow(abs(cp/cs_sm),2);
+          
+        if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "ss", g2hjss_s[h-1], g2hjss_p[h-1]);
+
+        cs = THDM_couplings.hdd_cs[h][3][3];
+        cp = THDM_couplings.hdd_cp[h][3][3];
+        cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
+        cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
+        //   model.get_coupling_hdd(h,3,3,cs,cp);
+        // sm_like.get_coupling_hdd(1,3,3,cs_sm,cp_sm);
+
+          g2hjbb_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjbb_p[h-1] = pow(abs(cp/cs_sm),2);
+          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "bb", g2hjbb_s[h-1], g2hjbb_p[h-1]);
+
+
+        cs = THDM_couplings.huu_cs[h][2][2];
+        cp = THDM_couplings.huu_cp[h][2][2];
+        cs_sm = THDM_couplings_SM_like[h].huu_cs[1][2][2];
+        cp_sm = THDM_couplings_SM_like[h].huu_cp[1][2][2];
+        //   model.get_coupling_huu(h,2,2,cs,cp);
+        // sm_like.get_coupling_huu(1,2,2,cs_sm,cp_sm);
+
+          g2hjcc_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjcc_p[h-1] = pow(abs(cp/cs_sm),2);
+          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "cc", g2hjcc_s[h-1], g2hjcc_p[h-1]);
+
+        cs = THDM_couplings.huu_cs[h][3][3];
+        cp = THDM_couplings.huu_cp[h][3][3];
+        cs_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
+        cp_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
+        //   model.get_coupling_huu(h,3,3,cs,cp);
+        // sm_like.get_coupling_huu(1,3,3,cs_sm,cp_sm);
+          g2hjtt_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjtt_p[h-1] = pow(abs(cp/cs_sm),2);
+          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tt", g2hjtt_s[h-1], g2hjtt_p[h-1]);
+
+        cs = THDM_couplings.hll_cs[h][2][2];
+        cp = THDM_couplings.hll_cp[h][2][2];
+        cs_sm = THDM_couplings_SM_like[h].hll_cs[1][2][2];
+        cp_sm = THDM_couplings_SM_like[h].hll_cp[1][2][2];
+        //   model.get_coupling_hll(h,2,2,cs,cp);
+        // sm_like.get_coupling_hll(1,2,2,cs_sm,cp_sm);
+          g2hjmumu_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
+          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "mumu", g2hjmumu_s[h-1], g2hjmumu_p[h-1]);
+
+        cs = THDM_couplings.hll_cs[h][3][3];
+        cp = THDM_couplings.hll_cp[h][3][3];
+        cs_sm = THDM_couplings_SM_like[h].hll_cs[1][3][3];
+        cp_sm = THDM_couplings_SM_like[h].hll_cp[1][3][3];
+        //   model.get_coupling_hll(h,3,3,cs,cp);
+        // sm_like.get_coupling_hll(1,3,3,cs_sm,cp_sm);
+          g2hjtautau_s[h-1] = pow(abs(cs/cs_sm),2);
+          g2hjtautau_p[h-1] = pow(abs(cp/cs_sm),2);
+          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tata", g2hjtautau_s[h-1], g2hjtautau_p[h-1]);
+
+        c = THDM_couplings.vvh[2][2][h];
+        c_sm = THDM_couplings_SM_like[h].vvh[2][2][1];
+          // model.get_coupling_vvh(2, 2, h, c);
+          // sm_like.get_coupling_vvh(2, 2, 1, c_sm);
+          g2hjZZ[h-1] = pow(abs(c/c_sm),2);
+          if (debug) printf("%2d %5s %16.8E\n", h, "ZZ", g2hjZZ[h-1]);
+
+        c = THDM_couplings.vvh[3][3][h];
+        c_sm = THDM_couplings_SM_like[h].vvh[3][3][1];
+          // model.get_coupling_vvh(3, 3, h, c);
+          // sm_like.get_coupling_vvh(3, 3, 1, c_sm);
+          g2hjWW[h-1] = pow(abs(c/c_sm),2);
+          if (debug) printf("%2d %5s %16.8E\n", h, "WW", g2hjWW[h-1]);
+
+          double hgaga = THDM_decay_widths.gamma_hgaga[h];
+          double hgaga_sm = THDM_decay_widths_SM_like.gamma_hgaga[1];
+          g2hjgaga[h-1] = hgaga/hgaga_sm;
+          if (debug) printf("%2d %5s %16.8E\n", h, "gaga",g2hjgaga[h-1]);
+
+          double hZga = THDM_decay_widths.gamma_hZga[h];
+          double hZga_sm = THDM_decay_widths_SM_like.gamma_hZga[1];
+          g2hjZga[h-1] = hZga/hZga_sm;
+          if (debug) printf("%2d %5s %16.8E\n", h, "Zga", g2hjZga[h-1]);
+
+          double hgg = THDM_decay_widths.gamma_hgg[h];
+          double hgg_sm = THDM_decay_widths_SM_like.gamma_hgg[1];
+          g2hjgg[h-1] = hgg/hgg_sm;
+          g2hjggZ[h-1] = 0.;
+          if (debug) printf("%2d %5s %16.8E\n", h, "gg", g2hjgg[h-1]);
+
+          if ((h<=2)&&(mh>=90.)) {
+          // GammaTotal[h-1] =  smgamma_h_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjWW[h-1] - 1.)*smbr_hww_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjZZ[h-1] - 1.)*smbr_hzz_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjgg[h-1] - 1.)*smbr_hgg_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjtt_s[h-1] + g2hjtt_p[h-1]/(1.-2.*pow(mt,2)/pow(mh,2)) - 1.)*smbr_htoptop_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjbb_s[h-1] + g2hjbb_p[h-1] - 1.)*smbr_hbb_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjtautau_s[h-1] + g2hjtautau_p[h-1] - 1.)*smbr_htautau_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjmumu_s[h-1] + g2hjmumu_p[h-1] - 1.)*smbr_hmumu_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjss_s[h-1] + g2hjss_p[h-1] - 1.)*smbr_hss_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjcc_s[h-1] + g2hjcc_p[h-1] - 1.)*smbr_hcc_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjZga[h-1]-1)*smbr_hzgam_(&mh);
+          // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjgaga[h-1]-1)*smbr_hgamgam_(&mh);
+
+          for (int i=1; i<=4; i++) {
+            GammaTotal[h-1] += THDM_decay_widths.gamma_hhh[h,i,i];
+          }
+
+          for (int i=1; i<=4; i++) {
+            for (int j=1; j<=3; j++) {
+              GammaTotal[h-1] += THDM_decay_widths.gamma_hvh[h,j,i];
+            }
+          }
+
+        } else {
+
+          GammaTotal[h-1] = THDM_total_widths.gammatot_h[h];
+        }
+
+
+          if (debug) printf("gtot %16.8E %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], table.get_gammatot_h(h), HB_get_gammah(Mh[h-1]), sm_table.get_gammatot_h(1));
+
+
+        }
+
+
+
+
+    //      GammaTotal[h-1] = GammaTotal[h-1]*HB_get_gammah(Mh[h-1])/sm_table.get_gammatot_h(1);
+         	// printf("gtot %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], sm_table.get_gammatot_h(1), HB_get_gammah(Mh[h-1]));
+
+      //HURRR
+
+        for (int j=1;j<=3;j++) {
+          for (int i=1;i<=3;i++) {
+          BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j,i,i]/GammaTotal[j-1];
+          c = THDM_couplings.vvh[2,j,i];
+          g2hjhiZ[i-1][j-1]=pow(abs(c)/(g/2./costw),2);
+          if (debug) printf("%2d %2d hihjZ %16.8E\n", j, i, g2hjhiZ[i-1][j-1]);
+          if (debug) printf("%2d %2d hj->hihi %16.8E\n", j, i, BR_hjhihi[i-1][j-1]);
+          }
+        }
+
+        // higgsbounds_neutral_input_effc_(Mh,GammaTotal,
+        // g2hjss_s, g2hjss_p,
+        // g2hjcc_s, g2hjcc_p,
+        // g2hjbb_s, g2hjbb_p,
+        // g2hjtt_s, g2hjtt_p,
+        // g2hjmumu_s,g2hjmumu_p,
+        // g2hjtautau_s, g2hjtautau_p,
+        // g2hjWW, g2hjZZ, g2hjZga, g2hjgaga,
+        // g2hjgg, g2hjggZ,g2hjhiZ,
+        // BR_hjinvisible,
+        // BR_hjhihi);
+
+        CS_lep_HpjHmi_ratio[0] = 1.;
+        const double gammatot_top = THDM_total_widths.gamma_tot_t;
+        const double gammatot_top_SM = THDM_total_widths.gamma_tot_t_SM_contrib;
+        const double gammatot_Hc = THDM_total_widths.gamma_tot_h[4];
+
+      BR_tWpb[0] = gammatot_top_SM/gammatot_top;
+      BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3,4,3]/gammatot_top;
+
+      BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4,2,2]/gammatot_Hc;
+      BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4,3,2]/gammatot_Hc;
+      BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4,3,3]/gammatot_Hc;
+
+      // higgsbounds_charged_input_(MHp,
+      //   MHplusGammaTot,
+      //   CS_lep_HpjHmi_ratio,
+      //   BR_tWpb,
+      //   BR_tHpjb,
+      //   BR_Hpjcs,
+      //   BR_Hpjcb,
+      //   BR_Hptaunu);
+    }
+
     void fill_THDM_HiggsBounds_model_parameters(hb_ModelParameters &result)
     {
       using namespace Pipes::fill_THDM_HiggsBounds_model_parameters;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
-      // unpack THDM Couplings
-      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings;
-      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_SM_like_model;
-      const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths;
-      const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_SM_like_model;
+
+      // get THDM coupling struct
+      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB;
+      // get vector of SM-like (multiple limits) THDM coupling structs
+      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_SM_like_model;
+      // get THDM decay width struct
+      const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB;
+      // get vector of SM-like (multiple limits) THDM decay widths
+      const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_SM_like_model;
+      // get total widths
       const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths;
 
+      // extract spectrum object
       const SubSpectrum& he = fullspectrum.get_HE();
-      const SubSpectrum& SM = fullspectrum.get_LE();
+      const SubSpectrum& S = fullspectrum.get_LE();
       const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
       // -----------------------------------------
       // adapted from 2HDMC code - Constraints.cpp
       // requires rewritting into a GAMBIT style
-      double RWW = 0.77; 
-      double RZZ = 1.0-RWW;
+      const double RWW = 0.77; 
+      const double RZZ = 1.0-RWW;
 
-      double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
+      const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
 
-      double GF = sminputs.GF;
-      double v = 1./sqrt(sqrt(2)*GF);
-      double g = 2.*MW/v;
+      const double GF = sminputs.GF;
+      const double v = 1./sqrt(sqrt(2)*GF);
+      const double g = 2.*MW/v;
 
-      double sintw = sqrt(1.-MW*MW/(MZ*MZ));
-      double costw = sqrt(1.-sintw*sintw);
+      const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
+      const double costw = sqrt(1.-sintw*sintw);
 
+      // declare couplings
       complex <double> c,cs,cp,cs_sm,cp_sm,cst,cpt,cst_sm,cpt_sm;
 
+      // fill scalar masses (at Pole)
       result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
       result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
       result.Mh[2] = he.get(Par::Pole_Mass,"A0");
       result.MHplus[0] = he.get(Par::Pole_Mass,"H+");
 
-      bool has_high_err = he.has(Par::Pole_Mass_1srd_high, 25, 0);
-      bool has_low_err = he.has(Par::Pole_Mass_1srd_low, 25, 0);
+      // set error for mh
+      const bool has_high_err = he.has(Par::Pole_Mass_1srd_high, 25, 0);
+      const bool has_low_err = he.has(Par::Pole_Mass_1srd_low, 25, 0);
       if (has_high_err and has_low_err) {
-        double upper = he.get(Par::Pole_Mass_1srd_high, 25, 0);
-        double lower = he.get(Par::Pole_Mass_1srd_low, 25, 0);
+        const double upper = he.get(Par::Pole_Mass_1srd_high, 25, 0);
+        const double lower = he.get(Par::Pole_Mass_1srd_low, 25, 0);
         result.deltaMh[0] = result.Mh[0] * std::max(upper,lower);
       }
       else {
         result.deltaMh[0] = 0.;
       }
 
+      // set all other scalar mass errors to zero
       result.deltaMh[1] = 0.0;
       result.deltaMh[2] = 0.0;
       result.deltaMHplus[0] = 0.0;
 
+      // set CP of the scalars
       result.CP[0] = 1;
       result.CP[1] = 1;
       result.CP[2] = -1;
 
+      // cycle over neutral scalars & fill HB input
       for (int h=0; h<3; h++) {
+        const double gamma_h = THDM_total_widths.gamma_tot_h[h+1]
+        result.hGammaTot[h] = gamma_h;
+        result.BR_hjss[h] = THDM_decay_widths.gamma_hdd[h+1][2][2]/gamma_h;
+        result.BR_hjcc[h] = THDM_decay_widths.gamma_huu[h+1][2][2]/gamma_h;
+        result.BR_hjbb[h] = THDM_decay_widths.gamma_hdd[h+1][3][3]/gamma_h;
+        result.BR_hjtautau[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/gamma_h;
+        result.BR_hjmumu[h] = THDM_decay_widths.gamma_hll[h+1][2][2]/gamma_h;
+        result.BR_hjWW[h] = THDM_decay_widths.gamma_hvv[h+1][3]/gamma_h;
+        result.BR_hjZZ[h] = THDM_decay_widths.gamma_hvv[h+1][2]/gamma_h;
+        result.BR_hjZga[h] = THDM_decay_widths.gamma_hZga[h+1]/gamma_h;
+        result.BR_hjgg[h] = THDM_decay_widths.gamma_hgg[h+1]/gamma_h;
+        result.BR_hjgaga[h] = THDM_decay_widths.gamma_hgaga[h+1]/gamma_h;
 
-        result.hGammaTot[h] = THDM_total_widths.gamma_tot_h[h+1];
-
-        result.BR_hjss[h] = THDM_decay_widths.gamma_hdd[h+1][2][2]/result.hGammaTot[h];
-        result.BR_hjcc[h] = THDM_decay_widths.gamma_huu[h+1][2][2]/result.hGammaTot[h];
-        result.BR_hjbb[h] = THDM_decay_widths.gamma_hdd[h+1][3][3]/result.hGammaTot[h];
-        result.BR_hjtautau[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/result.hGammaTot[h];
-        result.BR_hjmumu[h] = THDM_decay_widths.gamma_hll[h+1][2][2]/result.hGammaTot[h];
-        result.BR_hjWW[h] = THDM_decay_widths.gamma_hvv[h+1][3]/result.hGammaTot[h];
-        result.BR_hjZZ[h] = THDM_decay_widths.gamma_hvv[h+1][2]/result.hGammaTot[h];
-        result.BR_hjZga[h] = THDM_decay_widths.gamma_hZga[h+1]/result.hGammaTot[h];
-        result.BR_hjgg[h] = THDM_decay_widths.gamma_hgg[h+1]/result.hGammaTot[h];
-        result.BR_hjgaga[h] = THDM_decay_widths.gamma_hgaga[h+1]/result.hGammaTot[h];
-
+        // multi higgs couplings
         for (int h2=0; h2<3; h2++) {
 
-          result.BR_hjhihi[h2][h] = THDM_decay_widths.gamma_hhh[h+1][h2+1][h2+1]/result.hGammaTot[h];
+          result.BR_hjhihi[h2][h] = THDM_decay_widths.gamma_hhh[h+1][h2+1][h2+1]/gamma_h;
 
-          if(result.hGammaTot[h2+1]==0)
-          {
+          // sets invisible branching 
+          if(result.hGammaTot[h2+1]==0) {
             result.BR_hjinvisible[h] = result.BR_hjhihi[h2][h];
           }
-          else{ result.BR_hjinvisible[h] = 0; }
+          else{ 
+            result.BR_hjinvisible[h] = 0; 
+          }
 
           c = THDM_couplings.vhh[2][h2+1][h+1];
           result.CS_lep_hjhi_ratio[h][h2] = pow(abs(c)/(g/2./costw),2);
         }
 
         c = THDM_couplings.vvh[2][2][h+1];
-        result.CS_lep_hjZ_ratio[h]=pow(abs(c)/(g/costw*MZ),2);
-        result.CS_dd_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
-        result.CS_uu_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
-        result.CS_ss_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
-        result.CS_cc_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
-        result.CS_bb_hjZ_ratio[h] = result.CS_lep_hjZ_ratio[h];
-
-        result.CS_gg_hjZ_ratio[h]=0.;
+        const double CS_lep_hjz_ratio = pow(abs(c)/(g/costw*MZ),2)
+        result.CS_lep_hjZ_ratio[h]= CS_lep_hjz_ratio;
+        result.CS_dd_hjZ_ratio[h] = CS_lep_hjz_ratio;
+        result.CS_uu_hjZ_ratio[h] = CS_lep_hjz_ratio;
+        result.CS_ss_hjZ_ratio[h] = CS_lep_hjz_ratio;
+        result.CS_cc_hjZ_ratio[h] = CS_lep_hjz_ratio;
+        result.CS_bb_hjZ_ratio[h] = CS_lep_hjz_ratio;
+        result.CS_gg_hjZ_ratio[h] = 0.0;
 
         c = THDM_couplings.vvh[3][3][h+1];
-        result.CS_ud_hjWp_ratio[h] = pow(abs(c)/(g*MW),2);
-        result.CS_ud_hjWm_ratio[h] = result.CS_ud_hjWp_ratio[h];
-        result.CS_cs_hjWp_ratio[h] = result.CS_ud_hjWp_ratio[h];
-        result.CS_cs_hjWm_ratio[h] = result.CS_ud_hjWp_ratio[h];
-
-        result.CS_tev_vbf_ratio[h] = RWW*result.CS_ud_hjWp_ratio[h]+RZZ*result.CS_dd_hjZ_ratio[h];
+        const double CS_ud_hjWp_ratio = pow(abs(c)/(g*MW),2)
+        result.CS_ud_hjWp_ratio[h] = CS_ud_hjWp_ratio;
+        result.CS_ud_hjWm_ratio[h] = CS_ud_hjWp_ratio;
+        result.CS_cs_hjWp_ratio[h] = CS_ud_hjWp_ratio;
+        result.CS_cs_hjWm_ratio[h] = CS_ud_hjWp_ratio;
 
         result.CS_gg_hj_ratio[h] = THDM_decay_widths.gamma_hgg[h+1]/THDM_decay_widths_SM_like[h].gamma_hgg[1];
 
@@ -815,9 +1105,10 @@ namespace Gambit
         cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
         cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
 
-        result.CS_bb_hj_ratio[h]=pow(abs(cs/cs_sm),2)+pow(abs(cp/cs_sm),2);
-        result.CS_bg_hjb_ratio[h]=result.CS_bb_hj_ratio[h];
-        result.CS_lep_bbhj_ratio[h] = result.CS_bb_hj_ratio[h];
+        const double CS_bb_hj_ratio = pow(abs(cs/cs_sm),2) + pow(abs(cp/cs_sm),2);
+        result.CS_bb_hj_ratio[h] = CS_bb_hj_ratio
+        result.CS_bg_hjb_ratio[h] = CS_bb_hj_ratio;
+        result.CS_lep_bbhj_ratio[h] = CS_bb_hj_ratio;
 
         result.CS_lep_tautauhj_ratio[h] = THDM_decay_widths.gamma_hll[h+1][3][3]/THDM_decay_widths_SM_like[h].gamma_hll[1][3][3];
 
@@ -826,27 +1117,29 @@ namespace Gambit
         cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
         cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
 
-        // std::cout << "ColliderBit_Higgs.cpp higgsbounds filling: " << " " << cst << " " << cst_sm << " " << cpt << std::endl;
+        const double CS_tev_vbf_ratio = RWW*CS_ud_hjWp_ratio + RZZ*CS_lep_hjz_ratio;
+        result.CS_tev_vbf_ratio[h] = CS_tev_vbf_ratio;
 
-        result.CS_tev_tthj_ratio[h] = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
+        const double CS_tev_tthj_ratio = pow(abs(cst/cst_sm),2)+pow(abs(cpt/cst_sm),2);
+        result.CS_tev_tthj_ratio[h] = CS_tev_tthj_ratio;
 
-        result.CS_lhc7_vbf_ratio[h] = result.CS_tev_vbf_ratio[h];
-        result.CS_lhc8_vbf_ratio[h] = result.CS_tev_vbf_ratio[h];
-        result.CS_lhc7_tthj_ratio[h] = result.CS_tev_tthj_ratio[h];
-        result.CS_lhc8_tthj_ratio[h] = result.CS_tev_tthj_ratio[h];
-
+        result.CS_lhc7_vbf_ratio[h] = CS_tev_vbf_ratio;
+        result.CS_lhc8_vbf_ratio[h] = CS_tev_vbf_ratio;
+        result.CS_lhc7_tthj_ratio[h] = CS_tev_tthj_ratio;
+        result.CS_lhc8_tthj_ratio[h] = CS_tev_tthj_ratio;
       }
 
-      result.HpGammaTot[0] = THDM_total_widths.gamma_tot_h[4];
+      // fill charged scalar input
+      const double gamma_Hc = THDM_total_widths.gamma_tot_h[4]
+      result.HpGammaTot[0] = gamma_Hc;
 
-      result.CS_lep_HpjHmi_ratio[0] = 1.;
+      result.CS_lep_HpjHmi_ratio[0] = 1.0;
 
       result.BR_tWpb = THDM_total_widths.gamma_tot_t_SM_contrib/THDM_total_widths.gamma_tot_t;
       result.BR_tHpjb[0]= THDM_decay_widths.gamma_uhd[3][4][3]/THDM_total_widths.gamma_tot_t;
-      result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/THDM_total_widths.gamma_tot_h[4];
-      result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/THDM_total_widths.gamma_tot_h[4];
-      result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/THDM_total_widths.gamma_tot_h[4];
-      // ---
+      result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gamma_Hc;
+      result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gamma_Hc;
+      result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gamma_Hc;
     }
 
 
