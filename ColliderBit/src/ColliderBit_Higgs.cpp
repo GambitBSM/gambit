@@ -859,17 +859,17 @@ namespace Gambit
             // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjZga[h-1]-1)*smbr_hzgam_(&mh);
             // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjgaga[h-1]-1)*smbr_hgamgam_(&mh);
             for (int i=1; i<=4; i++) {
-              result.hGammaTot[h-1] += THDM_decay_widths.gamma_hhh[h,i,i];
+              result.hGammaTot[h-1] += THDM_decay_widths.gamma_hhh[h][i][i];
             }
 
             for (int i=1; i<=4; i++) {
               for (int j=1; j<=3; j++) {
-                result.hGammaTot[h-1] += THDM_decay_widths.gamma_hvh[h,j,i];
+                result.hGammaTot[h-1] += THDM_decay_widths.gamma_hvh[h][j][i];
               }
             }
           } 
           else {
-            result.hGammaTot[h-1] = THDM_total_widths.gammatot_h[h];
+            result.hGammaTot[h-1] = THDM_total_widths.gamma_tot_h[h];
           }
           // if (debug) printf("gtot %16.8E %16.8E %16.8E %16.8E\n",  result.GammaTotal[h-1], table.get_gammatot_h(h), HB_get_gammah(Mh[h-1]), sm_table.get_gammatot_h(1));
         }
@@ -879,8 +879,8 @@ namespace Gambit
 
         for (int j=1;j<=3;j++) {
           for (int i=1;i<=3;i++) {
-            result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j,i,i]/GammaTotal[j-1];
-            c = THDM_couplings.vvh[2,j,i];
+            result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/GammaTotal[j-1];
+            c = THDM_couplings.vvh[2][j][i];
             result.g2hjhiZ[i-1][j-1]=pow(abs(c)/(g/2./costw),2);
             if (debug) printf("%2d %2d hihjZ %16.8E\n", j, i, result.g2hjhiZ[i-1][j-1]);
             if (debug) printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
