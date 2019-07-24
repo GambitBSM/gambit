@@ -753,7 +753,7 @@ namespace Gambit
         const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
         const double costw = sqrt(1.-sintw*sintw);
 
-        const double mt = SM.get(Par::Pole_mass,"u_3");
+        const double mt = SM.get(Par::Pole_Mass,"u_3");
 
         std::complex<double> c,cs,cp,c_sm,cs_sm,cp_sm;
 
@@ -767,7 +767,7 @@ namespace Gambit
         for (int h=1;h<=3;h++) {
           // get SM model
           // get THDM model & create a ratio of the two
-          double mh = Mh[h-1];
+          double mh = result.Mh[h-1];
 
           cs = THDM_couplings.hdd_cs[h][2][2];
           cp = THDM_couplings.hdd_cp[h][2][2];
@@ -807,8 +807,8 @@ namespace Gambit
           cp = THDM_couplings.hll_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h].hll_cs[1][2][2];
           cp_sm = THDM_couplings_SM_like[h].hll_cp[1][2][2];
-          g2hjmumu_s[h-1] = pow(abs(cs/cs_sm),2);
-          g2hjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.g2hjmumu_s[h-1] = pow(abs(cs/cs_sm),2);
+          result.g2hjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.g2hjmumu_s[h-1], result.g2hjmumu_p[h-1]);
 
           cs = THDM_couplings.hll_cs[h][3][3];
@@ -830,17 +830,17 @@ namespace Gambit
           if (debug) printf("%2d %5s %16.8E\n", h, "WW", result.g2hjWW[h-1]);
 
           double hgaga = THDM_decay_widths.gamma_hgaga[h];
-          double hgaga_sm = THDM_decay_widths_SM_like.gamma_hgaga[1];
+          double hgaga_sm = THDM_decay_widths_SM_like[h].gamma_hgaga[1];
           result.g2hjgaga[h-1] = hgaga/hgaga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "gaga", result.g2hjgaga[h-1]);
 
           double hZga = THDM_decay_widths.gamma_hZga[h];
-          double hZga_sm = THDM_decay_widths_SM_like.gamma_hZga[1];
+          double hZga_sm = THDM_decay_widths_SM_like[h].gamma_hZga[1];
           result.g2hjZga[h-1] = hZga/hZga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "Zga", result.g2hjZga[h-1]);
 
           double hgg = THDM_decay_widths.gamma_hgg[h];
-          double hgg_sm = THDM_decay_widths_SM_like.gamma_hgg[1];
+          double hgg_sm = THDM_decay_widths_SM_like[h].gamma_hgg[1];
           result.g2hjgg[h-1] = hgg/hgg_sm;
           result.g2hjggZ[h-1] = 0.;
           if (debug) printf("%2d %5s %16.8E\n", h, "gg", result.g2hjgg[h-1]);
@@ -893,11 +893,11 @@ namespace Gambit
         const double gammatot_Hc = THDM_total_widths.gamma_tot_h[4];
 
         BR_tWpb[0] = gammatot_top_SM/gammatot_top;
-        BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3,4,3]/gammatot_top;
+        BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3][4][3]/gammatot_top;
 
-        BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4,2,2]/gammatot_Hc;
-        BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4,3,2]/gammatot_Hc;
-        BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4,3,3]/gammatot_Hc;
+        BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gammatot_Hc;
+        BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
+        BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
         
     }
 
