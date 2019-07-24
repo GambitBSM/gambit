@@ -100,7 +100,7 @@ namespace Gambit
    double g2hjgaga[3];
    double g2hjgg[3];
    double g2hjggZ[3];
-   double g2hjhiZ[3];
+   double g2hjhiZ[3][3];
    double BR_hjinvisible[3];
    double BR_hjhihi[3][3];
   };
