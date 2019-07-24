@@ -779,7 +779,7 @@ namespace Gambit
           cs = THDM_couplings.hdd_cs[h][3][3];
           cp = THDM_couplings.hdd_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
-          cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3]''
+          cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
           result.g2hjbb_s[h-1] = pow(abs(cs/cs_sm),2);
           result.g2hjbb_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "bb", g2hjbb_s[h-1], g2hjbb_p[h-1]);

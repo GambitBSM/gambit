@@ -3764,12 +3764,12 @@ namespace Gambit
             }
           }
           // fill charged Higgs
-          decay_widths.gamma_uhd[4,2,2] = decay_table_object.get_gamma_uhd(4,2,2);
-          decay_widths.gamma_hdu[4,3,2] = decay_table_object.get_gamma_hdu(4,3,2);
-          decay_widths.gamma_hln[4,3,3] = decay_table_object.get_gamma_hln(4,3,3);
-          check_nan(decay_widths.gamma_uhd[4,2,2], "uhd width 422");
-          check_nan(decay_widths.gamma_hdu[4,3,2], "hdu width 432");
-          check_nan(decay_widths.gamma_hln[4,3,3], "hln width 433");
+          decay_widths.gamma_uhd[4][2][2] = decay_table_object.get_gamma_uhd(4,2,2);
+          decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
+          decay_widths.gamma_hln[4][3][3] = decay_table_object.get_gamma_hln(4,3,3);
+          check_nan(decay_widths.gamma_uhd[4][2][2], "uhd width 422");
+          check_nan(decay_widths.gamma_hdu[4][3][2], "hdu width 432");
+          check_nan(decay_widths.gamma_hln[4][3][3], "hln width 433");
          break;
        }
         case HB_effc_SM_like_decays: {
@@ -3795,7 +3795,7 @@ namespace Gambit
       THDM_spectrum_container container;
       thdmc_decay_widths widths; 
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
-      widths = fill_THDM_decay_widths(container, thdmc_couplings_purpose);
+      widths = fill_THDM_decay_widths(container, purpose);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return widths;
     }

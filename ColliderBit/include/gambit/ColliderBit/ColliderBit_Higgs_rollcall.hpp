@@ -58,10 +58,23 @@
     #define FUNCTION fill_THDM_HiggsBounds_model_parameters
     START_FUNCTION(hb_ModelParameters)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_couplings, thdmc_couplings)
-    DEPENDENCY(THDM_couplings_SM_like_model, std::vector<thdmc_couplings>)
-    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
-    DEPENDENCY(THDM_decay_widths_SM_like_model, std::vector<thdmc_decay_widths>)
+    DEPENDENCY(THDM_couplings_HB, thdmc_couplings)
+    DEPENDENCY(THDM_couplings_HB_SM_like_model, std::vector<thdmc_couplings>)
+    DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
+    DEPENDENCY(THDM_decay_widths_HB_SM_like_model, std::vector<thdmc_decay_widths>)
+    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    #undef FUNCTION
+
+     // THDM Higgs model parameters
+    #define FUNCTION fill_THDM_HiggsBounds_model_parameters_effC
+    START_FUNCTION(hb_ModelParameters_effC)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_couplings_HB_effc, thdmc_couplings)
+    DEPENDENCY(THDM_couplings_HB_effc_SM_like_model, std::vector<thdmc_couplings>)
+    DEPENDENCY(THDM_decay_widths_HB_effc, thdmc_decay_widths)
+    DEPENDENCY(THDM_decay_widths_HB_effc_SM_like_model, std::vector<thdmc_decay_widths>)
     DEPENDENCY(THDM_total_widths, thdmc_total_widths)
     ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
     ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
