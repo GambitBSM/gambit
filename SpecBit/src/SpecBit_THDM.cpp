@@ -2375,7 +2375,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (is_at_Q) scale = *Param.at("QrunTo");
-      result = init_THDM_object_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_couplings);
     }
 
     void get_THDM_couplings_HB_effc(thdmc_couplings &result) {
@@ -2401,7 +2401,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (is_at_Q) scale = *Param.at("QrunTo");
-      result = init_THDM_object_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_couplings);
     }
     // **
 
