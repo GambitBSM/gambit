@@ -47,7 +47,7 @@ namespace Gambit
   {
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios from a GAMBIT HiggsCouplingsTable
-    void set_CS(hb_ModelParameters &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
+    void set_CS(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
     {
       for(int i = 0; i < n_neutral_higgses; i++)
       {
