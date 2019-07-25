@@ -924,9 +924,16 @@ namespace Gambit
 
     void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
         using namespace Pipes::THDM_ModelParameters_charged;
+        const Spectrum fullspectrum = *Dep::THDM_spectrum;
+
+        // extract spectrum object
+        const SubSpectrum& he = fullspectrum.get_HE();
 
         const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB; // get THDM decay width struct
         const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths; // get total widths
+
+        result.MHplus[0] = he.get(Par::Pole_Mass,"H+");
+        result.deltaMHplus[0] = 0.0;
 
         result.CS_lep_HpjHmi_ratio[0] = 1.;
         const double gammatot_top = THDM_total_widths.gamma_tot_t;
@@ -935,19 +942,19 @@ namespace Gambit
 
         result.HpGammaTot[0] = gammatot_Hc;
 
-        result.BR_tWpb[0] = gammatot_top_SM/gammatot_top;
+        result.BR_tWpb = gammatot_top_SM/gammatot_top;
         result.BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3][4][3]/gammatot_top;
 
         result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gammatot_Hc;
         result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
-        result.BR_Hpjtaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
+        result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
 
         // extra HB v5 beta input
         result.BR_Hpjtb[0] = THDM_decay_widths.gamma_huu[4][3][3]/gammatot_Hc;
-        result.BR_HpjWZ[0] = THDM_decay_widths.gamma_hvv[4][3][2]/gammatot_Hc;
+        result.BR_HpjWZ[0] = 0.0; //THDM_decay_widths.gamma_hWZ[4][3][2]/gammatot_Hc; TODO
 
-         for (int h=1;h<=3;j++) {
-          result.BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hhv[4][h][3]/gammatot_Hc;
+         for (int h=1;h<=3;h++) {
+          result.BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hvh[4][3][h]/gammatot_Hc;
          }
         
     }
@@ -983,7 +990,6 @@ namespace Gambit
       result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
       result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
       result.Mh[2] = he.get(Par::Pole_Mass,"A0");
-      result.MHplus[0] = he.get(Par::Pole_Mass,"H+");
 
       // set error for mh
       const bool has_high_err = he.has(Par::Pole_Mass_1srd_high, 25, 0);
@@ -1000,7 +1006,6 @@ namespace Gambit
       // set all other scalar mass errors to zero
       result.deltaMh[1] = 0.0;
       result.deltaMh[2] = 0.0;
-      result.deltaMHplus[0] = 0.0;
 
       // set CP of the scalars
       result.CP[0] = 1;

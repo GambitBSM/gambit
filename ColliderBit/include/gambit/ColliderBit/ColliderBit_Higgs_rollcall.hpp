@@ -109,6 +109,7 @@
     // THDM Higgs model parameters charged
     #define FUNCTION THDM_ModelParameters_charged
       START_FUNCTION(hb_charged_ModelParameters)
+      DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
       DEPENDENCY(THDM_total_widths, thdmc_total_widths)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
