@@ -336,7 +336,8 @@ namespace Gambit
     {
       using namespace Pipes::calc_HB_LEP_LogLike;
 
-      hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
+      hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::hb_neutral_ModelParameters_part;
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
@@ -365,9 +366,9 @@ namespace Gambit
               &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
               &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
 
-      BEreq::HiggsBounds_charged_input(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
-               &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
-               &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
+      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
+               &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], &ModelParam_charged.BR_Hpjcs[0],
+               &ModelParam_charged.BR_Hpjcb[0], &ModelParam_charged.BR_Hptaunu[0]);
 
       BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam.deltaMHplus[0]);
 
@@ -470,7 +471,8 @@ namespace Gambit
     {
       using namespace Pipes::calc_HS_LHC_LogLike;
 
-      hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
+      hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::hb_neutral_ModelParameters_part;
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
@@ -499,9 +501,9 @@ namespace Gambit
                  &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
                  &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
 
-      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
-            &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
-            &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
+            &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], &ModelParam_charged.BR_Hpjcs[0],
+            &ModelParam_charged.BR_Hpjcb[0], &ModelParam_charged.BR_Hptaunu[0]);
 
       BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
@@ -568,14 +570,14 @@ namespace Gambit
           for (int j = 0; j < 3; j++) csqmudbg << " " << ModelParam.BR_hjhihi[i][j];
         }
         csqmudbg << " " << 4 << " " <<
-         ModelParam.MHplus[0] << " " <<
-         ModelParam.HpGammaTot[0] << " " <<
-         ModelParam.CS_lep_HpjHmi_ratio[0] << " " <<
-         ModelParam.BR_Hpjcs[0] << " " <<
-         ModelParam.BR_Hpjcb[0] << " " <<
-         ModelParam.BR_Hptaunu[0] << " " <<
-         ModelParam.BR_tWpb << " " <<
-         ModelParam.BR_tHpjb[0] << "\n";
+         ModelParam_charged.MHplus[0] << " " <<
+         ModelParam_charged.HpGammaTot[0] << " " <<
+         ModelParam_charged.CS_lep_HpjHmi_ratio[0] << " " <<
+         ModelParam_charged.BR_Hpjcs[0] << " " <<
+         ModelParam_charged.BR_Hpjcb[0] << " " <<
+         ModelParam_charged.BR_Hptaunu[0] << " " <<
+         ModelParam_charged.BR_tWpb << " " <<
+         ModelParam_charged.BR_tHpjb[0] << "\n";
         //
         csqmudbg.close();
 
@@ -662,14 +664,14 @@ namespace Gambit
           for (int j = 0; j < 3; j++) f << std::setw(w) << ModelParam.BR_hjhihi[i][j];
         }
         f << std::setw(w) << 4 << std::setw(w) <<
-         ModelParam.MHplus[0] << std::setw(w) <<
-         ModelParam.HpGammaTot[0] << std::setw(w) <<
-         ModelParam.CS_lep_HpjHmi_ratio[0] << std::setw(w) <<
-         ModelParam.BR_Hpjcs[0] << std::setw(w) <<
-         ModelParam.BR_Hpjcb[0] << std::setw(w) <<
-         ModelParam.BR_Hptaunu[0] << std::setw(w) <<
-         ModelParam.BR_tWpb << std::setw(w) <<
-         ModelParam.BR_tHpjb[0];
+         ModelParam_charged.MHplus[0] << std::setw(w) <<
+         ModelParam_charged.HpGammaTot[0] << std::setw(w) <<
+         ModelParam_charged.CS_lep_HpjHmi_ratio[0] << std::setw(w) <<
+         ModelParam_charged.BR_Hpjcs[0] << std::setw(w) <<
+         ModelParam_charged.BR_Hpjcb[0] << std::setw(w) <<
+         ModelParam_charged.BR_Hptaunu[0] << std::setw(w) <<
+         ModelParam_charged.BR_tWpb << std::setw(w) <<
+         ModelParam_charged.BR_tHpjb[0];
         f.close();
       #endif
 

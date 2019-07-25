@@ -28,7 +28,7 @@
 #define MODULE ColliderBit
 
   // HiggsBounds input model parameters
-  #define CAPABILITY HB_ModelParameters
+  #define CAPABILITY HB_ModelParameters_neutral
   START_CAPABILITY
 
     // SM Higgs model parameters
@@ -36,11 +36,6 @@
       START_FUNCTION(hb_neutral_ModelParameters_part)
       DEPENDENCY(SM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-    #undef FUNCTION
-
-    // SM Higgs model parameters charged
-    #define FUNCTION SMHiggs_ModelParameters_charged
-      START_FUNCTION(hb_charged_ModelParameters)
     #undef FUNCTION
 
     // SM-like Higgs model parameters, for BSM models with only one Higgs.
@@ -51,24 +46,9 @@
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
-        // SM-like Higgs model parameters, for BSM models with only one Higgs (charged-version).
-    #define FUNCTION SMLikeHiggs_ModelParameters_charged
-      START_FUNCTION(hb_charged_ModelParameters)
-      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
-      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
-    #undef FUNCTION
-
     // MSSM Higgs model parameters
     #define FUNCTION MSSMHiggs_ModelParameters
       START_FUNCTION(hb_neutral_ModelParameters_part)
-      DEPENDENCY(MSSM_spectrum, Spectrum)
-      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
-    #undef FUNCTION
-
-    // MSSM Higgs model parameters charged
-    #define FUNCTION MSSMHiggs_ModelParameters_charged
-      START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(MSSM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
@@ -100,7 +80,33 @@
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
-         // THDM Higgs model parameters charged
+  #undef CAPABILITY
+
+  // HiggsBounds input model parameters charged
+  #define CAPABILITY HB_ModelParameters_charged
+  START_CAPABILITY
+
+    // SM Higgs model parameters charged
+    #define FUNCTION SMHiggs_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
+    #undef FUNCTION
+
+        // SM-like Higgs model parameters, for BSM models with only one Higgs (charged-version).
+    #define FUNCTION SMLikeHiggs_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+    #undef FUNCTION
+
+    // MSSM Higgs model parameters charged
+    #define FUNCTION MSSMHiggs_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    // THDM Higgs model parameters charged
     #define FUNCTION THDM_ModelParameters_charged
       START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
@@ -137,7 +143,8 @@
 
     #define FUNCTION calc_HB_LEP_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
+    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_part, (libhiggsbounds), void,
     (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
     double*, double*, double*, double*, double*, double*, double*,
@@ -164,7 +171,8 @@
   
     #define FUNCTION calc_HS_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
+    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_part_HS, (libhiggssignals), void,
     (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
     double*, double*, double*, double*, double*, double*, double*,
