@@ -90,7 +90,7 @@ namespace Gambit
     }
 
     /// Helper function for populating a HiggsBounds/Signals ModelParameters object for SM-like Higgs.
-    void set_SMLikeHiggs_ModelParameters(const SubSpectrum& spec, const HiggsCouplingsTable& couplings, hb_ModelParameters &result)
+    void set_SMLikeHiggs_ModelParameters(const SubSpectrum& spec, const HiggsCouplingsTable& couplings, hb_neutral_ModelParameters_part &result)
     {
       // Retrieve the decays
       const DecayTable::Entry& decays = couplings.get_neutral_decays(0);
@@ -181,7 +181,11 @@ namespace Gambit
         for(int j = 0; j < 3; j++) result.BR_hjhihi[i][j] = 0.;
         for(int j = 0; j < 3; j++) result.CS_lep_hjhi_ratio[i][j] = 0.;
       }
+    }
 
+    /// Helper function for populating a HiggsBounds/Signals ModelParameters object for SM-like Higgs (charged).
+    void set_SMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
+    {
       // Zero all H+ masses, widths and effective couplings
       result.MHplus[0] = 0.;
       result.deltaMHplus[0] = 0.;
@@ -195,14 +199,21 @@ namespace Gambit
     }
 
     /// SM Higgs model parameters for HiggsBounds/Signals
-    void SMHiggs_ModelParameters(hb_ModelParameters &result)
+    void SMHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::SMHiggs_ModelParameters;
       set_SMLikeHiggs_ModelParameters(Dep::SM_spectrum->get_HE(), *Dep::Higgs_Couplings, result);
     }
 
+        /// SM Higgs model parameters for HiggsBounds/Signals
+    void SMHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
+    {
+      using namespace Pipes::SMHiggs_ModelParameters_charged;
+      set_SMLikeHiggs_ModelParameters(result);
+    }
+
     /// SM-like (SM + possible invisibles) Higgs model parameters for HiggsBounds/Signals
-    void SMLikeHiggs_ModelParameters(hb_ModelParameters &result)
+    void SMLikeHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::SMLikeHiggs_ModelParameters;
       dep_bucket<Spectrum>* spectrum_dependency = nullptr;
@@ -213,8 +224,19 @@ namespace Gambit
       set_SMLikeHiggs_ModelParameters(spec, *Dep::Higgs_Couplings, result);
     }
 
+    /// SM-like (SM + possible invisibles) Higgs model parameters for HiggsBounds/Signals
+    void SMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
+    {
+      using namespace Pipes::SMLikeHiggs_ModelParameters_charged;
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
+      if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
+      else if (ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z3_spectrum;
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for SMLikeHiggs_ModelParameters.");
+      set_SMLikeHiggs_ModelParameters_charged(result);
+    }
+
     /// MSSM Higgs model parameters
-    void MSSMHiggs_ModelParameters(hb_ModelParameters &result)
+    void MSSMHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::MSSMHiggs_ModelParameters;
 
@@ -226,8 +248,6 @@ namespace Gambit
 
       // Retrieve higgs partial widths
       const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
-      const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
-      const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
       // Retrieve masses
       const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
@@ -275,6 +295,20 @@ namespace Gambit
           }
         }
       }
+    }
+
+     /// MSSM Higgs model parameters
+    void MSSMHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
+    {
+      using namespace Pipes::MSSMHiggs_ModelParameters_charged;
+
+      // Retrieve higgs partial widths
+      const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
+      const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
+
+      // Retrieve masses
+      const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
+      const SubSpectrum& spec = fullspectrum.get_HE();
 
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
@@ -706,50 +740,27 @@ namespace Gambit
     //   result.add_charged_higgs(he.get(Par::mass1,"mC"),0.0);
     // }
 
-    void fill_THDM_HiggsBounds_model_parameters_effC(hb_ModelParameters_effC &result)
+    void THDM_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
     {
-        using namespace Pipes::fill_THDM_HiggsBounds_model_parameters_effC;
+        using namespace Pipes::THDM_ModelParameters_effc;
         const Spectrum fullspectrum = *Dep::THDM_spectrum;
-
-        // get THDM coupling struct
-        const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB_effc;
-        // get vector of SM-like (multiple limits) THDM coupling structs
-        const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_effc_SM_like_model;
-        // get THDM decay width struct
-        const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB_effc;
-        // get vector of SM-like (multiple limits) THDM decay widths
-        const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_effc_SM_like_model;
-        // get total widths
-        const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths;
+        
+        const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB_effc; // get THDM coupling struct
+        const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_effc_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
+        const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB_effc; // get THDM decay width struct
+        const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_effc_SM_like_model; // get vector of SM-like (multiple limits) THDM decay widths
+        const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths; // get total widths
 
         // extract spectrum object
         const SubSpectrum& he = fullspectrum.get_HE();
         const SubSpectrum& SM = fullspectrum.get_LE();
         const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
-        double MHp[1];
-        double MHplusGammaTot[1];
-        double CS_lep_HpjHmi_ratio[1];
-        double BR_tWpb[1];
-        double BR_tHpjb[1];
-        double BR_Hpjcs[1];
-        double BR_Hpjcb[1];
-        double BR_Hptaunu[1];
-
-        const double lam6 = he.get(Par::mass1, "lambda_6"), lam7 = he.get(Par::mass1, "lambda_7");
-        const double m122 = he.get(Par::mass1, "m12_2");
-        const double tanb = he.get(Par::dimensionless, "tanb"), a = he.get(Par::dimensionless, "alpha");
-        const double sba = sin(atan(tanb)-a);
-
         const double RWW = 0.77; 
         const double RZZ = 1.0-RWW;
-
-        const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
-
-        const double GF = sminputs.GF;
+        const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+"), GF = sminputs.GF;
         const double v = 1./sqrt(sqrt(2)*GF);
         const double g = 2.*MW/v;
-
         const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
         const double costw = sqrt(1.-sintw*sintw);
 
@@ -765,10 +776,10 @@ namespace Gambit
         result.Mh[3] = he.get(Par::Pole_Mass, "H+");
 
         for (int h=1;h<=3;h++) {
-          // get SM model
-          // get THDM model & create a ratio of the two
+          // get SM model, get THDM model & create a ratio of the two
           double mh = result.Mh[h-1];
 
+          // ghjss
           cs = THDM_couplings.hdd_cs[h][2][2];
           cp = THDM_couplings.hdd_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][2][2];
@@ -778,6 +789,7 @@ namespace Gambit
           
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.g2hjss_s[h-1], result.g2hjss_p[h-1]);
 
+          //ghjbb
           cs = THDM_couplings.hdd_cs[h][3][3];
           cp = THDM_couplings.hdd_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
@@ -786,7 +798,7 @@ namespace Gambit
           result.g2hjbb_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.g2hjbb_s[h-1], result.g2hjbb_p[h-1]);
 
-
+          //ghjcc
           cs = THDM_couplings.huu_cs[h][2][2];
           cp = THDM_couplings.huu_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h].huu_cs[1][2][2];
@@ -795,6 +807,7 @@ namespace Gambit
           result.g2hjcc_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.g2hjcc_s[h-1], result.g2hjcc_p[h-1]);
 
+          //ghjtt
           cs = THDM_couplings.huu_cs[h][3][3];
           cp = THDM_couplings.huu_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
@@ -803,6 +816,7 @@ namespace Gambit
           result.g2hjtt_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.g2hjtt_s[h-1], result.g2hjtt_p[h-1]);
 
+          //ghjmumu
           cs = THDM_couplings.hll_cs[h][2][2];
           cp = THDM_couplings.hll_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h].hll_cs[1][2][2];
@@ -811,6 +825,7 @@ namespace Gambit
           result.g2hjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.g2hjmumu_s[h-1], result.g2hjmumu_p[h-1]);
 
+          //ghjtautau
           cs = THDM_couplings.hll_cs[h][3][3];
           cp = THDM_couplings.hll_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h].hll_cs[1][3][3];
@@ -819,32 +834,38 @@ namespace Gambit
           result.g2hjtautau_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.g2hjtautau_s[h-1], result.g2hjtautau_p[h-1]);
 
+          //ghjZZ
           c = THDM_couplings.vvh[2][2][h];
           c_sm = THDM_couplings_SM_like[h].vvh[2][2][1];
           result.g2hjZZ[h-1] = pow(abs(c/c_sm),2);
           if (debug) printf("%2d %5s %16.8E\n", h, "ZZ", result.g2hjZZ[h-1]);
 
+          //ghjWW
           c = THDM_couplings.vvh[3][3][h];
           c_sm = THDM_couplings_SM_like[h].vvh[3][3][1];
           result.g2hjWW[h-1] = pow(abs(c/c_sm),2);
           if (debug) printf("%2d %5s %16.8E\n", h, "WW", result.g2hjWW[h-1]);
 
+          //ghjgaga
           double hgaga = THDM_decay_widths.gamma_hgaga[h];
           double hgaga_sm = THDM_decay_widths_SM_like[h].gamma_hgaga[1];
           result.g2hjgaga[h-1] = hgaga/hgaga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "gaga", result.g2hjgaga[h-1]);
 
+          //ghjZga
           double hZga = THDM_decay_widths.gamma_hZga[h];
           double hZga_sm = THDM_decay_widths_SM_like[h].gamma_hZga[1];
           result.g2hjZga[h-1] = hZga/hZga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "Zga", result.g2hjZga[h-1]);
 
+          //ghjhh
           double hgg = THDM_decay_widths.gamma_hgg[h];
           double hgg_sm = THDM_decay_widths_SM_like[h].gamma_hgg[1];
           result.g2hjgg[h-1] = hgg/hgg_sm;
           result.g2hjggZ[h-1] = 0.;
           if (debug) printf("%2d %5s %16.8E\n", h, "gg", result.g2hjgg[h-1]);
 
+          //GammaTotal
           if ((h<=2)&&(mh>=90.)) {
             // GammaTotal[h-1] =  smgamma_h_(&mh);
             // GammaTotal[h-1] += smgamma_h_(&mh)*(g2hjWW[h-1] - 1.)*smbr_hww_(&mh);
@@ -877,6 +898,7 @@ namespace Gambit
         // GammaTotal[h-1] = GammaTotal[h-1]*HB_get_gammah(Mh[h-1])/sm_table.get_gammatot_h(1);
         // printf("gtot %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], sm_table.get_gammatot_h(1), HB_get_gammah(Mh[h-1]));
 
+        // ghjhiZ
         for (int j=1;j<=3;j++) {
           for (int i=1;i<=3;i++) {
             result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
@@ -886,54 +908,61 @@ namespace Gambit
             if (debug) printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
           }
         }
+        
+    }
+
+    void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
+        using namespace Pipes::THDM_ModelParameters_charged;
+        const Spectrum fullspectrum = *Dep::THDM_spectrum;
+
+        const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB; // get THDM decay width struct
+        const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths; // get total widths
 
         CS_lep_HpjHmi_ratio[0] = 1.;
         const double gammatot_top = THDM_total_widths.gamma_tot_t;
         const double gammatot_top_SM = THDM_total_widths.gamma_tot_t_SM_contrib;
         const double gammatot_Hc = THDM_total_widths.gamma_tot_h[4];
 
+        result.GammaTotal[3] = gammatot_Hc;
+
         BR_tWpb[0] = gammatot_top_SM/gammatot_top;
         BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3][4][3]/gammatot_top;
 
         BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gammatot_Hc;
         BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
-        BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
+        BR_Hpjtaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
+
+        // extra HB v5 beta input
+        BR_Hpjtb[0] = THDM_decay_widths.gamma_huu[4][3][3]/gammatot_Hc;
+        BR_HpjWZ[0] = THDM_decay_widths.gamma_hvv[4][3][2]/gammatot_Hc;
+
+         for (int h=1;h<=3;j++) {
+          BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hhv[4][h][3]/gammatot_Hc;
+         }
         
     }
 
-    void fill_THDM_HiggsBounds_model_parameters(hb_ModelParameters &result)
+    void THDM_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
-      using namespace Pipes::fill_THDM_HiggsBounds_model_parameters;
+      using namespace Pipes::THDM_ModelParameters;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
 
-      // get THDM coupling struct
-      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB;
-      // get vector of SM-like (multiple limits) THDM coupling structs
-      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_SM_like_model;
-      // get THDM decay width struct
-      const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB;
-      // get vector of SM-like (multiple limits) THDM decay widths
-      const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_SM_like_model;
-      // get total widths
-      const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths;
+      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB; // get THDM coupling struct
+      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
+      const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB; // get THDM decay width struct
+      const std::vector<thdmc_decay_widths> THDM_decay_widths_SM_like = *Dep::THDM_decay_widths_HB_SM_like_model; // get vector of SM-like (multiple limits) THDM decay widths
+      const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths; // get total widths
 
       // extract spectrum object
       const SubSpectrum& he = fullspectrum.get_HE();
       const SubSpectrum& SM = fullspectrum.get_LE();
       const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
-      // -----------------------------------------
-      // adapted from 2HDMC code - Constraints.cpp
-      // requires rewritting into a GAMBIT style
       const double RWW = 0.77; 
       const double RZZ = 1.0-RWW;
-
-      const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
-
-      const double GF = sminputs.GF;
+      const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+"), GF = sminputs.GF;
       const double v = 1./sqrt(sqrt(2)*GF);
       const double g = 2.*MW/v;
-
       const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
       const double costw = sqrt(1.-sintw*sintw);
 
@@ -1047,18 +1076,6 @@ namespace Gambit
         result.CS_lhc7_tthj_ratio[h] = CS_tev_tthj_ratio;
         result.CS_lhc8_tthj_ratio[h] = CS_tev_tthj_ratio;
       }
-
-      // fill charged scalar input
-      const double gamma_Hc = THDM_total_widths.gamma_tot_h[4];
-      result.HpGammaTot[0] = gamma_Hc;
-
-      result.CS_lep_HpjHmi_ratio[0] = 1.0;
-
-      result.BR_tWpb = THDM_total_widths.gamma_tot_t_SM_contrib/THDM_total_widths.gamma_tot_t;
-      result.BR_tHpjb[0]= THDM_decay_widths.gamma_uhd[3][4][3]/THDM_total_widths.gamma_tot_t;
-      result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gamma_Hc;
-      result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gamma_Hc;
-      result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gamma_Hc;
     }
 
 

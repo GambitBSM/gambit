@@ -33,51 +33,80 @@
 
     // SM Higgs model parameters
     #define FUNCTION SMHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(SM_spectrum, Spectrum)
-    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      START_FUNCTION(hb_neutral_ModelParameters_part)
+      DEPENDENCY(SM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+    #undef FUNCTION
+
+    // SM Higgs model parameters charged
+    #define FUNCTION SMHiggs_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
     #undef FUNCTION
 
     // SM-like Higgs model parameters, for BSM models with only one Higgs.
     #define FUNCTION SMLikeHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
-    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
-    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
-    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      START_FUNCTION(hb_neutral_ModelParameters_part)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+    #undef FUNCTION
+
+        // SM-like Higgs model parameters, for BSM models with only one Higgs (charged-version).
+    #define FUNCTION SMLikeHiggs_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2, ScalarSingletDM_Z2_running)
+      MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
     #undef FUNCTION
 
     // MSSM Higgs model parameters
     #define FUNCTION MSSMHiggs_ModelParameters
-    START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(MSSM_spectrum, Spectrum)
-    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+      START_FUNCTION(hb_neutral_ModelParameters_part)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
+    // MSSM Higgs model parameters charged
+    #define FUNCTION MSSMHiggs_ModelParameters_charged
+      START_FUNCTION(hb_neutral_ModelParameters_part)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
     // THDM Higgs model parameters
-    #define FUNCTION fill_THDM_HiggsBounds_model_parameters
-    START_FUNCTION(hb_ModelParameters)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_couplings_HB, thdmc_couplings)
-    DEPENDENCY(THDM_couplings_HB_SM_like_model, std::vector<thdmc_couplings>)
-    DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
-    DEPENDENCY(THDM_decay_widths_HB_SM_like_model, std::vector<thdmc_decay_widths>)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    #define FUNCTION THDM_ModelParameters
+      START_FUNCTION(hb_neutral_ModelParameters_part)
+      DEPENDENCY(THDM_spectrum, Spectrum)
+      DEPENDENCY(THDM_couplings_HB, thdmc_couplings)
+      DEPENDENCY(THDM_couplings_HB_SM_like_model, std::vector<thdmc_couplings>)
+      DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
+      DEPENDENCY(THDM_decay_widths_HB_SM_like_model, std::vector<thdmc_decay_widths>)
+      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
-     // THDM Higgs model parameters
-    #define FUNCTION fill_THDM_HiggsBounds_model_parameters_effC
-    START_FUNCTION(hb_ModelParameters_effC)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_couplings_HB_effc, thdmc_couplings)
-    DEPENDENCY(THDM_couplings_HB_effc_SM_like_model, std::vector<thdmc_couplings>)
-    DEPENDENCY(THDM_decay_widths_HB_effc, thdmc_decay_widths)
-    DEPENDENCY(THDM_decay_widths_HB_effc_SM_like_model, std::vector<thdmc_decay_widths>)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
-    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+     // THDM Higgs model parameters effc
+    #define FUNCTION THDM_ModelParameters_effc
+      START_FUNCTION(hb_neutral_ModelParameters_effc)
+      DEPENDENCY(THDM_spectrum, Spectrum)
+      DEPENDENCY(THDM_couplings_HB_effc, thdmc_couplings)
+      DEPENDENCY(THDM_couplings_HB_effc_SM_like_model, std::vector<thdmc_couplings>)
+      DEPENDENCY(THDM_decay_widths_HB_effc, thdmc_decay_widths)
+      DEPENDENCY(THDM_decay_widths_HB_effc_SM_like_model, std::vector<thdmc_decay_widths>)
+      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    #undef FUNCTION
+
+         // THDM Higgs model parameters charged
+    #define FUNCTION THDM_ModelParameters_charged
+      START_FUNCTION(hb_charged_ModelParameters)
+      DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
+      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
   #undef CAPABILITY
