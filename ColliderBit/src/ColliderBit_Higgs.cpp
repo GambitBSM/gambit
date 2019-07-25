@@ -346,7 +346,7 @@ namespace Gambit
       using namespace Pipes::calc_HB_LEP_LogLike;
 
       hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
-      hb_charged_ModelParameters ModelParam_charged = *Dep::hb_neutral_ModelParameters_part;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
@@ -481,7 +481,7 @@ namespace Gambit
       using namespace Pipes::calc_HS_LHC_LogLike;
 
       hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
-      hb_charged_ModelParameters ModelParam_charged = *Dep::hb_neutral_ModelParameters_part;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
