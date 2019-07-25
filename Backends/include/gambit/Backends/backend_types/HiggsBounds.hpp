@@ -115,6 +115,7 @@ namespace Gambit
     double BR_Hpjtb[1];
     double BR_HpjWZ[1];
     double BR_HpjhiW[1][3];
-};
+  };
+}
 
 #endif /* defined __FeynHiggs_types_hpp__ */

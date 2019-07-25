@@ -68,7 +68,7 @@
 
     // MSSM Higgs model parameters charged
     #define FUNCTION MSSMHiggs_ModelParameters_charged
-      START_FUNCTION(hb_neutral_ModelParameters_part)
+      START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(MSSM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
