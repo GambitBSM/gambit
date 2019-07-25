@@ -924,31 +924,30 @@ namespace Gambit
 
     void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
         using namespace Pipes::THDM_ModelParameters_charged;
-        const Spectrum fullspectrum = *Dep::THDM_spectrum;
 
         const thdmc_decay_widths THDM_decay_widths = *Dep::THDM_decay_widths_HB; // get THDM decay width struct
         const thdmc_total_widths THDM_total_widths = *Dep::THDM_total_widths; // get total widths
 
-        CS_lep_HpjHmi_ratio[0] = 1.;
+        result.CS_lep_HpjHmi_ratio[0] = 1.;
         const double gammatot_top = THDM_total_widths.gamma_tot_t;
         const double gammatot_top_SM = THDM_total_widths.gamma_tot_t_SM_contrib;
         const double gammatot_Hc = THDM_total_widths.gamma_tot_h[4];
 
-        result.GammaTotal[3] = gammatot_Hc;
+        result.HpGammaTot[0] = gammatot_Hc;
 
-        BR_tWpb[0] = gammatot_top_SM/gammatot_top;
-        BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3][4][3]/gammatot_top;
+        result.BR_tWpb[0] = gammatot_top_SM/gammatot_top;
+        result.BR_tHpjb[0] = THDM_decay_widths.gamma_uhd[3][4][3]/gammatot_top;
 
-        BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gammatot_Hc;
-        BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
-        BR_Hpjtaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
+        result.BR_Hpjcs[0] = THDM_decay_widths.gamma_hdu[4][2][2]/gammatot_Hc;
+        result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
+        result.BR_Hpjtaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
 
         // extra HB v5 beta input
-        BR_Hpjtb[0] = THDM_decay_widths.gamma_huu[4][3][3]/gammatot_Hc;
-        BR_HpjWZ[0] = THDM_decay_widths.gamma_hvv[4][3][2]/gammatot_Hc;
+        result.BR_Hpjtb[0] = THDM_decay_widths.gamma_huu[4][3][3]/gammatot_Hc;
+        result.BR_HpjWZ[0] = THDM_decay_widths.gamma_hvv[4][3][2]/gammatot_Hc;
 
          for (int h=1;h<=3;j++) {
-          BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hhv[4][h][3]/gammatot_Hc;
+          result.BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hhv[4][h][3]/gammatot_Hc;
          }
         
     }
