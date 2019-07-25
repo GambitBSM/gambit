@@ -47,7 +47,7 @@ namespace Gambit
   {
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios from a GAMBIT HiggsCouplingsTable
-    void set_CS(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
+    void set_CS_neutral(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
     {
       for(int i = 0; i < n_neutral_higgses; i++)
       {
@@ -85,6 +85,10 @@ namespace Gambit
           result.CS_lep_hjhi_ratio[i][j] = couplings.C_hiZ2[i][j];
         }
       }
+    }
+
+    void set_CS_charged(hb_charged_ModelParameters &result)
+    {
       // LEP H+ H- x-section ratio
       result.CS_lep_HpjHmi_ratio[0] = 1.;
     }
@@ -136,7 +140,7 @@ namespace Gambit
       }
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS(result, couplings, 1);
+      set_CS_neutral(result, couplings, 1);
 
       // Zero all heavy neutral higgs masses, widths and effective couplings
       for(int i = 1; i < 3; i++)
@@ -186,6 +190,8 @@ namespace Gambit
     /// Helper function for populating a HiggsBounds/Signals ModelParameters object for SM-like Higgs (charged).
     void set_SMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
+      // Cross section 
+      set_CS_charged(result); // zeroed later regardless? Is this necessary?
       // Zero all H+ masses, widths and effective couplings
       result.MHplus[0] = 0.;
       result.deltaMHplus[0] = 0.;
@@ -209,7 +215,7 @@ namespace Gambit
     void SMHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
       using namespace Pipes::SMHiggs_ModelParameters_charged;
-      set_SMLikeHiggs_ModelParameters(result);
+      set_SMLikeHiggs_ModelParameters_charged(result);
     }
 
     /// SM-like (SM + possible invisibles) Higgs model parameters for HiggsBounds/Signals
@@ -295,6 +301,8 @@ namespace Gambit
           }
         }
       }
+      // Retrieve cross-section ratios from the HiggsCouplingsTable
+      set_CS_neutral(result, *Dep::Higgs_Couplings, 3);
     }
 
      /// MSSM Higgs model parameters
@@ -326,8 +334,9 @@ namespace Gambit
       result.BR_tWpb       = t_widths.BF("W+", "b");
       result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
 
-      // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS(result, *Dep::Higgs_Couplings, 3);
+      // Cross section
+      set_CS_charged(result);
+     
     }
 
 
