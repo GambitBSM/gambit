@@ -115,7 +115,7 @@ namespace Gambit
     // extra HB v5.x (beta) input
     double BR_Hpjtb[1];
     double BR_HpjWZ[1];
-    double BR_HpjhiW[1][3];
+    double BR_HpjhiW[3];
   };
 }
 
