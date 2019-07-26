@@ -488,7 +488,7 @@ namespace Gambit
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
         ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
-        BR_HpjhiW(i+1,j+1) = ModelParam.BR_HpjhiW[i][j];
+        BR_HpjhiW(i+1,j+1) = HB_ModelParameters_charged.BR_HpjhiW[i][j];
       }
 
       BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
@@ -763,7 +763,7 @@ namespace Gambit
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
-        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+        BR_hjhihi(i+1,j+1) = HB_ModelParameters_charged.BR_hjhihi[i][j];
       }
 
       BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
