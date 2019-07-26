@@ -491,13 +491,13 @@ namespace Gambit
         BR_HpjhiW(i+1,j+1) = ModelParam_charged.BR_HpjhiW[i][j];
       }
 
-      BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+      BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
 						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
-                                            &ModelParam.ghjmumum_s[0], &ModelParam.ghjmumu_p[0],
+                                            &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
                                             &ModelParam.ghjtautau_s[0], &ModelParam.ghjtautau_p[0],
                                             &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
                                             &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
@@ -534,8 +534,6 @@ namespace Gambit
           invalid_point().raise(err.str());
         } 
         result = -0.5*chisq_withouttheory;
-      }
-      
     }
     // ***
 
@@ -766,13 +764,13 @@ namespace Gambit
         BR_hjhihi(i+1,j+1) = ModelParam_charged.BR_hjhihi[i][j];
       }
 
-      BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+      BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
 						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
-                                            &ModelParam.ghjmumum_s[0], &ModelParam.ghjmumu_p[0],
+                                            &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
                                             &ModelParam.ghjtautau_s[0], &ModelParam.ghjtautau_p[0],
                                             &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
                                             &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
