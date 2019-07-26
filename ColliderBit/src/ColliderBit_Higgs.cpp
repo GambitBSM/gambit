@@ -484,11 +484,13 @@ namespace Gambit
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> ghjhiZ;
-      Farray<double, 1,3, 1,3> BR_HpjhiW;
-      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      Farray<double, 1,3> BR_HpjhiW;
+      for(int i = 0; i < 3; i++) 
       {
-        ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
-        BR_HpjhiW(i+1,j+1) = ModelParam_charged.BR_HpjhiW[i][j];
+        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
+        for(int j = 0; j < 3; j++) {
+          ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+        }
       }
 
       BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
@@ -757,16 +759,18 @@ namespace Gambit
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> ghjhiZ;
-      Farray<double, 1,3, 1,3> BR_HpjhiW;
-      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      Farray<double, 1,3> BR_HpjhiW;
+      for(int i = 0; i < 3; i++) 
       {
-        ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
-        BR_HpjhiW(i+1,j+1) = ModelParam_charged.BR_HpjhiW[i][j];
+        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
+        for(int j = 0; j < 3; j++) {
+          ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+        }
       }
 
-      BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+      BEreq::HiggsBounds_neutral_input_properties_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
-      BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
+      BEreq::HiggsBounds_neutral_input_effC_HS(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
 						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
@@ -776,7 +780,7 @@ namespace Gambit
                                             &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
                                             ghjhiZ);
 
-      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
                                         &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
                                         &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
                                         &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
