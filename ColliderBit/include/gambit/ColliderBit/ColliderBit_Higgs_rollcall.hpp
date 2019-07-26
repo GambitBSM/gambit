@@ -163,7 +163,7 @@
     BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
     #undef FUNCTION
 
-    #define FUNCTION calc_HB_2_LEP_LogLike
+    #define FUNCTION calc_HB_5_LEP_LogLike
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
     DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
