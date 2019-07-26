@@ -475,6 +475,70 @@ namespace Gambit
       
     }
 
+    /// Get a LEP chisq from HiggsBounds (HB v5)
+    void calc_HB_5_LEP_LogLike(double &result)
+    {
+      using namespace Pipes::calc_HB_5_LEP_LogLike;
+
+      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
+
+      Farray<double, 1,3, 1,3> ghjhiZ;
+      Farray<double, 1,3, 1,3> BR_HpjhiW;
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+        BR_HpjhiW(i+1,j+1) = ModelParam.BR_HpjhiW[i][j];
+      }
+
+      BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+
+      BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
+						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
+                                            &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
+                                            &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
+                                            &ModelParam.ghjmumum_s[0], &ModelParam.ghjmumu_p[0],
+                                            &ModelParam.ghjtautau_s[0], &ModelParam.ghjtautau_p[0],
+                                            &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
+                                            &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
+                                            ghjhiZ);
+
+      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+                                        &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
+                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
+                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
+                                        &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
+                                        &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
+
+      BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam_charged.deltaMHplus[0]);
+
+        // run Higgs bounds 'v5beta'
+        double obsratio[6];
+        int HBresult[6], chan[6], ncombined[6];
+
+        BEreq::run_HiggsBounds_full(HBresult,chan,obsratio,ncombined);
+
+        // extract the LEP chisq
+        double chisq_withouttheory,chisq_withtheory;
+        int chan2;
+        double theor_unc = 1.5; // theory uncertainty
+        BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
+
+        // Catch HiggsBound's error value, chisq = -999
+        if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+        {
+          std::ostringstream err;
+          err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
+          // ColliderBit_warning().raise(LOCAL_INFO,err.str());
+          // chisq_withouttheory = 0.0;
+          invalid_point().raise(err.str());
+        } 
+        result = -0.5*chisq_withouttheory;
+      }
+      
+    }
+    // ***
+
     /// Get an LHC chisq from HiggsSignals
     void calc_HS_LHC_LogLike(double &result)
     {
@@ -686,6 +750,57 @@ namespace Gambit
 
     }
 
+    /// Get an LHC chisq from HiggsSignals (v2 beta)
+    void calc_HS_2_LHC_LogLike(double &result)
+    {
+      using namespace Pipes::calc_HS_2_LHC_LogLike;
+
+      hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
+      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
+
+     Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
+      Farray<double, 1,3, 1,3> BR_hjhihi;
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
+        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+      }
+
+      BEReq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+
+      BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
+						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
+                                            &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
+                                            &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
+                                            &ModelParam.ghjmumum_s[0], &ModelParam.ghjmumu_p[0],
+                                            &ModelParam.ghjtautau_s[0], &ModelParam.ghjtautau_p[0],
+                                            &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
+                                            &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
+                                            ghjhiZ);
+
+      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+                                        &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
+                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
+                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
+                                        &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
+                                        &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
+
+      BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
+
+      // add uncertainties to cross-sections and branching ratios
+      // double dCS[5] = {0.,0.,0.,0.,0.};
+      // double dBR[5] = {0.,0.,0.,0.,0.};
+      // BEreq::setup_rate_uncertainties(dCS,dBR);
+
+      // run HiggsSignals
+      int mode = 1; // 1- peak-centered chi2 method (recommended)
+      double csqmu, csqmh, csqtot, Pvalue;
+      int nobs;
+      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+
+      result = -0.5*csqtot;
+    }
+
     /// Higgs production cross-sections from FeynHiggs.
     void FH_HiggsProd(fh_HiggsProd &result)
     {
@@ -768,14 +883,14 @@ namespace Gambit
         const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
         const double RWW = 0.77; 
-        const double RZZ = 1.0-RWW;
+        // const double RZZ = 1.0-RWW;
         const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+"), GF = sminputs.GF;
         const double v = 1./sqrt(sqrt(2)*GF);
         const double g = 2.*MW/v;
         const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
         const double costw = sqrt(1.-sintw*sintw);
 
-        const double mt = SM.get(Par::Pole_Mass,"u_3");
+        // const double mt = SM.get(Par::Pole_Mass,"u_3");
 
         std::complex<double> c,cs,cp,c_sm,cs_sm,cp_sm;
 

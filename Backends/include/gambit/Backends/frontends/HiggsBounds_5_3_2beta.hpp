@@ -57,7 +57,7 @@ BE_FUNCTION(finish_HiggsBounds_chisqtables, void, (), "finish_higgsbounds_chisqt
 BE_FUNCTION(HiggsBounds_input_SLHA, void, (const char&), "higgsbounds_input_slha_", "HiggsBounds_input_SLHA")
 BE_FUNCTION(HiggsBounds_neutral_input_properties, void, (double*, double*, double*), "higgsbounds_neutral_input_properties_", "HiggsBounds_neutral_input_properties")
 BE_FUNCTION(HiggsBounds_neutral_input_effC, void, (double*, double*, double*, double*,
-						   double*, double*, double*, double*,
+						  						   double*, double*, double*, double*,
                                                    double*, double*, double*, double*,
                                                    double*, double*, double*, double*,
                                                    double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC")
@@ -78,7 +78,7 @@ BE_FUNCTION(HiggsBounds_charged_input_hadr, void, (int&, double*, double*, doubl
 	    "higgsbounds_charged_input_hadr_","HiggsBounds_charged_input_hadr")
 
 // Allowed model usage
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ, THDM, THDMI, THDMII, THDMLS, THDMflipped, THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
