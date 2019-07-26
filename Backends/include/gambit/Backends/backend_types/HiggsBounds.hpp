@@ -73,6 +73,7 @@ namespace Gambit
   struct hb_neutral_ModelParameters_effc
   {
    double Mh[3];
+   double deltaMh[3];
    int CP[3];
    double hGammaTot[3];
    double ghjss_s[3];

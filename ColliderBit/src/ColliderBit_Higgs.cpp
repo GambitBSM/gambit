@@ -897,7 +897,27 @@ namespace Gambit
         result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
         result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
         result.Mh[2] = he.get(Par::Pole_Mass, "A0");
-        result.Mh[3] = he.get(Par::Pole_Mass, "H+");
+
+        // set error for mh
+        const bool has_high_err = he.has(Par::Pole_Mass_1srd_high, 25, 0);
+        const bool has_low_err = he.has(Par::Pole_Mass_1srd_low, 25, 0);
+        if (has_high_err and has_low_err) {
+          const double upper = he.get(Par::Pole_Mass_1srd_high, 25, 0);
+          const double lower = he.get(Par::Pole_Mass_1srd_low, 25, 0);
+          result.deltaMh[0] = result.Mh[0] * std::max(upper,lower);
+        }
+        else {
+          result.deltaMh[0] = 0.;
+        }
+
+        // set all other scalar mass errors to zero
+        result.deltaMh[1] = 0.0;
+        result.deltaMh[2] = 0.0;
+
+        // set CP of the scalars
+        result.CP[0] = 1;
+        result.CP[1] = 1;
+        result.CP[2] = -1;
 
         for (int h=1;h<=3;h++) {
           // get SM model, get THDM model & create a ratio of the two
