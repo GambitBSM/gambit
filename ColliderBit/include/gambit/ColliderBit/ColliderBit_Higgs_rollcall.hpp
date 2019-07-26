@@ -178,7 +178,7 @@
     BACKEND_REQ(HiggsBounds_charged_input, (libhiggsbounds), void,
     (double*, double*, double*, double*,
     double*, double*, double*, double*,
-    double*, double*, Farray<double, 1,3, 1,3>&)))
+    double*, double*, Farray<double, 1,3, 1,3>&))
     BACKEND_REQ(HiggsBounds_set_mass_uncertainties, (libhiggsbounds), void, (double*, double*))
     BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
     BACKEND_REQ(run_HiggsBounds_full, (libhiggsbounds), void, (int*, int*, double*, int*))
@@ -228,7 +228,7 @@
     BACKEND_REQ(HiggsBounds_charged_input, (libhiggssignals), void,
     (double*, double*, double*, double*,
     double*, double*, double*, double*,
-    double*, double*, Farray<double, 1,3, 1,3>&)))
+    double*, double*, Farray<double, 1,3, 1,3>&))
     BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
     BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
