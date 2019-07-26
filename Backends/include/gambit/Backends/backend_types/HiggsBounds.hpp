@@ -74,7 +74,7 @@ namespace Gambit
   {
    double Mh[3];
    double deltaMh[3];
-   int CP[3];
+   double CP[3];
    double hGammaTot[3];
    double ghjss_s[3];
    double ghjss_p[3];
