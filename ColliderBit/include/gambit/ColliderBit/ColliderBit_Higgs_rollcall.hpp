@@ -165,7 +165,7 @@
 
     #define FUNCTION calc_HB_5_LEP_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
     DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_properties, (libhiggsbounds), void,
     (double*, double*, double*))
@@ -215,7 +215,7 @@
 
     #define FUNCTION calc_HS_2_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
     DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_properties, (libhiggssignals), void,
     (double*, double*, double*))
