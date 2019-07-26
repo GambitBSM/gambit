@@ -172,7 +172,7 @@ ObsLikes:
           function: THDM_ModelParameters_charged
           module: ColliderBit
 
-    - capability: LEP_Higgs_LogLike
+    - capability: LHC_Higgs_LogLike
       function: calc_HS_2_LHC_LogLike
       dependencies:
         - capability: HB_ModelParameters_neutral
@@ -184,9 +184,9 @@ ObsLikes:
 
 
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
-      function: calc_HS_LHC_LogLike
+    # - purpose:    LogLike
+    #   capability: LHC_Higgs_LogLike
+    #   function: calc_HS_LHC_LogLike
 
     #################
     # Observables
