@@ -753,15 +753,15 @@ namespace Gambit
     {
       using namespace Pipes::calc_HS_2_LHC_LogLike;
 
-      hb_neutral_ModelParameters_part ModelParam = *Dep::HB_ModelParameters_neutral;
+      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
-     Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
-      Farray<double, 1,3, 1,3> BR_hjhihi;
+      Farray<double, 1,3, 1,3> ghjhiZ;
+      Farray<double, 1,3, 1,3> BR_HpjhiW;
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
-        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
-        BR_hjhihi(i+1,j+1) = ModelParam_charged.BR_hjhihi[i][j];
+        ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+        BR_HpjhiW(i+1,j+1) = ModelParam_charged.BR_HpjhiW[i][j];
       }
 
       BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
