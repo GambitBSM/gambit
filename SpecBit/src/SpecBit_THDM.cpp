@@ -640,18 +640,26 @@ namespace Gambit
     }
 
     // create a THDM object in the SM limit
-    // with mh = mh_i where i is passed as higgs_number in the function
-    // then m_H = m_A = m_Hpm = m_h*100 to decouple from the SM
-    // sba=tanb=1.0 
-    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
-      double mh = he->get(Par::Pole_Mass,"h0",1);
-      if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
-      if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
+
+    // deprecated
+    // // with mh = mh_i where i is passed as higgs_number in the function
+    // // then m_H = m_A = m_Hpm = m_h*100 to decouple from the SM
+    // // sba=tanb=1.0 
+    // void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
+    //   double mh = he->get(Par::Pole_Mass,"h0",1);
+    //   if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
+    //   if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
+    //   set_SM(SM,sminputs,THDM_object);
+    //   // tree level conversion will be used for any basis changes
+    //   THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+    //   THDM_object->set_yukawas_type(1);
+    // }
+
+    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
       set_SM(SM,sminputs,THDM_object);
-      // tree level conversion will be used for any basis changes
-      THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-      THDM_object->set_yukawas_type(yukawa_type);
+      THDM_object->set_sm_like(he->get(Par::Pole_Mass,"h0",1))
     }
+    
 
     struct THDM_spectrum_container {
       std::unique_ptr<SubSpectrum> he;
@@ -2333,7 +2341,7 @@ namespace Gambit
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
         SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
