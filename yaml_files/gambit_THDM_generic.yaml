@@ -164,6 +164,7 @@ ObsLikes:
 
     - capability: LEP_Higgs_LogLike
       function: calc_HB_5_LEP_LogLike
+      purpose: LogLike
       dependencies:
         - capability: HB_ModelParameters_neutral
           function: THDM_ModelParameters_effc
@@ -174,6 +175,7 @@ ObsLikes:
 
     - capability: LHC_Higgs_LogLike
       function: calc_HS_2_LHC_LogLike
+      purpose: LogLike
       dependencies:
         - capability: HB_ModelParameters_neutral
           function: THDM_ModelParameters_effc
