@@ -2277,7 +2277,6 @@ namespace Gambit
               check_nan(couplings.huu_cs[h][3][3], "htt coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "htt coupling " +std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
-              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
               for (int h2=1; h2<5; h2++) {
                 container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
                 check_nan(couplings.vhh[2][h][h2], "vhh coupling 2"+std::to_string(h)+std::to_string(h2));
@@ -2311,6 +2310,7 @@ namespace Gambit
               check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
+                            std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
             }
          break;
       }
