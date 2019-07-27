@@ -2227,6 +2227,7 @@ namespace Gambit
 
     thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
+      std::cout << container.THDM_object->get_alpha() << std::endl;
       thdmc_couplings couplings;
       std::complex<double> test_coupling_s,test_coupling_p;
       switch(purpose) {
@@ -2320,7 +2321,8 @@ namespace Gambit
               check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
-                            std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
+              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
+              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
             }
          break;
       }
