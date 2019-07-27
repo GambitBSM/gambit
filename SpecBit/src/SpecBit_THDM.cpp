@@ -2064,12 +2064,12 @@ namespace Gambit
       }
 
       #ifdef SPECBIT_DEBUG
-        const std::vector<std::string> eigenvalue_keys = {"a00_even_plus","a00_even_minus","a00_odd_plus","a00_odd_minus","a01_even_plus", \
-          "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
-        for(unsigned j=0; j < eigenvalues.size(); j++) {
-            std::cout  <<  eigenvalue_keys[j] << " | " << eigenvalues[j] << " | " << abs(eigenvalues[j]-i/2.0) << \
-            " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
-        }
+        // const std::vector<std::string> eigenvalue_keys = {"a00_even_plus","a00_even_minus","a00_odd_plus","a00_odd_minus","a01_even_plus", \
+        //   "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
+        // for(unsigned j=0; j < eigenvalues.size(); j++) {
+        //     std::cout  <<  eigenvalue_keys[j] << " | " << eigenvalues[j] << " | " << abs(eigenvalues[j]-i/2.0) << \
+        //     " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
+        // }
       #endif
 
       return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
