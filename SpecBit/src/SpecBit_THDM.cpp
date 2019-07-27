@@ -2343,7 +2343,7 @@ namespace Gambit
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0");
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
         init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
         SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
