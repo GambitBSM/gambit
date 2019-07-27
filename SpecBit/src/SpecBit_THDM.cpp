@@ -72,8 +72,8 @@
 #define L_MAX 1e50
 
 // Switches for debug mode
-// #define SPECBIT_DEBUG
-// #define SPECBIT_DEBUG_VERBOSE
+#define SPECBIT_DEBUG
+#define SPECBIT_DEBUG_VERBOSE
 
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
@@ -2339,6 +2339,7 @@ namespace Gambit
 
     std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
+      std::cout << "BITE 1" << std::endl;
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
