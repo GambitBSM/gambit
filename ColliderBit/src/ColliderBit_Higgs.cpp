@@ -513,29 +513,23 @@ namespace Gambit
                                         &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
 
       BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam_charged.deltaMHplus[0]);
+      
+      // extract the LEP chisq
+      double chisq_withouttheory,chisq_withtheory;
+      int chan2;
+      double theor_unc = 1.5; // theory uncertainty
+      BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
 
-        // run Higgs bounds 'v5beta'
-        double obsratio[6];
-        int HBresult[6], chan[6], ncombined[6];
-
-        BEreq::run_HiggsBounds_full(HBresult,chan,obsratio,ncombined);
-
-        // extract the LEP chisq
-        double chisq_withouttheory,chisq_withtheory;
-        int chan2;
-        double theor_unc = 1.5; // theory uncertainty
-        BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
-
-        // Catch HiggsBound's error value, chisq = -999
-        if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
-        {
-          std::ostringstream err;
-          err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
-          // ColliderBit_warning().raise(LOCAL_INFO,err.str());
-          // chisq_withouttheory = 0.0;
-          invalid_point().raise(err.str());
-        } 
-        result = -0.5*chisq_withouttheory;
+      // Catch HiggsBound's error value, chisq = -999
+      if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+      {
+        std::ostringstream err;
+        err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
+        // ColliderBit_warning().raise(LOCAL_INFO,err.str());
+        // chisq_withouttheory = 0.0;
+        invalid_point().raise(err.str());
+      } 
+      result = -0.5*chisq_withouttheory;
     }
     // ***
 
