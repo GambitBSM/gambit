@@ -575,8 +575,8 @@ namespace Gambit
       SM_object->set_qmass_msbar(2,SM->get(Par::mass1,"u_1")); //u
       SM_object->set_qmass_msbar(3,SM->get(Par::mass1,"d_2")); //s
       SM_object->set_qmass_msbar(4,sminputs.mCmC); //c
-      SM_object->set_qmass_msbar(5,SM->get(Par::mass1,"d_3")); //u
-      SM_object->set_qmass_msbar(6,SM->get(Par::mass1,"u_3")); //s
+      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //u
+      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //s
     }
 
 
