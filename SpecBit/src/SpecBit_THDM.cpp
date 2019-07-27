@@ -2323,6 +2323,9 @@ namespace Gambit
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
               std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << std::endl;
               std::cout << "(SpecBit) DEBUG hdd (" << h << "33): "<< couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
+            double kd1, kd2, kd3;
+            container.THDM_object->get_kappa_down(kd1,kd2,kd3);
+            std::cout << "kappa down: " << kd1 << " " << kd2 << " " << kd3 << std::endl;
             }
          break;
       }
@@ -2342,7 +2345,6 @@ namespace Gambit
 
     std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
-      std::cout << "BITE 1" << std::endl;
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
