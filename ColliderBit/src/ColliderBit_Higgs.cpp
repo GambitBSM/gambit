@@ -942,8 +942,8 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][2][2];
           result.ghjss_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjss_p[h-1] = pow(abs(cp/cs_sm),2);
-          
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
+          std::cout << "(ColliderBit) DEBUG hdd (" << h << "22) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjbb
           cs = THDM_couplings.hdd_cs[h][3][3];
@@ -953,7 +953,7 @@ namespace Gambit
           result.ghjbb_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjbb_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
-          std::cout << "coupling debug (hdd3): " << cs << " "<< cp << " " << cs_sm << std::endl;
+          std::cout << "(ColliderBit) DEBUG hdd (" << h << "33) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjcc
           cs = THDM_couplings.huu_cs[h][2][2];
@@ -963,6 +963,7 @@ namespace Gambit
           result.ghjcc_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjcc_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
+          std::cout << "(ColliderBit) DEBUG huu (" << h << "22) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjtt
           cs = THDM_couplings.huu_cs[h][3][3];
@@ -972,6 +973,7 @@ namespace Gambit
           result.ghjtt_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjtt_p[h-1] = pow(abs(cp/cs_sm),2);
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
+          std::cout << "(ColliderBit) DEBUG huu (" << h << "33) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjmumu
           cs = THDM_couplings.hll_cs[h][2][2];
