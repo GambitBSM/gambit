@@ -2321,8 +2321,7 @@ namespace Gambit
               check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
-              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
-              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
+              std::cout << "DEBUG (hdd): " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
             }
          break;
       }
