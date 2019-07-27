@@ -659,7 +659,7 @@ namespace Gambit
       set_SM(SM,sminputs,THDM_object);
       THDM_object->set_param_sm(m_h);
       THDM_object->set_yukawas_type(1);
-      std::cout << THDM_object.print_param_gen() << std::endl;
+      std::cout << THDM_object->print_param_gen() << std::endl;
     }
     
 
