@@ -2325,7 +2325,7 @@ namespace Gambit
               std::cout << "(SpecBit) DEBUG hdd (" << h << "33): "<< couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
             double kd1, kd2, kd3;
             container.THDM_object->get_kappa_down(kd1,kd2,kd3);
-            std::cout << "dmass p 3: " << container.THDM_object->get_SM()->get_dmass_pole(3) << std::endl;
+            std::cout << "dmass p 3: " << container.THDM_object->get_SM().get_dmass_pole(3) << std::endl;
             std::cout << "kappa down: " << kd1 << " " << kd2 << " " << kd3 << std::endl;
             }
          break;
