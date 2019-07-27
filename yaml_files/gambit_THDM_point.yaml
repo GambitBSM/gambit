@@ -62,7 +62,7 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: random
+  use_scanner: de
 
   scanners:
     square_grid:
@@ -97,7 +97,6 @@ Scanner:
       aux_printer_txt_options:
       aux_printer_stats_options:
       aux_printer_live_options:
-
 
 ObsLikes:
 
@@ -157,15 +156,32 @@ ObsLikes:
     ## LHC & LEP likelihoods
 
     - capability: LEP_Higgs_LogLike
-      function: calc_HB_LEP_LogLike
+      function: calc_HB_5_LEP_LogLike
+      purpose: LogLike
       dependencies:
-        - capability: HB_ModelParameters
-          function: fill_THDM_HiggsBounds_model_parameters
+        - capability: HB_ModelParameters_neutral
+          function: THDM_ModelParameters_effc
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: THDM_ModelParameters_charged
           module: ColliderBit
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
-      function: calc_HS_LHC_LogLike
+    - capability: LHC_Higgs_LogLike
+      function: calc_HS_2_LHC_LogLike
+      purpose: LogLike
+      dependencies:
+        - capability: HB_ModelParameters_neutral
+          function: THDM_ModelParameters_effc
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: THDM_ModelParameters_charged
+          module: ColliderBit
+
+
+
+    # - purpose:    LogLike
+    #   capability: LHC_Higgs_LogLike
+    #   function: calc_HS_LHC_LogLike
 
     #################
     # Observables
@@ -291,9 +307,16 @@ Rules:
       options:
         check_all_scales: true
 
-    - capability: HB_ModelParameters
-      function: fill_THDM_HiggsBounds_model_parameters
+    - capability: HB_ModelParameters_neutral
+      function: THDM_ModelParameters_effc
       module: ColliderBit
+
+    - capability: HB_ModelParameters_charged
+      function: THDM_ModelParameters_charged
+      module: ColliderBit
+      
+    - options:
+        HS_Expt_string: latestresults-1.4.0-LHCinclusive
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -365,6 +388,6 @@ KeyValues:
     core_warning: fatal
     ExampleBit_A_error: non-fatal
 
-  default_output_path: "runs/THDM_point/"
+  default_output_path: "runs/THDM_generic/"
   enable_testing: true
   debug: true
