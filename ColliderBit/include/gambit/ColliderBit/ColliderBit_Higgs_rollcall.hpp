@@ -160,7 +160,7 @@
     BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
     BACKEND_REQ(run_HiggsBounds_full, (libhiggsbounds), void, (int*, int*, double*, int*))
     BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
-    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
+    BACKEND_OPTION( (HiggsBounds, 4.2.1, 4.3.1), (libhiggsbounds) )
     #undef FUNCTION
 
     #define FUNCTION calc_HB_5_LEP_LogLike
@@ -181,7 +181,7 @@
     double*, double*, Farray<double, 1,3>&))
     BACKEND_REQ(HiggsBounds_set_mass_uncertainties, (libhiggsbounds), void, (double*, double*))
     BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
-    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
+    BACKEND_OPTION( (HiggsBounds, 5.3.2beta), (libhiggsbounds) )
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -230,7 +230,7 @@
     BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
     BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
-    BACKEND_OPTION( (HiggsSignals, 1.4), (libhiggssignals) )
+    BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
 
   #undef CAPABILITY
