@@ -514,11 +514,19 @@ namespace Gambit
 
       BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam_charged.deltaMHplus[0]);
 
-        // // run Higgs bounds 'v5beta'
-        // double obsratio[6];
-        // int HBresult[6], chan[6], ncombined[6];
+         // run Higgs bounds 'classic'
+        double obsratio;
+        int HBresult, chan, ncombined;
 
-        // BEreq::run_HiggsBounds_full(HBresult,chan,obsratio,ncombined);
+        BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
+
+        #ifdef COLLIDERBIT_DEBUG
+          std::cout << "HB output: " << std::endl << \
+          "hbres: " << HBresult << std::endl << \
+          "hbchan: "<< chan << std::endl << \
+          "hbobs: " << obsratio << std::endl << \
+          "hbcomb: " << ncombined << std::endl;
+        #endif
 
         // extract the LEP chisq
         double chisq_withouttheory,chisq_withtheory;
