@@ -657,7 +657,7 @@ namespace Gambit
 
     void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
       set_SM(SM,sminputs,THDM_object);
-      THDM_object->set_param_sm(m_h)
+      THDM_object->set_param_sm(m_h);
     }
     
 
