@@ -942,7 +942,7 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][2][2];
           result.ghjss_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjss_p[h-1] = pow(abs(cp/cs_sm),2);
-          std::cout << "coupling debug: " << cs << " "<< cp " " << cs_sm << std::endl;
+          std::cout << "coupling debug: " << cs << " "<< cp << " " << cs_sm << std::endl;
           
           if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
 
