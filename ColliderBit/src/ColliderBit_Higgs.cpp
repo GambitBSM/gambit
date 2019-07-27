@@ -1091,7 +1091,7 @@ namespace Gambit
         result.BR_HpjWZ[0] = 0.0; //THDM_decay_widths.gamma_hWZ[4][3][2]/gammatot_Hc; TODO
 
          for (int h=1;h<=3;h++) {
-          result.BR_HpjhiW[0][h] = THDM_decay_widths.gamma_hvh[4][3][h]/gammatot_Hc;
+          result.BR_HpjhiW[h] = THDM_decay_widths.gamma_hvh[4][3][h]/gammatot_Hc;
          }
         
     }
