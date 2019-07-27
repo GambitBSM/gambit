@@ -2277,6 +2277,7 @@ namespace Gambit
               check_nan(couplings.huu_cs[h][3][3], "htt coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "htt coupling " +std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
+              std::cout << "DEBUG: " << h << couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
               for (int h2=1; h2<5; h2++) {
                 container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
                 check_nan(couplings.vhh[2][h][h2], "vhh coupling 2"+std::to_string(h)+std::to_string(h2));
@@ -2299,12 +2300,15 @@ namespace Gambit
               container.THDM_object->get_coupling_huu(h,2,2,couplings.huu_cs[h][2][2],couplings.huu_cp[h][2][2]);
               container.THDM_object->get_coupling_huu(h,3,3,couplings.huu_cs[h][3][3],couplings.huu_cp[h][3][3]);
               container.THDM_object->get_coupling_hll(h,2,2,couplings.hll_cs[h][2][2],couplings.hll_cp[h][2][2]);
+              container.THDM_object->get_coupling_hll(h,2,2,couplings.hll_cs[h][3][3],couplings.hll_cp[h][3][3]);
               container.THDM_object->get_coupling_vvh(2,2,h,couplings.vvh[2][2][h]);
               container.THDM_object->get_coupling_vvh(3,3,h,couplings.vvh[3][3][h]);
               check_nan(couplings.hdd_cs[h][2][2], "hdd coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][2][2], "hdd coupling "+std::to_string(h));
               check_nan(couplings.hdd_cs[h][3][3], "hdd coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][3][3], "hdd coupling "+std::to_string(h));
               check_nan(couplings.huu_cs[h][2][2], "huu coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][2][2], "huu coupling "+std::to_string(h));
               check_nan(couplings.huu_cs[h][3][3], "huu coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "huu coupling "+std::to_string(h));
+              check_nan(couplings.hll_cs[h][2][2], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][2][2], "hll coupling "+std::to_string(h));
+              check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
             }

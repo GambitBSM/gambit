@@ -26,6 +26,7 @@ using namespace std;
 namespace Gambit
 {
 
+  // NB: Containers offset by one to align with higgs & fermion numbers
   // Container for all THDMC couplings
   struct thdmc_couplings
   {   //hdd
