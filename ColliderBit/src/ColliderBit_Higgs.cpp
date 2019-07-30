@@ -1058,7 +1058,7 @@ namespace Gambit
         // GammaTotal[h-1] = GammaTotal[h-1]*HB_get_gammah(Mh[h-1])/sm_table.get_gammatot_h(1);
         // printf("gtot %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], sm_table.get_gammatot_h(1), HB_get_gammah(Mh[h-1]));
 
-        std::cout << "h total width" << result.hGammaTot[j-1] << std::endl;
+        std::cout << "h total width (" << h << "): " << result.hGammaTot[h-1] << std::endl;
 
         // ghjhiZ
         for (int j=1;j<=3;j++) {
