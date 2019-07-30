@@ -2305,7 +2305,7 @@ namespace Gambit
             std::cout << "purpose: non-SM" << std::endl;
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
-            std::cout << "begin coupling fillgit " << std::endl;
+            std::cout << "begin coupling fill: " << std::endl;
             for (int h=1; h<4; h++) { 
               container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
               container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
@@ -2325,7 +2325,7 @@ namespace Gambit
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
             // std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << container.THDM_object->get_sba() << std::endl;
             // container.THDM_object->print_param_phys();
-            std::cout << "(SpecBit) DEBUG hdd (" << h << "133): "<< couplings.hdd_cs[1][3][3] << " " << couplings.hdd_cp[1][3][3] << std::endl;
+            std::cout << "(SpecBit) DEBUG hdd (133): "<< couplings.hdd_cs[1][3][3] << std::endl;
             // double kd1, kd2, kd3;
             // container.THDM_object->get_kappa_down(kd1,kd2,kd3);
             // std::cout << "dmass p 3: " << container.THDM_object->get_SM().get_dmass_pole(3) << std::endl;
