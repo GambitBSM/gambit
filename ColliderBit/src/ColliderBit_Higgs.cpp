@@ -1058,16 +1058,21 @@ namespace Gambit
         // GammaTotal[h-1] = GammaTotal[h-1]*HB_get_gammah(Mh[h-1])/sm_table.get_gammatot_h(1);
         // printf("gtot %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], sm_table.get_gammatot_h(1), HB_get_gammah(Mh[h-1]));
 
+        std::cout << "h total width" << result.hGammaTot[j-1] << std::endl;
+
         // ghjhiZ
         for (int j=1;j<=3;j++) {
           for (int i=1;i<=3;i++) {
             result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
+            std::cout << "gamma hhh: (" << j << i << i << "): "<< result.BR_hjhihi[i-1][j-1] << std::endl;
             c = THDM_couplings.vvh[2][j][i];
             result.ghjhiZ[i-1][j-1]=pow(abs(c)/(g/2./costw),2);
             if (debug) printf("%2d %2d hihjZ %16.8E\n", j, i, result.ghjhiZ[i-1][j-1]);
             if (debug) printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
           }
         }
+
+        
         
     }
 
