@@ -1061,7 +1061,7 @@ namespace Gambit
 
         // ghjhiZ
         for (int j=1;j<=3;j++) {
-          std::cout << "h total width: " << j << " | " << THDM_total_widths.gamma_tot_h(j) << std::endl;	 
+          std::cout << "h total width: " << j << " | " << THDM_total_widths.gamma_tot_h[j] << std::endl;	 
           for (int i=1;i<=3;i++) {
             result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
             std::cout << "gamma hhh: (" << j << i << i << "): "<< result.BR_hjhihi[i-1][j-1] << std::endl;
