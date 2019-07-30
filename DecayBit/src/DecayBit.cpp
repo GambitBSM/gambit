@@ -3597,14 +3597,27 @@ namespace Gambit
         thdm_pars.yukawa_type = he->get(Par::dimensionless,"yukawaCoupling");
     }
 
-    void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
-      double mh = he->get(Par::Pole_Mass,"h0",1);
-      if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
-      if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
+    // create a THDM object in the SM limit
+
+    // deprecated
+    // // with mh = mh_i where i is passed as higgs_number in the function
+    // // then m_H = m_A = m_Hpm = m_h*100 to decouple from the SM
+    // // sba=tanb=1.0 
+    // void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
+    //   double mh = he->get(Par::Pole_Mass,"h0",1);
+    //   if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
+    //   if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
+    //   set_SM(SM,sminputs,THDM_object);
+    //   // tree level conversion will be used for any basis changes
+    //   THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+    //   THDM_object->set_yukawas_type(1);
+    // }
+
+    void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object) {
       set_SM(SM,sminputs,THDM_object);
-      // tree level conversion will be used for any basis changes
-      THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-      THDM_object->set_yukawas_type(yukawa_type);
+      THDM_object->set_param_sm(m_h);
+      THDM_object->set_yukawas_type(1);
+      THDM_object->print_param_gen();
     }
 
     struct THDM_spectrum_container {
@@ -3803,9 +3816,13 @@ namespace Gambit
     std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_decays_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_decay_widths> SM_like_widths; 
-      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, 1, scale); // initializes couplings at scale (if scale>0) or not
+      std::vector<double> m_hj;
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object, h);
         SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
@@ -3944,8 +3961,14 @@ namespace Gambit
       }
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
+      std::vector<double> m_hj;
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
+      
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object, h);
+        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        // init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.THDM_object, h);
         SM_like_total_widths.push_back(fill_THDM_total_widths(container));
       }
       

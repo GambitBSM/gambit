@@ -1007,19 +1007,19 @@ namespace Gambit
 
           //ghjgaga
           double hgaga = THDM_decay_widths.gamma_hgaga[h];
-          double hgaga_sm = THDM_decay_widths_SM_like[h].gamma_hgaga[1];
+          double hgaga_sm = THDM_decay_widths_SM_like[h-1].gamma_hgaga[1];
           result.ghjgaga[h-1] = hgaga/hgaga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
 
           //ghjZga
           double hZga = THDM_decay_widths.gamma_hZga[h];
-          double hZga_sm = THDM_decay_widths_SM_like[h].gamma_hZga[1];
+          double hZga_sm = THDM_decay_widths_SM_like[h-1].gamma_hZga[1];
           result.ghjZga[h-1] = hZga/hZga_sm;
           if (debug) printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
 
           //ghjhh
           double hgg = THDM_decay_widths.gamma_hgg[h];
-          double hgg_sm = THDM_decay_widths_SM_like[h].gamma_hgg[1];
+          double hgg_sm = THDM_decay_widths_SM_like[h-1].gamma_hgg[1];
           result.ghjgg[h-1] = hgg/hgg_sm;
           result.ghjggZ[h-1] = 0.;
           if (debug) printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);

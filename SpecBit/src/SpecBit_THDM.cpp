@@ -661,7 +661,6 @@ namespace Gambit
       THDM_object->set_yukawas_type(1);
       THDM_object->print_param_gen();
     }
-    
 
     struct THDM_spectrum_container {
       std::unique_ptr<SubSpectrum> he;
@@ -2325,7 +2324,7 @@ namespace Gambit
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
             // std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << container.THDM_object->get_sba() << std::endl;
             // container.THDM_object->print_param_phys();
-            std::cout << "(SpecBit) DEBUG hdd (133): "<< couplings.hdd_cs[1][3][3] << std::endl;
+            // std::cout << "(SpecBit) DEBUG hdd (133): "<< couplings.hdd_cs[1][3][3] << std::endl;
             // double kd1, kd2, kd3;
             // container.THDM_object->get_kappa_down(kd1,kd2,kd3);
             // std::cout << "dmass p 3: " << container.THDM_object->get_SM().get_dmass_pole(3) << std::endl;
