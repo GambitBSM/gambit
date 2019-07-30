@@ -2305,7 +2305,7 @@ namespace Gambit
             std::cout << "purpose: non-SM" << std::endl;
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
-            std::cout << "begin coupling fill" << std::endl;
+            std::cout << "begin coupling fillgit " << std::endl;
             for (int h=1; h<4; h++) { 
               container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
               container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
