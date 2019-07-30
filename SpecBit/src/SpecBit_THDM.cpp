@@ -655,7 +655,7 @@ namespace Gambit
     //   THDM_object->set_yukawas_type(1);
     // }
 
-    void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
+    void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object) {
       set_SM(SM,sminputs,THDM_object);
       THDM_object->set_param_sm(m_h);
       THDM_object->set_yukawas_type(1);
@@ -2321,7 +2321,8 @@ namespace Gambit
               check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
-              std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << std::endl;
+              std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << container.THDM_object->get_sba() << std::endl;
+              container.THDM_object->print_param_phys();
               std::cout << "(SpecBit) DEBUG hdd (" << h << "33): "<< couplings.hdd_cs[h][3][3] << " " << couplings.hdd_cp[h][3][3] << std::endl;
             double kd1, kd2, kd3;
             container.THDM_object->get_kappa_down(kd1,kd2,kd3);
@@ -2347,13 +2348,13 @@ namespace Gambit
     std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_couplings> SM_like_couplings; 
-      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, 1, scale); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
+        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
         SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
