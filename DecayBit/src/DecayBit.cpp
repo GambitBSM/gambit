@@ -3822,7 +3822,7 @@ namespace Gambit
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object, h);
+        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
         SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
