@@ -2302,7 +2302,7 @@ namespace Gambit
          case HB_effc_couplings:
               for (int h1=1; h1<4; h1++) { 
                 for (int h2=1; h2<4; h2++) { 
-                  container.THDM_object->get_coupling_vhh[2][h1][h2](2,h1,h2,couplings.vhh[2][h1][h2]);
+                  container.THDM_object->get_coupling_vhh(2,h1,h2,couplings.vhh[2][h1][h2]);
                   check_nan(couplings.vhh[2][h1][h2], "vhh coupling 2"+std::to_string(h1)+std::to_string(h2));
                 }
               }
