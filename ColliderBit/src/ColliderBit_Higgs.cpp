@@ -936,40 +936,40 @@ namespace Gambit
           cp = THDM_couplings.hdd_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h-1].hdd_cs[1][2][2];
           cp_sm = THDM_couplings_SM_like[h-1].hdd_cp[1][2][2];
-          result.ghjss_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjss_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjss_s[h-1] =cs/cs_sm;
+          result.ghjss_p[h-1] = cp/cs_sm;
 
           //ghjbb
           cs = THDM_couplings.hdd_cs[h][3][3];
           cp = THDM_couplings.hdd_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h-1].hdd_cs[1][3][3];
           cp_sm = THDM_couplings_SM_like[h-1].hdd_cp[1][3][3];
-          result.ghjbb_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjbb_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjbb_s[h-1] = cs/cs_sm;
+          result.ghjbb_p[h-1] = cp/cs_sm;
 
           //ghjcc
           cs = THDM_couplings.huu_cs[h][2][2];
           cp = THDM_couplings.huu_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h-1].huu_cs[1][2][2];
           cp_sm = THDM_couplings_SM_like[h-1].huu_cp[1][2][2];
-          result.ghjcc_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjcc_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjcc_s[h-1] = cs/cs_sm;
+          result.ghjcc_p[h-1] = cp/cs_sm;
 
           //ghjtt
           cs = THDM_couplings.huu_cs[h][3][3];
           cp = THDM_couplings.huu_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h-1].huu_cs[1][3][3];
           cp_sm = THDM_couplings_SM_like[h-1].huu_cp[1][3][3];
-          result.ghjtt_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjtt_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjtt_s[h-1] = cs/cs_sm;
+          result.ghjtt_p[h-1] = cp/cs_sm;
           
           //ghjmumu
           cs = THDM_couplings.hll_cs[h][2][2];
           cp = THDM_couplings.hll_cp[h][2][2];
           cs_sm = THDM_couplings_SM_like[h-1].hll_cs[1][2][2];
           cp_sm = THDM_couplings_SM_like[h-1].hll_cp[1][2][2];
-          result.ghjmumu_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjmumu_s[h-1] = cs/cs_sm;
+          result.ghjmumu_p[h-1] = cp/cs_sm;
           
 
           //ghjtautau
@@ -977,19 +977,19 @@ namespace Gambit
           cp = THDM_couplings.hll_cp[h][3][3];
           cs_sm = THDM_couplings_SM_like[h-1].hll_cs[1][3][3];
           cp_sm = THDM_couplings_SM_like[h-1].hll_cp[1][3][3];
-          result.ghjtautau_s[h-1] = pow(abs(cs/cs_sm),2);
-          result.ghjtautau_p[h-1] = pow(abs(cp/cs_sm),2);
+          result.ghjtautau_s[h-1] = cs/cs_sm;
+          result.ghjtautau_p[h-1] = cp/cs_sm;
           
           //ghjZZ
           c = THDM_couplings.vvh[2][2][h];
           c_sm = THDM_couplings_SM_like[h-1].vvh[2][2][1];
-          result.ghjZZ[h-1] = pow(abs(c/c_sm),2);
+          result.ghjZZ[h-1] = c/c_sm;
           
 
           //ghjWW
           c = THDM_couplings.vvh[3][3][h];
           c_sm = THDM_couplings_SM_like[h-1].vvh[3][3][1];
-          result.ghjWW[h-1] = pow(abs(c/c_sm),2);
+          result.ghjWW[h-1] = c/c_sm;
           
 
           //ghjgaga
@@ -1031,18 +1031,15 @@ namespace Gambit
         // ghjhiZ
         for (int j=1;j<=3;j++) {
           for (int i=1;i<=3;i++) {
-            result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
+            result.BR_hjhihi[i-1][j-1] = THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
             c = THDM_couplings.vhh[2][j][i];
-            result.ghjhiZ[i-1][j-1]=pow(abs(c)/(g/2./costw),2);
+            result.ghjhiZ[i-1][j-1] = c/(g/2./costw);
             #ifdef COLLIDERBIT_DEBUG
               printf("%2d %2d hihjZ %16.8E\n", j, i, result.ghjhiZ[i-1][j-1]);
               printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
             #endif
           }
         }
-
-        
-        
     }
 
     void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
