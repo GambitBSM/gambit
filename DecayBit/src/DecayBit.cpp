@@ -3509,6 +3509,19 @@ namespace Gambit
         tau, SM_Z::gamma_inv.sigma, false);
     }
 
+    // THDM width Hp->WZ (not available in 2HDMC)
+    // void gamma_HpWZ(double& result) {
+    // https://journals.aps.org/prd/pdf/10.1103/PhysRevD.61.095001
+    //   const double mHp = he->get(Par::Pole_Mass, "H+");
+    //   const double mZ = SM->get(Par::Pole_Mass,"Z0");
+    //   const double mW = SM->get(Par::Pole_Mass,"W+");
+    //   const double z = mZ*mZ/(mHp*mHp);
+    //   const double w = mW*mW/(mHp*mHp);
+    //   const double lambda_1wz = pow((1-w-z),2) - 4.0*w*z;
+    //    TODO
+    //   result = 0.0;
+    // }
+
     // THDM Routines
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
@@ -3530,12 +3543,12 @@ namespace Gambit
       SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
       SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
       SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
-      SM_object->set_qmass_msbar(1,SM->get(Par::mass1,"d_1")); //d
-      SM_object->set_qmass_msbar(2,SM->get(Par::mass1,"u_1")); //u
-      SM_object->set_qmass_msbar(3,SM->get(Par::mass1,"d_2")); //s
-      SM_object->set_qmass_msbar(4,sminputs.mCmC); //c
-      SM_object->set_qmass_msbar(5,SM->get(Par::mass1,"d_3")); //u
-      SM_object->set_qmass_msbar(6,SM->get(Par::mass1,"u_3")); //s
+      SM_object->set_qmass_pole(1,sminputs.mD); //d
+      SM_object->set_qmass_pole(2,sminputs.mU); //u
+      SM_object->set_qmass_pole(3,sminputs.mS); //s
+      SM_object->set_qmass_pole(4,sminputs.mCmC); //c
+      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //u
+      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //s
     }
 
     void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
@@ -3891,7 +3904,7 @@ namespace Gambit
       if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_decays);
     }
-    // **
+  // **
 
   thdmc_total_widths fill_THDM_total_widths(THDM_spectrum_container& container) {
      thdmc_total_widths total_widths;
