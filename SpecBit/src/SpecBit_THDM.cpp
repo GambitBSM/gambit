@@ -2226,7 +2226,6 @@ namespace Gambit
 
     thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
-      std::cout << container.THDM_object->get_alpha() << std::endl;
       thdmc_couplings couplings;
       std::complex<double> test_coupling_s,test_coupling_p;
       switch(purpose) {
@@ -2307,10 +2306,8 @@ namespace Gambit
                 }
               }
             // just through and execute next case statement as they have the same input
-            std::cout << "purpose: non-SM" << std::endl;
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
-            std::cout << "begin coupling fill: " << std::endl;
             for (int h=1; h<4; h++) { 
               container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
               container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
@@ -2328,15 +2325,6 @@ namespace Gambit
               check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
               check_nan(couplings.vhh[2][2][h], "vvh coupling 22"+std::to_string(h));
               check_nan(couplings.vhh[3][3][h], "vvh coupling 33"+std::to_string(h));
-              // these are not for standard model (in fact have another look and possibly save some processing power)
-              
-            // std::cout << "(SpecBit) get alpha: " << container.THDM_object->get_alpha() << container.THDM_object->get_sba() << std::endl;
-            // container.THDM_object->print_param_phys();
-            // std::cout << "(SpecBit) DEBUG hdd (133): "<< couplings.hdd_cs[1][3][3] << std::endl;
-            // double kd1, kd2, kd3;
-            // container.THDM_object->get_kappa_down(kd1,kd2,kd3);
-            // std::cout << "dmass p 3: " << container.THDM_object->get_SM().get_dmass_pole(3) << std::endl;
-            // std::cout << "kappa down: " << kd1 << " " << kd2 << " " << kd3 << std::endl;
             }
          break;
       }
