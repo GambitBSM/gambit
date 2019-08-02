@@ -815,7 +815,7 @@ namespace Gambit
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csq1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csq2, nobs2, Pvalue2);
 
-      result = -0.5*(csqtot + csq2 + csq3);
+      result = -0.5*(csqtot + csq1 + csq2);
     }
 
     /// Higgs production cross-sections from FeynHiggs.
