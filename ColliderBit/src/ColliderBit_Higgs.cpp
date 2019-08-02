@@ -1101,6 +1101,8 @@ namespace Gambit
         result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
         result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
 
+        const debug = true;
+
         if (debug) printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
         if (debug) printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
         if (debug) printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
