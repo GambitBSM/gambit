@@ -38,7 +38,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-// #define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -900,11 +900,7 @@ namespace Gambit
         const double sintw = sqrt(1.-MW*MW/(MZ*MZ));
         const double costw = sqrt(1.-sintw*sintw);
 
-        // const double mt = SM.get(Par::Pole_Mass,"u_3");
-
         std::complex<double> c,cs,cp,c_sm,cs_sm,cp_sm;
-
-        bool debug = true;
 
         result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
         result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
@@ -942,8 +938,6 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].hdd_cp[1][2][2];
           result.ghjss_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjss_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
-          // std::cout << "(ColliderBit) DEBUG hdd (" << h << "22) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjbb
           cs = THDM_couplings.hdd_cs[h][3][3];
@@ -952,8 +946,6 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].hdd_cp[1][3][3];
           result.ghjbb_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjbb_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
-          // std::cout << "(ColliderBit) DEBUG hdd (" << h << "33) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjcc
           cs = THDM_couplings.huu_cs[h][2][2];
@@ -962,8 +954,6 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].huu_cp[1][2][2];
           result.ghjcc_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjcc_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
-          // std::cout << "(ColliderBit) DEBUG huu (" << h << "22) " << cs << " "<< cp << " " << cs_sm << std::endl;
 
           //ghjtt
           cs = THDM_couplings.huu_cs[h][3][3];
@@ -972,9 +962,7 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].huu_cp[1][3][3];
           result.ghjtt_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjtt_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
-          // std::cout << "(ColliderBit) DEBUG huu (" << h << "33) " << cs << " "<< cp << " " << cs_sm << std::endl;
-
+          
           //ghjmumu
           cs = THDM_couplings.hll_cs[h][2][2];
           cp = THDM_couplings.hll_cp[h][2][2];
@@ -982,7 +970,7 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].hll_cp[1][2][2];
           result.ghjmumu_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjmumu_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h-1], result.ghjmumu_p[h-1]);
+          
 
           //ghjtautau
           cs = THDM_couplings.hll_cs[h][3][3];
@@ -991,73 +979,54 @@ namespace Gambit
           cp_sm = THDM_couplings_SM_like[h-1].hll_cp[1][3][3];
           result.ghjtautau_s[h-1] = pow(abs(cs/cs_sm),2);
           result.ghjtautau_p[h-1] = pow(abs(cp/cs_sm),2);
-          if (debug) printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
-
+          
           //ghjZZ
           c = THDM_couplings.vvh[2][2][h];
           c_sm = THDM_couplings_SM_like[h-1].vvh[2][2][1];
           result.ghjZZ[h-1] = pow(abs(c/c_sm),2);
-          if (debug) printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
+          
 
           //ghjWW
           c = THDM_couplings.vvh[3][3][h];
           c_sm = THDM_couplings_SM_like[h-1].vvh[3][3][1];
           result.ghjWW[h-1] = pow(abs(c/c_sm),2);
-          if (debug) printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
+          
 
           //ghjgaga
           double hgaga = THDM_decay_widths.gamma_hgaga[h];
           double hgaga_sm = THDM_decay_widths_SM_like[h-1].gamma_hgaga[1];
           result.ghjgaga[h-1] = hgaga/hgaga_sm;
-          if (debug) printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
+          
 
           //ghjZga
           double hZga = THDM_decay_widths.gamma_hZga[h];
           double hZga_sm = THDM_decay_widths_SM_like[h-1].gamma_hZga[1];
           result.ghjZga[h-1] = hZga/hZga_sm;
-          if (debug) printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
+          
 
           //ghjhh
           double hgg = THDM_decay_widths.gamma_hgg[h];
           double hgg_sm = THDM_decay_widths_SM_like[h-1].gamma_hgg[1];
           result.ghjgg[h-1] = hgg/hgg_sm;
           result.ghjggZ[h-1] = 0.;
-          if (debug) printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
+          
           
           result.hGammaTot[h-1] = THDM_total_widths.gamma_tot_h[h];
-          //GammaTotal
-          // if ((h<=2)&&(mh>=90.)) {
-          //   // GammaTotal[h-1] =  smgamma_h_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjWW[h-1] - 1.)*smbr_hww_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjZZ[h-1] - 1.)*smbr_hzz_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjgg[h-1] - 1.)*smbr_hgg_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjtt_s[h-1] + ghjtt_p[h-1]/(1.-2.*pow(mt,2)/pow(mh,2)) - 1.)*smbr_htoptop_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjbb_s[h-1] + ghjbb_p[h-1] - 1.)*smbr_hbb_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjtautau_s[h-1] + ghjtautau_p[h-1] - 1.)*smbr_htautau_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjmumu_s[h-1] + ghjmumu_p[h-1] - 1.)*smbr_hmumu_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjss_s[h-1] + ghjss_p[h-1] - 1.)*smbr_hss_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjcc_s[h-1] + ghjcc_p[h-1] - 1.)*smbr_hcc_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjZga[h-1]-1)*smbr_hzgam_(&mh);
-          //   // GammaTotal[h-1] += smgamma_h_(&mh)*(ghjgaga[h-1]-1)*smbr_hgamgam_(&mh);
-          //   for (int i=1; i<=4; i++) {
-          //     result.hGammaTot[h-1] += THDM_decay_widths.gamma_hhh[h][i][i];
-          //   }
 
-          //   for (int i=1; i<=4; i++) {
-          //     for (int j=1; j<=3; j++) {
-          //       result.hGammaTot[h-1] += THDM_decay_widths.gamma_hvh[h][j][i];
-          //     }
-          //   }
-          // } 
-          // else {
-          //   result.hGammaTot[h-1] = THDM_total_widths.gamma_tot_h[h];
-          // }
-          // if (debug) printf("gtot %16.8E %16.8E %16.8E %16.8E\n",  result.GammaTotal[h-1], table.get_gammatot_h(h), HB_get_gammah(Mh[h-1]), sm_table.get_gammatot_h(1));
+          #ifdef COLLIDERBIT_DEBUG
+            printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h-1], result.ghjmumu_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
+            printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
+            printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
+            printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
+            printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
+            printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
+          #endif
         }
-
-        // GammaTotal[h-1] = GammaTotal[h-1]*HB_get_gammah(Mh[h-1])/sm_table.get_gammatot_h(1);
-        // printf("gtot %16.8E %16.8E %16.8E\n",  GammaTotal[h-1], sm_table.get_gammatot_h(1), HB_get_gammah(Mh[h-1]));
-
 
         // ghjhiZ
         for (int j=1;j<=3;j++) {
@@ -1065,8 +1034,10 @@ namespace Gambit
             result.BR_hjhihi[i-1][j-1]=THDM_decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
             c = THDM_couplings.vhh[2][j][i];
             result.ghjhiZ[i-1][j-1]=pow(abs(c)/(g/2./costw),2);
-            if (debug) printf("%2d %2d hihjZ %16.8E\n", j, i, result.ghjhiZ[i-1][j-1]);
-            if (debug) printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
+            #ifdef COLLIDERBIT_DEBUG
+              printf("%2d %2d hihjZ %16.8E\n", j, i, result.ghjhiZ[i-1][j-1]);
+              printf("%2d %2d hj->hihi %16.8E\n", j, i, result.BR_hjhihi[i-1][j-1]);
+            #endif
           }
         }
 
@@ -1101,17 +1072,19 @@ namespace Gambit
         result.BR_Hpjcb[0] = THDM_decay_widths.gamma_hdu[4][3][2]/gammatot_Hc;
         result.BR_Hptaunu[0] = THDM_decay_widths.gamma_hln[4][3][3]/gammatot_Hc;
 
-        const debug = true;
+        #ifdef COLLIDERBIT_DEBUG
+          printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
+          printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
+          printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
+          printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
+          printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
+        #endif
 
-        if (debug) printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
-        if (debug) printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
-        if (debug) printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
-        if (debug) printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
-        if (debug) printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
+        
 
         // extra HB v5 beta input
         result.BR_Hpjtb[0] = THDM_decay_widths.gamma_huu[4][3][3]/gammatot_Hc;
-        result.BR_HpjWZ[0] = 0.0; //THDM_decay_widths.gamma_hWZ[4][3][2]/gammatot_Hc; TODO
+        result.BR_HpjWZ[0] = 0.0; // TODO
 
          for (int h=1;h<=3;h++) {
           result.BR_HpjhiW[h] = THDM_decay_widths.gamma_hvh[4][3][h]/gammatot_Hc;
