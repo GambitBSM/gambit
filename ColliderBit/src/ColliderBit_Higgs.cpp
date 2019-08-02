@@ -593,20 +593,13 @@ namespace Gambit
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
-      // run HiggsSignals
+     // run HiggsSignals
       int mode = 1; // 1- peak-centered chi2 method (recommended)
       double csqmu, csqmh, csqtot, Pvalue;
-      double csqmu1, csqmh1, csqtot1, Pvalue1;
-      double csqmu2, csqmh2, csqtot2, Pvalue2;
       int nobs;
-      BEreq::run_HiggsSignals
-
-      // Run the main subroutines
       BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
-      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csq1, nobs1, Pvalue1);
-      BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csq2, nobs2, Pvalue2);
 
-      result = -0.5*(csqtot + csq2 + csq3);
+      result = -0.5*csqtot;
 
       // Add one-sided Gaussian drop in loglike when the lightest Higgs
       // mass is > 150 GeV. This avoids a completely flat loglike 
@@ -809,13 +802,20 @@ namespace Gambit
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
-      // run HiggsSignals
+
+            // run HiggsSignals
       int mode = 1; // 1- peak-centered chi2 method (recommended)
       double csqmu, csqmh, csqtot, Pvalue;
-      int nobs;
-      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+      double csqmu1, csqmh1, csqtot1, Pvalue1;
+      double csqmu2, csqmh2, csqtot2, Pvalue2;
+      int nobs, nobs1, nobs2;
 
-      result = -0.5*csqtot;
+      // Run the main subroutines
+      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csq1, nobs1, Pvalue1);
+      BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csq2, nobs2, Pvalue2);
+
+      result = -0.5*(csqtot + csq2 + csq3);
     }
 
     /// Higgs production cross-sections from FeynHiggs.
