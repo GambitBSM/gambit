@@ -229,6 +229,8 @@
     double*, double*, double*, double*,
     double*, double*, Farray<double, 1,3>&))
     BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_LHC_Run1_combination, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_STXS, (libhiggssignals), void, (double&, double&, double&, int&, double&))
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
     BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
     BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
