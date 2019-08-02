@@ -38,7 +38,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-#define COLLIDERBIT_DEBUG
+// #define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
