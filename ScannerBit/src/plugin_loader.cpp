@@ -101,10 +101,11 @@ namespace Gambit
 
                     //pclose(p_f);
 
-                    loadExcluded(GAMBIT_DIR "/scratch/scanbit_excluded_libs.yaml");
-
-                    flags_node = YAML::LoadFile(GAMBIT_DIR "/scratch/scanbit_flags.yaml");
-                    process(GAMBIT_DIR "/scratch/scanbit_linked_libs.yaml", GAMBIT_DIR "/scratch/scanbit_reqd_entries.yaml", GAMBIT_DIR "/scratch/scanbit_flags.yaml");
+                    auto excluded_plugins = loadExcluded(GAMBIT_DIR "/scratch/scanbit_excluded_libs.yaml");
+                    const str linked_libs(GAMBIT_DIR "/scratch/scanbit_linked_libs.yaml");
+                    const str reqd_entries(GAMBIT_DIR "/scratch/scanbit_reqd_entries.yaml");
+                    const str flags(GAMBIT_DIR "/scratch/scanbit_flags.yaml");
+                    process(linked_libs, reqd_entries, flags, excluded_plugins);
                 }
                 else
                 {
@@ -112,31 +113,52 @@ namespace Gambit
                 }
             }
 
-            void Plugin_Loader::process(const std::string &libFile, const std::string &plugFile, const std::string &flagFile)
+            /// Check a plugin map and return a flag indicating if a candidate plugin is already in the map or not.
+            bool is_new_plugin(std::map<str, std::map<str, std::vector<Plugin_Details>>>& pmap, Plugin_Details& cand)
+            {
+                bool new_plugin_type = pmap.find(cand.type) == pmap.end();
+                bool new_plugin_name = new_plugin_type || pmap.at(cand.type).find(cand.plugin) == pmap.at(cand.type).end();
+                bool new_plugin_version = true;
+                if (not new_plugin_name)
+                {
+                    for (auto x : pmap.at(cand.type).at(cand.plugin))
+                        if (x.version == cand.version) new_plugin_version = false;
+                }
+                return new_plugin_version;
+            }
+
+            void Plugin_Loader::process(const std::string& libFile, const std::string& plugFile, const std::string& flagFile, std::vector<Plugin_Details>& excluded_plugins)
             {
                 YAML::Node libNode = YAML::LoadFile(libFile);
                 YAML::Node plugNode = YAML::LoadFile(plugFile);
                 YAML::Node flagNode = YAML::LoadFile(flagFile);
 
-                for (auto it = plugins.begin(), end = plugins.end(); it != end; it++)
-                {
-                    it->get_status(libNode, plugNode, flags_node);
-                    plugin_map[it->type][it->plugin].push_back(*it);
-                    total_plugin_map[it->type][it->plugin].push_back(*it);
-                    //std::cout << it->printFull() << std::endl;
-                }
-
                 for (auto it = excluded_plugins.begin(), end = excluded_plugins.end(); it != end; it++)
                 {
-                    it->get_status(libNode, plugNode, flagNode);
-                    excluded_plugin_map[it->type][it->plugin].push_back(*it);
-                    total_plugin_map[it->type][it->plugin].push_back(*it);
-                    //std::cout << it->printFull() << std::endl;
+                    if (is_new_plugin(total_plugin_map, *it))
+                    {
+                        it->get_status(libNode, plugNode, flagNode);
+                        excluded_plugin_map[it->type][it->plugin].push_back(*it);
+                        total_plugin_map[it->type][it->plugin].push_back(*it);
+                        //std::cout << it->printFull() << std::endl;
+                    }
+                }
+
+                for (auto it = plugins.begin(), end = plugins.end(); it != end; it++)
+                {
+                    if (is_new_plugin(total_plugin_map, *it))
+                    {
+                        it->get_status(libNode, plugNode, flagNode);
+                        plugin_map[it->type][it->plugin].push_back(*it);
+                        total_plugin_map[it->type][it->plugin].push_back(*it);
+                        //std::cout << it->printFull() << std::endl;
+                    }
                 }
             }
 
-            void Plugin_Loader::loadExcluded (const std::string& file)
+            std::vector<Plugin_Details> Plugin_Loader::loadExcluded (const std::string& file)
             {
+                std::vector<Plugin_Details> excluded_plugins;
                 YAML::Node node = YAML::LoadFile(file);
 
                 if (node.IsMap())
@@ -188,6 +210,7 @@ namespace Gambit
                         }
                     }
                 }
+                return excluded_plugins;
             }
 
             void Plugin_Loader::loadLibrary (const std::string &p_str, const std::string &plug)

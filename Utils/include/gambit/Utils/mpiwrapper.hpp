@@ -420,6 +420,11 @@ namespace Gambit
                                           const int tag_entered,
                                           const int tag_timeleft);
 
+            /// This routine exists for MPI debugging purposes, to help make sure that
+            /// all MPI messages are received before MPI_Finalize is called.
+            /// It doesn't fix any problems, it just lets us notice if they exist.
+            void check_for_unreceived_messages(int timeout);
+
             /// Receive any waiting messages with a given tag from a given source (possibly MPI_ANY_SOURCE)
             /// Need to know what the messages are in order to provide an appropriate Recv buffer (and size)
             /// The last message received will remain in the buffer and may be used (useful if several messages

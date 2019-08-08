@@ -88,7 +88,8 @@ def prime(region_file, pip_file):
   print
 
   # Load up the regions from the yaml file, and the template for pippi runs from the pip file.
-  regions = yaml.load(file(region_file, 'r'))
+  yaml_loader = yaml.full_load if hasattr(yaml, 'full_load') else yaml.load
+  regions = yaml_loader(file(region_file, 'r'))
   pip = file(pip_file, 'r').read()
 
   # Get the drawing order

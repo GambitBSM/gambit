@@ -14,6 +14,10 @@
 ///  \date 2014 Dec
 ///  \date 2017 Dec
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2019 Jun
+///
 ///  *********************************************
 
 #include <dlfcn.h>
@@ -566,8 +570,8 @@ namespace Gambit
 
       // Add the path to the backend to the Python system path
       pybind11::object sys_path = sys->attr("path");
-      pybind11::object sys_path_append = sys_path.attr("append");
-      sys_path_append(path_dir(be, ver));
+      pybind11::object sys_path_insert = sys_path.attr("insert");
+      sys_path_insert(0,path_dir(be, ver));
 
       // Attempt to import the module
       const str name = lib_name(be, ver);
@@ -580,6 +584,29 @@ namespace Gambit
       {
         err << "Failed to import Python module from " << path << "." << endl
             << "Python error was: " << e.what() << endl;
+        backend_warning().raise(LOCAL_INFO, err.str());
+        works[be+ver] = false;
+        return;
+      }
+
+      // Check if the loaded moule has actually come from the expected path.
+      // First get the relevant os functions.
+      pybind11::object os_path = os->attr("path");
+      pybind11::object os_path_split = os_path.attr("split");
+      // Get the path to the loaded module (Split the path at the last '/')
+      pybind11::tuple full_loaded_path = os_path_split( new_module->attr("__file__") );
+      // For Python modules with an underlying '__init__.py' script we need to repeat this split step
+      if ((full_loaded_path[1]).cast<str>().find("__init__") != str::npos)
+        full_loaded_path = os_path_split(full_loaded_path[0]);
+
+      // Compare the expected and the actual location. If they differ, declare the module as broken.
+      const str loaded_loc = (full_loaded_path[0]).cast<str>();
+      const str expected_loc = path_dir(be,ver);
+      if (loaded_loc.compare(expected_loc) != 0)
+      {
+        err << "Failed to import Python module from " << path << "." << endl
+            << "A module with the same name was loaded but its location is not what is expected" << endl
+            << "Got: " << loaded_loc << " (expected: " << expected_loc << ")" << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
         return;
@@ -602,6 +629,10 @@ namespace Gambit
       // Import the sys module, and save a wrapper to it for later.
       static pybind11::module local_sys = pybind11::module::import("sys");
       sys = &local_sys;
+      // Import the os module, and save a wrapper to it for later.
+      static pybind11::module local_os = pybind11::module::import("os");
+      os = &local_os;
+
       logger() << LogTags::backends << LogTags::debug << "Python interpreter successfully started." << EOM;
       python_started = true;
     }
