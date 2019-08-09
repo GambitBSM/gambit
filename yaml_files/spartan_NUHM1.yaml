@@ -148,7 +148,9 @@ KeyValues:
     subkey3:
       subsubkey1: value2
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   dependency_resolution:
     prefer_model_specific_functions: true
