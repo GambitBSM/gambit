@@ -80,7 +80,7 @@ macro(retrieve_bits bits root excludes quiet)
 
   foreach(child ${children})
     string(FIND ${child} ".dSYM" FOUND_DSYM)
-    if(IS_DIRECTORY ${root}/${child} AND ${FOUND_DSYM} EQUAL -1)
+    if(IS_DIRECTORY ${root}/${child} AND EXISTS ${root}/${child}/CMakeLists.txt AND ${FOUND_DSYM} EQUAL -1)
 
       # Work out if this Bit should be excluded or not.  Never exclude ScannerBit.
       set(excluded "NO")
@@ -112,15 +112,17 @@ include(cmake/cleaning.cmake)
 
 # Macro to write some shell commands to clean an external code.  Adds clean-[package] and nuke-[package]
 macro(add_external_clean package dir dl target)
-  set(rmstring "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
+  set(rmstring1 "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
+  set(rmstring2 "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   string(REPLACE "." "_" safe_package ${package})
   set(reset_file "${CMAKE_BINARY_DIR}/BOSS_reset_info/reset_info.${safe_package}.boss")
-  add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-BOSS ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
+  add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-BOSS ${rmstring1}-configure ${rmstring1}-build ${rmstring1}-install ${rmstring1}-done
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && (${target})) || true
                                      COMMAND [ -e ${reset_file} ] && ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
   add_custom_target(nuke-${package} DEPENDS clean-${package}
-                                    COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update ${rmstring}-gitclone-lastrun.txt ${dl} || true
-                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
+                                    COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-download ${rmstring1}-download-failed ${rmstring1}-mkdir ${rmstring1}-patch ${rmstring1}-update ${rmstring1}-gitclone-lastrun.txt ${dl} || true
+                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true
+                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${rmstring2} || true)
 endmacro()
 
 # Macro to write some shell commands to clean an external chained code.  Adds clean-[package] and nuke-[package]
@@ -320,9 +322,13 @@ function(add_gambit_executable executablename LIBRARIES)
       set(LIBRARIES ${LIBRARIES} ${SQLITE3_LIBRARIES})
   endif()
 
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)
+  else()
+    target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp ${gambit_preload_LDFLAGS})
+  endif()
 
-  target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp)
-  add_dependencies(${executablename} mkpath)
+  add_dependencies(${executablename} mkpath gambit_preload)
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
   if(VERBOSE)
@@ -389,15 +395,22 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
+    # Add linking flags for ROOT, RestFrames and/or HepMC if required.
+    if (USES_COLLIDERBIT)
+      if (NOT EXCLUDE_ROOT)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
+        if (NOT EXCLUDE_RESTFRAMES)
+          set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
+        endif()
+      endif()
+      if (NOT EXCLUDE_HEPMC)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+    endif()
+
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.
     if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${flexiblesusy_LDFLAGS})
-    endif()
-    if (USES_COLLIDERBIT AND NOT EXCLUDE_ROOT)
-      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
-      if (NOT EXCLUDE_RESTFRAMES)
-        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
-      endif()
     endif()
 
     add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
@@ -406,13 +419,10 @@ function(add_standalone executablename)
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
 
-    # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here
-    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
-      add_dependencies(${executablename} flexiblesusy)
-    endif()
-    if (USES_COLLIDERBIT AND NOT EXCLUDE_RESTFRAMES)
-      add_dependencies(${executablename} restframes)
-    endif()
+    # Add each of the declared dependencies
+    foreach(dep ${ARG_DEPENDENCIES})
+      add_dependencies(${executablename} ${dep})
+    endforeach()
 
     # Add the new executable to the standalones target
     add_dependencies(standalones ${executablename})
@@ -592,7 +602,7 @@ macro(BOSS_backend name backend_version)
     if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
       set(BOSS_includes "${BOSS_includes} -I ${EIGEN3_INCLUDE_DIR}")
     endif()
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
       set(BOSS_castxml_cc "")

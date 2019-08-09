@@ -21,8 +21,9 @@
 #include "gambit/Models/models/MSSM9atQ_mA.hpp"
 
 // Forward declaration of needed types
-namespace Gambit {
-  class SMInputs;
+namespace Gambit
+{
+  struct SMInputs;
 }
 
 #define MODEL MSSM7atQ_mA

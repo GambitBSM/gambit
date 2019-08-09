@@ -1,8 +1,8 @@
 #include <iomanip>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/mt2w.h"
-// #include "gambit/ColliderBit/CMSEfficiencies.hpp"
+#include "gambit/ColliderBit/CMSEfficiencies.hpp"
 
 using namespace std;
 
@@ -29,7 +29,7 @@ namespace Gambit {
     }
 
 
-    class Analysis_CMS_8TeV_1LEPDMTOP_20invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_8TeV_1LEPDMTOP_20invfb : public Analysis {
     private:
 
       // Numbers passing cuts
@@ -40,6 +40,9 @@ namespace Gambit {
       int NCUTS; //=24;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       Analysis_CMS_8TeV_1LEPDMTOP_20invfb()
         : _numSR(0),
@@ -68,30 +71,37 @@ namespace Gambit {
 
       }
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
 
         // Missing energy
         HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
 
-        // Now define vectors of baseline objects
-        vector<HEPUtils::Particle*> baselineLeptons;
-
+        // Baseline electrons
         vector<HEPUtils::Particle*> baselineElectrons;
         for (HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 30. && fabs(electron->eta()) < 2.5) {
             baselineElectrons.push_back(electron);
-            baselineLeptons.push_back(electron);
           }
         }
+
+        // Apply electron efficiency
+        CMS::applyElectronEff(baselineElectrons);
+
+        // Baseline muons
         vector<HEPUtils::Particle*> baselineMuons;
         for (HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 30. && fabs(muon->eta()) < 2.1) {
             baselineMuons.push_back(muon);
-            baselineLeptons.push_back(muon);
           }
         }
+
+        // Apply muon efficiency
+        CMS::applyMuonEff(baselineMuons);
+
+        // All baseline leptons
+        vector<HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+        baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
 
         vector<HEPUtils::Jet*> baselineJets;
         //vector<LorentzVector> jets;
@@ -199,15 +209,11 @@ namespace Gambit {
         return;
       }
 
-
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_CMS_8TeV_1LEPDMTOP_20invfb* specificOther
-          = dynamic_cast<Analysis_CMS_8TeV_1LEPDMTOP_20invfb*>(other);
-
-        // Here we will add the subclass member variables:
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_8TeV_1LEPDMTOP_20invfb* specificOther
+          = dynamic_cast<const Analysis_CMS_8TeV_1LEPDMTOP_20invfb*>(other);
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (int j=0; j<NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
@@ -238,7 +244,7 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numSR = 0;
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

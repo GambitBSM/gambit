@@ -1,12 +1,30 @@
-#pragma once
 //   GAMBIT: Global and Modular BSM Inference Tool
 //   *********************************************
 ///  \file
 ///
-///  The SignalRegionData and AnalysisData structs.
+///  AnalysisData and SignalRegion structures.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Abram Krislock
+///          (a.m.b.krislock@fys.uio.no)
+///
+///  \author Andy Buckley
+///          (mostlikelytobefound@facebook.com)
+///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date often
+///
+///  \author Pat Scott
+///          (p.scott@imperial.ac.uk)
+///  \date 2019 Feb
+///
+///  *********************************************
 
-#include "gambit/ColliderBit/ColliderBit_macros.hpp"
-//#include "gambit/ColliderBit/Utils.hpp" //< avoid passing this to the _types/_rollcall
+#pragma once
 
 #include "Eigen/Core"
 

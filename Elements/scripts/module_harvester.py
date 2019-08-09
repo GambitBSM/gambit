@@ -93,11 +93,6 @@ def main(argv):
 
     # List of types NOT to return (things we know are not printable, but can appear in START_FUNCTION calls)
     exclude_types=set(["void"])
-    # Check if Delphes is on the exclude list, and leave out Delphes types if it is.  FIXME this is only until Delphes is BOSSed.
-    if any(x in exclude_modules for x in ["D","De","Del","Delp","Delph","Delphe","Delphes"]):
-      exclude_types.add("Gambit::ColliderBit::DelphesVanilla")
-      exclude_types.add("ColliderBit::DelphesVanilla")
-      exclude_types.add("DelphesVanilla")
 
     # List of directory names to ignore when searching for headers
     exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts"])
@@ -291,7 +286,7 @@ namespace Gambit                                  \n\
 ///  *********************************************\n\
                                                   \n\
 #ifndef __module_functor_types_hpp__              \n\
-#define __moduel_functor_types_hpp__              \n\
+#define __module_functor_types_hpp__              \n\
                                                   \n\
 #include \"gambit/Elements/types_rollcall.hpp\"   \n\
 #include \"gambit/Elements/functor_definitions.hpp\"\n\

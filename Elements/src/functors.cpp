@@ -193,6 +193,13 @@ namespace Gambit
       return "none";
     }
 
+    /// Getter for revealing the required type of the wrapped function's loop manager
+    str functor::loopManagerType()
+    {
+      utils_error().raise(LOCAL_INFO,"The loopManagerType method has not been defined in this class.");
+      return "none";
+    }
+
     /// Getter for revealing the name of the wrapped function's assigned loop manager
     str functor::loopManagerName()
     {
@@ -306,7 +313,7 @@ namespace Gambit
       utils_error().raise(LOCAL_INFO,"The resolveDependency method has not been defined in this class.");
     }
 
-    // Set this functor's loop manager (if it has one)
+    /// Set this functor's loop manager (if it has one)
     void functor::resolveLoopManager (functor*)
     {
       utils_error().raise(LOCAL_INFO,"The resolveLoopManager method has not been defined in this class.");
@@ -600,6 +607,7 @@ namespace Gambit
       iCanManageLoops          (false),
       iRunNested               (false),
       myLoopManagerCapability  ("none"),
+      myLoopManagerType        ("none"),
       myLoopManager            (NULL),
       myCurrentIteration       (NULL),
       globlMaxThreads          (omp_get_max_threads()),
@@ -845,10 +853,17 @@ namespace Gambit
     /// Getter for revealing whether this is permitted to be a manager functor
     bool module_functor_common::canBeLoopManager() { return iCanManageLoops; }
 
-    /// Setter for specifying the capability required of a manager functor, if it is to run this functor nested in a loop.
-    void module_functor_common::setLoopManagerCapability (str cap) { iRunNested = true; myLoopManagerCapability = cap; }
+    /// Setter for specifying the capability and type required of a manager functor, if it is to run this functor nested in a loop.
+    void module_functor_common::setLoopManagerCapType (str cap, str t)
+    {
+      iRunNested = true;
+      myLoopManagerCapability = cap;
+      myLoopManagerType = t;
+    }
     /// Getter for revealing the required capability of the wrapped function's loop manager
     str module_functor_common::loopManagerCapability() { return myLoopManagerCapability; }
+    /// Getter for revealing the required type of the wrapped function's loop manager
+    str module_functor_common::loopManagerType() { return myLoopManagerType; }
     /// Getter for revealing the name of the wrapped function's assigned loop manager
     str module_functor_common::loopManagerName() { return (myLoopManager == NULL ? "none" : myLoopManager->name()); }
     /// Getter for revealing the module of the wrapped function's assigned loop manager
@@ -1314,11 +1329,20 @@ namespace Gambit
     {
       if (dep_functor->capability() != myLoopManagerCapability or not dep_functor->canBeLoopManager())
       {
-        sspair key (dep_functor->quantity());
-        str errmsg = "Cannot set loop manager for nested functor:";
-        errmsg +=  "\nFunction " + myName + " in " + myOrigin + " does not need a loop manager with"
-                   "\ncapability " + key.first + ".";
-        utils_error().raise(LOCAL_INFO,errmsg);
+        utils_error().raise(LOCAL_INFO, "Cannot set loop manager for nested functor:\n"
+         "Function " + myName + " in " + myOrigin + " does not need a loop manager with\n"
+         "capability " + dep_functor->capability() + ".");
+      }
+      // Do type checking only if the need for a manger was declared with a specific type
+      if (myLoopManagerType != "any")
+      {
+        if (dep_functor->type() != myLoopManagerType)
+        {
+          utils_error().raise(LOCAL_INFO, "Cannot set loop manager for nested functor:\n"
+           "Function " + myName + " in " + myOrigin + " requires a manager with\n"
+           "type " + dep_functor->type() + ".");
+        }
+        resolveDependency(dep_functor);
       }
       myLoopManager = dep_functor;
     }

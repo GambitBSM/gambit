@@ -3,7 +3,7 @@
 ///  \file
 ///
 ///  Model graph declarations.
-///  
+///
 ///  *********************************************
 ///
 ///  Authors
@@ -39,7 +39,7 @@ namespace Gambit
     struct edge_color_t { typedef boost::edge_property_tag kind; };
 
     /// Typedefs for central boost (model) graph
-    /// @{  
+    /// @{
     typedef boost::property<edge_color_t, std::string> EdgeColor;
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, functor*, EdgeColor> ModelGraphType;
     typedef boost::graph_traits<ModelGraphType>::vertex_descriptor ModelVertexID;
@@ -51,7 +51,7 @@ namespace Gambit
     typedef std::vector<primary_model_functor*> primodel_vec;
 
     private:
-     
+
       /// Helper class for drawing the model hierarchy graph (labels)
       class labelWriter
       {
@@ -63,28 +63,28 @@ namespace Gambit
           void operator()(std::ostream&, const ModelVertexID&) const;
       };
 
-      
+
       /// Helper class for drawing the model hierarchy graph (edges)
       class colorWriter
       {
         private:
-          const ModelGraphType * myGraph;
-          const boost::property_map<ModelGraphType, edge_color_t>::const_type color; 
+
+          const boost::property_map<ModelGraphType, edge_color_t>::const_type color;
+
         public:
+
           /// Constructor
-          colorWriter(const ModelGraphType* g)
-             : myGraph(g)
-             , color( boost::get(edge_color_t(),*g) )
+          colorWriter(const ModelGraphType* g) : color( boost::get(edge_color_t(),*g) )
           {}
 
           template<class VertexOrEdge>
-          void operator()(std::ostream& out, const VertexOrEdge& e) const 
+          void operator()(std::ostream& out, const VertexOrEdge& e) const
           {
             // check if this is the edge we want to color red
             if( boost::get(color,e) == "red" ) out << "[color=red]";
           }
       };
-   
+
       /// The model claw that provides all the model info
       const Models::ModelFunctorClaw* boundClaw;
 
@@ -99,7 +99,7 @@ namespace Gambit
 
       /// Add model functors (vertices) to model hierarchy graph
       void addFunctorsToGraph(const primodel_vec&);
-        
+
       /// Add edges (relationships) to model hierarchy graph
       void makeGraph (const primodel_vec&);
 
@@ -107,7 +107,7 @@ namespace Gambit
 
       /// Constructor
       ModelHierarchy(const Models::ModelFunctorClaw&, const primodel_vec&, str, bool);
- 
+
   };
 
 }

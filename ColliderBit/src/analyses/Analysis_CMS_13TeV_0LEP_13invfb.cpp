@@ -1,5 +1,5 @@
 // -*- C++ -*-
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "Eigen/Eigen"
@@ -15,8 +15,11 @@ namespace Gambit {
     ///
     /// Based on:
     ///
-    class Analysis_CMS_13TeV_0LEP_13invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_13TeV_0LEP_13invfb : public Analysis {
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       // Numbers passing cuts
       static const size_t NUMSR = 12; //160;
@@ -33,9 +36,8 @@ namespace Gambit {
       }
 
 
-      void analyze(const Event* event) {
+      void run(const Event* event) {
 
-        HEPUtilsAnalysis::analyze(event);
         _cutflow.fillinit();
 
         // FinalState isofs(Cuts::abseta < 3.0 && Cuts::abspid != PID::ELECTRON && Cuts::abspid != PID::MUON);
@@ -67,16 +69,22 @@ namespace Gambit {
 
 
         // Get baseline electrons
-        vector<const Particle*> baseelecs;
-        for (const Particle* electron : event->electrons())
+        vector<Particle*> baseelecs;
+        for (Particle* electron : event->electrons())
           if (electron->pT() > 10. && electron->abseta() < 2.5)
             baseelecs.push_back(electron);
 
+        // Apply electron efficiency
+        CMS::applyElectronEff(baseelecs);
+
         // Get baseline muons
-        vector<const Particle*> basemuons;
-        for (const Particle* muon : event->muons())
+        vector<Particle*> basemuons;
+        for (Particle* muon : event->muons())
           if (muon->pT() > 10. && muon->abseta() < 2.4)
             basemuons.push_back(muon);
+
+        // Apply electron efficiency
+        CMS::applyMuonEff(basemuons);
 
         // Electron isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
@@ -156,7 +164,7 @@ namespace Gambit {
         // for (const Jet* j : jets24) {
         //   if (j->pT() < 50 && j->abseta() > 2.5) continue;
         //   // b-tag effs: b: 0.55, c: 0.12, l: 0.016
-        //   const bool btagged = rand01() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
+        //   const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
         //   if (btagged) nbj += 1;
         // }
         // const size_t inbj = binIndex(nbj, njbedges, true);
@@ -186,7 +194,7 @@ namespace Gambit {
         for (const Jet* j : jets24) {
           if (j->pT() < 50 && j->abseta() > 2.5) continue;
           // b-tag effs: b: 0.55, c: 0.12, l: 0.016
-          const bool btagged = rand01() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
+          const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
           if (btagged) nbj += 1;
         }
         if (nj >= 3 && nbj == 0 && ht >  500 && htmiss > 500) _srnums[ 0] += 1;
@@ -204,15 +212,11 @@ namespace Gambit {
 
       }
 
-
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_CMS_13TeV_0LEP_13invfb* specificOther = dynamic_cast<Analysis_CMS_13TeV_0LEP_13invfb*>(other);
-
-        for (size_t i = 0; i < NUMSR; ++i)
-          _srnums[i] += specificOther->_srnums[i];
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_13TeV_0LEP_13invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_0LEP_13invfb*>(other);
+        for (size_t i = 0; i < NUMSR; ++i) _srnums[i] += specificOther->_srnums[i];
       }
 
 
@@ -249,7 +253,7 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         for(size_t i=0;i<NUMSR;i++) { _srnums[i]=0; }
       }
 

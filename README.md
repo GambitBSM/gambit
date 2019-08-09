@@ -8,31 +8,33 @@ Citation(s)
 
 Please cite the following GAMBIT papers, depending on your use of different modules:
 
- - GAMBIT Collaboration: P. Athron, C. Balazs, et. al., **GAMBIT**: The Global and Modular Beyond-the-Standard-Model Inference Tool, Eur. Phys. J. C (2017), arXiv:1705.07908
- - GAMBIT Collider Workgroup: C. Balazs, A. Buckley, et. al., **ColliderBit**: A GAMBIT module for the calculation of high energy collider observables and likelihoods, Eur. Phys. J. C (2017), arXiv:1705.07919
- - GAMBIT Models Workgroup: P. Athron, C. Balazs, et. al., **SpecBit, DecayBit and PrecisionBit**: GAMBIT modules for computing mass spectra, particle decay rates and precision observables, Eur. Phys. J. C (2017), arXiv:1705.07936
- - GAMBIT Flavour Workgroup: F. U. Bernlochner, M. Chrzaszcz, et. al., **FlavBit**: A GAMBIT module for computing flavour observables and likelihoods, Eur. Phys. J. C, (2017), arXiv:1705.07933
- - GAMBIT Scanner Workgroup: G. D. Martinez, J. McKay, et. al., Comparison of statistical sampling methods with **ScannerBit**, the GAMBIT scanning module, Eur. Phys. J. C (2017), arXiv:1705.07959
- - GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., **DarkBit**: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C (2017), arXiv:1705.07920
+ - GAMBIT Collaboration: P. Athron, et. al., **GAMBIT**: The Global and Modular Beyond-the-Standard-Model Inference Tool, Eur. Phys. J. C 77 (2017) 784, arXiv:1705.07908
+ - GAMBIT Collider Workgroup: C. Balazs, et. al., **ColliderBit**: A GAMBIT module for the calculation of high energy collider observables and likelihoods, Eur. Phys. J. C 77 (2017) 795, arXiv:1705.07919
+ - GAMBIT Models Workgroup: P. Athron, et. al., **SpecBit, DecayBit and PrecisionBit**: GAMBIT modules for computing mass spectra, particle decay rates and precision observables, Eur. Phys. J. C 78 (2018) 22, arXiv:1705.07936
+ - GAMBIT Flavour Workgroup: F. U. Bernlochner, et. al., **FlavBit**: A GAMBIT module for computing flavour observables and likelihoods, Eur. Phys. J. C 77 (2017) 786, arXiv:1705.07933
+ - GAMBIT Scanner Workgroup: G. D. Martinez, et. al., Comparison of statistical sampling methods with **ScannerBit**, the GAMBIT scanning module, Eur. Phys. J. C 77 (2017) 761, arXiv:1705.07959
+ - GAMBIT Dark Matter Workgroup: T. Bringmann, et. al., **DarkBit**: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
 
 GAMBIT contains interfaces to various external codes, along with scripts for downloading and configuring them. Please cite as appropriate if you use those codes:
 
- - **DDCalc:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C, arXiv:1705.07920
- - **Multinest:** F. Feroz, M. P. Hobson, and M. Bridges, MULTINEST: an efficient and robust Bayesian inference tool for cosmology and particle physics, MNRAS 398 (2009) 1601–1614, arXiv:0809.3437
- - **PolyChord:** W. J. Handley, M. P. Hobson, M. P., and A. N. Lasenby, POLYCHORD: next-generation nested sampling, MNRAS 453 (2015) 4384–4398, arXiv:1506.00171
- - **FlexibleSUSY:** P. Athron, J.-h. Park, D. Stöckinger, and A. Voigt, FlexibleSUSY - A spectrum generator generator for supersymmetric models, Comp. Phys. Comm. 190 (2015) 139–172, arXiv:1406.2319
- - **GamLike:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C (2017), arXiv:1705.07920
- - **GM2Calc:** P. Athron, M. Bach, et. al., GM2Calc: precise MSSM prediction for (g-2) of the muon, Eur. Phys. J. C 76 (2016) 62, arXiv:1510.08071
- - **HiggsBounds:** **(i)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds: Confronting Arbitrary Higgs Sectors with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 181 (2010) 138–167, arXiv:0811.4169, **(ii)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds 2.0.0: Confronting Neutral and Charged Higgs Sector Predictions with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 182 (2011) 2605–2631, arXiv:1102.1898, **(iii)** P. Bechtle, O. Brein, et. al., HiggsBounds - 4: Improved Tests of Extended Higgs Sectors against Exclusion Bounds from LEP, the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2693, arXiv:1311.0055
- - **HiggsSignals:** P. Bechtle, S. Heinemeyer, O. Stal, T. Stefaniak, and G. Weiglein, HiggsSignals: Confronting arbitrary Higgs sectors with measurements at the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2711, arXiv:1305.1933
- - **nulike:** **(i)** IceCube Collaboration: M. G. Aartsen et. al., Improved limits on dark matter annihilation in the Sun with the 79-string IceCube detector and implications for supersymmetry, JCAP 04 (2016) 022, arXiv:1601.00653, **(ii)** P. Scott, C. Savage, J. Edsjo, and the IceCube Collaboration: R. Abbasi et al., Use of event-level neutrino telescope data in global fits for theories of new physics, JCAP 11 (2012) 57, arXiv:1207.0810
- - **Pythia 8:** **(i)** T. Sjostrand, S. Ask, et. al., An Introduction to PYTHIA 8.2, Comp. Phys. Comm. 191 (2015) 159–177, arXiv:1410.3012, **(ii)**  T. Sjostrand, Stephen Mrenna, Peter Skands, Pythia 6.4 Physics and Manual, JHEP 0605:026,2006, arXiv:hep-ph/0603175
- - **SuperIso:** **(i)** F. Mahmoudi, SuperIso: A Program for calculating the isospin asymmetry of B -> K* gamma in the MSSM, Comp. Phys. Comm. 178 (2008) 745, arXiv:0710.2067, **(ii)** F. Mahmoudi, SuperIso v2.3: A Program for calculating flavor physics observables in Supersymmetry, Comp. Phys. Comm. 180 (2009) 1579, arXiv:0808.3144, **(iii)** F. Mahmoudi, SuperIso v3.0, flavor physics observables calculations: Extension to NMSSM, Comp. Phys. Comm. 180 (2009) 1718.
- - **SUSY-HIT:** A. Djouadi, M. M. Mühlleitner, and M. Spira, Decays of supersymmetric particles: The Program SUSY-HIT (SUspect-SdecaY-Hdecay-InTerface), Acta Phys. Polon. 38 (2007) 635–644, arXiv: hep-ph/0609292
+ - **Capt'n General** GAMBIT Collaboration: P. Athron, C. Balazs, et. al., Global analyses of Higgs portal singlet dark matter models using GAMBIT, Eur. Phys. J. C 79 (2019) 38, arXiv:1808.10465
  - **DarkSUSY:** P. Gondolo, J. Edsjo, et. al., DarkSUSY: computing supersymmetric dark matter properties numerically, JCAP 7 (2004) 8, arXiv: astro-ph/0406204
- - **FeynHiggs:** **(i)** Henning Bahl, Wolfgang Hollik, Precise prediction for the light MSSM Higgs boson mass combining effective field theory and fixed-order calculations, Eur.Phys.J. C76 (2016) no.9, 499,  arXiv:1608.01880, **(ii)** T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, High-precision predictions for the light CP-even Higgs Boson Mass of the MSSM, Phys. Rev. Lett. 112, 141801 (2014), arXiv:1312.4937, **(iii)** M. Frank, T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, The Higgs Boson Masses and Mixings of the Complex MSSM in the Feynman-Diagrammatic Approach, JHEP 0702:047 (2007), arXiv:hep-ph/0611326, **(iv)** G. Degrassi, S. Heinemeyer, W. Hollik, P. Slavich, G. Weiglein, Towards High-Precision Predictions for the MSSM Higgs Sector, Eur.Phys.J.C28:133-143 (2003), arXiv:hep-ph/0212020, **(v)** S. Heinemeyer, W. Hollik, G. Weiglein, The Masses of the Neutral CP-even Higgs Bosons in the MSSM: Accurate Analysis at the Two-Loop Level, Eur.Phys.J.C9:343-366 (1999), arXiv:hep-ph/9812472, **(vi)** S. Heinemeyer, W. Hollik, G. Weiglein, FeynHiggs: a program for the calculation of the masses of the neutral CP-even Higgs bosons in the MSSM, Comput.Phys.Commun.124:76-89 (2000), arXiv:hep-ph/9812320
- - **MicrOmegas:** G. Belanger, F. Boudjema, A. Pukhov, and A. Semenov, micrOMEGAs4.1: Two dark matter candidates, Comp. Phys. Comm. 192 (2015) 322–329, arXiv:1407.6129
- - **Spheno:** **(i)** Werner Porod, SPheno, a program for calculating supersymmetric spectra, SUSY particle decays and SUSY particle production at e+ e- colliders, Comput.Phys.Commun.153:275-315 (2003), arXiv:hep-ph/0301101, **(ii)** W. Porod, F. Staub,  SPheno 3.1: extensions including flavour, CP-phases and models beyond the MSSM, Computer Physics Communications 183 (2012) pp. 2458-2469, arXiv:1104.1573
+ - **DDCalc:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
+ - **FeynHiggs:** **(i)** H. Bahl, W. Hollik, Precise prediction for the light MSSM Higgs boson mass combining effective field theory and fixed-order calculations, Eur. Phys. J. C 76 (2016) 499,  arXiv:1608.01880, **(ii)** T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, High-precision predictions for the light CP-even Higgs Boson Mass of the MSSM, Phys. Rev. Lett. 112 (2014) 141801, arXiv:1312.4937, **(iii)** M. Frank, T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, The Higgs Boson Masses and Mixings of the Complex MSSM in the Feynman-Diagrammatic Approach, JHEP 0702 (2007) 047, arXiv:hep-ph/0611326, **(iv)** G. Degrassi, S. Heinemeyer, W. Hollik, P. Slavich, G. Weiglein, Towards High-Precision Predictions for the MSSM Higgs Sector, Eur. Phys. J. C 28 (2003) 133, arXiv:hep-ph/0212020, **(v)** S. Heinemeyer, W. Hollik, G. Weiglein, The Masses of the Neutral CP-even Higgs Bosons in the MSSM: Accurate Analysis at the Two-Loop Level, Eur.Phys.J.C9:343-366 (1999), arXiv:hep-ph/9812472, **(vi)** S. Heinemeyer, W. Hollik, G. Weiglein, FeynHiggs: a program for the calculation of the masses of the neutral CP-even Higgs bosons in the MSSM, Comput. Phys. Commun. 124 (2000) 76, arXiv:hep-ph/9812320
+ - **FlexibleSUSY:** P. Athron, J.-h. Park, D. Stöckinger, and A. Voigt, FlexibleSUSY - A spectrum generator generator for supersymmetric models, Comp. Phys. Comm. 190 (2015) 139, arXiv:1406.2319
+ - **GamLike:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
+ - **GM2Calc:** P. Athron, et. al., GM2Calc: precise MSSM prediction for (g-2) of the muon, Eur. Phys. J. C 76 (2016) 62, arXiv:1510.08071
+ - **HiggsBounds:** **(i)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds: Confronting Arbitrary Higgs Sectors with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 181 (2010) 138, arXiv:0811.4169, **(ii)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds 2.0.0: Confronting Neutral and Charged Higgs Sector Predictions with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 182 (2011) 2605, arXiv:1102.1898, **(iii)** P. Bechtle, O. Brein, et. al., HiggsBounds - 4: Improved Tests of Extended Higgs Sectors against Exclusion Bounds from LEP, the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2693, arXiv:1311.0055
+ - **HiggsSignals:** P. Bechtle, S. Heinemeyer, O. Stal, T. Stefaniak, and G. Weiglein, HiggsSignals: Confronting arbitrary Higgs sectors with measurements at the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2711, arXiv:1305.1933
+ - **MicrOmegas:** G. Belanger, F. Boudjema, A. Pukhov, A. Semenov, micrOMEGAs4.1: Two dark matter candidates, Comp. Phys. Comm. 192 (2015) 322, arXiv:1407.6129
+ - **Multinest:** F. Feroz, M. P. Hobson, M. Bridges, MULTINEST: an efficient and robust Bayesian inference tool for cosmology and particle physics, MNRAS 398 (2009) 1601–1614, arXiv:0809.3437
+ - **nulike:** **(i)** IceCube Collaboration: M. G. Aartsen et. al., Improved limits on dark matter annihilation in the Sun with the 79-string IceCube detector and implications for supersymmetry, JCAP 04 (2016) 022, arXiv:1601.00653, **(ii)** P. Scott, C. Savage, J. Edsjo the IceCube Collaboration: R. Abbasi et al., Use of event-level neutrino telescope data in global fits for theories of new physics, JCAP 11 (2012) 57, arXiv:1207.0810
+ - **PolyChord:** W. J. Handley, M. P. Hobson, M. P. A. N. Lasenby, POLYCHORD: next-generation nested sampling, MNRAS 453 (2015) 4384, arXiv:1506.00171
+ - **Pythia 8:** **(i)** T. Sjostrand, S. Ask, et. al., An Introduction to PYTHIA 8.2, Comp. Phys. Comm. 191 (2015) 159, arXiv:1410.3012, **(ii)**  T. Sjostrand, Stephen Mrenna, Peter Skands, Pythia 6.4 Physics and Manual, JHEP 0605 (2006) 026, arXiv:hep-ph/0603175
+ - **Spheno:** **(i)** W. Porod, SPheno, a program for calculating supersymmetric spectra, SUSY particle decays and SUSY particle production at e+ e- colliders, Comput. Phys. Commun. 153 (2003) 275, arXiv:hep-ph/0301101, **(ii)** W. Porod, F. Staub,  SPheno 3.1: extensions including flavour, CP-phases and models beyond the MSSM, Comp. Phys. Comm. 183 (2012) 2458, arXiv:1104.1573
+ - **SuperIso:** **(i)** F. Mahmoudi, SuperIso: A Program for calculating the isospin asymmetry of B -> K* gamma in the MSSM, Comp. Phys. Comm. 178 (2008) 745, arXiv:0710.2067, **(ii)** F. Mahmoudi, SuperIso v2.3: A Program for calculating flavor physics observables in Supersymmetry, Comp. Phys. Comm. 180 (2009) 1579, arXiv:0808.3144, **(iii)** F. Mahmoudi, SuperIso v3.0, flavor physics observables calculations: Extension to NMSSM, Comp. Phys. Comm. 180 (2009) 1718.
+ - **SUSY-HD:** J. P. Vega, G. Villadoro, SusyHD: Higgs mass Determination in Supersymmetry, JHEP 07 (2015) 159, arXiv:1504.05200
+ - **SUSY-HIT:** A. Djouadi, M. M. Mühlleitner M. Spira, Decays of supersymmetric particles: The Program SUSY-HIT (SUspect-SdecaY-Hdecay-InTerface), Acta Phys. Polon. 38 (2007) 635, arXiv: hep-ph/0609292
 
 Documentation
 --
@@ -63,7 +65,7 @@ OPTIONAL:
  - MPI (required for parallel sampling)
  - axel (speeds up downloads of backends and scanners)
  - graphviz (required for model hierarchy and dependency tree plots)
- - ROOT (required for the Delphes detector simulation, or the GreAT scanner from ScannerBit)
+ - ROOT (required for RestFrames support in ColliderBit, or the GreAT scanner from ScannerBit)
 
 
 Building GAMBIT
@@ -88,7 +90,7 @@ To build all backend codes:
   make -jn backends
 ```
 
-You can also build individual backends using:
+If you don't want to wait for all backends to build, or if one fails to compile on your system for whatever reason, you can also build individual backends using:
 ```
   make -jn <backend name>
 ```
@@ -99,7 +101,7 @@ and clean them with:
 ```
 
 Running GAMBIT
-..
+--
 
 For complete documentation on running GAMBIT, please see the Core and module papers (the latter include examples for both running within the full GAMBIT framework, and running standalone module examples). Here we provide a few basic examples.
 

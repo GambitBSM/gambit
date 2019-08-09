@@ -3,6 +3,10 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.4.0
+Feature release
+- Added routines for right-handed neutrinos.
+
 v1.3.1
 Bugfix release
 - corrected error in axion model translation routines

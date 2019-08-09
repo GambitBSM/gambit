@@ -190,6 +190,8 @@ namespace Gambit
 
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
+      /// Getter for revealing the required type of the wrapped function's loop manager
+      virtual str loopManagerType();
       /// Getter for revealing the name of the wrapped function's assigned loop manager
       virtual str loopManagerName();
       /// Getter for revealing the module of the wrapped function's assigned loop manager
@@ -423,9 +425,11 @@ namespace Gambit
       virtual bool canBeLoopManager();
 
       /// Setter for specifying the capability required of a manager functor, if it is to run this functor nested in a loop.
-      virtual void setLoopManagerCapability (str cap);
+      virtual void setLoopManagerCapType (str cap, str t);
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
+      /// Getter for revealing the required type of the wrapped function's loop manager
+      virtual str loopManagerType();
       /// Getter for revealing the name of the wrapped function's assigned loop manager
       virtual str loopManagerName();
       /// Getter for revealing the module of the wrapped function's assigned loop manager
@@ -593,6 +597,8 @@ namespace Gambit
 
       /// Capability of a function that mangages a loop that this function can run inside of.
       str myLoopManagerCapability;
+      /// Capability of a function that mangages a loop that this function can run inside of.
+      str myLoopManagerType;
       /// Pointer to the functor that mangages the loop that this function runs inside of.
       functor* myLoopManager;
 

@@ -3,7 +3,7 @@
 ##
 ## Requires ExampleBit_A and ExampleBit_B
 ##
-## Requires 'spartan.yaml' to be run first, as this will generate the 
+## Requires 'spartan.yaml' to be run first, as this will generate the
 ## data that we will postprocess.
 ##
 ##########################################################################
@@ -24,10 +24,10 @@ Parameters:
   #  A0: 1
   #  M0: 2
   #  mH: 3
-  #  M12: 4 
+  #  M12: 4
   #  SignMu: 5
   #  TanBeta: 6
- 
+
 Priors:
 
   # None used
@@ -56,13 +56,13 @@ Scanner:
 
     postprocessor:
       plugin: postprocessor
-      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
+      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0)
        # Name of the new global likelihood contribution.
       like: New_LogLike
       # Name of the combined new+old likelihood
       reweighted_like: Comb_LogLike
-      # Add LogLike in the old output to New_LogLike in the new output.   
-      add_to_like: [LogLike]                                             
+      # Add LogLike in the old output to New_LogLike in the new output.
+      add_to_like: [LogLike]
       # Allow overwriting of the old output with the new output (e.g. if you would rather name New_LogLike as LogLike)
       permit_discard_old_likes: false
       update_interval: 1000 # Frequency to print status update message
@@ -81,7 +81,7 @@ Scanner:
       reader:
         type: sqlite
         file: "runs/spartan/samples/results.sql"
-        table: "spartan" 
+        table: "spartan"
 
 ObsLikes:
 
@@ -139,7 +139,9 @@ KeyValues:
 
   default_output_path: "runs/postprocessor_demo"
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   print_timing_data: false
 

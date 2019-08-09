@@ -111,7 +111,9 @@ KeyValues:
 
   default_output_path: "runs/spartan"
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   print_timing_data: true
 

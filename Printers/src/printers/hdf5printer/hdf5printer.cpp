@@ -694,7 +694,7 @@ namespace Gambit
       // Make sure a barrier or similar exists outside this function to make
       // sure master node does combination before workers try to retrieve
       // previous points
-      if(not get_resume() or not myRank==0)
+      if(not get_resume() or not (myRank==0))
       {
         std::ostringstream errmsg;
         errmsg << "HDF5Printer: Tried to run function 'prepare_and_combined_tmp_files', however GAMBIT is not in 'resume' mode, and this is not the process with rank 0, so this is forbidden. This indicates a bug in the HDF5Printer logic, please report it.";

@@ -558,3 +558,11 @@ NUGM: |
    TanBeta      - the ratio of the up-type to down-type Higgs vevs
 
 
+RightHandedNeutrinos: |
+   Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
+
+RightHandedNeutrinos_diff: |
+   The same as RightHandedNeutrinos but one of the RHN masses has been substituted by a mass difference.
+
+StandardModel_mNudiff: |
+   Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
