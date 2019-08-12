@@ -167,15 +167,26 @@ ObsLikes:
     ## LHC & LEP likelihoods
 
     - capability: LEP_Higgs_LogLike
-      function: calc_HB_LEP_LogLike
+      function: calc_HB_5_LEP_LogLike
+      purpose: LogLike
       dependencies:
-        - capability: HB_ModelParameters
-          function: fill_THDM_HiggsBounds_model_parameters
+        - capability: HB_ModelParameters_neutral
+          function: THDM_ModelParameters_effc
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: THDM_ModelParameters_charged
           module: ColliderBit
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
-      function: calc_HS_LHC_LogLike
+    - capability: LHC_Higgs_LogLike
+      function: calc_HS_2_LHC_LogLike
+      purpose: LogLike
+      dependencies:
+        - capability: HB_ModelParameters_neutral
+          function: THDM_ModelParameters_effc
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: THDM_ModelParameters_charged
+          module: ColliderBit
 
     #################
     # Observables
@@ -301,9 +312,16 @@ Rules:
       options:
         check_all_scales: true
 
-    - capability: HB_ModelParameters
-      function: fill_THDM_HiggsBounds_model_parameters
+    - capability: HB_ModelParameters_neutral
+      function: THDM_ModelParameters_effc
       module: ColliderBit
+
+    - capability: HB_ModelParameters_charged
+      function: THDM_ModelParameters_charged
+      module: ColliderBit
+      
+    - options:
+        HS_Expt_string: latestresults-1.4.0-LHCinclusive
 
     - capability: SuperIso_modelinfo
       function: SI_fill
