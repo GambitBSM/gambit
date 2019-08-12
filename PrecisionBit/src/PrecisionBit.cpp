@@ -1050,6 +1050,12 @@ namespace Gambit
         << e.what() << ".";
         invalid_point().raise(err.str());
       }
+      catch (...)
+      {
+        std::ostringstream err;
+        err << "gm2calc routine convert_to_onshell raised unspecified error.";
+        invalid_point().raise(err.str());
+      }    
 
       const double error = BEreq::calculate_uncertainty_amu_2loop(model);
 
