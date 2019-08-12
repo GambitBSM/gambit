@@ -346,6 +346,16 @@ Rules:
     - capability: DeltaMs
       function: SI_Delta_MBs
 
+    # Choose to use superiso for RK calcs
+    - capability: RK
+      function: SI_RK
+
+    - capability: RKstar_0045_11
+      function: SI_RKstar_0045_11
+
+    - capability: RKstar_11_60
+      function: SI_RKstar_11_60
+
         
 
 #########################
