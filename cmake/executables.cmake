@@ -35,6 +35,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
       set(gambit_XTRA ${gambit_XTRA} ${RESTFRAMES_LDFLAGS})
     endif()
   endif()
+  if (NOT EXCLUDE_HEPMC)
+    set(gambit_XTRA ${gambit_XTRA} ${HEPMC_LDFLAGS})
+  endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp
                                 ${GAMBIT_ALL_COMMON_OBJECTS}
@@ -43,12 +46,6 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
                                 $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
-  if (NOT EXCLUDE_FLEXIBLESUSY)
-    add_dependencies(gambit flexiblesusy)
-  endif()
-  if (NOT EXCLUDE_RESTFRAMES)
-    add_dependencies(gambit restframes)
-  endif()
   # If Mathematica is present and the system is OS X, absolutize paths to avoid dylib errors
   if (${HAVE_MATHEMATICA} AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     Mathematica_ABSOLUTIZE_LIBRARY_DEPENDENCIES(gambit)

@@ -79,7 +79,16 @@ namespace Gambit
     static constexpr double rho_plus = 0.775;     // charged rho meson mass (GeV/c^2)
     static constexpr double rho_minus = 0.775;    // charged rho meson mass (GeV/c^2)
     static constexpr double omega = 0.7827;       // omega meson mass (GeV/c^2)
+    static constexpr double kaon_plus = 0.4937;   // charged kaon meson mass (GeV/c^2)
+    static constexpr double kaon_minus = 0.4937;  // charged kaon meson mass (GeV/c^2)
+    static constexpr double kaon0 = 0.4976;       // neutral kaon meson mass (GeV/c^2)
     static constexpr double rho1450 = 1.465;      // rho(1450) mass (GeV/c^2)
+    static constexpr double D_plus = 1.86962;     // charged D meson mass (GeV/c^2)
+    static constexpr double D_s = 1.96847;        // D_s meson mass (GeV/c^2)
+    static constexpr double B_plus = 5.27929;     // charged B meson mass (GeV/c^2)
+    static constexpr double B_s = 5.36679;        // B_s meson mass (GeV/c^2)
+    static constexpr double B_c = 6.2751;         // B_c meson mass (GeV/c^2)
+    static constexpr double eta_prime = 0.95778;  // eta prime meson mass (GeV/c^2)
   } meson_masses;
 
   static const struct Mesons_decay_constants

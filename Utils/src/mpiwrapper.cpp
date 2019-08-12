@@ -548,6 +548,44 @@ namespace Gambit
          return timedout;
       }
 
+      /// This routine exists for MPI debugging purposes, to help make sure that
+      /// all MPI messages are received before MPI_Finalize is called.
+      /// It doesn't fix any problems, it just lets us notice if they exist.
+      void Comm::check_for_unreceived_messages(int timeout)
+      {
+        int mpiSize = Get_size();
+        int myRank  = Get_rank();
+ 
+        // Wait 'timeout' seconds before checking for messages, to make sure
+        // that other processes don't send more after we check.
+        struct timespec sleeptime;
+        sleeptime.tv_sec = timeout;
+        sleeptime.tv_nsec = 0;
+        logger() << LogTags::core << LogTags::info << "Waiting "<<timeout<<" seconds for any pending MPI communication to be transmitted, then we will check for unreceived messages from all processes (in communicator group "<<Get_name()<<")"<<EOM; 
+        nanosleep(&sleeptime,NULL);
+
+        logger() << LogTags::core << LogTags::info << "Unreceived message report for communicator group "<<Get_name()<<":"<<std::endl;
+        bool unreceived_messages_detected(false);
+        for(int rank=0; rank<mpiSize; rank++)
+        {
+           if(rank!=myRank)
+           {
+              MPI_Status status;
+              if(Iprobe(rank, MPI_ANY_TAG, &status))
+              {
+                 unreceived_messages_detected = true;
+                 logger() << "  Unreceived messages detected from rank "<<rank<<" with tag "<<status.MPI_TAG<<std::endl;
+              }
+           }
+        }
+        if(not unreceived_messages_detected)
+        {
+           logger() << "  No unreceived messages detected!";
+        }
+        logger()<<EOM;
+      }
+ 
+
       /// @}
 
       /// Check if MPI_Init has been called (it is an error to call it twice)

@@ -46,6 +46,7 @@ Pythia:
 
 gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
+  1.0.1:       ./Backends/installed/gamlike/1.0.1/lib/gamLike.so
 
 THDMC:
   1.7.0:       ./Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so

@@ -377,9 +377,14 @@ def getSpecTemplateTypes(input_type, byname=False):
         else:
             raise Exception("Don't know how to get template types from XML element with tag: %s" % el.tag)
 
+    # Standardize the spacing between template brackets to simplify the parsing
+    while "<<" in input_name:
+        input_name = input_name.replace("<<", "< <")
+    while ">>" in input_name:
+        input_name = input_name.replace(">>", "> >")
+
     input_name_no_templ, templ_bracket = removeTemplateBracket(input_name, return_bracket=True)
     spec_types = templ_bracket.strip().lstrip('<').rstrip('>').strip()
-
 
     # Identify the correct commas
     pos = []
@@ -414,6 +419,12 @@ def getSpecTemplateTypes(input_type, byname=False):
 # ====== unpackAllSpecTemplateTypes ========
 
 def unpackAllSpecTemplateTypes(input_bracket, result_list):
+
+    # # Help subsequent parsing by standardizing the spacing between template brackets
+    # while "<<" in input_bracket:
+    #     input_bracket = input_bracket.replace("<<", "< <")
+    # while ">>" in input_bracket:
+    #     input_bracket = input_bracket.replace(">>", "> >")
 
     spec_types = getSpecTemplateTypes(input_bracket, byname=True)
 
@@ -460,6 +471,7 @@ def getBasicTypeName(type_name):
 
     # If type name contains a template brackets
     if '<' in type_name:
+
         type_name_notempl, templ_bracket = removeTemplateBracket(type_name, return_bracket=True)
         before_bracket, after_bracket = type_name.rsplit(templ_bracket,1)
 

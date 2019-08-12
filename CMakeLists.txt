@@ -243,10 +243,12 @@ CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
 if(COMPILER_SUPPORTS_CXX17)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else()
+  CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
   CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
   if(COMPILER_SUPPORTS_CXX14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
   else()
+    CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
     CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
     if(COMPILER_SUPPORTS_CXX11)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -569,10 +571,19 @@ endforeach()
 # If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   add_dependencies(ColliderBit collider_harvest)
-  # If RestFrames is in use, make RestFrames a dependency of ColliderBit
+  # If RestFrames is in use, make it a dependency of ColliderBit
   if(NOT EXCLUDE_RESTFRAMES)
     add_dependencies(ColliderBit restframes)
   endif()
+  # If HepMC is in use, make it a dependency of ColliderBit
+  if(NOT EXCLUDE_HEPMC)
+    add_dependencies(ColliderBit hepmc)
+  endif()
+endif()
+
+# If SpecBit is in use, make flexiblesusy a dependency of SpecBit
+if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
+  add_dependencies(SpecBit flexiblesusy)
 endif()
 
 # Add the executables

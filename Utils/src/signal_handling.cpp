@@ -20,6 +20,7 @@
 #include <iostream>
 #include <signal.h>
 #include <omp.h>
+#include <time.h> // For nanosleep (posix only)
 #include <cmath>
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -52,6 +53,7 @@ namespace Gambit
      switch(code){
          case SOFT_SHUTDOWN:      name="SOFT_SHUTDOWN";      break;
          case EMERGENCY_SHUTDOWN: name="EMERGENCY_SHUTDOWN"; break;
+         case NO_MORE_MESSAGES:   name="NO_MORE_MESSAGES"; break;
          default: name="<invalid shutdown code>"; break;
      }
      return name;
@@ -408,6 +410,39 @@ namespace Gambit
      int code;
      signalComm->Recv_all(&code, 1, MPI_ANY_SOURCE, signalComm->mytag, max_loops);
    }
+
+   /// This function makes absolutely sure that there are no more shutdown messages
+   /// to recv from any processes. It does this by making sure that every process
+   /// has sent a message to confirm that it isn't going to send any more shutdown
+   /// messages 
+   void SignalData::ensure_no_more_shutdown_messages()
+   {
+     int mpiSize = signalComm->Get_size();
+     int myRank = signalComm->Get_rank();
+     for(int rank=0; rank<mpiSize; rank++)
+     {
+        if(rank!=myRank)
+        {
+           int loop = 0;
+           bool more_messages = true;
+           while(more_messages)
+           {
+              int code;
+              signalComm->Recv(&code, 1, rank, signalComm->mytag);
+              if(code==NO_MORE_MESSAGES) more_messages = false;
+              loop++;
+              if(loop>2*mpiSize)
+              {
+                 // I think there should only be one shutdown message from each process, so this
+                 // condition is extreme and definitely indicates a problem.
+                 std::ostringstream errmsg;
+                 errmsg<<"ensure_no_more_shutdown_messages function has been looping on rank "<<myRank<<" for "<<loop<<" iterations (receiving messages from rank "<<rank<<" process), but there are only "<<mpiSize<<" processes in this job. There should not be anywhere near this many shutdown messages to receive, so something has gone horribly wrong. Please report this as a bug.";
+                 utils_error().raise(LOCAL_INFO, errmsg.str());
+              }
+           }
+        }
+     }
+   }
    #endif
 
    /// @{ TODO: Thread checking routines are no longer needed due to simplified shutdown method. Can be deleted when functors are updated to no longer call these routines.
@@ -457,7 +492,7 @@ namespace Gambit
    {
      if(MPIsize>1)
      {
-       if(not shutdown_broadcast_done)
+       if(shutdown_code==NO_MORE_MESSAGES or not shutdown_broadcast_done)
        {
          if(comm_ready())
          {

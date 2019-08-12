@@ -24,8 +24,6 @@
 #include "gambit/Utils/type_index.hpp"
 #include "gambit/Utils/variadic_functions.hpp"
 
-using Gambit::type_index;
-
 #ifndef SCANNER_PLUGIN_MACROS_HPP
 #define SCANNER_PLUGIN_MACROS_HPP
 
@@ -253,7 +251,7 @@ namespace __gambit_plugin_namespace__                                           
         interface <int (__VA_ARGS__)> reg_init <int (__VA_ARGS__)>::reg(myData);                        \
     }                                                                                                   \
 }                                                                                                       \
-__PLUGIN_MAIN_RET_VAL__(__VA_ARGS__) PLUGIN_MAIN (__VA_ARGS__)                                                          \
+__PLUGIN_MAIN_RET_VAL__(__VA_ARGS__) PLUGIN_MAIN (__VA_ARGS__)                                          \
 
 /*Defines a Gambit plugin*/
 #define __GAMBIT_PLUGIN__(plug_name, plug_type, plug_version)                                               \
@@ -282,7 +280,7 @@ namespace __gambit_plugin_ ## plug_name ## __t__ ## plug_type ## __v__ ## plug_v
             };                                                                                              \
         }                                                                                                   \
                                                                                                             \
-        extern "C" const std::map<type_index, void *> &                                                     \
+        extern "C" const std::map<Gambit::type_index, void *> &                                             \
             __gambit_plugin_pluginInit_ ## plug_name ## __t__ ## plug_type ## __v__ ## plug_version ## __   \
             (const std::string *tag, const YAML::Node *node, Gambit::Scanner::printer_interface &printer,   \
                                     Gambit::Scanner::prior_interface &prior, std::vector<void *> *input )   \
