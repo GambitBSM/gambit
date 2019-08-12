@@ -21,9 +21,6 @@
 #ifndef __postprocessor_2_0_0_hpp__
 #define __postprocessor_2_0_0_hpp__
 
-// Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
-extern template std::size_t Gambit::Printers::getTypeID<double>();
-
 namespace Gambit
 {
   /// Forward declaration

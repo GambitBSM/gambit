@@ -257,13 +257,6 @@ ObsLikes:
     - capability: lnL_alpha_s
       purpose:    LogLike
 
-    # Vacuum Stability Likelihood for the MSSM
-   # - capability:   VS_likelihood_MSSM
-   #   purpose:      LogLike
-
-   # - capability:   VS_likelihood_MSSM_thermal
-   #   purpose:      LogLike
-
     # Other observables
     - purpose:    likelihood_details
       capability: LHC_LogLike_per_analysis
