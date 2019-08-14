@@ -909,7 +909,7 @@ namespace Gambit
 
         std::complex<double> c,cs,cp,c_sm,cs_sm,cp_sm;
 
-        result.Mh[0] = he.get(Par::mass1, "h0", 1);
+        result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
         result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
         result.Mh[2] = he.get(Par::Pole_Mass, "A0");
 
@@ -1124,7 +1124,7 @@ namespace Gambit
       complex <double> c,cs,cp,cs_sm,cp_sm,cst,cpt,cst_sm,cpt_sm;
 
       // fill scalar masses (at Pole)
-      result.Mh[0] = he.get(Par::mass1, "h0", 1);
+      result.Mh[0] = he.get(Par::Pole_Mass, "h0", 1);
       result.Mh[1] = he.get(Par::Pole_Mass, "h0", 2);
       result.Mh[2] = he.get(Par::Pole_Mass,"A0");
 
@@ -1235,7 +1235,7 @@ namespace Gambit
     void SM_higgs_mass_likelihood(double &result) {
       using namespace Pipes::SM_higgs_mass_likelihood;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
-      const double mh_pole = fullspectrum.get(Par::mass1, "h0", 1); // Higgs boson mass - GeV
+      const double mh_pole = fullspectrum.get(Par::Pole_Mass, "h0", 1); // Higgs boson mass - GeV
       const double massSMHiggs = 125.09, h_sigma = 0.32;
       // calculate the likelihood
       result = - pow( (mh_pole - massSMHiggs) / h_sigma,2);

@@ -592,7 +592,7 @@ namespace Gambit
       double lambda_6 = he->get(Par::mass1, "lambda_6");
       double lambda_7 = he->get(Par::mass1, "lambda_7");
       double m12_2 = he->get(Par::mass1,"m12_2");
-      double mh = he->get(Par::mass1, "h0", 1);
+      double mh = he->get(Par::Pole_Mass, "h0", 1);
       double mH = he->get(Par::Pole_Mass, "h0", 2);
       double mA = he->get(Par::Pole_Mass, "A0");
       double mC = he->get(Par::Pole_Mass, "H+");
@@ -618,11 +618,11 @@ namespace Gambit
         thdm_pars.m11_2 = he->get(Par::mass1,"m11_2");
         thdm_pars.m22_2 = he->get(Par::mass1,"m22_2");
         thdm_pars.m12_2 = he->get(Par::mass1,"m12_2");
-        thdm_pars.mh = he->get(Par::mass1, "h0", 1);
+        thdm_pars.mh = he->get(Par::Pole_Mass, "h0", 1);
         thdm_pars.mH = he->get(Par::Pole_Mass, "h0", 2);
         thdm_pars.mC = he->get(Par::Pole_Mass, "H+");
         thdm_pars.mA = he->get(Par::Pole_Mass, "A0");
-        thdm_pars.mh_run = he->get(Par::mass1, "h0", 1);
+        thdm_pars.mh_run = he->get(Par::Pole_Mass, "h0", 1);
         thdm_pars.mH_run = he->get(Par::mass1, "h0", 2);
         thdm_pars.mC_run = he->get(Par::mass1, "H+");
         thdm_pars.mA_run = he->get(Par::mass1, "A0");
@@ -920,7 +920,7 @@ namespace Gambit
 
     template <class T>
     void fill_physical_basis(T& input, THDM_spectrum_container& container) { 
-      input.mh = container.he->get(Par::mass1, "h0", 1);
+      input.mh = container.he->get(Par::Pole_Mass, "h0", 1);
       input.mH = container.he->get(Par::Pole_Mass, "h0", 2);
       input.mA = container.he->get(Par::Pole_Mass, "A0");
       input.mC = container.he->get(Par::Pole_Mass, "H+");
@@ -2346,7 +2346,7 @@ namespace Gambit
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
-      m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
+      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
@@ -2425,7 +2425,7 @@ namespace Gambit
         using namespace Pipes::obs_mh0_pole;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "h0", 1);
+        result = he->get(Par::Pole_Mass, "h0", 1);
       }
 
       void obs_mH0_pole(double& result) {
@@ -2453,7 +2453,7 @@ namespace Gambit
         using namespace Pipes::obs_mh0_running;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "h0", 1);
+        result = he->get(Par::Pole_Mass, "h0", 1);
       }
 
       void obs_mH0_running(double& result) {
@@ -2736,7 +2736,7 @@ namespace Gambit
         double QrunTo = *Param.at("QrunTo");
 
         cout << "---- running to scale: " << QrunTo << "GeV. "<< endl;
-        cout << "mh0 = " <<  spec->get(Par::mass1, "h0", 1) << endl;
+        cout << "mh0 = " <<  spec->get(Par::Pole_Mass, "h0", 1) << endl;
         cout <<  "mH0 = " << spec->get(Par::Pole_Mass, "h0", 2) << endl;
         cout <<  "mA = " << spec->get(Par::Pole_Mass, "A0") << endl;
         cout << "mC = " <<  spec->get(Par::Pole_Mass, "H+") << endl;
@@ -2764,14 +2764,14 @@ namespace Gambit
         if(check_pertubativity) {
           spec -> RunToScale(QrunTo);
 
-          double mh0_1 = spec->get(Par::mass1, "h0", 1);
+          double mh0_1 = spec->get(Par::Pole_Mass, "h0", 1);
           double mh0_2 = spec->get(Par::Pole_Mass, "h0", 2);
           double mA0 = spec->get(Par::Pole_Mass, "A0");
           double mHm = spec->get(Par::Pole_Mass, "H+");
           double alpha = spec->get(Par::dimensionless, "alpha");
           double tb = spec->get(Par::dimensionless, "tanb");
           double m12_2 = spec->get(Par::mass1, "m12_2");
-          double mh0_1_run = spec->get(Par::mass1, "h0", 1);
+          double mh0_1_run = spec->get(Par::Pole_Mass, "h0", 1);
           double mh0_2_run = spec->get(Par::mass1, "h0", 2);
           double mA0_run = spec->get(Par::mass1, "A0");
           double mHm_run = spec->get(Par::mass1, "H+");
