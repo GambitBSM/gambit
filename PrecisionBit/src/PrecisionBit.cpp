@@ -1170,7 +1170,7 @@ namespace Gambit
       double lambda_6 = he->get(Par::mass1, "lambda_6");
       double lambda_7 = he->get(Par::mass1, "lambda_7");
       double m12_2 = he->get(Par::mass1,"m12_2");
-      double mh = he->get(Par::Pole_Mass, "h0", 1);
+      double mh = he->get(Par::mass1, "h0", 1);
       double mH = he->get(Par::Pole_Mass, "h0", 2);
       double mA = he->get(Par::Pole_Mass, "A0");
       double mC = he->get(Par::Pole_Mass, "H+");
@@ -1196,7 +1196,7 @@ namespace Gambit
         thdm_pars.m11_2 = he->get(Par::mass1,"m11_2");
         thdm_pars.m22_2 = he->get(Par::mass1,"m22_2");
         thdm_pars.m12_2 = he->get(Par::mass1,"m12_2");
-        thdm_pars.mh = he->get(Par::Pole_Mass, "h0", 1);
+        thdm_pars.mh = he->get(Par::mass1, "h0", 1);
         thdm_pars.mH = he->get(Par::Pole_Mass, "h0", 2);
         thdm_pars.mC = he->get(Par::Pole_Mass, "H+");
         thdm_pars.mA = he->get(Par::Pole_Mass, "A0");
