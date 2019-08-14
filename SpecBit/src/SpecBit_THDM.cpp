@@ -2332,19 +2332,19 @@ namespace Gambit
     
     // **
     // THDM coupling SpecBit helper functions
-    thdmc_couplings get_THDM_couplings(const Spectrum spec, const int y_type, const double scale, thdmc_couplings_purpose purpose) {
+    thdmc_couplings get_THDM_couplings(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       thdmc_couplings couplings; 
-      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
       couplings = fill_thdmc_couplings(container, purpose);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return couplings;
     }
 
-    std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_couplings_purpose purpose) {
+    std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_couplings> SM_like_couplings; 
-      init_THDM_spectrum_container(container, spec, 1, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
@@ -2364,65 +2364,60 @@ namespace Gambit
       if (print_debug_checkpoints) cout << "Checkpoint: 64" << endl; 
       using namespace Pipes::get_THDM_couplings;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, scale, full);
+      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, full);
     }
 
     void get_THDM_couplings_HB(thdmc_couplings &result) {
       if (print_debug_checkpoints) cout << "Checkpoint: 65" << endl; 
       using namespace Pipes::get_THDM_couplings_HB;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, scale, HB_couplings);
+      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_couplings);
     }
 
     void get_THDM_couplings_HB_SM_like_model(std::vector<thdmc_couplings> &result) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
       using namespace Pipes::get_THDM_couplings_HB_SM_like_model;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, HB_SM_like_couplings);
     }
 
     void get_THDM_couplings_HB_effc(thdmc_couplings &result) {
       if (print_debug_checkpoints) cout << "Checkpoint: 65" << endl; 
       using namespace Pipes::get_THDM_couplings_HB_effc;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, scale, HB_effc_couplings);
+      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
     }
 
     void get_THDM_couplings_HB_effc_SM_like_model(std::vector<thdmc_couplings> &result) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
       using namespace Pipes::get_THDM_couplings_HB_effc_SM_like_model;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, HB_effc_SM_like_couplings);
     }
     // **
 

@@ -3823,19 +3823,19 @@ namespace Gambit
 
     // **
     // THDM width DecayBit helper functions
-    thdmc_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, const double scale, thdmc_decays_purpose purpose) {
+    thdmc_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
       THDM_spectrum_container container;
       thdmc_decay_widths widths; 
-      init_THDM_spectrum_container(container, spec, y_type, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
       widths = fill_THDM_decay_widths(container, purpose);
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return widths;
     }
 
-    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, const double scale, thdmc_decays_purpose purpose) {
+    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_decay_widths> SM_like_widths; 
-      init_THDM_spectrum_container(container, spec, 1, scale); // initializes couplings at scale (if scale>0) or not
+      init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
@@ -3854,60 +3854,55 @@ namespace Gambit
    void get_THDM_decay_widths(thdmc_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      int y_type = -1;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, full);
    }
 
    void get_THDM_decay_widths_HB(thdmc_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths_HB;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      int y_type = -1;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_decays);
    }
 
    void get_THDM_decay_widths_HB_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
-       using namespace Pipes::get_THDM_decay_widths_HB_SM_like_model;
+      using namespace Pipes::get_THDM_decay_widths_HB_SM_like_model;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      int y_type = -1;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_decays);
     }
 
     void get_THDM_decay_widths_HB_effc(thdmc_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths_HB_effc;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      int y_type = -1;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_effc_decays);
    }
 
    void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
-       using namespace Pipes::get_THDM_decay_widths_HB_effc_SM_like_model;
+      using namespace Pipes::get_THDM_decay_widths_HB_effc_SM_like_model;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      int y_type = -1;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      if (is_at_Q) scale = *Param.at("QrunTo");
       result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_decays);
     }
   // **
@@ -3939,22 +3934,14 @@ namespace Gambit
    void get_THDM_total_widths(thdmc_total_widths &result) {
      using namespace Pipes::get_THDM_total_widths;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      // initializes couplings at scale or not
-      bool init_at_scale = false;
-      if (init_at_scale) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        init_THDM_spectrum_container(container, spec, y_type, scale);
-      }
-      else {
-        init_THDM_spectrum_container(container, spec, y_type);
-      }
+      init_THDM_spectrum_container(container, spec, y_type);
       result = fill_THDM_total_widths(container);
       delete container.THDM_object;
    }
@@ -3962,22 +3949,15 @@ namespace Gambit
    void get_THDM_total_widths_SM_like_model(std::vector<thdmc_total_widths> &result) {
       using namespace Pipes::get_THDM_total_widths_SM_like_model;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      // initializes couplings at scale or not
-      bool init_at_scale = false;
-      if (init_at_scale) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        init_THDM_spectrum_container(container, spec, y_type, scale);
-      }
-      else {
-        init_THDM_spectrum_container(container, spec, y_type);
-      }
+      init_THDM_spectrum_container(container, spec, y_type);
+      
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
       std::vector<double> m_hj;
