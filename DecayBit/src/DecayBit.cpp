@@ -3859,7 +3859,7 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, full);
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, full);
    }
 
    void get_THDM_decay_widths_HB(thdmc_decay_widths &result) {
@@ -3870,7 +3870,7 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_decays);
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, HB_decays);
    }
 
    void get_THDM_decay_widths_HB_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
@@ -3881,7 +3881,7 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_SM_like_decays);
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, HB_SM_like_decays);
     }
 
     void get_THDM_decay_widths_HB_effc(thdmc_decay_widths &result) {
@@ -3892,7 +3892,7 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, scale, HB_effc_decays);
+      result = get_THDM_widths(*Dep::THDM_spectrum, y_type, HB_effc_decays);
    }
 
    void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
@@ -3903,7 +3903,7 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, scale, HB_effc_SM_like_decays);
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, HB_effc_SM_like_decays);
     }
   // **
 
@@ -3957,7 +3957,7 @@ namespace Gambit
       THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
       init_THDM_spectrum_container(container, spec, y_type);
-      
+
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
       std::vector<double> m_hj;
