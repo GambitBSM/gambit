@@ -13,6 +13,9 @@
 //  Jonathan Cornell
 //  2015 March, 2019 Feb
 //
+//  Dimitrios Skodras
+//  2019 Mar
+//
 //  *********************************************
 
 #ifndef __nuclear_params_hpp__
@@ -55,11 +58,26 @@ namespace Gambit {
 
 // Neutron EDM matrix elements
 #define MODEL nEDMme
-   START_MODEL
-   // EDM matrix elements (MSbar at 2 GeV)
-   DEFINEPARS(gTu, gTd, gTs)
-   // chromoEDM matrix elements
-   DEFINEPARS(rhoU, rhoD)
+  START_MODEL
+  // EDM matrix elements (MSbar at 2 GeV)
+  DEFINEPARS(gTu, gTd, gTs)
+  // chromoEDM matrix elements
+  DEFINEPARS(rhoU, rhoD)
+#undef MODEL
+
+// diamagnetic EDM matrix elements
+#define MODEL diaEDMme
+  START_MODEL
+  // Schiff moment parameters a_i, b and Schiff constant for several diamagnetic systems
+  DEFINEPARS(a0_Hg,a1_Hg,b_Hg,CSchiff_Hg)
+  DEFINEPARS(a0_Ra,a1_Ra,b_Ra,CSchiff_Ra)
+  DEFINEPARS(a0_Rn,a1_Rn,b_Rn,CSchiff_Rn)
+  DEFINEPARS(a0_Xe,a1_Xe,b_Xe,CSchiff_Xe)
+#undef MODEL
+
+#define MODEL TESTMODel
+	START_MODEL
+	DEFINEPARS(a0)
 #undef MODEL
 
 #endif /* __nuclear_params_hpp__ */

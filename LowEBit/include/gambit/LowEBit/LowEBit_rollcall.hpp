@@ -21,6 +21,10 @@
 ///          (jonathan.cornell@uc.edu)
 ///  \date 2019 Jan
 ///
+///	 \author Dimitrios Skodras
+///			 (dimitrios.skodras@udo.edu)
+///	 \date 2019 Mar
+///
 ///  *********************************************
 
 #ifndef __LowEBit_rollcall_hpp__
@@ -75,12 +79,78 @@ START_CAPABILITY
    #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY EDM_dia // EDMs of diamagnetic systems
+	START_CAPABILITY
+	#define FUNCTION EDM_199Hg_quark
+	// Calculation of 199Hg EDM from quark CEDMs in e cm
+	START_FUNCTION(double)
+	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(CEDM_q, dq)
+	ALLOW_MODELS(diaEDMme)
+	#undef FUNCTION
+
+	#define FUNCTION EDM_225Ra_quark
+	// Calculation of 225Ra EDM from quark CEDMs in e cm
+	START_FUNCTION(double)
+	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(CEDM_q, dq)
+	ALLOW_MODELS(diaEDMme)
+	#undef FUNCTION
+
+	#define FUNCTION EDM_211Rn_quark
+	// Calculation of 211Rn EDM from quark CEDMs in e cm
+	START_FUNCTION(double)
+	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(CEDM_q, dq)
+	ALLOW_MODELS(diaEDMme)
+	#undef FUNCTION
+
+	#define FUNCTION EDM_129Xe_quark
+	// Calculation of 129Xe EDM from quark CEDMs in e cm
+	START_FUNCTION(double)
+	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(CEDM_q, dq)
+	ALLOW_MODELS(diaEDMme)
+	#undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY lnL_EDM_dia
+START_CAPABILITY
+    #define FUNCTION lnL_EDM_129Xe_step
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_dia, double)
+    #undef FUNCTION
+    #define FUNCTION lnL_EDM_211Rn_step
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_dia, double)
+    #undef FUNCTION
+    #define FUNCTION lnL_EDM_225Ra_step
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_dia, double)
+    #undef FUNCTION
+    #define FUNCTION lnL_EDM_199Hg_step
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_dia, double)
+    #undef FUNCTION
+#undef CAPABILITY
+
 #define CAPABILITY lnL_EDM_n
 START_CAPABILITY
    #define FUNCTION lnL_EDM_n_step
    // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
    START_FUNCTION(double)
    DEPENDENCY(EDM_n, double)
+   DEPENDENCY(EDM_q, dq)
+   #undef FUNCTION
+   #define FUNCTION lnL_EDM_n_gaussianStep
+   START_FUNCTION(double)
+   DEPENDENCY(EDM_n, double)
+   DEPENDENCY(EDM_q, dq)
+   #undef FUNCTION
+   #define FUNCTION lnL_EDM_n_gaussianOverall
+   START_FUNCTION(double)
+   DEPENDENCY(EDM_n, double)
+   DEPENDENCY(EDM_q, dq)
    #undef FUNCTION
 #undef CAPABILITY
 

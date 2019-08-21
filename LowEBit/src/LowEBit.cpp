@@ -12,10 +12,15 @@
 ///          (jonathan.cornell@uc.edu)
 ///  \date 2019 Jan
 ///
+///	 \author Dimitrios Skodras
+///			 (dimitrios.skodras@udo.edu)
+///  \date 2019 July
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/LowEBit/LowEBit_rollcall.hpp"
+
 
 namespace Gambit
 {
@@ -43,7 +48,7 @@ namespace Gambit
 
       void EDM_q_Wilson(dq &result)
 	  // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
-      // TODO: Make work at any scale.
+      // TODO: Make work at any scale. - not necessary. LQCD data at 2GeV
       {
          using namespace Pipes::EDM_q_Wilson;
 
@@ -53,9 +58,9 @@ namespace Gambit
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = sqrt(2)*gf*2./3.*mu*c.Cu[1]*gevtocm;
-         result.d = sqrt(2)*gf*(-1./3.)*md*c.Cd[1]*gevtocm;
-         result.s = sqrt(2)*gf*(-1./3.)*ms*c.Cs[1]*gevtocm;
+         result.u = sqrt(2.)*gf*2./3.*mu*c.Cu[1]*gevtocm;
+         result.d = sqrt(2.)*gf*(-1./3.)*md*c.Cd[1]*gevtocm;
+         result.s = sqrt(2.)*gf*(-1./3.)*ms*c.Cs[1]*gevtocm;
          //Heavy quarks for completeness??
       }
 
@@ -74,7 +79,126 @@ namespace Gambit
          result.u = -sqrt(2.)*gf*mu*c.Cu[2]*gevtocm;
          result.d = -sqrt(2.)*gf*md*c.Cd[2]*gevtocm;
          result.s = -sqrt(2.)*gf*ms*c.Cs[2]*gevtocm;
-         //Heavy quarks for completeness??
+         //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
+      }
+
+	  void EDM_129Xe_quark(double &result)
+      // Calculation of 199Xe EDM from quark and CEDMs in e cm
+      {
+         using namespace Pipes::EDM_129Xe_quark;
+		 double gPiNN = 13.17;
+	  // CSchiff_Xe = 0.336;		1311.6701		
+	  // a0_Ra = -3.3;				took mean of results shown in 1101.3529
+	  // b_Ra = 0;					not calculated yet
+	  // a1_Ra = 8.4;				took mean of results shown in 1101.3529
+	
+         dq dCEDM = *Dep::CEDM_q;
+	  // 2.(+4 -1) 
+         result = 2.0E-3 * (*Param["CSchiff_Xe"]) * gPiNN * 
+			 ((*Param["a0_Xe"]+*Param["b_Xe"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Xe"])*(dCEDM.u - dCEDM.d));
+      }
+
+      void lnL_EDM_129Xe_step(double &result)
+      // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
+      {
+    	  using namespace Pipes::lnL_EDM_129Xe_step;
+    	  
+		  if (abs(*Dep::EDM_dia) > 6.6E-27) //95% CL limit from arXiv:hep-ex/0602020
+    		  result = 0.0;
+    	  else
+//    		  result = -1.0E50;
+    		  result = 10.0;
+      }
+
+	  void EDM_211Rn_quark(double &result)
+      // Calculation of 199Xe EDM from quark and CEDMs in e cm
+	  // THESE ARE JUST COPIED NUMBERS OF XE!
+      {
+         using namespace Pipes::EDM_129Xe_quark;
+		 double gPiNN = 13.17;
+	  // CSchiff_Xe = 0.336;		1311.6701		
+	  // a0_Ra = -3.3;				took mean of results shown in 1101.3529
+	  // b_Ra = 0;					not calculated yet
+	  // a1_Ra = 8.4;				took mean of results shown in 1101.3529
+	
+         dq dCEDM = *Dep::CEDM_q;
+	  // 2.(+4 -1) 
+         result = 2.0E-3 * (*Param["CSchiff_Rn"]) * gPiNN * 
+			 ((*Param["a0_Rn"]+*Param["b_Rn"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Rn"])*(dCEDM.u - dCEDM.d));
+      }
+
+      void lnL_EDM_211Rn_step(double &result)
+      // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
+      {
+    	  using namespace Pipes::lnL_EDM_211Rn_step;
+    	  
+		  if (abs(*Dep::EDM_dia) > 6.6E-27) //95% CL limit from arXiv:hep-ex/0602020
+    		  result = 0.0;
+    	  else
+//    		  result = -1.0E50;
+    		  result = 10.0;
+      }
+
+
+	  void EDM_225Ra_quark(double &result)
+      // Calculation of 199Xe EDM from quark and CEDMs in e cm
+	  // THESE ARE JUST COPIED NUMBERS OF XE!
+      {
+         using namespace Pipes::EDM_225Ra_quark;
+		 double gPiNN = 13.17;
+	  // CSchiff_Xe = 0.336;		1311.6701		
+	  // a0_Ra = -3.3;				took mean of results shown in 1101.3529
+	  // b_Ra = 0;					not calculated yet
+	  // a1_Ra = 8.4;				took mean of results shown in 1101.3529
+	
+         dq dCEDM = *Dep::CEDM_q;
+	  // 2.(+4 -1) 
+         result = 2.0E-3 * (*Param["CSchiff_Ra"]) * gPiNN * 
+			 ((*Param["a0_Ra"]+*Param["b_Ra"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Ra"])*(dCEDM.u - dCEDM.d));
+      }
+
+      void lnL_EDM_225Ra_step(double &result)
+      // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
+      {
+    	  using namespace Pipes::lnL_EDM_225Ra_step;
+    	  
+		  if (abs(*Dep::EDM_dia) > 6.6E-27) //95% CL limit from arXiv:hep-ex/0602020
+    		  result = 0.0;
+    	  else
+//    		  result = -1.0E50;
+    		  result = 10.0;
+      }
+
+
+	  void EDM_199Hg_quark(double &result)
+      // Calculation of 199Hg EDM from quark and CEDMs in e cm
+      {
+         using namespace Pipes::EDM_199Hg_quark;
+		 double gPiNN = 13.17;
+	  // CSchiff_Xe = -2.6;			1308.6283 averaging over multiple calculations
+	  // a0_Hg + b_Hg= 0.028(26);	1308.6283 averaging over multiple calculations
+	  // a1_Hg = 0.032(59);			1308.6283 averaging over multiple calculations
+	
+         dq dCEDM = *Dep::CEDM_q;
+	  // 2.(+4 -1) 
+         result = 2.0E-3 * (*Param["CSchiff_Hg"]) * gPiNN * 
+			 ((*Param["a0_Hg"]+*Param["b_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d));
+      }
+
+      void lnL_EDM_199Hg_step(double &result)
+      // Step function likelihood for 199Hg EDM (TODO: improve this!!!!!)
+      {
+    	  using namespace Pipes::lnL_EDM_199Hg_step;
+    /*	  double sigma = 4.23E-30; //1601.04339
+		  double mean = 2.2E-30; //1601.04339
+		  result = 1/(sqrt(2*pi)*sigma) * exp(-pow(*Dep::EDM_dia - mean,2)/(2*sigma*sigma));
+	*/	  
+		  if (abs(*Dep::EDM_dia) < 7.4E-30) //90% CL limit from arXiv:hep-ex/0602020
+			{result = 1.0;}
+    	  else{
+    		  result = -1.0E0;
+		  }
+  
       }
 
       void EDM_n_quark(double &result)
@@ -86,9 +210,9 @@ namespace Gambit
          dq dEDM = *Dep::EDM_q;
          dq dCEDM = *Dep::CEDM_q;
 
-         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)/e
-            + (*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
-			+ (*Param["gTs"])*dEDM.s;
+         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)
+            +( (*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
+			+ (*Param["gTs"])*dEDM.s )/e; //the exp limit is dn = 2.9E-26 ecm - therefore the qEDMs had to be divided by e
       }
 
       void lnL_EDM_n_step(double &result)
@@ -97,10 +221,32 @@ namespace Gambit
     	  using namespace Pipes::lnL_EDM_n_step;
 
     	  if (abs(*Dep::EDM_n) < 2.9E-26) //90% CL limit from arXiv:hep-ex/0602020
-    		  result = 0.0;
-    	  else
-    		  result = -1.0E50;
+			{result = 0.0;}
+    	  else{
+    		  result = -2.0E50;
+//    		  result = dEDM.s;
+//			  result = abs(*Dep::EDM_n);
+		  }
       }
+
+	  void lnL_EDM_n_gaussianStep(double &result)
+	  {
+		  using namespace Pipes::lnL_EDM_n_gaussianStep;
+		  if(abs(*Dep::EDM_n) < 2.9E-26)
+			{
+				double mu = 0.2E-26, sig = 1.6E-26;
+				//result = -2Log L; L = 1/sqrt(2pi sig^2) exp(-(EDM_n-mu)^2/2sig^2
+				result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2); 
+			}
+		  else{result = -1.0E50;}		  
+	  }
+
+	  void lnL_EDM_n_gaussianOverall(double &result)
+	  {
+			using namespace Pipes::lnL_EDM_n_gaussianOverall;
+			double mu = 0.2E-26, sig = 1.6E-26;
+			result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2); 
+	  }
 
    }
 }

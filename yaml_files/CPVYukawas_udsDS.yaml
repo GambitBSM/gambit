@@ -1,0 +1,188 @@
+Parameters:
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+
+  nEDMme:
+    gTu: -0.204
+    gTd: 0.784
+    gTs: -0.0027
+    rhoU: 0.55
+    rhoD: 1.10
+
+#  diaEDMme:
+#    CSchiff_Hg: 2.6
+#    CSchiff_Ra: 0.0
+#    CSchiff_Rn: 0.0
+#    CSchiff_Xe: 0.0
+#    a0_Hg: 0.0
+#    a0_Ra: 0.0
+#    a0_Rn: 0.0
+#    a0_Xe: 0.0
+#    a1_Hg: 0.32
+#    a1_Ra: 0.0
+#    a1_Rn: 0.0
+#    a1_Xe: 0.0
+#    b_Hg: 0.0
+#    b_Ra: 0.0
+#    b_Rn: 0.0
+#    b_Xe: 0.0
+
+  CPVYukawas:
+    kappaU:
+      range: [0.,10.]
+      prior_type: flat
+    kappaD: 
+      range: [0.,10.]
+      prior_type: flat
+    kappaS: 0.
+#      range: [0.,25.]
+#      prior_type: flat
+    kappaC: 1.
+    kappaT: 1.
+    kappaB: 1.
+    SinPhiU: 
+      range: [-1.,1.]
+      prior_type: flat
+    SinPhiD: 
+      range: [-1.,1.]
+      prior_type: flat
+    SinPhiS: 0.
+#      range: [-1.,1.]
+#      prior_type: flat
+    SinPhiC: 0.
+    SinPhiT: 0.
+    SinPhiB: 0.
+    
+    kappaE: 1.
+    kappaMu: 1.
+    kappaTau: 1.
+    SinPhiE: 0.
+    SinPhiMu: 0.
+    SinPhiTau: 0.   
+
+
+Printer:
+
+  # printer: cout
+
+  printer: hdf5
+  options:
+      output_file: "CPVYukawas.hdf5"
+      group: "/CPVYukawas"
+      delete_file_on_restart: true
+
+  # printer: ascii
+  # options:
+  #   output_file: "CPVYukawas.out"
+  #   group: "/CPVYukawas"
+  #   delete_file_on_restart: true
+
+
+Scanner:
+  use_scanner: grid
+
+  scanners:
+    multinest:
+      plugin: multinest
+      like: LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    diver:
+      plugin: diver
+      like: LogLike
+      NP: 5000
+      verbosity: 1
+      convthresh: 0.1
+
+    grid:
+      plugin: grid
+      like: LogLike
+      grid_pts: [200, 200,200,200]
+          #, 1000, 1000, 1000, 1000]
+      parameters: ["CPVYukawas::kappaU","CPVYukawas::kappaD", "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
+          #, "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
+          # , "CPVYukawas::kappaS", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
+
+
+ObsLikes:
+  - capability: lnL_EDM_n
+#    function: lnL_EDM_n_step
+    function: lnL_EDM_n_gaussianOverall
+    purpose: LogLike
+ 
+  - capability: EDM_n
+    purpose: Observable
+ 
+#  - capability: lnL_EDM_dia
+#    function: lnL_EDM_199Hg_step
+#    purpose: LogLike
+#
+#  - capability: EDM_dia
+#    function: EDM_199Hg_quark
+#    purpose: Observable 
+#    module: LowEBit
+
+#  - capability: lnL_EDM_dia
+#    function: lnL_EDM_129Xe_step
+#    purpose: LogLike
+#
+#  - capability: EDM_dia
+#    function: EDM_129Xe_quark
+#    purpose: Observable 
+#    module: LowEBit
+#
+#  - capability: lnL_EDM_dia
+#    function: lnL_EDM_211Rn_step
+#    purpose: LogLike
+#
+#  - capability: EDM_dia
+#    function: EDM_211Rn_quark
+#    purpose: Observable 
+#    module: LowEBit
+#
+#  - capability: lnL_EDM_dia
+#    function: lnL_EDM_225Ra_step
+#    purpose: LogLike
+#
+#  - capability: EDM_dia
+#    function: EDM_225Ra_quark
+#    purpose: Observable 
+#    module: LowEBit
+
+
+Rules:
+   - capability: lnL_EDM_n
+     function: lnL_EDM_n_gaussianOverall
+    
+    #   - capability: lnL_EDM_dia
+    #     function: lnL_EDM_199Hg_step
+    #     dependencies: 
+    #        - capability: EDM_dia
+    #          function: EDM_199Hg_quark         
+    #          module: LowEBit
+#   - capability: lnL_EDM_dia
+#     function: lnL_EDM_129Xe_step
+#     dependencies: 
+#        - capability: EDM_dia
+#          function: EDM_129Xe_quark         
+#          module: LowEBit
+
+
+
+Logger:
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"  
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1.0E50
+
+  default_output_path: "runs/CPVYukawas_uds"
+
+  debug: true
