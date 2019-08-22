@@ -2453,7 +2453,7 @@ namespace Gambit
         using namespace Pipes::obs_mh0_running;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "h0", 1);
+        result = he->get(Par::mass1, "h0", 1);
       }
 
       void obs_mH0_running(double& result) {

@@ -113,14 +113,14 @@ ObsLikes:
 
     # ## theoretical likelihoods
 
-    # - purpose:    LogLike
-    #   capability: perturbativity_likelihood_THDM
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: stability_likelihood_THDM
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
 
-    # - purpose:    LogLike
-    #   capability: NLO_unitarity_likelihood_THDM
+    - purpose:    LogLike
+      capability: NLO_unitarity_likelihood_THDM
 
     # - purpose:    LogLike
     #   capability: oblique_parameters_likelihood_THDM
@@ -184,11 +184,6 @@ ObsLikes:
           function: THDM_ModelParameters_charged
           module: ColliderBit
 
-
-
-    # - purpose:    LogLike
-    #   capability: LHC_Higgs_LogLike
-    #   function: calc_HS_LHC_LogLike
 
     #################
     # Observables

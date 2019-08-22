@@ -1025,7 +1025,7 @@ namespace Gambit
             printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
             printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
             printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
-            printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h-1], result.ghjmumu_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
             printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
             printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
             printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
