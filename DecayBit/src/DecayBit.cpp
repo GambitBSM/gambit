@@ -1487,7 +1487,6 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stau2body->brstau1wsn(1) : 0.0), 0.0, psn.isntaul, "W-");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stau2bodygrav->brstautaugrav : 0.0), 0.0, "~G", "tau-");
 
-      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
     /// SUSY-HIT MSSM decays: stau_2
@@ -1601,6 +1600,7 @@ namespace Gambit
       result.calculator_version = BEreq::cb_sd_charwidth.version();
 
       result.width_in_GeV = BEreq::cb_sd_charwidth->chartot(1);
+       
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharsupl(1) : 0.0), 0.0, psn.isul, "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharsupr(1) : 0.0), 0.0, psn.isur, "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char2body->brcharsdownl(1) : 0.0), 0.0, psn.isdlbar, "u");
@@ -1661,9 +1661,8 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brglupdb(1) : 0.0), 0.0, "~g", "u", "dbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brglchsb(1) : 0.0), 0.0, "~g", "c", "sbar");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_char3body->brgltopbb(1) : 0.0), 0.0, "~g", "t", "bbar");
-
-      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
-    }
+ 
+   }
 
     /// SUSY-HIT MSSM decays: chargino_plus_2
     void chargino_plus_2_decays (DecayTable::Entry& result)

@@ -68,7 +68,7 @@ if [ "${axel_worked}" = "0" ]; then
         wget $3 -O $1/${filename}
       fi
     else
-      wget --post-data "$9" ${10} -O $1/${filename}
+      wget --no-check-certificate --post-data "$9" ${10} -O $1/${filename}
     fi
     wgetstatus=$?
     if [ ${wgetstatus} != 0 ]; then

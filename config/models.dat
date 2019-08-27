@@ -545,6 +545,19 @@ ConstantMassALP: |
 
    A convenient version of the GeneralALP model for studies of ALPs with not explicitly temperature-dependent axion mass, i.e. beta = 0 and Tcrit is irrelevant.
 
+NUGM: |
+
+   Non-Universal Gaugino Mass model. Descended from the MSSM63atMGUT. All off-diagonal elements in the squark and slepton mass matrices are set to zero, and all diagonal elements, as well as the Higgs mass paremeters mHu2 and mHd2, are set equal to a universal sfermion mass M0. All entries in the trilinear coupling matrices are set to the universal coupling A0. This leaves:
+
+   A0           - universal trilinear coupling
+   M0           - universal sfermion mass
+   M1           - bino mass
+   M2           - wino mass
+   M3           - gluino mass
+   SignMu       - the sign of the mu parameter
+   TanBeta      - the ratio of the up-type to down-type Higgs vevs
+
+
 RightHandedNeutrinos: |
    Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
 
@@ -553,4 +566,3 @@ RightHandedNeutrinos_diff: |
 
 StandardModel_mNudiff: |
    Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
-=
