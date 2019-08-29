@@ -510,7 +510,7 @@ namespace Gambit
          else if(check_basis(physical_basis_keys, input_basis)) {
             // get values from physical basis
             double m_h = input_basis["m_h"], m_H = input_basis["m_H"], m_A = input_basis["m_A"], m_Hp = input_basis["m_Hp"];
-            double lambda6 = input_basis["lambda6"], lambda7 = input_basis["lambda7"], sba = input_basis["sba"], m12_2 = input_basis["m12_2"];
+            double lambda6 = input_basis["lambda6"], lambda7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
             // TODO : check that sba follows through here
             // set values of coupling basis
             double alpha = beta - asin(input_basis["sba"]);
@@ -700,7 +700,6 @@ namespace Gambit
          double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = basis["tanb"];
          double beta = atan(tanb);
-         double sb = sin(beta), cb = cos(beta), tb = tan(beta);
          double Lambda1 = basis["Lambda1"], Lambda3 = basis["Lambda3"], Lambda4 = basis["Lambda4"], Lambda5 = basis["Lambda5"];
          double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
          double mC_2 = M22_2 + 0.5*v2*Lambda3;

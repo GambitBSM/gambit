@@ -328,7 +328,7 @@ namespace Gambit
         if (myPipe::ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
 
-      if (y_type < 0 | y_type > 5) {
+      if ((y_type < 0) | (y_type > 5)) {
         // by definition this error should never be raised due to ALLOWED_MODELS protection in rollcall file
         std::ostringstream errmsg;
         errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -605,7 +605,7 @@ namespace Gambit
     }
 
     struct thdm_params { double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, tanb, alpha, m11_2, m22_2, m12_2, mh, mH, mC, mA, mh_run, mH_run, mC_run, mA_run, Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M11_2, M22_2, M12_2, yukawa_type; };
-    void init_THDM_pars(const std::unique_ptr<SubSpectrum>& he, const int yukawa_type, thdm_params& thdm_pars) {
+    void init_THDM_pars(const std::unique_ptr<SubSpectrum>& he, thdm_params& thdm_pars) {
         thdm_pars.lambda1 = he->get(Par::mass1,"lambda_1");
         thdm_pars.lambda2 = he->get(Par::mass1,"lambda_2");
         thdm_pars.lambda3 = he->get(Par::mass1, "lambda_3");
@@ -677,7 +677,7 @@ namespace Gambit
       container.sminputs = spec.get_SMInputs();   
       container.yukawa_type = yukawa_type;
       container.THDM_object = new THDMC_1_7_0::THDM();
-      init_THDM_pars(container.he, container.yukawa_type, container.thdm_pars);
+      init_THDM_pars(container.he, container.thdm_pars);
       init_THDM_object(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
     }
 
@@ -1716,7 +1716,7 @@ namespace Gambit
 
     // Helpers
 
-    double specbit_function_between_scales_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
+    double specbit_function_between_scales_likelihood_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, spec, yukawa_type);
       const double loglike = specbit_function(container);
@@ -1727,10 +1727,27 @@ namespace Gambit
         loglike_at_Q = specbit_function(container_at_scale);
       }
       delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
-      return std::max(loglike,loglike_at_Q);
+      return std::min(loglike,loglike_at_Q);
+    }
+
+    double specbit_function_between_scales_constraint_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
+      THDM_spectrum_container container;
+      init_THDM_spectrum_container(container, spec, yukawa_type);
+      const double loglike = specbit_function(container);
+      double loglike_at_Q = -L_MAX;
+      if (scale>0.0) {
+        THDM_spectrum_container container_at_scale;
+        init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
+        loglike_at_Q = specbit_function(container_at_scale);
+      }
+      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      return (loglike && loglike_at_Q);
     }
 
 
+    // Step Functions (forward declarations)
+    double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container);
+    double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container);
@@ -1738,7 +1755,7 @@ namespace Gambit
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container);
     double stability_likelihood_THDM(THDM_spectrum_container& container);
     double alignment_likelihood_THDM(THDM_spectrum_container& container);
-    // Observable Functions (forrward declatations)
+    // Observable Functions (forward declatations)
     double global_minimum_discriminant_THDM(THDM_spectrum_container& container);
 
     void get_unitarity_likelihood_THDM(double& result) {
@@ -1754,7 +1771,7 @@ namespace Gambit
         else print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = unitarity_likelihood_THDM;
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_NLO_unitarity_likelihood_THDM(double& result) {
@@ -1770,7 +1787,7 @@ namespace Gambit
         else print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = NLO_unitarity_likelihood_THDM;
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_perturbativity_likelihood_THDM(double& result) {
@@ -1799,7 +1816,7 @@ namespace Gambit
         }
       }
       
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_stability_likelihood_THDM(double& result) {
@@ -1815,7 +1832,7 @@ namespace Gambit
         else print_calculation_at_scale_warning("get_stability_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = stability_likelihood_THDM;
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void get_alignment_likelihood_THDM(double& result) {
@@ -1831,7 +1848,7 @@ namespace Gambit
         else print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
       }
       std::function<double(THDM_spectrum_container&)> likelihood_function = alignment_likelihood_THDM;
-      result = specbit_function_between_scales_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     void check_vacuum_global_minimum(int& result) {
@@ -1847,7 +1864,39 @@ namespace Gambit
         else print_calculation_at_scale_warning("check_vacuum_global_minimum");
       }
       std::function<double(THDM_spectrum_container&)> check_discriminant_function = global_minimum_discriminant_THDM;
-      result = specbit_function_between_scales_helper(check_discriminant_function, *Dep::THDM_spectrum, scale, y_type);  
+      result = specbit_function_between_scales_constraint_helper(check_discriminant_function, *Dep::THDM_spectrum, scale, y_type);  
+    }
+
+    void check_h0_loop_order_corrections(int& result) {
+      using namespace Pipes::check_h0_loop_order_corrections;
+      // set THDM model type
+      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      }
+      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        else print_calculation_at_scale_warning("check_h0_loop_order_corrections");
+      }
+      std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
+      result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_h0_function, *Dep::THDM_spectrum, scale, y_type);  
+    }
+
+    void check_THDM_scalar_loop_order_corrections(int& result) {
+      using namespace Pipes::check_THDM_scalar_loop_order_corrections;
+      // set THDM model type
+      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      }
+      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        if (is_at_Q) scale = *Param.at("QrunTo");
+        else print_calculation_at_scale_warning("check_THDM_scalar_loop_order_corrections");
+      }
+      std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
+      result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
     double unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
@@ -2064,10 +2113,10 @@ namespace Gambit
 
       #ifdef SPECBIT_DEBUG
         // const std::vector<std::string> eigenvalue_keys = {"a00_even_plus","a00_even_minus","a00_odd_plus","a00_odd_minus","a01_even_plus", \
-        //   "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
+          "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
         // for(unsigned j=0; j < eigenvalues.size(); j++) {
         //     std::cout  <<  eigenvalue_keys[j] << " | " << eigenvalues[j] << " | " << abs(eigenvalues[j]-i/2.0) << \
-        //     " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
+          " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
         // }
       #endif
 
@@ -2219,6 +2268,61 @@ namespace Gambit
       if (discriminant.imag() < 0.0) return 0;
 
       return 1;
+    }
+
+    double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 200" << endl;
+
+      const double mh_running = container.he->get(Par::mass1, "h0", 1);
+      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+      const double mh_splitting = abs(mh_pole-mh_running);
+
+      if (mh_splitting>mh_running*0.5) return -L_MAX;
+      
+      return 0.;
+    }
+
+    double loop_correction_mass_splitting_H0_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 201" << endl;
+
+      const double mh_running = container.he->get(Par::mass1, "h0", 2);
+      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
+      const double mh_splitting = abs(mh_pole-mh_running);
+
+      if (mh_splitting>mh_running*0.5) return -L_MAX;
+      
+      return 0.;
+    }
+
+    double loop_correction_mass_splitting_A0_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 202" << endl;
+
+      const double mh_running = container.he->get(Par::mass1, "A0");
+      const double mh_pole = container.he->get(Par::Pole_Mass, "A0");
+      const double mh_splitting = abs(mh_pole-mh_running);
+
+      if (mh_splitting>mh_running*0.5) return -L_MAX;
+      
+      return 0.;
+    }
+
+    double loop_correction_mass_splitting_Hpm_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 203" << endl;
+
+      const double mh_running = container.he->get(Par::mass1, "H+");
+      const double mh_pole = container.he->get(Par::Pole_Mass, "H+");
+      const double mh_splitting = abs(mh_pole-mh_running);
+
+      if (mh_splitting>mh_running*0.5) return -L_MAX;
+      
+      return 0.;
+    }
+
+    double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container) {
+      const double H0_splitting_check = loop_correction_mass_splitting_H0_THDM(container);
+      const double A0_splitting_check = loop_correction_mass_splitting_A0_THDM(container);
+      const double Hpm_splitting_check = loop_correction_mass_splitting_Hpm_THDM(container);
+      return std::min(H0_splitting_check, A0_splitting_check, Hpm_splitting_check);
     }
 
     enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
