@@ -111,6 +111,16 @@ ObsLikes:
     # Likelihoods
     ###########################
 
+    ## loop correction checks for models with running
+
+    - purpose:    LogLike
+      capability: h0_loop_order_corrections
+      function: check_h0_loop_order_corrections
+
+    - purpose:    LogLike
+      capability: THDM_scalar_loop_order_corrections
+      function: check_THDM_scalar_loop_order_corrections
+
     ## theoretical likelihoods
 
     - purpose:    LogLike
