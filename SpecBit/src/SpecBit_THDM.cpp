@@ -2322,7 +2322,7 @@ namespace Gambit
       const double H0_splitting_check = loop_correction_mass_splitting_H0_THDM(container);
       const double A0_splitting_check = loop_correction_mass_splitting_A0_THDM(container);
       const double Hpm_splitting_check = loop_correction_mass_splitting_Hpm_THDM(container);
-      return std::min(H0_splitting_check, A0_splitting_check, Hpm_splitting_check);
+      return std::min(H0_splitting_check, std::min(A0_splitting_check, Hpm_splitting_check));
     }
 
     enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
