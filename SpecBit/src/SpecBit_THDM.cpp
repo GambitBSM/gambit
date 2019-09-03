@@ -1720,7 +1720,7 @@ namespace Gambit
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, spec, yukawa_type);
       const double loglike = specbit_function(container);
-      double loglike_at_Q = -L_MAX;
+      double loglike_at_Q = L_MAX;
       if (scale>0.0) {
         THDM_spectrum_container container_at_scale;
         init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
@@ -1730,11 +1730,11 @@ namespace Gambit
       return std::min(loglike,loglike_at_Q);
     }
 
-    double specbit_function_between_scales_constraint_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
+    int specbit_function_between_scales_constraint_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, spec, yukawa_type);
-      const double loglike = specbit_function(container);
-      double loglike_at_Q = -L_MAX;
+      const int loglike = specbit_function(container);
+      int loglike_at_Q = 1;
       if (scale>0.0) {
         THDM_spectrum_container container_at_scale;
         init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
@@ -1867,33 +1867,31 @@ namespace Gambit
       result = specbit_function_between_scales_constraint_helper(check_discriminant_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
-    void check_h0_loop_order_corrections(int& result) {
+    void check_h0_loop_order_corrections(double& result) {
       using namespace Pipes::check_h0_loop_order_corrections;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
+      int y_type = -1; double scale = 0.0;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i=i+2) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("check_h0_loop_order_corrections");
+        scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_h0_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
-    void check_THDM_scalar_loop_order_corrections(int& result) {
+    void check_THDM_scalar_loop_order_corrections(double& result) {
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
+      int y_type = -1; double scale = 0.0;
+      for (int i=0; unsigned(i) < THDM_model_keys.size(); i=i+2) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("check_THDM_scalar_loop_order_corrections");
+        scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
@@ -2247,7 +2245,7 @@ namespace Gambit
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)
       const double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
-      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2     + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
+      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
       const complex<double> k = pow((complex<double>(lambda1)/complex<double>(lambda2)),0.25);
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
@@ -2272,57 +2270,57 @@ namespace Gambit
 
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 200" << endl;
-
       const double mh_running = container.he->get(Par::mass1, "h0", 1);
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
-      const double mh_splitting = abs(mh_pole-mh_running);
-
-      if (mh_splitting>mh_running*0.5) return -L_MAX;
-      
-      return 0.;
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      const double sigma = 0.1;
+      if (mh_splitting > lower_limit) return -L_MAX;
+      return 0.0;
+      // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
     }
 
     double loop_correction_mass_splitting_H0_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 201" << endl;
-
       const double mh_running = container.he->get(Par::mass1, "h0", 2);
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
-      const double mh_splitting = abs(mh_pole-mh_running);
-
-      if (mh_splitting>mh_running*0.5) return -L_MAX;
-      
-      return 0.;
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      const double sigma = 0.1;
+      if (mh_splitting > lower_limit) return -L_MAX;
+      return 0.0;
+      // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
     }
 
     double loop_correction_mass_splitting_A0_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 202" << endl;
-
       const double mh_running = container.he->get(Par::mass1, "A0");
       const double mh_pole = container.he->get(Par::Pole_Mass, "A0");
-      const double mh_splitting = abs(mh_pole-mh_running);
-
-      if (mh_splitting>mh_running*0.5) return -L_MAX;
-      
-      return 0.;
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      const double sigma = 0.1;
+      if (mh_splitting > lower_limit) return -L_MAX;
+      return 0.0;
+      // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
     }
 
     double loop_correction_mass_splitting_Hpm_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 203" << endl;
-
       const double mh_running = container.he->get(Par::mass1, "H+");
       const double mh_pole = container.he->get(Par::Pole_Mass, "H+");
-      const double mh_splitting = abs(mh_pole-mh_running);
-
-      if (mh_splitting>mh_running*0.5) return -L_MAX;
-      
-      return 0.;
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      const double sigma = 0.1;
+      if (mh_splitting > lower_limit) return -L_MAX;
+      return 0.0;
+      // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
     }
 
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container) {
-      const double H0_splitting_check = loop_correction_mass_splitting_H0_THDM(container);
-      const double A0_splitting_check = loop_correction_mass_splitting_A0_THDM(container);
-      const double Hpm_splitting_check = loop_correction_mass_splitting_Hpm_THDM(container);
-      return std::min(H0_splitting_check, std::min(A0_splitting_check, Hpm_splitting_check));
+      double loglike = loop_correction_mass_splitting_H0_THDM(container);
+      loglike += loop_correction_mass_splitting_A0_THDM(container);
+      loglike += loop_correction_mass_splitting_Hpm_THDM(container);
+      return loglike;
     }
 
     enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};

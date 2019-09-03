@@ -379,7 +379,7 @@ START_CAPABILITY
 #define CAPABILITY h0_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_h0_loop_order_corrections
-  START_FUNCTION(int)
+  START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
@@ -388,7 +388,7 @@ START_CAPABILITY
 #define CAPABILITY THDM_scalar_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_THDM_scalar_loop_order_corrections
-  START_FUNCTION(int)
+  START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
