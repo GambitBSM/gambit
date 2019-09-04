@@ -232,13 +232,27 @@ namespace Gambit
 	  void lnL_EDM_n_gaussianStep(double &result)
 	  {
 		  using namespace Pipes::lnL_EDM_n_gaussianStep;
+		  double mu = 0.2E-26, sig = 1.6E-26, offset = 2.9E-26;
 		  if(abs(*Dep::EDM_n) < 2.9E-26)
+		  {
+			result = 0.0;
+			result = std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2);
+		  }
+		  else{
+			if(*Dep::EDM_n < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
+			else{offset = -offset;}
+			result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu + offset)/sig,2);
+		  }
+/*		  if(abs(*Dep::EDM_n) < 2.9E-26)
 			{
 				double mu = 0.2E-26, sig = 1.6E-26;
 				//result = -2Log L; L = 1/sqrt(2pi sig^2) exp(-(EDM_n-mu)^2/2sig^2
 				result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2); 
 			}
 		  else{result = -1.0E50;}		  
+		  result = gaussian_upper_limit(*Dep::EDM_n,mu,
+
+*/
 	  }
 
 	  void lnL_EDM_n_gaussianOverall(double &result)

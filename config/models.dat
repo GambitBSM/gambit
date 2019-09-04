@@ -380,6 +380,12 @@ CMSSM: |
    SignMu       - the sign of the mu parameter
    TanBeta      - the ratio of the up-type to down-type Higgs vevs
 
+nEDMme: |
+
+diaEDMme: |
+
+TESTMODel: |
+
 CPVYukawas: |
 
 #	Model for Yukawa Couplings with CP violation.

@@ -80,7 +80,7 @@ Printer:
 
 
 Scanner:
-  use_scanner: grid
+  use_scanner: diver
 
   scanners:
     multinest:
@@ -109,8 +109,8 @@ Scanner:
 
 ObsLikes:
   - capability: lnL_EDM_n
-#    function: lnL_EDM_n_step
-    function: lnL_EDM_n_gaussianOverall
+    function: lnL_EDM_n_gaussianStep
+#    function: lnL_EDM_n_gaussianOverall
     purpose: LogLike
  
   - capability: EDM_n
@@ -155,7 +155,7 @@ ObsLikes:
 
 Rules:
    - capability: lnL_EDM_n
-     function: lnL_EDM_n_gaussianOverall
+     function: lnL_EDM_n_gaussianStep
     
     #   - capability: lnL_EDM_dia
     #     function: lnL_EDM_199Hg_step
