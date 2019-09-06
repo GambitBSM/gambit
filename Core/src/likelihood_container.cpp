@@ -22,12 +22,16 @@
 ///  \date 2013 Aug
 ///  \date 2014 May, June, onwards...
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 May
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
-#include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/signal_helpers.hpp"
 #include "gambit/Utils/signal_handling.hpp"
+#include "gambit/Utils/mpiwrapper.hpp"
 
 //#define CORE_DEBUG
 
@@ -39,20 +43,14 @@ namespace Gambit
   /// Constructor
   Likelihood_Container::Likelihood_Container(const std::map<str, primary_model_functor *> &functorMap,
    DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile,
-   const str &purpose, Printers::BaseBasePrinter& printer
-  #ifdef WITH_MPI
-    , GMPI::Comm& comm
-  #endif
-  )
+   const str &purpose, Printers::BaseBasePrinter& printer)
   : dependencyResolver (dependencyResolver),
     printer            (printer),
     functorMap         (functorMap),
-    #ifdef WITH_MPI
-      errorComm        (comm),
-    #endif
-    min_valid_lnlike        (iniFile.getValue<double>("likelihood", "model_invalid_for_lnlike_below")),
+    min_valid_lnlike        (iniFile.getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below")),
     alt_min_valid_lnlike    (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
     active_min_valid_lnlike (min_valid_lnlike), // can be switched to the alternate value by the scanner
+    print_invalid_points    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
     intralooptime_label     ("Runtime(ms) intraloop"),
     interlooptime_label     ("Runtime(ms) interloop"),
     totallooptime_label     ("Runtime(ms) totalloop"),
@@ -211,8 +209,8 @@ namespace Gambit
           std::ostringstream debug_to_cout;
           if (debug) debug_to_cout << "  L" << likelihood_tag << ": ";
 
-          // Calculate the likelihood component. The pointID is passed through to the printer call for each functor.
-          dependencyResolver.calcObsLike(*it,getPtID());
+          // Calculate the likelihood component.
+          dependencyResolver.calcObsLike(*it);
 
           // Switch depending on whether the functor returns floats or doubles and a single likelihood or a vector of them.
           str rtype = return_types[*it];
@@ -272,10 +270,14 @@ namespace Gambit
           lnlike = active_min_valid_lnlike;
           compute_aux = false;
           point_invalidated = true;
+          // If print_ivalid_points is false disable the printer
+          if(!print_invalid_points)
+            printer.disable();
           if (debug) cout << "Point invalid." << endl;
           break;
         }
       }
+
 
       // If none of the likelihood calculations have invalidated the point, calculate the additional auxiliary observables.
       if (compute_aux)
@@ -291,7 +293,7 @@ namespace Gambit
 
           try
           {
-            dependencyResolver.calcObsLike(*it,getPtID());
+            dependencyResolver.calcObsLike(*it);
             if (debug) logger() << LogTags::core << "Computed a" << aux_tag << "." << EOM;
           }
           catch(Gambit::invalid_point_exception& e)
@@ -300,6 +302,17 @@ namespace Gambit
                      << "::" << e.thrower()->name() << ": " << e.message() << EOM;
           }
         }
+      }
+
+      // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
+      if(point_invalidated and !print_invalid_points)
+        printer.disable();
+      else
+      {
+        for (auto it = target_vertices.begin(), end = target_vertices.end(); it != end; ++it)
+           dependencyResolver.printObsLike(*it,getPtID());
+        for (auto it = aux_vertices.begin(), end = aux_vertices.end(); it != end; ++it)
+           dependencyResolver.printObsLike(*it,getPtID());
       }
 
       // End timing of total likelihood evaluation
@@ -321,8 +334,8 @@ namespace Gambit
       {
         int rank = printer.getRank();
         // Convert time counts to doubles (had weird problem with long long ints on some systems)
-        double d_runtime   = std::chrono::duration_cast<ms>(runtimeL).count(); 
-        double d_interloop = std::chrono::duration_cast<ms>(interloop_time).count();     
+        double d_runtime   = std::chrono::duration_cast<ms>(runtimeL).count();
+        double d_interloop = std::chrono::duration_cast<ms>(interloop_time).count();
         double d_total     = std::chrono::duration_cast<ms>(true_total_loop_time).count();
         printer.print(d_runtime,   intralooptime_label, intraloopID, rank, getPtID());
         printer.print(d_interloop, interlooptime_label, interloopID, rank, getPtID());
@@ -335,7 +348,9 @@ namespace Gambit
     logger() << "Total lnL: " << lnlike << EOM;
     dependencyResolver.resetAll();
 
-    if(point_invalidated) printer.disable(); // Disable the printer so that it doesn't try to output the min_valid_lnlike as a valid likelihood value. ScannerBit will re-enable it when needed again.
+    // Disable the printer so that it doesn't try to output the min_valid_lnlike as a valid likelihood value. ScannerBit will re-enable it when needed again.
+    // Disable only for the next print call
+    if(point_invalidated) printer.disable(1);
 
     logger() << LogTags::core << LogTags::debug << "Returning control to ScannerBit" << EOM;
 

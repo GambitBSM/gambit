@@ -1,4 +1,4 @@
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
 namespace Gambit {
@@ -7,13 +7,16 @@ namespace Gambit {
 
 
     /// Basic analysis code for copying
-    class Analysis_Minimum : public HEPUtilsAnalysis {
+    class Analysis_Minimum : public Analysis {
     private:
 
       // Variables to hold the number of events passing signal region cuts
       double _numSR;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "ATLAS";
 
       Analysis_Minimum() {
 
@@ -30,8 +33,7 @@ namespace Gambit {
       }
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event){
 
         // Get the missing energy in the event
         double met = event->met();
@@ -39,14 +41,20 @@ namespace Gambit {
         // Now define vectors of baseline objects,  including:
         // - retrieval of electron, muon and jets from the event)
         // - application of basic pT and eta cuts
+
+        // Baseline electrons
         vector<HEPUtils::Particle*> baselineElectrons;
         for (HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
         }
+
+        // Baseline muons
         vector<HEPUtils::Particle*> baselineMuons;
         for (HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.4) baselineMuons.push_back(muon);
         }
+
+        // Baseline jets
         vector<HEPUtils::Jet*> baselineJets;
         for (HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) baselineJets.push_back(jet);
@@ -72,13 +80,10 @@ namespace Gambit {
       }
 
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region number and total # events combination across threads
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_Minimum* specificOther = dynamic_cast<Analysis_Minimum*>(other);
-
-        // Here we will add the subclass member variables:
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_Minimum* specificOther = dynamic_cast<const Analysis_Minimum*>(other);
         _numSR += specificOther->_numSR;
       }
 
@@ -101,7 +106,7 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numSR = 0;
       }
 

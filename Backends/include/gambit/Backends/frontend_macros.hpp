@@ -41,7 +41,7 @@
 
 /// Macro for assigning a single allowed model to an entire backend.
 #define BE_ALLOW_MODEL(MODEL) MODULE_ALLOWED_MODEL(BackendIniBit,           \
- CAT_4(BACKENDNAME,_,SAFE_VERSION,_init), MODEL)                            \
+ CAT_4(BACKENDNAME,_,SAFE_VERSION,_init), MODEL, NOT_MODEL)                 \
 
 /// Make the inUse pipe for a given backend functor.
 #define MAKE_INUSE_POINTER(NAME)                                            \
@@ -81,7 +81,7 @@ namespace Gambit                                                            \
 MODULE_START_CAPABILITY(BackendIniBit)                                      \
 MODULE_DECLARE_FUNCTION(BackendIniBit,                                      \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),                                   \
- void,2)                                                                    \
+ void,2,NOT_MODEL)                                                          \
 
 /// Main actual backend variable macro
 #define BE_VARIABLE_I(NAME, TYPE, SYMBOLNAME, CAPABILITY, MODELS)             \

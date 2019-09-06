@@ -64,7 +64,7 @@ namespace Gambit
   {
 
     // Helper function for parsing ModelParameters label strings.
-    bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& rest);
+    bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& rest, bool case_sensitive=true);
 
     /// For debugging; print to stdout all the typeIDs for all types.
     void printAllTypeIDs(void);
@@ -104,6 +104,11 @@ namespace Gambit
         /// Initialisation function
         // Run by dependency resolver, which supplies the functors with a vector of VertexIDs whose requiresPrinting flags are set to true. (TODO: probably extend this to be a list of functors THIS printer is supposed to print, since we may want several printers handling different functors, for SLHA output or some such perhaps).
         virtual void initialise(const std::vector<int>&) = 0;
+
+        /// Signal printer to flush data in buffers to disk
+        /// Printers should do this automatically as needed, but this is useful if a scanner is printing
+        /// a bunch of data as a batch, to make sure it is all on disk after the batch is done.
+        virtual void flush() = 0;        
 
         // Get options required to construct a reader object that can read
         // the previous output of this printer.

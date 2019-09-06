@@ -18,6 +18,10 @@
 ///  \date 2014 Aug
 ///  \date 2015 May
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 May
+///
 ///  *********************************************
 
 #ifndef __depresolver_hpp__
@@ -128,7 +132,10 @@ namespace Gambit
         std::vector<VertexID> getObsLikeOrder();
 
         /// Calculate a single target vertex.
-        void calcObsLike(VertexID, const int);
+        void calcObsLike(VertexID);
+
+        /// Print a single target vertex.
+        void printObsLike(VertexID, const int);
 
         /// Getter for print_timing flag (used by LikelihoodContainer)
         bool printTiming();

@@ -211,7 +211,7 @@ namespace Gambit
       /// Check the named database for conflicts and missing descriptions
       void check_databases();
 
-      /// set to true is capability descriptions missing
+      /// set to true if capability descriptions missing
       bool missing_capability_description;
 
       /// Check for missing capability descriptions (after reading in runtime flags)

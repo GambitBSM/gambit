@@ -11,30 +11,31 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2018 Jan
+///  \date 2019 Jan
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2018 May
+///
 ///  *********************************************
 
 #ifndef __MC_convergence_hpp__
 #define __MC_convergence_hpp__
 
 #include "gambit/Utils/util_types.hpp"
-#include "gambit/ColliderBit/analyses/HEPUtilsAnalysisContainer.hpp"
 
 namespace Gambit
 {
   namespace ColliderBit
   {
 
+    /// Forward declaration
+    class AnalysisContainer;
+
     /// Type for holding Monte Carlo convergence settings
     struct convergence_settings
     {
-      std::vector<int> min_nEvents;
-      std::vector<int> max_nEvents;
-      std::vector<int> stoppingres;
-      std::vector<double> target_stat;
+      double target_stat;
       bool stop_at_sys;
       bool all_analyses_must_converge;
       bool all_SR_must_converge;
@@ -47,9 +48,6 @@ namespace Gambit
 
         /// A pointer to the convergence settings to use
         const convergence_settings* _settings;
-
-        /// The index in the convergence settings to use
-        int _collider;
 
         /// Pointer to an array holding the signal counts on each thread
         std::vector<int>* n_signals;
@@ -72,10 +70,7 @@ namespace Gambit
         ~MC_convergence_checker();
 
         /// Initialise (or re-initialise) the object
-        void init(int, const convergence_settings&);
-
-        /// Indicate which of the saved convergence settings to actually use
-        void set_collider(int);
+        void init(const convergence_settings&);
 
         /// Provide a pointer to the convergence settings
         void set_settings(const convergence_settings&);
@@ -84,10 +79,10 @@ namespace Gambit
         void clear();
 
         /// Update the convergence data.  This is the only routine meant to be called in parallel.
-        void update(const HEPUtilsAnalysisContainer&);
+        void update(const AnalysisContainer&);
 
         /// Check if convergence has been achieved across threads, and across all instances of this class
-        bool achieved(const HEPUtilsAnalysisContainer& ac);
+        bool achieved(const AnalysisContainer& ac);
     };
 
 

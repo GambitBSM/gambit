@@ -518,3 +518,50 @@ DiracSingletDM_Z2: |
 DiracSingletDM_Z2_sps: |
 
    Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
+
+GeneralALP: |
+
+   A general model for an axion-like particle with the possibility of having a temperature-dependent mass similar to QCD axions.
+
+   gagg              - Axion-photon coupling in eV^-1
+   gaee              - Axion-electron couplings
+   fa                - Axion decay constant/pNGB scale in GeV
+   ma0               - Axion (zero-temperature) mass in eV
+   Tcrit             - Critical temperature below which the axion mass is constant
+   beta              - Exponent of the temperature scaling of the axion mass above Tcrit
+   thetai            - Initial misalignment angle
+
+QCDAxion: |
+
+   A convenient version of the GeneralALP model for QCD axion studies. Comes with several model-specific nuisance likelihoods and one additional nuisance parameter (Cagg). The differences are:
+
+   Cagg              - Contribution to the axion-photon coupling gagg from chiral Lagrangian
+   EoverN            - Contribution to the axion-photon coupling gagg from the ratio of electromagnetic vs colour anomaly
+   Caee              - Re-parameterised axion-electron coupling gaee
+   LambdaQCD2        - Convenient re-parameterisation of the axion zero-temperature mass ma0 in terms of the QCD scale LambdaQCD^2
+
+KSVZAxion: |
+
+   KSVZ axion model with free E/N and loop-induced axion-electron coupling.
+
+DFSZAxion_I: |
+
+   DFSZ axion model with E/N = 8/3 and CAee = sin^2(beta)/3.
+
+DFSZAxion_II: |
+
+   DFSZ axion model with E/N = 8/3 and CAee = [1 - sin^2(beta)]/3.
+
+ConstantMassALP: |
+
+   A convenient version of the GeneralALP model for studies of ALPs with not explicitly temperature-dependent axion mass, i.e. beta = 0 and Tcrit is irrelevant.
+
+RightHandedNeutrinos: |
+   Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
+
+RightHandedNeutrinos_diff: |
+   The same as RightHandedNeutrinos but one of the RHN masses has been substituted by a mass difference.
+
+StandardModel_mNudiff: |
+   Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
+=

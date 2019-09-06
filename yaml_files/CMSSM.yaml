@@ -501,87 +501,76 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
-  # ATLAS detector simulation
-  - capability: SimpleSmearingSim
-    type: "ColliderBit::BuckFastSmearATLAS"
-    function: getBuckFastATLAS
-    options:
-      partonOnly: [false]
-      antiktR: [0.4]
-      useDetector: [true]
-
-  # CMS detector simulation
-  - capability: SimpleSmearingSim
-    type: "ColliderBit::BuckFastSmearCMS"
-    function: getBuckFastCMS
-    options:
-      partonOnly: [false]
-      antiktR: [0.4]
-      useDetector: [true]
-
-  # ATLAS analysis setup.
-  - capability: ATLASAnalysisContainer
-    function: getATLASAnalysisContainer
-    options:
-      analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
-                   "ATLAS_13TeV_MultiLEP_36invfb",
-                   "ATLAS_13TeV_0LEPStop_36invfb",
-                   "ATLAS_13TeV_2LEPStop_36invfb",
-                   "ATLAS_13TeV_2bMET_36invfb"] ]
-
-                   # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
-                   # "ATLAS_13TeV_1LEPStop_36invfb",
-                   # These analyses currently depend on ROOT.
-
-  # CMS analysis setup
-  - capability: CMSAnalysisContainer
-    function: getCMSAnalysisContainer
-    options:
-      analyses: [ ["CMS_13TeV_0LEP_36invfb",
-                   "CMS_13TeV_1LEPbb_36invfb",
-                   "CMS_13TeV_2OSLEP_36invfb",
-                   "CMS_13TeV_2LEPsoft_36invfb",
-                   "CMS_13TeV_1LEPStop_36invfb",
-                   "CMS_13TeV_2LEPStop_36invfb",
-                   "CMS_13TeV_MultiLEP_36invfb",
-                   "CMS_13TeV_MONOJET_36invfb" ] ]
-
-  # Choose Monte Carlo event simulator.
-  - capability:  ColliderOperator
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
     function: operateLHCLoop
     options:
-      pythiaNames: ["Pythia_SUSY_LHC_13TeV"]
       silenceLoop: true
+      LHC_13TeV:
+        min_nEvents: 5000
+        max_nEvents: 50000
+        events_between_convergence_checks: 5000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - CMS_13TeV_0LEP_36invfb
+          - CMS_13TeV_1LEPbb_36invfb
+          - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_1LEPStop_36invfb
+          - CMS_13TeV_2LEPStop_36invfb
+          - CMS_13TeV_MultiLEP_36invfb
+          - CMS_13TeV_MONOJET_36invfb
+          - ATLAS_13TeV_0LEP_36invfb
+          - ATLAS_13TeV_MultiLEP_36invfb
+          - ATLAS_13TeV_0LEPStop_36invfb
+          - ATLAS_13TeV_2LEPStop_36invfb
+          - ATLAS_13TeV_2bMET_36invfb
+        # - ATLAS_13TeV_RJ3L_lowmass_36invfb
+        # - ATLAS_13TeV_1LEPStop_36invfb
+        # The last two analyses depend on ROOT.
 
-  # Choose statistical settings for Monte Carlo event generator
-  - capability: MC_ConvergenceSettings
-    options:
-      min_nEvents: [5000]
-      max_nEvents: [50000]
-      events_between_convergence_checks: [5000]
-      target_fractional_uncert: [0.3]
-      halt_when_systematic_dominated: true
-      all_SR_must_converge: false
-
-  # Define Monte Carlo event simulator and associated options.
+  # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
-    function:  getPythia
+    type: ColliderPythia_defaultversion
+    function: getPythia
     options:
-      # Pythia_doc_path defaults to the xmldoc directory of the default Pythia
-      # backend. So, this must only be set if the user chooses a different Pythia.
-      # Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
-      Pythia_SUSY_LHC_13TeV: ["Print:quiet = on",
-                             "PartonLevel:MPI = off",
-                             "PartonLevel:ISR = on",
-                             "PartonLevel:FSR = on",
-                             "HadronLevel:all = on",
-                             "SUSY:all = on",
-                             "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 2"]
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        pythia_settings:
+          - Print:quiet = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
 
-      xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+  # Choose to get cross-sections from the Monte Carlo
+  - capability: CrossSection
+    function: getMCxsec
+    module: ColliderBit
 
-  # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}

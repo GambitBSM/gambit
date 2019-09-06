@@ -218,7 +218,7 @@ BE_NAMESPACE
 
   }
 
-  Spectrum Spectrum_Out(const std::map<str, safe_ptr<double> >& input_Param)
+  Spectrum Spectrum_Out(const std::map<str, safe_ptr<const double> >& input_Param)
   {
 
     SLHAstruct slha;

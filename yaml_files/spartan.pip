@@ -10,7 +10,7 @@ oneD_contour_levels = 68.3 95.4             ;Contour levels to plot in 1D plots 
 twoD_contour_levels = 68.3 95.4             ;Contour levels to plot in 2D plots (EFN; script operation ignores actual values)
 oneD_plot_quantities = 2 3                  ;Parameters/observables to construct 1D plots of (EFN)
 twoD_plot_quantities = {2,3}                ;Parameters/observable combinations to make 2D plots of (EFN)
-plot_observables =
+plot_observables =                          ;Observables to make 2D plots of (EFN)
 
 -------------------------------
 ---Parsing---------------------

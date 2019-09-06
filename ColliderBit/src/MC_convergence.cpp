@@ -11,16 +11,18 @@
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2018 Jan
+///  \date 2019 Jan
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2018 May
+///
 ///  *********************************************
 
 #include <omp.h>
 #include "gambit/ColliderBit/MC_convergence.hpp"
-#include "gambit/ColliderBit/analyses/AnalysisData.hpp"
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisContainer.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 
 // #define COLLIDERBIT_DEBUG
@@ -47,10 +49,9 @@ namespace Gambit
     }
 
     /// Initialise (or re-initialise) the object
-    void MC_convergence_checker::init(int collider, const convergence_settings& settings)
+    void MC_convergence_checker::init(const convergence_settings& settings)
     {
       clear();
-      set_collider(collider);
       set_settings(settings);
     }
 
@@ -59,13 +60,6 @@ namespace Gambit
     {
       if (omp_get_thread_num() > 0) utils_error().raise(LOCAL_INFO, "Cannot call this function from inside an OpenMP block.");
       _settings = &settings;
-    }
-
-    /// Indicate precisely which of the convergence settings to actually use
-    void MC_convergence_checker::set_collider(int collider)
-    {
-      if (omp_get_thread_num() > 0) utils_error().raise(LOCAL_INFO, "Cannot call this function from inside an OpenMP block.");
-      _collider = collider;
     }
 
     /// Clear all convergence data (for all threads)
@@ -82,7 +76,7 @@ namespace Gambit
 
 
     /// Update the convergence data.  This is the only routine meant to be called in parallel.
-    void MC_convergence_checker::update(const HEPUtilsAnalysisContainer& ac)
+    void MC_convergence_checker::update(const AnalysisContainer& ac)
     {
       // Abort if the analysis container tracked by this object is already fully converged
       if (converged) return;
@@ -105,9 +99,8 @@ namespace Gambit
 
 
     /// Check if convergence has been achieved across threads, and across all instances of this class
-    bool MC_convergence_checker::achieved(const HEPUtilsAnalysisContainer& ac)
+    bool MC_convergence_checker::achieved(const AnalysisContainer& ac)
     {
-
       if (not converged)
       {
 
@@ -139,7 +132,7 @@ namespace Gambit
             double fractional_stat_uncert = (total_counts == 0 ? 1.0 : 1.0/sqrt(total_counts));
             double absolute_stat_uncert = total_counts * fractional_stat_uncert;
             SR_converged = (_settings->stop_at_sys and total_counts > 0 and absolute_stat_uncert <= sr.signal_sys) or
-                   (fractional_stat_uncert <= _settings->target_stat[_collider]);
+                   (fractional_stat_uncert <= _settings->target_stat);
 
             if (not SR_converged) all_SR_converged = false;
 
@@ -148,7 +141,7 @@ namespace Gambit
               cerr << "DEBUG: SIGNAL REGION " << SR_index << " of " << n_signals[0].size() << endl;
               cerr << "DEBUG: SR label: " << sr.sr_label << " in analysis " << analysis_pointer_pair.first << endl;
               cerr << "DEBUG: absolute_stat_uncert vs sys: " << absolute_stat_uncert << " vs " << sr.signal_sys << endl;
-              cerr << "DEBUG: fractional_stat_uncert vs target: " << fractional_stat_uncert << " vs " << _settings->target_stat[_collider] << endl;
+              cerr << "DEBUG: fractional_stat_uncert vs target: " << fractional_stat_uncert << " vs " << _settings->target_stat << endl;
               cerr << "DEBUG: Is this SR done? " << SR_converged << endl;
             #endif
 
@@ -181,7 +174,7 @@ namespace Gambit
           if (_settings->all_SR_must_converge) analysis_converged = all_SR_converged;
 
           #ifdef COLLIDERBIT_DEBUG
-            cerr << endl; 
+            cerr << endl;
             cerr << "DEBUG: Done looping over SRs for analysis " << analysis_pointer_pair.first << endl;
             cerr << "DEBUG: analysis_converged =  " << analysis_converged << endl;
           #endif
@@ -189,7 +182,7 @@ namespace Gambit
           if (not analysis_converged) all_analyses_converged = false;
 
           // Shortcut
-          if (analysis_converged and not _settings->all_analyses_must_converge) 
+          if (analysis_converged and not _settings->all_analyses_must_converge)
           {
             converged = true;
             convergence_map[this] = true;
@@ -203,7 +196,7 @@ namespace Gambit
         } // End loop over analyses
 
         #ifdef COLLIDERBIT_DEBUG
-          cerr << endl; 
+          cerr << endl;
           cerr << "DEBUG: Done looping over analyses in this container" << endl;
           cerr << "DEBUG: Current variable values:" << endl;
           cerr << "DEBUG: analysis_converged = " << analysis_converged << endl;
@@ -218,7 +211,7 @@ namespace Gambit
       // Now check if all instances of this class have also set their entry in the convergence map to true,
       // implying that all analyses in all containers have reached convergence.
       if (_settings->all_analyses_must_converge)
-      {        
+      {
         for (auto& it : convergence_map)
         {
           if (not it.second) return false;

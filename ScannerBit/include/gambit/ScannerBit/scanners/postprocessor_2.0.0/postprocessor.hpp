@@ -35,18 +35,18 @@ namespace Gambit
 
       /// Answer queries as to whether a given dataset index has been postprocessed in a previous run or not
       bool point_done(const ChunkSet done_chunks, size_t index);
-      
+
       /// Get 'effective' start and end positions for a processing batch
       /// i.e. simply divides up an integer into the most even parts possible
       /// over a given number of processes
       Chunk get_effective_chunk(const std::size_t total_length, const unsigned int rank, const unsigned int numtasks);
-      
+
       /// Compute start/end indices for a given rank process, given previous "done_chunk" data.
       Chunk get_my_chunk(const std::size_t dset_length, const ChunkSet& done_chunks, const int rank, const int numtasks);
-      
+
       /// Read through resume data files and reconstruct which chunks of points have already been processed
       ChunkSet get_done_points(Gambit::Printers::BaseBaseReader& filebase);
-     
+
       /// Simplify a ChunkSet by merging chunks which overlap.
       ChunkSet merge_chunks(const ChunkSet&);
 
@@ -89,7 +89,7 @@ namespace Gambit
          PPOptions() : comm(NULL) {}
          #endif
       };
- 
+
       /// Driver class to handle the actual postprocessing tasks
       class PPDriver
       {
@@ -103,10 +103,10 @@ namespace Gambit
             void set_done_chunks(const ChunkSet& done_chunks);
             unsigned long long next_point_index();
             unsigned long long get_total_length();
-  
+
             // Message tags
             static const int REDIST_REQ = 0;
-           
+
          private:
             /// Safe accessors for pointer data
             Printers::BaseBaseReader& getReader();
@@ -121,7 +121,7 @@ namespace Gambit
 
             /// The likelihood container plugin
             Scanner::like_ptr LogLike;
-            
+
             /// Names of new output to be printed, i.e. output labels not present in the input file.
             std::set<std::string> new_params;
 
@@ -130,7 +130,7 @@ namespace Gambit
 
             /// Map to retrieve the "model::parameter" version of the parameter name
             std::map<std::string,std::map<std::string,std::string>> longname;
- 
+
             /// Total length of input dataset
             unsigned long long total_length;
 
@@ -173,27 +173,23 @@ namespace Gambit
 
             /// Number of iterations between progress reports. '0' means no updates
             std::size_t update_interval;
-       
+
             /// Allow old likelihood components to be overwritten by newly calculated values?
             bool discard_old_logl;
- 
+
             /// Label assigned to the output of the likelihood container
             std::string logl_purpose_name;
 
             /// The label to assign to the results of add_to_like and subtract_from_like operations.
             std::string reweighted_loglike_name;
 
-            /// Flag to trigger unique behaviour on first loop
-            bool firstloop;
-
             /// Path to save resume files
             std::string root;
 
             /// MPI variables (set manually rather than inferred, to allow for "virtual rank" settings
-            unsigned int numtasks;
             unsigned int rank;
             #ifdef WITH_MPI
-            GMPI::Comm* comm;
+              GMPI::Comm* comm;
             #endif
       };
 
@@ -212,7 +208,6 @@ namespace Gambit
 //o.cut_greater_than
 //o.discard_points_outside_cuts
 //o.update_interval
-//o.numtasks
 //o.rank
 //
 

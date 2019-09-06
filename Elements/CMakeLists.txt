@@ -42,7 +42,9 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/ini_catch.hpp
                  include/gambit/Elements/module_macros_common.hpp
                  include/gambit/Elements/module_macros_incore.hpp
+                 include/gambit/Elements/module_macros_incore_defs.hpp
                  include/gambit/Elements/module_macros_inmodule.hpp
+                 include/gambit/Elements/module_macros_inmodule_defs.hpp
                  include/gambit/Elements/mssm_slhahelp.hpp
                  include/gambit/Elements/safety_bucket.hpp
                  include/gambit/Elements/shared_types.hpp

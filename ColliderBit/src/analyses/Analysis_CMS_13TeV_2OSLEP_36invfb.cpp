@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <fstream>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -26,9 +26,9 @@ namespace Gambit {
 
     // This analysis class is also a base class for the class
     // Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar defined further down.
-    // This is the same analysis, but it does not make use of the 
-    // SR covariance information. 
-    class Analysis_CMS_13TeV_2OSLEP_36invfb : public HEPUtilsAnalysis {
+    // This is the same analysis, but it does not make use of the
+    // SR covariance information.
+    class Analysis_CMS_13TeV_2OSLEP_36invfb : public Analysis {
 
     protected:
 
@@ -41,7 +41,7 @@ namespace Gambit {
         {"SR5", 0},
         {"SR6", 0},
         {"SR7", 0},
-      }; 
+      };
 
     private:
 
@@ -49,11 +49,13 @@ namespace Gambit {
       vector<string> cutFlowVector_str;
       size_t NCUTS;
       vector<double> cutFlowVectorCMS_550_200;
-      double xsecCMS_550_200;
 
       ofstream cutflowFile;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       struct ptComparison {
         bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
@@ -63,7 +65,7 @@ namespace Gambit {
         bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
-      Analysis_CMS_13TeV_2OSLEP_36invfb() 
+      Analysis_CMS_13TeV_2OSLEP_36invfb()
       {
         set_analysis_name("CMS_13TeV_2OSLEP_36invfb");
         set_luminosity(35.9);
@@ -79,10 +81,9 @@ namespace Gambit {
       }
 
 
-      void analyze(const HEPUtils::Event* event) 
+      void run(const HEPUtils::Event* event)
       {
         // Baseline objects
-        HEPUtilsAnalysis::analyze(event);
         double met = event->met();
 
         // Apply electron efficiency and collect baseline electrons
@@ -90,18 +91,18 @@ namespace Gambit {
         //@note The efficiency map has been extended to cover the low-pT region, using the efficiencies from BuckFast (CMSEfficiencies.hpp)
         const vector<double> aEl={0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX};   // Bin edges in eta
         const vector<double> bEl={0., 10., 20., 25., 30., 40., 50., DBL_MAX}; // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-        const vector<double> cEl={                 
-                          // pT: (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)     
+        const vector<double> cEl={
+                          // pT: (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
                                     0.0,    0.95,    0.619,     0.669,    0.7,     0.737,    0.79,  // eta: (0, 0.8)
                                     0.0,    0.95,    0.625,     0.658,    0.72,    0.712,    0.793, // eta: (0.8, 1.4429
                                     0.0,    0.95,    0.338,     0.372,    0.36,    0.365,    0.416, // eta: (1.442, 1.556)
                                     0.0,    0.85,    0.576,     0.531,    0.614,   0.644,    0.712, // eta: (1.556, 2)
-                                    0.0,    0.85,    0.440,     0.527,    0.585,   0.606,    0.648, // eta: (2, 2.5) 
+                                    0.0,    0.85,    0.440,     0.527,    0.585,   0.606,    0.648, // eta: (2, 2.5)
                                     0.0,    0.0,     0.0,       0.0,      0.0,     0.0,      0.0,   // eta > 2.5
                                   };
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) 
+        for (HEPUtils::Particle* electron : event->electrons())
         {
           bool isEl=has_tag(_eff2dEl, electron->eta(), electron->pT());
           if (isEl && electron->pT()>12. && fabs(electron->eta())<2.5) baselineElectrons.push_back(electron);
@@ -114,7 +115,7 @@ namespace Gambit {
         const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
         const vector<double> bMu={0., 10., 20., 25., 30., 40., 50., DBL_MAX};  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
         const vector<double> cMu={
-                           // pT:   (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)     
+                           // pT:   (0,10),  (10,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
                                      0.0,    0.950,    0.869,    0.889,    0.910,    0.929,    0.930,  // eta: (0, 0.9)
                                      0.0,    0.950,    0.857,    0.880,    0.893,    0.937,    0.930,  // eta: (0.9, 1.2)
                                      0.0,    0.950,    0.891,    0.894,    0.901,    0.912,    0.927,  // eta: (1.2, 2.1)
@@ -123,7 +124,7 @@ namespace Gambit {
                                  };
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
         vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) 
+        for (HEPUtils::Particle* muon : event->muons())
         {
           bool isMu=has_tag(_eff2dMu, muon->eta(), muon->pT());
           if (isMu && muon->pT()>8. && fabs(muon->eta())<2.4) baselineMuons.push_back(muon);
@@ -131,14 +132,14 @@ namespace Gambit {
 
         // Baseline photons
         vector<HEPUtils::Particle*> baselinePhotons;
-        for (HEPUtils::Particle* photon : event->photons()) 
+        for (HEPUtils::Particle* photon : event->photons())
         {
           if (photon->pT()>25. && fabs(photon->eta())<2.4 && (fabs(photon->eta())<1.4 || fabs(photon->eta())>1.6) && fabs(photon->phi()-event->missingmom().phi())>0.4)baselinePhotons.push_back(photon);
         }
 
         // Baseline jets
         vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) 
+        for (HEPUtils::Jet* jet : event->jets())
         {
           // We use 25 GeV rather than 35 GeV
           // if (jet->pT()>35. &&fabs(jet->eta())<2.4) baselineJets.push_back(jet);
@@ -150,8 +151,8 @@ namespace Gambit {
         vector<HEPUtils::Particle*> signalLeptons;
         vector<HEPUtils::Particle*> signalElectrons;
         vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;   
-        vector<HEPUtils::Jet*> signalBJets;   
+        vector<HEPUtils::Jet*> signalJets;
+        vector<HEPUtils::Jet*> signalBJets;
 
         // Signal electrons
         for (size_t iEl=0;iEl<baselineElectrons.size();iEl++)
@@ -160,25 +161,25 @@ namespace Gambit {
         }
 
         // Signal muons
-        for (size_t iMu=0;iMu<baselineMuons.size();iMu++) 
+        for (size_t iMu=0;iMu<baselineMuons.size();iMu++)
         {
           if (baselineMuons.at(iMu)->pT()>20. && (fabs(baselineMuons.at(iMu)->eta())<1.4 || fabs(baselineMuons.at(iMu)->eta())>1.6))signalMuons.push_back(baselineMuons.at(iMu));
         }
 
         // Signal jets and b-jets
         sort(baselinePhotons.begin(),baselinePhotons.end(),comparePt);
-        for (size_t iJet=0;iJet<baselineJets.size();iJet++) 
+        for (size_t iJet=0;iJet<baselineJets.size();iJet++)
         {
-          bool overlap=false;            
-          for (size_t iLe=0;iLe<baselineElectrons.size();iLe++) 
+          bool overlap=false;
+          for (size_t iLe=0;iLe<baselineElectrons.size();iLe++)
           {
             if (fabs(baselineElectrons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
           }
-          for (size_t iLe=0;iLe<baselineMuons.size();iLe++) 
+          for (size_t iLe=0;iLe<baselineMuons.size();iLe++)
           {
             if (fabs(baselineMuons.at(iLe)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
           }
-          if (baselinePhotons.size()!=0) 
+          if (baselinePhotons.size()!=0)
           {
             if (fabs(baselinePhotons.at(0)->mom().deltaR_eta(baselineJets.at(iJet)->mom()))<0.4)overlap=true;
           }
@@ -186,7 +187,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->pT() >= 35.)
             {
               signalJets.push_back(baselineJets.at(iJet));
-            }                
+            }
             // For the b-jets, jets down to pT > 25 should be considered
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
@@ -200,8 +201,8 @@ namespace Gambit {
         int nSignalJets = signalJets.size();
         int nSignalBJets = signalBJets.size();
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
-        sort(signalJets.begin(),signalJets.end(),compareJetPt);       
-        sort(signalBJets.begin(),signalBJets.end(),compareJetPt); 
+        sort(signalJets.begin(),signalJets.end(),compareJetPt);
+        sort(signalBJets.begin(),signalBJets.end(),compareJetPt);
 
         // Variables + Preselection
         bool preselection=false;
@@ -212,7 +213,7 @@ namespace Gambit {
         double mbb=0;
         double pT_j1=0;
         double deltaPhi_met_j0=0;
-        double deltaPhi_met_j1=0;       
+        double deltaPhi_met_j1=0;
 
         // When picking out the SFOS lepton pair, should we loop through all leptons (use function getSFOSpairs)
         // or only check the two leptons with highest PT, as we currently do below?
@@ -227,7 +228,7 @@ namespace Gambit {
             SFOSpair.push_back(signalLeptons.at(0));
             SFOSpair.push_back(signalLeptons.at(1));
             SFOSpair_cont.push_back(SFOSpair);
-          }        
+          }
         }
 
         for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++)
@@ -239,7 +240,7 @@ namespace Gambit {
 
         if (nSignalBJets>1)mbb=(signalBJets.at(0)->mom()+signalBJets.at(1)->mom()).m();
         if (nSignalJets>0)deltaPhi_met_j0=event->missingmom().deltaPhi(signalJets.at(0)->mom());
-        if (nSignalJets>1) 
+        if (nSignalJets>1)
         {
           pT_j1=signalJets.at(1)->pT();
           deltaPhi_met_j1=event->missingmom().deltaPhi(signalJets.at(1)->mom());
@@ -255,7 +256,7 @@ namespace Gambit {
         {
           mll=(SFOSpair_cont.at(0).at(0)->mom()+SFOSpair_cont.at(0).at(1)->mom()).m();
         }
-       
+
         //Signal regions
         if (preselection && mll>86. && mll<96. && met>100. && nSignalJets>=2  && (baselineMuons.size()+baselineElectrons.size())==2 && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4)
         {
@@ -331,7 +332,7 @@ namespace Gambit {
 
             (j==11 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && nSignalJets>=2 && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<110. && met>250.) ||
 
-            (j==12 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && nSignalJets>=2 && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<110. && met>350.) 
+            (j==12 && preselection && (baselineMuons.size()+baselineElectrons.size())==2 &&  mll>86. && mll<96. && nSignalJets>=2 && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4 && nSignalBJets==0 && mT2>80. && mjj<110. && met>350.)
             )
 
           cutFlowVector[j]++;
@@ -339,33 +340,27 @@ namespace Gambit {
 
       }
 
-
-
-      void add(BaseAnalysis* other) 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
       {
-        // The base class add function handles the signal region vector and total # events.
-        
-        HEPUtilsAnalysis::add(other);
+        const Analysis_CMS_13TeV_2OSLEP_36invfb* specificOther
+                = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_36invfb*>(other);
 
-        Analysis_CMS_13TeV_2OSLEP_36invfb* specificOther
-                = dynamic_cast<Analysis_CMS_13TeV_2OSLEP_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j = 0; j < NCUTS; j++) 
+        for (size_t j = 0; j < NCUTS; j++)
         {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
 
-        for (auto& el : _numSR) { 
-          el.second += specificOther->_numSR[el.first];
+        for (auto& el : _numSR) {
+          el.second += specificOther->_numSR.at(el.first);
         }
 
       }
 
 
-      virtual void collect_results() 
+      virtual void collect_results()
       {
         // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
         add_result(SignalRegionData("SR1", 57., {_numSR["SR1"], 0.}, {54.9, 7.}));
@@ -385,7 +380,7 @@ namespace Gambit {
           {  4.5,  2.5,  0.4,  0.3,  6.5,  1.8,  0.4},
           {  5.1,  2.0,  0.3,  0.1,  1.8,  2.4,  0.4},
           {  1.2,  0.7,  0.1,  0.1,  0.4,  0.4,  0.2},
-        };        
+        };
 
         set_covariance(BKGCOV);
       }
@@ -444,10 +439,10 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
 
         for (auto& el : _numSR) { el.second = 0.;}
-        
+
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
@@ -458,9 +453,9 @@ namespace Gambit {
 
 
 
-    // 
+    //
     // Derived analysis class that does not make use of the SR covariance matrix
-    // 
+    //
     class Analysis_CMS_13TeV_2OSLEP_36invfb_nocovar : public Analysis_CMS_13TeV_2OSLEP_36invfb {
 
     public:
