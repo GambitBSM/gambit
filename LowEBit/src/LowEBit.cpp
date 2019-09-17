@@ -234,9 +234,9 @@ namespace Gambit
 		  using namespace Pipes::lnL_EDM_n_gaussianStep;
 		  if(abs(*Dep::EDM_n) < 2.9E-26)
 			{
-				double mu = 0.2E-26, sig = 1.6E-26;
-				//result = -2Log L; L = 1/sqrt(2pi sig^2) exp(-(EDM_n-mu)^2/2sig^2
-				result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2); 
+				double mu = -0.2E-26, sig = 2.0E-26;
+				// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
+				result = -1./2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2));
 			}
 		  else{result = -1.0E50;}		  
 	  }
@@ -244,8 +244,11 @@ namespace Gambit
 	  void lnL_EDM_n_gaussianOverall(double &result)
 	  {
 			using namespace Pipes::lnL_EDM_n_gaussianOverall;
-			double mu = 0.2E-26, sig = 1.6E-26;
-			result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2); 
+			double mu = -0.2E-26, sig = 2.0E-26;
+			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
+			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
+			// likelihood accordingly?
+			result = -1./2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2));
 	  }
 
    }
