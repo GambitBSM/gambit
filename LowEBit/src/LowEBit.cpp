@@ -58,9 +58,9 @@ namespace Gambit
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = sqrt(2.)*gf*2./3.*mu*c.Cu[1]*gevtocm;
-         result.d = sqrt(2.)*gf*(-1./3.)*md*c.Cd[1]*gevtocm;
-         result.s = sqrt(2.)*gf*(-1./3.)*ms*c.Cs[1]*gevtocm;
+         result.u = sqrt(2.)*gf*2./3.*mu*c.Cu[1]*gev2cm;
+         result.d = sqrt(2.)*gf*(-1./3.)*md*c.Cd[1]*gev2cm;
+         result.s = sqrt(2.)*gf*(-1./3.)*ms*c.Cs[1]*gev2cm;
          //Heavy quarks for completeness??
       }
 
@@ -76,9 +76,9 @@ namespace Gambit
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = -sqrt(2.)*gf*mu*c.Cu[2]*gevtocm;
-         result.d = -sqrt(2.)*gf*md*c.Cd[2]*gevtocm;
-         result.s = -sqrt(2.)*gf*ms*c.Cs[2]*gevtocm;
+         result.u = -sqrt(2.)*gf*mu*c.Cu[2]*gev2cm;
+         result.d = -sqrt(2.)*gf*md*c.Cd[2]*gev2cm;
+         result.s = -sqrt(2.)*gf*ms*c.Cs[2]*gev2cm;
          //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
       }
 
