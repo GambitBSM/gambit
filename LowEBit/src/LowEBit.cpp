@@ -210,9 +210,9 @@ namespace Gambit
          dq dEDM = *Dep::EDM_q;
          dq dCEDM = *Dep::CEDM_q;
 
-         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)
-            +( (*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
-			+ (*Param["gTs"])*dEDM.s )/e; //the exp limit is dn = 2.9E-26 ecm - therefore the qEDMs had to be divided by e
+         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)/e
+            + (*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
+			+ (*Param["gTs"])*dEDM.s; // CEDMs are in cm, EDMs are in e cm
       }
 
       void lnL_EDM_n_step(double &result)
