@@ -632,11 +632,14 @@ namespace Gambit
       fast = runOptions->getValueOrDef<int>(0, "fast");
       Beps = runOptions->getValueOrDef<double>(1e-5, "Beps");
 
-      logger() << LogTags::debug << "Using fast: " << fast << " Beps: " << Beps;
+      logger() << LogTags::debug << "Using fast: " << fast << " Beps: " << Beps << EOM;
 
       // Output
       double Xf;
       double oh2 = BEreq::oh2(&Xf,byVal(fast), byVal(Beps));
+
+      if (oh2 == -1)
+        invalid_point().raise("MicrOmegas computation of oh2 failed.");
 
       result.first = oh2;
       result.second = Xf;
