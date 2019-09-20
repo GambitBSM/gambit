@@ -1,0 +1,45 @@
+diff -rupN HiggsBounds-5.3.2beta/configure HiggsBounds-5.3.2beta_patched/configure
+--- HiggsBounds-5.3.2beta/configure	2018-12-22 20:19:47.000000000 +0000
++++ HiggsBounds-5.3.2beta_patched/configure	2019-08-28 12:40:17.920320111 +0100
+@@ -52,13 +52,15 @@ for arg in "$@" ; do
+  esac
+ done 		
+ 
+-if [ "${CONF_FHPATH: -1}" = "/" ]; then
+-	CONF_FHPATH="${CONF_FHPATH%?}"
+-fi	
+-
+-if [ "${clsbtablesdir: -1}" != "/" ]; then
+-	clsbtablesdir="${clsbtablesdir}/"
+-fi	
++# GAMBIT patch: commented out to avoid shell type dependence
++#
++# if [ "${CONF_FHPATH: -1}" = "/" ]; then
++# 	CONF_FHPATH="${CONF_FHPATH%?}"
++# fi	
++
++# if [ "${clsbtablesdir: -1}" != "/" ]; then
++# 	clsbtablesdir="${clsbtablesdir}/"
++# fi	
+ 
+ echo ''
+ echo ' current settings: '
+@@ -148,4 +150,4 @@ _EOF_
+ 
+ echo ' ******************************************************** '
+ echo ' ...finished configure script.' 1>&2
+-echo ' ******************************************************** '
+\ No newline at end of file
++echo ' ******************************************************** '
+diff -rupN HiggsBounds-5.3.2beta/usefulbits.f90 HiggsBounds-5.3.2beta_patched/usefulbits.f90
+--- HiggsBounds-5.3.2beta/usefulbits.f90	2018-12-22 20:19:52.000000000 +0000
++++ HiggsBounds-5.3.2beta_patched/usefulbits.f90	2019-08-28 12:39:14.859777905 +0100
+@@ -16,7 +16,7 @@ module usefulbits
+  integer :: using_likelihood = 0
+ 
+ ! For the LEP chisq extension:
+- logical :: chisqcut_at_mumax = .False.
++ logical :: chisqcut_at_mumax = .True.
+  
+ ! HB-5:
+  logical :: BRdirectinput = .False.
