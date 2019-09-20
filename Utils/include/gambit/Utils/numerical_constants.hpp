@@ -31,16 +31,23 @@ namespace Gambit
   const double pi = 3.141592653589793238462643383279502884197;
   const double root2 = sqrt(2.0);
   const double hbar = 6.582119514e-25;                          // GeV s  (http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf)
-  const double gevtocm = 197.327053e-16;                        // cm per GeV^-1
+  const double K2eV = 8.6173303e-5;                             // eV per K
+  const double eV2g = 1.782661907e-33;                          // eV per g
+  const double gev2cm = 197.327053e-16;                         // cm per GeV^-1
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
-  const double atomic_mass_unit=0.931494028;                    // atomic mass unit (GeV/c^2)
+  const double m_planck = 1.220910e19;                          // Planck mass (GeV)
+  const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
+  const double atomic_mass_unit = 0.931494028;                    // atomic mass unit (GeV/c^2)
   const double m_proton_amu = 1.00727646688;                    // proton mass (amu)
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
+  const double m_electron = 0.5109989461e-3;                    // electron mass (GeV/c^2)
+  const double alpha_EM = 7.2973525664e-3;                      // fine structure constant
+  const double T_CMB = 2.7255;                                  // present day CMB temperature (K)
 
   /**
      @brief Thomson limit of \f$\alpha_e\f$ in OS scheme from
@@ -72,7 +79,16 @@ namespace Gambit
     static constexpr double rho_plus = 0.775;     // charged rho meson mass (GeV/c^2)
     static constexpr double rho_minus = 0.775;    // charged rho meson mass (GeV/c^2)
     static constexpr double omega = 0.7827;       // omega meson mass (GeV/c^2)
+    static constexpr double kaon_plus = 0.4937;   // charged kaon meson mass (GeV/c^2)
+    static constexpr double kaon_minus = 0.4937;  // charged kaon meson mass (GeV/c^2)
+    static constexpr double kaon0 = 0.4976;       // neutral kaon meson mass (GeV/c^2)
     static constexpr double rho1450 = 1.465;      // rho(1450) mass (GeV/c^2)
+    static constexpr double D_plus = 1.86962;     // charged D meson mass (GeV/c^2)
+    static constexpr double D_s = 1.96847;        // D_s meson mass (GeV/c^2)
+    static constexpr double B_plus = 5.27929;     // charged B meson mass (GeV/c^2)
+    static constexpr double B_s = 5.36679;        // B_s meson mass (GeV/c^2)
+    static constexpr double B_c = 6.2751;         // B_c meson mass (GeV/c^2)
+    static constexpr double eta_prime = 0.95778;  // eta prime meson mass (GeV/c^2)
   } meson_masses;
 
   static const struct Mesons_decay_constants

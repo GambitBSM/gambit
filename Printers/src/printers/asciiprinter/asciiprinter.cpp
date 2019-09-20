@@ -200,6 +200,11 @@ namespace Gambit
       AP_DBUG( std::cout << "Buffer (of asciiPrinter with name=\""<<printer_name<<"\") successfully dumped..." << std::endl; )
     }
 
+    void asciiPrinter::flush()
+    {
+      dump_buffer(true); 
+    }
+
     /// Delete contents of output file (to be replaced/updated) and erase everything in the buffer
     void asciiPrinter::reset(bool)
     {

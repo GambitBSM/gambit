@@ -44,7 +44,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -71,7 +71,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -97,7 +97,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(diverFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_DIR ${scanner_download}
@@ -119,6 +119,13 @@ set(lib "libchord")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 set(pcSO_LINK "${CMAKE_Fortran_COMPILER} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS} ${CMAKE_CXX_MPI_SO_LINK_FLAGS}")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  string(REGEX REPLACE "(-lstdc\\+\\+)" "-lc++" pcSO_LINK "${pcSO_LINK}")
+  string(REGEX MATCH "(-lc\\+\\+)" LINKED_OK "${pcSO_LINK}")
+  if (NOT LINKED_OK)
+  set(pcSO_LINK "${pcSO_LINK} -lc++")
+  endif()
+endif()
 if(MPI_Fortran_FOUND)
   set(pcFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
 else()
@@ -134,7 +141,7 @@ if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
 else()
   set(pcFFLAGS "${pcFFLAGS} -fno-stack-arrays")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     GIT_REPOSITORY https://github.com/PolyChord/PolyChordLite
@@ -170,7 +177,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver} "null" ${login_data} ${dl2}
@@ -208,7 +215,7 @@ if(MPI_Fortran_FOUND)
 else()
   set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
 endif()
-check_ditch_status(${name} ${ver})
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
@@ -238,15 +245,19 @@ set(ver "1.0.0")
 set(lib "libgreat")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver})
+set(patch "${PROJECT_SOURCE_DIR}/ScannerBit/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+set(build_dir "${PROJECT_BINARY_DIR}/${name}_${ver}-prefix/src/${name}_${ver}-build")
+check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     GIT_REPOSITORY https://gitlab.in2p3.fr/derome/GreAT.git
     SOURCE_DIR ${dir}
+    PATCH_COMMAND patch -p1 < ${patch}
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
-    INSTALL_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${name}
+    INSTALL_COMMAND ${CMAKE_COMMAND} -E create_symlink ${build_dir}/Manager/Manager_Dict_rdict.pcm ${build_dir}/lib/Manager_Dict_rdict.pcm
+            COMMAND ${CMAKE_COMMAND} -E create_symlink ${build_dir}/MCMC/MCMC_Dict_rdict.pcm ${build_dir}/lib/MCMC_Dict_rdict.pcm
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("scanner" ${name} ${ver})

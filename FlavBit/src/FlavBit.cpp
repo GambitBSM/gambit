@@ -34,6 +34,10 @@
 ///  \date 2016 Aug
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (t.e.gonzalo@fys.uio.no)
+///  \date 2017 July
+///
 ///  *********************************************
 
 #include <string>
@@ -47,6 +51,7 @@
 #include "gambit/FlavBit/Flav_reader.hpp"
 #include "gambit/FlavBit/Kstarmumu_theory_err.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
+#include "gambit/FlavBit/flav_loop_functions.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -104,6 +109,7 @@ namespace Gambit
 
       int ie,je;
 
+      result.model=-1;
       if (!spectrum["MODSEL"].empty())
       {
         if (spectrum["MODSEL"][1].is_data_line()) result.model=SLHAea::to<int>(spectrum["MODSEL"][1][1]);
@@ -913,6 +919,78 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RKstar_11_60"<<endl;
     }
 
+    // RK* for RHN, using same approximations as RK, low q^2
+    void RHN_RKstar_0045_11(double &result)
+    {
+      using namespace Pipes::RHN_RKstar_0045_11;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
+      double mt = *Param["mT"];
+
+      if (flav_debug) cout << "Starting RHN_RKstar_0045_11" << endl;
+
+      const double mW = sminputs.mW;
+      const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
+
+      // NNLL calculation of SM Wilson coefficients from 1712.01593 and 0811.1214
+      const double C10_SM = -4.103;
+      const double C9_SM = 4.211;
+
+      // Wilson coefficients for the RHN model, from 1706.07570
+      std::complex<double> C10_mu = {0.0, 0.0}, C10_e = {0.0, 0.0};
+      for(int i=0; i<3; i++)
+      {
+        C10_mu += 1.0/(4.0*sinW2)*Theta.adjoint()(i,1)*Theta(1,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+        C10_e += 1.0/(4.0*sinW2)*Theta.adjoint()(i,0)*Theta(0,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+      }
+      std::complex<double> C9_mu = - C10_mu, C9_e = -C10_e;
+
+      // Aproximated solution from eq A.3 in 1408.4097
+      result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
+      result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
+
+      if (flav_debug) cout << "RK = " << result << endl;
+      if (flav_debug) cout << "Finished RHN_RKstar_0045_11" << endl;
+
+    }
+ 
+    // RK* for RHN, using same approximations as RK, intermediate q^2
+    void RHN_RKstar_11_60(double &result)
+    {
+      using namespace Pipes::RHN_RKstar_11_60;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
+      double mt = *Param["mT"];
+
+      if (flav_debug) cout << "Starting RHN_RKstar_11_60" << endl;
+
+      const double mW = sminputs.mW;
+      const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
+
+      // NNLL calculation of SM Wilson coefficients from 1712.01593 and 0811.1214
+      const double C10_SM = -4.103;
+      const double C9_SM = 4.211;
+
+      // Wilson coefficients for the RHN model, from 1706.07570
+      std::complex<double> C10_mu = {0.0, 0.0}, C10_e = {0.0, 0.0};
+      for(int i=0; i<3; i++)
+      {
+        C10_mu += 1.0/(4.0*sinW2)*Theta.adjoint()(i,1)*Theta(1,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+        C10_e += 1.0/(4.0*sinW2)*Theta.adjoint()(i,0)*Theta(0,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+      }
+      std::complex<double> C9_mu = - C10_mu, C9_e = -C10_e;
+
+      // Aproximated solution from eq A.3 in 1408.4097
+      result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
+      result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
+
+      if (flav_debug) cout << "RK = " << result << endl;
+      if (flav_debug) cout << "Finished RHN_RKstar_11_60" << endl;
+
+    }
+
     /// RK between 1 and 6 GeV^2
     void SI_RK(double &result)
     {
@@ -926,6 +1004,41 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RK"<<endl;
     }
 
+    /// RK for RHN
+    void RHN_RK(double &result)
+    {
+      using namespace Pipes::RHN_RK;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
+      double mt = *Param["mT"];
+
+      if (flav_debug) cout << "Starting RHN_RK" << endl;
+
+      const double mW = sminputs.mW;
+      const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
+
+      // NNLL calculation of SM Wilson coefficients from 1712.01593 and 0811.1214
+      const double C10_SM = -4.103;
+      const double C9_SM = 4.211;
+
+      // Wilson coefficients for the RHN model, from 1706.07570
+      std::complex<double> C10_mu = {0.0, 0.0}, C10_e = {0.0, 0.0};
+      for(int i=0; i<3; i++)
+      {
+        C10_mu += 1.0/(4.0*sinW2)*Theta.adjoint()(i,1)*Theta(1,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2)); 
+        C10_e += 1.0/(4.0*sinW2)*Theta.adjoint()(i,0)*Theta(0,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2)); 
+      }
+      std::complex<double> C9_mu = - C10_mu, C9_e = -C10_e;
+
+      // Aproximated solution from eq A.3 in 1408.4097
+      result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
+      result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
+  
+      if (flav_debug) cout << "RK = " << result << endl;
+      if (flav_debug) cout << "Finished RHN_RK" << endl;
+    }
+    
     /// Isospin asymmetry of B-> K* mu mu
     void SI_AI_BKstarmumu(double &result)
     {
@@ -1475,7 +1588,638 @@ namespace Gambit
 
     }
 
+    // Helper function 
+    double G(const double x)
+    {
+      if(x)
+        return (10.0 - 43.0*x + 78.0*pow(x,2) - 49.0*pow(x,3) + 4.0*pow(x,4) + 18.0*pow(x,3)*log(x)) / (3.0*pow(x - 1,4));
+      else
+        return 10.0/3;
+    }
 
+    // Contribution to mu -> e gamma from RHNs
+    void RHN_muegamma(double &result)
+    {
+      using namespace Pipes::RHN_muegamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+
+      result = pow(sminputs.mMu,5)/(4 * sminputs.alphainv);
+
+      // Form factors
+      int e = 0, mu = 1;
+      complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
+
+      result *= (norm(k2l) + norm(k2r));
+
+      result /= Dep::mu_minus_decay_rates->width_in_GeV; 
+
+    }
+
+    // Contribution to tau -> e gamma from RHNs
+    void RHN_tauegamma(double &result)
+    {
+      using namespace Pipes::RHN_tauegamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+
+      result = pow(sminputs.mTau,5)/(4*sminputs.alphainv);
+
+      // Form factors
+      int e = 0, tau = 2;
+      complex<double> k2l = FormFactors::K2L(tau, e, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(tau, e, sminputs, U, ml, mnu);
+
+      result *= (norm(k2l) + norm(k2r));
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;
+
+    }
+
+    // Contribution to tau -> mu gamma from RHNs
+    void RHN_taumugamma(double &result)
+    {
+      using namespace Pipes::RHN_taumugamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+
+      result = pow(sminputs.mTau,5)/(4 * sminputs.alphainv);
+
+      // Form factors
+      int mu = 1, tau = 2;
+      complex<double> k2l = FormFactors::K2L(tau, mu, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(tau, mu, sminputs, U, ml, mnu);
+
+      result *= (norm(k2l) + norm(k2r));
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;
+    }
+
+    // General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
+    double RHN_l2lll(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix3cd Vnu, Eigen::Matrix3cd Theta, Eigen::Matrix3cd m_nu, double M1, double M2, double M3, double mH)
+    {
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), M1, M2, M3};
+
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+ 
+      // Form factors
+      complex<double> k2l = FormFactors::K2L(alpha, beta, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(alpha, beta, sminputs, U, ml, mnu);
+      complex<double> k1r = FormFactors::K1R(alpha, beta, sminputs, U, mnu);
+      complex<double> asll = FormFactors::ASLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      complex<double> aslr = FormFactors::ASLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      complex<double> asrl = FormFactors::ASRL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      complex<double> asrr = FormFactors::ASRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      complex<double> avll = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      complex<double> avlr = FormFactors::AVLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      complex<double> avrl = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      complex<double> avrr = FormFactors::AVRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+ 
+      complex<double> avhatll = avll;
+      complex<double> avhatlr = avlr;
+      complex<double> avhatrl = avrl + 4. * pi / sminputs.alphainv * k1r;
+      complex<double> avhatrr = avrr + 4. * pi / sminputs.alphainv * k1r;
+
+      double l2lll = 0;
+      if(beta == gamma and gamma == delta) // l(alpha)- -> l(beta)- l(beta)- l(beta)+
+      {
+        l2lll = real(16. * pow(pi,2) / pow(sminputs.alphainv,2) * (norm(k2l) + norm(k2r)) * (16./3.*log(ml[alpha]/ml[beta]) - 22./3.) + 1./24. * (norm(asll) + norm(asrr) + 2.*norm(aslr) + 2.*norm(asrl)) + 1./3. * (2.*norm(avhatll) + 2.*norm(avhatrr) + norm(avhatlr) + norm(avhatrl)) + 4.*pi/(3.*sminputs.alphainv)*(k2l*conj(asrl - 2.*avhatrl - 4.*avhatrr) + conj(k2l)*(asrl - 2.*avhatrl - 4.*avhatrr) + k2r*conj(aslr - 2.*avhatlr - 4.*avhatll) + conj(k2r)*(aslr - 2.*avhatlr - 4.*avhatll)) - 1./6. * (aslr*conj(avhatlr) + asrl*conj(avhatrl) + conj(aslr)*avhatlr + conj(asrl)*avhatrl));
+      }
+      else if(gamma == delta) // l(alpha)- -> l(beta)- l(gamma)- l(gamma)+
+      { 
+        l2lll = real(16. *pow(pi,2) / pow(sminputs.alphainv,2) * (norm(k2l) + norm(k2r)) * (16./3.*log(ml[alpha]/ml[gamma]) - 8.) + 1./12. *(norm(asll) + norm(asrr) + norm(aslr) + norm(asrl)) + 1./3. * (norm(avhatll) + norm(avhatrr) + norm(avhatlr) + norm(avhatrl)) + 8.*pi/(3.*sminputs.alphainv) * (k2l*conj(avhatrl + avhatrr) + k2r*conj(avhatlr + avhatll) + conj(k2l)*(avhatrl + avhatrr) + conj(k2r)*(avhatlr + avhatll)));
+      }
+      else if(beta == gamma) // l(alpha)- -> l(beta)- l(beta)- l(delta)+
+      {
+        l2lll = real(1./24. * (norm(asll) + norm(asrr) + 2.*norm(aslr) + 2.*norm(asrl)) + 1./3.*(2.*norm(avhatll) + 2.*norm(avhatrr) + norm(avhatlr) + norm(avhatrl)) - 1./6.*(aslr*conj(avhatlr) + asrl*conj(avhatrl) + conj(aslr)*avhatlr + conj(asrl)*avhatrl));
+      }
+      return l2lll;
+
+    }
+
+    // Contribution to mu -> e e e from RHNs
+    void RHN_mueee(double &result)
+    {
+      using namespace Pipes::RHN_mueee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mMu,5)/(512*pow(pi,3));
+
+      int e = 0, mu = 1;
+      result *=  RHN_l2lll(mu, e, e, e, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::mu_minus_decay_rates->width_in_GeV;
+ 
+    }
+
+    // Contribution to tau -> e e e from RHNs
+    void RHN_taueee(double &result)
+    {
+      using namespace Pipes::RHN_taueee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int e = 0, tau = 2;
+      result *=  RHN_l2lll(tau, e, e, e, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+ 
+    }
+
+    // Contribution to tau -> mu mu mu from RHNs
+    void RHN_taumumumu(double &result)
+    {
+      using namespace Pipes::RHN_taumumumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int mu = 1, tau = 2;
+      result *=  RHN_l2lll(tau, mu, mu, mu, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+
+    }
+
+    // Contribution to tau^- -> mu^- e^- e^+ from RHNs
+    void RHN_taumuee(double &result)
+    {
+      using namespace Pipes::RHN_taumuee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int e = 0, mu = 1, tau = 2;
+      result *=  RHN_l2lll(tau, mu, e, e, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+    }
+
+    // Contribution to tau^- -> e^- e^- mu^+ from RHNs
+    void RHN_taueemu(double &result)
+    {
+      using namespace Pipes::RHN_taueemu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int e = 0, mu = 1, tau = 2;
+      result *=  RHN_l2lll(tau, e, e, mu, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+    }
+
+    // Contribution to tau^- -> e^- mu^- mu^+ from RHNs
+    void RHN_tauemumu(double &result)
+    {
+      using namespace Pipes::RHN_tauemumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int e = 0, mu = 1, tau = 2;
+      result *=  RHN_l2lll(tau, e, mu, mu, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+    }
+
+    // Contribution to tau^- -> mu^- mu^- e^+ from RHNs
+    void RHN_taumumue(double &result)
+    {
+      using namespace Pipes::RHN_taumumue;
+      SMInputs sminputs = *Dep::SMINPUTS;
+
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+
+      result = pow(sminputs.mTau,5)/(512*pow(pi,3));
+
+      int e = 0, mu = 1, tau = 2;
+      result *=  RHN_l2lll(tau, mu, mu, e, sminputs, Vnu, Theta, m_nu, *Param["M_1"], *Param["M_2"], *Param["M_3"], *Param["mH"]);
+
+      result /= Dep::tau_minus_decay_rates->width_in_GeV;      
+    }
+
+    // Contribution to mu - e conversion in Ti nucleii from RHNs
+    void RHN_mueTi(double &result)
+    {
+      using namespace Pipes::RHN_mueTi;
+      const SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+
+      // Form factors
+      int e = 0, mu = 1;
+      complex<double> k1r = FormFactors::K1R(mu, e, sminputs, U, mnu);
+      complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
+ 
+      int u = 0, d =0, s = 1;
+      complex<double> CVLLu = FormFactors::CVLL(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVLLd = FormFactors::BVLL(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVLLs = FormFactors::BVLL(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVLRu = FormFactors::CVLR(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVLRd = FormFactors::BVLR(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVLRs = FormFactors::BVLR(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVRLu = FormFactors::CVRL(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVRLd = FormFactors::BVRL(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVRLs = FormFactors::BVRL(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVRRu = FormFactors::CVRR(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVRRd = FormFactors::BVRR(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVRRs = FormFactors::BVRR(mu, e, s, s, sminputs, U, ml, mnu);
+ 
+      complex<double> CSLLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSRLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSRRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, *Param["mH"]);
+
+      double Qu = 2./3.;
+      complex<double> gVLu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (0. - k2r) - 0.5*(CVLLu + CVLRu));
+      complex<double> gSLu = -1./(sqrt(2)*sminputs.GF)*(CSLLu + CSLRu);
+      complex<double> gVRu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (k1r - k2l) - 0.5*(CVRRu + CVRLu));
+      complex<double> gSRu = -1./(sqrt(2)*sminputs.GF)*(CSRRu + CSRLu);
+
+      double Qd = -1./3.;
+      complex<double> gVLd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (0. - k2r) - 0.5*(CVLLd + CVLRd));
+      complex<double> gSLd = -1./(sqrt(2)*sminputs.GF)*(CSLLd + CSLRd);
+      complex<double> gVRd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (k1r - k2l) - 0.5*(CVRRd + CVRLd));
+      complex<double> gSRd = -1./(sqrt(2)*sminputs.GF)*(CSRRd + CSRLd);
+
+      double Qs = -1./3.;
+      complex<double> gVLs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (0. - k2r) - 0.5*(CVLLs + CVLRs));
+      complex<double> gSLs = -1./(sqrt(2)*sminputs.GF)*(CSLLs + CSLRs);
+      complex<double> gVRs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (k1r - k2l) - 0.5*(CVRRs + CVRLs));
+      complex<double> gSRs = -1./(sqrt(2)*sminputs.GF)*(CSRRs + CSRLs);
+
+      double GVup = 2, GVdn = 2, GVdp = 1, GVun = 1, GVsp = 0, GVsn = 0;
+      double GSup = 5.1, GSdn = 5.1, GSdp = 4.3, GSun = 4.3, GSsp = 2.5, GSsn = 2.5;
+      complex<double> g0SL = 0.5*(gSLu*(GSup + GSun) + gSLd*(GSdp + GSdn) + gSLs*(GSsp + GSsn));
+      complex<double> g0SR = 0.5*(gSRu*(GSup + GSun) + gSRd*(GSdp + GSdn) + gSRs*(GSsp + GSsn));
+      complex<double> g0VL = 0.5*(gVLu*(GVup + GVun) + gVLd*(GVdp + GVdn) + gVLs*(GVsp + GVsn));
+      complex<double> g0VR = 0.5*(gVRu*(GVup + GVun) + gVRd*(GVdp + GVdn) + gVRs*(GVsp + GVsn));
+      complex<double> g1SL = 0.5*(gSLu*(GSup - GSun) + gSLd*(GSdp - GSdn) + gSLs*(GSsp - GSsn));
+      complex<double> g1SR = 0.5*(gSRu*(GSup - GSun) + gSRd*(GSdp - GSdn) + gSRs*(GSsp - GSsn));
+      complex<double> g1VL = 0.5*(gVLu*(GVup - GVun) + gVLd*(GVdp - GVdn) + gVLs*(GVsp - GVsn));
+      complex<double> g1VR = 0.5*(gVRu*(GVup - GVun) + gVRd*(GVdp - GVdn) + gVRs*(GVsp - GVsn));
+ 
+      
+      // Parameters for Ti, from Table 1 in 1209.2679 for Ti
+      double Z = 22, N = 26;
+      double Zeff = 17.6, Fp = 0.54;
+      double hbar = 6.582119514e-25; // GeV * s
+      double GammaCapt = 2.59e6 * hbar; 
+
+      result = (pow(sminputs.GF,2)*pow(sminputs.mMu,5)*pow(Zeff,4)*pow(Fp,2)) / (8.*pow(pi,4)*pow(sminputs.alphainv,3)*Z*GammaCapt) * (norm((Z+N)*(g0VL + g0SL) + (Z-N)*(g1VL + g1SL)) + norm((Z+N)*(g0VR + g0SR) + (Z-N)*(g1VR + g1SR)));
+
+    }
+
+    // Contribution to mu - e conversion in Pb nucleii from RHNs
+    void RHN_muePb(double &result)
+    {
+      using namespace Pipes::RHN_muePb;
+      const SMInputs sminputs = *Dep::SMINPUTS;
+      Eigen::Matrix3cd m_nu = *Dep::m_nu;
+      Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+
+      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      Eigen::Matrix<complex<double>,3,6> U;
+     
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          U(i,j) = Vnu(i,j);
+          U(i,j+3) = Theta(i,j);
+        }
+
+      // Form factors
+      int e = 0, mu = 1;
+      complex<double> k1r = FormFactors::K1R(mu, e, sminputs, U, mnu);
+      complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
+      complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
+
+      int u = 0, d =0, s = 1;
+      complex<double> CVLLu = FormFactors::CVLL(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVLLd = FormFactors::BVLL(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVLLs = FormFactors::BVLL(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVLRu = FormFactors::CVLR(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVLRd = FormFactors::BVLR(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVLRs = FormFactors::BVLR(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVRLu = FormFactors::CVRL(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVRLd = FormFactors::BVRL(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVRLs = FormFactors::BVRL(mu, e, s, s, sminputs, U, ml, mnu);
+      complex<double> CVRRu = FormFactors::CVRR(mu, e, u, u, sminputs, U, ml, mnu);
+      complex<double> CVRRd = FormFactors::BVRR(mu, e, d, d, sminputs, U, ml, mnu);
+      complex<double> CVRRs = FormFactors::BVRR(mu, e, s, s, sminputs, U, ml, mnu);
+
+      complex<double> CSLLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSLRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSRLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, *Param["mH"]);
+      complex<double> CSRRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, *Param["mH"]);
+      complex<double> CSRRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, *Param["mH"]);
+
+      double Qu = 2./3.;
+      complex<double> gVLu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (0. - k2r) - 0.5*(CVLLu + CVLRu));
+      complex<double> gSLu = -1./(sqrt(2)*sminputs.GF)*(CSLLu + CSLRu);
+      complex<double> gVRu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (k1r - k2l) - 0.5*(CVRRu + CVRLu));
+      complex<double> gSRu = -1./(sqrt(2)*sminputs.GF)*(CSRRu + CSRLu);
+
+      double Qd = -1./3.;
+      complex<double> gVLd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (0. - k2r) - 0.5*(CVLLd + CVLRd));
+      complex<double> gSLd = -1./(sqrt(2)*sminputs.GF)*(CSLLd + CSLRd);
+      complex<double> gVRd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (k1r - k2l) - 0.5*(CVRRd + CVRLd));
+      complex<double> gSRd = -1./(sqrt(2)*sminputs.GF)*(CSRRd + CSRLd);
+
+      double Qs = -1./3.;
+      complex<double> gVLs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (0. - k2r) - 0.5*(CVLLs + CVLRs));
+      complex<double> gSLs = -1./(sqrt(2)*sminputs.GF)*(CSLLs + CSLRs);
+      complex<double> gVRs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (k1r - k2l) - 0.5*(CVRRs + CVRLs));
+      complex<double> gSRs = -1./(sqrt(2)*sminputs.GF)*(CSRRs + CSRLs);
+
+      double GVup = 2, GVdn = 2, GVdp = 1, GVun = 1, GVsp = 0, GVsn = 0;
+      double GSup = 5.1, GSdn = 5.1, GSdp = 4.3, GSun = 4.3, GSsp = 2.5, GSsn = 2.5;
+      complex<double> g0SL = 0.5*(gSLu*(GSup + GSun) + gSLd*(GSdp + GSdn) + gSLs*(GSsp + GSsn));
+      complex<double> g0SR = 0.5*(gSRu*(GSup + GSun) + gSRd*(GSdp + GSdn) + gSRs*(GSsp + GSsn));
+      complex<double> g0VL = 0.5*(gVLu*(GVup + GVun) + gVLd*(GVdp + GVdn) + gVLs*(GVsp + GVsn));
+      complex<double> g0VR = 0.5*(gVRu*(GVup + GVun) + gVRd*(GVdp + GVdn) + gVRs*(GVsp + GVsn));
+      complex<double> g1SL = 0.5*(gSLu*(GSup - GSun) + gSLd*(GSdp - GSdn) + gSLs*(GSsp - GSsn));
+      complex<double> g1SR = 0.5*(gSRu*(GSup - GSun) + gSRd*(GSdp - GSdn) + gSRs*(GSsp - GSsn));
+      complex<double> g1VL = 0.5*(gVLu*(GVup - GVun) + gVLd*(GVdp - GVdn) + gVLs*(GVsp - GVsn));
+      complex<double> g1VR = 0.5*(gVRu*(GVup - GVun) + gVRd*(GVdp - GVdn) + gVRs*(GVsp - GVsn));
+
+      
+      // Parameters for Pb, from Table 1 in 1209.2679 for Pb
+      double Z = 82, N = 126;
+      double Zeff = 34., Fp = 0.15;
+      double hbar = 6.582119514e-25; // GeV * s
+      double GammaCapt = 13.45e6 * hbar; 
+
+      result = (pow(sminputs.GF,2)*pow(sminputs.mMu,5)*pow(Zeff,4)*pow(Fp,2)) / (8.*pow(pi,4)*pow(sminputs.alphainv,3)*Z*GammaCapt) * (norm((Z+N)*(g0VL + g0SL) + (Z-N)*(g1VL + g1SL)) + norm((Z+N)*(g0VR + g0SR) + (Z-N)*(g1VR + g1SR)));
+
+    }
+
+    /// Likelihood for l -> l gamma processes
+    void l2lgamma_likelihood(double &result)
+    {
+      using namespace Pipes::l2lgamma_likelihood;
+      
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[3];
+      double theory[3];
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        // mu -> e gamma
+        fread.read_yaml_measurement("flav_data.yaml", "BR_muegamma");
+        // tau -> e gamma
+        fread.read_yaml_measurement("flav_data.yaml", "BR_tauegamma");
+        // tau -> mu gamma
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taumugamma");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 3; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::muegamma;
+     if(flav_debug) cout << "mu- -> e- gamma = " << theory[0] << endl;
+     theory[1] = *Dep::tauegamma;
+     if(flav_debug) cout << "tau- -> e- gamma = " << theory[1] << endl;
+     theory[2] = *Dep::taumugamma;
+     if(flav_debug) cout << "tau- -> mu- gamma = " << theory[2] << endl;
+ 
+     result = 0;
+     for (int i = 0; i < 3; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+    /// Likelihood for l -> l l l processes
+    void l2lll_likelihood(double &result)
+    {
+      using namespace Pipes::l2lll_likelihood;
+       
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[7];
+      double theory[7];
+
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        // mu- -> e- e- e+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_mueee");
+        // tau- -> e- e- e+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taueee");
+        // tau- -> mu- mu- mu+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taumumumu");
+        // tau- -> mu- e- e+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taumuee");
+        // tau- -> e- e- mu+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taueemu");
+        // tau- -> e- mu- mu+ 
+        fread.read_yaml_measurement("flav_data.yaml", "BR_tauemumu");
+        // tau- -> mu- mu- e+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_taumumue");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 7; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::mueee;
+     if(flav_debug) cout << "mu-  -> e-  e-  e+  = " << theory[0] << endl;
+     theory[1] = *Dep::taueee;
+     if(flav_debug) cout << "tau- -> e-  e-  e+  = " << theory[1] << endl;
+     theory[2] = *Dep::taumumumu;
+     if(flav_debug) cout << "tau- -> mu- mu- mu+ = " << theory[2] << endl;
+     theory[3] = *Dep::taumuee;
+     if(flav_debug) cout << "tau- -> mu- e-  e-  = " << theory[3] << endl;
+     theory[4] = *Dep::taueemu;
+     if(flav_debug) cout << "tau- -> e-  e-  mu+ = " << theory[4] << endl;
+     theory[5] = *Dep::tauemumu;
+     if(flav_debug) cout << "tau- -> e-  mu- mu+ = " << theory[5] << endl;
+     theory[6] = *Dep::taumumue;
+     if(flav_debug) cout << "tau- -> mu- mu- e+  = " << theory[6] << endl;
+
+     result = 0;
+     for (int i = 0; i < 7; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+    /// Likelihood for mu - e conversion in nucleii
+    void mu2e_likelihood(double &result)
+    {
+      using namespace Pipes::mu2e_likelihood;
+        
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[2];
+      double theory[2];
+
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        // mu - e (Ti)
+        fread.read_yaml_measurement("flav_data.yaml", "R_mueTi");
+        // mu - e (Pb)
+        fread.read_yaml_measurement("flav_data.yaml", "R_muePb");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 2; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+      theory[0] = *Dep::mueTi;
+      if(flav_debug) cout << "mu - e (Ti) = " << theory[0] << endl;
+      theory[1] = *Dep::muePb;
+      if(flav_debug) cout << "mu - e (Pb) = " << theory[1] << endl;
+
+      result = 0;
+      for (int i = 0; i < 2; ++i)
+        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
 
     /// Measurements for LUV in b->sll
     void LUV_measurements(predictions_measurements_covariances &pmc)

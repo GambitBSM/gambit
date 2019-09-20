@@ -22,7 +22,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (ben.farmer@gmail.com)
 ///  \date 2015 Oct
@@ -46,15 +46,15 @@ namespace Gambit
 
    #ifdef WITH_MPI
    /// Forward declare MPI class
-   namespace GMPI { class Comm; } 
+   namespace GMPI { class Comm; }
    #endif
 
    /// Variables for use in signal handlers
    class SignalData
    {
-     public: 
+     public:
        SignalData();
- 
+
        std::string myrank(); // MPI rank as a string
 
        /// Saved information on calling environment for longjmp
@@ -62,16 +62,16 @@ namespace Gambit
        bool jumppoint_set; // Check if jump point has been set yet.
        int havejumped;     // Store result of setjmp here so we can use it to test if a jump point has been set
                            // Value will be zero on first invocation of setjmp. Will be set to the argument
-                           // of longjmp when the jump executes and returns to the setjmp point. 
+                           // of longjmp when the jump executes and returns to the setjmp point.
        /// Set jump point;
        void setjump();
 
        /// Set cleanup function to run during emergency shutdown
-       typedef void (*void_func)(); 
+       typedef void (*void_func)();
        void_func cleanup;
        bool cleanup_function_set;
        void set_cleanup(void_func f);
-       void call_cleanup();    
+       void call_cleanup();
 
        /// Register that shutdown has begun
        void set_shutdown_begun(const sig_atomic_t emergnc=0);
@@ -86,7 +86,7 @@ namespace Gambit
        /// the shutdown status
        EXPORT_SYMBOLS bool check_if_shutdown_begun();
 
-       /// Check if emergency shutdown is in progress 
+       /// Check if emergency shutdown is in progress
        //bool emergency_shutdown_begun();
 
        /// Add signal to record
@@ -95,17 +95,17 @@ namespace Gambit
        /// Print to string a list of the signals received so far by this process
        std::string display_received_signals();
 
-       /// Check if shutdown is in progress and raise appropriate termination 
+       /// Check if shutdown is in progress and raise appropriate termination
        /// exception if so.
        /// (to be called by Gambit once it is safe to trigger termination)
        //void check_for_shutdown_signal();
 
-       /// Only check for emergency shutdown signals (i.e. do not attempt synchronisation) 
+       /// Only check for emergency shutdown signals (i.e. do not attempt synchronisation)
        //void check_for_emergency_shutdown_signal();
 
        // Disable shutdown signals after the first one
        // Override via inifile value
-       //volatile sig_atomic_t ignore_signals_during_shutdown; 
+       //volatile sig_atomic_t ignore_signals_during_shutdown;
 
        /// Switch to threadsafe signal handling mode
        void entering_multithreaded_region();
@@ -123,28 +123,37 @@ namespace Gambit
 
        /// Check that the communicator has been set
        bool comm_ready();
- 
+
        /// Broadcast emergency shutdown command to all processes, or abort if set to do so
        /// (calls broadcast_shutdown_signal, just does extra things as well)
        //void do_emergency_MPI_shutdown(bool use_mpi_abort=true);
 
+       /// Shutdown codes receivable via MPI (not MPI tags)
+       //static const int ERROR = 0; // Not in use
+       static const int SOFT_SHUTDOWN = 1;
+       static const int EMERGENCY_SHUTDOWN = 2;
+       static const int NO_MORE_MESSAGES = -1;
+
        /// Broadcast signal to shutdown all processes
        /// By default sends emergency shutdown code.
        void broadcast_shutdown_signal(int shutdown_code=EMERGENCY_SHUTDOWN);
- 
+
        /// Absorb any extra shutdown messages that may be unreceived (for cleanup before MPI_Finalize)
+       /// (DEPRECATED! Delete once 'ensure_no_more_shutdown_messages' method is fully adopted)
        void discard_excess_shutdown_messages();
+
+       /// Recv shutdown messages until 'no more messages' code is received, from every process.
+       void ensure_no_more_shutdown_messages();
        #endif
 
        /// Add a new loop time to internal array used to decide barrier timeout
        void update_looptime(double newtime);
- 
+
        /// Perform soft shutdown if processes can be synchronised
        void attempt_soft_shutdown();
-  
+
      private:
-       int rank; 
-       int MPIsize; 
+       int rank;
 
        /// Flag to warn if early shutdown is already in process
        volatile sig_atomic_t shutdownBegun;
@@ -161,7 +170,7 @@ namespace Gambit
        int shutdown_attempts;
        int attempts_since_ff; // Number of shutdown attempts since last "fast-forward" period
        int ff_loop_count;
-       bool ff_on; 
+       bool ff_on;
        int ff_count; // Number of fast-forward periods performed
 
        /// Flag to switch signal handling behavior to multithreaded mode
@@ -178,37 +187,34 @@ namespace Gambit
 
        /// Extra data needed in MPI mode
        #ifdef WITH_MPI
-       GMPI::Comm* signalComm;
-       bool _comm_rdy;
- 
-       /// Shutdown codes receivable via MPI (not MPI tags)
-       //static const int ERROR = 0; // Not in use
-       static const int SOFT_SHUTDOWN = 1;
-       static const int EMERGENCY_SHUTDOWN = 2;
-       static std::string shutdown_name(int shutdown_code);
-        
-       /// Flag to check if shutdown message has already been broadcast
-       bool shutdown_broadcast_done;
+         int MPIsize;
+         GMPI::Comm* signalComm;
+         bool _comm_rdy;
 
-       /// Variables needed to compute sensible shutdown timeout length
-       std::vector<double> looptimes;       
-       unsigned int next; // next slot to be overwritten
-       bool listfull; // looptime vector is full
-       double timeout; // Computed timeout value for shutdowns
+         static std::string shutdown_name(int shutdown_code);
+
+         /// Flag to check if shutdown message has already been broadcast
+         bool shutdown_broadcast_done;
+
+         /// Variables needed to compute sensible shutdown timeout length
+         std::vector<double> looptimes;
+         unsigned int next; // next slot to be overwritten
+         bool listfull; // looptime vector is full
+         double timeout; // Computed timeout value for shutdowns
        #endif
 
    };
 
    /// Retrieve global instance of signal handler options struct
    EXPORT_SYMBOLS SignalData& signaldata();
-   
+
    /// @{ Signal handler functions
 
    /// Helpers
    // void sub_sighandler_emergency(int sig);
    // void sub_sighandler_emergency_longjmp(int sig);
    // void sub_sighandler_emergency_omp(int sig);
-   //      
+   //
    // /// Primary signal handlers
    // void sighandler_emergency(int sig);
    // void sighandler_emergency_longjmp(int sig);
@@ -216,7 +222,7 @@ namespace Gambit
    // void sighandler_hard(int sig);
    // void sighandler_hard_quiet(int sig);
    // void sighandler_null(int sig);
-   
+
    /// @}
 
    /// Choose signal handler for a given signal via yaml file option

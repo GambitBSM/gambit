@@ -19,6 +19,7 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <omp.h>
 
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -586,6 +587,15 @@ namespace Gambit
     bool Piped_exceptions::inquire()
     {
       return this->flag;
+    }
+
+    /// Check whether any exceptions with a specific message were requested, without handling them.
+    bool Piped_exceptions::inquire(std::string message)
+    {
+      if (not this->flag) return false;
+      auto it = std::find_if(exceptions.cbegin(), exceptions.cend(),
+       [&message](std::pair<std::string,std::string> const &e){ return e.second == message; });
+      return it != exceptions.cend();
     }
 
     /// Global instance of Piped_exceptions class for errors.

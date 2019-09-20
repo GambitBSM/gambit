@@ -89,7 +89,7 @@ namespace Gambit
         ( const typename MI::InputParameters& input
         , const SMInputs& sminputs
         , const Options& runOptions
-        , const std::map<str, safe_ptr<double> >& input_Param
+        , const std::map<str, safe_ptr<const double> >& input_Param
         )
     {
       // SoftSUSY object used to set quark and lepton masses and gauge
@@ -138,7 +138,7 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, runOptions.getValueOrDef<int>(1,"higgs_2loop_correction_at_at"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, runOptions.getValueOrDef<int>(1,"higgs_2loop_correction_atau_atau"));
       settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, runOptions.getValueOrDef<int>(1,"top_pole_qcd_corrections"));
-      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<int>(1.000000000e-14,"beta_zero_threshold"));
+      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<double>(1.000000000e-14,"beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1,"eft_matching_loop_order_down"));
       settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321,"threshold_corrections"));
@@ -307,7 +307,7 @@ namespace Gambit
   //       ( const typename MI::InputParameters& input
   //       , const SMInputs& sminputs
   //       , const Options& runOptions
-  //       , const std::map<str, safe_ptr<double> >& input_Param
+  //       , const std::map<str, safe_ptr<const double> >& input_Param
   //       )
   //   {
   //     // SoftSUSY object used to set quark and lepton masses and gauge
@@ -508,7 +508,7 @@ namespace Gambit
 
     /// Helper function for setting 3x3 matrix-valued parameters
     //  Names must conform to convention "<parname>_ij"
-    Eigen::Matrix<double,3,3> fill_3x3_parameter_matrix(const std::string& rootname, const std::map<str, safe_ptr<double> >& Param)
+    Eigen::Matrix<double,3,3> fill_3x3_parameter_matrix(const std::string& rootname, const std::map<str, safe_ptr<const double> >& Param)
     {
        Eigen::Matrix<double,3,3> output;
        for(int i=0; i<3; ++i) for(int j=0; j<3; ++j)
@@ -519,7 +519,7 @@ namespace Gambit
     }
 
     /// As above, but for symmetric input (i.e. 6 entries, assumed to be the upper triangle)
-    Eigen::Matrix<double,3,3> fill_3x3_symmetric_parameter_matrix(const std::string& rootname, const std::map<str, safe_ptr<double> >& Param)
+    Eigen::Matrix<double,3,3> fill_3x3_symmetric_parameter_matrix(const std::string& rootname, const std::map<str, safe_ptr<const double> >& Param)
     {
        Eigen::Matrix<double,3,3> output;
        for(int i=0; i<3; ++i) for(int j=0; j<3; ++j)
@@ -533,7 +533,7 @@ namespace Gambit
     /// Helper function for filling MSSM63-compatible input parameter objects
     /// Leaves out mHu2, mHd2, SignMu, (mA, mu) because we use two different parameterisations of these
     template <class T>
-    void fill_MSSM63_input(T& input, const std::map<str, safe_ptr<double> >& Param )
+    void fill_MSSM63_input(T& input, const std::map<str, safe_ptr<const double> >& Param )
     {
       //double valued parameters
       input.TanBeta     = *Param.at("TanBeta");
@@ -587,7 +587,7 @@ namespace Gambit
   // parameters are used. This should be standardised.
 
     template <class T>
-    void fill_MSSM63_input_altnames(T& input, const std::map<str, safe_ptr<double> >& Param )
+    void fill_MSSM63_input_altnames(T& input, const std::map<str, safe_ptr<const double> >& Param )
     {
       //double valued parameters
       input.TanBeta     = *Param.at("TanBeta");
@@ -785,8 +785,8 @@ namespace Gambit
      input.MSUSY = *myPipe::Param.at("Qin");
      // Fill the rest.
      // Note: This particular spectrum generator has been created with
-     // different names for parameter inputs.  We should standardise this   
-     fill_MSSM63_input_altnames(input,myPipe::Param); 
+     // different names for parameter inputs.  We should standardise this
+     fill_MSSM63_input_altnames(input,myPipe::Param);
      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
@@ -798,8 +798,8 @@ namespace Gambit
    }
    #endif
 
- 
-  
+
+
     // Runs FlexibleSUSY MSSM spectrum generator with CMSSM (GUT scale) boundary conditions
     // In principle an identical spectrum can be obtained from the function
     // get_MSSMatGUT_spectrum_FS
@@ -957,7 +957,7 @@ namespace Gambit
    }
    #endif
 
-  
+
     // Runs FlexibleSUSY MSSM spectrum generator with GUT scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT)
@@ -1012,8 +1012,8 @@ namespace Gambit
 
    }
    #endif
-  
-  
+
+
     // Runs FlexibleSUSY MSSM spectrum generator with SUSY scale input (boundary conditions)
     // but with mA and mu as parameters instead of mHu2 and mHd2
     #if(FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT)
@@ -1851,7 +1851,7 @@ namespace Gambit
     {
       using namespace Pipes::FH_HeavyHiggsMasses;
       const int neutrals[2] = {25, 35};
-      int i;
+      int i = -1;
       const SubSpectrum& spec = Dep::unimproved_MSSM_spectrum->get_HE();
       int higgs = SMlike_higgs_PDG_code(spec);
       if (higgs == neutrals[0]) i = 1;

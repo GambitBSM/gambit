@@ -59,6 +59,7 @@
 #include <map>
 #include <set>
 #include <cmath>
+#include <stdexcept>
 
 //#define NDEBUG
 #include <assert.h>

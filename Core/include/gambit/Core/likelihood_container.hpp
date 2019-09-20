@@ -22,6 +22,10 @@
 ///  \date 2013 Aug
 ///  \date 2014 May, June
 ///
+///  \author Tomas Gonzalo
+///    (tomas.gonzalo@monash.edu)
+///  \date 2019 May
+///
 ///  *********************************************
 
 #ifndef __likelihood_container_hpp__
@@ -29,7 +33,6 @@
 
 #include "gambit/Core/container_factory.hpp"
 #include "gambit/Printers/baseprinter.hpp"
-#include "gambit/Utils/mpiwrapper.hpp"
 
 namespace Gambit
 {
@@ -58,11 +61,6 @@ namespace Gambit
       /// Map of scanned model names to primary model functors
       std::map<str, primary_model_functor *> functorMap;
 
-      /// MPI communicator group for errors
-      #ifdef WITH_MPI
-        GMPI::Comm& errorComm;
-      #endif
-
       /// Primary value of the log likelihood at which a point is considered so unlikely that it can be ruled out (invalid).
       double min_valid_lnlike;
 
@@ -71,6 +69,9 @@ namespace Gambit
 
       /// Active value for the minimum log likelihood (one of the above two values, whichever is currently in-use)
       double active_min_valid_lnlike;
+
+      /// Switch to print or not print invalid points to the output file
+      bool print_invalid_points;
 
       /// Map of return types of target functors
       std::map<DRes::VertexID,str> return_types;
@@ -98,11 +99,7 @@ namespace Gambit
       /// Constructor
       Likelihood_Container (const std::map<str, primary_model_functor *> &functorMap,
        DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile,
-       const str &purpose, Printers::BaseBasePrinter& printer
-       #ifdef WITH_MPI
-       , GMPI::Comm& comm
-       #endif
-      );
+       const str &purpose, Printers::BaseBasePrinter& printer);
 
       /// Do the prior transformation and populate the parameter map
       void setParameters (const std::unordered_map<std::string, double> &);

@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <fstream>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -25,10 +25,10 @@ using namespace std;
 
 namespace Gambit
 {
-  namespace ColliderBit 
+  namespace ColliderBit
   {
 
-    class Analysis_ATLAS_13TeV_4LEP_36invfb : public HEPUtilsAnalysis 
+    class Analysis_ATLAS_13TeV_4LEP_36invfb : public Analysis
     {
 
     protected:
@@ -39,7 +39,7 @@ namespace Gambit
         {"SR0B", 0},
         {"SR0C", 0},
         {"SR0D", 0},
-      }; 
+      };
 
     private:
 
@@ -50,25 +50,25 @@ namespace Gambit
         vector<double> cutFlowVectorATLAS_400_0;
       #endif
 
-      struct ptComparison 
+      struct ptComparison
       {
         bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
-      
-      struct ptJetComparison 
+
+      struct ptJetComparison
       {
         bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
       // Jet lepton overlap removal
       // Discards jets if they are within DeltaRMax of a lepton
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*>& jets, vector<HEPUtils::Particle*>& leptons, double DeltaRMax) 
+      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*>& jets, vector<HEPUtils::Particle*>& leptons, double DeltaRMax)
       {
         vector<HEPUtils::Jet*> survivors;
         for(HEPUtils::Jet* jet : jets)
         {
           bool overlap = false;
-          for(HEPUtils::Particle* lepton : leptons) 
+          for(HEPUtils::Particle* lepton : leptons)
           {
             double dR = jet->mom().deltaR_eta(lepton->mom());
             if(fabs(dR) <= DeltaRMax) overlap = true;
@@ -81,13 +81,13 @@ namespace Gambit
 
       // Lepton jet overlap removal
       // Discards leptons if they are within DeltaRMax of a jet
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*>& leptons, vector<HEPUtils::Jet*>& jets, double DeltaRMax) 
+      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*>& leptons, vector<HEPUtils::Jet*>& jets, double DeltaRMax)
       {
         vector<HEPUtils::Particle*> survivors;
         for(HEPUtils::Particle* lepton : leptons)
         {
           bool overlap = false;
-          for(HEPUtils::Jet* jet : jets) 
+          for(HEPUtils::Jet* jet : jets)
           {
             double dR = jet->mom().deltaR_eta(lepton->mom());
             if(fabs(dR) <= DeltaRMax) overlap = true;
@@ -100,13 +100,13 @@ namespace Gambit
 
       // Particle overlap removal
       // Discards particle (from "particles1") if it is within DeltaRMax of another particle
-      void ParticleOverlapRemoval(vector<HEPUtils::Particle*>& particles1, vector<HEPUtils::Particle*>& particles2, double DeltaRMax) 
+      void ParticleOverlapRemoval(vector<HEPUtils::Particle*>& particles1, vector<HEPUtils::Particle*>& particles2, double DeltaRMax)
       {
         vector<HEPUtils::Particle*> survivors;
         for(HEPUtils::Particle* p1 : particles1)
         {
           bool overlap = false;
-          for(HEPUtils::Particle* p2 : particles2) 
+          for(HEPUtils::Particle* p2 : particles2)
           {
             double dR = p1->mom().deltaR_eta(p2->mom());
             if(fabs(dR) <= DeltaRMax) overlap = true;
@@ -128,10 +128,10 @@ namespace Gambit
           for(HEPUtils::Particle* l2 : leptons2)
           {
             if(l2 == l1) continue;
-            if (l1->pid()*l2->pid() < 0.) 
+            if (l1->pid()*l2->pid() < 0.)
             {
               double m = (l1->mom() + l2->mom()).m();
-              if ((m >= m_low) && (m <= m_high)) 
+              if ((m >= m_low) && (m <= m_high))
               {
                 survived = false;
                 break;
@@ -147,7 +147,10 @@ namespace Gambit
 
     public:
 
-      Analysis_ATLAS_13TeV_4LEP_36invfb() 
+      // Required detector sim
+      static constexpr const char* detector = "ATLAS";
+
+      Analysis_ATLAS_13TeV_4LEP_36invfb()
       {
 
         set_analysis_name("ATLAS_13TeV_4LEP_36invfb");
@@ -165,9 +168,8 @@ namespace Gambit
 
       }
 
-      void analyze(const HEPUtils::Event* event) 
+      void run(const HEPUtils::Event* event)
       {
-        HEPUtilsAnalysis::analyze(event);
 
         // Baseline objects
         vector<HEPUtils::Particle*> baselineElectrons;
@@ -182,11 +184,11 @@ namespace Gambit
           bool event_cleaning = true;
 
           vector<HEPUtils::Particle*> baselineLeptons_cutflow;
-          for (HEPUtils::Particle* electron : event->electrons()) 
+          for (HEPUtils::Particle* electron : event->electrons())
           {
             if (electron->pT()>4. && electron->abseta()<2.8) baselineLeptons_cutflow.push_back(electron);
           }
-          for (HEPUtils::Particle* muons : event->muons()) 
+          for (HEPUtils::Particle* muons : event->muons())
           {
             if (muons->pT()>4. && muons->abseta()<2.8) baselineLeptons_cutflow.push_back(muons);
           }
@@ -194,26 +196,35 @@ namespace Gambit
         #endif
 
 
-        for (HEPUtils::Particle* electron : event->electrons()) 
+        for (HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT()>7. && electron->abseta()<2.47) baselineElectrons.push_back(electron);
         }
+
+        // Apply electron efficiency
+        ATLAS::applyElectronEff(baselineElectrons);
+
+        // Apply loose electron selection
         ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
 
-        for (HEPUtils::Particle* muon : event->muons()) 
+        for (HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT()>5. && muon->abseta()<2.7) baselineMuons.push_back(muon);
         }
-        // Missing: Apply "medium" ID criteria 
 
-        for (HEPUtils::Particle* tau : event->taus()) 
+        // Apply muon efficiency
+        ATLAS::applyMuonEff(baselineMuons);
+
+        // Missing: Apply "medium" muon ID criteria
+
+        for (HEPUtils::Particle* tau : event->taus())
         {
           if (tau->pT()>20. && tau->abseta()<2.47) baselineTaus.push_back(tau);
         }
         // Since tau efficiencies are not applied as part of the BuckFast ATLAS sim we apply it here
-        ATLAS::applyTauEfficiencyR2(baselineTaus);  
+        ATLAS::applyTauEfficiencyR2(baselineTaus);
 
-        for (HEPUtils::Jet* jet : event->jets()) 
+        for (HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. && jet->abseta()<2.8) baselineJets.push_back(jet);
         }
@@ -234,7 +245,7 @@ namespace Gambit
         // 4) Remove electrons within DeltaR = 0.4 of a jet
         LeptonJetOverlapRemoval(baselineElectrons, baselineJets, 0.4);
 
-        // 5) Missing: Remove jets with < 3 assocated tracks if a muon is 
+        // 5) Missing: Remove jets with < 3 assocated tracks if a muon is
         //    within DeltaR = 0.2 *or* if the muon is a track in the jet.
 
         // 6) Remove muons within DeltaR = 0.4 of jet
@@ -268,7 +279,7 @@ namespace Gambit
         // Missing: pT-dependent isolation criteria for signal leptons (see paper)
 
         // Sort by pT
-        sort(signalJets.begin(), signalJets.end(), compareJetPt); 
+        sort(signalJets.begin(), signalJets.end(), compareJetPt);
         sort(signalLeptons.begin(), signalLeptons.end(), comparePt);
 
         // Count signal leptons and jets
@@ -298,8 +309,8 @@ namespace Gambit
           if (!Z1 && (m > 81.2) && (m < 101.2))
           {
             Z1 = true;
-          }          
-          else if (Z1 && (m > 61.2) && (m < 101.2)) 
+          }
+          else if (Z1 && (m > 61.2) && (m < 101.2))
           {
             Z2 = true;
           }
@@ -314,7 +325,7 @@ namespace Gambit
         {
           meff += l->pT();
         }
-        for (HEPUtils::Jet* jet : signalJets) 
+        for (HEPUtils::Jet* jet : signalJets)
         {
           if(jet->pT()>40.) meff += jet->pT();
         }
@@ -408,16 +419,16 @@ namespace Gambit
           cutFlowVector_str[10] = "ETmiss > 100 (SRD)";
 
           cutFlowVectorATLAS_400_0[0] = 3203.45;
-          cutFlowVectorATLAS_400_0[1] = 36.34; 
+          cutFlowVectorATLAS_400_0[1] = 36.34;
           cutFlowVectorATLAS_400_0[2] = 28.77;
-          cutFlowVectorATLAS_400_0[3] = 27.64; 
-          cutFlowVectorATLAS_400_0[4] = 26.14; 
-          cutFlowVectorATLAS_400_0[5] = 23.34; 
-          cutFlowVectorATLAS_400_0[6] = 14.19; 
-          cutFlowVectorATLAS_400_0[7] = 7.59; 
-          cutFlowVectorATLAS_400_0[8] = 5.71; 
-          cutFlowVectorATLAS_400_0[9] = 5.44; 
-          cutFlowVectorATLAS_400_0[10] = 4.84; 
+          cutFlowVectorATLAS_400_0[3] = 27.64;
+          cutFlowVectorATLAS_400_0[4] = 26.14;
+          cutFlowVectorATLAS_400_0[5] = 23.34;
+          cutFlowVectorATLAS_400_0[6] = 14.19;
+          cutFlowVectorATLAS_400_0[7] = 7.59;
+          cutFlowVectorATLAS_400_0[8] = 5.71;
+          cutFlowVectorATLAS_400_0[9] = 5.44;
+          cutFlowVectorATLAS_400_0[10] = 4.84;
 
           for (size_t j=0;j<NCUTS;j++)
           {
@@ -451,16 +462,11 @@ namespace Gambit
         #endif
       }
 
-
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_ATLAS_13TeV_4LEP_36invfb* specificOther
-                = dynamic_cast<Analysis_ATLAS_13TeV_4LEP_36invfb*>(other);
-
-        // Here we will add the subclass member variables:
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_ATLAS_13TeV_4LEP_36invfb* specificOther
+                = dynamic_cast<const Analysis_ATLAS_13TeV_4LEP_36invfb*>(other);
 
         #ifdef CHECK_CUTFLOW
           // if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
@@ -470,8 +476,9 @@ namespace Gambit
           }
         #endif
 
-        for (auto& el : _numSR) { 
-          el.second += specificOther->_numSR[el.first];
+        for (auto& el : _numSR)
+        {
+          el.second += specificOther->_numSR.at(el.first);
         }
 
       }
@@ -488,7 +495,7 @@ namespace Gambit
 
         #ifdef CHECK_CUTFLOW
           vector<double> cutFlowVector_scaled;
-          for (size_t i=0 ; i < cutFlowVector.size() ; i++) 
+          for (size_t i=0 ; i < cutFlowVector.size() ; i++)
           {
             double scale_factor = cutFlowVectorATLAS_400_0[0]/cutFlowVector[0];
             cutFlowVector_scaled.push_back(cutFlowVector[i] * scale_factor);
@@ -497,10 +504,10 @@ namespace Gambit
           cout << "DEBUG CUTFLOW:   -------------------------------------" << endl;
 
           for (size_t j = 0; j < NCUTS; j++) {
-            cout << setprecision(4) << "DEBUG CUTFLOW:   " << cutFlowVectorATLAS_400_0[j] << "\t\t" 
-                                        << cutFlowVector[j] << "\t\t" 
-                                        << cutFlowVector_scaled[j] << "\t\t" 
-                                        << cutFlowVector_str[j] 
+            cout << setprecision(4) << "DEBUG CUTFLOW:   " << cutFlowVectorATLAS_400_0[j] << "\t\t"
+                                        << cutFlowVector[j] << "\t\t"
+                                        << cutFlowVector_scaled[j] << "\t\t"
+                                        << cutFlowVector_str[j]
                                         << endl;
           }
         #endif
@@ -508,7 +515,7 @@ namespace Gambit
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         for (auto& el : _numSR) { el.second = 0.;}
         #ifdef CHECK_CUTFLOW
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);

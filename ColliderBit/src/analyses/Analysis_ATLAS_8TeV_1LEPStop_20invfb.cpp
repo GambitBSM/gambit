@@ -3,7 +3,7 @@
 #include <memory>
 #include <iomanip>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -42,7 +42,7 @@ namespace Gambit {
     };
 
 
-    class Analysis_ATLAS_8TeV_1LEPStop_20invfb : public HEPUtilsAnalysis {
+    class Analysis_ATLAS_8TeV_1LEPStop_20invfb : public Analysis {
     private:
 
       // Numbers passing cuts
@@ -55,6 +55,9 @@ namespace Gambit {
       int NCUTS;
 
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "ATLAS";
 
       Analysis_ATLAS_8TeV_1LEPStop_20invfb() {
         set_analysis_name("ATLAS_8TeV_1LEPStop_20invfb");
@@ -201,31 +204,38 @@ namespace Gambit {
 
 
 
-      void analyze(const HEPUtils::Event* event) {
-        HEPUtilsAnalysis::analyze(event);
+      void run(const HEPUtils::Event* event) {
 
         // Missing energy
         HEPUtils::P4 ptot = event->missingmom();
         double met = event->met();
 
-        // Now define vectors of baseline objects
+        // Now define vector of baseline electrons
         vector<HEPUtils::Particle*> baselineElectrons;
         for (HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && electron->abseta() < 2.47 &&
               !object_in_cone(*event, *electron, 0.1*electron->pT(), 0.2)) baselineElectrons.push_back(electron);
         }
+
+        // Apply electron efficiency
+        ATLAS::applyElectronEff(baselineElectrons);
+
+        // Now define vector of baseline muons
         vector<HEPUtils::Particle*> baselineMuons;
         for (HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && muon->abseta() < 2.4 &&
               !object_in_cone(*event, *muon, 1.8, 0.2)) baselineMuons.push_back(muon);
         }
 
+        // Apply muon efficiency
+        ATLAS::applyMuonEff(baselineMuons);
+
         // Get b jets with efficiency and mistag (fake) rates
         vector<HEPUtils::Jet*> baselineJets, bJets; // trueBJets; //for debugging
         for (HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && jet->abseta() < 10.0) baselineJets.push_back(jet);
           if (jet->abseta() < 2.5 && jet->pT() > 25.) {
-            if ((jet->btag() && HEPUtils::rand01() < 0.75) || (!jet->btag() && HEPUtils::rand01() < 0.02)) bJets.push_back(jet);
+            if ((jet->btag() && Random::draw() < 0.75) || (!jet->btag() && Random::draw() < 0.02)) bJets.push_back(jet);
           }
         }
 
@@ -730,20 +740,18 @@ namespace Gambit {
         return;
       }
 
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_ATLAS_8TeV_1LEPStop_20invfb* specificOther
+                = dynamic_cast<const Analysis_ATLAS_8TeV_1LEPStop_20invfb*>(other);
 
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        HEPUtilsAnalysis::add(other);
-
-        Analysis_ATLAS_8TeV_1LEPStop_20invfb* specificOther
-                = dynamic_cast<Analysis_ATLAS_8TeV_1LEPStop_20invfb*>(other);
-
-        // Here we will add the subclass member variables:
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          cutFlowVector_alt[j] += specificOther->cutFlowVector_alt[j];
+        for (int j=0; j<NCUTS; j++)
+        {
+          cutFlowVector[j] += specificOther->cutFlowVector.at(j);
+          cutFlowVector_str[j] = specificOther->cutFlowVector_str.at(j);
+          cutFlowVector_alt[j] += specificOther->cutFlowVector_alt.at(j);
         }
         _numTN1Shape_bin1 += specificOther->_numTN1Shape_bin1;
         _numTN1Shape_bin2 += specificOther->_numTN1Shape_bin2;
@@ -811,7 +819,7 @@ namespace Gambit {
 
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         _numTN1Shape_bin1 = 0; _numTN1Shape_bin2 = 0; _numTN1Shape_bin3 = 0;
         _numTN2 = 0; _numTN3 = 0; _numBC1 = 0;
         _numBC2 = 0; _numBC3 = 0;

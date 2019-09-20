@@ -34,6 +34,10 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2016 Jul
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu
+#  \date 2019 Feb
+#
 #************************************************
 
 # Constants
@@ -57,10 +61,29 @@ fi
 if [ "${axel_worked}" = "0" ]; then
   if command -v wget >/dev/null; then
     if [ -z "$9" ]; then
-      # Skip certificate checking because KIT, Hepforge, et al often haven't kept them updated
-      wget --no-check-certificate $3 -O $1/${filename}
+      # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
+      if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
+        wget --no-check-certificate $3 -O $i/${filename}
+      else
+        wget $3 -O $1/${filename}
+      fi
     else
       wget --post-data "$9" ${10} -O $1/${filename}
+    fi
+    wgetstatus=$?
+    if [ ${wgetstatus} != 0 ]; then
+      $2 -E cmake_echo_color --red --bold  "ERROR: wget failed to download file"
+      case ${wgetstatus} in
+        1) $2 -E cmake_echo_color --red --bold  "Generic error code" ;;
+        2) $2 -E cmake_echo_color --red --bold  "Parse error" ;;
+        3) $2 -E cmake_echo_color --red --bold  "File I/O error" ;;
+        4) $2 -E cmake_echo_color --red --bold  "Network failure. Check url of the backend" ;;
+        5) $2 -E cmake_echo_color --red --bold  "Expired or wrong certificate. To download backend insecurely, use 'IGNORE_HTTP_CERTIFICATE=1 make <backend>'" ;;
+        6) $2 -E cmake_echo_color --red --bold  "Authentication error" ;;
+        7) $2 -E cmake_echo_color --red --bold  "Protocol error" ;;
+        8) $2 -E cmake_echo_color --red --bold  "Server issued error response" ;;
+      esac
+      exit 1
     fi
   elif command -v curl >/dev/null; then
     if [ -z "$9" ]; then

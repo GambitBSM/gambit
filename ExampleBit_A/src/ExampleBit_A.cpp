@@ -201,7 +201,7 @@ namespace Gambit
       double eval_time = runOptions->getValueOrDef<double>(-1, "eval_time"); // Measured in seconds
       //std::cout << "eval_time:" << eval_time <<std::endl;
       if(eval_time>0)
-      {          
+      {
          struct timespec sleeptime;
          sleeptime.tv_sec = floor(eval_time);
          sleeptime.tv_nsec = floor((eval_time-floor(eval_time))*1e9); // Allow user to choose fractions of second
@@ -478,7 +478,7 @@ namespace Gambit
                                     Backends::backendInfo().default_version("Pythia") +
                                     "/share/Pythia8/xmldoc/";
 
-      Pythia8::Pythia pythia(default_doc_path, false);
+      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
 
       pythia.readString("Beams:eCM = 8000.");
       pythia.readString("HardQCD:all = on");
@@ -490,7 +490,7 @@ namespace Gambit
 
       pythia.init();
 
-      Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
+      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
       // Begin event loop. Generate event. Skip if error. List first one.
       for (int iEvent = 0; iEvent < 2; ++iEvent) {
         if (!pythia.next()) continue;

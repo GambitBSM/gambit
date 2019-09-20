@@ -106,7 +106,8 @@ namespace Gambit
         void initialise(const std::vector<int>&);
         void reset(bool force=false);
         void finalise(bool abnormal=false);
-    
+        void flush();
+
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
         Options resume_reader_options();

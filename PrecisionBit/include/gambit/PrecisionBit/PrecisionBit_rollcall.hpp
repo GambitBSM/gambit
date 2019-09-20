@@ -34,6 +34,10 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (t.e.gonzalo@fys.uio.no)
+///  \date 2018 Jan
+///
 ///  *********************************************
 
 
@@ -207,15 +211,14 @@ START_MODULE
     START_FUNCTION(triplet<double>)
     NEEDS_CLASSES_FROM(gm2calc, default)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    BACKEND_REQ(calculate_amu_1loop, (libgm2calc), double, (const gm2calc::MSSMNoFV_onshell&))
-    BACKEND_REQ(calculate_amu_2loop, (libgm2calc), double, (const gm2calc::MSSMNoFV_onshell&))
-    BACKEND_REQ(calculate_uncertainty_amu_2loop, (libgm2calc), double, (const gm2calc::MSSMNoFV_onshell&))
+    BACKEND_REQ(calculate_amu_1loop, (libgm2calc), double, (const gm2calc_default::gm2calc::MSSMNoFV_onshell&))
+    BACKEND_REQ(calculate_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::MSSMNoFV_onshell&))
+    BACKEND_REQ(calculate_uncertainty_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::MSSMNoFV_onshell&))
     BACKEND_OPTION( (gm2calc), (libgm2calc) )
     ALLOW_MODELS(MSSM30atQ, MSSM30atQ_mA, MSSM30atMGUT, MSSM30atMGUT_mA, NUHM2)
     #undef FUNCTION
 
   #undef CAPABILITY
-
 
   // Observable: SM contribution to (g-2)_mu
   #define CAPABILITY muon_gm2_SM
@@ -230,6 +233,24 @@ START_MODULE
     START_FUNCTION(triplet<double>)
     #undef FUNCTION
 
+  #undef CAPABILITY
+
+  // EWPO corrections from heavy neutrinos
+  #define CAPABILITY prec_sinW2_eff
+    #define FUNCTION RHN_sinW2_eff
+    START_FUNCTION(triplet<double>)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY mw
+    #define FUNCTION RHN_mw
+    START_FUNCTION(triplet<double>)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
   #undef CAPABILITY
 
 #undef MODULE

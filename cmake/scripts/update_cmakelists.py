@@ -130,6 +130,9 @@ def main(argv):
                     if verbose: print("    Located {0} header file '{1}'".format(mod,short_root+name))
                     headers+=[short_root+name]
 
+        # If no sources or headers were found, this wasn't actually a module
+        if srcs == [] and headers == []: continue
+
         # Make a candidate CMakeLists.txt file for this module.
         towrite = "\
 # GAMBIT: Global and Modular BSM Inference Tool \n\

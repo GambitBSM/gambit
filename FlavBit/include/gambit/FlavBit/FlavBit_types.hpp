@@ -21,6 +21,10 @@
 ///          (mchrzasz@cern.ch)
 ///  \date 2015 July
 ///
+///  \author Tomas Gonzalo
+///          (t.e.gonzalo@fys.uio.no)
+///  \date 2017 July
+///
 ///  *********************************************
 
 #ifndef __FlavBit_types_hpp__
@@ -51,10 +55,13 @@ namespace Gambit
     struct Measurement
     {
       bool is_limit;
+      bool exp_one_sided;
       double exp_value;
       double exp_stat_error;
       double exp_sys_error;
       double exp_error;
+      double exp_90_CL;
+      double exp_95_CL;
       double th_error;
       std::string name;
       std::string exp_source;

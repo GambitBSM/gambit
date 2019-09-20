@@ -99,5 +99,21 @@ namespace Gambit {
     }
 
 
+    // Utility function for returning a collection of same-sign particle pairs
+    std::vector<std::vector<HEPUtils::Particle*>> getSSpairs(std::vector<HEPUtils::Particle*> particles) {
+      std::vector<std::vector<HEPUtils::Particle*>> SSpair_container;
+      for (size_t ip1=0;ip1<particles.size();ip1++) {
+        for (size_t ip2=ip1+1; ip2<particles.size(); ip2++) {
+          if (particles[ip1]->pid()*particles[ip2]->pid()>0.) {
+            std::vector<HEPUtils::Particle*> SSpair;
+            SSpair.push_back(particles[ip1]);
+            SSpair.push_back(particles[ip2]);
+            SSpair_container.push_back(SSpair);
+          }
+        }
+      }
+      return SSpair_container;
+    }
+
   }
 }

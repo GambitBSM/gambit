@@ -84,7 +84,7 @@ namespace Gambit {
 
      //targetP.setValue("mq2_31",  0. );
      //targetP.setValue("mq2_32",  0. );
-     targetP.setValue("mq2_33",  myP["mq2_2"] );
+     targetP.setValue("mq2_33",  myP["mq2_3"] );
 
      // RH slepton soft masses
      // Off-diagonal elements set to zero

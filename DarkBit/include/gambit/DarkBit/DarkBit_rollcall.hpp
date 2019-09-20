@@ -64,6 +64,11 @@
 ///         (sanjay.bloor12@imperial.ac.uk)
 /// \date 2017 Dec
 /// \date 2018 Aug
+///  \author Sebastian Hoof
+///          (s.hoof15@imperial.ac.uk)
+///  \date 2016 Oct
+///  \date 2017 Feb, Sep, Dec
+///  \date 2018 Jan, Mar, Apr
 ///
 ///  *********************************************
 
@@ -120,7 +125,7 @@ START_MODULE
   #define CAPABILITY RD_spectrum
   START_CAPABILITY
     #define FUNCTION RD_spectrum_SUSY
-      START_FUNCTION(DarkBit::RD_spectrum_type)
+      START_FUNCTION(RD_spectrum_type)
       DEPENDENCY(DarkSUSY_PointInit, bool)
       BACKEND_REQ(mspctm, (), DS_MSPCTM)
       BACKEND_REQ(widths, (), DS_WIDTHS)
@@ -129,8 +134,8 @@ START_MODULE
       BACKEND_REQ(particle_code, (), int, (const str&))
     #undef FUNCTION
     #define FUNCTION RD_spectrum_from_ProcessCatalog
-      START_FUNCTION(DarkBit::RD_spectrum_type)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(RD_spectrum_type)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
@@ -141,8 +146,8 @@ START_MODULE
   #define CAPABILITY RD_spectrum_ordered
   START_CAPABILITY
     #define FUNCTION RD_spectrum_ordered_func
-      START_FUNCTION(DarkBit::RD_spectrum_type)
-      DEPENDENCY(RD_spectrum, DarkBit::RD_spectrum_type)
+      START_FUNCTION(RD_spectrum_type)
+      DEPENDENCY(RD_spectrum, RD_spectrum_type)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -150,7 +155,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION RD_annrate_DSprep_func
       START_FUNCTION(int)
-      DEPENDENCY(RD_spectrum, DarkBit::RD_spectrum_type)
+      DEPENDENCY(RD_spectrum, RD_spectrum_type)
       BACKEND_REQ(rdmgev, (), DS_RDMGEV)
     #undef FUNCTION
   #undef CAPABILITY
@@ -164,7 +169,7 @@ START_MODULE
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
@@ -176,7 +181,7 @@ START_MODULE
 
     #define FUNCTION RD_oh2_general
       START_FUNCTION(double)
-      DEPENDENCY(RD_spectrum_ordered, DarkBit::RD_spectrum_type)
+      DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       DEPENDENCY(RD_eff_annrate, fptr_dd)
       #ifdef DARKBIT_RD_DEBUG
         DEPENDENCY(MSSM_spectrum, Spectrum)
@@ -214,6 +219,12 @@ START_MODULE
       DEPENDENCY(RD_oh2_Xf, ddpair)
     #undef FUNCTION
 
+    // Routine for axion energy density today
+    #define FUNCTION RD_oh2_Axions
+      START_FUNCTION(double)
+        ALLOW_MODEL(GeneralALP)
+        DEPENDENCY(AxionOscillationTemperature, double)
+    #undef FUNCTION
   #undef CAPABILITY
 
 
@@ -298,9 +309,9 @@ START_MODULE
   #define CAPABILITY cascadeMC_DecayTable
   START_CAPABILITY
     #define FUNCTION cascadeMC_DecayTable
-      START_FUNCTION(DarkBit::DecayChain::DecayTable)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(SimYieldTable, DarkBit::SimYieldTable)
+      START_FUNCTION(DecayChain::DecayTable)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -319,7 +330,7 @@ START_MODULE
     #define FUNCTION cascadeMC_InitialState
       START_FUNCTION(std::string)
       DEPENDENCY(GA_missingFinalStates, std::vector<std::string>)
-      NEEDS_MANAGER_WITH_CAPABILITY(cascadeMC_LoopManagement)
+      NEEDS_MANAGER(cascadeMC_LoopManagement)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -327,9 +338,9 @@ START_MODULE
   #define CAPABILITY cascadeMC_EventCount
   START_CAPABILITY
     #define FUNCTION cascadeMC_EventCount
-      START_FUNCTION(DarkBit::stringIntMap)
+      START_FUNCTION(stringIntMap)
       DEPENDENCY(cascadeMC_InitialState, std::string)
-      NEEDS_MANAGER_WITH_CAPABILITY(cascadeMC_LoopManagement)
+      NEEDS_MANAGER(cascadeMC_LoopManagement)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -337,10 +348,10 @@ START_MODULE
   #define CAPABILITY cascadeMC_ChainEvent
   START_CAPABILITY
     #define FUNCTION cascadeMC_GenerateChain
-      START_FUNCTION(DarkBit::DecayChain::ChainContainer)
+      START_FUNCTION(DecayChain::ChainContainer)
       DEPENDENCY(cascadeMC_InitialState, std::string)
-      DEPENDENCY(cascadeMC_DecayTable, DarkBit::DecayChain::DecayTable)
-      NEEDS_MANAGER_WITH_CAPABILITY(cascadeMC_LoopManagement)
+      DEPENDENCY(cascadeMC_DecayTable, DecayChain::DecayTable)
+      NEEDS_MANAGER(cascadeMC_LoopManagement)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -348,13 +359,13 @@ START_MODULE
   #define CAPABILITY cascadeMC_Histograms
   START_CAPABILITY
     #define FUNCTION cascadeMC_Histograms
-      START_FUNCTION(DarkBit::simpleHistContainter)
+      START_FUNCTION(simpleHistContainter)
       DEPENDENCY(cascadeMC_InitialState, std::string)
-      DEPENDENCY(cascadeMC_ChainEvent, DarkBit::DecayChain::ChainContainer)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(SimYieldTable, DarkBit::SimYieldTable)
+      DEPENDENCY(cascadeMC_ChainEvent, DecayChain::ChainContainer)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
       DEPENDENCY(cascadeMC_FinalStates,std::vector<std::string>)
-      NEEDS_MANAGER_WITH_CAPABILITY(cascadeMC_LoopManagement)
+      NEEDS_MANAGER(cascadeMC_LoopManagement)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -362,11 +373,11 @@ START_MODULE
   #define CAPABILITY cascadeMC_gammaSpectra
   START_CAPABILITY
     #define FUNCTION cascadeMC_gammaSpectra
-      START_FUNCTION(DarkBit::stringFunkMap)
+      START_FUNCTION(stringFunkMap)
       DEPENDENCY(GA_missingFinalStates, std::vector<std::string>)
       DEPENDENCY(cascadeMC_FinalStates,std::vector<std::string>)
-      DEPENDENCY(cascadeMC_Histograms, DarkBit::simpleHistContainter)
-      DEPENDENCY(cascadeMC_EventCount, DarkBit::stringIntMap)
+      DEPENDENCY(cascadeMC_Histograms, simpleHistContainter)
+      DEPENDENCY(cascadeMC_EventCount, stringIntMap)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -376,8 +387,8 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION cascadeMC_PrintResult
       START_FUNCTION(bool)
-      DEPENDENCY(cascadeMC_Histograms, DarkBit::simpleHistContainter)
-      DEPENDENCY(cascadeMC_EventCount, DarkBit::stringIntMap)
+      DEPENDENCY(cascadeMC_Histograms, simpleHistContainter)
+      DEPENDENCY(cascadeMC_EventCount, stringIntMap)
     #undef FUNCTION
   #undef CAPABILITY
   */
@@ -387,7 +398,7 @@ START_MODULE
   #define CAPABILITY cascadeMC_test_TH_ProcessCatalog
   START_CAPABILITY
     #define FUNCTION cascadeMC_test_TH_ProcessCatalog
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -396,8 +407,8 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION cascadeMC_UnitTest
       START_FUNCTION(bool)
-      DEPENDENCY(cascadeMC_test_TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(SimYieldTable, DarkBit::SimYieldTable)
+      DEPENDENCY(cascadeMC_test_TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
     #undef FUNCTION
   #undef CAPABILITY
   */
@@ -408,8 +419,8 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION GA_missingFinalStates
       START_FUNCTION(std::vector<std::string>)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(SimYieldTable, DarkBit::SimYieldTable)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
       DEPENDENCY(DarkMatter_ID, std::string)
     #undef FUNCTION
   #undef CAPABILITY
@@ -418,15 +429,15 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION GA_AnnYield_General
       START_FUNCTION(daFunk::Funk)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
-      DEPENDENCY(SimYieldTable, DarkBit::SimYieldTable)
-      DEPENDENCY(cascadeMC_gammaSpectra, DarkBit::stringFunkMap)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
+      DEPENDENCY(cascadeMC_gammaSpectra, stringFunkMap)
       DEPENDENCY(DarkMatter_ID, std::string)
     #undef FUNCTION
   /*
     #define FUNCTION GA_AnnYield_DarkSUSY
       START_FUNCTION(daFunk::Funk)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       BACKEND_REQ(dshayield, (), double, (double&,double&,int&,int&,int&))
     #undef FUNCTION
@@ -436,7 +447,7 @@ START_MODULE
   #define CAPABILITY TH_ProcessCatalog
   START_CAPABILITY
     #define FUNCTION TH_ProcessCatalog_MSSM
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       //ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(DarkSUSY_PointInit, bool)
       DEPENDENCY(MSSM_spectrum, Spectrum)
@@ -451,13 +462,13 @@ START_MODULE
       BACKEND_REQ(IBintvars, (), DS_IBINTVARS)
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_ScalarSingletDM_Z2
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODELS(ScalarSingletDM_Z2,ScalarSingletDM_Z2_running)
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_ScalarSingletDM_Z3
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum)
       BACKEND_REQ(calcSpectrum, (gimmemicro) , double,  (int, double*, double*, double*, double*, double*, double*, int*))
@@ -466,19 +477,19 @@ START_MODULE
       ALLOW_MODELS(ScalarSingletDM_Z3,ScalarSingletDM_Z3_running)
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_VectorSingletDM_Z2
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum)
       DEPENDENCY(decay_rates, DecayTable)
       ALLOW_MODELS(VectorSingletDM_Z2)
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_MajoranaSingletDM_Z2
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       DEPENDENCY(decay_rates, DecayTable)
       ALLOW_MODELS(MajoranaSingletDM_Z2)
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_DiracSingletDM_Z2
-      START_FUNCTION(DarkBit::TH_ProcessCatalog)
+      START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODELS(DiracSingletDM_Z2)
@@ -595,11 +606,11 @@ START_MODULE
 
   // Retrieve the DM mass in GeV for generic models
   QUICK_FUNCTION(DarkBit, mwimp, NEW_CAPABILITY, mwimp_generic, double, (),
-      (TH_ProcessCatalog, DarkBit::TH_ProcessCatalog), (DarkMatter_ID, std::string))
+      (TH_ProcessCatalog, TH_ProcessCatalog), (DarkMatter_ID, std::string))
 
   // Retrieve the total thermally-averaged annihilation cross-section for indirect detection (cm^3 / s)
   QUICK_FUNCTION(DarkBit, sigmav, NEW_CAPABILITY, sigmav_late_universe, double, (),
-      (TH_ProcessCatalog, DarkBit::TH_ProcessCatalog), (DarkMatter_ID, std::string))
+      (TH_ProcessCatalog, TH_ProcessCatalog), (DarkMatter_ID, std::string))
 
 
   // DIRECT DETECTION ==================================================
@@ -882,7 +893,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION equilibration_time_Sun
       START_FUNCTION(double)
-      DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(mwimp, double)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(capture_rate_Sun, double)
@@ -904,7 +915,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION nuyield_from_DS
     START_FUNCTION(nuyield_info)
-    DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(mwimp, double)
     DEPENDENCY(sigmav, double)
     DEPENDENCY(DarkMatter_ID, std::string)
@@ -1208,7 +1219,7 @@ START_MODULE
     DEPENDENCY(DD_couplings, DM_nucleon_couplings)
     DEPENDENCY(RD_oh2, double)
     DEPENDENCY(GA_AnnYield, daFunk::Funk)
-    DEPENDENCY(TH_ProcessCatalog, DarkBit::TH_ProcessCatalog)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(DarkMatter_ID, std::string)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1216,15 +1227,15 @@ START_MODULE
   #define CAPABILITY SimYieldTable
   START_CAPABILITY
     #define FUNCTION SimYieldTable_DarkSUSY
-    START_FUNCTION(DarkBit::SimYieldTable)
+    START_FUNCTION(SimYieldTable)
     BACKEND_REQ(dshayield, (), double, (double&,double&,int&,int&,int&))
     #undef FUNCTION
     #define FUNCTION SimYieldTable_MicrOmegas
-    START_FUNCTION(DarkBit::SimYieldTable)
+    START_FUNCTION(SimYieldTable)
     BACKEND_REQ(dNdE, (), double, (double,double,int,int))
     #undef FUNCTION
     #define FUNCTION SimYieldTable_PPPC
-    START_FUNCTION(DarkBit::SimYieldTable)
+    START_FUNCTION(SimYieldTable)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1273,5 +1284,211 @@ START_MODULE
     ALLOW_MODELS(Halo_gNFW, Halo_Einasto)
     #undef FUNCTION
   #undef CAPABILITY
+
+  // Axion likelihoods and functions -----------------------
+
+  #define CAPABILITY QCDAxion_ZeroTemperatureMass
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_ZeroTemperatureMass_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY QCDAxion_TemperatureDependence
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_TemperatureDependence_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY QCDAxion_AxionPhotonConstant
+  START_CAPABILITY
+    #define FUNCTION QCDAxion_AxionPhotonConstant_Nuisance_lnL
+    START_FUNCTION(double)
+    ALLOW_MODEL(QCDAxion)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ALPS1_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_ALPS1_signal_vac
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ALPS1_signal_gas
+  START_CAPABILITY
+    #define FUNCTION calc_ALPS1_signal_gas
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+  #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_ALPS1
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_ALPS1
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(ALPS1_signal_vac, double)
+    DEPENDENCY(ALPS1_signal_gas, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY CAST2007_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_CAST2007_signal_vac
+    START_FUNCTION(std::vector<double>)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY CAST2017_signal_vac
+  START_CAPABILITY
+    #define FUNCTION calc_CAST2017_signal_vac
+    START_FUNCTION(std::vector<std::vector<double>>)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_CAST2007
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_CAST2007
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(CAST2007_signal_vac, std::vector<double>)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_CAST2017
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_CAST2017
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(CAST2017_signal_vac, std::vector<std::vector<double>>)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Haloscope_signal
+  START_CAPABILITY
+    #define FUNCTION calc_Haloscope_signal
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(RD_fraction, double)
+    DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_ADMX1
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_ADMX1
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_ADMX2
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_ADMX2
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_RBF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_RBF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_Haloscope_UF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_Haloscope_UF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(Haloscope_signal, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RParameter
+  START_CAPABILITY
+    #define FUNCTION calc_RParameter
+    START_FUNCTION(double)
+    DEPENDENCY(GeneralALP_parameters, ModelParameters)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_RParameter
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_RParameter
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    DEPENDENCY(RParameter, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_G117B15A
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_G117B15A
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_R548
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_R548
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_PG1351489
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_PG1351489
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_WDVar_L192
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_WDVar_L192
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_SN1987A
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_SN1987A
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY lnL_HESS_GCMF
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_HESS_GCMF
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY AxionOscillationTemperature
+  START_CAPABILITY
+    #define FUNCTION calc_AxionOscillationTemperature
+    START_FUNCTION(double)
+    ALLOW_MODEL(GeneralALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 #undef MODULE
 #endif /* defined(__DarkBit_rollcall_hpp__) */

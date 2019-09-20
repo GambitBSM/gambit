@@ -1,8 +1,7 @@
 // -*- C++ -*-
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-// #include "Eigen/Eigen"
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/EXO-16-048/index.html
 
@@ -17,8 +16,11 @@ namespace Gambit {
     ///
     /// @todo Add W/Z region with AKT8 jets and 2/1 n-subjettiness ratio cut
     ///
-    class Analysis_CMS_13TeV_MONOJET_36invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_13TeV_MONOJET_36invfb : public Analysis {
     public:
+
+      // Required detector sim
+      static constexpr const char* detector = "CMS";
 
       static const size_t NUMSR = 22;
       double _srnums[NUMSR];
@@ -28,14 +30,13 @@ namespace Gambit {
       // : _cutflow("CMS monojet 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
         //for (double& n : _srnums) n = 0;
-        clear();
+        analysis_specific_reset();
         set_analysis_name("CMS_13TeV_MONOJET_36invfb");
         set_luminosity(35.9);
       }
 
-      void analyze(const Event* event) {
+      void run(const Event* event) {
 
-        HEPUtilsAnalysis::analyze(event);
         // _cutflow.fillinit();
 
         // Require large MET
@@ -46,9 +47,21 @@ namespace Gambit {
         // Record a trigger weight; we can aggregate this rather than wastefully random-vetoing
         const double trigweight = (met < 350) ? 0.97 : 1.0;
 
+        // Electron objects
+        vector<HEPUtils::Particle*> baselineElectrons = event->electrons();
+
+        // Apply electron efficiency
+        CMS::applyElectronEff(baselineElectrons);
+
+        // Muon objects
+        vector<HEPUtils::Particle*> baselineMuons = event->muons();
+
+        // Apply muon efficiency
+        CMS::applyMuonEff(baselineMuons);
+
         // Veto on isolated leptons and photons
-        for (const Particle* e : event->electrons()) if (e->pT() > 10) return; //< VETO
-        for (const Particle* m : event->muons()) if (m->pT() > 10) return; //< VETO
+        for (const Particle* e : baselineElectrons) if (e->pT() > 10) return; //< VETO
+        for (const Particle* m : baselineMuons) if (m->pT() > 10) return; //< VETO
         for (const Particle* t : event->taus()) if (t->pT() > 18) return; //< VETO
         for (const Particle* y : event->photons()) if (y->pT() > 15 && y->abseta() < 2.5) return; //< VETO
 
@@ -61,7 +74,7 @@ namespace Gambit {
         for (const Jet* jet : jets4) {
           if (jet->abseta() > 2.4) continue;
           const double btag_rate = jet->btag() ? 0.8 : jet->ctag() ? 0.4 : 0.1;
-          if (rand01() < btag_rate) return; //< VETO
+          if (Random::draw() < btag_rate) return; //< VETO
         }
 
         // Get the 4 leading jets > 3 GeV, and veto if pTmiss is too close to them
@@ -83,11 +96,10 @@ namespace Gambit {
 
       }
 
-
-      void add(BaseAnalysis* other) {
-        // The base class add function handles the signal region vector and total # events.
-        HEPUtilsAnalysis::add(other);
-        Analysis_CMS_13TeV_MONOJET_36invfb* specificOther = dynamic_cast<Analysis_CMS_13TeV_MONOJET_36invfb*>(other);
+      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+      void combine(const Analysis* other)
+      {
+        const Analysis_CMS_13TeV_MONOJET_36invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_MONOJET_36invfb*>(other);
         for (size_t i = 0; i < NUMSR; ++i)
           _srnums[i] += specificOther->_srnums[i];
       }
@@ -115,7 +127,7 @@ namespace Gambit {
         }
 
         // Commented out covariance matrix for now, as it currently is a bit
-        // too time consuming to calculate an accurate 'simplified likelihood' 
+        // too time consuming to calculate an accurate 'simplified likelihood'
         // for this analysis.
 
         // // Covariance
@@ -148,7 +160,7 @@ namespace Gambit {
       }
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
         for (double& n : _srnums) n = 0;
         /// @todo Need to also clear/reset cutflow, but it currently has no method for that
       }
