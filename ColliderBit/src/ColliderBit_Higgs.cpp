@@ -1202,8 +1202,8 @@ namespace Gambit
 
         cs = THDM_couplings.hdd_cs[h+1][3][3];
         cp = THDM_couplings.hdd_cp[h+1][3][3];
-        cs_sm = THDM_couplings_SM_like[h-1].hdd_cs[1][3][3];
-        cp_sm = THDM_couplings_SM_like[h-1].hdd_cp[1][3][3];
+        cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
+        cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
 
         const double CS_bb_hj_ratio = pow(abs(cs/cs_sm),2) + pow(abs(cp/cs_sm),2);
         result.CS_bb_hj_ratio[h] = CS_bb_hj_ratio;
@@ -1214,8 +1214,8 @@ namespace Gambit
 
         cst = THDM_couplings.huu_cs[h+1][3][3];
         cpt = THDM_couplings.huu_cp[h+1][3][3];
-        cst_sm = THDM_couplings_SM_like[h-1].huu_cs[1][3][3];
-        cpt_sm = THDM_couplings_SM_like[h-1].huu_cp[1][3][3];
+        cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
+        cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
 
         const double CS_tev_vbf_ratio = RWW*CS_ud_hjWp_ratio + RZZ*CS_lep_hjz_ratio;
         result.CS_tev_vbf_ratio[h] = CS_tev_vbf_ratio;
