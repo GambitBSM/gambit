@@ -13,7 +13,7 @@
 Parameters:
 
   # SM parameters.
-  StandardModel_SLHA2: !import ../../yaml_files/include/StandardModel_SLHA2_scan.yaml
+  StandardModel_SLHA2: !import ./include/StandardModel_SLHA2_scan.yaml
 
   # Nuclear matrix parameters.
   nuclear_params_sigmas_sigmal:

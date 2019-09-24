@@ -639,7 +639,7 @@ namespace Gambit
       double oh2 = BEreq::oh2(&Xf,byVal(fast), byVal(Beps));
 
       if (oh2 == -1)
-        invalid_point().raise("MicrOmegas computation of oh2 failed.");
+        DarkBit_error().raise(LOCAL_INFO,"MicrOmegas computation of oh2 failed.");
 
       result.first = oh2;
       result.second = Xf;
