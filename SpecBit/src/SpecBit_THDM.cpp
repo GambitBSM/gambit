@@ -1320,7 +1320,7 @@ namespace Gambit
     double B0_bar(const double p2, const double m12, const double m22) {
       const double MZ = 91.15349;
       double mu2 = pow(MZ,2);
-      double z_plus = 0.01;
+      double z_plus = 1E-10;
       double result, error;
       gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
       gsl_function B0_bar_int;
