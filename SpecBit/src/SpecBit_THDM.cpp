@@ -420,16 +420,16 @@ namespace Gambit
         thdm_model.mGC = 0.0;
 
         // // quantities needed to fill container spectrum, intermediate calculations
-        double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+        double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * pi / (sminputs.GF * pow(2,0.5));
         double sinW2 = 0.5 - pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5), cosW2 = 0.5 + pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5);
-        double e = pow( 4*Pi*( alpha_em ),0.5), v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
+        double e = pow( 4*pi*( alpha_em ),0.5), v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
 
         // Standard model
         thdm_model.sinW2 = sinW2;
         // gauge couplings
         thdm_model.g1 = e / sinW2;
         thdm_model.g2 = e / cosW2;
-        thdm_model.g3 = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+        thdm_model.g3 = pow( 4*pi*( sminputs.alphaS ),0.5) ;
         thdm_model.mW = sminputs.mZ*cosW2;
         // Yukawas
         
