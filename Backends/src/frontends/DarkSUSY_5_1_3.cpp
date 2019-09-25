@@ -66,7 +66,7 @@ BE_INI_FUNCTION
 
     // Do the call to dsinit one-by-one for each MPI process, as DarkSUSY loads up
     // HiggsBounds, which writes files at init then reads them back in later.
-    Utils::FileLock mylock("DarkSUSY_" STRINGIFY(SAFE_VERSION) "_init");
+    Utils::ProcessLock mylock("DarkSUSY_" STRINGIFY(SAFE_VERSION) "_init");
     mylock.get_lock();
     dsinit();
     mylock.release_lock();

@@ -363,10 +363,10 @@ namespace Gambit
             }
 
             template <typename T>
-            void Bcast (T &buffer, int count, int root) 
+            void Bcast (T &buffer, int count, int root)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-                
+
                 MPI_Bcast (&buffer, count, datatype, root, boundcomm);
             }
 
@@ -464,6 +464,12 @@ namespace Gambit
             /// Get pointer to raw bound communicator
             MPI_Comm* get_boundcomm() { return &boundcomm; }
 
+            /// Get the process ID of the master process (rank 0)
+            long int MasterPID();
+
+            /// Set the process ID of the master process (rank 0)
+            void set_MasterPID(long int p);
+
          private:
 
             // The MPI communicator to which the current object "talks".
@@ -471,6 +477,9 @@ namespace Gambit
 
             // A name to identify the communicator group to which this object is bound
             std::string myname;
+
+            // The process ID of the master process (rank 0)
+            static long int pid;
       };
 
       /// Check if MPI_Init has been called (it is an error to call it twice)

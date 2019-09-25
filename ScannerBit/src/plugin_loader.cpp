@@ -101,10 +101,10 @@ namespace Gambit
 
                     //pclose(p_f);
 
-                    auto excluded_plugins = loadExcluded(GAMBIT_DIR "/scratch/scanbit_excluded_libs.yaml");
-                    const str linked_libs(GAMBIT_DIR "/scratch/scanbit_linked_libs.yaml");
-                    const str reqd_entries(GAMBIT_DIR "/scratch/scanbit_reqd_entries.yaml");
-                    const str flags(GAMBIT_DIR "/scratch/scanbit_flags.yaml");
+                    auto excluded_plugins = loadExcluded(Utils::buildtime_scratch+"scanbit_excluded_libs.yaml");
+                    const str linked_libs(Utils::buildtime_scratch+"scanbit_linked_libs.yaml");
+                    const str reqd_entries(Utils::buildtime_scratch+"scanbit_reqd_entries.yaml");
+                    const str flags(Utils::buildtime_scratch+"scanbit_flags.yaml");
                     process(linked_libs, reqd_entries, flags, excluded_plugins);
                 }
                 else

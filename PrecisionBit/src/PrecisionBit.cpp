@@ -1363,7 +1363,9 @@ namespace Gambit
         // is chi2 NaN? If so continue print debug & invalidate point
         if (std::isnan(chi2)) {
           std::ofstream debug_stream;
-          debug_stream.open ("oblique_nan_debug.txt", std::ofstream::out | std::ofstream::app);
+          debug_stream.open ("THDM_DEBUG_OUTPUT.txt", std::ofstream::out | std::ofstream::app);
+          debug_stream << "*****" << std::endl;
+          debug_stream << "oblique_parameters_likelihood_THDM has encountered a NaN" << std::endl;
           debug_stream << "*****" << std::endl;
           for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
           std::vector<double> Lambdas = get_lambdas_from_spectrum(container);

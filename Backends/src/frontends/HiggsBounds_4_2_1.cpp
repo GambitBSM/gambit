@@ -9,7 +9,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christopher S. Rogan
 ///          (crogan@cern.ch)
 ///  \date 2015 Sept
@@ -35,11 +35,11 @@ BE_INI_FUNCTION
     int nHplus = 1; // number of charged higgses
     int ANA = 1;    // indicates LEP-only analysis
     // Initialize HiggsBounds. Do this one-by-one for each MPI process with
-    // locks, as HB writes files here then reads them back in later (crazy). 
-    Utils::FileLock mylock("HiggsBounds_" STRINGIFY(SAFE_VERSION) "_init");
+    // locks, as HB writes files here then reads them back in later (crazy).
+    Utils::ProcessLock mylock("HiggsBounds_" STRINGIFY(SAFE_VERSION) "_init");
     mylock.get_lock();
     // --braces just for dramatic effect--
-    { 
+    {
       // initialize LEP chisq tables
       initialize_HiggsBounds_chisqtables();
       // initialize HiggsBounds to LEP only
@@ -48,6 +48,6 @@ BE_INI_FUNCTION
     mylock.release_lock();
     scan_level = false;
   }
-   
+
 }
 END_BE_INI_FUNCTION

@@ -120,7 +120,7 @@ namespace Gambit
         ( const typename MI::InputParameters& input
         , const SMInputs& sminputs
         , const Options& runOptions
-        , const std::map<str, safe_ptr<double> >& input_Param
+        , const std::map<str, safe_ptr<const double> >& input_Param
         )
     { if (print_debug_checkpoints) cout << "Checkpoint: 94" << endl;
       // SoftSUSY object used to set quark and lepton masses and gauge
@@ -294,7 +294,7 @@ namespace Gambit
     }
 
     template <class FS_THDM_input_struct>
-    void fill_THDM_FS_input(FS_THDM_input_struct &input, const std::map<str, safe_ptr<double> >& Param)
+    void fill_THDM_FS_input(FS_THDM_input_struct &input, const std::map<str, safe_ptr<const double> >& Param)
     { if (print_debug_checkpoints) cout << "Checkpoint: 99" << endl;
       // read in THDM model parameters
       input.TanBeta = *Param.at("tanb");
@@ -513,35 +513,62 @@ namespace Gambit
           }
           if (!is_perturbative) invalid_point().raise("FS Invalid Point: Perturbativity Failed");
         }
-
         using namespace softsusy;
         switch(y_type) {
           case type_I: { 
             if (print_debug_checkpoints) cout << "Checkpoint: 103" << endl;
-            THDM_I_input_parameters input;
-            fill_THDM_FS_input(input,myPipe::Param);
-            result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #if(FS_MODEL_THDM_I_IS_BUILT)
+              THDM_I_input_parameters input;
+              fill_THDM_FS_input(input,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #else 
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_I not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+            #endif  
             break;
           }
           case type_II: { 
             if (print_debug_checkpoints) cout << "Checkpoint: 104" << endl;
-            THDM_II_input_parameters input;
-            fill_THDM_FS_input(input,myPipe::Param);
-            result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #if(FS_MODEL_THDM_II_IS_BUILT)
+              THDM_II_input_parameters input;
+              fill_THDM_FS_input(input,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #else 
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_II not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+            #endif 
             break;
           }
           case lepton_specific: { 
             if (print_debug_checkpoints) cout << "Checkpoint: 105" << endl;
-            THDM_lepton_input_parameters input;
-            fill_THDM_FS_input(input,myPipe::Param);
-            result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #if(FS_MODEL_THDM_lepton_IS_BUILT)
+              THDM_lepton_input_parameters input;
+              fill_THDM_FS_input(input,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #else 
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_lepton not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+            #endif 
             break;
           }
           case flipped: { 
             if (print_debug_checkpoints) cout << "Checkpoint: 106" << endl;
-            THDM_flipped_input_parameters input;
-            fill_THDM_FS_input(input,myPipe::Param);
-            result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #if(FS_MODEL_THDM_flipped_IS_BUILT)
+              THDM_flipped_input_parameters input;
+              fill_THDM_FS_input(input,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+            #else 
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_flipped not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+            #endif 
             break;
           }
           default: {
@@ -551,7 +578,7 @@ namespace Gambit
             errmsg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4." << std::endl;
             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             break;
-          }         
+          }    
         }
       }
     }

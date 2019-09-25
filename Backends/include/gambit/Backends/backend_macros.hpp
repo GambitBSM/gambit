@@ -89,8 +89,8 @@
 
 /// Model-conditional dependency macro for point-level backend initialisation functions (in BackendIniBit)
 #define BE_INI_CONDITIONAL_DEPENDENCY(DEP, TYPE, ...)                                                                                             \
-  CORE_START_CONDITIONAL_DEPENDENCY(BackendIniBit, CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), DEP, TYPE) \
-  ACTIVATE_DEP_MODEL(BackendIniBit, CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), DEP, #__VA_ARGS__)
+  CORE_START_CONDITIONAL_DEPENDENCY(BackendIniBit, CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), DEP, TYPE, NOT_MODEL) \
+  ACTIVATE_DEP_MODEL(BackendIniBit, CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), CAT_5(BACKENDNAME,_,SAFE_VERSION,_,init), DEP, NOT_MODEL, #__VA_ARGS__)
 
 /// Macro for assigning a single allowed model to an entire backend.
 #define BE_ALLOW_MODEL(MODEL)                                               \
@@ -104,7 +104,7 @@ BE_NAMESPACE                                                                \
 }                                                                           \
 END_BE_NAMESPACE                                                            \
 CORE_ALLOWED_MODEL(BackendIniBit,CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),   \
- MODEL)                                                                     \
+ MODEL, NOT_MODEL)                                                          \
 
 /// Set all the allowed models for a given backend functor.
 #define SET_ALLOWED_MODELS(NAME, MODELS)                                    \
@@ -166,11 +166,11 @@ BOOST_PP_IIF(DO_CLASSLOADING, LOAD_ALL_FACTORIES, )                         \
                                                                             \
 /* Register the initialisation function for this backend */                 \
 CORE_START_CAPABILITY(BackendIniBit,                                        \
- CAT_4(BACKENDNAME,_,SAFE_VERSION,_init))                                   \
+ CAT_4(BACKENDNAME,_,SAFE_VERSION,_init), NOT_MODEL)                        \
 CORE_DECLARE_FUNCTION(BackendIniBit,                                        \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),                                   \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init),                                   \
- void,2)                                                                    \
+ void,2, NOT_MODEL)                                                         \
                                                                             \
 namespace Gambit                                                            \
 {                                                                           \

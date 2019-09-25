@@ -29,6 +29,7 @@
 #include <cmath>
 
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -68,6 +69,12 @@ namespace Gambit
 
   namespace Utils
   {
+
+    /// Return the path to the build-time scratch directory
+    const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+
+    /// Return the path the the run-specific scratch directory
+    EXPORT_SYMBOLS const str& runtime_scratch();
 
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
@@ -122,7 +129,7 @@ namespace Gambit
       }
     };
 
-    
+
     /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
     //   int vv[] = { 12,43 };
