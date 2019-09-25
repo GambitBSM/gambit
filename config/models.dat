@@ -553,4 +553,158 @@ RightHandedNeutrinos_diff: |
 
 StandardModel_mNudiff: |
    Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
+
+THDM: |
+   <Currently under development>
+   The most general Two-Higgs-Doublet Model. Input in the Higgs Basis
+
+THDMatQ: |
+   <Currently under development>
+   The most general Two-Higgs-Doublet Model (see THDM) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMI: |
+   The Type-I Two-Higgs-Doublet Model.
+   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_2
+
+THDMIatQ: |
+   The Type-I Two-Higgs-Doublet Model (see THDMI) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMI_physical: |
+   The Type-I Two-Higgs-Doublet Model in the physical basis.
+   m_h                           - Mass of CP-even light Higgs
+   m_H                           - Mass of CP-even heavy Higgs
+   m_A                           - Mass of CP-odd Higgs
+   m_Hp                          - Mass of degenerate charged Higgs
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   sba                           - Sine of the physical angle (beta-alpha)
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_2
+
+THDMI_physicalatQ: |
+   The Type-I Two-Higgs-Doublet Model in the physical basis (see THDMI_physical) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMII: |
+   The Type-II Two-Higgs-Doublet Model.
+   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_1
+
+THDMIIatQ: |
+   The Type-II Two-Higgs-Doublet Model (see THDMII) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMII_physical: |
+   The Type-II Two-Higgs-Doublet Model in the physical basis.
+   m_h                           - Mass of CP-even light Higgs
+   m_H                           - Mass of CP-even heavy Higgs
+   m_A                           - Mass of CP-odd Higgs
+   m_Hp                          - Mass of degenerate charged Higgs
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   sba                           - Sine of the physical angle (beta-alpha)
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_1
+
+THDMII_physicalatQ: |
+   The Type-II Two-Higgs-Doublet Model in the physical basis (see THDMII_physical) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMLS: |
+   The Lepton-Specific Two-Higgs-Doublet Model.
+   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_1
+
+THDMLSatQ: |
+   The Lepton-Specific Two-Higgs-Doublet Model (see THDMLS) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMLS_physical: |
+   The Lepton-Specific Two-Higgs-Doublet Model in the physical basis.
+   m_h                           - Mass of CP-even light Higgs
+   m_H                           - Mass of CP-even heavy Higgs
+   m_A                           - Mass of CP-odd Higgs
+   m_Hp                          - Mass of degenerate charged Higgs
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   sba                           - Sine of the physical angle (beta-alpha)
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_1
+
+THDMLS_physicalatQ: |
+   The Lepton-Specific Two-Higgs-Doublet Model in the physical basis (see THDMLS_physical) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMflipped: |
+   The Flipped Two-Higgs-Doublet Model.
+   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_2
+
+THDMflippedatQ: |
+   The Flipped Two-Higgs-Doublet Model (see THDMflipped) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMflipped_physical: |
+   The Flipped Two-Higgs-Doublet Model in the physical basis.
+   m_h                           - Mass of CP-even light Higgs
+   m_H                           - Mass of CP-even heavy Higgs
+   m_A                           - Mass of CP-odd Higgs
+   m_Hp                          - Mass of degenerate charged Higgs
+   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   sba                           - Sine of the physical angle (beta-alpha)
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   m12_2                         - The squared mass-mixing bilinear coupling
+   Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_2
+
+THDMflipped_physicalatQ: |
+   The Flipped Two-Higgs-Doublet Model in the physical basis (see THDMflipped_physical) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMII_hybrid_lambda1: |
+   The Type-II Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
+
+THDMII_hybrid_lambda1atQ: |
+   The Type-II Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMII_hybrid_lambda2: |
+   The Type-II Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
+
+THDMII_hybrid_lambda2atQ: |
+   The Type-II Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMII_higgs_hybrid: |
+   The Type-II Two-Higgs-Doublet Model in the Higgs basis.
+
+THDMII_higgs_hybridatQ: |
+   The Type-II Two-Higgs-Doublet Model in the Higgs basis (see THDMII_higgs_hybrid) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
 =

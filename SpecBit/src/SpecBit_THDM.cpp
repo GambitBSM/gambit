@@ -989,7 +989,7 @@ namespace Gambit
     }
 
     std::complex<double> get_cubic_coupling_hhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
-      const particle_type j = particles[0], k = particles[1], l = particles[2], m = particles[3];
+      const particle_type j = particles[0], k = particles[1], l = particles[2];
       const double Lam1 = container.thdm_pars.Lambda1, Lam34 = container.thdm_pars.Lambda3 + container.thdm_pars.Lambda4;
       const double Lam5 = container.thdm_pars.Lambda5, Lam6 = -container.thdm_pars.Lambda6, Lam7 = -container.thdm_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
@@ -1064,7 +1064,7 @@ namespace Gambit
         // check if particle 0 is neutral
         if(!is_neutral(particles[0])) return {particles};
         // cycle through particles to find index of last neutral particle
-        while(is_neutral(particles[++neutral_index]) && neutral_index<(particles.size()));
+        while(is_neutral(particles[++neutral_index]) && neutral_index<(signed)(particles.size()));
         neutral_index--;
         // count identical neutral particles
         std::vector<int> identical_particles;
@@ -1155,7 +1155,7 @@ namespace Gambit
       std::vector<std::complex<double>> cubic_couplings (size+1);
       std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
 
-      //      const physical_basis_input input_pars = fill_physical_basis_input(container);
+      // const physical_basis_input input_pars = fill_physical_basis_input(container);
       // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;;
       // const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       // const double b = atan(input_pars.tanb), a = input_pars.alpha;
@@ -2137,11 +2137,9 @@ namespace Gambit
       }
 
       #ifdef SPECBIT_DEBUG
-        // const std::vector<std::string> eigenvalue_keys = {"a00_even_plus","a00_even_minus","a00_odd_plus","a00_odd_minus","a01_even_plus", \
-          "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
+        // const std::vector<std::string> eigenvalue_keys = {"a00_even_plus","a00_even_minus","a00_odd_plus","a00_odd_minus","a01_even_plus", "a01_even_minus","a01_odd_plus","a01_odd_minus","a10_odd","a11_even_plus","a11_even_minus","a11_odd"};
         // for(unsigned j=0; j < eigenvalues.size(); j++) {
-        //     std::cout  <<  eigenvalue_keys[j] << " | " << eigenvalues[j] << " | " << abs(eigenvalues[j]-i/2.0) << \
-          " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
+        //     std::cout  <<  eigenvalue_keys[j] << " | " << eigenvalues[j] << " | " << abs(eigenvalues[j]-i/2.0) << " | chi^2 = " << Stats::gaussian_upper_limit((abs(eig-i/2.0)),unitarity_upper_limit,0.0,sigma,false) << std::endl;
         // }
       #endif
 
@@ -2301,7 +2299,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running*0.5;
-      const double sigma = 0.1;
       if (mh_splitting > lower_limit) return -L_MAX;
       return 0.0;
       // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
@@ -2313,7 +2310,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running*0.5;
-      const double sigma = 0.1;
       if (mh_splitting > lower_limit) return -L_MAX;
       return 0.0;
       // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
@@ -2325,7 +2321,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "A0");
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running*0.5;
-      const double sigma = 0.1;
       if (mh_splitting > lower_limit) return -L_MAX;
       return 0.0;
       // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
@@ -2337,7 +2332,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "H+");
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running*0.5;
-      const double sigma = 0.1;
       if (mh_splitting > lower_limit) return -L_MAX;
       return 0.0;
       // return Stats::gaussian_upper_limit(mh_splitting,lower_limit,0.0,sigma,false);
@@ -2355,7 +2349,6 @@ namespace Gambit
     thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 48" << endl;
       thdmc_couplings couplings;
-      std::complex<double> test_coupling_s,test_coupling_p;
       switch(purpose) {
          case full:
             for (int h=1; h<5; h++) {
@@ -2433,7 +2426,7 @@ namespace Gambit
                   check_nan(couplings.vhh[2][h1][h2], "vhh coupling 2"+std::to_string(h1)+std::to_string(h2));
                 }
               }
-            // just through and execute next case statement as they have the same input
+            // just fall through and execute next case statement as they have the same input
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
             for (int h=1; h<4; h++) { 
@@ -2470,7 +2463,7 @@ namespace Gambit
       return couplings;
     }
 
-    std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
+    std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
@@ -2516,13 +2509,7 @@ namespace Gambit
     void get_THDM_couplings_HB_SM_like_model(std::vector<thdmc_couplings> &result) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
       using namespace Pipes::get_THDM_couplings_HB_SM_like_model;
-      // set THDM model type
-      int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
-      }
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, HB_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, HB_SM_like_couplings);
     }
 
     void get_THDM_couplings_HB_effc(thdmc_couplings &result) {
@@ -2540,13 +2527,7 @@ namespace Gambit
     void get_THDM_couplings_HB_effc_SM_like_model(std::vector<thdmc_couplings> &result) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 66" << endl;
       using namespace Pipes::get_THDM_couplings_HB_effc_SM_like_model;
-      // set THDM model type
-      int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
-      }
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, y_type, HB_effc_SM_like_couplings);
+      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, HB_effc_SM_like_couplings);
     }
     // **
 
