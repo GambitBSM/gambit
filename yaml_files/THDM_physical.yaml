@@ -42,7 +42,7 @@ Parameters:
         Qin:
             fixed_value: 91.1876 # = mZ
         QrunTo:
-            fixed_value: 750 # for comparison with other literature
+            fixed_value: 1000ss # for comparison with other literature
 
 ##############################
 # Printer setup
