@@ -43,3 +43,26 @@ diff -rupN HiggsBounds-5.3.2beta/usefulbits.f90 HiggsBounds-5.3.2beta_patched/us
   
  ! HB-5:
   logical :: BRdirectinput = .False.
++++ ../installed/higgsbounds/4.3.1/interpolate.f90      2019-09-24 14:46:04.538021946 +1000
+diff -rupN HiggsBounds-5.3.2beta/interpolate.f90 HiggsBounds-5.3.2beta_patched/interpolate.f90
+--- HiggsBounds-5.3.2beta/interpolate.f90	2018-12-22 20:19:52.000000000 +0000
++++ HiggsBounds-5.3.2beta_patched/interpolate.f90	2019-08-28 12:39:14.859777905 +0100
+@@ -535,9 +535,14 @@ module interpolate
+    intable=.False.                 
+   else                !#1
+                     
+-   ilow=int((z-slices_t2(1)%z)/(slices_t2(2)%z-slices_t2(1)%z))+1
+-   z_below=dble(ilow-1)*(slices_t2(2)%z-slices_t2(1)%z)+slices_t2(1)%z
+-   z_above=z_below+(slices_t2(2)%z-slices_t2(1)%z)
++   if(slices_t2(1)%z .eq. slices_t2(2)%z) then
++     z_below = slices_t2(1)%z
++     z_above = slices_t2(2)%z
++   else
++     ilow=int((z-slices_t2(1)%z)/(slices_t2(2)%z-slices_t2(1)%z))+1
++     z_below=dble(ilow-1)*(slices_t2(2)%z-slices_t2(1)%z)+slices_t2(1)%z
++     z_above=z_below+(slices_t2(2)%z-slices_t2(1)%z)
++   endif
+
+    if(abs(z_below-z).lt.small)then !z is the same as z_below
+     c_z=z_below
+
