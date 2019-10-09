@@ -1924,9 +1924,7 @@ namespace Gambit
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
-    double unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
-      if (print_debug_checkpoints) cout << "Checkpoint: 29" << endl;
-
+    std::vector<double> get_LO_scattering_eigenvalues(THDM_spectrum_container& container) {
       std::vector<double> lambda, abs_eigenvalues;
       lambda = get_lambdas_from_spectrum(container);
       lambda.insert(lambda.begin(), 0.0); // add zero to first element to align with index lambda_i
@@ -2013,23 +2011,10 @@ namespace Gambit
       abs_eigenvalues.push_back(abs(eigenvalues_S_00(2)));
       abs_eigenvalues.push_back(abs(eigenvalues_S_00(3)));
 
-      //set constraint values
-      //-----------------------------
-      // all values < 16*PI for unitarity conditions
-      const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      const double sigma = 0.1;
-      //-----------------------------
-      //calculate the total error of each point
-      double error = 0.0;
-      for (auto const& eachEig : abs_eigenvalues) {
-          if(eachEig > unitarity_upper_limit) error += eachEig - unitarity_upper_limit;
-      }
-      if (print_debug_checkpoints) cout << "Checkpoint: 29A " << endl;
-      return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
+      return abs_eigenvalues;
     }
 
-    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
-      if (print_debug_checkpoints) cout << "Checkpoint: 31" << endl;
+    std::vector<std::complex<double>> get_NLO_scattering_eigenvalues(THDM_spectrum_container& container) {
       const std::complex<double> i(0.0,1.0);
 
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
@@ -2125,15 +2110,57 @@ namespace Gambit
       std::complex<double> a11_even_minus = 1.0/(32.0*M_PI) * (B20 + B21 - sqrt(pow((B20-B21),2) + 4.*pow(B22,2)) );
       std::complex<double> a11_odd = 1.0/(32.0*M_PI) * (2.*B30);
 
+      return {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus, \
+        a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
+
+    }
+
+    double unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 29" << endl;
+      std::vector<double> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
+      //set constraint values
+      //-----------------------------
+      // all values < 16*PI for unitarity conditions
+      const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+      const double sigma = 0.1;
+      //-----------------------------
+      //calculate the total error of each point
+      double error = 0.0;
+      for (auto const& eachEig : LO_eigenvalues) {
+          if(eachEig > unitarity_upper_limit) error += eachEig - unitarity_upper_limit;
+      }
+      if (print_debug_checkpoints) cout << "Checkpoint: 29A " << endl;
+      return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
+    }
+
+    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
+      if (print_debug_checkpoints) cout << "Checkpoint: 31" << endl;
+      
+      std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
+
       const double unitarity_upper_limit = 0.5;
       const double sigma = 0.1;
       double error = 0.0;
 
-      std::vector<std::complex<double>> eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus, \
-        a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
-
-      for(auto const& eig: eigenvalues) {
+      for(auto const& eig: NLO_eigenvalues) {
         if(abs(eig-i/2.0) > unitarity_upper_limit) error += abs(eig-i/2.0) - unitarity_upper_limit;
+      }
+
+      if(myPipe::runOptions->getValueOrDef<bool>(false, "check_correction_ratio")) {
+        std::vector<double> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
+        // order NLO = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus, a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd}
+        // order LO = {9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3}
+        std::vector<int> LO_eigenvalue_order = [9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3];
+        for(int num; num < size(eigenvalues); num++ ) {
+          double LO_eigenvalue = abs(LO_eigenvalues[LO_eigenvalue_order[num]]);
+          if (LO_eigenvalue > 1/(16.0*M_PI)) {
+            double ratio = abs(NLO_eigenvalues[num])/LO_eigenvalue;
+            std::cout << "DEBUG: " << abs(NLO_eigenvalues[num]) << " / " <<  LO_eigenvalue << " = " << ratio << std::endl;
+            if (ratio >= 1) {
+              return -L_MAX;
+            }
+          }
+        }
       }
 
       #ifdef SPECBIT_DEBUG
