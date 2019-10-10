@@ -341,6 +341,7 @@ Rules:
       function: get_perturbativity_likelihood_THDM
       options:
         check_all_scales: false
+        simple_perturbativity: false
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
@@ -351,6 +352,7 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_all_scales: false
+        check_correction_ratio: true
     
     # -------------------------------------------
 

@@ -42,8 +42,6 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1_to_THDMII(const ModelParameters &myP
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
   logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid_lambda1 --> THDMII"<<LogTags::info<<EOM;
 
-  const SMInputs& sminputs = *Dep::SMINPUTS;
-
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
       m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
 

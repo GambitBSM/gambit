@@ -224,35 +224,35 @@ namespace Gambit
       template <class Model>
       double get_Lambda1(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
-         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
       }
 
       template <class Model>
       double get_Lambda2(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam345 = model.get_Lambda3() + model.get_Lambda4() + model.get_Lambda5();
-         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
       }
 
       template <class Model>
       double get_Lambda3(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam3 = model.get_Lambda3(), lam345 = lam3 + model.get_Lambda4() + model.get_Lambda5();
-         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
       }
 
       template <class Model>
       double get_Lambda4(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam4 = model.get_Lambda4(), lam345 = model.get_Lambda3() + lam4 + model.get_Lambda5();
-         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
       }
 
       template <class Model>
       double get_Lambda5(const Model& model) {
          double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam5 = model.get_Lambda5(), lam345 = model.get_Lambda3() + model.get_Lambda4() + lam5;
-         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7(), b = atan(get_tanb(model)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
       }
 
@@ -273,21 +273,21 @@ namespace Gambit
       template <class Model>
       double get_M12_2(const Model& model) {
          double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
-         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double b = atan(get_tanb(model)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.5*(m11_2-m22_2)*s2b + m12_2*c2b;
       }
 
       template <class Model>
       double get_M11_2(const Model& model) {
          double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
-         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
       }
 
       template <class Model>
       double get_M22_2(const Model& model) {
          double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
-         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
       }
 
