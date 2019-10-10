@@ -1777,6 +1777,7 @@ namespace Gambit
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
+    double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container);
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container);
@@ -1813,7 +1814,13 @@ namespace Gambit
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
       }
-      std::function<double(THDM_spectrum_container&)> likelihood_function = NLO_unitarity_likelihood_THDM;
+      std::function<double(THDM_spectrum_container&)> likelihood_function;
+      if (runOptions->getValueOrDef<bool>(false, "check_correction_ratio")) {
+        likelihood_function = NLO_unitarity_with_correction_ratio_likelihood_THDM;
+      }
+      else {
+        likelihood_function = NLO_unitarity_likelihood_THDM;
+      }
       result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
@@ -2020,7 +2027,7 @@ namespace Gambit
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
 
       // check that model is Z2 conserving
-      if (check_Z2(Lambda[6], Lambda[7], "NLO_unitarity_likelihood_THDM") < 0.0) return 0.0;
+      if (check_Z2(Lambda[6], Lambda[7], "NLO_unitarity_likelihood_THDM") < 0.0) return {0.0};
 
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a= container.he->get(Par::dimensionless, "alpha");
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
@@ -2133,8 +2140,9 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
     }
 
-    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
+    double NLO_unitarity_likelihood_helper_THDM(THDM_spectrum_container& container, const bool check_correction_ratio) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 31" << endl;
+      const std::complex<double> i(0.0,1.0);
       
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
 
@@ -2145,17 +2153,15 @@ namespace Gambit
       for(auto const& eig: NLO_eigenvalues) {
         if(abs(eig-i/2.0) > unitarity_upper_limit) error += abs(eig-i/2.0) - unitarity_upper_limit;
       }
-
-      if(myPipe::runOptions->getValueOrDef<bool>(false, "check_correction_ratio")) {
+      if(check_correction_ratio) {
         std::vector<double> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
         // order NLO = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus, a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd}
         // order LO = {9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3}
-        std::vector<int> LO_eigenvalue_order = [9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3];
-        for(int num; num < size(eigenvalues); num++ ) {
+        std::vector<int> LO_eigenvalue_order = {9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3};
+        for(int num=0; num < size(LO_eigenvalues); num++ ) {
           double LO_eigenvalue = abs(LO_eigenvalues[LO_eigenvalue_order[num]]);
           if (LO_eigenvalue > 1/(16.0*M_PI)) {
             double ratio = abs(NLO_eigenvalues[num])/LO_eigenvalue;
-            std::cout << "DEBUG: " << abs(NLO_eigenvalues[num]) << " / " <<  LO_eigenvalue << " = " << ratio << std::endl;
             if (ratio >= 1) {
               return -L_MAX;
             }
@@ -2172,6 +2178,14 @@ namespace Gambit
 
       return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
   }
+
+    double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container) { 
+      return NLO_unitarity_likelihood_helper_THDM(container, true);
+    }
+
+    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
+      return NLO_unitarity_likelihood_helper_THDM(container, false);
+    }
 
     double perturbativity_likelihood_generic_THDM(THDM_spectrum_container& container) { 
       if (print_debug_checkpoints) cout << "Checkpoint: 38A" << endl;
