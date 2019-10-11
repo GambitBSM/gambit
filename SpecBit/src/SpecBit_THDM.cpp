@@ -1648,6 +1648,8 @@ namespace Gambit
     // Step Functions (forward declarations)
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container);
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
+    double loop_correction_mass_splitting_inverted_h0_THDM(THDM_spectrum_container& container);
+    double loop_correction_mass_splitting_inverted_scalar_THDM(THDM_spectrum_container& container);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container);
@@ -1780,6 +1782,9 @@ namespace Gambit
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
+      if(runOptions->getValueOrDef<bool>(false, "invert")) {
+        check_loop_corrections_h0_function = loop_correction_mass_splitting_inverted_h0_THDM;
+      }
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_h0_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
@@ -1795,7 +1800,11 @@ namespace Gambit
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
+      if(runOptions->getValueOrDef<bool>(false, "invert")) {
+        check_loop_corrections_scalar_function = loop_correction_mass_splitting_inverted_scalar_THDM;
+      }
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
+    
     }
 
     std::vector<double> get_LO_scattering_eigenvalues(THDM_spectrum_container& container) {
@@ -2225,6 +2234,49 @@ namespace Gambit
       loglike += loop_correction_mass_splitting_Hpm_THDM(container);
       return loglike;
     }
+
+    // TEMP FOR PAPER
+
+    double loop_correction_mass_splitting_inverted_h0_THDM(THDM_spectrum_container& container) { 
+      const double mh_running = container.he->get(Par::mass1, "h0", 1), mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      if (mh_splitting > lower_limit) return 0.0;
+      return -L_MAX;
+    }
+
+    double loop_correction_mass_splitting_inverted_H0_THDM(THDM_spectrum_container& container) { 
+      const double mh_running = container.he->get(Par::mass1, "h0", 2), mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      if (mh_splitting > lower_limit) return 0.0;
+      return -L_MAX;
+    }
+
+    double loop_correction_mass_splitting_inverted_A0_THDM(THDM_spectrum_container& container) { 
+      const double mh_running = container.he->get(Par::mass1, "A0"), mh_pole = container.he->get(Par::Pole_Mass, "A0");
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      if (mh_splitting > lower_limit) return 0.0;
+      return -L_MAX;
+    }
+
+    double loop_correction_mass_splitting_inverted_Hpm_THDM(THDM_spectrum_container& container) { 
+      const double mh_running = container.he->get(Par::mass1, "H+"), mh_pole = container.he->get(Par::Pole_Mass, "H+");
+      const double mh_splitting = abs(mh_pole - mh_running);
+      const double lower_limit = mh_running*0.5;
+      if (mh_splitting > lower_limit) return 0.0;
+      return -L_MAX;
+    }
+
+    double loop_correction_mass_splitting_inverted_scalar_THDM(THDM_spectrum_container& container) {
+      double loglike = loop_correction_mass_splitting_inverted_H0_THDM(container);
+      loglike += loop_correction_mass_splitting_inverted_A0_THDM(container);
+      loglike += loop_correction_mass_splitting_inverted_Hpm_THDM(container);
+      return loglike;
+    }
+
+    //
 
     enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
 
