@@ -86,7 +86,7 @@ namespace Gambit
     struct Finputs
     {
         SMInputs sminputs;
-        std::map<str, safe_ptr<double> > param;
+        std::map<str, safe_ptr<const double> > param;
         safe_ptr<Options> options;
     };
 }

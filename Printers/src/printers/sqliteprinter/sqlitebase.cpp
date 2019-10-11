@@ -185,6 +185,7 @@ namespace Gambit
               break;
            case 'w':
               sql_access = SQLITE_OPEN_READWRITE;
+              break;
            case '+':
               sql_access = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
               break;

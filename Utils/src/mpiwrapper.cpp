@@ -3,14 +3,24 @@
 ///  \file
 ///
 ///  Definitions for Gambit MPI C++ bindings.
-//
+///
+///  NOTE! I just learned something unfortunate,
+///  which is that all Isend's are supposed to be
+///  matched by MPI_Wait calls at some point, to
+///  ensure the operation is complete.
+///  We are not doing this. Things seem to work
+///  anyway, but it may explain some of the hangs
+///  on MPI_Finalize.
+///  I will fix the worst offenders of this asap,
+///  but the rest may take longer. 
+///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Ben Farmer
-///          (benjamin.farmer@fysik.su.se)
-///  \date 2015 Apr
+///          (b.farmer@imperial.ac.uk)
+///  \date 2015 - 2019
 ///  *********************************************
 
 #ifdef WITH_MPI // Contents of this file ignored if MPI not enabled

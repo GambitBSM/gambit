@@ -112,7 +112,7 @@ namespace Gambit
                {
                   // Reader didn't progress, error.
                   std::ostringstream err;
-                  err << "'resume_reader' object returned the same value for 'input_dataset_index' twice! This means that it either didn't increment properly during this postprocessor run, or the input dataset contains the same point twice! Either case indicates a bug in the postprocessor, please report it.";
+                  err << "'resume_reader' object returned the same value for 'input_dataset_index' twice ('"<<input_index<<"')! This means that it either didn't increment properly during this postprocessor run, or the input dataset contains the same point twice! Either case indicates a bug in the postprocessor, please report it.";
                   Scanner::scan_error().raise(LOCAL_INFO,err.str());
                }
                else

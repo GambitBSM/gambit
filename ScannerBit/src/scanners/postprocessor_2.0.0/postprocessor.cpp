@@ -326,6 +326,12 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         }
         #endif
 
+        // I think the above broadcast should be blocking, but lets do a barrier here to make sure no strange writing occurs before
+        // this resume analysis is complete
+        #ifdef WITH_MPI
+        ppComm.Barrier();
+        #endif
+
         if(rank==0)
         {
             std::cout << "Postprocessing resume analysis completed." << std::endl;
@@ -337,7 +343,6 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         //{
         //   std::cout << "   "<<chunk->start<<" -> "<<chunk->end<<std::endl;
         //}
-
     }
 
     // Tell the driver routine what points it can automatically skip

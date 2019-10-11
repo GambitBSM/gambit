@@ -74,14 +74,14 @@ Scanner:
        # Throw away all points outside the cuts
       discard_points_outside_cuts: true
       # Information about input dataset to be postprocessed
-      #reader:
-      #  type: hdf5
-      #  file: "runs/spartan/samples/results.hdf5"
-      #  group: "/spartan"
       reader:
-        type: sqlite
-        file: "runs/spartan/samples/results.sql"
-        table: "spartan"
+        type: hdf5
+        file: "runs/spartan/samples/results.hdf5"
+        group: "/spartan"
+        #reader:
+        #  type: sqlite
+        #  file: "runs/spartan/samples/results.sql"
+        #  table: "spartan"
 
 ObsLikes:
 
