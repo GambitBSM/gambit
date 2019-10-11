@@ -134,9 +134,9 @@ namespace Gambit
    /// (can't take reference of static const defined only in the
    /// header since they aren't "real" objects)
    // const int ERROR = 0; // Not in use
-   //const int SignalData::SOFT_SHUTDOWN = 1;
-   //const int SignalData::EMERGENCY_SHUTDOWN = 2;
-   //const int SignalData::NO_MORE_MESSAGES = -1;
+   const int SignalData::SOFT_SHUTDOWN;
+   const int SignalData::EMERGENCY_SHUTDOWN;
+   const int SignalData::NO_MORE_MESSAGES;
    #endif
 
    /// @{ SignalData member functions
