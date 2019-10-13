@@ -2044,8 +2044,6 @@ namespace Gambit
         }
       }
 
-      std::cout << "DEBUG | " << error << ", " << error_ratio << std::endl;
-
       return Stats::gaussian_upper_limit(error+error_ratio,0.0,0.0,sigma,false);
   }
 
