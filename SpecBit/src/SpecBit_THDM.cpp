@@ -2022,6 +2022,7 @@ namespace Gambit
       const double unitarity_upper_limit = 0.5;
       const double sigma = 0.1;
       double error = 0.0;
+      double error_ratio = 0.0;
 
       for(auto const& eig: NLO_eigenvalues) {
         if(abs(eig-i/2.0) > unitarity_upper_limit) error += abs(eig-i/2.0) - unitarity_upper_limit;
@@ -2037,13 +2038,15 @@ namespace Gambit
           if (LO_eigenvalue > 1/(16.0*M_PI)) {
             double ratio = abs(NLO_eigenvalues[num])/LO_eigenvalue;
             if (ratio >= 1) {
-              return -L_MAX;
+              error_ratio += abs(ratio-1);
             }
           }
         }
       }
 
-      return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
+      std::cout << "DEBUG | " << error << ", " << error_ratio << std::endl;
+
+      return Stats::gaussian_upper_limit(error+error_ratio,0.0,0.0,sigma,false);
   }
 
     double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container) { 
