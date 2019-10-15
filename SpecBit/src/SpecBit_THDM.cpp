@@ -2034,7 +2034,7 @@ namespace Gambit
         std::vector<int> LO_eigenvalue_order = {9, 10, 11, 12, 5, 6, 7, 8, 4, 1, 2, 3};
         for(int num=0; num < LO_eigenvalues.size(); num++ ) {
           // needs to be normalized in accordance to NLO unitarity
-          double LO_eigenvalue = abs(LO_eigenvalues[LO_eigenvalue_order[num]])/(8.0*M_PI);
+          double LO_eigenvalue = abs(LO_eigenvalues[LO_eigenvalue_order[num]])/(32.0*M_PI);
           if (LO_eigenvalue > 1/(16.0*M_PI)) {
             double ratio = abs(NLO_eigenvalues[num])/LO_eigenvalue;
             if (ratio >= 1) {
