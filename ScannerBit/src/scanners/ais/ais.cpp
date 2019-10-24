@@ -29,18 +29,11 @@ scanner_plugin(badass, version(1, 0, 0))
         like_ptr LogLike = get_purpose(get_inifile_value<std::string>("like", "LogLike"));
         int dim = get_dimension();
 
-        int numtasks;
-#ifdef WITH_MPI
-        MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-#else
-        numtasks = 1;
-#endif
-
         Gambit::Options txt_options;
         txt_options.setValue("synchronised",false);
         get_printer().new_stream("txt", txt_options);
         set_resume_params.set_resume_mode(get_printer().resume_mode());
-        
+
         int pdim = get_inifile_value<int>("projection_dimension", dim);
         AIS (LogLike, get_printer(),
                         set_resume_params,
@@ -60,25 +53,25 @@ scanner_plugin(badass, version(1, 0, 0))
     }
 }
 
-void AIS(Gambit::Scanner::like_ptr LogLike, 
-           Gambit::Scanner::printer_interface &printer, 
-           Gambit::Scanner::resume_params_func set_resume_params, 
-           const int &ma, 
-           //const double &div, 
-           const int &proj, 
-           const double &din, 
-           const double &alim, 
-           const double &alimt, 
+void AIS(Gambit::Scanner::like_ptr LogLike,
+           Gambit::Scanner::printer_interface &printer,
+           Gambit::Scanner::resume_params_func set_resume_params,
+           const int &ma,
+           //const double &div,
+           const int &proj,
+           const double &din,
+           const double &alim,
+           const double &alimt,
            const long long &rand,
            int N,
            int M,
            std::vector<double> Bs)
 {
     int rank = 0;
-    int numtasks = 1;
 
 #ifdef WITH_MPI
-    MPI_Comm_size(MPI_COMM_WORLD,&numtasks); 
+    int numtasks = 1;
+    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     if (numtasks > 1)
     {
@@ -103,28 +96,28 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
     RandomPlane gDev(proj, ma, din, alim, alimt, rand);
 
     set_resume_params(currentPts, nextPts, chisq, weights, ids, ranks);
-    
+
     Gambit::Scanner::assign_aux_numbers("weights");
-    
+
     std::cout << "Initializing BadAss ... " << std::endl;
     for (int i = 0; i < N; i++)
     {
         for (auto &&temp : currentPts[i])
             temp = gDev.Doub();
-        
+
         chisq[i] = -LogLike(currentPts[i]);
         ids[i] = LogLike->getPtID();
         ranks[i] = rank;
         std::cout << "point " << i << " complete."  << std::endl;
     }
-    
+
     std::cout << "Initializing complete." << std::endl;
 
     nextPts = currentPts;
-        
+
     for (int i = 1, endi = Bs.size(); i < endi; i++)
     {
-        
+
         for (int j = 0; j < N; j++)
         {
             int jumps = 0;
@@ -132,15 +125,15 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
             {
                 double u = gDev.Doub();
                 int ii = 0;
-                
+
                 for (ii = 0; ii < N; ii++)
                 {
                     u -= std::exp(weights[ii] - logWtTot);
-                    
+
                     if (u < 0.0)
                         break;
                 }
-                
+
                 double ran = gDev.Doub();
                 double logZ;
 
@@ -172,14 +165,14 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
                     }
                 }
             }
-            
+
             std::cout << "point " << j << ":\n  jumps: " << jumps << "\n  acceptance ratio: " << double(jumps)/double(M) << std::endl;
         }
-        
+
         std::cout << "B " << i << "completed." << std::endl;
-        
+
         currentPts = nextPts;
-        
+
         weights[0] += (Bs[i] - Bs[i-1])*chisq[0];
         logWtTot = weights[0];
         for (int j = 1; j < N; j++)
@@ -189,7 +182,7 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
             //std::cout << logWtTot << "   " << weights[j] << std::endl; getchar();
         }
     }
-    
+
     double Neff = 0.0, wttemp;
     for (int i = 0; i < N; i++)
     {
@@ -198,20 +191,20 @@ void AIS(Gambit::Scanner::like_ptr LogLike,
         Neff += wttemp*wttemp;
         out_stream->print(wttemp, "weights", ranks[i], ids[i]);
     }
-    
+
     std::cout << "Neff = " << 1.0/Neff << std::endl;
 }
 
 #ifdef WITH_MPI
-void AIS_MPI(Gambit::Scanner::like_ptr LogLike, 
-           Gambit::Scanner::printer_interface &printer, 
-           Gambit::Scanner::resume_params_func set_resume_params, 
-           const int &ma, 
-           //const double &div, 
-           const int &proj, 
-           const double &din, 
-           const double &alim, 
-           const double &alimt, 
+void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
+           Gambit::Scanner::printer_interface &printer,
+           Gambit::Scanner::resume_params_func set_resume_params,
+           const int &ma,
+           //const double &div,
+           const int &proj,
+           const double &din,
+           const double &alim,
+           const double &alimt,
            const long long &rand,
            int N,
            int M,
@@ -224,21 +217,21 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
     std::vector<double> aNext(ma);
     double ans, chisqnext, logWtTot = std::log(N);
     int rank, numtasks;
-    MPI_Comm_size(MPI_COMM_WORLD,&numtasks); 
+    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
     std::vector<unsigned long long int> ids(N);
     unsigned long long int next_id;
-    
+
     Gambit::Scanner::printer *out_stream = printer.get_stream("txt");
     out_stream->reset();
-    
+
     RandomPlane gDev(proj, ma, din, alim, alimt, rand);
 
     set_resume_params(currentPts, nextPts, chisq, weights, ids, ranks);
-    
+
     Gambit::Scanner::assign_aux_numbers("weights");
-    
+
     if (rank == 0)
     {
         std::cout << "Initializing BadAss ... " << std::endl;
@@ -249,12 +242,12 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
         std::vector<MPI_Status> stats(incount);
         int outcount;
         int counter = 0, cont = 1;
-        
+
         for (int r = 1; r < numtasks; r++)
         {
             MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
         }
-        
+
         do
         {
             MPI_Waitsome(incount, &reqs[0], &outcount, &indices[0], &stats[0]);
@@ -264,7 +257,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                 MPI_Send(&counter, 1, MPI_INT, r, r+numtasks, MPI_COMM_WORLD);
                 MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
                 //std::cout << "point " << counter << " complete."  << std::endl;
-                
+
                 if (counter != N)
                 {
                     ranks[counter++] = r;
@@ -274,40 +267,40 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             }
         }
         while(cont < numtasks);
-        
+
         for (int r = 1; r < numtasks; r++)
         {
             MPI_Cancel(&reqs[r-1]);
         }
-        
+
         std::cout << "Initializing completed." << std::endl;
     }
     else
     {
         int i, iii = 0;
         MPI_Status stat;
-        
+
         for(;;)
         {
             MPI_Request req;
             MPI_Isend(&iii, 1, MPI_INT, 0, rank, MPI_COMM_WORLD, &req);
             MPI_Recv(&i, 1, MPI_INT, 0, rank + numtasks, MPI_COMM_WORLD, &stat);
-            
+
             if (i == N)
                 break;
-            
+
             for (auto &&temp : currentPts[i])
                 temp = gDev.Doub();
-        
+
             chisq[i] = -LogLike(currentPts[i]);
             ids[i] = LogLike->getPtID();
             //ranks[i] = rank;
         }
     }
-    
+
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
-            
+
     for (int i = 0; i < N; i++)
     {
         double r = ranks[i];
@@ -318,7 +311,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
     }
 
     nextPts = currentPts;
-        
+
     for (int i = 1, endi = Bs.size(); i < endi; i++)
     {
         if(rank == 0)
@@ -330,12 +323,12 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             std::vector<MPI_Status> stats(incount);
             int outcount;
             int counter = 0, cont = 1;
-            
+
             for (int r = 1; r < numtasks; r++)
             {
                 MPI_Irecv(&buf[r-1], 1, MPI_INT, r, r, MPI_COMM_WORLD, &reqs[r-1]);
             }
-            
+
             do
             {
                 MPI_Waitsome(incount, &reqs[0], &outcount, &indices[0], &stats[0]);
@@ -355,7 +348,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                 }
             }
             while(cont < numtasks);
-            
+
             for (int r = 1; r < numtasks; r++)
             {
                 MPI_Cancel(&reqs[r-1]);
@@ -373,24 +366,24 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                 //std::cout << "rank " << rank << "receiving point " << j << std::endl;
                 if (j == N)
                     break;
-                
+
                 int jumps = 0;
                 for (int k = 0; k < M; k++)
                 {
                     double u = gDev.Doub();
                     int ii = 0;
-                    
+
                     for (ii = 0; ii < N; ii++)
                     {
                         u -= std::exp(weights[ii] - logWtTot);
-                        
+
                         if (u < 0.0)
                             break;
                     }
-                    
+
                     double ran = gDev.Doub();
                     double logZ;
-                    
+
                     if (ran < 0.5)
                     {
                         logZ = gDev.WalkDev(&aNext[0], &nextPts[j][0], &currentPts[ii][0]);
@@ -399,9 +392,9 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                     {
                         logZ = gDev.TransDev(&aNext[0], &nextPts[j][0], &currentPts[ii][0]);
                     }
-                    
 
-                    
+
+
                     if(!notUnit(aNext))
                     {
                         chisqnext = -LogLike(aNext);
@@ -422,14 +415,14 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
                         }
                     }
                 }
-                
+
                 std::cout << "point " << j << ":\n  jumps: " << jumps << "\n  acceptance ratio: " << double(jumps)/double(M) << std::endl;
             }
         }
-        
+
         MPI_Barrier(MPI_COMM_WORLD);
         MPI_Bcast (&ranks[0], ranks.size(), MPI_INT, 0, MPI_COMM_WORLD);
-                
+
         for (int i = 0; i < N; i++)
         {
             double r = ranks[i];
@@ -438,9 +431,9 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             MPI_Bcast (&ids[i], 1, MPI_UNSIGNED_LONG_LONG, r, MPI_COMM_WORLD);
             MPI_Bcast (&currentPts[i][0], ma, MPI_DOUBLE, r, MPI_COMM_WORLD);
         }
-        
+
         currentPts = nextPts;
-        
+
         weights[0] += (Bs[i] - Bs[i-1])*chisq[0];
         logWtTot = weights[0];
         for (int j = 1; j < N; j++)
@@ -448,11 +441,11 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             weights[j] = (Bs[i] - Bs[i-1])*chisq[j];
             logWtTot += std::log(1.0 + std::exp(weights[j] - logWtTot));
         }
-        
+
         if (rank == 0)
             std::cout << "B " << i << "completed." << std::endl;
     }
-    
+
     if (rank == 0)
     {
         double Neff = 0.0, wttemp;
@@ -462,7 +455,7 @@ void AIS_MPI(Gambit::Scanner::like_ptr LogLike,
             Neff += wttemp*wttemp;
             out_stream->print(wttemp, "weights", ranks[i], ids[i]);
         }
-        
+
         std::cout << "Neff = " << 1.0/Neff << std::endl;
     }
 }
