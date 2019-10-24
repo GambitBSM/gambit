@@ -23,27 +23,18 @@ Priors:
 
 Printer:
 
-  #printer: sqlite
+  #printer: hdf5
   #options:
-  #  output_file: "results.sql"
-  #  table_name: "spartan"
-  #  buffer_length: 1000
+  #  output_file: "results.hdf5"
+  #  group: "/spartan"
   #  delete_file_on_restart: true
 
-  printer: hdf5
+  printer: ascii
   options:
-    output_file: "results.hdf5"
-    group: "/spartan"
+    output_file: "results.dat"
+    buffer_length: 10
     delete_file_on_restart: true
-    buffer_length: 100
 
-  #printer: ascii
-  #options:
-  #  output_file: "results.dat"
-  #  buffer_length: 10
-  #  delete_file_on_restart: true
-
-  #printer: cout
 
 Scanner:
 

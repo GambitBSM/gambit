@@ -178,7 +178,7 @@ namespace Gambit
 
                 return return_val;
             }
-
+            
             inline void setup_hdf5_points(hid_t new_group, hid_t type, hid_t type2, unsigned long long size_tot, const std::string &name)
             {
                 #ifdef COMBINE_DEBUG
@@ -187,11 +187,11 @@ namespace Gambit
 
                 hsize_t dimsf[1];
                 dimsf[0] = size_tot;
+<<<<<<< HEAD
                 hid_t dataspace = H5Screate_simple(1, dimsf, NULL);
-                if(dataspace < 0)
-                {
+=======
+                hid_t dataspace = H5Screate_simple(1, dimsf, NULL); 
                   std::ostringstream errmsg;
-                  errmsg<<"Failed to set up HDF5 points for copying. H5Screate_simple failed for dataset ("<<name<<").";
                   printer_error().raise(LOCAL_INFO, errmsg.str());
                 }
                 hid_t dataset_out = H5Dcreate2(new_group, name.c_str(), type, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -215,10 +215,10 @@ namespace Gambit
                   errmsg<<"Failed to set up HDF5 points for copying. H5Dcreate2 failed for dataset ("<<name<<"_isvalid).";
                   printer_error().raise(LOCAL_INFO, errmsg.str());
                 }
-
-                // We are just going to close the newly created datasets, and reopen them as needed.
-                HDF5::closeSpace(dataspace);
-                HDF5::closeSpace(dataspace2);
+       
+                // Update: We are just going to close the newly created datasets, and reopen them as needed. 
+                H5Sclose(dataspace);
+                H5Sclose(dataspace2);
                 HDF5::closeDataset(dataset_out);
                 HDF5::closeDataset(dataset2_out);
             }
@@ -247,13 +247,10 @@ namespace Gambit
               , sizes(num, 0)
               , size_tot(0)
               , root_file_name(file_name)
-              , do_cleanup(cleanup)
-              , skip_unreadable(skip)
-              , files(num,-1)
-              , groups(num,-1)
-              , aux_groups(num,-1)
-              , file_names(file_names_in)
-              , custom_mode(file_names.size()>0) // Running in mode which allows 'custom' filenames (for combining output from multiple runs)
+              , pt_min(0)
+            {
+                //std::vector<bool> temp;
+                //herr_t status;
 
            {
                 if(custom_mode)
@@ -337,10 +334,15 @@ namespace Gambit
 
                     if(file_id<0 and not skip)
                     {
-                        // Can't read file, it is missing or corrupted, and not allowed to skip it, so error
-                        std::ostringstream errmsg;
-                        errmsg << "Error combining temporary HDF5 output! Failed to open expected temporary file '"<<fname<<"'.";
-                        printer_error().raise(LOCAL_INFO, errmsg.str());
+                       // Probably the sync group is empty for this file, just skip it
+                       size = 0;
+                    } 
+                    else if(dataset<0 or dataset2<0)
+                    {
+                       // Either primary or isvalid dataset missing (but not both). Error!
+                       std::ostringstream errmsg;
+                       errmsg << "Error combining temporary HDF5 output! One of the temporary files is missing either the 'pointID' or 'pointID_isvalid' dataset in the primary group (but not both, so the group is not empty!)";
+                       printer_error().raise(LOCAL_INFO, errmsg.str());
                     }
 
 
@@ -422,59 +424,22 @@ namespace Gambit
                            std::ostringstream errmsg;
                            errmsg << "Error combining temporary HDF5 output! One of the temporary files is missing either the 'pointID' or 'pointID_isvalid' dataset in the primary group (but not both, so the group is not empty!)";
                            printer_error().raise(LOCAL_INFO, errmsg.str());
-                        }
-                        else
-                        {
-                           // Everything fine, measure the dataset sizes
-                           hid_t dataspace = H5Dget_space(dataset);
-                           hid_t dataspace2 = H5Dget_space(dataset2);
-                           size           = H5Sget_simple_extent_npoints(dataspace); // Use variable declared outside the if block
-                           hssize_t size2 = H5Sget_simple_extent_npoints(dataspace2);
-
-                           std::vector<bool> valids;
-                           Enter_HDF5<read_hdf5>(dataset2, valids);
-
-                           // Don't seem to need this for anything?
-                           //if (i == 0)
-                           //{
-                           //    std::vector<unsigned long long> pt_id;
-                           //    Enter_HDF5<read_hdf5>(dataset2, pt_id);
-                           //    pt_min = pt_id[0];
-                           //}
-
-                           if (size != size2)
-                           {
-                               std::ostringstream errmsg;
-                               errmsg << "pointID and pointID_isvalid are not the same size.";
-                               printer_error().raise(LOCAL_INFO, errmsg.str());
-                           }
-
-                           // Just update? No reason to do only on last file I think
-                           //if (i == num - 1)
-                           //{
-                               size_tot_l = size_tot + size; // Last?
-                           //}
-
-                           for (auto it = valids.end()-1; size > 0; --it)
-                           {
-                               if (*it)
-                                   break;
-                               else
-                                   --size;
-                           }
-
-                           HDF5::closeSpace(dataspace);
-                           HDF5::closeSpace(dataspace2);
-                           HDF5::closeDataset(dataset);
-                           HDF5::closeDataset(dataset2);
-                        }
-                    }
+                       }
+                      
+                       // Subtract invalid points from the end of the dataset; these are just padding. 
+                       for (auto it = valids.end()-1; size > 0; --it)
+                       {
+                           if (*it)
+                               break;
+                           else
+                               --size;
+                       }
 
                     for (int j = i+1, end = cum_sizes.size(); j < end; j++)
                     {
                         cum_sizes[j] += size;
                     }
-                    sizes[i] = size;
+                    sizes[i] = size; // Size of dataset minus invalid entries that pad the end.
                     size_tot += size;
 
                     //std::cout <<"size_tot="<<size_tot<<", (new contribution from file "<<i<<" is "<<size<<", file_id was "<<file_id<<")"<<std::endl;
@@ -544,8 +509,8 @@ namespace Gambit
                        hid_t space = HDF5::getSpace(old_dataset);
                        hsize_t extra = HDF5::getSimpleExtentNpoints(space);
                        HDF5::closeSpace(space);
-                       HDF5::closeDataset(old_dataset);
-                       size_tot += extra;
+                       HDF5::closeDataset(old_dataset); 
+                       size_tot += extra; // Add on the size of the points from the old dataset
 
                        // Check for parameters not found in the newer temporary files.
                        // (should not be any aux parameters in here, so don't check for them)
@@ -807,82 +772,56 @@ namespace Gambit
                             }
                         }
 
-                        // With new batching system, could get a batch with no data for this parameter. This is ok,
-                        // so we just skip it.
-                        // TODO: Could put in a check to make sure that SOME batch copies data.
-                        // This should happen though, since the parameter name must have been retrieved from *some*
-                        // file or other, so it would just be double-checking that this worked correctly.
-                        if(valid_dset>=0 or old_dataset>=0)
-                        {
-                            hid_t type, type2;
-                            if(valid_dset<0)
-                            {
-                               // Parameter not in any of the new temp files, must only be in the old combined output, get type from there.
-                               type  = H5Dget_type(old_dataset);
-                               type2 = H5Dget_type(old_dataset2);
-                            }
-                            else
-                            {
-                               // Get the type from a validly opened dataset in temp file
-                               type  = H5Dget_type(datasets[valid_dset]);
-                               type2 = H5Dget_type(datasets2[valid_dset]);
-                            }
-                            if(type<0 or type2<0)
-                            {
-                               std::ostringstream errmsg;
-                               errmsg << "Failed to detect type for dataset '"<<*it<<"'! The dataset is supposedly valid, so this does not make sense. It must be a bug, please report it. (valid_dset="<<valid_dset<<")";
-                               printer_error().raise(LOCAL_INFO, errmsg.str());
-                            }
+                    if(valid_dset<0 and old_dataset<0)
+                    {
+                       // Parameter must exist in either the old combined file or at least one of the newer temp files,
+                       // because those are what we read to get the parameter names. So if the datasets are now
+                       // failing to actually open then something bad must have happened.
+                       std::ostringstream errmsg;
+                       errmsg << "Error opening datasets for parameter '"<<*it<<"' in temp files! All datasets failed to open! They may be corrupted.";
+                       printer_error().raise(LOCAL_INFO, errmsg.str());
+                    }
+                   
+                    hid_t type, type2;
+                    if(valid_dset<0)
+                    {
+                       // Parameter not in any of the new temp files, must only be in the old combined output, get type from there.
+                       type  = H5Dget_type(old_dataset);
+                       type2 = H5Dget_type(old_dataset2);
+                    }
+                    else
+                    { 
+                       // Get the type from a validly opened dataset in temp file
+                       type  = H5Dget_type(datasets[valid_dset]);
+                       type2 = H5Dget_type(datasets2[valid_dset]); 
+                    }
+                    if(type<0 or type2<0)
+                    {
+                       std::ostringstream errmsg;
+                       errmsg << "Failed to detect type for dataset '"<<*it<<"'! The dataset is supposedly valid, so this does not make sense. It must be a bug, please report it.";
+                       printer_error().raise(LOCAL_INFO, errmsg.str());
+                    }
+                    
+                    // Create datasets
+                    setup_hdf5_points(new_group, type, type2, size_tot, *it);
+                    //std::cout<<"(theoretically) created dataset '"<<*it<<"' in file:group "<<file<<":"<<group_name<<std::endl;
+ 
+                    // Reopen dataset for writing
+                    hid_t dataset_out, dataset2_out;
+                    dataset_out   = HDF5::openDataset(new_group, *it);
+                    dataset2_out  = HDF5::openDataset(new_group, (*it)+"_isvalid");
+                    std::cout << "Copying parameter "<<*it<<std::endl; // debug
+                    Enter_HDF5<copy_hdf5>(dataset_out, datasets, size_tot, sizes, old_dataset);
+                    Enter_HDF5<copy_hdf5>(dataset2_out, datasets2, size_tot, sizes, old_dataset2);
+                    
+                    for (int i = 0, end = datasets.size(); i < end; i++)
+                    {
+                        if(datasets[i]>=0)  HDF5::closeDataset(datasets[i]);
+                        if(datasets2[i]>=0) HDF5::closeDataset(datasets2[i]);
+                    }
 
-                            if(batch_i==0) // Only want to create the output dataset once!
-                            {
-                               // Create datasets
-                               //std::cout<<"Creating dataset '"<<*it<<"' in file:group "<<file<<":"<<group_name<<std::endl;
-                               setup_hdf5_points(new_group, type, type2, size_tot, *it);
-                            }
-
-                            // Reopen dataset for writing
-                            hid_t dataset_out   = HDF5::openDataset(new_group, *it);
-                            hid_t dataset2_out  = HDF5::openDataset(new_group, (*it)+"_isvalid");
-                            //std::cout << "Copying parameter "<<*it<<std::endl; // debug
-
-                            // Measure total size of datasets for this batch of files
-                            // (not counting previous combined output, which will be copied in batch 0)
-                            unsigned long long batch_size_tot = 0;
-                            for(auto it = batch_sizes.begin(); it != batch_sizes.end(); ++it)
-                            {
-                               batch_size_tot += *it;
-                            }
-
-                            //Enter_HDF5<copy_hdf5>(dataset_out, datasets, size_tot_l, sizes, old_dataset);
-                            //Enter_HDF5<copy_hdf5>(dataset2_out, datasets2, size_tot_l, sizes, old_dataset2);
-
-                            // Do the copy!!!
-                            Enter_HDF5<copy_hdf5>(dataset_out, datasets, batch_size_tot, batch_sizes, old_dataset, offset);
-                            Enter_HDF5<copy_hdf5>(dataset2_out, datasets2, batch_size_tot, batch_sizes, old_dataset2, offset);
-
-                            // Close resources
-                            HDF5::closeDataset(dataset_out);
-                            HDF5::closeDataset(dataset2_out);
-
-                            // Move offset so that next batch is written to correct place in output file
-                            offset += batch_size_tot + pc_offset;
-                        }
-                        else
-                        {
-                            std::cout << "No datasets found for parameter "<<*it<<" in file batch "<<batch_i<<". Moving on to next batch since there seems to be nothing to copy in this one." << std::endl;
-                        }
-
-                        // Close files etc. associated with this batch
-                        for (size_t file_i = 0, end = file_ids.size(); file_i < end; file_i++)
-                        {
-                            if(datasets[file_i]>=0)  HDF5::closeDataset(datasets[file_i]);
-                            if(datasets2[file_i]>=0) HDF5::closeDataset(datasets2[file_i]);
-                            if(group_ids[file_i]>=0) HDF5::closeGroup(group_ids[file_i]);
-                            if(file_ids[file_i]>=0)  HDF5::closeFile(file_ids[file_i]);
-                        }
-
-                    } // end batch, begin processing next batch of files.
+                    HDF5::closeDataset(dataset_out);
+                    HDF5::closeDataset(dataset2_out);
                 }
                 std::cout << "  Combining primary datasets... Done.                                 "<<std::endl;
 
@@ -924,16 +863,53 @@ namespace Gambit
 
                    if(left_to_match.size()>0)
                    {
-                      std::unordered_map<PPIDpair, unsigned long long, PPIDHash,PPIDEqual> RA_write_hash(get_RA_write_hash(new_group, left_to_match));
+                       std::cout << " Combining auxilliary datasets... "<<int(100*counter/aux_param_names.size())<<"%         \r";
+                       std::vector<hid_t> datasets, datasets2;
+                       int valid_dset  = -1; // index of a validly opened dataset (-1 if none)
+                      
+                       #ifdef COMBINE_DEBUG
+                       std::cerr << "  Preparing to copy dataset '"<<*it<<"'" << std::endl;
+                       #endif
 
-                      /// Now copy the RA datasets
-                      counter = 1; //reset counter
-                      for (auto it = aux_param_names.begin(), end = aux_param_names.end(); it != end; ++it, ++counter)
-                      {
-                          std::cout << "  Combining auxilliary datasets... "<<int(100*counter/aux_param_names.size())<<"%    (merged "<<counter<<" parameters of "<<aux_param_names.size()<<")         \r"<<std::flush;
-                          std::vector<hid_t> file_ids, group_ids, datasets, datasets2;
-                          int valid_dset  = -1; // index of a validly opened dataset (-1 if none)
+                       for (int i = 0, end = aux_groups.size(); i < end; i++)
+                       {
+                           // Dataset may not exist, and thus fail to open. We will check its status
+                           // later on and ignore it where needed.
+                           HDF5::errorsOff();
+                           hid_t dataset  = HDF5::openDataset(aux_groups[i], *it, true);
+                           hid_t dataset2 = HDF5::openDataset(aux_groups[i], *it + "_isvalid", true);
+                           HDF5::errorsOn();
+                           if(dataset>=0)  
+                           {
+                              if(dataset2>=0) valid_dset = i;
+                              else
+                              {
+                                 std::ostringstream errmsg;
+                                 errmsg << "Error opening dataset '"<<*it<<"_isvalid' from temp file "<<i<<"! Main dataset was opened, but 'isvalid' dataset failed to open! It may be corrupted.";
+                                 printer_error().raise(LOCAL_INFO, errmsg.str());
+                              }
+                           }
+                           datasets.push_back(dataset);
+                           datasets2.push_back(dataset2);
+                       }
+                       
+                       hid_t old_dataset = -1, old_dataset2 = -1;
+                       // Actually, I think there is now no need to copy the old data here. It should
+                       // already be copied as part of the primary dataset copying.
+                       // if (resume)
+                       // {
+                       //     // Dataset may not exist, and thus fail to open. We will check its status
+                       //     // later on and ignore it where needed.
+                       //     HDF5::errorsOff();
+                       //     old_dataset  = HDF5::openDataset(old_group, *it, true);
+                       //     old_dataset2 = HDF5::openDataset(old_group, *it + "_isvalid", true);
+                       //     HDF5::errorsOn();
+                       // }
 
+                       // If the aux parameter was not also copied as a primary parameter then we need to create a new
+                       // dataset for it here. Otherwise one should already exist.
+                       if(param_set.find(*it) == param_set.end())
+                       {
                           #ifdef COMBINE_DEBUG
                           std::cerr << "  Preparing to copy dataset '"<<*it<<"'" << std::endl;
                           #endif
@@ -1025,26 +1001,24 @@ namespace Gambit
                              // Create new dataset
                              setup_hdf5_points(new_group, type, type2, size_tot, *it);
                           }
-                          // Reopen output datasets for copying
-                          hid_t dataset_out  = HDF5::openDataset(new_group, *it);
-                          hid_t dataset2_out = HDF5::openDataset(new_group, (*it)+"_isvalid");
-                          Enter_HDF5<ra_copy_hdf5>(dataset_out, dataset2_out, datasets, datasets2, size_tot, RA_write_hash, ptids, ranks, aux_sizes, old_dataset, old_dataset2);
+                          // Create new dataset
+                          setup_hdf5_points(new_group, type, type2, size_tot, *it); 
+                       }
+                       // Reopen output datasets for copying
+                       hid_t dataset_out, dataset2_out;
+                       dataset_out  = HDF5::openDataset(new_group, *it);
+                       dataset2_out = HDF5::openDataset(new_group, (*it)+"_isvalid");
+                       Enter_HDF5<ra_copy_hdf5>(dataset_out, dataset2_out, datasets, datasets2, size_tot, RA_write_hash, ptids, ranks, aux_sizes, old_dataset, old_dataset2);
 
-                          // Close resources
-                          for (int i = 0, end = datasets.size(); i < end; i++)
-                          {
-                              // Some datasets may never have been opened, so check this before trying to close them.
-                              if(datasets[i]>=0)  HDF5::closeDataset(datasets[i]);
-                              if(datasets2[i]>=0) HDF5::closeDataset(datasets2[i]);
-                              if(group_ids[i]>=0) HDF5::closeGroup(group_ids[i]);
-                              if(file_ids[i]>=0)  HDF5::closeFile(file_ids[i]);
-                          }
-                      }
-                      std::cout << "  Combining auxilliary datasets... Done.                 "<<std::endl;
-                   }
-                   else
-                   {
-                      std::cout << "  Combining auxilliary datasets... None found, skipping. "<<std::endl;
+                       for (int i = 0, end = datasets.size(); i < end; i++)
+                       {
+                           // Some datasets may never have been opened, so check this before trying to close them.
+                           if(datasets[i]>=0)  HDF5::closeDataset(datasets[i]);
+                           if(datasets2[i]>=0) HDF5::closeDataset(datasets2[i]);
+                       }
+
+                       HDF5::closeDataset(dataset_out);
+                       HDF5::closeDataset(dataset2_out); 
                    }
                 }
 
@@ -1215,56 +1189,47 @@ namespace Gambit
                return output_hash;
             }
 
-            std::pair<std::vector<std::string>,std::vector<size_t>> find_temporary_files(const std::string& finalfile)
+            /// Select a chunk of a 1D HDF5 dataset
+            std::pair<hid_t,hid_t> select_chunk(hid_t dset_id, std::size_t offset, std::size_t length)
             {
-              size_t max_i = 0;
-              return find_temporary_files(finalfile, max_i);
-            }
-
-            /// Search for temporary files to be combined
-            std::pair<std::vector<std::string>,std::vector<size_t>> find_temporary_files(const std::string& finalfile, size_t& max_i)
-            {
-              // Autodetect temporary files from previous run.
-              std::string output_dir = Utils::dir_name(finalfile);
-              std::vector<std::string> files = Utils::ls_dir(output_dir);
-              std::string tmp_base(Utils::base_name(finalfile) + "_temp_");
-              std::vector<size_t> ranks;
-              std::vector<std::string> result;
-
-              //std::cout << "Matching against: " <<tmp_base<<std::endl;
-              for(auto it=files.begin(); it!=files.end(); ++it)
-              {
-                //std::cout << (*it) << std::endl;
-                //std::cout << it->substr(0,tmp_base.length()) << std::endl;
-                if (it->compare(0, tmp_base.length(), tmp_base) == 0)
+                if(dset_id<0) 
                 {
-                  // Matches format of temporary file! Extract the rank that produced it
-                  std::stringstream ss;
-                  ss << it->substr(tmp_base.length());
-                  if(Utils::isInteger(ss.str())) // Only do this for files where the remainder of the string is just an integer (i.e. not the combined files etc.)
-                  {
-                    size_t rank;
-                    ss >> rank;
-                    if(rank>max_i) max_i = rank; // Look for highest rank output
-                    //std::cout << "Match! "<< ss.str() << " : " << rank << std::endl;
-                    // TODO: check for failed read
-                    ranks.push_back(rank);
-                    result.push_back(output_dir+"/"+*it);
-                  }
+                   std::ostringstream errmsg;
+                   errmsg << "Invalid dataset supplied to select_chunk function! This is a bug in the HDF5Printer, please report it." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
                 }
-              }
 
-              // Check if all temporary files found (i.e. if output from some rank is missing)
-              std::vector<size_t> missing;
-              for(size_t i=0; i<max_i; ++i)
-              {
-                if(std::find(ranks.begin(), ranks.end(), i) == ranks.end())
-                { missing.push_back(i); }
-              }
+                // Select a hyperslab.
+                hid_t dspace_id = H5Dget_space(dset_id);
+                if(dspace_id<0) 
+                {
+                   std::ostringstream errmsg;
+                   errmsg << "Error selecting chunk from dataset in HDF5 file. H5Dget_space failed." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
 
-              // Return the list of missing tmp files, the caller can decide to throw an error if they like
-              return std::make_pair(result,missing);
+                hsize_t offsets[1];
+                offsets[0] = offset;
+                //offsets[1] = 0; // don't need: only 1D for now.
+
+                hsize_t selection_dims[1]; // Set same as output chunks, but may have a different length
+                selection_dims[0] = length; // Adjust chunk length to input specification
+
+                herr_t err_hs = H5Sselect_hyperslab(dspace_id, H5S_SELECT_SET, offsets, NULL, selection_dims, NULL);        
+
+                if(err_hs<0) 
+                {
+                   std::ostringstream errmsg;
+                   errmsg << "Error selecting chunk from dataset in HDF5 file. H5Sselect_hyperslab failed." << std::endl;
+                   printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+
+                // Define memory space
+                hid_t memspace_id = H5Screate_simple(1, selection_dims, NULL);         
+
+                return std::make_pair(memspace_id, dspace_id); // Be sure to close these identifiers after using them!
             }
+
 
         }
     }
