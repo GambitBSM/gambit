@@ -425,15 +425,43 @@ namespace Gambit
         // Yukawas
         
         double sqrt2v = pow(2.0,0.5)/vev, ca = cos(alpha), sa = sin(alpha), cb = cos(beta), sb = sin(beta);
-        thdm_model.Yu[0] = sqrt2v * sminputs.mU;
-        thdm_model.Yu[1] = sqrt2v * sminputs.mCmC;
-        thdm_model.Yu[2] = sqrt2v * sminputs.mT;
-        thdm_model.Ye[0] = sqrt2v * sminputs.mE;
-        thdm_model.Ye[1] = sqrt2v * sminputs.mMu;
-        thdm_model.Ye[2] = sqrt2v * sminputs.mTau;
-        thdm_model.Yd[0] = sqrt2v * sminputs.mD;
-        thdm_model.Yd[1] = sqrt2v * sminputs.mS;
-        thdm_model.Yd[2] = sqrt2v * sminputs.mBmB;
+        double rescale_Yu, rescale_Yd, rescale_Ye;
+        switch (y_type) {
+          case type_I:
+            rescale_Yd = ca/sb;
+            rescale_Yu = ca/sb;
+            rescale_Ye = ca/sb;
+            break;
+          case type_II:
+            rescale_Yd = -sa/cb;
+            rescale_Yu = ca/sb;
+            rescale_Ye = -sa/cb;
+            break;
+          case lepton_specific:
+            rescale_Yd = ca/sb;
+            rescale_Yu = ca/sb;
+            rescale_Ye = -sa/cb;
+            break;
+          case flipped:
+            rescale_Yd = -sa/cb;
+            rescale_Yu = ca/sb;
+            rescale_Ye = ca/sb;
+            break;
+          default:
+            rescale_Yd = 1.;
+            rescale_Yu = 1.;
+            rescale_Ye = 1.;
+            break;
+        }
+        thdm_model.Yu[0] = sqrt2v * sminputs.mU * rescale_Yu;
+        thdm_model.Yu[1] = sqrt2v * sminputs.mCmC * rescale_Yu;
+        thdm_model.Yu[2] = sqrt2v * sminputs.mT * rescale_Yu;
+        thdm_model.Ye[0] = sqrt2v * sminputs.mE * rescale_Ye;
+        thdm_model.Ye[1] = sqrt2v * sminputs.mMu * rescale_Ye;
+        thdm_model.Ye[2] = sqrt2v * sminputs.mTau * rescale_Ye;
+        thdm_model.Yd[0] = sqrt2v * sminputs.mD * rescale_Yd;
+        thdm_model.Yd[1] = sqrt2v * sminputs.mS * rescale_Yd;
+        thdm_model.Yd[2] = sqrt2v * sminputs.mBmB * rescale_Yd;
 
         thdm_model.yukawaCoupling = y_type;
         thdm_model.vev = vev;
