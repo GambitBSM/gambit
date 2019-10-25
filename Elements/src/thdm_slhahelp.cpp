@@ -32,13 +32,13 @@ namespace Gambit
           const double m_A = thdmspec.get(Par::Pole_Mass, "A0");
           const double m_Hp = thdmspec.get(Par::Pole_Mass, "H+");
           const double alpha = thdmspec.get(Par::dimensionless, "alpha");
-          const double tan_beta = thdmspec.get(Par::dimensionless, "tanb");
+          const double tanb = thdmspec.get(Par::dimensionless, "tanb");
           const double lambda1 = thdmspec.get(Par::mass1, "lambda_1");
           const double lambda2 = thdmspec.get(Par::mass1, "lambda_2");
           const double lambda3 = thdmspec.get(Par::mass1, "lambda_3");
           const double lambda4 = thdmspec.get(Par::mass1, "lambda_4");
           const double lambda5 = thdmspec.get(Par::mass1, "lambda_5");
-          const double beta = atan(tan_beta);
+          const double beta = atan(tanb);
           const double sba = sin(beta - alpha);
           const double lambda6 = thdmspec.get(Par::mass1,"lambda_6");
           const double lambda7 = thdmspec.get(Par::mass1,"lambda_7");
@@ -67,7 +67,7 @@ namespace Gambit
           SLHAea_add(slha, "GAUGE", 3, g_3, "g_3'", true);
 
           SLHAea_add_block(slha, "MINPAR");
-          SLHAea_add(slha, "MINPAR", 3, tan_beta, "tanb", true);
+          SLHAea_add(slha, "MINPAR", 3, tanb, "tanb", true);
           SLHAea_add(slha, "MINPAR", 11, lambda1, "lambda1", true);
           SLHAea_add(slha, "MINPAR", 12, lambda2, "lambda2", true);
           SLHAea_add(slha, "MINPAR", 13, lambda3, "lambda3", true);
@@ -92,7 +92,7 @@ namespace Gambit
           std::vector<double> matrix_u, matrix_d, matrix_l;
           std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
-          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++) 
+          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++)  {
               matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
               u_coupl_matrix.push_back(0); d_coupl_matrix.push_back(0); l_coupl_matrix.push_back(0);
           }
