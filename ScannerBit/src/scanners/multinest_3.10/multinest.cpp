@@ -24,7 +24,7 @@
 #include <iomanip>  // For debugging only
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
-#include "gambit/ScannerBit/scanners/multinest/multinest.hpp"
+#include "gambit/ScannerBit/scanners/multinest_3.10/multinest.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/util_functions.hpp"
 

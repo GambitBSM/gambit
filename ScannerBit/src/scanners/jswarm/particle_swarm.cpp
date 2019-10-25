@@ -18,7 +18,7 @@
 ///  *********************************************
 
 #include <limits>
-#include "gambit/ScannerBit/scanners/jswarm/1.0.0/jswarm.hpp"
+#include "gambit/ScannerBit/scanners/jswarm/jswarm.hpp"
 
 
 namespace Gambit
@@ -29,7 +29,12 @@ namespace Gambit
 
     /// Constructor
     particle_swarm::particle_swarm()
-    : path("")
+    : global_best_value(std::numeric_limits<double>::min())
+    , nPar_total(0)
+    , phi1_index(0)
+    , phi2_index(0)
+    , omega_index(0)
+    , path("")
     , nPar(0)
     , nDerived(0)
     , nDiscrete(0)
@@ -47,45 +52,44 @@ namespace Gambit
     , phi1(1.5)
     , phi2(1.5)
     , convthresh(1e-2)
-    , max_acceptable_value(std::numeric_limits<double>::max())
+    , min_acceptable_value(std::numeric_limits<double>::min())
     , adapt_phi(false)
     , adapt_omega(false)
     , init_stationary(false)
     , resume(false)
-    , global_best_value(std::numeric_limits<double>::min());
     {}
 
     /// Initialise the swarm
     void particle_swarm::init()
     {
       // Make sure that there are actually positive numbers of particles and parameters
-      if (NP <= 0 or nPar <= 0) scan_error().raise(LOCAL_INFO, "You must set NP and nPar positive before initialising a particle swarm!");
+      if (NP <= 0 or nPar <= 0) Scanner::scan_error().raise(LOCAL_INFO, "You must set NP and nPar positive before initialising a particle swarm!");
 
       // Add adaptive parameters (if any) to the total size of the parameter vector
       nPar_total = nPar;
-      if (adaptive_phi)
+      if (adapt_phi)
       {
-        nPar_total += 2
+        nPar_total += 2;
         phi1_index = nPar_total - 2;
         phi2_index = nPar_total - 1;
       }
-      if (adaptive_omega)
+      if (adapt_omega)
       {
         nPar_total += 1;
         omega_index = nPar_total - 1;
       }
 
-      // Create arrays to hold the upper and lower parameter boundaries
-      lowerbounds = new double[nPar_total];
-      upperbounds = new double[nPar_total];
+      // Size the vecotrs to hold the upper and lower parameter boundaries
+      lowerbounds.resize(nPar_total);
+      upperbounds.resize(nPar_total);
 
       // Set the limits for the parameters of the algorithm to be determined adaptively
-      if (adaptive_phi)
+      if (adapt_phi)
       {
         lowerbounds[phi1_index] = lowerbounds[phi2_index] = 1.5;
         upperbounds[phi1_index] = upperbounds[phi2_index] = 3.0;
       }
-      if (adaptive_omega)
+      if (adapt_omega)
       {
         lowerbounds[omega] = 0.0;
         upperbounds[omega] = 1.0;
@@ -96,18 +100,18 @@ namespace Gambit
       rng.seed(seed);
 
       // Create the particles
-      particles = new particle(nPar_total, lowerbounds, upperbounds, rng)[NP];
+      for (int i = 0; i < NP; i++) particles.push_back(particle(nPar_total, lowerbounds, upperbounds, rng));
 
       // Create an array to hold the indices of the discrete parameters
       // TODO deal properly with discrete parameters
-      if (nDiscrete != 0) discrete = new int[nDiscrete];
+      if (nDiscrete != 0) discrete.resize(nDiscrete);
 
       // Done
       if (verbose > 1) std::cout << "j-Swarm: successfully initialised swarm with NP = " << NP << ", nPar = " << nPar << ", nDiscrete = " << nDiscrete << std::endl;
     }
 
     /// Release the swarm
-    particle_swarm::run()
+    void particle_swarm::run()
     {
       if (verbose > 0) std::cout << "j-Swarm: beginning run..." << std::endl;
 
@@ -118,7 +122,7 @@ namespace Gambit
         particle& p = particles[i];
         p.init(init_stationary);
         // TODO implement init strategy
-        // using init_pop_strategy, max_acceptable_value, max_ini_attempts
+        // using init_pop_strategy, min_acceptable_value, max_ini_attempts
         p.lnlike = likelihood_function(p.x);
         update_best_fits(p);
       }
@@ -129,18 +133,18 @@ namespace Gambit
 
       // Begin the generation loop
       // TODO MPI parallelise
-      for (gen = 2; i <= maxgen; i++)
+      for (int gen = 2; gen <= maxgen; gen++)
       {
         if (verbose > 1) std::cout << "j-Swarm: moving on to generation " << gen << "." << std::endl;
 
         // Loop over the population of this generation
-        for (int particle_index = 0; i < NP; particle_index++)
+        for (int pi = 0; pi < NP; pi++)
         {
 
-          if (verbose > 2) std::cout << "j-Swarm: working on particle " << particle_index << "." << std::endl;
+          if (verbose > 2) std::cout << "j-Swarm: working on particle " << pi << "." << std::endl;
 
           // Get the particle
-          particle& p = particles[particle_index];
+          particle& p = particles[pi];
 
           // Update the particle's position and velocity
           update_particle(p);
@@ -158,7 +162,7 @@ namespace Gambit
             fcall += 1;
 
             // Check whether the calling code wants us to shut down early
-            if quit()
+            if (Scanner::Plugins::plugin_info.early_shutdown_in_progress())
             {
               // TODO broadcast to other processes and get out
               break;
@@ -176,7 +180,7 @@ namespace Gambit
         if (gen%savecount == 0) save_generation();
 
         // Check for convergence
-        if converged() break;
+        if (converged()) break;
 
       }
 
@@ -193,23 +197,23 @@ namespace Gambit
         phi1 = p.x[phi1_index];
         phi2 = p.x[phi2_index];
       }
-      for (int i: i < nPar_total; ++i)
+      for (int i; i < nPar_total; i++)
       {
-        double r1 = std::generate_canonical<double, 32>(*rng);
-        double r2 = std::generate_canonical<double, 32>(*rng);
+        double r1 = std::generate_canonical<double, 32>(rng);
+        double r2 = std::generate_canonical<double, 32>(rng);
         p.v[i] = omega*p.v[i] + phi1*r1*(p.personal_best_x[i]-p.x[i]) + phi2*r2*(global_best_x[i]-p.x[i]);
-        p.x[i] = p.x[i] + p.v[i]
+        p.x[i] = p.x[i] + p.v[i];
       }
     }
 
     /// Update a particle's own best fit and the global best fit
     void particle_swarm::update_best_fits(particle& p)
     {
-      p.update_personal_best()
+      p.update_personal_best();
       if (p.lnlike > global_best_value)
       {
         global_best_value = p.lnlike;
-        global_best_x = p.x
+        global_best_x = p.x;
       }
     }
 
@@ -229,11 +233,11 @@ namespace Gambit
       switch(bndry)
       {
         // Randomly choose new values somewhere in the prior box, and reset the velocity.
-        case(2): p.init(init_stationary, lowerbounds, upperbounds);
+        case(2): p.init(init_stationary);
         // Reflect the position and velocity about the borders violated
-        case(3): p.reflect(lowerbounds, upperbounds);
+        case(3): p.reflect();
         // Something went wrong
-        default: scan_error().raise(LOCAL_INFO, "Unrecognised bndry setting for j-Swarm. Please set bndry = 1, 2 or 3."
+        default: Scanner::scan_error().raise(LOCAL_INFO, "Unrecognised bndry setting for j-Swarm. Please set bndry = 1, 2 or 3.");
       }
       return true;
     }
@@ -254,7 +258,7 @@ namespace Gambit
     bool particle_swarm::converged()
     {
       //TODO, using convsteps, savecount;
-
+      return false;
     }
 
   }

@@ -40,8 +40,8 @@ namespace Gambit
 
         /// Parameter space boundaries
         /// @{
-        std::shared_ptr<double> upperbounds;
-        std::shared_ptr<double> lowerbounds;
+        std::vector<double>* upperbounds;
+        std::vector<double>* lowerbounds;
         /// @}
 
         /// pointer to random number generator engine to use
@@ -65,7 +65,7 @@ namespace Gambit
         /// @}
 
         /// Constructor
-        particle(int, std::shared_ptr<double>, std::shared_ptr<double>, rng_type&);
+        particle(int, std::vector<double>&, std::vector<double>&, rng_type&);
 
         /// Initialise a particle with a random position and zero/random velocity
         void init(bool zero_vel);
@@ -86,12 +86,22 @@ namespace Gambit
       private:
 
         /// Particles making up the swarm
-        std::shared_ptr<particle> particles;
+        std::vector<particle> particles;
 
         /// Current global best fit
         /// @{
         double global_best_value;
         std::vector<double> global_best_x;
+        /// @}
+
+        /// Dimensionality of the parameter space including any meta-optimisation parameters
+        int nPar_total;
+
+        /// Indices in parameter vector correpsonding to algorithm parameters when using meta-optimisation
+        /// @{
+        int phi1_index;
+        int phi2_index;
+        int omega_index;
         /// @}
 
         /// Random number generator engine
@@ -113,7 +123,7 @@ namespace Gambit
         void save_generation();
 
         /// Check whether the swarm has converged
-        void converged();
+        bool converged();
 
       public:
 
@@ -177,8 +187,8 @@ namespace Gambit
         /// Threshold for gen-level convergence: smoothed fractional improvement in the mean population value
         double convthresh;
 
-        /// Maximum function value to accept for the initial generation if init_population_strategy > 0.
-        double max_acceptable_value;
+        /// Minimum function value to accept for the initial generation if init_population_strategy > 0.
+        double min_acceptable_value;
 
         /// Use self-optimising adaptive choices for phi1 and phi2
         bool adapt_phi;
@@ -186,17 +196,20 @@ namespace Gambit
         /// Use self-optimising adaptive choices for omega
         bool adapt_omega;
 
+        /// Initialise particle velocities to zero
+        bool init_stationary;
+
         /// Resume from previous run
         bool resume;
 
         /// Parameter space boundaries
         /// @{
-        std::shared_ptr<double> upperbounds;
-        std::shared_ptr<double> lowerbounds;
+        std::vector<double> upperbounds;
+        std::vector<double> lowerbounds;
         /// @}
 
         /// Indices of parameters to be treated as discrete
-        std::shared_ptr<int> discrete;
+        std::vector<int> discrete;
 
         /// Constructor
         particle_swarm();

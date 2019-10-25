@@ -17,7 +17,7 @@
 
 #include <vector>
 
-#include "gambit/ScannerBit/scanners/jswarm/1.0.0/jswarm.hpp"
+#include "gambit/ScannerBit/scanners/jswarm/jswarm.hpp"
 
 //#include "gambit/Utils/yaml_options.hpp"
 //#include "gambit/Utils/util_types.hpp"
@@ -50,7 +50,6 @@ scanner_plugin(jswarm, version(1, 0, 0))
     // j-Swarm will assume responsibility for this process, triggered externally by
     // the 'plugin_info.early_shutdown_in_progress()' function.
     swarm.likelihood_function->disable_external_shutdown();
-    swarm.quit = &Scanner::Plugins::plugin_info.early_shutdown_in_progress;
   }
 
   int plugin_main (void)
@@ -80,7 +79,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
         warning << "is missing or empty.  This is probably because your last run didn't " << endl
                 << "complete even one generation. j-Swarm will start from scratch, " << endl
                 << "as if you had specified -r.";
-        if (data.likelihood_function->getRank() == 0) cout << "WARNING: " << warning.str() << endl;
+        if (swarm.likelihood_function->getRank() == 0) cout << "WARNING: " << warning.str() << endl;
         scan_warn << warning.str() << scan_end;
         resume = false;
       }
