@@ -92,7 +92,7 @@ namespace Gambit
           std::vector<double> matrix_u, matrix_d, matrix_l;
           std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
-          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++) 
+          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++)  {
               matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
               u_coupl_matrix.push_back(0); d_coupl_matrix.push_back(0); l_coupl_matrix.push_back(0);
           }
