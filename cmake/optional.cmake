@@ -285,24 +285,17 @@ else()
 endif()
 
 # Check for HDF5 libraries
-if("hdf5" IN_LIST itch)
-    message("${BoldRed}   HDF5 is -Ditch'ed. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
-    set (itch "${itch}" "hdf5printer" "hdf5reader")
-else()
-  find_package(HDF5 QUIET COMPONENTS C)
-  if(HDF5_FOUND)
-    include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
-    include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
-    message("-- Found HDF5 libraries: ${HDF5_LIBRARIES}")
-    list(REMOVE_ITEM HDF5_LIBRARIES "sz") # remove this library if it is present, we don't want szip and there are some linking problems with it in some cases.
-    message("   --> modified HDF5 libraries list: ${HDF5_LIBRARIES}")
-    if (VERBOSE)
-      message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
-    endif()
-  else()
-    message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
-    set (itch "${itch}" "hdf5printer" "hdf5reader")
+find_package(HDF5 QUIET COMPONENTS C)
+if(HDF5_FOUND)
+  include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
+  include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
+  message("-- Found HDF5 libraries: ${HDF5_LIBRARIES}")
+  if(VERBOSE)
+    message(STATUS ${HDF5_INCLUDE_DIRS} ${HDF5_INCLUDE_DIR})
   endif()
+else()
+  message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+  set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
 # Check for SQLite libraries

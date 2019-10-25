@@ -44,9 +44,6 @@ namespace Gambit
             template <class U, typename... T>
             void Enter_HDF5(hid_t dataset, T&... params);
 
-            /// Select a chunk of a 1D HDF5 dataset
-            std::pair<hid_t,hid_t> select_chunk(hid_t dset_id, std::size_t offset, std::size_t length);
-
             struct read_hdf5
             {
                 template <typename U, typename T>
@@ -73,66 +70,73 @@ namespace Gambit
                     {
                         hid_t space = H5Dget_space(old_dataset);
                         hsize_t dim_t = H5Sget_simple_extent_npoints(space);
-                        //data.resize(dim_t + size_tot); // This should be unnecessary; size_tot should include the old 
-                        //dataset points already.
-                        //But let's make sure there is space.
-                        if( dim_t > size_tot)
-                        {
-                           // The old dataset is larger than the total size allocated for all data! size_tot must have been
-                           // measured wrong!
-                           std::ostringstream errmsg;
-                           errmsg << "Error copying parameter "". Buffer overrun while reading dataset from the old combined file. (Dataset in file had size "<<dim_t<<", but there was only size "<<data.size()<<" allocated to the read buffer; data.size()="<<data.size()<<")"<<std::endl;
-                           printer_error().raise(LOCAL_INFO, errmsg.str());
-                        }
-
-                        // Read in the old dataset for this parameter
-                        herr_t err_read = H5Dread(old_dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
-                        if(err_read<0)
-                        {
-                           std::ostringstream errmsg;
-                           errmsg << "Error copying parameter "". An error was reported during the H5Dread operation (while reading in old combined data from previous run). This is probably a bug in the HDF5Printer, please report it."<<std::endl;
-                           printer_error().raise(LOCAL_INFO, errmsg.str());
-                        }
-                        j = dim_t; // Set next free position to after old data
                         H5Sclose(space);
+                        data.resize(dim_t + size_tot);
+                        H5Dread(old_dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
+                        j = dim_t;
+                        //std::cout <<"Read "<<dim_t<<" points from old dataset (into position 0)!"<<std::endl;
+                        //for(unsigned long long i=0; i<dim_t; i++) // debug
+                        //{
+                        //   std::cout<<"  "<<data[i]<<std::endl;
+                        //}
+                    }
+                    else
+                    {
+                        //std::cout << "No old dataset found!" << std::endl;
                     }
                     
                     for (int i = 0, end = datasets.size(); i < end; i++)
                     {
                         hsize_t dim_t;
                         if(datasets[i] >= 0)
-                        {                           
-                           // Check that the buffer is the right size to fit the dataset!
-                           if( (data.size() - j)<sizes[i])
+                        {
+                           // Check that we allocated enough space for this dataset!
+                           hid_t space = H5Dget_space(datasets[i]);
+                           dim_t = H5Sget_simple_extent_npoints(space);
+                           H5Sclose(space);
+                           if(j+dim_t > data.size())
                            {
-                              // Data has some other unexpected size, error!
-                              std::ostringstream errmsg;
-                              errmsg << "Error copying parameter "". Buffer overrun while reading dataset from input file " << i << ". (Dataset in file had size "<<dim_t<<", but there was only size "<<data.size()-j<<" left in the buffer; buffer.size()="<<data.size()<<", current pos.="<<j<<")"<<std::endl;
-                              printer_error().raise(LOCAL_INFO, errmsg.str());
- 
+                              if( (data.size() - j) < sizes[i]) // was !=, but I think it is fine so long as there isn't too *little* space. TODO: might be an odds measuring bug though since I think these should indeed be == if everything has happened correctly.
+                              {
+                                 // This is how much space we expect to have left in the buffer
+                                 // at the end. If not, something bad has happened!
+                                 std::ostringstream errmsg;
+                                 errmsg << "Error copying parameter.  Dataset in input file " << i 
+                                     << " was larger than previously measured and doesn't fit in the allocated buffer! " 
+                                     << "This is a bug in the combination tools, please report it." <<std::endl;
+                                 errmsg << "(j="<<j<<", dim_t="<<dim_t<<", data.size()="<<data.size()<<", sizes["<<i<<"]="<<sizes[i]<<")"<<std::endl;
+                                 printer_error().raise(LOCAL_INFO, errmsg.str()); 
+                              }
+                              // Just some junk buffer points at the end of the last data set.
+                              // Need to do a more careful dataset selection to chop these out so
+                              // that the data fits in our buffer (and in the space already allocated
+                              // in the output file)
+                              hid_t memspace_id, dspace_id; 
+                              std::pair<hid_t,hid_t> chunk_ids = HDF5::selectChunk(datasets[i], 0, sizes[i]);
+                              memspace_id = chunk_ids.first;
+                              dspace_id = chunk_ids.second;
+   
+                              H5Dread(datasets[i], get_hdf5_data_type<U>::type(), memspace_id, dspace_id, H5P_DEFAULT, (void *)&data[j]);                           
+                              H5Sclose(memspace_id);
+                              H5Sclose(dspace_id);
+                              //std::cout <<"Read "<<sizes[i]<<" points from dataset "<<i<<" into position "<<j<<std::endl;
+                              //std::ostringstream errmsg;
+                              //errmsg << "Error copying parameter.  Dataset in input file " << i 
+                              //    << " was larger than previously measured and doesn't fit in the allocated buffer! " 
+                              //    << "This is a bug in the combination tools, please report it." <<std::endl;
+                              //errmsg << "(j="<<j<<", dim_t="<<dim_t<<", data.size()="<<data.size()<<")"<<std::endl;
+                              //printer_error().raise(LOCAL_INFO, errmsg.str()); 
                            }
-
-                           // Get the hyperslab selection (i.e. the dataset minus invalid points padding out the end)
-                           std::pair<hid_t,hid_t> selection_ids = select_chunk(datasets[i], 0, sizes[i]);
-                           hid_t memspace_id = selection_ids.first;
-                           hid_t dspace_id   = selection_ids.second;
-
-                           // Check sizes of what we are about to copy, and the buffer size
-                           //hsize_t dim_check = H5Sget_select_npoints(dspace_id);
-                           //std::cout << "Copying data of size "<<dim_check<<" into buffer of size "<<data.size()<<" at position "<<j<<" (so "<<data.size()-j<<" slots available. Note; requested "<<sizes[i]<<" slots)"<<std::endl;
-
-                           // Get the data from the hyperslab.
-                           herr_t err_read = H5Dread(datasets[i], get_hdf5_data_type<U>::type(), memspace_id, dspace_id, H5P_DEFAULT, (void *)&data[j]);
-                  
-                           if(err_read<0)
-                           {
-                              std::ostringstream errmsg;
-                              errmsg << "Error copying parameter "". An error was reported during the H5Dread operation. This is probably a bug in the HDF5Printer, please report it."<<std::endl;
-                              printer_error().raise(LOCAL_INFO, errmsg.str());
-                           }
-                  
-                           H5Sclose(dspace_id);
-                           H5Sclose(memspace_id);
+                           else
+                           { 
+                              // Read the whole dataset in to buffer (faster than selecting, I should think)
+                              H5Dread(datasets[i], get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[j]);                           
+                              //std::cout <<"Read "<<dim_t<<" points from dataset "<<i<<" into position "<<j<<std::endl;
+                              //for(unsigned long long k=j; k<j+dim_t; k++) // debug
+                              //{
+                              //   std::cout<<"  "<<data[k]<<std::endl;
+                              //}
+                            }
                         }
                         else
                         {
@@ -144,7 +148,7 @@ namespace Gambit
                         if (dim_t >= sizes[i])
                         {
                             // Data had expected size, no problem
-                            // NOTE: dim_t can be larger than expected due to possible padding at end of dataset
+                            // NOTE: Why can dim_t be larger than expected? Possible padding at end or something?
                             j += sizes[i];
                         }
                         else if(dim_t==0)
@@ -161,21 +165,25 @@ namespace Gambit
                             printer_error().raise(LOCAL_INFO, errmsg.str());
                         }
                     }
-
-                    if( dataset_out<0 )
+                    // Select dataspace for writing in the output file. Partial write now possible, so we
+                    // have to select the hyperslab that we want to write into
+                    hid_t memspace_id, dspace_id; 
+                    std::pair<hid_t,hid_t> chunk_ids = HDF5::selectChunk(dataset_out, offset, data.size());
+                    memspace_id = chunk_ids.first;
+                    dspace_id = chunk_ids.second;
+                    herr_t err = H5Dwrite( dataset_out, get_hdf5_data_type<U>::type(), memspace_id, dspace_id, H5P_DEFAULT, (void *)&data[0]);
+                    if(err<0)
                     {
                         std::ostringstream errmsg;
-                        errmsg << "Error copying parameter "".  Output dataset file failed to open for some reason. It is possible that the target file or group does not exist. This should not happen so it is a bug, please report it." <<std::endl;
+                        errmsg << "Error copying parameter. HD5write failed." <<std::endl;  
                         printer_error().raise(LOCAL_INFO, errmsg.str());
                     }
-                    H5Dwrite( dataset_out, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
-                    // just an extra statement to make line numbers more clear
-                    // Check dataset size
-                    //hid_t space2 = H5Dget_space(dataset_out);
-                    //hsize_t dim_t2 = H5Sget_simple_extent_npoints(space2);
-                    //H5Sclose(space2);
-                    //std::cout << "Copied "<<size_tot<<" into dataset_out (size="<<dim_t2<<") from vector of size "<<data.size()<<std::endl;
-                    //std::cout << "exiting copy_hdf5::run" << std::endl;
+                    //std::cout<<"Wrote "<<data.size()<<" points into output dataset at position "<<offset<<std::endl;
+                    H5Sclose(memspace_id);
+                    H5Sclose(dspace_id);
+ 
+                    // Was:
+                    //H5Dwrite( dataset_out, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
                 }
             };
 
@@ -187,11 +195,28 @@ namespace Gambit
                     std::vector<U> output(size, 0);
                     std::vector<int> valids(size, 0);
 
-                    // Read in the recently-copied primary points. We will replace
-                    // entries as-needed with those from the RA datasets.
-                    // (TODO: would use much less memory if we just write individual replacements
-                    // straight to disk. But that requires some fancy HDF5 selections, this
-                    // method is much more straightforward)
+                    // Should no longer need the old datasets, they should have already been copied during "copy_hdf5"
+                    // if (old_dataset >= 0 && old_dataset2 >= 0)
+                    // {
+                    //     hid_t space  = HDF5::getSpace(old_dataset);
+                    //     hid_t space2 = HDF5::getSpace(old_dataset2);
+                    //     hsize_t old_size  = H5Sget_simple_extent_npoints(space);
+                    //     hsize_t old_size2 = H5Sget_simple_extent_npoints(space2);
+                    //     HDF5::closeSpace(space);
+                    //     HDF5::closeSpace(space2);
+                    //     if(old_size > size or old_size2 > size)
+                    //     {
+                    //        std::ostringstream errmsg;
+                    //        errmsg << "Error copying old dataset into buffer! The old dataset has a larger size than has been allocated for new data! (old_size="<<old_size<<", old_size2="<<old_size2<<", new_size="<<size<<")";
+                    //        printer_error().raise(LOCAL_INFO, errmsg.str());
+                    //     }
+                    //     H5Dread(old_dataset,  get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&output[0]);
+                    //     H5Dread(old_dataset2, get_hdf5_data_type<int>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&valids[0]);
+                    // }
+
+                    // Instead we just need to read in the recently-copied primary points and replace
+                    // entries as needed (TODO: would use much less memory if we just write individual replacements
+                    // straight to disk)
                     if (dataset_out >= 0 && dataset2_out >= 0)
                     {
                         hid_t space  = HDF5::getSpace(dataset_out);
@@ -206,11 +231,6 @@ namespace Gambit
                            errmsg << "Error copying dataset into buffer for RA replacements! The dataset has a larger size than has been allocated for new data! (out_size="<<out_size<<", out_size2="<<out_size2<<", expected_size="<<size<<")";
                            printer_error().raise(LOCAL_INFO, errmsg.str());
                         }
-                        // We should be able to read the whole thing in this time,
-                        // unlike in the primary point case, because the combined
-                        // dataset should have been created with the correct
-                        // length, which we check above. So it should not overflow
-                        // the buffers we have allocated.
                         H5Dread(dataset_out,  get_hdf5_data_type<U>::type(),   H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&output[0]);
                         H5Dread(dataset2_out, get_hdf5_data_type<int>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&valids[0]);
                     }
@@ -265,7 +285,7 @@ namespace Gambit
                           hid_t space = H5Dget_space(*it);
                           hssize_t dim_t = H5Sget_simple_extent_npoints(space);
                           std::vector<U> data(dim_t);
-                          std::vector<bool> valid; // don't need to declare length because the Enter_HDF5 will take care of it 
+                          std::vector<bool> valid;
                           Enter_HDF5<read_hdf5> (*itv, valid);
                           H5Dread(*it, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
                           
@@ -415,6 +435,7 @@ namespace Gambit
                 std::vector<unsigned long long> cum_sizes;
                 std::vector<unsigned long long> sizes;
                 unsigned long long size_tot;
+                unsigned long long size_tot_l;
                 std::string root_file_name;
                 bool do_cleanup; // If true, delete old temporary files after successful combination
                 std::string get_fname(const size_t); // get name of ith temp file
