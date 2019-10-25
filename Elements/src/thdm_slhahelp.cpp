@@ -23,18 +23,6 @@ namespace Gambit
 {
    namespace slhahelp
    {
-      // --- comments maintained from different model ---
-      /// Add an entire THDM spectrum to an SLHAea object
-      // Here we assume that all SM input info comes from the SMINPUT object,
-      // and all low-E stuff (quark pole masses and the like) come from the LE subspectrum.
-      // In other words all those things should be added to the SLHAea object via
-      // different functions to this one. Here we add only THDM information
-      // NOTE: check the below statement:
-      // Note that the SMINPUT object's dump-to-SLHAea function does not know how to discriminate
-      // between SLHA1 and SLHA2, but that doesn't matter, as the SM parameters defined in SLHA2
-      // just constitute additional blocks/block entries, not replacements for SLHA1 blocks.  In the
-      // MSSM sector, this is not true, and we take care to write version-specific blocks here.
-      //
       // slha_version - should be 1 or 2. Specifies whether to output closest-matching SLHA1 format
       // entries, or to maintain SLHA2 as is used internally.
       void add_THDM_spectrum_to_SLHAea(const SubSpectrum& thdmspec, SLHAstruct& slha, int slha_version) {
@@ -102,14 +90,11 @@ namespace Gambit
           SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
 
           std::vector<double> matrix_u, matrix_d, matrix_l;
+          std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
-          for (int i=0;i<3;i++) {
-            for (int j=0;j<3;j++) {
-              matrix_u.push_back(0);
-              matrix_d.push_back(0);
-              matrix_l.push_back(0);
-              // fills with 9 zeros
-            }
+          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++)  {
+              matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
+              u_coupl_matrix.push_back(0); d_coupl_matrix.push_back(0); l_coupl_matrix.push_back(0);
           }
 
           matrix_u[0] = thdmspec.get(Par::dimensionless, "Yu", 1, 1);
@@ -124,14 +109,35 @@ namespace Gambit
           matrix_l[4] = thdmspec.get(Par::dimensionless, "Ye", 2, 2);
           matrix_l[8] = thdmspec.get(Par::dimensionless, "Ye", 3, 3);
 
+          double u_coupl, d_coupl, l_coupl;
+
+          switch(yukawa_coupling) {
+            case 1: u_coupl = 1.0/tanb; d_coupl = 1.0/tanb; l_coupl = 1.0/tanb; break;
+            case 2: u_coupl = 1.0/tanb; d_coupl = -tanb;    l_coupl = -tanb; break;
+            case 3: u_coupl = 1.0/tanb; d_coupl = 1.0/tanb; l_coupl = -tanb; break;
+            case 4: u_coupl = 1.0/tanb; d_coupl = -tanb;    l_coupl = 1.0/tanb; break;
+          }
+
+          u_coupl_matrix[0] = u_coupl;
+          u_coupl_matrix[4] = u_coupl;
+          u_coupl_matrix[8] = u_coupl;
+
+          d_coupl_matrix[0] = d_coupl;
+          d_coupl_matrix[4] = d_coupl;
+          d_coupl_matrix[8] = d_coupl;
+
+          l_coupl_matrix[0] = l_coupl;
+          l_coupl_matrix[4] = l_coupl;
+          l_coupl_matrix[8] = l_coupl;
+
           SLHAea_add_block(slha, "UCOUPL");
-          SLHAea_add_matrix(slha, "UCOUPL", matrix_u, 3, 3, "LU", true);
+          SLHAea_add_matrix(slha, "UCOUPL", u_coupl_matrix, 3, 3, "LU", true);
 
           SLHAea_add_block(slha, "DCOUPL");
-          SLHAea_add_matrix(slha, "DCOUPL", matrix_d, 3, 3, "LU", true);
+          SLHAea_add_matrix(slha, "DCOUPL", d_coupl_matrix, 3, 3, "LU", true);
 
           SLHAea_add_block(slha, "LCOUPL");
-          SLHAea_add_matrix(slha, "LCOUPL", matrix_l, 3, 3, "LU", true);
+          SLHAea_add_matrix(slha, "LCOUPL", l_coupl_matrix, 3, 3, "LU", true);
         }
         else {
           // at the moment only SLHA2 is called, but in case, throw an error

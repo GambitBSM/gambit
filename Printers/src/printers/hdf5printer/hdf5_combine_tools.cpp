@@ -187,7 +187,9 @@ namespace Gambit
 
                 hsize_t dimsf[1];
                 dimsf[0] = size_tot;
-                
+<<<<<<< HEAD
+                hid_t dataspace = H5Screate_simple(1, dimsf, NULL);
+=======
                 hid_t dataspace = H5Screate_simple(1, dimsf, NULL); 
                   std::ostringstream errmsg;
                   printer_error().raise(LOCAL_INFO, errmsg.str());
