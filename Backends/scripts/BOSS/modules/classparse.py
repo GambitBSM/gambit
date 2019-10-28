@@ -158,6 +158,12 @@ def run():
                                        original_file_content_nocomments, original_file_content,
                                        short_abstr_class_fname)
 
+        #
+        # Comment out member variables or types in the class definition
+        #
+
+        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
+                                          original_file_content_nocomments)
 
 
         #
@@ -442,6 +448,33 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
     includes[original_file_name].append(include_line)
 
 # ====== END: addIncludesToOriginalClassFile ========
+
+
+
+# ======= commentMembersOfOriginalClassFile ========
+
+def commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
+                                      original_file_content_nocomments) :
+
+    if "members" in class_el.keys() :
+        for mem_id in class_el.get('members').split():
+            for to_comment in gb.marked_for_deletion:
+                if mem_id == to_comment.get('id') :
+
+                    # Find position of member
+                    pos = classutils.findClassMemberPosition(class_el, to_comment, original_file_content_nocomments)
+    
+                    # Find where to add the comment tags
+                    rel_pos_start, rel_pos_end = utils.getBracketPositions(original_file_content_nocomments[pos:], delims=['{','}'])
+
+                    comment_start = pos
+                    comment_end = pos + rel_pos_end + 2
+
+                    # Register code
+                    gb.new_code[original_file_name]['code_tuples'].append( (comment_start, '/*') )
+                    gb.new_code[original_file_name]['code_tuples'].append( (comment_end, '*/') )
+
+# ======= END: commentMembersOfOriginalClassFile ========
 
 
 

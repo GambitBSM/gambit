@@ -154,6 +154,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += '{' + '\n'
     done_members = []
     ptr_members_for_init = []
+    locally_defined_types = []
 
     for el in member_elements:
 
@@ -196,16 +197,27 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             return_kw     = return_type_dict['cv_qualifiers']
 
             return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
-            return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+            return_name = return_type_dict['name']
+            return_type   = return_name + '*'*pointerness + '&'*is_ref
+
+            # If return type is a locally defined type, remove all namespaces
+            if utils.typeInList(return_el, locally_defined_types) :
+              return_type = utils.removeNamespaces(return_type)
 
             return_is_loaded = utils.isLoadedClass(return_el)
             args = funcutils.getArgs(el)
+
+            # If any of the arg types is a locally defined type, remove all namespaces
+            for arg in args:
+              if utils.typeInList(arg, locally_defined_types) :
+                  arg_type = utils.removeNamespace(arg.get('type'))
+                  arg['type'] =  arg_type
+ 
             w_args = funcutils.constrWrapperArgs(args, add_ref=True)
 
             # If return type is a known class, add '::' for absolute namespace.
             if (not return_is_loaded) and utils.isKnownClass(return_el):
                 return_type = '::' + return_type 
-
 
             # Check constness
             if ('const' in el.keys()) and (el.get('const')=='1'):
@@ -302,6 +314,20 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
                     # Register variable name so that it can be initialized in the constructor
                     ptr_members_for_init.append(variable_name)
+
+        #
+        # If an enumeration class add this to the abstract class
+        #
+        elif el.tag in ('Enumeration') :
+            class_decl += '\n'
+            class_decl += constrEnumDecl(el, indent=indent, n_indents=n_indents+2)
+
+            # add this to a list of locally defined types
+            locally_defined_types.append(el)
+
+            # mark this type for deletion in the original file
+            if not el in gb.marked_for_deletion : 
+                gb.marked_for_deletion.append(el)
 
         #
         # Ignore element
@@ -783,6 +809,29 @@ def constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, remove_n_ar
     return wrapper_code
 
 # ====== END: constrWrapperFunction ========
+
+
+
+# ====== constrEnumDecl ========
+
+def constrEnumDecl(enum_el, indent=cfg.indent, n_indents=0):
+
+    enum_code = ' '*(n_indents)*indent
+
+    enum_name = enum_el.get('name')
+
+    enum_type_dict = utils.findType( enum_el )
+    enum_values    = enum_type_dict['enum_values']
+
+    enum_code += 'enum ' + enum_name + ' {\n'
+    for val in enum_values:
+        enum_code += ' '*(n_indents+1)*indent + val + ',\n'
+    enum_code = enum_code.rstrip(',')
+    enum_code += ' '*n_indents*indent + '};'
+
+    return enum_code
+
+# ====== END: constrEnumDecl ========
 
 
 
@@ -2068,6 +2117,29 @@ def findClassNamePosition(class_el, file_content_nocomments):
     return class_name_pos
 
 # ====== END: findClassNamePosition ========
+
+
+
+# ====== findClassMemberPosition ========
+
+# Find the position of a member of a class  
+
+def findClassMemberPosition(class_el, member_el, file_content_nocomments):
+
+    # Find the position of a class
+    class_pos = findClassNamePosition(class_el, file_content_nocomments);
+
+    # Find the line the member is at
+    file_content_list = file_content_nocomments.split('\n')
+    member_line = int(member_el.get('line'))-1
+    
+    # Get the position in the file contents
+    member_pos = file_content_nocomments[class_pos:].find(file_content_list[member_line])
+
+
+    return class_pos + member_pos
+
+# ====== END: findClassMemberPosition ========
 
 
 

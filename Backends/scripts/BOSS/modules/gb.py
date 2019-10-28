@@ -63,7 +63,7 @@ function_file_dict      = OrderedDict()
 symbol_name_counter     = 1
 function_name_counter   = 1
 
-
+marked_for_deletion     = []
 
 backend_types_basedir = 'backend_types'
 backend_types_dir_complete = os.path.join(boss_output_dir, backend_types_basedir, gambit_backend_name_full)

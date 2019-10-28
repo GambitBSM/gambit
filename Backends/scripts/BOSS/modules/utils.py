@@ -645,11 +645,16 @@ def findType(el_input):
     found_function_pointer = False
     is_array = False
     array_limits = []
+    enum_values = []
 
     el = el_input
 
     if el.tag in ['FundamentalType', 'Class', 'Struct', 'Enumeration']:
         type_id = el.get('id')
+
+    if el.tag in ['Enumeration']:
+      for val in el:
+          enum_values.append(val.get('name'))
 
     elif el.tag in ['Constructor']:
         type_id = el.get('context')
@@ -720,10 +725,29 @@ def findType(el_input):
     type_dict['is_function_pointer'] = found_function_pointer
     type_dict['is_array']            = is_array
     type_dict['array_limits']        = tuple(array_limits)
+    type_dict['enum_values']         = enum_values
 
     return type_dict
 
 # ====== END: findType ========
+
+
+
+# ====== typeInList ======
+
+def typeInList(type_el, list_types) :
+
+    list_of_ids = []
+
+    for list_type in list_types :
+        list_of_ids.append(list_type.get('id'))
+
+    if type_el.get('id') in list_of_ids:
+        return True
+    else:
+        return False
+
+# ====== END: typeInList ======
 
 
 
@@ -992,9 +1016,13 @@ def isAcceptedType(input_el):
             is_accepted_type = True
 
     elif type_el.tag in ['FundamentalType', 'Enumeration']:
+        #TODO: seems like the name doesn't get the namespace
+        if type_name in gb.accepted_types:
+            is_accepted_type = True
         type_name = type_el.get('name')
         if type_name in gb.accepted_types:
             is_accepted_type = True
+
 
     else:
         reason = "Cannot determine if XML element with id='%s' and tag '%s' corresponds to an accepted type. Assuming it does not." % (input_el.get('id'), input_el.tag)
@@ -2340,7 +2368,7 @@ def fillAcceptedTypesList():
     fundamental_types = set()
     std_types         = set()
     known_classes     = set()
-    # enumeration_types = set()
+    enumeration_types = set()
     loaded_classes    = set()
 
     # Keep track of how many types have been checked
@@ -2356,7 +2384,7 @@ def fillAcceptedTypesList():
         new_fundamental_types   = []
         new_std_types           = []
         new_known_classes       = []
-        # new_enumeration_types   = []
+        new_enumeration_types   = []
         new_loaded_classes      = []
 
 
@@ -2415,12 +2443,14 @@ def fillAcceptedTypesList():
                 new_std_types.append(full_name)
 
 
-            # #
-            # # Enumeration type?
-            # #
-            # is_enumeration = isEnumeration(el)
-            # if is_enumeration:
-            #     new_enumeration_types.append( '::'.join( getNamespaces(el, include_self=True) ) )
+            #
+            # Enumeration type?
+            #
+            # TODO: why enumeration types get the whole namespace?
+            is_enumeration = isEnumeration(el)
+            if is_enumeration:
+                new_enumeration_types.append(full_name)
+                #new_enumeration_types.append( '::'.join( getNamespaces(el, include_self=True) ) )
 
 
             #
@@ -2438,7 +2468,7 @@ def fillAcceptedTypesList():
         fundamental_types = fundamental_types.union(set(new_fundamental_types))
         std_types         = std_types.union(set(new_std_types))
         known_classes     = known_classes.union(set(new_known_classes))
-        # enumeration_types = enumeration_types.union(set(new_enumeration_types))
+        enumeration_types = enumeration_types.union(set(new_enumeration_types))
         loaded_classes    = loaded_classes.union(set(new_loaded_classes))
 
 
@@ -2446,8 +2476,8 @@ def fillAcceptedTypesList():
     print('  - %i types classified.' % (type_counter))
 
     # Fill global list
-    gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
-    # gb.accepted_types = list(loaded_classes) + list(fundamental_types) + list(std_types) + list(enumeration_types)
+    #gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
+    gb.accepted_types = list(loaded_classes) + list(known_classes) +  list(fundamental_types) + list(std_types) + list(enumeration_types)
 
 # ====== END: fillAcceptedTypesList ========
 
