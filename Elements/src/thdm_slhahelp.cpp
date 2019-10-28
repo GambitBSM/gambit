@@ -27,6 +27,8 @@ namespace Gambit
       // entries, or to maintain SLHA2 as is used internally.
       void add_THDM_spectrum_to_SLHAea(const SubSpectrum& thdmspec, SLHAstruct& slha, int slha_version) {
         if (slha_version==2) {
+          int debug_val = 0;
+          
           const double m_h = thdmspec.get(Par::Pole_Mass, "h0",1);
           const double m_H = thdmspec.get(Par::Pole_Mass, "h0",2);
           const double m_A = thdmspec.get(Par::Pole_Mass, "A0");
@@ -44,11 +46,9 @@ namespace Gambit
           const double lambda7 = thdmspec.get(Par::mass1,"lambda_7");
           const double m12_2 = thdmspec.get(Par::mass1,"m12_2");
           const double MW = thdmspec.get(Par::Pole_Mass,"W+");
-
           const double g = thdmspec.get(Par::dimensionless,"g1");
           const double g_prime = thdmspec.get(Par::dimensionless,"g2");
           const double g_3 = thdmspec.get(Par::dimensionless,"g3");
-
           const int yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
 
           SLHAea_add_block(slha, "MODSEL");;
@@ -92,7 +92,7 @@ namespace Gambit
           std::vector<double> matrix_u, matrix_d, matrix_l;
           std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
-          for (int i = 0, j = 0; i < 3 && j < 3; i++, j++)  {
+          for (int i=0;i<9;i++) {
               matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
               u_coupl_matrix.push_back(0); d_coupl_matrix.push_back(0); l_coupl_matrix.push_back(0);
           }
@@ -117,7 +117,6 @@ namespace Gambit
             case 3: u_coupl = 1.0/tanb; d_coupl = 1.0/tanb; l_coupl = -tanb; break;
             case 4: u_coupl = 1.0/tanb; d_coupl = -tanb;    l_coupl = 1.0/tanb; break;
           }
-
           u_coupl_matrix[0] = u_coupl;
           u_coupl_matrix[4] = u_coupl;
           u_coupl_matrix[8] = u_coupl;
@@ -134,10 +133,12 @@ namespace Gambit
           SLHAea_add_matrix(slha, "UCOUPL", u_coupl_matrix, 3, 3, "LU", true);
 
           SLHAea_add_block(slha, "DCOUPL");
-          SLHAea_add_matrix(slha, "DCOUPL", d_coupl_matrix, 3, 3, "LU", true);
+          SLHAea_add_matrix(slha, "DCOUPL", d_coupl_matrix, 3, 3, "LD", true);
 
           SLHAea_add_block(slha, "LCOUPL");
-          SLHAea_add_matrix(slha, "LCOUPL", l_coupl_matrix, 3, 3, "LU", true);
+          SLHAea_add_matrix(slha, "LCOUPL", l_coupl_matrix, 3, 3, "LL", true);
+
+          
         }
         else {
           // at the moment only SLHA2 is called, but in case, throw an error
