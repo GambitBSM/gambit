@@ -828,7 +828,7 @@ def constrEnumDecl(enum_el, indent=cfg.indent, n_indents=0):
     for val in enum_values:
         enum_code += ' '*(n_indents+1)*indent + val + ',\n'
     enum_code = enum_code.rstrip(',')
-    enum_code += ' '*n_indents*indent + '};'
+    enum_code += ' '*n_indents*indent + '};\n'
 
     return enum_code
 
@@ -1222,8 +1222,29 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
     decl_code += '{\n'
 
     #
+    # Add any typedefs needed for types moved to the abstract class
+    #
+    for abstr_type in gb.moved_to_abstract_class:
+        if utils.getNamespaces(abstr_type)[-1] == class_name['short'] : 
+            # get the type
+            abstr_type_dict = utils.findType(abstr_type)
+            abstr_type_name = utils.removeNamespace(abstr_type_dict['name'])
+            abstr_type_enum_values = abstr_type_dict['enum_values']
+
+            # Add code
+            decl_code += 2*indent + '// Types: \n'
+            decl_code += indent + 'public:\n'
+            decl_code += 2*indent + 'typedef ' + abstr_class_name['long'] + '::' + abstr_type_name + ' ' + abstr_type_name + ';\n'
+
+            # If its an enumeration, add all values as static members
+            if abstr_type.tag in ['Enumeration'] :
+                for val in abstr_type_enum_values :
+                    decl_code += 2*indent + abstr_type_name + ' ' + val + ' = ' + abstr_class_name['long'] + '::' + val + ';\n'
+
+    #
     # Variables:
     #
+    decl_code += '\n'
     decl_code += 2*indent + '// Member variables: \n'
 
     # Add a static function pointer for each factory function
