@@ -4135,17 +4135,24 @@ namespace Gambit
      decay_table_entry.set_BF((decay_widths.gamma_hgaga[higgs_number]/total_h_decay_width), 0.00, "gamma","gamma");
      //h->Z,gamma
      decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "Z0","gamma");
+     decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "gamma","Z0");
      //h->V,V
      decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][2]/total_h_decay_width), 0.00, "Z0","Z0");
      decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][3]/total_h_decay_width), 0.00, "W+","W-");
+     decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][3]/total_h_decay_width), 0.00, "W-","W+");
      //h->V,H
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "gamma","h0_1");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][2]/total_h_decay_width), 0.00, "gamma","h0_2");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "h0_1","gamma");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][2]/total_h_decay_width), 0.00, "h0_2","gamma");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][3]/total_h_decay_width), 0.00, "gamma","A0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][1]/total_h_decay_width), 0.00, "A0","gamma");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][1]/total_h_decay_width), 0.00, "Z0","h0_1");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][2]/total_h_decay_width), 0.00, "Z0","h0_2");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][2][3]/total_h_decay_width), 0.00, "Z0","A0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][2]/total_h_decay_width), 0.00, "A0","Z0");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][4]/total_h_decay_width), 0.00, "W+","H-");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][4][3]/total_h_decay_width), 0.00, "W-","H+");
      //h->H,H
      for(int h2=1; h2<5; h2++) {
        for(int h3=1; h3<5; h3++) {
@@ -4161,21 +4168,36 @@ namespace Gambit
      decay_table_entry.width_in_GeV = 0;
      decay_table_entry.positive_error = 0;
      decay_table_entry.negative_error = 0;
+     // does not include all decays here *yet* use the loop methods
+     // h->f_i f_i
      decay_table_entry.set_BF(0.00, 0.00, "d","dbar");
      decay_table_entry.set_BF(0.00, 0.00, "s","sbar");
      decay_table_entry.set_BF(0.00, 0.00, "b","bbar");
      decay_table_entry.set_BF(0.00, 0.00, "u","ubar");
      decay_table_entry.set_BF(0.00, 0.00, "c","cbar");
      decay_table_entry.set_BF(0.00, 0.00, "t","tbar");
+     // h-> f_i f_j (between family)
      decay_table_entry.set_BF(0.00, 0.00, "d","ubar");
+     decay_table_entry.set_BF(0.00, 0.00, "ubar","d");
      decay_table_entry.set_BF(0.00, 0.00, "s","cbar");
+     decay_table_entry.set_BF(0.00, 0.00, "cbar","s");
      decay_table_entry.set_BF(0.00, 0.00, "b","tbar");
+     decay_table_entry.set_BF(0.00, 0.00, "tbar","b");
+     // h-> f_i f_j (cross family) 
+     // [ONLY h->bs, h->tc]
+     // other flavour entries to be added later for THDM III analysis
+     decay_table_entry.set_BF(0.00, 0.00, "b","sbar");
+     decay_table_entry.set_BF(0.00, 0.00, "sbar","b");
+     decay_table_entry.set_BF(0.00, 0.00, "c","tbar");
+     decay_table_entry.set_BF(0.00, 0.00, "tbar","c");
+     // h-> ll
      decay_table_entry.set_BF(0.00, 0.00, "e+","e-");
      decay_table_entry.set_BF(0.00, 0.00, "mu+","mu-");
      decay_table_entry.set_BF(0.00, 0.00, "tau+","tau-");
      decay_table_entry.set_BF(0.00, 0.00, "e+","nubar_e");
      decay_table_entry.set_BF(0.00, 0.00, "mu+","nubar_mu");
      decay_table_entry.set_BF(0.00, 0.00, "tau+","nubar_tau");
+     // h->gg/gamma,gamma/VV
      decay_table_entry.set_BF(0.00, 0.00, "g","g");
      decay_table_entry.set_BF(0.00, 0.00, "gamma","gamma");
      decay_table_entry.set_BF(0.00, 0.00, "Z0","gamma");
@@ -4189,7 +4211,11 @@ namespace Gambit
      decay_table_entry.set_BF(0.00, 0.00, "Z0","A0");
      decay_table_entry.set_BF(0.00, 0.00, "W+","H-");
      decay_table_entry.set_BF(0.00, 0.00, "h0_1","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "h0_1","h0_2");
      decay_table_entry.set_BF(0.00, 0.00, "h0_2","h0_2");
+     decay_table_entry.set_BF(0.00, 0.00, "h0_2","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "A_0","h0_1");
+     decay_table_entry.set_BF(0.00, 0.00, "A_0","h0_2");
      decay_table_entry.set_BF(0.00, 0.00, "A0","A0");
      decay_table_entry.set_BF(0.00, 0.00, "H+","H-");
      return decay_table_entry;
@@ -4266,6 +4292,62 @@ namespace Gambit
        result = create_empty_decay_table_THDM(); 
        }
    }
+
+    // -- THDM observables
+    void THDM_h0_dd_BR(double& BF)
+    {
+        using namespace Pipes::THDM_h0_dd_BR;
+        BF = Dep::Higgs_decay_rates->BF("d","dbar");
+    }
+
+    // decay_table_entry.set_BF(0.00, 0.00, "d","dbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "s","sbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "b","bbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "u","ubar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "c","cbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "t","tbar");
+    //  // h-> f_i f_j (between family)
+    //  decay_table_entry.set_BF(0.00, 0.00, "d","ubar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "ubar","d");
+    //  decay_table_entry.set_BF(0.00, 0.00, "s","cbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "cbar","s");
+    //  decay_table_entry.set_BF(0.00, 0.00, "b","tbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "tbar","b");
+    //  // h-> f_i f_j (cross family) 
+    //  // [ONLY h->bs, h->tc]
+    //  // other flavour entries to be added later for THDM III analysis
+    //  decay_table_entry.set_BF(0.00, 0.00, "b","sbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "sbar","b");
+    //  decay_table_entry.set_BF(0.00, 0.00, "c","tbar");
+    //  decay_table_entry.set_BF(0.00, 0.00, "tbar","c");
+    //  // h-> ll
+    //  decay_table_entry.set_BF(0.00, 0.00, "e+","e-");
+    //  decay_table_entry.set_BF(0.00, 0.00, "mu+","mu-");
+    //  decay_table_entry.set_BF(0.00, 0.00, "tau+","tau-");
+    //  decay_table_entry.set_BF(0.00, 0.00, "e+","nubar_e");
+    //  decay_table_entry.set_BF(0.00, 0.00, "mu+","nubar_mu");
+    //  decay_table_entry.set_BF(0.00, 0.00, "tau+","nubar_tau");
+    //  // h->gg/gamma,gamma/VV
+    //  decay_table_entry.set_BF(0.00, 0.00, "g","g");
+    //  decay_table_entry.set_BF(0.00, 0.00, "gamma","gamma");
+    //  decay_table_entry.set_BF(0.00, 0.00, "Z0","gamma");
+    //  decay_table_entry.set_BF(0.00, 0.00, "Z0","Z0");
+    //  decay_table_entry.set_BF(0.00, 0.00, "W+","W-");
+    //  decay_table_entry.set_BF(0.00, 0.00, "gamma","h0_1");
+    //  decay_table_entry.set_BF(0.00, 0.00, "gamma","h0_2");
+    //  decay_table_entry.set_BF(0.00, 0.00, "gamma","A0");
+    //  decay_table_entry.set_BF(0.00, 0.00, "Z0","h0_1");
+    //  decay_table_entry.set_BF(0.00, 0.00, "Z0","h0_2");
+    //  decay_table_entry.set_BF(0.00, 0.00, "Z0","A0");
+    //  decay_table_entry.set_BF(0.00, 0.00, "W+","H-");
+    //  decay_table_entry.set_BF(0.00, 0.00, "h0_1","h0_1");
+    //  decay_table_entry.set_BF(0.00, 0.00, "h0_1","h0_2");
+    //  decay_table_entry.set_BF(0.00, 0.00, "h0_2","h0_2");
+    //  decay_table_entry.set_BF(0.00, 0.00, "h0_2","h0_1");
+    //  decay_table_entry.set_BF(0.00, 0.00, "A_0","h0_1");
+    //  decay_table_entry.set_BF(0.00, 0.00, "A_0","h0_2");
+    //  decay_table_entry.set_BF(0.00, 0.00, "A0","A0");
+    //  decay_table_entry.set_BF(0.00, 0.00, "H+","H-");
 
     void Z_gamma_nu_2l(triplet<double>& gamma)
     {

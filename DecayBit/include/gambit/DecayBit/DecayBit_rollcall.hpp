@@ -941,6 +941,20 @@ START_MODULE
     ALLOW_MODEL_DEPENDENCE(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
+  #undef CAPABILITY
+
+  #define CAPABILITY THDM_h0_BR
+    START_CAPABILITY
+
+    #define FUNCTION THDM_h0_dd_BR
+    START_FUNCTION(double)
+    DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+    ALLOW_MODELS(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODELS(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
   #define CAPABILITY Z_gamma_nu
   START_CAPABILITY
     #define FUNCTION Z_gamma_nu_2l
