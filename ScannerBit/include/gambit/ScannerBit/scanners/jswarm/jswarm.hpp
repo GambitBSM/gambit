@@ -76,6 +76,9 @@ namespace Gambit
         /// Reflect a particle's position and velocity about the walls of the prior box
         void reflect();
 
+        /// Return a particle's position vector, discretised at some specified indices
+        std::vector<double> discretised_x(const std::vector<int>&);
+
     };
 
 
@@ -104,6 +107,9 @@ namespace Gambit
         int omega_index;
         /// @}
 
+        /// Input base seed for random number generation; non-positive means seed from the system clock
+        int input_seed;
+
         /// Random number generator engine
         rng_type rng;
 
@@ -119,8 +125,14 @@ namespace Gambit
         /// Save swarm settings
         void save_settings();
 
+        /// Read swarm settings
+        void read_settings(bool);
+
         /// Save generation data
         void save_generation();
+
+        /// Read generation data
+        void read_generation();
 
         /// Check whether the swarm has converged
         bool converged();
@@ -201,6 +213,9 @@ namespace Gambit
 
         /// Resume from previous run
         bool resume;
+
+        /// Allow settings to be overridden with new values when resuming
+        bool allow_new_settings;
 
         /// Parameter space boundaries
         /// @{

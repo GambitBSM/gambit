@@ -16,14 +16,7 @@
 ///  *********************************************
 
 #include <vector>
-
 #include "gambit/ScannerBit/scanners/jswarm/jswarm.hpp"
-
-//#include "gambit/Utils/yaml_options.hpp"
-//#include "gambit/Utils/util_types.hpp"
-//#include "gambit/Utils/util_functions.hpp"
-//#include "gambit/Utils/variadic_functions.hpp"
-
 
 scanner_plugin(jswarm, version(1, 0, 0))
 {
@@ -64,7 +57,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
     if (resume)
     {
       bool good = true;
-      static const std::vector<str> names = initVector<str>(root+".particles", root+".settings");
+      static const std::vector<str> names = initVector<str>(root+".settings.yaml");
       for (auto it = names.begin(); it != names.end(); ++it)
       {
         std::ifstream file(*it);
@@ -108,8 +101,9 @@ scanner_plugin(jswarm, version(1, 0, 0))
     swarm.init_stationary     = get_inifile_value<bool>  ("init_stationary", false);     // Initialise particle velocities to to zero
     swarm.max_ini_attempts    = get_inifile_value<int>   ("max_initialisation_attempts", 10000); // Maximum number of times to try to find a valid vector for each slot in the initial population.
     swarm.min_acceptable_value= get_inifile_value<double>("min_acceptable_value",0.9999*gl0); // Minimum function value to accept for the initial generation if init_population_strategy > 0.
-    swarm.verbose             = get_inifile_value<int>   ("verbosity",          0);      // Output verbosity: 0=only error messages, 1=basic info, 2=generation-level info, 3+=particle-level info
+    swarm.verbose             = get_inifile_value<int>   ("verbosity",          1);      // Output verbosity: 0=only error messages, 1=basic info, 2=generation-level info, 3+=particle-level info
     swarm.seed                = get_inifile_value<int>   ("seed",               -1);     // Base seed for random number generation; non-positive means seed from the system clock
+    swarm.allow_new_settings  = get_inifile_value<bool>  ("allow_new_settings", false);  // Allow settings to be overridden with new values when resuming
 
     // Initialise the swarm
     swarm.init();

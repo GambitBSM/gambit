@@ -97,6 +97,15 @@ namespace Gambit
         else x[i] = other_bound + offset; //even number of reflections
       }
 
+
+    }
+
+    /// Return a particle's position vector, discretised at some specified indices
+    std::vector<double> particle::discretised_x(const std::vector<int>& indices)
+    {
+      std::vector<double> x_discrete = x;
+      for (int i : indices) x_discrete[i] = round(x[i]);
+      return x_discrete;
     }
 
 

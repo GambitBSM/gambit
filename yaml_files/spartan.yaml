@@ -87,7 +87,7 @@ Scanner:
       plugin: jswarm
       like:  LogLike
       NP: 500
-      maxgen: 20
+      maxgen: 200
       adapt_phi: true
       adapt_omega: true
 
