@@ -379,32 +379,40 @@ namespace Gambit
          double v_1 = model.get_v1(), v_2 = model.get_v2();
          double b = atan(v_2/v_1); 
          double v2 = pow(v_1,2) + pow(v_2,2);
-         double mA = get_mA_pole_slha(model);
-         double mA_2 = pow(mA,2);
+         double mA = get_mA_running(model);
+         double m_A2 = pow(mA,2);
+         double lambda_1 = get_lambda1(model);
          double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
+         // DEPRECATED METHODS
          // double tan2ba = (2.0*Lam6*v2)/(mA_2 + (Lam5-Lam1)*v2);
          // double s2ba = -(2.0*Lam6*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
          // double c2ba = s2ba/tan2ba;
-         double c2ba = -(mA_2 + (Lam5-Lam1)*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
-         double ba = 0.5*acos(c2ba);
+         // double c2ba = -(mA_2 + (Lam5-Lam1)*v2)/sqrt(pow((mA_2 + (Lam5-Lam1)*v2),2) + 4.0*pow(Lam6,2)*v2*v2);
+         // double ba = 0.5*acos(c2ba);
+         // **********
+         double s2ba = -2.*Lam6*v2;
+         double c2ba = -(m_A2+(Lam5-Lam1)*v2);
+         double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = b - ba;
-         const bool debug_nan_alpha = true;
+         if (alpha>M_PI/2) alpha = alpha - M_PI;
+         const bool debug_nan_alpha = false;
          if (debug_nan_alpha && std::isnan(alpha)) {
             std::ofstream debug_stream;
             debug_stream.open ("alpha_nan_debug.txt", std::ofstream::out | std::ofstream::app);
             debug_stream << "*****" << std::endl;
             debug_stream << v_1 << std::endl;
             debug_stream << v_2 << std::endl;
-            debug_stream << b << std::endl;
-            debug_stream << mA << std::endl;
-            debug_stream << Lam1 << std::endl;
-            debug_stream << Lam5 << std::endl;
-            debug_stream << Lam6 << std::endl;
-            // debug_stream << tan2ba << std::endl;
-            // debug_stream << s2ba << std::endl;
-            debug_stream << c2ba << std::endl;
-            debug_stream << ba << std::endl;
-            debug_stream << "*****" << std::endl << std::endl;
+            debug_stream << "b" << b << std::endl;
+            debug_stream << "mA" << mA << std::endl;
+            debug_stream << "Lam1" << Lam1 << std::endl;
+            debug_stream << "Lam5" << Lam5 << std::endl;
+            debug_stream << "Lam6" << Lam6 << std::endl;
+            // debug_stream << "tan2ba" << tan2ba << std::endl;
+            debug_stream << "s2ba" << s2ba << std::endl;
+            debug_stream << "c2ba" << c2ba << std::endl;
+            debug_stream << "ba" << ba << std::endl;
+            debug_stream << "alpha" << alpha << std::endl;
+            debug_stream << "***** (" << lambda_1 << ")" << std::endl << std::endl;
             debug_stream.close();
          }
          return alpha;

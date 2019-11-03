@@ -585,6 +585,29 @@ namespace Gambit
       double alpha = he->get(Par::dimensionless, "alpha");
       double sba = sin(atan(tan_beta) - alpha);
       set_SM(SM,sminputs,THDM_object);
+      // std::cout << "TEST TANB: " << tan_beta << std::endl;
+      THDM_object->set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7,m12_2,tan_beta);
+      // double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, m_Hp,mh_2hdmc,mH_2hdmc,mA_2hdmc,mHp_2hdmc,sba_2hdmc,lambda6_2hdmc,lambda7_2hdmc,tan_beta_2hdmc,m12_2_2hdmc;
+      // THDM_object->get_param_phys(mh_2hdmc,mH_2hdmc,mA_2hdmc,mHp_2hdmc,sba_2hdmc,lambda6_2hdmc,lambda7_2hdmc,m12_2_2hdmc,tan_beta_2hdmc);
+      // THDM_object->get_param_higgs(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, m_Hp);
+      // THDM_object->set_param_higgs(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, m_Hp);
+      // THDM_object->get_param_phys(Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, m_Hp);
+
+      // std::cout << "******* THDMC ********" << std::endl;
+      // std::cout << " LAMBDA 1 " << Lambda1 << std::endl << " LAMBDA 5 " << Lambda5 << std::endl << " LAMBDA 6 " << Lambda6 << std::endl;
+      // std::cout <<  "lambda_1 " << lambda_1 << std::endl << "alpha: "<< THDM_object->get_alpha() << std::endl;
+      // double mA_2 = pow(mA_2hdmc,2);
+      // double m_GF = 1.16637E-5;
+      // double v2 = 1./(sqrt(2)*m_GF);
+      // std::cout << "v^2 " << v2 << std::endl;
+      // std::cout << "mA " << mA_2hdmc << std::endl;
+      // double c2ba = -(mA_2 + (Lambda5-Lambda1)*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
+      // std::cout << "c2ba_calc: " << c2ba << std::endl;
+      // double ba = 0.5*acos(c2ba);
+      // double alpha_calc = atan(tan_beta) - ba;
+      // std::cout << "alpha_calc: " << alpha_calc << std::endl;
+      // std::cout << "*******" << std::endl;
+      THDM_object->get_alpha(); 
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       THDM_object->set_yukawas_type(yukawa_type);
