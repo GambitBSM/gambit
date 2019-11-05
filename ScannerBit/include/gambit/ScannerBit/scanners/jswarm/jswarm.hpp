@@ -38,9 +38,6 @@ namespace Gambit
 
       private:
 
-        /// Current personal best fit
-        double personal_best_value;
-
         /// Parameter space boundaries
         /// @{
         std::vector<double>* lowerbounds;
@@ -60,6 +57,9 @@ namespace Gambit
 
         /// Current objective value
         double lnlike;
+
+        /// Current personal best fit
+        double personal_best_value;
 
         /// Current personal best-fit vector
         std::vector<double> personal_best_x;
@@ -97,6 +97,12 @@ namespace Gambit
         std::vector<double> global_best_x;
         /// @}
 
+        /// Mean personal best fit across the current generation
+        double mean_lnlike;
+
+        /// Smoothed fractional improvements in the mean personal best lnlike over the most recent generations
+        std::vector<double> conv_progress;
+
         /// Dimensionality of the parameter space including any meta-optimisation parameters
         int nPar_total;
 
@@ -128,11 +134,11 @@ namespace Gambit
         /// Read swarm settings
         void read_settings(bool);
 
-        /// Save generation data
-        void save_generation();
+        /// Save data from the last generation
+        void save_generation(int);
 
-        /// Read generation data
-        void read_generation();
+        /// Read data from the last generation
+        int read_generation();
 
         /// Check whether the swarm has converged
         bool converged();
@@ -196,7 +202,7 @@ namespace Gambit
         /// Social weight
         double phi2;
 
-        /// Threshold for gen-level convergence: smoothed fractional improvement in the mean population value
+        /// Threshold for gen-level convergence: smoothed fractional improvement in the mean personal best population value
         double convthresh;
 
         /// Minimum function value to accept for the initial generation if init_population_strategy > 0.
@@ -216,6 +222,9 @@ namespace Gambit
 
         /// Allow settings to be overridden with new values when resuming
         bool allow_new_settings;
+
+        /// Save full particle data from every generation
+        bool save_particles_natively;
 
         /// Parameter space boundaries
         /// @{

@@ -57,7 +57,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
     if (resume)
     {
       bool good = true;
-      static const std::vector<str> names = initVector<str>(root+".settings.yaml");
+      static const std::vector<str> names = initVector<str>(root+".settings.yaml", root+".lastgen");
       for (auto it = names.begin(); it != names.end(); ++it)
       {
         std::ifstream file(*it);
@@ -81,6 +81,12 @@ scanner_plugin(jswarm, version(1, 0, 0))
 
     // Retrieve the global option specifying the minimum interesting likelihood.
     double gl0 = get_inifile_value<double>("likelihood: model_invalid_for_lnlike_below");
+    // Retrieve the global option specifying the likelihood offset to use
+    double offset = get_inifile_value<double>("likelihood: lnlike_offset", 1e-4*gl0);
+    // Make sure the likleihood functor knows to apply the offset internally in ScannerBit
+    swarm.likelihood_function->setPurposeOffset(offset);
+    // Offset the minimum interesting likelihood by the offset.
+    gl0 = gl0 + offset;
 
     // Other j-Swarm run parameters
     swarm.nPar                = get_dimension();                                         // Dimensionality of the parameter space
@@ -94,7 +100,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
     swarm.bndry               = get_inifile_value<int>   ("bndry",              3);      // Boundary constraint: 1=brick wall, 2=random re-initialization, 3=reflection
     swarm.adapt_phi           = get_inifile_value<bool>  ("adaptive_phi",       false);  // Use self-optimising adaptive choices for phi1 and phi2
     swarm.adapt_omega         = get_inifile_value<bool>  ("adaptive_omega",     false);  // Use self-optimising adaptive choices for omega
-    swarm.convthresh          = get_inifile_value<double>("convthresh",         1.e-3);  // Threshold for gen-level convergence: smoothed fractional improvement in the mean population value
+    swarm.convthresh          = get_inifile_value<double>("convthresh",         1.e-3);  // Threshold for gen-level convergence: smoothed fractional improvement in the mean personal best population value
     swarm.convsteps           = get_inifile_value<int>   ("convsteps",          10);     // Number of steps to smooth over when checking convergence
     swarm.savecount           = get_inifile_value<int>   ("savecount",          1);      // Save progress every savecount generations
     swarm.init_pop_strategy   = get_inifile_value<int>   ("init_population_strategy", 2);// Initialisation strategy: 0=one shot, 1=n-shot, 2=n-shot with error if no valid vectors found.
@@ -104,6 +110,7 @@ scanner_plugin(jswarm, version(1, 0, 0))
     swarm.verbose             = get_inifile_value<int>   ("verbosity",          1);      // Output verbosity: 0=only error messages, 1=basic info, 2=generation-level info, 3+=particle-level info
     swarm.seed                = get_inifile_value<int>   ("seed",               -1);     // Base seed for random number generation; non-positive means seed from the system clock
     swarm.allow_new_settings  = get_inifile_value<bool>  ("allow_new_settings", false);  // Allow settings to be overridden with new values when resuming
+    swarm.save_particles_natively = get_inifile_value<bool>("save_particles_natively", false); // Save full particle data from every generation
 
     // Initialise the swarm
     swarm.init();

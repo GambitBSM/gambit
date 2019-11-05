@@ -87,9 +87,10 @@ Scanner:
       plugin: jswarm
       like:  LogLike
       NP: 500
-      maxgen: 200
-      adapt_phi: true
-      adapt_omega: true
+      adaptive_phi: true
+      adaptive_omega: true
+      save_particles_natively: true
+      verbosity: 2
 
 ObsLikes:
 

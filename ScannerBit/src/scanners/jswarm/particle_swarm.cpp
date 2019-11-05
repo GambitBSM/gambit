@@ -18,6 +18,7 @@
 ///  *********************************************
 
 #include <limits>
+#include <fstream>
 #include "gambit/ScannerBit/scanners/jswarm/jswarm.hpp"
 
 namespace Gambit
@@ -29,6 +30,7 @@ namespace Gambit
     /// Constructor
     particle_swarm::particle_swarm()
     : global_best_value(-std::numeric_limits<double>::max())
+    , mean_lnlike(-std::numeric_limits<double>::max())
     , nPar_total(0)
     , phi1_index(0)
     , phi2_index(0)
@@ -56,6 +58,7 @@ namespace Gambit
     , adapt_omega(false)
     , init_stationary(false)
     , resume(false)
+    , save_particles_natively(false)
     {}
 
     /// Initialise the swarm
@@ -81,7 +84,7 @@ namespace Gambit
         omega_index = nPar_total - 1;
       }
 
-      // Size the vecotrs to hold the upper and lower parameter boundaries
+      // Size the vectors to hold the upper and lower parameter boundaries
       lowerbounds.resize(nPar_total);
       upperbounds.resize(nPar_total);
 
@@ -93,8 +96,8 @@ namespace Gambit
       }
       if (adapt_omega)
       {
-        lowerbounds[omega] = 0.0;
-        upperbounds[omega] = 1.0;
+        lowerbounds[omega_index] = 0.0;
+        upperbounds[omega_index] = 1.0;
       }
 
       // Seed the random number generator
@@ -109,6 +112,10 @@ namespace Gambit
       // TODO deal properly with discrete parameters
       if (nDiscrete != 0) discrete.resize(nDiscrete);
 
+      // Initialise the convergence measures
+      conv_progress.resize(convsteps);
+      for (auto& x : conv_progress) x = 1.0;
+
       // Done
       if (verbose > 1) cout << "j-Swarm: successfully initialised swarm with NP = " << NP << ", nPar = " << nPar << ", nDiscrete = " << nDiscrete << endl;
     }
@@ -117,31 +124,39 @@ namespace Gambit
     void particle_swarm::run()
     {
       if (verbose > 0) cout << "j-Swarm: beginning run." << endl;
+      int gen = 1;
 
-      // Read the saved settings again if resuming and forbidding new settings (in case the user overwrote them between init and now).
-      if (resume and not allow_new_settings) read_settings(false);
-
-      // Initialise the first population
-      // TODO MPI parallelise
-      for (int i = 0; i < NP; i++)
+      if (resume)
       {
-        particle& p = particles[i];
-        p.init(init_stationary);
-        // TODO implement init strategy
-        // using init_pop_strategy, min_acceptable_value, max_ini_attempts
-        p.lnlike = likelihood_function(p.x);
-        update_best_fits(p);
+        // Read the saved settings again if resuming and forbidding new settings (in case the user overwrote them between init and now).
+        if (not allow_new_settings) read_settings(false);
+        gen = read_generation();
+     }
+      else
+      {
+        // Initialise the first population
+        // TODO MPI parallelise
+        for (int i = 0; i < NP; i++)
+        {
+          particle& p = particles[i];
+          p.init(init_stationary);
+          // TODO implement init strategy
+          // using init_pop_strategy, min_acceptable_value, max_ini_attempts
+          p.lnlike = likelihood_function(p.x);
+          fcall += 1;
+          update_best_fits(p);
+        }
+        if (converged()) Scanner::scan_error().raise(LOCAL_INFO, "j-Swarm converged immediately! This is a bug, please report it.");
+        if (verbose > 1) cout << "  j-Swarm: successfully tested first generation." << endl;
+        // Save the run settings and first generation
+        save_settings();
+        save_generation(gen);
       }
-
-      if (verbose > 1) cout << "  j-Swarm: successfully tested first generation." << endl;
-
-      // Save the run settings and first generation
-      save_settings();
-      save_generation();
 
       // Begin the generation loop
       // TODO MPI parallelise
-      for (int gen = 2; gen <= maxgen; gen++)
+      gen += 1;
+      for (; gen <= maxgen; gen++)
       {
         if (verbose > 1) cout << "  j-Swarm: moving on to generation " << gen << "." << endl;
 
@@ -161,7 +176,7 @@ namespace Gambit
 
           // Check if the particle is now outside the prior box, and fix it if so (when bndry = 2 or 3)
           if (implement_boundary_policy(p))
-
+          {
             // Call the likelihood function, being sure to discretise any discrete parameters
             p.lnlike = likelihood_function(p.discretised_x(discrete));
 
@@ -172,28 +187,29 @@ namespace Gambit
             fcall += 1;
 
             if (verbose > 2) cout << "      j-Swarm: new objective value for particle " << pi << ": " << p.lnlike << endl;
-
+          }
           else
           {
+            cout << "worst like" << endl;
             // Return the worst possible likelihood if the point is outside the prior box and bndry = 1
             p.lnlike = -std::numeric_limits<double>::max();
           }
 
         }
 
-        // Check whether the calling code wants us to shut down early
-        if (Scanner::Plugins::plugin_info.early_shutdown_in_progress())
-        {
-           if (verbose > 0) cout << endl << "  j-Swarm: quit requested by objective function; saving and exiting..." << endl;
-           save_generation();
-           break;
-        }
-
         // Save generation
-        if (gen%savecount == 0) save_generation();
+        if (gen%savecount == 0) save_generation(gen);
 
         // Check for convergence
         if (converged()) break;
+
+        // Check whether the calling code wants us to shut down early
+        if (Scanner::Plugins::plugin_info.early_shutdown_in_progress())
+        {
+           if (verbose > 0) cout << "  j-Swarm: quit requested by objective function; saving and exiting..." << endl;
+           if (gen%savecount != 0) save_generation(gen);
+           break;
+        }
 
       }
 
@@ -262,6 +278,27 @@ namespace Gambit
       return true;
     }
 
+    /// Check whether the swarm has converged; note that this will fail if the lnlike is ever >= 0!
+    bool particle_swarm::converged()
+    {
+      // Find the mean value of the personal best likelihoods
+      double current_mean = std::accumulate(particles.begin(), particles.end(), 0.0, [](int i, particle& p){return i+p.personal_best_value;})/NP;
+      // Find the fractional improvement between this generation and last generation
+      double mean_ratio = current_mean/mean_lnlike;
+      double fractional_diff = (mean_ratio <= 1.0) ? 1.0 - mean_ratio : 1.0;
+      mean_lnlike = current_mean;
+
+      // Discard oldest improvement and store new improvement
+      conv_progress.erase(conv_progress.begin());
+      conv_progress.push_back(fractional_diff);
+      // Average over the generations stored
+      double sfim = std::accumulate(conv_progress.begin(), conv_progress.end(), 0.0)/convsteps;
+      if (verbose > 1) cout << "  j-Swarm: Smoothed fractional improvement of the mean personal best: " << sfim << endl;
+
+      // Compare to threshold value
+      return (sfim < convthresh);
+    }
+
     /// Save swarm settings
     void particle_swarm::save_settings()
     {
@@ -299,7 +336,7 @@ namespace Gambit
        << "phi1: " << phi1 << endl
        << "# Social weight (double)" << endl
        << "phi2: " << phi2 << endl
-       << "# Threshold for gen-level convergence: smoothed fractional improvement in the mean population value (double)" << endl
+       << "# Threshold for gen-level convergence: smoothed fractional improvement in the mean personal best population value (double)" << endl
        << "convthresh: " << convthresh << endl
        << "# Minimum function value to accept for the initial generation if init_population_strategy > 0. (double)" << endl
        << "min_acceptable_value: " << min_acceptable_value << endl
@@ -314,7 +351,6 @@ namespace Gambit
        << "lowerbounds: " << endl << YAML::Node(lowerbounds) << endl
        << "# Indices of parameters to be treated as discrete (std::vector<int>) (bool)" << endl
        << "discrete: " << YAML::Node(discrete) << endl;
-      settings.close();
     }
 
     /// Read swarm settings
@@ -363,30 +399,106 @@ namespace Gambit
       }
     }
 
-    /// Save generation data
-    void particle_swarm::save_generation()
+    /// Save data from the last generation
+    void particle_swarm::save_generation(int gen)
     {
-      // << "# Number of calls to the objective function so far (int)" << endl
-      // << "fcall: " << fcall << endl
-      // generation num
-      // convergence info
+      // Save the information about the last generation needed for resuming (and for tracking progress)
+      std::ofstream lastgen;
+      lastgen.open(path + ".lastgen");
+      lastgen << "# Number of calls to the objective function so far (int)" << endl << fcall << endl;
+      lastgen << "# Generation number (int)" << endl << gen << endl;
+      lastgen << "# Global best fit achieved so far (double)" << endl << global_best_value << endl;
+      lastgen << "# Location of global best fit achieved so far (" << nPar_total << " doubles)" << endl;
+      for (int i = 0; i < nPar_total; i++) lastgen << global_best_x[i] << " ";
+      lastgen << endl << "# Mean personal best lnlike in last generation (double)" << endl << mean_lnlike << endl;
+      lastgen << "# Smoothed fractional improvement in mean personal best lnlike in last [convsteps] generations (" << convsteps << " doubles)" << endl;
+      for (int i = 0; i < convsteps; i++) lastgen << conv_progress[i] << " ";
+      lastgen << endl << "# [NP] particles in last completed generation (" << NP
+              << " x " << 2 + 3*nPar_total << " doubles {lnlike, personal best lnlike, "
+              << nPar_total << " positions, " << nPar_total << " velocities, "
+              << nPar_total << " personal best positions})";
+      lastgen.precision(8);
+      lastgen << std::scientific;
+      for (int i = 0; i < NP; i++)
+      {
+        particle& p = particles[i];
+        lastgen << endl << p.lnlike << " " << p.personal_best_value;
+        for (int j = 0; j < nPar_total; j++) lastgen << " " << p.x[j];
+        for (int j = 0; j < nPar_total; j++) lastgen << " " << p.v[j];
+        for (int j = 0; j < nPar_total; j++) lastgen << " " << p.personal_best_x[j];
+      }
 
-      //TODO, using path
+       // Add the full info about the current generation to the native output
+      if (save_particles_natively)
+      {
+        std::ofstream pfile;
+        if (gen == 1)
+        {
+          pfile.open(path + ".particles");
+          pfile << "# Gen lnlike           position (" << nPar_total << " doubles)          velocity (" <<  nPar_total << " doubles)";
+        }
+        else pfile.open(path + ".particles", std::ios_base::app);
+        pfile.precision(8);
+        pfile << std::scientific;
+        for (int i = 0; i < NP; i++)
+        {
+          particle& p = particles[i];
+          pfile << endl << gen << "    " << p.lnlike << " ";
+          for (int j = 0; j < nPar_total; j++) pfile << " " << p.x[j];
+          for (int j = 0; j < nPar_total; j++) pfile << " " << p.v[j];
+        }
+      }
     }
 
-    /// Read generation data
-    void particle_swarm::read_generation()
+    /// Read data from the last generation
+    int particle_swarm::read_generation()
     {
-      //TODO, using path
-
-      //fcall = progress.as("fcall");
-    }
-
-    /// Check whether the swarm has converged
-    bool particle_swarm::converged()
-    {
-      //TODO, using convsteps, savecount;
-      return false;
+      int gen;
+      std::ifstream lastgen;
+      const int len = 200;
+      char line[len];
+      lastgen.open(path + ".lastgen");
+      // Read fcall
+      lastgen.getline(line,len);
+      lastgen >> fcall;
+      lastgen.getline(line,len);
+      // Read generation number
+      lastgen.getline(line,len);
+      lastgen >> gen;
+      lastgen.getline(line,len);
+      // Read global best-fit lnlike
+      lastgen.getline(line,len);
+      lastgen >> global_best_value;
+      lastgen.getline(line,len);
+      // Read position of global best-fit lnlike
+      lastgen.getline(line,len);
+      global_best_x.resize(nPar_total);
+      for (int i = 0; i < nPar_total; i++) lastgen >> global_best_x[i];
+      lastgen.getline(line,len);
+      // Read mean personal best lnlike for the current generation
+      lastgen.getline(line,len);
+      lastgen >> mean_lnlike;
+      lastgen.getline(line,len);
+      // Read smoothed fractional improvements in mean personal best lnlike during recent generations
+      conv_progress.resize(convsteps);
+      lastgen.getline(line,len);
+      for (int i = 0; i < convsteps; i++) lastgen >> conv_progress[i];
+      lastgen.getline(line,len);
+      // Read particle data
+      lastgen.getline(line,len);
+      for (int i = 0; i < NP; i++)
+      {
+        particle& p = particles[i];
+        lastgen >> p.lnlike >> p.personal_best_value;
+        p.x.resize(nPar_total);
+        p.v.resize(nPar_total);
+        p.personal_best_x.resize(nPar_total);
+        for (int j = 0; j < nPar_total; j++) lastgen >> p.x[j];
+        for (int j = 0; j < nPar_total; j++) lastgen >> p.v[j];
+        for (int j = 0; j < nPar_total; j++) lastgen >> p.personal_best_x[j];
+        lastgen.getline(line,len);
+      }
+      return gen;
     }
 
   }

@@ -28,10 +28,10 @@ namespace Gambit
 
     /// Constructor
     particle::particle(int nPar, std::vector<double>& lb, std::vector<double>& ub, rng_type& generator)
-    : personal_best_value(-std::numeric_limits<double>::max())
-    , lowerbounds(&lb)
+    : lowerbounds(&lb)
     , upperbounds(&ub)
     , rng(&generator)
+    , personal_best_value(-std::numeric_limits<double>::max())
     {
       if (nPar <= 0) Scanner::scan_error().raise(LOCAL_INFO, "You must set nPar positive before creating a particle!");
       x.resize(nPar);
