@@ -100,7 +100,10 @@ namespace Gambit
         /// Mean personal best fit across the current generation
         double mean_lnlike;
 
-        /// Smoothed fractional improvements in the mean personal best lnlike over the most recent generations
+        /// Smoothed fractional improvement in the mean personal best fit across the most recent generations
+        double sfim;
+
+        /// Fractional improvements in the mean personal best lnlike in the most recent generations
         std::vector<double> conv_progress;
 
         /// Dimensionality of the parameter space including any meta-optimisation parameters
