@@ -77,10 +77,6 @@ namespace Gambit
       /// A map of all user-activated primary model functors
       pmfMap activeModelFunctorList;
 
-      /// Filename of the centralized capability description database
-      const str capability_dbase_file;
-      /// Filename of the centralized model description database
-      const str model_dbase_file;
       /// Filename of the file from which to harvest capability descriptions
       const str input_capability_descriptions;
       /// Filename of the file from which to harvest model descriptions
@@ -211,7 +207,7 @@ namespace Gambit
       /// Check the named database for conflicts and missing descriptions
       void check_databases();
 
-      /// set to true is capability descriptions missing
+      /// set to true if capability descriptions missing
       bool missing_capability_description;
 
       /// Check for missing capability descriptions (after reading in runtime flags)

@@ -51,7 +51,6 @@
 #define __threadsafe_rng_hpp__
 
 #include <random>
-#include <chrono>
 
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/Utils/util_types.hpp"
@@ -69,10 +68,9 @@ namespace Gambit
     /// Importantly, operator() must return UNSIGNED INTEGERS!
     class EXPORT_SYMBOLS threadsafe_rng
     {
-
       public:
         /// Return type (will convert underlying RNG type to this)
-        typedef unsigned long long result_type;
+        typedef std::uint64_t result_type;
 
         /// Pure virtual destructor to force overriding in derived class
         virtual ~threadsafe_rng() = 0;
@@ -81,8 +79,8 @@ namespace Gambit
         virtual result_type operator()() = 0;
 
         /// Operators for compliance with RandomNumberEngine interface -> random distribution sampling
-        virtual result_type min() = 0; // Needs to connect to equivalent function in underlying rng class
-        virtual result_type max() = 0; // "   "
+        static constexpr result_type min() { return 0; }
+        static constexpr result_type max() { return UINT64_MAX; }
     };
 
     /// Give an inline implementation of the destructor, to prevent link errors but keep base class pure virtual.
@@ -94,17 +92,15 @@ namespace Gambit
     {
 
       public:
-        typedef unsigned long long result_type;
-
         /// Create RNG engines, one for each thread.
-        specialised_threadsafe_rng()
+        specialised_threadsafe_rng(int& seed)
         {
           const int max_threads = omp_get_max_threads();
-          rngs = new Engine[max_threads];
+          rngs = new std::independent_bits_engine<Engine,64,result_type>[max_threads];
+          if (seed == -1) seed = std::random_device()();
           for(int index = 0; index < max_threads; ++index)
           {
-            /// @todo Would it be better to hardware-seed via std::random_device?
-            rngs[index] = Engine(index+std::chrono::system_clock::now().time_since_epoch().count());
+            rngs[index] = std::independent_bits_engine<Engine,64,result_type>(index + seed);
           }
         }
 
@@ -117,16 +113,10 @@ namespace Gambit
         /// If you want (0,1) random doubles then please use Random::draw(), NOT this function!
         virtual result_type operator()() { return rngs[omp_get_thread_num()](); }
 
-        /// Connect to min/max functions of underlying engine
-        // No particular need for the threading stuff here, but I
-        // don't think we can rely on the min/max functions being static.
-        virtual result_type min() { return rngs[omp_get_thread_num()].min(); }
-        virtual result_type max() { return rngs[omp_get_thread_num()].max(); }
-
       private:
 
         /// Pointer to array of RNGs, one each for each thread
-        Engine* rngs;
+        std::independent_bits_engine<Engine,64,result_type>* rngs;
 
     };
 
@@ -138,7 +128,7 @@ namespace Gambit
     public:
 
       /// Choose the engine to use for random number generation, based on the contents of the ini file.
-      static void create_rng_engine(str);
+      static void create_rng_engine(str, int);
 
       /// Draw a single uniform random deviate from the interval (0,1) using the chosen RNG engine
       static double draw();

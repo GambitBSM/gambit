@@ -81,7 +81,9 @@ KeyValues:
 
   default_output_path: "runs/Python_test"
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

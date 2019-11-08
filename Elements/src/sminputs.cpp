@@ -122,7 +122,7 @@ namespace Gambit
 
       // UPMNSIN block
       SLHAea_add(data,"UPMNSIN",1, PMNS.theta12, "theta12 (solar angle)");
-      SLHAea_add(data,"UPMNSIN",2, PMNS.theta23, "theta12 (atmospheric mixing angle)");
+      SLHAea_add(data,"UPMNSIN",2, PMNS.theta23, "theta23 (atmospheric mixing angle)");
       SLHAea_add(data,"UPMNSIN",3, PMNS.theta13, "theta13");
       SLHAea_add(data,"UPMNSIN",4, PMNS.delta13, "delta13 (Dirac CP-violating phase)");
       SLHAea_add(data,"UPMNSIN",5, PMNS.alpha1 , "alpha1 (first Majorana CP-violating phase)" );

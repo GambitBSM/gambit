@@ -109,6 +109,10 @@ namespace Gambit
          sminputs.mBmB     = *myPipe::Param["mBmB"    ];
          sminputs.mT       = *myPipe::Param["mT"      ];
 
+         sminputs.mNu1     = *myPipe::Param["mNu1"    ];
+         sminputs.mNu2     = *myPipe::Param["mNu2"    ];
+         sminputs.mNu3     = *myPipe::Param["mNu3"    ];
+
          // CKM
          sminputs.CKM.lambda   = *myPipe::Param["CKM_lambda" ];
          sminputs.CKM.A        = *myPipe::Param["CKM_A" ];

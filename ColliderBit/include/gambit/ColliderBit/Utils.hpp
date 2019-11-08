@@ -6,8 +6,11 @@
 #include <functional>
 #include <memory>
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+
+  namespace ColliderBit
+  {
 
 
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
@@ -148,16 +151,16 @@ namespace Gambit {
     //@{
 
     /// Utility function for filtering a supplied particle vector by sampling wrt an efficiency scalar
-    void filtereff(std::vector<HEPUtils::Particle*>& particles, double eff, bool do_delete=true);
+    void filtereff(std::vector<HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling an efficiency returned by a provided function object
-    void filtereff(std::vector<HEPUtils::Particle*>& particles, std::function<double(HEPUtils::Particle*)> eff_fn, bool do_delete=true);
+    void filtereff(std::vector<HEPUtils::Particle*>& particles, std::function<double(HEPUtils::Particle*)> eff_fn, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=true);
+    void filtereff_pt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=true);
+    void filtereff_etapt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
 
     //@}
 
@@ -174,16 +177,6 @@ namespace Gambit {
         return false; // No tag if outside lookup range... be careful!
       }
     }
-    /// Alias
-    inline bool has_tag(double eta, double pt, const HEPUtils::BinnedFn2D<double>& effmap) {
-      return has_tag(eta, pt, effmap);
-    }
-
-    /// Randomly get a tag result (can be anything) from a 2D |eta|-pT efficiency map
-    inline bool has_tag_etapt(const HEPUtils::Jet* j, const HEPUtils::BinnedFn2D<double>& effmap) {
-      return has_tag(j->eta(), j->pT(), effmap);
-    }
-
 
     template <typename NUM1, typename NUM2>
     inline size_t binIndex(NUM1 val, const std::vector<NUM2>& binedges, bool allow_overflow=false) {
@@ -235,10 +228,10 @@ namespace Gambit {
 
     /// Overlap removal -- discard from first list if within deltaRMax of any from the second list
     template<typename MOMPTRS1, typename MOMPTRS2>
-    void removeOverlap(MOMPTRS1& momstofilter, const MOMPTRS2& momstocmp, double deltaRMax) {
+    void removeOverlap(MOMPTRS1& momstofilter, const MOMPTRS2& momstocmp, double deltaRMax, bool use_rapidity=false) {
       ifilter_reject(momstofilter, [&](const typename MOMPTRS1::value_type& mom1) {
           for (const typename MOMPTRS2::value_type& mom2 : momstocmp) {
-            const double dR = deltaR_eta(mom1->mom(), mom2->mom());
+            const double dR = (use_rapidity) ? deltaR_rap(mom1->mom(), mom2->mom()) : deltaR_eta(mom1->mom(), mom2->mom());
             if (dR < deltaRMax) return true;
           }
           return false;
@@ -270,6 +263,9 @@ namespace Gambit {
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
     std::vector<std::vector<HEPUtils::Particle*>> getOSpairs(std::vector<HEPUtils::Particle*> particles);
+
+    /// Utility function for returning a collection of same-sign particle pairs
+    std::vector<std::vector<HEPUtils::Particle*>> getSSpairs(std::vector<HEPUtils::Particle*> particles);
 
 
     /// @name Sorting

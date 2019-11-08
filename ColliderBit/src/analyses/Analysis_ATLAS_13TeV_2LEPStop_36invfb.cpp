@@ -3,7 +3,7 @@
 #include <memory>
 #include <iomanip>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -13,21 +13,21 @@ using namespace std;
 
    Based on: arXiv:1708.03247
    Author: Yang Zhang
- 
+
    Known errors:
         1. Jet overlap removal with muon is not done becasue miss trac imformation
-   Known features:
+        2. Applied specific efficiencies on muon for validation
 
 */
 
 namespace Gambit {
   namespace ColliderBit {
 
-    
+
     bool sortByPT_j(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
     bool sortByPT_l(HEPUtils::Particle* lep1, HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
-      
-    class Analysis_ATLAS_13TeV_2LEPStop_36invfb : public HEPUtilsAnalysis {
+
+    class Analysis_ATLAS_13TeV_2LEPStop_36invfb : public Analysis {
     private:
 
         // Numbers passing cuts
@@ -45,7 +45,7 @@ namespace Gambit {
         // // debug
         // ofstream Savelep1;
         // ofstream Savelep2;
-        
+
         // Jet overlap removal
         void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
             //Routine to do jet-lepton check
@@ -71,7 +71,7 @@ namespace Gambit {
 
             return;
         }
-        
+
         // Lepton overlap removal
         void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
             //Routine to do lepton-jet check
@@ -101,6 +101,9 @@ namespace Gambit {
 
     public:
 
+        // Required detector sim
+        static constexpr const char* detector = "ATLAS";
+
         Analysis_ATLAS_13TeV_2LEPStop_36invfb() {
 
             set_analysis_name("ATLAS_13TeV_2LEPStop_36invfb");
@@ -112,8 +115,8 @@ namespace Gambit {
             _SRCSF110=0; _SRCDF110=0;
             //_SR3BodyTSF=0; _SR3BodyTDF=0; _SR3BodyWSF=0; _SR3BodyWDF=0;
             _SR4b=0;
-          
-            NCUTS= 66;  
+
+            NCUTS= 66;
 
             // //debug
             // Savelep1.open("lep1.txt");
@@ -126,24 +129,29 @@ namespace Gambit {
 
         }
 
-        void analyze(const HEPUtils::Event* event) {
-            HEPUtilsAnalysis::analyze(event);
+        void run(const HEPUtils::Event* event) {
 
             // Missing energy
             double met = event->met();
             HEPUtils::P4 ptot = event->missingmom();
 
             // Baseline lepton objects
-            vector<HEPUtils::Particle*> blElectrons, blMuons;              // Used for SR-2body and SR-3body 
+            vector<HEPUtils::Particle*> blElectrons, blMuons;              // Used for SR-2body and SR-3body
             vector<HEPUtils::Particle*> baselineElectrons, baselineMuons;  // Used for SR-4body
             for (HEPUtils::Particle* electron : event->electrons()) {
             // Same with the code snippet, not the experimental report
                 if (electron->pT() > 10. && electron->abseta() < 2.47) blElectrons.push_back(electron);
                 if (electron->pT() > 7. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
             }
+
+            // Apply electron efficiency
+            ATLAS::applyElectronEff(blElectrons);
+            ATLAS::applyElectronEff(baselineElectrons);
+
+            // Apply loose electron selection
             ATLAS::applyLooseIDElectronSelectionR2(blElectrons);
             ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
-            
+
             const std::vector<double>  a = {0,10.};
             const std::vector<double>  b = {0,10000.};
             const vector<double> cMu={0.89};
@@ -154,7 +162,11 @@ namespace Gambit {
                 if (muon->pT() > 10. && muon->abseta() < 2.5 && hasTrig) blMuons.push_back(muon);
                 if (muon->pT() > 7. && muon->abseta() < 2.5 && hasTrig) baselineMuons.push_back(muon);
             }
-            
+
+            // Apply muon efficiency
+            ATLAS::applyMuonEff(blMuons);
+            ATLAS::applyMuonEff(baselineMuons);
+
             // Jets
             vector<HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body
             vector<HEPUtils::Jet*> baselineJets;    // Used for SR-4body
@@ -162,7 +174,7 @@ namespace Gambit {
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) blJets.push_back(jet);
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) baselineJets.push_back(jet);
             }
-            
+
             // Overlap removal
             JetLeptonOverlapRemoval(blJets,blElectrons,0.2);
             LeptonJetOverlapRemoval(blElectrons,blJets,0.4);
@@ -211,7 +223,7 @@ namespace Gambit {
                 signalLeptons.push_back(muon);
             }
 
-            
+
             //Put signal jets／leptons in pT order
             std::sort(signalJets.begin(), signalJets.end(), sortByPT_j);
             std::sort(signalLeptons.begin(), signalLeptons.end(), sortByPT_l);
@@ -220,7 +232,7 @@ namespace Gambit {
 
             // Function used to get b jets
             vector<HEPUtils::Jet*> sgbJets;                  // Used for SR-2body and SR-3body
-            vector<HEPUtils::Jet*> sgJetsGt25;               // Used for SR-2body 
+            vector<HEPUtils::Jet*> sgJetsGt25;               // Used for SR-2body
             //const std::vector<double>  a = {0,10.};
             //const std::vector<double>  b = {0,10000.};
             const std::vector<double> c = {0.77};
@@ -268,30 +280,30 @@ namespace Gambit {
 
 	    //Lepton Num
             if(sgLeptons.size() == 2){
-	      
+
                 // Opposite sign leptons, pT(l1,l2)>25,20GeV, mll>20GeV
                 HEPUtils::P4 lepton0=sgLeptons.at(0)->mom();
                 HEPUtils::P4 lepton1=sgLeptons.at(1)->mom();
                 double Mll= (lepton0+lepton1).m();
-                
+
                 // Savelep1 << sgLeptons[0]->pT() << endl;
                 // Savelep2 << sgLeptons[1]->pT() << endl;
-                
+
                 if (sgLeptons[0]->pid()*sgLeptons[1]->pid()<0. && sgLeptons[0]->pT() > 25. && sgLeptons[1]->pT() > 20. && Mll>20.){
                     cABC_TriggerOS              = true;
                     if (sgLeptons[0]->pid()+sgLeptons[1]->pid()==0) cABC_SF = true;
                     /********* SRA-2body *********/
                     if (Mll>111.2) cA_mllGt111  = true;
                     if (nbjet==0)  cA_nobjet    = true;
-                    
+
                     double ptJet1=0.; if ( njet >= 1) ptJet1 = sgJets.at(0)->pT();
                     double ptJet2=0.; if ( njet >= 2) ptJet2 = sgJets.at(1)->pT();
                     double R2l2j=met / (met + lepton0.pT() + lepton1.pT() + ptJet1 + ptJet2);
                     if (R2l2j>0.3) CA_R2l2j     = true;
-                    
+
                     double DX = fabs((2 * (lepton0.pz() + lepton1.pz())) / 13000.);
                     if (DX<0.07)   cA_deltaX    = true;
-                    
+
                     //Calculate MT2
                     double mt2ll=0;
                     double pa_a[3] = { 0, sgLeptons[0]->mom().px(), sgLeptons[0]->mom().py() };
@@ -303,14 +315,14 @@ namespace Gambit {
                     mt2_event_a.set_momenta(pa_a,pb_a,pmiss_a);
                     mt2_event_a.set_mn(mn_a);
                     mt2ll = mt2_event_a.get_mt2();
-                    
+
                     if(mt2ll>120 && mt2ll<140)  cA_MT2120   = true;
                     if(mt2ll>140 && mt2ll<160)  cA_MT2140   = true;
                     if(mt2ll>160 && mt2ll<180)  cA_MT2160   = true;
                     if(mt2ll>180)               cA_MT2180   = true;
-            
+
                     /********* SRB-2body *********/
-                    if (Mll>111.2 || Mll<71.2)  cBC_mllExMz = true; 
+                    if (Mll>111.2 || Mll<71.2)  cBC_mllExMz = true;
                     if (nbjet>0 && njet25>1)    cBC_nbnj    = true;
                     //Calculate Delta phi_boost
                     HEPUtils::P4 pbll_TLV = lepton0 + lepton1 + ptot;
@@ -318,14 +330,14 @@ namespace Gambit {
                     if (dPhiEtmisspbll<1.5)     cB_DelBoost = true;
                     if(mt2ll>120 && mt2ll<140)  cB_MT2120   = true;
                     if(mt2ll>140 )              cB_MT2140   = true;
-                    
+
                     /********* SRC-2body *********/
                     if (njet25>2)               cC_njGt2    = true;
                     double R2L=met / (lepton0.pT() + lepton1.pT());
                     if (R2L>1.2)                cC_R2lGt1o2 = true;
                     if (met>200)                cC_METGt200 = true;
                     if (mt2ll>110)              cC_MT2110   = true;
-                } 
+                }
             }
 
             /*********************************************************/
@@ -343,13 +355,13 @@ namespace Gambit {
             bool c4_R2l4j       =false;
             bool c4_R2l         =false;
             bool c4_2bjetveto   =false;
-            
+
             //MET trigger and Lepton Num
             if(signalLeptons.size() == 2 && met>200 ){
 
                 // Opposite sign leptons
                 if (signalLeptons[0]->pid()*signalLeptons[1]->pid()<0) c4_METOSlepton=true;
-                
+
                 // mll
                 HEPUtils::P4 lep0=signalLeptons.at(0)->mom();
                 HEPUtils::P4 lep1=signalLeptons.at(1)->mom();
@@ -357,11 +369,11 @@ namespace Gambit {
                 if(mll>10) c4_mllGt10=true;
                 //Soft lepton
                 if(lep0.pT()<80 && lep1.pT()<35) c4_SoftLepton=true;
-            
+
                 //Number of jet
                 int nJets = signalJets.size();
                 if(nJets>=2){
-                
+
                     c4_njetGt2=true;
                     double ptJet1=signalJets.at(0)->pT();
                     double ptJet2=signalJets.at(1)->pT();
@@ -375,7 +387,7 @@ namespace Gambit {
                     //PT(j3)/MET<0.14
                     if (nJets>=3 && ptJet3/met < 0.14) c4_Jet3PtMET=true;
                     if (nJets<3) c4_Jet3PtMET=true;
-                
+
                     //R_{2l4j}>0.35
                     double R2l4j=met / (met + lep0.pT() + lep1.pT() + ptJet1 + ptJet2 + ptJet3 + ptJet4);
                     if (R2l4j>0.35) c4_R2l4j=true;
@@ -394,7 +406,7 @@ namespace Gambit {
                     if (!(signalJets.at(0)->btag()&&j1Tag&&signalJets.at(1)->btag()&&j2Tag)) c4_2bjetveto=true;
                 }
             }
-            
+
             /*********************************************************/
             /*                                                       */
             /* Cut Flow                                              */
@@ -413,7 +425,7 @@ namespace Gambit {
             cutFlowVector_str[9] = "SR2ASF--160<MT2<180";
             cutFlowVector_str[10] = "SR2ASF--180<MT2";
 
-            cutFlowVector_str[11] = "SR2ADF--Different falvour";            
+            cutFlowVector_str[11] = "SR2ADF--Different falvour";
             cutFlowVector_str[12] = "SR2ADF--mll>111GeV(only SF)";
             cutFlowVector_str[13] = "SR2ADF--n_{b-jets}=0";
             cutFlowVector_str[14] = "SR2ADF--R_{2l2j}>0.3(only SF)";
@@ -430,7 +442,7 @@ namespace Gambit {
             cutFlowVector_str[24] = "SR2BSF--Delta phi_{boost}<1.5";
             cutFlowVector_str[25] = "SR2BSF--120<MT2<140";
             cutFlowVector_str[26] = "SR2BSF--140<MT2";
-            
+
             cutFlowVector_str[27] = "SR2BDF--Different flavour";
             cutFlowVector_str[28] = "SR2BDF--mll>111GeV or mll<71GeV(only SF)";
             cutFlowVector_str[29] = "SR2BDF--n_{b-jets}>0 && n_{jets}>1";
@@ -443,13 +455,13 @@ namespace Gambit {
             cutFlowVector_str[35] = "SR2CSF--R_{2l}>1.2";
             cutFlowVector_str[36] = "SR2CSF--E_T^{miss}>200GeV";
             cutFlowVector_str[37] = "SR2CSF--110<MT2";
-            
+
             cutFlowVector_str[38] = "SR2CDF--n_{b-jets}>0 && n_{jets}>1";
             cutFlowVector_str[39] = "SR2CDF--n_{jets}>2";
             cutFlowVector_str[40] = "SR2CDF--R_{2l}>1.2";
             cutFlowVector_str[41] = "SR2CDF--E_T^{miss}>200GeV";
             cutFlowVector_str[42] = "SR2CDF--110<MT2";
-            
+
             /*---------------------------------------*/
             cutFlowVector_str[57] = "SR4b--MET trigger && 2 OS Leptons ";
             cutFlowVector_str[58] = "SR4b--m_{ll}>10GeV ";
@@ -460,7 +472,7 @@ namespace Gambit {
             cutFlowVector_str[63] = "SR4b--R_{2l4j}>0.35 ";
             cutFlowVector_str[64] = "SR4b--R_{2l}>12 ";
             cutFlowVector_str[65] = "SR4b--veto on j1 and j2 ";
-            
+
             for(int j=0;j<NCUTS;j++){
                 if(
                    (j==0) ||
@@ -529,7 +541,7 @@ namespace Gambit {
 
             }
             // signal region
-            
+
             if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120 ) _SRASF120++;
             if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2120 ) _SRADF120++;
             if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140 ) _SRASF140++;
@@ -538,7 +550,7 @@ namespace Gambit {
             if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2160 ) _SRADF160++;
             if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2180 ) _SRASF180++;
             if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2180 ) _SRADF180++;
-            
+
             if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _SRBSF120++;
             if ( (!cABC_SF)                && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _SRBDF120++;
             if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2140 ) _SRBSF140++;
@@ -553,35 +565,33 @@ namespace Gambit {
 
         }
 
+        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+        void combine(const Analysis* other)
+        {
+            const Analysis_ATLAS_13TeV_2LEPStop_36invfb* specificOther
+                = dynamic_cast<const Analysis_ATLAS_13TeV_2LEPStop_36invfb*>(other);
 
-        void add(BaseAnalysis* other) {
-            // The base class add function handles the signal region vector and total # events.
-            HEPUtilsAnalysis::add(other);
-
-            Analysis_ATLAS_13TeV_2LEPStop_36invfb* specificOther
-                = dynamic_cast<Analysis_ATLAS_13TeV_2LEPStop_36invfb*>(other);
-
-            // Here we will add the subclass member variables:
             if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-            for (int j=0; j<NCUTS; j++) {
+            for (int j=0; j<NCUTS; j++)
+            {
                 cutFlowVector[j] += specificOther->cutFlowVector[j];
                 cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
             }
 
-	    _SRASF120 += specificOther->_SRASF120;
-	    _SRASF140 += specificOther->_SRASF140;
-	    _SRADF140 += specificOther->_SRADF140;
-	    _SRASF160 += specificOther->_SRASF160;
-	    _SRADF160 += specificOther->_SRADF160;
-	    _SRASF180 += specificOther->_SRASF180;
-	    _SRADF180 += specificOther->_SRADF180;
-	    _SRBSF120 += specificOther->_SRBSF120;
-	    _SRBDF120 += specificOther->_SRBDF120;
-	    _SRBSF140 += specificOther->_SRBSF140;
-	    _SRBDF140 += specificOther->_SRBDF140;
-	    _SRCSF110 += specificOther->_SRCSF110;
-	    _SRCDF110 += specificOther->_SRCDF110;
-	    _SR4b += specificOther->_SR4b;
+            _SRASF120 += specificOther->_SRASF120;
+            _SRASF140 += specificOther->_SRASF140;
+            _SRADF140 += specificOther->_SRADF140;
+            _SRASF160 += specificOther->_SRASF160;
+            _SRADF160 += specificOther->_SRADF160;
+            _SRASF180 += specificOther->_SRASF180;
+            _SRADF180 += specificOther->_SRADF180;
+            _SRBSF120 += specificOther->_SRBSF120;
+            _SRBDF120 += specificOther->_SRBDF120;
+            _SRBSF140 += specificOther->_SRBSF140;
+            _SRBDF140 += specificOther->_SRBDF140;
+            _SRCSF110 += specificOther->_SRCSF110;
+            _SRCDF110 += specificOther->_SRCDF110;
+            _SR4b += specificOther->_SR4b;
         }
 
 
@@ -601,7 +611,7 @@ namespace Gambit {
             // }
             // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
-            // signal regin 2-body A 
+            // signal regin 2-body A
             SignalRegionData results_SRASF120;
             results_SRASF120.sr_label = "SRASF120";
             results_SRASF120.n_observed = 22.;
@@ -637,7 +647,7 @@ namespace Gambit {
             results_SRADF140.signal_sys = 0.;
             results_SRADF140.n_signal = _SRADF140;
             add_result(results_SRADF140);
-            
+
             SignalRegionData results_SRASF160;
             results_SRASF160.sr_label = "SRASF160";
             results_SRASF160.n_observed = 10.;
@@ -711,7 +721,7 @@ namespace Gambit {
             results_SRBDF140.n_signal = _SRBDF140;
             add_result(results_SRBDF140);
 
-            // signal regin 2-body C 
+            // signal regin 2-body C
             SignalRegionData results_SRCSF110;
             results_SRCSF110.sr_label = "SRCSF110";
             results_SRCSF110.n_observed = 11.;
@@ -744,22 +754,22 @@ namespace Gambit {
         }
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
 	_SRASF120=0; _SRADF120=0; _SRASF140=0; _SRADF140=0;
 	_SRASF160=0; _SRADF160=0; _SRASF180=0; _SRADF180=0;
 	_SRBSF120=0; _SRBDF120=0; _SRBSF140=0; _SRBDF140=0;
 	_SRCSF110=0; _SRCDF110=0;
 	//_SR3BodyTSF=0; _SR3BodyTDF=0; _SR3BodyWSF=0; _SR3BodyWDF=0;
 	_SR4b=0;
-	
+
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
 
-      
+
     };
 
-    
+
 
     DEFINE_ANALYSIS_FACTORY(ATLAS_13TeV_2LEPStop_36invfb)
 

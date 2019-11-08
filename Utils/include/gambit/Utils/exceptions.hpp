@@ -289,6 +289,9 @@ namespace Gambit
       /// Check whether any exceptions were requested without handling them.
       bool inquire();
 
+      /// Check whether any exceptions with a specific message were requested, without handling them.
+      bool inquire(std::string);
+
     private:
       bool flag;
       size_t maxExceptions;

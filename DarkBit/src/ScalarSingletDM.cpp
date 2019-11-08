@@ -196,7 +196,7 @@ namespace Gambit
     void DarkMatter_ID_ScalarSingletDM(std::string & result) { result = "S"; }
 
     /// Common code for different scalar singlet direct detection coupling routines
-    void get_ScalarSingletDM_DD_couplings(const Spectrum &spec, DM_nucleon_couplings &result, Models::safe_param_map<safe_ptr<double> > &Param)
+    void get_ScalarSingletDM_DD_couplings(const Spectrum &spec, DM_nucleon_couplings &result, Models::safe_param_map<safe_ptr<const double> > &Param)
     {
       const SubSpectrum& he = spec.get_HE();
       double mass = spec.get(Par::Pole_Mass,"S");

@@ -29,6 +29,7 @@
 #include <cmath>
 
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -76,12 +77,24 @@ namespace Gambit
     /// in a robust manner at runtime 
     EXPORT_SYMBOLS std::string GAMBIT_root_dir();
 
+    /// Return the path to the build-time scratch directory
+    /// bjf> There is stuff using this variable that is needed by ScannerBit at run time,
+    /// not just build time, therefore it needs to be located using the function above
+    //const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+    EXPORT_SYMBOLS buildtime_scratch();
+
+    /// Return the path the the run-specific scratch directory
+    EXPORT_SYMBOLS const str& runtime_scratch();
+
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
     EXPORT_SYMBOLS std::vector<str> delimiterSplit(str s, str delim);
 
     /// Strips namespace from the start of a string, or after "const".
     EXPORT_SYMBOLS str strip_leading_namespace(str s, str ns);
+
+    /// Replaces a namespace at the start of a string, or after "const".
+    EXPORT_SYMBOLS str replace_leading_namespace(str s, str ns, str ns_new);
 
     /// Strip all whitespace except that following "const",
     /// in which case the whitespace is replaced by a single space.
@@ -126,7 +139,7 @@ namespace Gambit
       }
     };
 
-    
+
     /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
     //   int vv[] = { 12,43 };

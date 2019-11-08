@@ -66,7 +66,7 @@ BE_INI_FUNCTION
 
     // Do the call to dsinit one-by-one for each MPI process, as DarkSUSY loads up
     // HiggsBounds, which writes files at init then reads them back in later.
-    Utils::FileLock mylock("DarkSUSY_" STRINGIFY(SAFE_VERSION) "_init");
+    Utils::ProcessLock mylock("DarkSUSY_" STRINGIFY(SAFE_VERSION) "_init");
     mylock.get_lock();
     dsinit();
     mylock.release_lock();
@@ -303,7 +303,6 @@ BE_NAMESPACE
   int init_diskless(const SLHAstruct &mySLHA, const DecayTable &myDecays)
   {
     using SLHAea::to;
-    const std::complex<double> imagi(0.0, 1.0);
     DS_PACODES *DSpart = &(*pacodes);
 
     // Define required blocks and raise an error if a block is missing

@@ -192,14 +192,14 @@ namespace Gambit
 
         // Matching of HDF5 datatypes to Printer type IDs
         // Need to use H5Tequal to check if the HDF5 type IDs are equal
-        std::size_t typeID;
-        #define GET_TYPE_CASES(r,data,elem) \
+        std::size_t typeID=0;
+        #define GET_TYPE_CASES(r,data,elem)                          \
         if( H5Tequal(datatype_id, get_hdf5_data_type<elem>::type()) )\
-        { \
-            typeID = getTypeID<elem>(); \
-        } \
+        {                                                            \
+            typeID = getTypeID<elem>();                              \
+        }                                                            \
         else
-        BOOST_PP_SEQ_FOR_EACH(GET_TYPE_CASES, _, H5_OUTPUT_TYPES)
+        BOOST_PP_SEQ_FOR_EACH(GET_TYPE_CASES, , H5_OUTPUT_TYPES)
         #undef GET_TYPE_CASES
         {
           std::ostringstream err;
@@ -231,7 +231,7 @@ namespace Gambit
      /// Search for the PPID supplied in the input data and return the index of the first match
      ulong HDF5Reader::get_index_from_PPID(const PPIDpair ppid)
      {
-        ulong out_index;
+        ulong out_index=0;
         if(ppid == current_point)
         {
            // Matches current point; send it out

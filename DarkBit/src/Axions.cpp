@@ -74,6 +74,12 @@ namespace Gambit
         AxionInterpolator(std::string file, std::string type);
         AxionInterpolator(std::string file);
         AxionInterpolator();
+        AxionInterpolator& operator=(AxionInterpolator&&);
+        // Destructor
+        ~AxionInterpolator();
+        // Delete copy constructor and assignment operator to avoid shallow copies
+        AxionInterpolator(const AxionInterpolator&) = delete;
+        AxionInterpolator operator=(const AxionInterpolator&) = delete;
         // Routine to access interpolated values.
         double interpolate(double x);
         // Routine to access upper and lower boundaries of available data.
@@ -131,6 +137,26 @@ namespace Gambit
     AxionInterpolator::AxionInterpolator(std::string file) { init(file, "linear"); };
     AxionInterpolator::AxionInterpolator() {};
 
+    // Move assignment operator
+    AxionInterpolator& AxionInterpolator::operator=(AxionInterpolator&& interp)
+    {
+      if(this != &interp)
+      {
+        std::swap(acc,interp.acc);
+        std::swap(spline,interp.spline);
+        std::swap(lo,interp.lo);
+        std::swap(up,interp.up);
+      }
+      return *this;
+    }
+
+    // Destructor
+    AxionInterpolator::~AxionInterpolator()
+    {
+        gsl_spline_free (spline);
+        gsl_interp_accel_free (acc);
+    }
+
     // Routine to access interpolated values.
     double AxionInterpolator::interpolate(double x) { return gsl_spline_eval(spline, x, acc); };
 
@@ -166,6 +192,11 @@ namespace Gambit
       public:
         // Class creator.
         HESS_Interpolator(std::string file);
+        // Class destructor
+        ~HESS_Interpolator();
+        // Delete copy constructor and assignment operator to avoid shallow copies
+        HESS_Interpolator(const HESS_Interpolator&) = delete;
+        HESS_Interpolator operator=(const HESS_Interpolator&) = delete;
         // Container for the tabulated data.
         ASCIItableReader interp_lnL;
         // Routine to return interpolated log-likelihood values.
@@ -173,8 +204,6 @@ namespace Gambit
       private:
         gsl_interp_accel *acc[17];
         gsl_spline *spline[17];
-        gsl_interp_accel *acc_parabola;
-        gsl_spline *spline_parabola;
     };
 
     // Class creator. Needs path to tabulated H.E.S.S. data.
@@ -197,6 +226,15 @@ namespace Gambit
           gsl_spline_init (spline[i], epsvals, lnLvals, pts);
         };
       };
+    }
+ 
+    // Destructor
+    HESS_Interpolator::~HESS_Interpolator()
+    {
+        for (auto spl : spline)
+          gsl_spline_free (spl);
+        for (auto ac : acc)
+          gsl_interp_accel_free (ac);
     }
 
     // Rotuine to interpolate the H.E.S.S. log-likelihood values.
@@ -280,6 +318,11 @@ namespace Gambit
       public:
         SolarModel();
         SolarModel(std::string file);
+        ~SolarModel();
+        SolarModel& operator=(SolarModel&&);
+        // Delete copy constructor and assignment operator to avoid shallow copies
+        SolarModel(const SolarModel&) = delete;
+        SolarModel operator=(const SolarModel&) = delete;
         // Min. and max. radius of the solar model file (distance r from the centre of the Sun in units of the solar radius)
         double r_lo, r_hi;
         // Routine to return the screening parameter kappa^2 (kappa^-1 = Debye-Hueckel radius).
@@ -391,6 +434,27 @@ namespace Gambit
 
       logger() << LogTags::info << "Initialisation of solar model from file '"+file+"' complete!" << std::endl;
       logger() << LogTags::debug << "Entries in model file: " << pts << " for solar radius in [" << data["radius"][0] << ", " << data["radius"][pts-1] << "]." << EOM;
+    }
+
+    // Move assignment operator
+    SolarModel& SolarModel::operator=(SolarModel &&model)
+    { 
+      if (this != &model)
+      {
+        std::swap(data,model.data);
+        std::swap(accel,model.accel);
+        std::swap(linear_interp, model.linear_interp);
+      }
+      return *this;
+    }
+
+    // Class destructor
+    SolarModel::~SolarModel()
+    {
+      for (auto interp : linear_interp)
+        gsl_spline_free (interp);
+      for (auto acc : accel)
+        gsl_interp_accel_free (acc);
     }
 
     // Routine to return the temperature (in keV) of the zone around the distance r from the centre of the Sun.
@@ -514,9 +578,14 @@ namespace Gambit
     {
       public:
         CAST_SolarModel_Interpolator(std::string solar_model_gagg, std::string solar_model_gaee, std::string data_set);
+        CAST_SolarModel_Interpolator(CAST_SolarModel_Interpolator&&);
+        ~CAST_SolarModel_Interpolator();
+        // Delete copy constructor and assignment operator to avoid shallow copies
+        CAST_SolarModel_Interpolator(const CAST_SolarModel_Interpolator&) = delete;
+        CAST_SolarModel_Interpolator operator=(const CAST_SolarModel_Interpolator&) = delete;
         std::vector<double> evaluate_gagg_contrib(double m_ax);
         std::vector<double> evaluate_gaee_contrib(double m_ax);
-      private:
+     private:
         int n_bins;
         ASCIItableReader gagg_data;
         ASCIItableReader gaee_data;
@@ -525,8 +594,6 @@ namespace Gambit
         std::vector<gsl_interp_accel*> gaee_acc;
         std::vector<gsl_spline*> gagg_linear_interp;
         std::vector<gsl_spline*> gaee_linear_interp;
-        gsl_interp_accel* eff_exp_acc;
-        gsl_spline* eff_exp_linear_interp;
     };
 
     // Class creators for CAST_SolarModel_Interpolator
@@ -583,7 +650,7 @@ namespace Gambit
         {
           if (Utils::file_exists(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat"))
           {
-            model_gagg = SolarModel(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat");
+            model_gagg = std::move(SolarModel(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat"));
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No solar model file found for '"+solar_model_gagg+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'SolarModel_*.dat' for available options *.");
@@ -597,7 +664,7 @@ namespace Gambit
         {
           if (Utils::file_exists(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat"))
           {
-            gaee_spectrum = AxionInterpolator(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat");
+            gaee_spectrum = std::move(AxionInterpolator(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat"));
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No spectrum file found for axion-electron interactions and model '"+solar_model_gaee+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'Axion_Spectrum_*_gaee.dat' for available options *.");
@@ -742,6 +809,32 @@ namespace Gambit
         gsl_spline_init (gagg_linear_interp[bin], mass_gagg, flux_gagg, gagg_pts);
         gsl_spline_init (gaee_linear_interp[bin], mass_gaee, flux_gaee, gaee_pts);
       };
+    }
+
+    // Move constructor
+    CAST_SolarModel_Interpolator::CAST_SolarModel_Interpolator(CAST_SolarModel_Interpolator &&interp) :
+      n_bins(std::move(interp.n_bins)),
+      gagg_data(std::move(interp.gagg_data)),
+      gaee_data(std::move(interp.gaee_data)),
+      eff_exp_data(std::move(interp.eff_exp_data)),
+      gagg_acc(std::move(interp.gagg_acc)),
+      gaee_acc(std::move(interp.gaee_acc)),
+      gagg_linear_interp(std::move(interp.gagg_linear_interp)),
+      gaee_linear_interp(std::move(interp.gaee_linear_interp))
+    {}
+
+    // Class destructor
+    CAST_SolarModel_Interpolator::~CAST_SolarModel_Interpolator()
+    {
+      for(auto gagg_li : gagg_linear_interp)
+        gsl_spline_free (gagg_li);
+      for(auto gagg_ac : gagg_acc)
+        gsl_interp_accel_free (gagg_ac);
+      for(auto gaee_li : gaee_linear_interp)
+        gsl_spline_free (gaee_li);
+      for(auto gaee_ac : gaee_acc)
+        gsl_interp_accel_free (gaee_ac);
+ 
     }
 
     // Returns reference value counts for the photon-axion contribution.
@@ -1048,7 +1141,7 @@ namespace Gambit
         for (int e = 0; e < n_exps; e++)
         {
           CAST_SolarModel_Interpolator dummy (solar_model_gagg, solar_model_gaee, "CAST2017_"+exp_names[e]);
-          lg_ref_counts.push_back(dummy);
+          lg_ref_counts.push_back(std::move(dummy));
         };
       };
       lg_ref_counts_not_calculated = false;
@@ -1632,6 +1725,47 @@ namespace Gambit
     //      White Dwarf cooling hints      //
     /////////////////////////////////////////
 
+    // White Dwarf interpolator class
+    class WDInterpolator
+    {
+      private:
+
+        gsl_interp_accel *acc;
+        gsl_spline *spline;
+
+      public:
+
+        // Constructor
+        WDInterpolator(int npoints)
+        {
+          acc = gsl_interp_accel_alloc();
+          spline = gsl_spline_alloc(gsl_interp_cspline, npoints);
+        }
+     
+        // Destructor
+        ~WDInterpolator()
+        { 
+          gsl_spline_free (spline);
+          gsl_interp_accel_free (acc);
+        }
+
+        // Delete copy constructor and assignment operator to avoid shallow copies
+        WDInterpolator(const WDInterpolator&) = delete;
+        WDInterpolator operator=(const WDInterpolator&) = delete;
+
+        // Init
+        void init(std::vector<double> x, std::vector<double> y, int npoints)
+        {
+          gsl_spline_init(spline, x.data(), y.data(), npoints);
+        }
+
+        // Evaluation function
+        double eval(double x)
+        {
+          return gsl_spline_eval(spline, x, acc);
+        }
+    };
+
     // Capability function to compute the cooling likelihood of G117-B15A (1205.6180; observations from Kepler+ (2011)).
     void calc_lnL_WDVar_G117B15A(double &result)
     {
@@ -1640,17 +1774,16 @@ namespace Gambit
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
 
       // Values for the model prediction provided by the authors.
-      const double xvals  [14] = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.1, 22.5, 25.0, 27.5, 30.0};
-      const double dPidts [14] = {1.235687, 1.244741, 1.299579, 1.470017, 1.796766, 2.260604, 2.795575, 3.484570, 4.232738, 5.056075, 6.113390, 7.342085, 8.344424, 9.775156};
+      const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.1, 22.5, 25.0, 27.5, 30.0};
+      const std::vector<double> dPidts  = {1.235687, 1.244741, 1.299579, 1.470017, 1.796766, 2.260604, 2.795575, 3.484570, 4.232738, 5.056075, 6.113390, 7.342085, 8.344424, 9.775156};
       const double err = 0.09;
 
       // Use interpolation for the model predction, but only initialise once.
       static bool init_flag = false;
-      static gsl_interp_accel *acc = gsl_interp_accel_alloc ();
-      static gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, 14);
+      static WDInterpolator interp(14);
       if (not(init_flag))
       {
-        gsl_spline_init (spline, xvals, dPidts, 14);
+        interp.init (xvals, dPidts, 14);
         init_flag = true;
       };
 
@@ -1659,9 +1792,9 @@ namespace Gambit
       double pred;
       if (x > 30.0)
       {
-        pred = gsl_spline_eval (spline, 30.0, acc);
+        pred = interp.eval (30.0);
       } else {
-        pred = gsl_spline_eval (spline, x, acc);
+        pred = interp.eval (x);
       };
 
       result = -0.5 * gsl_pow_2(4.19 - pred) / (0.73*0.73 + err*err);
@@ -1675,17 +1808,16 @@ namespace Gambit
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
 
       // Values for the model prediction provided by the authors.
-      const double xvals  [14] = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0, 27.5, 30.0};
-      const double dPidts [14] = {1.075373, 1.095319, 1.123040, 1.289434, 1.497666, 1.869437, 2.300523, 2.844954, 3.379978, 4.086028, 4.847149, 5.754807, 6.714841, 7.649140};
+      const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0, 27.5, 30.0};
+      const std::vector<double> dPidts  = {1.075373, 1.095319, 1.123040, 1.289434, 1.497666, 1.869437, 2.300523, 2.844954, 3.379978, 4.086028, 4.847149, 5.754807, 6.714841, 7.649140};
       const double err = 0.09;
 
       // Use interpolation for the model predction, but only initialise once.
       static bool init_flag = false;
-      static gsl_interp_accel *acc = gsl_interp_accel_alloc ();
-      static gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, 14);
+      static WDInterpolator interp(14);
       if (not(init_flag))
       {
-        gsl_spline_init (spline, xvals, dPidts, 14);
+        interp.init (xvals, dPidts, 14);
         init_flag = true;
       };
 
@@ -1694,9 +1826,9 @@ namespace Gambit
       double pred;
       if (x > 30.0)
       {
-        pred = gsl_spline_eval (spline, 30.0, acc);
+        pred = interp.eval (30.0);
       } else {
-        pred = gsl_spline_eval (spline, x, acc);
+        pred = interp.eval (x);
       };
 
       result = -0.5 * gsl_pow_2(3.3 - pred) / (1.1*1.1 + err*err);
@@ -1710,17 +1842,16 @@ namespace Gambit
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
 
       // Values for the model prediction provided by the authors.
-      const double xvals  [11] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
-      const double dPidts [11] = {0.90878126, 0.96382008, 1.2022906, 1.5712931, 2.1220619, 2.8002354, 3.6172605, 4.5000560, 5.5256592, 6.5055283, 7.5341296};
+      const std::vector<double> xvals = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
+      const std::vector<double> dPidts = {0.90878126, 0.96382008, 1.2022906, 1.5712931, 2.1220619, 2.8002354, 3.6172605, 4.5000560, 5.5256592, 6.5055283, 7.5341296};
       const double err = 0.5;
 
       // Use interpolation for the model predction, but only initialise once.
       static bool init_flag = false;
-      static gsl_interp_accel *acc = gsl_interp_accel_alloc ();
-      static gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, 11);
+      static WDInterpolator interp(11);
       if (not(init_flag))
       {
-        gsl_spline_init (spline, xvals, dPidts, 11);
+        interp.init (xvals, dPidts, 11);
         init_flag = true;
       };
 
@@ -1729,9 +1860,9 @@ namespace Gambit
       double pred;
       if (x > 20.0)
       {
-        pred = gsl_spline_eval (spline, 20.0, acc);
+        pred = interp.eval (20.0);
       } else {
-        pred = gsl_spline_eval (spline, x, acc);
+        pred = interp.eval (x);
       };
 
       result = -0.5 * gsl_pow_2(2.0 - pred) / (0.9*0.9 + err*err);
@@ -1745,17 +1876,16 @@ namespace Gambit
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
 
       // Values for the model prediction provided by the authors.
-      const double xvals  [31] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0};
-      const double dPidts [31] = {2.41, 2.40, 2.44, 2.42, 2.50, 2.57, 2.63, 2.74, 2.83, 2.99, 3.15, 3.32, 3.52, 3.70, 3.90, 4.08, 4.42, 4.69, 4.98, 5.34, 5.62, 6.02, 6.27, 6.62, 7.04, 7.38, 7.89, 8.09, 8.65, 9.16, 9.62};
+      const std::vector<double> xvals = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0};
+      const std::vector<double> dPidts = {2.41, 2.40, 2.44, 2.42, 2.50, 2.57, 2.63, 2.74, 2.83, 2.99, 3.15, 3.32, 3.52, 3.70, 3.90, 4.08, 4.42, 4.69, 4.98, 5.34, 5.62, 6.02, 6.27, 6.62, 7.04, 7.38, 7.89, 8.09, 8.65, 9.16, 9.62};
       const double err = 0.85;
 
       // Use interpolation for the model predction, but only initialise once.
       static bool init_flag = false;
-      static gsl_interp_accel *acc = gsl_interp_accel_alloc ();
-      static gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, 31);
+      static WDInterpolator interp(31);
       if (not(init_flag))
       {
-        gsl_spline_init (spline, xvals, dPidts, 31);
+        interp.init (xvals, dPidts, 31);
         init_flag = true;
       };
 
@@ -1764,9 +1894,9 @@ namespace Gambit
       double pred;
       if (x > 30.0)
       {
-        pred = gsl_spline_eval (spline, 30.0, acc);
+        pred = interp.eval (30.0);
       } else {
-        pred = gsl_spline_eval (spline, x, acc);
+        pred = interp.eval (x);
       };
 
       result = -0.5 * gsl_pow_2(3.0 - pred) / (0.6*0.6 + err*err);

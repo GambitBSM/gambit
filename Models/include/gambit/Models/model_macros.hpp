@@ -32,7 +32,7 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 
 #ifdef __model_rollcall_hpp__
-  #include "gambit/Elements/module_macros_incore.hpp"
+  #include "gambit/Elements/module_macros_incore_defs.hpp"
   #ifndef STANDALONE
     #include "gambit/Core/ini_functions.hpp"
   #endif
@@ -42,15 +42,78 @@
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                   CORE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
   #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                      CORE_INTERPRET_AS_PARENT_FUNCTION(FUNC)
   #define INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)           CORE_INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)
+  // "Traditional" module macros
+  // These are just copy/pasted from the module versions with small adjustments, like MODULE->MODEL and NOT_MODEL->IS_MODEL
+  // (Note: MODULE left as MODULE where it is just a function argument)
+  #define START_CAPABILITY                                  CORE_START_CAPABILITY(MODEL, CAPABILITY, IS_MODEL)
+  #define LONG_START_CAPABILITY(MODULE, CAPABILITY)         CORE_START_CAPABILITY(MODULE, CAPABILITY, IS_MODEL)
+  #define DECLARE_FUNCTION(TYPE, FLAG)                      CORE_DECLARE_FUNCTION(MODEL, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL)
+  #define LONG_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG) CORE_DECLARE_FUNCTION(MODULE, CAPABILITY, FUNCTION, TYPE, FLAG, IS_MODEL)
+  #define NEEDS_MANAGER(...)                                CORE_NEEDS_MANAGER(__VA_ARGS__)
+  #define DEPENDENCY(DEP, TYPE)                             CORE_DEPENDENCY(DEP, TYPE, MODEL, FUNCTION, IS_MODEL)
+  #define LONG_DEPENDENCY(MODULE, FUNCTION, DEP, TYPE)      CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, IS_MODEL)
+  #define ALLOW_MODELS(...)                                 ALLOW_MODELS_AB(MODEL, FUNCTION, __VA_ARGS__)
+  #define ALLOWED_MODEL(MODULE,FUNCTION,MODEL)              CORE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)
+  #define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   CORE_ALLOW_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL,IS_MODEL)
+  #define ALLOW_MODEL_COMBINATION(...)                      CORE_ALLOW_MODEL_COMBINATION(MODEL,FUNCTION,IS_MODEL,(__VA_ARGS__))
+  #define MODEL_GROUP(GROUPNAME,GROUP)                      CORE_MODEL_GROUP(MODEL,FUNCTION,GROUPNAME,GROUP,IS_MODEL)
+  #define DECLARE_BACKEND_REQ(GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
+                                                            CORE_BACKEND_REQ(MODEL, CAPABILITY, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE, IS_MODEL)
+  #define LONG_DECLARE_BACKEND_REQ(MODULE, CAPABILITY, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
+                                                            CORE_BACKEND_REQ(MODULE, CAPABILITY, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE, IS_MODEL)
+  #define BE_GROUP(GROUP)                                   CORE_BE_GROUP(GROUP,IS_MODEL)
+  #define ACTIVATE_BACKEND_REQ_FOR_MODELS(MODELS,TAGS)      CORE_BE_MODEL_RULE(MODELS,TAGS,IS_MODEL)
+  #define BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)         LONG_BACKEND_OPTION(MODEL, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS)
+  #define LONG_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS) \
+                                                            CORE_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS, IS_MODEL)
+  #define FORCE_SAME_BACKEND(...)                           CORE_FORCE_SAME_BACKEND(IS_MODEL,__VA_ARGS__)
+  #define START_CONDITIONAL_DEPENDENCY(TYPE)                CORE_START_CONDITIONAL_DEPENDENCY(MODEL, CAPABILITY, \
+                                                             FUNCTION, CONDITIONAL_DEPENDENCY, TYPE, IS_MODEL)
+  #define ACTIVATE_DEP_BE(BACKEND_REQ, BACKEND, VERSTRING)  CORE_ACTIVATE_DEP_BE(BACKEND_REQ, BACKEND, VERSTRING, IS_MODEL)
+  #define ACTIVATE_FOR_MODELS(...)                          ACTIVATE_DEP_MODEL(MODEL, CAPABILITY, FUNCTION, CONDITIONAL_DEPENDENCY, IS_MODEL, #__VA_ARGS__)
+  #define MODEL_CONDITIONAL_DEPENDENCY(DEP, TYPE, ...)      CORE_START_CONDITIONAL_DEPENDENCY(MODEL, CAPABILITY, FUNCTION, DEP, TYPE, IS_MODEL) \
+                                                            ACTIVATE_DEP_MODEL(MODEL, CAPABILITY, FUNCTION, DEP, IS_MODEL #__VA_ARGS__)
+  #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, IS_MODEL)
 #else
-  #include "gambit/Elements/module_macros_inmodule.hpp"
-  #define START_MODEL                                             MODULE_START_MODEL
-  #define DEFINEPARS(...)                                         /* Do nothing */
-  #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)                 /* Do nothing */
-  #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                   MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
-  #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                      MODULE_INTERPRET_AS_X_FUNCTION(PARENT,FUNC)
-  #define INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)           MODULE_INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)
+  #include "gambit/Elements/module_macros_inmodule_defs.hpp"
+  #define START_MODEL                                       MODULE_START_MODEL
+  #define DEFINEPARS(...)                                   /* Do nothing */
+  #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */
+  #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)             MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
+  #define INTERPRET_AS_PARENT_FUNCTION(FUNC)                MODULE_INTERPRET_AS_X_FUNCTION(PARENT,FUNC)
+  #define INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)     MODULE_INTERPRET_AS_X_DEPENDENCY(MODEL_X, DEP, TYPE)
+  // "Traditional" module macros
+  #define START_CAPABILITY                                  MODULE_START_CAPABILITY(MODEL)
+  #define LONG_START_CAPABILITY(MODULE, C)                  MODULE_START_CAPABILITY(MODULE)
+  #define DECLARE_FUNCTION(TYPE, CAN_MANAGE)                MODULE_DECLARE_FUNCTION(MODEL, FUNCTION, TYPE, CAN_MANAGE, IS_MODEL)
+  #define LONG_DECLARE_FUNCTION(MODULE, C, FUNCTION, TYPE, CAN_MANAGE) \
+                                                            MODULE_DECLARE_FUNCTION(MODULE, FUNCTION, TYPE, CAN_MANAGE, IS_MODEL)
+  #define DEPENDENCY(DEP, TYPE)                             MODULE_DEPENDENCY(DEP, TYPE, MODEL, FUNCTION, IS_MODEL)
+  #define LONG_DEPENDENCY(MODULE, FUNCTION, DEP, TYPE)      MODULE_DEPENDENCY(DEP, TYPE, MODEL, FUNCTION, IS_MODEL)
+  #define NEEDS_MANAGER(...)                                MODULE_NEEDS_MANAGER_REDIRECT(__VA_ARGS__)
+  #define ALLOWED_MODEL(MODULE,FUNCTION,MODEL)              MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)
+  #define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)
+  #define ALLOW_MODEL_COMBINATION(...)                      DUMMYARG(__VA_ARGS__)
+  #define MODEL_GROUP(GROUPNAME, GROUP)                     DUMMYARG(GROUPNAME, GROUP)
+  
+  #define BE_GROUP(GROUP)                                   MODULE_BE_GROUP(GROUP,IS_MODEL)
+  #define DECLARE_BACKEND_REQ(GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
+                                                            MODULE_BACKEND_REQ(MODEL, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE, IS_MODEL)
+  #define LONG_DECLARE_BACKEND_REQ(MODULE, C, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
+                                                            MODULE_BACKEND_REQ(MODULE, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE, IS_MODEL)
+  #define ACTIVATE_BACKEND_REQ_FOR_MODELS(MODELS,TAGS)      DUMMYARG(MODELS,TAGS)
+  #define START_CONDITIONAL_DEPENDENCY(TYPE)                MODULE_DEPENDENCY(CONDITIONAL_DEPENDENCY, TYPE, MODEL, FUNCTION, IS_MODEL)
+  #define ACTIVATE_DEP_BE(BACKEND_REQ, BACKEND, VERSTRING)  DUMMYARG(BACKEND_REQ, BACKEND, VERSTRING)
+  #define ACTIVATE_FOR_MODELS(...)                          DUMMYARG(__VA_ARGS__)
+  #define MODEL_CONDITIONAL_DEPENDENCY(DEP, TYPE, ...)      MODULE_DEPENDENCY(DEP, TYPE, MODEL, FUNCTION, IS_MODEL)
+  #define BACKEND_OPTION(BACKEND_AND_VERSIONS,TAGS)         DUMMYARG(BACKEND_AND_VERSIONS,TAGS)
+  #define LONG_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BACKEND_AND_VERSIONS,TAGS) \
+                                                            DUMMYARG(BACKEND_AND_VERSIONS,TAGS)
+  #define FORCE_SAME_BACKEND(...)                           DUMMYARG(__VA_ARGS__)
+  #define CLASSLOAD_NEEDED(...)                             DUMMYARG(__VA_ARGS__)
+
 #endif
+#define ALLOW_MODELS(...)                                   ALLOW_MODELS_AB(MODEL, FUNCTION, __VA_ARGS__)
 
 #ifndef STANDALONE
   #define MAKE_PRIMARY_MODEL_FUNCTOR(FUNCTION,CAPABILITY,ORIGIN)  MAKE_PRIMARY_MODEL_FUNCTOR_MAIN(FUNCTION,CAPABILITY,ORIGIN) \
@@ -129,10 +192,9 @@
   {                                                                            \
     ADD_TAG_IN_CURRENT_NAMESPACE(primary_parameters)                           \
     ADD_TAG_IN_CURRENT_NAMESPACE(CAT(MODEL,_parameters))                       \
-    ADD_MODEL_TAG_IN_CURRENT_NAMESPACE(MODEL)                                  \
-                                                                               \
     namespace Models                                                           \
     {                                                                          \
+      ADD_MODEL_TAG_IN_CURRENT_NAMESPACE(MODEL)                                \
                                                                                \
       namespace MODEL                                                          \
       {                                                                        \

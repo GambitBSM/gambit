@@ -507,6 +507,7 @@ DiracSingletDM_Z2: |
 DiracSingletDM_Z2_sps: |
 
    Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
+
 GeneralALP: |
 
    A general model for an axion-like particle with the possibility of having a temperature-dependent mass similar to QCD axions.
@@ -543,3 +544,13 @@ DFSZAxion_II: |
 ConstantMassALP: |
 
    A convenient version of the GeneralALP model for studies of ALPs with not explicitly temperature-dependent axion mass, i.e. beta = 0 and Tcrit is irrelevant.
+
+RightHandedNeutrinos: |
+   Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
+
+RightHandedNeutrinos_diff: |
+   The same as RightHandedNeutrinos but one of the RHN masses has been substituted by a mass difference.
+
+StandardModel_mNudiff: |
+   Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
+=

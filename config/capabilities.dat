@@ -379,7 +379,7 @@ DummyColliderObservable: |
    to satisfy the normal GAMBIT model requrements in a minimal way. Used
    for testing.
 
-ColliderOperator: |
+RunMC: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
@@ -421,16 +421,32 @@ HardScatteringEvent: |
    Uses the given HardScatteringSim to generate the next event
    of the collider simulation chain.
 
-SimpleSmearingSim: |
-   Provides a set of BuckFast functions within a container
-   which is ready to apply ATLAS smearing and reconstruction
-   efficiencies to an event.
+ATLASDetectorSim: |
+   Provides a set functions within a container ready to apply ATLAS
+   smearing and reconstruction efficiencies to an event.
+
+ATLASmultieffDetectorSim: |
+   Provides a set functions within a container ready to apply ATLAS
+   smearing to an event.  Effiencies must be applied on a per-analysis
+   basis.
+
+CMSDetectorSim: |
+   Provides a set functions within a container ready to apply CMS
+   smearing and reconstruction efficiencies to an event.
+
+CMSmultieffDetectorSim: |
+   Provides a set functions within a container ready to apply CMS
+   smearing to an event.  Effiencies must be applied on a per-analysis
+   basis.
+
+IdentityDetectorSim: |
+   Provides a fake detector sim, which simply returns truth-level events.
 
 ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
-ATLASnoeffSmearedEvent: |
+ATLASmultieffSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing upon the
    given HardScatteringEvent. No efficiencies are applied.
 
@@ -438,7 +454,7 @@ CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
-CMSnoeffSmearedEvent: |
+CMSmultieffSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing upon the
    given HardScatteringEvent. No efficiencies are applied.
 
@@ -451,9 +467,9 @@ ATLASAnalysisContainer: |
    capability ATLASSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-ATLASnoeffAnalysisContainer: |
+ATLASmultieffAnalysisContainer: |
    Provides a container of ATLAS analyses to be used with the detector simulation
-   capability ATLASnoeffSmearedEvent. The container is ready to apply each analysis to
+   capability ATLASmultieffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
 CMSAnalysisContainer: |
@@ -461,9 +477,9 @@ CMSAnalysisContainer: |
    capability CMSSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-CMSnoeffAnalysisContainer: |
+CMSmultieffAnalysisContainer: |
    Provides a container of CMS analyses to be used with the detector simulation
-   capability CMSnoeffSmearedEvent. The container is ready to apply each analysis to
+   capability CMSmultieffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
 IdentityAnalysisContainer: |
@@ -475,16 +491,16 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
-ATLASnoeffAnalysisNumbers: |
-   Uses the given ATLASnoeffAnalysisContainer to perform all its
+ATLASmultieffAnalysisNumbers: |
+   Uses the given ATLASmultieffAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
-CMSnoeffAnalysisNumbers: |
-   Uses the given CMSnoeffAnalysisContainer to perform all its analyses
+CMSmultieffAnalysisNumbers: |
+   Uses the given CMSmultieffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 IdentityAnalysisNumbers: |
@@ -1057,8 +1073,8 @@ LEP208_xsec_staurstaurbar: |
    The LEP pair production cross-section for sfermion
    eigenstates 'staur' and 'staurbar' at centre of mass energy 208 GeV.
 
-Pythia_8_212_EM_init: |
-   Initializes Pythia 8.212 EM.
+Pythia_EM_8_212_init: |
+   Initializes Pythia_EM 8.212.
 
 Pythia_8_212_init: |
    Initializes Pythia 8.212.
@@ -2815,6 +2831,12 @@ Z_gamma_nu: |
 Z_gamma_chi_0: |
    Decay width of the Z boson to neutralinos in MeV.
 
+W_to_l_decays: |
+   Precision calculation of W decays to leptons
+
+lnL_W_decays: |
+   Log-likelihood of the W decays to leptons
+
 lnL_Z_inv: |
    Log Likelihood for the inivislbe decay width of the Z boson.
 
@@ -2910,6 +2932,13 @@ lnL_gm2 : |
 
 lnL_deltarho : |
    Log-likelihood of ∆ρ, the departure from one of the ratio of the Fermi effective coupling (G_F) in W and Z-mediated processes.
+
+sinW2: |
+   Precision value of the weak mixing angle sin^2 θ_W (not the effective one)
+
+lnL_sinW2: |
+   Log-likelihood of the weak mixing angle sin^2 θ_W (not the effective one)
+
 
 
 #-------------------------------------
@@ -3198,7 +3227,50 @@ RKstar_11_60:  |
 RKstar_CONV:  |
    Conv function from SuperIso to calculate the R_K*
 
+muegamma: |
+   Calculates the BF for the mu- -> e- gamma process
+ 
+tauegamma: |
+   Calculates the BF for the tau- -> e- gamma process
 
+taumugamma: |
+   Calculates the BF for the tau- -> mu gamma process
+
+mueee: |
+   Calculats the BF for the mu- -> e- e- e+ process
+
+taueee: |
+   Calculates the BF for the tau- -> e- e- e+ process
+
+taueemu: |
+   Calculates the BF for the tau- -> e- e- mu+ process
+
+tauemumu: |
+   Calculates the BF for the tau- -> e- mu- mu+ process
+
+taumuee: |
+   Calculates the BF for the tau- -> mu- e- e+ process
+
+taumumue: |
+   Calculates the BF for the tau- -> mu- mu- e+ process
+
+taumumumu: |
+   Calculates the BF for the tau- -> mu- mu- mu+ process
+
+mueTi: |
+   Calculates the ratio for mu-e conversion in Titanium wrt capture
+
+muePb: |
+   Calculates the ratio for mu-e conversion in lead wrt capture
+
+l2lgamma_lnL: |
+   Log-likelihood for l -> l gamma processes
+
+l2lll_lnL: |
+   Log-likelihood for l -> l l l processes
+
+mu2e_lnL: |
+   Log-likelihood for mu - e conversion in nucleii
 
 
 #-------------------------------------
@@ -3683,6 +3755,9 @@ StandardModel_Higgs_running_parameters: |
 StandardModel_SLHA2_parameters: |
    Parameters for the model StandardModel_SLHA2 (see ./gambit StandardModel_SLHA2)
 
+StandardModel_mNudiff_parameters: |
+   Parameters for the model StandardModel_mNudiff (see ./gambit StandardModel_mNudiff)
+
 TestModel1D_parameters: |
    Parameters for the model TestModel1D (see ./gambit TestModel1D)
 
@@ -3700,6 +3775,14 @@ nuclear_params_sigma0_sigmal_parameters: |
 
 nuclear_params_sigmas_sigmal_parameters: |
    Parameters for the model nuclear_params_sigmas_sigmal (see ./gambit nuclear_params_sigmas_sigmal)
+
+RightHandedNeutrinos_parameters: |
+   Parameters for the model RightHandedNeutrinos (see ./gambit RightHandedNeutrios)
+
+RightHandedNeutrinos_diff_parameters: |
+   Parameters for the model RightHandedNeutrinos_diff (see ./gambit RightHandedNeutrinos_diff)
+ 
+
 #-------------------------------------
 #  FeynHiggs capabilities
 #-------------------------------------
@@ -3753,6 +3836,9 @@ FH_FlavourObs: |
 gamLike_1_0_0_init: |
    Initialisation of gamLike.
 
+gamLike_1_0_1_init: |
+   Initialisation of gamLike.
+
 init: |
    Initialise variables in gamLike.
 lnL: |
@@ -3788,6 +3874,7 @@ calculate_amu_2loop_non_tan_beta_resummed: |
 
 calculate_uncertainty_amu_2loop: |
    Calculates the uncertainty on the anomalous magnetic moment of the muon at 2 loops.
+
 
 #----------------------------
 #  Axion-related capabilities
@@ -3889,7 +3976,6 @@ lnL_SN1987A: |
 lnL_HESS_GCMF: |
    LogLikelihood for H.E.S.S. constraints on axions (Galactic Centre magnetic field result).
 
-
 #------------------------------
 #  SUSYHD capabilities
 #------------------------------
@@ -3906,6 +3992,297 @@ SUSYHD_MHiggs: |
 SUSYHD_DeltaMHiggs : |
    Calculates the uncertainty on the Higgs mass using SUSYHD
 
+#-------------------
+# NeutrinoBit capabilities
+#-------------------
+
+UPMNS: |
+  Active neutrino mixing matrix (Pontecorvo-Maki–Nakagawa–Sakata matrix)
+
+SeesawI_Theta: |
+  Active-Sterile neutrino mixing matrix in the type I seesaw mechanism
+
+SeesawI_Vnu: |
+  Active neutrino mixing matrix in the type I seesaw mechanism
+  
+m_nu: |
+  Matrix of active neutrinos
+
+md21: |
+  Squared mass difference between the first and second neutrino masses
+
+md31: |
+  Squared mass difference between the first and third neutrino masses
+
+md32: |
+  Squared mass difference between the second and third neutrino masses
+
+min_mass: |
+  Minimum mass of the active neutrinos
+
+ordering: |
+  Ordering of the neutrino mass eigenstates: 1 = normal, 0 = inverted
+
+deltaCP: |
+  CP violating phase of the UPMNS matrix
+
+deltaCP_lnL: |
+  Log-likelihood of the CP violating phase with respect to NuFit data
+
+md21_lnL: |
+  Log-likelihood of the 1-2 mass splitting with respect to NuFit data
+
+md3l_lnL: |
+  Log-likelihood of the 3-l (l= 1 for NO, 2 for IO) mass splitting with respect to NuFit data
+
+sum_mnu_lnL: |
+  Log-likelihood of the sum of light neutrino masses usign cosmological constraints
+
+theta12: |
+  Active neutrino mixing angle theta12
+
+theta12_lnL: |
+  Log-likelihood of the active neutrino mixing angle theta12 with respect to NuFit data
+
+theta13: |
+  Active neutrino mixing angle theta13
+
+theta13_lnL: |
+  Log-likelihood of the active neutrino mixing angle theta13 with respect to NuFit data
+
+theta23: |
+  Active neutrino mixing angle theta23
+
+theta23_lnL: |
+  Log-likelihood of the sin of the active neutrino mixing angle theta23 with respect to NuFit data
+
+Unitarity: |
+  Test for unitarity of the full mixing matrix
+
+perturbativity_lnL: |
+  Test for perturbativity of the Yukawa couplings
+
+Ue1: |
+  (1,1) entry of the active-sterile mixing matrix
+
+Ue1_phase: |
+  (1,1) phase of the active-sterile mixing matrix
+
+Ue2: |
+  (1,2) entry of the active-sterile mixing matrix
+
+Ue2_phase: |
+  (1,2) phase of the active-sterile mixing matrix
+
+Ue3: |
+  (1,3) entry of the active-sterile mixing matrix
+
+Ue3_phase: |
+  (1,3) phase of the active-sterile mixing matrix
+
+Um1: |
+  (2,1) entry of the active-sterile mixing matrix
+
+Um1_phase: |
+  (2,1) phase of the active-sterile mixing matrix
+
+Um2: |
+  (2,2) entry of the active-sterile mixing matrix
+
+Um2_phase: |
+  (2,2) phase of the active-sterile mixing matrix
+
+Um3: |
+  (2,3) entry of the active-sterile mixing matrix
+
+Um3_phase: |
+  (2,3) phase of the active-sterile mixing matrix
+
+Ut1: |
+  (3,1) entry of the active-sterile mixing matrix
+
+Ut1_phase: |
+  (3,1) phase of the active-sterile mixing matrix
+
+Ut2: |
+  (3,2) entry of the active-sterile mixing matrix
+
+Ut2_phase: |
+  (3,2) phase of the active-sterile mixing matrix
+
+Ut3: |
+  (3,3) entry of the active-sterile mixing matrix
+
+Ut3_phase: |
+  (3,3) phase of the active-sterile mixing matrix
+
+Gamma_RHN23nu: |
+  Decay rate of right-handed neutrinos to 3 left-handed neutrinos
+
+Gamma_RHN2Bcl: |
+  Decay rate of right-handed neutrinos to a charmed B meson and a lepton
+
+Gamma_RHN2Bplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged B meson and a lepton
+
+Gamma_RHN2Bsl: |
+  Decay rate of right-handed neutrinos to a strange B meson and a lepton
+
+Gamma_RHN2Dplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged D meson and a lepton
+
+Gamma_RHN2Dsl: |
+  Decay rate of right-handed neutrinos to a strange D meson and a lepton
+
+Gamma_RHN2Kplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged kaon and a lepton
+
+Gamma_RHN2etanu: |
+  Decay rate of right-handed neutrinos to an eta meson and a left-handed neutrino
+
+Gamma_RHN2etaprimenu: |
+  Decay rate of right-handed neutrinos to an eta prime meson and a left-handed neutrino
+
+Gamma_RHN2llnu: |
+  Decay rate of right-handed neutrinos to two leptons of different flavor and a left-handed neutrino
+
+Gamma_RHN2null: |
+  Decay rate of right-handed neutrinos to a left-handed neutrino of one flavor and a pair of leptons of another flavor
+
+Gamma_RHN2pi0nu: |
+  Decay rate of right-handed neutrinos to a neutral pion and a left-handed neutrino
+
+Gamma_RHN2piplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged pion and a lepton
+
+Gamma_RHN2rho0nu: |
+  Decay rate of right-handed neutrinos to a neutral rho meson and a left-handed neutrino
+
+Gamma_RHN2rhoplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged rho meson and a lepton
+
+Gamma_RHN2nuuubar: |
+  Decay rate of right-handed neutrinos to a left-handed neutrino and a meson composed of up-type quarks
+
+Gamma_RHN2nuddbar: |
+  Decay rate of right-handed neutrinos to a left-handed neutrino and a meson composed of down-type quarks
+
+Gamma_RHN2ludbar: |
+  Decay rate of right-handed neutrinos to a lepton, one up-type and one down-type quark
+
+Gamma_BBN: |
+  Total decay rate for right-handed neutrinos, combining all decays listed
+
+lnL_bbn: |
+  Log-likelihood for the lifetime of right-handed neutrinos, based on BBN constraint
+
+R_K: |
+  Lepton universality ratio of Kaon decays to leptons
+
+R_pi: |
+  Lepton universality ratio of pion decays to leptons
+
+R_tau: |
+  Lepton universality ratio of tau decays to leptons
+
+R_W: |
+  Lepton universality ratio of W decays to leptons
+
+lnL_R_K: |
+  Log-likelihood for lepton universality ratio of Kaon decays to leptons
+
+lnL_R_pi: |
+  Log-likelihood for lepton universality ratio of pion decays to leptons
+
+lnL_R_tau: |
+  Log-likelihood for lepton universality ratio of tau decays to leptons
+
+lnL_R_W: |
+  Log-likelihood for lepton universality ratio of W decays to leptons
+
+calc_Vus: |
+  Calculate optimized value of Vus for Theta
+
+lnLckm_Vus:
+  Log-likelihood for CKM unitarity using Vus as input parameter
+
+lnLckm_Vusmin: |
+  Log-likelihood for CKM unitarity profiling over Vus
+ 
+Thalf_0nubb_Ge: |
+  Neutrinoless double beta half-life for 76Ge detector
+
+Thalf_0nubb_Xe: |
+  Neutrinoless double beta half-life for 136Xe detector
+
+lnL_0nubb_GERDA: |
+  Log-likelihood for the neutrinoless double beta decay rate for the 76Ge detector
+
+lnL_0nubb_KamLAND_Zen: |
+  Log-likelihood for the neutrinoless double beta decay rate for the 136Xe detector
+
+lnL_0nubb: |
+  Log-likelihood for all neutrinoless double beta decay experiments
+  
+mbb_0nubb_Ge: |
+  effective neutrino mass (mbetabeta) from neutrinoless double beta for 76Ge detector
+
+mbb_0nubb_Xe: |
+  effective neutrino mass (mbetabeta) from neutrinoless double beta for 136Xe detector
+
+lnL_mbb_0nubb_GERDA: |
+  Log-likelihood for the effective neutrino mass (mbetabeta) for the 76Ge detector
+
+lnL_mbb_0nubb_KamLAND_Zen: |
+  Log-likelihood for the effective neutrino mass (mbetabeta) for the 136Xe detector
+
+lnL_mbb_0nubb: |
+  Log-likelihood for the effective neutrino mass (mbetabeta) for the 136Xe detector and 76Ge detector
+ 
+lnLatlase: |
+  Log-likelihood for direct searches of right-handed neutrinos in the ATLAS experiment in the electron sector
+
+lnLatlasmu: |
+  Log-likelihood for direct searches of right-handed neutrinos in the ATLAS experiment in the muon sector
+
+lnLcharme: |
+  Log-likelihood for direct searches of right-handed neutrinos in the CHARM experiment in the electron sector
+
+lnLcharmmu: |
+  Log-likelihood for direct searches of right-handed neutrinos in the CHARM experiment in the muon sector
+
+lnLcharmtau: |
+  Log-likelihood for direct searches of right-handed neutrinos in the CHARM experiment in the tau sector
+
+lnLdelphi_shortlived: |
+  Log-likelihood for direct searches of short-lived right-handed neutrinos in the Delphi experiment
+
+lnLdelphi_longlived: |
+  Log-likelihood for direct searches of long-lived right-handed neutrinos in the Delphi experiment
+
+lnLe949: |
+  Log-likelihood for direct searches of right-handed neutrinos in the E949 experiment
+
+lnLlhce: |
+  Log-likelihood for direct searches of right-handed neutrinos in the LHC experiment in the electron sector
+
+lnLlhcmu: |
+  Log-likelihood for direct searches of right-handed neutrinos in the LHC experiment in the muon sector
+
+lnLnutev: |
+  Log-likelihood for direct searches of right-handed neutrinos in the NuTeV experiment
+
+lnLpienu: |
+  Log-likelihood for direct searches of right-handed neutrinos in the PieNu experiment
+
+lnLps191e: |
+  Log-likelihood for direct searches of right-handed neutrinos in the PS191 experiment in the electron sector
+
+lnLps191mu: |
+  Log-likelihood for direct searches of right-handed neutrinos in the PS191 experiment in the muon sector
+
+RHN_coupling_slide: |
+  Artificial coupling slide
 
 #-------------------------------------
 #  Capgen capabilities

@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (ben.farmer@gmail.com)
 ///  \date 2015 Oct - 2016 Jul
@@ -20,6 +20,7 @@
 #include <iostream>
 #include <signal.h>
 #include <omp.h>
+#include <time.h> // For nanosleep (posix only)
 #include <cmath>
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -35,10 +36,10 @@ namespace Gambit
    {
      std::string name;
      switch(sig){
-         case SIGINT:  name="SIGINT";  break; 
-         case SIGTERM: name="SIGTERM"; break; 
-         case SIGUSR1: name="SIGUSR1"; break; 
-         case SIGUSR2: name="SIGUSR2"; break; 
+         case SIGINT:  name="SIGINT";  break;
+         case SIGTERM: name="SIGTERM"; break;
+         case SIGUSR1: name="SIGUSR1"; break;
+         case SIGUSR2: name="SIGUSR2"; break;
          default: name="<unlisted>";
      }
      return name;
@@ -52,6 +53,7 @@ namespace Gambit
      switch(code){
          case SOFT_SHUTDOWN:      name="SOFT_SHUTDOWN";      break;
          case EMERGENCY_SHUTDOWN: name="EMERGENCY_SHUTDOWN"; break;
+         case NO_MORE_MESSAGES:   name="NO_MORE_MESSAGES"; break;
          default: name="<invalid shutdown code>"; break;
      }
      return name;
@@ -59,14 +61,13 @@ namespace Gambit
    #endif
 
    /// @{ SignalData member functions
-  
+
    /// Constructor (initialise member variables)
    SignalData::SignalData()
      : jumppoint_set(false)
      , havejumped(1) // set to zero after jump point set
      , cleanup_function_set(false)
      , rank(-1)
-     , MPIsize(1)
      , shutdownBegun(0)
      , emergency(0)
      , POSIX_signal_noticed(false)
@@ -79,20 +80,19 @@ namespace Gambit
      , inside_omp_block(false)
      , N_signals(0)
      #ifdef WITH_MPI
+     , MPIsize(1)
      , _comm_rdy(false)
      , shutdown_broadcast_done(false)
      , looptimes(1000)
-     , next(0)
-     , listfull(false)
      , timeout(500)
-    #endif
+     #endif
    {}
 
    /// Retrieve MPI rank as a string (for log messages etc.)
    std::string SignalData::myrank()
    {
      std::ostringstream tmp;
-     #ifdef WITH_MPI 
+     #ifdef WITH_MPI
      if(rank==-1) { tmp << "UNKNOWN"; }
      else         { tmp << rank; }
      #else
@@ -100,7 +100,7 @@ namespace Gambit
      #endif
      return tmp.str();
    }
- 
+
    /// Set jump point;
    void SignalData::setjump()
    {
@@ -116,7 +116,7 @@ namespace Gambit
    }
 
    /// Call cleanup function
-   void SignalData::call_cleanup() 
+   void SignalData::call_cleanup()
    {
       if(cleanup_function_set) cleanup();
       // Do nothing if no function has been set;
@@ -192,7 +192,7 @@ namespace Gambit
        }
        // else the barrier succeed in synchronising all processes
        logger() << "Synchronised? " << !timedout << EOM;
-       return !timedout; 
+       return !timedout;
      #else
        return true; // Always ready if no MPI
      #endif
@@ -206,7 +206,7 @@ namespace Gambit
 
      /// Start counting...
      static std::chrono::time_point<std::chrono::system_clock> start(std::chrono::system_clock::now());
-   
+
      if(shutdown_attempts==0)
      {
         /// First time we see the shutdown signal, we will allow control to return to the scanner at least once,
@@ -217,13 +217,13 @@ namespace Gambit
                  << "shut them down. If sync fails, we will loop up to "<<max_attempts<<" times (-1 means infinite), attempting to "
                  << "synchronise each time. If sync fails, an emergency shutdown will be attempted." << EOM;
         ++shutdown_attempts;
-     }  
+     }
      else if(ff_on)
      {
-        logger() << "Fast-forward active (loop "<<ff_loop_count<<"); no synchronisation attempted." << EOM; 
+        logger() << "Fast-forward active (loop "<<ff_loop_count<<"); no synchronisation attempted." << EOM;
         // Fast-forward active; just increment counters and return
         ++ff_loop_count;
-        if(ff_loop_count>=ff_loops) 
+        if(ff_loop_count>=ff_loops)
         {
           logger() << "Fast-forward period finished (performed "<<ff_loop_count<<" fast loops)." << EOM;
           ff_on = false;
@@ -240,30 +240,30 @@ namespace Gambit
         std::cerr << msg.str() << std::endl;
         logger() << msg.str() << EOM;
         // Reset counters
-        attempts_since_ff=0;  
+        attempts_since_ff=0;
      }
      else
      {
-        // Normal sync attempt (no fast forward) 
+        // Normal sync attempt (no fast forward)
         if(shutdown_attempts==1)
         {
            logger() << "Scanner did not shut down when given the chance; we will therefore assume responsibility for terminating the scan." << EOM;
         }
         logger() << "Attempting to synchronise for soft shutdown (attempt "<<shutdown_attempts<<")" << EOM;
-        if (all_processes_ready()) 
+        if (all_processes_ready())
         {
           logger() << "Calling cleanup routines" << EOM;
           call_cleanup();
           std::ostringstream msg;
           logger() << "Throwing soft shutdown exception" << EOM;
-          throw SoftShutdownException(msg.str()); 
-        } 
+          throw SoftShutdownException(msg.str());
+        }
 
         // Compute elapsed time since shutdown began
         std::chrono::time_point<std::chrono::system_clock> current = std::chrono::system_clock::now();
         std::chrono::duration<double> time_waited = current - start;
 
-        if(max_attempts!=-1 and shutdown_attempts>=max_attempts) 
+        if(max_attempts!=-1 and shutdown_attempts>=max_attempts)
         {
           logger() << "Failed to synchronise for soft shutdown! Attempting cleanup anyway, but cannot guarantee safety of the scan output." << EOM;
           call_cleanup();
@@ -275,8 +275,8 @@ namespace Gambit
               <<" attempts, and after waiting "<<std::chrono::duration_cast<std::chrono::seconds>(time_waited).count()
               <<" seconds; fast-forward periods of "<<ff_loops<<" iterations were performed "<<ff_count
               <<" times). Data handled by external scanner codes may have been left in an inconsistent state." << std::endl;
-          throw HardShutdownException(msg.str()); 
-        } 
+          throw HardShutdownException(msg.str());
+        }
         else
         {
           logger() << "Attempt to sync for soft shutdown failed (this was attempt "<<shutdown_attempts<<" of "<<max_attempts<<" (-1 means infinite)); "
@@ -362,7 +362,7 @@ namespace Gambit
        logger() << ss.str() << EOM;
 
        #ifdef WITH_MPI
-       if(not shutdown_due_to_MPI_message) // Don't broadcast another shutdown message if we are shutting down due to an MPI message we received. Assume that all processes will get the first message (otherwise for 1000 process job we will end up with 1000*1000 shutdown messages clogging up the network) 
+       if(not shutdown_due_to_MPI_message) // Don't broadcast another shutdown message if we are shutting down due to an MPI message we received. Assume that all processes will get the first message (otherwise for 1000 process job we will end up with 1000*1000 shutdown messages clogging up the network)
        {
          // Broadcast shutdown message to all processes
          int shutdown_code;
@@ -378,7 +378,7 @@ namespace Gambit
        }
        else if(emergency)
        {
-         throw MPIShutdownException("Received emergency shutdown command via MPI! Terminating run."); 
+         throw MPIShutdownException("Received emergency shutdown command via MPI! Terminating run.");
        }
        #endif
 
@@ -409,6 +409,39 @@ namespace Gambit
 
      int code;
      signalComm->Recv_all(&code, 1, MPI_ANY_SOURCE, signalComm->mytag, max_loops);
+   }
+
+   /// This function makes absolutely sure that there are no more shutdown messages
+   /// to recv from any processes. It does this by making sure that every process
+   /// has sent a message to confirm that it isn't going to send any more shutdown
+   /// messages 
+   void SignalData::ensure_no_more_shutdown_messages()
+   {
+     int mpiSize = signalComm->Get_size();
+     int myRank = signalComm->Get_rank();
+     for(int rank=0; rank<mpiSize; rank++)
+     {
+        if(rank!=myRank)
+        {
+           int loop = 0;
+           bool more_messages = true;
+           while(more_messages)
+           {
+              int code;
+              signalComm->Recv(&code, 1, rank, signalComm->mytag);
+              if(code==NO_MORE_MESSAGES) more_messages = false;
+              loop++;
+              if(loop>2*mpiSize)
+              {
+                 // I think there should only be one shutdown message from each process, so this
+                 // condition is extreme and definitely indicates a problem.
+                 std::ostringstream errmsg;
+                 errmsg<<"ensure_no_more_shutdown_messages function has been looping on rank "<<myRank<<" for "<<loop<<" iterations (receiving messages from rank "<<rank<<" process), but there are only "<<mpiSize<<" processes in this job. There should not be anywhere near this many shutdown messages to receive, so something has gone horribly wrong. Please report this as a bug.";
+                 utils_error().raise(LOCAL_INFO, errmsg.str());
+              }
+           }
+        }
+     }
    }
    #endif
 
@@ -459,7 +492,7 @@ namespace Gambit
    {
      if(MPIsize>1)
      {
-       if(not shutdown_broadcast_done)
+       if(shutdown_code==NO_MORE_MESSAGES or not shutdown_broadcast_done)
        {
          if(comm_ready())
          {
@@ -508,7 +541,7 @@ namespace Gambit
        if(not data.comm_ready())
        {
           std::ostringstream errmsg;
-          errmsg << "Error retrieving global SignalData object! An MPI communicator has not been provided to this object! Please provide one via the 'set_MPI_comm' the first time that 'signaldata()' is called."; 
+          errmsg << "Error retrieving global SignalData object! An MPI communicator has not been provided to this object! Please provide one via the 'set_MPI_comm' the first time that 'signaldata()' is called.";
           utils_error().raise(LOCAL_INFO, errmsg.str());
        }
      }
@@ -518,12 +551,12 @@ namespace Gambit
 
    /// ========================================================================
    /// ========================================================================
- 
+
    /// @{ Signal handler functions
 
    /// We used to have more of these, but now we only use the "soft shutdown" signal handler.
 
-   /// Sets a "shutdown_begun" flag, which is checked each likelihood loop, 
+   /// Sets a "shutdown_begun" flag, which is checked each likelihood loop,
    /// after which MPI synchronisation followed by clean shutdown is attempted.
    void sighandler_soft(int sig)
    {
@@ -531,7 +564,7 @@ namespace Gambit
      signaldata().set_shutdown_begun();
      signaldata().add_signal(sig); // I think this should be ok... but can delete it if there are any problems
    }
-   
+
    /// @}
 
    /// TODO: Mostly obsolete
@@ -553,17 +586,17 @@ namespace Gambit
        // if      (shutdown_mode=="hard_shutdown"){      signal(sig, sighandler_hard);      }
        // else if (shutdown_mode=="emergency_shutdown"){ signal(sig, sighandler_emergency); }
        // else if (shutdown_mode=="emergency_shutdown_longjmp"){ signal(sig, sighandler_emergency_longjmp); }
-       //else 
+       //else
        if (shutdown_mode=="soft_shutdown"){      signal(sig, sighandler_soft);      }
        //else if (shutdown_mode=="null"){               signal(sig, sighandler_null);      }
        else {
            std::ostringstream msg;
            msg << "Invalid shutdown mode requested for signal "<<signal_name(sig)<<" ("<<sig<<")"<<" (via YAML file option '"<<signal_name(sig)<<"' in KeyValue section under 'signal_handling'). Value received was '"<<shutdown_mode<<"'. Valid shutdown modes are:" <<std::endl;
-           msg << "   'hard_shutdown'              -- Exit immediately." <<std::endl; 
-           msg << "   'emergency_shutdown'         -- Attempt to save printer/resume data and then immediately exit." <<std::endl; 
+           msg << "   'hard_shutdown'              -- Exit immediately." <<std::endl;
+           msg << "   'emergency_shutdown'         -- Attempt to save printer/resume data and then immediately exit." <<std::endl;
            msg << "   'emergency_shutdown_longjmp' -- Longjmp to outside of likelihood loop, then attempt to save printer/resume data and exit"<<std::endl;
-           msg << "   'soft_shutdown'              -- Safest: attempt to synchronise processes at safe location, then save printer/resume data and exit." <<std::endl; 
-           msg << "   'null'                       -- Ignore signal. Use at own risk!" <<std::endl; 
+           msg << "   'soft_shutdown'              -- Safest: attempt to synchronise processes at safe location, then save printer/resume data and exit." <<std::endl;
+           msg << "   'null'                       -- Ignore signal. Use at own risk!" <<std::endl;
            msg << "The default shutdown mode on signal "<<signal_name(sig)<<" is '"<<def_mode<<"'." <<std::endl;
            std::cerr << msg.str();
            std::cerr << std::endl;

@@ -3,7 +3,7 @@
 #include <memory>
 #include <iomanip>
 
-#include "gambit/ColliderBit/analyses/BaseAnalysis.hpp"
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
@@ -15,15 +15,14 @@ using namespace std;
    Yang Zhang
 
    Known errors:
-
-   Known features:
+        Using ATLASEfficiencies instead of CMSEfficiencies because "applyLooseIDElectronSelectionR2" and "applyMediumIDElectronSelectionR2" functions are important for this analysis.
 
 */
 
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2LEPStop_36invfb : public HEPUtilsAnalysis {
+    class Analysis_CMS_13TeV_2LEPStop_36invfb : public Analysis {
     private:
 
         // Numbers passing cuts
@@ -96,6 +95,9 @@ namespace Gambit {
 
     public:
 
+        // Required detector sim
+        static constexpr const char* detector = "CMS";
+
         Analysis_CMS_13TeV_2LEPStop_36invfb() {
 
             set_analysis_name("CMS_13TeV_2LEPStop_36invfb");
@@ -118,8 +120,7 @@ namespace Gambit {
 
         }
 
-        void analyze(const HEPUtils::Event* event) {
-            HEPUtilsAnalysis::analyze(event);
+        void run(const HEPUtils::Event* event) {
 
             // Missing energy
             double met = event->met();
@@ -342,7 +343,7 @@ namespace Gambit {
                    )cutFlowVector[j]++;
             }
             bool pre_cut= cut_2OSLep && cut_mllGt20 && cut_mllMZ && cut_Njet && cut_Nbjet && cut_PTmis && cut_SGt5 && cut_csj1 && cut_csj2 ;
-            // signal region          
+            // signal region
             for(size_t j=0;j<_SR_size;j++){
                 // same flavour
                 if(
@@ -404,28 +405,31 @@ namespace Gambit {
 
         }
 
+        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
+        void combine(const Analysis* other)
+        {
+            const Analysis_CMS_13TeV_2LEPStop_36invfb* specificOther
+                = dynamic_cast<const Analysis_CMS_13TeV_2LEPStop_36invfb*>(other);
 
-        void add(BaseAnalysis* other) {
-            // The base class add function handles the signal region vector and total # events.
-            HEPUtilsAnalysis::add(other);
-
-            Analysis_CMS_13TeV_2LEPStop_36invfb* specificOther
-                = dynamic_cast<Analysis_CMS_13TeV_2LEPStop_36invfb*>(other);
-            // Here we will add the subclass member variables:
             if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-            for (int j=0; j<NCUTS; j++) {
+
+            for (int j=0; j<NCUTS; j++)
+            {
                 cutFlowVector[j] += specificOther->cutFlowVector[j];
                 cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
             }
-            for (size_t j=0; j<_SR_size; j++) {
+
+            for (size_t j=0; j<_SR_size; j++)
+            {
                 _SRSF[j] += specificOther->_SRSF[j];
                 _SRDF[j] += specificOther->_SRDF[j];
                 _SRALL[j] += specificOther->_SRALL[j];
             }
-            for (size_t j=0; j<_SRA_size; j++) {
+
+            for (size_t j=0; j<_SRA_size; j++)
+            {
                 _SRA[j] += specificOther->_SRA[j];
             }
-
         }
 
 
@@ -495,7 +499,7 @@ namespace Gambit {
                 32., 1.1, 17., 1.0, 0.2, 0.5, 0.2, 0.2, 0.2, 0.3, 0.1, 0.3, 0.2
             };
 
-            for (size_t ibin = 0; ibin < _SR_size; ++ibin) 
+            for (size_t ibin = 0; ibin < _SR_size; ++ibin)
             {
                 stringstream ss_SF; ss_SF << "SF-SR-" << ibin;
                 stringstream ss_DF; ss_DF << "DF-SR-" << ibin;
@@ -923,7 +927,7 @@ namespace Gambit {
             add_result(results_SRA2);*/
 
     protected:
-      void clear() {
+      void analysis_specific_reset() {
 
         std::fill(_SRSF.begin(), _SRSF.end(), 0);
         std::fill(_SRDF.begin(), _SRDF.end(), 0);

@@ -75,12 +75,12 @@ def get_type_equivalencies(nses):
             equivalency_class = list()
             for member in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
               member = re.sub("\"","",member[:-1].strip())
-              # Strip off the leading BOSSed namespace from all type equivalencies pertaining to the default version
+              # Convert the leading BOSSed namespace for the default version to the explicit namespace of the actual version
               for key in nses:
-                ns = key+"_"+nses[key]+"::"
-                if member.startswith(ns): member = member[len(ns):]
-                if member.startswith(ns): member = member[len(ns):]
-                member = re.sub("\s"+ns," ",member)
+                ns_default = key+"_default"+"::"
+                ns_true = key+"_"+nses[key]+"::"
+                if member.startswith(ns_default): member = ns_true+member[len(ns_default):]
+                member = re.sub("\s"+ns_default," "+ns_true,member)
 
               # If the type is an alias of a native int then add int to the equivalency class
               if re.match("int[0-9]+_t", member):
@@ -135,7 +135,8 @@ def sorted_nicely( l ):
 # Parse a string to see if it has a class, struct or typedef declaration
 def check_for_declaration(input_snippet,module,all_modules,local_namespace,candidate_type):
     splitline = neatsplit('\s|\(|\)|\*|\&|\;',input_snippet)
-    candidate_parts = neatsplit('::',candidate_type)
+    candidate_type = re.sub("^\s*|\s*$", "", candidate_type)
+    candidate_parts = neatsplit('::',re.sub("^.*\s", "", re.sub("<.*>", "", candidate_type)))
     namespace_parts = neatsplit('::',local_namespace)
     right_class = False
     # Work out if we are in the module namespace, and if any sub-namespace matches the candidate type.
@@ -153,9 +154,10 @@ def check_for_declaration(input_snippet,module,all_modules,local_namespace,candi
     if len(splitline) > 1 and (not local_namespace or namespace_parts[0] not in all_modules or in_module_and_namespace_matches):
         # Look for class/struct declarations
         if splitline[0] in ["class", "struct"]:
-            if candidate_type in (splitline[1], splitline[1]+"*"):
+            allowed_matches = (splitline[1], splitline[1]+"*")
+            if candidate_type in allowed_matches or candidate_parts[0] in allowed_matches:
                 right_class = True
-            elif len(candidate_parts) > 1 and candidate_parts[-1] in (splitline[1], splitline[1]+"*"):
+            elif len(candidate_parts) > 1 and candidate_parts[-1] in allowed_matches:
                 if (candidate_parts[:-1] == namespace_parts[1-len(candidate_parts):]): right_class = True
         # Look for typedefs
         if len(splitline)>2 and splitline[0]=="typedef":
@@ -164,7 +166,17 @@ def check_for_declaration(input_snippet,module,all_modules,local_namespace,candi
             elif len(candidate_parts) > 1 and candidate_parts[-1] in splitline[2:]:
                 if (candidate_parts[:-1] == namespace_parts[1-len(candidate_parts):]): right_class = True
         # The class declared at this line matches the candidate class
-        if right_class and local_namespace and local_namespace != "Gambit": candidate_type = local_namespace+"::"+candidate_parts[-1]
+        if right_class and local_namespace and local_namespace != "Gambit":
+          main_class = candidate_parts[-1]
+          template_args = re.findall("<.*>\*?", candidate_type)
+          if template_args == []:
+            template_args = ""
+          else:
+            template_args = template_args[0]
+            main_class = re.sub("\*$", "", candidate_parts[-1])
+          qualifiers = re.findall("^.*\s", re.sub("<.*>\*?", "", candidate_type))
+          qualifiers = "" if qualifiers == [] else qualifiers[0]
+          candidate_type = qualifiers + local_namespace + "::" + main_class + template_args
     return (right_class, candidate_type)
 
 # Parse a string to see if it has a namespace declaration
@@ -212,11 +224,12 @@ def first_simple_type_equivalent(candidate_in, equivs, nses, existing):
     if candidate_in in existing: return candidate_in
     candidate = candidate_in
     candidate.strip()
-    # Strip off the leading BOSSed namespace if it's from the default version
+    # Convert the leading BOSSed namespace for the default version to the explicit namespace of the actual version
     for key in nses:
-      ns = key+"_"+nses[key]+"::"
-      candidate = re.sub("\s"+ns," ",candidate)
-      if candidate.startswith(ns): candidate = cadidate[len(ns):]
+      ns_default = key+"_default"+"::"
+      ns_true = key+"_"+nses[key]+"::"
+      if candidate.startswith(ns_default): candidate = ns_true+candidate[len(ns_default):]
+      candidate = re.sub("\s"+ns_default," "+ns_true,candidate)
     # Exists in the equivalency classes
     if candidate in equivs:
         candidate_suffix = ""

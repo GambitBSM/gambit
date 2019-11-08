@@ -188,7 +188,7 @@ namespace Gambit
       scannerNode["print_timing_data"] = getValueOrDef<bool>(false,"print_timing_data");
 
       // Pass on minimum recognised lnlike and offset to Scanner
-      scannerNode["model_invalid_for_lnlike_below"] = getValue<double>("likelihood", "model_invalid_for_lnlike_below");
+      scannerNode["model_invalid_for_lnlike_below"] = getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below");
       if (hasKey("likelihood", "lnlike_offset"))
         scannerNode["lnlike_offset"] = getValue<double>("likelihood", "lnlike_offset");
 

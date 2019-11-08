@@ -15,6 +15,19 @@
 ///  \author Chris Rogan
 ///          (crogan@cern.ch)
 ///  \date 2014 Aug
+///  \date 2018 June
+///
+///  \author Tomas Gonzalo
+///          (t.e.gonzalo@fys.uio.no)
+///  \date 2018 Jan
+///
+///  \author Marcin Chrzaszcz
+///          (mchrzasz@cern.ch)
+///  \date 2018
+///
+///  \author Chrisotph Weniger
+///          (c.weniger@uva.nl)
+///  \date 2018 Jun
 ///
 ///  \author Ankit Beniwal
 ///         (ankit.beniwal@adelaide.edu.au)
@@ -913,7 +926,7 @@ namespace Gambit
       using namespace Pipes::GM2C_SUSY;
       const SubSpectrum& mssm = Dep::MSSM_spectrum->get_HE();
 
-      gm2calc::MSSMNoFV_onshell model;
+      gm2calc_default::gm2calc::MSSMNoFV_onshell model;
 
       try
       {
@@ -1030,17 +1043,10 @@ namespace Gambit
         }
 
       }
-      catch (const gm2calc_1_2_0::gm2calc::Abstract_Error& e)
+      catch (const gm2calc_default::gm2calc::Error& e)
       {
         std::ostringstream err;
-        err << "gm2calc 1.2.0 routine convert_to_onshell raised error: "
-        << e.what() << ".";
-        invalid_point().raise(err.str());
-      }
-      catch (const gm2calc_1_3_0::gm2calc::Abstract_Error& e)
-      {
-        std::ostringstream err;
-        err << "gm2calc 1.3.0 routine convert_to_onshell raised error: "
+        err << "gm2calc routine convert_to_onshell raised error: "
         << e.what() << ".";
         invalid_point().raise(err.str());
       }
@@ -1112,6 +1118,43 @@ namespace Gambit
       result = 0.1;
       return;
 
+    }
+
+    // EWPO corrections from heavy neutrinos, from 1407.6607 and 1502.00477
+
+    // Weak mixing angle sinW2, calculation from 1211.1864
+    void RHN_sinW2_eff(triplet<double> &result)
+    {
+      using namespace Pipes::RHN_sinW2_eff;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      Eigen::Matrix3d ThetaNorm = (Theta * Theta.adjoint()).real();
+
+      double sinW2_SM = 0.23152; // taken from 1211.1864
+      double sinW2_SM_err = 0.00010;
+
+      result.central = 0.5 - 0.5*sqrt(1.0 - 4*sinW2_SM*(1.0 - sinW2_SM)*sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) ); 
+      result.upper = (1.0 - 2*sinW2_SM) / (1.0 - 2*result.central) * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) * sinW2_SM_err;
+      result.lower = result.upper;
+    }
+
+    // Mass of W boson, calculation from 1502.00477
+    void RHN_mw(triplet<double> &result)
+    {
+      using namespace Pipes::RHN_mw;
+      Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
+      triplet<double> sinW2 = *Dep::prec_sinW2_eff;
+      Eigen::Matrix3d ThetaNorm = (Theta * Theta.adjoint()).real();
+
+      // SM precision calculation, from 1211.1864
+      double sinW2_SM = 0.23152;
+      double sinW2_SM_err = 0.00010;
+      double mW_SM = 80.361;
+      double mW_SM_err = 0.010;
+
+      // Radiative corrections, form Marco's paper
+      result.central = sqrt( pow(mW_SM,2) * sinW2_SM / sinW2.central * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1))  );
+      result.upper = 0.5*result.central*sqrt( pow(2*mW_SM_err/mW_SM,2) + pow(sinW2_SM_err/sinW2_SM,2) + pow(sinW2.upper/sinW2.central,2)  );
+      result.lower = result.upper;
     }
 
   }

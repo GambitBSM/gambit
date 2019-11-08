@@ -2121,8 +2121,6 @@ void ClusterSequence::add_constituents (
   }
 }
 
-namespace { void IGNORE(int) {} } //< AB: to avoid unused-variable warnings without actually anonymising the variable; used below
-
 void ClusterSequence::_add_step_to_history (
            const int step_number, const int parent1,
 	       const int parent2, const int jetp_index,

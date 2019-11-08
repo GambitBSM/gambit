@@ -93,11 +93,6 @@ def main(argv):
 
     # List of types NOT to return (things we know are not printable, but can appear in START_FUNCTION calls)
     exclude_types=set(["void"])
-    # Check if Delphes is on the exclude list, and leave out Delphes types if it is.  FIXME this is only until Delphes is BOSSed.
-    if any(x in exclude_modules for x in ["D","De","Del","Delp","Delph","Delphe","Delphes"]):
-      exclude_types.add("Gambit::ColliderBit::DelphesVanilla")
-      exclude_types.add("ColliderBit::DelphesVanilla")
-      exclude_types.add("DelphesVanilla")
 
     # List of directory names to ignore when searching for headers
     exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts"])
@@ -162,7 +157,7 @@ def main(argv):
 
     # Don't touch any existing file unless it is actually different from what we will create
     header = "./Elements/include/gambit/Elements/module_types_rollcall.hpp"
-    candidate = "./scratch/module_types_rollcall.hpp.candidate"
+    candidate = "./scratch/build_time/module_types_rollcall.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(header, candidate)
 
@@ -259,7 +254,7 @@ namespace Gambit                                  \n\
 
     # Don't touch any existing file unless it is actually different from what we will create
     header = "./Backends/include/gambit/Backends/backend_functor_types.hpp"
-    candidate = "./scratch/backend_functor_types.hpp.candidate"
+    candidate = "./scratch/build_time/backend_functor_types.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(header, candidate)
 
@@ -291,7 +286,7 @@ namespace Gambit                                  \n\
 ///  *********************************************\n\
                                                   \n\
 #ifndef __module_functor_types_hpp__              \n\
-#define __moduel_functor_types_hpp__              \n\
+#define __module_functor_types_hpp__              \n\
                                                   \n\
 #include \"gambit/Elements/types_rollcall.hpp\"   \n\
 #include \"gambit/Elements/functor_definitions.hpp\"\n\
@@ -304,7 +299,7 @@ namespace Gambit                                  \n\
 
     # Don't touch any existing file unless it is actually different from what we will create
     source = "./Elements/include/gambit/Elements/module_functor_types.hpp"
-    candidate = "./scratch/module_functor_types.hpp.candidate"
+    candidate = "./scratch/build_time/module_functor_types.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(source, candidate)
 
@@ -315,7 +310,7 @@ namespace Gambit                                  \n\
         print("Generated Backends/backend_functor_types.hpp.")
 
     # Pickle the types for later usage by standalone_facilitator.py
-    with open('./scratch/harvested_types.pickle', 'wb') as handle:
+    with open('./scratch/build_time/harvested_types.pickle', 'wb') as handle:
         pickle.dump(returned_types, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Handle command line arguments (verbosity)
