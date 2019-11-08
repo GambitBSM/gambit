@@ -241,8 +241,10 @@ macro(add_gambit_custom target filename HARVESTER DEPS)
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
                              ${HARVEST_TOOLS}
-                             ${PROJECT_BINARY_DIR}/CMakeCache.txt
-                             ${${DEPS}})
+                             ${${DEPS}}
+                             ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+                             # bjf> I replaced this because individual projects don't seem to get their own cache, it is a top level thing.
+                             #${PROJECT_BINARY_DIR}/CMakeCache.txt)
   add_custom_target(${target} DEPENDS ${CMAKE_BINARY_DIR}/${filename})
 endmacro()
 
@@ -399,7 +401,9 @@ function(add_standalone executablename)
                        DEPENDS modules_harvested
                                ${STANDALONE_FACILITATOR}
                                ${HARVEST_TOOLS}
-                               ${PROJECT_BINARY_DIR}/CMakeCache.txt)
+                               ${CMAKE_BINARY_DIR}/CMakeCache.txt)
+                               # bjf> I replaced this because individual projects don't seem to get their own cache, it is a top level thing.
+                               #${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
     # Add linking flags for ROOT, RestFrames and/or HepMC if required.
     if (USES_COLLIDERBIT)

@@ -14,6 +14,7 @@
 ///
 ///  *********************************************
 //
+#include <chrono>
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer_v2.hpp"
 
