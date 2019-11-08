@@ -68,6 +68,13 @@ namespace Gambit
 
   namespace Utils
   {
+    /// Get an environment variable, or "" if the variable is not set
+    std::string getEnvVar(std::string const & key );
+
+    /// Return the root directory of GAMBIT.
+    /// Useful for locating configuration files and other such things
+    /// in a robust manner at runtime 
+    EXPORT_SYMBOLS std::string GAMBIT_root_dir();
 
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.

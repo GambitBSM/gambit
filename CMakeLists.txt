@@ -223,13 +223,26 @@ elseif(CMAKE_Fortran_COMPILER MATCHES "ifort*")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -extend-source -fpp")
 endif()
 
-# Set output paths
+# Set output/runtime paths
+# We need to guard some of these with if statements so they can be overridden
+# by a master cmake project, or the user. E.g. the pyscannerbit
+# project needs to control where libraries end up and are expected to run from 
 set(mylibdir ${PROJECT_SOURCE_DIR}/lib)
 set(mybindir ${PROJECT_SOURCE_DIR})
 # First for the generic no-config case (e.g. with mingw)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${mybindir} )
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${mylibdir} )
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${mylibdir} )
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${mybindir} )
+endif()
+if(NOT GAMBIT_RUN_DIR)
+  set(GAMBIT_RUN_DIR ${mybindir} )
+endif()
+if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${mylibdir} )
+endif()
+message("${Yellow}   Libraries from this project will be built at the location: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${ColourReset}")
+if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${mylibdir} )
+endif()
 # Second, for multi-config builds (e.g. msvc)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
