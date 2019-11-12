@@ -85,9 +85,19 @@ namespace Gambit
           }
           catch(YAML::Exception& e)
           {
+            std::string nodestr;
+            try
+            {
+              nodestr = node.as<std::string>();
+            }
+            catch(YAML::Exception& e)
+            {
+              nodestr = "<Couldn't even convert to string!>";
+            }
             std::ostringstream os;
             os << "Error retrieving options entry for [" << stringifyVariadic(keys...) 
-               << "] as type " << typeid(TYPE).name() << " (template parameter: see below)" << std::endl 
+               << "] as type " << typeid(TYPE).name() << " (template parameter: see below). String form of node value was: "
+               << nodestr << std::endl 
                << "YAML message follows: " << std::endl
                << e.what();
             utils_error().raise(LOCAL_INFO,os.str());
@@ -108,20 +118,7 @@ namespace Gambit
         }
         else
         {
-          try
-          {
-            result = node.as<TYPE>();
-          }
-          catch(YAML::Exception& e)
-          {
-            std::ostringstream os;
-            os << "Error retrieving options entry for [" << stringifyVariadic(keys...) 
-               << "] as type " << typeid(TYPE).name() << " (template parameter: see below)" << std::endl 
-               << "YAML message follows: " << std::endl
-               << e.what();
-            utils_error().raise(LOCAL_INFO,os.str());
-            result = def;
-          }
+          result = getValue<TYPE>(keys...);
         }
         return result;
       }

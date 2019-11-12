@@ -816,7 +816,7 @@ START_MODULE
     DEPENDENCY(SM_spectrum, Spectrum)
     MODEL_CONDITIONAL_DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd, RightHandedNeutrinos)
     MODEL_CONDITIONAL_DEPENDENCY(SeesawI_Vnu, Eigen::Matrix3cd, RightHandedNeutrinos)
-    ALLOW_MODEL(RightHandedNeutrinos)
+    ALLOW_MODELS(StandardModel_SLHA2,RightHandedNeutrinos)
     #undef FUNCTION
   #undef CAPABILITY
 

@@ -14,7 +14,7 @@
 ///  Can also be used to literally lock access to
 ///  a particular file, e.g. HDF5Printer2 output
 ///  uses these to serialise write access to the
-///  hdf5 output file. 
+///  hdf5 output file.
 ///
 ///  Usage:
 ///
@@ -26,16 +26,20 @@
 ///        are here. */
 ///     mylock.release_lock();
 ///   }
-///   /* If not already done, lock is automatically 
+///   /* If not already done, lock is automatically
 ///      released when 'mylock' is destructed */
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (ben.farmer@gmail.com)
 ///  \date 2016 Feb, 2019 Apr
+///
+///  \author Pat Scott
+///          (p.scott@imperial.ac.uk)
+///  \date 2016, 2019 Sep
 ///
 ///  *********************************************
 
@@ -60,22 +64,18 @@
 #endif
 
 
-namespace Gambit 
+namespace Gambit
 {
-   namespace Utils 
+   namespace Utils
    {
 
       /// @{ Members of FileLock class
-
-      /// Initialise prefix path name to lock files, and extension
-      const std::string FileLock::lock_prefix(GAMBIT_DIR "/scratch/locks/");
-      const std::string FileLock::lock_suffix(".lock");
 
       const std::string hardmsg("Now calling abort (will produce a core file for analysis if this is enabled on your system; if so please include this with the bug report)");
 
       /// Constructor
       FileLock::FileLock(const std::string& fname, const bool harderrs)
-       : my_lock_fname(ensure_path_exists(lock_prefix + fname + lock_suffix))
+       : my_lock_fname(ensure_path_exists(fname))
        , fd(open(my_lock_fname.c_str(), O_RDWR | O_CREAT, 0666)) // last argument is permissions, in case file has to be created.
        , have_lock(false)
        , hard_errors(harderrs)
@@ -129,16 +129,16 @@ namespace Gambit
         // This operation is atomic and so should be safe.
         int return_code = lockf(fd, F_LOCK, 0);
         #ifdef FILE_LOCK_DEBUG
-          gettimeofday(&tv, &tz);      
+          gettimeofday(&tv, &tz);
           cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Got lock " << my_lock_fname << " in rank " << rank << endl;
         #endif
 
-        /// Ok it seems there are some errors that we should handle, and then just try again to obtain the lock. 
+        /// Ok it seems there are some errors that we should handle, and then just try again to obtain the lock.
         if(return_code!=0 && errno==EINTR)
         {
-          // This happens if the system call is interrupted by a signal. This 
-          // happens when we tell GAMBIT to stop via a signal! But it is no 
-          // big deal, we just need to attempt the lock again. We should log 
+          // This happens if the system call is interrupted by a signal. This
+          // happens when we tell GAMBIT to stop via a signal! But it is no
+          // big deal, we just need to attempt the lock again. We should log
           // that this happened, in case we need to debug some bizarre problem.
           logger() << LogTags::utils << "Attempt to get lock "<< my_lock_fname <<" failed due to interruption by system call! But this was probably just the GAMBIT shutdown signal, so we will just keep trying to get the lock until the error changes or goes away..." << EOM;
           while(return_code!=0 && errno==EINTR)
@@ -177,7 +177,7 @@ namespace Gambit
           MPI_Comm_rank(MPI_COMM_WORLD,&rank);
           struct timeval tv;
           struct timezone tz;
-          gettimeofday(&tv, &tz);      
+          gettimeofday(&tv, &tz);
           cout << "[" << tv.tv_sec << "." << tv.tv_usec << "] Releasing lock " << my_lock_fname << " in rank " << rank << endl;
         #endif
         /// Release the lock
@@ -197,6 +197,21 @@ namespace Gambit
       /// Getter for lockfile name
       const std::string& FileLock::get_filename() const { return my_lock_fname; }
 
-      /// @} 
+      /// @}
+
+
+      /// @{ Members of ProcessLock class
+
+      /// Initialise prefix path name to lock files, and extension
+      const std::string ProcessLock::lock_prefix(GAMBIT_DIR "/scratch/run_time/process_locks/");
+      const std::string ProcessLock::lock_suffix(".lock");
+
+      /// Constructor
+      ProcessLock::ProcessLock(const std::string& fname, const bool harderrs)
+       : FileLock(lock_prefix + fname + lock_suffix, harderrs)
+      {}
+
+      /// @}
+
    }
 }

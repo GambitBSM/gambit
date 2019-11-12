@@ -287,14 +287,15 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             // delivery times. TODO: review this if startup is too slow.
 
             // First tell all processes how many chunks to expect
-            std::size_t num_chunks;
-            if(rank==0) num_chunks = done_chunks.size();
-            ppComm.Bcast(num_chunks, 1, 0); // Broadcast to all workers from master
+            std::vector<std::size_t> num_chunks_buf(1);
+            if(rank==0) num_chunks_buf.push_back(done_chunks.size());
+            ppComm.Bcast(num_chunks_buf, 1, 0); // Broadcast to all workers from master
+            std::size_t num_chunks = num_chunks_buf.at(0);
 
             ChunkSet::iterator chunk=done_chunks.begin();
             for(std::size_t i=0; i<num_chunks; i++)
             {
-                std::size_t chunkdata[3]; // Raw form of chunk information
+                std::vector<std::size_t> chunkdata(3); // Raw form of chunk information
                 if(rank==0)
                 {
                    if(chunk!=done_chunks.end())
@@ -326,6 +327,12 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         }
         #endif
 
+        // I think the above broadcast should be blocking, but lets do a barrier here to make sure no strange writing occurs before
+        // this resume analysis is complete
+        #ifdef WITH_MPI
+        ppComm.Barrier();
+        #endif
+
         if(rank==0)
         {
             std::cout << "Postprocessing resume analysis completed." << std::endl;
@@ -337,7 +344,6 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         //{
         //   std::cout << "   "<<chunk->start<<" -> "<<chunk->end<<std::endl;
         //}
-
     }
 
     // Tell the driver routine what points it can automatically skip

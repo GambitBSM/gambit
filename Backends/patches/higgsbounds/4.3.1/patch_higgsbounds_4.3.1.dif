@@ -1,5 +1,6 @@
---- HiggsBounds-4.3.1/usefulbits.f90	2017-03-23 19:52:07.000000000 +0100
-+++ ../installed/higgsbounds/4.3.1/usefulbits.f90 2018-04-12 19:23:41.530298535 +0200
+diff -rupN HiggsBounds-4.3.1/usefulbits.f90 ../installed/higgsbounds/4.3.1/usefulbits.f90
+--- HiggsBounds-4.3.1/usefulbits.f90	2017-03-24 05:52:07.000000000 +1100
++++ ../installed/higgsbounds/4.3.1/usefulbits.f90	2019-09-05 20:19:22.396325325 +1000
 @@ -15,7 +15,7 @@ module usefulbits
   integer :: using_likelihood = 0
  
@@ -9,3 +10,24 @@
   
   character(LEN=5) :: whichanalyses
   character(LEN=4) :: whichinput 
+diff -rupN HiggsBounds-4.3.1/interpolate.f90 ../installed/higgsbounds/4.3.1/interpolate.f90
+--- HiggsBounds-4.3.1/interpolate.f90	2017-03-24 05:47:53.000000000 +1100
++++ ../installed/higgsbounds/4.3.1/interpolate.f90	2019-09-24 14:46:04.538021946 +1000
+@@ -524,9 +524,14 @@ module interpolate
+    intable=.False.                 
+   else                !#1
+                     
+-   ilow=int((z-slices_t2(1)%z)/(slices_t2(2)%z-slices_t2(1)%z))+1
+-   z_below=dble(ilow-1)*(slices_t2(2)%z-slices_t2(1)%z)+slices_t2(1)%z
+-   z_above=z_below+(slices_t2(2)%z-slices_t2(1)%z)
++   if(slices_t2(1)%z .eq. slices_t2(2)%z) then
++     z_below = slices_t2(1)%z
++     z_above = slices_t2(2)%z
++   else
++     ilow=int((z-slices_t2(1)%z)/(slices_t2(2)%z-slices_t2(1)%z))+1
++     z_below=dble(ilow-1)*(slices_t2(2)%z-slices_t2(1)%z)+slices_t2(1)%z
++     z_above=z_below+(slices_t2(2)%z-slices_t2(1)%z)
++   endif
+ 
+    if(abs(z_below-z).lt.small)then !z is the same as z_below 
+     c_z=z_below

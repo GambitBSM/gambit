@@ -38,6 +38,7 @@
 #include "yaml-cpp/yaml.h"
 #include "exceptions.hpp"
 #include "local_info.hpp"
+#include "gambit/Utils/mpiwrapper.hpp"
 
 namespace Gambit
 {
@@ -47,6 +48,26 @@ namespace Gambit
    #ifdef WITH_MPI
    /// Forward declare MPI class
    namespace GMPI { class Comm; }
+
+   /// Class for keeping track of shutdown message buffers and status for a certain shutdown code type
+   class ShutdownMsg
+   {
+     public:
+       ShutdownMsg();
+       ShutdownMsg(const int mycode, const std::string& name);
+       void ISendToAll(); // Send this code to all processes (non-blocking)
+       void Wait(); // Ensure all processes have received this message (completes the send; must follow ISendToAll at some point)
+       void setComm(GMPI::Comm* const); // Set MPI communicator to use
+     private:      
+       int mpisize;
+       int myrank;
+       int mycode;
+       std::string name;
+       std::vector<int> buffers;
+       std::vector<bool> buffer_status; //1 means "in use", 0 means "free"
+       std::vector<MPI_Request> req;
+       GMPI::Comm* comm;
+   };
    #endif
 
    /// Variables for use in signal handlers
@@ -130,9 +151,9 @@ namespace Gambit
 
        /// Shutdown codes receivable via MPI (not MPI tags)
        //static const int ERROR = 0; // Not in use
-       static const int SOFT_SHUTDOWN = 1;
-       static const int EMERGENCY_SHUTDOWN = 2;
-       static const int NO_MORE_MESSAGES = -1;
+       static constexpr int SOFT_SHUTDOWN = 1;
+       static constexpr int EMERGENCY_SHUTDOWN = 2;
+       static constexpr int NO_MORE_MESSAGES = -1;
 
        /// Broadcast signal to shutdown all processes
        /// By default sends emergency shutdown code.
@@ -201,9 +222,14 @@ namespace Gambit
          unsigned int next; // next slot to be overwritten
          bool listfull; // looptime vector is full
          double timeout; // Computed timeout value for shutdowns
+
+         /// Variables for keeping track of shutdown message buffers and whether
+         /// they have been received by other processes.
+         std::map<int,ShutdownMsg> msgs;
        #endif
 
    };
+
 
    /// Retrieve global instance of signal handler options struct
    EXPORT_SYMBOLS SignalData& signaldata();

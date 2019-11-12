@@ -63,10 +63,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -86,7 +86,7 @@ namespace Gambit
       // gauge couplings
       singletmodel.g1 = e / sinW2;
       singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -123,10 +123,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -148,7 +148,7 @@ namespace Gambit
       // gauge couplings
       singletmodel.g1 = e / sinW2;
       singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -180,7 +180,7 @@ namespace Gambit
         ( const typename MI::InputParameters& input
         , const SMInputs& sminputs
         , const Options& runOptions
-        , const std::map<str, safe_ptr<double> >& input_Param
+        , const std::map<str, safe_ptr<const double> >& input_Param
         )
     {
       // SoftSUSY object used to set quark and lepton masses and gauge
@@ -287,7 +287,7 @@ namespace Gambit
 
 
     template <class T>
-    void fill_ScalarSingletDM_input(T& input, const std::map<str, safe_ptr<double> >& Param,SMInputs sminputs)//,double scale)
+    void fill_ScalarSingletDM_input(T& input, const std::map<str, safe_ptr<const double> >& Param,SMInputs sminputs)//,double scale)
     {
       double mH = *Param.at("mH");
       double mS = *Param.at("mS");
@@ -314,7 +314,7 @@ namespace Gambit
     }
 
     template <class T>
-    void fill_extra_input(T& input, const std::map<str, safe_ptr<double> >& Param )
+    void fill_extra_input(T& input, const std::map<str, safe_ptr<const double> >& Param )
     {
       input.mu3Input=*Param.at("mu3");
     }
@@ -324,7 +324,7 @@ namespace Gambit
       std::unique_ptr<SubSpectrum> ScalarSingletDM = spec.clone_HE();
       double step = log10(scale) / pts;
       double runto;
-      double ul = 4.0 * Pi;
+      double ul = 4.0 * pi;
 
       for (int i=0;i<pts;i++)
       {
@@ -342,9 +342,9 @@ namespace Gambit
           std::ostringstream label;
           label << name <<" "<< Par::toString.at(tag);
 
-          if (name == "lambda_S"){ul =  Pi;}
-          else if (name == "lambda_h"){ul =  2*Pi;}
-          else if (name == "lambda_hS"){ul =  4*Pi;}
+          if (name == "lambda_S"){ul =  pi;}
+          else if (name == "lambda_h"){ul =  2*pi;}
+          else if (name == "lambda_hS"){ul =  4*pi;}
           else {ul = 100;}
 
           if(shape.size()==1 and shape[0]==1)

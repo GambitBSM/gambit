@@ -198,7 +198,7 @@ namespace Gambit {
          //  herr_t status = H5Dclose(this->dset_id);
          //  if(status<0)
          //  {
-         //     logger() << LogTags::printers << LogTags::err << "Error destructing DataSetInterfaceBase! Failed to close wrapped dataset! (H5Dclose failed). No exception thrown because this will behave badly when throw from a destructor. (dataset name: "<<myname<<")"<<EOM;
+         //     logger() << LogTags::printers << LogTags::err <<LogTags::repeat_to_cerr<< LOCAL_INFO << ": Error destructing DataSetInterfaceBase! Failed to close wrapped dataset! (H5Dclose failed). No exception thrown because this will behave badly when throw from a destructor. (dataset name: "<<myname<<")"<<EOM;
          //  }
          //}
       }

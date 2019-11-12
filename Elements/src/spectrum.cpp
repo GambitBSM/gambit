@@ -74,7 +74,7 @@ namespace Gambit
    Spectrum::Spectrum() : input_Param(NULL), mass_cuts(NULL), mass_ratio_cuts(NULL), initialised(false) {}
 
    /// Construct new object, cloning the SubSpectrum objects supplied and taking possession of them.
-   Spectrum::Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* params,
+   Spectrum::Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params,
     const mc_info& mci, const mr_info& mri)
      : LE_new(le.clone())
      , HE_new(he.clone())
@@ -88,7 +88,7 @@ namespace Gambit
    { check_mass_cuts(); }
 
    /// Construct new object, automatically creating an SMSimpleSpec as the LE subspectrum, and cloning the HE SubSpectrum object supplied and taking possession of it.
-   Spectrum::Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* params, const mc_info& mci, const mr_info& mri)
+   Spectrum::Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params, const mc_info& mci, const mr_info& mri)
      : LE_new(SMSimpleSpec(smi).clone())
      , HE_new(he.clone())
      , LE(LE_new.get())
@@ -102,7 +102,7 @@ namespace Gambit
 
    /// Construct new object, wrapping existing SubSpectrum objects
    ///  Make sure the original objects don't get deleted before this wrapper does!
-   Spectrum::Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* params,
+   Spectrum::Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* params,
     const mc_info& mci, const mr_info& mri)
      : LE(le)
      , HE(he)
@@ -417,8 +417,6 @@ namespace Gambit
    /// Output spectrum contents as an SLHA file, using getSLHAea.
    void Spectrum::writeSLHAfile(int slha_version, const str& filename) const
    {
-      // Ensure path exists first
-      Utils::ensure_path_exists(filename); // Not sure if file locking can help with race conditions on this... hopefully filesystem can handle it.
       Utils::FileLock mylock(filename);
       mylock.get_lock();
       std::ofstream ofs(filename);

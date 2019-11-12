@@ -21,10 +21,11 @@
 #include "gambit/Core/core.hpp"
 #include "gambit/Core/modelgraph.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
-#include "gambit/ScannerBit/plugin_loader.hpp"
-#include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Utils/screen_print_utils.hpp"
 #include "gambit/Utils/table_formatter.hpp"
+#include "gambit/Utils/util_functions.hpp"
+#include "gambit/ScannerBit/plugin_loader.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 namespace Gambit
 {
@@ -132,7 +133,7 @@ namespace Gambit
     }
     #ifdef HAVE_GRAPHVIZ
         // Create and spit out graph of the model hierarchy.
-        str graphfile = GAMBIT_DIR "/scratch/GAMBIT_model_hierarchy.gv";
+        str graphfile = Utils::runtime_scratch() + "GAMBIT_model_hierarchy.gv";
         ModelHierarchy modelGraph(*modelInfo,primaryModelFunctorList,graphfile,false);
         out << endl << "Created graphviz model hierarchy graph in "+graphfile+"." << endl;
         out << endl << "To get postscript plot of model hierarchy, please run: " << endl;
@@ -327,7 +328,7 @@ namespace Gambit
               const str t = (*kt)->type();
               const int s = (*kt)->status();
               back_table << ("  " + f) << c << t;
-              if(s == -5) back_table.red() << "Mathematica absent"; 
+              if(s == -5) back_table.red() << "Mathematica absent";
               else if (s == -2) back_table.red() << "Function absent";//ss = "Function absent";
               else if (s == -1) back_table.red() << "Backend absent";//ss = "Backend absent";
               else if (s >= 0)  back_table.green() << "Available";//ss = "Available";
