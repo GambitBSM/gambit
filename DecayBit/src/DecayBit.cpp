@@ -53,6 +53,7 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/SpecBit/THDMSpec.hpp"
 
 #include <string>
 #include <map>
@@ -3531,136 +3532,9 @@ namespace Gambit
 
     // THDM Routines
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
-    enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
     enum thdmc_decays_purpose{full, HB_decays, HB_SM_like_decays, HB_effc_decays, HB_effc_SM_like_decays};
     const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
-    const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
     const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
-    // {
-    // functions to create and distribute THDM container
-    // the THDM container combines the Spectrum and THDMC objects to optimise code efficiency
-
-    void set_SM(const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object){
-      THDMC_1_7_0::SM* SM_object = THDM_object->get_SM_pointer();
-      SM_object->set_alpha(1/(sminputs.alphainv));
-      SM_object->set_alpha_s(sminputs.alphaS);
-      SM_object->set_GF(sminputs.GF);
-      SM_object->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
-      SM_object->set_MW(SM->get(Par::Pole_Mass,"W+"));
-      SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
-      SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
-      SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
-      SM_object->set_qmass_pole(1,sminputs.mD); //d
-      SM_object->set_qmass_pole(2,sminputs.mU); //u
-      SM_object->set_qmass_pole(3,sminputs.mS); //s
-      SM_object->set_qmass_pole(4,sminputs.mCmC); //c
-      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //u
-      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //s
-    }
-
-    void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
-      //Takes in the spectrum and fills a THDM object which is defined
-      //in 2HDMC. Any 2HDMC functions can then be called on this object.
-      double lambda_1 = he->get(Par::mass1,"lambda_1");
-      double lambda_2 = he->get(Par::mass1,"lambda_2");
-      double lambda_3 = he->get(Par::mass1, "lambda_3");
-      double lambda_4 = he->get(Par::mass1, "lambda_4");
-      double lambda_5 = he->get(Par::mass1, "lambda_5");
-      double tan_beta = he->get(Par::dimensionless, "tanb");
-      double lambda_6 = he->get(Par::mass1, "lambda_6");
-      double lambda_7 = he->get(Par::mass1, "lambda_7");
-      double m12_2 = he->get(Par::mass1,"m12_2");
-      double mh = he->get(Par::Pole_Mass, "h0", 1);
-      double mH = he->get(Par::Pole_Mass, "h0", 2);
-      double mA = he->get(Par::Pole_Mass, "A0");
-      double mC = he->get(Par::Pole_Mass, "H+");
-      double alpha = he->get(Par::dimensionless, "alpha");
-      double sba = sin(atan(tan_beta) - alpha);
-      set_SM(SM,sminputs,THDM_object);
-      THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
-                                  m12_2, tan_beta, mh, mH, mA, mC, sba);
-      THDM_object->set_yukawas_type(yukawa_type);
-    }
-
-    struct thdm_params { double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, tanb, alpha, m11_2, m22_2, m12_2, mh, mH, mC, mA, mh_run, mH_run, mC_run, mA_run, Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M11_2, M22_2, M12_2, yukawa_type; };
-    void init_THDM_pars(const std::unique_ptr<SubSpectrum>& he, const int yukawa_type, thdm_params& thdm_pars) {
-        thdm_pars.lambda1 = he->get(Par::mass1,"lambda_1");
-        thdm_pars.lambda2 = he->get(Par::mass1,"lambda_2");
-        thdm_pars.lambda3 = he->get(Par::mass1, "lambda_3");
-        thdm_pars.lambda4 = he->get(Par::mass1, "lambda_4");
-        thdm_pars.lambda5 = he->get(Par::mass1, "lambda_5");
-        thdm_pars.lambda6 = he->get(Par::mass1, "lambda_6");
-        thdm_pars.lambda7 = he->get(Par::mass1, "lambda_7");
-        thdm_pars.tanb = he->get(Par::dimensionless, "tanb");
-        thdm_pars.alpha = he->get(Par::dimensionless,"alpha");
-        thdm_pars.m11_2 = he->get(Par::mass1,"m11_2");
-        thdm_pars.m22_2 = he->get(Par::mass1,"m22_2");
-        thdm_pars.m12_2 = he->get(Par::mass1,"m12_2");
-        thdm_pars.mh = he->get(Par::Pole_Mass, "h0", 1);
-        thdm_pars.mH = he->get(Par::Pole_Mass, "h0", 2);
-        thdm_pars.mC = he->get(Par::Pole_Mass, "H+");
-        thdm_pars.mA = he->get(Par::Pole_Mass, "A0");
-        thdm_pars.mh_run = he->get(Par::Pole_Mass, "h0", 1);
-        thdm_pars.mH_run = he->get(Par::mass1, "h0", 2);
-        thdm_pars.mC_run = he->get(Par::mass1, "H+");
-        thdm_pars.mA_run = he->get(Par::mass1, "A0");
-        thdm_pars.Lambda1 = he->get(Par::mass1,"Lambda_1");
-        thdm_pars.Lambda2 = he->get(Par::mass1,"Lambda_2");
-        thdm_pars.Lambda3 = he->get(Par::mass1,"Lambda_3");
-        thdm_pars.Lambda4 = he->get(Par::mass1,"Lambda_4");
-        thdm_pars.Lambda5 = he->get(Par::mass1,"Lambda_5");
-        thdm_pars.Lambda6 = he->get(Par::mass1,"Lambda_6");
-        thdm_pars.Lambda7 = he->get(Par::mass1,"Lambda_7");
-        thdm_pars.M11_2 = he->get(Par::mass1,"M11_2");
-        thdm_pars.M22_2 = he->get(Par::mass1,"M22_2");
-        thdm_pars.M12_2 = he->get(Par::mass1,"M12_2");
-        thdm_pars.yukawa_type = he->get(Par::dimensionless,"yukawaCoupling");
-    }
-
-    // create a THDM object in the SM limit
-
-    // deprecated
-    // // with mh = mh_i where i is passed as higgs_number in the function
-    // // then m_H = m_A = m_Hpm = m_h*100 to decouple from the SM
-    // // sba=tanb=1.0 
-    // void init_THDM_object_SM_like(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object, const int higgs_number) {
-    //   double mh = he->get(Par::Pole_Mass,"h0",1);
-    //   if (higgs_number > 0 && higgs_number < 3) mh = he->get(Par::Pole_Mass,"h0", higgs_number);
-    //   if (higgs_number == 3) mh = he->get(Par::Pole_Mass,"A0");
-    //   set_SM(SM,sminputs,THDM_object);
-    //   // tree level conversion will be used for any basis changes
-    //   THDM_object->set_param_phys(mh, mh*100.0, mh*100.0, mh*100.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-    //   THDM_object->set_yukawas_type(1);
-    // }
-
-    void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object) {
-      set_SM(SM,sminputs,THDM_object);
-      THDM_object->set_param_sm(m_h);
-      THDM_object->set_yukawas_type(1);
-    }
-
-    struct THDM_spectrum_container {
-      std::unique_ptr<SubSpectrum> he;
-      std::unique_ptr<SubSpectrum> SM;
-      SMInputs sminputs;
-      THDMC_1_7_0::THDM* THDM_object;
-      thdm_params thdm_pars;
-      int yukawa_type;
-    };
-
-    void init_THDM_spectrum_container(THDM_spectrum_container& container, const Spectrum& spec, const int yukawa_type, const double scale=0.0) {
-      container.he = spec.clone_HE(); // Copy "high-energy" SubSpectrum
-      if(scale>0.0) container.he->RunToScale(scale);
-      container.SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
-      container.sminputs = spec.get_SMInputs();   
-      container.yukawa_type = yukawa_type;
-      container.THDM_object = new THDMC_1_7_0::THDM();
-      init_THDM_pars(container.he, container.yukawa_type, container.thdm_pars);
-      init_THDM_object(container.he, container.SM, container.sminputs, container.yukawa_type, container.THDM_object);
-    }
-
-    // end of THDM container functions
-    // }
 
     void nan_warning(std::string var_name) {
        std::ostringstream msg;
@@ -3677,7 +3551,7 @@ namespace Gambit
       if (std::isnan(var)) nan_warning(var_name);
     }
 
-   thdmc_decay_widths fill_THDM_decay_widths(THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
+   thdmc_decay_widths fill_THDM_decay_widths(SpecBit::THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
      thdmc_decay_widths decay_widths;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
      // select purpose for decay widths struct
@@ -3824,27 +3698,27 @@ namespace Gambit
     // **
     // THDM width DecayBit helper functions
     thdmc_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
-      THDM_spectrum_container container;
+      SpecBit::THDM_spectrum_container container;
       thdmc_decay_widths widths; 
-      init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
+      SpecBit::init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
       widths = fill_THDM_decay_widths(container, purpose);
-      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return widths;
     }
 
     std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
-      THDM_spectrum_container container;
+      SpecBit::THDM_spectrum_container container;
       std::vector<thdmc_decay_widths> SM_like_widths; 
-      init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
+      SpecBit::init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
       m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
         SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
-      delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
+      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return SM_like_widths;
     }
     // **
@@ -3907,7 +3781,7 @@ namespace Gambit
     }
   // **
 
-  thdmc_total_widths fill_THDM_total_widths(THDM_spectrum_container& container) {
+  thdmc_total_widths fill_THDM_total_widths(SpecBit::THDM_spectrum_container& container) {
      thdmc_total_widths total_widths;
      total_widths.isValid = true;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
@@ -3939,11 +3813,11 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      THDM_spectrum_container container;
+      SpecBit::THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type);
+      SpecBit::init_THDM_spectrum_container(container, spec, y_type);
       result = fill_THDM_total_widths(container);
-      delete container.THDM_object;
+      // delete container.THDM_object;
    }
 
    void get_THDM_total_widths_SM_like_model(std::vector<thdmc_total_widths> &result) {
@@ -3954,9 +3828,9 @@ namespace Gambit
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
-      THDM_spectrum_container container;
+      SpecBit::THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
-      init_THDM_spectrum_container(container, spec, y_type);
+      SpecBit::init_THDM_spectrum_container(container, spec, y_type);
 
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
@@ -3966,13 +3840,13 @@ namespace Gambit
       m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
       
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
         // init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.THDM_object, h);
         SM_like_total_widths.push_back(fill_THDM_total_widths(container));
       }
       
       result = SM_like_total_widths;
-      delete container.THDM_object;
+      // delete container.THDM_object;
    }
 
   //TODO: upgrade to enum
