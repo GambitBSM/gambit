@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <pybind11/pybind11.h>
+//#include <pybind11/stl.h>
 #include <yaml-cpp/yaml.h>
 
 namespace Gambit
@@ -72,7 +73,7 @@ namespace Gambit
                 }
                 else if (type == "NoneType")
                 {
-                    node = YAML::Node();
+                    node = YAML::Load(""); // Needs to be a Null node, not just an empty node (YAML::NodeType::Null)
                 }
                 else
                 {
@@ -81,7 +82,7 @@ namespace Gambit
                 
                 return node;
             }
-            
+
             class fake_vector : public std::vector<double>
             {
             private:

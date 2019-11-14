@@ -1,3 +1,6 @@
+"""Demonstrations of bugs in current interface"""
+
+# Setup ================
 import os
 import sys
 import ctypes
@@ -82,33 +85,17 @@ settings = {
     }
   }
 }
+# ============================
+#  Bugs
 
-myscan.run(inifile=settings, lnlike={"LogLike": like}, prior=prior, restart=True)
+#1. Cannot omit prior function despite prior specified in settings
 
-###
-### can run diagnostics
-### NOTE: can specify any number of object to run diagnostics on
-###       e.g. myscan.diagnostics("twalk", "multinest", "ais", "priors", "scanners", ...)
-###
-# myscan.diagnostics("twalk")
+#myscan.run(inifile=settings, lnlike={"LogLike": like}, prior=None, restart=True) # Error: Parameter model1::x requested by x_prior is either not defined by the inifile, is fixed, or is the "same as" another parameter.
+#myscan.run(inifile=settings, lnlike={"LogLike": like}, prior="", restart=True) # Error: Parameter model1::x requested by x_prior is either not defined by the inifile, is fixed, or is the "same as" another parameter. 
+myscan.run(inifile=settings, lnlike={"LogLike": like}, restart=True) # Error: Parameter model1::x requested by x_prior is either not defined by the inifile, is fixed, or is the "same as" another parameter. 
 
-###
-### can use with pyyaml!
-### NOTE: yaml vector keys, [...], must be preceded by !!/python/tuple 
-###
-# with open("ScannerBit.yaml", 'r') as f:
-#     try:
-#         inifile = yaml.load(f)
-#     except yaml.YAMLError as exc:
-#         print(exc)
-# 
-# myscan.run(inifile=inifile, lnlike={"LogLike": like}, prior=prior, restart=True)
+#2.
 
-###
-### or can also run multiple proposes
-###
-# lnlike = {
-#     "LogLike1": like1
-#     "LogLike2": like2
-# }
-# myscan.run(inifile="ScannerBit.yaml", lnlike=lnlike, prior=prior, restart=True)
+
+
+

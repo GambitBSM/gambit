@@ -103,7 +103,11 @@ namespace Gambit
                         else if (pytype(file_obj) == "dict")
                         {
                             YAML::Node node = pyyamlconvert(file_obj);
-                            
+
+                            std::cerr<<"DEBUG: Result of dict -> yaml conversion:"<<std::endl;
+                            std::cerr<<"-----------------"<<std::endl;
+                            std::cerr<<node<<std::endl;
+
                             return gambit_scan.run_scan_node(&node, factory, prior, !restart);
                         }
                         else
