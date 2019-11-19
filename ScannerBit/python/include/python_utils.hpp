@@ -26,20 +26,19 @@ namespace Gambit
             {
                 return o.cast<T>();
             }
-            
+           
             inline YAML::Node pyyamlconvert(py::handle o)
             {
                 YAML::Node node;
-                std::string type = pytype(o);
                 
-                if (type == "dict")
+                if (py::isinstance<py::dict>(o))
                 {
                     for (auto &&it : py::cast<py::dict>(o))
                     {
                         node[pyyamlconvert(it.first)] = pyyamlconvert(it.second);
                     }
                 }
-                else if(type == "list")
+                else if(py::isinstance<py::list>(o))
                 {
                     for (auto &&it : py::cast<py::list>(o))
                     {
@@ -47,7 +46,7 @@ namespace Gambit
                     }
                     
                 }
-                else if(type == "tuple")
+                else if(py::isinstance<py::tuple>(o))
                 {
                     for (auto &&it : py::cast<py::tuple>(o))
                     {
@@ -55,29 +54,33 @@ namespace Gambit
                     }
                     
                 }
-                else if (type == "float")
+                else if (py::isinstance<py::float_>(o))
                 {
                     node = pyconvert<double>(o);
                 }
-                else if (type == "int")
+                else if (py::isinstance<py::int_>(o))
                 {
                     node = pyconvert<int>(o);
                 }
-                else if (type == "str" || type == "unicode")
+                else if (py::isinstance<py::str>(o))
                 {
                     node = pyconvert<std::string>(o);
                 }
-                else if (type == "bool")
-                {
-                    node = pyconvert<bool>(o);
+                else if(py::str(o).is(py::str(Py_True)))
+                { 
+                    node = YAML::Load("true");
                 }
-                else if (type == "NoneType")
+                else if(py::str(o).is(py::str(Py_False)))
+                {
+                    node = YAML::Load("false");
+                }
+                else if (py::isinstance<py::none>(o))
                 {
                     node = YAML::Load(""); // Needs to be a Null node, not just an empty node (YAML::NodeType::Null)
                 }
                 else
                 {
-                    throw std::invalid_argument("Error converting python dictionary to YAML node:  " + type + " type not recognized.");
+                    throw std::invalid_argument("Error converting python dictionary to YAML node:  " + pytype(o) + " type not recognized.");
                 }
                 
                 return node;
