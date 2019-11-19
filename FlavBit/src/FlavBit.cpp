@@ -1350,13 +1350,20 @@ namespace Gambit
       if (flav_debug) cout<<"Starting b2sll_BR_likelihood"<<endl;
       
       std::vector<double> meas = *Dep::b2sll_BR_M;
-      vector<string> observables;
+      std::vector<string> observables;
+      std::vector<string> observablesq;
 
       Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
       fread.debug_mode(flav_debug);
 
       const vector<string> observablesn = {"BR"};
-      const vector<string> observablesq = {"1.1-2.5", "2.5-4", "4-6", "6-8", "15-17", "17-19"};
+      const vector<string> q2_bins_min_str = {"1.1", "2.5", "4", "6", "15", "17"};
+      const vector<string> q2_bins_max_str = {"2.5", "4", "6", "8", "17", "19"};
+
+      for (unsigned i=0;i<q2_bins_min_str.size();++i)
+      {
+          observablesq.push_back(q2_bins_min_str[i]+"-"+q2_bins_max_str[i]);
+      }
       
       for (unsigned i=0;i<observablesq.size();++i)
       {
@@ -1383,7 +1390,10 @@ namespace Gambit
 
         for (unsigned i=0;i<num_obs;++i)
         {
+          // std::cout << "DEBUG a: " << i << " " << value_exp.size1() <<  std::endl;
+          value_exp(i,0) = value_exp(i,0)*(std::stod(q2_bins_max_str[i])-std::stod(q2_bins_min_str[i]));
           // std::cout << "DEBUG: " << meas[i] << " " << value_exp(i,0) << " " << fread.get_th_err()(i,0).first << " " << sqrt(cov_exp(i,i)) << std::endl;
+          // std::cout << "CHI2: " << Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile) << std::endl;
           chi2 += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile);
         }
 
