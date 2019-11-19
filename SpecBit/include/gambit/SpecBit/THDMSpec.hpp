@@ -77,8 +77,8 @@ namespace Gambit
           std::cout << "Debug: SpecBit throwing invalid point when running" << std::endl; // TODO: remove this
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
         }
-        // run masses
-        model_interface.model.calculate_DRbar_masses();
+      // get DR bar masses
+      // model_interface.model.calculate_DRbar_masses();
       }
 
       template <class MI>

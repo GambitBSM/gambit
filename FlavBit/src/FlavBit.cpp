@@ -1286,6 +1286,22 @@ namespace Gambit
       if (flav_debug) cout<<"Finished b2sll_measurements function"<<endl;
     }
 
+    void b2sll_BR_measurement(std::vector<double> &meas)
+    {
+      using namespace Pipes::b2sll_BR_measurement;
+
+      if (flav_debug) cout<<"Starting b2sll_BR_measurement function"<<endl;
+
+      meas.clear();
+      meas.push_back(Dep::BKstarmumu_11_25->BR);
+      meas.push_back(Dep::BKstarmumu_25_40->BR);
+      meas.push_back(Dep::BKstarmumu_40_60->BR);
+      meas.push_back(Dep::BKstarmumu_60_80->BR);
+      meas.push_back(Dep::BKstarmumu_15_17->BR);
+      meas.push_back(Dep::BKstarmumu_17_19->BR);
+
+    }
+
 
     /// Likelihood for electroweak penguin decays
     void b2sll_likelihood(double &result)
@@ -1326,7 +1342,96 @@ namespace Gambit
 
     }
 
+    /// Likelihood for electroweak penguin decays
+    void b2sll_BR_likelihood(double &result)
+    {
+      using namespace Pipes::b2sll_BR_likelihood;
 
+      if (flav_debug) cout<<"Starting b2sll_BR_likelihood"<<endl;
+      
+      std::vector<double> meas = *Dep::b2sll_BR_M;
+      vector<string> observables;
+
+      Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+      fread.debug_mode(flav_debug);
+
+      const vector<string> observablesn = {"BR"};
+      const vector<string> observablesq = {"1.1-2.5", "2.5-4", "4-6", "6-8", "15-17", "17-19"};
+      
+      for (unsigned i=0;i<observablesq.size();++i)
+      {
+        for (unsigned j=0;j<observablesn.size();++j)
+        {
+          observables.push_back(observablesn[j]+"_B0Kstar0mumu_"+observablesq[i]);
+        }
+      }
+
+      int num_obs = observables.size();
+
+      for (unsigned i=0;i<num_obs;++i)
+      {
+        fread.read_yaml_measurement("flav_data.yaml", observables[i]);
+      }
+          
+        fread.initialise_matrices();
+
+        boost::numeric::ublas::matrix<double> cov_exp = fread.get_exp_cov();
+        boost::numeric::ublas::matrix<double> value_exp = fread.get_exp_value();
+
+        double chi2 = 0;
+        bool profile = false;
+
+        for (unsigned i=0;i<num_obs;++i)
+        {
+          // std::cout << "DEBUG: " << meas[i] << " " << value_exp(i,0) << " " << fread.get_th_err()(i,0).first << " " << sqrt(cov_exp(i,i)) << std::endl;
+          chi2 += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile);
+        }
+
+        result = chi2;
+    }
+
+    void BKstarmumu_AI_zero_ll(double &result)
+    {
+      // TEMP LIKELIHOOD FOR CHECKING PROCESS
+      using namespace Pipes::BKstarmumu_AI_zero_ll;
+      if (flav_debug) cout<<"Starting BKstarmumu_AI_zero_ll"<<endl;
+
+      double theory_pred = *Dep::AI_BKstarmumu_zero;
+      // VERY ROUGH ESTIMATES FROM
+      // LHCb: Measurement of the isospin asymmetry in B->K*mu,mu decays
+
+      double exp_meas = 1.8; // q=[1,6]
+      double theory_err = 0.0;
+      double exp_err = 1.0;
+      bool profile = false;
+
+      result = Stats::gaussian_loglikelihood(theory_pred, exp_meas, theory_err, exp_err, profile);
+
+      if (flav_debug) cout<<"Finished BKstarmumu_ll"<<endl;
+    }
+ 
+
+    void BKstarmumu_AI_ll(double &result)
+    {
+      // TEMP LIKELIHOOD FOR CHECKING PROCESS
+      using namespace Pipes::BKstarmumu_AI_ll;
+      if (flav_debug) cout<<"Starting BKstarmumu_AI_ll"<<endl;
+
+      double theory_pred = *Dep::AI_BKstarmumu;
+      // VERY ROUGH ESTIMATES FROM
+      // LHCb: Measurement of the isospin asymmetry in B->K*mu,mu decays
+
+      double exp_meas = -0.15; // q=[1,6]
+      double theory_err = 0.0;
+      double exp_err = 0.16;
+      bool profile = false;
+
+      result = Stats::gaussian_loglikelihood(theory_pred, exp_meas, theory_err, exp_err, profile);
+
+      if (flav_debug) cout<<"Finished BKstarmumu_ll"<<endl;
+    }
+
+ 
     /// Likelihood for Delta Ms
     void deltaMB_likelihood(double &result)
     {

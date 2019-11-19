@@ -1572,6 +1572,126 @@
   - name: S8_B0Kstar0mumu_17-19
     value: -0.11
 
+- name: BR_B0Kstar0mumu_0.1-0.98
+  islimit: false
+  exp_value: 1.016e-7
+  exp_stat_error: 0.073e-7
+  exp_sys_error: 0.074e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_1.1-6.0
+  islimit: false
+  exp_value: 0.342e-7
+  exp_stat_error: 0.017e-7
+  exp_sys_error: 0.025e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_1.1-2.5
+  islimit: false
+  exp_value: 0.326e-7
+  exp_stat_error: 0.032e-7
+  exp_sys_error: 0.024e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_2.5-4
+  islimit: false
+  exp_value: 0.334e-7
+  exp_stat_error: 0.033e-7
+  exp_sys_error: 0.025e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_4-6
+  islimit: false
+  exp_value: 0.354e-7
+  exp_stat_error: 0.027e-7
+  exp_sys_error: 0.026e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_6-8
+  islimit: false
+  exp_value: 0.429e-7
+  exp_stat_error: 0.028e-7
+  exp_sys_error: 0.031e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_11-12.5
+  islimit: false
+  exp_value: 0.487e-7
+  exp_stat_error: 0.032e-7
+  exp_sys_error: 0.035e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_15-17
+  islimit: false
+  exp_value: 0.534e-7
+  exp_stat_error: 0.019e-7
+  exp_sys_error: 0.041e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_17-19
+  islimit: false
+  exp_value: 0.355e-7
+  exp_stat_error: 0.027e-7
+  exp_sys_error: 0.029e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_B0Kstar0mumu_15-19
+  islimit: false
+  exp_value: 0.436e-7
+  exp_stat_error: 0.019e-7
+  exp_sys_error: 0.031e-7
+  exp_source: 1606.04731
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: RKstar_0045_11
   islimit: false
   exp_value: 0.66

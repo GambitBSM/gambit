@@ -737,7 +737,21 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Electroweak penguin likelihood
+  // Electroweak penguin measurements
+  #define CAPABILITY b2sll_BR_M
+  START_CAPABILITY
+    #define FUNCTION b2sll_BR_measurement
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(BKstarmumu_11_25, Flav_KstarMuMu_obs)
+    DEPENDENCY(BKstarmumu_25_40, Flav_KstarMuMu_obs)
+    DEPENDENCY(BKstarmumu_40_60, Flav_KstarMuMu_obs)
+    DEPENDENCY(BKstarmumu_60_80, Flav_KstarMuMu_obs)
+    DEPENDENCY(BKstarmumu_15_17, Flav_KstarMuMu_obs)
+    DEPENDENCY(BKstarmumu_17_19, Flav_KstarMuMu_obs)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Electroweak penguin likelihood [Angular quantities]
   #define CAPABILITY b2sll_LL
   START_CAPABILITY
     #define FUNCTION b2sll_likelihood
@@ -745,6 +759,34 @@ START_MODULE
     DEPENDENCY(b2sll_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
   #undef CAPABILITY
+  
+  // Electroweak penguin likelihood [Branching]
+  #define CAPABILITY b2sll_BR_LL
+  START_CAPABILITY
+    #define FUNCTION b2sll_BR_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(b2sll_BR_M, std::vector<double>)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Electroweak penguin likelihood [isospin symmetry]
+  #define CAPABILITY b2sll_AI_LL
+  START_CAPABILITY
+    #define FUNCTION BKstarmumu_AI_ll
+    START_FUNCTION(double)
+    DEPENDENCY(AI_BKstarmumu, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Electroweak penguin likelihood [zero of isospin symmetry]
+  #define CAPABILITY b2sll_AI_zero_LL
+  START_CAPABILITY
+    #define FUNCTION BKstarmumu_AI_zero_ll
+    START_FUNCTION(double)
+    DEPENDENCY(AI_BKstarmumu_zero, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   // Rare fully leptonic B decay measurements
   #define CAPABILITY b2ll_M
