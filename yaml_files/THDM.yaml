@@ -131,7 +131,7 @@ ObsLikes:
     - purpose:    LogLike
       capability: oblique_parameters_likelihood_THDM
 
-    # -------------------------------------------
+    # # -------------------------------------------
      
     #### NOTE
     # Flavor likelihoods imported from Superiso
@@ -172,14 +172,23 @@ ObsLikes:
       function: deltaMBd_likelihood
       purpose: LogLike
     
-    # gmu-2 likelihood (PrecisionBit)
-    - capability: lnL_gm2
-      function: lnL_gm2_chi2
+    # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    - capability: b2sll_AI_LL
+      function: BKstarmumu_AI_ll
+      purpose: LogLike  
+
+    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    - capability: b2sll_AI_zero_LL
+      function: BKstarmumu_AI_zero_ll
       purpose: LogLike
 
+    # # B->Kstar,l,l likelihood [branching]
+    - capability: b2sll_BR_LL
+      function: b2sll_BR_likelihood
+      purpose: LogLike
     # -------------------------------------------
 
-    #### NOTE
+    ### NOTE
     # LHC & LEP likelihoods
     # Coupling Squared input structs are filled by colliderBit,
     # then chi^2 are extracted directly from HS & HB
@@ -338,7 +347,7 @@ Rules:
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
-        check_all_scales: false
+        check_all_scales: true
         simple_perturbativity: false
 
     - capability: stability_likelihood_THDM
@@ -349,7 +358,6 @@ Rules:
     - capability: NLO_unitarity_likelihood_THDM
       function: get_NLO_unitarity_likelihood_THDM
       options:
-        check_all_scales: false
         check_correction_ratio: true
     
     # -------------------------------------------

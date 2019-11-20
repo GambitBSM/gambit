@@ -1692,6 +1692,30 @@
   correlation:
   - name: NONE
 
+- name: AI_B0Kstar0mumu_1-6
+  islimit: false
+  exp_value: -0.15
+  exp_stat_error: 0.16
+  exp_sys_error: 0.0
+  exp_source: 1205.3422
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: AI_zero_B0Kstar0mumu
+  islimit: false
+  exp_value: 1.3
+  exp_stat_error: 1.0
+  exp_sys_error: 0.0
+  exp_source: 1205.3422
+  th_error: 0
+  th_error_type: A
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: RKstar_0045_11
   islimit: false
   exp_value: 0.66

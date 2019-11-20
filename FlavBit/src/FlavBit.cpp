@@ -186,6 +186,7 @@ namespace Gambit
             if (spectrum["MINPAR"][3].is_data_line()) result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
             if (spectrum["MINPAR"][5].is_data_line()) result.A0=SLHAea::to<double>(spectrum["MINPAR"][5][1]);
+            break;
           }
           case 2:
           {
@@ -195,6 +196,7 @@ namespace Gambit
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
             if (spectrum["MINPAR"][5].is_data_line()) result.N5=SLHAea::to<double>(spectrum["MINPAR"][5][1]);
             if (spectrum["MINPAR"][6].is_data_line()) result.cgrav=SLHAea::to<double>(spectrum["MINPAR"][6][1]);
+            break;
           }
           case 3:
           {
@@ -202,6 +204,7 @@ namespace Gambit
             if (spectrum["MINPAR"][2].is_data_line()) result.m0=SLHAea::to<double>(spectrum["MINPAR"][2][1]);
             if (spectrum["MINPAR"][3].is_data_line()) result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
+            break;
           }
           case 10:
           {
@@ -219,6 +222,7 @@ namespace Gambit
               result.lambda_d[i][i] = SLHAea::to<double>(spectrum["DCOUPL"].at(i,i)[2]);
               result.lambda_l[i][i] = SLHAea::to<double>(spectrum["LCOUPL"].at(i,i)[2]);
             }
+            break;
           }
           default:
           {
@@ -1174,6 +1178,7 @@ namespace Gambit
 
 
     /// Measurements for electroweak penguin decays
+    // BKstarmumu angular measurements
     void b2sll_measurements(predictions_measurements_covariances &pmc)
     {
       using namespace Pipes::b2sll_measurements;
@@ -1286,6 +1291,7 @@ namespace Gambit
       if (flav_debug) cout<<"Finished b2sll_measurements function"<<endl;
     }
 
+    // BKstarmumu branching
     void b2sll_BR_measurement(std::vector<double> &meas)
     {
       using namespace Pipes::b2sll_BR_measurement;
@@ -1301,7 +1307,6 @@ namespace Gambit
       meas.push_back(Dep::BKstarmumu_17_19->BR);
 
     }
-
 
     /// Likelihood for electroweak penguin decays
     void b2sll_likelihood(double &result)
@@ -1349,96 +1354,137 @@ namespace Gambit
 
       if (flav_debug) cout<<"Starting b2sll_BR_likelihood"<<endl;
       
+      result = 0.0;
       std::vector<double> meas = *Dep::b2sll_BR_M;
       std::vector<string> observables;
-      std::vector<string> observablesq;
+      const vector<string> q2_bins_min_str = {"1.1", "2.5", "4", "6", "15", "17"};
+      const vector<string> q2_bins_max_str = {"2.5", "4", "6", "8", "17", "19"};
 
       Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
       fread.debug_mode(flav_debug);
 
-      const vector<string> observablesn = {"BR"};
-      const vector<string> q2_bins_min_str = {"1.1", "2.5", "4", "6", "15", "17"};
-      const vector<string> q2_bins_max_str = {"2.5", "4", "6", "8", "17", "19"};
-
       for (unsigned i=0;i<q2_bins_min_str.size();++i)
       {
-          observablesq.push_back(q2_bins_min_str[i]+"-"+q2_bins_max_str[i]);
-      }
-      
-      for (unsigned i=0;i<observablesq.size();++i)
-      {
-        for (unsigned j=0;j<observablesn.size();++j)
-        {
-          observables.push_back(observablesn[j]+"_B0Kstar0mumu_"+observablesq[i]);
-        }
+        // create observable names
+        observables.push_back("BR_B0Kstar0mumu_"+q2_bins_min_str[i]+"-"+q2_bins_max_str[i]);
       }
 
-      int num_obs = observables.size();
+      const unsigned num_obs = observables.size();
 
       for (unsigned i=0;i<num_obs;++i)
       {
+        // fill fread from observable names
         fread.read_yaml_measurement("flav_data.yaml", observables[i]);
       }
           
-        fread.initialise_matrices();
+      fread.initialise_matrices();
 
-        boost::numeric::ublas::matrix<double> cov_exp = fread.get_exp_cov();
-        boost::numeric::ublas::matrix<double> value_exp = fread.get_exp_value();
+      boost::numeric::ublas::matrix<double> cov_exp = fread.get_exp_cov();
+      boost::numeric::ublas::matrix<double> value_exp = fread.get_exp_value();
+      std::vector<double> th_err;
+      std::vector<double> th_err_absolute;
 
-        double chi2 = 0;
-        bool profile = false;
+      for (unsigned i=0;i<num_obs;++i)
+      {
+        // integrate each branching * error over q^2 bin
+        double dq2 = std::stod(q2_bins_max_str[i])-std::stod(q2_bins_min_str[i]);
+        value_exp(i,0) = value_exp(i,0)*dq2;
+        cov_exp(i,0) = cov_exp(i,0)*dq2*dq2;
+        // fill remaining theory error and abs theory error
+        th_err.push_back(fread.get_th_err()(i,0).first);
+        th_err_absolute.push_back(fread.get_th_err()(i,0).second);          
+      }
 
-        for (unsigned i=0;i<num_obs;++i)
-        {
-          // std::cout << "DEBUG a: " << i << " " << value_exp.size1() <<  std::endl;
-          value_exp(i,0) = value_exp(i,0)*(std::stod(q2_bins_max_str[i])-std::stod(q2_bins_min_str[i]));
-          // std::cout << "DEBUG: " << meas[i] << " " << value_exp(i,0) << " " << fread.get_th_err()(i,0).first << " " << sqrt(cov_exp(i,i)) << std::endl;
-          // std::cout << "CHI2: " << Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile) << std::endl;
-          chi2 += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile);
-        }
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
 
-        result = chi2;
+      // calculate likelihood
+      for (unsigned i=0;i<num_obs;++i)
+      {
+        if (flav_debug) cout << "Experiment: " << meas[i] << " " << sqrt(cov_exp(i,i)) << " " << th_err << endl;
+        double theory_err = th_err[i] * (th_err_absolute[i] ? 1.0 : std::abs(value_exp(i,0)));
+        if (flav_debug) cout << "Theory prediction: "<< value_exp(i,0) <<" +/- "<< theory_err <<endl;
+        result += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile);
+      }
+
+      if (flav_debug) cout<<"Finished b2sll_BR_likelihood"<<endl;
+      if (flav_debug_LL) cout<<"Likelihood result b2sll_BR_likelihood : "<< result<<endl;
     }
 
+    // likelihood for zero of isospin asymmetry BKstarmumu
     void BKstarmumu_AI_zero_ll(double &result)
     {
-      // TEMP LIKELIHOOD FOR CHECKING PROCESS
       using namespace Pipes::BKstarmumu_AI_zero_ll;
       if (flav_debug) cout<<"Starting BKstarmumu_AI_zero_ll"<<endl;
 
-      double theory_pred = *Dep::AI_BKstarmumu_zero;
-      // VERY ROUGH ESTIMATES FROM
-      // LHCb: Measurement of the isospin asymmetry in B->K*mu,mu decays
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_err, th_err;
 
-      double exp_meas = 1.8; // q=[1,6]
-      double theory_err = 0.0;
-      double exp_err = 1.0;
-      bool profile = false;
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in BKstarmumu_AI_zero_ll"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "AI_zero_B0Kstar0mumu");
+        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
 
-      result = Stats::gaussian_loglikelihood(theory_pred, exp_meas, theory_err, exp_err, profile);
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_err << " " << th_err << endl;
 
-      if (flav_debug) cout<<"Finished BKstarmumu_ll"<<endl;
+      // Now we do the stuff that actually depends on the parameters
+      double theory_prediction = *Dep::AI_BKstarmumu_zero;
+      double theory_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_err<<endl;
+
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_err, exp_err, profile);
+
+      if (flav_debug) cout<<"Finished BKstarmumu_AI_zero_ll"<<endl;
     }
  
-
+    // likelihood for isospin asymmetry BKstarmumu q2=[1,6]
     void BKstarmumu_AI_ll(double &result)
     {
-      // TEMP LIKELIHOOD FOR CHECKING PROCESS
       using namespace Pipes::BKstarmumu_AI_ll;
       if (flav_debug) cout<<"Starting BKstarmumu_AI_ll"<<endl;
 
-      double theory_pred = *Dep::AI_BKstarmumu;
-      // VERY ROUGH ESTIMATES FROM
-      // LHCb: Measurement of the isospin asymmetry in B->K*mu,mu decays
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_err, th_err;
 
-      double exp_meas = -0.15; // q=[1,6]
-      double theory_err = 0.0;
-      double exp_err = 0.16;
-      bool profile = false;
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in BKstarmumu_AI_ll"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "AI_B0Kstar0mumu_1-6");
+        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
 
-      result = Stats::gaussian_loglikelihood(theory_pred, exp_meas, theory_err, exp_err, profile);
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_err << " " << th_err << endl;
 
-      if (flav_debug) cout<<"Finished BKstarmumu_ll"<<endl;
+      // Now we do the stuff that actually depends on the parameters
+      double theory_prediction = *Dep::AI_BKstarmumu;
+      double theory_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_err<<endl;
+
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_err, exp_err, profile);
+
+      if (flav_debug) cout<<"Finished BKstarmumu_AI_ll"<<endl;
     }
 
  
