@@ -570,10 +570,11 @@ namespace Gambit
         }
 
 #ifdef WITH_MPI
-        int resume_int = get_resume();
+        std::vector<int> resume_int_buf(1);
+        resume_int_buf[0] = get_resume();
         myComm.Barrier();
-        myComm.Bcast(resume_int, 1, 0);
-        set_resume(resume_int);
+        myComm.Bcast(resume_int_buf, 1, 0);
+        set_resume(resume_int_buf.at(0));
 
         if (get_resume())
         {

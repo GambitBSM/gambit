@@ -91,6 +91,16 @@ namespace Gambit
         BuffPair<T>& get_buffer(const int vID, const unsigned int i, const std::string& label, hid_t location_id);
     };
 
+    // A simple class to manage opening and closing a HDF5 file/group on construction and destruction
+    class HDF5File
+    {
+      public:
+         HDF5File(const std::string& file, const std::string& group);
+         ~HDF5File();
+        const hid_t file_id;
+        const hid_t location_id;
+    };
+
     class HDF5Reader : public BaseReader
     {
       public:
@@ -122,8 +132,7 @@ namespace Gambit
         // Location of HDF5 datasets to be read
         const std::string file;
         const std::string group;
-        const hid_t file_id;
-        const hid_t location_id;
+        HDF5File H5file; // contains file_id and location_id
 
         // Names of all datasets at the target location
         const std::vector<std::string> all_datasets;
@@ -175,7 +184,7 @@ namespace Gambit
            int IDcode = get_param_id(label);
 
            // Extract a buffer pair from the manager corresponding to this type + label
-           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, label, location_id);
+           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, label, H5file.location_id);
 
            // Determine the dataset index from which to extrat the input PPIDpair
            ulong dset_index = get_index_from_PPID(PPIDpair(pointID,rank));

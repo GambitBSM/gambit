@@ -46,6 +46,76 @@ namespace Gambit
    }
 
    #ifdef WITH_MPI
+   /// Class for keeping track of shutdown message buffers and status for a certain shutdown code type
+   ShutdownMsg::ShutdownMsg(const int code, const std::string& name)
+    : mpisize(0)
+    , myrank(0)
+    , mycode(code)
+    , name(name)
+    , buffers()
+    , buffer_status()
+    , req()
+    , comm(NULL)
+   {}
+
+   // Default constructor
+   ShutdownMsg::ShutdownMsg()
+    : mpisize(0)
+    , myrank(0)
+    , mycode(0)
+    , name()
+    , buffers()
+    , buffer_status()
+    , req()
+    , comm(NULL)
+   {}
+    
+   void ShutdownMsg::setComm(GMPI::Comm* const c) 
+   {
+       comm = c;
+       mpisize = comm->Get_size();
+       myrank = comm->Get_rank();
+       for(int i=0; i<mpisize; i++)
+       {
+           buffers.push_back(mycode);
+           buffer_status.push_back(0);
+           req.push_back(MPI_Request());
+       }
+   }
+       
+   // Send this code to all processes (non-blocking)
+   void ShutdownMsg::ISendToAll()
+   {
+       for(int i=0; i<mpisize; i++)
+       {
+          if(i!=myrank)
+          {
+             if(buffer_status[i]!=0)
+             {
+                // Buffer already in use! Error!
+                std::ostringstream errmsg;
+                errmsg<<"Tried to broadcast code "<<name<<" to all processes, but the send buffer for process "<<i<<" was already in use! This is a bug in the message send logic of the code using this object, please file a bug report."<<std::endl;
+                utils_error().raise(LOCAL_INFO, errmsg.str());
+             }
+             comm->Isend(&buffers[i], 1, i, comm->mytag, &req[i]);
+             buffer_status[i] = 1;
+          }
+       }
+   }
+
+   // Ensure all processes have received this message (completes the send; must follow ISendToAll at some point)
+   void ShutdownMsg::Wait()
+   {
+       for(int i=0; i<mpisize; i++)
+       {
+          if(i!=myrank and buffer_status[i]==1) 
+          {
+              comm->Wait(&req[i]);
+              buffer_status[i] = 0;
+          }
+       }
+   }
+
    /// Translate shutdown codes to strings
    std::string SignalData::shutdown_name(int code)
    {
@@ -58,6 +128,15 @@ namespace Gambit
      }
      return name;
    }
+
+   /// Shutdown code values. Needed both here and in the header,
+   /// due to wanting to use them in both switches and vectors
+   /// (can't take reference of static const defined only in the
+   /// header since they aren't "real" objects)
+   // const int ERROR = 0; // Not in use
+   //const int SignalData::SOFT_SHUTDOWN = 1;
+   //const int SignalData::EMERGENCY_SHUTDOWN = 2;
+   //const int SignalData::NO_MORE_MESSAGES = -1;
    #endif
 
    /// @{ SignalData member functions
@@ -85,8 +164,15 @@ namespace Gambit
      , shutdown_broadcast_done(false)
      , looptimes(1000)
      , timeout(500)
+     , msgs()
      #endif
-   {}
+   {
+     #ifdef WITH_MPI
+     msgs[SOFT_SHUTDOWN]      = ShutdownMsg(SOFT_SHUTDOWN,shutdown_name(SOFT_SHUTDOWN));
+     msgs[EMERGENCY_SHUTDOWN] = ShutdownMsg(EMERGENCY_SHUTDOWN,shutdown_name(EMERGENCY_SHUTDOWN));
+     msgs[NO_MORE_MESSAGES]   = ShutdownMsg(NO_MORE_MESSAGES,shutdown_name(NO_MORE_MESSAGES));
+     #endif
+   }
 
    /// Retrieve MPI rank as a string (for log messages etc.)
    std::string SignalData::myrank()
@@ -419,16 +505,22 @@ namespace Gambit
    {
      int mpiSize = signalComm->Get_size();
      int myRank = signalComm->Get_rank();
+           
+     // Recv all shutdown messages from other processes
+     logger() << LogTags::core << LogTags::debug << "Receiving all shutdown messages" << EOM;
      for(int rank=0; rank<mpiSize; rank++)
      {
         if(rank!=myRank)
         {
+           //std::cerr<<"Rank "<<myRank<<" attempting to cleanup shutdown messages from rank "<<rank<<std::endl;
            int loop = 0;
            bool more_messages = true;
            while(more_messages)
            {
               int code;
+              //std::cerr<<"Rank "<<myRank<<": Messages waiting from rank "<<rank<<"? "<<signalComm->Iprobe(rank, signalComm->mytag)<<std::endl;
               signalComm->Recv(&code, 1, rank, signalComm->mytag);
+              //std::cerr<<"Rank "<<myRank<<": received code "<<shutdown_name(code)<<" from rank "<<rank<<std::endl;
               if(code==NO_MORE_MESSAGES) more_messages = false;
               loop++;
               if(loop>2*mpiSize)
@@ -442,6 +534,16 @@ namespace Gambit
            }
         }
      }
+
+     // Ensure all shutdown messages from this process have been fully sent
+     // (not necessary for the corresponding Recv's to complete, so no deadlock problem,
+     // but needed to confirm that the messages were sent and allow MPI to clean them up
+     // properly).
+     logger()<<LogTags::core << LogTags::info<<"Cleaning up shutdown message send buffers"<<EOM;
+     for(auto it=msgs.begin(); it!=msgs.end(); ++it)
+     {
+        it->second.Wait();
+     } 
    }
    #endif
 
@@ -485,6 +587,11 @@ namespace Gambit
        _comm_rdy = true;
        rank = comm->Get_rank();
        MPIsize = comm->Get_size();
+       // Set communicator for shutdown message objects
+       for(auto it=msgs.begin(); it!=msgs.end(); ++it)
+       {
+          it->second.setComm(comm);
+       }
    }
 
    /// Broadcast signal to shutdown all processes
@@ -500,10 +607,9 @@ namespace Gambit
            #ifdef SIGNAL_DEBUG
            logger() << LogTags::core << LogTags::info << "Broadcasting shutcode code " <<shutdown_name(shutdown_code)<< " with MPI tag "<<signalComm->mytag<< EOM;
            #endif
-           MPI_Request req_null = MPI_REQUEST_NULL;
-           signalComm->IsendToAll(&shutdown_code, 1, signalComm->mytag, &req_null);
+           msgs[shutdown_code].ISendToAll();
            logger() << LogTags::core << LogTags::info << shutdown_name(shutdown_code) <<" code broadcast to all processes" << EOM;
-         }
+          }
          else
          {
            /// Should not be broadcasting

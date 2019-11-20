@@ -108,6 +108,9 @@ namespace Gambit
     /// Perform a (possibly) case-insensitive string comparison
     EXPORT_SYMBOLS bool iequals(const std::string& a, const std::string& b, bool case_sensitive=false);
 
+    /// Split string into vector of strings, using a delimiter string
+    EXPORT_SYMBOLS std::vector<std::string> split(const std::string& input, const std::string& delimiter);
+    
     /************************************************************************/
     /* Comparator for case-insensitive comparison in STL assos. containers  */
     /************************************************************************/

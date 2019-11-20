@@ -40,6 +40,9 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 
+/// Boost
+#include <boost/algorithm/string/iter_find.hpp>
+#include <boost/algorithm/string/finder.hpp>
 
 namespace Gambit
 {
@@ -213,6 +216,15 @@ namespace Gambit
                 return false;
         return true;
     }
+
+    /// Split string into vector of strings, using a delimiter string
+    std::vector<std::string> split(const std::string& input, const std::string& delimiter)
+    {
+        std::vector<std::string> result;
+        boost::iter_split(result, input, boost::algorithm::first_finder(delimiter));
+        return result;
+    }
+
 
     /// Ensure that a path exists (and then return the path, for chaining purposes)
     const std::string& ensure_path_exists(const std::string& path)

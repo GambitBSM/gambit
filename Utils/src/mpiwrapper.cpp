@@ -3,14 +3,24 @@
 ///  \file
 ///
 ///  Definitions for Gambit MPI C++ bindings.
-//
+///
+///  NOTE! I just learned something unfortunate,
+///  which is that all Isend's are supposed to be
+///  matched by MPI_Wait calls at some point, to
+///  ensure the operation is complete.
+///  We are not doing this. Things seem to work
+///  anyway, but it may explain some of the hangs
+///  on MPI_Finalize.
+///  I will fix the worst offenders of this asap,
+///  but the rest may take longer. 
+///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Ben Farmer
-///          (benjamin.farmer@fysik.su.se)
-///  \date 2015 Apr
+///          (b.farmer@imperial.ac.uk)
+///  \date 2015 - 2019
 ///
 ///  *********************************************
 
@@ -59,6 +69,29 @@ namespace Gambit
          }
       }
 
+      /// Create a new communicator group from WORLD for the specified processes 
+      Comm::Comm(const std::vector<int>& processes, const std::string& name)
+         : boundcomm(), myname(name)
+      {
+         // Create group
+         MPI_Group group_world, new_group;
+         MPI_Comm_group(MPI_COMM_WORLD, &group_world);
+         MPI_Group_incl(group_world, processes.size(), &processes[0], &new_group);
+
+         // Create new communicator 
+         int errflag = MPI_Comm_create(MPI_COMM_WORLD, new_group, &boundcomm);
+
+         //std::cerr<<"boundcomm="<<boundcomm<<", MPI_COMM_NULL="<<MPI_COMM_NULL<<std::endl;
+
+         // Check for error
+         if(errflag!=0)
+         {
+           std::ostringstream errmsg;
+           errmsg << "Error performing MPI_Comm_create while attempting to create a new communicator group! Received error flag: "<<errflag;
+           utils_error().raise(LOCAL_INFO, errmsg.str());
+         }
+      }
+
       /// Duplicate input communicator into boundcomm
       /// (creates new context)
       /// NOTE! MPI_Comm_dup is a COLLECTIVE call, so all processes
@@ -84,7 +117,7 @@ namespace Gambit
       /// Check for undelivered messages (unless finalize has already been called)
       void Comm::check_for_undelivered_messages()
       {
-        if(not Is_finalized())
+        if(not Is_finalized() and boundcomm!=MPI_COMM_NULL)
         {
           std::ostringstream errmsg;
           // Warn if any unreceived messages exist

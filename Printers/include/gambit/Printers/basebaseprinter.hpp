@@ -304,8 +304,18 @@ namespace Gambit
         template<typename T>
         bool retrieve(T& out, const std::string& label)
         {
+          bool valid;
           PPIDpair pt = get_current_point();
-          return retrieve(out, label, pt.rank, pt.pointID);
+          // Need to check if the current rank/pointID pair is valid before trying to retrieve from it
+          if(pt==nullpoint)
+          {
+             valid = false;
+          } 
+          else 
+          {
+             valid = retrieve(out, label, pt.rank, pt.pointID);
+          }
+          return valid;
         }
 
         /// Retrieve and directly print data to new output
@@ -329,8 +339,18 @@ namespace Gambit
         /// As above, but allows for different input/output labels
         bool retrieve_and_print(const std::string& in_label, const std::string& out_label, BaseBasePrinter& printer)
         {
+          bool valid;
           PPIDpair pt = get_current_point();
-          return retrieve_and_print(in_label, out_label, printer, pt.rank, pt.pointID);
+          // Need to check if the current rank/pointID pair is valid before trying to retrieve from it
+          if(pt==nullpoint)
+          {
+             valid = false;
+          } 
+          else 
+          {
+             valid = retrieve_and_print(in_label, out_label, printer, pt.rank, pt.pointID);
+          }
+          return valid;
         }
 
         /// Get type information for a data entry, i.e. defines the C++ type which this should be
