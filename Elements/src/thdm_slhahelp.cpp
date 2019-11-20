@@ -27,8 +27,7 @@ namespace Gambit
       // entries, or to maintain SLHA2 as is used internally.
       void add_THDM_spectrum_to_SLHAea(const SubSpectrum& thdmspec, SLHAstruct& slha, int slha_version) {
         if (slha_version==2) {
-          int debug_val = 0;
-          
+
           const double m_h = thdmspec.get(Par::Pole_Mass, "h0",1);
           const double m_H = thdmspec.get(Par::Pole_Mass, "h0",2);
           const double m_A = thdmspec.get(Par::Pole_Mass, "A0");

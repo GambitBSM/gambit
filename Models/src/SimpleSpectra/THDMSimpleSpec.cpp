@@ -107,8 +107,8 @@ namespace Gambit
       double THDMea::get_Ye(int i, int j) const { return getdata("Ye",i,j); }
       
       double THDMea::get_mh0(int i)       const {
-                                              if      (i==0){ getdata("MASS",25); } // Neutral Higgs(1)
-                                              else if (i==1){ getdata("MASS",35); } // Neutral Higgs(2)
+                                              if      (i==0){ return getdata("MASS",25); } // Neutral Higgs(1)
+                                              else if (i==1){ return getdata("MASS",35); } // Neutral Higgs(2)
                                               else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mh0! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
                                           }
       double THDMea::get_mA0()                const { return getdata("MASS",36); }
@@ -133,32 +133,32 @@ namespace Gambit
       }
       double THDMea::get_m22_2()              const { 
         double m12_2 = getdata("MINPAR",18), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), vev = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
-        double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15), lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17);
+        double lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15), lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17);
         return m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb); 
       }
       double THDMea::get_Lambda1()            const {
          double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15);
-         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return lam1*pow(cb,4) + lam2*pow(sb,4) + 0.5*lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*lam6+pow(sb,2)*lam7);
       }
       double THDMea::get_Lambda2()            const {
          double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15);
-         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
          return lam1*pow(sb,4) + lam2*pow(cb,4) + 0.5*lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*lam6+pow(cb,2)*lam7);
       }
       double THDMea::get_Lambda3()            const {
          double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam3 = getdata("MINPAR",13), lam345 = lam3 + getdata("MINPAR",14) + getdata("MINPAR",15);
-         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam3 - s2b*c2b*(lam6-lam7);
       }
       double THDMea::get_Lambda4()            const {
          double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam4 = getdata("MINPAR",14), lam345 = getdata("MINPAR",13) + lam4 + getdata("MINPAR",15);
-         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam4 - s2b*c2b*(lam6-lam7);
       }
       double THDMea::get_Lambda5()            const {
          double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam5 = getdata("MINPAR",15), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + lam5;
-         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), c2b = cos(2.*b), s2b = sin(2.*b);
+         double lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17), b = atan(getdata("MINPAR",3)), c2b = cos(2.*b), s2b = sin(2.*b);
          return 0.25*pow(s2b,2)*(lam1+lam2-2.*lam345) + lam5 - s2b*c2b*(lam6-lam7);
       }
       double THDMea::get_Lambda6()            const {
@@ -184,7 +184,7 @@ namespace Gambit
         double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15), lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17);
         double m11_2 = m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b));
         double m22_2 = m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb);  
-        double c2b = cos(2.*b), s2b = sin(2.*b);
+        double s2b = sin(2.*b);
         return m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
       }
       double THDMea::get_M22_2()              const { 
@@ -192,7 +192,7 @@ namespace Gambit
         double lam1 = getdata("MINPAR",11), lam2 = getdata("MINPAR",12), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15), lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17);
         double m11_2 = m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b));
         double m22_2 = m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb);  
-        double c2b = cos(2.*b), s2b = sin(2.*b);
+        double s2b = sin(2.*b);
         return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
       }
       
