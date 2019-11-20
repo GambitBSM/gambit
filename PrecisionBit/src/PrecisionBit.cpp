@@ -58,7 +58,7 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/SpecBit/THDMSpec.hpp"
+#include "gambit/SpecBit/THDMSpec_helper.hpp"
 
 //#define PRECISIONBIT_DEBUG
 
@@ -1147,10 +1147,10 @@ namespace Gambit
     void get_oblique_parameters_likelihood_THDM(double& result) {
       using namespace Pipes::get_oblique_parameters_likelihood_THDM;
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      int y_type = -1;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       SpecBit::THDM_spectrum_container container;
       SpecBit::init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
@@ -1255,9 +1255,9 @@ namespace Gambit
           debug_stream << "*****" << std::endl;
           debug_stream << "oblique_parameters_likelihood_THDM has encountered a NaN" << std::endl;
           debug_stream << "*****" << std::endl;
-          for (int k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
+          for (size_t k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
           std::vector<double> Lambdas = get_lambdas_from_spectrum(container);
-          for(int k=0; k< Lambdas.size(); k++) debug_stream << Lambdas[k] << std::endl;
+          for(size_t k=0; k< Lambdas.size(); k++) debug_stream << Lambdas[k] << std::endl;
           debug_stream << container.he->get(Par::mass1, "m12_2") << std::endl;
           debug_stream << container.he->get(Par::dimensionless, "tanb") << std::endl;
           debug_stream << container.he->get(Par::dimensionless, "alpha") << std::endl;

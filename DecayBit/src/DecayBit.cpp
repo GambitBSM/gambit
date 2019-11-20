@@ -53,7 +53,7 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
-#include "gambit/SpecBit/THDMSpec.hpp"
+#include "gambit/SpecBit/THDMSpec_helper.hpp"
 
 #include <string>
 #include <map>
@@ -3706,7 +3706,7 @@ namespace Gambit
       return widths;
     }
 
-    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
+    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, thdmc_decays_purpose purpose) {
       SpecBit::THDM_spectrum_container container;
       std::vector<thdmc_decay_widths> SM_like_widths; 
       SpecBit::init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
@@ -3749,13 +3749,7 @@ namespace Gambit
 
    void get_THDM_decay_widths_HB_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
       using namespace Pipes::get_THDM_decay_widths_HB_SM_like_model;
-      // set THDM model type
-      int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
-      }
-      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, HB_SM_like_decays);
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, HB_SM_like_decays);
     }
 
     void get_THDM_decay_widths_HB_effc(thdmc_decay_widths &result) {
@@ -3771,13 +3765,7 @@ namespace Gambit
 
    void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
       using namespace Pipes::get_THDM_decay_widths_HB_effc_SM_like_model;
-      // set THDM model type
-      int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
-      }
-      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, y_type, HB_effc_SM_like_decays);
+      result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, HB_effc_SM_like_decays);
     }
   // **
 
@@ -3809,7 +3797,7 @@ namespace Gambit
      using namespace Pipes::get_THDM_total_widths;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (size_t i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
@@ -3824,7 +3812,7 @@ namespace Gambit
       using namespace Pipes::get_THDM_total_widths_SM_like_model;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; i < THDM_model_keys.size(); i++) {
+      for (size_t i=0; i < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
@@ -4035,6 +4023,7 @@ namespace Gambit
          decay_table_entry.set_BF((decay_widths.gamma_hhh[higgs_number][h2][h3]/total_h_decay_width), 0.00, p1_name,p2_name);
        }
      }
+     return decay_table_entry;
    }
 
    DecayTable::Entry create_empty_decay_table_THDM() {

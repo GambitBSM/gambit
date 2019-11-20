@@ -32,7 +32,7 @@
 
 // #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/sminputs.hpp"
-#include "gambit/SpecBit/THDMSpec.hpp"
+#include "gambit/SpecBit/THDMSpec_helper.hpp"
 
 // Activate debug output
 //#define THDM_DBUG

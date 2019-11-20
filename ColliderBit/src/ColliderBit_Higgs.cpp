@@ -234,10 +234,6 @@ namespace Gambit
     void SMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
       using namespace Pipes::SMLikeHiggs_ModelParameters_charged;
-      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
-      if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
-      else if (ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z3_spectrum;
-      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for SMLikeHiggs_ModelParameters.");
       set_SMLikeHiggs_ModelParameters_charged(result);
     }
 
@@ -899,8 +895,6 @@ namespace Gambit
         const SubSpectrum& SM = fullspectrum.get_LE();
         const SMInputs& sminputs = fullspectrum.get_SMInputs();
 
-        const double RWW = 0.77; 
-        // const double RZZ = 1.0-RWW;
         const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+"), GF = sminputs.GF;
         const double v = 1./sqrt(sqrt(2)*GF);
         const double g = 2.*MW/v;
@@ -936,7 +930,6 @@ namespace Gambit
 
         for (int h=1;h<=3;h++) {
           // get SM model, get THDM model & create a ratio of the two
-          double mh = result.Mh[h-1];
 
           // ghjss
           cs = THDM_couplings.hdd_cs[h][2][2];
