@@ -11,6 +11,8 @@ sys.setdlopenflags(flags | ctypes.RTLD_GLOBAL)
 #       python environment variable "PYTHONPATH".
 import ScannerBit as scan 
 
+print("WITH_MPI=",scan.WITH_MPI) # Test if ScannerBit was compiled with MPI enabled
+
 # define likelihood, technically optional
 def like(m):
     a = m["model1::x"]

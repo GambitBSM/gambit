@@ -174,7 +174,13 @@ PYBIND11_MODULE(ScannerBit, m)
         {
             in.main_printer(map);
         });
-    
+
+    #ifdef WITH_MPI 
+    m.attr("WITH_MPI") = true;
+    #else
+    m.attr("WITH_MPI") = false;  
+    #endif
+
     m.def("print", &scanpy::scan::print);
         
     m.def("ensure_size", &scanpy::ensure_size_vec);

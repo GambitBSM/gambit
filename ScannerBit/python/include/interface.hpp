@@ -52,7 +52,9 @@ namespace Gambit
             {
             private:
                 Printers::PrinterManager *global_printer;
-                
+                #ifdef WITH_MPI
+                const bool init_mpi;
+                #endif  
             public:
                 scan_interface(bool);
                 Printers::PrinterManager &get_printer_manager() const

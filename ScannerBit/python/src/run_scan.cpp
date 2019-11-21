@@ -68,9 +68,12 @@ namespace Gambit
 
             scan_interface::scan_interface(bool 
                                             #ifdef WITH_MPI
-                                                init_mpi
+                                                initmpi
                                             #endif
                                           )
+              #ifdef WITH_MPI 
+              : init_mpi(initmpi)
+              #endif
             {
                 #ifdef WITH_MPI
                     if (init_mpi)
@@ -86,11 +89,11 @@ namespace Gambit
                 return std::shared_ptr<printer_wrapper>(new printer_wrapper(this), [](printer_wrapper *in){delete in;});
             }
             
-            /// Main GAMBIT program
+            /// Main scan execution program
             int scan_interface::run_scan(Gambit::IniParser::Parser &iniFile, const Gambit::Scanner::Factory_Base *factory, Gambit::Priors::BasePrior *user_prior, bool resume)
             {
                 #ifdef WITH_MPI
-                    bool use_mpi_abort = true; // Set later via inifile value
+                bool use_mpi_abort = true; // Set later via inifile value
                 #endif
                 std::set_terminate(terminator);
                 //rm: cout << std::setprecision(Core().get_outprec());
@@ -99,8 +102,8 @@ namespace Gambit
                 int return_value(EXIT_SUCCESS);
 
                 #ifdef WITH_MPI
-                    bool allow_finalize(true);
-                    //GMPI::Init();
+                bool allow_finalize(true);
+                //GMPI::Init();
                 #endif
 
                 /// Idea by Tom Fogal, for optionally preventing execution of code until debugger allows it
@@ -255,15 +258,15 @@ namespace Gambit
                         // cleanup it requires, including finalising the printers, i.e. the 'do_cleanup()' function will NOT run.
                         if(signaldata().shutdown_begun())
                         {
-                            logger() << "GAMBIT has performed a controlled early shutdown due to early termination of the scanner plugin." << EOM;
-                            if (rank == 0) cout << "GAMBIT has performed a controlled early shutdown." << endl << endl;
+                            logger() << "ScannerBit has performed a controlled early shutdown due to early termination of the scanner plugin." << EOM;
+                            if (rank == 0) cout << "ScannerBit has performed a controlled early shutdown." << endl << endl;
                         }
                         else
                         {
                             //Scan is done; inform signal handlers
                             signaldata().set_shutdown_begun();
-                            logger() << "GAMBIT run completed successfully." << EOM;
-                            if (rank == 0) cout << endl << "GAMBIT has finished successfully!" << endl << endl;
+                            logger() << "ScannerBit run completed successfully." << EOM;
+                            if (rank == 0) cout << endl << "ScannerBit has finished successfully!" << endl << endl;
                         }
                     //rm: }
 
@@ -285,7 +288,7 @@ namespace Gambit
                     {
                         std::ostringstream ss;
                         ss << e.what() << endl;
-                        ss << "GAMBIT has performed a controlled early shutdown." << endl;
+                        ss << "ScannerBit has performed a controlled early shutdown." << endl;
                         if(rank == 0) cout << ss.str();
                         logger() << ss.str() << signaldata().display_received_signals() << EOM;
                     }
@@ -302,7 +305,7 @@ namespace Gambit
                         {
                             std::ostringstream ss;
                             ss << e.what() << endl;
-                            ss << "GAMBIT has shutdown (but could not finalise or abort MPI)." << endl;
+                            ss << "ScannerBit has shutdown (but could not finalise or abort MPI)." << endl;
                             if(rank == 0) cout << ss.str();
                             logger() << ss.str() << signaldata().display_received_signals() << EOM;
                         }
@@ -316,7 +319,7 @@ namespace Gambit
                         {
                             std::ostringstream ss;
                             ss << e.what() << endl;
-                            ss << "GAMBIT has shutdown due to an error on another process." << endl;
+                            ss << "ScannerBit has shutdown due to an error on another process." << endl;
                             if(rank == 0) cout << ss.str();
                             logger() << ss.str() << EOM;
                             #ifdef WITH_MPI
@@ -332,7 +335,7 @@ namespace Gambit
                         if (not logger().disabled())
                         {
                             cerr << endl << " \033[00;31;1mFATAL ERROR\033[00m" << endl << endl;
-                            cerr << "GAMBIT has exited with fatal exception: " << e.what() << endl;
+                            cerr << "ScannerBit has exited with fatal exception: " << e.what() << endl;
                         }
                         #ifdef WITH_MPI
                             signaldata().broadcast_shutdown_signal();
@@ -345,7 +348,7 @@ namespace Gambit
                     catch (str& e)
                     {
                         cout << endl << " \033[00;31;1mFATAL ERROR\033[00m" << endl << endl;
-                        cout << "GAMBIT has exited with a fatal and uncaught exception " << endl;
+                        cout << "ScannerBit has exited with a fatal and uncaught exception " << endl;
                         cout << "thrown from a backend code.  Due to poor code design in " << e << endl;
                         cout << "the backend, the exception has been thrown as a string. " << endl;
                         cout << "If you are the author of the backend, please throw only " << endl;
@@ -367,11 +370,13 @@ namespace Gambit
                     // 1000*1000 messages will be sent. Could be slow.
                     #endif
 
-                    if(rank == 0) cout << "Calling MPI_Finalize..." << endl; // Debug
+                    #ifdef WITH_MPI 
+                    if(rank == 0 and init_mpi) cout << "Calling MPI_Finalize..." << endl; // Debug
+                    #endif
                 } // End main scope; want to destruct all communicators before MPI_Finalize() is called
 
                 #ifdef WITH_MPI
-                    if (allow_finalize) GMPI::Finalize();
+                if (init_mpi and allow_finalize) GMPI::Finalize();
                 #endif
 
                 return return_value;
