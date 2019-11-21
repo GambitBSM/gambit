@@ -38,12 +38,20 @@ namespace Gambit
     void HDF5Printer2::PRINT(uint     )
     void HDF5Printer2::PRINT(long     )
     void HDF5Printer2::PRINT(ulong    )
-    void HDF5Printer2::PRINT(longlong )
-    void HDF5Printer2::PRINT(ulonglong)
+    //void HDF5Printer2::PRINT(longlong )
+    //void HDF5Printer2::PRINT(ulonglong)
     void HDF5Printer2::PRINT(float    )
     void HDF5Printer2::PRINT(double   )
     #undef PRINT
 
+    // longlongs can lead to ambiguity problems matching C++ to HDF5 types, since they are sometimes the same as longs. So just stick
+    // with longs in the printer, they are long enough
+    #define PRINTAS(INTYPE,OUTTYPE) _print(INTYPE const& value, const std::string& label, const int /*vID*/, const uint rank, const ulong pID) \
+    { basic_print((OUTTYPE)value,label,rank,pID); }
+    void HDF5Printer2::PRINTAS(longlong, long)
+    void HDF5Printer2::PRINTAS(ulonglong, ulong)
+    #undef PRINTAS
+  
     /// Bools can't quite use the template print function directly, since there
     /// are some issues with bools and MPI/HDF5 types. Easier to just convert
     /// the bool to an int first.
