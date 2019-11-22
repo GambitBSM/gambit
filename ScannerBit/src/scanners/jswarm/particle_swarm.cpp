@@ -133,7 +133,7 @@ namespace Gambit
       input_seed = seed;
       if (seed == -1 and rank == 0) seed = std::random_device()();
       #ifdef WITH_MPI
-        GMPI::Comm().Bcast(seed, 1, 0);
+        GMPI::Comm().Bcast_single(seed, 0);
         seed += rank;
       #endif
       if (rank == 0 and verbose > 2) cout << "j-Swarm:  seeding RNG on rank " << rank << " with " << seed << endl;
@@ -284,7 +284,7 @@ namespace Gambit
         bool complete;
         if (rank == 0) complete = converged();
         #ifdef WITH_MPI
-          GMPI::Comm().Bcast(complete, 1, 0);
+          GMPI::Comm().Bcast_single(complete, 0);
         #endif
         if (complete or Scanner::Plugins::plugin_info.early_shutdown_in_progress())
         {
@@ -321,16 +321,16 @@ namespace Gambit
         // This could be sped up using MPI_Gatherv if the array temporaries seem to be causing a bottleneck.
         for (int i = 0; i < NP_per_rank; i++)
         {
-          double local_lnlike[size];
-          double local_personal_best_value[size];
+          std::vector<double> local_lnlike(size);
+          std::vector<double> local_personal_best_value(size);
           double local_x[size][nPar_total];
           double local_v[size][nPar_total];
           double local_personal_best_x[size][nPar_total];
-          GMPI::Comm().Gather(particles.at(i).lnlike, local_lnlike[0], 0);
-          GMPI::Comm().Gather(particles.at(i).personal_best_value, local_personal_best_value[0], 0);
-          GMPI::Comm().Gather(particles.at(i).x[0], local_x[0][0], nPar_total, 0);
-          GMPI::Comm().Gather(particles.at(i).v[0], local_v[0][0], nPar_total, 0);
-          GMPI::Comm().Gather(particles.at(i).personal_best_x[0], local_personal_best_x[0][0], nPar_total, 0);
+          GMPI::Comm().Gather_single(particles.at(i).lnlike, local_lnlike, 0);
+          GMPI::Comm().Gather_single(particles.at(i).personal_best_value, local_personal_best_value, 0);
+          GMPI::Comm().Gather_arrays(particles.at(i).x[0], local_x[0][0], nPar_total, 0);
+          GMPI::Comm().Gather_arrays(particles.at(i).v[0], local_v[0][0], nPar_total, 0);
+          GMPI::Comm().Gather_arrays(particles.at(i).personal_best_x[0], local_personal_best_x[0][0], nPar_total, 0);
 
           if (rank == 0)
           {
@@ -354,15 +354,15 @@ namespace Gambit
         // Collect the global best fit across all processes
         int global_best_rank;
         std::vector<double> global_best_values(size);
-        GMPI::Comm().Gather(global_best_value, global_best_values[0], 0);
+        GMPI::Comm().Gather_single(global_best_value, global_best_values, 0);
         if (rank == 0)
         {
           auto max_it = std::max_element(global_best_values.begin(), global_best_values.end());
           global_best_rank = std::distance(global_best_values.begin(), max_it);
         }
-        GMPI::Comm().Bcast(global_best_rank, 1, 0);
-        GMPI::Comm().Bcast(global_best_value, 1, global_best_rank);
-        GMPI::Comm().Bcast(global_best_x[0], nPar_total, global_best_rank);
+        GMPI::Comm().Bcast_single(global_best_rank, 0);
+        GMPI::Comm().Bcast_single(global_best_value, global_best_rank);
+        GMPI::Comm().Bcast(global_best_x, nPar_total, global_best_rank);
 
       #else
 

@@ -47,7 +47,7 @@ Scanner:
   # This tag specifies which plugin to use as the scanner.
   # Here the multinest scanner is choosen, but you could
   # choose any scanner defined under the scanners section
-  use_scanner: multinest
+  use_scanner: pso
 
   scanners:
 
@@ -117,6 +117,13 @@ Scanner:
         "EggBox::param_0": 3.14
         "EggBox::param_1": [.2, .3]
 
+    pso:
+      plugin: jswarm
+      like:  LogLike
+      NP: 400
+      adaptive_phi: true
+      adaptive_omega: true
+      verbosity: 2
 
   # Define built-in SB likelihoods
   objectives:

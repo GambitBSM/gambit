@@ -425,28 +425,20 @@ namespace Gambit
                 MPI_Bcast (&buffer[0], count, datatype, root, boundcomm);
             }
 
+            /// It is kind of handy to broadcast just single numbers of various kinds without going via a vector
+            template <typename T>
+            void Bcast_single(T& buffer, int root)
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+                MPI_Bcast (&buffer, 1, datatype, root, boundcomm);
+            }
+
             template<typename T>
             void Scatter (std::vector<T> &sendbuf, T &recvbuf, int root)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
 
                 MPI_Scatter (&sendbuf[0], 1, datatype, &recvbuf, 1, datatype, root, boundcomm);
-            }
-
-            template<typename T>
-            void Gather (T &sendbuf, T &recvbuf, int root)
-            {
-                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-
-                MPI_Gather (&sendbuf, 1, datatype, &recvbuf, 1, datatype, root, boundcomm);
-            }
-
-            template<typename T>
-            void Gather (T &sendbuf, T &recvbuf, int count, int root)
-            {
-                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-
-                MPI_Gather (&sendbuf, count, datatype, &recvbuf, count, datatype, root, boundcomm);
             }
 
             template<typename T>
@@ -465,6 +457,17 @@ namespace Gambit
                 MPI_Allreduce (&sendbuf, &recvbuf, 1, datatype, op, boundcomm);
             }
 
+            // Most C-like use of gather, using array buffers.
+            // Can be easiest to do this for certain multidimensional array applications.
+            template<typename T>
+            void Gather_arrays(T &sendbuf, T &recvbuf, int count, int root)
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+
+                MPI_Gather (&sendbuf, count, datatype, &recvbuf, count, datatype, root, boundcomm);
+            }
+
+            // Gather vectors of data, using vector size to auto-determine counts
             template<typename T>
             void Gather(std::vector<T> &sendbuf, std::vector<T> &recvbuf, int root)
             {
@@ -490,6 +493,16 @@ namespace Gambit
                    errmsg << "Error performing Gather! Received error flag: "<<errflag;
                    utils_error().raise(LOCAL_INFO, errmsg.str());
                 }
+            }
+
+            /// Useful shortcut for sending single items (but still Recving into a vector of those items)
+            template<typename T>
+            void Gather_single(T &sendbuf, std::vector<T> &recvbuf, int root)
+            {
+                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
+                std::vector<T> vec_send;
+                vec_send.push_back(sendbuf);
+                Gather(vec_send,recvbuf,root);
             }
 
             template<typename T>
