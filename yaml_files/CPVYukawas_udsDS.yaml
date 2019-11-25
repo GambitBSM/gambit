@@ -39,8 +39,8 @@ Parameters:
 #      range: [0.,25.]
 #      prior_type: flat
     kappaC: 1.
-    kappaT: 1.
     kappaB: 1.
+    kappaT: 1.
     SinPhiU: 
       range: [-1.,1.]
       prior_type: flat
@@ -51,8 +51,20 @@ Parameters:
 #      range: [-1.,1.]
 #      prior_type: flat
     SinPhiC: 0.
-    SinPhiT: 0.
     SinPhiB: 0.
+    SinPhiT: 0.
+    CosPhiU: 0.
+#      range: [-1.,1.]
+#      prior_type: flat
+    CosPhiD: 0.
+#      range: [-1.,1.]
+#      prior_type: flat
+    CosPhiS: 0.
+#      range: [-1.,1.]
+#      prior_type: flat
+    CosPhiC: 0.
+    CosPhiB: 0.
+    CosPhiT: 0.
     
     kappaE: 1.
     kappaMu: 1.
@@ -60,7 +72,9 @@ Parameters:
     SinPhiE: 0.
     SinPhiMu: 0.
     SinPhiTau: 0.   
-
+    CosPhiE: 0.
+    CosPhiMu: 0.
+    CosPhiTau: 0.   
 
 Printer:
 

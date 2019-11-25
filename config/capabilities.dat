@@ -4304,6 +4304,16 @@ cap_Sun_vnqn_isoscalar: |
 #  LowEBit capabilities
 #---------------------------------
 
+CrossSection: |
+
+L3_Gravitino_LLike: |
+
+LEP207_xsec_chi00_11: |
+
+a_cap: |
+
+demo_CAP_parameters: |
+
 CEDM_q: |
 
 CPVYukawas_parameters: |
