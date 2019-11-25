@@ -309,12 +309,12 @@ namespace Gambit
 		  if(abs(*Dep::EDM_n) < 2.9E-26)
 		  {
 			result = 0.0;
-			result = std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2);
+			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2));
 		  }
 		  else{
 			if(*Dep::EDM_n < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
 			else{offset = -offset;}
-			result = std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu + offset)/sig,2);
+			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu + offset)/sig,2));
 		  }
 /*		  if(abs(*Dep::EDM_n) < 2.9E-26)
 			{
