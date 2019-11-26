@@ -36,8 +36,8 @@ namespace Gambit
 	    public:
     	   CPV_WC_q();
     	   // Cq[1] is the Wilson coefficient for operator 1, Cq[2]
-    	   // for operator 2. Cq[0] is not used.
-    	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3];
+    	   // for operator 2. Cq[0] is not used. Cw is for the Weinberg operator.
+    	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3], Cw[3];
 	 };
 
      // Quark (chromo)electric dipole moments

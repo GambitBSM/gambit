@@ -25,10 +25,13 @@
 	DEFINEPARS(kappaC, kappaB, kappaT)
 	DEFINEPARS(SinPhiU, SinPhiD, SinPhiS)
 	DEFINEPARS(SinPhiC, SinPhiB, SinPhiT)
+	DEFINEPARS(CosPhiU, CosPhiD, CosPhiS)
+	DEFINEPARS(CosPhiC, CosPhiB, CosPhiT)
 
 	// Lepton Yukawas
 	DEFINEPARS(kappaE, kappaMu, kappaTau)
 	DEFINEPARS(SinPhiE, SinPhiMu, SinPhiTau)
+	DEFINEPARS(CosPhiE, CosPhiMu, CosPhiTau)
 #undef MODEL
 
 #endif

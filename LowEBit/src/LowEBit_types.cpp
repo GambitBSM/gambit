@@ -14,6 +14,10 @@
 ///          (jonathan.cornell@uc.edu)
 ///  \date 2019 Feb
 ///
+///  \author Dimitrios Skodras
+///          (dimitrios.skodras@udo.edu)
+///  \date 2019 Nov
+///
 ///  *********************************************
 
 #include "gambit/LowEBit/LowEBit_types.hpp"
@@ -25,7 +29,7 @@ namespace Gambit
       CPV_WC_q::CPV_WC_q()
       {
     	  for (int i = 0; i <= 2; i++)
-    		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = 0;
+    		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = Cw[i] = 0;
       }
 
       dq::dq()

@@ -380,16 +380,26 @@ CMSSM: |
    SignMu       - the sign of the mu parameter
    TanBeta      - the ratio of the up-type to down-type Higgs vevs
 
-CPVYukawas: |
+nEDMme: |
 
+diaEDMme: |
+
+demo_CAP: |
+
+TESTMODel: |
+
+CPVYukawas: |
 #	Model for Yukawa Couplings with CP violation.
-#
 #	kappaU, kappaD, kappaS			- parameters which modify the absolute value of the light quark Yukawas
 #	kappaC, kappaB, kappaT			- parameters which modify the absolute value of the heavy quark Yukawas
 #	kappaE, kappaMu, kappaTau		- parameters which modify the absolute value of the charged lepton Yukawas
 #	SinPhiU, SinPhiD, SinPhiS		- parameters which modify the CP violation and the sign of the light quark Yukawas
 #	SinPhiC, SinPhiB, SinPhiT		- parameters which modify the CP violation and the sign of the heavy quark Yukawas
 #	SinPhiE, SinPhiMu, SinPhiTau	- parameters which modify the CP violation and the sign of the charged lepton Yukawas
+#	CosPhiU, CosPhiD, CosPhiS		- parameters which modify the CP conservation and the sign of the light quark Yukawas
+#	CosPhiC, CosPhiB, CosPhiT		- parameters which modify the CP conservation and the sign of the heavy quark Yukawas
+#	CosPhiE, CosPhiMu, CosPhiTau	- parameters which modify the CP conservation and the sign of the charged lepton Yukawas
+
 
 StandardModel_SLHA2: |
    Contains all SM parameters except the Higgs mass, which is separated out since this is often a prediction of BSM physics models. Models without their own Higgs sector can be scanned in tandem with an extra model that contains the Higgs mass as a parameter. The StandardModel_SLHA2 model contains the SM parameters that are defined in the SMINPUTS, VCKMIN and UPMNSIN blocks of the second SUSY Les Houches Accord (SLHA2):
@@ -565,3 +575,4 @@ RightHandedNeutrinos_diff: |
 StandardModel_mNudiff: |
    Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
 =
+
