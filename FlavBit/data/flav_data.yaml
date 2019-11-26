@@ -1,9 +1,9 @@
 - name: BR_Bs2mumu
   islimit: false
-  exp_value: 3.0e-9
-  exp_stat_error: 0.6e-9
-  exp_sys_error: 0.25e-9
-  exp_source: 1703.05747
+  exp_value: 2.9e-9
+  exp_stat_error: 0.7e-9
+  exp_sys_error: 0.2e-9
+  exp_source: CMS-PAS-BPH-16-004
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
@@ -12,10 +12,10 @@
 
 - name: BR_B02mumu
   islimit: false
-  exp_value: 3.9e-10
-  exp_stat_error: 1.5e-10
+  exp_value: 0.8e-10
+  exp_stat_error: 1.4e-10
   exp_sys_error: 0.0e-10
-  exp_source: Nature 522:68
+  exp_source: CMS-PAS-BPH-16-004
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
@@ -24,10 +24,10 @@
 
 - name: BR_b2sgamma
   islimit: false
-  exp_value: 327.e-6
-  exp_stat_error: 14.e-6
+  exp_value: 332.e-6
+  exp_stat_error: 15.e-6
   exp_sys_error: 0.e-6
-  exp_source: 1702.04571
+  exp_source: 1612.07233
   th_error: 0.07
   th_error_type: M
   th_error_source: 1503.01791
@@ -108,29 +108,29 @@
 
 - name: RDstar
   islimit: false
-  exp_value: 0.310
-  exp_stat_error: 0.015
-  exp_sys_error: 0.008
-  exp_source: HFAG16
+  exp_value: 0.407
+  exp_stat_error: 0.039
+  exp_sys_error: 0.024
+  exp_source: 1612.07233
   th_error: 0.001
   th_error_type: M
   th_error_source: Phys.Rev.D85,094025(2012)
   correlation:
   - name: RD
-    value: -0.23
+    value: -0.2
 
 - name: RD
   islimit: false
-  exp_value: 0.403
-  exp_stat_error: 0.040
-  exp_sys_error: 0.024
-  exp_source: HFAG16
+  exp_value: 0.306
+  exp_stat_error: 0.013
+  exp_sys_error: 0.007
+  exp_source: 1612.07233
   th_error: 0.037
   th_error_type: M
   th_error_source: Phys.Rev.D92,034506(2015)
   correlation:
   - name: RDstar
-    value: -0.23
+    value: -0.2
 
 - name: DeltaMs
   islimit: false
@@ -1742,10 +1742,10 @@
 
 - name: RK
   islimit: false
-  exp_value: 0.745
-  exp_stat_error: 0.082
-  exp_sys_error: 0.036
-  exp_source: 1406.6482
+  exp_value: 0.846
+  exp_stat_error: 0.060
+  exp_sys_error: 0.016
+  exp_source: 1903.09252
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
