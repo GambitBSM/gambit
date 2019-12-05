@@ -1031,7 +1031,6 @@ def isAcceptedType(input_el):
     is_array     = type_dict['is_array']
     array_limits = type_dict['array_limits']
 
-
     # BOSS cannot yet handle delarations of arrays with unspecified length
     if (is_array) and (len(array_limits) == 0):
         reason = "BOSS cannot yet handle arrays declared with unspecified length."
@@ -1052,7 +1051,6 @@ def isAcceptedType(input_el):
         infomsg.TypeNotAccepted(input_el.get('name'), reason).printMessage()
         is_accepted_type = False
         return is_accepted_type
-
 
     if type_el.tag in ['Class', 'Struct']:
         namespaces_list = getNamespaces(type_el, include_self=True)
@@ -2505,7 +2503,6 @@ def fillAcceptedTypesList():
 
         for full_name, el in gb.name_dict.items():
 
-
             # Only consider types
             if el.tag not in ['Class', 'Struct', 'FundamentalType', 'Enumeration']:
                 continue
@@ -2523,6 +2520,13 @@ def fillAcceptedTypesList():
             if isProblematicType(el):
                 continue
 
+
+            # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it 
+            # starts with 'std', which is not enough if the template args are not valid
+            # If template, check the arguments are accepted
+            if not isTemplateWithValidArgs(el, class_name=class_name):
+                continue
+ 
             #
             # Known class?
             #
@@ -2542,14 +2546,11 @@ def fillAcceptedTypesList():
             if is_fundamental:
                 new_fundamental_types.append(full_name)
 
-
-            #
             # Std type?
             #
             is_std_type = isStdType(el, class_name=class_name)
             if is_std_type:
                 new_std_types.append(full_name)
-
 
             #
             # Loaded type?
@@ -2575,7 +2576,6 @@ def fillAcceptedTypesList():
                 if isLoadedEnum(el, enum_name=enum_name) :
                     new_enumeration_types.append(full_name)
 
-
         #
         # Update sets of types
         #
@@ -2592,6 +2592,7 @@ def fillAcceptedTypesList():
     # Fill global list
     #gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
     gb.accepted_types = list(loaded_classes) + list(known_classes) +  list(fundamental_types) + list(std_types) + list(enumeration_types)
+    
 
 # ====== END: fillAcceptedTypesList ========
 
@@ -2641,14 +2642,59 @@ def isProblematicType(el):
                     if isNative(type_el):
                     #
                     #    is_problematic = True
-                        return is_problematic
-                else :
-                    is_problematic = True
+                        is_problematic = is_problematic
 
     return is_problematic
 
 # ====== END: isProblematicType ========
 
+
+# ====== isTemplateWithValidAgs =======
+
+def isTemplateWithValidArgs(el, class_name=None) :
+
+    valid_template = True
+
+    if el.tag in ['Class', 'Struct', 'Union', 'Enumeration'] :
+
+        if class_name is not None:
+            full_name = class_name['long_templ']
+        elif 'name' in el.keys():
+            full_name = el.get('name')
+        else :
+            return valid_template
+
+        template_args = getAllTemplateTypes(full_name)
+
+        for templ_arg in template_args:
+
+            # Remove asterix and/or ampersand
+            base_templ_arg = getBasicTypeName(templ_arg)
+
+            # Get the element from the name dictionary
+            try:
+                type_el = gb.name_dict[base_templ_arg]
+            except KeyError:
+                type_el = None
+ 
+            # If the type is not in the dict, it's probably an std type
+            if type_el is None and "std" in base_templ_arg[0:5] :
+                continue
+             
+
+            # If the type is a template, check recursively
+            if type_el is None or not isTemplateWithValidArgs(type_el):
+                valid_template = False
+                return valid_template
+
+            # If the type is not in the dict, is not known, loaded, fundamental or another std type, the type is not valid
+            if type_el is None or not (isFundamental(type_el) or isKnownClass(type_el) or isLoadedClass(type_el) or isStdType(type_el)):
+                valid_template = False
+                return valid_template
+
+    return valid_template
+
+# ====== END: isTemplateWithValidArgs =======
 
 
 # ====== addParentClasses ========
@@ -2828,7 +2874,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
     for xml_id, el in gb.id_dict.items():
 
-
         # Update global dict: file name --> file xml element
         if el.tag == 'File':
             gb.file_dict[el.get('name')] = el
@@ -2847,6 +2892,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 class_name = classutils.getClassNameDict(el)
             except KeyError:
                 continue
+
 
             # Check if we have done this class already
             if class_name in gb.classes_done:

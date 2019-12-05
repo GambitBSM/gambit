@@ -7,6 +7,7 @@
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Couplings_decl.h"
+#include <vector>
 
 #include "identification.hpp"
 

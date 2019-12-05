@@ -13,6 +13,7 @@
 #include <ostream>
 #include <vector>
 #include "wrapper_ParticleDataEntry_decl.h"
+#include <map>
 
 #include "identification.hpp"
 
