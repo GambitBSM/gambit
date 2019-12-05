@@ -158,6 +158,12 @@ START_MODULE
     ALLOW_MODELS(DiracSingletDM_Z2)
     #undef FUNCTION
 
+    #define FUNCTION CPVYukawas_Higgs_decays
+	START_FUNCTION(DecayTable::Entry)
+	DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+	ALLOW_MODELS(CPVYukawas)
+    #undef FUNCTION
+
     #define FUNCTION MSSM_h0_1_decays
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)

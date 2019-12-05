@@ -3022,6 +3022,53 @@ namespace Gambit
     }
 
 
+    //////////// CPVYukwawas //////////////////
+
+    /// Set the decay width and the branching fractions of the Higgs in the CPVYukawa model
+    void CPVYukawas_Higgs_decays (DecayTable::Entry& result)
+	{
+      using namespace Pipes::CPVYukawas_Higgs_decays;
+
+      // In theory, these should come from a spectrum object, but we will fix that later
+      double v0 = 246.; // Higgs vev (should actually be calculated from G_F)
+      double mh = 125.; // Higgs mass (should come from model parameter)
+      double mu = 0.0022; // Quark masses
+      double mb = 4.18;
+
+      // Once we set all of the decays of the SM Higgs in this function, the below might not be necessary:
+      result = *Dep::Reference_SM_Higgs_decay_rates;
+
+      double kappaU = *Param["kappaU"];
+      double kappaB = *Param["kappaB"];
+      // etc...
+
+      // We might not want to do the below steps unless kappa !=1 or
+      // phi != 0
+
+      // Partial width for h -> u u (at tree level, check expressions, add loop corrections?)
+      double gammaU = kappaU*kappaU * mh*mu*mu/(8.*pi*v0*v0)
+    		  *pow(1. - 4.*mu*mu/(mh*mh), 3./2.);
+      double gammaB = kappaB*kappaB * mh*mb*mb/(8.*pi*v0*v0)
+    		  *pow(1. - 4.*mb*mb/(mh*mh), 3./2.);
+      // etc... for other fermion final states
+
+      // Get the standard model partial widths (for up quark is zero, probably down too?)
+      double gammaB_SM = result.BF("b","bbar")*result.width_in_GeV;
+      // etc...
+
+      // Subtract SM partial widths and add rescaled partial widths for our model to
+      // find new total width
+
+      result.width_in_GeV = result.width_in_GeV + gammaU;
+      result.width_in_GeV = result.width_in_GeV - gammaB_SM + gammaB;
+      /// etc...
+
+      // Set branching fractions to appropriate values:
+      result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
+      result.set_BF(gammaB/result.width_in_GeV, 0.0, "b", "bbar");
+      /// etc...
+
+	}
     //////////// Everything ///////////////////
 
     /// Collect all the DecayTable entries into an actual DecayTable
