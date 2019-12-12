@@ -5,6 +5,69 @@ namespace Gambit {
   namespace ColliderBit {
     using namespace std;
 
+      /// bjf> Experimental! But already useful for helping me convert the key
+      /// numbers from these analyses to Python for the p-value calculuations.
+      /// This is a dumb place to define this, but there is no cpp file for
+      /// AnalysisData and I can't be bothered making one.
+      void AnalysisData::pythonize_me() const
+      {
+          static std::set<std::string> done; // Only want this printed out once for each analysis
+          if(done.find(analysis_name)==done.end())
+          {
+             done.insert(analysis_name);
+             std::ostringstream SR_names;
+             std::ostringstream SR_n;
+             std::ostringstream SR_b;
+             std::ostringstream SR_b_sys;
+             std::ostringstream SR_s_sys;
+             std::ostringstream SR_s;
+             SR_names << "a.SR_names = [";
+             SR_n     << "a.SR_n     = [";
+             SR_b     << "a.SR_b     = [";
+             SR_b_sys << "a.SR_b_sys = [";
+             //SR_s_sys << "a.SR_s_sys = [";
+             //SR_s     << "a.SR_s     = [";
+             int i = 0;
+             for (auto srd = begin(); srd != end(); ++srd,++i)
+             {
+                SR_names << "\"" << srd->sr_label << "__i"<<i << "\", ";
+                SR_n     << srd->n_observed     << ", ";
+                SR_b     << srd->n_background   << ", ";
+                SR_b_sys << srd->background_sys << ", ";
+                //SR_s_sys << srd->signal_sys     << ", ";
+                //SR_s     << srd->n_signal       << ", ";
+             }
+             SR_names << "]";
+             SR_n     << "]";
+             SR_b     << "]";
+             SR_b_sys << "]";
+             //SR_s_sys << "]";
+             //SR_s     << "]";
+             std::ostringstream full;
+             full << "a = Analysis(\""<<analysis_name<<"\")"<<std::endl;
+             full << SR_names.str() << std::endl;
+             full << SR_n.str()     << std::endl;
+             full << SR_b.str()     << std::endl;
+             full << SR_b_sys.str() << std::endl;
+             //full << SR_s_sys.str() << std::endl;
+             //full << SR_s.str()     << std::endl;
+             if(hasCorrs())
+             {
+                 full << "a.cov = ";
+                 Eigen::IOFormat PythonFmt(Eigen::FullPrecision, 0, ", ", ",\n", "[", "]", "[", "]");
+                 full << srcov.format(PythonFmt) << std::endl;
+             }
+             full << "a.N_SR = len(a.SR_names)" << std::endl;
+             if(hasCorrs())
+             {
+                 full << "if allow_corr: ";
+             }
+             full << "analyses += [a]" << std::endl << std::endl;
+             /// Could record or something, but for now just dump to stdout
+             std::cout << full.str();
+          }
+      }
+
 
     /// Dummy analysis code with a hard-coded return including a SR covariance matrix
     class Analysis_Covariance : public Analysis{

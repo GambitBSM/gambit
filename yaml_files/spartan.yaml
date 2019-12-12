@@ -35,7 +35,8 @@ Printer:
     output_file: "results.hdf5"
     group: "/spartan"
     delete_file_on_restart: true
-    buffer_length: 100
+    buffer_length: 1000
+    #disable_autorepair: true
 
   #printer: ascii
   #options:
@@ -47,24 +48,25 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
     random:
       plugin: random
       like: LogLike
-      point_number: 10000
+      point_number: 1000
 
     de:
       plugin: diver
       like: LogLike
-      NP: 500
+      NP: 5000
 
     multinest:
       plugin: multinest
       like:  LogLike
       nlive: 2000
+      #tol: 0.0001
       tol: 0.1
 
     mcmc:
@@ -95,9 +97,9 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike
+  - capability: normaldist_loglike   
     options:
-        probability_of_validity: 0.9
+        probability_of_validity: 1.0
 
 Logger:
 
@@ -105,7 +107,7 @@ Logger:
     [Default]      : "default.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
-
+  debug: true
 
 KeyValues:
 

@@ -40,10 +40,10 @@ BE_INI_FUNCTION
     // Find all the versions of HiggsBounds that have been successfully loaded, and get
     // their locks.
     std::vector<str> hbversions = Backends::backendInfo().working_safe_versions("HiggsBounds");
-    std::vector<Utils::FileLock*> mylocks;
+    std::vector<Utils::ProcessLock*> mylocks;
     for (auto it = hbversions.begin(); it != hbversions.end(); ++it)
     {
-      mylocks.push_back(new Utils::FileLock("HiggsBounds_" + *it + "_init"));
+      mylocks.push_back(new Utils::ProcessLock("HiggsBounds_" + *it + "_init"));
       mylocks.back()->get_lock();
     }
 

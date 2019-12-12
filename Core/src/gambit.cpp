@@ -36,6 +36,7 @@ void do_cleanup()
 /// Main GAMBIT program
 int main(int argc, char* argv[])
 {
+
   std::set_terminate(terminator);
   cout << std::setprecision(Core().get_outprec());
 
@@ -92,9 +93,11 @@ int main(int argc, char* argv[])
       Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
       /// MPI rank for use in error messages;
       int rank = scanComm.Get_rank();
-    #else
+      int size = scanComm.Get_size();
+     #else
       int rank = 0;
-    #endif
+      //int size = 0; // Unused if not WITH_MPI
+     #endif
 
     // Check number of OpenMP threads used
     int n_omp_threads = 1;
@@ -113,6 +116,12 @@ int main(int argc, char* argv[])
       {
         cout << endl << "Starting GAMBIT" << endl;
         cout << "----------" << endl;
+        #ifdef WITH_MPI
+        cout << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
+        #else
+        cout << "WARNING! Running in SERIAL (no MPI) mode! Recompile with -DWITH_MPI=1 for MPI parallelisation" << endl;
+        #endif
+        cout << "----------" << endl;
         cout << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << endl;
         if(Core().found_inifile) cout << "YAML file: "<< filename << endl;
       }
@@ -122,7 +131,13 @@ int main(int argc, char* argv[])
       for(int i=0;i<argc;i++){ logger() << arguments[i] << " "; }
       logger() << endl;
       logger() << core << "Starting GAMBIT" << EOM;
-      logger() << core << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
+      logger() << core;
+      #ifdef WITH_MPI
+      logger() << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
+      #else
+      logger() << "WARNING! Running in SERIAL (no MPI) mode!" << endl;
+      #endif 
+      logger() << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
       if( Core().resume ) logger() << core << "Attempting to resume scan..." << EOM;
       logger() << core << "Registered module functors [Core().getModuleFunctors().size()]: ";
       logger() << Core().getModuleFunctors().size() << endl;
@@ -333,7 +348,7 @@ int main(int argc, char* argv[])
   } // End main scope; want to destruct all communicators before MPI_Finalize() is called
 
   #ifdef WITH_MPI
-  if (allow_finalize) 
+  if (allow_finalize)
   {
       logger()<<"Calling MPI_Finalize..."<<EOM;
       GMPI::Finalize();
@@ -341,7 +356,7 @@ int main(int argc, char* argv[])
   }
   else
   {
-      logger()<<"MPI_Finalize has been disabled (e.g. due to an error) and will not be called."<<EOM; 
+      logger()<<"MPI_Finalize has been disabled (e.g. due to an error) and will not be called."<<EOM;
   }
   #endif
 

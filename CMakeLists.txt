@@ -463,6 +463,8 @@ string (REPLACE ";" "," itch_with_commas "${itch}")
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/scratch")
   message("${Yellow}-- Creating scratch directory${ColourReset}")
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory scratch WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory build_time WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scratch)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory run_time WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/scratch)
   message("${Yellow}-- Creating scratch directory - done.${ColourReset}")
 endif()
 

@@ -659,6 +659,19 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: mu - e (Au)
+  #define CAPABILITY mueAu
+  START_CAPABILITY
+    #define FUNCTION RHN_mueAu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Vnu, Eigen::Matrix3cd)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    DEPENDENCY(m_nu, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Observable: mu - e (Pb)
   #define CAPABILITY muePb
   START_CAPABILITY
@@ -812,6 +825,7 @@ START_MODULE
     #define FUNCTION mu2e_likelihood
     START_FUNCTION(double)
     DEPENDENCY(mueTi, double)
+    DEPENDENCY(mueAu, double)
     DEPENDENCY(muePb, double)
     #undef FUNCTION
   #undef CAPABILITY

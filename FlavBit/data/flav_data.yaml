@@ -1742,10 +1742,24 @@
   islimit: true
   one_sided: false
   exp_value: 0.
-  exp_90_CL: 1.7e-12
+  exp_90_CL: 4.3e-12
   exp_stat_error: 0.
   exp_sys_error: 0.
-  exp_source: Phys. Lett. B422 (1998) 334–338
+  exp_source: Phys.Lett. B317 (1993) 631-636 
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: R_mueAu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 7.0e-13
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Eur.Phys.J. C47 (2006) 337-346 
   th_error: 0.
   th_error_type: M 
   th_error_source: NONE

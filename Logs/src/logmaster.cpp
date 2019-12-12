@@ -150,12 +150,12 @@ namespace Gambit
            if (not loggers_readyQ)
            {
              if (verbose) std::cout<<"Logger was never initialised! Creating default log messenger..."<<std::endl;
-             StdLogger* deflogger = new StdLogger(GAMBIT_DIR "/scratch/default.log");
+             StdLogger* deflogger = new StdLogger(Utils::runtime_scratch() + "default.log");
              std::set<int> deftag;
              deftag.insert(def);
              loggers[deftag] = deflogger;
              loggers_readyQ = true;
-             if (verbose) std::cout<<"Log messages will be delivered to '" << GAMBIT_DIR << "/scratch/default.log'"<<std::endl;
+             if (verbose) std::cout<<"Log messages will be delivered to '" << Utils::runtime_scratch() << "default.log'"<<std::endl;
            }
            // Dump buffered messages
            empty_backlog();
