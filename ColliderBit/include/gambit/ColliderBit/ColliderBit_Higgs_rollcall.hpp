@@ -80,6 +80,26 @@
     BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
     #undef FUNCTION
 
+    #define FUNCTION calc_HB_LEP_LogLike_CPVYukawas
+    START_FUNCTION(double)
+    ALLOW_MODELS(CPVYukawas)
+    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+    BACKEND_REQ(HiggsBounds_neutral_input_properties, (libhiggsbounds),
+       void, (double*, double*, double*))
+    BACKEND_REQ(HiggsBounds_neutral_input_effC, (libhiggsbounds), void,
+      (double*, double*, double*, double*, double*, double*,
+       double*, double*, double*, double*, double*, double*,
+       double*, double*, double*, double*, double*,
+       double*))
+    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR, (libhiggsbounds), void,
+      (double*, Farray<double, 1,3, 1,3, 1,3>&,
+       Farray<double, 1,3, 1,3>&, double*, double*,
+       double*, double*))
+    BACKEND_REQ(HiggsBounds_set_mass_uncertainties, (libhiggsbounds), void, (double*, double*))
+    BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
+    BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
+    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
+    #undef FUNCTION
   #undef CAPABILITY
 
 

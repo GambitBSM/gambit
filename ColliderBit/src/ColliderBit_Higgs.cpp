@@ -358,6 +358,134 @@ namespace Gambit
       result = -0.5*chisq_withouttheory;
     }
 
+    /// Get an LEP chisq from HiggsBounds for the CPVYukawas model using the
+    /// effective coupling interface to HB/HS
+    void calc_HB_LEP_LogLike_CPVYukawas(double &result)
+    {
+      using namespace Pipes::calc_HB_LEP_LogLike_CPVYukawas;
+
+      int i, j, k;
+      double mH[3], gamma[3], CP_value[3];
+      const HiggsCouplingsTable::h0_decay_array_type&
+        h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
+      //double mH[1] = *Param["mH"];
+      mH[0] = 125.; // Higgs mass
+      gamma[0] = h0_widths[0]->width_in_GeV;
+      CP_value[0] = 0.; // Mixed CP state
+
+      double ghjss_s[3], ghjss_p[3], ghjcc_s[3], ghjcc_p[3],
+        ghjbb_s[3], ghjbb_p[3], ghjtt_s[3], ghjtt_p[3],
+        ghjmumu_s[3], ghjmumu_p[3], ghjtautau_s[3], ghjtautau_p[3],
+        ghjWW[3], ghjZZ[3], ghjZga[3], ghjgaga[3], ghjgg[3],
+        ghjhiZ[3];
+      double BR_hjinvisible[3], BR_hjemu[3], BR_hjetau[3],
+        BR_hjmutau[3], BR_hjHpiW[3];
+      Farray<double, 1,3, 1,3> BR_hjhiZ;
+      Farray<double, 1,3, 1,3, 1,3> BR_hkhjhi;
+
+      // Get model parameters
+      double kappaS = *Param["kappaS"];
+      double kappaC = *Param["kappaC"];
+      double kappaB = *Param["kappaB"];
+      double kappaT = *Param["kappaT"];
+      double sinPhiS = *Param["SinPhiS"];
+      double sinPhiC = *Param["SinPhiC"];
+      double sinPhiB = *Param["SinPhiB"];
+      double sinPhiT = *Param["SinPhiT"];
+
+      double kappaMu = *Param["kappaMu"];
+      double kappaTau = *Param["kappaTau"];
+      double sinPhiMu = *Param["SinPhiMu"];
+      double sinPhiTau = *Param["SinPhiTau"];
+
+      // Determine effective scalar and pseudoscalar coupling
+      // ratios squared
+
+      // hff
+      ghjss_s[0] = pow(kappaS*sinPhiS, 2);
+      ghjss_p[0] = pow(kappaS,2)*(1. - pow(sinPhiS,2));
+      ghjcc_s[0] = pow(kappaC*sinPhiC, 2);
+      ghjcc_p[0] = pow(kappaC,2)*(1. - pow(sinPhiC,2));
+      ghjbb_s[0] = pow(kappaB*sinPhiB, 2);
+      ghjbb_p[0] = pow(kappaB,2)*(1. - pow(sinPhiB,2));
+      ghjtt_s[0] = pow(kappaT*sinPhiB, 2);
+      ghjtt_p[0] = pow(kappaT,2)*(1. - pow(sinPhiT,2));
+
+      ghjmumu_s[0] = pow(kappaMu*sinPhiMu, 2);
+      ghjmumu_p[0] = pow(kappaMu,2)*(1. - pow(sinPhiMu,2));
+      ghjtautau_s[0] = pow(kappaTau*sinPhiTau, 2);
+      ghjtautau_p[0] = pow(kappaTau,2)*(1. - pow(sinPhiTau,2));
+
+      // hVV
+      ghjWW[0]=1.;
+      ghjZZ[0]=1.;
+      ghjZga[0]=1.; // h-Z-photon (change?)
+      ghjgaga[0]=1.; // h-photon-photon (change?)
+      ghjgg[0]=1.; // h-gluon-gluon (change?)
+      ghjhiZ[0]=0.; // h-h-Z
+
+      // Zero all other entries in arrays
+
+      for (int i=1; i<=2; i++)
+      {
+        mH[i] = gamma[i] = CP_value[i] = 0.;
+        ghjss_s[i] = ghjss_p[i] = ghjcc_s[i] = ghjcc_p[i] = 0.;
+        ghjbb_s[i] = ghjbb_p[i] = ghjtt_s[i] = ghjtt_p[i] = 0.;
+        ghjmumu_s[i] = ghjmumu_p[i] = ghjtautau_s[i] = ghjtautau_p[i] = 0.;
+        ghjWW[i] = ghjZZ[i] = ghjZga[i] = ghjgaga[i] = ghjgg[i] = 0.;
+        ghjhiZ[i] = 0.;
+      }
+
+      // All non-SM branchings are zero in this model
+
+      for (i=0; i<=2; i++)
+      {
+        BR_hjinvisible[i] = BR_hjemu[i] = BR_hjetau[i] = 0.;
+        BR_hjmutau[i] = BR_hjHpiW[i] = 0.;
+        for (j=1; j<=3; j++)
+        {
+          BR_hjhiZ(i+1,j) = 0.;
+          for (k=1; k<=3; k++)
+          {
+              BR_hkhjhi(i+1,j,k) = 0.;
+          }
+        }
+      }
+
+      // We should not have to explicitly declare the CP_value in the below function...
+      BEreq::HiggsBounds_neutral_input_properties(&mH[0], &gamma[0], &CP_value[0]);
+      BEreq::HiggsBounds_neutral_input_effC(&ghjss_s[0], &ghjss_p[0],
+        &ghjcc_s[0], &ghjcc_p[0], &ghjbb_s[0],&ghjbb_p[0],
+        &ghjtt_s[0], &ghjtt_p[0], &ghjmumu_s[0], &ghjmumu_p[0],
+        &ghjtautau_s[0], &ghjtautau_p[0], &ghjWW[0], &ghjZZ[0],
+        &ghjZga[0], &ghjgaga[0], &ghjgg[0], &ghjhiZ[0]);
+      BEreq::HiggsBounds_neutral_input_nonSMBR(&BR_hjinvisible[0],
+        BR_hkhjhi, BR_hjhiZ, &BR_hjemu[0], &BR_hjetau[0], &BR_hjmutau[0],
+        BR_hjHpiW);
+
+      //BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam.deltaMHplus[0]);
+
+      // run Higgs bounds 'classic'
+      double obsratio;
+      int HBresult, chan, ncombined;
+      BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
+
+      // extract the LEP chisq
+      double chisq_withouttheory,chisq_withtheory;
+      int chan2;
+      double theor_unc = 1.5; // theory uncertainty
+      BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
+
+      // Catch HiggsBound's error value, chisq = -999
+      if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+      {
+        ColliderBit_warning().raise(LOCAL_INFO, "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0.");
+        chisq_withouttheory = 0.0;
+      }
+
+      result = -0.5*chisq_withouttheory;
+    }
+
     /// Get an LHC chisq from HiggsSignals
     void calc_HS_LHC_LogLike(double &result)
     {
