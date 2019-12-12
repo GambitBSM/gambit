@@ -12,7 +12,7 @@
 ///  anyway, but it may explain some of the hangs
 ///  on MPI_Finalize.
 ///  I will fix the worst offenders of this asap,
-///  but the rest may take longer. 
+///  but the rest may take longer.
 ///
 ///  *********************************************
 ///
@@ -69,8 +69,8 @@ namespace Gambit
          }
       }
 
-      /// Create a new communicator group from WORLD for the specified processes 
-      Comm::Comm(const std::vector<int>& processes, const std::string& name)
+      /// Create a new communicator group from WORLD for the specified processes
+      Comm::Comm(std::vector<int> processes, const std::string& name)
          : boundcomm(), myname(name)
       {
          // Create group
@@ -78,7 +78,7 @@ namespace Gambit
          MPI_Comm_group(MPI_COMM_WORLD, &group_world);
          MPI_Group_incl(group_world, processes.size(), &processes[0], &new_group);
 
-         // Create new communicator 
+         // Create new communicator
          int errflag = MPI_Comm_create(MPI_COMM_WORLD, new_group, &boundcomm);
 
          //std::cerr<<"boundcomm="<<boundcomm<<", MPI_COMM_NULL="<<MPI_COMM_NULL<<std::endl;
@@ -733,6 +733,8 @@ namespace Gambit
 
         // Get the local process ID
         long int pid = getpid();
+        std::vector<long int> pid_vec;
+        pid_vec.push_back(pid);
 
         #ifdef MPI_DEBUG_OUTPUT
         std::cerr << "  Process pool size: " << COMM_WORLD.Get_size() << std::endl;
@@ -740,8 +742,8 @@ namespace Gambit
         #endif
 
         // Distribute and save the process ID of the master process
-        COMM_WORLD.Bcast(pid, 1, 0);
-        COMM_WORLD.set_MasterPID(pid);
+        COMM_WORLD.Bcast(pid_vec, 1, 0);
+        COMM_WORLD.set_MasterPID(pid_vec.at(0));
 
         #ifdef MPI_DEBUG_OUTPUT
         std::cerr << "  Master process PID " << COMM_WORLD.MasterPID() << std::endl;

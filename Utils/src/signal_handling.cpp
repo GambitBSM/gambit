@@ -69,8 +69,8 @@ namespace Gambit
     , req()
     , comm(NULL)
    {}
-    
-   void ShutdownMsg::setComm(GMPI::Comm* const c) 
+
+   void ShutdownMsg::setComm(GMPI::Comm* const c)
    {
        comm = c;
        mpisize = comm->Get_size();
@@ -82,7 +82,7 @@ namespace Gambit
            req.push_back(MPI_Request());
        }
    }
-       
+
    // Send this code to all processes (non-blocking)
    void ShutdownMsg::ISendToAll()
    {
@@ -108,7 +108,7 @@ namespace Gambit
    {
        for(int i=0; i<mpisize; i++)
        {
-          if(i!=myrank and buffer_status[i]==1) 
+          if(i!=myrank and buffer_status[i]==1)
           {
               comm->Wait(&req[i]);
               buffer_status[i] = 0;
@@ -129,14 +129,11 @@ namespace Gambit
      return name;
    }
 
-   /// Shutdown code values. Needed both here and in the header,
-   /// due to wanting to use them in both switches and vectors
-   /// (can't take reference of static const defined only in the
-   /// header since they aren't "real" objects)
-   // const int ERROR = 0; // Not in use
-   //const int SignalData::SOFT_SHUTDOWN = 1;
-   //const int SignalData::EMERGENCY_SHUTDOWN = 2;
-   //const int SignalData::NO_MORE_MESSAGES = -1;
+   /// Shutdown code values. It is a stupid vagary of C++11 that these have external linkage.
+   constexpr int SignalData::SOFT_SHUTDOWN;
+   constexpr int SignalData::EMERGENCY_SHUTDOWN;
+   constexpr int SignalData::NO_MORE_MESSAGES;
+
    #endif
 
    /// @{ SignalData member functions
@@ -500,12 +497,12 @@ namespace Gambit
    /// This function makes absolutely sure that there are no more shutdown messages
    /// to recv from any processes. It does this by making sure that every process
    /// has sent a message to confirm that it isn't going to send any more shutdown
-   /// messages 
+   /// messages
    void SignalData::ensure_no_more_shutdown_messages()
    {
      int mpiSize = signalComm->Get_size();
      int myRank = signalComm->Get_rank();
-           
+
      // Recv all shutdown messages from other processes
      logger() << LogTags::core << LogTags::debug << "Receiving all shutdown messages" << EOM;
      for(int rank=0; rank<mpiSize; rank++)
@@ -543,7 +540,7 @@ namespace Gambit
      for(auto it=msgs.begin(); it!=msgs.end(); ++it)
      {
         it->second.Wait();
-     } 
+     }
    }
    #endif
 

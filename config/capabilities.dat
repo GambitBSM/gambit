@@ -3317,6 +3317,9 @@ taumumumu: |
 mueTi: |
    Calculates the ratio for mu-e conversion in Titanium wrt capture
 
+mueAu: |
+   Calculates the ratio for mu-e conversion in gold wrt capture
+
 muePb: |
    Calculates the ratio for mu-e conversion in lead wrt capture
 
