@@ -168,7 +168,7 @@ if(NOT LAPACK_LINKLIBS)
 else()
   message("${BoldCyan}   LAPACK linking commands provided by hand; skipping cmake search and assuming no LAPACK-dependent components need to be ditched.${ColourReset}")
 endif()
-string( REGEX MATCH "l.*\\.a([:space:]*|$)" LAPACK_STATIC "${LAPACK_LINKLIBS}" )
+string( REGEX MATCH "l.*\\.a( |$)" LAPACK_STATIC "${LAPACK_LINKLIBS}" )
 if(LAPACK_STATIC OR (NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND))
   message(FATAL_ERROR "${BoldRed}LAPACK static library detected. Shared LAPACK libraries are required in order to build GAMBIT.${ColourReset}")
   # In future MN and FS need to be ditched if lapack cannot be found, and the build allowed to continue.
