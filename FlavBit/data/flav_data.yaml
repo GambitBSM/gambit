@@ -1578,9 +1578,9 @@
   exp_stat_error: 0.073e-7
   exp_sys_error: 0.074e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1590,9 +1590,9 @@
   exp_stat_error: 0.017e-7
   exp_sys_error: 0.025e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1602,9 +1602,9 @@
   exp_stat_error: 0.032e-7
   exp_sys_error: 0.024e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1614,9 +1614,9 @@
   exp_stat_error: 0.033e-7
   exp_sys_error: 0.025e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1626,9 +1626,9 @@
   exp_stat_error: 0.027e-7
   exp_sys_error: 0.026e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1638,9 +1638,9 @@
   exp_stat_error: 0.028e-7
   exp_sys_error: 0.031e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1650,9 +1650,9 @@
   exp_stat_error: 0.032e-7
   exp_sys_error: 0.035e-7
   exp_source: 1606.04731
-  th_error: 0
+  th_error: 0.6
   th_error_type: A
-  th_error_source: NONE
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1662,9 +1662,9 @@
   exp_stat_error: 0.019e-7
   exp_sys_error: 0.041e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1674,9 +1674,9 @@
   exp_stat_error: 0.027e-7
   exp_sys_error: 0.029e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1686,9 +1686,9 @@
   exp_stat_error: 0.019e-7
   exp_sys_error: 0.031e-7
   exp_source: 1606.04731
-  th_error: 0
-  th_error_type: A
-  th_error_source: NONE
+  th_error: 0.6
+  th_error_type: M
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 
@@ -1700,7 +1700,7 @@
   exp_source: 1205.3422
   th_error: 0
   th_error_type: A
-  th_error_source: NONE
+  th_error_source: 1205.1845
   correlation:
   - name: NONE
 

@@ -1404,7 +1404,7 @@ namespace Gambit
         if (flav_debug) cout << "Experiment: " << meas[i] << " " << sqrt(cov_exp(i,i)) << " " << th_err << endl;
         double theory_err = th_err[i] * (th_err_absolute[i] ? 1.0 : std::abs(value_exp(i,0)));
         if (flav_debug) cout << "Theory prediction: "<< value_exp(i,0) <<" +/- "<< theory_err <<endl;
-        result += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), fread.get_th_err()(i,0).first, sqrt(cov_exp(i,i)), profile);
+        result += Stats::gaussian_loglikelihood(meas[i], value_exp(i,0), theory_err, sqrt(cov_exp(i,i)), profile);
       }
 
       if (flav_debug) cout<<"Finished b2sll_BR_likelihood"<<endl;
