@@ -90,6 +90,8 @@ namespace Gambit
                 std::string print() const;
                 
                 std::string printFull() const;
+                
+                static std::string printMultiPlugins(const std::vector<const Plugin_Details *> &);
             };
             
             inline bool operator == (const Plugin_Details &plug1, const Plugin_Details &plug2)

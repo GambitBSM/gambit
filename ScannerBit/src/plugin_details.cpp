@@ -252,7 +252,7 @@ namespace Gambit
                 if (reqd_not_linked_libs.size() != 0)
                     out << "    could not find libraries requested by plugin: " << reqd_not_linked_libs << std::endl;
                 if (ini_libs_not_found.size() != 0)
-                    out << "    could not find libraries specified in *locations.yaml:: " << ini_libs_not_found << std::endl;
+                    out << "    could not find libraries specified in *locations.yaml: " << ini_libs_not_found << std::endl;
                 out << "    linked libraries:";
                 if (linked_libs.size() == 0)
                 {
@@ -302,6 +302,147 @@ namespace Gambit
                             if (node[plugin])
                             {
                                 description = node[plugin].as<std::string>();
+                                break;
+                            }
+                        }
+                    }
+
+                    pclose(p_f);
+                }
+
+                out << description << std::endl;
+
+                return out.str();
+            }
+            
+            std::string Plugin_Details::printMultiPlugins(const std::vector<const Plugin_Details *> &plugins)
+            {
+                std::stringstream out;
+
+                if (plugins.size() == 0)
+                    return "";
+                else if (plugins.size() == 1)
+                    return plugins[0]->printFull();
+                
+                out << "\n\x1b[01m\x1b[04mGENERAL PLUGIN INFO\x1b[0m" << std::endl;
+                out << "\nname:     " << plugins[0]->plugin;
+                out << "\ntype:     " << plugins[0]->type;
+                out << "\nversions: ";
+                out << plugins[0]->version;
+                for (int i = 1, end = plugins.size(); i < end; ++i)
+                {
+                    out << ", " << plugins[i]->version;
+                }
+                out << "\nstatus:   ";
+                for (auto &&plug : plugins)
+                {
+                    out << "\n    " << plug->version << ":  ";
+                    if (plug->status == "ok")
+                        out << "\x1b[32;01m" << plug->status << "\x1b[0m";
+                    else
+                        out << "\x1b[31;01m" << plug->status << "\x1b[0m";
+                }
+                out << std::endl;
+
+                {
+                    int tot = 0;
+                    for (auto &&plug : plugins)
+                    {
+                        tot += plug->reason.size();
+                    }
+                    
+                    if(tot)
+                    {
+                        out << "\nreason for exclusion:";
+                        for (auto &&plug : plugins)
+                        {
+                            out << "\n    " << plug->version << ":\n";
+                            for (auto it = plug->reason.begin(), end = plug->reason.end(); it != end; ++it)
+                                out << "        " << *it << std::endl;
+                        }
+                    }
+                }
+
+                out << std::endl;
+
+                out << "\n\x1b[01m\x1b[04mHEADER & LINK INFO\x1b[0m" << std::endl;
+                out << "\n\x1b[04mrequired inifile entries\x1b[0m:";
+                for (auto &&plug : plugins)
+                {
+                    out << "\n    " << plug->version << ":  ";
+                    if (plug->reqd_inifile_entries.size() == 0)
+                        out << "none";
+                    else
+                        out << plug->reqd_inifile_entries;
+                }
+                out << std::endl;
+                out << "\n\x1b[04mlink status\x1b[0m:" << std::endl;
+                for (auto &&plug : plugins)
+                {
+                    out << "    " << plug->version << ":\n";
+                    if (plug->reqd_not_linked_libs.size() != 0)
+                    {
+                        out << "        could not find libraries requested by plugin: " << plug->reqd_not_linked_libs << std::endl;
+                    }
+                    if (plug->ini_libs_not_found.size() != 0)
+                    {
+                        out << "        could not find libraries specified in *locations.yaml: " << plug->ini_libs_not_found << std::endl;
+                    }
+                
+                    out << "        linked libraries:";
+                    if (plug->linked_libs.size() == 0)
+                    {
+                        out << " none" << std::endl;
+                    }
+                    else
+                    {
+                        out << std::endl;
+                        for (auto it = plug->linked_libs.begin(), end = plug->linked_libs.end(); it != end; ++it)
+                                out << "            " << it->first << ": " << it->second << std::endl;
+                    }
+                    out << std::endl;
+                }
+
+                out << "\x1b[04minclude header status\x1b[0m:" << std::endl;
+                for (auto &&plug : plugins)
+                {
+                    out << "    " << plug->version << ":\n";
+                    if (plug->reqd_incs_not_found.size() != 0)
+                        out << "        could not find headers requested by plugin: " << plug->reqd_incs_not_found << std::endl;
+                    if (plug->ini_incs_not_found.size() != 0)
+                        out << "        could not find include paths specified in *locations.yaml: " << plug->ini_incs_not_found << std::endl;
+                    out << "        headers found:";
+                    if (plug->found_incs.size() == 0)
+                    {
+                        out << " none" << std::endl;
+                    }
+                    else
+                    {
+                        out << std::endl;
+                        for (auto it = plug->found_incs.begin(), end = plug->found_incs.end(); it != end; ++it)
+                                out << "            " << it->first << ": " << it->second << std::endl;
+                    }
+                    out << std::endl;
+                }
+                out << std::endl;
+
+                out << "\x1b[01m\x1b[04mDESCRIPTION\x1b[0m\n" << std::endl;
+
+                std::string p_str, description;
+                std::string path = GAMBIT_DIR "/config/";
+                if (FILE* p_f = popen((std::string("ls ") + path + std::string(" | grep \".dat\" | grep \""+ plugins[0]->type + "\"")).c_str(), "r"))
+                {
+                    char path_buffer[1024];
+                    int p_n;
+                    while ((p_n = fread(path_buffer, 1, sizeof path_buffer, p_f)) > 0)
+                    {
+                        std::stringstream p_ss(std::string(path_buffer, p_n));
+                        while (p_ss >> p_str)
+                        {
+                            YAML::Node node = YAML::LoadFile(path + p_str);
+                            if (node[plugins[0]->plugin])
+                            {
+                                description = node[plugins[0]->plugin].as<std::string>();
                                 break;
                             }
                         }

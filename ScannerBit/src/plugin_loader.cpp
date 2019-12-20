@@ -455,14 +455,19 @@ namespace Gambit
 
             std::string Plugin_Loader::print_plugin(const std::string &name) const
             {
-                std::vector<Scanner::Plugins::Plugin_Details> vec;
+                std::unordered_map<std::string, std::vector<const Scanner::Plugins::Plugin_Details*>> vec;
                 std::stringstream output;
+                
                 for (auto it_map = getPluginsMap().begin(), end = getPluginsMap().end(); it_map!= end; it_map++)
                 {
                     auto it = it_map->second.find(name);
                     if (it != it_map->second.end())
                     {
-                        vec.insert(vec.begin(), it->second.begin(), it->second.end());
+                        //vec.insert(vec.begin(), it->second.begin(), it->second.end());
+                        for (auto &&plug : it->second)
+                        {
+                            vec[it_map->first].push_back(&plug);
+                        }
                     }
                 }
 
@@ -474,7 +479,8 @@ namespace Gambit
                 {
                     for (auto it = vec.begin(), end = vec.end(); it != end; it++)
                     {
-                        output << it->printFull() << std::endl;
+                        //output << it->printFull() << std::endl;
+                        output << Plugin_Details::printMultiPlugins(it->second) << std::endl;
                     }
                 }
 
@@ -483,8 +489,7 @@ namespace Gambit
 
             std::string Plugin_Loader::print_plugin(const std::string &type, const std::string &plugin) const
             {
-                std::stringstream output;
-                std::vector<Scanner::Plugins::Plugin_Details> vec;
+                std::vector<const Scanner::Plugins::Plugin_Details *> vec;
 
                 if((getPluginsMap().find(type) == getPluginsMap().end()) || (getPluginsMap().at(type).find(plugin) == getPluginsMap().at(type).end()))
                 {
@@ -493,22 +498,10 @@ namespace Gambit
 
                 for (auto it = getPluginsMap().at(type).at(plugin).begin(), end = getPluginsMap().at(type).at(plugin).end(); it != end; it++)
                 {
-                    vec.push_back(*it);
+                    vec.push_back(&(*it));
                 }
 
-                if (vec.size() == 0)
-                {
-                    return "";
-                }
-                else
-                {
-                    for (auto it = vec.begin(), end = vec.end(); it != end; it++)
-                    {
-                        output << it->printFull() << std::endl;
-                    }
-                }
-
-                return output.str();
+                return Plugin_Details::printMultiPlugins(vec) + "\n";
             }
 
             int Plugin_Loader::print_plugin_to_screen (const std::string &name) const
