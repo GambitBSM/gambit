@@ -310,4 +310,3 @@ else()
   message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
-
