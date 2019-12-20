@@ -60,7 +60,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 5000
+      NP: 500
 
     multinest:
       plugin: multinest
@@ -104,7 +104,7 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike   
+  - capability: normaldist_loglike
     options:
         probability_of_validity: 1.0
 
