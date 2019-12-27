@@ -173,12 +173,12 @@ namespace Gambit
 
             /// Constructor which creates a communicator gruop from WORLD containing
             /// only the specified processes
-            Comm(const std::vector<int>& processes, const std::string& name);
+            Comm(std::vector<int> processes, const std::string& name);
 
             /// Destructor
             ~Comm();
 
-            /// Create a new communicator group for the specified processes 
+            /// Create a new communicator group for the specified processes
             Comm spawn_new(const std::vector<int>& processes, const std::string& name);
 
             /// As name
@@ -417,10 +417,10 @@ namespace Gambit
             }
 
             template <typename T>
-            void Bcast (std::vector<T>& buffer, int count, int root) 
+            void Bcast (std::vector<T>& buffer, int count, int root)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
-                
+
                 MPI_Bcast (&buffer[0], count, datatype, root, boundcomm);
             }
 
@@ -458,7 +458,7 @@ namespace Gambit
                    }
                 }
                 int errflag = MPI_Gather(&sendbuf[0], sendcount, datatype,
-                                         &recvbuf[0], recvcount, datatype, 
+                                         &recvbuf[0], recvcount, datatype,
                                          root, boundcomm);
                 if(errflag!=0) {
                    std::ostringstream errmsg;
@@ -468,13 +468,13 @@ namespace Gambit
             }
 
             template<typename T>
-            void Gatherv(std::vector<T> &sendbuf, std::vector<T> &recvbuf, const std::vector<int>& recvcounts, int root)
+            void Gatherv(std::vector<T> &sendbuf, std::vector<T> &recvbuf, std::vector<int> recvcounts, int root)
             {
                 static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
 
                 //std::cerr<<"rank "<<Get_rank()<<": Gatherv pars: recvcounts="<<recvcounts<<std::endl;
- 
-                // We will automatically calculate the displacements assuming that the incoming 
+
+                // We will automatically calculate the displacements assuming that the incoming
                 // data should just be stacked in the order of the process ranks
                 std::vector<int> displs;
                 displs.push_back(0);
@@ -532,11 +532,11 @@ namespace Gambit
 
 
             template<typename T>
-            void AllGatherv(std::vector<T> &sendbuf, std::vector<T> &recvbuf, const std::vector<int>& recvcounts)
+            void AllGatherv(std::vector<T> &sendbuf, std::vector<T> &recvbuf, std::vector<int> recvcounts)
             {
                static const MPI_Datatype datatype = get_mpi_data_type<T>::type();
 
-               // We will automatically calculate the displacements assuming that the incoming 
+               // We will automatically calculate the displacements assuming that the incoming
                // data should just be stacked in the order of the process ranks
                std::vector<int> displs(Get_size());
                displs.push_back(0);

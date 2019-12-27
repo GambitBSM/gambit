@@ -70,7 +70,7 @@ namespace Gambit
       }
 
       /// Create a new communicator group from WORLD for the specified processes
-      Comm::Comm(const std::vector<int>& processes, const std::string& name)
+      Comm::Comm(std::vector<int> processes, const std::string& name)
          : boundcomm(), myname(name)
       {
          // Create group
