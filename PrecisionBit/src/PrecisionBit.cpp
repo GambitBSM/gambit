@@ -1173,7 +1173,7 @@ namespace Gambit
     double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container) { 
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
-      const double mh_ref = 125.0; //container.he->get(Par::Pole_Mass,"h0",1);
+      const double mh_ref = 125.09; 
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
