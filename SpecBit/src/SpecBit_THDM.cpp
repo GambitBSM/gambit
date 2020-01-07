@@ -1871,7 +1871,7 @@ namespace Gambit
       //-----------------------------
       // all values < 16*PI for unitarity conditions
       const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      const double sigma = 0.1;
+      const double sigma = 1.0;
       //-----------------------------
       //calculate the total error of each point
       double error = 0.0;
@@ -1887,7 +1887,7 @@ namespace Gambit
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
 
       const double unitarity_upper_limit = 0.5;
-      const double sigma = 0.1;
+      const double sigma = 1.0;
       double error = 0.0;
       double error_ratio = 0.0;
 
@@ -1927,7 +1927,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 0.1;
+      const double sigma = 1.0;
       //-----------------------------
       double error = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
@@ -1942,9 +1942,10 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 0.1;
+      const double sigma = 1.0;
       //-----------------------------
       double error = 0.0;
+      double previous_coupling = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
       complex<double> hhhh_coupling;
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
@@ -1955,7 +1956,12 @@ namespace Gambit
                 // Don't check perturbativity of goldstone G0
                 if (p1 != 4 && p2 != 4 && p3 != 4 && p4 != 4){
                   hhhh_coupling = get_quartic_coupling(container,(particle_type)p1,(particle_type)p2,(particle_type)p3,(particle_type)p4);
-                  if (abs(hhhh_coupling) > perturbativity_upper_limit) error += abs(hhhh_coupling) - perturbativity_upper_limit;
+                  if (abs(hhhh_coupling) > perturbativity_upper_limit) {
+                    if (previous_coupling != abs(hhhh_coupling)) {
+                      error += abs(hhhh_coupling) - perturbativity_upper_limit;
+                    }
+                    previous_coupling = abs(hhhh_coupling);
+                  }
                 }
             }
           }
@@ -2000,7 +2006,7 @@ namespace Gambit
       //-----------------------------
       // sin(b-a) = 1 in alignment limit -distance from alignment limit:
       const double sba_tolerance = 0.01;
-      const double sigma = 0.1;
+      const double sigma = 1.0;
       //-----------------------------
       // loglike function
       return Stats::gaussian_upper_limit((1.0 - sba),sba_tolerance,0.0,sigma,false);
@@ -2056,7 +2062,7 @@ namespace Gambit
         std::cerr << msg.str();
         invalid_point().raise(msg.str());
       }
-    
+          
       // calculate error & loglike
       if (discriminant.real() < 0.0) return 0;
       if (discriminant.imag() < 0.0) return 0;
