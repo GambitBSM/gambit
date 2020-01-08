@@ -46,7 +46,7 @@ Printer:
 
   # printer: cout
 
-  printer: hdf5
+  printer: hdf5_v1
   options:
     output_file: "CPVYukawas.hdf5"
     group: "/CPVYukawas"
