@@ -1209,7 +1209,7 @@ namespace Gambit
       const int dim = value_exp.size();
 
       for (int i=0;i<dim;++i) {
-        error.push_back(value_exp[i] - value_th[i]);
+        error.push_back(abs(value_exp[i] - value_th[i]));
       }
 
       // calculating the covariance matrix
@@ -1221,9 +1221,9 @@ namespace Gambit
         for (int j=0; j<dim; j++) corr(i,j) = 0.0;
       }
 
-      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.59;
+      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.68;
       corr(1,0) = 0.92; corr(1,1) = 1.0; corr(1,2) = -0.87; 
-      corr(2,0) = -0.59; corr(2,1) = -0.87; corr(2,2) = 1.0;
+      corr(2,0) = -0.68; corr(2,1) = -0.87; corr(2,2) = 1.0;
 
       for (int i=0; i< dim; i++) {
         for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
