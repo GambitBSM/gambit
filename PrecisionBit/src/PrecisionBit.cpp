@@ -1173,7 +1173,7 @@ namespace Gambit
     double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container) { 
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
-      const double mh_ref = 125.; 
+      const double mh_ref = 125.0; 
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
 
@@ -1204,7 +1204,7 @@ namespace Gambit
 
       //calculating a diff
       std::vector<double> value_exp = {S,T,U};
-      std::vector<double> value_th = {0.04, 0.9, -0.02};
+      std::vector<double> value_th = {0.04, 0.09, -0.02};
       std::vector<double> error;
       const int dim = value_exp.size();
 
