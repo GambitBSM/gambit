@@ -1871,7 +1871,7 @@ namespace Gambit
       //-----------------------------
       // all values < 16*PI for unitarity conditions
       const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
-      const double sigma = 1.0;
+      const double sigma = 0.1;
       //-----------------------------
       //calculate the total error of each point
       double error = 0.0;
@@ -1887,7 +1887,7 @@ namespace Gambit
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
 
       const double unitarity_upper_limit = 0.5;
-      const double sigma = 1.0;
+      const double sigma = 0.1;
       double error = 0.0;
       double error_ratio = 0.0;
 
@@ -1927,7 +1927,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 1.0;
+      const double sigma = 0.1;
       //-----------------------------
       double error = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
@@ -1942,7 +1942,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4*M_PI;
-      const double sigma = 1.0;
+      const double sigma = 0.1;
       //-----------------------------
       double error = 0.0;
       double previous_coupling = 0.0;
@@ -1973,7 +1973,7 @@ namespace Gambit
     double stability_likelihood_THDM(THDM_spectrum_container& container) {
       std::vector<double> lambda(8);
       double m122, tanb;
-      const double sigma = 1.;
+      const double sigma = 0.1;
       double error = 0.;
 
       container.THDM_object->get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tanb);
@@ -2006,7 +2006,7 @@ namespace Gambit
       //-----------------------------
       // sin(b-a) = 1 in alignment limit -distance from alignment limit:
       const double sba_tolerance = 0.01;
-      const double sigma = 1.0;
+      const double sigma = 0.1;
       //-----------------------------
       // loglike function
       return Stats::gaussian_upper_limit((1.0 - sba),sba_tolerance,0.0,sigma,false);
