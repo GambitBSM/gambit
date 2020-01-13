@@ -402,19 +402,19 @@ namespace Gambit
       // ratios squared
 
       // hff
-      ghjss_s[0] = pow(kappaS*sinPhiS, 2);
-      ghjss_p[0] = pow(kappaS,2)*(1. - pow(sinPhiS,2));
-      ghjcc_s[0] = pow(kappaC*sinPhiC, 2);
-      ghjcc_p[0] = pow(kappaC,2)*(1. - pow(sinPhiC,2));
-      ghjbb_s[0] = pow(kappaB*sinPhiB, 2);
-      ghjbb_p[0] = pow(kappaB,2)*(1. - pow(sinPhiB,2));
-      ghjtt_s[0] = pow(kappaT*sinPhiB, 2);
-      ghjtt_p[0] = pow(kappaT,2)*(1. - pow(sinPhiT,2));
+      ghjss_p[0] = pow(kappaS*sinPhiS, 2);
+      ghjss_s[0] = pow(kappaS,2)*(1. - pow(sinPhiS,2));
+      ghjcc_p[0] = pow(kappaC*sinPhiC, 2);
+      ghjcc_s[0] = pow(kappaC,2)*(1. - pow(sinPhiC,2));
+      ghjbb_p[0] = pow(kappaB*sinPhiB, 2);
+      ghjbb_s[0] = pow(kappaB,2)*(1. - pow(sinPhiB,2));
+      ghjtt_p[0] = pow(kappaT*sinPhiB, 2);
+      ghjtt_s[0] = pow(kappaT,2)*(1. - pow(sinPhiT,2));
 
-      ghjmumu_s[0] = pow(kappaMu*sinPhiMu, 2);
-      ghjmumu_p[0] = pow(kappaMu,2)*(1. - pow(sinPhiMu,2));
-      ghjtautau_s[0] = pow(kappaTau*sinPhiTau, 2);
-      ghjtautau_p[0] = pow(kappaTau,2)*(1. - pow(sinPhiTau,2));
+      ghjmumu_p[0] = pow(kappaMu*sinPhiMu, 2);
+      ghjmumu_s[0] = pow(kappaMu,2)*(1. - pow(sinPhiMu,2));
+      ghjtautau_p[0] = pow(kappaTau*sinPhiTau, 2);
+      ghjtautau_s[0] = pow(kappaTau,2)*(1. - pow(sinPhiTau,2));
 
       // hVV
       ghjWW[0]=1.;
@@ -422,7 +422,7 @@ namespace Gambit
       ghjZga[0]=1.; // h-Z-photon (change?)
       ghjgaga[0]=1.; // h-photon-photon (change?)
       ghjgg[0]=1.; // h-gluon-gluon (change?)
-      ghjhiZ[0]=0.; // h-h-Z
+      ghjhiZ[0]=1.; // h-h-Z - isn't it =1.?
 
       // Zero all other entries in arrays
 
@@ -635,6 +635,159 @@ namespace Gambit
       #endif
 
     }
+
+
+    /// Get an LHC chisq from HiggsBounds for the CPVYukawas model using the
+    /// effective coupling interface to HB/HS
+    void calc_HS_LHC_LogLike_CPVYukawas(double &result)
+    {
+      using namespace Pipes::calc_HS_LHC_LogLike;
+
+      hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
+
+      Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
+      Farray<double, 1,3, 1,3> BR_hjhihi;
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
+        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+      }
+
+      BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
+                 &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
+                 &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
+                 &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
+                 &ModelParam.CS_bg_hjb_ratio[0], &ModelParam.CS_ud_hjWp_ratio[0],
+                 &ModelParam.CS_cs_hjWp_ratio[0], &ModelParam.CS_ud_hjWm_ratio[0],
+                 &ModelParam.CS_cs_hjWm_ratio[0], &ModelParam.CS_gg_hjZ_ratio[0],
+                 &ModelParam.CS_dd_hjZ_ratio[0], &ModelParam.CS_uu_hjZ_ratio[0],
+                 &ModelParam.CS_ss_hjZ_ratio[0], &ModelParam.CS_cc_hjZ_ratio[0],
+                 &ModelParam.CS_bb_hjZ_ratio[0], &ModelParam.CS_tev_vbf_ratio[0],
+                 &ModelParam.CS_tev_tthj_ratio[0], &ModelParam.CS_lhc7_vbf_ratio[0],
+                 &ModelParam.CS_lhc7_tthj_ratio[0], &ModelParam.CS_lhc8_vbf_ratio[0],
+                 &ModelParam.CS_lhc8_tthj_ratio[0], &ModelParam.BR_hjss[0],
+                 &ModelParam.BR_hjcc[0], &ModelParam.BR_hjbb[0],
+                 &ModelParam.BR_hjmumu[0], &ModelParam.BR_hjtautau[0],
+                 &ModelParam.BR_hjWW[0], &ModelParam.BR_hjZZ[0],
+                 &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
+                 &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
+
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
+            &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
+            &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
+
+      BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
+
+      // add uncertainties to cross-sections and branching ratios
+      // double dCS[5] = {0.,0.,0.,0.,0.};
+      // double dBR[5] = {0.,0.,0.,0.,0.};
+      // BEreq::setup_rate_uncertainties(dCS,dBR);
+
+      // run HiggsSignals
+      int mode = 1; // 1- peak-centered chi2 method (recommended)
+      double csqmu, csqmh, csqtot, Pvalue;
+      int nobs;
+      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+
+      result = -0.5*csqtot;
+
+      // Add one-sided Gaussian drop in loglike when the lightest Higgs
+      // mass is > 150 GeV. This avoids a completely flat loglike 
+      // from HS in parameter regions with far too high Higgs mass.
+      if (ModelParam.Mh[0] > 150.)
+      {
+        result -= 0.5 * pow(ModelParam.Mh[0] - 150., 2) / pow(10., 2);
+      }
+      
+      #ifdef COLLIDERBIT_DEBUG
+        std::ofstream f;
+        f.open ("HB_ModelParameters_contents.dat");
+        f<<"LHC log-likleihood";
+        for (int i = 0; i < 3; i++) f<<
+         "             higgs index"      <<
+         "                    "<<i<<":CP"<<
+         "                    "<<i<<":Mh"<<
+         "             "<<i<<":hGammaTot"<<
+         "      "<<i<<":CS_lep_hjZ_ratio"<<
+         "      "<<i<<":CS_tev_vbf_ratio"<<
+         "     "<<i<<":CS_lep_bbhj_ratio"<<
+         " "<<i<<":CS_lep_tautauhj_ratio"<<
+         "        "<<i<<":CS_gg_hj_ratio"<<
+         "     "<<i<<":CS_tev_tthj_ratio"<<
+         "    "<<i<<":CS_lhc7_tthj_ratio"<<
+         "    "<<i<<":CS_lhc8_tthj_ratio"<<
+         "  "<<i<<":CS_lep_hjhi_ratio[0]"<<
+         "  "<<i<<":CS_lep_hjhi_ratio[1]"<<
+         "  "<<i<<":CS_lep_hjhi_ratio[2]"<<
+         "                 "<<i<<":BR_ss"<<
+         "                 "<<i<<":BR_cc"<<
+         "                 "<<i<<":BR_bb"<<
+         "               "<<i<<":BR_mumu"<<
+         "             "<<i<<":BR_tautau"<<
+         "                 "<<i<<":BR_WW"<<
+         "                 "<<i<<":BR_ZZ"<<
+         "                "<<i<<":BR_Zga"<<
+         "             "<<i<<":BR_gamgam"<<
+         "                 "<<i<<":BR_gg"<<
+         "          "<<i<<":BR_invisible"<<
+         "            "<<i<<":BR_hihi[0]"<<
+         "            "<<i<<":BR_hihi[1]"<<
+         "            "<<i<<":BR_hihi[2]";
+        f<<
+         "             higgs index"      <<
+         "                 "<<4<<"MHplus"<<
+         "            "<<4<<":HpGammaTot"<<
+         "   "<<4<<":CS_lep_HpjHmi_ratio"<<
+         "             "<<4<<":BR_H+->cs"<<
+         "             "<<4<<":BR_H+->cb"<<
+         "          "<<4<<":BR_H+->taunu"<<
+         "             "<<4<<":BR_t->W+b"<<
+         "             "<<4<<":BR_t->H+b";
+        f << endl << std::setw(18) << result;
+        const int w = 24;
+        for (int i = 0; i < 3; i++)
+        {
+          f << std::setw(w) << i << std::setw(w) <<
+           ModelParam.CP[i] << std::setw(w) <<
+           ModelParam.Mh[i] << std::setw(w) <<
+           ModelParam.hGammaTot[i] << std::setw(w) <<
+           ModelParam.CS_lep_hjZ_ratio[i] << std::setw(w) <<
+           ModelParam.CS_tev_vbf_ratio[i] << std::setw(w) <<
+           ModelParam.CS_lep_bbhj_ratio[i] << std::setw(w) <<
+           ModelParam.CS_lep_tautauhj_ratio[i] << std::setw(w) <<
+           ModelParam.CS_gg_hj_ratio[i] << std::setw(w) <<
+           ModelParam.CS_tev_tthj_ratio[i] << std::setw(w) <<
+           ModelParam.CS_lhc7_tthj_ratio[i] << std::setw(w) <<
+           ModelParam.CS_lhc8_tthj_ratio[i];
+          for (int j = 0; j < 3; j++) f << std::setw(w) << ModelParam.CS_lep_hjhi_ratio[i][j];
+          f << std::setw(w) <<
+           ModelParam.BR_hjss[i] << std::setw(w) <<
+           ModelParam.BR_hjcc[i] << std::setw(w) <<
+           ModelParam.BR_hjbb[i] << std::setw(w) <<
+           ModelParam.BR_hjmumu[i] << std::setw(w) <<
+           ModelParam.BR_hjtautau[i] << std::setw(w) <<
+           ModelParam.BR_hjWW[i] << std::setw(w) <<
+           ModelParam.BR_hjZZ[i] << std::setw(w) <<
+           ModelParam.BR_hjZga[i] << std::setw(w) <<
+           ModelParam.BR_hjgaga[i] << std::setw(w) <<
+           ModelParam.BR_hjgg[i] << std::setw(w) <<
+           ModelParam.BR_hjinvisible[i];
+          for (int j = 0; j < 3; j++) f << std::setw(w) << ModelParam.BR_hjhihi[i][j];
+        }
+        f << std::setw(w) << 4 << std::setw(w) <<
+         ModelParam.MHplus[0] << std::setw(w) <<
+         ModelParam.HpGammaTot[0] << std::setw(w) <<
+         ModelParam.CS_lep_HpjHmi_ratio[0] << std::setw(w) <<
+         ModelParam.BR_Hpjcs[0] << std::setw(w) <<
+         ModelParam.BR_Hpjcb[0] << std::setw(w) <<
+         ModelParam.BR_Hptaunu[0] << std::setw(w) <<
+         ModelParam.BR_tWpb << std::setw(w) <<
+         ModelParam.BR_tHpjb[0];
+        f.close();
+      #endif
+
+    }
+
 
     /// Higgs production cross-sections from FeynHiggs.
     void FH_HiggsProd(fh_HiggsProd &result)
