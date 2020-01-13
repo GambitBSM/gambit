@@ -402,19 +402,19 @@ namespace Gambit
       // ratios squared
 
       // hff
-      ghjss_p[0] = pow(kappaS*sinPhiS, 2);
-      ghjss_s[0] = pow(kappaS,2)*(1. - pow(sinPhiS,2));
-      ghjcc_p[0] = pow(kappaC*sinPhiC, 2);
-      ghjcc_s[0] = pow(kappaC,2)*(1. - pow(sinPhiC,2));
-      ghjbb_p[0] = pow(kappaB*sinPhiB, 2);
-      ghjbb_s[0] = pow(kappaB,2)*(1. - pow(sinPhiB,2));
-      ghjtt_p[0] = pow(kappaT*sinPhiB, 2);
-      ghjtt_s[0] = pow(kappaT,2)*(1. - pow(sinPhiT,2));
+      ghjss_p[0] = kappaS*sinPhiS;
+      ghjss_s[0] = kappaS*sqrt(1. - pow(sinPhiS,2));
+      ghjcc_p[0] = kappaC*sinPhiC;
+      ghjcc_s[0] = kappaC*sqrt(1. - pow(sinPhiC,2));
+      ghjbb_p[0] = kappaB*sinPhiB;
+      ghjbb_s[0] = kappaB*sqrt(1. - pow(sinPhiB,2));
+      ghjtt_p[0] = kappaT*sinPhiB;
+      ghjtt_s[0] = kappaT*sqrt(1. - pow(sinPhiT,2));
 
-      ghjmumu_p[0] = pow(kappaMu*sinPhiMu, 2);
-      ghjmumu_s[0] = pow(kappaMu,2)*(1. - pow(sinPhiMu,2));
-      ghjtautau_p[0] = pow(kappaTau*sinPhiTau, 2);
-      ghjtautau_s[0] = pow(kappaTau,2)*(1. - pow(sinPhiTau,2));
+      ghjmumu_p[0] = kappaMu*sinPhiMu;
+      ghjmumu_s[0] = kappaMu*sqrt(1. - pow(sinPhiMu,2));
+      ghjtautau_p[0] = kappaTau*sinPhiTau;
+      ghjtautau_s[0] = kappaTau*sqrt(1. - pow(sinPhiTau,2));
 
       // hVV
       ghjWW[0]=1.;
