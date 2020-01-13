@@ -3040,35 +3040,44 @@ namespace Gambit
 
       double kappaU = *Param["kappaU"];
       double kappaB = *Param["kappaB"];
+      double sinPhiU = *Param["SinPhiU"];
+      double sinPhiB = *Param["SinPhiB"];
+      double cosPhiU2 = (1. - pow(sinPhiU,2));
+      double cosPhiB2 = (1. - pow(sinPhiB,2));
       // etc...
 
       // We might not want to do the below steps unless kappa !=1 or
       // phi != 0
 
       // Partial width for h -> u u (at tree level, check expressions, add loop corrections?)
-      double gammaU = kappaU*kappaU * mh*mu*mu/(8.*pi*v0*v0)
-    		  *pow(1. - 4.*mu*mu/(mh*mh), 3./2.);
-      double gammaB = kappaB*kappaB * mh*mb*mb/(8.*pi*v0*v0)
-    		  *pow(1. - 4.*mb*mb/(mh*mh), 3./2.);
+      // (these don't agree with HiggsBounds)
+      // double gammaU = kappaU*kappaU * mh*mu*mu/(8.*pi*v0*v0)
+      //       *pow(1. - 4.*mu*mu/(mh*mh), 3./2.);
+      // double gammaB = kappaB*kappaB * mh*mb*mb/(8.*pi*v0*v0)
+      //       *pow(1. - 4.*mb*mb/(mh*mh), 3./2.);
       // etc... for other fermion final states
 
       // Get the standard model partial widths (for up quark is zero, probably down too?)
       double gammaB_SM = result.BF("b","bbar")*result.width_in_GeV;
       // etc...
 
+      // Rescale partial widths following HiggsBounds (check!!)
+      double gammaB = gammaB_SM * pow(kappaB,2) * (cosPhiB2 + pow(sinPhiB,2)/(1. - 4.*pow(mb/mh,2)));
+
       // Subtract SM partial widths and add rescaled partial widths for our model to
       // find new total width
 
-      result.width_in_GeV = result.width_in_GeV + gammaU;
+      // result.width_in_GeV = result.width_in_GeV + gammaU;
       result.width_in_GeV = result.width_in_GeV - gammaB_SM + gammaB;
       /// etc...
 
       // Set branching fractions to appropriate values:
-      result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
+      // result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
       result.set_BF(gammaB/result.width_in_GeV, 0.0, "b", "bbar");
       /// etc...
 
-	}
+    }
+
     //////////// Everything ///////////////////
 
     /// Collect all the DecayTable entries into an actual DecayTable
