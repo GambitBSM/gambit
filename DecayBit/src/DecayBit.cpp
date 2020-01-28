@@ -3032,18 +3032,22 @@ namespace Gambit
       // In theory, these should come from a spectrum object, but we will fix that later
       double v0 = 246.; // Higgs vev (should actually be calculated from G_F)
       double mh = 125.; // Higgs mass (should come from model parameter)
-      double mu = 0.0022; // Quark masses
+      double mu = 0.0022; // Fermion masses (should come from model parameters)
       double mb = 4.18;
+      double mMu = 0.105658;
 
       // Once we set all of the decays of the SM Higgs in this function, the below might not be necessary:
       result = *Dep::Reference_SM_Higgs_decay_rates;
 
       double kappaU = *Param["kappaU"];
       double kappaB = *Param["kappaB"];
+      double kappaMu = *Param["kappaMu"];
       double sinPhiU = *Param["SinPhiU"];
       double sinPhiB = *Param["SinPhiB"];
+      double sinPhiMu = *Param["SinPhiMu"];
       double cosPhiU2 = (1. - pow(sinPhiU,2));
       double cosPhiB2 = (1. - pow(sinPhiB,2));
+      double cosPhiMu2 = (1. - pow(sinPhiMu,2));
       // etc...
 
       // We might not want to do the below steps unless kappa !=1 or
@@ -3059,21 +3063,25 @@ namespace Gambit
 
       // Get the standard model partial widths (for up quark is zero, probably down too?)
       double gammaB_SM = result.BF("b","bbar")*result.width_in_GeV;
+      double gammaMu_SM = result.BF("mu-", "mu+")*result.width_in_GeV;
       // etc...
 
       // Rescale partial widths following HiggsBounds (check!!)
       double gammaB = gammaB_SM * pow(kappaB,2) * (cosPhiB2 + pow(sinPhiB,2)/(1. - 4.*pow(mb/mh,2)));
+      double gammaMu = gammaB_SM * pow(kappaMu,2) * (cosPhiMu2 + pow(sinPhiMu,2)/(1. - 4.*pow(mMu/mh,2)));
 
       // Subtract SM partial widths and add rescaled partial widths for our model to
       // find new total width
 
       // result.width_in_GeV = result.width_in_GeV + gammaU;
       result.width_in_GeV = result.width_in_GeV - gammaB_SM + gammaB;
+      result.width_in_GeV = result.width_in_GeV - gammaB_SM - gammaMu_SM + gammaB + gammaMu;
       /// etc...
 
       // Set branching fractions to appropriate values:
       // result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
       result.set_BF(gammaB/result.width_in_GeV, 0.0, "b", "bbar");
+      result.set_BF(gammaMu/result.width_in_GeV, 0.0, "mu-", "mu+");
       /// etc...
 
     }
