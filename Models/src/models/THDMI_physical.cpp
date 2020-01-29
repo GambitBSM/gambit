@@ -35,7 +35,7 @@
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
 
 // Activate debug output
-//#define THDM_DBUG
+// #define THDM_DBUG
 
 using namespace Gambit::Utils;
 
@@ -81,6 +81,7 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDMI(const ModelParameters &myP, ModelP
   #ifdef THDM_DBUG
     std::cout << "THDMI_physical parameters:" << myP << std::endl;
     std::cout << "THDMI parameters   :" << targetP << std::endl;
+    SpecBit::print_THDM_spectrum(basis);
   #endif
 }
 
@@ -111,7 +112,6 @@ void MODEL_NAMESPACE::THDMI_physical_to_THDM (const ModelParameters &myP, ModelP
   targetP.setValue("Lambda_3", basis["Lambda3"] );
   targetP.setValue("Lambda_4", basis["Lambda4"] );
   targetP.setValue("Lambda_5", basis["Lambda5"] );
-  targetP.setValue("Lambda_6", basis["Lambda6"] );
   targetP.setValue("Lambda_7", basis["Lambda7"] );
   targetP.setValue("m22_2", basis["M22_2"] );
   targetP.setValue("tanb", basis["tanb"] );
@@ -130,8 +130,6 @@ for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
 {  
     targetP.setValue(yukawa_key, 0.0);
 }
-  targetP.setValue("Qin",80.39);
-  targetP.setValue("QrunTo", 173.15);
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
