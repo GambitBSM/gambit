@@ -1204,7 +1204,7 @@ namespace Gambit
 
       //calculating a diff
       std::vector<double> value_exp = {S,T,U};
-      std::vector<double> value_th = {0.02, 0.07, 0.00};
+      std::vector<double> value_th = {0.04, 0.09, -0.02};
       std::vector<double> error;
       const int dim = value_exp.size();
 
@@ -1214,16 +1214,16 @@ namespace Gambit
 
       // calculating the covariance matrix
       boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
-      std::vector<double> sigma = {0.10, 0.12, 0.09};
+      std::vector<double> sigma = {0.11, 0.14, 0.11};
 
       // fill with zeros
       for (int i=0; i< dim; i++) {
         for (int j=0; j<dim; j++) corr(i,j) = 0.0;
       }
 
-      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.66;
-      corr(1,0) = 0.92; corr(1,1) = 1.0; corr(1,2) = -0.86; 
-      corr(2,0) = -0.66; corr(2,1) = -0.86; corr(2,2) = 1.0;
+      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.68;
+      corr(1,0) = 0.92; corr(1,1) = 1.0; corr(1,2) = -0.87; 
+      corr(2,0) = -0.68; corr(2,1) = -0.87; corr(2,2) = 1.0;
 
       for (int i=0; i< dim; i++) {
         for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
