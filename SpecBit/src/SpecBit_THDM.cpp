@@ -580,7 +580,7 @@ namespace Gambit
       const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
       const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
       const double beta = atan(container.he->get(Par::dimensionless, "tanb"));
-      const double vev = sqrt((container.THDM_object->get_SM_pointer())->get_v2());
+      const double vev = get_vev(container);;
 
       y_u = gsl_matrix_complex_alloc(size, size);
       y_d = gsl_matrix_complex_alloc(size, size);
@@ -767,12 +767,12 @@ namespace Gambit
 
     template <class T>
     void fill_physical_basis(T& input, THDM_spectrum_container& container) { 
-      input.mh = container.he->get(Par::Pole_Mass, "h0", 1);
-      input.mH = container.he->get(Par::Pole_Mass, "h0", 2);
-      input.mA = container.he->get(Par::Pole_Mass, "A0");
-      input.mC = container.he->get(Par::Pole_Mass, "H+");
-      input.mG = container.he->get(Par::Pole_Mass, "G0");
-      input.mGC = container.he->get(Par::Pole_Mass, "G+");
+      input.mh = container.he->get(Par::mass1, "h0", 1);
+      input.mH = container.he->get(Par::mass1, "h0", 2);
+      input.mA = container.he->get(Par::mass1, "A0");
+      input.mC = container.he->get(Par::mass1, "H+");
+      input.mG = container.he->get(Par::mass1, "G0");
+      input.mGC = container.he->get(Par::mass1, "G+");
       input.tanb = container.he->get(Par::dimensionless, "tanb");
       input.alpha = container.he  ->get(Par::dimensionless, "alpha");
       input.m122 = container.he->get(Par::mass1, "m12_2");
@@ -791,9 +791,14 @@ namespace Gambit
       return symm_factor;
     }
 
+    double get_vev(THDM_spectrum_container& container) {
+      // audit this vs SMObject->get_v2.
+      return container.he->get(Par::mass1, "vev");,2);
+    }
+
     double get_vev2(THDM_spectrum_container& container) {
       // audit this vs SMObject->get_v2.
-      return 1.0/(sqrt(2.0)*container.sminputs.GF);
+      return pow(container.he->get(Par::mass1, "vev"),2);
     }
 
      physical_basis_input fill_physical_basis_input(THDM_spectrum_container& container) {
@@ -981,7 +986,7 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
       const double sba = sin(b-a), cba = cos(b-a);
-      const double v = sqrt((container.THDM_object->get_SM_pointer())->get_v2());
+      const double v = get_vev(container);
       const std::complex<double> i(0.0,1.0);
 
       cubic_couplings[1] = 1.0/v * (-1.0*mh2 * sba);
@@ -993,14 +998,22 @@ namespace Gambit
       cubic_couplings[7] = 1.0/v * (-1.0*(mH2-mC2) * sba);
       cubic_couplings[8] = 1.0/v * (-1.0*(mH2-mA2) * sba);
       cubic_couplings[9] = 1.0/v * (-1.0*i*(mA2-mC2));
-      container.THDM_object->get_coupling_hhh(1,4,4,cubic_couplings[10]);
-      container.THDM_object->get_coupling_hhh(1,3,3,cubic_couplings[11]);
-      container.THDM_object->get_coupling_hhh(2,4,4,cubic_couplings[12]);
-      container.THDM_object->get_coupling_hhh(2,3,3,cubic_couplings[13]);
-      container.THDM_object->get_coupling_hhh(1,1,1,cubic_couplings[14]);
-      container.THDM_object->get_coupling_hhh(1,1,2,cubic_couplings[15]);
-      container.THDM_object->get_coupling_hhh(1,2,2,cubic_couplings[16]);
-      container.THDM_object->get_coupling_hhh(2,2,2,cubic_couplings[17]);
+      cubic_couplings[10] = get_cubic_coupling(container, h0, Hp, Hm);
+      cubic_couplings[11] = get_cubic_coupling(container, h0, A0, A0);
+      cubic_couplings[12] = get_cubic_coupling(container, H0, Hp, Hm);
+      cubic_couplings[13] = get_cubic_coupling(container, H0, A0, A0);
+      cubic_couplings[14] = get_cubic_coupling(container, h0, h0, h0);
+      cubic_couplings[15] = get_cubic_coupling(container, h0, h0, H0);
+      cubic_couplings[16] = get_cubic_coupling(container, h0, H0, H0);
+      cubic_couplings[17] = get_cubic_coupling(container, H0, H0, H0);
+      // container.THDM_object->get_coupling_hhh(1,4,4,cubic_couplings[10]);
+      // container.THDM_object->get_coupling_hhh(1,3,3,cubic_couplings[11]);
+      // container.THDM_object->get_coupling_hhh(2,4,4,cubic_couplings[12]);
+      // container.THDM_object->get_coupling_hhh(2,3,3,cubic_couplings[13]);
+      // container.THDM_object->get_coupling_hhh(1,1,1,cubic_couplings[14]);
+      // container.THDM_object->get_coupling_hhh(1,1,2,cubic_couplings[15]);
+      // container.THDM_object->get_coupling_hhh(1,2,2,cubic_couplings[16]);
+      // container.THDM_object->get_coupling_hhh(2,2,2,cubic_couplings[17]);
       return cubic_couplings;
     }
 
@@ -1016,7 +1029,7 @@ namespace Gambit
       const double sba = sin(b-a), cba = cos(b-a), sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
       const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
       const double c2b = cos(2.0*b), c2a = cos(2.0*a);
-      const double v2 = container.THDM_object->get_SM_pointer()->get_v2();
+      const double v2 = get_vev2(container);;
       const std::complex<double> i(0.0,1.0);
 
       quartic_couplings[1] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(cba,3)*sba*t2binv + mh2*pow(sba,4));
@@ -1029,22 +1042,38 @@ namespace Gambit
       quartic_couplings[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
       quartic_couplings[7] = 1.0/(8.0*v2*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
       quartic_couplings[8] = 3.0*quartic_couplings[7];
-      container.THDM_object->get_coupling_hhhh(1,1,4,4,quartic_couplings[9]);
-      container.THDM_object->get_coupling_hhhh(1,1,3,3,quartic_couplings[10]);
-      container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[11]);
-      container.THDM_object->get_coupling_hhhh(2,2,3,3,quartic_couplings[12]);
-      container.THDM_object->get_coupling_hhhh(1,2,4,4,quartic_couplings[13]);
-      container.THDM_object->get_coupling_hhhh(1,2,3,3,quartic_couplings[14]);
-      container.THDM_object->get_coupling_hhhh(1,1,1,1,quartic_couplings[15]);
-      container.THDM_object->get_coupling_hhhh(1,1,1,2,quartic_couplings[16]);
-      container.THDM_object->get_coupling_hhhh(1,1,2,2,quartic_couplings[17]);
-      container.THDM_object->get_coupling_hhhh(1,2,2,2,quartic_couplings[18]);
-      container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[19]);
-      container.THDM_object->get_coupling_hhhh(4,4,4,4,quartic_couplings[20]);
-      container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[21]);
-      container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[22]);
+      quartic_couplings[9] = get_quartic_coupling(container, h0, h0, Hp, Hm);
+      quartic_couplings[10] = get_quartic_coupling(container, h0, h0, A0, A0);
+      quartic_couplings[11] = get_quartic_coupling(container, H0, H0, Hp, Hm);
+      quartic_couplings[12] = get_quartic_coupling(container, H0, H0, A0, A0);
+      quartic_couplings[13] = get_quartic_coupling(container, h0, H0, Hp, Hm);
+      quartic_couplings[14] = get_quartic_coupling(container, h0, H0, A0, A0); 
+      quartic_couplings[15] = get_quartic_coupling(container, h0, h0, h0, h0);
+      quartic_couplings[16] = get_quartic_coupling(container, h0, h0, h0, H0);
+      quartic_couplings[17] = get_quartic_coupling(container, h0, h0, H0, H0);
+      quartic_couplings[18] = get_quartic_coupling(container, h0, H0, H0, H0); 
+      quartic_couplings[19] = get_quartic_coupling(container, H0, H0, H0, H0);
+      quartic_couplings[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
+      quartic_couplings[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
+      quartic_couplings[22] = get_quartic_coupling(container, A0, A0, A0, A0);
+      // container.THDM_object->get_coupling_hhhh(1,1,4,4,quartic_couplings[9]);
+      // container.THDM_object->get_coupling_hhhh(1,1,3,3,quartic_couplings[10]);
+      // container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[11]);
+      // container.THDM_object->get_coupling_hhhh(2,2,3,3,quartic_couplings[12]);
+      // container.THDM_object->get_coupling_hhhh(1,2,4,4,quartic_couplings[13]);
+      // container.THDM_object->get_coupling_hhhh(1,2,3,3,quartic_couplings[14]);
+      // container.THDM_object->get_coupling_hhhh(1,1,1,1,quartic_couplings[15]);
+      // container.THDM_object->get_coupling_hhhh(1,1,1,2,quartic_couplings[16]);
+      // container.THDM_object->get_coupling_hhhh(1,1,2,2,quartic_couplings[17]);
+      // container.THDM_object->get_coupling_hhhh(1,2,2,2,quartic_couplings[18]);
+      // container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[19]);
+      // container.THDM_object->get_coupling_hhhh(4,4,4,4,quartic_couplings[20]);
+      // container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[21]);
+      // container.THDM_object->get_coupling_hhhh(2,2,2,2,quartic_couplings[22]);
       return quartic_couplings;
     }
+
+    // ******************
 
     // std::vector<std::complex<double>> get_cubic_couplings(THDM_spectrum_container& container) {
     //   const int size = 17;
@@ -1103,6 +1132,8 @@ namespace Gambit
     //   return quartic_couplings;
 
     // }
+
+    // ****************
 
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container& container) {
       std::vector<double> Lambda(8);
@@ -2117,7 +2148,7 @@ namespace Gambit
       const double cb2 = cb*cb;
 
       // TODO: get from FS
-      const double v2 = pow (1. / sqrt(sqrt(2.)*container.sminputs.GF),2);
+      const double v2 = get_vev2(container);
 
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)
