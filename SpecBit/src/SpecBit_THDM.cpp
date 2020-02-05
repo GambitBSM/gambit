@@ -559,6 +559,16 @@ namespace Gambit
         return sin(atan(tanb)-alpha);
     }
 
+    double get_v(THDM_spectrum_container& container) {
+      // audit this vs SMObject->get_v2.
+      return container.he->get(Par::mass1, "vev");
+    }
+
+    double get_v2(THDM_spectrum_container& container) {
+      // audit this vs SMObject->get_v2.
+      return pow(container.he->get(Par::mass1, "vev"),2);
+    }
+
     // Custom functions to extend GSL
     std::complex<double> gsl_complex_to_complex_double(const gsl_complex c) {
       return std::complex<double>(GSL_REAL(c), GSL_IMAG(c));
@@ -580,7 +590,7 @@ namespace Gambit
       const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
       const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
       const double beta = atan(container.he->get(Par::dimensionless, "tanb"));
-      const double vev = get_vev(container);;
+      const double vev = get_v(container);;
 
       y_u = gsl_matrix_complex_alloc(size, size);
       y_d = gsl_matrix_complex_alloc(size, size);
@@ -774,7 +784,7 @@ namespace Gambit
       input.mG = container.he->get(Par::mass1, "G0");
       input.mGC = container.he->get(Par::mass1, "G+");
       input.tanb = container.he->get(Par::dimensionless, "tanb");
-      input.alpha = container.he  ->get(Par::dimensionless, "alpha");
+      input.alpha = container.he->get(Par::dimensionless, "alpha");
       input.m122 = container.he->get(Par::mass1, "m12_2");
     }
 
@@ -789,16 +799,6 @@ namespace Gambit
             symm_factor *= factorial(n_identical);
       }
       return symm_factor;
-    }
-
-    double get_vev(THDM_spectrum_container& container) {
-      // audit this vs SMObject->get_v2.
-      return container.he->get(Par::mass1, "vev");,2);
-    }
-
-    double get_vev2(THDM_spectrum_container& container) {
-      // audit this vs SMObject->get_v2.
-      return pow(container.he->get(Par::mass1, "vev"),2);
     }
 
      physical_basis_input fill_physical_basis_input(THDM_spectrum_container& container) {
@@ -824,19 +824,19 @@ namespace Gambit
       c += (std::conj(q[j][1])*q[k][2]*q[l][2]*Lam5).real();
       c += ((2.0*q[j][1] + std::conj(q[j][1]))*std::conj(q[k][1])*q[l][2]*Lam6).real();
       c += (std::conj(q[j][2])*q[k][2]*q[l][2]*Lam7).real();
-      return sqrt(get_vev2(container))*0.5*c;
+      return sqrt(get_v2(container))*0.5*c;
     }
 
     std::complex<double> get_cubic_coupling_hHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*((q[k][1]).real() * container.higgs_pars.Lambda3 + (q[k][2] * -1.0*container.higgs_pars.Lambda7).real());
+      return sqrt(get_v2(container))*((q[k][1]).real() * container.higgs_pars.Lambda3 + (q[k][2] * -1.0*container.higgs_pars.Lambda7).real());
     }
 
     std::complex<double> get_cubic_coupling_hGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*((q[k][1]).real() * container.higgs_pars.Lambda1 + (q[k][2]* -1.0*container.higgs_pars.Lambda6).real());
+      return sqrt(get_v2(container))*((q[k][1]).real() * container.higgs_pars.Lambda1 + (q[k][2]* -1.0*container.higgs_pars.Lambda6).real());
     }
 
     std::complex<double> get_cubic_coupling_hGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return sqrt(get_vev2(container))*0.5*(std::conj(q[k][2]) * container.higgs_pars.Lambda4 + q[k][2]* container.higgs_pars.Lambda5 + 2.0*(q[k][1]).real()*-1.0*container.higgs_pars.Lambda6);
+      return sqrt(get_v2(container))*0.5*(std::conj(q[k][2]) * container.higgs_pars.Lambda4 + q[k][2]* container.higgs_pars.Lambda5 + 2.0*(q[k][1]).real()*-1.0*container.higgs_pars.Lambda6);
     }
 
     std::complex<double> get_quartic_coupling_hhhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
@@ -986,7 +986,7 @@ namespace Gambit
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
       const double sba = sin(b-a), cba = cos(b-a);
-      const double v = get_vev(container);
+      const double v = get_v(container);
       const std::complex<double> i(0.0,1.0);
 
       cubic_couplings[1] = 1.0/v * (-1.0*mh2 * sba);
@@ -1029,7 +1029,7 @@ namespace Gambit
       const double sba = sin(b-a), cba = cos(b-a), sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
       const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
       const double c2b = cos(2.0*b), c2a = cos(2.0*a);
-      const double v2 = get_vev2(container);;
+      const double v2 = get_v2(container);;
       const std::complex<double> i(0.0,1.0);
 
       quartic_couplings[1] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(cba,3)*sba*t2binv + mh2*pow(sba,4));
@@ -2148,7 +2148,7 @@ namespace Gambit
       const double cb2 = cb*cb;
 
       // TODO: get from FS
-      const double v2 = get_vev2(container);
+      const double v2 = get_v2(container);
 
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)
