@@ -1975,8 +1975,8 @@ namespace Gambit
       std::vector<double> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
       //set constraint values
       //-----------------------------
-      // all values < 16*PI for unitarity conditions
-      const double unitarity_upper_limit = 16*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+      // all values < 8*PI for unitarity conditions
+      const double unitarity_upper_limit = 8*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
       const double sigma = 0.1;
       //-----------------------------
       //calculate the total error of each point
@@ -1992,7 +1992,7 @@ namespace Gambit
       
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
 
-      const double unitarity_upper_limit = 0.5;
+      const double unitarity_upper_limit = 0.25;
       const double sigma = 0.001;
       double error = 0.0;
       double error_ratio = 0.0;
