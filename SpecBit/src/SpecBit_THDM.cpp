@@ -982,12 +982,16 @@ namespace Gambit
       std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
       
       const physical_basis_input input_pars = fill_physical_basis_input(container);
-      const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC;
+      const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      const double sba = sin(b-a), cba = cos(b-a);
+      const double sba = sin(b-a), cba = cos(b-a), cbap = cos(b+a), sbap = sin(b+a);
       const double v = get_v(container);
       const std::complex<double> i(0.0,1.0);
+
+      const double sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
+      const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
+      const double c2b = cos(2.0*b), c2a = cos(2.0*a);
 
       cubic_couplings[1] = 1.0/v * (-1.0*mh2 * sba);
       cubic_couplings[2] = cubic_couplings[1];
@@ -998,14 +1002,26 @@ namespace Gambit
       cubic_couplings[7] = 1.0/v * (-1.0*(mH2-mC2) * sba);
       cubic_couplings[8] = 1.0/v * (-1.0*(mH2-mA2) * sba);
       cubic_couplings[9] = 1.0/v * (-1.0*i*(mA2-mC2));
-      cubic_couplings[10] = get_cubic_coupling(container, h0, Hp, Hm);
-      cubic_couplings[11] = get_cubic_coupling(container, h0, A0, A0);
-      cubic_couplings[12] = get_cubic_coupling(container, H0, Hp, Hm);
-      cubic_couplings[13] = get_cubic_coupling(container, H0, A0, A0);
-      cubic_couplings[14] = get_cubic_coupling(container, h0, h0, h0);
-      cubic_couplings[15] = get_cubic_coupling(container, h0, h0, H0);
-      cubic_couplings[16] = get_cubic_coupling(container, h0, H0, H0);
-      cubic_couplings[17] = get_cubic_coupling(container, H0, H0, H0);
+
+      cubic_couplings[10] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mC2)*sba); 
+      cubic_couplings[11] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mA2)*sba); 
+      cubic_couplings[12] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mC2)*cba); 
+      cubic_couplings[13] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mA2)*cba); 
+      cubic_couplings[14] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*cbap*cba2 - mh2*( 3.0*sin(3.0*b+a) + 3.0*sba + sin(3.0*b-3.0*a) + sin(b+3.0*a) )); 
+      cubic_couplings[15] = -cba/(s2b*v)*(2.0*m122 + (mH2 + 2.0*mh2 - 3.0*sqrt(m122)*sbinv*cbinv)*s2a);
+      cubic_couplings[16] = sba/(s2b*v)*(-2.0*m122 + (mh2 + 2.0*mH2 - 3.0*sqrt(m122)*sbinv*cbinv)*s2a);
+      cubic_couplings[17] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*sbap*sba2 - mH2*( 3.0*cos(3.0*b+a) - 3.0*cba + cos(3.0*b-3.0*a) - cos(b+3.0*a) )); 
+      
+
+      // cubic_couplings[10] = get_cubic_coupling(container, h0, Hp, Hm);
+      // cubic_couplings[11] = get_cubic_coupling(container, h0, A0, A0);
+      // cubic_couplings[12] = get_cubic_coupling(container, H0, Hp, Hm);
+      // cubic_couplings[13] = get_cubic_coupling(container, H0, A0, A0);
+      // cubic_couplings[14] = get_cubic_coupling(container, h0, h0, h0);
+      // cubic_couplings[15] = get_cubic_coupling(container, h0, h0, H0);
+      // cubic_couplings[16] = get_cubic_coupling(container, h0, H0, H0);
+      // cubic_couplings[17] = get_cubic_coupling(container, H0, H0, H0);
+      
       // container.THDM_object->get_coupling_hhh(1,4,4,cubic_couplings[10]);
       // container.THDM_object->get_coupling_hhh(1,3,3,cubic_couplings[11]);
       // container.THDM_object->get_coupling_hhh(2,4,4,cubic_couplings[12]);
@@ -1026,9 +1042,17 @@ namespace Gambit
       const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      const double sba = sin(b-a), cba = cos(b-a), sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
-      const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
-      const double c2b = cos(2.0*b), c2a = cos(2.0*a);
+      const double sba = sin(b-a), sbap = sin(b+a), sba2 = pow(sba,2), sab = sin(a-b), sab2 = pow(sab,2);
+      const double cba = cos(b-a), cbap = cos(b+a), cba2 = pow(cba,2), cab = cos(a-b), cab2 = pow(cab,2);
+      const double t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b), sbinv2 = pow(sbinv,2), cbinv2 = pow(cbinv,2);
+      const double s2b = sin(2.0*b), s4b = sin(4.0*b), s2a = sin(2.0*a), s4a = sin(4.0*a);
+      const double s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b), s2b2ap = sin(2.0*b+2.0*a), s2a2bp = sin(2.0*a+2.0*b);
+      const double s3b3a = sin(3.0*b-3.0*a), s3a3b = sin(3.0*a-3.0*b), s3b3ap = sin(3.0*b+3.0*a), s3a3bp = sin(3.0*a+3.0*b);
+      const double s4b4a = sin(4.0*b-4.0*a), s4a4b = sin(4.0*a-4.0*b);
+      const double c2b = cos(2.0*b), c4b = cos(4.0*b), c2a = cos(2.0*a), c4a = cos(4.0*a);
+      const double c2b2a = cos(2.0*b-2.0*a), c2a2b = cos(2.0*a-2.0*b), c2b2ap = cos(2.0*b+2.0*a), c2a2bp = cos(2.0*a+2.0*b);
+      const double c3b3a = cos(3.0*b-3.0*a), c3a3b = cos(3.0*a-3.0*b), c3b3ap = cos(3.0*b+3.0*a), c3a3bp = cos(3.0*a+3.0*b);
+      const double c4b4a = cos(4.0*b-4.0*a), c4a4b = cos(4.0*a-4.0*b);
       const double v2 = get_v2(container);;
       const std::complex<double> i(0.0,1.0);
 
@@ -1040,22 +1064,69 @@ namespace Gambit
       quartic_couplings[4] = 1.0/v2 * (2.0*m122*sbinv*cbinv - (mH2 + 2.0*mh2)*cba2 - (mh2 + 2.0*mH2)*sba2 + (mH2 - mh2)*t2binv*s2b2a);
       quartic_couplings[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
       quartic_couplings[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
-      quartic_couplings[7] = 1.0/(8.0*v2*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
+      quartic_couplings[7] = 1.0/(8.0*v2*s2b*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
       quartic_couplings[8] = 3.0*quartic_couplings[7];
-      quartic_couplings[9] = get_quartic_coupling(container, h0, h0, Hp, Hm);
-      quartic_couplings[10] = get_quartic_coupling(container, h0, h0, A0, A0);
-      quartic_couplings[11] = get_quartic_coupling(container, H0, H0, Hp, Hm);
-      quartic_couplings[12] = get_quartic_coupling(container, H0, H0, A0, A0);
-      quartic_couplings[13] = get_quartic_coupling(container, h0, H0, Hp, Hm);
-      quartic_couplings[14] = get_quartic_coupling(container, h0, H0, A0, A0); 
-      quartic_couplings[15] = get_quartic_coupling(container, h0, h0, h0, h0);
-      quartic_couplings[16] = get_quartic_coupling(container, h0, h0, h0, H0);
-      quartic_couplings[17] = get_quartic_coupling(container, h0, h0, H0, H0);
-      quartic_couplings[18] = get_quartic_coupling(container, h0, H0, H0, H0); 
-      quartic_couplings[19] = get_quartic_coupling(container, H0, H0, H0, H0);
-      quartic_couplings[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
-      quartic_couplings[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
-      quartic_couplings[22] = get_quartic_coupling(container, A0, A0, A0, A0);
+
+      quartic_couplings[9] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
+      quartic_couplings[9] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
+      quartic_couplings[9] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 - 32.0*sab2*s2b*mC2);
+
+      quartic_couplings[10] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
+      quartic_couplings[10] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
+      quartic_couplings[10] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 - 32.0*sab2*s2b*mA2);
+
+      quartic_couplings[11] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
+      quartic_couplings[11] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
+      quartic_couplings[11] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 - 32.0*cab2*s2b*mC2);
+
+      quartic_couplings[12] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
+      quartic_couplings[12] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
+      quartic_couplings[12] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 - 32.0*cab2*s2b*mA2);
+
+      quartic_couplings[13] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
+      quartic_couplings[13] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
+      quartic_couplings[13] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mC2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
+
+      quartic_couplings[14] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
+      quartic_couplings[14] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
+      quartic_couplings[14] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mA2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
+
+      quartic_couplings[15] = 3.0/(4.0*v2*s2b*s2b) * 4.0*cba2 * (4.0*m122*sbinv*cbinv*pow(cbap,2) - mH2*pow(s2a,2));
+      quartic_couplings[15] += - 3.0/(4.0*v2*s2b*s2b) * mh2 * pow((cos(-b+3.0*a) + 3.0*cbap),2);
+
+      quartic_couplings[16] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mH2*s2a*s2b2a - mh2*cba*(cos(-b+3.0*a) + 3.0*cbap));
+      quartic_couplings[16] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*cba*( sin(b+3.0*a) - sba );
+
+      quartic_couplings[17] = 1.0/(2.0*v2*s2b*s2b) * (4.0*sbinv*cbinv * ( 2.0 + c4b - 3.0*c4a )*m122 + 6.0*(c4a-1.0)*(mh2+mH2) );
+      quartic_couplings[17] += 1.0/(2.0*v2*s2b*s2b) * ( 3.0*cos(-2.0*b+6.0*a) - c2b2ap - 2.0*c2b2a )*(mh2-mH2);
+
+      quartic_couplings[18] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mh2*s2a*s2b2a - mH2*sba*(sin(-b+3.0*a) - 3.0*sbap));
+      quartic_couplings[18] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*sba*( cos(b+3.0*a) - cba );
+
+      quartic_couplings[19] = 3.0/(4.0*v2*s2b*s2b) * 4.0*sba2 * (4.0*m122*sbinv*cbinv*pow(sbap,2) - mh2*pow(s2a,2));
+      quartic_couplings[19] += - 3.0/(4.0*v2*s2b*s2b) * mH2 * pow((sin(-b+3.0*a) + 3.0*sbap),2);
+
+      quartic_couplings[20] = 2.0/v2 * ((mH2 - mh2)*c2b*sbinv*cbinv*s2b2a - mh2*sba2);
+      quartic_couplings[20] += - 2.0/v2 *(cba2*(mH2 + 4.0*mh2*pow(t2binv,2)) - 4.0*pow(t2binv,2)*( mH2*sba2 - m122*sbinv*cbinv ) );
+
+      quartic_couplings[21] = quartic_couplings[20]/2.0;
+
+      quartic_couplings[22] = 3.0*quartic_couplings[20]/2.0;
+
+      // quartic_couplings[9] = get_quartic_coupling(container, h0, h0, Hp, Hm);
+      // quartic_couplings[10] = get_quartic_coupling(container, h0, h0, A0, A0);
+      // quartic_couplings[11] = get_quartic_coupling(container, H0, H0, Hp, Hm);
+      // quartic_couplings[12] = get_quartic_coupling(container, H0, H0, A0, A0);
+      // quartic_couplings[13] = get_quartic_coupling(container, h0, H0, Hp, Hm);
+      // quartic_couplings[14] = get_quartic_coupling(container, h0, H0, A0, A0); 
+      // quartic_couplings[15] = get_quartic_coupling(container, h0, h0, h0, h0);
+      // quartic_couplings[16] = get_quartic_coupling(container, h0, h0, h0, H0);
+      // quartic_couplings[17] = get_quartic_coupling(container, h0, h0, H0, H0);
+      // quartic_couplings[18] = get_quartic_coupling(container, h0, H0, H0, H0); 
+      // quartic_couplings[19] = get_quartic_coupling(container, H0, H0, H0, H0);
+      // quartic_couplings[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
+      // quartic_couplings[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
+      // quartic_couplings[22] = get_quartic_coupling(container, A0, A0, A0, A0);
       // container.THDM_object->get_coupling_hhhh(1,1,4,4,quartic_couplings[9]);
       // container.THDM_object->get_coupling_hhhh(1,1,3,3,quartic_couplings[10]);
       // container.THDM_object->get_coupling_hhhh(2,2,4,4,quartic_couplings[11]);
@@ -1976,7 +2047,7 @@ namespace Gambit
       //set constraint values
       //-----------------------------
       // all values < 8*PI for unitarity conditions
-      const double unitarity_upper_limit = 8*M_PI; // 16 pi using conditions given in ivanov paper (used by 2hdmc)
+      const double unitarity_upper_limit = 8*M_PI; // 8 pi using conditions given in ivanov paper (used by 2hdmc)
       const double sigma = 0.1;
       //-----------------------------
       //calculate the total error of each point
@@ -1992,13 +2063,17 @@ namespace Gambit
       
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
 
-      const double unitarity_upper_limit = 0.25;
+      const double unitarity_upper_limit = 0.50;
       const double sigma = 0.001;
       double error = 0.0;
       double error_ratio = 0.0;
 
       for(auto const& eig: NLO_eigenvalues) {
-        if(abs(eig-i/2.0) > unitarity_upper_limit) error += abs(eig-i/2.0) - unitarity_upper_limit;
+        std::cout << eig << std::endl;
+        if(abs(eig-i/2.0) > unitarity_upper_limit) {
+          error += abs(eig-i/2.0) - unitarity_upper_limit;
+          std::cout << abs(eig-i/2.0) - unitarity_upper_limit << std::endl;
+        }
       }
       if(check_correction_ratio) {
         std::vector<double> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
@@ -2016,6 +2091,8 @@ namespace Gambit
           }
         }
       }
+
+      std::cout << "*****" << std::endl << Stats::gaussian_upper_limit(error+error_ratio,0.0,0.0,sigma,false) << std::endl;
 
       return Stats::gaussian_upper_limit(error+error_ratio,0.0,0.0,sigma,false);
   }
