@@ -151,6 +151,15 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY ba
+START_CAPABILITY
+  #define FUNCTION obs_ba
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+
 #define CAPABILITY lambda_1
 START_CAPABILITY
   #define FUNCTION obs_lambda_1
@@ -306,6 +315,110 @@ START_CAPABILITY
 #define CAPABILITY M22_2
 START_CAPABILITY
   #define FUNCTION obs_M22_2
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yu1
+START_CAPABILITY
+  #define FUNCTION obs_Yu1
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yu2
+START_CAPABILITY
+  #define FUNCTION obs_Yu2
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yu3
+START_CAPABILITY
+  #define FUNCTION obs_Yu3
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yd1
+START_CAPABILITY
+  #define FUNCTION obs_Yd1
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yd2
+START_CAPABILITY
+  #define FUNCTION obs_Yd2
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Yd3
+START_CAPABILITY
+  #define FUNCTION obs_Yd3
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Ye1
+START_CAPABILITY
+  #define FUNCTION obs_Ye1
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Ye2
+START_CAPABILITY
+  #define FUNCTION obs_Ye2
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY Ye3
+START_CAPABILITY
+  #define FUNCTION obs_Ye3
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY g1
+START_CAPABILITY
+  #define FUNCTION obs_g1
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY g2
+START_CAPABILITY
+  #define FUNCTION obs_g2
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY g3
+START_CAPABILITY
+  #define FUNCTION obs_g3
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY vev
+START_CAPABILITY
+  #define FUNCTION obs_vev
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   #undef FUNCTION

@@ -78,7 +78,7 @@ namespace Gambit
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
         }
       // get DR bar masses
-      // model_interface.model.calculate_DRbar_masses();
+      model_interface.model.calculate_DRbar_masses();
       }
 
       template <class MI>
@@ -385,7 +385,7 @@ namespace Gambit
          double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
          double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = b - ba;
-         if (alpha>M_PI/2) alpha = alpha - M_PI;
+         // if (alpha>M_PI/2) alpha = alpha - M_PI;
          return alpha;
       }
 

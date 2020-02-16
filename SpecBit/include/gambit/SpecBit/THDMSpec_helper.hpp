@@ -471,7 +471,7 @@ namespace Gambit
          double c2ba = s2ba/tan2ba;
          double ba = 0.5*acos(c2ba);
          double alpha = beta - ba;
-         if (alpha > M_PI/2) alpha = alpha - M_PI;
+         // if (alpha > M_PI/2) alpha = alpha - M_PI;
          basis["alpha"] = alpha;
          basis["sba"] = sin(beta - alpha);
     }
