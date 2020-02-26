@@ -46,17 +46,15 @@ def run():
         infomsg.clearInfoMessages()
 
         # Generate dicts with different variations of the class name
-        # TODO: TG: Request template info for templated class
-        class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
-        abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
+        class_name       = classutils.getClassNameDict(class_el)
 
         # Print current class
         print()
-        print('  ' + utils.modifyText('Class:','underline') + ' ' + class_name['long_templ'])
+        print('  ' + utils.modifyText('Class:','underline') + ' ' + class_name['long'])
 
-        # Check if this is a template class
+        # Check if this is a template class and if it is a specilization
         is_template = utils.isTemplateClass(class_el)
-
+        is_specialization = util.isSpecializedClass(class_el)
 
         # Make list of all types used in this class
         all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
@@ -66,9 +64,9 @@ def run():
         original_file_name       = original_class_file_el.get('name')
         original_file_name_base  = os.path.basename(original_file_name)
         original_class_file_dir  = os.path.split(original_file_name)[0]
-        extras_src_file_name     = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
+        extras_src_file_name     = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short_safe'] + cfg.source_extension)
 
-        short_abstr_class_fname  = gb.new_header_files[class_name['long']]['abstract']
+        short_abstr_class_fname  = gb.new_header_files[class_name['long_safe']]['abstract']
         abstr_class_fname        = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
 
         # namespaces    = class_name['long'].split('::')[:-1]
@@ -119,7 +117,7 @@ def run():
         #    gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
         # TODO: TG: Only do each templated class once
-        if is_template and class_name['long'] in template_done:
+        if is_template and not is_specialization and class_name['base_long'] in template_done:
             continue;
 
 

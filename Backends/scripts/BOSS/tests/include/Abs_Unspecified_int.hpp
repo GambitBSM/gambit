@@ -7,22 +7,13 @@
 // Test class for BOSS
 // Declarations for an unspecified class
 
-//#include "Abs_Unspecified_int.hpp"
-
-template <class T>
-class Unspecified
+class Abs_Unspecified_int
 {
-  private:
-    int _myInt;
-    double _myDouble;
-    T _myTemplatedVar;
-
   public:
-    //Unspecified(int, double, T);
-    int myInt();
-    double myDouble();
-    T myTemplatedVar();
-    int doubleToInt(double);
+    virtual int myInt() = 0;
+    virtual double myDouble() = 0;
+    virtual int myTemplatedVar() = 0;
+    virtual int doubleToInt(double) = 0;
+
+    virtual ~Abs_Unspecified_int() = 0;
 };
-
-

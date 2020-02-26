@@ -21,6 +21,7 @@ import modules.infomsg as infomsg
 
 # ====== getAbstractClassName ========
 
+# TODO: This is obsolete, I think, so remove if so
 def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
 
     # TODO: TG: remove template brackets from name
@@ -1219,10 +1220,9 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
 # ====== END: toAbstractType ========
 
 
-
 # ====== getClassNameDict ========
 
-def getClassNameDict(class_el, abstract=False, add_template_info=False):
+def getClassNameDict(class_el):
 
     class_name = {}
 
@@ -1231,33 +1231,38 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
         raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
 
     namespaces_list = utils.getNamespaces(class_el, include_self=True)
-    class_name['long_templ'] = '::'.join(namespaces_list)
+    class_name['long'] = '::'.join(namespaces_list)
 
-    class_name['long']        = class_name['long_templ'].split('<',1)[0]
-    class_name['short_templ'] = class_el.get('name')
-    class_name['short']       = class_name['short_templ'].split('<',1)[0]
-    class_name['namespace']   = '::'.join(namespaces_list[:-1])
+    class_name['base_long']  = class_name['long_templ'].split('<',1)[0]
+    class_name['short']      = class_el.get('name')
+    class_name['base_short'] = class_name['short_templ'].split('<',1)[0]
+    class_name['namespace']  = '::'.join(namespaces_list[:-1])
 
-    # TODO: TG: Add template info when requested
-    if add_template_info and utils.isTemplateClass(class_el):
+    if utils.isTemplateClass(class_el):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
-
-    if abstract:
-        abstr_class_name = {}
-        abstr_class_name['long_templ']  = getAbstractClassName(class_name['long_templ'], prefix=gb.abstr_class_prefix)
-        abstr_class_name['long']        = abstr_class_name['long_templ'].split('<',1)[0]
-        abstr_class_name['short_templ'] = getAbstractClassName(class_name['long_templ'], prefix=gb.abstr_class_prefix, short=True)
-        abstr_class_name['short']       = abstr_class_name['short_templ'].split('<',1)[0]
-
-        return abstr_class_name
-
+        class_name['short_safe'] = class_name['base_short'] + '_'.join(templ_var_list)
+        class_name['long_safe']  = class_name['base_long'] + '_'.join(templ_var_list)
     else:
-        return class_name
+        class_name['short_safe'] = class_name['short']
+        class_name['long_safe']  = class_name['long']
+
+    # Abstract class name
+    class_name['abs_long']       = class_name['namespace'] + '::' + gb.abstr_class_prefix + class_name['short']
+    class_name['abs_base_long']  = class_name['namespace'] + '::' + gb.abstr_class_prefix + class_name['base_short']
+    class_name['abs_short']      = gb.abstr_class_prefix + class_name['short']
+    class_name['abs_base_short'] = gb.abstr_class_prefix + class_name['base_short']
+
+    # Wrapper class name
+    class_name['wr_long']       = class_name['long']
+    class_name['wr_base_long']  = class_name['base_long']
+    class_name['wr_short']      = class_name['short']
+    class_name['wr_base_short'] = class_name['base_short']
+
+    return class_name
 
 # ====== END: getClassNameDict ========
-
 
 
 # ====== constrWrapperDecl ========

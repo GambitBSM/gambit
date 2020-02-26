@@ -47,6 +47,7 @@ src_files_to    = './src'
 
 load_classes = [
     'Unspecified<int>',
+    'Unspecified<double>',
     'Specified<int>',
     'Specified<double>'
 ]
