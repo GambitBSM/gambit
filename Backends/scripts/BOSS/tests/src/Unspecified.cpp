@@ -7,16 +7,16 @@
 // Test class for BOSS
 // Definitions for an unspecified class
 
-#include "U.hpp"
+#include "Unspecified.hpp"
 
 template<class T>
-int U<T>::myInt() { return _myInt; }
+int Unspecified<T>::myInt() { return _myInt; }
 
 template<class T>
-double U<T>::myDouble() { return _myDouble; }
+double Unspecified<T>::myDouble() { return _myDouble; }
 
 template<class T>
-T U<T>::myTemplatedVar() { return _myTemplatedVar; }
+T Unspecified<T>::myTemplatedVar() { return _myTemplatedVar; }
 
 template<class T>
-int U<T>::doubleToInt(double x) { return int(x); }
+int Unspecified<T>::doubleToInt(double x) { return int(x); }

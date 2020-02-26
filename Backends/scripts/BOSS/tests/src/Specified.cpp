@@ -5,17 +5,10 @@
 /////////////////////////////////////////
 
 // Test class for BOSS
-// Declarations for an unspecified class
+// Definitions for a specified class
 
-template <class T>
-class U
-{
-  int _myInt;
-  double _myDouble;
-  T _myTemplatedVar;
+#include "Specified.hpp"
 
-  int myInt();
-  double myDouble();
-  T myTemplatedVar();
-  int doubleToInt(double);
-};
+int Specified<int>::myInt() { return _myInt; }
+
+double Specified<double>::myDouble() { return _myDouble; }

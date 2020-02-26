@@ -8,10 +8,10 @@
 // Declarations for a specified class
 
 template<class T>
-class S;
+class Specified;
 
 template <>
-class S<int>
+class Specified<int>
 {
   int _myInt;
 
@@ -19,7 +19,7 @@ class S<int>
 };
 
 template<>
-class S<double>
+class Specified<double>
 {
   double _myDouble;
 

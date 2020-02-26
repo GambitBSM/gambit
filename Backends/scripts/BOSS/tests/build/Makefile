@@ -8,7 +8,7 @@
 
 CXX = g++
 
-OBJS = U.o S.o test.o
+OBJS = Unspecified.o Specified.o test.o
 
 FLAGS = -I../include -fPIC
 
