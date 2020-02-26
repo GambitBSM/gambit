@@ -18,6 +18,8 @@ SHARED = ../lib/libtest.so
 	${CXX} -c $(FLAGS) -o $@ $<
 
 all: ${OBJS}
+	$(RM) -r ../lib
+	mkdir ../lib
 	$(CXX) -o $(SHARED) $^ $(FLAGS) -shared
 
 clean:
