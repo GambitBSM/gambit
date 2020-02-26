@@ -160,7 +160,7 @@ def isTemplateClass(class_el, class_name=None):
     if class_name is None:
         class_name = classutils.getClassNameDict(class_el)
 
-    if '<' in class_name['long_templ']:
+    if '<' in class_name['long']:
         is_template = True
 
     return is_template
@@ -330,6 +330,7 @@ def getTemplateBracket(el):
     else :
         # This means there is no template, should never happen
         return
+    #TODO: Make work with multiple templates
     template_bracket = '<' + search_content.split('<')[-1].split('>')[0] + '>'
 
     #start_pos = 0

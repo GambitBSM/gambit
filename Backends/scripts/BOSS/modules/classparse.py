@@ -53,8 +53,8 @@ def run():
         print('  ' + utils.modifyText('Class:','underline') + ' ' + class_name['long'])
 
         # Check if this is a template class and if it is a specilization
-        is_template = utils.isTemplateClass(class_el)
-        is_specialization = util.isSpecializedClass(class_el)
+        is_template = utils.isTemplateClass(class_el, class_name)
+        is_specialization = util.isSpecializedClass(class_el, class_name)
 
         # Make list of all types used in this class
         all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
@@ -69,9 +69,7 @@ def run():
         short_abstr_class_fname  = gb.new_header_files[class_name['long_safe']]['abstract']
         abstr_class_fname        = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
 
-        # namespaces    = class_name['long'].split('::')[:-1]
-        namespaces    = utils.getNamespaces(class_el, include_self=False)
-        has_namespace = bool(len(namespaces))
+        has_namespace = bool(len(class_name['namespace']))
 
         has_copy_constructor, copy_constructor_id         = classutils.checkCopyConstructor(class_el, return_id=True)
         has_assignment_operator, assignment_is_artificial = classutils.checkAssignmentOperator(class_el)
@@ -123,7 +121,7 @@ def run():
 
         # Get template arguments for specialization, 
         # and check that they are acceptable
-        if is_template and class_name['long'] not in templ_spec_done:
+        if is_template and is_specialization :
             spec_template_types = utils.getSpecTemplateTypes(class_el)
             for template_type in spec_template_types:
                 if (template_type not in gb.accepted_types):
@@ -134,31 +132,27 @@ def run():
         # For the backend: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+        constrAbstractClassHeaderCode(class_el, class_name, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
-
+        constrAbstractClassHeaderCode(class_el, class_name, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
         #
         # Add abstract class to inheritance list of original class
         #
 
-        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template,
-                                     original_file_name, original_file_content_nocomments)
+        addAbsClassToInheritanceList(class_el, class_name, is_template, original_file_name, original_file_content_nocomments)
         
 
         #
         # Generate code for #include statements in orginal header/source file 
         #
 
-        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, 
+        addIncludesToOriginalClassFile(class_el, is_template, original_file_name, 
                                        original_file_content_nocomments, original_file_content,
                                        short_abstr_class_fname)
 
@@ -237,8 +231,8 @@ def run():
 
         gb.classes_done.append(class_name)
         if is_template: 
-            if class_name['long'] not in template_done:
-                template_done.append(class_name['long'])
+            if class_name['base_long'] not in template_done:
+                template_done.append(class_name['base_long'])
             if class_name['long'] not in templ_spec_done:
                 templ_spec_done.append(class_name['long'])
         
@@ -257,8 +251,7 @@ def run():
 
 # Construct code for the abstract class header file and register it
 
-def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template,
-                                  has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
+def constrAbstractClassHeaderCode(class_el, class_name, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
 
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
@@ -285,19 +278,10 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         class_decl += enum_include_statement_code
 
     # Add the the code for the abstract class
-    if (is_template == True) and (class_name['long'] in templ_spec_done):
-        pass
-    elif (is_template == True) and (class_name['long'] not in templ_spec_done):
-        spec_template_types = utils.getSpecTemplateTypes(class_el)
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-                                                         indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                         template_types=spec_template_types, construct_assignment_operator=construct_assignment_operator)
-        class_decl += '\n'
-    else:
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+    class_decl += classutils.constrAbstractClassDecl(class_el, class_name,  
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit,
                                                          construct_assignment_operator=construct_assignment_operator)
-        class_decl += '\n'
+    class_decl += '\n'
 
     # - Register code
     gb.new_code[abstr_class_fname]['code_tuples'].append( (-1, class_decl) )

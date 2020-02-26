@@ -89,20 +89,21 @@ def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4
 
 # ====== constrAbstractClassDecl ========
 
-def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, template_types=[], construct_assignment_operator=True):
+def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=False, construct_assignment_operator=True):
 
     n_indents = len(namespaces)
 
     # Check template_types argument:
     # TODO: TG: Need the full bracket for unspecified templates
-    if utils.isTemplateClass(class_el):
+    if utils.isTemplateClass(class_el, class_name):
         is_template = True
-        if len(template_types) > 0:
-            is_specification = True
+        if utils.isSpecialization(class_el, class_name):
+            template_types = utils.getSpecTemplateTypes(class_el)
+            is_specialization = True
             templ_bracket = '<>'
             templ_vars = '<' + ','.join(template_types) + '>'
         else :
-            is_specification = False
+            is_specialization = False
             templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
             templ_vars = '<' + ','.join(templ_var_list) + '>'
     else:
@@ -124,7 +125,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl = ''
 
     # - Construct the beginning of the namespaces
-    class_decl += utils.constrNamespace(namespaces, 'open')
+    class_decl += utils.constrNamespace(class_name['namespace'], 'open')
 
     # - If this class is a template specialization, add 'template <>' at the top
     # TODO: TG: If it's a for full template, add the full bracket
@@ -136,16 +137,16 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     for parent_dict in parent_classes:
 
         if parent_dict['loaded']:
-            inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['abstr_class_name']['long_templ'] + ', '
+            inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abs_long'] + ', '
 
         elif parent_dict['fundamental'] or parent_dict['std']:
-            # inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['long_templ'] + ', '
+            # inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['long'] + ', '
             reason = 'Avoid inheritance ambiguity.'
-            infomsg.ParentClassIgnored(abstr_class_name['short'], parent_dict['class_name']['long_templ'], reason).printMessage()
+            infomsg.ParentClassIgnored(class_name['abs_short'], parent_dict['class_name']['long'], reason).printMessage()
 
         else:
             reason = 'Not loaded or accepted type.'
-            infomsg.ParentClassIgnored(abstr_class_name['short'], parent_dict['class_name']['long_templ'], reason).printMessage()
+            infomsg.ParentClassIgnored(class_name['abs_short'], parent_dict['class_name']['long'], reason).printMessage()
             continue
     inheritance_line = inheritance_line.rstrip(', ')
 
@@ -158,11 +159,11 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
 
     class_decl += ' '*n_indents*indent
-    # TODO: TG: Only add for template specifications
-    if is_template and is_specification :
-        class_decl += 'class ' + abstr_class_name['short'] + templ_vars + inheritance_line + '\n'
+    # TODO: TG: Only add for template specializations
+    if is_template and is_specialization :
+        class_decl += 'class ' + class_name['short'] + inheritance_line + '\n'
     else:
-        class_decl += 'class ' + abstr_class_name['short'] + inheritance_line + '\n'
+        class_decl += 'class ' + class_name['abs_short'] + inheritance_line + '\n'
 
     # - Construct body of class declaration
     current_access = ''
@@ -356,46 +357,46 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     general_boss_warning = 'BOSS WARNING: Problem detected with the BOSSed class %s from backend %s. The function %s::%s in GAMBIT should never have been called...'
 
     # - Construct 'pointer_assign' and 'pointer_copy' functions
-    if class_name['long_templ'] in gb.contains_pure_virtual_members:
+    if class_name['long'] in gb.contains_pure_virtual_members:
         reason = "Contains pure virtual member functions."
-        infomsg.NoPointerCopyAndAssignmentFunctions(class_name['long_templ'], reason).printMessage()
+        infomsg.NoPointerCopyAndAssignmentFunctions(class_name['long'], reason).printMessage()
     else:
         class_decl += '\n'
         class_decl += ' '*(n_indents+1)*indent + 'public:\n'
         for parent_dict in parent_classes:
-            if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
-                class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['abstr_class_name']['long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
-        class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
-        class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
+            if (parent_dict['loaded']) and (parent_dict['class_name']['long'] not in gb.contains_pure_virtual_members):
+                class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abs_long'] + '::pointer_assign' + gb.code_suffix + ';\n'
+        class_decl += constrPtrAssignFunc(class_el, class_name['abs_short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
+        class_decl += constrPtrCopyFunc(class_el, class_name['abs_short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
 
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
     class_decl += ' '*(n_indents+1)*indent + 'private:\n'
     # TODO: TG: Wrapper class needs to be templated
     class_decl +=  ' '*(n_indents+2)*indent +  class_name['short']
-    if is_template: 
-        class_decl += templ_vars
+    #if is_template: 
+    #    class_decl += templ_vars
     class_decl += '* wptr;\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool delete_wrapper;\n'
     class_decl += ' '*(n_indents+1)*indent + 'public:\n'
     # TODO: TG: Wrapper class needs to be templated
     class_decl += ' '*(n_indents+2)*indent + class_name['short']
-    if is_template: 
-        class_decl += templ_vars
+    #if is_template: 
+    #    class_decl += templ_vars
     class_decl += '* get_wptr() { return wptr; }\n'
     # TODO: TG: Wrapper class needs to be templated
     class_decl += ' '*(n_indents+2)*indent + 'void set_wptr(' + class_name['short']
-    if is_template:
-        class_decl += templ_vars
+    #if is_template:
+    #    class_decl += templ_vars
     class_decl += '* wptr_in) { wptr = wptr_in; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool get_delete_wrapper() { return delete_wrapper; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'void set_delete_wrapper(bool del_wrp_in) { delete_wrapper = del_wrp_in; }\n'
 
 
     # - Constructor
-    class_decl += '\n'
+        class_decl += '\n'
     class_decl += ' '*(n_indents+1)*indent + 'public:\n'
-    class_decl += ' '*(n_indents+2)*indent +  abstr_class_name['short'] + '()\n'
+    class_decl += ' '*(n_indents+2)*indent +  class_name['abs_base_short'] + '()\n'
     class_decl += ' '*(n_indents+2)*indent + '{\n'
     if gb.debug_mode:
         class_decl += ' '*(n_indents+3)*indent + 'std::cerr << "DEBUG: " << this << " ' + abstr_class_name['short'] + ' ctor" << std::endl;\n' 
@@ -412,19 +413,19 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     parent_cctors_line = ''
     for parent_dict in all_parent_classes:
         if parent_dict['loaded']:
-            parent_cctors_line += parent_dict['abstr_class_name']['long_templ'] + '(in), '
+            parent_cctors_line += parent_dict['class_name']['abs_long'] + '(in), '
         elif parent_dict['fundamental'] or parent_dict['std']:
             reason = 'Avoid inheritance ambiguity.'
-            infomsg.ParentClassIgnored(abstr_class_name['short'], parent_dict['class_name']['long_templ'], reason).printMessage()
+            infomsg.ParentClassIgnored(class_name['abs_short'], parent_dict['class_name']['long'], reason).printMessage()
         else:
             reason = 'Not loaded or accepted type.'
-            infomsg.ParentClassIgnored(abstr_class_name['short'], parent_dict['class_name']['long_templ'], reason).printMessage()
+            infomsg.ParentClassIgnored(class_name['abs_short'], parent_dict['class_name']['long'], reason).printMessage()
             continue
     parent_cctors_line = parent_cctors_line.rstrip(', ')
 
     class_decl += '\n'
     if parent_cctors_line == '':
-        class_decl += ' '*(n_indents+2)*indent + abstr_class_name['short'] + '(const ' + abstr_class_name['short'] + '&)\n'
+        class_decl += ' '*(n_indents+2)*indent + class_name['abs_short'] + '(const ' + class_name['abs_short'] + '&)\n'
     else:
         parent_cctors_line = parent_cctors_line.rstrip(',\n') + '\n'
         class_decl += ' '*(n_indents+2)*indent + abstr_class_name['short'] + '(const ' + abstr_class_name['short'] + '& in) : \n'
@@ -461,7 +462,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     # - Function get_init_wptr()
     class_decl += '\n'
     # TODO: TG: Wrapper class needs to be templated
-    class_decl += ' '*(n_indents+2)*indent + class_name['short']
+    class_decl += ' '*(n_indents+2)*indent + class_name['base_short']
     if is_template:
         class_decl += templ_vars
     class_decl += '* get_init_wptr()\n'
@@ -515,7 +516,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += ' '*n_indents*indent + '};' + '\n'
 
     # - Construct the closing of the namespaces
-    class_decl += utils.constrNamespace(namespaces, 'close')
+    class_decl += utils.constrNamespace(class_name['namespace'], 'close')
 
 
     # Insert tags for the GAMBIT namespace
@@ -1231,33 +1232,53 @@ def getClassNameDict(class_el):
         raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
 
     namespaces_list = utils.getNamespaces(class_el, include_self=True)
-    class_name['long'] = '::'.join(namespaces_list)
-
-    class_name['base_long']  = class_name['long_templ'].split('<',1)[0]
-    class_name['short']      = class_el.get('name')
-    class_name['base_short'] = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']  = '::'.join(namespaces_list[:-1])
 
+    # Namespaces are taken from the xml, so name is the specialized one
+    class_name['long_spec']  = '::'.join(namespaces_list)
+    class_name['short_spec'] = class_el.get('name')
+
+    # For non-templated or specialized templates, the long and long_spec names are the same
+    class_name['long']  = class_name['long_spec']
+    class_name['short'] = class_name['short_spec']
+
+    # Base names just remove the bracket
+    class_name['base_long']  = class_name['long'].split('<',1)[0]
+    class_name['base_short'] = class_name['short'].split('<',1)[0]
+
+    # If it's a template class get the template bracket and vars
     if utils.isTemplateClass(class_el):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
-        class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
-        class_name['short_safe'] = class_name['base_short'] + '_'.join(templ_var_list)
-        class_name['long_safe']  = class_name['base_long'] + '_'.join(templ_var_list)
+        
+        # Get all specialized variables for specialized templates
+        if utils.isSpecializedClass(class_el):
+            class_name['templ_vars'] = utils.getSpecTemplateTypes(class_el)
+        else:
+            class_name['templ_vars'] = templ_var_list
+            # Override the long name to include the template tag
+            class_name['long']  = class_name['base_long'] + '<' + ','.join(templ_var_list) + '>'
+            class_name['short'] = class_name['base_short'] + '<' + ','.join(templ_var_list) + '>'
+ 
+    
+        class_name['short_safe'] = class_name['base_short'] + '_'.class_name['templ_vars']
+        class_name['long_safe']  = class_name['base_long'] + '_'.class_name['templ_vars']
     else:
         class_name['short_safe'] = class_name['short']
         class_name['long_safe']  = class_name['long']
 
     # Abstract class name
     class_name['abs_long']       = class_name['namespace'] + '::' + gb.abstr_class_prefix + class_name['short']
+    class_name['abs_long_spec']       = class_name['namespace'] + '::' + gb.abstr_class_prefix + class_name['short_spec']
     class_name['abs_base_long']  = class_name['namespace'] + '::' + gb.abstr_class_prefix + class_name['base_short']
     class_name['abs_short']      = gb.abstr_class_prefix + class_name['short']
+    class_name['abs_short_spec']      = gb.abstr_class_prefix + class_name['short_spec']
     class_name['abs_base_short'] = gb.abstr_class_prefix + class_name['base_short']
 
     # Wrapper class name
-    class_name['wr_long']       = class_name['long']
+    class_name['wr_long']       = class_name['long_spec']
     class_name['wr_base_long']  = class_name['base_long']
-    class_name['wr_short']      = class_name['short']
+    class_name['wr_short']      = class_name['short_spec']
     class_name['wr_base_short'] = class_name['base_short']
 
     return class_name
