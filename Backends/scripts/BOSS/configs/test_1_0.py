@@ -35,12 +35,13 @@ gambit_base_namespace  = ''
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = ['../test/test.hpp']
-include_paths = ['../test/include']
-base_paths    = ['../test']
+input_files   = ['./tests/include/U.hpp',
+                 './tests/include/S.hpp']
+include_paths = ['./tests/include']
+base_paths    = ['./tests']
 
-header_files_to = '../include'
-src_files_to    = '../src'
+header_files_to = './include'
+src_files_to    = './src'
 
 
 
