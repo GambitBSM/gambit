@@ -19,30 +19,6 @@ import modules.exceptions as exceptions
 import modules.infomsg as infomsg
 
 
-# ====== getAbstractClassName ========
-
-# TODO: This is obsolete, I think, so remove if so
-def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
-
-    # TODO: TG: remove template brackets from name
-    input_name_no_templ, templ_bracket = utils.removeTemplateBracket(input_name, return_bracket=True)
-    if '::' in input_name_no_templ:
-        namespaces, short_class_name = input_name_no_templ.rsplit('::',1)
-        abstract_class_name = namespaces + '::' + gb.abstr_class_prefix + short_class_name
-    else:
-        abstract_class_name = gb.abstr_class_prefix + input_name_no_templ
-
-    if short == True:
-        abstract_class_name = abstract_class_name.rsplit('::',1)[-1]
-
-    if templ_bracket :
-        return abstract_class_name + templ_bracket
-    else :
-        return abstract_class_name
-
-# ====== END: getAbstractClassName ========
-
-
 # ====== constrEmptyTemplClassDecl ========
 
 def constrEmptyTemplClassDecl(abstr_class_name_short, namespaces, template_bracket, indent=4):
@@ -93,22 +69,9 @@ def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=Fals
 
     n_indents = len(namespaces)
 
-    # Check template_types argument:
-    # TODO: TG: Need the full bracket for unspecified templates
-    if utils.isTemplateClass(class_el, class_name):
-        is_template = True
-        if utils.isSpecialization(class_el, class_name):
-            template_types = utils.getSpecTemplateTypes(class_el)
-            is_specialization = True
-            templ_bracket = '<>'
-            templ_vars = '<' + ','.join(template_types) + '>'
-        else :
-            is_specialization = False
-            templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
-            templ_vars = '<' + ','.join(templ_var_list) + '>'
-    else:
-        is_template = False
-
+    # Check template and specialization
+    is_template = utils.isTemplateClass(class_el, class_name)
+    is_specialized = utils.isSpecializedClass(class_el, class_name)
 
     # Create list of all 'non-artificial' members of the class
     member_elements = utils.getMemberElements(class_el, include_artificial=False)
@@ -127,9 +90,9 @@ def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=Fals
     # - Construct the beginning of the namespaces
     class_decl += utils.constrNamespace(class_name['namespace'], 'open')
 
-    # - If this class is a template specialization, add 'template <>' at the top
-    # TODO: TG: If it's a for full template, add the full bracket
-    if is_template == True:
+    # - If this class is a full template, add the template bracket
+    # - If this class is a template specialization, add 'template <>'
+    if is_template:
         class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
 
     # - Construct the declaration line, with inheritance of abstract classes
@@ -160,10 +123,10 @@ def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=Fals
 
     class_decl += ' '*n_indents*indent
     # TODO: TG: Only add for template specializations
-    if is_template and is_specialization :
-        class_decl += 'class ' + class_name['short'] + inheritance_line + '\n'
-    else:
+    if is_template and is_specialized :
         class_decl += 'class ' + class_name['abs_short'] + inheritance_line + '\n'
+    else:
+        class_decl += 'class ' + class_name['abs_base_short'] + inheritance_line + '\n'
 
     # - Construct body of class declaration
     current_access = ''
@@ -1247,12 +1210,12 @@ def getClassNameDict(class_el):
     class_name['base_short'] = class_name['short'].split('<',1)[0]
 
     # If it's a template class get the template bracket and vars
-    if utils.isTemplateClass(class_el):
+    if utils.isTemplateClass(class_el, class_name):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
         
         # Get all specialized variables for specialized templates
-        if utils.isSpecializedClass(class_el):
+        if utils.isSpecializedClass(class_el, class_name):
             class_name['templ_vars'] = utils.getSpecTemplateTypes(class_el)
         else:
             class_name['templ_vars'] = templ_var_list

@@ -168,6 +168,19 @@ def isTemplateClass(class_el, class_name=None):
 # ====== END: isTemplateClass ========
 
 
+# ====== isSpecializedClass =======
+
+def isSpecializedClass(class_el, class_name=None):
+
+    import module.classutils as classutils
+
+    if class_name is None:
+        class_name = classutils.getClassNameDict(class_el)
+
+    if isTemplateClass(class_el, class_name) and class_name['templ_bracket'] == '<>':
+        return True
+
+    return False
 
 
 # ====== isTemplateFunction ========
