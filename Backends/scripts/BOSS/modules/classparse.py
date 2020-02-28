@@ -54,7 +54,7 @@ def run():
 
         # Check if this is a template class and if it is a specilization
         is_template = utils.isTemplateClass(class_el, class_name)
-        is_specialization = util.isSpecializedClass(class_el, class_name)
+        is_specialization = utils.isSpecializedClass(class_el, class_name)
 
         # Make list of all types used in this class
         all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
@@ -115,6 +115,7 @@ def run():
         #    gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
         # TODO: TG: Only do each templated class once
+        # TODO: Actually, that is only true for the abstract class. The wrapper class should be done per specialisation, so remove this later
         if is_template and not is_specialization and class_name['base_long'] in template_done:
             continue;
 
@@ -134,6 +135,7 @@ def run():
         
         constrAbstractClassHeaderCode(class_el, class_name, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
+        exit()
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #

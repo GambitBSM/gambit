@@ -25,4 +25,5 @@ class Unspecified
     int doubleToInt(double);
 };
 
-
+typedef Unspecified<int> Unspecified_int;
+typedef Unspecified<double> Unspecified_double;

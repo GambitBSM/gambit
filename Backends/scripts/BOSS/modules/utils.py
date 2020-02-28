@@ -56,7 +56,7 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
 
 
     # - Check if class should be ditched. If yes, return right away.
-    if class_name['long_templ'] in cfg.ditch:
+    if class_name['long'] in cfg.ditch:
         is_loadable = False
         return is_loadable
 
@@ -73,7 +73,7 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
         is_loadable = False
         if print_warning:
             reason = "Class is incomplete, at least based on XML file %s" % (gb.xml_file_name)
-            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+            infomsg.ClassNotLoadable(class_name['long'], reason).printMessage()
         return is_loadable
 
     # - Check that class has at least one public constructor.
@@ -82,14 +82,14 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
         is_loadable = False
         if print_warning:
             reason = "No (acceptable) public constructors identified."
-            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+            infomsg.ClassNotLoadable(class_name['long'], reason).printMessage()
         return is_loadable
 
     # - Check for pure virtual members.
     if check_pure_virtual_members:
         pure_virtual_members = classutils.pureVirtualMembers(class_el)
         if len(pure_virtual_members) > 0:
-            gb.contains_pure_virtual_members.append(class_name['long_templ'])
+            gb.contains_pure_virtual_members.append(class_name['long'])
 
     return is_loadable
 
@@ -138,9 +138,9 @@ def isKnownClass(el, class_name=None):
         return is_known
 
     # Check if listed among the user-specified known types
-    if isInList(class_name['long_templ'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
+    if isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
         is_known = True
-    elif isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
+    elif isInList(class_name['base_long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
         is_known = True
 
     return is_known
@@ -172,7 +172,7 @@ def isTemplateClass(class_el, class_name=None):
 
 def isSpecializedClass(class_el, class_name=None):
 
-    import module.classutils as classutils
+    import modules.classutils as classutils
 
     if class_name is None:
         class_name = classutils.getClassNameDict(class_el)
@@ -274,8 +274,8 @@ def isStdType(el, class_name=None):
 
         # Use the optional class_name dict?
         if class_name is not None:
-            if len(class_name['long_templ']) >= 5:
-                if class_name['long_templ'][0:5] == 'std::':
+            if len(class_name['long']) >= 5:
+                if class_name['long'][0:5] == 'std::':
                     is_std = True
 
         elif 'name' in el.keys():
@@ -1124,7 +1124,7 @@ def isLoadedClass(input_type, byname=False, class_name=None):
     # If the class_name dict is passed as an argument, use it.
     if class_name is not None:
 
-        if class_name['long_templ'] in cfg.load_classes:
+        if class_name['long'] in cfg.load_classes:
             is_loaded_class = True
 
     else:
@@ -1136,7 +1136,8 @@ def isLoadedClass(input_type, byname=False, class_name=None):
             type_name = type_name.replace('*','').replace('&','')
 
             # Remove template bracket
-            type_name = type_name.split('<')[0]
+            # TODO: Don't think it should, test it
+            #type_name = type_name.split('<')[0]
 
             # Check against cfg.load_classes
             if type_name in cfg.load_classes:
@@ -1197,8 +1198,7 @@ def constrAbsForwardDeclHeader(file_output_path):
         has_namespace = bool(len(namespaces))
         namespace_str = '::'.join(namespaces) + '::'*has_namespace
 
-        # class_name       = classutils.getClassNameDict(class_el)
-        abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
+        class_name       = classutils.getClassNameDict(class_el)
 
         if namespaces != current_namespaces:
             # close current namespace
@@ -1212,30 +1212,16 @@ def constrAbsForwardDeclHeader(file_output_path):
         n_indents   = len(namespaces)
         full_indent = ' '*n_indents*cfg.indent
 
-        if '<' in abstr_class_name['long_templ']:
-            is_template = True
-        else:
-            is_template = False
-
-        if is_template:
-            template_bracket = getTemplateBracket(class_el)[0]
-            spec_template_types = getSpecTemplateTypes(class_el)
-
-            # TODO: TG: If it's a specialized template we declare the full template
-            if template_bracket == '<>' and len(spec_template_types) > 0:
-                temp_types = ['class T' + str(i+1) for i in range(len(spec_template_types))]
-                template_bracket = '<' + ','.join(temp_types) + '>'
+        if utils.isTemplateClass(class_el, class_name):
 
             insert_code += full_indent + 'template ' + template_bracket + '\n'
-            insert_code += full_indent + 'class ' + abstr_class_name['short'] + ';\n'
+            if uitls.isSpecializedClass(class_el, class_name):
+                insert_code += full_indent + 'class ' + class_name['abs_short'] + ';\n'
+            else:
+                insert_code += full_indent + 'class ' + class_name['abs_base_short'] + ';\n'
 
-            # TODO: TG: Add the template specificiation
-            # TODO: Maybe no need to forward declare this
-            #if len(spec_template_types) > 0:
-            #    insert_code += full_indent + 'template <>\n';
-            #    insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
         else:
-            insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
+            insert_code += full_indent + 'class ' + class_name['abs_short'] + ';\n'
 
     # Close current namespace
     insert_code += constrNamespace(current_namespaces, 'close', indent=cfg.indent)
@@ -1942,7 +1928,7 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                         if is_incomplete:
                             for xml_file_name in gb.all_name_dict.keys():
                                 try:
-                                    new_type_el = gb.all_name_dict[xml_file_name][type_name['long_templ']]
+                                    new_type_el = gb.all_name_dict[xml_file_name][type_name['long']]
                                 except KeyError:
                                     new_type_el = None
 
@@ -1959,8 +1945,8 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                             include_statements.append( '#include "' + use_path + '"')
 
                         else:
-                            reason = "Found declaration of loaded type '%s' in file '%s', but this file is not recognized as a header file." % (type_name['long_templ'], type_file_full_path)
-                            infomsg.NoIncludeStatementGenerated(type_name['long_templ'], reason).printMessage()
+                            reason = "Found declaration of loaded type '%s' in file '%s', but this file is not recognized as a header file." % (type_name['long'], type_file_full_path)
+                            infomsg.NoIncludeStatementGenerated(type_name['long'], reason).printMessage()
 
                     else:
                         if use_full_path:
@@ -1978,11 +1964,11 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     else:
                         include_statements.append('#include "' + gb.std_headers[type_name['long']] + '"')
                 else:
-                    reason = "The standard type '%s' has no specified header file. Please update modules/gb.py." % type_name['long_templ']
-                    infomsg.NoIncludeStatementGenerated(type_name['long_templ'], reason).printMessage()
+                    reason = "The standard type '%s' has no specified header file. Please update modules/gb.py." % type_name['long']
+                    infomsg.NoIncludeStatementGenerated(type_name['long'], reason).printMessage()
 
             else:
-                is_known, index = isInList(type_name['long_templ'], cfg.known_classes.keys(), return_index=True, ignore_whitespace=True)
+                is_known, index = isInList(type_name['long'], cfg.known_classes.keys(), return_index=True, ignore_whitespace=True)
                 if not is_known:
                     is_known, index = isInList(type_name['long'], cfg.known_classes.keys(), return_index=True, ignore_whitespace=True)
 
@@ -1993,10 +1979,10 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     else:
                         include_statements.append('#include "' + header_name + '"')
                 else:
-                    reason = "The type '%s' has no specified header file. Please update the 'known_classes' dictionary in the config file." % type_name['long_templ']
-                    infomsg.NoIncludeStatementGenerated(type_name['long_templ'], reason).printMessage()
+                    reason = "The type '%s' has no specified header file. Please update the 'known_classes' dictionary in the config file." % type_name['long']
+                    infomsg.NoIncludeStatementGenerated(type_name['long'], reason).printMessage()
         else:
-            infomsg.NoIncludeStatementGenerated( type_name['long_templ'] ).printMessage()
+            infomsg.NoIncludeStatementGenerated( type_name['long'] ).printMessage()
 
     # Remove duplicates and return list
     include_statements = list( OrderedDict.fromkeys(include_statements) )
@@ -2672,7 +2658,7 @@ def isTemplateWithValidArgs(el, class_name=None) :
     if el.tag in ['Class', 'Struct', 'Union', 'Enumeration'] :
 
         if class_name is not None:
-            full_name = class_name['long_templ']
+            full_name = class_name['long']
         elif 'name' in el.keys():
             full_name = el.get('name')
         else :
@@ -2744,8 +2730,8 @@ def addParentClasses():
                         class_name = classutils.getClassNameDict(parent_el)
 
                         # - Update cfg.load_classes
-                        if class_name['long_templ'] not in cfg.load_classes:
-                            cfg.load_classes.append(class_name['long_templ'])
+                        if class_name['long'] not in cfg.load_classes:
+                            cfg.load_classes.append(class_name['long'])
 
 # ====== END: addParentClasses ========
 
@@ -2787,11 +2773,11 @@ def fillParentsOfLoadedClassesList():
                         class_name = classutils.getClassNameDict(parent_el)
 
                         # Append to gb.parents_of_loaded_classes
-                        if class_name['long_templ'] not in gb.parents_of_loaded_classes:
-                            gb.parents_of_loaded_classes.append(class_name['long_templ'])
+                        if class_name['long'] not in gb.parents_of_loaded_classes:
+                            gb.parents_of_loaded_classes.append(class_name['long'])
 
                         # Print info
-                        msg = '  - %s is parent of %s.' % (class_name['long_templ'], full_name)
+                        msg = '  - %s is parent of %s.' % (class_name['long'], full_name)
                         if msg not in messages:
                             print(msg)
                             messages.append(msg)
@@ -2896,7 +2882,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
         # Update global dict: std type --> type xml element
         if isStdType(el):
             class_name = classutils.getClassNameDict(el)
-            gb.std_types_dict[class_name['long_templ']] = el
+            gb.std_types_dict[class_name['long']] = el
 
 
         # Update global dict of loaded classes in this xml file: class name --> class xml element
@@ -2910,17 +2896,17 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
             # Check if we have done this class already
             if class_name in gb.classes_done:
-                infomsg.ClassAlreadyDone( class_name['long_templ'] ).printMessage()
+                infomsg.ClassAlreadyDone( class_name['long'] ).printMessage()
                 continue
 
             # Check that class is requested
-            if (class_name['long_templ'] in cfg.load_classes):
+            if (class_name['long'] in cfg.load_classes):
 
                 # Check that class is complete
                 if isComplete(el):
 
                     # Store class xml element
-                    gb.loaded_classes_in_xml[class_name['long_templ']] = el
+                    gb.loaded_classes_in_xml[class_name['long']] = el
 
 
         # Update global dict: typedef name --> typedef xml element
@@ -2943,7 +2929,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                     type_name = classutils.getClassNameDict(type_el)
 
-                    if type_name['long_templ'] in cfg.load_classes:
+                    if type_name['long'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
 
                 # If neither fundamental or class/struct, ignore it.

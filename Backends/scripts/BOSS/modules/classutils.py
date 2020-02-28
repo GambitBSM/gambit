@@ -122,7 +122,7 @@ def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=Fals
 
 
     class_decl += ' '*n_indents*indent
-    # TODO: TG: Only add for template specializations
+    # Only add template bracket for specializations
     if is_template and is_specialized :
         class_decl += 'class ' + class_name['abs_short'] + inheritance_line + '\n'
     else:
@@ -335,29 +335,20 @@ def constrAbstractClassDecl(class_el, class_name, indent=4, file_for_gambit=Fals
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
     class_decl += ' '*(n_indents+1)*indent + 'private:\n'
-    # TODO: TG: Wrapper class needs to be templated
     class_decl +=  ' '*(n_indents+2)*indent +  class_name['short']
-    #if is_template: 
-    #    class_decl += templ_vars
     class_decl += '* wptr;\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool delete_wrapper;\n'
     class_decl += ' '*(n_indents+1)*indent + 'public:\n'
-    # TODO: TG: Wrapper class needs to be templated
     class_decl += ' '*(n_indents+2)*indent + class_name['short']
-    #if is_template: 
-    #    class_decl += templ_vars
     class_decl += '* get_wptr() { return wptr; }\n'
-    # TODO: TG: Wrapper class needs to be templated
     class_decl += ' '*(n_indents+2)*indent + 'void set_wptr(' + class_name['short']
-    #if is_template:
-    #    class_decl += templ_vars
     class_decl += '* wptr_in) { wptr = wptr_in; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool get_delete_wrapper() { return delete_wrapper; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'void set_delete_wrapper(bool del_wrp_in) { delete_wrapper = del_wrp_in; }\n'
 
 
     # - Constructor
-        class_decl += '\n'
+    class_decl += '\n'
     class_decl += ' '*(n_indents+1)*indent + 'public:\n'
     class_decl += ' '*(n_indents+2)*indent +  class_name['abs_base_short'] + '()\n'
     class_decl += ' '*(n_indents+2)*indent + '{\n'
@@ -1224,8 +1215,8 @@ def getClassNameDict(class_el):
             class_name['short'] = class_name['base_short'] + '<' + ','.join(templ_var_list) + '>'
  
     
-        class_name['short_safe'] = class_name['base_short'] + '_'.class_name['templ_vars']
-        class_name['long_safe']  = class_name['base_long'] + '_'.class_name['templ_vars']
+        class_name['short_safe'] = class_name['base_short'] + '_'.join(class_name['templ_vars'])
+        class_name['long_safe']  = class_name['base_long'] + '_'.join(class_name['templ_vars'])
     else:
         class_name['short_safe'] = class_name['short']
         class_name['long_safe']  = class_name['long']
