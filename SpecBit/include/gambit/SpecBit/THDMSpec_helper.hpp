@@ -162,11 +162,23 @@ namespace Gambit
       double mH = he->get(Par::Pole_Mass, "h0", 2);
       double mA = he->get(Par::Pole_Mass, "A0");
       double mC = he->get(Par::Pole_Mass, "H+");
+      double mh_run = he->get(Par::mass1, "h0", 1);
+      double mH_run = he->get(Par::mass1, "h0", 2);
+      double mA_run = he->get(Par::mass1, "A0");
+      double mC_run = he->get(Par::mass1, "H+");
       double alpha = he->get(Par::dimensionless, "alpha");
       double sba = sin(atan(tan_beta) - alpha);
       set_SM(SM,sminputs,THDM_object);
+      
       THDM_object->set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7,m12_2,tan_beta);
-      THDM_object->get_alpha(); 
+      
+      // double mh_temp,mH_temp,mA_temp,mC_temp,sba_temp,l6_temp,l7_temp,m12_2_temp,tb_temp;
+      // double alpha_temp = THDM_object->get_alpha();
+      // THDM_object->get_param_phys(mh_temp,mH_temp,mA_temp,mC_temp,sba_temp,l6_temp,l7_temp,m12_2_temp,tb_temp);
+      // std::cout << "2HDMC: " << mh_temp << " | " << mH_temp << " | " << mA_temp << " | " << mC_temp << " | " << sba_temp << " | " << m12_2_temp << " | " << tb_temp << " | " << alpha_temp << std::endl;
+      // std::cout << "GAMBIT: " << mh << " | " << mH << " | " << mA << " | " << mC << " | " << sba << " | " << m12_2 << " | " << tan_beta << " | " << alpha << std::endl;
+      // std::cout << "GAMBIT (run): " << mh_run << " | " << mH_run << " | " << mA_run << " | " << mC_run << " | " << sba << " | " << m12_2 << " | " << tan_beta << " | " << alpha << std::endl;
+      
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       THDM_object->set_yukawas_type(yukawa_type);
@@ -247,7 +259,7 @@ namespace Gambit
     }
 
     inline void fill_generic_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
-         const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
+         const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","Lambda6","Lambda7","M12_2","tanb"};
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          // necessary definitions
          double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
@@ -299,8 +311,8 @@ namespace Gambit
             input_basis["m22_2"] = m12_2*ctb - 0.5*v2 * (input_basis["lambda2"]*sb*sb + lam345*cb*cb + input_basis["lambda6"]*cb*cb*ctb + 3.0*input_basis["lambda7"]*sb*cb);
          }
          else{
-            // fail
-            // TODO: Handle this case
+            // fail // TODO: Handle this case better
+            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_generic_THDM_basis" << std::endl; 
          }
     }
 
@@ -337,12 +349,12 @@ namespace Gambit
          }
          //otherwise try to fill from physical basis
          else if(check_basis(physical_basis_keys, input_basis)) {
-            // fail
-            // TODO: Handle this case
+            fill_generic_THDM_basis(input_basis, sminputs);
+            fill_higgs_THDM_basis(input_basis, sminputs);
          }
          else{
             // fail
-            // TODO: Handle this case
+            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_higgs_THDM_basis" << std::endl; 
          }
     }
 
@@ -365,6 +377,7 @@ namespace Gambit
             double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb); input_basis["m11_2"] = m11_2;
             double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb); input_basis["m22_2"] = m22_2;
             double m_A2;
+            std::cout << "GAMBIT(mA2): " << m12_2 << " | " << sb << " | " << cb << " | " << v2 << " | " << lam5 << " | " << lam6 << " | " << ctb<< " | " << lam7 << " | " << tb << std::endl;
             if (tb>0) m_A2 = m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
             else m_A2 = m22_2+0.5*v2*(lam3+lam4-lam5);
             double m_Hp2 = m_A2+0.5*v2*(lam5-lam4);
@@ -386,34 +399,12 @@ namespace Gambit
          }
          //otherwise try to fill from higgs basis
          else if (check_basis(higgs_basis_keys, input_basis)) {
-            // current method does not match in results (Why?)
-            // -----TODO------ implement this
-
-            // const std::complex<double> i(0.0,1.0);
-            // const std::vector<std::vector<complex<double>>> q = {{0.0, 0.0, 0.0}, {0.0, sba, -cba}, {0.0, cba, sba}, {0.0, 0.0, i}, {0.0, i, 0.0}};
-
-            //  // double A_h0_2 = M22_2 + 0.5*v2*(Lam3 + Lam4 - Lam5);
-            // std::vector<double> mh0_2_k;
-            // for(int k=1; k<4; k++) {
-            //    double mk = 0.0;
-            //   // --------
-            //   // METHOD 1
-            //   // original method for calculating these masses for GAMBIT:
-            //   // this method is consistent with Higgs Basis masses
-            //   // NOTE: will revert to METHOD 1 later
-            //   // -------
-            //   //  (q[k][2] * std::conj(q[k][2]) * A_h0_2).real();
-            //   //  mk += v2 * pow(q[k][1],2).real() * Lam1;
-            //   //  mk += v2 * (q[k][2]).real() * (q[k][2]*Lam5).real();
-            //   //  mk += v2 * 2.0 * q[k][1].real() * (q[k][2]*Lam6).real();
-            //   // --------
-            //    mh0_2_k.push_back(mk);
-            // }
-
+            fill_generic_THDM_basis(input_basis, sminputs);
+            fill_physical_THDM_basis(input_basis, sminputs);
          }
          else{
             // fail
-            // TODO: Handle this case
+            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_physical_THDM_basis" << std::endl; 
          }
     }
       
@@ -466,14 +457,20 @@ namespace Gambit
          double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
          double mC_2 = M22_2 + 0.5*v2*Lambda3;
          double mA_2 = mC_2 - 0.5*v2*(Lambda5 - Lambda4);
-         double tan2ba = (2.0*Lambda6*v2)/(mA_2 + (Lambda5-Lambda1)*v2);
-         double s2ba = -(2.0*Lambda6*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
-         double c2ba = s2ba/tan2ba;
-         double ba = 0.5*acos(c2ba);
+         // double tan2ba = (2.0*Lambda6*v2)/(mA_2 + (Lambda5-Lambda1)*v2);
+         // double s2ba = (2.0*Lambda6*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
+         // double c2ba = -(mA_2+(Lambda5-Lambda1)*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
+         // double ba = 0.5*acos(c2ba);
+         // double alpha = beta - ba;
+
+         double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
+         // std::cout << "GAMBIT | s2ba: " << s2ba << " | c2ba " << c2ba << std::endl;
+         double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = beta - ba;
+
          // if (alpha > M_PI/2) alpha = alpha - M_PI;
          basis["alpha"] = alpha;
-         basis["sba"] = sin(beta - alpha);
+         basis["sba"] = sin(beta-alpha);
     }
 
    } // end SpecBit namespace

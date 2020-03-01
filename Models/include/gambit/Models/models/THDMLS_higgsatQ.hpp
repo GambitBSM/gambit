@@ -14,29 +14,29 @@
 //
 //  *********************************************
 
-#ifndef __THDMII_higgs_hybridatQ_hpp__
-#define __THDMII_higgs_hybridatQ_hpp__
+#ifndef __THDMLS_higgsatQ_hpp__
+#define __THDMLS_higgsatQ_hpp__
 
 // Must include models which are targets of translation functions
-#include "gambit/Models/models/THDMIIatQ.hpp"
+#include "gambit/Models/models/THDMLSatQ.hpp"
 
 // Forward declaration of needed types
 namespace Gambit {
   class SMInputs;
 }
 
-#define MODEL THDMII_higgs_hybridatQ
-#define FRIEND THDMIIatQ
+#define MODEL THDMLS_higgsatQ
+#define FRIEND THDMLSatQ
   START_MODEL
   
-  DEFINEPARS(m_h,m_H,Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
-  DEFINEPARS(tanb, sba)
+  DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda6,Lambda_7)
+  DEFINEPARS(tanb, M12_2)
 
   DEFINEPARS(Qin,QrunTo)
   
-  INTERPRET_AS_X_FUNCTION(FRIEND, THDMII_higgs_hybridatQ_to_THDMIIatQ)
+  INTERPRET_AS_X_FUNCTION(FRIEND, THDMLS_higgsatQ_to_THDMLSatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
-  // Translation functions defined in THDMII_higgs_hybridatQ.cpp
+  // Translation functions defined in THDMLS_higgsatQ.cpp
 #undef FRIEND
 #undef MODEL
 

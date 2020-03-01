@@ -1,7 +1,7 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  Translation functions for THDMII_hybrid_lambda1atQ
+///  Translation functions for THDMLS_hybrid_lambda1atQ
 ///
 ///  *********************************************
 ///
@@ -21,8 +21,8 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMII_hybrid_lambda1atQ.hpp"
-#include "gambit/Models/models/THDMIIatQ.hpp"
+#include "gambit/Models/models/THDMLS_hybrid_lambda1atQ.hpp"
+#include "gambit/Models/models/THDMLSatQ.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
@@ -33,14 +33,14 @@
 using namespace Gambit::Utils;
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMII_hybrid_lambda1atQ
-#define FRIEND THDMIIatQ
+#define MODEL  THDMLS_hybrid_lambda1atQ
+#define FRIEND THDMLSatQ
 
 // Translation function definition
-void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMLS_hybrid_lambda1atQ_to_THDMLSatQ(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid_lambda1atQ --> THDMIIatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpret_as_FRIEND calculations for THDMLS_hybrid_lambda1atQ --> THDMLSatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
                m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
@@ -70,8 +70,8 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
-    std::cout << "THDMII_hybrid_lambda1atQ parameters:" << myP << std::endl;
-    std::cout << "THDMIIatQ parameters   :" << targetP << std::endl;
+    std::cout << "THDMLS_hybrid_lambda1atQ parameters:" << myP << std::endl;
+    std::cout << "THDMLSatQ parameters   :" << targetP << std::endl;
   #endif
 }
 

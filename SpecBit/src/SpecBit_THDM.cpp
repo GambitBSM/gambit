@@ -461,7 +461,7 @@ namespace Gambit
         thdm_model.Yd[1] = - sqrt2v * sminputs.mS / beta_scaling_d;
         thdm_model.Yd[2] = - sqrt2v * sminputs.mBmB / beta_scaling_d;
 
-        // std::cout << "Spectrum YU: " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
+        // std::cout << "Spectrum YU: (" << beta_scaling_u << ") " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
         // std::cout << "Spectrum MU: " << sminputs.mU<< " " << sminputs.mCmC <<" " << sminputs.mT << std::endl;
 
         thdm_model.yukawaCoupling = y_type;
@@ -1083,14 +1083,14 @@ namespace Gambit
 
     std::vector<std::complex<double>> get_cubic_couplings(THDM_spectrum_container& container) {
       const int size = 17;
-      std::vector<std::complex<double>> cubic_couplings (size+1);
-      std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
+      // std::vector<std::complex<double>> cubic_couplings (size+1);
+      // std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
 
       // const physical_basis_input input_pars = fill_physical_basis_input(container);
-      // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
-      // const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
+      // // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
+      // // const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       // const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      // const double sba = sin(b-a), cba = abs(cos(b-a)), cbap = cos(b+a), sbap = sin(b+a);
+      // const double sba = sin(b-a), cba = (cos(b-a));//, cbap = cos(b+a), sbap = sin(b+a);
       // const double v = get_v(container);
       // const std::complex<double> i(0.0,1.0);
 
@@ -1116,7 +1116,6 @@ namespace Gambit
       // cubic_couplings[16] = sba/(s2b*v)*(-2.0*m122 + (mh2 + 2.0*mH2 - 3.0*sqrt(m122)*sbinv*cbinv)*s2a);
       // cubic_couplings[17] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*sbap*sba2 - mH2*( 3.0*cos(3.0*b+a) - 3.0*cba + cos(3.0*b-3.0*a) - cos(b+3.0*a) ));
       // for(int j=1; j<=size; j++) cubic_couplings[j] = -i*cubic_couplings[j]; 
-
       std::vector<std::complex<double>> cubic_couplings_2 (size+1);
       std::fill(cubic_couplings_2.begin(),cubic_couplings_2.end(),0.0);
 
@@ -1138,13 +1137,25 @@ namespace Gambit
       cubic_couplings_2[16] = get_cubic_coupling(container, h0, H0, H0);
       cubic_couplings_2[17] = get_cubic_coupling(container, H0, H0, H0);
 
+      // for(int h1=1; h1<4; h1++) {
+      //   for(int h2=1; h2<4; h2++) {
+      //     for(int h3=1; h3<4; h3++) {
+      //       std::cout << "G: " << get_cubic_coupling(container, particle_type(h1), particle_type(h2), particle_type(h3)) << std::endl;
+      //       std::complex<double> c;
+      //       container.THDM_object->get_coupling_hhh(h1, h2, h3, c);
+      //       std::cout << "T: " << c << std::endl;
+      //       std::cout << "-----------------" << std::endl;
+      //     }
+      //   }
+      // }
+
       return cubic_couplings_2;
     }
 
     std::vector<std::complex<double>> get_quartic_couplings(THDM_spectrum_container& container) {
       const int size = 22;
-      std::vector<std::complex<double>> quartic_couplings (size+1);
-      std::fill(quartic_couplings.begin(),quartic_couplings.end(),0.0);
+      // std::vector<std::complex<double>> quartic_couplings (size+1);
+      // std::fill(quartic_couplings.begin(),quartic_couplings.end(),0.0);
       
       // const physical_basis_input input_pars = fill_physical_basis_input(container);
       // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
@@ -1623,9 +1634,11 @@ namespace Gambit
       // double b = atan(container.he->get(Par::dimensionless, "tanb"));//, a= container.he->get(Par::dimensionless, "alpha");
       // const double sb = sin(b);
 
-      // const double y_u1 = m_u[0]*sqrt(2)/vev/sb;
-      // const double y_u2 = m_u[1]*sqrt(2)/vev/sb;
-      // const double y_u3 = m_u[2]*sqrt(2)/vev/sb;
+      // std::cout << sb << std::endl;
+
+      // const double y_u1_a = m_u[0]*sqrt(2)/vev/sb;
+      // const double y_u2_a = m_u[1]*sqrt(2)/vev/sb;
+      // const double y_u3_a = m_u[2]*sqrt(2)/vev/sb;
 
       const double y_u1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
       const double y_u2 = container.he->get(Par::dimensionless, "Yu", 2, 2);
@@ -1682,14 +1695,14 @@ namespace Gambit
       int i = 0;
       const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++], tr_u2 = tr[i++], tr_d2 = tr[i++], tr_l2 = tr[i++];
       std::complex<double> beta = 12.0*pow(Lambda[1],2) + 4.0*pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 2.0*pow(Lambda[4],2) + 2.0*pow(Lambda[5],2);
-      beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[1] - 9.0*pow(g2,2)*Lambda[1];
+      // beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[1] - 9.0*pow(g2,2)*Lambda[1];
       
-      // complex<double> yuk_1 = 4.0*Lambda[1]*(a[1]*tr_l + 3.0*a[2]*tr_d + 3*a[3]*tr_u) - 4.0*(a[4]*tr_l2 + 3.0*a[5]*tr_d2 + 3*a[6]*tr_u2);
-      double yuk_2 = -12.0*pow(get_yd(container),4) - 4.0*pow(get_yl(container),4) + 12.0*pow(get_yl(container),2)*Lambda[1] + 4.0*pow(get_yl(container),2)*Lambda[1];
+      // // complex<double> yuk_1 = 4.0*Lambda[1]*(a[1]*tr_l + 3.0*a[2]*tr_d + 3*a[3]*tr_u) - 4.0*(a[4]*tr_l2 + 3.0*a[5]*tr_d2 + 3*a[6]*tr_u2);
+      // double yuk_2 = -12.0*pow(get_yd(container),4) - 4.0*pow(get_yl(container),4) + 12.0*pow(get_yl(container),2)*Lambda[1] + 4.0*pow(get_yl(container),2)*Lambda[1];
       
-      // std::cout << "B1 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
+      // // std::cout << "B1 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
 
-      beta += yuk_2;
+      // beta += yuk_2;
 
       return 1.0/(16.0*pow(M_PI,2))*(beta);
     }
@@ -1703,14 +1716,14 @@ namespace Gambit
       int i = 0;
       const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++], tr_u2 = tr[i++], tr_d2 = tr[i++], tr_l2 = tr[i++];
       std::complex<double> beta = 12.0*pow(Lambda[2],2)+4.0*pow(Lambda[3],2)+4.0*Lambda[3]*Lambda[4]+2.0*pow(Lambda[4],2)+2.0*pow(Lambda[5],2);
-      beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[2] - 9.0*pow(g2,2)*Lambda[2];
+      // beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[2] - 9.0*pow(g2,2)*Lambda[2];
       
-      // complex<double> yuk_1 = 4.0*Lambda[2]*(a[7]*tr_l + 3.0*a[8]*tr_d + 3*a[9]*tr_u) - 4.0*(a[10]*tr_l2 + 3.0*a[11]*tr_d2 + 3*a[12]*tr_u2);
-      double yuk_2 = - 12.0*pow(get_yu(container),4) + 12.0*pow(get_yu(container),2)*Lambda[2];
+      // // complex<double> yuk_1 = 4.0*Lambda[2]*(a[7]*tr_l + 3.0*a[8]*tr_d + 3*a[9]*tr_u) - 4.0*(a[10]*tr_l2 + 3.0*a[11]*tr_d2 + 3*a[12]*tr_u2);
+      // double yuk_2 = - 12.0*pow(get_yu(container),4) + 12.0*pow(get_yu(container),2)*Lambda[2];
 
-      // std::cout << "B2 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
+      // // std::cout << "B2 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
 
-      beta += yuk_2;
+      // beta += yuk_2;
 
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
@@ -1724,14 +1737,14 @@ namespace Gambit
       int i = 0;
       const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++]; i++; i++; i++; std::complex<double> tr_du = tr[i++];
       std::complex<double> beta = 4.0*pow(Lambda[3],2) +2.0*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6.0*Lambda[3]+2.0*Lambda[4]) + 2.0*pow(Lambda[5],2);
-      beta += -3.0*Lambda[3]*(3.0*pow(g2,2) + pow(g1,2)) + 9.0/4.0*pow(g2,4) + 3.0/4.0*pow(g1,4) - 3.0/2.0*pow(g1,2)*pow(g2,2);
+      // beta += -3.0*Lambda[3]*(3.0*pow(g2,2) + pow(g1,2)) + 9.0/4.0*pow(g2,4) + 3.0/4.0*pow(g1,4) - 3.0/2.0*pow(g1,2)*pow(g2,2);
       
-      // complex<double> yuk_1 = 2*Lambda[3]*(a[13]*tr_l + 3.0*a[14]*tr_d + 3.0*a[15]*tr_u) - 12.0*a[16]*tr_du;
-      double yuk_2 = - 12.0*pow(get_yu(container),2)*pow(get_yd(container),2) + (6.0*pow(get_yu(container),2) + 6.0*pow(get_yd(container),2) + 2.0*pow(get_yl(container),2))*Lambda[3];
+      // // complex<double> yuk_1 = 2*Lambda[3]*(a[13]*tr_l + 3.0*a[14]*tr_d + 3.0*a[15]*tr_u) - 12.0*a[16]*tr_du;
+      // double yuk_2 = - 12.0*pow(get_yu(container),2)*pow(get_yd(container),2) + (6.0*pow(get_yu(container),2) + 6.0*pow(get_yd(container),2) + 2.0*pow(get_yl(container),2))*Lambda[3];
       
-      // std::cout << "B3 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
+      // // std::cout << "B3 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
 
-      beta += yuk_2;
+      // beta += yuk_2;
       
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
@@ -1745,14 +1758,14 @@ namespace Gambit
       int i = 0;
       const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++]; i++; i++; i++; std::complex<double> tr_du = tr[i++];
       std::complex<double> beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3])*Lambda[4] + 4.0*pow(Lambda[4],2) + 8.0*pow(Lambda[5],2);
-      beta += -3.0*Lambda[4]*(3.0*pow(g2,2) + pow(g1,2)) + 3.0*pow(g1,2)*pow(g2,2);
+      // beta += -3.0*Lambda[4]*(3.0*pow(g2,2) + pow(g1,2)) + 3.0*pow(g1,2)*pow(g2,2);
       
-      // complex<double> yuk_1 = 2.0*Lambda[4]*(a[17]*tr_l + 3.0*a[18]*tr_d + 3.0*a[19]*tr_u) + 12.0*a[20]*tr_du;
-      double yuk_2 =  12.0*pow(get_yd(container),2)*pow(get_yu(container),2) + (6.0*pow(get_yd(container),2) + 6.0*pow(get_yu(container),2) + 2.0*pow(get_yl(container),2) )*Lambda[4];
+      // // complex<double> yuk_1 = 2.0*Lambda[4]*(a[17]*tr_l + 3.0*a[18]*tr_d + 3.0*a[19]*tr_u) + 12.0*a[20]*tr_du;
+      // double yuk_2 =  12.0*pow(get_yd(container),2)*pow(get_yu(container),2) + (6.0*pow(get_yd(container),2) + 6.0*pow(get_yu(container),2) + 2.0*pow(get_yl(container),2) )*Lambda[4];
 
-      // std::cout << "B4 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
+      // // std::cout << "B4 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
 
-      beta += yuk_2;
+      // beta += yuk_2;
 
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
@@ -2126,55 +2139,55 @@ namespace Gambit
       std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
       std::complex<double> B1_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
       B1_z += 1.0/(16.0*pow(M_PI,2)) * ((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
-      B1 += -3.0/2.0 * Lambda[1] * B1_z;
+      // B1 += -3.0/2.0 * Lambda[1] * B1_z;
 
       std::complex<double> B2 = -3.0*Lambda[2] + (9.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[2],2) + pow((2.0*Lambda[3]+Lambda[4]),2));
       std::complex<double> B2_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
       B2_z += 1.0/(16.0*pow(M_PI,2)) * (-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
-      B2 += -3.0/2.0 * Lambda[2] * B2_z;
+      // B2 += -3.0/2.0 * Lambda[2] * B2_z;
 
       std::complex<double> B3 = - (2.0*Lambda[3]+Lambda[4]) + (3.0/2.0)*(2.0*b_three+b_four) + 3.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1]+Lambda[2])*(2.0*Lambda[3]+Lambda[4]);
       std::complex<double> B3_z = 1.0/(16.0*pow(M_PI,2)) * ( zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz );
-      B3 += -1.0/2.0 * (2.0*Lambda[3]+Lambda[4]) * B3_z;
+      // B3 += -1.0/2.0 * (2.0*Lambda[3]+Lambda[4]) * B3_z;
 
       std::complex<double> B4 = - (Lambda[3] + 2.0*Lambda[4]) + (3.0/2.0)*(b_three + 2.0*b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 4.0*pow(Lambda[4],2) + 9.0*pow(Lambda[5],2));
-      B4 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      // B4 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
       
       std::complex<double> B6 = -3.0*Lambda[5] + (9.0/2.0)*b_five + (6.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[3] + 2.0*Lambda[4])*Lambda[5];
-      B6 += -1.0/2.0 * (Lambda[4]+2.0*Lambda[5]) * B3_z;
+      // B6 += -1.0/2.0 * (Lambda[4]+2.0*Lambda[5]) * B3_z;
       
       std::complex<double> B7 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2)+pow(Lambda[4],2));
-      B7 += -1.0/2.0 * Lambda[1] * B1_z;
+      // B7 += -1.0/2.0 * Lambda[1] * B1_z;
 
       std::complex<double> B8 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2)+pow(Lambda[4],2));
-      B8 += -1.0/2.0 * Lambda[2] * B2_z;
+      // B8 += -1.0/2.0 * Lambda[2] * B2_z;
 
       std::complex<double> B9 = -Lambda[4] + (3.0/2.0)*b_four + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; 
-      B9 += -1.0/2.0 * Lambda[4] * B3_z;
+      // B9 += -1.0/2.0 * Lambda[4] * B3_z;
 
       std::complex<double> B13 = -Lambda[3] + (3.0/2.0)*b_three + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2));
-      B13 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      // B13 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
 
       std::complex<double> B15 = -Lambda[5] + (3.0/2.0)*b_five + (2.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*Lambda[3]*Lambda[5];
-      B15 += -1.0/2.0 * (Lambda[4]-2.0*Lambda[5]) * B3_z;
+      // B15 += -1.0/2.0 * (Lambda[4]-2.0*Lambda[5]) * B3_z;
 
       std::complex<double> B19 = -(Lambda[3]-Lambda[4]) + (3.0/2.0)*(b_three - b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]-Lambda[4]),2);
-      B19 += -1.0/2.0 * (Lambda[3]-Lambda[5]) * B3_z;
+      // B19 += -1.0/2.0 * (Lambda[3]-Lambda[5]) * B3_z;
 
       std::complex<double> B20 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));  
       std::complex<double> B20_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
-      B20 += -1.0 * Lambda[1] * B20_z;
+      // B20 += -1.0 * Lambda[1] * B20_z;
 
       std::complex<double> B21 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
       std::complex<double> B21_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
-      B21 += -1.0 * Lambda[2] * B21_z;
+      // B21 += -1.0 * Lambda[2] * B21_z;
 
       std::complex<double> B22 = -Lambda[5] + (3.0/2.0)*b_five + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
       std::complex<double> B22_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
-      B22 += -1.0 * Lambda[5] * B22_z;
+      // B22 += -1.0 * Lambda[5] * B22_z;
       
       std::complex<double> B30 = -(Lambda[3]+Lambda[4]) + (3.0/2.0)*(b_three+b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]+Lambda[4]),2);
-      B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
+      // B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
 
       // eigenvalues
       std::complex<double> a00_even_plus = 1.0/(32.0*M_PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
@@ -2583,6 +2596,8 @@ namespace Gambit
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
             for (int h=1; h<4; h++) { 
+              // std::cout << "kappa GAMBIT: " << h << 2 << 2 << " | " <<  container.he->get(Par::dimensionless, "Yu",2,2) << std::endl;
+              // std::cout << "kappa GAMBIT: " << h << 3 << 3 << " | " <<  container.he->get(Par::dimensionless, "Yu",3,3) << std::endl;
               container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
               container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
               container.THDM_object->get_coupling_huu(h,2,2,couplings.huu_cs[h][2][2],couplings.huu_cp[h][2][2]);

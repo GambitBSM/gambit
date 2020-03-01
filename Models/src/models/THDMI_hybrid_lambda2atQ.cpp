@@ -1,7 +1,7 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  Translation functions for THDMII_hybrid_lambda1atQ
+///  Translation functions for THDMI_hybrid_lambda2atQ
 ///
 ///  *********************************************
 ///
@@ -21,8 +21,8 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMII_hybrid_lambda1atQ.hpp"
-#include "gambit/Models/models/THDMIIatQ.hpp"
+#include "gambit/Models/models/THDMI_hybrid_lambda2atQ.hpp"
+#include "gambit/Models/models/THDMIatQ.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
@@ -33,17 +33,17 @@
 using namespace Gambit::Utils;
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMII_hybrid_lambda1atQ
-#define FRIEND THDMIIatQ
+#define MODEL  THDMI_hybrid_lambda2atQ
+#define FRIEND THDMIatQ
 
 // Translation function definition
-void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMI_hybrid_lambda2atQ_to_THDMIatQ(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid_lambda1atQ --> THDMIIatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpret_as_FRIEND calculations for THDMI_hybrid_lambda2atQ --> THDMIatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
+      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda_1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -52,8 +52,8 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
   const double GF = Dep::SMINPUTS->GF;
   const double v2 = 1./(sqrt(2)*GF);
 
-  const double lambda_1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+  const double lambda_2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda_1", lambda_1 );
   targetP.setValue("lambda_2", lambda_2 );
@@ -70,8 +70,8 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
-    std::cout << "THDMII_hybrid_lambda1atQ parameters:" << myP << std::endl;
-    std::cout << "THDMIIatQ parameters   :" << targetP << std::endl;
+    std::cout << "THDMI_hybrid_lambda2atQ parameters:" << myP << std::endl;
+    std::cout << "THDMIatQ parameters   :" << targetP << std::endl;
   #endif
 }
 

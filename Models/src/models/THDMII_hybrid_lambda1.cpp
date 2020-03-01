@@ -43,13 +43,10 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1_to_THDMII(const ModelParameters &myP
   logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid_lambda1 --> THDMII"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
+               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
-  // check that beta-alpha is in the required quadrant
-  if (ba < -M_PI/2) ba += M_PI/2;
-  if (ba > M_PI/2) ba -= M_PI/2;
   const double alpha = beta - ba;
   const double cb = cos(beta), sb = sin(beta), ca = cos(alpha), sa = sin(alpha), cotb = 1./tanb;
   const double GF = Dep::SMINPUTS->GF;

@@ -1,7 +1,7 @@
 ///  GAMBIT: Global and Modular BSM Inference Tool
 ///  *********************************************
 ///
-///  Translation functions for THDMII_hybrid_lambda1atQ
+///  Translation functions for THDMflipped_hybrid_lambda1
 ///
 ///  *********************************************
 ///
@@ -21,8 +21,8 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
-#include "gambit/Models/models/THDMII_hybrid_lambda1atQ.hpp"
-#include "gambit/Models/models/THDMIIatQ.hpp"
+#include "gambit/Models/models/THDMflipped_hybrid_lambda1.hpp"
+#include "gambit/Models/models/THDMflipped.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
@@ -33,14 +33,14 @@
 using namespace Gambit::Utils;
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMII_hybrid_lambda1atQ
-#define FRIEND THDMIIatQ
+#define MODEL  THDMflipped_hybrid_lambda1
+#define FRIEND THDMflipped
 
 // Translation function definition
-void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1_to_THDMflipped(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMII_hybrid_lambda1atQ --> THDMIIatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpret_as_FRIEND calculations for THDMflipped_hybrid_lambda1 --> THDMflipped"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("m_h"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
                m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda_2");
@@ -65,13 +65,10 @@ void MODEL_NAMESPACE::THDMII_hybrid_lambda1atQ_to_THDMIIatQ(const ModelParameter
   targetP.setValue("m12_2", m12_2 );
   targetP.setValue("tanb", tanb );
 
-  targetP.setValue("Qin", myP.getValue("Qin") );
-  targetP.setValue("QrunTo", myP.getValue("QrunTo") );
-
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
-    std::cout << "THDMII_hybrid_lambda1atQ parameters:" << myP << std::endl;
-    std::cout << "THDMIIatQ parameters   :" << targetP << std::endl;
+    std::cout << "THDMflipped_hybrid_lambda1 parameters:" << myP << std::endl;
+    std::cout << "THDMflipped parameters   :" << targetP << std::endl;
   #endif
 }
 
