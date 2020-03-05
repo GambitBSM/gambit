@@ -712,7 +712,7 @@ else()
                     if unique_libdirs:
                         for libdir in unique_libdirs:
                             towrite += """
-                $ORIGIN/../../ScannerBit/{0}""".format(libdir.split("/ScannerBit/")[1])
+                $ORIGIN/../../ScannerBit/{0}""".format(libdir.split("ScannerBit/")[-1])
             towrite += """
     )
 endif()

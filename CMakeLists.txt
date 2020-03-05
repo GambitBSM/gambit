@@ -149,7 +149,7 @@ if(PYTHONLIBS_FOUND)
 endif()
 
 # Check for pybind11 if PythonLibs were found
-if(NOT PYTHONLIBS_FOUND)
+if(NOT PYTHONLIBS_FOUND AND NOT NO_PYTHON_LIBS)
   message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
           "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
           "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"

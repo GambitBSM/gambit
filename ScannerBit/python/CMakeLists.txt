@@ -6,7 +6,7 @@ include(cmake/boost_python.cmake)
 
 #find_package(NumPy)
 
-if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+if(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
 
     ############### scan_boost_python ###############
     
@@ -54,16 +54,30 @@ if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
     
     target_link_libraries(scan_boost_python ${scan_boost_module_libraries})
 
-    set_target_properties(scan_boost_python PROPERTIES 
-                                        #CXX_VISIBILITY_PRESET default
-                                        #VISIBILITY_INLINES_HIDDEN FALSE
-                                        INSTALL_RPATH "${scan_boost_module_rpaths}"
-                                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                                        LIBRARY_OUTPUT_NAME "BoostScannerBit"
-                                        INCLUDE_DIRECTORIES "${scan_boost_module_include_dirs}"
-                                        LINKER_LANGUAGE CXX
-                                        PREFIX ""
-                                        SUFFIX .so)
+    if(APPLE)
+        set_target_properties(scan_boost_python PROPERTIES 
+                                            #CXX_VISIBILITY_PRESET default
+                                            #VISIBILITY_INLINES_HIDDEN FALSE
+                                            INSTALL_RPATH "${scan_boost_module_rpaths}"
+                                            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                                            LIBRARY_OUTPUT_NAME "BoostScannerBit"
+                                            INCLUDE_DIRECTORIES "${scan_boost_module_include_dirs}"
+                                            LINKER_LANGUAGE CXX
+                                            LINK_FLAGS "-undefined dynamic_lookup"
+                                            PREFIX ""
+                                            SUFFIX .so)
+    else(APPLE)
+        set_target_properties(scan_boost_python PROPERTIES 
+                                            #CXX_VISIBILITY_PRESET default
+                                            #VISIBILITY_INLINES_HIDDEN FALSE
+                                            INSTALL_RPATH "${scan_boost_module_rpaths}"
+                                            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                                            LIBRARY_OUTPUT_NAME "BoostScannerBit"
+                                            INCLUDE_DIRECTORIES "${scan_boost_module_include_dirs}"
+                                            LINKER_LANGUAGE CXX
+                                            PREFIX ""
+                                            SUFFIX .so)
+    endif(APPLE)
                                     
     add_dependencies(scan_boost_python boost_python)
     add_gambit_deps(scan_boost_python)
@@ -71,7 +85,7 @@ if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
     ################## scan_python ##################
     
     set(scan_module_libraries
-        ${PYTHON_LIBRARIES}
+        #${PYTHON_LIBRARIES}
         yaml-cpp
     )
     
@@ -109,26 +123,40 @@ if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
     
     target_link_libraries(scan_python ${scan_module_libraries})
 
-    set_target_properties(scan_python PROPERTIES 
-                                        #CXX_VISIBILITY_PRESET default
-                                        #VISIBILITY_INLINES_HIDDEN FALSE
-                                        INSTALL_RPATH "${scan_module_rpaths}"
-                                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                                        LIBRARY_OUTPUT_NAME "ScannerBit"
-                                        INCLUDE_DIRECTORIES "${scan_module_include_dirs}"
-                                        LINKER_LANGUAGE CXX
-                                        PREFIX ""
-                                        SUFFIX .so)
+    if(APPLE)
+        set_target_properties(scan_python PROPERTIES 
+                                            #CXX_VISIBILITY_PRESET default
+                                            #VISIBILITY_INLINES_HIDDEN FALSE
+                                            INSTALL_RPATH "${scan_module_rpaths}"
+                                            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                                            LIBRARY_OUTPUT_NAME "ScannerBit"
+                                            INCLUDE_DIRECTORIES "${scan_module_include_dirs}"
+                                            LINKER_LANGUAGE CXX
+                                            LINK_FLAGS "-undefined dynamic_lookup"
+                                            PREFIX ""
+                                            SUFFIX .so)
+    else(APPLE)
+        set_target_properties(scan_python PROPERTIES 
+                                            #CXX_VISIBILITY_PRESET default
+                                            #VISIBILITY_INLINES_HIDDEN FALSE
+                                            INSTALL_RPATH "${scan_module_rpaths}"
+                                            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                                            LIBRARY_OUTPUT_NAME "ScannerBit"
+                                            INCLUDE_DIRECTORIES "${scan_module_include_dirs}"
+                                            LINKER_LANGUAGE CXX
+                                            PREFIX ""
+                                            SUFFIX .so)
+    endif(APPLE)
                                     
     add_gambit_deps(scan_python)
     
     #################################################
 
-else(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+else(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
 
     message("${BoldRed}-- The ScannerBit python interface requires python, the python libraries, and numpy ${ColourReset}")
     message("${Red}-- PYTHONINTERP_FOUND=${PYTHONINTERP_FOUND} ${ColourReset}")
     message("${Red}-- PYTHONLIBS_FOUND=${PYTHONLIBS_FOUND} ${ColourReset}")
     message("${Red}-- NUMPY_FOUND=${NUMPY_FOUND} ${ColourReset}")
 
-endif(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
+endif(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
