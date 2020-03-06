@@ -85,6 +85,7 @@ Scanner:
 
 ObsLikes:
   - capability: lnL_EDM_n
+    function: lnL_EDM_n_gaussianStep
     purpose: LogLike
 
   - capability: EDM_n

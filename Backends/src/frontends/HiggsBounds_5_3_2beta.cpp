@@ -35,8 +35,8 @@ BE_INI_FUNCTION
   static bool scan_level = true;
   if(scan_level)
   {
-    int nHneut = 3; // number of neutral higgses
-    int nHplus = 1; // number of charged higgses
+    int nHneut = 1; // number of neutral higgses
+    int nHplus = 0; // number of charged higgses
     int ANA = 1;    // indicates LEP-only analysis
 
     // Initialize HiggsBounds. Do this one-by-one for each MPI process with
