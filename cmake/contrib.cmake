@@ -210,10 +210,10 @@ set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECT
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
 set (FS_DIR "${PROJECT_SOURCE_DIR}/contrib/MassSpectra/flexiblesusy")
-# Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need). 
+# Set the models (spectrum generators) existing in flexiblesusy (could autogen this, but that would build some things we don't need).
 # Doing this out here so that we can use them in messages even when FS is excluded
 set(ALL_FS_MODELS MDM CMSSM MSSM MSSMatMGUT MSSM_mAmu MSSMatMSUSY_mAmu MSSMatMGUT_mAmu MSSMEFTHiggs MSSMEFTHiggs_mAmu MSSMatMSUSYEFTHiggs_mAmu MSSMatMGUTEFTHiggs MSSMatMGUTEFTHiggs_mAmu ScalarSingletDM_Z3 ScalarSingletDM_Z2)
-if(";${GAMBIT_BITS};" MATCHES ";SpecBit;") 
+if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set (EXCLUDE_FLEXIBLESUSY FALSE)
 
   # Always use -O2 for flexiblesusy to ensure fast spectrum generation.
@@ -359,7 +359,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
           message("${BoldCyan}   Switching OFF FlexibleSUSY support for models: ${EXCLUDED_FS_MODELS_COMMAS}${ColourReset}")
       endif()
   else()
-      message("${BoldCyan} X Switching OFF FlexibleSUSY support for ALL models.${ColourReset}") 
+      message("${BoldCyan} X Switching OFF FlexibleSUSY support for ALL models.${ColourReset}")
       message("   If you want to activate support for any model(s) please list them in the cmake flag -DBUILD_FS_MODELS=<list> as a semi-colon separated list.")
       message("   Buildable models are: ${ALL_FS_MODELS}")
       message("   To build ALL models use ALL, All, or all.")

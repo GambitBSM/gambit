@@ -3,6 +3,10 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.4.3
+Bugfix release
+- Further corrected auto-detection of static LAPACK libraries (for OSX this time)
+
 v1.4.2
 Bugfix release
 - Corrected auto-detection of static LAPACK libraries

@@ -720,7 +720,7 @@ namespace Gambit
           {
             for (int l=0; l<3; l++)
             {
-              if ( (M[i] > (m_lep[j]+m_uquark[k]+m_dquark[l])) and (M[i] < 7.5) )  // For now, take 7.5 GeV to be the mass limit below which the RHN decay is to lepton+meson final state
+              if ( (M[i] > (m_lep[j]+m_uquark[k]+m_dquark[l])) and (M[i] > 7.5) )  // For now, take 7.5 GeV to be the mass limit below which the RHN decay is to lepton+meson final state
               {
                 decay_prod[0] = m_lep[j];
                 decay_prod[1] = m_uquark[k];
