@@ -519,8 +519,7 @@ namespace Gambit
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
 
-/* These two functions do not exist anymore in HiggsSignals_2_2_3beta
- * BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
+     BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
                  &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
                  &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
                  &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
@@ -542,7 +541,7 @@ namespace Gambit
       BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
             &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
             &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
-*/
+
       BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
       // add uncertainties to cross-sections and branching ratios
@@ -663,16 +662,109 @@ namespace Gambit
       using namespace Pipes::calc_HS_LHC_LogLike;
 
       hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
+     Farray<double, 1,3, 1,3> BR_hjhiZ;
+      Farray<double, 1,3, 1,3, 1,3> BR_hkhjhi;
+     int i,j,k;
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
+      
+      
+      int Hneut = 1;
+      double Mh[Hneut];
+      Mh[0] = 125.09;
+      double GammaTotal[Hneut];
+      double CP[Hneut];
+      CP[0] = 0.;
+      //const HiggsCouplingsTable::h0_decay_array_type&  h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(1);
+      GammaTotal[0] = 2E-3; //h0_widths[0]->width_in_GeV;
+
+      double ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
+        ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
+        ghjmumu_s[Hneut], ghjmumu_p[Hneut], ghjtautau_s[Hneut], ghjtautau_p[Hneut],
+        ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut],
+        ghjhiZ[Hneut];
+      double BR_hjinvisible[Hneut], BR_hjemu[Hneut], BR_hjetau[Hneut],
+        BR_hjmutau[Hneut], BR_hjHpiW[Hneut];
+ 
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
 
-      BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
+      //the following two functions are already called in Backends/src/frontends/HiggsSignals_2_2_3beta.cpp with nHneut = 1, nHplus = 0, pdf = 2 (Gaussian)
+      //initialize_HiggsSignals_LHC13(nHneut,nHplus
+      //setup_pdf(pdf=2)
+      //
+      //setup_output_level(0) only gives debug information - not called
+      //setup_Nparam(number of free model parameters = 12) not called - even though might be needed but is not listed in Backends/include/gambit/Backends/frontends/HiggsSignals_2_2_3beta.hpp
+
+
+      double kappaS = *Param["kappaS"];
+      double kappaC = *Param["kappaC"];
+      double kappaB = *Param["kappaB"];
+      double kappaT = *Param["kappaT"];
+      double kappaMu = *Param["kappaMu"];
+      double kappaTau = *Param["kappaTau"];
+      double sinPhiS = *Param["SinPhiS"];
+      double sinPhiC = *Param["SinPhiC"];
+      double sinPhiB = *Param["SinPhiB"];
+      double sinPhiT = *Param["SinPhiT"];
+      double sinPhiMu = *Param["SinPhiMu"];
+      double sinPhiTau = *Param["SinPhiTau"];
+
+      for(int i = 0; i<Hneut; i++){
+      ghjss_p[i] = kappaS*sinPhiS;
+      ghjss_s[i] = kappaS*sqrt(1. - pow(sinPhiS,2));
+      ghjcc_p[i] = kappaC*sinPhiC;
+      ghjcc_s[i] = kappaC*sqrt(1. - pow(sinPhiC,2));
+      ghjbb_p[i] = kappaB*sinPhiB;
+      ghjbb_s[i] = kappaB*sqrt(1. - pow(sinPhiB,2));
+      ghjtt_p[i] = kappaT*sinPhiT;
+      ghjtt_s[i] = kappaT*sqrt(1. - pow(sinPhiT,2));
+      ghjmumu_p[i] = kappaMu*sinPhiMu;
+      ghjmumu_s[i] = kappaMu*sqrt(1. - pow(sinPhiMu,2));
+      ghjtautau_p[i] = kappaTau*sinPhiTau;
+      ghjtautau_s[i] = kappaTau*sqrt(1. - pow(sinPhiTau,2));
+
+      // hVV
+      ghjWW[i]=0.;
+      ghjZZ[i]=0.;
+      ghjZga[i]=0.; // h-Z-photon (change?)
+      ghjgaga[i]=0.; // h-photon-photon (change?)
+      ghjgg[i]=0.; // h-gluon-gluon (change?)
+      ghjhiZ[i]=0.; // h-h-Z - isn't it =1.?
+      }
+      cout << "couplings: bbp,bbs " << ghjbb_p[0] << " " << ghjbb_s[0] << endl;
+      for (i=0; i<=2; i++)
+      {
+        BR_hjinvisible[i] = BR_hjemu[i] = BR_hjetau[i] = 0.;
+        BR_hjmutau[i] = BR_hjHpiW[i] = 0.;
+        for (j=1; j<=3; j++)
+        {
+          BR_hjhiZ(i+1,j) = 0.;
+          for (k=1; k<=3; k++)
+          {
+              BR_hkhjhi(i+1,j,k) = 0.;
+          }
+        }
+      }
+
+
+
+      BEreq::HiggsBounds_neutral_input_properties_HS(&Mh[0],&GammaTotal[0],&CP[0]);
+
+      BEreq::HiggsBounds_neutral_input_effC_HS(
+		      &ghjss_s[0], &ghjss_p[0], &ghjcc_s[0],   &ghjcc_p[0],   &ghjbb_s[0],     &ghjbb_p[0],
+		      &ghjtt_s[0], &ghjtt_p[0], &ghjmumu_s[0], &ghjmumu_p[0], &ghjtautau_s[0], &ghjtautau_p[0], 
+		      &ghjWW[0],   &ghjZZ[0],   &ghjZga[0],    &ghjgaga[0],   &ghjgg[0],       &ghjhiZ[0]);
+
+
+
+
+
+ /*     BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
                  &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
                  &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
                  &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
@@ -691,11 +783,12 @@ namespace Gambit
                  &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
                  &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
 
-      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
+*/      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
             &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
             &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
+/*	    */
 
-      BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
+      //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
       // add uncertainties to cross-sections and branching ratios
       // double dCS[5] = {0.,0.,0.,0.,0.};

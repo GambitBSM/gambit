@@ -58,17 +58,15 @@ BE_FUNCTION(finish_HiggsBounds_HS, void, (), "finish_higgsbounds_", "finish_Higg
 
 // Input sub-routines
 BE_FUNCTION(HiggsBounds_input_SLHA_HS, void, (const char&), "higgsbounds_input_slha_", "HiggsBounds_input_SLHA_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_properties_HS, void, (double*, double*, double*), "higgsbounds_neutral_input_properties_", "HiggsBounds_neutral_input_properties_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_effC_HS, void, (double*, double*, double*, double*,
-						      double*, double*, double*, double*,
-						      double*, double*, double*, double*,
-						      double*, double*, double*, double*,
-						      double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC_HS")
+BE_FUNCTION(HiggsBounds_neutral_input_properties_HS, void, (double*, double*,double*), "higgsbounds_neutral_input_properties_", "HiggsBounds_neutral_input_properties_HS")//double*
+BE_FUNCTION(HiggsBounds_neutral_input_effC_HS, void, (double*, double*, double*, double*, double*, double*, 
+						      double*, double*, double*, double*, double*, double*,
+						      double*, double*, double*, double*, double*, double*), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC_HS")//Farray<double, 1,3, 1,3>&
 
 BE_FUNCTION(HiggsBounds_neutral_input_SMBR_HS, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*),
 	    "higgsbounds_neutral_input_smbr_", "HiggsBounds_neutral_input_SMBR_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR_HS, void, (double*, Farray<double, 1,3, 1,3, 1,3>&, Farray<double, 1,3, 1,3>&, double*, double*, double*, Farray<double, 1,3>&),
-	    "higgsbounds_neutral_input_nonsmbr_", "HiggsBounds_neutral_input_nonSMBR_HS")
+BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR_HS, void, (double*, Farray<double, 1,3, 1,3, 1,3>&, Farray<double, 1,3, 1,3>&, double*, double*, double*, double*),
+	    "higgsbounds_neutral_input_nonsmbr_", "HiggsBounds_neutral_input_nonSMBR_HS") //Farray<double, 1,3>&
 
 BE_FUNCTION(HiggsBounds_neutral_input_LEP_HS, void, (double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_lep_", "HiggsBounds_neutral_input_LEP_HS")
