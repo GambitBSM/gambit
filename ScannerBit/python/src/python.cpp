@@ -7,7 +7,11 @@
 #include <pybind11/stl_bind.h>
 #include <dlfcn.h>
 #include <memory>
-
+#include <regex>
+#ifdef WITH_HDF5
+    #include <hdf5.h>
+    #include <hdf5_hl.h>
+#endif
 #include "interface.hpp"
 #include "python_utils.hpp"
 #include "run_scan.hpp"
@@ -175,12 +179,37 @@ PYBIND11_MODULE(ScannerBit, m)
             in.main_printer(map);
         });
 
-    #ifdef WITH_MPI 
+#ifdef WITH_MPI 
     m.attr("WITH_MPI") = true;
-    #else
+#else
     m.attr("WITH_MPI") = false;  
-    #endif
+#endif
 
+    m.def("check_hdf5_version", [&]()
+    {
+#ifdef WITH_HDF5
+        std::string name = "INFO:" H5_VERSION;
+        std::smatch m;
+        std::regex e ("^INFO:([0-9]+)\\.([0-9]+)\\.([0-9]+)(-patch([0-9]+))?");
+        unsigned int major, minor, patch;
+        
+        if (std::regex_match (name,m,e))
+        {
+            if (m.size() < 4)
+                std::runtime_error("check_hdf5_version: internal hdf5 version error");
+            
+            std::stringstream(m[1]) >> major;
+            std::stringstream(m[2]) >> minor;
+            std::stringstream(m[3]) >> patch;
+            H5check_version(major, minor, patch);
+        }
+        else
+        {
+            throw std::runtime_error("check_hdf5_version: internal hdf5 version error");
+        }
+#endif
+    });
+    
     m.def("print", &scanpy::scan::print);
         
     m.def("ensure_size", &scanpy::ensure_size_vec);

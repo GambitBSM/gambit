@@ -8,11 +8,23 @@ include(cmake/boost_python.cmake)
 
 if(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
 
+    if(VERBOSE_SCAN_PYTHON)
+        message("${BoldYellow}Python extensive module Python deps:${ColourReset}")
+        message("-- Python version string: ${PYTHON_VERSION_STRING}")
+        message("-- Python include dirs: ${PYTHON_INCLUDE_DIRS}")
+        message("-- Python executable: ${PYTHON_EXECUTABLE}")
+    endif(VERBOSE_SCAN_PYTHON)
+    
+    if(HDF5_FOUND)
+        add_definitions(-DWITH_HDF5)
+    endif(HDF5_FOUND)
+    
     ############### scan_boost_python ###############
     
     set(scan_boost_module_libraries
-        ${PYTHON_LIBRARIES}
+        #${PYTHON_LIBRARIES}
         ${CMAKE_CURRENT_SOURCE_DIR}/contrib/boost_python/lib/libboost_python${PYTHON_VERSION_STRING}.so
+        ${OpenMP_omp_LIBRARY}
         yaml-cpp
     )
     
@@ -87,10 +99,10 @@ if(PYTHONINTERP_FOUND)# AND PYTHONLIBS_FOUND)# AND NUMPY_FOUND)
     set(scan_module_libraries
         #${PYTHON_LIBRARIES}
         yaml-cpp
-	${OpenMP_omp_LIBRARY}
+        ${OpenMP_omp_LIBRARY}
     )
     
-     set(scan_module_include_dirs
+    set(scan_module_include_dirs
         ${GAMBIT_INCDIRS}
         ${mkpath_INCLUDE_DIR}
         ${MPI_C_INCLUDE_PATH}
