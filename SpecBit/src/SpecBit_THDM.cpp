@@ -451,15 +451,15 @@ namespace Gambit
             break;
           }
 
-        thdm_model.Yu[0] = - sqrt2v * sminputs.mU / beta_scaling_u;
-        thdm_model.Yu[1] = - sqrt2v * sminputs.mCmC / beta_scaling_u;
-        thdm_model.Yu[2] = - sqrt2v * sminputs.mT / beta_scaling_u;
-        thdm_model.Ye[0] = - sqrt2v * sminputs.mE / beta_scaling_e;
-        thdm_model.Ye[1] = - sqrt2v * sminputs.mMu / beta_scaling_e;
-        thdm_model.Ye[2] = - sqrt2v * sminputs.mTau / beta_scaling_e;
-        thdm_model.Yd[0] = - sqrt2v * sminputs.mD / beta_scaling_d;
-        thdm_model.Yd[1] = - sqrt2v * sminputs.mS / beta_scaling_d;
-        thdm_model.Yd[2] = - sqrt2v * sminputs.mBmB / beta_scaling_d;
+        thdm_model.Yu[0] = sqrt2v * sminputs.mU / beta_scaling_u;
+        thdm_model.Yu[1] = sqrt2v * sminputs.mCmC / beta_scaling_u;
+        thdm_model.Yu[2] = sqrt2v * sminputs.mT / beta_scaling_u;
+        thdm_model.Ye[0] = sqrt2v * sminputs.mE / beta_scaling_e;
+        thdm_model.Ye[1] = sqrt2v * sminputs.mMu / beta_scaling_e;
+        thdm_model.Ye[2] = sqrt2v * sminputs.mTau / beta_scaling_e;
+        thdm_model.Yd[0] = sqrt2v * sminputs.mD / beta_scaling_d;
+        thdm_model.Yd[1] = sqrt2v * sminputs.mS / beta_scaling_d;
+        thdm_model.Yd[2] = sqrt2v * sminputs.mBmB / beta_scaling_d;
 
         // std::cout << "Spectrum YU: (" << beta_scaling_u << ") " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
         // std::cout << "Spectrum MU: " << sminputs.mU<< " " << sminputs.mCmC <<" " << sminputs.mT << std::endl;
@@ -2636,11 +2636,11 @@ namespace Gambit
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 2));
+      m_hj.push_back(container.he->get(Par::mass1, "A0"));
       for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
         SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
       }
       // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow

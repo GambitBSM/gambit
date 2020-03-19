@@ -3711,11 +3711,11 @@ namespace Gambit
       std::vector<thdmc_decay_widths> SM_like_widths; 
       SpecBit::init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 2));
+      m_hj.push_back(container.he->get(Par::mass1, "A0"));
       for (int h=1; h<=3; h++) {
-        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
         SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
       // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
@@ -3823,12 +3823,12 @@ namespace Gambit
       std::vector<thdmc_total_widths> SM_like_total_widths;
 
       std::vector<double> m_hj;
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 1));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "h0", 2));
-      m_hj.push_back(container.he->get(Par::Pole_Mass, "A0"));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
+      m_hj.push_back(container.he->get(Par::mass1, "h0", 2));
+      m_hj.push_back(container.he->get(Par::mass1, "A0"));
       
       for (int h=1; h<=3; h++) {
-        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.SM, container.sminputs, container.THDM_object);
+        SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
         // init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.THDM_object, h);
         SM_like_total_widths.push_back(fill_THDM_total_widths(container));
       }
