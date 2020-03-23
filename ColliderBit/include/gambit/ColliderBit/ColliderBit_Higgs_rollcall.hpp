@@ -129,7 +129,7 @@
     BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
     BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
-    BACKEND_OPTION( (HiggsSignals, 1.4), (libhiggssignals) )
+    BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
     #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
     START_FUNCTION(double)

@@ -44,7 +44,7 @@ Parameters:
 #      prior_type: flat
     kappaC: 1.
     kappaB: #1.
-       range: [1.,100.]
+       range: [1.,1.1]
        prior_type: flat
     kappaT: 1.
 #      range: [0.,10.]
@@ -128,8 +128,6 @@ ObsLikes:
      function: calc_HS_LHC_LogLike_CPVYukawas
      purpose: LogLike
 
-
-
 #
 #
 #
@@ -188,6 +186,15 @@ ObsLikes:
 
 
 Rules:
+   - capability: LHC_Higgs_LogLike
+     function: calc_HS_LHC_LogLike_CPVYukawas
+     purpose: LogLike
+     dependencies:
+      - capability: HB_ModelParameters
+        function: SMHiggs_ModelParameters
+        module: ColliderBit
+
+
         #   - capability: lnL_EDM_n
         #function: lnL_EDM_n_gaussianStep
     

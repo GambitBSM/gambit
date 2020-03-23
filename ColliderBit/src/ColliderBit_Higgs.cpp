@@ -659,7 +659,7 @@ namespace Gambit
     /// effective coupling interface to HB/HS
     void calc_HS_LHC_LogLike_CPVYukawas(double &result)
     {
-      using namespace Pipes::calc_HS_LHC_LogLike;
+      using namespace Pipes::calc_HS_LHC_LogLike_CPVYukawas;
 
       hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
      Farray<double, 1,3, 1,3> BR_hjhiZ;
@@ -729,11 +729,15 @@ namespace Gambit
       ghjtautau_s[i] = kappaTau*sqrt(1. - pow(sinPhiTau,2));
 
       // hVV
-      ghjWW[i]=0.;
-      ghjZZ[i]=0.;
-      ghjZga[i]=0.; // h-Z-photon (change?)
-      ghjgaga[i]=0.; // h-photon-photon (change?)
-      ghjgg[i]=0.; // h-gluon-gluon (change?)
+      ghjWW[i]=1.;
+      ghjZZ[i]=1.;
+      ghjZga[i]=1.; // h-Z-photon (change?)
+  //function get_g2hgaga from HiggsSignals (to be found in example_programs/HSeffCf.90
+  //but it only appears to take the CP-even couplings into account. Probably should be calculated one one's own
+//      ghjgaga[i]= sqrt((pow(ghjtt[i],2))*0.70904E-01 + (pow(ghjbb[i],2))*0.18760E-04 + (pow(ghjWW[i],2))*1.5863 + ghjtt[i]*ghjbb[i]*(-0.17319E-02) + ghjtt[i]*ghjWW[i]*(-0.67074) + ghjbb[i]*ghjWW[i]*0.82093E-02 + (pow(ghjtautau[i],2))*0.22663E-04 + ghjtt[i]*ghjtautau[i]*(-0.18696E-02) + ghjbb[i]*ghjtautau[i]*0.41239E-04 + ghjtautau[i]*ghjWW[i]*0.88634E-02);
+      // h-photon-photon (change?)
+      ghjgaga[i] = 1.;
+      ghjgg[i]=1.; // h-gluon-gluon (change?)
       ghjhiZ[i]=0.; // h-h-Z - isn't it =1.?
       }
       cout << "couplings: bbp,bbs " << ghjbb_p[0] << " " << ghjbb_s[0] << endl;
@@ -783,10 +787,10 @@ namespace Gambit
                  &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
                  &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
 
-*/      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
             &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
             &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
-/*	    */
+	    */
 
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
