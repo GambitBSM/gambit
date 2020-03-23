@@ -68,7 +68,7 @@
 #  \date 2017 Sep, Nov
 #
 #  \author Jonathan Cornell
-#          (jonathan.cornell@uc.edu)
+#          (jonathancornell@weber.edu)
 #  \date 2019 Mar
 #  \date 2020 Feb, Mar
 #
