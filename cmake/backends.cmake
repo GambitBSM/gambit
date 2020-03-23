@@ -940,6 +940,40 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
+# HiggsSignals 2.4.0
+set(name "higgssignals")
+set(ver "2.4.0")
+set(lib "libhiggssignals")
+set(dl "https://gitlab.com/higgsbounds/higgssignals/-/archive/2.4.0/higgssignals-2.4.0.tar.gz")
+set(md5 "c03a05d13edfc8da07e932ea2524b52d")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(hb_name "higgsbounds")
+set(hb_ver "5.7.0")
+set(hb_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS higgsbounds_${hb_ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 0
+    BINARY_DIR "${dir}/build"
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DHiggsBounds_DIR=${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}/build
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+          COMMAND ${CMAKE_COMMAND} -E copy lib/libHS.a lib/objects/libHS.a
+          COMMAND ${CMAKE_COMMAND} -E copy "${hb_dir}/build/lib/libHB.a" lib/objects/libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHS.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHB.a
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E remove_directory lib/objects
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # HiggsSignals 2.2.3 Beta
 set(name "higgssignals")
@@ -1018,7 +1052,6 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 
