@@ -48,7 +48,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
@@ -97,7 +97,7 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike   
+  - capability: normaldist_loglike
     options:
         probability_of_validity: 1.0
 

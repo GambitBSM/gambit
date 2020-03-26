@@ -53,6 +53,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0060 # CMake 3.16.2
   CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
   CMP0074 # CMake 3.12
@@ -160,8 +161,8 @@ if(NOT PYTHONLIBS_FOUND)
           "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
           "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
 else()
-  set(MIN_pybind11_VERSION "2.3.0")
-  set(PREFERRED_pybind11_VERSION "2.3.0")
+  set(MIN_pybind11_VERSION "2.4.3")
+  set(PREFERRED_pybind11_VERSION "2.4.3")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   find_package(pybind11 QUIET)
   if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")

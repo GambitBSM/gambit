@@ -278,6 +278,9 @@
                                                                                \
       }                                                                        \
                                                                                \
+      /* Make the functor exclusive to this model and its descendants */       \
+      CORE_ALLOW_MODEL(MODEL,PARAMETER,MODEL)                                  \
+                                                                               \
     }                                                                          \
                                                                                \
   }                                                                            \

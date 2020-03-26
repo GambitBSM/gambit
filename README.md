@@ -71,7 +71,7 @@ OPTIONAL:
 Building GAMBIT
 --
 
-The basic build instructions are as follows, but note that cmake will fail to find some dependencies on some systems without guidance. More information is provided in the paper "GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool" (see the top of this README file for a link). Specific cluster configuration examples are available via gambit.hepforge.org.
+The basic build instructions are as follows, but note that cmake will fail to find some dependencies on some systems without guidance. More information is provided in the paper "GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool" (see the top of this README file for a link). For a list of commonly used cmake options, see the file CMAKE_FLAGS.md. Specific cluster configuration examples are available via gambit.hepforge.org.
 
 Assuming that you have retrieved the git repository or the tarball and unpacked it:
 

@@ -34,6 +34,10 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2018 August
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2020 Feb
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -353,7 +357,9 @@ namespace Gambit
     DD_EX(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
     DD_EX(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
     DD_EX(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
+    DD_EX(DarkSide_50_S2)       // P. Agnes et al., [arXiv:1802.06994]
     DD_EX(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
+    DD_EX(CRESST_III)           // G. Angloher et al., [arXiv:1904.00498]
     DD_EX(SuperCDMS_2014)       // Agnese et al., PRL 112, 241302 (2014) [arxiv:1402.7137]
     DD_EX(CDMSlite)             // Agnese et al., PRL 116, 071301 (2015) [arxiv:1509.02448]
     DD_EX(SIMPLE_2014)          // Felizardo et al., PRD 89, 072013 (2014) [arxiv:1404.4309]
@@ -362,6 +368,7 @@ namespace Gambit
     DD_EX(PICO_60_I)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
     DD_EX(PICO_60)              // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
     DD_EX(PICO_60_2017)         // C. Amole et al., arXiv:1702.07666
+    DD_EX(PICO_60_2019)         // C. Amole et al., arXiv:1902.04031
     DD_EX(PICO_500)             // S. Fallows, talk at TAUP 2017
 
     // Just in case, to make sure we don't mess with other things elsewhere.

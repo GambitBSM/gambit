@@ -707,4 +707,3 @@ THDMII_higgs_hybridatQ: |
    The Type-II Two-Higgs-Doublet Model in the Higgs basis (see THDMII_higgs_hybrid) with running.
    Qin                 - the scale at which the parameters are defined
    QRunTo              - the scale to which the parameters are run
-=

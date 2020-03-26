@@ -64,6 +64,8 @@
 ///         (sanjay.bloor12@imperial.ac.uk)
 /// \date 2017 Dec
 /// \date 2018 Aug
+/// \date 2020 Feb
+///
 ///  \author Sebastian Hoof
 ///          (s.hoof15@imperial.ac.uk)
 ///  \date 2016 Oct
@@ -814,7 +816,9 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(PandaX_2016)          // A. Tan et al., PRL 117, 121303 (2016) [arxiv:1607.07400]
   DD_DECLARE_EXPERIMENT(PandaX_2017)          // X. Cui et al., PRL 119, 181302 (2017) [arxiv:1708.06917]
   DD_DECLARE_EXPERIMENT(DarkSide_50)          // P. Agnes et al., [arXiv:1802.07198]
+  DD_DECLARE_EXPERIMENT(DarkSide_50_S2)       // P. Agnes et al., [arXiv:1802.06994]
   DD_DECLARE_EXPERIMENT(CRESST_II)            // G. Angloher et al., [arXiv:1509.01515]
+  DD_DECLARE_EXPERIMENT(CRESST_III)           // A. H. Abdelhameed et al., [arXiv:1904.00498]
   DD_DECLARE_EXPERIMENT(SuperCDMS_2014)       // Agnese et al., PRL 112, 241302 (2014) [arxiv:1402.7137]
   DD_DECLARE_EXPERIMENT(CDMSlite)             // Agnese et al., PRL 116, 071301 (2015) [arxiv:1509.02448]
   DD_DECLARE_EXPERIMENT(SIMPLE_2014)          // Felizardo et al., PRD 89, 072013 (2014) [arxiv:1404.4309]
@@ -823,6 +827,7 @@ START_MODULE
   DD_DECLARE_EXPERIMENT(PICO_60_I)            // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
   DD_DECLARE_EXPERIMENT(PICO_60)              // C. Amole et al., PRD 93, 052014 (2016) [arXiv:1510.07754]
   DD_DECLARE_EXPERIMENT(PICO_60_2017)         // C. Amole et al., arXiv:1702.07666
+  DD_DECLARE_EXPERIMENT(PICO_60_2019)         // C. Amole et al., arXiv:1902.04031
   DD_DECLARE_EXPERIMENT(PICO_500)             // S. Fallows, talk at TAUP 2017
 
   // Specify which versions of DDCalc support which experiments.
@@ -832,20 +837,23 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0))
-
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  // Introduced in DDCalc 2.2.0
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
 
 
   // INDIRECT DETECTION: NEUTRINOS =====================================
