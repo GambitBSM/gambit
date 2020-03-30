@@ -364,6 +364,129 @@ namespace Gambit
       DDCALC_BIN(EXPERIMENT, double, Signal)                                       \
 
     // Experiments
+    // Example expansion of the DD_EX(LZ) macro:
+//    void LZ_Calc(bool &result)                                     \
+//          {                                                                            \
+//            using namespace Pipes::LZ_Calc;                              \
+//            BEreq::DD_CalcRates(BEreq::DD_Experiment(STRINGIFY(LZ)));          \
+//            result = true;                                                             \
+//          }                                                                            \
+//          /* Results */                                                                \
+//          void LZ_GetEvents(int &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetEvents;                          \
+//          int temp_result = BEreq::DD_Events(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                    \
+//          void LZ_GetBackground(double &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetBackground;                          \
+//          double temp_result = BEreq::DD_Background(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                \
+//          void LZ_GetSignal(double &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetSignal;                          \
+//          double temp_result = BEreq::DD_Signal(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                    \
+//          void LZ_GetSignalSI(double &result)                                 \
+//        {                                                                              \
+//          using namespace LZ_GetSignalSI;                          \
+//          double temp_result = BEreq::DD_SignalSI(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                  \
+//          void LZ_GetSignalSD(double &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetSignalSD;                          \
+//          double temp_result = DD_SignalSD(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                  \
+//          void LZ_GetBins(int &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetBins;                          \
+//          int temp_result = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                                      \
+//          void LZ_GetLogLikelihood(double &result)                                 \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetLogLikelihood;                          \
+//          double temp_result = BEreq::DD_LogLikelihood(BEreq::DD_Experiment(STRINGIFY(LZ)));  \
+//          if (Utils::isnan(temp_result))                                               \
+//          {                                                                            \
+//            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
+//            /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+//          }                                                                            \
+//          result = temp_result;                                                        \
+//        }                             \
+//          void LZ_GetBinEvents(std::vector<double> &result)               \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetBinEvents;                       \
+//          result.clear();                                                              \
+//          int nbins;                                                                   \
+//          nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(LZ)));         \
+//          for (int ibin=1;ibin<=nbins;ibin++) {                                        \
+//            result.push_back(                                                          \
+//            BEreq::DD_BinEvents(BEreq::DD_Experiment(STRINGIFY(LZ)),ibin)); } \
+//        }                                       \
+//          void LZ_GetBinBackground(std::vector<double> &result)               \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetBinBackground;                       \
+//          result.clear();                                                              \
+//          int nbins;                                                                   \
+//          nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(LZ)));         \
+//          for (int ibin=1;ibin<=nbins;ibin++) {                                        \
+//            result.push_back(                                                          \
+//            BEreq::DD_BinBackground(BEreq::DD_Experiment(STRINGIFY(LZ)),ibin)); } \
+//        }                                   \
+//          void LZ_GetBinSignal(std::vector<double> &result)               \
+//        {                                                                              \
+//          using namespace Pipes::LZ_GetBinSignal;                       \
+//          result.clear();                                                              \
+//          int nbins;                                                                   \
+//          nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(LZ)));         \
+//          for (int ibin=1;ibin<=nbins;ibin++) {                                        \
+//            result.push_back(                                                          \
+//            BEreq::DD_BinSignal(BEreq::DD_Experiment(STRINGIFY(LZ)),ibin)); } \
+//        }
+
     DD_EX(XENON100_2012)        // Aprile et al., PRL 109, 181301 (2013) [arxiv:1207.5988]
     DD_EX(XENON1T_2017)         // Aprile et al., PRL 119, 181301 (2017) [arxiv:1705.06655]
     DD_EX(XENON1T_2018)         // Aprile et al., May 28 talk at Gran Sasso.
