@@ -1115,6 +1115,16 @@ START_MODULE
   SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
   SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
 
+  // Annual Modulation Likelihood (eventually move this into macros?)
+//  #define CAPABILITY DAMA_ModLogLikelihood
+//  START_CAPABILITY
+//     #define FUNCTION DAMA_GetModLogLikelihood
+//     START_FUNCTION(double)
+//     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+//     BACKEND_REQ(DD_ModLogLikelihood, (needs_DDCalc), double, (const int&))
+//     //DD_ModLogLikelihood is the backend capability that needs to be added to the DDCalc frontend
+//     #undef FUNCTION
+//  #undef CAPABILITY
 
   // INDIRECT DETECTION: NEUTRINOS =====================================
 
