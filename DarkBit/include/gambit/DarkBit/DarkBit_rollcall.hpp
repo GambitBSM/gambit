@@ -924,121 +924,121 @@ START_MODULE
 
   // Declare different DD experiments that exist in DDCalc.
   // Example expansion of the DD_DECLARE_EXPERIMENT(LZ) macro:
-//        LONG_START_CAPABILITY(DarkBit, LZ_Calculate)                         \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Calculate,                         \
-//         LZ_Calc, bool, 0)                                                  \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Calculate,                              \
-//         LZ_Calc, DD_Experiment, (needs_DDCalc), int, (const str&))         \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Calculate,                              \
-//         LZ_Calc, DD_CalcRates, (needs_DDCalc), void, (const int&))         \
+//        LONG_START_CAPABILITY(DarkBit, LZ_Calculate)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Calculate,
+//         LZ_Calc, bool, 0)
+//        LONG_BACKEND_REQ(DarkBit, LZ_Calculate,
+//         LZ_Calc, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_Calculate,
+//         LZ_Calc, DD_CalcRates, (needs_DDCalc), void, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_Events)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Events,                           \
-//         LZ_GetEvents, int, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetEvents,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Events,                                \
-//         LZ_GetEvents, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Events,                                \
-//         LZ_GetEvents, DD_Events, (needs_DDCalc), int, (const int&))                                 \
+//        LONG_START_CAPABILITY(DarkBit, LZ_Events)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Events,
+//         LZ_GetEvents, int, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetEvents,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_Events,
+//         LZ_GetEvents, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_Events,
+//         LZ_GetEvents, DD_Events, (needs_DDCalc), int, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_Background)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Background,                           \
-//         LZ_GetBackground, double, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetBackground,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Background,                                \
-//         LZ_GetBackground, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Background,                                \
-//         LZ_GetBackground, DD_Background, (needs_DDCalc), double, (const int&))                          \
+//        LONG_START_CAPABILITY(DarkBit, LZ_Background)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Background,
+//         LZ_GetBackground, double, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetBackground,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_Background,
+//         LZ_GetBackground, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_Background,
+//         LZ_GetBackground, DD_Background, (needs_DDCalc), double, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_Signal)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Signal,                           \
-//         LZ_GetSignal, double, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetSignal,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Signal,                                \
-//         LZ_GetSignal, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Signal,                                \
-//         LZ_GetSignal, DD_Signal, (needs_DDCalc), double, (const int&))                              \
+//        LONG_START_CAPABILITY(DarkBit, LZ_Signal)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Signal,
+//         LZ_GetSignal, double, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetSignal,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_Signal,
+//         LZ_GetSignal, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_Signal,
+//         LZ_GetSignal, DD_Signal, (needs_DDCalc), double, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_SignalSI)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_SignalSI,                           \
-//         LZ_GetSignalSI, double, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetSignalSI,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSI,                                \
-//         LZ_GetSignalSI, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSI,                                \
-//         LZ_GetSignalSI, DD_SignalSI, (needs_DDCalc), double, (const int&))                            \
+//        LONG_START_CAPABILITY(DarkBit, LZ_SignalSI)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_SignalSI,
+//         LZ_GetSignalSI, double, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetSignalSI,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSI,
+//         LZ_GetSignalSI, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSI,
+//         LZ_GetSignalSI, DD_SignalSI, (needs_DDCalc), double, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_SignalSD)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_SignalSD,                           \
-//         LZ_GetSignalSD, double, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetSignalSD,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSD,                                \
-//         LZ_GetSignalSD, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSD,                                \
-//         LZ_GetSignalSD, DD_SignalSD, (needs_DDCalc), double, (const int&))                            \
+//        LONG_START_CAPABILITY(DarkBit, LZ_SignalSD)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_SignalSD,
+//         LZ_GetSignalSD, double, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetSignalSD,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSD,
+//         LZ_GetSignalSD, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_SignalSD,
+//         LZ_GetSignalSD, DD_SignalSD, (needs_DDCalc), double, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_Bins)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Bins,                           \
-//         LZ_GetBins, int, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetBins,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Bins,                                \
-//         LZ_GetBins, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_Bins,                                \
-//         LZ_GetBins, DD_Bins, (needs_DDCalc), int, (const int&))                                   \
+//        LONG_START_CAPABILITY(DarkBit, LZ_Bins)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_Bins,
+//         LZ_GetBins, int, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetBins,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_Bins,
+//         LZ_GetBins, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_Bins,
+//         LZ_GetBins, DD_Bins, (needs_DDCalc), int, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_LogLikelihood)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_LogLikelihood,                           \
-//         LZ_GetLogLikelihood, double, 0)                                            \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetLogLikelihood,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_LogLikelihood,                                \
-//         LZ_GetLogLikelihood, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_LogLikelihood,                                \
-//         LZ_GetLogLikelihood, DD_LogLikelihood, (needs_DDCalc), double, (const int&))                       \
+//        LONG_START_CAPABILITY(DarkBit, LZ_LogLikelihood)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_LogLikelihood,
+//         LZ_GetLogLikelihood, double, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetLogLikelihood,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_LogLikelihood,
+//         LZ_GetLogLikelihood, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_LogLikelihood,
+//         LZ_GetLogLikelihood, DD_LogLikelihood, (needs_DDCalc), double, (const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_BinEvents)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinEvents,                           \
-//         LZ_GetBinEvents, std::vector<double>, 0)                             \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetBinEvents,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,                                \
-//         LZ_GetBinEvents, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,                                \
-//         LZ_GetBinEvents, DD_Bins, (needs_DDCalc), int, (const int&))         \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,                                \
-//         LZ_GetBinEvents, DD_BinEvents, (needs_DDCalc), int, (const int&,   \
-//         const int&))                                 \
+//        LONG_START_CAPABILITY(DarkBit, LZ_BinEvents)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinEvents,
+//         LZ_GetBinEvents, std::vector<double>, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetBinEvents,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,
+//         LZ_GetBinEvents, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,
+//         LZ_GetBinEvents, DD_Bins, (needs_DDCalc), int, (const int&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinEvents,
+//         LZ_GetBinEvents, DD_BinEvents, (needs_DDCalc), int, (const int&,
+//         const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_BinBackground)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinBackground,                           \
-//         LZ_GetBinBackground, std::vector<double>, 0)                             \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetBinBackground,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,                                \
-//         LZ_GetBinBackground, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,                                \
-//         LZ_GetBinBackground, DD_Bins, (needs_DDCalc), int, (const int&))         \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,                                \
-//         LZ_GetBinBackground, DD_BinBackground, (needs_DDCalc), double, (const int&,   \
-//         const int&))                          \
+//        LONG_START_CAPABILITY(DarkBit, LZ_BinBackground)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinBackground,
+//         LZ_GetBinBackground, std::vector<double>, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetBinBackground,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,
+//         LZ_GetBinBackground, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,
+//         LZ_GetBinBackground, DD_Bins, (needs_DDCalc), int, (const int&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinBackground,
+//         LZ_GetBinBackground, DD_BinBackground, (needs_DDCalc), double, (const int&,
+//         const int&))
 //
-//        LONG_START_CAPABILITY(DarkBit, LZ_BinSignal)                           \
-//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinSignal,                           \
-//         LZ_GetBinSignal, std::vector<double>, 0)                             \
-//        LONG_DEPENDENCY(DarkBit, LZ_GetBinSignal,                              \
-//         LZ_Calculate, bool)                                                \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,                                \
-//         LZ_GetBinSignal, DD_Experiment, (needs_DDCalc), int, (const str&))   \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,                                \
-//         LZ_GetBinSignal, DD_Bins, (needs_DDCalc), int, (const int&))         \
-//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,                                \
-//         LZ_GetBinSignal, DD_BinSignal, (needs_DDCalc), double, (const int&,   \
+//        LONG_START_CAPABILITY(DarkBit, LZ_BinSignal)
+//        LONG_DECLARE_FUNCTION(DarkBit, LZ_BinSignal,
+//         LZ_GetBinSignal, std::vector<double>, 0)
+//        LONG_DEPENDENCY(DarkBit, LZ_GetBinSignal,
+//         LZ_Calculate, bool)
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,
+//         LZ_GetBinSignal, DD_Experiment, (needs_DDCalc), int, (const str&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,
+//         LZ_GetBinSignal, DD_Bins, (needs_DDCalc), int, (const int&))
+//        LONG_BACKEND_REQ(DarkBit, LZ_BinSignal,
+//         LZ_GetBinSignal, DD_BinSignal, (needs_DDCalc), double, (const int&,
 //         const int&))
 
   DD_DECLARE_EXPERIMENT(XENON100_2012)        // Aprile et al., PRL 109, 181301 (2013) [arxiv:1207.5988]
