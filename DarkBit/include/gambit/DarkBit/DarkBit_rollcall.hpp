@@ -1071,27 +1071,27 @@ START_MODULE
 
   // Introduced in DDCalc 1.0.0 but later deleted
   // Example expansion of the SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0)) macro
-//    LONG_BACKEND_OPTION(DarkBit, LZ_Calculate, LZ_Calc,    \
-//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                                                        \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_Events, LZ_GetEvents,  \
-//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                                                        \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_Background,                          \
-//     LZ_GetBackground, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                        \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_Signal, LZ_GetSignal,  \
-//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                                                        \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_SignalSI,                            \
-//     LZ_GetSignalSI, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                          \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_SignalSD,                            \
-//     LZ_GetSignalSD, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                          \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_Bins, LZ_GetBins,      \
-//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                                                        \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_LogLikelihood,                       \
-//     LZ_GetLogLikelihood, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                     \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_BinEvents,                           \
-//     LZ_GetBinEvents, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                         \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_BinBackground,                       \
-//     LZ_GetBinBackground, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))                     \
-//    LONG_BACKEND_OPTION(DarkBit, LZ_BinSignal,                           \
+//    LONG_BACKEND_OPTION(DarkBit, LZ_Calculate, LZ_Calc,
+//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_Events, LZ_GetEvents,
+//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_Background,
+//     LZ_GetBackground, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_Signal, LZ_GetSignal,
+//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_SignalSI,
+//     LZ_GetSignalSI, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_SignalSD,
+//     LZ_GetSignalSD, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_Bins, LZ_GetBins,
+//     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_LogLikelihood,
+//     LZ_GetLogLikelihood, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_BinEvents,
+//     LZ_GetBinEvents, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_BinBackground,
+//     LZ_GetBinBackground, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
+//    LONG_BACKEND_OPTION(DarkBit, LZ_BinSignal,
 //     LZ_GetBinSignal, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
 
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
