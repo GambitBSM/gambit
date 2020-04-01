@@ -3033,6 +3033,7 @@ namespace Gambit
       double v0 = 246.; // Higgs vev (should actually be calculated from G_F)
       double mh = 125.; // Higgs mass (should come from model parameter)
       double mu = 0.0022; // Fermion masses (should come from model parameters)
+      double ms = 0.093; // MSbar at 2GeV (should something else be used?)
       double mc = 1.27;
       double mb = 4.18;
       double mMu = 0.105658;
@@ -3084,12 +3085,14 @@ namespace Gambit
       // etc... for other fermion final states
 
       // Get the standard model partial widths (for up quark is zero, probably down too?)
+      double gammaS_SM = result.BF("s","sbar")*result.width_in_GeV;
       double gammaC_SM = result.BF("c","cbar")*result.width_in_GeV;
       double gammaB_SM = result.BF("b","bbar")*result.width_in_GeV;
       double gammaMu_SM = result.BF("mu-", "mu+")*result.width_in_GeV;
       // etc...
 
       // Rescale partial widths following HiggsBounds (check!!)
+      double gammaS = gammaS_SM * pow(kappaS,2) * (cosPhiS2 + pow(sinPhiS,2)/(1. - 4.*pow(ms/mh,2)));
       double gammaC = gammaC_SM * pow(kappaC,2) * (cosPhiC2 + pow(sinPhiC,2)/(1. - 4.*pow(mc/mh,2)));
       double gammaB = gammaB_SM * pow(kappaB,2) * (cosPhiB2 + pow(sinPhiB,2)/(1. - 4.*pow(mb/mh,2)));
       double gammaMu = gammaB_SM * pow(kappaMu,2) * (cosPhiMu2 + pow(sinPhiMu,2)/(1. - 4.*pow(mMu/mh,2)));
@@ -3098,12 +3101,14 @@ namespace Gambit
       // find new total width
 
       // result.width_in_GeV = result.width_in_GeV + gammaU;
+      result.width_in_GeV = result.width_in_GeV - gammaS_SM + gammaS;
       result.width_in_GeV = result.width_in_GeV - gammaC_SM + gammaC - gammaB_SM + gammaB;
       result.width_in_GeV = result.width_in_GeV - gammaMu_SM + gammaMu;
       /// etc...
 
       // Set branching fractions to appropriate values:
       // result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
+      result.set_BF(gammaS/result.width_in_GeV, 0.0, "s", "sbar");
       result.set_BF(gammaC/result.width_in_GeV, 0.0, "c", "cbar");
       result.set_BF(gammaB/result.width_in_GeV, 0.0, "b", "bbar");
       result.set_BF(gammaMu/result.width_in_GeV, 0.0, "mu-", "mu+");
