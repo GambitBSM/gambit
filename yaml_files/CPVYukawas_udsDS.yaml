@@ -3,12 +3,12 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-  #  nEDMme:
-  #    gTu: -0.204
-  #    gTd: 0.784
-  #    gTs: -0.0027
-  #    rhoU: 0.55
-  #    rhoD: 1.10
+  nEDMme:
+      gTu: -0.204
+      gTd: 0.784
+      gTs: -0.0027
+      rhoU: 0.55
+      rhoD: 1.10
 
 #  diaEDMme:
 #    CSchiff_Hg: 2.6
@@ -27,31 +27,31 @@ Parameters:
 #    b_Ra: 0.0
 #    b_Rn: 0.0
 #    b_Xe: 0.0
-  StandardModel_Higgs:
-     mH: 150.
-     #range: [110.,250.]
-     #prior_type: flat
+#  StandardModel_Higgs:
+#     mH: 150.
+#     #range: [110.,250.]
+#     #prior_type: flat
 
   CPVYukawas:
-    kappaU: 1.
-    #      range: [0.,10.]
-    #  prior_type: flat
-    kappaD: 1.
+    kappaU: #1.
+      range: [0.,5.]
+      prior_type: flat
+    kappaD: 0.
     # range: [0.,10.]
     #  prior_type: flat
-    kappaS: 1.
+    kappaS: 0.
 #      range: [0.,25.]
 #      prior_type: flat
-    kappaC: 1.
-    kappaB: #1.
-       range: [1.,1.1]
-       prior_type: flat
-    kappaT: 1.
+    kappaC: 0.
+    kappaB: 0.
+    #       range: [1.,1.5]
+    #   prior_type: flat
+    kappaT: 0.
 #      range: [0.,10.]
 #  prior_type: flat
-    SinPhiU: 0. 
-    # range: [-1.,1.]
-    #  prior_type: flat
+    SinPhiU: #0. 
+     range: [-1.,1.]
+     prior_type: flat
     SinPhiD: 0
     #      range: [-1.,1.]
     #  prior_type: flat
@@ -59,9 +59,9 @@ Parameters:
 #      range: [-1.,1.]
 #      prior_type: flat
     SinPhiC: 0.
-    SinPhiB: #0.
-     range: [-1.,1.]
-     prior_type: flat
+    SinPhiB: 0.
+    #     range: [-1.,1.]
+    # prior_type: flat
     SinPhiT: 0.
 #       range: [-1.,1.]
 #       prior_type: flat
@@ -104,17 +104,17 @@ Scanner:
     diver:
       plugin: diver
       like: LogLike
-      NP: 50000
+      NP: 10000
       verbosity: 1
       convthresh: 0.1
 
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [50, 50]
+      grid_pts: [600, 600]
           #, 1000, 1000, 1000, 1000]
           #parameters: ["StandardModel_Higgs::mH","CPVYukawas::kappaB" ]
-      parameters: ["CPVYukawas::kappaB", "CPVYukawas::SinPhiB"]
+      parameters: ["CPVYukawas::kappaU", "CPVYukawas::SinPhiU"]
           #, "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
           # , "CPVYukawas::kappaS", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
 
@@ -124,23 +124,23 @@ ObsLikes:
   #   function: calc_HB_LEP_LogLike_CPVYukawas
   #   purpose: LogLike
  
-   - capability: LHC_Higgs_LogLike
-     function: calc_HS_LHC_LogLike_CPVYukawas
-     purpose: LogLike
-
-#
-#
-#
-#
+ #  - capability: LHC_Higgs_LogLike
+ #    function: calc_HS_LHC_LogLike_CPVYukawas
+ #    purpose: LogLike
+ #
 
 
-#  - capability: lnL_EDM_n
-#    function: lnL_EDM_n_gaussianStep
-##    function: lnL_EDM_n_gaussianOverall
-#    purpose: LogLike
-# 
-#  - capability: EDM_n
-#    purpose: Observable
+
+
+
+
+  - capability: lnL_EDM_n
+    function: lnL_EDM_n_gaussianStep
+#    function: lnL_EDM_n_gaussianOverall
+    purpose: LogLike
+ 
+  - capability: EDM_n
+    purpose: Observable
  
 
 
@@ -186,17 +186,20 @@ ObsLikes:
 
 
 Rules:
-   - capability: LHC_Higgs_LogLike
-     function: calc_HS_LHC_LogLike_CPVYukawas
-     purpose: LogLike
+        #   - capability: LHC_Higgs_LogLike
+        #     function: calc_HS_LHC_LogLike_CPVYukawas
+        #     purpose: LogLike
+        #     dependencies:
+        #      - capability: HB_ModelParameters
+        #        function: SMHiggs_ModelParameters
+        #        module: ColliderBit
+
+
+   - capability: lnL_EDM_n
+     function: lnL_EDM_n_gaussianStep
      dependencies:
-      - capability: HB_ModelParameters
-        function: SMHiggs_ModelParameters
-        module: ColliderBit
-
-
-        #   - capability: lnL_EDM_n
-        #function: lnL_EDM_n_gaussianStep
+             #            - capability: EDM_n
+             #  function
     
     #   - capability: lnL_EDM_dia
     #     function: lnL_EDM_199Hg_step
