@@ -346,6 +346,7 @@ namespace Gambit
       double chisq_withouttheory,chisq_withtheory;
       int chan2;
       double theor_unc = 1.5; // theory uncertainty
+      //TODO: The below needs to be replaced -- it does not exist in HiggsBounds 5.7.0
       BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
 
       // Catch HiggsBound's error value, chisq = -999
