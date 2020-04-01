@@ -677,7 +677,7 @@ namespace Gambit
       double CP[Hneut];
       CP[0] = 0.;
       //const HiggsCouplingsTable::h0_decay_array_type&  h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(1);
-      GammaTotal[0] = 2E-3; //h0_widths[0]->width_in_GeV;
+      GammaTotal[0] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
 
       double ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
         ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
@@ -713,34 +713,79 @@ namespace Gambit
       double sinPhiT = *Param["SinPhiT"];
       double sinPhiMu = *Param["SinPhiMu"];
       double sinPhiTau = *Param["SinPhiTau"];
+      double cosPhiS = sqrt(1. - pow(*Param["SinPhiS"],2));
+      double cosPhiC = sqrt(1. - pow(*Param["SinPhiC"],2));
+      double cosPhiB = sqrt(1. - pow(*Param["SinPhiB"],2));
+      double cosPhiT = sqrt(1. - pow(*Param["SinPhiT"],2));
+      double cosPhiMu = sqrt(1. - pow(*Param["SinPhiMu"],2));
+      double cosPhiTau = sqrt(1. - pow(*Param["SinPhiTau"],2));
+
 
       for(int i = 0; i<Hneut; i++){
       ghjss_p[i] = kappaS*sinPhiS;
-      ghjss_s[i] = kappaS*sqrt(1. - pow(sinPhiS,2));
+      ghjss_s[i] = kappaS*cosPhiS;
       ghjcc_p[i] = kappaC*sinPhiC;
-      ghjcc_s[i] = kappaC*sqrt(1. - pow(sinPhiC,2));
+      ghjcc_s[i] = kappaC*cosPhiC;
       ghjbb_p[i] = kappaB*sinPhiB;
-      ghjbb_s[i] = kappaB*sqrt(1. - pow(sinPhiB,2));
+      ghjbb_s[i] = kappaB*cosPhiB;
       ghjtt_p[i] = kappaT*sinPhiT;
-      ghjtt_s[i] = kappaT*sqrt(1. - pow(sinPhiT,2));
+      ghjtt_s[i] = kappaT*cosPhiT;
       ghjmumu_p[i] = kappaMu*sinPhiMu;
-      ghjmumu_s[i] = kappaMu*sqrt(1. - pow(sinPhiMu,2));
+      ghjmumu_s[i] = kappaMu*cosPhiMu;
       ghjtautau_p[i] = kappaTau*sinPhiTau;
-      ghjtautau_s[i] = kappaTau*sqrt(1. - pow(sinPhiTau,2));
+      ghjtautau_s[i] = kappaTau*cosPhiTau;
 
       // hVV
       ghjWW[i]=1.;
       ghjZZ[i]=1.;
       ghjZga[i]=1.; // h-Z-photon (change?)
-  //function get_g2hgaga from HiggsSignals (to be found in example_programs/HSeffCf.90
-  //but it only appears to take the CP-even couplings into account. Probably should be calculated one one's own
-//      ghjgaga[i]= sqrt((pow(ghjtt[i],2))*0.70904E-01 + (pow(ghjbb[i],2))*0.18760E-04 + (pow(ghjWW[i],2))*1.5863 + ghjtt[i]*ghjbb[i]*(-0.17319E-02) + ghjtt[i]*ghjWW[i]*(-0.67074) + ghjbb[i]*ghjWW[i]*0.82093E-02 + (pow(ghjtautau[i],2))*0.22663E-04 + ghjtt[i]*ghjtautau[i]*(-0.18696E-02) + ghjbb[i]*ghjtautau[i]*0.41239E-04 + ghjtautau[i]*ghjWW[i]*0.88634E-02);
-      // h-photon-photon (change?)
-      ghjgaga[i] = 1.;
-      ghjgg[i]=1.; // h-gluon-gluon (change?)
-      ghjhiZ[i]=0.; // h-h-Z - isn't it =1.?
+      //the following numeric values are with a SM-Higgs mass. Formulae found in 1310.1385. Results than multiplied with complex conjugate.
+      ghjgaga[i] = 1.61137 + 0.0000369539 *pow(kappaB,2) + 0.0000147277 *pow(kappaC,2) + 1.97566E-9 *pow(kappaMu,2) + 1.55315E-10 *pow(kappaS,2) 
+	+ 0.0782548 *pow(kappaT,2) + 0.0000237393 *pow(kappaTau,2) + 3.53719E-6 *pow(kappaB *sinPhiB,2) + 0.00931582 *kappaB *cosPhiB 
+	+ 0.0000494538 *kappaB *kappaC *sinPhiB *sinPhiC + 1.03101E-6 *pow(kappaC *sinPhiC,2) + 0.00753304 *kappaC *cosPhiC 
+	+ 0.000045367 *kappaB *kappaC *cosPhiB *cosPhiC + 5.23318E-7 *kappaB *kappaMu *sinPhiB *sinPhiMu 
+	+ 3.50135E-7 *kappaC *kappaMu *sinPhiC *sinPhiMu + 6.96949E-11 *pow(kappaMu *sinPhiMu,2) + 0.000101872 *kappaMu *cosPhiMu 
+	+ 4.79805E-7 *kappaB *kappaMu *cosPhiB *cosPhiMu + 3.31189E-7 *kappaC *kappaMu *cosPhiC *cosPhiMu 
+	+ 1.4627E-7 *kappaB *kappaS *sinPhiB *sinPhiS + 9.7998E-8 *kappaC *kappaS *sinPhiC *sinPhiS + 1.14647E-9 *kappaMu *kappaS *sinPhiMu *sinPhiS 
+	+ 5.34611E-12 *pow(kappaS *sinPhiS,2) 
+	+ 0.0000286471 *kappaS *cosPhiS + 1.34093E-7 *kappaB *kappaS *cosPhiB *cosPhiS + 9.27152E-8 *kappaC *kappaS *cosPhiC *cosPhiS 
+	+ 1.10786E-9 *kappaMu *kappaS *cosPhiMu *cosPhiS - 0.00350944 *kappaB *kappaT *sinPhiB *sinPhiT 
+	- 0.00266921 *kappaC *kappaT *sinPhiC *sinPhiT 
+	- 0.0000348837 *kappaMu *kappaT *sinPhiMu *sinPhiT - 9.80344E-6 *kappaS *kappaT *sinPhiS *sinPhiT + 0.102849 *pow(kappaT *sinPhiT,2) 
+	- 0.710205 *kappaT *cosPhiT 
+	- 0.00205295 *kappaB *kappaT *cosPhiB *cosPhiT - 0.00166008 *kappaC *kappaT *cosPhiC *cosPhiT 
+	- 0.0000224498 *kappaMu *kappaT *cosPhiMu *cosPhiT - 6.31304E-6 *kappaS *kappaT *cosPhiS *cosPhiT 
+	+ 0.0000635451 *kappaB *kappaTau *sinPhiB *sinPhiTau 
+	+ 0.000040101 *kappaC *kappaTau *sinPhiC *sinPhiTau + 4.40694E-7 *kappaMu *kappaTau *sinPhiMu *sinPhiTau 
+	+ 1.23307E-7 *kappaS *kappaTau *sinPhiS *sinPhiTau - 0.00327124 *kappaT *kappaTau *sinPhiT *sinPhiTau 
+	+ 1.82919E-6 *pow(kappaTau *sinPhiTau,2) + 0.00913359 *kappaTau *cosPhiTau + 0.0000582519 *kappaB *kappaTau *cosPhiB *cosPhiTau 
+	+ 0.0000373436 *kappaC *kappaTau *cosPhiC *cosPhiTau + 4.14361E-7 *kappaMu *kappaTau *cosPhiMu *cosPhiTau 
+	+ 1.15958E-7 *kappaS *kappaTau *cosPhiS *cosPhiTau - 0.00201279 *kappaT *kappaTau *cosPhiT *cosPhiTau;
+      ghjgaga[i] = sqrt(ghjgaga[i]);
+      ghjgg[i]=0.0119731 *pow(kappaB,2) + 0.000298235 *pow(kappaC,2) + 5.0322E-8 *pow(kappaS,2) 
+	+ 1.58466 *pow(kappaT,2) + 0.00114605 *pow(kappaB* sinPhiB,2) + 0.00400575 *kappaB *kappaC* sinPhiB* sinPhiC 
+	+ 0.0000208779 *pow(kappaC* sinPhiC,2) + 0.0000473915 *kappaB *kappaS* sinPhiB* sinPhiS 
+	+ 7.93784E-6 *kappaC *kappaS* sinPhiC* sinPhiS + 1.73214E-9 *pow(kappaS* sinPhiS,2) 
+	- 0.284265 *kappaB *kappaT* sinPhiB* sinPhiT - 0.0540516 *kappaC *kappaT* sinPhiC* sinPhiT - 0.000794079 *kappaS *kappaT* sinPhiS* sinPhiT 
+	+ 2.08269 *pow(kappaT* sinPhiT,2) + 0.00367473 *kappaB *kappaC *cosPhiB *cosPhiC + 0.0000434461 *kappaB *kappaS *cosPhiB *cosPhiS 
+	+ 7.50993E-6 *kappaC *kappaS *cosPhiC *cosPhiS - 0.166289 *kappaB *kappaT *cosPhiB *cosPhiT - 0.0336165 *kappaC *kappaT *cosPhiC *cosPhiT 
+	- 0.000511357 *kappaS *kappaT *cosPhiS *cosPhiT; 
+      // h-gluon-gluon (change?)
+      ghjgg[i]=sqrt(ghjgg[i]); // h-gluon-gluon (change?)
+      ghjhiZ[i]=0.; // h-h-Z 
+ 
+      cout << "gammaTotal before: " <<  GammaTotal[i] << endl;
+      GammaTotal[i] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
+      GammaTotal[i] = GammaTotal[i]* ( 1
+			+ (pow(kappaS,2)-1)*2.4637E-4 +(pow(kappaC,2)-1)*2.8828E-2 +(pow(kappaB,2)-1)*5.895E-1 +(pow(kappaT,2)-1)*0E0 
+			+ (pow(kappaMu,2)-1)*2.2446E-4 +(pow(kappaTau,2)-1)*6.3347E-2 +(pow(ghjgaga[i],2)-1)*2.30946E-3 
+			+ (pow(ghjgg[i],2)-1)*7.81082E-2 + (pow(ghjWW[i],2)-1)*2.09566E-1 + (pow(ghjZZ[i],2)-1)*2.64394E-2
+	      	      );
+	      //how does the decay rate change in the model
+      cout << "gammaTotal after: " <<  GammaTotal[i] << endl;
+
+
       }
-      cout << "couplings: bbp,bbs " << ghjbb_p[0] << " " << ghjbb_s[0] << endl;
       for (i=0; i<=2; i++)
       {
         BR_hjinvisible[i] = BR_hjemu[i] = BR_hjetau[i] = 0.;
@@ -754,9 +799,9 @@ namespace Gambit
           }
         }
       }
-
-
-
+      cout << "hgaga: " << ghjgaga[0] << endl;
+      cout << "hgg: " << ghjgg[0] << endl;
+     
       BEreq::HiggsBounds_neutral_input_properties_HS(&Mh[0],&GammaTotal[0],&CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC_HS(
@@ -768,25 +813,7 @@ namespace Gambit
 
 
 
- /*     BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
-                 &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
-                 &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
-                 &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
-                 &ModelParam.CS_bg_hjb_ratio[0], &ModelParam.CS_ud_hjWp_ratio[0],
-                 &ModelParam.CS_cs_hjWp_ratio[0], &ModelParam.CS_ud_hjWm_ratio[0],
-                 &ModelParam.CS_cs_hjWm_ratio[0], &ModelParam.CS_gg_hjZ_ratio[0],
-                 &ModelParam.CS_dd_hjZ_ratio[0], &ModelParam.CS_uu_hjZ_ratio[0],
-                 &ModelParam.CS_ss_hjZ_ratio[0], &ModelParam.CS_cc_hjZ_ratio[0],
-                 &ModelParam.CS_bb_hjZ_ratio[0], &ModelParam.CS_tev_vbf_ratio[0],
-                 &ModelParam.CS_tev_tthj_ratio[0], &ModelParam.CS_lhc7_vbf_ratio[0],
-                 &ModelParam.CS_lhc7_tthj_ratio[0], &ModelParam.CS_lhc8_vbf_ratio[0],
-                 &ModelParam.CS_lhc8_tthj_ratio[0], &ModelParam.BR_hjss[0],
-                 &ModelParam.BR_hjcc[0], &ModelParam.BR_hjbb[0],
-                 &ModelParam.BR_hjmumu[0], &ModelParam.BR_hjtautau[0],
-                 &ModelParam.BR_hjWW[0], &ModelParam.BR_hjZZ[0],
-                 &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
-                 &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
-
+ /*   
       BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
             &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
             &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
