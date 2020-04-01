@@ -3033,6 +3033,7 @@ namespace Gambit
       double v0 = 246.; // Higgs vev (should actually be calculated from G_F)
       double mh = 125.; // Higgs mass (should come from model parameter)
       double mu = 0.0022; // Fermion masses (should come from model parameters)
+      double mc = 1.27;
       double mb = 4.18;
       double mMu = 0.105658;
 
@@ -3040,15 +3041,36 @@ namespace Gambit
       result = *Dep::Reference_SM_Higgs_decay_rates;
 
       double kappaU = *Param["kappaU"];
+      double kappaD = *Param["kappaD"];
+      double kappaS = *Param["kappaS"];
+      double kappaC = *Param["kappaC"];
       double kappaB = *Param["kappaB"];
+      double kappaT = *Param["kappaT"];
+
+      double kappaE = *Param["kappaE"];
       double kappaMu = *Param["kappaMu"];
+      double kappaTau = *Param["kappaTau"];
+
       double sinPhiU = *Param["SinPhiU"];
+      double sinPhiD = *Param["SinPhiD"];
+      double sinPhiS = *Param["SinPhiS"];
+      double sinPhiC = *Param["SinPhiC"];
       double sinPhiB = *Param["SinPhiB"];
+      double sinPhiT = *Param["SinPhiT"];
+      double sinPhiE = *Param["SinPhiE"];
       double sinPhiMu = *Param["SinPhiMu"];
+      double sinPhiTau = *Param["SinPhiTau"];
+
       double cosPhiU2 = (1. - pow(sinPhiU,2));
+      double cosPhiD2 = (1. - pow(sinPhiU,2));
+      double cosPhiS2 = (1. - pow(sinPhiU,2));
+      double cosPhiC2 = (1. - pow(sinPhiU,2));
       double cosPhiB2 = (1. - pow(sinPhiB,2));
+      double cosPhiT2 = (1. - pow(sinPhiU,2));
+
+      double cosPhiE2 = (1. - pow(sinPhiE,2));
       double cosPhiMu2 = (1. - pow(sinPhiMu,2));
-      // etc...
+      double cosPhiTau2 = (1. - pow(sinPhiTau,2));
 
       // We might not want to do the below steps unless kappa !=1 or
       // phi != 0
@@ -3062,11 +3084,13 @@ namespace Gambit
       // etc... for other fermion final states
 
       // Get the standard model partial widths (for up quark is zero, probably down too?)
+      double gammaC_SM = result.BF("c","cbar")*result.width_in_GeV;
       double gammaB_SM = result.BF("b","bbar")*result.width_in_GeV;
       double gammaMu_SM = result.BF("mu-", "mu+")*result.width_in_GeV;
       // etc...
 
       // Rescale partial widths following HiggsBounds (check!!)
+      double gammaC = gammaC_SM * pow(kappaC,2) * (cosPhiC2 + pow(sinPhiC,2)/(1. - 4.*pow(mc/mh,2)));
       double gammaB = gammaB_SM * pow(kappaB,2) * (cosPhiB2 + pow(sinPhiB,2)/(1. - 4.*pow(mb/mh,2)));
       double gammaMu = gammaB_SM * pow(kappaMu,2) * (cosPhiMu2 + pow(sinPhiMu,2)/(1. - 4.*pow(mMu/mh,2)));
 
@@ -3074,12 +3098,13 @@ namespace Gambit
       // find new total width
 
       // result.width_in_GeV = result.width_in_GeV + gammaU;
-      result.width_in_GeV = result.width_in_GeV - gammaB_SM + gammaB;
-      result.width_in_GeV = result.width_in_GeV - gammaB_SM - gammaMu_SM + gammaB + gammaMu;
+      result.width_in_GeV = result.width_in_GeV - gammaC_SM + gammaC - gammaB_SM + gammaB;
+      result.width_in_GeV = result.width_in_GeV - gammaMu_SM + gammaMu;
       /// etc...
 
       // Set branching fractions to appropriate values:
       // result.set_BF(gammaU/result.width_in_GeV, 0.0, "u", "ubar");
+      result.set_BF(gammaC/result.width_in_GeV, 0.0, "c", "cbar");
       result.set_BF(gammaB/result.width_in_GeV, 0.0, "b", "bbar");
       result.set_BF(gammaMu/result.width_in_GeV, 0.0, "mu-", "mu+");
       /// etc...
