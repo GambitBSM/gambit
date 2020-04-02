@@ -1,7 +1,7 @@
 //  GAMBIT: Global and Modular BSM Inference Tool
 //  *********************************************
 //
-//  Two Higgs Doublet Model (Generic Basis)
+//  Two Higgs Doublet Model (Higgs Basis)
 //  *********************************************
 //
 //  Authors
@@ -11,22 +11,21 @@
 //  Filip Rajec
 //  Aug 2016
 //
-//  Cristian Sierra
-//  cristian.sierra@monash.edu
-//  Mar 2020 
 //  *********************************************
 
-#ifndef __THDM_hpp__
-#define __THDM_hpp__
+#ifndef __THDM_higgs_hpp__
+#define __THDM_higgs_hpp__
 
 // Must include models which are targets of translation functions
-#define MODEL THDM_higgs
+#include "gambit/Models/models/THDM.hpp"
 
+#define MODEL THDM_higgs
+#define PARENT THDM
   START_MODEL
 
-  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7)
-  DEFINEPARS(m12_2)
-  DEFINEPARS(tanb)
+  DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
+  DEFINEPARS(M22_2)
+  DEFINEPARS(alpha,tanb)
   
   DEFINEPARS(yu2_re_11, yu2_im_11, yu2_re_12, yu2_im_12, yu2_re_13, yu2_im_13,
              yu2_re_21, yu2_im_21, yu2_re_22, yu2_im_22, yu2_re_23, yu2_im_23,
@@ -40,6 +39,10 @@
              yl2_re_21, yl2_im_21, yl2_re_22, yl2_im_22, yl2_re_23, yl2_im_23,
              yl2_re_31, yl2_im_31, yl2_re_32, yl2_im_32, yl2_re_33, yl2_im_33)
 
+  //INTERPRET_AS_X_FUNCTION(FRIEND, THDM_to_THDMatQ)
+  INTERPRET_AS_PARENT_FUNCTION(THDM_higgs_to_THDM)
+  // Translation functions defined in THDM.cpp
+#undef PARENT
 #undef MODEL
 
 #endif
