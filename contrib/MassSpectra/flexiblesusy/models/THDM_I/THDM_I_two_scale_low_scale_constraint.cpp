@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:50
+// File generated at Wed 1 Apr 2020 20:45:48
 
 #include "THDM_I_two_scale_low_scale_constraint.hpp"
 #include "THDM_I_two_scale_model.hpp"
@@ -92,9 +92,9 @@ void THDM_I_low_scale_constraint<Two_scale>::apply()
    const auto g1 = MODELPARAMETER(g1);
    const auto g2 = MODELPARAMETER(g2);
 
-   MODEL->set_v1(Re((2*MZDRbar)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(TanBeta))
+   MODEL->set_v1(Re((2*MZMSbar)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(TanBeta))
       )));
-   MODEL->set_v2(Re((2*MZDRbar*TanBeta)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(
+   MODEL->set_v2(Re((2*MZMSbar*TanBeta)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(
       TanBeta)))));
    calculate_Yu_DRbar();
    calculate_Yd_DRbar();

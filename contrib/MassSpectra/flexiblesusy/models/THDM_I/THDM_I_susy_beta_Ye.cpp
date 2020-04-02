@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:35:39
+// File generated at Wed 1 Apr 2020 20:45:22
 
 #include "THDM_I_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -66,16 +66,17 @@ Eigen::Matrix<double,3,3> THDM_I_susy_parameters::calc_beta_Ye_2_loop(const Susy
 
    Eigen::Matrix<double,3,3> beta_Ye;
 
-   beta_Ye = (twoLoop*(0.041666666666666664*Ye*(483*Quad(g1) + Sqr(g1)*(
-      25*traceYdAdjYd + 75*traceYeAdjYe + 85*traceYuAdjYu + 54*Sqr(g2)) + 3*(
-      -42*Quad(g2) + 15*(3*traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu)*Sqr(g2
-      ) + 2*(4*Lambda3*Lambda4 - 27*traceYdAdjYdYdAdjYd + 6*traceYdAdjYuYuAdjYd
-      - 9*traceYeAdjYeYeAdjYe - 27*traceYuAdjYuYuAdjYu + 80*traceYdAdjYd*Sqr(
-      g3) + 80*traceYuAdjYu*Sqr(g3) + 6*Sqr(Lambda2) + 4*Sqr(Lambda3) + 4*Sqr(
-      Lambda4) + 6*Sqr(Lambda5) + 6*Sqr(Lambda6) + 18*Sqr(Lambda7)))) + 0.1875*
-      (-4*(8*Lambda2 + 9*traceYdAdjYd + 3*traceYeAdjYe + 9*traceYuAdjYu) + 43*
-      Sqr(g1) + 45*Sqr(g2))*(Ye*Ye.adjoint()*Ye) + 1.5*(Ye*Ye.adjoint()*Ye*
-      Ye.adjoint()*Ye))).real();
+   beta_Ye = (twoLoop*(0.041666666666666664*Ye*(24*Lambda3*Lambda4 - 162*
+      traceYdAdjYdYdAdjYd + 36*traceYdAdjYuYuAdjYd - 54*traceYeAdjYeYeAdjYe -
+      162*traceYuAdjYuYuAdjYu + 36*AbsSqr(Lambda5) + 36*AbsSqr(Lambda6) + 108*
+      AbsSqr(Lambda7) + 483*Quad(g1) - 126*Quad(g2) + 25*traceYdAdjYd*Sqr(g1) +
+      75*traceYeAdjYe*Sqr(g1) + 85*traceYuAdjYu*Sqr(g1) + 135*traceYdAdjYd*Sqr
+      (g2) + 45*traceYeAdjYe*Sqr(g2) + 135*traceYuAdjYu*Sqr(g2) + 54*Sqr(g1)*
+      Sqr(g2) + 480*traceYdAdjYd*Sqr(g3) + 480*traceYuAdjYu*Sqr(g3) + 36*Sqr(
+      Lambda2) + 24*Sqr(Lambda3) + 24*Sqr(Lambda4)) + 0.1875*(-4*(8*Lambda2 + 9
+      *traceYdAdjYd + 3*traceYeAdjYe + 9*traceYuAdjYu) + 43*Sqr(g1) + 45*Sqr(g2
+      ))*(Ye*Ye.adjoint()*Ye) + 1.5*(Ye*Ye.adjoint()*Ye*Ye.adjoint()*Ye))).real
+      ();
 
 
    return beta_Ye;

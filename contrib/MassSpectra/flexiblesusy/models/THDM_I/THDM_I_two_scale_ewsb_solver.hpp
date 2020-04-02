@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:50
+// File generated at Wed 1 Apr 2020 20:45:49
 
 /**
  * @file THDM_I_two_scale_ewsb_solver.hpp
  *
  * @brief contains class for solving EWSB when two-scale algorithm is used
  *
- * This file was generated at Wed 31 Oct 2018 19:37:50 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Wed 1 Apr 2020 20:45:49 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.13.0 .
  */
 
 #ifndef THDM_I_TWO_SCALE_EWSB_SOLVER_H

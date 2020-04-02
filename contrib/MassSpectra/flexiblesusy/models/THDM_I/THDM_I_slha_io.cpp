@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:44
+// File generated at Wed 1 Apr 2020 20:45:41
 
 #include "THDM_I_slha_io.hpp"
 #include "THDM_I_input_parameters.hpp"
@@ -116,15 +116,15 @@ void THDM_I_slha_io::set_minpar(const THDM_I_input_parameters& input)
    std::ostringstream minpar;
 
    minpar << "Block MINPAR\n";
-   minpar << FORMAT_ELEMENT(1, input.Lambda1IN, "Lambda1IN");
-   minpar << FORMAT_ELEMENT(2, input.Lambda2IN, "Lambda2IN");
-   minpar << FORMAT_ELEMENT(3, input.Lambda3IN, "Lambda3IN");
-   minpar << FORMAT_ELEMENT(4, input.Lambda4IN, "Lambda4IN");
-   minpar << FORMAT_ELEMENT(5, input.Lambda5IN, "Lambda5IN");
-   minpar << FORMAT_ELEMENT(6, input.Lambda6IN, "Lambda6IN");
-   minpar << FORMAT_ELEMENT(7, input.Lambda7IN, "Lambda7IN");
-   minpar << FORMAT_ELEMENT(8, input.M122IN, "M122IN");
-   minpar << FORMAT_ELEMENT(10, input.TanBeta, "TanBeta");
+   minpar << FORMAT_ELEMENT(11, input.Lambda1IN, "Lambda1IN");
+   minpar << FORMAT_ELEMENT(12, input.Lambda2IN, "Lambda2IN");
+   minpar << FORMAT_ELEMENT(13, input.Lambda3IN, "Lambda3IN");
+   minpar << FORMAT_ELEMENT(14, input.Lambda4IN, "Lambda4IN");
+   minpar << FORMAT_ELEMENT(15, input.Lambda5IN, "Lambda5IN");
+   minpar << FORMAT_ELEMENT(16, input.Lambda6IN, "Lambda6IN");
+   minpar << FORMAT_ELEMENT(17, input.Lambda7IN, "Lambda7IN");
+   minpar << FORMAT_ELEMENT(18, input.M122IN, "M122IN");
+   minpar << FORMAT_ELEMENT(3, input.TanBeta, "TanBeta");
    slha_io.set_block(minpar);
 
 }
@@ -427,16 +427,16 @@ void THDM_I_slha_io::fill_drbar_parameters(THDM_I_mass_eigenstates& model) const
       slha_io.read_block("Ye", Ye);
       model.set_Ye(Ye);
    }
-   model.set_Lambda1(slha_io.read_entry("HMIX", 31));
-   model.set_Lambda2(slha_io.read_entry("HMIX", 32));
-   model.set_Lambda3(slha_io.read_entry("HMIX", 33));
-   model.set_Lambda4(slha_io.read_entry("HMIX", 34));
-   model.set_Lambda5(slha_io.read_entry("HMIX", 35));
-   model.set_Lambda6(slha_io.read_entry("HMIX", 36));
-   model.set_Lambda7(slha_io.read_entry("HMIX", 37));
-   model.set_M112(slha_io.read_entry("HMIX", 20));
-   model.set_M222(slha_io.read_entry("HMIX", 21));
-   model.set_M122(slha_io.read_entry("HMIX", 22));
+   model.set_Lambda1(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 11));
+   model.set_Lambda2(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 12));
+   model.set_Lambda3(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 13));
+   model.set_Lambda4(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 14));
+   model.set_Lambda5(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 15));
+   model.set_Lambda6(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 16));
+   model.set_Lambda7(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 17));
+   model.set_M112(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 19));
+   model.set_M222(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 20));
+   model.set_M122(slha_io.read_entry("List(List(11,Lambda1IN),List(12,Lambda2IN),List(13,Lambda3IN),List(14,Lambda4IN),List(15,Lambda5IN),List(16,Lambda6IN),List(17,Lambda7IN),List(18,M122IN),List(3,TanBeta))", 18));
    model.set_v1(slha_io.read_entry("HMIX", 102));
    model.set_v2(slha_io.read_entry("HMIX", 103));
 
@@ -486,15 +486,15 @@ void THDM_I_slha_io::fill_minpar_tuple(THDM_I_input_parameters& input,
                                                 int key, double value)
 {
    switch (key) {
-   case 1: input.Lambda1IN = value; break;
-   case 2: input.Lambda2IN = value; break;
-   case 3: input.Lambda3IN = value; break;
-   case 4: input.Lambda4IN = value; break;
-   case 5: input.Lambda5IN = value; break;
-   case 6: input.Lambda6IN = value; break;
-   case 7: input.Lambda7IN = value; break;
-   case 8: input.M122IN = value; break;
-   case 10: input.TanBeta = value; break;
+   case 11: input.Lambda1IN = value; break;
+   case 12: input.Lambda2IN = value; break;
+   case 13: input.Lambda3IN = value; break;
+   case 14: input.Lambda4IN = value; break;
+   case 15: input.Lambda5IN = value; break;
+   case 16: input.Lambda6IN = value; break;
+   case 17: input.Lambda7IN = value; break;
+   case 18: input.M122IN = value; break;
+   case 3: input.TanBeta = value; break;
    default: WARNING("Unrecognized entry in block MINPAR: " << key); break;
    }
 

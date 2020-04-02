@@ -207,19 +207,19 @@ clean-$(MODNAME)-obj:
 		-rm -f $(LLTHDM_I_OBJ)
 
 # BEGIN: NOT EXPORTED ##########################################
-# clean-$(MODNAME)-src:
-# 		-rm -f $(LIBTHDM_I_SRC)
-# 		-rm -f $(LIBTHDM_I_HDR)
-# 		-rm -f $(EXETHDM_I_SRC)
-# 		-rm -f $(LLTHDM_I_SRC)
-# 		-rm -f $(LLTHDM_I_MMA)
-# 		-rm -f $(METACODE_STAMP_THDM_I)
-# 		-rm -f $(THDM_I_INCLUDE_MK)
-# 		-rm -f $(THDM_I_SLHA_INPUT)
-# 		-rm -f $(THDM_I_REFERENCES)
-# 		-rm -f $(THDM_I_GNUPLOT)
+clean-$(MODNAME)-src:
+		-rm -f $(LIBTHDM_I_SRC)
+		-rm -f $(LIBTHDM_I_HDR)
+		-rm -f $(EXETHDM_I_SRC)
+		-rm -f $(LLTHDM_I_SRC)
+		-rm -f $(LLTHDM_I_MMA)
+		-rm -f $(METACODE_STAMP_THDM_I)
+		-rm -f $(THDM_I_INCLUDE_MK)
+		-rm -f $(THDM_I_SLHA_INPUT)
+		-rm -f $(THDM_I_REFERENCES)
+		-rm -f $(THDM_I_GNUPLOT)
 
-# distclean-$(MODNAME): clean-$(MODNAME)-src
+distclean-$(MODNAME): clean-$(MODNAME)-src
 # END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj

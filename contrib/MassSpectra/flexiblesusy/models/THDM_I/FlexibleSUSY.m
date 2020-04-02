@@ -7,15 +7,15 @@ OnlyLowEnergyFlexibleSUSY = True;
 (* input parameters *)
 
 MINPAR = {
-    {1, Lambda1IN},
-    {2, Lambda2IN},
-    {3, Lambda3IN},
-    {4, Lambda4IN},
-    {5, Lambda5IN},
-    {6, Lambda6IN},
-    {7, Lambda7IN},
-    {8, M122IN},
-    {10, TanBeta}
+    {11, Lambda1IN},
+    {12, Lambda2IN},
+    {13, Lambda3IN},
+    {14, Lambda4IN},
+    {15, Lambda5IN},
+    {16, Lambda6IN},
+    {17, Lambda7IN},
+    {18, M122IN},
+    {3, TanBeta}
 };
 
 EXTPAR = {
@@ -44,8 +44,8 @@ LowScale = LowEnergyConstant[MZ];
 LowScaleFirstGuess = LowEnergyConstant[MZ];
 
 LowScaleInput = {
-    {v1, 2 MZDRbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
-    {v2, 2 MZDRbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
+    {v1, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
+    {v2, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
     {Yu, Automatic},
     {Yd, Automatic},
     {Ye, Automatic}
