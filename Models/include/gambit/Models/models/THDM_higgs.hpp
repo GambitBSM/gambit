@@ -11,6 +11,9 @@
 //  Filip Rajec
 //  Aug 2016
 //
+//  Cristian Sierra
+//  cristian.sierra@monash.edu
+//  Mar 2020 
 //  *********************************************
 
 #ifndef __THDM_higgs_hpp__
@@ -23,7 +26,7 @@
 #define PARENT THDM
   START_MODEL
 
-  DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
+  DEFINEPARS(Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda7)
   DEFINEPARS(M22_2)
   DEFINEPARS(alpha,tanb)
   

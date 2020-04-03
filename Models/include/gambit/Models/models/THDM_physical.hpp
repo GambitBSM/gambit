@@ -28,7 +28,7 @@
   START_MODEL
 
   DEFINEPARS(mh_2,mH_2,mA_2,mC_2)
-  DEFINEPARS(lambda_6,lambda_7,m12_2)
+  DEFINEPARS(lambda6,lambda7,m12_2)
   DEFINEPARS(sba,tanb)
   
   DEFINEPARS(yu2_re_11, yu2_im_11, yu2_re_12, yu2_im_12, yu2_re_13, yu2_im_13,

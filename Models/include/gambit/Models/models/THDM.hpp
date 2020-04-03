@@ -20,11 +20,11 @@
 #define __THDM_hpp__
 
 // Must include models which are targets of translation functions
-#define MODEL THDM_higgs
+#define MODEL THDM
 
   START_MODEL
 
-  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7)
+  DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
   
