@@ -13,7 +13,12 @@
 ///
 ///  \author James McKay
 ///          (j.mckay14@imperial.ac.uk)
-//   \date 2015 November
+///   \date 2015 November
+///
+///  Cristian Sierra
+///  cristian.sierra@monash.edu
+///  Apr 2020
+///
 ///  *********************************************
 
 #include <string>
@@ -46,15 +51,15 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
   targetP.setValue("Qin",80.39);
   targetP.setValue("QrunTo", 173.15);
 
-  targetP.setValue("Lambda_1", myP.getValue("Lambda_1") );
-  targetP.setValue("Lambda_2", myP.getValue("Lambda_2") );
-  targetP.setValue("Lambda_3", myP.getValue("Lambda_3") );
-  targetP.setValue("Lambda_4", myP.getValue("Lambda_4") );
-  targetP.setValue("Lambda_5", myP.getValue("Lambda_5") );
-  targetP.setValue("Lambda_7", myP.getValue("Lambda_7") );
-  targetP.setValue("m22_2", myP.getValue("m22_2") );
-  targetP.setValue("tanb", myP.getValue("tanb") );
-  targetP.setValue("alpha", myP.getValue("alpha") );
+  targetP.setValue("lambda1",myP.getValue("lambda1"));
+  targetP.setValue("lambda2",myP.getValue("lambda2"));
+  targetP.setValue("lambda3",myP.getValue("lambda3"));
+  targetP.setValue("lambda4",myP.getValue("lambda4"));
+  targetP.setValue("lambda5",myP.getValue("lambda5"));
+  targetP.setValue("lambda6",myP.getValue("lambda6"));
+  targetP.setValue("lambda7",myP.getValue("lambda7"));
+  targetP.setValue("m12_2",myP.getValue("m12_2"));
+  targetP.setValue("tanb",myP.getValue("tanb"));
 
   std::vector<std::string> yukawa_keys = {"yu2_re_11", "yu2_im_11", "yu2_re_12", "yu2_im_12", "yu2_re_13", "yu2_im_13",
                                             "yu2_re_21", "yu2_im_21", "yu2_re_22", "yu2_im_22", "yu2_re_23", "yu2_im_23",

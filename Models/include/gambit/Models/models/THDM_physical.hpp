@@ -27,7 +27,7 @@
 #define PARENT THDM
   START_MODEL
 
-  DEFINEPARS(mh_2,mH_2,mA_2,mC_2)
+  DEFINEPARS(mh2,mH2,mA2,mC2)
   DEFINEPARS(lambda6,lambda7,m12_2)
   DEFINEPARS(sba,tanb)
   

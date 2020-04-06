@@ -48,7 +48,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
     // higgs basis
     double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
     double tb  = myP.getValue("tanb");
-    double beta = atan(tb);
+    double beta = -atan(tb);//Inverse transformation from higgs to generic basis adds the minus sign
     double cb = cos(beta),sb = sin(beta), s2b = sin(2.*beta);
     double alpha = myP.getValue("alpha");
     double mC_2 = myP.getValue("M22_2")+0.5*v2*myP.getValue("Lambda3");
@@ -66,7 +66,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
     double lambda5 = 0.25*pow(s2b,2)*(myP.getValue("Lambda1")+myP.getValue("Lambda2")-2.*Lam345) + myP.getValue("Lambda5") - s2b*c2b*(Lambda6-myP.getValue("Lambda7"));
     double lambda6 = -0.5*s2b*(myP.getValue("Lambda1")*pow(cb,2)-myP.getValue("Lambda2")*pow(sb,2)-Lam345*c2b) + cb*cos(3.*beta)*Lambda6 + sb*sin(3.*beta)*myP.getValue("Lambda7");
     double lambda7 = -0.5*s2b*(myP.getValue("Lambda1")*pow(sb,2)-myP.getValue("Lambda2")*pow(cb,2)+Lam345*c2b) + sb*sin(3.*beta)*Lambda6 + cb*cos(3.*beta)*myP.getValue("Lambda7");
-    double m12_2 = M12_2; // TODO: write this one
+    double m12_2 = 0.5*(M11_2-myP.getValue("M22_2"))*s2b + M12_2*c2b;
    
     targetP.setValue("lambda1",lambda1);
     targetP.setValue("lambda2",lambda2);
