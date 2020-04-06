@@ -147,14 +147,14 @@
     BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
       (double*, Farray<double, 1,3, 1,3, 1,3>&,
        Farray<double, 1,3, 1,3>&, double*, double*,
-       double*, double*))
+       double*, Farray<double, 1,3>&))
 //    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggsbounds), void,
 //      (double*, Farray<double, 1,3, 1,3, 1,3>&,
 //       Farray<double, 1,3, 1,3>&, double*, double*,
 //       double*, double*))
  
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
-    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
+//    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*)) -- Appears to be missing in HS 2.4.0
     BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (double&, double&, double&, int&, double&) )
     BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
     BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
