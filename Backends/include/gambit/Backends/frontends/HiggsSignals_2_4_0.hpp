@@ -51,7 +51,7 @@ BE_FUNCTION(initialize_HiggsBounds_int_HS, void, (int&, int&, int&), "initialize
 
 BE_FUNCTION(setup_pdf, void, (int&), "setup_pdf_", "setup_pdf")
 BE_FUNCTION(run_HiggsSignals_LHC_Run1_combination, void, (double&, double&, double&, int&, double&), "run_higgssignals_lhc_run1_combination_", "run_HiggsSignals_LHC_Run1_combination")
-BE_FUNCTION(run_HiggsSignals, void, (int&, double&, double&, double&, int&, double&), "run_higgssignals_", "run_HiggsSignals")
+BE_FUNCTION(run_HiggsSignals, void, (double&, double&, double&, int&, double&), "run_higgssignals_", "run_HiggsSignals")
 BE_FUNCTION(run_HiggsSignals_STXS, void, (double&, double&, double&, int&, double&), "run_higgssignals_stxs_", "run_HiggsSignals_STXS")
 BE_FUNCTION(HiggsSignals_neutral_input_MassUncertainty, void, (double*), "higgssignals_neutral_input_massuncertainty_", "HiggsSignals_neutral_input_MassUncertainty")
 BE_FUNCTION(setup_rate_uncertainties, void, (double*, double*), "setup_rate_uncertainties_", "setup_rate_uncertainties")

@@ -831,7 +831,8 @@ namespace Gambit
       int mode = 1; // 1- peak-centered chi2 method (recommended)
       double csqmu, csqmh, csqtot, Pvalue;
       int nobs;
-      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+      //TODO: Also calculate STXS chi-square
 
       result = -0.5*csqtot;
 
