@@ -686,8 +686,8 @@ namespace Gambit
       double ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
         ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
         ghjmumu_s[Hneut], ghjmumu_p[Hneut], ghjtautau_s[Hneut], ghjtautau_p[Hneut],
-        ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut],
-        ghjhiZ[Hneut];
+        ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut];
+      Farray<double, 1,3, 1,3> ghjhiZ;
       double BR_hjinvisible[Hneut], BR_hjemu[Hneut], BR_hjetau[Hneut],
         BR_hjmutau[Hneut], BR_hjHpiW[Hneut];
 
@@ -811,7 +811,7 @@ namespace Gambit
       BEreq::HiggsBounds_neutral_input_effC_HS(
 		      &ghjss_s[0], &ghjss_p[0], &ghjcc_s[0],   &ghjcc_p[0],   &ghjbb_s[0],     &ghjbb_p[0],
 		      &ghjtt_s[0], &ghjtt_p[0], &ghjmumu_s[0], &ghjmumu_p[0], &ghjtautau_s[0], &ghjtautau_p[0], 
-		      &ghjWW[0],   &ghjZZ[0],   &ghjZga[0],    &ghjgaga[0],   &ghjgg[0],       &ghjhiZ[0]);
+		      &ghjWW[0],   &ghjZZ[0],   &ghjZga[0],    &ghjgaga[0],   &ghjgg[0],       ghjhiZ);
 
 
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
