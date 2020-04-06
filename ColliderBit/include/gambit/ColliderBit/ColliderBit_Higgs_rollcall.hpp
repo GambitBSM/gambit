@@ -131,10 +131,12 @@
     BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
     BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
+
     #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
     START_FUNCTION(double)
     ALLOW_MODELS(CPVYukawas)
-    DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
+    // TODO: JC: Delete the below, it is not needed?
+    // DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals),
        void, (double*, double*, double*))

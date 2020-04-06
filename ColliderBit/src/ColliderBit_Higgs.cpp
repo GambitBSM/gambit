@@ -662,14 +662,17 @@ namespace Gambit
     {
       using namespace Pipes::calc_HS_LHC_LogLike_CPVYukawas;
 
-      hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
-     Farray<double, 1,3, 1,3> BR_hjhiZ;
-      Farray<double, 1,3, 1,3, 1,3> BR_hkhjhi;
-     int i,j,k;
+    // TODO: JC: Delete this?
+//      hb_ModelParameters ModelParam = *Dep::HB_ModelParameters;
 
-      Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
-      Farray<double, 1,3, 1,3> BR_hjhihi;
-      
+      Farray<double, 1,3, 1,3> BR_hjhiZ;
+      Farray<double, 1,3, 1,3, 1,3> BR_hkhjhi;
+
+      int i,j,k;
+
+     //TODO: JC: Delete this? These are not used anywhere.
+//      Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
+//      Farray<double, 1,3, 1,3> BR_hjhihi;
       
       int Hneut = 1;
       double Mh[Hneut];
@@ -687,12 +690,13 @@ namespace Gambit
         ghjhiZ[Hneut];
       double BR_hjinvisible[Hneut], BR_hjemu[Hneut], BR_hjetau[Hneut],
         BR_hjmutau[Hneut], BR_hjHpiW[Hneut];
- 
-      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
-      {
-        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
-        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
-      }
+
+      // TODO: JC: Delete this? These are not used anywhere
+//      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+//      {
+//        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
+//        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+//      }
 
       //the following two functions are already called in Backends/src/frontends/HiggsSignals_2_2_3beta.cpp with nHneut = 1, nHplus = 0, pdf = 2 (Gaussian)
       //initialize_HiggsSignals_LHC13(nHneut,nHplus
@@ -785,7 +789,6 @@ namespace Gambit
 	      //how does the decay rate change in the model
       cout << "gammaTotal after: " <<  GammaTotal[i] << endl;
 
-
       }
       for (i=0; i<=2; i++)
       {
@@ -811,15 +814,6 @@ namespace Gambit
 		      &ghjWW[0],   &ghjZZ[0],   &ghjZga[0],    &ghjgaga[0],   &ghjgg[0],       &ghjhiZ[0]);
 
 
-
-
-
- /*   
-      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
-            &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
-            &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
-	    */
-
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
       // add uncertainties to cross-sections and branching ratios
@@ -839,9 +833,9 @@ namespace Gambit
       // Add one-sided Gaussian drop in loglike when the lightest Higgs
       // mass is > 150 GeV. This avoids a completely flat loglike 
       // from HS in parameter regions with far too high Higgs mass.
-      if (ModelParam.Mh[0] > 150.)
+      if (Mh[0] > 150.)
       {
-        result -= 0.5 * pow(ModelParam.Mh[0] - 150., 2) / pow(10., 2);
+        result -= 0.5 * pow(Mh[0] - 150., 2) / pow(10., 2);
       }
       
       #ifdef COLLIDERBIT_DEBUG
