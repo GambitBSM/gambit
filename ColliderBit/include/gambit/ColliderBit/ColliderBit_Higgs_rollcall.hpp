@@ -159,7 +159,7 @@
     BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
     BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
     BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
-    BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
+    BACKEND_OPTION( (HiggsSignals, 2.2.3beta, 2.4.0), (libhiggssignals) )
     #undef FUNCTION
   #undef CAPABILITY
 
