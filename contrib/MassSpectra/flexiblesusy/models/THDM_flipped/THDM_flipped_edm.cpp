@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:54
+// File generated at Tue 7 Apr 2020 14:56:55
 
 /**
  * @file THDM_flipped_edm.cpp
  *
- * This file was generated at Wed 31 Oct 2018 21:01:54 with FlexibleSUSY
- * 2.0.1 and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 14:56:55 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.13.0 .
  */
 
 #include "THDM_flipped_edm.hpp"

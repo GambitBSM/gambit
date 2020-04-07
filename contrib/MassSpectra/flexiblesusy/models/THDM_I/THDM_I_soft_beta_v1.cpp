@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Apr 2020 20:45:25
+// File generated at Tue 7 Apr 2020 02:32:01
 
 #include "THDM_I_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -91,14 +91,14 @@ double THDM_I_soft_parameters::calc_beta_v1_2_loop(const Soft_traces& soft_trace
    double beta_v1;
 
    beta_v1 = Re(0.03125*twoLoop*(-32*Lambda3*Lambda4*v1 - 24*Lambda1*
-      Lambda6*v2 - 24*Lambda3*Lambda6*v2 - 24*Lambda4*Lambda6*v2 - 24*Lambda2*
-      Lambda7*v2 - 24*Lambda3*Lambda7*v2 - 24*Lambda4*Lambda7*v2 - 48*v1*AbsSqr
-      (Lambda7) - 24*(2*Lambda5*v1 + (Lambda6 + Lambda7)*v2)*Conj(Lambda5) - 24
-      *(6*Lambda6*v1 + (Lambda1 + Lambda3 + Lambda4 + Lambda5)*v2)*Conj(Lambda6
-      ) - 24*Lambda2*v2*Conj(Lambda7) - 24*Lambda3*v2*Conj(Lambda7) - 24*
-      Lambda4*v2*Conj(Lambda7) - 24*Lambda5*v2*Conj(Lambda7) - 143*v1*Quad(g1)
-      + 357*v1*Quad(g2) + 30*v1*Sqr(g1)*Sqr(g2) - 48*v1*Sqr(Lambda1) - 32*v1*
-      Sqr(Lambda3) - 32*v1*Sqr(Lambda4)));
+      Lambda6*v2 - 24*Lambda3*Lambda6*v2 - 24*Lambda4*Lambda6*v2 - 24*Lambda5*
+      Lambda6*v2 - 24*Lambda2*Lambda7*v2 - 24*Lambda3*Lambda7*v2 - 24*Lambda4*
+      Lambda7*v2 - 24*Lambda5*Lambda7*v2 - 48*v1*AbsSqr(Lambda7) - 24*(6*
+      Lambda6*v1 + (Lambda1 + Lambda3 + Lambda4)*v2)*Conj(Lambda6) - 24*Lambda2
+      *v2*Conj(Lambda7) - 24*Lambda3*v2*Conj(Lambda7) - 24*Lambda4*v2*Conj(
+      Lambda7) - 24*Conj(Lambda5)*(2*Lambda5*v1 + v2*Conj(Lambda6) + v2*Conj(
+      Lambda7)) - 143*v1*Quad(g1) + 357*v1*Quad(g2) + 30*v1*Sqr(g1)*Sqr(g2) -
+      48*v1*Sqr(Lambda1) - 32*v1*Sqr(Lambda3) - 32*v1*Sqr(Lambda4)));
 
 
    return beta_v1;

@@ -357,7 +357,7 @@ namespace Gambit
          else if (spec_class_type == "N12flexiblesusy12THDM_II_slhaINS_7THDM_IIINS_9Two_scaleEEEEE"){
             return 2;
          }
-         else if (spec_class_type == "N12flexiblesusy16THDM_lepton_slhaINS_11THDM_leptonINS_9Two_scaleEEEEE"){
+         else if (spec_class_type == "N12flexiblesusy16THDM_LS_slhaINS_11THDM_LSINS_9Two_scaleEEEEE"){
             return 3;
          }
          else if (spec_class_type == "N12flexiblesusy17THDM_flipped_slhaINS_12THDM_flippedINS_9Two_scaleEEEEE"){

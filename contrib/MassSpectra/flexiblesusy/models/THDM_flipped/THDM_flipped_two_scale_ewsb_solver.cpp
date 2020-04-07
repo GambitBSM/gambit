@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:52
+// File generated at Tue 7 Apr 2020 14:56:54
 
 /**
  * @file THDM_flipped_two_scale_ewsb_solver.cpp
  *
  * @brief implementation of EWSB solver for two-scale iteration
  *
- * This file was generated at Wed 31 Oct 2018 21:01:52 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 14:56:54 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.13.0 .
  */
 
 #include "THDM_flipped_two_scale_ewsb_solver.hpp"

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Apr 2020 20:45:41
+// File generated at Tue 7 Apr 2020 02:33:59
 
 #ifndef THDM_I_SLHA_IO_H
 #define THDM_I_SLHA_IO_H
@@ -198,23 +198,17 @@ void THDM_I_slha_io::set_model_parameters(const THDM_I_slha<Model>& model)
    slha_io.set_block("Ye", ToMatrix(MODELPARAMETER(Ye_slha)), "Ye", model.get_scale());
    {
       std::ostringstream block;
-      block << "Block {{11, Lambda1IN}, {12, Lambda2IN}, {13, Lambda3IN}, {14, Lambda4IN}, {15, Lambda5IN}, {16, Lambda6IN}, {17, Lambda7IN}, {18, M122IN}, {3, TanBeta}} Q= " << FORMAT_SCALE(model.get_scale()) << '\n'
-            << FORMAT_ELEMENT(11, (MODELPARAMETER(Lambda1)), "Lambda1")
-            << FORMAT_ELEMENT(12, (MODELPARAMETER(Lambda2)), "Lambda2")
-            << FORMAT_ELEMENT(13, (MODELPARAMETER(Lambda3)), "Lambda3")
-            << FORMAT_ELEMENT(14, (MODELPARAMETER(Lambda4)), "Lambda4")
-            << FORMAT_ELEMENT(15, (MODELPARAMETER(Lambda5)), "Lambda5")
-            << FORMAT_ELEMENT(16, (MODELPARAMETER(Lambda6)), "Lambda6")
-            << FORMAT_ELEMENT(17, (MODELPARAMETER(Lambda7)), "Lambda7")
-            << FORMAT_ELEMENT(19, (MODELPARAMETER(M112)), "M112")
-            << FORMAT_ELEMENT(20, (MODELPARAMETER(M222)), "M222")
-            << FORMAT_ELEMENT(18, (MODELPARAMETER(M122)), "M122")
-      ;
-      slha_io.set_block(block);
-   }
-   {
-      std::ostringstream block;
       block << "Block HMIX Q= " << FORMAT_SCALE(model.get_scale()) << '\n'
+            << FORMAT_ELEMENT(31, (MODELPARAMETER(Lambda1)), "Lambda1")
+            << FORMAT_ELEMENT(32, (MODELPARAMETER(Lambda2)), "Lambda2")
+            << FORMAT_ELEMENT(33, (MODELPARAMETER(Lambda3)), "Lambda3")
+            << FORMAT_ELEMENT(34, (MODELPARAMETER(Lambda4)), "Lambda4")
+            << FORMAT_ELEMENT(35, (MODELPARAMETER(Lambda5)), "Lambda5")
+            << FORMAT_ELEMENT(36, (MODELPARAMETER(Lambda6)), "Lambda6")
+            << FORMAT_ELEMENT(37, (MODELPARAMETER(Lambda7)), "Lambda7")
+            << FORMAT_ELEMENT(20, (MODELPARAMETER(M112)), "M112")
+            << FORMAT_ELEMENT(21, (MODELPARAMETER(M222)), "M222")
+            << FORMAT_ELEMENT(22, (MODELPARAMETER(M122)), "M122")
             << FORMAT_ELEMENT(102, (MODELPARAMETER(v1)), "v1")
             << FORMAT_ELEMENT(103, (MODELPARAMETER(v2)), "v2")
       ;

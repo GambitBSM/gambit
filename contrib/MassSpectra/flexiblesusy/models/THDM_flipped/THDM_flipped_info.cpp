@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:47
+// File generated at Tue 7 Apr 2020 14:56:49
 
 #include "THDM_flipped_info.hpp"
 
@@ -40,11 +40,11 @@ namespace THDM_flipped_info {
 
    const std::array<std::string, NUMBER_OF_PARAMETERS> parameter_names = {"g1",
       "g2", "g3", "Lambda6", "Lambda5", "Lambda7", "Lambda1", "Lambda4",
-      "Lambda3", "Lambda2", "Yd(0,0)", "Yd(0,1)", "Yd(0,2)", "Yd(1,0)", "Yd(1,1)",
-      "Yd(1,2)", "Yd(2,0)", "Yd(2,1)", "Yd(2,2)", "Ye(0,0)", "Ye(0,1)", "Ye(0,2)"
-      , "Ye(1,0)", "Ye(1,1)", "Ye(1,2)", "Ye(2,0)", "Ye(2,1)", "Ye(2,2)",
-      "Yu(0,0)", "Yu(0,1)", "Yu(0,2)", "Yu(1,0)", "Yu(1,1)", "Yu(1,2)", "Yu(2,0)",
-      "Yu(2,1)", "Yu(2,2)", "M122", "M112", "M222", "v1", "v2"};
+      "Lambda3", "Lambda2", "Yu(0,0)", "Yu(0,1)", "Yu(0,2)", "Yu(1,0)", "Yu(1,1)",
+      "Yu(1,2)", "Yu(2,0)", "Yu(2,1)", "Yu(2,2)", "Yd(0,0)", "Yd(0,1)", "Yd(0,2)"
+      , "Yd(1,0)", "Yd(1,1)", "Yd(1,2)", "Yd(2,0)", "Yd(2,1)", "Yd(2,2)",
+      "Ye(0,0)", "Ye(0,1)", "Ye(0,2)", "Ye(1,0)", "Ye(1,1)", "Ye(1,2)", "Ye(2,0)",
+      "Ye(2,1)", "Ye(2,2)", "M122", "M112", "M222", "v1", "v2"};
 
    const std::array<std::string, NUMBER_OF_MIXINGS> particle_mixing_names = {
       "ZH(0,0)", "ZH(0,1)", "ZH(1,0)", "ZH(1,1)", "ZA(0,0)", "ZA(0,1)", "ZA(1,0)"

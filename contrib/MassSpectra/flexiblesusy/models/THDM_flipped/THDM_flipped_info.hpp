@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:47
+// File generated at Tue 7 Apr 2020 14:56:49
 
 #ifndef THDM_flipped_INFO_H
 #define THDM_flipped_INFO_H
@@ -38,9 +38,9 @@ namespace THDM_flipped_info {
       MVWm, MVP, MVZ, NUMBER_OF_MASSES };
 
    enum Parameters : int { g1, g2, g3, Lambda6, Lambda5, Lambda7, Lambda1,
-      Lambda4, Lambda3, Lambda2, Yd0_0, Yd0_1, Yd0_2, Yd1_0, Yd1_1, Yd1_2, Yd2_0,
-      Yd2_1, Yd2_2, Ye0_0, Ye0_1, Ye0_2, Ye1_0, Ye1_1, Ye1_2, Ye2_0, Ye2_1, Ye2_2,
-      Yu0_0, Yu0_1, Yu0_2, Yu1_0, Yu1_1, Yu1_2, Yu2_0, Yu2_1, Yu2_2, M122, M112,
+      Lambda4, Lambda3, Lambda2, Yu0_0, Yu0_1, Yu0_2, Yu1_0, Yu1_1, Yu1_2, Yu2_0,
+      Yu2_1, Yu2_2, Yd0_0, Yd0_1, Yd0_2, Yd1_0, Yd1_1, Yd1_2, Yd2_0, Yd2_1, Yd2_2,
+      Ye0_0, Ye0_1, Ye0_2, Ye1_0, Ye1_1, Ye1_2, Ye2_0, Ye2_1, Ye2_2, M122, M112,
       M222, v1, v2, NUMBER_OF_PARAMETERS };
 
    enum Mixings : int { ZH0_0, ZH0_1, ZH1_0, ZH1_1, ZA0_0, ZA0_1, ZA1_0, ZA1_1,

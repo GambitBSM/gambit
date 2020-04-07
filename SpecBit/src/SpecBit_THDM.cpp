@@ -66,7 +66,7 @@
 #include "flexiblesusy/src/numerics2.hpp"
 #include "flexiblesusy/models/THDM_I/THDM_I_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
-#include "flexiblesusy/models/THDM_lepton/THDM_lepton_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_LS/THDM_LS_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
 
@@ -544,10 +544,10 @@ namespace Gambit
             break;
           }
           case lepton_specific: { 
-            #if(FS_MODEL_THDM_lepton_IS_BUILT)
-              THDM_lepton_input_parameters input;
+            #if(FS_MODEL_THDM_LS_IS_BUILT)
+              THDM_LS_input_parameters input;
               fill_THDM_FS_input(input,myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
+              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
               if(myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
                 double const scale = *myPipe::Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
@@ -556,7 +556,7 @@ namespace Gambit
             #else 
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-              errmsg << "FS models for THDM_lepton not built." << std::endl;
+              errmsg << "FS models for THDM_LS not built." << std::endl;
               SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             #endif 
             break;
@@ -1665,6 +1665,8 @@ namespace Gambit
       const double y_d2 = container.he->get(Par::dimensionless, "Yd", 2, 2);
       const double y_d3 = container.he->get(Par::dimensionless, "Yd", 3, 3);
 
+      // std::cout << "YD " << y_d1 << " " << y_d2 << " " << y_d3 << std::endl;
+
       return y_d1 + y_d2 + y_d3;
     }
 
@@ -1681,6 +1683,8 @@ namespace Gambit
       const double y_l1 = container.he->get(Par::dimensionless, "Ye", 1, 1);
       const double y_l2 = container.he->get(Par::dimensionless, "Ye", 2, 2);
       const double y_l3 = container.he->get(Par::dimensionless, "Ye", 3, 3);
+
+      // std::cout << "YD " << y_l1 << " " << y_l2 << " " << y_l3 << std::endl;
 
       return y_l1 + y_l2 + y_l3;
     }

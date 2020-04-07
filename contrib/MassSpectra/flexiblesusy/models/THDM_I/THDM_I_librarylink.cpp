@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 1 Apr 2020 20:45:56
+// File generated at Tue 7 Apr 2020 02:34:12
 
 #include "config.h"
 
@@ -779,9 +779,9 @@ void put_spectrum(const THDM_I_slha<Model>& model, MLINK link)
    MLPutRuleTo(link, MODELPARAMETER(Lambda4), "Lambda4");
    MLPutRuleTo(link, MODELPARAMETER(Lambda3), "Lambda3");
    MLPutRuleTo(link, MODELPARAMETER(Lambda2), "Lambda2");
+   MLPutRuleTo(link, MODELPARAMETER(Yu), "Yu");
    MLPutRuleTo(link, MODELPARAMETER(Yd), "Yd");
    MLPutRuleTo(link, MODELPARAMETER(Ye), "Ye");
-   MLPutRuleTo(link, MODELPARAMETER(Yu), "Yu");
    MLPutRuleTo(link, MODELPARAMETER(M122), "M122");
    MLPutRuleTo(link, MODELPARAMETER(M112), "M112");
    MLPutRuleTo(link, MODELPARAMETER(M222), "M222");

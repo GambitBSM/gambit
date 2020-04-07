@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:28
+// File generated at Tue 7 Apr 2020 14:54:55
 
 #include "THDM_flipped_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -64,13 +64,14 @@ Eigen::Matrix<double,3,3> THDM_flipped_susy_parameters::calc_beta_Yu_2_loop(cons
 
    Eigen::Matrix<double,3,3> beta_Yu;
 
-   beta_Yu = (twoLoop*(0.004629629629629629*Yu*(1267*Quad(g1) + Sqr(g1)*(
-      675*traceYeAdjYe + 765*traceYuAdjYu - 162*Sqr(g2) + 456*Sqr(g3)) - 27*(42
-      *Quad(g2) - 3*Sqr(g2)*(5*traceYeAdjYe + 15*traceYuAdjYu + 24*Sqr(g3)) + 2
-      *(-4*Lambda3*Lambda4 + 9*traceYdAdjYuYuAdjYd + 9*traceYeAdjYeYeAdjYe + 27
-      *traceYuAdjYuYuAdjYu + 432*Quad(g3) - 80*traceYuAdjYu*Sqr(g3) - 6*Sqr(
-      Lambda2) - 4*Sqr(Lambda3) - 4*Sqr(Lambda4) - 6*Sqr(Lambda5) - 6*Sqr(
-      Lambda6) - 18*Sqr(Lambda7)))) + (-2*Lambda3 + 2*Lambda4 - 2.25*
+   beta_Yu = (twoLoop*(Yu*(Lambda3*Lambda4 - 2.25*traceYdAdjYuYuAdjYd -
+      2.25*traceYeAdjYeYeAdjYe - 6.75*traceYuAdjYuYuAdjYu + 1.5*AbsSqr(Lambda5)
+      + 1.5*AbsSqr(Lambda6) + 4.5*AbsSqr(Lambda7) + 5.8657407407407405*Quad(g1
+      ) - 5.25*Quad(g2) - 108*Quad(g3) + 3.125*traceYeAdjYe*Sqr(g1) +
+      3.5416666666666665*traceYuAdjYu*Sqr(g1) + 1.875*traceYeAdjYe*Sqr(g2) +
+      5.625*traceYuAdjYu*Sqr(g2) - 0.75*Sqr(g1)*Sqr(g2) + 20*traceYuAdjYu*Sqr(
+      g3) + 2.111111111111111*Sqr(g1)*Sqr(g3) + 9*Sqr(g2)*Sqr(g3) + 1.5*Sqr(
+      Lambda2) + Sqr(Lambda3) + Sqr(Lambda4)) + (-2*Lambda3 + 2*Lambda4 - 2.25*
       traceYdAdjYd - 0.2847222222222222*Sqr(g1) + 2.0625*Sqr(g2) +
       5.333333333333333*Sqr(g3))*(Yu*Yd.adjoint()*Yd) + (-6*Lambda2 - 2.25*
       traceYeAdjYe - 6.75*traceYuAdjYu + 4.645833333333333*Sqr(g1) + 8.4375*Sqr

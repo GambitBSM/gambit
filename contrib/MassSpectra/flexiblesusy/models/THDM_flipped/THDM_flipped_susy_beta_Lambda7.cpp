@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:24
+// File generated at Tue 7 Apr 2020 14:54:51
 
 #include "THDM_flipped_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -40,10 +40,11 @@ double THDM_flipped_susy_parameters::calc_beta_Lambda7_1_loop(const Susy_traces&
 
    double beta_Lambda7;
 
-   beta_Lambda7 = Re(oneOver16PiSqr*(2*Lambda5*Lambda6 + 12*Lambda2*
-      Lambda7 + 10*Lambda5*Lambda7 + 6*Lambda3*(Lambda6 + Lambda7) + 4*Lambda4*
-      (Lambda6 + 2*Lambda7) + 3*Lambda7*traceYdAdjYd + 3*Lambda7*traceYeAdjYe +
-      9*Lambda7*traceYuAdjYu - 3*Lambda7*Sqr(g1) - 9*Lambda7*Sqr(g2)));
+   beta_Lambda7 = Re(oneOver16PiSqr*(4*Lambda4*Lambda6 + 12*Lambda2*
+      Lambda7 + 8*Lambda4*Lambda7 + 6*Lambda3*(Lambda6 + Lambda7) + 3*Lambda7*
+      traceYdAdjYd + 3*Lambda7*traceYeAdjYe + 9*Lambda7*traceYuAdjYu + 2*Conj(
+      Lambda5)*(Conj(Lambda6) + 5*Conj(Lambda7)) - 3*Lambda7*Sqr(g1) - 9*
+      Lambda7*Sqr(g2)));
 
 
    return beta_Lambda7;
@@ -69,34 +70,35 @@ double THDM_flipped_susy_parameters::calc_beta_Lambda7_2_loop(const Susy_traces&
 
    beta_Lambda7 = Re(twoLoop*(-18*Lambda1*Lambda3*Lambda6 - 18*Lambda2*
       Lambda3*Lambda6 - 14*Lambda1*Lambda4*Lambda6 - 14*Lambda2*Lambda4*Lambda6
-      - 56*Lambda3*Lambda4*Lambda6 - 10*Lambda1*Lambda5*Lambda6 - 10*Lambda2*
-      Lambda5*Lambda6 - 40*Lambda3*Lambda5*Lambda6 - 44*Lambda4*Lambda5*Lambda6
-      - 18*Lambda1*Lambda3*Lambda7 - 66*Lambda2*Lambda3*Lambda7 - 14*Lambda1*
-      Lambda4*Lambda7 - 70*Lambda2*Lambda4*Lambda7 - 68*Lambda3*Lambda4*Lambda7
-      - 10*Lambda1*Lambda5*Lambda7 - 74*Lambda2*Lambda5*Lambda7 - 72*Lambda3*
-      Lambda5*Lambda7 - 76*Lambda4*Lambda5*Lambda7 - 36*Lambda3*Lambda6*
-      traceYdAdjYd - 24*Lambda4*Lambda6*traceYdAdjYd - 12*Lambda5*Lambda6*
-      traceYdAdjYd - 18*Lambda3*Lambda7*traceYdAdjYd - 24*Lambda4*Lambda7*
-      traceYdAdjYd - 30*Lambda5*Lambda7*traceYdAdjYd - 6.75*Lambda7*
-      traceYdAdjYdYdAdjYd - 21*Lambda7*traceYdAdjYuYuAdjYd - 24*Lambda2*Lambda7
-      *traceYeAdjYe - 6*Lambda3*Lambda7*traceYeAdjYe - 8*Lambda4*Lambda7*
-      traceYeAdjYe - 10*Lambda5*Lambda7*traceYeAdjYe - 2.75*Lambda7*
+      - 56*Lambda3*Lambda4*Lambda6 - 18*Lambda1*Lambda3*Lambda7 - 66*Lambda2*
+      Lambda3*Lambda7 - 14*Lambda1*Lambda4*Lambda7 - 70*Lambda2*Lambda4*Lambda7
+      - 68*Lambda3*Lambda4*Lambda7 - 36*Lambda3*Lambda6*traceYdAdjYd - 24*
+      Lambda4*Lambda6*traceYdAdjYd - 18*Lambda3*Lambda7*traceYdAdjYd - 24*
+      Lambda4*Lambda7*traceYdAdjYd - 6.75*Lambda7*traceYdAdjYdYdAdjYd - 21*
+      Lambda7*traceYdAdjYuYuAdjYd - 24*Lambda2*Lambda7*traceYeAdjYe - 6*Lambda3
+      *Lambda7*traceYeAdjYe - 8*Lambda4*Lambda7*traceYeAdjYe - 4.75*Lambda7*
       traceYeAdjYeYeAdjYe - 72*Lambda2*Lambda7*traceYuAdjYu - 18*Lambda3*
-      Lambda7*traceYuAdjYu - 24*Lambda4*Lambda7*traceYuAdjYu - 30*Lambda5*
-      Lambda7*traceYuAdjYu - 8.25*Lambda7*traceYuAdjYuYuAdjYu - 42*Cube(Lambda6
-      ) - 111*Cube(Lambda7) + 0.125*(30*Lambda6 + 187*Lambda7)*Quad(g1) + 0.375
-      *(30*Lambda6 - 47*Lambda7)*Quad(g2) + 1.125*(16*Lambda3*(2*Lambda6 +
-      Lambda7) + 16*Lambda4*(Lambda6 + 2*Lambda7) + Lambda7*(48*Lambda2 + 48*
-      Lambda5 + 5*(traceYdAdjYd + traceYeAdjYe + 3*traceYuAdjYu)))*Sqr(g2) +
-      Sqr(g1)*(8*Lambda4*Lambda6 - 2*Lambda5*Lambda6 + 18*Lambda2*Lambda7 + 10*
-      Lambda4*Lambda7 + 20*Lambda5*Lambda7 + 6*Lambda3*(2*Lambda6 + Lambda7) +
-      1.0416666666666667*Lambda7*traceYdAdjYd + 9.375*Lambda7*traceYeAdjYe +
-      10.625*Lambda7*traceYuAdjYu + 0.25*(10*Lambda6 + 29*Lambda7)*Sqr(g2)) +
-      20*Lambda7*traceYdAdjYd*Sqr(g3) + 60*Lambda7*traceYuAdjYu*Sqr(g3) + 1.5*
-      Lambda7*Sqr(Lambda1) - 79.5*Lambda7*Sqr(Lambda2) - 36*Lambda6*Sqr(Lambda3
-      ) - 32*Lambda7*Sqr(Lambda3) - 34*Lambda6*Sqr(Lambda4) - 34*Lambda7*Sqr(
-      Lambda4) - 42*Lambda6*Sqr(Lambda5) - 36*Lambda7*Sqr(Lambda5) - 33*Lambda7
-      *Sqr(Lambda6) - 126*Lambda6*Sqr(Lambda7)));
+      Lambda7*traceYuAdjYu - 24*Lambda4*Lambda7*traceYuAdjYu - 2.25*Lambda7*
+      traceYuAdjYuYuAdjYu - 84*Lambda6*AbsSqr(Lambda7) + 3.75*Lambda6*Quad(g1)
+      + 23.375*Lambda7*Quad(g1) + 11.25*Lambda6*Quad(g2) - 17.625*Lambda7*Quad(
+      g2) + 12*Lambda3*Lambda6*Sqr(g1) + 8*Lambda4*Lambda6*Sqr(g1) + 18*Lambda2
+      *Lambda7*Sqr(g1) + 6*Lambda3*Lambda7*Sqr(g1) + 10*Lambda4*Lambda7*Sqr(g1)
+      + 1.0416666666666667*Lambda7*traceYdAdjYd*Sqr(g1) + 9.375*Lambda7*
+      traceYeAdjYe*Sqr(g1) + 10.625*Lambda7*traceYuAdjYu*Sqr(g1) - 2*Conj(
+      Lambda5)*(3*Lambda5*(7*Lambda6 + 6*Lambda7) + Conj(Lambda6)*(5*Lambda1 +
+      5*Lambda2 + 20*Lambda3 + 22*Lambda4 + 6*traceYdAdjYd + Sqr(g1)) + Conj(
+      Lambda7)*(5*Lambda1 + 37*Lambda2 + 36*Lambda3 + 38*Lambda4 + 15*
+      traceYdAdjYd + 5*traceYeAdjYe + 15*traceYuAdjYu - 10*Sqr(g1) - 27*Sqr(g2)
+      )) + 36*Lambda3*Lambda6*Sqr(g2) + 18*Lambda4*Lambda6*Sqr(g2) + 54*Lambda2
+      *Lambda7*Sqr(g2) + 18*Lambda3*Lambda7*Sqr(g2) + 36*Lambda4*Lambda7*Sqr(g2
+      ) + 5.625*Lambda7*traceYdAdjYd*Sqr(g2) + 5.625*Lambda7*traceYeAdjYe*Sqr(
+      g2) + 16.875*Lambda7*traceYuAdjYu*Sqr(g2) + 2.5*Lambda6*Sqr(g1)*Sqr(g2) +
+      7.25*Lambda7*Sqr(g1)*Sqr(g2) + 20*Lambda7*traceYdAdjYd*Sqr(g3) + 60*
+      Lambda7*traceYuAdjYu*Sqr(g3) + 1.5*Lambda7*Sqr(Lambda1) - 79.5*Lambda7*
+      Sqr(Lambda2) - 36*Lambda6*Sqr(Lambda3) - 32*Lambda7*Sqr(Lambda3) - 34*
+      Lambda6*Sqr(Lambda4) - 34*Lambda7*Sqr(Lambda4) - 22*Conj(Lambda7)*Sqr(
+      Lambda6) - 111*Conj(Lambda7)*Sqr(Lambda7) - Conj(Lambda6)*(11*Lambda6*
+      Lambda7 + 42*Sqr(Lambda6) + 42*Sqr(Lambda7))));
 
 
    return beta_Lambda7;

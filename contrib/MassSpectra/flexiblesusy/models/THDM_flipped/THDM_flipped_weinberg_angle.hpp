@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:51
+// File generated at Tue 7 Apr 2020 14:56:53
 
 #ifndef THDM_flipped_WEINBERG_ANGLE_H
 #define THDM_flipped_WEINBERG_ANGLE_H
@@ -78,18 +78,14 @@ private:
    std::complex<double> CpAhHmconjVWm(int gI2, int gI1) const;
    std::complex<double> CphhHmconjVWm(int gI2, int gI1) const;
    std::complex<double> CpbarFvFeconjVWmPL(int gI1, int gI2) const;
-   double CpbarFvFehhPL(int , int , int ) const;
-   std::complex<double> CpbarFvFehhPR(int gO1, int gI2, int gI1) const;
-   double CpbarFvFeAhPL(int , int , int ) const;
-   std::complex<double> CpbarFvFeAhPR(int gO1, int gI1, int gI2) const;
-   std::complex<double> CpbarFeFeconjHmPL(int gO2, int gI2, int gI1) const;
-   double CpbarFeFeconjHmPR(int , int , int ) const;
-   std::complex<double> CpbarFeFvhhPL(int gO2, int gI2, int gI1) const;
-   double CpbarFeFvhhPR(int , int , int ) const;
-   std::complex<double> CpbarFeFvAhPL(int gO2, int gI1, int gI2) const;
-   double CpbarFeFvAhPR(int , int , int ) const;
-   double CpbarFeFeHmPL(int , int , int ) const;
-   std::complex<double> CpbarFeFeHmPR(int gO4, int gI3, int gI4) const;
+   double CpbarFvFeconjHmPL(int , int , int ) const;
+   std::complex<double> CpbarFvFeconjHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFehhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFehhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFvHmPL(int gO2, int gI2, int gI1) const;
+   double CpbarFeFvHmPR(int , int , int ) const;
+   std::complex<double> CpbarFeFeAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFeFeAhPR(int gO1, int gI1, int gI2) const;
    std::complex<double> delta_vb_wave_Fv(int gO1) const;
    std::complex<double> delta_vb_wave_Fe(int gO1) const;
    std::complex<double> delta_vb_vertex(int gO1, int gO2) const;

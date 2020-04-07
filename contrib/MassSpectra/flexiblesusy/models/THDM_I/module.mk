@@ -219,7 +219,8 @@ clean-$(MODNAME)-src:
 		-rm -f $(THDM_I_REFERENCES)
 		-rm -f $(THDM_I_GNUPLOT)
 
-distclean-$(MODNAME): clean-$(MODNAME)-src
+# the following is commented out in GAMBIT to avoid nuke-all removing the source files
+# distclean-$(MODNAME): clean-$(MODNAME)-src
 # END:   NOT EXPORTED ##########################################
 
 clean-$(MODNAME): clean-$(MODNAME)-dep clean-$(MODNAME)-lib clean-$(MODNAME)-obj
