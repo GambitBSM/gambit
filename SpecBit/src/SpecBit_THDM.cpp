@@ -5,14 +5,14 @@
 ///  Functions of module SpecBit
 ///
 ///  SpecBit module functions related to the
-///  THDM General, Type I, II, Lepton Specific & Flipped
+///  2HDM general model, type-I, type-II, lepton specific (X) & flipped (Y) models
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Filip Rajec
-///  \date 2016-2019
+///  \date 2016-2020
 ///
 ///  *********************************************
 
@@ -95,15 +95,32 @@ namespace Gambit
     using namespace std;
     namespace ublas = boost::numeric::ublas;
 
+    // useful enum declarations
     enum chi_options {less_than, greater_than, distance_from, observable, bound};
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
-
-    const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
-    const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
-    const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
-
     struct physical_basis_input { double mh, mH, mC, mA, mG, mGC, tanb, sba, lambda6, lambda7, m122, alpha; };
+
+    // model lookup map
+    struct model_param {
+      bool is_model_at_Q;
+      yukawa_type model_y_type;
+      // constructor
+      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
+    };
+
+    std::map<std::string, model_param > THDM_model_lookup_map = {
+			{ "THDMatQ", model_param( true, type_III ) },
+			{ "THDM", model_param( false, type_III ) },
+      { "THDMIatQ", model_param( true, type_I ) },
+      { "THDMI", model_param( false, type_I ) },
+      { "THDMIIatQ", model_param( true, type_II ) },
+      { "THDMII", model_param( false, type_II ) },
+      { "THDMLSatQ", model_param( true, lepton_specific ) },
+      { "THDMLS", model_param( false, lepton_specific ) },
+      { "THDMflippedatQ", model_param( true, flipped ) },
+      { "THDMflipped", model_param( false, flipped ) }
+		};
     
     // FlexibleSUSY spectrum
     // *
@@ -321,9 +338,13 @@ namespace Gambit
 
       // set THDM model type
       int y_type = -1; bool is_at_Q = false;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (myPipe::ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (myPipe::ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
 
       if ((y_type < 0) | (y_type > 5)) {
@@ -1878,9 +1899,13 @@ namespace Gambit
       using namespace Pipes::get_unitarity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1894,9 +1919,13 @@ namespace Gambit
       using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1914,9 +1943,13 @@ namespace Gambit
       using namespace Pipes::get_perturbativity_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1939,9 +1972,13 @@ namespace Gambit
       using namespace Pipes::get_stability_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1955,9 +1992,13 @@ namespace Gambit
       using namespace Pipes::get_alignment_likelihood_THDM;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1971,9 +2012,13 @@ namespace Gambit
       using namespace Pipes::check_vacuum_global_minimum;
       // set THDM model type
       int y_type = -1; bool is_at_Q = false; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            is_at_Q = THDM_model.second.is_model_at_Q; 
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         if (is_at_Q) scale = *Param.at("QrunTo");
@@ -1987,9 +2032,12 @@ namespace Gambit
       using namespace Pipes::check_h0_loop_order_corrections;
       // set THDM model type
       int y_type = -1; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i=i+2) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         scale = *Param.at("QrunTo");
@@ -2005,9 +2053,12 @@ namespace Gambit
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
       // set THDM model type
       int y_type = -1; double scale = 0.0;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i=i+2) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
         scale = *Param.at("QrunTo");
@@ -2658,9 +2709,12 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, full);
     }
@@ -2669,9 +2723,12 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings_HB;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_couplings);
     }
@@ -2685,9 +2742,12 @@ namespace Gambit
       using namespace Pipes::get_THDM_couplings_HB_effc;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
     }
