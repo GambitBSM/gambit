@@ -45,7 +45,7 @@ namespace Gambit
           canonical_LSP = lsp;
 
       // Loop over candidates and invalidate if one is the lightest
-      for(m_lsp_candidate : m_LSP_candidates)
+      for(auto m_lsp_candidate : m_LSP_candidates)
       {
         if(spec.get(Par::Pole_Mass, canonical_LSP, 0) > m_lsp_candidate)
         {
