@@ -1,0 +1,147 @@
+##########################################################################
+## GAMBIT configuration for running a MultiNest scan of the MSSM7
+## using likelihoods from DarkBit.
+##
+## The likelihood include direct DM search from DAMA experiment
+## (plus constraints for the nuisance parameters).
+##
+## Nuisance parameters include the nuclear matrix elements, the SM Higgs
+## mass and the dark matter halo parameters.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  # Nuclear matrix parameters.
+  nuclear_params_sigmas_sigmal:
+    sigmas:
+      range:  [19, 67]
+    sigmal:
+      range:  [31, 85]
+    deltau:
+      fixed_value:  0.842
+    deltad:
+      fixed_value: -0.427
+    deltas:
+      fixed_value: -0.085
+
+  # The model nuclear_params_sigmas_sigma0 replaces the sigmal in the above model
+  # with sigma0
+
+  #SUSY parameters.
+  MSSM7atQ:
+    Qin:
+      fixed_value: 1000.0
+    SignMu:
+      fixed_value: 1
+    Ad_3:
+      prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
+    Au_3:
+      prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
+    M2:
+      prior_type: double_log_flat_join
+      ranges: [-1e4, -1e2, 1e2, 1e4]
+    TanBeta:
+      range: [3.0, 70.0]
+      prior_type: flat
+    mHd2:
+      prior_type: double_log_flat_join
+      ranges: [-1e8, -1e4, 1e4, 1e8]
+    mHu2:
+      prior_type: double_log_flat_join
+      ranges: [-1e8, -1e4, 1e4, 1e8]
+    mf2:
+      prior_type: double_log_flat_join
+      ranges: [0, 0, 1e4, 1e8]
+
+  # Dark matter halo parameters.
+  Halo_gNFW_rho0:
+    rho0:
+      range: [.2, .8]
+    v0: 235.0
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Halo_gNFW_rhos and Halo_Einasto_rhos replace rho0 in the above models
+  # with rhos
+
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "MSSM7_DAMA.txt"
+    buffer_length: 10
+    delete_file_on_restart: true
+
+
+Scanner:
+
+ use_scanner: multinest
+
+ scanners:
+   multinest:
+     plugin: multinest
+     like:  LogLike
+     nlive: 5000
+     tol: 0.1
+     updInt: 1
+
+   random:
+     plugin: random
+     point_number: 100
+     like:  LogLike
+     printme: false
+
+
+ObsLikes:
+
+    # Direct detection likelihoods
+    
+    - capability: DAMA_LogLikelihood_mod
+      purpose:    LogLike
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Options for the likelihood in the scan
+  # Can choose a likelihood below which models are thrown away
+  likelihood:
+    model_invalid_for_lnlike_below: -1e4
+
+  debug: true
+
+  # Set the output path for the log files (relative to working directory unless absolute path is specified)
+  default_output_path: "runs/MSSM7-DarkBit/"
