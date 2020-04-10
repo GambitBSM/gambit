@@ -515,5 +515,32 @@ namespace Gambit
     // Just in case, to make sure we don't mess with other things elsewhere.
     #undef DD_EX
 
+
+
+    //////////////////////////////////////////////////////////////////////////
+    //
+    //          Direct detection rate and likelihood routines for DAMA
+    //
+    //////////////////////////////////////////////////////////////////////////
+
+    void DAMA_CalcRates_mod(bool &result)
+        {
+          using namespace Pipes::DAMA_CalcRates_mod;
+          BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)),152.0,334.0);
+          result = true;
+        }
+    void DAMA_GetLogLikelihood_mod(double &result)
+        {
+          using namespace Pipes::DAMA_GetLogLikelihood_mod;
+          double temp_result = BEreq::DD_LogLikelihood_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)));
+          if (Utils::isnan(temp_result))
+          {
+            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */
+            /* TODO: Raise a proper error here -- NaNs should be fixed. */
+//            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");
+          }
+          result = temp_result;
+        }
+
   }
 }
