@@ -1097,34 +1097,43 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0))
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
   // Introduced in DDCalc 2.2.0
-  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0))
-  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0))
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0,3.0.0))
 
-  // Annual Modulation Likelihood (eventually move this into macros?)
-//  #define CAPABILITY DAMA_ModLogLikelihood
-//  START_CAPABILITY
-//     #define FUNCTION DAMA_GetModLogLikelihood
-//     START_FUNCTION(double)
-//     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
-//     BACKEND_REQ(DD_ModLogLikelihood, (needs_DDCalc), double, (const int&))
-//     //DD_ModLogLikelihood is the backend capability that needs to be added to the DDCalc frontend
-//     #undef FUNCTION
-//  #undef CAPABILITY
+  // Annual Modulation Rate Calculation and Likelihood 
+  // (eventually move this into macros?)
+  #define CAPABILITY DAMA_Calc
+  START_CAPABILITY
+     #define FUNCTION DAMA_CalcRates_mod
+     START_FUNCTION(bool)
+     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
+     #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DAMA_LogLikelihood_mod
+  START_CAPABILITY
+     #define FUNCTION DAMA_GetLogLikelihood_mod
+     START_FUNCTION(double)
+     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+     BACKEND_REQ(DD_LogLikelihood_mod, (needs_DDCalc), double, (const double&))
+     #undef FUNCTION
+  #undef CAPABILITY
 
   // INDIRECT DETECTION: NEUTRINOS =====================================
 
