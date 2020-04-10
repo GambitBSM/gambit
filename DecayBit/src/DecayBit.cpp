@@ -38,6 +38,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Feb
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -3517,25 +3521,34 @@ namespace Gambit
    
     }
 
-    // THDM width Hp->WZ (not available in 2HDMC)
-    // void gamma_HpWZ(double& result) {
-    // https://journals.aps.org/prd/pdf/10.1103/PhysRevD.61.095001
-    //   const double mHp = he->get(Par::Pole_Mass, "H+");
-    //   const double mZ = SM->get(Par::Pole_Mass,"Z0");
-    //   const double mW = SM->get(Par::Pole_Mass,"W+");
-    //   const double z = mZ*mZ/(mHp*mHp);
-    //   const double w = mW*mW/(mHp*mHp);
-    //   const double lambda_1wz = pow((1-w-z),2) - 4.0*w*z;
-    //    TODO
-    //   result = 0.0;
-    // }
+   
 
-    // THDM Routines
+    // THDM ---------------------------------------
+
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
-    enum thdmc_decays_purpose{full, HB_decays, HB_SM_like_decays, HB_effc_decays, HB_effc_SM_like_decays};
-    const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
-    const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
+    enum thdm_decays_purpose{full, HB_decays, HB_SM_like_decays, HB_effc_decays, HB_effc_SM_like_decays};
+    // model lookup map -> useful for looking up model info
+    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
+    struct model_param {
+      bool is_model_at_Q;
+      yukawa_type model_y_type;
+      // constructor
+      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
+    };
+    std::map<std::string, model_param > THDM_model_lookup_map = {
+			{ "THDMatQ", model_param( true, type_III ) },
+			{ "THDM", model_param( false, type_III ) },
+      { "THDMIatQ", model_param( true, type_I ) },
+      { "THDMI", model_param( false, type_I ) },
+      { "THDMIIatQ", model_param( true, type_II ) },
+      { "THDMII", model_param( false, type_II ) },
+      { "THDMLSatQ", model_param( true, lepton_specific ) },
+      { "THDMLS", model_param( false, lepton_specific ) },
+      { "THDMflippedatQ", model_param( true, flipped ) },
+      { "THDMflipped", model_param( false, flipped ) }
+		};
 
+    // warnings in case we run into NaNs
     void nan_warning(std::string var_name) {
        std::ostringstream msg;
        msg << "DecayBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
@@ -3551,14 +3564,12 @@ namespace Gambit
       if (std::isnan(var)) nan_warning(var_name);
     }
 
-   thdmc_decay_widths fill_THDM_decay_widths(SpecBit::THDM_spectrum_container& container, thdmc_decays_purpose purpose) {
-     thdmc_decay_widths decay_widths;
+  // Function to fill THDM widths from the 2HDMC
+  // Inlcludes the purpose for which the widths are to be filled
+  // -> this saves computation time
+   THDM_decay_widths fill_THDM_decay_widths(SpecBit::THDM_spectrum_container& container, thdm_decays_purpose purpose) {
+     THDM_decay_widths decay_widths;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
-     // select purpose for decay widths struct
-     // this is to save computational time as not all of struct must be filled for different uses
-     // full: fills all values
-     // HiggsBounds: fills widths for HB input
-     // SM_like: minimal fill, for SM like model limits
      switch (purpose) {
        case full: {
          for (int h1=1; h1<5; h1++) {
@@ -3695,20 +3706,18 @@ namespace Gambit
      return decay_widths;
    }
 
-    // **
     // THDM width DecayBit helper functions
-    thdmc_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, thdmc_decays_purpose purpose) {
+    THDM_decay_widths get_THDM_widths(const Spectrum spec, const int y_type, thdm_decays_purpose purpose) {
       SpecBit::THDM_spectrum_container container;
-      thdmc_decay_widths widths; 
+      THDM_decay_widths widths; 
       SpecBit::init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
       widths = fill_THDM_decay_widths(container, purpose);
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return widths;
     }
 
-    std::vector<thdmc_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, thdmc_decays_purpose purpose) {
+    std::vector<THDM_decay_widths> get_THDM_widths_SM_like(const Spectrum spec, thdm_decays_purpose purpose) {
       SpecBit::THDM_spectrum_container container;
-      std::vector<thdmc_decay_widths> SM_like_widths; 
+      std::vector<THDM_decay_widths> SM_like_widths; 
       SpecBit::init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
@@ -3718,59 +3727,64 @@ namespace Gambit
         SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
         SM_like_widths.push_back(fill_THDM_decay_widths(container, purpose));
       }
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return SM_like_widths;
     }
-    // **
 
-    // **
     // THDM width DecayBit front facing functions 
-   void get_THDM_decay_widths(thdmc_decay_widths &result) {
+   void get_THDM_decay_widths(THDM_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, full);
    }
 
-   void get_THDM_decay_widths_HB(thdmc_decay_widths &result) {
+   void get_THDM_decay_widths_HB(THDM_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths_HB;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, HB_decays);
    }
 
-   void get_THDM_decay_widths_HB_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
+   void get_THDM_decay_widths_HB_SM_like_model(std::vector<THDM_decay_widths> &result) { 
       using namespace Pipes::get_THDM_decay_widths_HB_SM_like_model;
       result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, HB_SM_like_decays);
     }
 
-    void get_THDM_decay_widths_HB_effc(thdmc_decay_widths &result) {
+    void get_THDM_decay_widths_HB_effc(THDM_decay_widths &result) {
       using namespace Pipes::get_THDM_decay_widths_HB_effc;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       result = get_THDM_widths(*Dep::THDM_spectrum, y_type, HB_effc_decays);
    }
 
-   void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<thdmc_decay_widths> &result) { 
+   void get_THDM_decay_widths_HB_effc_SM_like_model(std::vector<THDM_decay_widths> &result) { 
       using namespace Pipes::get_THDM_decay_widths_HB_effc_SM_like_model;
       result = get_THDM_widths_SM_like(*Dep::THDM_spectrum, HB_effc_SM_like_decays);
     }
-  // **
-
-  thdmc_total_widths fill_THDM_total_widths(SpecBit::THDM_spectrum_container& container) {
-     thdmc_total_widths total_widths;
+  
+  THDM_total_widths fill_THDM_total_widths(SpecBit::THDM_spectrum_container& container) {
+     THDM_total_widths total_widths;
      total_widths.isValid = true;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
 
@@ -3793,34 +3807,39 @@ namespace Gambit
      return total_widths;
    }
 
-   void get_THDM_total_widths(thdmc_total_widths &result) {
+   void get_THDM_total_widths(THDM_total_widths &result) {
      using namespace Pipes::get_THDM_total_widths;
       // set THDM model type
       int y_type = -1;
-      for (size_t i=0; i < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       SpecBit::THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
       SpecBit::init_THDM_spectrum_container(container, spec, y_type);
       result = fill_THDM_total_widths(container);
-      // delete container.THDM_object;
    }
 
-   void get_THDM_total_widths_SM_like_model(std::vector<thdmc_total_widths> &result) {
+   void get_THDM_total_widths_SM_like_model(std::vector<THDM_total_widths> &result) {
       using namespace Pipes::get_THDM_total_widths_SM_like_model;
       // set THDM model type
       int y_type = -1;
-      for (size_t i=0; i < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       SpecBit::THDM_spectrum_container container;
       const Spectrum spec = *Dep::THDM_spectrum;
       SpecBit::init_THDM_spectrum_container(container, spec, y_type);
 
-      std::vector<thdmc_total_widths> SM_like_total_widths;
+      std::vector<THDM_total_widths> SM_like_total_widths;
 
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
@@ -3829,31 +3848,29 @@ namespace Gambit
       
       for (int h=1; h<=3; h++) {
         SpecBit::init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
-        // init_THDM_object_SM_like(container.he, container.SM, container.sminputs, container.THDM_object, h);
         SM_like_total_widths.push_back(fill_THDM_total_widths(container));
       }
       
       result = SM_like_total_widths;
-      // delete container.THDM_object;
    }
 
-  //TODO: upgrade to enum
-   void get_particle_name(int family, int number, bool isAntiparticle, string& p_name) {
+  //TODO: clean this up somehow
+   void get_particle_name(int family, int number, bool is_antiparticle, std::string& p_name) {
      switch (family) {
        //quark up
        case 1:
          switch (number) {
            case 1:
              p_name = "u";
-             if (isAntiparticle) {p_name = "ubar";}
+             if (is_antiparticle) p_name = "ubar";
              break;
            case 2:
              p_name = "c";
-             if (isAntiparticle) {p_name = "cbar";}
+             if (is_antiparticle) p_name = "cbar";
              break;
            case 3:
              p_name = "t";
-             if (isAntiparticle) {p_name = "tbar";}
+             if (is_antiparticle) p_name = "tbar";
              break;
            default:
              p_name == "q_up";
@@ -3864,15 +3881,15 @@ namespace Gambit
           switch (number) {
             case 1:
               p_name = "d";
-              if (isAntiparticle) {p_name = "dbar";}
+              if (is_antiparticle) p_name = "dbar";
               break;
             case 2:
               p_name = "s";
-              if (isAntiparticle) {p_name = "sbar";}
+              if (is_antiparticle) p_name = "sbar";
               break;
             case 3:
               p_name = "b";
-              if (isAntiparticle) {p_name = "bbar";}
+              if (is_antiparticle) p_name = "bbar";
               break;
             default:
               p_name == "q_down";
@@ -3883,15 +3900,15 @@ namespace Gambit
           switch (number) {
             case 1:
               p_name = "e+";
-              if (isAntiparticle) {p_name = "e-";}
+              if (is_antiparticle) p_name = "e-";
               break;
             case 2:
               p_name = "mu+";
-              if (isAntiparticle) {p_name = "mu-";}
+              if (is_antiparticle) p_name = "mu-";
               break;
             case 3:
               p_name = "tau+";
-              if (isAntiparticle) {p_name = "tau-";}
+              if (is_antiparticle) p_name = "tau-";
               break;
             default:
               p_name == "l_electron";
@@ -3910,7 +3927,7 @@ namespace Gambit
               p_name = "nubar_tau";
               break;
             default:
-              p_name == "l_neutrino";
+              p_name = "l_neutrino";
             }
             break;
         //vector bosons
@@ -3924,10 +3941,10 @@ namespace Gambit
               break;
             case 3:
               p_name = "W+";
-              if (isAntiparticle) {p_name = "W-";}
+              if (is_antiparticle) p_name = "W-";
               break;
             default:
-              p_name == "vector";
+              p_name = "vector";
             }
             break;
         //higgs bosons
@@ -3944,10 +3961,10 @@ namespace Gambit
               break;
             case 4:
               p_name = "H+";
-              if (isAntiparticle) {p_name = "H-";}
+              if (is_antiparticle) p_name = "H-";
               break;
             default:
-              p_name == "higgs";
+              p_name = "higgs";
             }
             break;
       default: p_name = "";
@@ -3955,8 +3972,20 @@ namespace Gambit
      }
    }
 
+  // THDM width Hp->WZ (not available in 2HDMC)
+  // void gamma_HpWZ(double& result) {
+  // https://journals.aps.org/prd/pdf/10.1103/PhysRevD.61.095001
+  //   const double mHp = he->get(Par::Pole_Mass, "H+");
+  //   const double mZ = SM->get(Par::Pole_Mass,"Z0");
+  //   const double mW = SM->get(Par::Pole_Mass,"W+");
+  //   const double z = mZ*mZ/(mHp*mHp);
+  //   const double w = mW*mW/(mHp*mHp);
+  //   const double lambda_1wz = pow((1-w-z),2) - 4.0*w*z;
+  //    TODO
+  //   result = 0.0;
+  // }
 
-   DecayTable::Entry h_decays_THDM(const thdmc_decay_widths& decay_widths, const thdmc_total_widths& total_widths, const int higgs_number) {
+   DecayTable::Entry h_decays_THDM(const THDM_decay_widths& decay_widths, const THDM_total_widths& total_widths, const int higgs_number) {
      const double total_h_decay_width = total_widths.gamma_tot_h[higgs_number];
      DecayTable::Entry decay_table_entry;
      decay_table_entry.width_in_GeV = total_h_decay_width;
@@ -3964,8 +3993,8 @@ namespace Gambit
      decay_table_entry.negative_error = 0;
 
       // TODO: update to enum structure
-     string p1_name;
-     string p2_name;
+     std::string p1_name;
+     std::string p2_name;
 
      for(int f1=1; f1<4; f1++) {
        for(int f2=1; f2<4; f2++) {
@@ -4091,8 +4120,8 @@ namespace Gambit
    void h0_1_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_1_decays_THDM;
      const Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
-     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
+     const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths;
+     const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths;
 
      if (total_widths.isValid) {
         result = h_decays_THDM(decay_widths, total_widths, 1);
@@ -4108,8 +4137,8 @@ namespace Gambit
    void h0_2_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_2_decays_THDM;
      const Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
-     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
+     const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths;
+     const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths;
 
      if (total_widths.isValid) {
         result = h_decays_THDM(decay_widths, total_widths, 2);
@@ -4125,8 +4154,8 @@ namespace Gambit
    void A0_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::A0_decays_THDM;
      const Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
-     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
+     const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths;
+     const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths;
 
      if (total_widths.isValid) {
         result = h_decays_THDM(decay_widths, total_widths, 3);
@@ -4142,8 +4171,8 @@ namespace Gambit
    void Hpm_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::Hpm_decays_THDM;
      const Spectrum spec = *Dep::THDM_spectrum;
-     const thdmc_decay_widths decay_widths = *Dep::THDM_decay_widths;
-     const thdmc_total_widths total_widths = *Dep::THDM_total_widths;
+     const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths;
+     const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths;
 
      if (total_widths.isValid) {
         result = h_decays_THDM(decay_widths, total_widths, 4);

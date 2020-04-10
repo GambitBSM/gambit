@@ -12,8 +12,8 @@
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author Filip Rajec
-///          filip.rajec@adelaide.edu.au
-///  \date 2019 Nov
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -25,13 +25,13 @@
 namespace Gambit 
 {
    namespace SpecBit
-   {
+   { 
 
       // ----------
       // Spectrum and tree-level basis transformation functions
       // To use:
       // 1. Include this helper header.
-      // 2. If not in SpecBit namespace append to function.
+      // 2. If not in SpecBit namespace append to function. [MODULARITY BREAKING]
       // 
       // These functions exist to improve code reuse (at a developer level).
       // They are inline to avoid multiple library linking,
@@ -154,17 +154,15 @@ namespace Gambit
       const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
       const double cb = cos(b), sb = sin(b);
 
-      double beta_scaling_u = sb, beta_scaling_d = sb, beta_scaling_e = sb;
+      double beta_scaling_u = sb, beta_scaling_d = sb;
       
       switch(THDM_object->get_yukawas_type()) {
          case 1:
             break;
          case 2:
             beta_scaling_d = cb;
-            beta_scaling_e = cb;
             break;
          case 3:
-            beta_scaling_e = cb;
             break;
          case 4:
             beta_scaling_d = cb;
@@ -204,24 +202,16 @@ namespace Gambit
       double mH = he->get(Par::Pole_Mass, "h0", 2);
       double mA = he->get(Par::Pole_Mass, "A0");
       double mC = he->get(Par::Pole_Mass, "H+");
-      double mh_run = he->get(Par::mass1, "h0", 1);
-      double mH_run = he->get(Par::mass1, "h0", 2);
-      double mA_run = he->get(Par::mass1, "A0");
-      double mC_run = he->get(Par::mass1, "H+");
+      // double mh_run = he->get(Par::mass1, "h0", 1);
+      // double mH_run = he->get(Par::mass1, "h0", 2);
+      // double mA_run = he->get(Par::mass1, "A0");
+      // double mC_run = he->get(Par::mass1, "H+");
       double alpha = he->get(Par::dimensionless, "alpha");
       double sba = sin(atan(tan_beta) - alpha);
 
       THDM_object->set_yukawas_type(yukawa_type);
       set_SM(he,SM,sminputs,THDM_object);    
       THDM_object->set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7,m12_2,tan_beta);
-      
-      // double mh_temp,mH_temp,mA_temp,mC_temp,sba_temp,l6_temp,l7_temp,m12_2_temp,tb_temp;
-      // double alpha_temp = THDM_object->get_alpha();
-      // THDM_object->get_param_phys(mh_temp,mH_temp,mA_temp,mC_temp,sba_temp,l6_temp,l7_temp,m12_2_temp,tb_temp);
-      // std::cout << "2HDMC: " << mh_temp << " | " << mH_temp << " | " << mA_temp << " | " << mC_temp << " | " << sba_temp << " | " << m12_2_temp << " | " << tb_temp << " | " << alpha_temp << std::endl;
-      // std::cout << "GAMBIT: " << mh << " | " << mH << " | " << mA << " | " << mC << " | " << sba << " | " << m12_2 << " | " << tan_beta << " | " << alpha << std::endl;
-      // std::cout << "GAMBIT (run): " << mh_run << " | " << mH_run << " | " << mA_run << " | " << mC_run << " | " << sba << " | " << m12_2 << " | " << tan_beta << " | " << alpha << std::endl;
-      
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
       
@@ -420,7 +410,6 @@ namespace Gambit
             double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb); input_basis["m11_2"] = m11_2;
             double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb); input_basis["m22_2"] = m22_2;
             double m_A2;
-            std::cout << "GAMBIT(mA2): " << m12_2 << " | " << sb << " | " << cb << " | " << v2 << " | " << lam5 << " | " << lam6 << " | " << ctb<< " | " << lam7 << " | " << tb << std::endl;
             if (tb>0) m_A2 = m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
             else m_A2 = m22_2+0.5*v2*(lam3+lam4-lam5);
             double m_Hp2 = m_A2+0.5*v2*(lam5-lam4);
@@ -500,18 +489,9 @@ namespace Gambit
          double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
          double mC_2 = M22_2 + 0.5*v2*Lambda3;
          double mA_2 = mC_2 - 0.5*v2*(Lambda5 - Lambda4);
-         // double tan2ba = (2.0*Lambda6*v2)/(mA_2 + (Lambda5-Lambda1)*v2);
-         // double s2ba = (2.0*Lambda6*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
-         // double c2ba = -(mA_2+(Lambda5-Lambda1)*v2)/sqrt(pow((mA_2 + (Lambda5-Lambda1)*v2),2) + 4.0*pow(Lambda6,2)*v2*v2);
-         // double ba = 0.5*acos(c2ba);
-         // double alpha = beta - ba;
-
          double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
-         // std::cout << "GAMBIT | s2ba: " << s2ba << " | c2ba " << c2ba << std::endl;
          double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = beta - ba;
-
-         // if (alpha > M_PI/2) alpha = alpha - M_PI;
          basis["alpha"] = alpha;
          basis["sba"] = sin(beta-alpha);
     }

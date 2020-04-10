@@ -38,23 +38,6 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY test_THDM_spectrum_1
-START_CAPABILITY
-  #define FUNCTION test_THDM_spectrum_1
-  START_FUNCTION(double)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY test_THDM_spectrum_2
-START_CAPABILITY
-  #define FUNCTION test_THDM_spectrum_2
-  START_FUNCTION(double)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  #undef FUNCTION
-#undef CAPABILITY
-
 #define CAPABILITY mh0_pole
 START_CAPABILITY
   #define FUNCTION obs_mh0_pole

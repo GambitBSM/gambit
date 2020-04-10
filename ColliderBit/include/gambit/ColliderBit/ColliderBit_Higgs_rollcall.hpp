@@ -60,9 +60,9 @@
       DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(THDM_couplings_HB, thdmc_couplings)
       DEPENDENCY(THDM_couplings_HB_SM_like_model, std::vector<thdmc_couplings>)
-      DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
-      DEPENDENCY(THDM_decay_widths_HB_SM_like_model, std::vector<thdmc_decay_widths>)
-      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      DEPENDENCY(fill_THDM_decay_widths_HB, THDM_decay_widths)
+      DEPENDENCY(fill_THDM_decay_widths_HB_SM_like_model, std::vector<THDM_decay_widths>)
+      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -73,9 +73,9 @@
       DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(THDM_couplings_HB_effc, thdmc_couplings)
       DEPENDENCY(THDM_couplings_HB_effc_SM_like_model, std::vector<thdmc_couplings>)
-      DEPENDENCY(THDM_decay_widths_HB_effc, thdmc_decay_widths)
-      DEPENDENCY(THDM_decay_widths_HB_effc_SM_like_model, std::vector<thdmc_decay_widths>)
-      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      DEPENDENCY(fill_THDM_decay_widths_HB_effc, THDM_decay_widths)
+      DEPENDENCY(fill_THDM_decay_widths_HB_effc_SM_like_model, std::vector<THDM_decay_widths>)
+      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -110,8 +110,8 @@
     #define FUNCTION THDM_ModelParameters_charged
       START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(THDM_decay_widths_HB, thdmc_decay_widths)
-      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      DEPENDENCY(fill_THDM_decay_widths_HB, THDM_decay_widths)
+      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -132,7 +132,7 @@
   START_CAPABILITY
     #define FUNCTION SM_higgs_width_likelihood
       START_FUNCTION(double)
-      DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION

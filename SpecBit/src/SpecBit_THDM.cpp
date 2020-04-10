@@ -12,12 +12,14 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Filip Rajec
-///  \date 2016-2020
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
 // C/C++ headers
 #include <string>
+#include <ostream>
 #include <sstream>
 #include <cmath>
 #include <complex>
@@ -42,7 +44,6 @@
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
 
-// TODO: Check headers
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Elements/slhaea_helpers.hpp"
@@ -70,8 +71,9 @@
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
 
-#define L_MAX 1e50
+#define L_MAX 1e50 // used to invalidate likelihood
 
+// hides the fall through warning (case blocks) when necessary on gcc compilers
 #if defined(__GNUC__) && __GNUC__ >= 7
  #define FALL_THROUGH __attribute__ ((fallthrough))
 #elif defined(__GNUC__)
@@ -80,35 +82,46 @@
  #define FALL_THROUGH ((void)0)
 #endif /* __GNUC__ >= 7 */
 
-// Switches for debug mode
-// #define SPECBIT_DEBUG
 
+#define SPECBIT_DEBUG // turn on debug mode
+// #define SPECBIT_DEBUG_COUPLINGS // turn on debug mode for couplings (large output)
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
+
+#ifdef SPECBIT_DEBUG
+    // overloading cout to print std::vector
+    template <class T>
+    std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+        os << " ";
+        for (auto const& each_entry : vec) os << each_entry << " ";
+        return os;
+    }
+#endif
 
 namespace Gambit
 {
 
   namespace SpecBit
   {
+    // extra namespace declarations
     using namespace LogTags;
     using namespace flexiblesusy;
-    using namespace std;
+    using namespace std; // may be unneccessary
     namespace ublas = boost::numeric::ublas;
 
-    // useful enum declarations
+    // enum declarations
     enum chi_options {less_than, greater_than, distance_from, observable, bound};
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
     struct physical_basis_input { double mh, mH, mC, mA, mG, mGC, tanb, sba, lambda6, lambda7, m122, alpha; };
 
-    // model lookup map
+    // model lookup map -> useful for looking up model info
+    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
     struct model_param {
       bool is_model_at_Q;
       yukawa_type model_y_type;
       // constructor
       model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
     };
-
     std::map<std::string, model_param > THDM_model_lookup_map = {
 			{ "THDMatQ", model_param( true, type_III ) },
 			{ "THDM", model_param( false, type_III ) },
@@ -262,22 +275,8 @@ namespace Gambit
          {
             #ifdef FS_THROW_POINT
             std::cout << "SpecBit throwing invalid point" << std::endl;
-            /// Check what the problem was
-            // / see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
             std::ostringstream msg;
-            // msg << "";
-            // if( have_bad_mass()      ) msg << "bad mass " << std::endl; // TODO: check which one
-            // if( have_tachyon()       ) msg << "tachyon" << std::endl;
-            // if( have_thrown()        ) msg << "error" << std::endl;
-            // if( have_non_perturbative_parameter()   ) msg << "non-perturb. param" << std::endl; // TODO: check which
-            // if( have_failed_pole_mass_convergence() ) msg << "fail pole mass converg." << std::endl; // TODO: check which
-            // if( no_ewsb()            ) msg << "no ewsb" << std::endl;
-            // if( no_convergence()     ) msg << "no converg." << std::endl;
-            // if( no_perturbative()    ) msg << "no pertub." << std::endl;
-            // if( no_rho_convergence() ) msg << "no rho converg." << std::endl;
-            // if( msg.str()=="" ) msg << " Unrecognised problem! ";
-
-            /// Fast way for now:
+            /// Apply fast way for now:
             problems.print_problems(msg);
             std::cout << msg.str() << std::endl;
             invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
@@ -307,7 +306,6 @@ namespace Gambit
       static const Spectrum::mr_info mass_ratio_cut = runOptions.getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
       // Package QedQcd SubSpectrum object, MSSM SubSpectrum object, and SMInputs struct into a 'full' Spectrum object
-        //model_interface.model.calculate_DRbar_masses();
         return Spectrum(qedqcdspec,thdmspec,sminputs,&input_Param,mass_cut,mass_ratio_cut);
     }
 
@@ -438,7 +436,7 @@ namespace Gambit
         thdm_model.mG0 = 0.0;
         thdm_model.mGC = 0.0;
 
-        // // quantities needed to fill container spectrum, intermediate calculations
+        // quantities needed to fill container spectrum, intermediate calculations
         const double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * pi / (sminputs.GF * pow(2,0.5));
         const double sinW2 = 0.5 - pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5), cosW2 = 0.5 + pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5);
         const double e = pow( 4*pi*( alpha_em ),0.5), v2 = 1.0/(sqrt(2.0)*sminputs.GF), vev = sqrt(v2);
@@ -451,12 +449,10 @@ namespace Gambit
         thdm_model.g3 = pow( 4*pi*( sminputs.alphaS ),0.5) ;
         thdm_model.mW = sminputs.mZ*cosW2;
         // Yukawas
-        
         const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
         const double cb = cos(b), sb = sin(b);
-
+        // set Yukawa scalign based on type
         double beta_scaling_u = sb, beta_scaling_d = sb, beta_scaling_e = sb;
-        
         switch(y_type) {
           case type_I:
             break;
@@ -471,7 +467,7 @@ namespace Gambit
             beta_scaling_d = cb;
             break;
           }
-
+        // set Yukawas
         thdm_model.Yu[0] = sqrt2v * sminputs.mU / beta_scaling_u;
         thdm_model.Yu[1] = sqrt2v * sminputs.mCmC / beta_scaling_u;
         thdm_model.Yu[2] = sqrt2v * sminputs.mT / beta_scaling_u;
@@ -481,10 +477,6 @@ namespace Gambit
         thdm_model.Yd[0] = sqrt2v * sminputs.mD / beta_scaling_d;
         thdm_model.Yd[1] = sqrt2v * sminputs.mS / beta_scaling_d;
         thdm_model.Yd[2] = sqrt2v * sminputs.mBmB / beta_scaling_d;
-
-        // std::cout << "Spectrum YU: (" << beta_scaling_u << ") " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
-        // std::cout << "Spectrum MU: " << sminputs.mU<< " " << sminputs.mCmC <<" " << sminputs.mT << std::endl;
-
         thdm_model.yukawaCoupling = y_type;
         thdm_model.vev = vev;
 
@@ -612,230 +604,16 @@ namespace Gambit
       }
     }
 
-    // Constraint helper functions
-    // Necessary forward declaration
-    double Z_w(void * params);
-
-    // calculate sba
-    double get_sba(double tanb, double alpha) {
-        return sin(atan(tanb)-alpha);
-    }
-
+    // get the VEV from the spectrum
     double get_v(THDM_spectrum_container& container) {
       return container.he->get(Par::mass1, "vev");
-      // return sqrt(1.0/(sqrt(2.0)*container.sminputs.GF));
     }
 
     double get_v2(THDM_spectrum_container& container) {
       return pow(get_v(container),2);
     }
 
-    // Custom functions to extend GSL
-    std::complex<double> gsl_complex_to_complex_double(const gsl_complex c) {
-      return std::complex<double>(GSL_REAL(c), GSL_IMAG(c));
-    }
-
-    std::complex<double> gsl_matrix_complex_trace_complex(const gsl_matrix_complex* m1){
-      return gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,0,0)) + \
-        gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,1,1)) + \
-        gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,2,2));
-    }
-
-    std::vector<std::complex<double>> get_trace_of_yukawa_matrices(THDM_spectrum_container& container) {
-      std::vector<std::complex<double>> trace;
-      std::complex<double> tr_u, tr_d, tr_l, tr_u2, tr_d2, tr_l2, tr_du;
-      gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
-      const int size = 3;
-
-      const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
-      const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
-      const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
-      const double beta = atan(container.he->get(Par::dimensionless, "tanb"));
-      const double vev = get_v(container);;
-
-      y_u = gsl_matrix_complex_alloc(size, size);
-      y_d = gsl_matrix_complex_alloc(size, size);
-      y_l = gsl_matrix_complex_alloc(size, size);
-      y_u_dagger = gsl_matrix_complex_alloc(size, size);
-      y_d_dagger = gsl_matrix_complex_alloc(size, size);
-      y_l_dagger = gsl_matrix_complex_alloc(size, size);
-
-      // set yukawa - up
-      gsl_complex y_u_11;
-      GSL_SET_REAL(&y_u_11, m_u[0]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_u_11, 0.0);
-
-      gsl_complex y_u_22;
-      GSL_SET_REAL(&y_u_22, m_u[1]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_u_22, 0.0);
-
-      gsl_complex y_u_33;
-      GSL_SET_REAL(&y_u_33, m_u[2]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_u_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_u);
-
-      gsl_matrix_complex_set(y_u,0,0,y_u_11);
-      gsl_matrix_complex_set(y_u,1,1,y_u_22);
-      gsl_matrix_complex_set(y_u,2,2,y_u_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_u_dagger, y_u);
-
-      // set yukawa - down
-      gsl_complex y_d_11;
-      GSL_SET_REAL(&y_d_11, m_d[0]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_d_11, 0.0);
-
-      gsl_complex y_d_22;
-      GSL_SET_REAL(&y_d_22, m_d[1]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_d_22, 0.0);
-
-      gsl_complex y_d_33;
-      GSL_SET_REAL(&y_d_33, m_d[2]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_d_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_d);
-
-      gsl_matrix_complex_set(y_d,0,0,y_d_11);
-      gsl_matrix_complex_set(y_d,1,1,y_d_22);
-      gsl_matrix_complex_set(y_d,2,2,y_d_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_d_dagger, y_d);
-
-      // set yukawa - lepton
-      gsl_complex y_l_11;
-      GSL_SET_REAL(&y_l_11, m_l[0]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_l_11, 0.0);
-
-      gsl_complex y_l_22;
-      GSL_SET_REAL(&y_l_22, m_l[1]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_l_22, 0.0);
-
-      gsl_complex y_l_33;
-      GSL_SET_REAL(&y_l_33, m_l[2]*sqrt(2)/vev);
-      GSL_SET_IMAG(&y_l_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_l);
-
-      gsl_matrix_complex_set(y_l,0,0,y_l_11);
-      gsl_matrix_complex_set(y_l,1,1,y_l_22);
-      gsl_matrix_complex_set(y_l,2,2,y_l_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_l_dagger, y_l);
-
-      //calculate traces - up
-      gsl_matrix_complex *temp_u;
-      gsl_matrix_complex *temp_u_2;
-      temp_u = gsl_matrix_complex_alloc(size, size);
-      temp_u_2 = gsl_matrix_complex_alloc(size, size);
-      gsl_matrix_complex_memcpy(temp_u,y_u);
-
-      gsl_matrix_complex_mul_elements(temp_u,y_u_dagger);
-      tr_u =  gsl_matrix_complex_trace_complex(temp_u);
-
-      gsl_matrix_complex_memcpy(temp_u_2,temp_u);
-      gsl_matrix_complex_mul_elements(temp_u,temp_u);
-      tr_u2 =  gsl_matrix_complex_trace_complex(temp_u);
-
-      //calculate traces - down
-      gsl_matrix_complex *temp_d;
-      gsl_matrix_complex *temp_d_2;
-      temp_d = gsl_matrix_complex_alloc(size, size);
-      temp_d_2 = gsl_matrix_complex_alloc(size, size);
-      gsl_matrix_complex_memcpy(temp_d,y_d);
-      gsl_matrix_complex_memcpy(temp_d_2,y_d);
-
-      gsl_matrix_complex_mul_elements(temp_d,y_d_dagger);
-      tr_d =  gsl_matrix_complex_trace_complex(temp_d);
-
-      gsl_matrix_complex_memcpy(temp_d_2,temp_u);
-      gsl_matrix_complex_mul_elements(temp_d,temp_d);
-      tr_d2 =  gsl_matrix_complex_trace_complex(temp_d);
-
-      gsl_matrix_complex_free(temp_u);
-      gsl_matrix_complex_free(temp_d);
-
-      // caluculate trace for down*up
-      gsl_matrix_complex_mul_elements(temp_d_2, temp_u_2);
-      tr_du = gsl_matrix_complex_trace_complex(temp_d_2);
-
-      gsl_matrix_complex_free(temp_d_2);
-      gsl_matrix_complex_free(temp_u_2);
-
-      //calculate traces - lepton
-      gsl_matrix_complex *temp_l;
-      temp_l = gsl_matrix_complex_alloc(size, size);
-      gsl_matrix_complex_memcpy(temp_l,y_l);
-
-      gsl_matrix_complex_mul_elements(temp_l,y_l_dagger);
-      tr_l =  gsl_matrix_complex_trace_complex(temp_l);
-
-      gsl_matrix_complex_mul_elements(temp_l,temp_l);
-      tr_l2 =  gsl_matrix_complex_trace_complex(temp_l);
-
-      gsl_matrix_complex_free(temp_l);
-
-      gsl_matrix_complex_free(y_u);
-      gsl_matrix_complex_free(y_d);
-      gsl_matrix_complex_free(y_l);
-      gsl_matrix_complex_free(y_u_dagger);
-      gsl_matrix_complex_free(y_d_dagger);
-      gsl_matrix_complex_free(y_l_dagger);
-
-      trace.push_back(tr_u);
-      trace.push_back(tr_d);
-      trace.push_back(tr_l);
-      trace.push_back(tr_u2);
-      trace.push_back(tr_d2);
-      trace.push_back(tr_l2);
-      trace.push_back(tr_du);
-
-      return trace;
-    }
-
-    std::vector<double> get_alphas_for_type(const int type){
-      std::vector<double> a = {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-      switch (type)
-        {
-          case 1:
-            a[1] = 0; a[2] = 0; a[3] = 0; a[4] = 0; a[5] = 0; a[6] = 0;
-            a[7] = 1; a[8] = 1; a[9] = 1; a[10] = 1; a[11] = 1; a[12] = 1;
-            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 0;
-            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 0;
-            a[21] = 1; a[22] = 1; a[23] = 1;
-            break;
-          case 2:
-            a[1] = 1; a[2] = 1; a[3] = 0; a[4] = 1; a[5] = 1; a[6] = 0;
-            a[7] = 0; a[8] = 0; a[9] = 1; a[10] = 0; a[11] = 0; a[12] = 1;
-            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 1;
-            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 1;
-            a[21] = 1; a[22] = 1; a[23] = 1;
-            break;
-          case 3:
-            a[1] = 1; a[2] = 0; a[3] = 0; a[4] = 1; a[5] = 0; a[6] = 0;
-            a[7] = 0; a[8] = 1; a[9] = 1; a[10] = 0; a[11] = 1; a[12] = 1;
-            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 0;
-            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 0;
-            a[21] = 1; a[22] = 1; a[23] = 1;
-            break;
-          case 4:
-            a[1] = 0; a[2] = 1; a[3] = 0; a[4] = 0; a[5] = 1; a[6] = 0;
-            a[7] = 1; a[8] = 1; a[9] = 0; a[10] = 1; a[11] = 1; a[12] = 0;
-            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 1;
-            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 1;
-            a[21] = 1; a[22] = 1; a[23] = 1;
-            break;
-          case -1:
-            break;
-          default:
-            break;
-        }
-        return a;
-    }
-
+    // template to pass around physical basis
     template <class T> void fill_physical_basis(T& input, THDM_spectrum_container& container) { 
       input.mh = container.he->get(Par::mass1, "h0", 1);
       input.mH = container.he->get(Par::mass1, "h0", 2);
@@ -848,31 +626,34 @@ namespace Gambit
       input.m122 = container.he->get(Par::mass1, "m12_2");
     }
 
-    int factorial(int n) {
-      if (n == 0) return 1;
-      else return factorial(n-1)*n;
-    }
-
-    int get_symmetry_factor(std::vector<int> n_identical_particles) {
-      int symm_factor = 1;
-      for (auto n_identical : n_identical_particles) {
-            symm_factor *= factorial(n_identical);
-      }
-      return symm_factor;
-    }
-
-     physical_basis_input fill_physical_basis_input(THDM_spectrum_container& container) {
+    physical_basis_input fill_physical_basis_input(THDM_spectrum_container& container) {
       physical_basis_input input;
       fill_physical_basis(input,container);
       return input;
     }
 
+    // return factorial of n
+    int factorial(int n) {
+      if (n == 0) return 1;
+      else return factorial(n-1)*n;
+    }
+
+    // returns the symmetry factor for a set of particels
+    int get_symmetry_factor(std::vector<int> n_identical_particles) {
+      int symm_factor = 1;
+      for (const auto &n_identical : n_identical_particles) {
+            symm_factor *= factorial(n_identical);
+      }
+      return symm_factor;
+    }
+
+    // gets the sign of the input 
     template <typename T> int sgn(T input) {
-      // return 1;
       // https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
       return (T(0) < input) - (input < T(0));
     }
 
+    // returns Class I q_ij matrix based upon Higgs basis
     std::vector<std::vector<complex<double>>> get_qij(const double ba, const double Lam6) {
       const double sba = sin(ba), cba = abs(cos(ba));
       const std::complex<double> i(0.0,1.0);
@@ -880,8 +661,12 @@ namespace Gambit
       return q;
     }
 
+    // all coupling calculations below are based upon the methods introduced in arXiv:hep-ph/0602242
+    // ----------------------------------------------
+    // functions to return more complicated higgs coupling
     std::complex<double> get_cubic_coupling_hhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
       const particle_type j = particles[0], k = particles[1], l = particles[2];
+
       const double Lam1 = container.higgs_pars.Lambda1, Lam34 = container.higgs_pars.Lambda3 + container.higgs_pars.Lambda4;
       const double Lam5 = container.higgs_pars.Lambda5, Lam6 = container.higgs_pars.Lambda6, Lam7 = container.higgs_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
@@ -917,7 +702,7 @@ namespace Gambit
 
     std::complex<double> get_cubic_coupling_hG0G0(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
       double Lambda6 = container.higgs_pars.Lambda6;
-      return get_v(container) * 0.5 * ( q[k][1]*container.higgs_pars.Lambda1 + (q[k][2]*Lambda6*(double)sgn(Lambda6)).real() );
+      return 0.5 * get_v(container) * ( q[k][1]*container.higgs_pars.Lambda1 + (q[k][2]*Lambda6*(double)sgn(Lambda6)).real() );
     }
 
     std::complex<double> get_quartic_coupling_hhhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
@@ -979,49 +764,76 @@ namespace Gambit
       c += ( q[k][2]*q[l][2]*std::conj(q[m][2])*container.higgs_pars.Lambda7*(double)sgn(Lam6) ).real();
       return 0.5 * c;    
     }
+    // ----------------------------------------------
 
+    // is a particle neutral?
     bool is_neutral(int p1){
       if (p1 == h0 || p1 == H0 || p1 == A0 || p1 == G0) return true;
       return false;
     }
 
+    // is a particle a goldstone boson?
     bool is_goldstone(int p1){
       if (p1 == G0 || p1 == Gp || p1 == Gm) return true;
       return false;
     }
 
+    // returns all partical permutations for a set of neutral particles
+    // includes the symmetry factor for number of times particles are outputed
+    // expects particle input to be ordered
     std::vector<std::vector<particle_type>> get_neutral_particle_permutations(std::vector<particle_type> particles) {
         int neutral_index = 0, neutral_index_identical = 0, identical_counter = 0;
         std::vector<std::vector<particle_type>> particle_permutations;
         // check if particle 0 is neutral
         if(!is_neutral(particles[0])) return {particles};
-        // cycle through particles to find index of last neutral particle
-        while(is_neutral(particles[++neutral_index]) && neutral_index<(signed)(particles.size()));
-        neutral_index--;
-        // count identical neutral particles
+        // cycle through particles to find index of last neutral particle that is not a Goldstone boson
+        while(is_neutral(particles[neutral_index]) 
+              && !is_goldstone(particles[neutral_index]) 
+              && neutral_index<(signed)(particles.size())) {
+                neutral_index++;
+              }
+        neutral_index--; // fix to machine index
+        // count identical neutral particles in the particles vector
+        // retuurns vector with number of identical particles in order
+        // starts at the first index of the particle array
         std::vector<int> identical_particles;
-        while (neutral_index_identical < neutral_index){
+        while (neutral_index_identical < (signed)particles.size()){
           identical_counter = 1;
-          while (neutral_index_identical < neutral_index 
-                && particles[neutral_index_identical] == particles[(++neutral_index_identical)]) {
-            identical_counter++;
+          if( particles[neutral_index_identical] != particles[neutral_index_identical+1] ) {
+            // the particle to the right is different
+            identical_particles.push_back(identical_counter);
+            neutral_index_identical++;
+            
           }
-          identical_particles.push_back(identical_counter);
+          else {
+            // the particle to the right is identical
+            // keep searching right until a different particle is found
+             while (neutral_index_identical < (signed)particles.size()-1 
+                  && particles[neutral_index_identical] == particles[neutral_index_identical+1]) {
+                    neutral_index_identical++;
+                    identical_counter++;
+                  }
+            neutral_index_identical++;
+            identical_particles.push_back(identical_counter);
+          }
         }
-        // calculate symmetry factor from identical neutral particles
+        
         const int symmetry_factor = get_symmetry_factor(identical_particles);
-        // use std::next_permutation to generate all permutations
+        // start permutating the neutral particles that are not Goldstone particles
         do {
-            //append permutation symmetry factor number of times
-            for(int sf_temp=0; sf_temp<symmetry_factor; sf_temp++) particle_permutations.push_back(particles);
+          // append permutation *symmetry factor* number of times
+          for(int j=0; j<symmetry_factor; j++) particle_permutations.push_back(particles);
         } while ( std::next_permutation(particles.begin(), particles.begin() + neutral_index + 1 ) );
+        
         return particle_permutations;
     }
 
+    // helper function for == between particles
     bool particles_match(std::vector<particle_type> particles, std::vector<particle_type> test_particles) {
       return particles == test_particles;
     }
 
+    // main function to return cubic higgs coupling
     std::complex<double> get_cubic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3) {
       std::complex<double> c(0.0,0.0);
       const std::complex<double> i(0.0,1.0);
@@ -1030,268 +842,323 @@ namespace Gambit
       const std::vector<std::vector<complex<double>>> q = get_qij(ba, Lam6);
 
       std::vector<particle_type> particles = {p1,p2,p3};
-      std::sort(particles.begin(), particles.end()); // flip around particles st p1 is neutral and goldstones at end
+      std::sort(particles.begin(), particles.end()); // order particles
       p1 = particles[0]; p2 = particles[1]; p3 = particles[2];
 
+      // Get a sign factor based on particles involved in the coupling
+      // - based up Class I
       int sign = 1;
       for (auto const& each_part : particles) {
         if(each_part == H0) sign *= -(double)sgn(Lam6);
         else if (each_part == A0) sign *= (double)sgn(Lam6);
       }
 
-        if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3)) {
-          for(auto const& particles_perm: get_neutral_particle_permutations(particles)) {
-            if(particles_match(particles, { p1, G0, G0 })) c+= get_cubic_coupling_hG0G0(container, q, p1);
-            else if(particles_match(particles, { p1, p2, G0 })) c+= get_cubic_coupling_hhG0(container, q, particles_perm);
-            else c+= get_cubic_coupling_hhh(container, q, particles_perm);
-          }
+      // Get coupling
+      if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3)) {
+        for(auto const& particles_perm: get_neutral_particle_permutations(particles)) {
+          if(particles_match(particles, { p1, G0, G0 })) c+= get_cubic_coupling_hG0G0(container, q, p1);
+          else if(particles_match(particles, { p1, p2, G0 })) c+= get_cubic_coupling_hhG0(container, q, particles_perm);
+          else c+= get_cubic_coupling_hhh(container, q, particles_perm);
         }
-        else if (is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3)) {
-          if (particles_match(particles, { p1, Hp, Hm })) c += get_cubic_coupling_hHpHm(container, q, p1);
-          else if (particles_match(particles, { p1, Gp, Gm })) c += get_cubic_coupling_hGpGm(container, q, p1);
-          else if (particles_match(particles, { p1, Hp, Gm })) c += get_cubic_coupling_hGmHp(container, q, p1); 
-          else if (particles_match(particles, { p1, Hm, Gp })) c += std::conj(get_cubic_coupling_hGmHp(container, q, p1)); 
-        }
+      }
+      else if (is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3)) {
+        if (particles_match(particles, { p1, Hp, Hm })) c += get_cubic_coupling_hHpHm(container, q, p1);
+        else if (particles_match(particles, { p1, Gp, Gm })) c += get_cubic_coupling_hGpGm(container, q, p1);
+        else if (particles_match(particles, { p1, Hp, Gm })) c += get_cubic_coupling_hGmHp(container, q, p1); 
+        else if (particles_match(particles, { p1, Hm, Gp })) c += std::conj(get_cubic_coupling_hGmHp(container, q, p1)); 
+      }
 
       return -i*c*(double)sign;
     }
 
+    // main function to return quartic higgs couplings
     std::complex<double> get_quartic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3, particle_type p4) {
       std::complex<double> c(0.0,0.0);
       const std::complex<double> i(0.0,1.0);
       const double ba = atan(container.he->get(Par::dimensionless, "tanb")) - container.he->get(Par::dimensionless, "alpha");
-      const double Lam6 = container.higgs_pars.Lambda6;
+      const double Lam1 = container.higgs_pars.Lambda4, Lam2 = container.higgs_pars.Lambda2, Lam3 = container.higgs_pars.Lambda3;
+      const double Lam4 = container.higgs_pars.Lambda4, Lam5 = container.higgs_pars.Lambda5, Lam6 = container.higgs_pars.Lambda6, Lam7 = container.higgs_pars.Lambda7;
       const std::vector<std::vector<complex<double>>> q = get_qij(ba, Lam6);
 
       std::vector<particle_type> particles = {p1,p2,p3,p4};
-      std::sort(particles.begin(), particles.end()); // flip around particles st p1 is neutral
+      std::sort(particles.begin(), particles.end()); // order particles
       p1 = particles[0]; p2 = particles[1]; p3 = particles[2]; p4 = particles[3];
 
+      // Get a sign factor based on particles involved in the coupling
+      // - based up Class I
       int sign = 1;
       for (auto const& each_part : particles) {
         if(each_part == H0) sign *= -(double)sgn(Lam6);
         else if (each_part == A0) sign *= (double)sgn(Lam6);
       }
 
+      // Get coupling
       for(auto const& particles_perm: get_neutral_particle_permutations(particles)) {
         if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3) && is_neutral(p4)) {
           if (particles_match(particles, { p1, G0, G0, G0 })) c += get_quartic_coupling_hG0G0G0(container, q, p1);
           else if (particles_match(particles, { p1, p2, G0, G0 })) c += get_quartic_coupling_hhG0G0(container, q, particles_perm);
-          else if (particles_match(particles, { p1, G0, G0, G0 })) c += get_quartic_coupling_hhhG0(container, q, particles_perm);
+          else if (particles_match(particles, { p1, p2, p3, G0 })) c += get_quartic_coupling_hhhG0(container, q, particles_perm);
           else c += get_quartic_coupling_hhhh(container, q, particles_perm);
         }
         else if (is_neutral(p1) && is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
-          if (particles_match(particles, { p1,p2, Hp, Hm })) c += get_quartic_coupling_hhHpHm(container, q, particles_perm);
-          else if (particles_match(particles, { p1,p2, Gp, Gm })) c += get_quartic_coupling_hhGpGm(container, q, particles_perm); 
+          if (particles_match(particles, { G0, G0, Hp, Hm } )) c += 0.5*Lam3; 
+          else if (particles_match(particles, { p1, G0, Hp, Hm } )) c += - (q[p1][2] * Lam7 * (double)sgn(Lam6) ).imag(); 
+          else if (particles_match(particles, { p1, p2, Hp, Hm })) c += get_quartic_coupling_hhHpHm(container, q, particles_perm);
+          else if (particles_match(particles, { p1, p2, Gp, Gm })) c += get_quartic_coupling_hhGpGm(container, q, particles_perm); 
           else if (particles_match(particles, { p1, p2, Hp, Gm } )) c += get_quartic_coupling_hhGmHp(container, q, particles_perm); 
           else if (particles_match(particles, { p1, p2, Hm, Gp } )) c += std::conj(get_quartic_coupling_hhGmHp(container, q, particles_perm)); 
         }
         else if (!is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4)) {
-          if (particles_match(particles, { Gp, Gp, Gm, Gm })) c += 4.0*0.5*container.higgs_pars.Lambda1;
-          else if (particles_match(particles, { Hp, Hp, Hm, Hm})) c += 4.0*0.5*container.higgs_pars.Lambda2;
-          else if (particles_match(particles, { Hp, Hm, Gp, Gm })) c += 4.0*(container.higgs_pars.Lambda3 + container.higgs_pars.Lambda4);
-          else if (particles_match(particles, { Hp, Hp, Gm, Gm })) c += 1.0*0.5*container.higgs_pars.Lambda5;
-          else if (particles_match(particles, { Hm, Hm, Gp, Gp })) c += 1.0*std::conj(0.5*container.higgs_pars.Lambda5);
-          else if (particles_match(particles, { Hp, Gp, Gm, Gm })) c += 2.0*-1.0*container.higgs_pars.Lambda6;
-          else if (particles_match(particles, { Hm, Gp, Gp, Gm })) c += 4.0*std::conj(-1.0*container.higgs_pars.Lambda6);
-          else if (particles_match(particles, { Hp, Hp, Hm, Gm })) c += 2.0*-1.0*container.higgs_pars.Lambda7;
-          else if (particles_match(particles, { Hp, Hm, Hm, Gp })) c += 4.0*std::conj(-1.0*container.higgs_pars.Lambda7);
+          if (particles_match(particles, { Gp, Gp, Gm, Gm })) c += 4.0*0.5*Lam1;
+          else if (particles_match(particles, { Hp, Hp, Hm, Hm})) c += 4.0*0.5*Lam2;
+          else if (particles_match(particles, { Hp, Hm, Gp, Gm })) c += 4.0*(Lam3 + Lam4);
+          else if (particles_match(particles, { Hp, Hp, Gm, Gm })) c += 0.5*Lam5;
+          else if (particles_match(particles, { Hm, Hm, Gp, Gp })) c += std::conj(0.5*Lam5);
+          else if (particles_match(particles, { Hp, Gp, Gm, Gm })) c += 2.0*Lam6;
+          else if (particles_match(particles, { Hm, Gp, Gp, Gm })) c += 4.0*std::conj(1.0*Lam6);
+          else if (particles_match(particles, { Hp, Hp, Hm, Gm })) c += 2.0*Lam7;
+          else if (particles_match(particles, { Hp, Hm, Hm, Gp })) c += 4.0*std::conj(1.0*Lam7);
         }
       }
       
       return -i*c*(double)sign;
     }
 
+    // get a vector of cubic higgs couplings necessary for NLO unitarity calculation
     std::vector<std::complex<double>> get_cubic_couplings(THDM_spectrum_container& container) {
       const int size = 17;
-      // std::vector<std::complex<double>> cubic_couplings (size+1);
-      // std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
+      std::vector<std::complex<double>> cubic_couplings (size+1), cubic_couplings_mass (size+1);
+      std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
+      std::fill(cubic_couplings_mass.begin(),cubic_couplings_mass.end(),0.0);
+      const bool use_cubic_couplings_mass = false;
 
-      // const physical_basis_input input_pars = fill_physical_basis_input(container);
-      // // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
-      // // const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
-      // const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      // const double sba = sin(b-a), cba = (cos(b-a));//, cbap = cos(b+a), sbap = sin(b+a);
-      // const double v = get_v(container);
-      // const std::complex<double> i(0.0,1.0);
+      #ifdef SPECBIT_DEBUG_COUPLINGS
+        const bool calculate_both = true;
+      #else
+        const bool calculate_both = false;
+      #endif
 
-      // const double sba2 = pow(sba,2), cba2 = pow(cba,2), t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
-      // const double s2b = sin(2.0*b), s2a = sin(2.0*a), s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
-      // const double c2b = cos(2.0*b), c2a = cos(2.0*a);
+      if (use_cubic_couplings_mass || calculate_both) {
+        const physical_basis_input input_pars = fill_physical_basis_input(container);
+        const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
+        const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
+        const double b = atan(input_pars.tanb), a = input_pars.alpha;
+        const double sba = sin(b-a), cba = (cos(b-a)), cbap = cos(b+a), sbap = sin(b+a);
+        const double v = get_v(container);
+        const std::complex<double> i(0.0,1.0);
 
-      // cubic_couplings[1] = 1.0/v * (-1.0*mh2 * sba);
-      // cubic_couplings[2] = cubic_couplings[1];
-      // cubic_couplings[3] = 1.0/v * (-1.0*mH2 * cba);
-      // cubic_couplings[4] = cubic_couplings[3];
-      // cubic_couplings[5] = 1.0/v * (-1.0*(mh2-mC2) * cba);
-      // cubic_couplings[6] = 1.0/v * (-1.0*(mh2-mA2) * cba);
-      // cubic_couplings[7] = 1.0/v * (-1.0*(mH2-mC2) * sba);
-      // cubic_couplings[8] = 1.0/v * (-1.0*(mH2-mA2) * sba);
-      // cubic_couplings[9] = 1.0/v * (-1.0*i*(mA2-mC2));
-      // cubic_couplings[10] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mC2)*sba); 
-      // cubic_couplings[11] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mA2)*sba); 
-      // cubic_couplings[12] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mC2)*cba); 
-      // cubic_couplings[13] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mA2)*cba); 
-      // cubic_couplings[14] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*cbap*cba2 - mh2*( 3.0*sin(3.0*b+a) + 3.0*sba + sin(3.0*b-3.0*a) + sin(b+3.0*a) )); 
-      // cubic_couplings[15] = -cba/(s2b*v)*(2.0*m122 + (mH2 + 2.0*mh2 - 3.0*sqrt(m122)*sbinv*cbinv)*s2a);
-      // cubic_couplings[16] = sba/(s2b*v)*(-2.0*m122 + (mh2 + 2.0*mH2 - 3.0*sqrt(m122)*sbinv*cbinv)*s2a);
-      // cubic_couplings[17] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*sbap*sba2 - mH2*( 3.0*cos(3.0*b+a) - 3.0*cba + cos(3.0*b-3.0*a) - cos(b+3.0*a) ));
-      // for(int j=1; j<=size; j++) cubic_couplings[j] = -i*cubic_couplings[j]; 
-      std::vector<std::complex<double>> cubic_couplings_2 (size+1);
-      std::fill(cubic_couplings_2.begin(),cubic_couplings_2.end(),0.0);
+        const double sba2 = pow(sba,2), cba2 = pow(cba,2), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b);
+        const double s2b = sin(2.0*b), s2a = sin(2.0*a), c2b = cos(2.0*b);
 
-      cubic_couplings_2[1] = get_cubic_coupling(container, h0, Gp, Gm);
-      cubic_couplings_2[2] = get_cubic_coupling(container, h0, G0, G0);
-      cubic_couplings_2[3] = get_cubic_coupling(container, H0, Gp, Gm);
-      cubic_couplings_2[4] = get_cubic_coupling(container, H0, G0, G0);
-      cubic_couplings_2[5] = get_cubic_coupling(container, h0, Gp, Hm);
-      cubic_couplings_2[6] = get_cubic_coupling(container, h0, G0, A0);
-      cubic_couplings_2[7] = get_cubic_coupling(container, H0, Gp, Hm);
-      cubic_couplings_2[8] = get_cubic_coupling(container, H0, G0, A0);
-      cubic_couplings_2[9] = get_cubic_coupling(container, A0, Gp, Hm);
-      cubic_couplings_2[10] = get_cubic_coupling(container, h0, Hp, Hm);
-      cubic_couplings_2[11] = get_cubic_coupling(container, h0, A0, A0);
-      cubic_couplings_2[12] = get_cubic_coupling(container, H0, Hp, Hm);
-      cubic_couplings_2[13] = get_cubic_coupling(container, H0, A0, A0);
-      cubic_couplings_2[14] = get_cubic_coupling(container, h0, h0, h0);
-      cubic_couplings_2[15] = get_cubic_coupling(container, h0, h0, H0);
-      cubic_couplings_2[16] = get_cubic_coupling(container, h0, H0, H0);
-      cubic_couplings_2[17] = get_cubic_coupling(container, H0, H0, H0);
+        cubic_couplings_mass[1] = 1.0/v * (-1.0*mh2 * sba);
+        cubic_couplings_mass[2] = cubic_couplings_mass[1];
+        cubic_couplings_mass[3] = 1.0/v * (-1.0*mH2 * cba);
+        cubic_couplings_mass[4] = cubic_couplings_mass[3];
+        cubic_couplings_mass[5] = 1.0/v * (-1.0*(mh2-mC2) * cba);
+        cubic_couplings_mass[6] = 1.0/v * (-1.0*(mh2-mA2) * cba);
+        cubic_couplings_mass[7] = 1.0/v * (1.0*(mH2-mC2) * sba);
+        cubic_couplings_mass[8] = 1.0/v * (1.0*(mH2-mA2) * sba);
+        cubic_couplings_mass[9] = 1.0/v * (-1.0*i*(mA2-mC2));
+        cubic_couplings_mass[10] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mC2)*sba); 
+        cubic_couplings_mass[11] = 1.0/v * (sbinv*cbinv*(m122*cbap*sbinv*cbinv - mh2*c2b*cba) - (mh2+2.0*mA2)*sba); 
+        cubic_couplings_mass[12] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mC2)*cba); 
+        cubic_couplings_mass[13] = 1.0/v * (sbinv*cbinv*(m122*sbap*sbinv*cbinv + mH2*c2b*sba) - (mH2+2.0*mA2)*cba); 
+        cubic_couplings_mass[14] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*cbap*cba2 - mh2*( 3.0*sin(3.0*b+a) + 3.0*sba + sin(3.0*b-3.0*a) + sin(b+3.0*a) )); 
+        cubic_couplings_mass[15] = -cba/(s2b*v)*(2.0*m122 + (mH2 + 2.0*mh2 - 3.0*m122*sbinv*cbinv)*s2a);
+        cubic_couplings_mass[16] = sba/(s2b*v)*(-2.0*m122 + (mh2 + 2.0*mH2 - 3.0*m122*sbinv*cbinv)*s2a);
+        cubic_couplings_mass[17] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*sbap*sba2 + mH2*( 3.0*cos(3.0*b+a) - 3.0*cba + cos(3.0*b-3.0*a) - cos(b+3.0*a) ));
+        for(int j=1; j<=size; j++) cubic_couplings_mass[j] = i*cubic_couplings_mass[j]; 
+      }
+      if (!use_cubic_couplings_mass || calculate_both) {
+        cubic_couplings[1] = get_cubic_coupling(container, h0, Gp, Gm);
+        cubic_couplings[2] = get_cubic_coupling(container, h0, G0, G0);
+        cubic_couplings[3] = get_cubic_coupling(container, H0, Gp, Gm);
+        cubic_couplings[4] = get_cubic_coupling(container, H0, G0, G0);
+        cubic_couplings[5] = get_cubic_coupling(container, h0, Gp, Hm);
+        cubic_couplings[6] = get_cubic_coupling(container, h0, G0, A0);
+        cubic_couplings[7] = get_cubic_coupling(container, H0, Gp, Hm);
+        cubic_couplings[8] = get_cubic_coupling(container, H0, G0, A0);
+        cubic_couplings[9] = get_cubic_coupling(container, A0, Gp, Hm);
+        cubic_couplings[10] = get_cubic_coupling(container, h0, Hp, Hm);
+        cubic_couplings[11] = get_cubic_coupling(container, h0, A0, A0);
+        cubic_couplings[12] = get_cubic_coupling(container, H0, Hp, Hm);
+        cubic_couplings[13] = get_cubic_coupling(container, H0, A0, A0);
+        cubic_couplings[14] = get_cubic_coupling(container, h0, h0, h0);
+        cubic_couplings[15] = get_cubic_coupling(container, h0, h0, H0);
+        cubic_couplings[16] = get_cubic_coupling(container, h0, H0, H0);
+        cubic_couplings[17] = get_cubic_coupling(container, H0, H0, H0);
+      }
 
-      // for(int h1=1; h1<4; h1++) {
-      //   for(int h2=1; h2<4; h2++) {
-      //     for(int h3=1; h3<4; h3++) {
-      //       std::cout << "G: " << get_cubic_coupling(container, particle_type(h1), particle_type(h2), particle_type(h3)) << std::endl;
-      //       std::complex<double> c;
-      //       container.THDM_object->get_coupling_hhh(h1, h2, h3, c);
-      //       std::cout << "T: " << c << std::endl;
-      //       std::cout << "-----------------" << std::endl;
-      //     }
-      //   }
-      // }
+      #ifdef SPECBIT_DEBUG_COUPLINGS
+        std::cout << "*** cubic couplings calculated by GAMBIT" << std::endl << "Mass Basis | Higgs Basis" << std::endl;
+        for (int i=1; i<=size; i++) {
+          std::cout << i << " " << cubic_couplings_mass[i] << " | " << cubic_couplings[i] << std::endl;
+        }
+        
+        std::cout << "*** cubic couplings calculated by GAMBIT & 2HDMC" << std::endl << "GAMBIT | 2HDMC" << std::endl;
+        for(int h1=1; h1<4; h1++) {
+          for(int h2=1; h2<4; h2++) {
+            for(int h3=1; h3<4; h3++) {
+              std::complex<double> c;
+              container.THDM_object->get_coupling_hhh(h1, h2, h3, c);
+              std::complex<double> c2 = get_cubic_coupling(container, particle_type(h1), particle_type(h2), particle_type(h3));
+                std::cout << c2 << " | " << c << std::endl;
+              }
+            }
+          }
+      #endif
 
-      return cubic_couplings_2;
+      return cubic_couplings;
     }
 
+    // get a vector of quartic higgs couplings necessary for NLO unitarity calculation
     std::vector<std::complex<double>> get_quartic_couplings(THDM_spectrum_container& container) {
       const int size = 22;
-      // std::vector<std::complex<double>> quartic_couplings (size+1);
-      // std::fill(quartic_couplings.begin(),quartic_couplings.end(),0.0);
+      std::vector<std::complex<double>> quartic_couplings (size+1), quartic_couplings_mass (size+1);
+      std::fill(quartic_couplings.begin(),quartic_couplings.end(),0.0);
+      std::fill(quartic_couplings_mass.begin(),quartic_couplings_mass.end(),0.0);
+      const bool use_quartic_couplings_mass = false;
       
-      // const physical_basis_input input_pars = fill_physical_basis_input(container);
-      // const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
-      // const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
-      // const double b = atan(input_pars.tanb), a = input_pars.alpha;
-      // const double sba = sin(b-a), sbap = sin(b+a), sba2 = pow(sba,2), sab = sin(a-b), sab2 = pow(sab,2);
-      // const double cba = abs(cos(b-a)), cbap = cos(b+a), cba2 = pow(cba,2), cab = cos(a-b), cab2 = pow(cab,2);
-      // const double t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b), sbinv2 = pow(sbinv,2), cbinv2 = pow(cbinv,2);
-      // const double s2b = sin(2.0*b), s4b = sin(4.0*b), s2a = sin(2.0*a), s4a = sin(4.0*a);
-      // const double s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b), s2b2ap = sin(2.0*b+2.0*a), s2a2bp = sin(2.0*a+2.0*b);
-      // const double s3b3a = sin(3.0*b-3.0*a), s3a3b = sin(3.0*a-3.0*b), s3b3ap = sin(3.0*b+3.0*a), s3a3bp = sin(3.0*a+3.0*b);
-      // const double s4b4a = sin(4.0*b-4.0*a), s4a4b = sin(4.0*a-4.0*b);
-      // const double c2b = cos(2.0*b), c4b = cos(4.0*b), c2a = cos(2.0*a), c4a = cos(4.0*a);
-      // const double c2b2a = cos(2.0*b-2.0*a), c2a2b = cos(2.0*a-2.0*b), c2b2ap = cos(2.0*b+2.0*a), c2a2bp = cos(2.0*a+2.0*b);
-      // const double c3b3a = cos(3.0*b-3.0*a), c3a3b = cos(3.0*a-3.0*b), c3b3ap = cos(3.0*b+3.0*a), c3a3bp = cos(3.0*a+3.0*b);
-      // const double c4b4a = cos(4.0*b-4.0*a), c4a4b = cos(4.0*a-4.0*b);
-      // const double v2 = get_v2(container);
-      // const std::complex<double> i(0.0,1.0);
+      #ifdef SPECBIT_DEBUG_COUPLINGS
+        const bool calculate_both = true;
+      #else
+        const bool calculate_both = false;
+      #endif
 
-      // quartic_couplings[1] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(cba,3)*sba*t2binv + mh2*pow(sba,4));
-      // quartic_couplings[1] += -1.0/v2 * cba2*( 2.0*mA2 - 2.0*sqrt(m122)*sbinv*cbinv + (3.0*mh2 - mH2)*sba2 );
-      // // ---
-      // quartic_couplings[2] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(sba,3)*cba*t2binv + mh2*pow(sba,4));
-      // quartic_couplings[2] += -1.0/v2 * sba2*( 2.0*mA2 - 2.0*sqrt(m122)*sbinv*cbinv + (3.0*mH2 - mh2)*cba2 );
-      // // ---
-      // quartic_couplings[3] = 1.0/v2 * (2.0*m122*sbinv*cbinv - 2.0*mC2 - mH2*cba2 - mh2*sba2 + (mH2 - mh2)*t2binv*s2b2a);
-      // // ---
-      // quartic_couplings[4] = 1.0/v2 * (2.0*m122*sbinv*cbinv - (mH2 + 2.0*mh2)*cba2 - (mh2 + 2.0*mH2)*sba2 + (mH2 - mh2)*t2binv*s2b2a);
-      // // ---
-      // quartic_couplings[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
-      // // ---
-      // quartic_couplings[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
-      // // ---
-      // quartic_couplings[7] = 1.0/(8.0*v2*s2b*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
-      // // ---
-      // quartic_couplings[8] = 3.0*quartic_couplings[7];
-      // // ---
-      // quartic_couplings[9] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
-      // quartic_couplings[9] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
-      // quartic_couplings[9] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 - 32.0*sab2*s2b*mC2);
-      // // ---
-      // quartic_couplings[10] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
-      // quartic_couplings[10] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
-      // quartic_couplings[10] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 - 32.0*sab2*s2b*mA2);
-      // // ---
-      // quartic_couplings[11] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
-      // quartic_couplings[11] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
-      // quartic_couplings[11] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 - 32.0*cab2*s2b*mC2);
-      // // ---
-      // quartic_couplings[12] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
-      // quartic_couplings[12] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
-      // quartic_couplings[12] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 - 32.0*cab2*s2b*mA2);
-      // // ---
-      // quartic_couplings[13] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
-      // quartic_couplings[13] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
-      // quartic_couplings[13] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mC2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
-      // // ---
-      // quartic_couplings[14] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
-      // quartic_couplings[14] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
-      // quartic_couplings[14] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mA2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
-      // // ---
-      // quartic_couplings[15] = 3.0/(4.0*v2*s2b*s2b) * 4.0*cba2 * (4.0*m122*sbinv*cbinv*pow(cbap,2) - mH2*pow(s2a,2));
-      // quartic_couplings[15] += - 3.0/(4.0*v2*s2b*s2b) * mh2 * pow((cos(-b+3.0*a) + 3.0*cbap),2);
-      // // ---
-      // quartic_couplings[16] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mH2*s2a*s2b2a - mh2*cba*(cos(-b+3.0*a) + 3.0*cbap));
-      // quartic_couplings[16] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*cba*( sin(b+3.0*a) - sba );
-      // // ---
-      // quartic_couplings[17] = 1.0/(8.0*v2*s2b*s2b) * (4.0*sbinv*cbinv * ( 2.0 + c4b - 3.0*c4a )*m122 + 6.0*(c4a-1.0)*(mh2+mH2) );
-      // quartic_couplings[17] += 1.0/(8.0*v2*s2b*s2b) * ( 3.0*cos(-2.0*b+6.0*a) - c2b2ap - 2.0*c2b2a )*(mh2-mH2);
-      // // ---
-      // quartic_couplings[18] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mh2*s2a*s2b2a - mH2*sba*(sin(-b+3.0*a) - 3.0*sbap));
-      // quartic_couplings[18] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*sba*( cos(b+3.0*a) - cba );
-      // // ---
-      // quartic_couplings[19] = 3.0/(4.0*v2*s2b*s2b) * 4.0*sba2 * (4.0*m122*sbinv*cbinv*pow(sbap,2) - mh2*pow(s2a,2));
-      // quartic_couplings[19] += - 3.0/(4.0*v2*s2b*s2b) * mH2 * pow((sin(-b+3.0*a) + 3.0*sbap),2);
-      // // ---
-      // quartic_couplings[20] = 2.0/v2 * ((mH2 - mh2)*c2b*sbinv*cbinv*s2b2a - mh2*sba2);
-      // quartic_couplings[20] += - 2.0/v2 *(cba2*(mH2 + 4.0*mh2*pow(t2binv,2)) - 4.0*pow(t2binv,2)*( mH2*sba2 - m122*sbinv*cbinv ) );
-      // // ---
-      // quartic_couplings[21] = quartic_couplings[20]/2.0;
-      // // ---
-      // quartic_couplings[22] = 3.0*quartic_couplings[20]/2.0;
-      // for(int j=1; j<=size; j++) quartic_couplings[j] = -i*quartic_couplings[j];
+      if (use_quartic_couplings_mass || calculate_both) {
+        const physical_basis_input input_pars = fill_physical_basis_input(container);
+        const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
+        const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
+        const double b = atan(input_pars.tanb), a = input_pars.alpha;
+        const double sba = sin(b-a), sbap = sin(b+a), sba2 = pow(sba,2), sab = sin(a-b), sab2 = pow(sab,2);
+        const double cba = cos(b-a), cbap = cos(b+a), cba2 = pow(cba,2), cab = cos(a-b), cab2 = pow(cab,2);
+        const double t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b), sbinv2 = pow(sbinv,2), cbinv2 = pow(cbinv,2);
+        const double s2b = sin(2.0*b), s4b = sin(4.0*b), s2a = sin(2.0*a);
+        const double s2b2a = sin(2.0*b-2.0*a), s2a2b = sin(2.0*a-2.0*b);
+        const double s3b3a = sin(3.0*b-3.0*a);
+        const double c2b = cos(2.0*b), c4b = cos(4.0*b), c2a = cos(2.0*a), c4a = cos(4.0*a);
+        const double c2b2a = cos(2.0*b-2.0*a), c2a2b = cos(2.0*a-2.0*b), c2b2ap = cos(2.0*b+2.0*a), c2a2bp = cos(2.0*a+2.0*b);
+        const double c3b3a = cos(3.0*b-3.0*a);
+        const double c4a4b = cos(4.0*a-4.0*b);
+        const double v2 = get_v2(container);
+        const std::complex<double> i(0.0,1.0);
 
-      std::vector<std::complex<double>> quartic_couplings_2 (size+1);
-      std::fill(quartic_couplings_2.begin(),quartic_couplings_2.end(),0.0);
+        quartic_couplings_mass[1] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(cba,3)*sba*t2binv + mh2*pow(sba,4));
+        quartic_couplings_mass[1] += -1.0/v2 * cba2*( 2.0*mA2 - 2.0*m122*sbinv*cbinv + (3.0*mh2 - mH2)*sba2 );
+        // ---
+        quartic_couplings_mass[2] = -1.0/v2 * (mH2*pow(cba,4) + 2.0*(mh2-mH2) * pow(sba,3)*cba*t2binv + mh2*pow(sba,4));
+        quartic_couplings_mass[2] += -1.0/v2 * sba2*( 2.0*mA2 - 2.0*m122*sbinv*cbinv + (3.0*mH2 - mh2)*cba2 );
+        // ---
+        quartic_couplings_mass[3] = 1.0/v2 * (2.0*m122*sbinv*cbinv - 2.0*mC2 - mH2*cba2 - mh2*sba2 + (mH2 - mh2)*t2binv*s2b2a);
+        // ---
+        quartic_couplings_mass[4] = 1.0/v2 * (2.0*m122*sbinv*cbinv - (mH2 + 2.0*mh2)*cba2 - (mh2 + 2.0*mH2)*sba2 + (mH2 - mh2)*t2binv*s2b2a);
+        // ---
+        quartic_couplings_mass[5] = 1.0/(2.0*v2*s2b) * (mH2*s2b2a*s2a - mA2*s2b*s2a2b + cba*( 4.0*m122*cba*sbinv*cbinv*c2b - mh2*(cos(-1.0*b+3.0*a) + 3.0*cos(b+a)) ) );
+        // ---
+        quartic_couplings_mass[6] = 1.0/(2.0*v2*s2b) * (mh2*s2b2a*s2a + mA2*s2b*s2a2b + sba*( 4.0*m122*sba*sbinv*cbinv*c2b - mH2*(sin(-1.0*b+3.0*a) - 3.0*sin(b+a)) ) );
+        // ---
+        quartic_couplings_mass[7] = 1.0/(8.0*v2*s2b*s2b) * ( 32*m122*c2b + 2.0*(mH2-mh2)*(3.0*c2a + cos(4.0*b-2.0*a))*s2b - 4.0*(mh2+mH2)*sin(4.0*b) );
+        // ---
+        quartic_couplings_mass[8] = 3.0*quartic_couplings_mass[7];
+        // ---
+        quartic_couplings_mass[9] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
+        quartic_couplings_mass[9] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
+        quartic_couplings_mass[9] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 + 32.0*sab2*s2b*mC2);
+        // ---
+        quartic_couplings_mass[10] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(cos(2.0*a-6.0*b) + 2.0*(3.0 + c2a2b + c4b) + 5.0*c2a2bp)*m122;
+        quartic_couplings_mass[10] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a + 6.0*c2a2b + c4a4b + 3.0*c4b + 10.0*c2a2bp )*mh2;
+        quartic_couplings_mass[10] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) + 2.0*s2b )*mH2 + 32.0*sab2*s2b*mA2);
+        // ---
+        quartic_couplings_mass[11] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
+        quartic_couplings_mass[11] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
+        quartic_couplings_mass[11] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 + 32.0*cab2*s2b*mC2);
+        // ---
+        quartic_couplings_mass[12] = 1.0/(16.0*v2*s2b) * 2.0*sbinv2*cbinv2*(-cos(2.0*a-6.0*b) + 2.0*(3.0 - c2a2b + c4b) - 5.0*c2a2bp)*m122;
+        quartic_couplings_mass[12] += -1.0/(16.0*v2*s2b) * sbinv*cbinv*( 9.0 + 3.0*c4a - 6.0*c2a2b + c4a4b + 3.0*c4b - 10.0*c2a2bp )*mH2;
+        quartic_couplings_mass[12] += -1.0/(16.0*v2*s2b) * (2.0*sbinv*cbinv*s2a*( 3.0*s2a + sin(2.0*a - 4.0*b) - 2.0*s2b )*mh2 + 32.0*cab2*s2b*mA2);
+        // ---
+        quartic_couplings_mass[13] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
+        quartic_couplings_mass[13] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
+        quartic_couplings_mass[13] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mC2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
+        // ---
+        quartic_couplings_mass[14] = 1.0/(8.0*v2*s2b) * cba*sbinv*cbinv*( 3.0*sba + s3b3a - 3.0*sin(b+3.0*a) - sin(3.0*b+a) )*mh2;
+        quartic_couplings_mass[14] += 1.0/(8.0*v2*s2b) * sba*sbinv*cbinv*( 3.0*cba - c3b3a - 3.0*cos(b+3.0*a) + cos(3.0*b+a) )*mH2;
+        quartic_couplings_mass[14] += - 1.0/(8.0*v2*s2b) * (8.0*s2b2a*s2b*mA2 + 4.0*pow(1.0/s2b,2)*( 2.0*(1.0+3.0*c4b)*s2b2a - 4.0*c2b2a*s4b )*m122 );
+        // ---
+        quartic_couplings_mass[15] = 3.0/(4.0*v2*s2b*s2b) * 4.0*cba2 * (4.0*m122*sbinv*cbinv*pow(cbap,2) - mH2*pow(s2a,2));
+        quartic_couplings_mass[15] += - 3.0/(4.0*v2*s2b*s2b) * mh2 * pow((cos(-b+3.0*a) + 3.0*cbap),2);
+        // ---
+        quartic_couplings_mass[16] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mH2*s2a*s2b2a - mh2*cba*(cos(-b+3.0*a) + 3.0*cbap));
+        quartic_couplings_mass[16] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*cba*( sin(b+3.0*a) - sba );
+        // ---
+        quartic_couplings_mass[17] = 1.0/(8.0*v2*s2b*s2b) * (4.0*sbinv*cbinv * ( 2.0 + c4b - 3.0*c4a )*m122 + 6.0*(c4a-1.0)*(mh2+mH2) );
+        quartic_couplings_mass[17] += 1.0/(8.0*v2*s2b*s2b) * ( 3.0*cos(-2.0*b+6.0*a) - c2b2ap - 2.0*c2b2a )*(mh2-mH2);
+        // ---
+        quartic_couplings_mass[18] = 1.0/(2.0*v2*s2b*s2b) * 3.0*s2a * (mh2*s2a*s2b2a - mH2*sba*(sin(-b+3.0*a) - 3.0*sbap));
+        quartic_couplings_mass[18] += 1.0/(2.0*v2*s2b*s2b) * 12.0*m122*(1.0/s2b)*sba*( cos(b+3.0*a) - cba );
+        // ---
+        quartic_couplings_mass[19] = 3.0/(4.0*v2*s2b*s2b) * 4.0*sba2 * (4.0*m122*sbinv*cbinv*pow(sbap,2) - mh2*pow(s2a,2));
+        quartic_couplings_mass[19] += - 3.0/(4.0*v2*s2b*s2b) * mH2 * pow((sin(-b+3.0*a) - 3.0*sbap),2);
+        // ---
+        quartic_couplings_mass[20] = 2.0/v2 * ((mH2 - mh2)*c2b*sbinv*cbinv*s2b2a - mh2*sba2);
+        quartic_couplings_mass[20] += - 2.0/v2 *(cba2*(mH2 + 4.0*mh2*pow(t2binv,2)) + 4.0*pow(t2binv,2)*( mH2*sba2 - m122*sbinv*cbinv ) );
+        // ---
+        quartic_couplings_mass[21] = quartic_couplings_mass[20]/2.0;
+        // ---
+        quartic_couplings_mass[22] = 3.0*quartic_couplings_mass[20]/2.0;
+        for(int j=1; j<=size; j++) quartic_couplings_mass[j] = i*quartic_couplings_mass[j];
+    }
+    if (!use_quartic_couplings_mass || calculate_both) { 
+        quartic_couplings[1] = get_quartic_coupling(container, h0, h0, G0, G0);
+        quartic_couplings[2] = get_quartic_coupling(container, H0, H0, G0, G0); 
+        quartic_couplings[3] = get_quartic_coupling(container, Hp, Hm, G0, G0);
+        quartic_couplings[4] = get_quartic_coupling(container, A0, A0, G0, G0);
+        quartic_couplings[5] = get_quartic_coupling(container, h0, h0, G0, A0); // differs
+        quartic_couplings[6] = get_quartic_coupling(container, H0, H0, G0, A0); // differs
+        quartic_couplings[7] = get_quartic_coupling(container, Hp, Hm, G0, A0); // equal if third term in equation is .imag() not .real()
+        quartic_couplings[8] = get_quartic_coupling(container, A0, A0, G0, A0); // is different by a factor of sign(Lam6)
+        quartic_couplings[9] = get_quartic_coupling(container, h0, h0, Hp, Hm);
+        quartic_couplings[10] = get_quartic_coupling(container, h0, h0, A0, A0);
+        quartic_couplings[11] = get_quartic_coupling(container, H0, H0, Hp, Hm);
+        quartic_couplings[12] = get_quartic_coupling(container, H0, H0, A0, A0);
+        quartic_couplings[13] = get_quartic_coupling(container, h0, H0, Hp, Hm);
+        quartic_couplings[14] = get_quartic_coupling(container, h0, H0, A0, A0); 
+        quartic_couplings[15] = get_quartic_coupling(container, h0, h0, h0, h0);
+        quartic_couplings[16] = get_quartic_coupling(container, h0, h0, h0, H0);
+        quartic_couplings[17] = get_quartic_coupling(container, h0, h0, H0, H0);
+        quartic_couplings[18] = get_quartic_coupling(container, h0, H0, H0, H0); 
+        quartic_couplings[19] = get_quartic_coupling(container, H0, H0, H0, H0);
+        quartic_couplings[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
+        quartic_couplings[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
+        quartic_couplings[22] = get_quartic_coupling(container, A0, A0, A0, A0);
+      }
 
-      quartic_couplings_2[1] = get_quartic_coupling(container, h0, h0, G0, G0);
-      quartic_couplings_2[2] = get_quartic_coupling(container, H0, H0, G0, G0); 
-      quartic_couplings_2[3] = get_quartic_coupling(container, Hp, Hm, G0, G0);
-      quartic_couplings_2[4] = get_quartic_coupling(container, A0, A0, G0, G0);
-      quartic_couplings_2[5] = get_quartic_coupling(container, h0, h0, G0, A0);
-      quartic_couplings_2[6] = get_quartic_coupling(container, H0, H0, G0, A0);
-      quartic_couplings_2[7] = get_quartic_coupling(container, Hp, Hm, G0, A0);
-      quartic_couplings_2[8] = get_quartic_coupling(container, A0, A0, G0, A0);
-      quartic_couplings_2[9] = get_quartic_coupling(container, h0, h0, Hp, Hm);
-      quartic_couplings_2[10] = get_quartic_coupling(container, h0, h0, A0, A0);
-      quartic_couplings_2[11] = get_quartic_coupling(container, H0, H0, Hp, Hm);
-      quartic_couplings_2[12] = get_quartic_coupling(container, H0, H0, A0, A0);
-      quartic_couplings_2[13] = get_quartic_coupling(container, h0, H0, Hp, Hm);
-      quartic_couplings_2[14] = get_quartic_coupling(container, h0, H0, A0, A0); 
-      quartic_couplings_2[15] = get_quartic_coupling(container, h0, h0, h0, h0);
-      quartic_couplings_2[16] = get_quartic_coupling(container, h0, h0, h0, H0);
-      quartic_couplings_2[17] = get_quartic_coupling(container, h0, h0, H0, H0);
-      quartic_couplings_2[18] = get_quartic_coupling(container, h0, H0, H0, H0); 
-      quartic_couplings_2[19] = get_quartic_coupling(container, H0, H0, H0, H0);
-      quartic_couplings_2[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
-      quartic_couplings_2[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
-      quartic_couplings_2[22] = get_quartic_coupling(container, A0, A0, A0, A0);
-
-      return quartic_couplings_2;
+      #ifdef SPECBIT_DEBUG_COUPLINGS
+        std::cout << "*** quartic couplings calculated by GAMBIT" << std::endl << "Mass Basis | Higgs Basis" << std::endl;
+        for (int i=1; i<=size; i++) {
+          std::cout << i << " " << quartic_couplings_mass[i] << " | " << quartic_couplings[i] << std::endl;
+        }
+        
+        std::cout << "*** quartic couplings calculated by GAMBIT & 2HDMC" << std::endl << "GAMBIT | 2HDMC" << std::endl;
+        for(int h1=1; h1<4; h1++) {
+          for(int h2=1; h2<4; h2++) {
+            for(int h3=1; h3<4; h3++) {
+              for(int h4=1; h4<4; h4++) {
+                std::complex<double> c;
+                container.THDM_object->get_coupling_hhhh(h1, h2, h3, h4, c);
+                std::complex<double> c2 = get_quartic_coupling(container, particle_type(h1), particle_type(h2), particle_type(h3), particle_type(h4));
+                std::cout << c2 << " | " << c << std::endl;
+              }
+            }
+          }
+        }
+      #endif
+      
+      return quartic_couplings;
     }
 
-    // ******************
-
+    // fills a vector with lambas from teh spectrum object
+    // used to simplify expressions
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container& container) {
       std::vector<double> Lambda(8);
       Lambda[1] = container.he->get(Par::mass1, "lambda_1");
@@ -1304,8 +1171,10 @@ namespace Gambit
       return Lambda;
     }
 
+    // wavefunction corrections to beta functions
+    // ---------------------------------------------------------------------
     double A0_bar(const double m2) {
-      const double MZ = 91.15349;
+      const double MZ = 91.15349; // get this from FS
       double mu2 = pow(MZ,2);
       return m2*(-log(m2/mu2) + 1.0);
     }
@@ -1324,7 +1193,7 @@ namespace Gambit
     }
 
     double B0_bar(const double p2, const double m12, const double m22) {
-      const double MZ = 91.15349;
+      const double MZ = 91.15349; // get this from FS
       double mu2 = pow(MZ,2);
       double z_plus = 1E-10;
       double result, error;
@@ -1354,7 +1223,6 @@ namespace Gambit
 
     enum wavefunction_renormalization{ wpwm, zz, wpHm, Hpwm, zA, Az, hh, HH, hH, Hh, HpHm, AA, };
 
-    //mZw2
     double mZw2(const void * params){
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
       const double mh = input_pars->mh, mH = input_pars->mH, tanb = input_pars->tanb, alpha = input_pars->alpha, m122 = input_pars->m122;
@@ -1456,6 +1324,8 @@ namespace Gambit
 
     double Pi_wpHm_re(void * params) { return Pi_zA(params).real(); }
     double Pi_wpHm_im(void * params) { return Pi_zA(params).imag(); }
+
+    double Z_w(void * params); // Necessary forward declaration
 
     std::complex<double> Pi_tilde_hh(const double p2, void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
@@ -1648,177 +1518,305 @@ namespace Gambit
       gsl_deriv_central (&F_im, m_in, 1e-8, &result_im, &abserr_im);
       return 1.0 + 0.5*(result_re + result_im);
     }
+    // ---------------------------------------------------------------------
 
-    double get_yu(THDM_spectrum_container& container) {
-      // const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"), container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::mass1, "u_3")};
-      // const double vev = get_v(container);
-      // double b = atan(container.he->get(Par::dimensionless, "tanb"));//, a= container.he->get(Par::dimensionless, "alpha");
-      // const double sb = sin(b);
-
-      // std::cout << sb << std::endl;
-
-      // const double y_u1_a = m_u[0]*sqrt(2)/vev/sb;
-      // const double y_u2_a = m_u[1]*sqrt(2)/vev/sb;
-      // const double y_u3_a = m_u[2]*sqrt(2)/vev/sb;
-
-      const double y_u1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
-      const double y_u2 = container.he->get(Par::dimensionless, "Yu", 2, 2);
-      const double y_u3 = container.he->get(Par::dimensionless, "Yu", 3, 3);
-
-      // std::cout << "MU " << m_u[0] << " " << m_u[1] << " " << m_u[2] << std::endl;
-      // std::cout << "YU " << y_u1 << " " << y_u2 << " " << y_u3 << std::endl;
-      // std::cout << "YUA " << y_u1_a << " " << y_u2_a << " " << y_u3_a << std::endl;
-
-      return y_u1 + y_u2 + y_u3;
+    // Custom functions to extend GSL 
+    std::complex<double> gsl_complex_to_complex_double(const gsl_complex c) {
+      return std::complex<double>(GSL_REAL(c), GSL_IMAG(c));
     }
 
-    double get_yd(THDM_spectrum_container& container) {
-      // const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::mass1, "d_3")};
-      // const double vev = get_v(container);
-      // double b = atan(container.he->get(Par::dimensionless, "tanb"));//, a= container.he->get(Par::dimensionless, "alpha");
-      // const double cb = cos(b);
-
-      // const double y_d1 = m_d[0]*sqrt(2)/vev/cb;
-      // const double y_d2 = m_d[1]*sqrt(2)/vev/cb;
-      // const double y_d3 = m_d[2]*sqrt(2)/vev/cb;
-
-      const double y_d1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
-      const double y_d2 = container.he->get(Par::dimensionless, "Yd", 2, 2);
-      const double y_d3 = container.he->get(Par::dimensionless, "Yd", 3, 3);
-
-      // std::cout << "YD " << y_d1 << " " << y_d2 << " " << y_d3 << std::endl;
-
-      return y_d1 + y_d2 + y_d3;
+    std::complex<double> gsl_matrix_complex_trace_complex(const gsl_matrix_complex* m1){
+      return gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,0,0)) + \
+        gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,1,1)) + \
+        gsl_complex_to_complex_double(gsl_matrix_complex_get(m1,2,2));
     }
 
-    double get_yl(THDM_spectrum_container& container) {
-      // const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
-      // const double vev = get_v(container);;
-      // double b = atan(container.he->get(Par::dimensionless, "tanb"));//, a= container.he->get(Par::dimensionless, "alpha");
-      // const double cb = cos(b);
+    // gets Yukawa traces required for LO corrections to lambda_i beta functions
+    // complicated function - easily extendable to Yukawas with off-diagonals
+    // usage:
+    // auto tr = get_traces_of_y(container);
+    // const std::complex<double> tr_u2 = tr["tr_u2"], tr_d2 = tr["tr_d2"], tr_l2 = tr["tr_l2"];
+    // const std::complex<double> tr_u4 = tr["tr_u4"], tr_d4 = tr["tr_d4"], tr_l4 =tr["tr_l4"], tr_du  = tr["tr_du"];
+    std::map<std::string, std::complex<double> > get_traces_of_y(THDM_spectrum_container& container) {
+      std::complex<double> tr_u2, tr_d2, tr_l2, tr_u4, tr_d4, tr_l4, tr_du;
+      gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
+      const int size = 3;
 
-      // const double y_l1 = m_l[0]*sqrt(2)/vev/cb;
-      // const double y_l2 = m_l[1]*sqrt(2)/vev/cb;
-      // const double y_l3 = m_l[2]*sqrt(2)/vev/cb;
+      const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
+      const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
+      const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
 
-      const double y_l1 = container.he->get(Par::dimensionless, "Ye", 1, 1);
-      const double y_l2 = container.he->get(Par::dimensionless, "Ye", 2, 2);
-      const double y_l3 = container.he->get(Par::dimensionless, "Ye", 3, 3);
+      y_u = gsl_matrix_complex_alloc(size, size);
+      y_d = gsl_matrix_complex_alloc(size, size);
+      y_l = gsl_matrix_complex_alloc(size, size);
+      y_u_dagger = gsl_matrix_complex_alloc(size, size);
+      y_d_dagger = gsl_matrix_complex_alloc(size, size);
+      y_l_dagger = gsl_matrix_complex_alloc(size, size);
 
-      // std::cout << "YD " << y_l1 << " " << y_l2 << " " << y_l3 << std::endl;
+      // set yukawa - up
+      gsl_complex y_u_11;
+      GSL_SET_REAL(&y_u_11, container.he->get(Par::dimensionless, "Yu", 1, 1));
+      GSL_SET_IMAG(&y_u_11, 0.0);
 
-      return y_l1 + y_l2 + y_l3;
+      gsl_complex y_u_22;
+      GSL_SET_REAL(&y_u_22, container.he->get(Par::dimensionless, "Yu", 2, 2));
+      GSL_SET_IMAG(&y_u_22, 0.0);
+
+      gsl_complex y_u_33;
+      GSL_SET_REAL(&y_u_33, container.he->get(Par::dimensionless, "Yu", 3, 3));
+      GSL_SET_IMAG(&y_u_33, 0.0);
+
+      gsl_matrix_complex_set_zero(y_u);
+
+      gsl_matrix_complex_set(y_u,0,0,y_u_11);
+      gsl_matrix_complex_set(y_u,1,1,y_u_22);
+      gsl_matrix_complex_set(y_u,2,2,y_u_33);
+
+      // take dagger -> all components currently real so no need to conjugate
+      gsl_matrix_complex_transpose_memcpy(y_u_dagger, y_u);
+
+      // set yukawa - down
+      gsl_complex y_d_11;
+      GSL_SET_REAL(&y_d_11, container.he->get(Par::dimensionless, "Yd", 1, 1));
+      GSL_SET_IMAG(&y_d_11, 0.0);
+
+      gsl_complex y_d_22;
+      GSL_SET_REAL(&y_d_22, container.he->get(Par::dimensionless, "Yd", 2, 2));
+      GSL_SET_IMAG(&y_d_22, 0.0);
+
+      gsl_complex y_d_33;
+      GSL_SET_REAL(&y_d_33, container.he->get(Par::dimensionless, "Yd", 3, 3));
+      GSL_SET_IMAG(&y_d_33, 0.0);
+
+      gsl_matrix_complex_set_zero(y_d);
+
+      gsl_matrix_complex_set(y_d,0,0,y_d_11);
+      gsl_matrix_complex_set(y_d,1,1,y_d_22);
+      gsl_matrix_complex_set(y_d,2,2,y_d_33);
+
+      // take dagger -> all components currently real so no need to conjugate
+      gsl_matrix_complex_transpose_memcpy(y_d_dagger, y_d);
+
+      // set yukawa - lepton
+      gsl_complex y_l_11;
+      GSL_SET_REAL(&y_l_11, container.he->get(Par::dimensionless, "Ye", 1, 1));
+      GSL_SET_IMAG(&y_l_11, 0.0);
+
+      gsl_complex y_l_22;
+      GSL_SET_REAL(&y_l_22, container.he->get(Par::dimensionless, "Ye", 2, 2));
+      GSL_SET_IMAG(&y_l_22, 0.0);
+
+      gsl_complex y_l_33;
+      GSL_SET_REAL(&y_l_33, container.he->get(Par::dimensionless, "Ye", 3, 3));
+      GSL_SET_IMAG(&y_l_33, 0.0);
+
+      gsl_matrix_complex_set_zero(y_l);
+
+      gsl_matrix_complex_set(y_l,0,0,y_l_11);
+      gsl_matrix_complex_set(y_l,1,1,y_l_22);
+      gsl_matrix_complex_set(y_l,2,2,y_l_33);
+
+      // take dagger -> all components currently real so no need to conjugate
+      gsl_matrix_complex_transpose_memcpy(y_l_dagger, y_l);
+
+      //calculate traces - up
+      gsl_matrix_complex *y_u2;
+      gsl_matrix_complex *y_u4;
+      y_u2 = gsl_matrix_complex_alloc(size, size);
+      y_u4 = gsl_matrix_complex_alloc(size, size);
+
+      gsl_matrix_complex_memcpy(y_u2,y_u);
+      gsl_matrix_complex_mul_elements(y_u2,y_u_dagger);
+      tr_u2 =  gsl_matrix_complex_trace_complex(y_u2);
+
+      gsl_matrix_complex_memcpy(y_u4,y_u2);
+      gsl_matrix_complex_mul_elements(y_u4,y_u2);
+      tr_d4 =  gsl_matrix_complex_trace_complex(y_u4);
+
+      //calculate traces - down
+      gsl_matrix_complex *y_d2;
+      gsl_matrix_complex *y_d4;
+      y_d2 = gsl_matrix_complex_alloc(size, size);
+      y_d4 = gsl_matrix_complex_alloc(size, size);
+
+      gsl_matrix_complex_memcpy(y_d2,y_d);
+      gsl_matrix_complex_mul_elements(y_d2,y_d_dagger);
+      tr_d2 =  gsl_matrix_complex_trace_complex(y_d2);
+
+      gsl_matrix_complex_memcpy(y_d4,y_d2);
+      gsl_matrix_complex_mul_elements(y_d4,y_d2);
+      tr_d4 =  gsl_matrix_complex_trace_complex(y_d4);
+
+      // calculate trace for down*up
+      gsl_matrix_complex_mul_elements(y_d2, y_u2);
+      tr_du = gsl_matrix_complex_trace_complex(y_d2);
+
+      gsl_matrix_complex_free(y_d2);
+      gsl_matrix_complex_free(y_u2);
+      gsl_matrix_complex_free(y_d4);
+      gsl_matrix_complex_free(y_u4);
+
+      //calculate traces - lepton
+      gsl_matrix_complex *y_l2;
+      y_l2 = gsl_matrix_complex_alloc(size, size);
+      gsl_matrix_complex_memcpy(y_l2,y_l);
+
+      gsl_matrix_complex_mul_elements(y_l2,y_l_dagger);
+      tr_l2 =  gsl_matrix_complex_trace_complex(y_l2);
+
+      gsl_matrix_complex_mul_elements(y_l2,y_l2); // y_l^2 is now y_l^4
+      tr_l4 =  gsl_matrix_complex_trace_complex(y_l2);
+
+      gsl_matrix_complex_free(y_l2);
+
+      gsl_matrix_complex_free(y_u);
+      gsl_matrix_complex_free(y_d);
+      gsl_matrix_complex_free(y_l);
+      gsl_matrix_complex_free(y_u_dagger);
+      gsl_matrix_complex_free(y_d_dagger);
+      gsl_matrix_complex_free(y_l_dagger);
+
+      return {{"tr_u2",tr_u2},
+              {"tr_d2",tr_d2},
+              {"tr_l2",tr_l2},
+              {"tr_u4",tr_u4},
+              {"tr_d4",tr_d4},
+              {"tr_l4",tr_l4},
+              {"tr_du",tr_du}};
     }
 
-    std::complex<double> beta_one(THDM_spectrum_container& container) {
-      const std::vector<double> a = get_alphas_for_type(container.yukawa_type);
+    // returns model specific coeffiecients (a_i) to Yukawa terms 
+    // appearing in the LO corrections to lambda_i beta functions
+    // see Nucl.Phys.B 262 (1985) 517-537
+    std::vector<double> get_alphas_for_type(const int type){
+      std::vector<double> a; 
+      const int size = 24;
+      a.push_back(0);
+      for(int i=1; i<size; i++) {
+        a.push_back(1);
+      }
+      switch (type)
+        {
+          case 1:
+            a[1] = 0; a[2] = 0; a[3] = 0; a[4] = 0; a[5] = 0; a[6] = 0;
+            a[7] = 1; a[8] = 1; a[9] = 1; a[10] = 1; a[11] = 1; a[12] = 1;
+            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 0;
+            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 0;
+            a[21] = 1; a[22] = 1; a[23] = 1;
+            break;
+          case 2:
+            a[1] = 1; a[2] = 1; a[3] = 0; a[4] = 1; a[5] = 1; a[6] = 0;
+            a[7] = 0; a[8] = 0; a[9] = 1; a[10] = 0; a[11] = 0; a[12] = 1;
+            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 1;
+            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 1;
+            a[21] = 1; a[22] = 1; a[23] = 1;
+            break;
+          case 3:
+            a[1] = 1; a[2] = 0; a[3] = 0; a[4] = 1; a[5] = 0; a[6] = 0;
+            a[7] = 0; a[8] = 1; a[9] = 1; a[10] = 0; a[11] = 1; a[12] = 1;
+            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 0;
+            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 0;
+            a[21] = 1; a[22] = 1; a[23] = 1;
+            break;
+          case 4:
+            a[1] = 0; a[2] = 1; a[3] = 0; a[4] = 0; a[5] = 1; a[6] = 0;
+            a[7] = 1; a[8] = 1; a[9] = 0; a[10] = 1; a[11] = 1; a[12] = 0;
+            a[13] = 1; a[14] = 1; a[15] = 1; a[16] = 1;
+            a[17] = 1; a[18] = 1; a[19] = 1; a[20] = 1;
+            a[21] = 1; a[22] = 1; a[23] = 1;
+            break;
+          case -1:
+            break;
+          default:
+            break;
+        }
+        return a;
+    }
+
+    // gets Yukawa traces required for LO corrections to lambda_i beta functions
+    // simple functions for efficiency - only for diagonal Yukawas
+    double get_tr_pow(THDM_spectrum_container& container, std::string yukawa_name, int pow_N) {
+      double tr = 0.0;
+      for (int i=1; i<=3; i++) {
+        tr += pow(container.he->get(Par::dimensionless, yukawa_name, i, i), pow_N);
+      }
+      return tr;
+    }
+
+    double get_tr_dduu(THDM_spectrum_container& container) {
+      double tr = 0.0;
+      for (int i=1; i<=3; i++) {
+        tr += pow(container.he->get(Par::dimensionless, "Yd", i, i), 2)*pow(container.he->get(Par::dimensionless, "Yu", i, i), 2);
+      }
+      return tr;
+    }
+
+    // LO beta function for lambda_1
+    std::complex<double> beta_one(THDM_spectrum_container& container, const bool gauge_correction, const bool yukawa_correction) {
+      std::vector<double> a = get_alphas_for_type(container.yukawa_type);
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
-
       const double g1 = container.he->get(Par::dimensionless, "g1"), g2 = container.he->get(Par::dimensionless, "g2");
-
-      const std::vector<complex<double>> tr = get_trace_of_yukawa_matrices(container);
-      int i = 0;
-      const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++], tr_u2 = tr[i++], tr_d2 = tr[i++], tr_l2 = tr[i++];
+      const std::complex<double> tr_u2 = get_tr_pow(container,"Yu",2), tr_d2 = get_tr_pow(container,"Yd",2), tr_l2 = get_tr_pow(container,"Ye",2);
+      const std::complex<double> tr_u4 = get_tr_pow(container,"Yu",4), tr_d4 = get_tr_pow(container,"Yd",4), tr_l4 = get_tr_pow(container,"Ye",4);
       std::complex<double> beta = 12.0*pow(Lambda[1],2) + 4.0*pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 2.0*pow(Lambda[4],2) + 2.0*pow(Lambda[5],2);
-      // beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[1] - 9.0*pow(g2,2)*Lambda[1];
-      
-      // // complex<double> yuk_1 = 4.0*Lambda[1]*(a[1]*tr_l + 3.0*a[2]*tr_d + 3*a[3]*tr_u) - 4.0*(a[4]*tr_l2 + 3.0*a[5]*tr_d2 + 3*a[6]*tr_u2);
-      // double yuk_2 = -12.0*pow(get_yd(container),4) - 4.0*pow(get_yl(container),4) + 12.0*pow(get_yl(container),2)*Lambda[1] + 4.0*pow(get_yl(container),2)*Lambda[1];
-      
-      // // std::cout << "B1 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
-
-      // beta += yuk_2;
-
+      if (gauge_correction) beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[1] - 9.0*pow(g2,2)*Lambda[1];
+      if (yukawa_correction) beta += 4.0*Lambda[1]*(a[1]*tr_l2 + 3.0*a[2]*tr_d2 + 3*a[3]*tr_u2) - 4.0*(a[4]*tr_l4 + 3.0*a[5]*tr_d4 + 3.0*a[6]*tr_u4);
       return 1.0/(16.0*pow(M_PI,2))*(beta);
     }
 
-    std::complex<double> beta_two(THDM_spectrum_container& container) {
+    // LO beta function for lambda_2
+    std::complex<double> beta_two(THDM_spectrum_container& container, const bool gauge_correction, const bool yukawa_correction) {
       const std::vector<double> a = get_alphas_for_type(container.yukawa_type);
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
-
       const double g1 = container.he->get(Par::dimensionless, "g1"), g2 = container.he->get(Par::dimensionless, "g2");
-      const std::vector<complex<double>> tr = get_trace_of_yukawa_matrices(container);
-      int i = 0;
-      const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++], tr_u2 = tr[i++], tr_d2 = tr[i++], tr_l2 = tr[i++];
+      const std::complex<double> tr_u2 = get_tr_pow(container,"Yu",2), tr_d2 = get_tr_pow(container,"Yd",2), tr_l2 = get_tr_pow(container,"Ye",2);
+      const std::complex<double> tr_u4 = get_tr_pow(container,"Yu",4), tr_d4 = get_tr_pow(container,"Yd",4), tr_l4 = get_tr_pow(container,"Ye",4);
       std::complex<double> beta = 12.0*pow(Lambda[2],2)+4.0*pow(Lambda[3],2)+4.0*Lambda[3]*Lambda[4]+2.0*pow(Lambda[4],2)+2.0*pow(Lambda[5],2);
-      // beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[2] - 9.0*pow(g2,2)*Lambda[2];
-      
-      // // complex<double> yuk_1 = 4.0*Lambda[2]*(a[7]*tr_l + 3.0*a[8]*tr_d + 3*a[9]*tr_u) - 4.0*(a[10]*tr_l2 + 3.0*a[11]*tr_d2 + 3*a[12]*tr_u2);
-      // double yuk_2 = - 12.0*pow(get_yu(container),4) + 12.0*pow(get_yu(container),2)*Lambda[2];
-
-      // // std::cout << "B2 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
-
-      // beta += yuk_2;
-
+      if (gauge_correction) beta += 3.0/4.0*pow(g1,4) + 3.0/2.0*pow(g1,2)*pow(g2,2) + 9.0/4.0*pow(g2,4) - 3.0*pow(g1,2)*Lambda[2] - 9.0*pow(g2,2)*Lambda[2];
+      if (yukawa_correction) beta += 4.0*Lambda[2]*(a[7]*tr_l2 + 3.0*a[8]*tr_d2 + 3*a[9]*tr_u2) - 4.0*(a[10]*tr_l4 + 3.0*a[11]*tr_d4 + 3*a[12]*tr_u4);
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
-    std::complex<double> beta_three(THDM_spectrum_container& container) {
+    // LO beta function for lambda_3
+    std::complex<double> beta_three(THDM_spectrum_container& container, const bool gauge_correction, const bool yukawa_correction) {
       const std::vector<double> a = get_alphas_for_type(container.yukawa_type);
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
-
       const double g1 = container.he->get(Par::dimensionless, "g1"), g2 = container.he->get(Par::dimensionless, "g2");
-      const std::vector<complex<double>> tr = get_trace_of_yukawa_matrices(container);
-      int i = 0;
-      const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++]; i++; i++; i++; std::complex<double> tr_du = tr[i++];
+      const std::complex<double> tr_u2 = get_tr_pow(container,"Yu",2), tr_d2 = get_tr_pow(container,"Yd",2), tr_l2 = get_tr_pow(container,"Ye",2);
+      const std::complex<double> tr_du = get_tr_dduu(container);
       std::complex<double> beta = 4.0*pow(Lambda[3],2) +2.0*pow(Lambda[4],2) + (Lambda[1]+Lambda[2])*(6.0*Lambda[3]+2.0*Lambda[4]) + 2.0*pow(Lambda[5],2);
-      // beta += -3.0*Lambda[3]*(3.0*pow(g2,2) + pow(g1,2)) + 9.0/4.0*pow(g2,4) + 3.0/4.0*pow(g1,4) - 3.0/2.0*pow(g1,2)*pow(g2,2);
-      
-      // // complex<double> yuk_1 = 2*Lambda[3]*(a[13]*tr_l + 3.0*a[14]*tr_d + 3.0*a[15]*tr_u) - 12.0*a[16]*tr_du;
-      // double yuk_2 = - 12.0*pow(get_yu(container),2)*pow(get_yd(container),2) + (6.0*pow(get_yu(container),2) + 6.0*pow(get_yd(container),2) + 2.0*pow(get_yl(container),2))*Lambda[3];
-      
-      // // std::cout << "B3 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
-
-      // beta += yuk_2;
-      
+      if (gauge_correction) beta += -3.0*Lambda[3]*(3.0*pow(g2,2) + pow(g1,2)) + 9.0/4.0*pow(g2,4) + 3.0/4.0*pow(g1,4) - 3.0/2.0*pow(g1,2)*pow(g2,2);
+      if (yukawa_correction) beta += 2*Lambda[3]*(a[13]*tr_l2 + 3.0*a[14]*tr_d2 + 3.0*a[15]*tr_u2) - 12.0*a[16]*tr_du;
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
-    std::complex<double> beta_four(THDM_spectrum_container& container) {
+    // LO beta function for lambda_4
+    std::complex<double> beta_four(THDM_spectrum_container& container, const bool gauge_correction, const bool yukawa_correction) {
       const std::vector<double> a = get_alphas_for_type(container.yukawa_type);
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
-
       const double g1 = container.he->get(Par::dimensionless, "g1"), g2 = container.he->get(Par::dimensionless, "g2");
-      const std::vector<complex<double>> tr = get_trace_of_yukawa_matrices(container);
-      int i = 0;
-      const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++]; i++; i++; i++; std::complex<double> tr_du = tr[i++];
+      const std::complex<double> tr_u2 = get_tr_pow(container,"Yu",2), tr_d2 = get_tr_pow(container,"Yd",2), tr_l2 = get_tr_pow(container,"Ye",2);
+      const std::complex<double> tr_du = get_tr_dduu(container);
       std::complex<double> beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3])*Lambda[4] + 4.0*pow(Lambda[4],2) + 8.0*pow(Lambda[5],2);
-      // beta += -3.0*Lambda[4]*(3.0*pow(g2,2) + pow(g1,2)) + 3.0*pow(g1,2)*pow(g2,2);
-      
-      // // complex<double> yuk_1 = 2.0*Lambda[4]*(a[17]*tr_l + 3.0*a[18]*tr_d + 3.0*a[19]*tr_u) + 12.0*a[20]*tr_du;
-      // double yuk_2 =  12.0*pow(get_yd(container),2)*pow(get_yu(container),2) + (6.0*pow(get_yd(container),2) + 6.0*pow(get_yu(container),2) + 2.0*pow(get_yl(container),2) )*Lambda[4];
-
-      // // std::cout << "B4 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
-
-      // beta += yuk_2;
-
+      if (gauge_correction) beta += -3.0*Lambda[4]*(3.0*pow(g2,2) + pow(g1,2)) + 3.0*pow(g1,2)*pow(g2,2);
+      if (yukawa_correction) beta += 2.0*Lambda[4]*(a[17]*tr_l2 + 3.0*a[18]*tr_d2 + 3.0*a[19]*tr_u2) + 12.0*a[20]*tr_du;
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
-    std::complex<double> beta_five(THDM_spectrum_container& container) {
+    // LO beta function for lambda_5
+    std::complex<double> beta_five(THDM_spectrum_container& container, const bool gauge_correction, const bool yukawa_correction) {
       const std::vector<double> a = get_alphas_for_type(container.yukawa_type);
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
-
       const double g1 = container.he->get(Par::dimensionless, "g1"), g2 = container.he->get(Par::dimensionless, "g2");
-      const std::vector<complex<double>> tr = get_trace_of_yukawa_matrices(container);
-      int i = 0;
-      const std::complex<double> tr_u = tr[i++], tr_d = tr[i++], tr_l = tr[i++];
+      const std::complex<double> tr_u2 = get_tr_pow(container,"Yu",2), tr_d2 = get_tr_pow(container,"Yd",2), tr_l2 = get_tr_pow(container,"Ye",2);
       std::complex<double> beta = (2.0*Lambda[1] + 2.0*Lambda[2] + 8.0*Lambda[3] + 12.0*Lambda[4])*Lambda[5];
-      beta += -3.0*Lambda[5]*(3.0*pow(g2,2) + pow(g1,2));
-
-      
-      // complex<double> yuk_1 = 2.0*Lambda[5]*(a[21]*tr_l +3.0*a[22]*tr_d + 3.0*a[23]*tr_u);
-      double yuk_2 =  12.0*pow(get_yd(container),2)*pow(get_yu(container),2) + (6.0*pow(get_yd(container),2) + 6.0*pow(get_yu(container),2) + 2.0*pow(get_yl(container),2) )*Lambda[4];
-    
-      // std::cout << "B5 y1 y2 : " << yuk_1 << " " << yuk_2 << std::endl;
-
-      beta += yuk_2;
-
-
+      if (gauge_correction) beta += -3.0*Lambda[5]*(3.0*pow(g2,2) + pow(g1,2));
+      if (yukawa_correction) beta += 2.0*Lambda[5]*(a[21]*tr_l2 +3.0*a[22]*tr_d2 + 3.0*a[23]*tr_u2);
       return 1.0/(16.0*pow(M_PI,2))*beta;
     }
 
     // Warnings & checks
+    // ---------------------------------------------------------------------
     int check_Z2(const double lambda6, const double lambda7, const std::string calculation_name) {
       if (lambda6!=0.0 || lambda7!=0.0) {
         std::ostringstream msg;
@@ -1849,8 +1847,11 @@ namespace Gambit
     void check_nan(double var, std::string var_name) {
       if (std::isnan(var)) nan_warning(var_name);
     }
+    // ---------------------------------------------------------------------
 
-    // Helpers
+    // Helper functions to run likelihoods/constraints between scales
+    // Evaluates a likelihood/constraint function at Qin & QRunTo
+    // Return the worse performing result
     double specbit_function_between_scales_likelihood_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, spec, yukawa_type);
@@ -1861,7 +1862,6 @@ namespace Gambit
         init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
         loglike_at_Q = specbit_function(container_at_scale);
       }
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return std::min(loglike,loglike_at_Q);
     }
 
@@ -1875,15 +1875,12 @@ namespace Gambit
         init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
         loglike_at_Q = specbit_function(container_at_scale);
       }
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return (loglike && loglike_at_Q);
     }
 
     // Step Functions (forward declarations)
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container);
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
-    double loop_correction_mass_splitting_inverted_h0_THDM(THDM_spectrum_container& container);
-    double loop_correction_mass_splitting_inverted_scalar_THDM(THDM_spectrum_container& container);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
     double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container);
@@ -1895,6 +1892,9 @@ namespace Gambit
     // Observable Functions (forward declatations)
     double global_minimum_discriminant_THDM(THDM_spectrum_container& container);
 
+    // Likelihood/constraint function callers
+    // These call the likleihood/constraint functions after setting up the correct environment
+    // ---------------------------------------------------------------------
     void get_unitarity_likelihood_THDM(double& result) {
       using namespace Pipes::get_unitarity_likelihood_THDM;
       // set THDM model type
@@ -2043,9 +2043,6 @@ namespace Gambit
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
-      if(runOptions->getValueOrDef<bool>(false, "invert")) {
-        check_loop_corrections_h0_function = loop_correction_mass_splitting_inverted_h0_THDM;
-      }
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_h0_function, *Dep::THDM_spectrum, scale, y_type);  
     }
 
@@ -2064,12 +2061,10 @@ namespace Gambit
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
-      if(runOptions->getValueOrDef<bool>(false, "invert")) {
-        check_loop_corrections_scalar_function = loop_correction_mass_splitting_inverted_scalar_THDM;
-      }
       result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
     
     }
+    // ---------------------------------------------------------------------
 
     std::vector<complex<double>> get_LO_scattering_eigenvalues(THDM_spectrum_container& container) {
       std::vector<double> lambda;
@@ -2173,76 +2168,114 @@ namespace Gambit
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a= container.he->get(Par::dimensionless, "alpha");
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
 
-      // to avoid having to recalculate
-      const std::complex<double> b_one = beta_one(container);
-      const std::complex<double> b_two = beta_two(container);
-      const std::complex<double> b_three = beta_three(container);
-      const std::complex<double> b_four = beta_four(container);
-      const std::complex<double> b_five = beta_five(container);
+      // calculate LO beta functions 
+      const bool gauge_corrections = true;
+      const bool yukawa_corrections = true;
+      const std::complex<double> b_one = beta_one(container, gauge_corrections, yukawa_corrections);
+      const std::complex<double> b_two = beta_two(container, gauge_corrections, yukawa_corrections);
+      const std::complex<double> b_three = beta_three(container, gauge_corrections, yukawa_corrections);
+      const std::complex<double> b_four = beta_four(container, gauge_corrections, yukawa_corrections);
+      const std::complex<double> b_five = beta_five(container, gauge_corrections, yukawa_corrections);
 
-      const std::complex<double> zij_wpwm = z_ij(wpwm, container);
-      const std::complex<double> zij_zz = z_ij(zz, container);
-      const std::complex<double> zij_Hpwm = z_ij(Hpwm, container);
-      const std::complex<double> zij_Az = z_ij(Az, container);
-      const std::complex<double> zij_hh = z_ij(hh, container);
-      const std::complex<double> zij_HH = z_ij(HH, container);
-      const std::complex<double> zij_hH = z_ij(hH, container);
-      const std::complex<double> zij_Hh = z_ij(Hh, container);
-      const std::complex<double> zij_HpHm = z_ij(HpHm, container);
-      const std::complex<double> zij_AA = z_ij(AA, container);
+      // wavefunction functions 
+      const bool wave_function_corrections = true;
+      std::complex<double> zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
+      std::complex<double> B1_z, B2_z, B3_z, B20_z, B21_z, B22_z;
+      if (wave_function_corrections) {
+        zij_wpwm = z_ij(wpwm, container);
+        zij_zz = z_ij(zz, container);
+        zij_Hpwm = z_ij(Hpwm, container);
+        zij_Az = z_ij(Az, container);
+        zij_hh = z_ij(hh, container);
+        zij_HH = z_ij(HH, container);
+        zij_hH = z_ij(hH, container);
+        zij_Hh = z_ij(Hh, container);
+        zij_HpHm = z_ij(HpHm, container);
+        zij_AA = z_ij(AA, container);
+      }
 
       std::complex<double> B1 = -3.0*Lambda[1] + (9.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[1],2)+pow((2.0*Lambda[3]+Lambda[4]),2));
-      std::complex<double> B1_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
-      B1_z += 1.0/(16.0*pow(M_PI,2)) * ((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
-      // B1 += -3.0/2.0 * Lambda[1] * B1_z;
+      if(wave_function_corrections) {
+        B1_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+        B1_z += 1.0/(16.0*pow(M_PI,2)) * ((2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b - (zij_Hh + zij_hH)*s2a - (2.0*zij_Hpwm + zij_Az)*s2b);
+        B1 += -3.0/2.0 * Lambda[1] * B1_z;
+      }
 
       std::complex<double> B2 = -3.0*Lambda[2] + (9.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(9.0*pow(Lambda[2],2) + pow((2.0*Lambda[3]+Lambda[4]),2));
-      std::complex<double> B2_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
-      B2_z += 1.0/(16.0*pow(M_PI,2)) * (-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
-      // B2 += -3.0/2.0 * Lambda[2] * B2_z;
+      if(wave_function_corrections) {
+        B2_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz - (zij_HH - zij_hh)*c2a);
+        B2_z += 1.0/(16.0*pow(M_PI,2)) * (-(2.0*zij_wpwm - 2.0*zij_HpHm + zij_zz - zij_AA)*c2b + (zij_Hh + zij_hH)*s2a + (2.0*zij_Hpwm + zij_Az)*s2b);
+        B2 += -3.0/2.0 * Lambda[2] * B2_z;
+      }
 
       std::complex<double> B3 = - (2.0*Lambda[3]+Lambda[4]) + (3.0/2.0)*(2.0*b_three+b_four) + 3.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1]+Lambda[2])*(2.0*Lambda[3]+Lambda[4]);
-      std::complex<double> B3_z = 1.0/(16.0*pow(M_PI,2)) * ( zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz );
-      // B3 += -1.0/2.0 * (2.0*Lambda[3]+Lambda[4]) * B3_z;
+      if(wave_function_corrections) {
+        std::complex<double> B3_z = 1.0/(16.0*pow(M_PI,2)) * ( zij_AA + zij_hh + 2.0*zij_HpHm + zij_HH + 2.0*zij_wpwm + zij_zz );
+        B3 += -1.0/2.0 * (2.0*Lambda[3]+Lambda[4]) * B3_z;
+      }
 
       std::complex<double> B4 = - (Lambda[3] + 2.0*Lambda[4]) + (3.0/2.0)*(b_three + 2.0*b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2) + 4.0*Lambda[3]*Lambda[4] + 4.0*pow(Lambda[4],2) + 9.0*pow(Lambda[5],2));
-      // B4 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      if(wave_function_corrections) {
+        B4 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      }
       
       std::complex<double> B6 = -3.0*Lambda[5] + (9.0/2.0)*b_five + (6.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[3] + 2.0*Lambda[4])*Lambda[5];
-      // B6 += -1.0/2.0 * (Lambda[4]+2.0*Lambda[5]) * B3_z;
+      if(wave_function_corrections) {
+        B6 += -1.0/2.0 * (Lambda[4]+2.0*Lambda[5]) * B3_z;
+      }
       
       std::complex<double> B7 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2)+pow(Lambda[4],2));
-      // B7 += -1.0/2.0 * Lambda[1] * B1_z;
+      if(wave_function_corrections) {
+        B7 += -1.0/2.0 * Lambda[1] * B1_z;
+      }
 
       std::complex<double> B8 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2)+pow(Lambda[4],2));
-      // B8 += -1.0/2.0 * Lambda[2] * B2_z;
+      if(wave_function_corrections) {
+        B8 += -1.0/2.0 * Lambda[2] * B2_z;
+      }
 
       std::complex<double> B9 = -Lambda[4] + (3.0/2.0)*b_four + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[4]; 
-      // B9 += -1.0/2.0 * Lambda[4] * B3_z;
+      if(wave_function_corrections) {
+        B9 += -1.0/2.0 * Lambda[4] * B3_z;
+      }
 
       std::complex<double> B13 = -Lambda[3] + (3.0/2.0)*b_three + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(pow(Lambda[3],2)+pow(Lambda[5],2));
-      // B13 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      if(wave_function_corrections) {
+        B13 += -1.0/2.0 * (Lambda[3]+Lambda[4]+Lambda[5]) * B3_z;
+      }
 
       std::complex<double> B15 = -Lambda[5] + (3.0/2.0)*b_five + (2.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*Lambda[3]*Lambda[5];
-      // B15 += -1.0/2.0 * (Lambda[4]-2.0*Lambda[5]) * B3_z;
+      if(wave_function_corrections) {
+        B15 += -1.0/2.0 * (Lambda[4]-2.0*Lambda[5]) * B3_z;
+      }
 
       std::complex<double> B19 = -(Lambda[3]-Lambda[4]) + (3.0/2.0)*(b_three - b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]-Lambda[4]),2);
-      // B19 += -1.0/2.0 * (Lambda[3]-Lambda[5]) * B3_z;
+      if(wave_function_corrections) {
+        B19 += -1.0/2.0 * (Lambda[3]-Lambda[5]) * B3_z;
+      }
 
       std::complex<double> B20 = -Lambda[1] + (3.0/2.0)*b_one + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[1],2) + pow(Lambda[5],2));  
-      std::complex<double> B20_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
-      // B20 += -1.0 * Lambda[1] * B20_z;
+      if(wave_function_corrections) {
+        B20_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a + (zij_zz - zij_AA)*c2b - (zij_Hh - zij_hH)*s2a - zij_Az*s2b);
+        B20 += -1.0 * Lambda[1] * B20_z;
+      }
 
       std::complex<double> B21 = -Lambda[2] + (3.0/2.0)*b_two + 1.0/(16.0*pow(M_PI,2))*(i*M_PI-1.)*(pow(Lambda[2],2) + pow(Lambda[5],2));
-      std::complex<double> B21_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
-      // B21 += -1.0 * Lambda[2] * B21_z;
+      if(wave_function_corrections) {
+        B21_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh)*c2a - (zij_zz - zij_AA)*c2b + (zij_Hh - zij_hH)*s2a + zij_Az*s2b);
+        B21 += -1.0 * Lambda[2] * B21_z;
+      }
 
       std::complex<double> B22 = -Lambda[5] + (3.0/2.0)*b_five + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*(Lambda[1] + Lambda[2])*Lambda[5];
-      std::complex<double> B22_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
-      // B22 += -1.0 * Lambda[5] * B22_z;
+      if(wave_function_corrections) {
+        B22_z = 1.0/(16.0*pow(M_PI,2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
+        B22 += -1.0 * Lambda[5] * B22_z;
+      }
       
       std::complex<double> B30 = -(Lambda[3]+Lambda[4]) + (3.0/2.0)*(b_three+b_four) + (1.0/(16.0*pow(M_PI,2)))*(i*M_PI-1.)*pow((Lambda[3]+Lambda[4]),2);
-      // B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
+      if(wave_function_corrections) {
+        B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
+      }
 
       // eigenvalues
       std::complex<double> a00_even_plus = 1.0/(32.0*M_PI) * ((B1 + B2) + sqrt(pow((B1-B2),2) + 4.*pow(B3,2)));
@@ -2436,9 +2469,6 @@ namespace Gambit
 
       const double lambda1 = container.he->get(Par::mass1, "lambda_1");
       const double lambda2 = container.he->get(Par::mass1, "lambda_2");
-      const double lambda3 = container.he->get(Par::mass1, "lambda_3");
-      const double lambda4 = container.he->get(Par::mass1, "lambda_4");
-      const double lambda5 = container.he->get(Par::mass1, "lambda_5");
       const double lambda6 = container.he->get(Par::mass1, "lambda_6");
       const double lambda7 = container.he->get(Par::mass1, "lambda_7");
       const double tb = container.he->get(Par::dimensionless, "tanb");
@@ -2447,20 +2477,10 @@ namespace Gambit
       // check that model is Z2 conserving
       if (check_Z2(lambda6, lambda7, "global_minimum_discriminant_THDM") < 0.0) return 0.0;
 
-      // set up required quantities
-      const double ctb = 1./tb;
-      const double cb  = 1./sqrt(1.+tb*tb);
-      const double sb  = tb*cb;
-      const double sb2 = sb*sb;
-      const double cb2 = cb*cb;
-
-      // TODO: get from FS
-      const double v2 = get_v2(container);
-
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)
-      const double m11_2 = m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
-      const double m22_2 = m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
+      const double m11_2 = container.he->get(Par::mass1, "m11_2");//m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
+      const double m22_2 = container.he->get(Par::mass1, "m22_2");//m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
       const complex<double> k = pow((complex<double>(lambda1)/complex<double>(lambda2)),0.25);
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
@@ -2522,51 +2542,11 @@ namespace Gambit
       return loglike;
     }
 
-    // TEMP FOR PAPER
-
-    double loop_correction_mass_splitting_inverted_h0_THDM(THDM_spectrum_container& container) { 
-      const double mh_running = container.he->get(Par::mass1, "h0", 1), mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
-      const double mh_splitting = abs(mh_pole - mh_running);
-      const double lower_limit = mh_running*0.5;
-      if (mh_splitting > lower_limit) return 0.0;
-      return -L_MAX;
-    }
-
-    double loop_correction_mass_splitting_inverted_H0_THDM(THDM_spectrum_container& container) { 
-      const double mh_running = container.he->get(Par::mass1, "h0", 2), mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
-      const double mh_splitting = abs(mh_pole - mh_running);
-      const double lower_limit = mh_running*0.5;
-      if (mh_splitting > lower_limit) return 0.0;
-      return -L_MAX;
-    }
-
-    double loop_correction_mass_splitting_inverted_A0_THDM(THDM_spectrum_container& container) { 
-      const double mh_running = container.he->get(Par::mass1, "A0"), mh_pole = container.he->get(Par::Pole_Mass, "A0");
-      const double mh_splitting = abs(mh_pole - mh_running);
-      const double lower_limit = mh_running*0.5;
-      if (mh_splitting > lower_limit) return 0.0;
-      return -L_MAX;
-    }
-
-    double loop_correction_mass_splitting_inverted_Hpm_THDM(THDM_spectrum_container& container) { 
-      const double mh_running = container.he->get(Par::mass1, "H+"), mh_pole = container.he->get(Par::Pole_Mass, "H+");
-      const double mh_splitting = abs(mh_pole - mh_running);
-      const double lower_limit = mh_running*0.5;
-      if (mh_splitting > lower_limit) return 0.0;
-      return -L_MAX;
-    }
-
-    double loop_correction_mass_splitting_inverted_scalar_THDM(THDM_spectrum_container& container) {
-      double loglike = loop_correction_mass_splitting_inverted_H0_THDM(container);
-      loglike += loop_correction_mass_splitting_inverted_A0_THDM(container);
-      loglike += loop_correction_mass_splitting_inverted_Hpm_THDM(container);
-      return loglike;
-    }
-
-    //
-
+    // purpose for which the couplings are to be filled
+    // this saves computation time
     enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
 
+    // fill couplings from 2HDMC
     thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
       thdmc_couplings couplings;
       switch(purpose) {
@@ -2651,8 +2631,6 @@ namespace Gambit
          case HB_effc_SM_like_couplings:
             // fill neutral scalar coupling
             for (int h=1; h<4; h++) { 
-              // std::cout << "kappa GAMBIT: " << h << 2 << 2 << " | " <<  container.he->get(Par::dimensionless, "Yu",2,2) << std::endl;
-              // std::cout << "kappa GAMBIT: " << h << 3 << 3 << " | " <<  container.he->get(Par::dimensionless, "Yu",3,3) << std::endl;
               container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
               container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
               container.THDM_object->get_coupling_huu(h,2,2,couplings.huu_cs[h][2][2],couplings.huu_cp[h][2][2]);
@@ -2675,9 +2653,10 @@ namespace Gambit
       return couplings;
     }
     
-    // **
-    // THDM coupling SpecBit helper functions
-    thdmc_couplings get_THDM_couplings(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
+    // Rollcall functions that will call the above filler function once setting up the correct environment
+    // Two helper functions at the top
+    // ---------------------------------------------------------------------
+    thdmc_couplings get_THDM_couplings_helper(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       thdmc_couplings couplings; 
       init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
@@ -2686,7 +2665,7 @@ namespace Gambit
       return couplings;
     }
 
-    std::vector<thdmc_couplings> get_THDM_couplings_SM_like(const Spectrum spec, thdmc_couplings_purpose purpose) {
+    std::vector<thdmc_couplings> get_THDM_couplings_SM_like_helper(const Spectrum spec, thdmc_couplings_purpose purpose) {
       THDM_spectrum_container container;
       std::vector<thdmc_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
@@ -2698,13 +2677,9 @@ namespace Gambit
         init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
         SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
       }
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return SM_like_couplings;
     }
-    // **
 
-    // **
-    // THDM coupling SpecBit front facing functions 
     void get_THDM_couplings(thdmc_couplings &result) {
       using namespace Pipes::get_THDM_couplings;
       // set THDM model type
@@ -2716,7 +2691,7 @@ namespace Gambit
             break;
           }
       }
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, full);
+      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, full);
     }
 
     void get_THDM_couplings_HB(thdmc_couplings &result) {
@@ -2730,12 +2705,12 @@ namespace Gambit
             break;
           }
       }
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_couplings);
+      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_couplings);
     }
 
     void get_THDM_couplings_HB_SM_like_model(std::vector<thdmc_couplings> &result) { 
       using namespace Pipes::get_THDM_couplings_HB_SM_like_model;
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, HB_SM_like_couplings);
+      result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_SM_like_couplings);
     }
 
     void get_THDM_couplings_HB_effc(thdmc_couplings &result) {
@@ -2749,15 +2724,17 @@ namespace Gambit
             break;
           }
       }
-      result = get_THDM_couplings(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
+      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
     }
 
     void get_THDM_couplings_HB_effc_SM_like_model(std::vector<thdmc_couplings> &result) { 
       using namespace Pipes::get_THDM_couplings_HB_effc_SM_like_model;
-      result = get_THDM_couplings_SM_like(*Dep::THDM_spectrum, HB_effc_SM_like_couplings);
+      result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_effc_SM_like_couplings);
     }
-    // **
+    // ---------------------------------------------------------------------
 
+    // Observables
+    // ---------------------------------------------------------------------
       void obs_mh0_pole(double& result) {
         using namespace Pipes::obs_mh0_pole;
         const Spectrum spec = *Dep::THDM_spectrum;
@@ -2954,8 +2931,6 @@ namespace Gambit
         result = he->get(Par::mass1, "M22_2");
       }
 
-      // angles
-
       void obs_tanb(double& result) {
         using namespace Pipes::obs_tanb;
         const Spectrum spec = *Dep::THDM_spectrum;
@@ -2967,7 +2942,9 @@ namespace Gambit
         using namespace Pipes::obs_alpha;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "alpha");
+        double alpha = he->get(Par::dimensionless, "alpha");
+        if (alpha>M_PI/2) alpha =- M_PI;
+        result = alpha;
       }
 
       void obs_sba(double& result) {
@@ -2996,8 +2973,6 @@ namespace Gambit
         const double alpha = he->get(Par::dimensionless, "alpha");
         result = beta - alpha;
       }
-
-      // yukawas
 
       void obs_Yu1(double& result) {
         using namespace Pipes::obs_Yu1;
@@ -3089,6 +3064,7 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::dimensionless, "g3");
       }
+      // ---------------------------------------------------------------------
 
       /// Put together the Higgs couplings for the THDM, from partial widths only
       void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result) {
@@ -3164,110 +3140,6 @@ namespace Gambit
         // Work out which invisible decays are possible
         //result.invisibles = get_invisibles(spec);
       }
-
-    void test_THDM_spectrum_1(double &result) { 
-        using namespace Pipes::test_THDM_spectrum_1;
-        Spectrum fullspectrum = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> spec = fullspectrum.clone_HE();
-        double QrunTo = *Param.at("QrunTo");
-
-        cout << "---- running to scale: " << QrunTo << "GeV. "<< endl;
-        cout << "mh0 = " <<  spec->get(Par::Pole_Mass, "h0", 1) << endl;
-        cout <<  "mH0 = " << spec->get(Par::Pole_Mass, "h0", 2) << endl;
-        cout <<  "mA = " << spec->get(Par::Pole_Mass, "A0") << endl;
-        cout << "mC = " <<  spec->get(Par::Pole_Mass, "H+") << endl;
-        cout << "alpha = " <<  spec->get(Par::dimensionless, "alpha") << endl;
-        cout << "tan(beta) = " <<  spec->get(Par::dimensionless, "tanb") << endl;
-        cout <<  "m12_2 = " << spec->get(Par::mass1, "m12_2") << endl;
-        cout <<  "sin(theta_W) = " << spec->get(Par::dimensionless, "sinW2") << endl;
-        double lambda_1 = spec->get(Par::mass1, "lambda_1");
-        double lambda_2 = spec->get(Par::mass1, "lambda_2");
-        double lambda_3 = spec->get(Par::mass1, "lambda_3");
-        double lambda_4 = spec->get(Par::mass1, "lambda_4");
-        double lambda_5 = spec->get(Par::mass1, "lambda_5");
-        cout << "lambda_1 = " << lambda_1 << endl;
-        cout << "lambda_2 = " << lambda_2 << endl;
-        cout << "lambda_3 = " << lambda_3 << endl;
-        cout << "lambda_4 = " << lambda_4 << endl;
-        cout << "lambda_5 = " << lambda_5 << endl;
-
-        std::vector<double> lambdas = {lambda_1,lambda_2,lambda_3,lambda_4,lambda_5};
-        double check_pertubativity = true;
-        for(int i=0; i<int(lambdas.size()); i++) {
-          if(abs(lambdas[i]) > 4*M_PI) check_pertubativity = false ;
-        }
-
-        if(check_pertubativity) {
-          spec -> RunToScale(QrunTo);
-
-          double mh0_1 = spec->get(Par::Pole_Mass, "h0", 1);
-          double mh0_2 = spec->get(Par::Pole_Mass, "h0", 2);
-          double mA0 = spec->get(Par::Pole_Mass, "A0");
-          double mHm = spec->get(Par::Pole_Mass, "H+");
-          double alpha = spec->get(Par::dimensionless, "alpha");
-          double tb = spec->get(Par::dimensionless, "tanb");
-          double m12_2 = spec->get(Par::mass1, "m12_2");
-          double mh0_1_run = spec->get(Par::Pole_Mass, "h0", 1);
-          double mh0_2_run = spec->get(Par::mass1, "h0", 2);
-          double mA0_run = spec->get(Par::mass1, "A0");
-          double mHm_run = spec->get(Par::mass1, "H+");
-          lambda_1 = spec->get(Par::mass1, "lambda_1");
-          lambda_2 = spec->get(Par::mass1, "lambda_2");
-          lambda_3 = spec->get(Par::mass1, "lambda_3");
-          lambda_4 = spec->get(Par::mass1, "lambda_4");
-          lambda_5 = spec->get(Par::mass1, "lambda_5");
-          cout << "---- after running to scale: " << QrunTo << "GeV. "<< endl;
-          cout << "----------------------------------" << endl;
-          cout << "The FlexibleSUSY generated spectrum is, using tree-level input relations:" << endl;
-          cout << "mh0_1 = " << mh0_1 << endl;
-          cout << "mh0_2 = " << mh0_2 << endl;
-          cout << "mA0 = " << mA0 << endl;
-          cout << "mHm = " << mHm << endl;
-          cout << "alpha = " << alpha << endl;
-          cout << "tb = " << tb << endl;
-          cout << "m12_2 = " << m12_2 << endl;
-          cout << "----------------------------------" << endl;
-          cout << "mh0_1_run = " << mh0_1_run << endl;
-          cout << "mh0_2_run = " << mh0_2_run << endl;
-          cout << "mA0_run = " << mA0_run << endl;
-          cout << "mHm_run = " << mHm_run << endl;
-          cout << "----------------------------------" << endl;
-          cout << "lambda_1 = " << lambda_1 << endl;
-          cout << "lambda_2 = " << lambda_2 << endl;
-          cout << "lambda_3 = " << lambda_3 << endl;
-          cout << "lambda_4 = " << lambda_4 << endl;
-          cout << "lambda_5 = " << lambda_5 << endl;
-          cout << "----------------------------------" << endl;
-        }
-        else {
-          cout << "Perturbativity failed: Did not run to scale.. Would most likely fail at FS level." << endl;
-        }
-        result = 0;
-    }
-
-    void test_THDM_spectrum_2(double &result) {
-      using namespace Pipes::test_THDM_spectrum_2;
-      Spectrum fullspectrum = *Dep::THDM_spectrum;
-      SubSpectrum& spec = fullspectrum.get_HE();
-      double mh0_1 = spec.get(Par::Pole_Mass, "h0",1);
-      double mh0_2 = spec.get(Par::Pole_Mass, "h0",2);
-      double mA0 = spec.get(Par::Pole_Mass, "A0");
-      double mHm = spec.get(Par::Pole_Mass, "H+");
-      double alpha = spec.get(Par::dimensionless, "alpha");
-      double tb = spec.get(Par::dimensionless, "tanb");
-      cout << "----------------------------------" << endl;
-      cout << "The simple container spectrum is:" << endl;
-      double sba = get_sba(tb, alpha);
-      cout << "mh0_1 = " << mh0_1 << endl;
-      cout << "mh0_2 = " << mh0_2 << endl;
-      cout << "mA0 = " << mA0 << endl;
-      cout << "mHm = " << mHm << endl;
-      cout << "sba = " << sba << endl;
-      cout << "tb = " << tb << endl;
-      cout << "----------------------------------" << endl;
-      result = 0;
-    }
-
 
     void fill_map_from_THDMspectrum(std::map<std::string,double>& specmap, const Spectrum& thdmspec);
 

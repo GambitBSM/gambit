@@ -179,8 +179,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    DEPENDENCY(fill_THDM_decay_widths, THDM_decay_widths)
+    DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
     ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
     ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -211,8 +211,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    DEPENDENCY(fill_THDM_decay_widths, THDM_decay_widths)
+    DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
     ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
     ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -242,8 +242,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    DEPENDENCY(fill_THDM_decay_widths, THDM_decay_widths)
+    DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
     ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
     ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -275,8 +275,8 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_decay_widths, thdmc_decay_widths)
-    DEPENDENCY(THDM_total_widths, thdmc_total_widths)
+    DEPENDENCY(fill_THDM_decay_widths, THDM_decay_widths)
+    DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
     ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
     ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -852,11 +852,11 @@ START_MODULE
 
   //EXTRA THDM
 
-  #define CAPABILITY THDM_decay_widths
+  #define CAPABILITY fill_THDM_decay_widths
   START_CAPABILITY
 
     #define FUNCTION get_THDM_decay_widths
-    START_FUNCTION(thdmc_decay_widths)
+    START_FUNCTION(THDM_decay_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -865,11 +865,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_decay_widths_HB
+  #define CAPABILITY fill_THDM_decay_widths_HB
   START_CAPABILITY
 
     #define FUNCTION get_THDM_decay_widths_HB
-    START_FUNCTION(thdmc_decay_widths)
+    START_FUNCTION(THDM_decay_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -878,11 +878,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_decay_widths_HB_SM_like_model
+  #define CAPABILITY fill_THDM_decay_widths_HB_SM_like_model
   START_CAPABILITY
 
     #define FUNCTION get_THDM_decay_widths_HB_SM_like_model
-    START_FUNCTION(std::vector<thdmc_decay_widths>)
+    START_FUNCTION(std::vector<THDM_decay_widths>)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -891,11 +891,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_decay_widths_HB_effc
+  #define CAPABILITY fill_THDM_decay_widths_HB_effc
   START_CAPABILITY
 
     #define FUNCTION get_THDM_decay_widths_HB_effc
-    START_FUNCTION(thdmc_decay_widths)
+    START_FUNCTION(THDM_decay_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -904,11 +904,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_decay_widths_HB_effc_SM_like_model
+  #define CAPABILITY fill_THDM_decay_widths_HB_effc_SM_like_model
   START_CAPABILITY
 
     #define FUNCTION get_THDM_decay_widths_HB_effc_SM_like_model
-    START_FUNCTION(std::vector<thdmc_decay_widths>)
+    START_FUNCTION(std::vector<THDM_decay_widths>)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -917,11 +917,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_total_widths
+  #define CAPABILITY fill_THDM_total_widths
   START_CAPABILITY
 
     #define FUNCTION get_THDM_total_widths
-    START_FUNCTION(thdmc_total_widths)
+    START_FUNCTION(THDM_total_widths)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -930,11 +930,11 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_total_widths_SM_like_model
+  #define CAPABILITY fill_THDM_total_widths_SM_like_model
   START_CAPABILITY
 
     #define FUNCTION get_THDM_total_widths_SM_like_model
-    START_FUNCTION(std::vector<thdmc_total_widths>)
+    START_FUNCTION(std::vector<THDM_total_widths>)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     

@@ -2,16 +2,16 @@
 //   *********************************************
 ///  \file
 ///
-///  Definitions of routines to help users / Bits
+///  Creates the 2HDM SLHA
 ///
 ///  *********************************************
 ///
 ///  Authors:
 ///  <!-- add name and date if you modify -->
 ///
-///    Filip Rajec 
-///      filip.rajec@adelaide.edu.au
-///    Feb 2019
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -88,25 +88,25 @@ namespace Gambit
           SLHAea_add_block(slha, "ALPHA");
           SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
 
-          std::vector<double> matrix_u, matrix_d, matrix_l;
+          // std::vector<double> matrix_u, matrix_d, matrix_l;
           std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
           for (int i=0;i<9;i++) {
-              matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
+              // matrix_u.push_back(0); matrix_d.push_back(0); matrix_l.push_back(0);
               u_coupl_matrix.push_back(0); d_coupl_matrix.push_back(0); l_coupl_matrix.push_back(0);
           }
 
-          matrix_u[0] = thdmspec.get(Par::dimensionless, "Yu", 1, 1);
-          matrix_u[4] = thdmspec.get(Par::dimensionless, "Yu", 2, 2);
-          matrix_u[8] = thdmspec.get(Par::dimensionless, "Yu", 3, 3);
+          // matrix_u[0] = thdmspec.get(Par::dimensionless, "Yu", 1, 1);
+          // matrix_u[4] = thdmspec.get(Par::dimensionless, "Yu", 2, 2);
+          // matrix_u[8] = thdmspec.get(Par::dimensionless, "Yu", 3, 3);
 
-          matrix_d[0] = thdmspec.get(Par::dimensionless, "Yd", 1, 1);
-          matrix_d[4] = thdmspec.get(Par::dimensionless, "Yd", 2, 2);
-          matrix_d[8] = thdmspec.get(Par::dimensionless, "Yd", 3, 3);
+          // matrix_d[0] = thdmspec.get(Par::dimensionless, "Yd", 1, 1);
+          // matrix_d[4] = thdmspec.get(Par::dimensionless, "Yd", 2, 2);
+          // matrix_d[8] = thdmspec.get(Par::dimensionless, "Yd", 3, 3);
 
-          matrix_l[0] = thdmspec.get(Par::dimensionless, "Ye", 1, 1);
-          matrix_l[4] = thdmspec.get(Par::dimensionless, "Ye", 2, 2);
-          matrix_l[8] = thdmspec.get(Par::dimensionless, "Ye", 3, 3);
+          // matrix_l[0] = thdmspec.get(Par::dimensionless, "Ye", 1, 1);
+          // matrix_l[4] = thdmspec.get(Par::dimensionless, "Ye", 2, 2);
+          // matrix_l[8] = thdmspec.get(Par::dimensionless, "Ye", 3, 3);
 
           double u_coupl, d_coupl, l_coupl;
 
@@ -136,8 +136,7 @@ namespace Gambit
 
           SLHAea_add_block(slha, "LCOUPL");
           SLHAea_add_matrix(slha, "LCOUPL", l_coupl_matrix, 3, 3, "LL", true);
-
-          
+        
         }
         else {
           // at the moment only SLHA2 is called, but in case, throw an error

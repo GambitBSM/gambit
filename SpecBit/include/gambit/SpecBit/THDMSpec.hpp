@@ -13,9 +13,9 @@
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
-///  \ modified:
-///   Filip Rajec
-///   Feb 2017-2019
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -216,9 +216,7 @@ namespace Gambit
          return model.get_MHm_pole_slha(0);
       }
 
-      // wrapper getter methods for
-      // higgs basis parameters
-
+      // wrapper getter methods for higgs basis parameters 
       // forward declaration as needed
       template <class Model>
       double get_tanb(const Model& model);
@@ -385,7 +383,6 @@ namespace Gambit
          double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
          double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = b - ba;
-         // if (alpha>M_PI/2) alpha = alpha - M_PI;
          return alpha;
       }
 
