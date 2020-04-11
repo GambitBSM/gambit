@@ -38,6 +38,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Jan
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 

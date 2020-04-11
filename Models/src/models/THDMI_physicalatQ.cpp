@@ -11,9 +11,9 @@
 ///
 ///  (add name and date if you modify)
 ///
-///  \author Filip Rajec
-///          (filip.rajec@adelaide.edu.au)
-//   \date 2019 Apr
+///  Filip Rajec (filip.rajec@adelaide.edu.au)
+///  2019 
+///
 ///  *********************************************
 
 #include <string>

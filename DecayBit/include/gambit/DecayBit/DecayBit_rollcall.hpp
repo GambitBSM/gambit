@@ -37,6 +37,10 @@
 ///  \author Peter Athron
 ///  \date 2018 May
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 

@@ -21,6 +21,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #pragma once
@@ -58,8 +62,8 @@
     #define FUNCTION THDM_ModelParameters
       START_FUNCTION(hb_neutral_ModelParameters_part)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(THDM_couplings_HB, thdmc_couplings)
-      DEPENDENCY(THDM_couplings_HB_SM_like_model, std::vector<thdmc_couplings>)
+      DEPENDENCY(fill_THDM_couplings_HB, THDM_couplings)
+      DEPENDENCY(fill_THDM_couplings_HB_SM_like_model, std::vector<THDM_couplings>)
       DEPENDENCY(fill_THDM_decay_widths_HB, THDM_decay_widths)
       DEPENDENCY(fill_THDM_decay_widths_HB_SM_like_model, std::vector<THDM_decay_widths>)
       DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
@@ -71,8 +75,8 @@
     #define FUNCTION THDM_ModelParameters_effc
       START_FUNCTION(hb_neutral_ModelParameters_effc)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(THDM_couplings_HB_effc, thdmc_couplings)
-      DEPENDENCY(THDM_couplings_HB_effc_SM_like_model, std::vector<thdmc_couplings>)
+      DEPENDENCY(fill_THDM_couplings_HB_effc, THDM_couplings)
+      DEPENDENCY(fill_THDM_couplings_HB_effc_SM_like_model, std::vector<THDM_couplings>)
       DEPENDENCY(fill_THDM_decay_widths_HB_effc, THDM_decay_widths)
       DEPENDENCY(fill_THDM_decay_widths_HB_effc_SM_like_model, std::vector<THDM_decay_widths>)
       DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)

@@ -13,7 +13,12 @@
 ///
 ///  \author James McKay
 ///          (j.mckay14@imperial.ac.uk)
-//   \date 2015 November
+///   \date 2015 November
+///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include <string>

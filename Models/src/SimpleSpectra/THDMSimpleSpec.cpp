@@ -10,7 +10,7 @@
 ///   
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
-///  \date 2019 Feb 
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -49,13 +49,6 @@ namespace Gambit
       THDMea::THDMea(const SLHAea::Coll& slhainput)
         : SLHAeaModel(slhainput)
       {}
-
-      ///// Constructor via SMInputs struct
-      //THDMea::THDMea(const THDMInputs& input)
-      //{
-      //  /// Build an SLHAea object from the SMINPUTS struct        
-      //  SLHAeaModel(input)
-      //}
 
       /// @{ Getters for SM information 
 

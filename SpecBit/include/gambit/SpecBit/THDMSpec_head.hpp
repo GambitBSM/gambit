@@ -15,9 +15,9 @@
 ///          j.mckay14@imperial.ac.uk
 ///  \date 2016 Oct
 ///
-///    Filip Rajec 
-///      filip.rajec@adelaide.edu.au
-// /   Feb 2019
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 

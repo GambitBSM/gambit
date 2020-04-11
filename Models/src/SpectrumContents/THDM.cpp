@@ -12,7 +12,8 @@
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author Filip Rajec
-///   June 2016
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -46,14 +47,6 @@ namespace Gambit {
     addParameter(Par::dimensionless, "Yd", m3x3);
     addParameter(Par::dimensionless, "Yu", m3x3);
     addParameter(Par::dimensionless, "Ye", m3x3);
-
-    // addParameter(Par::dimensionless, "ReYd2", m3x3);
-    // addParameter(Par::dimensionless, "ReYu2", m3x3);
-    // addParameter(Par::dimensionless, "ReYe2", m3x3);
-
-    // addParameter(Par::dimensionless, "ImYd2", m3x3);
-    // addParameter(Par::dimensionless, "ImYu2", m3x3);
-    // addParameter(Par::dimensionless, "ImYe2", m3x3);
 
     addParameter(Par::Pole_Mass, "h0",    v2);
     addParameter(Par::Pole_Mass, "A0", scalar);

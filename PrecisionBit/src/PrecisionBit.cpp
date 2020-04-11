@@ -33,6 +33,10 @@
 ///         (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Oct
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include <algorithm>
@@ -1136,60 +1140,57 @@ namespace Gambit
 
     }
 
-    // THDM requirements
+    // THDM yukawa type enum
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
-    const std::vector<std::string> THDM_model_keys = {"THDMatQ", "THDM", "THDMIatQ", "THDMI", "THDMIIatQ", "THDMII", "THDMLSatQ", "THDMLS", "THDMflippedatQ", "THDMflipped"};
-    const std::vector<bool> THDM_model_at_Q = {true, false, true, false, true, false, true, false, true, false};
-    const std::vector<yukawa_type> THDM_model_y_type = {type_III, type_III, type_I, type_I, type_II, type_II, lepton_specific, lepton_specific, flipped, flipped};
+    // model lookup map -> useful for looking up model info
+    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
+    struct model_param {
+      bool is_model_at_Q;
+      yukawa_type model_y_type;
+      // constructor
+      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
+    };
+    std::map<std::string, model_param > THDM_model_lookup_map = {
+			{ "THDMatQ", model_param( true, type_III ) },
+			{ "THDM", model_param( false, type_III ) },
+      { "THDMIatQ", model_param( true, type_I ) },
+      { "THDMI", model_param( false, type_I ) },
+      { "THDMIIatQ", model_param( true, type_II ) },
+      { "THDMII", model_param( false, type_II ) },
+      { "THDMLSatQ", model_param( true, lepton_specific ) },
+      { "THDMLS", model_param( false, lepton_specific ) },
+      { "THDMflippedatQ", model_param( true, flipped ) },
+      { "THDMflipped", model_param( false, flipped ) }
+		};
 
+    // forward declaraion
     double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container);
 
+    // helper function to setup likelihood environment
+    // this is called by the rollcall
     void get_oblique_parameters_likelihood_THDM(double& result) {
       using namespace Pipes::get_oblique_parameters_likelihood_THDM;
       // set THDM model type
       int y_type = -1;
-      for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
       }
       SpecBit::THDM_spectrum_container container;
       SpecBit::init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
       result = oblique_parameters_likelihood_THDM(container);
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
     }
 
-    std::vector<double> get_lambdas_from_spectrum(SpecBit::THDM_spectrum_container& container) {
-      std::vector<double> Lambda(8);
-      Lambda[1] = container.he->get(Par::mass1, "lambda_1");
-      Lambda[2] = container.he->get(Par::mass1, "lambda_2");
-      Lambda[3] = container.he->get(Par::mass1, "lambda_3");
-      Lambda[4] = container.he->get(Par::mass1, "lambda_4");
-      Lambda[5] = container.he->get(Par::mass1, "lambda_5");
-      Lambda[6] = container.he->get(Par::mass1, "lambda_6");
-      Lambda[7] = container.he->get(Par::mass1, "lambda_7");
-      return Lambda;
-    }
-
+    // calculates chi2 from EWPO in the THDM using 2HDMC
     double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container) { 
       THDMC_1_7_0::Constraints constraints_object(*(container.THDM_object));
 
       const double mh_ref = 125.0; 
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
-
-      // nan debug currently reuqired
-      const bool nan_debug = true;
-      std::vector<double> nan_debug_vals;
-
-      // add oblique params to nan debug output
-      if (nan_debug) {
-        nan_debug_vals.push_back(S);
-        nan_debug_vals.push_back(T);
-        nan_debug_vals.push_back(U);
-        nan_debug_vals.push_back(V);
-        nan_debug_vals.push_back(W);
-        nan_debug_vals.push_back(X);
-      }
     
       // if new physics in the low energy scale 
       // move to basis as introduced in arxiv:9407203
@@ -1229,53 +1230,18 @@ namespace Gambit
         for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
       }
 
-      // add cov to nan debug output
-      if (nan_debug) {
-        for (int i=0; i < dim; ++i) {
-          for (int j=0; j< dim; ++j) nan_debug_vals.push_back(cov(i,j));
-        }
-      }
-
       // calculating the chi2
       double chi2=0;
       FlavBit::InvertMatrix(cov, cov_inv);
       for (int i=0; i < dim; ++i) {
         for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
       }
-
-      // add cov_inv to nan debug output
-      if (nan_debug) {
-        for (int i=0; i < dim; ++i) {
-          for (int j=0; j< dim; ++j) nan_debug_vals.push_back(cov_inv(i,j));
-        }
-        // is chi2 NaN? If so continue print debug & invalidate point
-        if (std::isnan(chi2)) {
-          std::ofstream debug_stream;
-          debug_stream.open ("THDM_DEBUG_OUTPUT.txt", std::ofstream::out | std::ofstream::app);
-          debug_stream << "*****" << std::endl;
-          debug_stream << "oblique_parameters_likelihood_THDM has encountered a NaN" << std::endl;
-          debug_stream << "*****" << std::endl;
-          for (size_t k=0; k< nan_debug_vals.size(); k++) debug_stream << nan_debug_vals[k] << std::endl;
-          std::vector<double> Lambdas = get_lambdas_from_spectrum(container);
-          for(size_t k=0; k< Lambdas.size(); k++) debug_stream << Lambdas[k] << std::endl;
-          debug_stream << container.he->get(Par::mass1, "m12_2") << std::endl;
-          debug_stream << container.he->get(Par::dimensionless, "tanb") << std::endl;
-          debug_stream << container.he->get(Par::dimensionless, "alpha") << std::endl;
-          debug_stream << "*****" << std::endl << std::endl;
-          debug_stream.close();
-
-          std::ostringstream err;
-          err << "Oblique parameters likelihood THDM returned NaN. Problemetic output saved to debug_oblique.txt. Point invalidated.";
-          invalid_point().raise(err.str());
-        }
-      }
         
       return -0.5*chi2;
     }
-    // end of THDM container functions
-    // }
-    // EWPO corrections from heavy neutrinos, from 1407.6607 and 1502.00477
 
+
+    // EWPO corrections from heavy neutrinos, from 1407.6607 and 1502.00477
     // Weak mixing angle sinW2, calculation from 1211.1864
     void RHN_sinW2_eff(triplet<double> &result)
     {

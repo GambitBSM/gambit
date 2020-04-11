@@ -874,8 +874,8 @@ namespace Gambit
         using namespace Pipes::THDM_ModelParameters_effc;
         const Spectrum fullspectrum = *Dep::THDM_spectrum;
         
-        const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB_effc; // get THDM coupling struct
-        const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_effc_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
+        const THDM_couplings couplings = *Dep::fill_THDM_couplings_HB_effc; // get THDM coupling struct
+        const std::vector<THDM_couplings> couplings_SM_like = *Dep::fill_THDM_couplings_HB_effc_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
         const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths_HB_effc; // get THDM decay width struct
         const std::vector<THDM_decay_widths> decay_widths_SM_like = *Dep::fill_THDM_decay_widths_HB_effc_SM_like_model; // get vector of SM-like (multiple limits) THDM decay widths
         const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths; // get total widths
@@ -920,48 +920,48 @@ namespace Gambit
         for (int h=1;h<=3;h++) {
           // get the ratio of the THDM/SM couplings
           // ghjss
-          cs = THDM_couplings.hdd_cs[h][2][2];
-          cp = THDM_couplings.hdd_cp[h][2][2];
-          cs_sm = THDM_couplings_SM_like[h-1].hdd_cs[1][2][2];
+          cs = couplings.hdd_cs[h][2][2];
+          cp = couplings.hdd_cp[h][2][2];
+          cs_sm = couplings_SM_like[h-1].hdd_cs[1][2][2];
           result.ghjss_s[h-1] = abs(cs/cs_sm);
           result.ghjss_p[h-1] = abs(cp/cs_sm);
           //ghjbb
-          cs = THDM_couplings.hdd_cs[h][3][3];
-          cp = THDM_couplings.hdd_cp[h][3][3];
-          cs_sm = THDM_couplings_SM_like[h-1].hdd_cs[1][3][3];
+          cs = couplings.hdd_cs[h][3][3];
+          cp = couplings.hdd_cp[h][3][3];
+          cs_sm = couplings_SM_like[h-1].hdd_cs[1][3][3];
           result.ghjbb_s[h-1] = abs(cs/cs_sm);
           result.ghjbb_p[h-1] = abs(cp/cs_sm);
           //ghjcc
-          cs = THDM_couplings.huu_cs[h][2][2];
-          cp = THDM_couplings.huu_cp[h][2][2];
-          cs_sm = THDM_couplings_SM_like[h-1].huu_cs[1][2][2];
+          cs = couplings.huu_cs[h][2][2];
+          cp = couplings.huu_cp[h][2][2];
+          cs_sm = couplings_SM_like[h-1].huu_cs[1][2][2];
           result.ghjcc_s[h-1] = abs(cs/cs_sm);
           result.ghjcc_p[h-1] = abs(cp/cs_sm);
           //ghjtt
-          cs = THDM_couplings.huu_cs[h][3][3];
-          cp = THDM_couplings.huu_cp[h][3][3];
-          cs_sm = THDM_couplings_SM_like[h-1].huu_cs[1][3][3];
+          cs = couplings.huu_cs[h][3][3];
+          cp = couplings.huu_cp[h][3][3];
+          cs_sm = couplings_SM_like[h-1].huu_cs[1][3][3];
           result.ghjtt_s[h-1] = abs(cs/cs_sm);
           result.ghjtt_p[h-1] = abs(cp/cs_sm);
           //ghjmumu
-          cs = THDM_couplings.hll_cs[h][2][2];
-          cp = THDM_couplings.hll_cp[h][2][2];
-          cs_sm = THDM_couplings_SM_like[h-1].hll_cs[1][2][2];
+          cs = couplings.hll_cs[h][2][2];
+          cp = couplings.hll_cp[h][2][2];
+          cs_sm = couplings_SM_like[h-1].hll_cs[1][2][2];
           result.ghjmumu_s[h-1] = abs(cs/cs_sm);
           result.ghjmumu_p[h-1] = abs(cp/cs_sm);
           //ghjtautau
-          cs = THDM_couplings.hll_cs[h][3][3];
-          cp = THDM_couplings.hll_cp[h][3][3];
-          cs_sm = THDM_couplings_SM_like[h-1].hll_cs[1][3][3];
+          cs = couplings.hll_cs[h][3][3];
+          cp = couplings.hll_cp[h][3][3];
+          cs_sm = couplings_SM_like[h-1].hll_cs[1][3][3];
           result.ghjtautau_s[h-1] = abs(cs/cs_sm);
           result.ghjtautau_p[h-1] = abs(cp/cs_sm);  
           //ghjZZ
-          c = THDM_couplings.vvh[2][2][h];
-          c_sm = THDM_couplings_SM_like[h-1].vvh[2][2][1];
+          c = couplings.vvh[2][2][h];
+          c_sm = couplings_SM_like[h-1].vvh[2][2][1];
           result.ghjZZ[h-1] = abs(c/c_sm);    
           //ghjWW
-          c = THDM_couplings.vvh[3][3][h];
-          c_sm = THDM_couplings_SM_like[h-1].vvh[3][3][1];
+          c = couplings.vvh[3][3][h];
+          c_sm = couplings_SM_like[h-1].vvh[3][3][1];
           result.ghjWW[h-1] = abs(c/c_sm);
           //ghjgaga
           double hgaga = decay_widths.gamma_hgaga[h];
@@ -998,7 +998,7 @@ namespace Gambit
         for (int j=1;j<=3;j++) {
           for (int i=1;i<=3;i++) {
             result.BR_hjhihi[i-1][j-1] = decay_widths.gamma_hhh[j][i][i]/result.hGammaTot[j-1];
-            c = THDM_couplings.vhh[2][j][i];
+            c = couplings.vhh[2][j][i];
             result.ghjhiZ[i-1][j-1] = abs(c)/(g/2./costw);
             #ifdef COLLIDERBIT_DEBUG
               printf("%2d %2d hihjZ %16.8E\n", j, i, result.ghjhiZ[i-1][j-1]);
@@ -1056,8 +1056,8 @@ namespace Gambit
       using namespace Pipes::THDM_ModelParameters;
       const Spectrum fullspectrum = *Dep::THDM_spectrum;
 
-      const thdmc_couplings THDM_couplings = *Dep::THDM_couplings_HB; // get THDM coupling struct
-      const std::vector<thdmc_couplings> THDM_couplings_SM_like = *Dep::THDM_couplings_HB_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
+      const THDM_couplings couplings = *Dep::fill_THDM_couplings_HB; // get THDM coupling struct
+      const std::vector<THDM_couplings> couplings_SM_like = *Dep::fill_THDM_couplings_HB_SM_like_model; // get vector of SM-like (multiple limits) THDM coupling structs
       const THDM_decay_widths decay_widths = *Dep::fill_THDM_decay_widths_HB; // get THDM decay width struct
       const std::vector<THDM_decay_widths> decay_widths_SM_like = *Dep::fill_THDM_decay_widths_HB_SM_like_model; // get vector of SM-like (multiple limits) THDM decay widths
       const THDM_total_widths total_widths = *Dep::fill_THDM_total_widths; // get total widths
@@ -1132,11 +1132,11 @@ namespace Gambit
             result.BR_hjinvisible[h] = 0; 
           }
 
-          c = THDM_couplings.vhh[2][h2+1][h+1];
+          c = couplings.vhh[2][h2+1][h+1];
           result.CS_lep_hjhi_ratio[h][h2] = pow(abs(c)/(g/2./costw),2);
         }
 
-        c = THDM_couplings.vvh[2][2][h+1];
+        c = couplings.vvh[2][2][h+1];
         const double CS_lep_hjz_ratio = pow(abs(c)/(g/costw*MZ),2);
         result.CS_lep_hjZ_ratio[h]= CS_lep_hjz_ratio;
         result.CS_dd_hjZ_ratio[h] = CS_lep_hjz_ratio;
@@ -1146,7 +1146,7 @@ namespace Gambit
         result.CS_bb_hjZ_ratio[h] = CS_lep_hjz_ratio;
         result.CS_gg_hjZ_ratio[h] = 0.0;
 
-        c = THDM_couplings.vvh[3][3][h+1];
+        c = couplings.vvh[3][3][h+1];
         const double CS_ud_hjWp_ratio = pow(abs(c)/(g*MW),2);
         result.CS_ud_hjWp_ratio[h] = CS_ud_hjWp_ratio;
         result.CS_ud_hjWm_ratio[h] = CS_ud_hjWp_ratio;
@@ -1155,10 +1155,10 @@ namespace Gambit
 
         result.CS_gg_hj_ratio[h] = decay_widths.gamma_hgg[h+1]/decay_widths_SM_like[h].gamma_hgg[1];
 
-        cs = THDM_couplings.hdd_cs[h+1][3][3];
-        cp = THDM_couplings.hdd_cp[h+1][3][3];
-        cs_sm = THDM_couplings_SM_like[h].hdd_cs[1][3][3];
-        cp_sm = THDM_couplings_SM_like[h].hdd_cp[1][3][3];
+        cs = couplings.hdd_cs[h+1][3][3];
+        cp = couplings.hdd_cp[h+1][3][3];
+        cs_sm = couplings_SM_like[h].hdd_cs[1][3][3];
+        cp_sm = couplings_SM_like[h].hdd_cp[1][3][3];
 
         const double CS_bb_hj_ratio = pow(abs(cs/cs_sm),2) + pow(abs(cp/cs_sm),2);
         result.CS_bb_hj_ratio[h] = CS_bb_hj_ratio;
@@ -1167,10 +1167,10 @@ namespace Gambit
 
         result.CS_lep_tautauhj_ratio[h] = decay_widths.gamma_hll[h+1][3][3]/decay_widths_SM_like[h].gamma_hll[1][3][3];
 
-        cst = THDM_couplings.huu_cs[h+1][3][3];
-        cpt = THDM_couplings.huu_cp[h+1][3][3];
-        cst_sm = THDM_couplings_SM_like[h].huu_cs[1][3][3];
-        cpt_sm = THDM_couplings_SM_like[h].huu_cp[1][3][3];
+        cst = couplings.huu_cs[h+1][3][3];
+        cpt = couplings.huu_cp[h+1][3][3];
+        cst_sm = couplings_SM_like[h].huu_cs[1][3][3];
+        cpt_sm = couplings_SM_like[h].huu_cp[1][3][3];
 
         const double CS_tev_vbf_ratio = RWW*CS_ud_hjWp_ratio + RZZ*CS_lep_hjz_ratio;
         result.CS_tev_vbf_ratio[h] = CS_tev_vbf_ratio;

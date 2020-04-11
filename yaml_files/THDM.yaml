@@ -315,9 +315,9 @@ ObsLikes:
       function: obs_cba
       purpose: Observable
 
-    # Decays
-    - capability: all_BFs
-      purpose: Observable
+    # # Decays
+    # - capability: all_BFs
+    #   purpose: Observable
   
     # -------------------------------------------
 
@@ -348,9 +348,9 @@ Rules:
     # eg. min[L(Q_in), L(Q_runTo)]
     #
 
-    - capability: all_BFs
-      options:
-         printall: true
+    # - capability: all_BFs
+    #   options:
+    #      printall: true
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM

@@ -11,9 +11,8 @@
 ///
 ///  (add name and date if you modify)
 ///
-///  \author James McKay
-///          (j.mckay14@imperial.ac.uk)
-//   \date 2015 November
+///  Filip Rajec (filip.rajec@adelaide.edu.au)
+///  2019 
 ///  *********************************************
 
 #include <string>

@@ -37,6 +37,10 @@
 ///  \author Tomas Gonzalo
 ///  \date 2017 July
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #ifndef __FlavBit_rollcall_hpp__

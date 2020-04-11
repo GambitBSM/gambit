@@ -10,7 +10,8 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Filip Rajec
-/// \ July 2016
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
 ///
 ///   \author James McKay
 ///  \ October 2016
@@ -490,10 +491,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings
+#define CAPABILITY fill_THDM_couplings
 START_CAPABILITY
   #define FUNCTION get_THDM_couplings
-  START_FUNCTION(thdmc_couplings)
+  START_FUNCTION(THDM_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -501,10 +502,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_HB
+#define CAPABILITY fill_THDM_couplings_HB
 START_CAPABILITY
   #define FUNCTION get_THDM_couplings_HB
-  START_FUNCTION(thdmc_couplings)
+  START_FUNCTION(THDM_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -512,10 +513,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_HB_SM_like_model
+#define CAPABILITY fill_THDM_couplings_HB_SM_like_model
 START_CAPABILITY
   #define FUNCTION get_THDM_couplings_HB_SM_like_model
-  START_FUNCTION(std::vector<thdmc_couplings>)
+  START_FUNCTION(std::vector<THDM_couplings>)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -523,10 +524,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_HB_effc
+#define CAPABILITY fill_THDM_couplings_HB_effc
 START_CAPABILITY
   #define FUNCTION get_THDM_couplings_HB_effc
-  START_FUNCTION(thdmc_couplings)
+  START_FUNCTION(THDM_couplings)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
@@ -534,10 +535,10 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY THDM_couplings_HB_effc_SM_like_model
+#define CAPABILITY fill_THDM_couplings_HB_effc_SM_like_model
 START_CAPABILITY
   #define FUNCTION get_THDM_couplings_HB_effc_SM_like_model
-  START_FUNCTION(std::vector<thdmc_couplings>)
+  START_FUNCTION(std::vector<THDM_couplings>)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     

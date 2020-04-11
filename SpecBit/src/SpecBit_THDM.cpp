@@ -83,7 +83,7 @@
 #endif /* __GNUC__ >= 7 */
 
 
-#define SPECBIT_DEBUG // turn on debug mode
+// #define SPECBIT_DEBUG // turn on debug mode
 // #define SPECBIT_DEBUG_COUPLINGS // turn on debug mode for couplings (large output)
 #define FS_THROW_POINT //required st FS does not terminate the scan on invalid point
 
@@ -425,7 +425,7 @@ namespace Gambit
         thdm_model.mC = basis["m_Hp"];
 
         //for debug reasons may choose to continue with negative mass
-        const bool continue_with_negative_mass = false;
+        const bool continue_with_negative_mass = true;
 
         if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_C"] < 0.0) {
           std::ostringstream msg;
@@ -930,7 +930,7 @@ namespace Gambit
       std::vector<std::complex<double>> cubic_couplings (size+1), cubic_couplings_mass (size+1);
       std::fill(cubic_couplings.begin(),cubic_couplings.end(),0.0);
       std::fill(cubic_couplings_mass.begin(),cubic_couplings_mass.end(),0.0);
-      const bool use_cubic_couplings_mass = false;
+      const bool use_cubic_couplings_mass = true;
 
       #ifdef SPECBIT_DEBUG_COUPLINGS
         const bool calculate_both = true;
@@ -967,7 +967,6 @@ namespace Gambit
         cubic_couplings_mass[15] = -cba/(s2b*v)*(2.0*m122 + (mH2 + 2.0*mh2 - 3.0*m122*sbinv*cbinv)*s2a);
         cubic_couplings_mass[16] = sba/(s2b*v)*(-2.0*m122 + (mh2 + 2.0*mH2 - 3.0*m122*sbinv*cbinv)*s2a);
         cubic_couplings_mass[17] = 3.0/(4.0*v*s2b*s2b) * (16.0*m122*sbap*sba2 + mH2*( 3.0*cos(3.0*b+a) - 3.0*cba + cos(3.0*b-3.0*a) - cos(b+3.0*a) ));
-        for(int j=1; j<=size; j++) cubic_couplings_mass[j] = i*cubic_couplings_mass[j]; 
       }
       if (!use_cubic_couplings_mass || calculate_both) {
         cubic_couplings[1] = get_cubic_coupling(container, h0, Gp, Gm);
@@ -987,6 +986,7 @@ namespace Gambit
         cubic_couplings[15] = get_cubic_coupling(container, h0, h0, H0);
         cubic_couplings[16] = get_cubic_coupling(container, h0, H0, H0);
         cubic_couplings[17] = get_cubic_coupling(container, H0, H0, H0);
+        // for(int j=1; j<=size; j++) cubic_couplings[j] = -i*cubic_couplings[j]; 
       }
 
       #ifdef SPECBIT_DEBUG_COUPLINGS
@@ -1017,7 +1017,7 @@ namespace Gambit
       std::vector<std::complex<double>> quartic_couplings (size+1), quartic_couplings_mass (size+1);
       std::fill(quartic_couplings.begin(),quartic_couplings.end(),0.0);
       std::fill(quartic_couplings_mass.begin(),quartic_couplings_mass.end(),0.0);
-      const bool use_quartic_couplings_mass = false;
+      const bool use_quartic_couplings_mass = true;
       
       #ifdef SPECBIT_DEBUG_COUPLINGS
         const bool calculate_both = true;
@@ -1106,7 +1106,7 @@ namespace Gambit
         quartic_couplings_mass[21] = quartic_couplings_mass[20]/2.0;
         // ---
         quartic_couplings_mass[22] = 3.0*quartic_couplings_mass[20]/2.0;
-        for(int j=1; j<=size; j++) quartic_couplings_mass[j] = i*quartic_couplings_mass[j];
+        // for(int j=1; j<=size; j++) quartic_couplings_mass[j] = i*quartic_couplings_mass[j];
     }
     if (!use_quartic_couplings_mass || calculate_both) { 
         quartic_couplings[1] = get_quartic_coupling(container, h0, h0, G0, G0);
@@ -1131,6 +1131,7 @@ namespace Gambit
         quartic_couplings[20] = get_quartic_coupling(container, Hp, Hm, Hp, Hm); 
         quartic_couplings[21] = get_quartic_coupling(container, A0, A0, Hp, Hm);
         quartic_couplings[22] = get_quartic_coupling(container, A0, A0, A0, A0);
+        // for(int j=1; j<=size; j++) quartic_couplings[j] = -i*quartic_couplings[j]; 
       }
 
       #ifdef SPECBIT_DEBUG_COUPLINGS
@@ -2544,11 +2545,11 @@ namespace Gambit
 
     // purpose for which the couplings are to be filled
     // this saves computation time
-    enum thdmc_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
+    enum THDM_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
 
     // fill couplings from 2HDMC
-    thdmc_couplings fill_thdmc_couplings(THDM_spectrum_container& container, thdmc_couplings_purpose purpose) { 
-      thdmc_couplings couplings;
+    THDM_couplings fill_THDM_couplings_struct(THDM_spectrum_container& container, THDM_couplings_purpose purpose) { 
+      THDM_couplings couplings;
       switch(purpose) {
          case full:
             for (int h=1; h<5; h++) {
@@ -2656,18 +2657,18 @@ namespace Gambit
     // Rollcall functions that will call the above filler function once setting up the correct environment
     // Two helper functions at the top
     // ---------------------------------------------------------------------
-    thdmc_couplings get_THDM_couplings_helper(const Spectrum spec, const int y_type, thdmc_couplings_purpose purpose) {
+    THDM_couplings get_THDM_couplings_helper(const Spectrum spec, const int y_type, THDM_couplings_purpose purpose) {
       THDM_spectrum_container container;
-      thdmc_couplings couplings; 
+      THDM_couplings couplings; 
       init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
-      couplings = fill_thdmc_couplings(container, purpose);
+      couplings = fill_THDM_couplings_struct(container, purpose);
       // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
       return couplings;
     }
 
-    std::vector<thdmc_couplings> get_THDM_couplings_SM_like_helper(const Spectrum spec, thdmc_couplings_purpose purpose) {
+    std::vector<THDM_couplings> get_THDM_couplings_SM_like_helper(const Spectrum spec, THDM_couplings_purpose purpose) {
       THDM_spectrum_container container;
-      std::vector<thdmc_couplings> SM_like_couplings; 
+      std::vector<THDM_couplings> SM_like_couplings; 
       init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
       std::vector<double> m_hj;
       m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
@@ -2675,12 +2676,12 @@ namespace Gambit
       m_hj.push_back(container.he->get(Par::mass1, "A0"));
       for (int h=1; h<=3; h++) {
         init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
-        SM_like_couplings.push_back(fill_thdmc_couplings(container, purpose));
+        SM_like_couplings.push_back(fill_THDM_couplings_struct(container, purpose));
       }
       return SM_like_couplings;
     }
 
-    void get_THDM_couplings(thdmc_couplings &result) {
+    void get_THDM_couplings(THDM_couplings &result) {
       using namespace Pipes::get_THDM_couplings;
       // set THDM model type
       int y_type = -1;
@@ -2694,7 +2695,7 @@ namespace Gambit
       result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, full);
     }
 
-    void get_THDM_couplings_HB(thdmc_couplings &result) {
+    void get_THDM_couplings_HB(THDM_couplings &result) {
       using namespace Pipes::get_THDM_couplings_HB;
       // set THDM model type
       int y_type = -1;
@@ -2708,12 +2709,12 @@ namespace Gambit
       result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_couplings);
     }
 
-    void get_THDM_couplings_HB_SM_like_model(std::vector<thdmc_couplings> &result) { 
+    void get_THDM_couplings_HB_SM_like_model(std::vector<THDM_couplings> &result) { 
       using namespace Pipes::get_THDM_couplings_HB_SM_like_model;
       result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_SM_like_couplings);
     }
 
-    void get_THDM_couplings_HB_effc(thdmc_couplings &result) {
+    void get_THDM_couplings_HB_effc(THDM_couplings &result) {
       using namespace Pipes::get_THDM_couplings_HB_effc;
       // set THDM model type
       int y_type = -1;
@@ -2727,7 +2728,7 @@ namespace Gambit
       result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
     }
 
-    void get_THDM_couplings_HB_effc_SM_like_model(std::vector<thdmc_couplings> &result) { 
+    void get_THDM_couplings_HB_effc_SM_like_model(std::vector<THDM_couplings> &result) { 
       using namespace Pipes::get_THDM_couplings_HB_effc_SM_like_model;
       result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_effc_SM_like_couplings);
     }
