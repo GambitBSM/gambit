@@ -172,17 +172,18 @@ ObsLikes:
       function: deltaMBd_likelihood
       purpose: LogLike
     
-    # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
     - capability: b2sll_AI_LL
       function: BKstarmumu_AI_ll
       purpose: LogLike  
 
-    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
     - capability: b2sll_AI_zero_LL
       function: BKstarmumu_AI_zero_ll
       purpose: LogLike
 
-    # # B->Kstar,l,l likelihood [branching]
+    # B->Kstar,l,l likelihood [branching] 
+    # <has no effect with current theoretical error>
     - capability: b2sll_BR_LL
       function: b2sll_BR_likelihood
       purpose: LogLike
@@ -221,7 +222,7 @@ ObsLikes:
     # Observables
     #################
 
-    # Physical basis observables
+    # spectrum observables
 
     - capability: mh0_pole
       function: obs_mh0_pole
@@ -254,8 +255,6 @@ ObsLikes:
     - capability: mHpm_running
       function: obs_mHpm_running
       purpose: Observable
-
-    # Generic basis observables
 
     - capability: lambda_1
       function: obs_lambda_1
@@ -297,8 +296,6 @@ ObsLikes:
       function: obs_m22_2
       purpose: Observable
 
-    # Mixing angles
-
     - capability: tanb
       function: obs_tanb
       purpose: Observable
@@ -315,10 +312,40 @@ ObsLikes:
       function: obs_cba
       purpose: Observable
 
-    # # Decays
-    # - capability: all_BFs
-    #   purpose: Observable
-  
+    # interesting flavour observables
+
+    - capability: bsgamma
+      function: SI_bsgamma
+      purpose: Observable
+
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+      purpose: Observable
+
+    - capability: BKstarmumu_11_25
+      function: SI_BKstarmumu_11_25
+      purpose: Observable
+
+    - capability: BKstarmumu_25_40
+      function: SI_BKstarmumu_25_40
+      purpose: Observable
+
+    - capability: BKstarmumu_40_60
+      function: SI_BKstarmumu_40_60
+      purpose: Observable
+
+    - capability: BKstarmumu_60_80
+      function: SI_BKstarmumu_60_80
+      purpose: Observable
+
+    - capability: BKstarmumu_15_17
+      function: SI_BKstarmumu_15_17
+      purpose: Observable
+
+    - capability: BKstarmumu_17_19
+      function: SI_BKstarmumu_17_19
+      purpose: Observable
+
     # -------------------------------------------
 
     # Checks if the vacuum leads to a global minimum solution
@@ -338,20 +365,11 @@ Rules:
     - capability: THDM_spectrum
       function: get_THDM_spectrum
 
-    # -------------------------------------------
-
-    ##
     # the check_all_scales option-flag triggers evaluation
     # of the likelihood at the default Qin scale, 
     # but also at QrunTo scale, where the worst performing
     # of the two likelihoods is returned.
     # eg. min[L(Q_in), L(Q_runTo)]
-    #
-
-    # - capability: all_BFs
-    #   options:
-    #      printall: true
-
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
       options:
@@ -367,8 +385,6 @@ Rules:
       function: get_NLO_unitarity_likelihood_THDM
       options:
         check_correction_ratio: true
-    
-    # -------------------------------------------
 
     # Specifies effc coupling input for HB/HS
     - capability: HB_ModelParameters_neutral
@@ -379,8 +395,7 @@ Rules:
       function: THDM_ModelParameters_charged
       module: ColliderBit
 
-    # -------------------------------------------
-
+    # Choose superiso for Flavour physics calculations
     - capability: SuperIso_modelinfo
       function: SI_fill
     
@@ -395,19 +410,9 @@ Rules:
       function: SI_bsgamma
       module: FlavBit
 
-    # Choose to use gm2calc for g-2
-    - capability: muon_gm2
-      function: SI_muon_gm2
-
-    # Choose to base the SM prediction for g-2 on e+e- data
-    - capability: muon_gm2_SM
-      function: gm2_SM_ee
-
-    # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
 
-    # Choose to use superiso for RK calcs
     - capability: RK
       function: SI_RK
 
@@ -424,15 +429,15 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "stderr"
-    [Default] :  "stderr"
-    [DecayBit] :  "stderr"
-    [DarkBit] :  "stderr"
-    [PrecisionBit] :  "stderr"
-    [ColliderBit] :  stderr"
-    [SpecBit] :  "stderr"
-    [Dependency Resolver] :  "stderr"
-    [Scanner]:  "stderr"
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    [DecayBit] :  "DecayBit.log"
+    [DarkBit] :  "DarkBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
 
 ##########################
 # Name/Value Section
@@ -456,4 +461,4 @@ KeyValues:
   #   core_warning: fatal
 
   default_output_path: "runs/THDMIIatQ/"
-  debug: false
+  debug: true
