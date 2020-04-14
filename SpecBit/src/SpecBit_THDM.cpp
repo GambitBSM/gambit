@@ -2189,8 +2189,8 @@ namespace Gambit
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
 
       // calculate LO beta functions 
-      const bool gauge_corrections = true;
-      const bool yukawa_corrections = true;
+      const bool gauge_corrections = false;
+      const bool yukawa_corrections = false;
       const std::complex<double> b_one = beta_one(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_two = beta_two(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_three = beta_three(container, gauge_corrections, yukawa_corrections);
@@ -2198,7 +2198,7 @@ namespace Gambit
       const std::complex<double> b_five = beta_five(container, gauge_corrections, yukawa_corrections);
 
       // wavefunction functions 
-      const bool wave_function_corrections = true;
+      const bool wave_function_corrections = false;
       std::complex<double> zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
       std::complex<double> B1_z, B2_z, B3_z, B20_z, B21_z, B22_z;
       if (wave_function_corrections) {
