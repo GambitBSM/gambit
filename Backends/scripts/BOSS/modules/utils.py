@@ -2671,6 +2671,10 @@ def isTemplateWithValidArgs(el, class_name=None) :
             # Remove asterix and/or ampersand
             base_templ_arg = getBasicTypeName(templ_arg)
 
+            # If the argument is a number skip
+            if base_templ_arg.isdigit():
+                continue
+
             # Get the element from the name dictionary
             try:
                 type_el = gb.name_dict[base_templ_arg]
@@ -2681,11 +2685,11 @@ def isTemplateWithValidArgs(el, class_name=None) :
             if type_el is None and "std" in base_templ_arg[0:5] :
                 continue
              
-
             # If the type is a template, check recursively
-            if type_el is None or not isTemplateWithValidArgs(type_el):
+            if type_el is not None and isTemplateClass(type_el) and not isTemplateWithValidArgs(type_el):
                 valid_template = False
                 return valid_template
+
 
             # If the type is not in the dict, is not known, loaded, fundamental or another std type, the type is not valid
             if type_el is None or not (isFundamental(type_el) or isKnownClass(type_el) or isLoadedClass(type_el) or isStdType(type_el)):

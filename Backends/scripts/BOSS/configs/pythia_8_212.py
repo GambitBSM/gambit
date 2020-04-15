@@ -85,7 +85,11 @@ load_functions = [
 load_enums = [
 ]
 
-ditch = ['Pythia8::Pythia::initSLHA']
+ditch = [
+    'Pythia8::Pythia::initSLHA',
+    'Pythia8::Settings::getParmMap',
+    'Pythia8::SusyLesHouches::decays'
+    ]
 
 
 auto_detect_stdlib_paths = False

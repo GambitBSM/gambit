@@ -2391,8 +2391,6 @@ def isAcceptedMemberVariable(mem_el):
 
     is_accepted = True
 
-    if mem_el.get('id') == "_7545" :
-      print(mem_el.get('name'))
     if not utils.isAcceptedType(mem_el):
         reason = "Non-accepted type."
         infomsg.IgnoredMemberVariable(mem_el.get('name'), reason).printMessage()
