@@ -502,6 +502,7 @@ START_MODULE
       DEPENDENCY(SM_spectrum, Spectrum)
       DEPENDENCY(WIMP_properties, WIMPprops)
       DEPENDENCY(generic_WIMP_sigmav, WIMP_annihilation)
+      ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
     #undef FUNCTION
     #define FUNCTION TH_ProcessCatalog_DMEFT
       START_FUNCTION(TH_ProcessCatalog)
@@ -770,7 +771,7 @@ START_MODULE
       #define FUNCTION DD_nonrel_WCs_flavscheme
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(DD_rel_WCs_flavscheme, map_str_dbl)
-      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(WIMP_properties, WIMPprops) // TODO: Rewrite to not use WIMPprops!
       DEPENDENCY(DirectDMNuisanceParameters, map_str_dbl)
       BACKEND_REQ(get_NR_WCs_flav, (), NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&))
       #undef FUNCTION
@@ -780,7 +781,7 @@ START_MODULE
       #define FUNCTION DD_nonrel_WCs_EW
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(DD_rel_WCs_EW, map_str_dbl)
-      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(WIMP_properties, WIMPprops) // TODO: Rewrite to not use WIMPprops!
       DEPENDENCY(DirectDMNuisanceParameters, map_str_dbl)
       BACKEND_REQ(get_NR_WCs_EW, (), NREO_DM_nucleon_couplings, (map_str_dbl&, double&, double&, double&, double&, std::string&, map_str_dbl&))
       #undef FUNCTION
@@ -1069,8 +1070,7 @@ START_MODULE
   // Specify which versions of DDCalc support which experiments.
   // If an experiment does not have any entry here, any version (of any backend) is allowed.
 
-  // Introduced in DDCalc 1.0.0 but later deleted
-  // Example expansion of the SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0)) macro
+  // Example expansion of the SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0)) macro:
 //    LONG_BACKEND_OPTION(DarkBit, LZ_Calculate, LZ_Calc,
 //     (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
 //    LONG_BACKEND_OPTION(DarkBit, LZ_Events, LZ_GetEvents,
@@ -1094,26 +1094,27 @@ START_MODULE
 //    LONG_BACKEND_OPTION(DarkBit, LZ_BinSignal,
 //     LZ_GetBinSignal, (DDCalc, 2.0.0, 2.1.0, 2.2.0), (needs_DDCalc))
 
+  // Introduced in DDCalc 1.0.0 but later deleteds
   SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
-  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
   // Introduced in DDCalc 1.2.0
-  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(PandaX_2017, (DDCalc, 1.2.0, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
   // Introduced in DDCalc 2.0.0
-  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(XENON1T_2018, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(DARWIN, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(LZ, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(DarkSide_50, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(CRESST_II, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(CDMSlite, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(PICO_60, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(PICO_500, (DDCalc, 2.0.0, 2.1.0, 2.2.0, 3.0.0))
   // Introduced in DDCalc 2.2.0
-  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0,3.0.0))
-  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0,3.0.0))
+  SET_BACKEND_OPTION(CRESST_III, (DDCalc, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(DarkSide_50_S2, (DDCalc, 2.2.0, 3.0.0))
+  SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0, 3.0.0))
 
   // Annual Modulation Rate Calculation and Likelihood 
   // (eventually move this into macros?)
@@ -1143,6 +1144,7 @@ START_MODULE
      #define FUNCTION jwimpx2_from_WIMPprops
      START_FUNCTION(unsigned int)
      DEPENDENCY(WIMP_properties,WIMPprops)
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
@@ -1152,6 +1154,7 @@ START_MODULE
      #define FUNCTION mwimp_from_WIMPprops
      START_FUNCTION(double)
      DEPENDENCY(WIMP_properties,WIMPprops)
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
@@ -1161,6 +1164,7 @@ START_MODULE
      #define FUNCTION wimp_sc_from_WIMPprops
      START_FUNCTION(bool)
      DEPENDENCY(WIMP_properties,WIMPprops)
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
@@ -1214,7 +1218,7 @@ START_MODULE
     BACKEND_REQ(captn_NREO,(CaptnGeneral),void,(const double&,const double&,const int&,const int&,double&))
     BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
     BACKEND_REQ(populate_array,(CaptnGeneral),void,(const double&,const int&,const int&))
-    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(WIMP_properties, WIMPprops)  //TODO: Rewrite to not use WIMPprops!
     DEPENDENCY(DD_nonrel_WCs,NREO_DM_nucleon_couplings)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1591,10 +1595,12 @@ START_MODULE
     #define FUNCTION DarkMatter_ID_MSSM
     START_FUNCTION(std::string)
     DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_EFT
     START_FUNCTION(std::string)
     DEPENDENCY(WIMP_properties, WIMPprops)
+    ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_DMEFT
     START_FUNCTION(std::string)
