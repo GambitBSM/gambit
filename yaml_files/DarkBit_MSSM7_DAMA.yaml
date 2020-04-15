@@ -116,6 +116,88 @@ ObsLikes:
     - capability: DAMA_LogLikelihood_mod
       purpose:    LogLike
 
+Rules:
+
+  # Do not rescale dark matter density based on the relic density.
+  - capability: RD_fraction
+    function: RD_fraction_one
+
+  # Use DD_couplings from DarkSUSY
+  - capability: DD_couplings
+    function: DD_couplings_DarkSUSY
+
+  # Choose where to get the precision spectrum from
+  - capability: MSSM_spectrum
+    type: Spectrum
+    #function: make_MSSM_precision_spectrum_none
+    #function: make_MSSM_precision_spectrum_W
+    #function: make_MSSM_precision_spectrum_H_W
+    function: make_MSSM_precision_spectrum_4H_W
+    # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
+    # or make_MSSM_precision_spectrum_H_W.
+    # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
+    # Choose to use the difference between the precision and spectrum generator predictions, along
+    # with the precision error estimate, to estimate the theoretical error on the prediction.
+    options:
+      Higgs_predictions_source: 1
+      Higgs_predictions_error_method: 4
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  - capability: prec_mh
+    function: FH_HiggsMass
+    #function: SHD_HiggsMass
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+  # All of the rest of this is new and should be checked!
+
+  # Form of coupling constants passed to DDCalc
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_NR_WCs
+
+  # These should be picked automatically for the MSSM I would have thought?
+  # It also needs to be checked that it correct!
+  - capability: DD_nonrel_WCs
+    function: NREO_from_DD_couplings
+
 
 Logger:
 
