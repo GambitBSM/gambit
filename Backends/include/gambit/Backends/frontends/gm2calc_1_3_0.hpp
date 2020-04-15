@@ -71,11 +71,11 @@ namespace Gambit
 }
 
 // Functions
-BE_FUNCTION(calculate_amu_1loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_1loop__BOSS_8", "calculate_amu_1loop")
-BE_FUNCTION(calculate_amu_1loop_non_tan_beta_resummed, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_1loop_non_tan_beta_resummed__BOSS_9", "calculate_amu_1loop_non_tan_beta_resummed")
-BE_FUNCTION(calculate_amu_2loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_2loop__BOSS_10", "calculate_amu_2loop")
-BE_FUNCTION(calculate_amu_2loop_non_tan_beta_resummed, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_2loop_non_tan_beta_resummed__BOSS_11", "calculate_amu_2loop_non_tan_beta_resummed")
-BE_FUNCTION(calculate_uncertainty_amu_2loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_uncertainty_amu_2loop__BOSS_17", "calculate_uncertainty_amu_2loop")
+BE_FUNCTION(calculate_amu_1loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_1loop__BOSS_10", "calculate_amu_1loop")
+BE_FUNCTION(calculate_amu_1loop_non_tan_beta_resummed, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_1loop_non_tan_beta_resummed__BOSS_11", "calculate_amu_1loop_non_tan_beta_resummed")
+BE_FUNCTION(calculate_amu_2loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_2loop__BOSS_12", "calculate_amu_2loop")
+BE_FUNCTION(calculate_amu_2loop_non_tan_beta_resummed, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_amu_2loop_non_tan_beta_resummed__BOSS_13", "calculate_amu_2loop_non_tan_beta_resummed")
+BE_FUNCTION(calculate_uncertainty_amu_2loop, double, (const gm2calc_1_3_0::gm2calc::MSSMNoFV_onshell&), "calculate_uncertainty_amu_2loop__BOSS_19", "calculate_uncertainty_amu_2loop")
 
 // Enums
 

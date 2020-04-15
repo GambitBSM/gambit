@@ -8,8 +8,8 @@
 #include <string>
 #include <istream>
 #include "SLHAea/slhaea.h"
-#include <vector>
 #include <map>
+#include <vector>
 
 #include "identification.hpp"
 
@@ -32,8 +32,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // -- Other member variables: 
             public:
                 std::basic_string<char, std::char_traits<char>, std::allocator<char> >& slhaFile;
-                std::vector<Pythia8::LHdecayTable, std::allocator<Pythia8::LHdecayTable> >& decays;
                 std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int> > >& decayIndices;
+                std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersName;
+                std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersAntiName;
         
                 // Member functions: 
             public:

@@ -5,6 +5,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <map>
 
 #include "identification.hpp"
 

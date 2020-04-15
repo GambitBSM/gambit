@@ -7,8 +7,8 @@
 #include <string>
 #include <istream>
 #include "SLHAea/slhaea.h"
-#include <vector>
 #include <map>
+#include <vector>
 #include <cstddef>
 #include <iostream>
 
@@ -58,9 +58,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual std::basic_string<char, std::char_traits<char>, std::allocator<char> >& slhaFile_ref__BOSS() =0;
     
-                virtual std::vector<Pythia8::LHdecayTable, std::allocator<Pythia8::LHdecayTable> >& decays_ref__BOSS() =0;
-    
                 virtual std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int> > >& decayIndices_ref__BOSS() =0;
+    
+                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersName_ref__BOSS() =0;
+    
+                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersAntiName_ref__BOSS() =0;
     
                 virtual int verbose() =0;
     

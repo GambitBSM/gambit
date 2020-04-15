@@ -24,7 +24,115 @@ namespace Gambit
         {
             namespace Pythia8
             {
+                typedef ::Pythia_8_212::Pythia8::Pythia Pythia;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::PartonLevel PartonLevel;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ResonanceDecays ResonanceDecays;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ParticleDecays ParticleDecays;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::SLHAinterface SLHAinterface;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ParticleData ParticleData;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::CoupSUSY CoupSUSY;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::LHdecayChannel LHdecayChannel;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::LHdecayTable LHdecayTable;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::SusyLesHouches SusyLesHouches;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::SigmaTotal SigmaTotal;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::DecayChannel DecayChannel;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ParticleDataEntry ParticleDataEntry;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Couplings Couplings;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ResonanceGmZ ResonanceGmZ;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::BeamParticle BeamParticle;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::SlowJet SlowJet;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Event Event;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Particle Particle;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::AlphaStrong AlphaStrong;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::AlphaEM AlphaEM;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::CoupSM CoupSM;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Parm Parm;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Settings Settings;
+            }
+            namespace Pythia8
+            {
                 typedef ::Pythia_8_212::Pythia8::Info Info;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Rndm Rndm;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Vec4 Vec4;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::Hist Hist;
             }
         }
     }

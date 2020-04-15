@@ -4,8 +4,8 @@
 #include <string>
 #include <istream>
 #include "SLHAea/slhaea.h"
-#include <vector>
 #include <map>
+#include <vector>
 
 #include "identification.hpp"
 
@@ -126,8 +126,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches(int verboseIn) :
             WrapperBase(__factory0(verboseIn)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
@@ -136,8 +137,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches() :
             WrapperBase(__factory1()),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
@@ -146,8 +148,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename, int verboseIn) :
             WrapperBase(__factory2(filename, verboseIn)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
@@ -156,8 +159,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename) :
             WrapperBase(__factory3(filename)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
@@ -167,8 +171,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches(Pythia8::Abstract_SusyLesHouches* in) :
             WrapperBase(in),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
@@ -178,8 +183,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline Pythia8::SusyLesHouches::SusyLesHouches(const SusyLesHouches& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
-            decays( get_BEptr()->decays_ref__BOSS()),
-            decayIndices( get_BEptr()->decayIndices_ref__BOSS())
+            decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
+            qnumbersName( get_BEptr()->qnumbersName_ref__BOSS()),
+            qnumbersAntiName( get_BEptr()->qnumbersAntiName_ref__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);

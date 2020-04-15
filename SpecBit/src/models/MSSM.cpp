@@ -99,11 +99,12 @@ namespace Gambit
       std::vector<int> LSPs = {1000022};
 
       // Add gravitino to the spectrum and LSP list
-      if (myPipe::ModelInUse("MSSM63atQ_lightgravitino") or 
-          myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"))
-      {   
-        add_gravitino_mass(spectrum, LSPs, *myPipe::Param.at("mG"), myPipe::runOptions);
-      }
+      // TODO: This is CMSSM only, no gravitino, right?
+      //if (myPipe::ModelInUse("MSSM63atQ_lightgravitino") or 
+      //    myPipe::ModelInUse("MSSM63atMGUT_lightgravitino"))
+      //{   
+      //  add_gravitino_mass(spectrum, LSPs, *myPipe::Param.at("mG"), myPipe::runOptions);
+      //}
 
       // Check that the LSP is the canonical LSP
       check_LSP(spectrum, LSPs);
