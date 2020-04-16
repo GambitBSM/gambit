@@ -532,7 +532,9 @@ namespace Gambit
     void DAMA_GetLogLikelihood_mod(double &result)
         {
           using namespace Pipes::DAMA_GetLogLikelihood_mod;
-          double temp_result = BEreq::DD_LogLikelihood_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)));
+	  BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)),152.0,334.0);
+	  double chi2 = BEreq::DD_Chi2_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)));
+          double temp_result = BEreq::DD_LogLikelihood_mod(chi2);
           if (Utils::isnan(temp_result))
           {
             /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */
