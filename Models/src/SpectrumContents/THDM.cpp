@@ -14,6 +14,10 @@
 ///  \author Filip Rajec
 ///   June 2016
 ///
+///  Cristian Sierra
+///  cristian.sierra@monash.edu
+///  Apr 2020 
+///
 ///  *********************************************
 
 #ifndef __THDM_contents_hpp__
@@ -37,9 +41,9 @@ namespace Gambit {
     std::vector<int> m4x4   = initVector(4,4); // "
     std::vector<int> m6x6   = initVector(6,6); // "
 
-    addParameter(Par::dimensionless, "g1", scalar);
-    addParameter(Par::dimensionless, "g2", scalar);
-    addParameter(Par::dimensionless, "g3", scalar);
+    addParameter(Par::dimensionless, "g1", scalar,"GAUGE",1);
+    addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
+    addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
     addParameter(Par::dimensionless, "sinW2", scalar);
 
@@ -55,22 +59,22 @@ namespace Gambit {
     // addParameter(Par::dimensionless, "ImYu2", m3x3);
     // addParameter(Par::dimensionless, "ImYe2", m3x3);
 
-    addParameter(Par::Pole_Mass, "h0",    v2);
-    addParameter(Par::Pole_Mass, "A0", scalar);
-    addParameter(Par::Pole_Mass, "H+", scalar);
-    addParameter(Par::Pole_Mass, "W+", scalar);
+    addParameter(Par::Pole_Mass, "h0",    v2); 
+    addParameter(Par::Pole_Mass, "A0", scalar,"MASS",36); 
+    addParameter(Par::Pole_Mass, "H+", scalar,"MASS",37);
+    addParameter(Par::Pole_Mass, "W+", scalar,"MASS",24);
 
-    addParameter(Par::mass1, "lambda_1");
-    addParameter(Par::mass1, "lambda_2");
-    addParameter(Par::mass1, "lambda_3");
-    addParameter(Par::mass1, "lambda_4");
-    addParameter(Par::mass1, "lambda_5");
-    addParameter(Par::mass1, "lambda_6");
-    addParameter(Par::mass1, "lambda_7");
+    addParameter(Par::mass1, "lambda1",scalar,"MINPAR",11);
+    addParameter(Par::mass1, "lambda2",scalar,"MINPAR",12);
+    addParameter(Par::mass1, "lambda3",scalar,"MINPAR",13);
+    addParameter(Par::mass1, "lambda4",scalar,"MINPAR",14);
+    addParameter(Par::mass1, "lambda5",scalar,"MINPAR",15);
+    addParameter(Par::mass1, "lambda6",scalar,"MINPAR",16);
+    addParameter(Par::mass1, "lambda7",scalar,"MINPAR",17);
 
-    addParameter(Par::dimensionless, "tanb");
-    addParameter(Par::dimensionless, "alpha");
-    addParameter(Par::mass1, "m12_2");
+    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",3);
+    addParameter(Par::dimensionless, "alpha",scalar, "ALPHA",0);
+    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",18);
 
   }
   

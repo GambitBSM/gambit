@@ -98,8 +98,8 @@ namespace Gambit
 
       double THDMea::get_vev()      const { return sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2))); } 
       double THDMea::get_g1()       const { return getdata("GAUGE",1); }
-      double THDMea::get_g2()       const { return getdata("GAUGE",1); }
-      double THDMea::get_g3()       const { return getdata("GAUGE",1); }
+      double THDMea::get_g2()       const { return getdata("GAUGE",2); }
+      double THDMea::get_g3()       const { return getdata("GAUGE",3); }
       double THDMea::get_sinW2()    const { return (0.5 - pow( 0.25 - (1.0/getdata("SMINPUTS",1) * M_PI / (getdata("SMINPUTS",2) * pow(2,0.5)))/pow(getdata("SMINPUTS",4),2) , 0.5)); }
 
       double THDMea::get_Yd(int i, int j) const { return getdata("Yd",i,j); }
@@ -118,7 +118,7 @@ namespace Gambit
       double THDMea::get_tanb()               const { return getdata("MINPAR",3); }
       double THDMea::get_alpha()              const { return getdata("ALPHA",0); }
       double THDMea::get_m12_2()              const { return getdata("MINPAR",18); }
-      double THDMea::get_yukawaCoupling()     const { return (getdata("FMODSEL",1) - 30); }
+      double THDMea::get_yukawaCoupling()     const { return (getdata("FMODSEL",1) - 30); } 
       double THDMea::get_lambda1()            const { return getdata("MINPAR",11); }
       double THDMea::get_lambda2()            const { return getdata("MINPAR",12); }
       double THDMea::get_lambda3()            const { return getdata("MINPAR",13); }
@@ -126,6 +126,7 @@ namespace Gambit
       double THDMea::get_lambda5()            const { return getdata("MINPAR",15); }
       double THDMea::get_lambda6()            const { return getdata("MINPAR",16); }
       double THDMea::get_lambda7()            const { return getdata("MINPAR",17); }
+      
       double THDMea::get_m11_2()              const { 
         double m12_2 = getdata("MINPAR",18), b = atan(getdata("MINPAR",3)), cb = cos(b), sb = sin(b), vev = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
         double lam1 = getdata("MINPAR",11), lam345 = getdata("MINPAR",13) + getdata("MINPAR",14) + getdata("MINPAR",15), lam6 = getdata("MINPAR",16), lam7 = getdata("MINPAR",17);
