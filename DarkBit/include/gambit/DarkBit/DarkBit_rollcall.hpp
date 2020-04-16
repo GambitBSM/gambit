@@ -1132,6 +1132,8 @@ START_MODULE
      #define FUNCTION DAMA_GetLogLikelihood_mod
      START_FUNCTION(double)
      BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
+     BACKEND_REQ(DD_Chi2_mod, (needs_DDCalc), double, (const int&))
      BACKEND_REQ(DD_LogLikelihood_mod, (needs_DDCalc), double, (const double&))
      #undef FUNCTION
   #undef CAPABILITY
