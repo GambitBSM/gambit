@@ -3236,6 +3236,90 @@ namespace Gambit
       decays = DecayTable(slha);
     }
 
+    /// Convert the DecayTable to a format where we can print each individual channel's BF
+    void get_decaytable_as_map(map_str_dbl& map)
+    {
+      using namespace Pipes::get_decaytable_as_map;
+
+      const DecayTable* tbl = &(*Dep::decay_rates);
+
+      std::vector<std::vector<str> > bfs;
+      std::string channel;
+      double BF = 0.0;
+      
+      // If the user specifies "printall" -- then print everything.
+      bool printall = runOptions->getValueOrDef(false, "printall");
+      if (printall)
+      {
+        // Iterate through DecayTable.
+        for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+        {
+          std::pair<int, int> pdg = it->first;
+          std::vector<str> bf = {Models::ParticleDB().partmap::long_name(pdg)};
+          bfs.push_back(bf);
+        }
+      }
+
+      /// Otherwise just print the specific, named channels
+      else
+      {
+        std::vector<std::vector<str> > BFs; // Empty set of braching fractions.
+        bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
+      }
+
+      // Iterate through branching ratios
+      for ( const auto &row : bfs )
+      {
+
+        std::string decaypart = row.front();
+        const DecayTable::Entry entry = tbl->at(decaypart); 
+
+        // If the entry is a single particle, then add every BF for this channel
+        if ( row.size() == 1 )
+        {
+          for (auto it = entry.channels.begin(); it != entry.channels.end(); ++it)
+          {
+            BF = it->second.first;
+
+            std::multiset< std::pair<int,int> > ch = it->first;              
+            std::vector<str> chan;
+
+            // Create a vector of final states by particle name.
+            for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
+            
+            // Write the name of the output channel.
+            channel = row[0] + "->" + chan[0] + "+" + chan[1];
+
+            // + 3-body decay case: add the third final state particle if needed.
+            if (chan.size() == 3) channel += "+" + chan[2];
+
+            map[channel] = BF;
+          }
+
+        }
+
+        // No 1-body decays..
+
+        // 2-body decays channel-by-channel
+        else if ( row.size() == 3 )
+        {
+          BF = entry.BF( row[1], row[2] );
+          channel = row[0] + "->" + row[1] + "+" + row[2];
+          map[channel] = BF;
+        }
+
+        // 3-body decays channel-by-channel 
+        // (SB: I don't think we have these yet. But if/when we do, they will be supported)
+        else if (row.size() == 4 )
+        {
+          BF = entry.BF( row[1], row[2], row[3] );
+          channel = row[0] + "->" + row[1] + "+" + row[2] + "+" + row[3];
+          map[channel] = BF;
+        }
+      }
+    }
+
+
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates
     void get_mass_es_pseudonyms(mass_es_pseudonyms& result)
     {
@@ -3521,9 +3605,7 @@ namespace Gambit
    
     }
 
-   
-
-    // THDM ---------------------------------------
+    //////////////////// THDM /////////////////////////////
 
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum thdm_decays_purpose{full, HB_decays, HB_SM_like_decays, HB_effc_decays, HB_effc_SM_like_decays};
@@ -3548,32 +3630,97 @@ namespace Gambit
       { "THDMflipped", model_param( false, flipped ) }
 		};
 
-    // warnings in case we run into NaNs
-    void nan_warning(std::string var_name) {
-       std::ostringstream msg;
-       msg << "DecayBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
-       DecayBit_warning().raise(LOCAL_INFO,msg.str());
-       std::cerr << msg.str();
+    void flush_THDM_decay_widths(THDM_decay_widths& decay_widths) {
+      const int fermion_vector=4, higgs=5;
+      for(int i=0; i<fermion_vector; i++) {
+        for(int j=0; j<higgs; j++) {
+          for(int k=0; k<fermion_vector; k++) {
+            decay_widths.gamma_uhd[i][j][k] = 0.0;
+          }
+        }
+      }
+      for(int i=0; i<higgs; i++) {
+        for(int j=0; j<fermion_vector; j++) {
+          for(int k=0; k<fermion_vector; k++) {
+            decay_widths.gamma_hdd[i][j][k] = 0.0;
+            decay_widths.gamma_huu[i][j][k] = 0.0;
+            decay_widths.gamma_hdu[i][j][k] = 0.0;
+            decay_widths.gamma_hll[i][j][k] = 0.0;
+            decay_widths.gamma_hln[i][j][k] = 0.0;
+          }
+          for(int k2=0; k2<higgs; k2++) {
+            decay_widths.gamma_hvh[i][j][k2] = 0.0;
+          }
+          decay_widths.gamma_hvv[i][j] = 0.0;
+        }
+        for (int j2=0; j2<higgs; j2++) {
+          for (int k3=0; k3<higgs; k3++) {
+            decay_widths.gamma_hhh[i][j2][k3] = 0.0;
+          }
+        }
+        decay_widths.gamma_hgg[i] = 0.0;
+        decay_widths.gamma_hgaga[i] = 0.0;
+        decay_widths.gamma_hZga[i] = 0.0;
+      }
     }
 
-    void check_nan(std::complex<double> var, std::string var_name) {
-      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
+    void check_widths_THDM(THDM_decay_widths& decay_widths, const bool invalid_point_for_negative_width = false) {
+      const int fermion_vector=4, higgs=5;
+      for(int i=0; i<fermion_vector; i++) {
+        for(int j=0; j<higgs; j++) {
+          for(int k=0; k<fermion_vector; k++) {
+            check_width(LOCAL_INFO, decay_widths.gamma_uhd[i][j][k], invalid_point_for_negative_width);
+          }
+        }
+      }
+      for(int i=0; i<higgs; i++) {
+        for(int j=0; j<fermion_vector; j++) {
+          for(int k=0; k<fermion_vector; k++) {
+            check_width(LOCAL_INFO, decay_widths.gamma_hdd[i][j][k], invalid_point_for_negative_width);
+            check_width(LOCAL_INFO, decay_widths.gamma_huu[i][j][k], invalid_point_for_negative_width);
+            check_width(LOCAL_INFO, decay_widths.gamma_hdu[i][j][k], invalid_point_for_negative_width);
+            check_width(LOCAL_INFO, decay_widths.gamma_hll[i][j][k], invalid_point_for_negative_width);
+            check_width(LOCAL_INFO, decay_widths.gamma_hln[i][j][k], invalid_point_for_negative_width);
+          }
+          for(int k2=0; k2<higgs; k2++) {
+            check_width(LOCAL_INFO, decay_widths.gamma_hvh[i][j][k2], invalid_point_for_negative_width);
+          }
+          check_width(LOCAL_INFO, decay_widths.gamma_hvv[i][j], invalid_point_for_negative_width);
+        }
+        for (int j2=0; j2<higgs; j2++) {
+          for (int k3=0; k3<higgs; k3++) {
+            check_width(LOCAL_INFO, decay_widths.gamma_hhh[i][j2][k3], invalid_point_for_negative_width);
+          }
+        }
+        check_width(LOCAL_INFO, decay_widths.gamma_hgg[i], invalid_point_for_negative_width);
+        check_width(LOCAL_INFO, decay_widths.gamma_hgaga[i], invalid_point_for_negative_width);
+        check_width(LOCAL_INFO, decay_widths.gamma_hZga[i], invalid_point_for_negative_width);
+      }
     }
 
-    void check_nan(double var, std::string var_name) {
-      if (std::isnan(var)) nan_warning(var_name);
+    void flush_THDM_total_widths(THDM_total_widths& total_widths) {
+      for(int i=0; i<5; i++) total_widths.gamma_tot_h[i] = 0.0;
+      total_widths.gamma_tot_t = 0.0;
+      total_widths.gamma_tot_t_SM_contrib = 0.0;
+      for(int i=0; i<4; i++) total_widths.gamma_tot_v[i] = 0.0;
+    }
+
+    void check_total_widths_THDM(THDM_total_widths& total_widths, const bool invalid_point_for_negative_width = false) {
+      for(int i=0; i<5; i++) check_width(LOCAL_INFO, total_widths.gamma_tot_h[i], invalid_point_for_negative_width);
+      check_width(LOCAL_INFO, total_widths.gamma_tot_t, invalid_point_for_negative_width);
+      check_width(LOCAL_INFO, total_widths.gamma_tot_t_SM_contrib, invalid_point_for_negative_width);
+      for(int i=0; i<4; i++) check_width(LOCAL_INFO, total_widths.gamma_tot_v[i], invalid_point_for_negative_width);
     }
 
   // Function to fill THDM widths from the 2HDMC
-  // Inlcludes the purpose for which the widths are to be filled
-  // -> this saves computation time
+  // Inlcludes the purpose for which the widths are to be filled  -> this saves computation time
    THDM_decay_widths fill_THDM_decay_widths(SpecBit::THDM_spectrum_container& container, thdm_decays_purpose purpose) {
      THDM_decay_widths decay_widths;
+     flush_THDM_decay_widths(decay_widths);
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
      switch (purpose) {
        case full: {
          for (int h1=1; h1<5; h1++) {
-            //*
             for (int f1=1; f1<4; f1++) {
               for (int f2=1; f2<4; f2++) {
                 decay_widths.gamma_uhd[f1][h1][f2] = decay_table_object.get_gamma_uhd(f1,h1,f2);
@@ -3582,37 +3729,22 @@ namespace Gambit
                 decay_widths.gamma_hdu[h1][f1][f2] = decay_table_object.get_gamma_hdu(h1,f1,f2);
                 decay_widths.gamma_hll[h1][f1][f2] = decay_table_object.get_gamma_hll(h1,f1,f2);
                 decay_widths.gamma_hln[h1][f1][f2] = decay_table_object.get_gamma_hln(h1,f1,f2);
-                check_nan(decay_widths.gamma_uhd[f1][h1][f2], "uhd width "+std::to_string(f1)+std::to_string(h1)+std::to_string(f2));
-                check_nan(decay_widths.gamma_hdd[h1][f1][f2], "hdd width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
-                check_nan(decay_widths.gamma_huu[h1][f1][f2], "huu width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
-                check_nan(decay_widths.gamma_hdu[h1][f1][f2], "hdu width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
-                check_nan(decay_widths.gamma_hll[h1][f1][f2], "hll width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
-                check_nan(decay_widths.gamma_hln[h1][f1][f2], "hln width "+std::to_string(h1)+std::to_string(f1)+std::to_string(f2));
               }
             }
-            //**
             decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
             decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
-            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hgaga[h1], "hgammagamma width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hZga[h1], "hZgamma width "+std::to_string(h1));
-            //**
             for (int v1=1; v1<4; v1++) {
               decay_widths.gamma_hvv[h1][v1] = decay_table_object.get_gamma_hvv(h1,v1);
-              check_nan(decay_widths.gamma_hvv[h1][v1], "hvv width "+std::to_string(h1)+std::to_string(v1)+std::to_string(v1));
               for (int h2=1; h2<5; h2++) {
                 decay_widths.gamma_hvh[h1][v1][h2] = decay_table_object.get_gamma_hvh(h1,v1,h2);
-                check_nan(decay_widths.gamma_hvh[h1][v1][h2], "hvh width "+std::to_string(h1)+std::to_string(v1)+std::to_string(h2));
               }
             }
             for (int h2=1; h2<5; h2++) {
               for (int h3=1; h3<5; h3++) {
                 decay_widths.gamma_hhh[h1][h2][h3] = decay_table_object.get_gamma_hhh(h1,h2,h3);
-                check_nan(decay_widths.gamma_hhh[h1][h2][h3], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h3));
               }
             }
-            //*
           }
          break;
        }
@@ -3621,11 +3753,6 @@ namespace Gambit
           decay_widths.gamma_hdu[4][2][2] = decay_table_object.get_gamma_hdu(4,2,2);
           decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
           decay_widths.gamma_hln[4][3][3] = decay_table_object.get_gamma_hln(4,3,3);
-          check_nan(decay_widths.gamma_uhd[3][4][3], "uhd width 343");
-          check_nan(decay_widths.gamma_hdu[4][2][2], "hdu width 422");
-          check_nan(decay_widths.gamma_hdu[4][3][2], "hdu width 432");
-          check_nan(decay_widths.gamma_hln[4][3][3], "hln width 433");
-          //*
           for (int h1=1; h1<5; h1++) {
             decay_widths.gamma_hdd[h1][2][2] = decay_table_object.get_gamma_hdd(h1,2,2);
             decay_widths.gamma_hdd[h1][3][3] = decay_table_object.get_gamma_hdd(h1,3,3);
@@ -3637,72 +3764,44 @@ namespace Gambit
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
             decay_widths.gamma_hvv[h1][2] = decay_table_object.get_gamma_hvv(h1,2);
             decay_widths.gamma_hvv[h1][3] = decay_table_object.get_gamma_hvv(h1,3);
-            check_nan(decay_widths.gamma_hdd[h1][2][2], "hss width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hdd[h1][3][3], "hbb width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_huu[h1][2][2], "hcc width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hll[h1][2][2], "hl2l2 width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hll[h1][3][3], "hl3l3 width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hgg[h1], "hgg width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hgaga[h1], "hgammagamma width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hZga[h1], "hZgamma width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hvv[h1][2], "hv2v2 width " +std::to_string(h1));
-            check_nan(decay_widths.gamma_hvv[h1][3], "hv3v3 width " +std::to_string(h1));
             for (int h2=1; h2<5; h2++) {
                 decay_widths.gamma_hhh[h1][h2][h2] = decay_table_object.get_gamma_hhh(h1,h2,h2);
-                check_nan(decay_widths.gamma_hhh[h1][h2][h2], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h2));
             }
           }
-          //*
          break;
        }
        case HB_SM_like_decays: {
          decay_widths.gamma_hgg[1] = decay_table_object.get_gamma_hgg(1);
-         check_nan(decay_widths.gamma_hgg[1], "hgg width");
          decay_widths.gamma_hll[1][3][3] = decay_table_object.get_gamma_hll(1,3,3);
-         check_nan(decay_widths.gamma_hll[1][3][3], "hll width 133");
          break;
        }
         case HB_effc_decays: {
-          // fill neutral sacalar widths
           for (int h1=1; h1<4; h1++) {
-            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1); // fill neutral sacalar widths
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
             decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
-            check_nan(decay_widths.gamma_hgaga[h1], "hgaga width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hZga[h1], "hZga width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
             for (int h2=1; h2<5; h2++) {
               decay_widths.gamma_hhh[h1][h2][h2] = decay_table_object.get_gamma_hhh(h1,h2,h2);
-              check_nan(decay_widths.gamma_hhh[h1][h2][h2], "hhh width "+std::to_string(h1)+std::to_string(h2)+std::to_string(h2));
               for(int v=1; v<4; v++) {
                   decay_widths.gamma_hvh[h1][v][h2] = decay_table_object.get_gamma_hvh(h1,v,h2);
-                  check_nan(decay_widths.gamma_hvh[h1][v][h2], "hvh width "+std::to_string(h1)+std::to_string(v)+std::to_string(h2));
               }
             }
           }
-          // fill charged Higgs
-          decay_widths.gamma_uhd[4][2][2] = decay_table_object.get_gamma_uhd(4,2,2);
+          decay_widths.gamma_uhd[4][2][2] = decay_table_object.get_gamma_uhd(4,2,2);  // fill charged Higgs
           decay_widths.gamma_hdu[4][3][2] = decay_table_object.get_gamma_hdu(4,3,2);
           decay_widths.gamma_hln[4][3][3] = decay_table_object.get_gamma_hln(4,3,3);
-          check_nan(decay_widths.gamma_uhd[4][2][2], "uhd width 422");
-          check_nan(decay_widths.gamma_hdu[4][3][2], "hdu width 432");
-          check_nan(decay_widths.gamma_hln[4][3][3], "hln width 433");
          break;
        }
         case HB_effc_SM_like_decays: {
-          // fill neutral sacalar widths
-          for (int h1=1; h1<4; h1++) {
-            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1);
+          for (int h1=1; h1<4; h1++) { 
+            decay_widths.gamma_hgaga[h1] = decay_table_object.get_gamma_hgaga(h1); // fill neutral scalar widths
             decay_widths.gamma_hZga[h1] = decay_table_object.get_gamma_hZga(h1);
             decay_widths.gamma_hgg[h1] = decay_table_object.get_gamma_hgg(h1);
-            check_nan(decay_widths.gamma_hgaga[h1], "hgaga width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hZga[h1], "hZga width "+std::to_string(h1));
-            check_nan(decay_widths.gamma_hgg[h1], "hgg width "+std::to_string(h1));
           }
          break;
        }
      }
-
+     check_widths_THDM(decay_widths);
      return decay_widths;
    }
 
@@ -3785,24 +3884,22 @@ namespace Gambit
   
   THDM_total_widths fill_THDM_total_widths(SpecBit::THDM_spectrum_container& container) {
      THDM_total_widths total_widths;
+     flush_THDM_total_widths(total_widths);
      total_widths.isValid = true;
      THDMC_1_7_0::DecayTableTHDM decay_table_object(*(container.THDM_object));
 
       for (int h=1; h<5; h++) {
         total_widths.gamma_tot_h[h] = decay_table_object.get_gammatot_h(h);
-        check_nan(total_widths.gamma_tot_h[h], "gamma total h " + std::to_string(h));
         if (std::isnan(total_widths.gamma_tot_h[h])) {total_widths.isValid = false; }
       }
       for (int v=1; v<4; v++) {
         total_widths.gamma_tot_v[v] = decay_table_object.get_gammatot_v(v);
-        check_nan(total_widths.gamma_tot_v[v], "gamma total v " + std::to_string(v));
         if (std::isnan(total_widths.gamma_tot_v[v])) {total_widths.isValid = false; }
       }
       total_widths.gamma_tot_t = decay_table_object.get_gammatot_top();
-      check_nan(total_widths.gamma_tot_t, "gamma total top");
       if (std::isnan(total_widths.gamma_tot_t)) {total_widths.isValid = false; }
       total_widths.gamma_tot_t_SM_contrib = container.THDM_object->get_SM_pointer()->get_gamma_top();
-      check_nan(total_widths.gamma_tot_t_SM_contrib, "gamma total top (SM contribution)");
+      check_total_widths_THDM(total_widths);
 
      return total_widths;
    }
@@ -3854,122 +3951,28 @@ namespace Gambit
       result = SM_like_total_widths;
    }
 
-  //TODO: clean this up somehow
-   void get_particle_name(int family, int number, bool is_antiparticle, std::string& p_name) {
-     switch (family) {
-       //quark up
-       case 1:
-         switch (number) {
-           case 1:
-             p_name = "u";
-             if (is_antiparticle) p_name = "ubar";
-             break;
-           case 2:
-             p_name = "c";
-             if (is_antiparticle) p_name = "cbar";
-             break;
-           case 3:
-             p_name = "t";
-             if (is_antiparticle) p_name = "tbar";
-             break;
-           default:
-             p_name == "q_up";
-           }
-           break;
-         //quark down
-      case 2:
-          switch (number) {
-            case 1:
-              p_name = "d";
-              if (is_antiparticle) p_name = "dbar";
-              break;
-            case 2:
-              p_name = "s";
-              if (is_antiparticle) p_name = "sbar";
-              break;
-            case 3:
-              p_name = "b";
-              if (is_antiparticle) p_name = "bbar";
-              break;
-            default:
-              p_name == "q_down";
-            }
-            break;
-        //leptonic electron
-      case 3:
-          switch (number) {
-            case 1:
-              p_name = "e+";
-              if (is_antiparticle) p_name = "e-";
-              break;
-            case 2:
-              p_name = "mu+";
-              if (is_antiparticle) p_name = "mu-";
-              break;
-            case 3:
-              p_name = "tau+";
-              if (is_antiparticle) p_name = "tau-";
-              break;
-            default:
-              p_name == "l_electron";
-            }
-            break;
-        //leptonic neutrino
-      case 4:
-          switch (number) {
-            case 1:
-              p_name = "nubar_e";
-              break;
-            case 2:
-              p_name = "nubar_mu";
-              break;
-            case 3:
-              p_name = "nubar_tau";
-              break;
-            default:
-              p_name = "l_neutrino";
-            }
-            break;
-        //vector bosons
-      case 5:
-          switch (number) {
-            case 1:
-              p_name = "gamma";
-              break;
-            case 2:
-              p_name = "Z0";
-              break;
-            case 3:
-              p_name = "W+";
-              if (is_antiparticle) p_name = "W-";
-              break;
-            default:
-              p_name = "vector";
-            }
-            break;
-        //higgs bosons
-      case 6:
-          switch (number) {
-            case 1:
-              p_name = "h0_1";
-              break;
-            case 2:
-              p_name = "h0_2";
-              break;
-            case 3:
-              p_name = "A0";
-              break;
-            case 4:
-              p_name = "H+";
-              if (is_antiparticle) p_name = "H-";
-              break;
-            default:
-              p_name = "higgs";
-            }
-            break;
-      default: p_name = "";
-       break;
+   enum p_family {up, down, electron, neutrino, vector, higgs};
+   std::string get_particle_name(p_family family, int number, bool is_antiparticle) {
+     const std::vector<std::vector<std::string>> particle_keys = {
+       {"u","c","t"},
+       {"d","s","b"},
+       {"e+","mu+","tau+"},
+       {"nubar_e","nubar_mu","nubar_tau"},
+       {"gamma","Z0","W+"},
+       {"h0_1","h0_2","A0","H+"}
+     };
+     const std::vector<std::vector<std::string>> antiparticle_keys = {
+       {"ubar","cbar","tbar"},
+       {"dbar","sbar","bbar"},
+       {"e-","mu-","tau-"},
+       {"nubar_e","nubar_mu","nubar_tau"},
+       {"gamma","Z0","W-"},
+       {"h0_1","h0_2","A0","H-"}
+     };
+     if (is_antiparticle) {
+       return antiparticle_keys[(int)family][number-1];
      }
+     return particle_keys[(int)family][number-1];
    }
 
   // THDM width Hp->WZ (not available in 2HDMC)
@@ -3992,47 +3995,23 @@ namespace Gambit
      decay_table_entry.positive_error = 0; //narrow width
      decay_table_entry.negative_error = 0;
 
-      // TODO: update to enum structure
-     std::string p1_name;
-     std::string p2_name;
-
      for(int f1=1; f1<4; f1++) {
        for(int f2=1; f2<4; f2++) {
-         //h->dd
-         get_particle_name(2,f1,false,p1_name);
-         get_particle_name(2,f2,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_hdd[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
-         //h->>uu
-         get_particle_name(1,f1,false,p1_name);
-         get_particle_name(1,f2,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_huu[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
-         //h->du
-         get_particle_name(2,f1,false,p1_name);
-         get_particle_name(1,f2,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_hdu[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
-         //h->ll
-         get_particle_name(3,f1,false,p1_name);
-         get_particle_name(3,f2,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_hll[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
-         //h->ln
-         get_particle_name(3,f1,false,p1_name);
-         get_particle_name(4,f2,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_hln[higgs_number][f1][f2]/total_h_decay_width), 0.00, p1_name,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hdd[higgs_number][f1][f2]/total_h_decay_width), 0.00, get_particle_name(down,f1,false), get_particle_name(down,f2,true));
+         decay_table_entry.set_BF((decay_widths.gamma_huu[higgs_number][f1][f2]/total_h_decay_width), 0.00, get_particle_name(up,f1,false), get_particle_name(up,f2,true));
+         decay_table_entry.set_BF((decay_widths.gamma_hdu[higgs_number][f1][f2]/total_h_decay_width), 0.00, get_particle_name(down,f1,false), get_particle_name(up,f2,true));
+         decay_table_entry.set_BF((decay_widths.gamma_hll[higgs_number][f1][f2]/total_h_decay_width), 0.00, get_particle_name(electron,f1,false), get_particle_name(electron,f2,true));
+         decay_table_entry.set_BF((decay_widths.gamma_hln[higgs_number][f1][f2]/total_h_decay_width), 0.00, get_particle_name(electron,f1,false), get_particle_name(neutrino,f2,true));
       }
-    }
-     //h->gg
-     decay_table_entry.set_BF((decay_widths.gamma_hgg[higgs_number]/total_h_decay_width), 0.00, "g","g");
-     //h->gamma,gamma
-     decay_table_entry.set_BF((decay_widths.gamma_hgaga[higgs_number]/total_h_decay_width), 0.00, "gamma","gamma");
-     //h->Z,gamma
-     decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "Z0","gamma");
+     }
+     decay_table_entry.set_BF((decay_widths.gamma_hgg[higgs_number]/total_h_decay_width), 0.00, "g","g"); //h->gg
+     decay_table_entry.set_BF((decay_widths.gamma_hgaga[higgs_number]/total_h_decay_width), 0.00, "gamma","gamma"); //h->gamma,gamma
+     decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "Z0","gamma"); //h->Z,gamma
      decay_table_entry.set_BF((decay_widths.gamma_hZga[higgs_number]/total_h_decay_width), 0.00, "gamma","Z0");
-     //h->V,V
-     decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][2]/total_h_decay_width), 0.00, "Z0","Z0");
+     decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][2]/total_h_decay_width), 0.00, "Z0","Z0"); //h->V,V
      decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][3]/total_h_decay_width), 0.00, "W+","W-");
      decay_table_entry.set_BF((decay_widths.gamma_hvv[higgs_number][3]/total_h_decay_width), 0.00, "W-","W+");
-     //h->V,H
-     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "gamma","h0_1");
+     decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "gamma","h0_1"); //h->V,H
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][2]/total_h_decay_width), 0.00, "gamma","h0_2");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][1]/total_h_decay_width), 0.00, "h0_1","gamma");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][1][2]/total_h_decay_width), 0.00, "h0_2","gamma");
@@ -4044,12 +4023,9 @@ namespace Gambit
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][2]/total_h_decay_width), 0.00, "A0","Z0");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][3][4]/total_h_decay_width), 0.00, "W+","H-");
      decay_table_entry.set_BF((decay_widths.gamma_hvh[higgs_number][4][3]/total_h_decay_width), 0.00, "W-","H+");
-     //h->H,H
      for(int h2=1; h2<5; h2++) {
        for(int h3=1; h3<5; h3++) {
-         get_particle_name(6,h2,false,p1_name);
-         get_particle_name(6,h3,true,p2_name);
-         decay_table_entry.set_BF((decay_widths.gamma_hhh[higgs_number][h2][h3]/total_h_decay_width), 0.00, p1_name,p2_name);
+         decay_table_entry.set_BF((decay_widths.gamma_hhh[higgs_number][h2][h3]/total_h_decay_width), 0.00, get_particle_name(higgs,h2,false), get_particle_name(higgs,h3,true)); //h->H,H
        }
      }
      return decay_table_entry;
