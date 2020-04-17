@@ -19,15 +19,19 @@
 #ifndef __printable_types_hpp__
 #define __printable_types_hpp__
 
-#include "gambit/Elements/shared_types.hpp"
+#include "gambit/Elements/types_rollcall.hpp"
 #include "gambit/ScannerBit/printable_types.hpp"
 
 // Types that Gambit printers can output (if printer plugin is properly equipped)
-#define PRINTABLE_TYPES    \
-  SCANNER_PRINTABLE_TYPES  \
-  (triplet<double>)        \
-  (DM_nucleon_couplings)   \
-  (Flav_KstarMuMu_obs)     \
+#define PRINTABLE_TYPES             \
+  SCANNER_PRINTABLE_TYPES           \
+  (map_const_str_dbl)               \
+  (map_str_map_str_dbl)             \
+  (map_const_str_map_const_str_dbl) \
+  (triplet<double>)                 \
+  (DM_nucleon_couplings)            \
+  (Flav_KstarMuMu_obs)              \
+  (FlavBit::flav_prediction)        \
   (map_intpair_dbl)
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)

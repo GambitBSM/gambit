@@ -64,6 +64,13 @@ namespace Gambit
       return path;
     }
 
+    /// Convert all instances of "p" in a string to "."
+    str p2dot(str s)
+    {
+      boost::replace_all(s, "p", ".");
+      return s;
+    }
+
     /// Split a string into a vector of strings using a delimiter,
     /// and remove any whitespace around the delimiters.
     std::vector<str> delimiterSplit(str s, str delim)

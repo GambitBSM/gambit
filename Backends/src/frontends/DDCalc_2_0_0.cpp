@@ -155,7 +155,7 @@ BE_NAMESPACE
   {
     int result = -1;
     try { result = ex_map.at(ex); }
-    catch(std::out_of_range) { backend_error().raise(LOCAL_INFO, "Unknown experiment requested from DDCalc."); }
+    catch(std::out_of_range&) { backend_error().raise(LOCAL_INFO, "Unknown experiment requested from DDCalc."); }
     return result;
   }
 

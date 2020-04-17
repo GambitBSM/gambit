@@ -76,6 +76,9 @@ namespace Gambit
     /// Return the path the the run-specific scratch directory
     EXPORT_SYMBOLS const str& runtime_scratch();
 
+    /// Convert all instances of "p" in a string to "."
+    EXPORT_SYMBOLS str p2dot(str s);
+
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
     EXPORT_SYMBOLS std::vector<str> delimiterSplit(str s, str delim);
@@ -93,7 +96,7 @@ namespace Gambit
     /// Strips leading and/or trailing parentheses from a string.
     EXPORT_SYMBOLS void strip_parentheses(str&);
 
-    /// Created a str of a specified length.
+    /// Create a str of a specified length.
     EXPORT_SYMBOLS str str_fixed_len(str, int);
 
     /// Copy a str to a character array, stripping the null termination character.
@@ -110,7 +113,7 @@ namespace Gambit
 
     /// Split string into vector of strings, using a delimiter string
     EXPORT_SYMBOLS std::vector<std::string> split(const std::string& input, const std::string& delimiter);
-    
+
     /************************************************************************/
     /* Comparator for case-insensitive comparison in STL assos. containers  */
     /************************************************************************/
