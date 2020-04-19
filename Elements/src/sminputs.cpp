@@ -46,12 +46,12 @@ namespace Gambit
       mBmB     = SLHAea_get(data,"SMINPUTS",5 , 4.18000000E+00);   // mb(mb)^MSbar &
       mT       = SLHAea_get(data,"SMINPUTS",6 , 1.73340000E+02);   // mtop(pole) $
       mTau     = SLHAea_get(data,"SMINPUTS",7 , 1.77682000E+00);   // mtau(pole) §
-      mNu3     = SLHAea_get(data,"SMINPUTS",8 ,              0);   // mnu3(pole)
+      mNu3     = SLHAea_get(data,"SMINPUTS",8 ,              0.0);   // mnu3(pole)
       // SLHA2
       mE       = SLHAea_get(data,"SMINPUTS",11, 5.10998928E-04);   // melectron(pole) § **
-      mNu1     = SLHAea_get(data,"SMINPUTS",12,              0);   // mnu1(pole)
+      mNu1     = SLHAea_get(data,"SMINPUTS",12,              0.0);   // mnu1(pole)
       mMu      = SLHAea_get(data,"SMINPUTS",13, 1.05658372E-01);   // mmuon(pole) §
-      mNu2     = SLHAea_get(data,"SMINPUTS",14,              0);   // mnu2(pole)
+      mNu2     = SLHAea_get(data,"SMINPUTS",14,              0.0);   // mnu2(pole)
       mD       = SLHAea_get(data,"SMINPUTS",21, 4.80000000E-03);   // md(2 GeV)^MSbar @
       mU       = SLHAea_get(data,"SMINPUTS",22, 2.30000000E-03);   // mu(2 GeV)^MSbar @
       mS       = SLHAea_get(data,"SMINPUTS",23, 9.50000000E-02);   // ms(2 GeV)^MSbar @
@@ -78,9 +78,9 @@ namespace Gambit
       PMNS.theta12 = SLHAea_get(data,"UPMNSIN",1, 0.58376); // the solar angle
       PMNS.theta23 = SLHAea_get(data,"UPMNSIN",2, 0.76958); // the atmospheric mixing angle
       PMNS.theta13 = SLHAea_get(data,"UPMNSIN",3, 0.15495);
-      PMNS.delta13 = SLHAea_get(data,"UPMNSIN",4, 0);       // the Dirac CP-violating phase
-      PMNS.alpha1  = SLHAea_get(data,"UPMNSIN",5, 0);       // the first Majorana CP-violating phase
-      PMNS.alpha2  = SLHAea_get(data,"UPMNSIN",6, 0);       // the second CP-violating Majorana phase
+      PMNS.delta13 = SLHAea_get(data,"UPMNSIN",4, 0.0);       // the Dirac CP-violating phase
+      PMNS.alpha1  = SLHAea_get(data,"UPMNSIN",5, 0.0);       // the first Majorana CP-violating phase
+      PMNS.alpha2  = SLHAea_get(data,"UPMNSIN",6, 0.0);       // the second CP-violating Majorana phase
    }
 
    // Return a fresh SLHAea object containing the contents of this object.
