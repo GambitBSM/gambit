@@ -58,7 +58,7 @@ Printer:
     # name of output file
     output_file: "GAMBIT_THDMIIatQ_scan_output.hdf5"
     group: "/data"
-    delete_file_on_restart: true
+    delete_file_on_restart: false
 
 
 ##############################

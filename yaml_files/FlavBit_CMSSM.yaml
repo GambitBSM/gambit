@@ -90,12 +90,132 @@ ObsLikes:
     - capability: lnL_alpha_s
       purpose:    LogLike
 
+    - capability: SuperIso_obs_values
+      purpose:    test
+
 
 Rules:
 
   # Tell all functions that are able to dump SLHA files to do so.
   #- options:
   #    drop_SLHA_file: true
+
+  # Globally set the SuperIso observables to be considered
+  - options:
+      SuperIso_obs_list: [
+        AI_BKstargamma,
+        BR_BXsgamma,
+        BRuntag_Bsmumu,
+        BR_Bdmumu,
+        BR_BXsmumu_1_6,
+        BR_BXsmumu_14.2_22,
+        BR_BXsee_1_6,
+        BR_BXsee_14.2_22,
+        BR_B0Kstar0gamma,
+        dGamma/dq2_B0Kstar0mumu_0.1_0.98,
+        FL_B0Kstar0mumu_0.1_0.98,
+        AFB_B0Kstar0mumu_0.1_0.98,
+        S3_B0Kstar0mumu_0.1_0.98,
+        S4_B0Kstar0mumu_0.1_0.98,
+        S5_B0Kstar0mumu_0.1_0.98,
+        S7_B0Kstar0mumu_0.1_0.98,
+        S8_B0Kstar0mumu_0.1_0.98,
+        S9_B0Kstar0mumu_0.1_0.98,
+        dGamma/dq2_B0Kstar0mumu_1.1_2.5,
+        FL_B0Kstar0mumu_1.1_2.5,
+        AFB_B0Kstar0mumu_1.1_2.5,
+        S3_B0Kstar0mumu_1.1_2.5,
+        S4_B0Kstar0mumu_1.1_2.5,
+        S5_B0Kstar0mumu_1.1_2.5,
+        S7_B0Kstar0mumu_1.1_2.5,
+        S8_B0Kstar0mumu_1.1_2.5,
+        S9_B0Kstar0mumu_1.1_2.5,
+        dGamma/dq2_B0Kstar0mumu_2.5_4,
+        FL_B0Kstar0mumu_2.5_4,
+        AFB_B0Kstar0mumu_2.5_4,
+        S3_B0Kstar0mumu_2.5_4,
+        S4_B0Kstar0mumu_2.5_4,
+        S5_B0Kstar0mumu_2.5_4,
+        S7_B0Kstar0mumu_2.5_4,
+        S8_B0Kstar0mumu_2.5_4,
+        S9_B0Kstar0mumu_2.5_4,
+        dGamma/dq2_B0Kstar0mumu_4_6,
+        FL_B0Kstar0mumu_4_6,
+        AFB_B0Kstar0mumu_4_6,
+        S3_B0Kstar0mumu_4_6,
+        S4_B0Kstar0mumu_4_6,
+        S5_B0Kstar0mumu_4_6,
+        S7_B0Kstar0mumu_4_6,
+        S8_B0Kstar0mumu_4_6,
+        S9_B0Kstar0mumu_4_6,
+        dGamma/dq2_B0Kstar0mumu_6_8,
+        FL_B0Kstar0mumu_6_8,
+        AFB_B0Kstar0mumu_6_8,
+        S3_B0Kstar0mumu_6_8,
+        S4_B0Kstar0mumu_6_8,
+        S5_B0Kstar0mumu_6_8,
+        S7_B0Kstar0mumu_6_8,
+        S8_B0Kstar0mumu_6_8,
+        S9_B0Kstar0mumu_6_8,
+        dGamma/dq2_B0Kstar0mumu_15_17,
+        FL_B0Kstar0mumu_15_17,
+        AFB_B0Kstar0mumu_15_17,
+        S3_B0Kstar0mumu_15_17,
+        S4_B0Kstar0mumu_15_17,
+        S5_B0Kstar0mumu_15_17,
+        S7_B0Kstar0mumu_15_17,
+        S8_B0Kstar0mumu_15_17,
+        S9_B0Kstar0mumu_15_17,
+        dGamma/dq2_B0Kstar0mumu_17_19,
+        FL_B0Kstar0mumu_17_19,
+        AFB_B0Kstar0mumu_17_19,
+        S3_B0Kstar0mumu_17_19,
+        S4_B0Kstar0mumu_17_19,
+        S5_B0Kstar0mumu_17_19,
+        S7_B0Kstar0mumu_17_19,
+        S8_B0Kstar0mumu_17_19,
+        S9_B0Kstar0mumu_17_19,
+        dGamma/dq2_BKstarmumu_1.1_6,
+        dGamma/dq2_BKstarmumu_15_19,
+        BR_B0Kstar0ee_0.1_19.2,
+        R-1_B0Kstar0ll_0.045_1.1,
+        R-1_B0Kstar0ll_1.1_6,
+        R-1_B0Kstar0ll_0.045_1.1_Belle,
+        R-1_B0Kstar0ll_1.1_6_Belle,
+        R-1_B0Kstar0ll_0.1_8_Belle,
+        R-1_B0Kstar0ll_15_19_Belle,
+        dGamma/dq2_B0K0mumu_1.1_6,
+        dGamma/dq2_B0K0mumu_15_22,
+        dGamma/dq2_BKmumu_1.1_6,
+        FH_BKmumu_1.1_6,
+        dGamma/dq2_BKmumu_15_22,
+        FH_BKmumu_15_22,
+        R-1_BKll_1.1_6,
+        dGamma/dq2_Bsphimumu_0.1_2,
+        FL_Bsphimumu_0.1_2,
+        S3_Bsphimumu_0.1_2,
+        S4_Bsphimumu_0.1_2,
+        S7_Bsphimumu_0.1_2,
+        dGamma/dq2_Bsphimumu_2_5,
+        FL_Bsphimumu_2_5,
+        S3_Bsphimumu_2_5,
+        S4_Bsphimumu_2_5,
+        S7_Bsphimumu_2_5,
+        dGamma/dq2_Bsphimumu_5_8,
+        FL_Bsphimumu_5_8,
+        S3_Bsphimumu_5_8,
+        S4_Bsphimumu_5_8,
+        S7_Bsphimumu_5_8,
+        dGamma/dq2_Bsphimumu_15_17,
+        FL_Bsphimumu_15_17,
+        S3_Bsphimumu_15_17,
+        S4_Bsphimumu_15_17,
+        S7_Bsphimumu_15_17,
+        dGamma/dq2_Bsphimumu_17_19,
+        FL_Bsphimumu_17_19,
+        S3_Bsphimumu_17_19,
+        S4_Bsphimumu_17_19,
+        S7_Bsphimumu_17_19]
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -121,24 +241,6 @@ Rules:
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
-
-  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
-  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
-  - capability: unimproved_MSSM_spectrum
-    function: get_CMSSM_spectrum_FS
-    options:
-      precision_goal:        1.0e-4
-      max_iterations:        0
-      calculate_sm_masses:   false
-      pole_mass_loop_order:  2
-      ewsb_loop_order:       2
-      beta_loop_order:       2
-      threshold_corrections_loop_order: 2
-      use_higgs_2loop_at_as: true
-      use_higgs_2loop_ab_as: true
-      use_higgs_2loop_at_at: true
-      use_higgs_2loop_atau_atau: true
-      invalid_point_fatal: false
 
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum

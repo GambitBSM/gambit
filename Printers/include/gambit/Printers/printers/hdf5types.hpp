@@ -22,24 +22,30 @@
 #ifndef __HDF5TYPES__
 #define __HDF5TYPES__
 
-#define HDF5_TYPES          \
-  (int)                     \
-  (uint)                    \
-  (long)                    \
-  (ulong)                   \
-  (longlong)                \
-  (ulonglong)               \
-  (float)                   \
-  (double)                  \
-  (std::vector<double>)     \
-  (bool)                    \
-  (map_str_dbl)             \
-  (ModelParameters)         \
-  (triplet<double>)         \
-  (map_intpair_dbl)         \
+#include "gambit/Elements/module_types_rollcall.hpp"
 
-#define HDF5_MODULE_BACKEND_TYPES \
-  (DM_nucleon_couplings)    \
-  (Flav_KstarMuMu_obs)      \
+#define HDF5_TYPES                     \
+  (int)                                \
+  (uint)                               \
+  (long)                               \
+  (ulong)                              \
+  (longlong)                           \
+  (ulonglong)                          \
+  (float)                              \
+  (double)                             \
+  (std::vector<double>)                \
+  (bool)                               \
+  (map_str_dbl)                        \
+  (map_str_map_str_dbl)                \
+  (map_const_str_dbl)                  \
+  (map_const_str_map_const_str_dbl)    \
+  (ModelParameters)                    \
+  (triplet<double>)                    \
+  (map_intpair_dbl)                    \
+
+#define HDF5_MODULE_BACKEND_TYPES      \
+  (DM_nucleon_couplings)               \
+  (Flav_KstarMuMu_obs)                 \
+  (FlavBit::flav_prediction)           \
 
 #endif

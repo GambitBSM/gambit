@@ -40,8 +40,7 @@ Parameters:
     mH: 125.09
 
   WC:
-    Re_DeltaC7:
-      range: [-0.1, 0.1]
+    Re_DeltaC7: 0
     Im_DeltaC7:  0
     Re_DeltaC9:  0
     Im_DeltaC9:  0
@@ -96,7 +95,7 @@ ObsLikes:
 
   # Likelihoods
   - purpose:    LogLike
-    capability: b2ll_LL
+    capability: HEPLike_B2mumuLogLikelihood_LHCb
 
   #- purpose:    LogLike
   #  capability: b2sll_LL
@@ -114,6 +113,22 @@ Rules:
   # Use SuperIso instead of FeynHiggs for B_s->mumu
   - capability: Bsmumu_untag
     function: SI_Bsmumu_untag
+
+  - options:
+     SuperIso_obs_list: [
+       BR_BXsgamma,
+       BRuntag_Bsmumu,
+       BR_Bdmumu,
+       BR_BXsmumu_1_6,
+       BR_BXsmumu_14.2_22,
+       BR_BXsee_1_6,
+       BR_BXsee_14.2_22,
+       BR_B0Kstar0gamma,
+       dGamma/dq2_B0Kstar0mumu_0.1_0.98,
+     ]
+                                                                                     
+
+
 
 
 Logger:
