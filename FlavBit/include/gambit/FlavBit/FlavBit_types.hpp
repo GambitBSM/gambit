@@ -37,6 +37,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/numeric/ublas/matrix.hpp>
 

@@ -80,14 +80,9 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
-<<<<<<< HEAD
-// #define FLAVBIT_DEBUG
-// #define FLAVBIT_DEBUG_LL
-=======
 
 //#define FLAVBIT_DEBUG
 //#define FLAVBIT_DEBUG_LL
->>>>>>> origin/FlavBit_development_NEW2
 
 namespace YAML
 {
