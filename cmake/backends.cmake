@@ -1170,6 +1170,36 @@ endif()
 
 # THDMC
 set(name "THDMC")
+set(ver "1.8.0")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
+set(md5 "97a60d3d10637faf3fe26f704a666d26")
+set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+set(GSL_LIB_FLAGS "${GSL_LIBRARIES}")
+string(REPLACE ";" " " GSL_LIB_FLAGS "${GSL_LIB_FLAGS}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch < ${patch}/Makefile.patch
+	    COMMAND patch -s -p0 < ${patch}/src.patch
+  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
+      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend(${name} ${ver})
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
+set(name "THDMC")
 set(ver "1.7.0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
@@ -1195,7 +1225,6 @@ if(NOT ditched_${name}_${ver})
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # Alternative download command for getting unreleased things from the gambit_internal repository.

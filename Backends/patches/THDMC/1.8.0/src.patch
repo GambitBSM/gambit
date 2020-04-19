@@ -1,0 +1,1121 @@
+diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
+--- src/CalcLH.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/CalcLH.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,6 +1,6 @@
+ #include "THDM.h"
+ #include "Constraints.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include <iostream>
+ 
+ using namespace std;
+@@ -47,7 +47,7 @@
+   pc("A-tautau",cs,cp);
+   model.write_LesHouches(out_file,true,true,true);
+ 
+-  DecayTable table(model);
++  DecayTableTHDM table(model);
+   table.print_decays(1);
+   table.print_decays(2);
+   table.print_decays(3);
+diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
+--- src/CalcMSSM.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/CalcMSSM.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,7 +1,7 @@
+ #include "THDM.h"
+ #include "Constraints.h"
+ #include <iostream>
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ 
+ using namespace std;
+ 
+diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
+--- src/CalcPhys.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/CalcPhys.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,5 +1,5 @@
+ #include "Constraints.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "HBHS.h"
+ #include "THDM.h"
+ #include <iostream>
+@@ -65,7 +65,7 @@
+   model.write_LesHouches(file, true, true, true, hbhsres_ptr);
+ 
+   // Print Higgs decays to the screen
+-  DecayTable table(model);
++  DecayTableTHDM table(model);
+   table.print_decays(1);
+   table.print_decays(2);
+   table.print_decays(3);
+diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
+--- src/Constraints.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/Constraints.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,5 +1,5 @@
+ #include "Constraints.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "THDM.h"
+ #include "Util.h"
+ #include <fstream>
+@@ -674,12 +674,12 @@
+   return HpHp&&HpHptau&&HpHpcs;
+ }
+ 
+-#if defined NMSSMTools
++
+ bool Constraints::check_NMSSMTools(bool &hZ, bool &hZ2b, bool &hZ2tau, bool &hZinv, bool &hZ2j,
+ 				   bool &hZ2gamma, bool &hZ4b, bool &hZ4tau, bool &hZ2b2tau,
+ 				   bool &hA, bool &hA4b, bool &hA4tau, bool &hA2b2tau,
+ 				   bool &hA6b, bool &hA6tau, bool &ZhZjj) {
+-
++#if defined NMSSMTools
+   // The constraints on the neutral Higgses are collected from NMSSMTools,
+   // if available
+   int i;
+@@ -937,8 +937,9 @@
+ 
+   return hZ&&hZ2b&&hZ2tau&&hZinv&&hZ2j&&hZ2gamma&&hZ4b&&hZ4tau&&hZ2b2tau&&
+     hA&&hA4b&&hA4tau&&hA2b2tau&&hA6b&&hA6tau&&ZhZjj;
++    #endif
+ }
+-#endif
++
+ 
+ 
+ double Constraints::delta_rho(double mh) {
+diff -ruN src/Constraints.h src_patched/Constraints.h
+--- src/Constraints.h	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/Constraints.h	2020-04-20 00:04:36.000000000 +0930
+@@ -3,7 +3,7 @@
+ 
+ #include "SM.h"
+ #include "THDM.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ 
+ using namespace std;
+ 
+@@ -264,7 +264,7 @@
+  private:
+   THDM model;
+   SM sm;
+-  DecayTable table;
++  DecayTableTHDM table;
+ 
+   double dmu_f(double z);
+   double dmu_g(double z);
+diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
+--- src/DecayTable.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/DecayTable.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,4 +1,4 @@
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "Util.h"
+ #include <iostream>
+ #include <gsl/gsl_integration.h>
+@@ -25,14 +25,14 @@
+ const static double dmtb = 10.;
+ 
+ 
+-DecayTable::DecayTable(THDM mod) {
++DecayTableTHDM::DecayTableTHDM(THDM mod) {
+   set_model(mod);
+   qcd_on=true;
+   
+ 
+ }
+ 
+-void DecayTable::set_model(THDM mod) {
++void DecayTableTHDM::set_model(THDM mod) {
+   model = mod;
+   sm = mod.get_SM();
+   int i,j,k;
+@@ -61,12 +61,12 @@
+ }
+ 
+ 
+-THDM DecayTable::get_model() {
++THDM DecayTableTHDM::get_model() {
+   return model;
+ }
+ 
+ 
+-double DecayTable::get_gamma_uhd(int u, int h, int d) {
++double DecayTableTHDM::get_gamma_uhd(int u, int h, int d) {
+ 
+   if ((u<1)||(u>3)) return 0.;
+   if (h!=4) return 0.;
+@@ -106,7 +106,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hdd(int h, int d1, int d2) {
++double DecayTableTHDM::get_gamma_hdd(int h, int d1, int d2) {
+ 
+   if ((h<1)||(h>3)) return 0.;
+   if ((d1<1)||(d1>3)) return 0.;
+@@ -154,7 +154,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_huu(int h, int u1, int u2) {
++double DecayTableTHDM::get_gamma_huu(int h, int u1, int u2) {
+ 
+   if ((h<1)||(h>3)) return 0.;
+   if ((u1<1)||(u1>3)) return 0.;
+@@ -252,7 +252,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hdu(int h, int d, int u) {
++double DecayTableTHDM::get_gamma_hdu(int h, int d, int u) {
+ 
+   if ((h<4)||(h>4)) return 0.;
+   if ((d<1)||(d>3)) return 0.;
+@@ -347,7 +347,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hll(int h, int l1, int l2) {
++double DecayTableTHDM::get_gamma_hll(int h, int l1, int l2) {
+ 
+   if ((h<1)||(h>3)) return 0.;
+   if ((l1<1)||(l1>3)) return 0.;
+@@ -373,7 +373,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hln(int h, int l, int n) {
++double DecayTableTHDM::get_gamma_hln(int h, int l, int n) {
+ 
+   if ((h<1)||(h>4)) return 0.;
+   if ((l<1)||(l>3)) return 0.;
+@@ -399,7 +399,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hgg(int h) {
++double DecayTableTHDM::get_gamma_hgg(int h) {
+ 
+   if (!qcd_on) return 0.;
+ 
+@@ -412,7 +412,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hgaga(int h) {
++double DecayTableTHDM::get_gamma_hgaga(int h) {
+ 
+   if (!qcd_on) return 0.;
+ 
+@@ -425,7 +425,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hZga(int h) {
++double DecayTableTHDM::get_gamma_hZga(int h) {
+ 
+   if ((h<1)||(h>3)) return 0.;
+ 
+@@ -436,7 +436,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hvv(int h, int V) {
++double DecayTableTHDM::get_gamma_hvv(int h, int V) {
+ 
+   if ((h<1)||(h>=4)) return 0.;
+   if ((V<1)||(V>3)) return 0.;
+@@ -455,7 +455,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hvh(int H, int V, int h) {
++double DecayTableTHDM::get_gamma_hvh(int H, int V, int h) {
+ 
+   if ((H<1)||(H>4)||(h==H)) return 0.;
+   if ((V<1)||(V>3)) return 0.;
+@@ -558,7 +558,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_hhh(int h, int h1, int h2) {
++double DecayTableTHDM::get_gamma_hhh(int h, int h1, int h2) {
+ 
+   if ((h<1)||(h>4)) return 0.;
+   if ((h1<1)||(h1>4)) return 0.;
+@@ -587,7 +587,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gammatot_top() {
++double DecayTableTHDM::get_gammatot_top() {
+ 
+   double gtot = 0.;
+   
+@@ -609,7 +609,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gammatot_h(int h) {
++double DecayTableTHDM::get_gammatot_h(int h) {
+ 
+   if (h>4) return 0.;
+ 
+@@ -657,25 +657,25 @@
+ }
+ 
+ 
+-double  DecayTable::get_gammatot_v(int v) {
++double  DecayTableTHDM::get_gammatot_v(int v) {
+   return sm.get_gamma_V(v);
+ }
+ 
+ 
+ 
+-void DecayTable::print_decay_LesHouches(FILE* output, double br, int id1, int id2) {
++void DecayTableTHDM::print_decay_LesHouches(FILE* output, double br, int id1, int id2) {
+   if (br>0) 
+     fprintf(output,"     % 16.8e     %1i     %3i   %3i\n",br,2,id1,id2);
+ }
+ 
+ 
+-void DecayTable::print_decay(const char *h, const char *id1, const char *id2, double g, double br) { 
++void DecayTableTHDM::print_decay(const char *h, const char *id1, const char *id2, double g, double br) { 
+   if (br>THDM::EPS)
+     printf("%2s -> %2s %2s %12.3e   %12.3e\n",h,id1,id2,g,br);
+ }
+ 
+ 
+-void DecayTable::print_top_decays() {
++void DecayTableTHDM::print_top_decays() {
+   double gtot = get_gammatot_top();
+   double gt[12],br[12];
+ 
+@@ -715,7 +715,7 @@
+ }
+ 
+ 
+-void DecayTable::print_top_decays_LesHouches(FILE* output, bool full) {
++void DecayTableTHDM::print_top_decays_LesHouches(FILE* output, bool full) {
+   double gtot = get_gammatot_top();
+   double gt[12],br[12];
+ 
+@@ -755,22 +755,22 @@
+ }
+ 
+ 
+-void DecayTable::print_decays(int h) {
++void DecayTableTHDM::print_decays(int h) {
+   print_decays(0,h,true,false);
+ }
+ 
+ 
+-void DecayTable::print_width(int h) {
++void DecayTableTHDM::print_width(int h) {
+   printf(" Total width for %s: %10.3e GeV\n", hnames[h], get_gammatot_h(h));
+ }
+ 
+ 
+-void DecayTable::print_decays_LesHouches(FILE* output, int h, bool full) {
++void DecayTableTHDM::print_decays_LesHouches(FILE* output, int h, bool full) {
+   print_decays(output,h,full,true);
+ }
+ 
+ 
+-double DecayTable::br(double dG, double G) {
++double DecayTableTHDM::br(double dG, double G) {
+ 
+   double BR = 0.;
+ 
+@@ -783,7 +783,7 @@
+ }
+ 
+ 
+-void DecayTable::print_decays(FILE* output,int h, bool full, bool les) {
++void DecayTableTHDM::print_decays(FILE* output,int h, bool full, bool les) {
+ 
+   if ((h<1)||(h>4)) return;
+ 
+@@ -966,11 +966,11 @@
+   if (!les) printf("---------------------------------------\n");
+ }
+ 
+-void DecayTable::set_qcd(bool set) {
++void DecayTableTHDM::set_qcd(bool set) {
+   qcd_on=set;
+ }
+ 
+-double DecayTable::hvv_offshell(int h, int V,double M) {
++double DecayTableTHDM::hvv_offshell(int h, int V,double M) {
+ 
+   double m = sm.get_vmass(V);
+ 
+@@ -1033,7 +1033,7 @@
+ 
+ }
+ 
+-double DecayTable::hvv_all(int h, int V,double M) {
++double DecayTableTHDM::hvv_all(int h, int V,double M) {
+ 
+   double m = sm.get_vmass(V);
+ 
+@@ -1091,7 +1091,7 @@
+ }
+ 
+ 
+-double DecayTable::hvv_onshell(int h, int V, double M) {
++double DecayTableTHDM::hvv_onshell(int h, int V, double M) {
+   double m = sm.get_vmass(V);
+   double Sf = 0.;
+ 
+@@ -1123,7 +1123,7 @@
+ }
+ 
+ 
+-double DecayTable::hvh_onshell(int H, int V, int h, double M) {
++double DecayTableTHDM::hvh_onshell(int H, int V, int h, double M) {
+   double m1 = sm.get_vmass(V);
+   double m2  = model.get_hmass(h);
+ 
+@@ -1148,7 +1148,7 @@
+ }
+ 
+ 
+-double DecayTable::PS2(double M, double m1, double m2) {
++double DecayTableTHDM::PS2(double M, double m1, double m2) {
+   double absp1 = sqrt((pow(M,2)-pow(m1+m2,2))*(pow(M,2)-pow(m1-m2,2)))/(2.*M);
+   double PS = absp1/pow(M,2);
+ 
+@@ -1157,7 +1157,7 @@
+ 
+ 
+ 
+-double DecayTable::hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h) {
++double DecayTableTHDM::hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h) {
+ 
+   double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
+ 
+@@ -1217,7 +1217,7 @@
+ }
+ 
+ 
+-double DecayTable::hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt=false) {
++double DecayTableTHDM::hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt=false) {
+ 
+   if (M<(m1+m2)) return 0.;
+ 
+@@ -1265,7 +1265,7 @@
+ }
+ 
+ 
+-double DecayTable::get_gamma_uhu(int u1, int h, int u2) {
++double DecayTableTHDM::get_gamma_uhu(int u1, int h, int u2) {
+ 
+   if (u1!=3) return 0.;
+   if ((h<1)||(h>3)) return 0.;
+@@ -1303,7 +1303,7 @@
+ }
+ 
+ 
+-double DecayTable::htt_onshell(double M, double m1, double m2,  int Nc, int h) {
++double DecayTableTHDM::htt_onshell(double M, double m1, double m2,  int Nc, int h) {
+ 
+   complex <double> cs, cp;
+   complex <double> cs_mtp, cp_mtp;
+@@ -1359,7 +1359,7 @@
+ }
+ 
+ 
+-double DecayTable::htt_offshell(double M, double m1, double m2, int Nc, int h) {
++double DecayTableTHDM::htt_offshell(double M, double m1, double m2, int Nc, int h) {
+ 
+   complex <double> cs, cp;
+   complex <double> cs_mtp, cp_mtp;
+@@ -1414,7 +1414,7 @@
+ }
+ 
+ 
+-double DecayTable::htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc) {
++double DecayTableTHDM::htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc) {
+ 
+   complex <double> I(0.0,1.0);
+ 
+@@ -1469,7 +1469,7 @@
+   return G;
+ }
+ 
+-double DecayTable::hgaga(int h) {
++double DecayTableTHDM::hgaga(int h) {
+ 
+   complex <double> I(0.,1);
+ 
+@@ -1566,7 +1566,7 @@
+ 
+ 
+ 
+-double DecayTable::hZga(int h) {
++double DecayTableTHDM::hZga(int h) {
+ 
+   complex <double> I(0.,1);
+ 
+@@ -1684,7 +1684,7 @@
+ }
+ 
+ 
+-double DecayTable::hgg(int h) {
++double DecayTableTHDM::hgg(int h) {
+ 
+   double v  = sm.get_v();
+   double v2 = sm.get_v2();
+@@ -1755,7 +1755,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::F_sf(double t) {
++complex <double> DecayTableTHDM::F_sf(double t) {
+   double ti = 1./t;
+   complex <double> c;
+   c = ti*(1.+(1.-ti)*ftau(t));
+@@ -1763,7 +1763,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::F_pf(double t) {
++complex <double> DecayTableTHDM::F_pf(double t) {
+   double ti = 1./t;
+   complex <double> c;
+   c = ti*ftau(t);
+@@ -1771,7 +1771,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::F_0(double t) {
++complex <double> DecayTableTHDM::F_0(double t) {
+   double ti = 1./t;
+   complex <double> c;
+   c = ti*(-1.+ti*ftau(t));
+@@ -1780,7 +1780,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::F_1(double t) {
++complex <double> DecayTableTHDM::F_1(double t) {
+   double ti = 1./t;
+   complex <double> c;
+   c = 2.+3.*ti+3.*ti*(2.-ti)*ftau(t);
+@@ -1789,7 +1789,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::ftau(double t) {
++complex <double> DecayTableTHDM::ftau(double t) {
+ 
+   complex <double> c;
+   complex <double> I(0.,1.);
+@@ -1800,7 +1800,10 @@
+   }
+ 
+   if (t>1.) {
+-    complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    complex <double> x;
++    if (t>10E12) x = log(t)-I*M_PI;
++    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
+     c = -1./4.*x*x;
+   }
+ 
+@@ -1808,7 +1811,7 @@
+ }
+ 
+ 
+-complex <double> DecayTable::gtau(double t) {
++complex <double> DecayTableTHDM::gtau(double t) {
+ 
+   complex <double> c;
+   complex <double> I(0.,1.);
+@@ -1819,7 +1822,10 @@
+   }
+ 
+   if (t>1.) {
+-    complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    complex <double> x;
++    if (t>10E12) x = log(t)-I*M_PI;
++    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
+     c = 1./2.*x*sqrt(1.-1./t);
+   }
+ 
+@@ -1828,32 +1834,32 @@
+ 
+ 
+ 
+-complex <double> DecayTable::I_2(double tau, double lambda) {
++complex <double> DecayTableTHDM::I_2(double tau, double lambda) {
+   complex <double> c;
+   c = -tau*lambda/2./(tau-lambda)*(ftau(1./tau)-ftau(1./lambda));
+   return c;
+ }
+ 
+-complex <double> DecayTable::I_1(double tau, double lambda) {
++complex <double> DecayTableTHDM::I_1(double tau, double lambda) {
+   complex <double> c;
+   c = tau*lambda/2./(tau-lambda) + tau*tau*lambda*lambda/2./(tau-lambda)/(tau-lambda)*(ftau(1./tau)-ftau(1./lambda)) + 
+                                    tau*tau*lambda/(tau-lambda)/(tau-lambda)*(gtau(1./tau)-gtau(1./lambda));
+   return c;
+ }
+ 
+-complex <double> DecayTable::FF_s(double tau, double lambda) {
++complex <double> DecayTableTHDM::FF_s(double tau, double lambda) {
+   complex <double> c;
+   c = I_1(tau,lambda) - I_2(tau,lambda);
+   return c;
+ }
+ 
+-complex <double> DecayTable::FF_p(double tau, double lambda) {
++complex <double> DecayTableTHDM::FF_p(double tau, double lambda) {
+   complex <double> c;
+   c = I_2(tau,lambda);
+   return c;
+ }
+ 
+-complex <double> DecayTable::FW(double tau, double lambda) {
++complex <double> DecayTableTHDM::FW(double tau, double lambda) {
+   complex <double> c;
+   double ctw            = sm.get_costw();
+   double stw            = sm.get_sintw();
+@@ -1861,20 +1867,20 @@
+   return c;
+ }
+ 
+-complex <double> DecayTable::FHp(double tau, double lambda) {
++complex <double> DecayTableTHDM::FHp(double tau, double lambda) {
+   complex <double> c;
+   c = I_1(tau,lambda);
+   return c;
+ }
+ 
+ // Interpolation with power c
+-double DecayTable::interp(double R, double x, double y, double c) {
++double DecayTableTHDM::interp(double R, double x, double y, double c) {
+ 
+   double ival = pow(R,c)*x + (1.-pow(R,c))*y;
+    return ival;
+ }
+ 
+-double DecayTable::DHp(double ui, double uj, double xi, double xj, double sqL) {
++double DecayTableTHDM::DHp(double ui, double uj, double xi, double xj, double sqL) {
+  
+  double eps = 1.E-12;
+  
+@@ -1889,7 +1895,7 @@
+  
+ }      
+ 
+-double DecayTable::DHm(double ui, double uj, double xi, double xj, double sqL) {
++double DecayTableTHDM::DHm(double ui, double uj, double xi, double xj, double sqL) {
+  
+  double eps = 1.E-12;
+  
+@@ -1904,7 +1910,7 @@
+  
+ }     
+ 
+-double DecayTable::BHp(double ui, double uj, double xi, double xj, double sqL) {
++double DecayTableTHDM::BHp(double ui, double uj, double xi, double xj, double sqL) {
+ 
+ 	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
+     B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
+diff -ruN src/DecayTable.h src_patched/DecayTable.h
+--- src/DecayTable.h	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/DecayTable.h	2020-04-20 00:04:36.000000000 +0930
+@@ -12,12 +12,12 @@
+ /**
+ * @brief Calculates the decay modes of 2HDM Higgs bosons
+ * 
+-* Given a THDM object, a DecayTable can be generated. From this table, the
++* Given a THDM object, a DecayTableTHDM can be generated. From this table, the
+ * Higgs boson decay widths and branching ratios are obtained. For the complete
+ * list of available decay modes, we refer to the complete documentation, or
+ * the list of member methods below.
+ */
+-class DecayTable {
++class DecayTableTHDM {
+ 
+  public: 
+     
+@@ -30,13 +30,13 @@
+   * 
+   * @param mod Two-Higgs doublet model for which to calculate decay modes
+   */
+-  DecayTable(THDM mod);
++  DecayTableTHDM(THDM mod);
+ 
+ 
+   /**
+   * @brief Sets underlying 2HDM
+   * 
+-  * This method sets the THDM underlying the DecayTable.
++  * This method sets the THDM underlying the DecayTableTHDM.
+   * 
+   * @param model Two-Higgs doublet model for which to calculate decay modes
+   */
+@@ -48,7 +48,7 @@
+   * 
+   * Use to obtain the underlying THDM object
+   * 
+-  * @returns The THDM object on which this DecayTable operates
++  * @returns The THDM object on which this DecayTableTHDM operates
+   */
+ 	THDM get_model();  
+ 
+@@ -317,9 +317,9 @@
+   */
+   void    set_qcd(bool set);
+ 
+-  static double  DHp(double ui, double uj, double xi, double xj, double sqL);
+-  static double  DHm(double ui, double uj, double xi, double xj, double sqL);
+-  static double  BHp(double ui, double uj, double xi, double xj, double sqL);
++  double  DHp(double ui, double uj, double xi, double xj, double sqL);
++  double  DHm(double ui, double uj, double xi, double xj, double sqL);
++  double  BHp(double ui, double uj, double xi, double xj, double sqL);
+ 
+ 
+  private:
+diff -ruN src/Demo.cpp src_patched/Demo.cpp
+--- src/Demo.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/Demo.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -5,7 +5,7 @@
+  http://2hdmc.hepforge.org
+ *******************************************************************************/
+ #include "Constraints.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "HBHS.h"
+ #include "SM.h"
+ #include "THDM.h"
+@@ -102,7 +102,7 @@
+ #endif
+ 
+   // Prepare to calculate decay widths
+-  DecayTable table(model);
++  DecayTableTHDM table(model);
+ 
+   // Print total widths of Higgs bosons
+   table.print_width(1);
+diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
+--- src/HBHS.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/HBHS.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -1,5 +1,5 @@
+ #include "HBHS.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "HiggsBounds.h"
+ #include "HiggsSignals.h"
+ #include "SM.h"
+@@ -78,7 +78,7 @@
+   std::array<double, 3> Mh = {model.get_hmass(1), model.get_hmass(2),
+                               model.get_hmass(3)};
+ 
+-  DecayTable table(model);
++  DecayTableTHDM table(model);
+   THDM sm_like;
+   for (size_t h = 1; h <= nHzero; ++h) {
+     sm_like.set_param_sm(Mh[h - 1]);
+@@ -146,7 +146,7 @@
+     if (debug)
+       printf("%2ld %5s %16.8E\n", h, "WW", effC.ghjWW[h - 1]);
+ 
+-    DecayTable sm_table(sm_like);
++    DecayTableTHDM sm_table(sm_like);
+     double hgaga = table.get_gamma_hgaga(h);
+     double hgaga_sm = sm_table.get_gamma_hgaga(1);
+     effC.ghjgaga[h - 1] = sqrt(hgaga / hgaga_sm);
+@@ -179,7 +179,7 @@
+ }
+ 
+ HBHS::NonSMBR HBHS::nonSM_branching_ratios(THDM &model) {
+-  DecayTable table(model);
++  DecayTableTHDM table(model);
+   NonSMBR nonSMBR{};
+   for (size_t h = 1; h <= nHzero; ++h) {
+     nonSMBR.BR_hjinvisible[h - 1] = 0.0;
+@@ -238,7 +238,7 @@
+   std::array<double, nHzero> GammaTotal{-1., -1., -1.};
+   // unless we are in the intert model
+   if (model.get_yukawas_type() == 0) {
+-    DecayTable table{model};
++    DecayTableTHDM table{model};
+     GammaTotal[0] = table.get_gammatot_h(1);
+     GammaTotal[2] = table.get_gammatot_h(3);
+   }
+@@ -265,7 +265,7 @@
+ }
+ 
+ void HBHS::charged_input(THDM &model) const {
+-  DecayTable table{model};
++  DecayTableTHDM table{model};
+   SM sm = model.get_SM();
+ 
+   const std::array<double, nHplus> MHp{model.get_hmass(4)};
+diff -ruN src/HBHS.h src_patched/HBHS.h
+--- src/HBHS.h	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/HBHS.h	2020-04-20 00:04:36.000000000 +0930
+@@ -1,7 +1,7 @@
+ #ifndef HBHS_H
+ #define HBHS_H
+ 
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "THDM.h"
+ #include <array>
+ 
+diff -ruN src/SM.cpp src_patched/SM.cpp
+--- src/SM.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/SM.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -878,3 +878,16 @@
+   m_qmass_ms[6] = get_qmass_MSbar(6);
+ 
+ }
++
++void SM::set_CKM(double ckm11, double ckm12, double ckm13, double ckm21, double ckm22, double ckm23,double ckm31, double ckm32, double ckm33) {
++    m_CKM[0][0]     = ckm11;
++    m_CKM[0][1]     = ckm12;
++    m_CKM[0][2]     = ckm13;
++    m_CKM[1][0]     = ckm21;
++    m_CKM[1][1]     = ckm22;
++    m_CKM[1][2]     = ckm23;
++    m_CKM[2][0]     = ckm31;
++    m_CKM[2][1]     = ckm32;
++    m_CKM[2][2]     = ckm33;
++    clear_lookup();
++}
+diff -ruN src/SM.h src_patched/SM.h
+--- src/SM.h	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/SM.h	2020-04-20 00:04:36.000000000 +0930
+@@ -527,6 +527,8 @@
+   double get_gamma_top();
+   double get_gamma_tWd(int d);
+ 
++// sets the terms in the CKM matrix
++  void set_CKM(double ckm11, double ckm12, double ckm13, double ckm21, double ckm22, double ckm23,double ckm31, double ckm32, double ckm33);
+ 
+ 
+ 
+diff -ruN src/THDM.cpp src_patched/THDM.cpp
+--- src/THDM.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/THDM.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -6,7 +6,7 @@
+ *******************************************************************************/
+ 
+ #include "THDM.h"
+-#include "DecayTable.h"
++#include "DecayTableTHDM.h"
+ #include "Constraints.h"
+ #include "HBHS.h"
+ #include "Util.h"
+@@ -151,7 +151,7 @@
+    bool U = model->check_unitarity(16.*M_PI);
+    bool S = model->check_stability();
+ 
+-    DecayTable table(*model);
++    DecayTableTHDM table(*model);
+ 
+     double gtoth = table.get_gammatot_h(1);
+     double gtotH = table.get_gammatot_h(2);
+@@ -192,6 +192,7 @@
+   }
+ 
+   params_set = false;
++  params_full_set = false;
+   yukawas_type = -1;
+ 
+   v2 = sm.get_v2();
+@@ -220,6 +221,54 @@
+   gsl_matrix_set_zero(rho_N);
+ }
+ 
++bool THDM::set_param_full(double lambda1, double lambda2, double lambda3,
++			 double lambda4, double lambda5, double lambda6,
++			 double lambda7, double m12_2, double tan_beta,
++       double m_h,double m_H, double m_A, double m_Hp,
++			 double sba) {
++
++      // tan(beta) must be greater than 0 for valid basis
++      if (tan_beta<=0) {
++        params_set = false;
++        return params_set;
++      }
++
++      double v2  = sm.get_v2();
++
++      lambda[1] = lambda1;
++      lambda[2] = lambda2;
++      lambda[3] = lambda3;
++      lambda[4] = lambda4;
++      lambda[5] = lambda5;
++      lambda[6] = lambda6;
++      lambda[7] = lambda7;
++      beta = atan(tan_beta);
++
++      double tb  = tan_beta;
++      double ctb = 1./tb;
++      double cb  = 1./sqrt(1.+tb*tb);
++      double sb  = tb*cb;
++      double sb2 = sb*sb;
++      double cb2 = cb*cb;
++      double s2b = 2.*sb*cb;
++      double c2b = cb2-sb2;
++      double s3b = 3.*sb-4.*sb*sb2;
++      double c3b = 4.*cb*cb2-3.*cb;
++
++      m22_2 = m12_2*ctb-0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb);
++
++      this->m_h = m_h;
++      this->m_H = m_H;
++      this->m_A = m_A;
++      this->m_Hp = m_Hp;
++      this->m12_2 = m12_2;
++      sinba = sba;
++
++      params_set = true;
++      params_full_set = true;
++      return params_set;
++    }
++
+ 
+ bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
+ 			 double lambda4, double lambda5, double lambda6,
+@@ -273,6 +322,7 @@
+     params_set=false;
+   }
+ 
++  params_full_set = false;
+   return params_set;
+ }
+ 
+@@ -347,6 +397,7 @@
+   sinba = sba;
+ 
+   params_set=true;
++  params_full_set=false;
+ 
+   return params_set;
+ }
+@@ -385,6 +436,8 @@
+     params_set = false;
+   }
+ 
++  params_full_set=false;
++
+   return params_set;
+ }
+ 
+@@ -507,6 +560,7 @@
+   set_yukawas_inert();
+ 
+   params_set = true;
++  params_full_set=false;
+   return params_set;
+ }
+ 
+@@ -986,33 +1040,45 @@
+   lambda6=lambda[6];
+   lambda7=lambda[7];
+   tan_beta=tan(beta);
+-  double sb  = sin(beta);
+-  double sb2 = sb*sb;
+-  double cb	 = cos(beta);
+-  double cb2 = cb*cb;
+-  double tb	 = tan(beta);
+-  double ctb = 1./tb;
+-  double m_A2;
+-  m12_2=get_m12_2();
+-  if (tan_beta>0) {
+-    m_A2=m12_2/sb/cb-0.5*v2*(2*lambda[5]+lambda[6]*ctb+lambda[7]*tb);
+-  } else {
+-    m_A2=m22_2+0.5*v2*(lambda[3]+lambda[4]-lambda[5]);
++
++  if (params_full_set) {
++      m_h = this->m_h;
++      m_H = this->m_H;
++      m_A = this->m_A;
++      m_Hp = this->m_Hp;
++      m12_2 = this->m12_2;
++      sba = sinba;
++    }
++    else {
++    // original tree-level conversion below
++    double sb  = sin(beta);
++    double sb2 = sb*sb;
++    double cb	 = cos(beta);
++    double cb2 = cb*cb;
++    double tb	 = tan(beta);
++    double ctb = 1./tb;
++    double m_A2;
++    m12_2=get_m12_2();
++    if (tan_beta>0) {
++      m_A2=m12_2/sb/cb-0.5*v2*(2*lambda[5]+lambda[6]*ctb+lambda[7]*tb);
++    } else {
++      m_A2=m22_2+0.5*v2*(lambda[3]+lambda[4]-lambda[5]);
++    }
++    double m_Hp2  =  m_A2+0.5*v2*(lambda[5]-lambda[4]);
++    double M112   =  m_A2*sb2+v2*(lambda[1]*cb2+2.*lambda[6]*sb*cb+lambda[5]*sb2);
++    double M122   = -m_A2*sb*cb+v2*((lambda[3]+lambda[4])*sb*cb+lambda[6]*cb2+lambda[7]*sb2);
++    double M222   =  m_A2*cb2+v2*(lambda[2]*sb2+2.*lambda[7]*sb*cb+lambda[5]*cb2);
++    double m_h2   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
++    double m_H2   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
++
++    sba = sinba;
++
++    // Sanity checks. Masses set negative in case of troubles
++    if (m_h2>0)   m_h=sqrt(m_h2);   else m_h=-sqrt(-m_h2);
++    if (m_H2>0)   m_H=sqrt(m_H2);   else m_H=-sqrt(-m_H2);
++    if (m_A2>0)   m_A=sqrt(m_A2);   else m_A=-sqrt(-m_A2);
++    if (m_Hp2>0)  m_Hp=sqrt(m_Hp2); else m_Hp=-sqrt(-m_Hp2);
+   }
+-  double m_Hp2  =  m_A2+0.5*v2*(lambda[5]-lambda[4]);
+-  double M112   =  m_A2*sb2+v2*(lambda[1]*cb2+2.*lambda[6]*sb*cb+lambda[5]*sb2);
+-  double M122   = -m_A2*sb*cb+v2*((lambda[3]+lambda[4])*sb*cb+lambda[6]*cb2+lambda[7]*sb2);
+-  double M222   =  m_A2*cb2+v2*(lambda[2]*sb2+2.*lambda[7]*sb*cb+lambda[5]*cb2);
+-  double m_h2   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+-  double m_H2   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+-
+-  sba = sinba;
+-
+-  // Sanity checks. Masses set negative in case of troubles
+-  if (m_h2>0)   m_h=sqrt(m_h2);   else m_h=-sqrt(-m_h2);
+-  if (m_H2>0)   m_H=sqrt(m_H2);   else m_H=-sqrt(-m_H2);
+-  if (m_A2>0)   m_A=sqrt(m_A2);   else m_A=-sqrt(-m_A2);
+-  if (m_Hp2>0)  m_Hp=sqrt(m_Hp2); else m_Hp=-sqrt(-m_Hp2);
+ }
+ 
+ 
+@@ -2062,7 +2128,7 @@
+ #endif
+ 
+ 
+-  DecayTable table(*this);
++  DecayTableTHDM table(*this);
+   table.set_qcd(qcd_on);
+   fprintf(output,"#     PDG   Width\n");
+   table.print_top_decays_LesHouches(output,fulldecay);
+@@ -2672,23 +2738,29 @@
+ 
+ 
+ double THDM::get_m12_2() {
+-  //hep-ph/0207010
+-  double sb=sin(beta);
+-  double sb2=sb*sb;
+-  double cb=cos(beta);
+-  double cb2=cb*cb;
+-  double tb=tan(beta);
+-  double ctb=1./tb;
+-
+-  double m12_2 = 0.;
+-
+-  if (tb>0) {
+-    m12_2=(m22_2+0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb))*tb;
+-  } else {
+-    m12_2=0.5*v2*lambda[6];
++    if (params_full_set) {
++    return this->m12_2;
+   }
++  else
++  {  
++    //hep-ph/0207010
++    double sb=sin(beta);
++    double sb2=sb*sb;
++    double cb=cos(beta);
++    double cb2=cb*cb;
++    double tb=tan(beta);
++    double ctb=1./tb;
++
++    double m12_2 = 0.;
++
++    if (tb>0) {
++      m12_2=(m22_2+0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb))*tb;
++    } else {
++      m12_2=0.5*v2*lambda[6];
++    }
+ 
+-  return m12_2;
++    return m12_2;
++  }
+ }
+ 
+ 
+@@ -2696,6 +2768,10 @@
+   return sm;
+ }
+ 
++SM* THDM::get_SM_pointer(){
++  return &sm;
++}
++
+ 
+ void THDM::set_SM(SM sm_in) {
+   sm=sm_in;
+diff -ruN src/THDM.h src_patched/THDM.h
+--- src/THDM.h	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/THDM.h	2020-04-20 00:04:36.000000000 +0930
+@@ -65,6 +65,13 @@
+   * @returns The SM object specifying the parameters used in this 2HDM
+   */
+   SM get_SM();
++  SM* get_SM_pointer();
++
++  bool set_param_full(double lambda1, double lambda2, double lambda3,
++                      double lambda4, double lambda5, double lambda6,
++                      double lambda7, double m12_2, double tan_beta,
++                      double m_h,double m_H, double m_A, double m_Hp,
++                      double sba);
+ 
+   /**
+   * @brief Specifies 2HDM using generic potential
+@@ -867,7 +874,13 @@
+   double      m22_2;
+   double      sinba;
+   bool        params_set;
++  bool        params_full_set;
+   double      v2;
++  double      m_h;
++  double      m_H;
++  double      m_A;
++  double      m_Hp;
++  double      m12_2;
+   gsl_matrix *kappa_D;
+   gsl_matrix *kappa_U;
+   gsl_matrix *kappa_L;
+diff -ruN src/Util.cpp src_patched/Util.cpp
+--- src/Util.cpp	2020-04-20 00:04:36.000000000 +0930
++++ src_patched/Util.cpp	2020-04-20 00:04:36.000000000 +0930
+@@ -161,7 +161,7 @@
+     
+   if (status) 
+     if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H -> VV (off-shell). Please check result.\n");
++      // printf("GSL integration warning in H -> VV (off-shell). Please check result.\n");
+       if (EXIT_ON_GSL_ERROR) exit(-1);
+     }
+   gsl_set_error_handler(old_handler);
+@@ -231,7 +231,7 @@
+     
+   if (status) 
+     if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H/A -> tt (offshell). Please check the result., %d\n", status);
++      // printf("GSL integration warning in H/A -> tt (offshell). Please check the result., %d\n", status);
+       if (EXIT_ON_GSL_ERROR) exit(-1);
+     }
+   gsl_set_error_handler(old_handler);
+@@ -377,7 +377,7 @@
+ 	
+ 	if(status)
+ 	if(status!=GSL_EROUND) {
+-		printf("GSL integration warning in H+ -> tb (off-shell). Please check the result.\n");
++		// printf("GSL integration warning in H+ -> tb (off-shell). Please check the result.\n");
+ 		if (EXIT_ON_GSL_ERROR) exit(-1);
+ 	}
+ 	gsl_set_error_handler(old_handler);

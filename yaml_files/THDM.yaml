@@ -51,14 +51,14 @@ Parameters:
 
 Printer:
 
-# Select printer to use via string tag
-printer: hdf5
+  # Select printer to use via string tag
+  printer: hdf5
 
-options:
-  # name of output file
-  output_file: "GAMBIT_THDMIIatQ_scan_output.hdf5"
-  group: "/data"
-  delete_file_on_restart: false
+  options:
+    # name of output file
+    output_file: "GAMBIT_THDMIIatQ_scan_output.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
 
 
 ##############################
@@ -66,20 +66,20 @@ options:
 ##############################
 
 Scanner:
-use_scanner: de
+  use_scanner: de
 
-scanners:
-  de:
-    plugin: diver
-    like: LogLike
-    NP: 100000
-    convthresh: 1e-5
-    verbosity: 1
+  scanners:
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 100000
+      convthresh: 1e-5
+      verbosity: 1
 
-    # No options to set, but still need the nodes at the moment...
-    aux_printer_txt_options:
-    aux_printer_stats_options:
-    aux_printer_live_options:
+      # No options to set, but still need the nodes at the moment...
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
 
 ObsLikes:
 
@@ -418,10 +418,10 @@ redirection:
 
 KeyValues:
 
-likelihood:
-  model_invalid_for_lnlike_below: -1e8
-  model_invalid_for_lnlike_below_alt: -5e7
-  debug: false
-
-default_output_path: "runs/THDMIIatQ/"
-debug: false
+  likelihood:
+    model_invalid_for_lnlike_below: -1e8
+    model_invalid_for_lnlike_below_alt: -5e7
+    debug: false
+    
+  default_output_path: "runs/THDMIIatQ/"
+  debug: true

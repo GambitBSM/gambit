@@ -52,11 +52,11 @@ namespace Gambit
          std::unique_ptr<SubSpectrum> he;
          std::unique_ptr<SubSpectrum> SM;
          SMInputs sminputs;
-         THDMC_1_7_0::THDM* THDM_object;
+         THDMC_1_8_0::THDM* THDM_object;
          higgs_basis_pars higgs_pars;
          int yukawa_type;
          THDM_spectrum_container() {
-            THDM_object = new THDMC_1_7_0::THDM();
+            THDM_object = new THDMC_1_8_0::THDM();
          }
          ~THDM_spectrum_container() {
             delete THDM_object;
@@ -66,13 +66,13 @@ namespace Gambit
       // creates & fills to 2HDMC SM object
       inline void set_SM(const std::unique_ptr<SubSpectrum>& he, 
          const std::unique_ptr<SubSpectrum>& SM, 
-         const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object);
+         const SMInputs& sminputs, THDMC_1_8_0::THDM* THDM_object);
 
       // Takes in the spectrum and fills a THDM object which is defined
       // in 2HDMC. Any 2HDMC functions can then be called on this object.
       inline void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, 
          const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, 
-         const int yukawa_type, THDMC_1_7_0::THDM* THDM_object);
+         const int yukawa_type, THDMC_1_8_0::THDM* THDM_object);
 
       // Initializes the THDM pars struct 
       inline void init_higgs_basis_pars(const std::unique_ptr<SubSpectrum>& he, 
@@ -81,7 +81,7 @@ namespace Gambit
       // create a THDM object in the SM limit
       inline void init_THDM_object_SM_like(const double m_h, 
          const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, 
-         THDMC_1_7_0::THDM* THDM_object);
+         THDMC_1_8_0::THDM* THDM_object);
 
       // Creates a THDM Spectrum Constainer with no runnning scale
       inline void init_THDM_spectrum_container(THDM_spectrum_container& container, 
@@ -131,8 +131,8 @@ namespace Gambit
     // ***
     // Function definitions below
 
-    inline void set_SM(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object){
-      THDMC_1_7_0::SM* SM_object = THDM_object->get_SM_pointer();
+    inline void set_SM(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_8_0::THDM* THDM_object){
+      THDMC_1_8_0::SM* SM_object = THDM_object->get_SM_pointer();
       SM_object->set_alpha(1/(sminputs.alphainv));
       SM_object->set_alpha_s(sminputs.alphaS);
       // get vev from high energy spectrum & set GF based off VEV
@@ -188,7 +188,7 @@ namespace Gambit
 
     }
 
-    inline void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_7_0::THDM* THDM_object) {
+    inline void init_THDM_object(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, const int yukawa_type, THDMC_1_8_0::THDM* THDM_object) {
       double lambda_1 = he->get(Par::mass1,"lambda_1");
       double lambda_2 = he->get(Par::mass1,"lambda_2");
       double lambda_3 = he->get(Par::mass1, "lambda_3");
@@ -208,13 +208,10 @@ namespace Gambit
       // double mC_run = he->get(Par::mass1, "H+");
       double alpha = he->get(Par::dimensionless, "alpha");
       double sba = sin(atan(tan_beta) - alpha);
-
-      THDM_object->set_yukawas_type(yukawa_type);
-      set_SM(he,SM,sminputs,THDM_object);    
-      THDM_object->set_param_gen(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5,lambda_6,lambda_7,m12_2,tan_beta);
       THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                   m12_2, tan_beta, mh, mH, mA, mC, sba);
-      
+      THDM_object->set_yukawas_type(yukawa_type);
+      set_SM(he,SM,sminputs,THDM_object);  
     }
 
     inline void init_higgs_basis_pars(const std::unique_ptr<SubSpectrum>& he, higgs_basis_pars& higgs_pars) {
@@ -230,7 +227,7 @@ namespace Gambit
         higgs_pars.M12_2 = he->get(Par::mass1,"M12_2");
     }
 
-    inline void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_7_0::THDM* THDM_object) {
+    inline void init_THDM_object_SM_like(const double m_h, const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_8_0::THDM* THDM_object) {
       THDM_object->set_yukawas_type(1);
       set_SM(he,SM,sminputs,THDM_object);
       THDM_object->set_param_sm(m_h);

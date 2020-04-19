@@ -1,0 +1,63 @@
+--- Makefile	2020-04-20 00:04:36.000000000 +0930
++++ Makefile_patched	2020-04-20 00:04:36.000000000 +0930
+@@ -15,15 +15,24 @@
+ 
+ OBJDIR=lib
+ LIBDIR=$(OBJDIR)
+-SOURCES=THDM.cpp SM.cpp DecayTable.cpp Constraints.cpp Util.cpp
++SOURCES=THDM.cpp SM.cpp DecayTableTHDM.cpp Constraints.cpp Util.cpp
++SOURCES+=BOSS_Constraints.cpp  BOSS_DecayTableTHDM.cpp  BOSS_factory_Constraints.cpp  BOSS_factory_DecayTableTHDM.cpp  BOSS_factory_SM.cpp  BOSS_factory_THDM.cpp  BOSS_SM.cpp  BOSS_THDM.cpp  BOSS_wrapperutils.cpp
+ OBJECTS=$(SOURCES:.cpp=.o)
+ LIB=lib2HDMC.a
+-LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
++LDFLAGS+=-L$(LIBDIR) $(GSLLIBS) -l2HDMC -lgsl -lgslcblas -lm
+ #LDFLAGS+=-L$(LIBDIR) -l2HDMC
+ LIBS=
+ PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
+ INCLUDE=
+ 
++SHAREDCFLAGS = -fPIC
++SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(GSLLIBS)
++SHAREDLIB=lib2HDMC.so
++
++BOSS_DIR=../../../scripts/BOSS
++CUSTOM_FLAGS+= $(CXXFLAGS) -I$(BOSS_DIR) -I$(GSLINCLUDE_DIR) -I$(VPATH)
++CFLAGS+= $(SHAREDCFLAGS) $(CUSTOM_FLAGS)
++
+ # To use HiggsBounds/HiggsSignals for Higgs constraints, set both of the
+ # following path variables to the corresponding build directories.
+ # Requires HiggsBounds>=5.7.0 and HiggsSignals>=2.4.0
+@@ -51,6 +60,17 @@
+ $(OBJDIR)/%.o : %.cpp %.h
+ 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+ 
++boss:
++	$(CC) $(CFLAGS) -c src/BOSS_Constraints.cpp -o lib/BOSS_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_DecayTableTHDM.cpp -o lib/BOSS_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_Constraints.cpp -o lib/BOSS_factory_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_DecayTableTHDM.cpp -o lib/BOSS_factory_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_SM.cpp -o lib/BOSS_factory_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_THDM.cpp -o lib/BOSS_factory_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_SM.cpp -o lib/BOSS_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_THDM.cpp -o lib/BOSS_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_wrapperutils.cpp -o lib/BOSS_wrapperutils.o
++
+ lib: $(addprefix $(LIBDIR)/, $(LIB))
+ 
+ $(addprefix $(LIBDIR)/, $(LIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
+@@ -61,6 +81,15 @@
+ 	@ echo $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
+ 	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
+ 
++sharedlib: $(addprefix $(LIBDIR)/, $(SHAREDLIB))
++
++$(addprefix $(LIBDIR)/, $(SHAREDLIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
++	@ echo "Making library $@"
++	$(CC) $(addprefix $(OBJDIR)/, $(OBJECTS)) $(SHAREDLIBFLAGS) -o $@
++
++%: %.cpp $(addprefix $(LIBDIR)/, $(SHAREDLIB))
++	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
++
+ clean:
+ 	@ echo "Cleaning library"
+ 	@ rm -f $(addprefix $(OBJDIR)/, *.o)
