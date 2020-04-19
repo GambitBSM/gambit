@@ -121,8 +121,6 @@ BE_NAMESPACE
   // Convenience function to compute the spectrum object
   void run_FS_Spectrum(Spectrum& spec, const SpectrumInputs& Input)
   {
-     std::cout << "In FS inin function"  << std::endl;
-       
     const SMInputs sminputs = Input.sminputs;
     /// TODO: copy the way spheno routinbe uses param and options and
     /// TODO: use these to fill CMSSM inputs, qedqcd and settings
@@ -149,9 +147,9 @@ BE_NAMESPACE
     // Static FS type
     CMSSM_spectrum_generator<Two_scale> spectrum_generator;
     spectrum_generator.set_settings(spectrum_generator_settings);
+
     // Generate spectrum
     spectrum_generator.run(qedqcd, cmssm_input);
-
     /// TODO: should probably catch errors here
 
 
@@ -161,6 +159,7 @@ BE_NAMESPACE
     // const CMSSM_slha_Model_Two_scale  models = spectrum_generator.get_models_slha();
     //static FS version
     auto models = spectrum_generator.get_models_slha();
+    auto model = std::get<0>(models);
     const Spectrum_generator_problems& problems = spectrum_generator.get_problems();
 
     /// TODO:  add LSP check here?
@@ -196,6 +195,7 @@ BE_NAMESPACE
 
     ///TODO:" make nice according to needs and create spectrum
     slha_io.set_spinfo(problems);
+    slha_io.set_sminputs(qedqcd);
     slha_io.set_input(cmssm_input);
     slha_io.set_print_imaginary_parts_of_majorana_mixings(
       spectrum_generator_settings.get(
@@ -213,10 +213,10 @@ BE_NAMESPACE
     /// maybe in case they give blocks at multiple scales
     double scale = std::get<0>(models).get_scale();
 
-        
     //get SLHEA object from slha_io
     SLHAea::Coll slha = slha_io.get_slha_io().get_data();
-
+    std::cout << "slha = "  << slha << std::endl;
+    
     /// Construct instance MSSM struct
     /// Models/include/gambit/Models/SpectrumContents/RegisteredSpectra.hpp
     /// Models/src/SpectrumContents/MSSM.cpp
@@ -224,16 +224,23 @@ BE_NAMESPACE
     // TODO: RegisteredSpectra lives now on Specbit, so this would break if Specbit is ditched
     // So now the contents is a part of the SpectrumInputs struct
     SpectrumContents::MSSM mssm;
-        
+
+    std::cout << "In FS inin function after constructing MSSM spectrum contents"  << std::endl;
     /// TODO: something like:
     ///calling constructor 
     // from spectrum.hpp in Elements
-    //Spectrum spectrum(slha, Input.content, scale, false);
+    //TODO: should last argument be false once I ahave debugged problems?
     Spectrum spectrum(slha, mssm, scale, false);
+
+    std::cout << "In FS inin function after constructing Spectrum"  << std::endl;
     // fill Spectrum object -- a fill_spectrum method in Spectrum class would be nice
     spec = std::move(spectrum);
 
+    std::cout << "End of FS inin function"  << std::endl;
+
     backend_warning().raise(LOCAL_INFO, "New FS spectrum calculation not implimented yet.");
+
+    std::cout << "End of FS inin function after warning raised"  << std::endl;
      
   }
 
