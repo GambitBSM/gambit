@@ -156,7 +156,7 @@ namespace Gambit {
      addParameter(Par::Pole_Mass, "A0", scalar, "MASS");
      addParameter(Par::Pole_Mass, "H+", scalar, "MASS");
      addParameter(Par::Pole_Mass, "W+", scalar, "MASS");
-     addParameter(Par::Pole_Mass, "~G", scalar, "MASS");
+     addParameter(Par::Pole_Mass, "~g", scalar, "MASS");
 
      addParameter(Par::Pole_Mixing, "~d",    m6x6, "DSQMIX");
      addParameter(Par::Pole_Mixing, "~u",    m6x6, "USQMIX");
