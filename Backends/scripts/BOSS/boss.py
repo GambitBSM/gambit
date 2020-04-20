@@ -328,6 +328,9 @@ def main():
     input_files = cfg.input_files
     input_files.sort()
 
+    # Clean off any empty entries at end of include path
+    cfg.include_paths = [i for i in cfg.include_paths if i]
+
     xml_files = []
     for i,input_file_path in enumerate(input_files):
 

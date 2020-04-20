@@ -283,7 +283,7 @@ if (WITH_ROOT AND ROOT_FOUND)
 else()
   message("   Disabling GreAT, HepLike and RestFrames support in GAMBIT configuration.")
   option (WITH_RESTFRAMES OFF)
-  set (itch "${itch}" "great" "heplike")
+  set (itch "${itch}" "great")
   set (EXCLUDE_ROOT TRUE)
 endif()
 
