@@ -208,15 +208,30 @@ BE_NAMESPACE
     /// we can get a scale from the model object, but actually
     /// not sure why we need this if we pass the slhaea object
     /// the slhae object should have the scale for the blocks
-    /// maybe in case they give blocks at multiple scales
+    /// maybe in case they give blocks at multiple scales?
     double scale = std::get<0>(models).get_scale();
 
     //get SLHEA object from slha_io
     SLHAea::Coll slha = slha_io.get_slha_io().get_data();
-    std::cout << "slha = "  << slha << std::endl;
-    /// TODO: something like:
-    ///calling constructor 
-    // from spectrum.hpp in Elements
+    std::cout << "In FS ini slha = "  << slha << std::endl;
+
+    // Add DMASS blocks for uncertainty estimate of spectrum generator
+    const double rel_uncertainty = 0.03; 
+    auto block = slha["MASS"];
+    SLHAea_add_block(slha, "DMASS");
+    for(auto it = block.begin(); it != block.end(); it++)
+    {
+      if((*it)[0] != "Block" )
+      {
+        slha["DMASS"][""] << (*it)[0] << rel_uncertainty
+                          << "# "
+                          << Models::ParticleDB().long_name(std::stoi((*it)[0]),0);
+      }
+    } 
+    std::cout << "slha after adding DMASS: " << std::endl;
+    std::cout << slha << std::endl;
+
+    ///calling constructor from spectrum.hpp in Elements
     Spectrum spectrum(slha, Input.contents, scale, false);
 
     std::cout << "In FS inin function after constructing Spectrum"  << std::endl;
