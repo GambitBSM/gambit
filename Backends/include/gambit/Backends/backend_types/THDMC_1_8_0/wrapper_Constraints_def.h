@@ -67,11 +67,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->check_NMSSMTools(hZ, hZ2b, hZ2tau, hZinv, hZ2j, hZ2gamma, hZ4b, hZ4tau, hZ2b2tau, hA, hA4b, hA4tau, hA2b2tau, hA6b, hA6tau, ZhZjj);
     }
     
-    inline bool Constraints::check_HiggsBounds(int& HBresult, int& chan, double& obsratio, int& ncombined)
-    {
-        return get_BEptr()->check_HiggsBounds(HBresult, chan, obsratio, ncombined);
-    }
-    
     inline double Constraints::delta_amu()
     {
         return get_BEptr()->delta_amu();

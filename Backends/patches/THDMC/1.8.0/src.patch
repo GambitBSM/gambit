@@ -1,6 +1,6 @@
 diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
---- src/CalcLH.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/CalcLH.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/CalcLH.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/CalcLH.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,6 +1,6 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -19,8 +19,8 @@ diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
---- src/CalcMSSM.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/CalcMSSM.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/CalcMSSM.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/CalcMSSM.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,7 +1,7 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -31,8 +31,8 @@ diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
  using namespace std;
  
 diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
---- src/CalcPhys.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/CalcPhys.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/CalcPhys.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/CalcPhys.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -50,8 +50,8 @@ diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
---- src/Constraints.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/Constraints.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/Constraints.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/Constraints.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -86,8 +86,8 @@ diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
  
  double Constraints::delta_rho(double mh) {
 diff -ruN src/Constraints.h src_patched/Constraints.h
---- src/Constraints.h	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/Constraints.h	2020-04-20 00:04:36.000000000 +0930
+--- src/Constraints.h	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/Constraints.h	2020-04-20 21:29:42.000000000 +0930
 @@ -3,7 +3,7 @@
  
  #include "SM.h"
@@ -97,6 +97,17 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
  
  using namespace std;
  
+@@ -198,8 +198,8 @@
+   *
+   * @see      check_masses
+   */
+-  bool check_HiggsBounds(int &HBresult, int &chan, double &obsratio,
+-			 int &ncombined);
++  // bool check_HiggsBounds(int &HBresult, int &chan, double &obsratio,
++	// 		 int &ncombined);
+ 
+ 
+   /**
 @@ -264,7 +264,7 @@
   private:
    THDM model;
@@ -107,8 +118,8 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
    double dmu_f(double z);
    double dmu_g(double z);
 diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
---- src/DecayTable.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/DecayTable.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/DecayTable.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/DecayTable.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,4 +1,4 @@
 -#include "DecayTable.h"
 +#include "DecayTableTHDM.h"
@@ -629,8 +640,8 @@ diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
  	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
      B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
 diff -ruN src/DecayTable.h src_patched/DecayTable.h
---- src/DecayTable.h	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/DecayTable.h	2020-04-20 00:04:36.000000000 +0930
+--- src/DecayTable.h	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/DecayTable.h	2020-04-20 21:29:42.000000000 +0930
 @@ -12,12 +12,12 @@
  /**
  * @brief Calculates the decay modes of 2HDM Higgs bosons
@@ -685,8 +696,8 @@ diff -ruN src/DecayTable.h src_patched/DecayTable.h
  
   private:
 diff -ruN src/Demo.cpp src_patched/Demo.cpp
---- src/Demo.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/Demo.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/Demo.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/Demo.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -5,7 +5,7 @@
   http://2hdmc.hepforge.org
  *******************************************************************************/
@@ -706,8 +717,8 @@ diff -ruN src/Demo.cpp src_patched/Demo.cpp
    // Print total widths of Higgs bosons
    table.print_width(1);
 diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
---- src/HBHS.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/HBHS.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/HBHS.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/HBHS.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -1,5 +1,5 @@
  #include "HBHS.h"
 -#include "DecayTable.h"
@@ -761,8 +772,8 @@ diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
  
    const std::array<double, nHplus> MHp{model.get_hmass(4)};
 diff -ruN src/HBHS.h src_patched/HBHS.h
---- src/HBHS.h	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/HBHS.h	2020-04-20 00:04:36.000000000 +0930
+--- src/HBHS.h	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/HBHS.h	2020-04-20 21:29:42.000000000 +0930
 @@ -1,7 +1,7 @@
  #ifndef HBHS_H
  #define HBHS_H
@@ -773,8 +784,8 @@ diff -ruN src/HBHS.h src_patched/HBHS.h
  #include <array>
  
 diff -ruN src/SM.cpp src_patched/SM.cpp
---- src/SM.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/SM.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/SM.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/SM.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -878,3 +878,16 @@
    m_qmass_ms[6] = get_qmass_MSbar(6);
  
@@ -793,8 +804,8 @@ diff -ruN src/SM.cpp src_patched/SM.cpp
 +    clear_lookup();
 +}
 diff -ruN src/SM.h src_patched/SM.h
---- src/SM.h	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/SM.h	2020-04-20 00:04:36.000000000 +0930
+--- src/SM.h	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/SM.h	2020-04-20 21:29:42.000000000 +0930
 @@ -527,6 +527,8 @@
    double get_gamma_top();
    double get_gamma_tWd(int d);
@@ -805,8 +816,8 @@ diff -ruN src/SM.h src_patched/SM.h
  
  
 diff -ruN src/THDM.cpp src_patched/THDM.cpp
---- src/THDM.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/THDM.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/THDM.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/THDM.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -6,7 +6,7 @@
  *******************************************************************************/
  
@@ -1059,8 +1070,8 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  void THDM::set_SM(SM sm_in) {
    sm=sm_in;
 diff -ruN src/THDM.h src_patched/THDM.h
---- src/THDM.h	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/THDM.h	2020-04-20 00:04:36.000000000 +0930
+--- src/THDM.h	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/THDM.h	2020-04-20 21:29:42.000000000 +0930
 @@ -65,6 +65,13 @@
    * @returns The SM object specifying the parameters used in this 2HDM
    */
@@ -1075,7 +1086,16 @@ diff -ruN src/THDM.h src_patched/THDM.h
  
    /**
    * @brief Specifies 2HDM using generic potential
-@@ -867,7 +874,13 @@
+@@ -849,8 +856,6 @@
+   */
+   void write_LesHouches(const char* file, bool fulldecay, bool couplings, bool qcd_on=true, const HBHSResult *hbhs=nullptr);
+ 
+-  void write_model(const char* file);
+-
+   double get_alpha();
+ 
+   /**
+@@ -867,7 +872,13 @@
    double      m22_2;
    double      sinba;
    bool        params_set;
@@ -1090,8 +1110,8 @@ diff -ruN src/THDM.h src_patched/THDM.h
    gsl_matrix *kappa_U;
    gsl_matrix *kappa_L;
 diff -ruN src/Util.cpp src_patched/Util.cpp
---- src/Util.cpp	2020-04-20 00:04:36.000000000 +0930
-+++ src_patched/Util.cpp	2020-04-20 00:04:36.000000000 +0930
+--- src/Util.cpp	2020-04-20 21:29:42.000000000 +0930
++++ src_patched/Util.cpp	2020-04-20 21:29:42.000000000 +0930
 @@ -161,7 +161,7 @@
      
    if (status) 

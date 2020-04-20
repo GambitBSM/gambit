@@ -42,8 +42,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual bool check_NMSSMTools(bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&, bool&) =0;
     
-            virtual bool check_HiggsBounds(int&, int&, double&, int&) =0;
-    
             virtual double delta_amu() =0;
     
             virtual double delta_rho(double) =0;

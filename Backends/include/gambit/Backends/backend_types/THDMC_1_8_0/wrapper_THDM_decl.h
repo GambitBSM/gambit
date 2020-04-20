@@ -167,8 +167,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             bool read_LesHouches(const char* file);
     
-            void write_model(const char* file);
-    
             double get_alpha();
     
     

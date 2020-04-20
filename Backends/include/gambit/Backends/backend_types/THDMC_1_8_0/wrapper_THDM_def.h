@@ -361,11 +361,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->read_LesHouches(file);
     }
     
-    inline void THDM::write_model(const char* file)
-    {
-        get_BEptr()->write_model(file);
-    }
-    
     inline double THDM::get_alpha()
     {
         return get_BEptr()->get_alpha();

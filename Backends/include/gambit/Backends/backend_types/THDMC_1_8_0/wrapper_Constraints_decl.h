@@ -49,8 +49,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             bool check_NMSSMTools(bool& hZ, bool& hZ2b, bool& hZ2tau, bool& hZinv, bool& hZ2j, bool& hZ2gamma, bool& hZ4b, bool& hZ4tau, bool& hZ2b2tau, bool& hA, bool& hA4b, bool& hA4tau, bool& hA2b2tau, bool& hA6b, bool& hA6tau, bool& ZhZjj);
     
-            bool check_HiggsBounds(int& HBresult, int& chan, double& obsratio, int& ncombined);
-    
             double delta_amu();
     
             double delta_rho(double mh);

@@ -159,8 +159,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual bool read_LesHouches(const char*) =0;
     
-            virtual void write_model(const char*) =0;
-    
             virtual double get_alpha() =0;
     
             virtual const double& EPS_ref__BOSS() =0;
