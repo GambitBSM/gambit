@@ -1030,13 +1030,16 @@ namespace Gambit
 
          //SPINFO block should be added separately.
          // MINPAR block; some programs need tanbeta(mZ), so we should output it here if possible
-         SLHAea_check_block(slha, "MINPAR");
-         if(mssmspec.has(Par::dimensionless,"tanbeta(mZ)"))
-         {
-            SLHAea_add_from_spec(slha,LOCAL_INFO,mssmspec,Par::dimensionless,"tanbeta(mZ)","MINPAR",3,"# tanbeta(mZ)^DRbar");
-         }
-         int sgnmu = sgn(mssmspec.get(Par::mass1,"Mu")); // Mu isn't at the input scale anymore, but sign(mu) doesn't change with running.
-         SLHAea_add(slha,"MINPAR",4,sgnmu,"# sign(mu)", true);
+
+         // TODO: delete these commented out lines after checking everything
+         // works copying over MINPARS block and thats aleays possible
+         // SLHAea_check_block(slha, "MINPAR");
+         // if(mssmspec.has(Par::dimensionless,"tanbeta(mZ)"))
+         // {
+         //    SLHAea_add_from_spec(slha,LOCAL_INFO,mssmspec,Par::dimensionless,"tanbeta(mZ)","MINPAR",3,"# tanbeta(mZ)^DRbar");
+         // }
+         // int sgnmu = sgn(mssmspec.get(Par::mass1,"Mu")); // Mu isn't at the input scale anymore, but sign(mu) doesn't change with running.
+         // SLHAea_add(slha,"MINPAR",4,sgnmu,"# sign(mu)", true);
 
          // HMIX block
          SLHAea_delete_block(slha, "HMIX");

@@ -105,9 +105,9 @@ namespace Gambit {
      setOutputTransform(&MSSM::generateOutputSLHAea);
 
      //           tag,        name,   shape
-     addParameter(Par::mass2, "BMu" , scalar, "BMu", 1); // TODO: Made this up
-     addParameter(Par::mass2, "mHd2", scalar, "MSOFT", 1); // TODO: check order here, I forget which of mHu/d is mH1/2
-     addParameter(Par::mass2, "mHu2", scalar, "MSOFT", 2);
+     addParameter(Par::mass2, "BMu" , scalar, "BMu", 1); // TODO: Made this up// PA: I believe BMu is not in  the output SLHA file, instead mADRbar^2 = BMu / s_\beta c_\beta is in HMIX block.  How do we handle this?
+     addParameter(Par::mass2, "mHd2", scalar, "MSOFT", 21);
+     addParameter(Par::mass2, "mHu2", scalar, "MSOFT", 22);
 
      addParameter(Par::mass2, "mq2", m3x3, "MSQ2"); 
      addParameter(Par::mass2, "ml2", m3x3, "MSL2");
@@ -180,9 +180,16 @@ namespace Gambit {
       std::ostringstream comment;
 
       // Copy some of the blocks verbatim
+      // TODO: check case sensitiviy, do these in nicer order
       output["SMINPUTS"] = raw["SMINPUTS"];
       output["DMASS"]    = raw["DMASS"]; // Not part of SLHA, but convenient to keep
-      //std::stringstream ss; // Need to go via stringstream, no direct stream operator betwee
+      // PA: adding SPINFO to blocks copied over for now as FeynHiggs front end needs it
+      // TODO: see below where Tomas wanted to construct it, so maybe adding it loke this is not the best approach. Indeed if we modify the spectrum contents, e.g, add precise Higgs mass calculation, we should really edit the SPINFO  Also this was always missing from GAMBIT slha files, not sure why FeynHiggs now needs it.
+      output["SPINFO"] = raw["SPINFO"];
+      // TODO: check replacing adding this ourselves is OK
+      // and understand why that was missing tangbeta(mZ) parameter
+      output["MINPAR"] = raw["MINPAR"];
+      //std::stringstream ss; // Need to go via stringstream, no direct stream operator between
       //ss << raw["SMINPUTS"];
       //output << ss.str();
 
