@@ -216,6 +216,7 @@ BE_NAMESPACE
     std::cout << "In FS ini slha = "  << slha << std::endl;
 
     // Add DMASS blocks for uncertainty estimate of spectrum generator
+    // TODO: give different estmates for specifc masses, e.g. Higgs and W masses
     const double rel_uncertainty = 0.03; 
     auto block = slha["MASS"];
     SLHAea_add_block(slha, "DMASS");
@@ -223,14 +224,53 @@ BE_NAMESPACE
     {
       if((*it)[0] != "Block" )
       {
-        slha["DMASS"][""] << (*it)[0] << rel_uncertainty
+         // add lower relative uncertainty with second index 0
+         slha["DMASS"][""] << (*it)[0] << "0" <<  rel_uncertainty
                           << "# "
                           << Models::ParticleDB().long_name(std::stoi((*it)[0]),0);
+         // add upper realtive uncertainty with second index 1
+         slha["DMASS"][""] << (*it)[0] << "1" <<  rel_uncertainty
+                          << "# "
+                          << Models::ParticleDB().long_name(std::stoi((*it)[0]),0);
+         
       }
     } 
     std::cout << "slha after adding DMASS: " << std::endl;
     std::cout << slha << std::endl;
 
+    // For pole masses that come from SMINPUTS or are just know to be zero
+    // (photon and gluon) we need to manually add DMASS entry.
+    // TODO: decide if this is correct thing to do
+    slha["DMASS"][""] << "21" << "0" <<  0.0 << "# gluon";
+    slha["DMASS"][""] << "21" << "1" <<  0.0 << "# gluon";
+    slha["DMASS"][""] << "22" << "0" <<  0.0 << "# photon";
+    slha["DMASS"][""] << "22" << "1" <<  0.0 << "# photon";
+    slha["DMASS"][""] << "23" << "0" <<  0.0 << "# MZ(pole)";
+    slha["DMASS"][""] << "23" << "1" <<  0.0 << "# MZ(pole)";
+    slha["DMASS"][""] << "11" << "0" <<  0.0 << "# e-";
+    slha["DMASS"][""] << "11" << "1" <<  0.0 << "# e-"; 
+    slha["DMASS"][""] << "13" << "0" <<  0.0 << "# mu-";
+    slha["DMASS"][""] << "13" << "1" <<  0.0 << "# mu-";
+    slha["DMASS"][""] << "15" << "0" <<  0.0 << "# tau";
+    slha["DMASS"][""] << "15" << "1" <<  0.0 << "# tau";
+
+    slha["DMASS"][""] << "12" << "0" <<  0.0 << "# nu_e";
+    slha["DMASS"][""] << "12" << "1" <<  0.0 << "# nu_e"; 
+    slha["DMASS"][""] << "14" << "0" <<  0.0 << "# nu_mu";
+    slha["DMASS"][""] << "14" << "1" <<  0.0 << "# nu_mu";
+    slha["DMASS"][""] << "16" << "0" <<  0.0 << "# nu_tau";
+    slha["DMASS"][""] << "16" << "1" <<  0.0 << "# nu_tau";
+
+    slha["DMASS"][""] << "6" << "0" <<  0.0 << "# top";
+    slha["DMASS"][""] << "6" << "1" <<  0.0 << "# top";
+    
+    // Not in SMINPUTS as pole masses 
+    // slha["DMASS"][""] << "1" << "0" <<  0.0 << "# d";
+    // slha["DMASS"][""] << "1" << "1" <<  0.0 << "# d";
+    // slha["DMASS"][""] << "2" << "0" <<  0.0 << "# u";
+    // slha["DMASS"][""] << "2" << "1" <<  0.0 << "# u";
+
+    
     ///calling constructor from spectrum.hpp in Elements
     Spectrum spectrum(slha, Input.contents, scale, false);
 
