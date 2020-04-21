@@ -173,8 +173,6 @@ namespace Gambit {
   /// For the MSSM we need to transform our internal structure back into SLHA-compliant format for output
   SLHAstruct SpectrumContents::MSSM::generateOutputSLHAea(const Spectrum& spec, const int slha_version)
   {
-      std::cout<<"Called MSSM version of generateOutputSLHAea..."<<std::endl;
- 
       SLHAstruct raw = spec.getRawSLHAea();
       SLHAstruct output;
       std::ostringstream comment;
