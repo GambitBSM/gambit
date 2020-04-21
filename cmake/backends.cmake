@@ -927,6 +927,7 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
+    
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy configure my_configure
               COMMAND sed ${dashi} -e "s|F90C =.*|F90C = ${CMAKE_Fortran_COMPILER}|" my_configure
@@ -937,6 +938,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
+              COMMAND sed -i "s/csboutput_trans/\\/csboutput_trans/g" ${dir}/S95tables_type3.F90
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
