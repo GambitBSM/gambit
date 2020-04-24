@@ -333,11 +333,7 @@ namespace Gambit
         errmsg << "The chosen THDM model was not recognized." << std::endl;
         SpecBit_error().raise(LOCAL_INFO,errmsg.str());
       }
-      else if (y_type == 5) {
-        std::ostringstream errmsg;
-        errmsg << "The general THDM is not yet supported by GAMBIT." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO,errmsg.str());
-      }
+      
       else if (!is_at_Q) {
         // SoftSUSY object used to set quark and lepton masses and gauge
         // couplings in QEDxQCD effective theory
@@ -360,9 +356,10 @@ namespace Gambit
         // create empty basis
         std::map<std::string, double> basis = create_empty_THDM_basis();
          // fill coupling basis
-        basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
-        basis["lambda4"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
-        basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
+         
+        basis["lambda1"] = *myPipe::Param.at("lambda1"), basis["lambda2"] = *myPipe::Param.at("lambda2"), basis["lambda3"] = *myPipe::Param.at("lambda3");
+        basis["lambda4"] = *myPipe::Param.at("lambda4"), basis["lambda5"] = *myPipe::Param.at("lambda5"), basis["lambda6"] = *myPipe::Param.at("lambda6");
+        basis["lambda7"] = *myPipe::Param.at("lambda7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
        
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
@@ -448,6 +445,8 @@ namespace Gambit
             break;
           case flipped:
             beta_scaling_d = cb;
+            break;
+          case type_III:
             break;
           }
 
