@@ -3669,6 +3669,7 @@ namespace Gambit
       for(int i=0; i<fermion_vector; i++) {
         for(int j=0; j<higgs; j++) {
           for(int k=0; k<fermion_vector; k++) {
+            // std::cout << "gamma_uhd"<< i << j << k << " " << decay_widths.gamma_uhd[i][j][k] << std::endl;
             check_width(LOCAL_INFO, decay_widths.gamma_uhd[i][j][k], invalid_point_for_negative_width);
           }
         }
@@ -3676,6 +3677,11 @@ namespace Gambit
       for(int i=0; i<higgs; i++) {
         for(int j=0; j<fermion_vector; j++) {
           for(int k=0; k<fermion_vector; k++) {
+            // std::cout << "gamma_hdd "<< i << j << k << " " << decay_widths.gamma_hdd[i][j][k] << std::endl;
+            // std::cout << "gamma_huu "<< i << j << k << " " << decay_widths.gamma_huu[i][j][k] << std::endl;
+            // std::cout << "gamma_hdu "<< i << j << k << " " << decay_widths.gamma_hdu[i][j][k] << std::endl;
+            // std::cout << "gamma_hll "<< i << j << k << " " << decay_widths.gamma_hll[i][j][k] << std::endl;
+            // std::cout << "gamma_hln "<< i << j << k << " " << decay_widths.gamma_hln[i][j][k] << std::endl;
             check_width(LOCAL_INFO, decay_widths.gamma_hdd[i][j][k], invalid_point_for_negative_width);
             check_width(LOCAL_INFO, decay_widths.gamma_huu[i][j][k], invalid_point_for_negative_width);
             check_width(LOCAL_INFO, decay_widths.gamma_hdu[i][j][k], invalid_point_for_negative_width);
@@ -3683,17 +3689,25 @@ namespace Gambit
             check_width(LOCAL_INFO, decay_widths.gamma_hln[i][j][k], invalid_point_for_negative_width);
           }
           for(int k2=0; k2<higgs; k2++) {
+            // std::cout << "gamma_hvh "<< i << j << k2 << " " << decay_widths.gamma_hvh[i][j][k2] << std::endl;
             check_width(LOCAL_INFO, decay_widths.gamma_hvh[i][j][k2], invalid_point_for_negative_width);
           }
-          check_width(LOCAL_INFO, decay_widths.gamma_hvv[i][j], invalid_point_for_negative_width);
+          // std::cout << "gamma_hvv "<< i << j << " " << decay_widths.gamma_hvv[i][j] << std::endl;
+          // integrand in width of HZZ (2,3) may sometimes go negative
+          // DecayBit should just invalidate this point & continue
+          check_width(LOCAL_INFO, decay_widths.gamma_hvv[i][j], true);
         }
         for (int j2=0; j2<higgs; j2++) {
           for (int k3=0; k3<higgs; k3++) {
+            // std::cout << "gamma_hhh "<< i << j2 << k3 << " " << decay_widths.gamma_hhh[i][j2][k3] << std::endl;
             check_width(LOCAL_INFO, decay_widths.gamma_hhh[i][j2][k3], invalid_point_for_negative_width);
           }
         }
         // currently hgg may grow if m_run is very small in the quark loop
         // DecayBit should just invalidate this point & continue
+        // std::cout << "gamma_hgg "<< i << " " << decay_widths.gamma_hgg[i] << std::endl;
+        // std::cout << "gamma_hgaga "<< i << " " << decay_widths.gamma_hgaga[i] << std::endl;
+        // std::cout << "gamma_hZga "<< i << " " << decay_widths.gamma_hZga[i] << std::endl;
         check_width(LOCAL_INFO, decay_widths.gamma_hgg[i], invalid_point_for_negative_width, true);
         check_width(LOCAL_INFO, decay_widths.gamma_hgaga[i], invalid_point_for_negative_width);
         check_width(LOCAL_INFO, decay_widths.gamma_hZga[i], invalid_point_for_negative_width);
@@ -3708,13 +3722,19 @@ namespace Gambit
     }
 
     // helper function which calls the default check_width
-    // but also ensures total width is non-zero to avoid NaN errors
+    // but also ensures total width is non-zero to avoid NaN errors when calculating BF
     void validate_total_width(double &tot_width, const bool invalid_point_for_negative_width) {
-      check_width(LOCAL_INFO, tot_width, invalid_point_for_negative_width);
+      // widths may grow too large sometimes so invalidate
+      check_width(LOCAL_INFO, tot_width, invalid_point_for_negative_width, true);
       if(tot_width==0) tot_width = 1E-30;
     }
 
     void check_total_widths_THDM(THDM_total_widths& total_widths, const bool invalid_point_for_negative_width = false) {
+      // for(int i=0; i<5; i++) std::cout << "gamma_tot_h "<< i << " " << total_widths.gamma_tot_h[i] << std::endl;
+      // std::cout << "gamma_tot_t "<< total_widths.gamma_tot_t << std::endl;
+      // std::cout << "gamma_tot_t_SM_contrib "<< total_widths.gamma_tot_t_SM_contrib << std::endl;
+      // for(int i=1; i<4; i++) std::cout << "gamma_tot_v "<< i << " " << total_widths.gamma_tot_v[i] << std::endl;
+      //
       for(int i=0; i<5; i++) validate_total_width(total_widths.gamma_tot_h[i], invalid_point_for_negative_width);
       validate_total_width(total_widths.gamma_tot_t, invalid_point_for_negative_width);
       validate_total_width(total_widths.gamma_tot_t_SM_contrib, invalid_point_for_negative_width);

@@ -1,6 +1,16 @@
+Binary files 4.1/.DS_Store and 4.1_patched/.DS_Store differ
 diff -ruN 4.1/src/Makefile 4.1_patched/src/Makefile
 --- 4.1/src/Makefile	2019-07-26 00:41:18.000000000 +0930
-+++ 4.1_patched/src/Makefile	2020-04-18 02:52:03.000000000 +0930
++++ 4.1_patched/src/Makefile	2020-04-29 01:11:09.000000000 +0930
+@@ -37,7 +37,7 @@
+ 	  libsuperiso.a(spheno.o) libsuperiso.a(suspect.o) libsuperiso.a(2hdmc.o)\
+ 	  libsuperiso.a(fleshouches.o) libsuperiso.a(bsll.o) libsuperiso.a(bsll_extra.o)\
+ 	  libsuperiso.a(bkll.o) libsuperiso.a(bkstarll.o) libsuperiso.a(bkstargamma.o) libsuperiso.a(bsphill.o)\
+-	  libsuperiso.a(chi2.o) libsuperiso.a(zwidths.o) libsuperiso.a(nmssmtools.o)\
++	  libsuperiso.a(chi2.o) libsuperiso.a(zwidths.o) libsuperiso.a(nmssmtools.o) libsuperiso.a(mixings.o) \
+ 	  $(RANL)
+ 
+ libsuperiso.a(softsusy.o): softsusy.c include.h softsusy.h
 @@ -70,6 +70,7 @@
  libsuperiso.a(bsphill.o): bsphill.c include.h
  libsuperiso.a(chi2.o): chi2.c include.h
