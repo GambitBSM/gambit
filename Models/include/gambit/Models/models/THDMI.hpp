@@ -1,21 +1,25 @@
-//  GAMBIT: Global and Modular BSM Inference Tool
-//  *********************************************
-//
-//  Model Header
-//  Two Higgs Doublet Model: Type I
-//
-//  *********************************************
-//
-//  Authors
-//  =======
-//
-//  (add name and date if you modify)
-//
-//    Filip Rajec 
-//      filip.rajec@adelaide.edu.au
-//      Feb 2019
-//
-//  *********************************************
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///
+///  Two Higgs Doublet Model
+///  (Type I, Generic Basis)
+///
+///  *********************************************
+///
+///  Authors
+///  =======
+///
+///  (add name and date if you modify)
+///
+///  \author Filip Rajec 
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2019 Feb
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///
+///  *********************************************
 
 #ifndef __THDMI_hpp__
 #define __THDMI_hpp__
@@ -24,24 +28,18 @@
 #include "gambit/Models/models/THDM.hpp"
 #include "gambit/Models/models/THDMIatQ.hpp"
 
-// Forward declaration of needed types
-namespace Gambit {
-  class SMInputs;
-}
-
 #define MODEL THDMI
 #define PARENT THDM
 #define FRIEND THDMIatQ
   START_MODEL
   
-  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5)
-  DEFINEPARS(lambda_6,lambda_7,m12_2)
+  DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
+  DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
   
+  // Translation functions defined in THDMI.cpp
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMI_to_THDMIatQ)
   INTERPRET_AS_PARENT_FUNCTION(THDMI_to_THDM)
-  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-  // Translation functions defined in THDMI.cpp
 #undef FRIEND
 #undef PARENT
 #undef MODEL

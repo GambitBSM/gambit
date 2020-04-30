@@ -14,6 +14,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb 
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"
@@ -23,9 +27,10 @@
 namespace Gambit 
 { 
    /// Add a parameter to the Contents object
-   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape)
+   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape,
+                                          const std::string& blockname, const int blockindex)
    {
-     parameters.emplace_back(tag,name,shape);
+     parameters.emplace_back(tag,name,shape,blockname,blockindex);
    }
 
    /// Set the name of this Contents object (i.e. the name of the model to which this spectrum data applies) 

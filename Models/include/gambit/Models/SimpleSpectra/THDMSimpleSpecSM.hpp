@@ -23,7 +23,7 @@
 #include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 #include "gambit/Elements/thdm_slhahelp.hpp"
-
+/*
 namespace Gambit
 {     
    namespace Models
@@ -40,7 +40,8 @@ namespace Gambit
         double mW;
         double vev;
         double g1, g2, g3, sinW2;
-        double Yd[3], Ye[3], Yu[3];
+        double Yd1[3], Ye1[3], Yu1[3];
+        double Yd2[3], Ye2[3], Yu2[3];
         double yukawaCoupling;
       };
   
@@ -346,5 +347,5 @@ namespace Gambit
 
    } // end Models namespace
 } // end Gambit namespace
-
+*/
 #endif

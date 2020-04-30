@@ -1,21 +1,28 @@
-//  GAMBIT: Global and Modular BSM Inference Tool
-//  *********************************************
-//
-//  Two Higgs Doublet Model (Higgs Basis)
-//  *********************************************
-//
-//  Authors
-//  =======
-//
-//  (add name and date if you modify)
-//  James McKay
-//  November 2016
-//
-//  (add name and date if you modify)
-//  Filip Rajec
-//  June 2016
-//
-//  *********************************************
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///
+///  Two Higgs Doublet Model
+///  (Type III, Generic Basis, at scale Q)
+///  *********************************************
+///
+///  Authors
+///  =======
+///
+///  (add name and date if you modify)
+///
+///  \author James McKay
+///          (j.mckay14@imperial.ac.uk)
+///  \date 2016 November
+///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2016 June
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///
+///  *********************************************
 
 #ifndef __THDMatQ_hpp__
 #define __THDMatQ_hpp__
@@ -23,9 +30,9 @@
 #define MODEL THDMatQ
   START_MODEL
 
-  DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda_7)
-  DEFINEPARS(m22_2)
-  DEFINEPARS(alpha,tanb)
+  DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
+  DEFINEPARS(m12_2)
+  DEFINEPARS(tanb)
   
   DEFINEPARS(yu2_re_11, yu2_im_11, yu2_re_12, yu2_im_12, yu2_re_13, yu2_im_13,
              yu2_re_21, yu2_im_21, yu2_re_22, yu2_im_22, yu2_re_23, yu2_im_23,

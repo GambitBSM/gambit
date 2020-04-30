@@ -10,11 +10,16 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Filip Rajec
-/// \ July 2016
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2016 July
 ///
-///   \author James McKay
-///  \ October 2016
+///  \author James McKay
+///           (j.mckay14@imperial.ac.uk)
+///  \date 2016 October
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -28,8 +33,7 @@ START_CAPABILITY
   #define FUNCTION get_THDM_spectrum
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)
-    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    ALLOW_MODEL(THDM,THDMatQ)
   #undef FUNCTION
    // Convert spectrum into a standard map so that it can be printed
   #define FUNCTION get_THDM_spectrum_as_map
@@ -55,6 +59,9 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// TODO: Remove all the commented capabilities below
+// they can be extracted from the spectrum
+/*
 #define CAPABILITY mh0_pole
 START_CAPABILITY
   #define FUNCTION obs_mh0_pole
@@ -423,7 +430,7 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   #undef FUNCTION
 #undef CAPABILITY
-
+*/
 #define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_unitarity_likelihood_THDM

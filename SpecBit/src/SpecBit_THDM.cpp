@@ -12,16 +12,22 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
 ///  \date 2016-2019
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
 // C/C++ headers
-#include <string>
-#include <sstream>
-#include <cmath>
-#include <complex>
-#include <math.h>
+// TODO: All these are already included somewhere else
+//#include <string>
+//#include <sstream>
+//#include <cmath>
+//#include <complex>
+//#include <math.h>
 
 // GSL headers
 #include <gsl/gsl_matrix.h>
@@ -39,8 +45,9 @@
 #include <Eigen/Dense> 
 
 // intorduce FlavBit helper routines for likelihood calculations
-#include "gambit/FlavBit/FlavBit_types.hpp"
-#include "gambit/FlavBit/flav_utils.hpp"
+// TODO: NO!!! This breaks modularity big time
+//#include "gambit/FlavBit/FlavBit_types.hpp"
+//#include "gambit/FlavBit/flav_utils.hpp"
 
 // TODO: Check headers
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -51,16 +58,15 @@
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
-#include "gambit/Models/SimpleSpectra/SMHiggsSimpleSpec.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
-#include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
+//#include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
-#include "flexiblesusy/src/spectrum_generator_settings.hpp"
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
+#include "flexiblesusy/src/spectrum_generator_settings.hpp"
 #include "flexiblesusy/src/ew_input.hpp"
 #include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
 #include "flexiblesusy/src/numerics2.hpp"
@@ -93,7 +99,7 @@ namespace Gambit
     using namespace LogTags;
     using namespace flexiblesusy;
     using namespace std;
-    namespace ublas = boost::numeric::ublas;
+    //namespace ublas = boost::numeric::ublas;
 
     enum chi_options {less_than, greater_than, distance_from, observable, bound};
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
@@ -315,15 +321,17 @@ namespace Gambit
     }
 
     /// Get a Spectrum object wrapper for the THDM model
-    void get_THDM_spectrum(Spectrum &result) { 
-      namespace myPipe = Pipes::get_THDM_spectrum;
-      const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
+    void get_THDM_spectrum(Spectrum &result)
+    { 
+      using namespace Pipes::get_THDM_spectrum;
+      const SMInputs& sminputs = *Dep::SMINPUTS;
 
+      // TODO: This should not be necessary, everything works with Type III
       // set THDM model type
-      int y_type = -1; bool is_at_Q = false;
+      /*int y_type = -1; bool is_at_Q = false;
       for (int i=0; unsigned(i) < THDM_model_keys.size(); i++) {
         // model match was found: set values based on matched model
-        if (myPipe::ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
+        if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
 
       if ((y_type < 0) | (y_type > 5)) {
@@ -332,9 +340,11 @@ namespace Gambit
         errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
         errmsg << "The chosen THDM model was not recognized." << std::endl;
         SpecBit_error().raise(LOCAL_INFO,errmsg.str());
-      }
+      }*/
       
-      else if (!is_at_Q) {
+      //else if (!is_at_Q) {
+      if (ModelInUse("THDM"))
+      {
         // SoftSUSY object used to set quark and lepton masses and gauge
         // couplings in QEDxQCD effective theory
         softsusy::QedQcd oneset;
@@ -355,11 +365,17 @@ namespace Gambit
 
         // create empty basis
         std::map<std::string, double> basis = create_empty_THDM_basis();
-         // fill coupling basis
-         
-        basis["lambda1"] = *myPipe::Param.at("lambda1"), basis["lambda2"] = *myPipe::Param.at("lambda2"), basis["lambda3"] = *myPipe::Param.at("lambda3");
-        basis["lambda4"] = *myPipe::Param.at("lambda4"), basis["lambda5"] = *myPipe::Param.at("lambda5"), basis["lambda6"] = *myPipe::Param.at("lambda6");
-        basis["lambda7"] = *myPipe::Param.at("lambda7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
+
+        // fill coupling basis
+        basis["lambda1"] = *Param.at("lambda1");
+        basis["lambda2"] = *Param.at("lambda2");
+        basis["lambda3"] = *Param.at("lambda3");
+        basis["lambda4"] = *Param.at("lambda4");
+        basis["lambda5"] = *Param.at("lambda5");
+        basis["lambda6"] = *Param.at("lambda6");
+        basis["lambda7"] = *Param.at("lambda7");
+        basis["tanb"] = *Param.at("tanb");
+        basis["m12_2"] = *Param.at("m12_2");
        
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
@@ -386,7 +402,7 @@ namespace Gambit
         thdm_model.m22_2 = basis["m22_2"];
         thdm_model.m12_2 = basis["m12_2"];
 
-        thdm_model.Lambda1 = basis["Lambda1"];
+        /*thdm_model.Lambda1 = basis["Lambda1"];
         thdm_model.Lambda2 = basis["Lambda2"];
         thdm_model.Lambda3 = basis["Lambda3"];
         thdm_model.Lambda4 = basis["Lambda4"];
@@ -396,7 +412,8 @@ namespace Gambit
         thdm_model.M11_2 = basis["M11_2"];
         thdm_model.M22_2 = basis["M22_2"];
         thdm_model.M12_2 = basis["M12_2"];
-
+        */
+        
         thdm_model.mh0 = basis["m_h"];
         thdm_model.mH0 = basis["m_H"];
         thdm_model.mA0 = basis["m_A"];
@@ -411,9 +428,6 @@ namespace Gambit
           if (!continue_with_negative_mass) invalid_point().raise(msg.str());
         }
     
-        thdm_model.mG0 = 0.0;
-        thdm_model.mGC = 0.0;
-
         // // quantities needed to fill container spectrum, intermediate calculations
         const double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * pi / (sminputs.GF * pow(2,0.5));
         const double sinW2 = 0.5 - pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5), cosW2 = 0.5 + pow( 0.25 - C_calc/pow(sminputs.mZ,2) , 0.5);
@@ -421,6 +435,7 @@ namespace Gambit
 
         // Standard model
         thdm_model.sinW2 = sinW2;
+        thdm_model.vev = vev;
         // gauge couplings
         thdm_model.g1 = e / sinW2;
         thdm_model.g2 = e / cosW2;
@@ -428,10 +443,10 @@ namespace Gambit
         thdm_model.mW = sminputs.mZ*cosW2;
         // Yukawas
         
-        const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
-        const double cb = cos(b), sb = sin(b);
+        //const double b = atan(tanb);
+        //const double cb = cos(b), sb = sin(b);
 
-        double beta_scaling_u = sb, beta_scaling_d = sb, beta_scaling_e = sb;
+        /*double beta_scaling_u = sb, beta_scaling_d = sb, beta_scaling_e = sb;
         
         switch(y_type) {
           case type_I:
@@ -449,30 +464,57 @@ namespace Gambit
           case type_III:
             break;
           }
+        */
 
-        thdm_model.Yu[0] = sqrt2v * sminputs.mU / beta_scaling_u;
-        thdm_model.Yu[1] = sqrt2v * sminputs.mCmC / beta_scaling_u;
-        thdm_model.Yu[2] = sqrt2v * sminputs.mT / beta_scaling_u;
-        thdm_model.Ye[0] = sqrt2v * sminputs.mE / beta_scaling_e;
-        thdm_model.Ye[1] = sqrt2v * sminputs.mMu / beta_scaling_e;
-        thdm_model.Ye[2] = sqrt2v * sminputs.mTau / beta_scaling_e;
-        thdm_model.Yd[0] = sqrt2v * sminputs.mD / beta_scaling_d;
-        thdm_model.Yd[1] = sqrt2v * sminputs.mS / beta_scaling_d;
-        thdm_model.Yd[2] = sqrt2v * sminputs.mBmB / beta_scaling_d;
+        for(int i=0; i<3; i++)
+        {
+          for(int j=0; j<3; j++)
+          {
+            thdm_model.Yu2[i][j] = *Param["yu2_re"+std::to_string(i)+std::to_string(j)];
+            thdm_model.Yd2[i][j] = *Param["yd2_re"+std::to_string(i)+std::to_string(j)];
+            thdm_model.Ye2[i][j] = *Param["yl2_re"+std::to_string(i)+std::to_string(j)];
+
+            thdm_model.ImYu2[i][j] = *Param["yu2_im"+std::to_string(i)+std::to_string(j)];
+            thdm_model.ImYd2[i][j] = *Param["yd2_im"+std::to_string(i)+std::to_string(j)];
+            thdm_model.ImYe2[i][j] = *Param["yl2_im"+std::to_string(i)+std::to_string(j)];
+
+            thdm_model.Yu1[i][j] = -tanb * thdm_model.Yu2[i][j];
+            thdm_model.Yd1[i][j] = -tanb * thdm_model.Yd2[i][j];
+            thdm_model.Ye1[i][j] = -tanb * thdm_model.Ye2[i][j];
+
+            thdm_model.ImYu1[i][j] = -tanb * thdm_model.ImYu2[i][j];
+            thdm_model.ImYd1[i][j] = -tanb * thdm_model.ImYd2[i][j];
+            thdm_model.ImYe1[i][j] = -tanb * thdm_model.ImYe2[i][j];
+          }
+        }
+
+        const double sqrt2v = sqrt(2.0)/vev;
+        const double cb = sqrt(1.0/(1+tanb*tanb));
+ 
+        thdm_model.Yu1[0][0] += sqrt2v * sminputs.mU / cb;
+        thdm_model.Yu1[1][1] += sqrt2v * sminputs.mCmC / cb;
+        thdm_model.Yu1[2][2] += sqrt2v * sminputs.mT / cb;
+        thdm_model.Yd1[0][0] += sqrt2v * sminputs.mD / cb;
+        thdm_model.Yd1[1][1] += sqrt2v * sminputs.mS / cb;
+        thdm_model.Yd1[2][2] += sqrt2v * sminputs.mBmB / cb;
+        thdm_model.Ye1[0][0] += sqrt2v * sminputs.mE / cb;
+        thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
+        thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
 
         // std::cout << "Spectrum YU: (" << beta_scaling_u << ") " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
         // std::cout << "Spectrum MU: " << sminputs.mU<< " " << sminputs.mCmC <<" " << sminputs.mT << std::endl;
 
-        thdm_model.yukawaCoupling = y_type;
-        thdm_model.vev = vev;
+        //thdm_model.yukawaCoupling = y_type;
 
         // Create a SubSpectrum object to wrap the EW sector information
-        Models::THDMSimpleSpecSM thdm_spec(thdm_model);
+        THDMSimpleSpec thdm_spec(thdm_model);
+
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum
         // objects can due to a special copy constructor which does
         // the required cloning of the constituent SubSpectra.
         static Spectrum full_spectrum;
+
         // Note subtlety! There are TWO constructors for the Spectrum object:
         // If pointers to SubSpectrum objects are passed, it is assumed that
         // these objects are managed EXTERNALLY! So if we were to do this:
@@ -484,20 +526,22 @@ namespace Gambit
         // possession of them:
 
         // Retrieve any mass cuts
-        static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
-        static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
+        static const Spectrum::mc_info mass_cut = runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
+        static const Spectrum::mr_info mass_ratio_cut = runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
-        full_spectrum = Spectrum(qedqcdspec,thdm_spec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
+        full_spectrum = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
         result = full_spectrum;
+
       }
-      else {
+      else
+      {
         // check perturbativity if key exists in yaml
-        if(myPipe::runOptions->getValueOrDef<bool>(false, "check_perturbativity")) {
+        if(runOptions->getValueOrDef<bool>(false, "check_perturbativity")) {
           bool is_perturbative = true;
-          std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4", \
-                                          "lambda_5", "lambda_6", "lambda_7"};
+          std::vector<std::string> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4", \
+                                          "lambda5", "lambda6", "lambda7"};
           for(auto const& each_lambda : lambda_keys) {
-            if (*myPipe::Param.at(each_lambda) > 4.*M_PI) {
+            if (*Param.at(each_lambda) > 4.*M_PI) {
               is_perturbative = false;
               break;
             }
@@ -505,14 +549,14 @@ namespace Gambit
           if (!is_perturbative) invalid_point().raise("FS Invalid Point: Perturbativity Failed");
         }
         using namespace softsusy;
-        switch(y_type) {
+        /*switch(y_type) {
           case type_I: { 
             #if(FS_MODEL_THDM_I_IS_BUILT)
               THDM_I_input_parameters input;
-              fill_THDM_FS_input(input,myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-              if(myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *myPipe::Param.at("QrunTo");
+              fill_THDM_FS_input(input,Param);
+              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
+              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
+                double const scale = *Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -527,10 +571,10 @@ namespace Gambit
           case type_II: { 
             #if(FS_MODEL_THDM_II_IS_BUILT)
               THDM_II_input_parameters input;
-              fill_THDM_FS_input(input,myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-              if(myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *myPipe::Param.at("QrunTo");
+              fill_THDM_FS_input(input,Param);
+              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
+              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
+                double const scale = *Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -545,10 +589,10 @@ namespace Gambit
           case lepton_specific: { 
             #if(FS_MODEL_THDM_lepton_IS_BUILT)
               THDM_lepton_input_parameters input;
-              fill_THDM_FS_input(input,myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-              if(myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *myPipe::Param.at("QrunTo");
+              fill_THDM_FS_input(input,Param);
+              result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
+              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
+                double const scale = *Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -563,10 +607,10 @@ namespace Gambit
           case flipped: { 
             #if(FS_MODEL_THDM_flipped_IS_BUILT)
               THDM_flipped_input_parameters input;
-              fill_THDM_FS_input(input,myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-              if(myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *myPipe::Param.at("QrunTo");
+              fill_THDM_FS_input(input,Param);
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
+              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
+                double const scale = *Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -585,7 +629,7 @@ namespace Gambit
             errmsg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4." << std::endl;
             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             break;
-          }    
+          }*/    
         }
       }
     }
@@ -2693,7 +2737,7 @@ namespace Gambit
     }
     // **
 
-      void obs_mh0_pole(double& result) {
+/*      void obs_mh0_pole(double& result) {
         using namespace Pipes::obs_mh0_pole;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
@@ -3024,7 +3068,7 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         result = he->get(Par::dimensionless, "g3");
       }
-
+*/
       /// Put together the Higgs couplings for the THDM, from partial widths only
       void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result) {
         using namespace Pipes::THDM_higgs_couplings_pwid;

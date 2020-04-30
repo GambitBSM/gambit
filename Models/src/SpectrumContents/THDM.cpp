@@ -3,8 +3,7 @@
 ///  \file
 ///
 ///  Class defining the parameters that SubSpectrum
-///  objects providing THDM
-///  spectrum data must provide
+///  objects providing THDM spectrum data must provide
 ///
 ///  *********************************************
 ///
@@ -12,11 +11,16 @@
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author Filip Rajec
-///   June 2016
+///          (filip.rajec@adelaide.edu.au)         
+///  \date June 2016
 ///
-///  Cristian Sierra
-///  cristian.sierra@monash.edu
-///  Apr 2020 
+///  \author Cristian Sierra
+///          (cristian.sierra@monash.edu)
+///  \date Apr 2020 
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date Apr 2020
 ///
 ///  *********************************************
 
@@ -25,7 +29,8 @@
 
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 
-namespace Gambit {
+namespace Gambit
+{
   
   /// Only have to define the constructor
   SpectrumContents::THDM::THDM()
@@ -46,35 +51,43 @@ namespace Gambit {
     addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
     addParameter(Par::dimensionless, "sinW2", scalar);
+    addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
-    addParameter(Par::dimensionless, "Yd", m3x3, "Yd");
-    addParameter(Par::dimensionless, "Yu", m3x3, "Yu");
-    addParameter(Par::dimensionless, "Ye", m3x3, "Ye");
+    addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
+    addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
+    addParameter(Par::dimensionless, "Ye1", m3x3, "Ye1");
 
-    // addParameter(Par::dimensionless, "ReYd2", m3x3);
-    // addParameter(Par::dimensionless, "ReYu2", m3x3);
-    // addParameter(Par::dimensionless, "ReYe2", m3x3);
+    addParameter(Par::dimensionless, "ImYd1", m3x3, "ImYd1");
+    addParameter(Par::dimensionless, "ImYu1", m3x3, "ImYu1");
+    addParameter(Par::dimensionless, "ImYe1", m3x3, "ImYe1");
 
-    // addParameter(Par::dimensionless, "ImYd2", m3x3);
-    // addParameter(Par::dimensionless, "ImYu2", m3x3);
-    // addParameter(Par::dimensionless, "ImYe2", m3x3);
+    addParameter(Par::dimensionless, "Yd2", m3x3, "Yd2");
+    addParameter(Par::dimensionless, "Yu2", m3x3, "Yu2");
+    addParameter(Par::dimensionless, "Ye2", m3x3, "Ye2");
+
+    addParameter(Par::dimensionless, "ImYd2", m3x3, "ImYd2");
+    addParameter(Par::dimensionless, "ImYu2", m3x3, "ImYu2");
+    addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
 
     addParameter(Par::Pole_Mass, "h0",    v2,"MASS"); 
     addParameter(Par::Pole_Mass, "A0", scalar,"MASS",36); 
     addParameter(Par::Pole_Mass, "H+", scalar,"MASS",37);
     addParameter(Par::Pole_Mass, "W+", scalar,"MASS",24);
 
-    addParameter(Par::mass1, "lambda1",scalar,"MINPAR",11);
-    addParameter(Par::mass1, "lambda2",scalar,"MINPAR",12);
-    addParameter(Par::mass1, "lambda3",scalar,"MINPAR",13);
-    addParameter(Par::mass1, "lambda4",scalar,"MINPAR",14);
-    addParameter(Par::mass1, "lambda5",scalar,"MINPAR",15);
-    addParameter(Par::mass1, "lambda6",scalar,"MINPAR",16);
-    addParameter(Par::mass1, "lambda7",scalar,"MINPAR",17);
+    addParameter(Par::dimensionless, "lambda1",scalar,"MINPAR",1);
+    addParameter(Par::dimensionless, "lambda2",scalar,"MINPAR",2);
+    addParameter(Par::dimensionless, "lambda3",scalar,"MINPAR",3);
+    addParameter(Par::dimensionless, "lambda4",scalar,"MINPAR",4);
+    addParameter(Par::dimensionless, "lambda5",scalar,"MINPAR",5);
+    addParameter(Par::dimensionless, "lambda6",scalar,"MINPAR",6);
+    addParameter(Par::dimensionless, "lambda7",scalar,"MINPAR",7);
 
-    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",3);
+    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",10);
     addParameter(Par::dimensionless, "alpha",scalar, "ALPHA",0);
-    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",18);
+
+    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",9);
+    addParameter(Par::mass1, "m11_2",scalar,"HMIX",20);
+    addParameter(Par::mass1, "m22_2",scalar,"HMIX",21);
 
   }
   

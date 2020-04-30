@@ -1,17 +1,25 @@
-//  GAMBIT: Global and Modular BSM Inference Tool
-//  *********************************************
-//
-//  Two Higgs Doublet Model
-//  *********************************************
-//
-//  Authors
-//  =======
-//
-//  (add name and date if you modify)
-//  Filip Rajec
-//  Aug 2016
-//
-//  *********************************************
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///
+///  Two Higgs Doublet Model
+///  (Type X-Lepton Specific, Generic Basis)
+///
+///  *********************************************
+///
+///  Authors
+///  =======
+///
+///  (add name and date if you modify)
+///  
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2016 Aug
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///
+///  *********************************************
 
 #ifndef __THDMLS_hpp__
 #define __THDMLS_hpp__
@@ -21,7 +29,8 @@
 #include "gambit/Models/models/THDMLSatQ.hpp"
 
 // Forward declaration of needed types
-namespace Gambit {
+namespace Gambit
+{
   class SMInputs;
 }
 
@@ -30,14 +39,14 @@ namespace Gambit {
 #define FRIEND THDMLSatQ
   START_MODEL
   
-  DEFINEPARS(lambda_1,lambda_2,lambda_3,lambda_4,lambda_5)
-  DEFINEPARS(lambda_6,lambda_7,m12_2)
+  DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
+  DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
   
+  // Translation functions defined in THDMLS.cpp
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMLS_to_THDMLSatQ)
   INTERPRET_AS_PARENT_FUNCTION(THDMLS_to_THDM)
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
-  // Translation functions defined in THDMLS.cpp
 #undef FRIEND
 #undef PARENT
 #undef MODEL
