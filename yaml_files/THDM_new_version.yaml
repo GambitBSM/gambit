@@ -6,7 +6,7 @@
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals
+## THDMC, SuperISO, HiggsBounds, HiggsSignals, HEPLike
 ##########################################################################
 
 Parameters:
@@ -66,7 +66,7 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: de
+  use_scanner: random
 
   scanners:
     de:
@@ -75,6 +75,11 @@ Scanner:
       NP: 1000
       convthresh: 1e-5
       verbosity: 1
+
+    random:
+      plugin: random
+      point_number: 10000
+      like:  LogLike
 
       # No options to set, but still need the nodes at the moment...
       aux_printer_txt_options:
@@ -87,86 +92,43 @@ ObsLikes:
   # Likelihoods
   ###########################
 
-  # Checks that loop corrections to the pole mass of mh0
-  # do not exceed 50% of the input mass at Qin
-  # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: h0_loop_order_corrections
-  #   function: check_h0_loop_order_corrections
+  - purpose:    LogLike
+    capability: h0_loop_order_corrections
+    function: check_h0_loop_order_corrections
 
-  # # Checks that loop corrections to the pole masses of mH0,
-  # # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: THDM_scalar_loop_order_corrections
-  #   function: check_THDM_scalar_loop_order_corrections
+  - purpose:    LogLike
+    capability: THDM_scalar_loop_order_corrections
+    function: check_THDM_scalar_loop_order_corrections
 
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: perturbativity_likelihood_THDM
+  - purpose:    LogLike
+    capability: perturbativity_likelihood_THDM
 
-  # # Applies the THDM stability constraints on the potential
-  # # NOTE: This likelihood has two parts, described below
-  # # (i) Applies strict stability constraint
-  # # Likelihood type: Acceptance/Rejection
-  # # (ii) If rejected, applies looser stabililty constraints
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: stability_likelihood_THDM
+  - purpose:    LogLike
+    capability: stability_likelihood_THDM
 
-  # # Checks that the NLO scattering-matrix is unitary
-  # # Calculates and applies limit on eigenvalues of matrix
-  # # NOTE: This is always a subset of LO unitarity so it not needed
-  # # Likelihood type: Half-Gaussian
-  # # Only supports CP-conserving models
-  # - purpose:    LogLike
-  #   capability: NLO_unitarity_likelihood_THDM
+  - purpose:    LogLike
+    capability: NLO_unitarity_likelihood_THDM
 
-  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # # & fits to meausured values. S, T, U involve a correlation matrix.
-  # # Includes low-energy notation described in arxiv::9407203.
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: oblique_parameters_likelihood_THDM
+  - purpose:    LogLike
+    capability: oblique_parameters_likelihood_THDM
 
-  # # -------------------------------------------
+  ## -------------------------------------------
 
   - purpose:    LogLike
     capability: b2sgamma_LogLikelihood
 
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_LHCb
+  - purpose:    Observable ###
+    capability: B2mumu_LogLikelihood_LHCb
 
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_CMS
+  - purpose:    Observable ###
+    capability: B2mumu_LogLikelihood_CMS
 
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_Atlas
+  - purpose:    Observable ###
+    capability: B2mumu_LogLikelihood_Atlas
    
-  # # Semi-Leptonic likelihood collection
   - capability: SL_LL
     function: SL_likelihood
     purpose: LogLike
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_0p1_0p98_LHCb
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_1p1_2p5_LHCb
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_2p5_4_LHCb
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_4_6_LHCb
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_6_8_LHCb
-
-  # - purpose:    Observable
-  #   capability: prediction_B2KstarmumuAng_15_19_LHCb
 
   - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_Atlas
@@ -189,8 +151,6 @@ ObsLikes:
   - purpose:    LogLike
     capability: B2KmumuBr_LogLikelihood_LHCb
 
-  # Bs0 and Bd0 Meson Mass Splitting added to FlavBit
-  # Necessary calculations added to superiso via patch supplied by Nazila
   - capability: deltaMB_LL
     function: deltaMB_likelihood
     purpose: LogLike
@@ -198,14 +158,13 @@ ObsLikes:
   - capability: deltaMBd_LL
     function: deltaMBd_likelihood
     purpose: LogLike
-  # -------------------------------------------
 
-  ### NOTE
-  # LHC & LEP likelihoods
-  # Coupling Squared input structs are filled by colliderBit,
-  # then chi^2 are extracted directly from HS & HB
+    # RK star likelihood
 
-  # HB 5beta likelihood
+    # RD star likelihood
+
+  ## -------------------------------------------
+
   - capability: LEP_Higgs_LogLike
     function: calc_HB_5_LEP_LogLike
     purpose: LogLike
@@ -217,7 +176,6 @@ ObsLikes:
         function: THDM_ModelParameters_charged
         module: ColliderBit
 
-  # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
     function: calc_HS_2_LHC_LogLike
     purpose: LogLike
@@ -325,34 +283,21 @@ ObsLikes:
 
   # interesting flavour observables
 
-  # - capability: bsgamma
-  #   function: SI_bsgamma
-  #   purpose: Observable
+  - capability: bsgamma
+    function: SI_bsgamma
+    purpose: Observable
 
   - capability: DeltaMs
     function: SI_Delta_MBs
     purpose: Observable
 
-  - capability: all_BFs
-    function: get_decaytable_as_map
-    options:
-      # Opt 1: choose to print every single branching fraction
-      printall: true 
-      # Opt 2: choose which particles to print BFs for
-      #BFs: [ ["h0_1"], ["t"] ]
-      # Opt 3: choose which specific channels to printd BFs for
-      #BFs: [ ["h0_1", "V", "V"],
-      #       ["h0_1", "b", "bbar"] ]
-
-  # Checks if the vacuum leads to a global minimum solution
-  # Returns 0 if it is metastable or unstable (otherwise 1)
-  # Only supports CP-conserving models
-
   - capability: vacuum_global_minimum
     function: check_vacuum_global_minimum
     purpose: Observable  
-  
-    
+
+  - capability: all_BFs
+    purpose: Observable
+
 Rules:
 
   ##############################
@@ -366,11 +311,6 @@ Rules:
     function: all_decays
     module: DecayBit
 
-  # the check_all_scales option-flag triggers evaluation
-  # of the likelihood at the default Qin scale, 
-  # but also at QrunTo scale, where the worst performing
-  # of the two likelihoods is returned.
-  # eg. min[L(Q_in), L(Q_runTo)]
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
     options:
@@ -387,7 +327,6 @@ Rules:
     options:
       check_correction_ratio: true
 
-  # Specifies effc coupling input for HB/HS
   - capability: HB_ModelParameters_neutral
     function: THDM_ModelParameters_effc
     module: ColliderBit
@@ -395,8 +334,6 @@ Rules:
   - capability: HB_ModelParameters_charged
     function: THDM_ModelParameters_charged
     module: ColliderBit
-
-    # B2mumu
 
   - capability: prediction_B2mumu
     options:
@@ -417,8 +354,6 @@ Rules:
     options:
       obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
 
-      # B2kstarmumu ATLAS
-
   - capability: prediction_B2KstarmumuAng_0p1_2_Atlas
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
@@ -434,9 +369,6 @@ Rules:
   - capability: B2KstarmumuAng_LogLikelihood_Atlas
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
-
-
-      # B2kstarmumu BELLE
 
   - capability: prediction_B2KstarmumuAng_0p1_4_Belle
     options:
@@ -458,7 +390,6 @@ Rules:
     options:
       obs_list: [P4prime, P5prime]
 
-    # B2kstarmumu LHCB2020
 
   # - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
   #   function: HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
@@ -489,8 +420,6 @@ Rules:
   #   options:
   #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-    
-    # B2kstarmumu CMS 
   
   - capability: prediction_B2KstarmumuAng_1_2_CMS
     options:
@@ -524,36 +453,32 @@ Rules:
     options:
       obs_list: [P1, P5prime]
 
-  # Use SM theory covariance matrix for every point
   - capability: SuperIso_theory_covariance
     function: SI_theory_covariance
 
-  # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: bsgamma
-    function: SI_bsgamma
-
-  # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-
-  # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: Btaunu
-    function: SI_Btaunu
-
-  # # Choose superiso for Flavour physics calculations
   - capability: SuperIso_modelinfo
     function: SI_fill
   
-  # - capability: Bsmumu_untag
-  #   function: SI_Bsmumu_untag
-  #   module: FlavBit
+  - capability: bsgamma
+    function: SI_bsgamma
 
-  # - capability: bsgamma
-  #   function: SI_bsgamma
-  #   module: FlavBit
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+
+  - capability: Btaunu
+    function: SI_Btaunu
+
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    module: FlavBit
 
   - capability: DeltaMs
     function: SI_Delta_MBs
+
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true 
 
 #########################
 # Logging setup
@@ -583,5 +508,5 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -5e7
     debug: false
     
-  default_output_path: "runs/THDMIatQ_b2sgam/"
+  default_output_path: "runs/THDM/"
   debug: true

@@ -3200,6 +3200,18 @@ namespace Gambit
 
       }
 
+      // THDM-specific
+      else if(ModelInUse("THDMatQ") or ModelInUse("THDM") or
+              ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
+              ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
+              ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
+              ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ")) {
+        decays("h0_2") = *Dep::h0_2_decay_rates;                 // Add the h0_2 decays.
+        decays("A0") = *Dep::A0_decay_rates;                     // Add the A0 decays.
+        decays("H+") = *Dep::H_plus_decay_rates;                 // Add the H+ decays.
+        decays("H-") = *Dep::H_minus_decay_rates;                // Add the H- decays.
+      }
+
       else
 
       {
