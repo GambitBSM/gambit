@@ -44,7 +44,7 @@ namespace Gambit
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
 
   // Translation functions defined in THDMflipped.cpp
   INTERPRET_AS_PARENT_FUNCTION(THDMflippedatQ_to_THDMatQ)

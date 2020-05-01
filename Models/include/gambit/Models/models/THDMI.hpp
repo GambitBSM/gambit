@@ -28,6 +28,12 @@
 #include "gambit/Models/models/THDM.hpp"
 #include "gambit/Models/models/THDMIatQ.hpp"
 
+// Forward declaration of needed types
+namespace Gambit
+{
+  class SMInputs;
+}
+
 #define MODEL THDMI
 #define PARENT THDM
 #define FRIEND THDMIatQ
@@ -39,6 +45,7 @@
   
   // Translation functions defined in THDMI.cpp
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMI_to_THDMIatQ)
+  INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
   INTERPRET_AS_PARENT_FUNCTION(THDMI_to_THDM)
 #undef FRIEND
 #undef PARENT

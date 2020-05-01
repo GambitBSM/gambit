@@ -43,7 +43,7 @@ namespace Gambit
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
 
   // Translation functions defined in THDMII.cpp
   INTERPRET_AS_PARENT_FUNCTION(THDMIIatQ_to_THDMatQ)

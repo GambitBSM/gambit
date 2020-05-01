@@ -66,7 +66,6 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2atQ_to_THDMflippedatQ(const Mode
   targetP.setValue("tanb", tanb );
 
   targetP.setValue("Qin", myP.getValue("Qin") );
-  targetP.setValue("QrunTo", myP.getValue("QrunTo") );
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG

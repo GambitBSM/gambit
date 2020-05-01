@@ -72,7 +72,6 @@ void MODEL_NAMESPACE::THDMI_physicalatQ_to_THDMIatQ(const ModelParameters &myP, 
   targetP.setValue("m12_2", basis["m12_2"] );
   targetP.setValue("tanb", basis["tanb"] );
   targetP.setValue("Qin", myP.getValue("Qin") );
-  targetP.setValue("QrunTo", myP.getValue("QrunTo") );
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG

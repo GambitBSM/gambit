@@ -36,7 +36,7 @@ namespace Gambit {
   DEFINEPARS(lambda_6,lambda_7,m12_2)
   DEFINEPARS(sba,tanb)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
   
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMII_physicalatQ_to_THDMIIatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND ,SMINPUTS, SMInputs)

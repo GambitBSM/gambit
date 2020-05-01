@@ -61,8 +61,7 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
   logger()<<"Running interpret_as_parent calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
 
-  targetP.setValue("Qin",80.39);
-  targetP.setValue("QrunTo", 173.15);
+  targetP.setValue("Qin",Dep::SMINPUTS->mZ);
 
   targetP.setValue("lambda1",myP.getValue("lambda1"));
   targetP.setValue("lambda2",myP.getValue("lambda2"));

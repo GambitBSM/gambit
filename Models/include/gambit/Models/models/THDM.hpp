@@ -30,6 +30,12 @@
 // Must include models which are targets of translation functions
 #include "gambit/Models/models/THDMatQ.hpp"
 
+// Forward declaration of needed types
+namespace Gambit
+{
+  class SMInputs;
+}
+
 #define MODEL THDM
 #define PARENT THDMatQ
 
@@ -53,6 +59,7 @@
 
   // Translation functions defined in THDM.cpp
   INTERPRET_AS_PARENT_FUNCTION(THDM_to_THDMatQ)
+  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
 #undef PARENT
 #undef MODEL
 

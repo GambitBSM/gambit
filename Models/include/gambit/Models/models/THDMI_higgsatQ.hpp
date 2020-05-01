@@ -32,7 +32,7 @@ namespace Gambit {
   DEFINEPARS(Lambda_1,Lambda_2,Lambda_3,Lambda_4,Lambda_5,Lambda6,Lambda_7)
   DEFINEPARS(tanb, M12_2)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
   
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMI_higgsatQ_to_THDMIatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)

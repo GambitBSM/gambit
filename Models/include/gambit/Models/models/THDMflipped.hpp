@@ -44,6 +44,7 @@ namespace Gambit
   
   // Translation functions defined in THDMflipped.cpp
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMflipped_to_THDMflippedatQ)
+  INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
   INTERPRET_AS_PARENT_FUNCTION(THDMflipped_to_THDM)
   INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
 #undef FRIEND

@@ -66,8 +66,7 @@ void MODEL_NAMESPACE::THDMII_to_THDMIIatQ (const ModelParameters &myP, ModelPara
    USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
    logger()<<"Running interpret_as_FRIEND calculations for THDMII --> THDMIIatQ.."<<LogTags::info<<EOM;
 
-  targetP.setValue("Qin",80.39);
-  targetP.setValue("QrunTo", 173.15);
+  targetP.setValue("Qin",Dep::SMINPUTS->mZ);
 
   targetP.setValue("lambda1", myP.getValue("lambda1"));
   targetP.setValue("lambda2", myP.getValue("lambda2"));
@@ -165,7 +164,6 @@ void MODEL_NAMESPACE::THDMIIatQ_to_THDMatQ (const ModelParameters &myP, ModelPar
   targetP.setValue("tanb", myP.getValue("tanb"));
 
   targetP.setValue("Qin", myP.getValue("Qin"));
-  targetP.setValue("QrunTo", myP.getValue("QrunTo"));
 
   std::vector<std::string> yukawa_keys = {"yu2_im_11", "yu2_re_12", "yu2_im_12", "yu2_re_13", "yu2_im_13",
                                           "yu2_re_21", "yu2_im_21", "yu2_im_22", "yu2_re_23", "yu2_im_23",

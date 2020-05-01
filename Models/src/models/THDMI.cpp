@@ -44,6 +44,8 @@
 #include "gambit/Models/models/THDMI.hpp"
 #include "gambit/Models/models/THDMIatQ.hpp"
 
+#include "gambit/Elements/sminputs.hpp"
+
 // Activate debug output
 //#define THDM_DBUG
 
@@ -61,8 +63,7 @@ void MODEL_NAMESPACE::THDMI_to_THDMIatQ (const ModelParameters &myP, ModelParame
   USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
   logger()<<"Running interpret_as_FRIEND calculations for THDMI --> THDMIatQ.."<<LogTags::info<<EOM;
 
-  targetP.setValue("Qin",80.39);
-  targetP.setValue("QrunTo", 173.15);
+  targetP.setValue("Qin",Dep::SMINPUTS->mZ);
 
   targetP.setValue("lambda1", myP.getValue("lambda1") );
   targetP.setValue("lambda2", myP.getValue("lambda2") );
@@ -149,7 +150,6 @@ void MODEL_NAMESPACE::THDMIatQ_to_THDMatQ(const ModelParameters &myP, ModelParam
   targetP.setValue("tanb", myP.getValue("tanb"));
 
   targetP.setValue("Qin", myP.getValue("Qin"));
-  targetP.setValue("QrunTo", myP.getValue("QrunTo"));
 
   std::vector<std::string> yukawa_keys = {"yu2_re_11", "yu2_im_11", "yu2_re_12", "yu2_im_12", "yu2_re_13", "yu2_im_13",
                                           "yu2_re_21", "yu2_im_21", "yu2_re_22", "yu2_im_22", "yu2_re_23", "yu2_im_23",

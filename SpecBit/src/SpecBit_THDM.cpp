@@ -549,17 +549,21 @@ namespace Gambit
           if (!is_perturbative) invalid_point().raise("FS Invalid Point: Perturbativity Failed");
         }
         using namespace softsusy;
-        /*switch(y_type) {
-          case type_I: { 
+        /*switch(y_type)
+          {
+          case type_I:  
             #if(FS_MODEL_THDM_I_IS_BUILT)
               THDM_I_input_parameters input;
               fill_THDM_FS_input(input,Param);
               result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
-              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *Param.at("QrunTo");
+
+              double const scale = runOptions->getValueOrDef<double>(0.0, "QrunTo");
+              if(scale > 0)
+              {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
+
             #else 
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -567,17 +571,20 @@ namespace Gambit
               SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             #endif  
             break;
-          }
-          case type_II: { 
+
+          case type_II:
             #if(FS_MODEL_THDM_II_IS_BUILT)
               THDM_II_input_parameters input;
               fill_THDM_FS_input(input,Param);
               result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
-              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *Param.at("QrunTo");
+
+              double const scale = runOptions->getValueOrDef<double>(0.0, "QrunTo");
+              if(scale > 0)
+              {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
+
             #else 
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -585,17 +592,20 @@ namespace Gambit
               SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             #endif 
             break;
-          }
-          case lepton_specific: { 
+
+          case lepton_specific:
             #if(FS_MODEL_THDM_lepton_IS_BUILT)
               THDM_lepton_input_parameters input;
               fill_THDM_FS_input(input,Param);
               result = run_FS_spectrum_generator<THDM_lepton_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
-              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *Param.at("QrunTo");
+
+              double const scale = runOptions->getValueOrDef<double>(0.0, "QrunTo");
+              if(scale > 0)
+              {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
+ 
             #else 
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -603,17 +613,20 @@ namespace Gambit
               SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             #endif 
             break;
-          }
-          case flipped: { 
+
+          case flipped:
             #if(FS_MODEL_THDM_flipped_IS_BUILT)
               THDM_flipped_input_parameters input;
               fill_THDM_FS_input(input,Param);
               result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input,sminputs,*runOptions,Param);
-              if(runOptions->getValueOrDef<bool>(false, "at_QrunTo")) {
-                double const scale = *Param.at("QrunTo");
+
+              double const scale = runOptions->getValueOrDef<double>(0.0, "QrunTo");
+              if(scale > 0)
+              {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
+ 
             #else 
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -621,15 +634,14 @@ namespace Gambit
               SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             #endif 
             break;
-          }
-          default: {
+
+          default:
             // this error should never be raised due to previous check of y_type
             std::ostringstream errmsg;
             errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
             errmsg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4." << std::endl;
             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             break;
-          }    
         }*/
       }
     }
@@ -1925,6 +1937,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
       }
@@ -1941,6 +1954,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
       }
@@ -1961,6 +1975,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_perturbativity_likelihood_THDM");
       }
@@ -1986,6 +2001,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_stability_likelihood_THDM");
       }
@@ -2002,6 +2018,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
       }
@@ -2018,6 +2035,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {is_at_Q = THDM_model_at_Q[i]; y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         if (is_at_Q) scale = *Param.at("QrunTo");
         else print_calculation_at_scale_warning("check_vacuum_global_minimum");
       }
@@ -2034,6 +2052,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
@@ -2052,6 +2071,7 @@ namespace Gambit
         if (ModelInUse(THDM_model_keys[i])) {y_type = THDM_model_y_type[i]; break;}
       }
       if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
+        // TODO: Remove this parameter when changing this function
         scale = *Param.at("QrunTo");
       }
       std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
@@ -3152,9 +3172,7 @@ namespace Gambit
         using namespace Pipes::test_THDM_spectrum_1;
         Spectrum fullspectrum = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> spec = fullspectrum.clone_HE();
-        double QrunTo = *Param.at("QrunTo");
 
-        cout << "---- running to scale: " << QrunTo << "GeV. "<< endl;
         cout << "mh0 = " <<  spec->get(Par::Pole_Mass, "h0", 1) << endl;
         cout <<  "mH0 = " << spec->get(Par::Pole_Mass, "h0", 2) << endl;
         cout <<  "mA = " << spec->get(Par::Pole_Mass, "A0") << endl;
@@ -3181,6 +3199,7 @@ namespace Gambit
         }
 
         if(check_pertubativity) {
+          double QrunTo = 1e3;
           spec -> RunToScale(QrunTo);
 
           double mh0_1 = spec->get(Par::Pole_Mass, "h0", 1);

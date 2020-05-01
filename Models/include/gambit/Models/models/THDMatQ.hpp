@@ -46,7 +46,7 @@
              yl2_re_21, yl2_im_21, yl2_re_22, yl2_im_22, yl2_re_23, yl2_im_23,
              yl2_re_31, yl2_im_31, yl2_re_32, yl2_im_32, yl2_re_33, yl2_im_33)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
   
 #undef MODEL
 

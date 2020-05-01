@@ -68,7 +68,6 @@ void MODEL_NAMESPACE::THDMLS_higgsatQ_to_THDMLSatQ(const ModelParameters &myP, M
   targetP.setValue("tanb", basis["tanb"] );
 
   targetP.setValue("Qin", myP.getValue("Qin") );
-  targetP.setValue("QrunTo", myP.getValue("QrunTo") );
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG

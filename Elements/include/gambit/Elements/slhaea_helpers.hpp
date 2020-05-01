@@ -113,9 +113,6 @@ namespace Gambit
    const Par::Tags partype, const str& name, const int index1, const int index2, const str& block,
    const int slha_index1, const int slha_index2, const str& comment, const bool error_if_missing = true, const double rescale = 1.0);
 
-  /// Write a SimpleSpectrum to an SLHAea object.
-  void add_SimpleSpec_to_SLHAea(const SubSpectrum&, SLHAstruct&, const SubSpectrumContents&);
-
 }
 
 #endif //defined __slhaea_helpers_hpp__

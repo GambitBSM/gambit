@@ -39,7 +39,7 @@
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
 
-  DEFINEPARS(Qin,QrunTo)
+  DEFINEPARS(Qin)
 
   // Translation functions defined in THDMI.cpp
   INTERPRET_AS_PARENT_FUNCTION(THDMIatQ_to_THDMatQ)
