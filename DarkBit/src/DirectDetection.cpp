@@ -39,6 +39,10 @@
 ///  \date 2018 Sep
 ///  \date 2020 Feb
 ///
+///  \author Lauren Street
+///          (streetlg@mail.uc.edu)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -542,6 +546,18 @@ namespace Gambit
 //            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");
           }
           result = temp_result;
+        }
+
+    void DAMA_GetBinSignal_mod(std::vector<double> &result)
+        {
+          using namespace Pipes::DAMA_GetBinSignal_mod;
+	  BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)),152.0,334.0);
+          result.clear();
+          int nbins;
+          nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(DAMA)));
+          for (int ibin=1;ibin<=nbins;ibin++) {
+            result.push_back(
+BEreq::DD_BinSignal_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)),ibin)); }
         }
 
   }
