@@ -72,6 +72,10 @@
 ///  \date 2017 Feb, Sep, Dec
 ///  \date 2018 Jan, Mar, Apr
 ///
+///  \author Lauren Street
+///          (streetlg@mail.uc.edu)
+///  \date 2020 Apr
+///
 ///  *********************************************
 
 #ifndef __DarkBit_rollcall_hpp__
@@ -1135,6 +1139,17 @@ START_MODULE
      BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
      BACKEND_REQ(DD_Chi2_mod, (needs_DDCalc), double, (const int&))
      BACKEND_REQ(DD_LogLikelihood_mod, (needs_DDCalc), double, (const double&))
+     #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DAMA_BinSignal_mod
+  START_CAPABILITY
+     #define FUNCTION DAMA_GetBinSignal_mod
+     START_FUNCTION(std::vector<double>)
+     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
+     BACKEND_REQ(DD_BinSignal_mod, (needs_DDCalc), double, (const int&, const int&))
+     BACKEND_REQ(DD_Bins, (needs_DDCalc), int, (const int&))
      #undef FUNCTION
   #undef CAPABILITY
 
