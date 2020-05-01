@@ -116,7 +116,7 @@ namespace Gambit
     double THDMea::get_tanb()  const { return getdata("MINPAR",3); }
     double THDMea::get_alpha() const { return getdata("ALPHA",0); }
 
-    double THDMea::get_yukawaCoupling() const { return (getdata("FMODSEL",1) - 30); } 
+    //double THDMea::get_yukawaCoupling() const { return (getdata("FMODSEL",1) - 30); } 
 
     double THDMea::get_lambda1() const { return getdata("MINPAR",11); }
     double THDMea::get_lambda2() const { return getdata("MINPAR",12); }
@@ -137,7 +137,7 @@ namespace Gambit
     double THDMea::get_m22_2() const
     { 
       double m12_2 = get_m12_2(), b = atan(get_tanb()), cb = cos(b), sb = sin(b), vev = get_vev();
-      double lam1 = get_lambda1(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
+      double lam2 = get_lambda2(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
       return m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb); 
     }
 
@@ -223,9 +223,45 @@ namespace Gambit
     {}
 
     // Construct with THDMModel struct
-    THDMSimpleSpecSM(const THDMModel& p)
+    THDMSimpleSpec::THDMSimpleSpec(const Models::THDMModel& p)
       : params(p)
-    {}
+    {
+      std::map<str,double> scalars = {{"h0_1", p.mh0}, {"h0_2", p.mH0}, {"A0", p.mA0},
+                                      {"H+", p.mC}, {"W+", p.mW},
+                                      {"lambda1",p.lambda1}, {"lambda2",p.lambda2}, {"lambda3",p.lambda3},
+                                      {"lambda4",p.lambda4}, {"lambda5",p.lambda5}, {"lambda6",p.lambda6}, 
+                                      {"lambda7",p.lambda7}, {"tanb",p.tanb}, {"alpha",p.alpha},
+                                      {"m11_2",p.m11_2}, {"m12_2",p.m12_2}, {"m22_22",p.m22_2},
+                                      {"vev",p.vev}, {"g1",p.g1}, {"g2",p.g2}, {"g3",p.g3}, {"sinW2",p.sinW2}};
+ 
+      SLHAea::Coll slha;
+      const std::vector<SpectrumParameter> contents = Contents().all_parameters();
+
+      for(auto scalar = scalars.begin(); scalar != scalars.end(); scalar++)
+        for(auto param = contents.begin(); param != contents.end(); param++)
+          if(param->name() == scalar->first)
+            SLHAea_add(slha, param->blockname(), param->blockindex(), scalar->second, "# "+scalar->first, true);
+
+      for(int i=0; i<3; i++)
+        for(int j=0; j<3; j++)
+        {
+          SLHAea_add(slha, "Yu1", i+1, j+1, p.Yu1[i][j], "# Yu1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Yd1", i+1, j+1, p.Yd1[i][j], "# Yd1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Ye1", i+1, j+1, p.Ye1[i][j], "# Ye1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Yu2", i+1, j+1, p.Yu2[i][j], "# Yu2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Yd2", i+1, j+1, p.Yd2[i][j], "# Yd2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Ye2", i+1, j+1, p.Ye2[i][j], "# Ye2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYu1", i+1, j+1, p.ImYu1[i][j], "# ImYu1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYd1", i+1, j+1, p.ImYd1[i][j], "# ImYd1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYe1", i+1, j+1, p.ImYe1[i][j], "# ImYe1("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYu2", i+1, j+1, p.ImYu2[i][j], "# ImYu2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYd2", i+1, j+1, p.ImYd2[i][j], "# ImYd2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "ImYe2", i+1, j+1, p.ImYe2[i][j], "# ImYe2("+std::to_string(i)+","+std::to_string(j)+")", true);
+        }
+
+      slhawrap = slha;
+
+    }
 
     /// Copy constructor: needed by clone function.
     THDMSimpleSpec::THDMSimpleSpec(const THDMSimpleSpec& other)

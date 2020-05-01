@@ -629,8 +629,8 @@ namespace Gambit
             errmsg << "Tried to set the Yukawa Type to "<< y_type <<" . Yukawa Type should be 1-4." << std::endl;
             SpecBit_error().raise(LOCAL_INFO,errmsg.str());
             break;
-          }*/    
-        }
+          }    
+        }*/
       }
     }
 
@@ -911,19 +911,20 @@ namespace Gambit
       c += q[j][1]*std::conj(q[k][1])*(q[l][1]).real()*Lam1;
       c += q[j][2]*std::conj(q[k][2])*(q[l][1]).real()*Lam34;
       c += (std::conj(q[j][1])*q[k][2]*q[l][2]*Lam5).real();
-      c += ((2.0*q[j][1] + std::conj(q[j][1]))*std::conj(q[k][1])*q[l][2]*Lam6*sgn(Lam6)).real();
-      c += (std::conj(q[j][2])*q[k][2]*q[l][2]*Lam7*sgn(Lam6)).real();
+      c += ((2.0*q[j][1] + std::conj(q[j][1]))*std::conj(q[k][1])*q[l][2]*(Lam6*sgn(Lam6))).real();
+      // TODO: I feel this should be sgn(Lam7), where do these equations come from?
+      c += (std::conj(q[j][2])*q[k][2]*q[l][2]*(Lam7*sgn(Lam6))).real();
       c *= 0.5*get_v(container);
       return c;
     }
 
     std::complex<double> get_cubic_coupling_hHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
-      return get_v(container)*((q[k][1]).real() * container.higgs_pars.Lambda3 + (q[k][2] * sgn(container.higgs_pars.Lambda6) * container.higgs_pars.Lambda7).real());
+      return get_v(container)*((q[k][1]).real() * container.higgs_pars.Lambda3 + (q[k][2] * (sgn(container.higgs_pars.Lambda6) * container.higgs_pars.Lambda7)).real());
     }
 
     std::complex<double> get_cubic_coupling_hGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
       double Lambda6 = container.higgs_pars.Lambda6;
-      return get_v(container)*((q[k][1]).real() * container.higgs_pars.Lambda1 + (q[k][2]* sgn(Lambda6) * Lambda6).real());
+      return get_v(container)*((q[k][1]).real() * container.higgs_pars.Lambda1 + (q[k][2]* (sgn(Lambda6) * Lambda6)).real());
     }
 
     std::complex<double> get_cubic_coupling_hGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
@@ -934,12 +935,12 @@ namespace Gambit
     std::complex<double> get_cubic_coupling_hhG0(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
       const particle_type k = particles[0], l = particles[1];
       double Lambda6 = container.higgs_pars.Lambda6;
-      return get_v(container) * 0.5 * ( ( q[k][2]*q[l][2]*container.higgs_pars.Lambda5 ).imag() + 2.0*q[k][1]*( q[l][2]*Lambda6*sgn(Lambda6) ).imag() );
+      return get_v(container) * 0.5 * ( ( q[k][2]*q[l][2]*container.higgs_pars.Lambda5 ).imag() + 2.0*q[k][1]*( q[l][2]*(Lambda6*sgn(Lambda6)) ).imag() );
     }
 
     std::complex<double> get_cubic_coupling_hG0G0(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type k) {
       double Lambda6 = container.higgs_pars.Lambda6;
-      return get_v(container) * 0.5 * ( q[k][1]*container.higgs_pars.Lambda1 + (q[k][2]*Lambda6*sgn(Lambda6)).real() );
+      return get_v(container) * 0.5 * ( q[k][1]*container.higgs_pars.Lambda1 + (q[k][2]*(Lambda6*sgn(Lambda6))).real() );
     }
 
     std::complex<double> get_quartic_coupling_hhhh(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
@@ -952,36 +953,37 @@ namespace Gambit
       c += q[j][2] * q[k][2] * std::conj(q[l][2]) * std::conj(q[m][2]) * Lam2;
       c += 2.0 * q[j][1] * std::conj(q[k][1]) * q[l][2] *std::conj(q[m][2]) * Lam34;
       c += 2.0 * (std::conj(q[j][1]) * std::conj(q[k][1]) * q[l][2] * q[m][2] * Lam5).real();
-      c += 4.0 * (q[j][1] * std::conj(q[k][1]) * std::conj(q[l][1]) * q[m][2] * Lam6 * sgn(Lam6)).real();
-      c += 4.0 * (std::conj(q[j][1]) * q[k][2] * q[l][2] * std::conj(q[m][2]) * Lam7 * sgn(Lam6)).real();
+      c += 4.0 * (q[j][1] * std::conj(q[k][1]) * std::conj(q[l][1]) * q[m][2] * (Lam6 * sgn(Lam6))).real();
+      // TODO: I feel this should be sgn(Lam7), where do these equations come from?
+      c += 4.0 * (std::conj(q[j][1]) * q[k][2] * q[l][2] * std::conj(q[m][2]) * (Lam7 * sgn(Lam6))).real();
       return 0.125*c;
     }
 
     std::complex<double> get_quartic_coupling_hhGpGm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
       const particle_type j = particles[0], k = particles[1];
       const double Lambda6 = container.higgs_pars.Lambda6;
-      return 0.5 * (q[j][1] * std::conj(q[k][1]) * container.higgs_pars.Lambda1 + q[j][2] * std::conj(q[k][2]) * container.higgs_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * Lambda6 * sgn(Lambda6)).real());
+      return 0.5 * (q[j][1] * std::conj(q[k][1]) * container.higgs_pars.Lambda1 + q[j][2] * std::conj(q[k][2]) * container.higgs_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * (Lambda6 * sgn(Lambda6))).real());
     }
 
     std::complex<double> get_quartic_coupling_hhHpHm(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
       const particle_type j = particles[0], k = particles[1];
-      return 0.5 * (q[j][2] * std::conj(q[k][2]) * container.higgs_pars.Lambda2 + q[j][1] * std::conj(q[k][1]) * container.higgs_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * container.higgs_pars.Lambda7 * sgn(container.higgs_pars.Lambda6)).real());
+      return 0.5 * (q[j][2] * std::conj(q[k][2]) * container.higgs_pars.Lambda2 + q[j][1] * std::conj(q[k][1]) * container.higgs_pars.Lambda3 + 2.0 * (q[j][1] * q[k][2] * (container.higgs_pars.Lambda7 * sgn(container.higgs_pars.Lambda6))).real());
     }
 
     std::complex<double> get_quartic_coupling_hhGmHp(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
       const particle_type j = particles[0], k = particles[1];
       const double Lam4 = container.higgs_pars.Lambda4, Lam5 = container.higgs_pars.Lambda5, Lam6 = container.higgs_pars.Lambda6, Lam7 = container.higgs_pars.Lambda7;
       std::complex<double> c(0.0,0.0);
-      c += sgn(Lam6) * q[j][1] * std::conj(q[k][2]) * Lam4;
+      c += (Lam4 * sgn(Lam6)) * q[j][1] * std::conj(q[k][2]);
       c += std::conj(q[j][1]) * q[k][2] * Lam5;
-      c += q[j][1] * std::conj(q[k][1]) * Lam6 * sgn(Lam6);
-      c += q[j][2] * std::conj(q[k][2]) * Lam7 * sgn(Lam6);
+      c += q[j][1] * std::conj(q[k][1]) * (Lam6 * sgn(Lam6));
+      c += q[j][2] * std::conj(q[k][2]) * (Lam7 * sgn(Lam6));
       return 0.5*c;
     }
 
     std::complex<double> get_quartic_coupling_hG0G0G0(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, particle_type m) {
       const double Lam6 = container.higgs_pars.Lambda6;
-      return 0.5 * (q[m][2] * Lam6 * sgn(Lam6)).imag();
+      return 0.5 * (q[m][2] * (Lam6 * sgn(Lam6))).imag();
     }
 
     std::complex<double> get_quartic_coupling_hhG0G0(THDM_spectrum_container& container, std::vector<std::vector<complex<double>>> q, std::vector<particle_type> particles) {
@@ -989,7 +991,7 @@ namespace Gambit
       const double Lam6 = container.higgs_pars.Lambda6;
       std::complex<double> c(0.0,0.0);
       c = (q[l][1] * q[m][1] * container.higgs_pars.Lambda1 + q[l][2] * std::conj(q[m][2]) *( container.higgs_pars.Lambda3 + container.higgs_pars.Lambda4 ));
-      c += -( q[l][2] * q[m][2] * container.higgs_pars.Lambda5 ).real() + 2.0*q[l][1]*( q[m][2]*Lam6*sgn(Lam6) ).real();
+      c += -( q[l][2] * q[m][2] * container.higgs_pars.Lambda5 ).real() + 2.0*q[l][1]*( q[m][2]*(Lam6*sgn(Lam6)) ).real();
       return 0.25 * c;    
     }
 
@@ -997,8 +999,8 @@ namespace Gambit
       const particle_type k = particles[1], l = particles[1], m = particles[2];
       const double Lam6 = container.higgs_pars.Lambda6;
       std::complex<double> c(0.0,0.0);
-      c = q[k][1] * (q[l][2]*q[m][2]*container.higgs_pars.Lambda5).real() + q[k][1]*q[l][1]*(q[m][2]*Lam6*sgn(Lam6)).real();
-      c += ( q[k][2]*q[l][2]*std::conj(q[m][2])*container.higgs_pars.Lambda7*sgn(Lam6) ).real();
+      c = q[k][1] * (q[l][2]*q[m][2]*container.higgs_pars.Lambda5).real() + q[k][1]*q[l][1]*(q[m][2]*(Lam6*sgn(Lam6))).real();
+      c += ( q[k][2]*q[l][2]*std::conj(q[m][2])*(container.higgs_pars.Lambda7*sgn(Lam6)) ).real();
       return 0.5 * c;    
     }
 
@@ -1075,7 +1077,7 @@ namespace Gambit
           else if (particles_match(particles, { p1, Hm, Gp })) c += std::conj(get_cubic_coupling_hGmHp(container, q, p1)); 
         }
 
-      return -i*c*sign;
+      return -i*c*double(sign);
     }
 
     std::complex<double> get_quartic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3, particle_type p4) {
@@ -1121,7 +1123,7 @@ namespace Gambit
         }
       }
       
-      return -i*c*sign;
+      return -i*c*double(sign);
     }
 
     std::vector<std::complex<double>> get_cubic_couplings(THDM_spectrum_container& container) {
@@ -1671,6 +1673,7 @@ namespace Gambit
       return 1.0 + 0.5*(result_re + result_im);
     }
 
+    // TODO: Sum of yukawas? WTF is this
     double get_yu(THDM_spectrum_container& container) {
       // const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"), container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::mass1, "u_3")};
       // const double vev = get_v(container);
@@ -2443,7 +2446,8 @@ namespace Gambit
       const double cb2 = cb*cb;
 
       // TODO: get from FS
-      const double v2 = get_v2(container);
+      //const double v2 = get_v2(container);
+      const double v2 = pow(container.he->get(Par::mass1, "vev"),2);
 
       // minimization conditions to recover m11^2 and m22^2
       // TODO: these are tree-level? Can we do better? (FS perhaps)

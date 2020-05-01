@@ -50,7 +50,7 @@ namespace Gambit
     addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
     addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
-    addParameter(Par::dimensionless, "sinW2", scalar);
+    addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
     addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
     addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
@@ -69,23 +69,24 @@ namespace Gambit
     addParameter(Par::dimensionless, "ImYu2", m3x3, "ImYu2");
     addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
 
-    addParameter(Par::Pole_Mass, "h0",    v2,"MASS"); 
-    addParameter(Par::Pole_Mass, "A0", scalar,"MASS",36); 
-    addParameter(Par::Pole_Mass, "H+", scalar,"MASS",37);
-    addParameter(Par::Pole_Mass, "W+", scalar,"MASS",24);
+    addParameter(Par::Pole_Mass, "h0_1", scalar,"MASS",25); 
+    addParameter(Par::Pole_Mass, "h0_2", scalar,"MASS",35);
+    addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36); 
+    addParameter(Par::Pole_Mass, "H+",   scalar,"MASS",37);
+    addParameter(Par::Pole_Mass, "W+",   scalar,"MASS",24);
 
-    addParameter(Par::dimensionless, "lambda1",scalar,"MINPAR",1);
-    addParameter(Par::dimensionless, "lambda2",scalar,"MINPAR",2);
-    addParameter(Par::dimensionless, "lambda3",scalar,"MINPAR",3);
-    addParameter(Par::dimensionless, "lambda4",scalar,"MINPAR",4);
-    addParameter(Par::dimensionless, "lambda5",scalar,"MINPAR",5);
-    addParameter(Par::dimensionless, "lambda6",scalar,"MINPAR",6);
-    addParameter(Par::dimensionless, "lambda7",scalar,"MINPAR",7);
+    addParameter(Par::dimensionless, "lambda1",scalar,"MINPAR",11);
+    addParameter(Par::dimensionless, "lambda2",scalar,"MINPAR",12);
+    addParameter(Par::dimensionless, "lambda3",scalar,"MINPAR",13);
+    addParameter(Par::dimensionless, "lambda4",scalar,"MINPAR",14);
+    addParameter(Par::dimensionless, "lambda5",scalar,"MINPAR",15);
+    addParameter(Par::dimensionless, "lambda6",scalar,"MINPAR",16);
+    addParameter(Par::dimensionless, "lambda7",scalar,"MINPAR",17);
 
     addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",10);
     addParameter(Par::dimensionless, "alpha",scalar, "ALPHA",0);
 
-    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",9);
+    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",18);
     addParameter(Par::mass1, "m11_2",scalar,"HMIX",20);
     addParameter(Par::mass1, "m22_2",scalar,"HMIX",21);
 

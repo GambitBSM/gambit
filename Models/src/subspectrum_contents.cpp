@@ -67,6 +67,19 @@ namespace Gambit
      return search_result; 
    }
 
+   /// Function to retrieve all parameters whose blockname is not SMINPUTS, YUKAWA, CKMBLOCK, or empty.
+   std::vector<SpectrumParameter> SubSpectrumContents::all_BSM_parameters() const
+   {
+    std::vector<SpectrumParameter> search_result;
+    for ( std::vector<SpectrumParameter>::const_iterator it=parameters.begin(); it!=parameters.end(); ++it)
+    {
+      if(it->blockname() != "SMINPUTS" || it->blockname() != "YUKAWA" || it->blockname() != "CKMBLOCK" || it->blockname() != "")
+      {
+        search_result.push_back(*it);
+      }
+    }
+    return search_result;
+   }
 
    /// Verify that the supplied SubSpectrum object conforms to the requirements specified by the Contents class
    void SubSpectrumContents::verify_contents(const SubSpectrum& spec) const

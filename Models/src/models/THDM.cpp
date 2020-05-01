@@ -58,8 +58,8 @@ using namespace Gambit::Utils;
 // Translation function definition
 void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParameters &targetP)
 {
-   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
-   logger()<<"Running interpret_as_parent calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
+  USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
+  logger()<<"Running interpret_as_parent calculations for THDM --> THDMatQ.."<<LogTags::info<<EOM;
 
   targetP.setValue("Qin",80.39);
   targetP.setValue("QrunTo", 173.15);

@@ -85,6 +85,9 @@ namespace Gambit {
         /// Function to retrieve all parameters matching a certain tag and shape
         std::vector<SpectrumParameter> all_parameters_with_tag_and_shape(Par::Tags tag, std::vector<int>& shape) const; 
 
+        /// Function to retrieve all parameters whose blockName is not SMINPUTS, YUKAWA, CKMBLOCK, or empty.
+        std::vector<SpectrumParameter> all_BSM_parameters() const;
+
         /// Function to verify that a SubSpectrum wrapper contains everything that this class says it should
         void verify_contents(const SubSpectrum& spec) const;
    };

@@ -128,9 +128,9 @@ void MODEL_NAMESPACE::THDMII_to_THDM (const ModelParameters &myP, ModelParameter
   double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
   double sb = myP.getValue("tanb")/sqrt(1+pow(myP.getValue("tanb"),2));
 
-  targetP.setValue("yu2_re_11", sminputs.mU);
-  targetP.setValue("yu2_re_22", sminputs.mCmC);
-  targetP.setValue("yu2_re_33", sminputs.mT);
+  targetP.setValue("yu2_re_11", sqrt(2)/v/sb*sminputs.mU);
+  targetP.setValue("yu2_re_22", sqrt(2)/v/sb*sminputs.mCmC);
+  targetP.setValue("yu2_re_33", sqrt(2)/v/sb*sminputs.mT);
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
@@ -185,9 +185,9 @@ void MODEL_NAMESPACE::THDMIIatQ_to_THDMatQ (const ModelParameters &myP, ModelPar
   double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
   double sb = myP.getValue("tanb")/sqrt(1+pow(myP.getValue("tanb"),2));
 
-  targetP.setValue("yu2_re_11", sminputs.mU);
-  targetP.setValue("yu2_re_22", sminputs.mCmC);
-  targetP.setValue("yu2_re_33", sminputs.mT);
+  targetP.setValue("yu2_re_11", sqrt(2)/v/sb*sminputs.mU);
+  targetP.setValue("yu2_re_22", sqrt(2)/v/sb*sminputs.mCmC);
+  targetP.setValue("yu2_re_33", sqrt(2)/v/sb*sminputs.mT);
 
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG

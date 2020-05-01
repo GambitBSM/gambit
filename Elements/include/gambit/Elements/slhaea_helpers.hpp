@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020
+///
 ///  *********************************************
 
 #ifndef __slha_helpers_hpp__
@@ -27,6 +31,7 @@
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Elements/spectrum_helpers.hpp"
+#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"
 
 #include "SLHAea/slhaea.h"
 
@@ -107,6 +112,9 @@ namespace Gambit
   void SLHAea_add_from_subspec(SLHAstruct& slha /*modify*/, const str local_info, const SubSpectrum& subspec,
    const Par::Tags partype, const str& name, const int index1, const int index2, const str& block,
    const int slha_index1, const int slha_index2, const str& comment, const bool error_if_missing = true, const double rescale = 1.0);
+
+  /// Write a SimpleSpectrum to an SLHAea object.
+  void add_SimpleSpec_to_SLHAea(const SubSpectrum&, SLHAstruct&, const SubSpectrumContents&);
 
 }
 
