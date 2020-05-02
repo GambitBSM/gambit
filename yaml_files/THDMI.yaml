@@ -48,6 +48,7 @@ Parameters:
 Printer:
 
   # Select printer to use via string tag
+  #printer: cout
   printer: hdf5
 
   options:
@@ -62,9 +63,16 @@ Printer:
 ##############################
 
 Scanner:
-  use_scanner: de
+
+  use_scanner: random
 
   scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 100
+
     de:
       plugin: diver
       like: LogLike
@@ -337,7 +345,7 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
-    debug: false
+    debug: true
 
   dependency_resolution:
     prefer_model_specific_functions: true

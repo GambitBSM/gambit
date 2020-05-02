@@ -103,8 +103,8 @@ namespace Gambit
       
     double THDMea::get_mh0(int i) const
     {
-      if      (i==0){ return getdata("MASS",25); } // Neutral Higgs(1)
-      else if (i==1){ return getdata("MASS",35); } // Neutral Higgs(2)
+      if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
+      else if (i==2){ return getdata("MASS",35); } // Neutral Higgs(2)
       else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mh0! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
     }
 
@@ -233,7 +233,7 @@ namespace Gambit
                                       {"lambda7",p.lambda7}, {"tanb",p.tanb}, {"alpha",p.alpha},
                                       {"m11_2",p.m11_2}, {"m12_2",p.m12_2}, {"m22_22",p.m22_2},
                                       {"vev",p.vev}, {"g1",p.g1}, {"g2",p.g2}, {"g3",p.g3}, {"sinW2",p.sinW2}};
- 
+
       SLHAea::Coll slha;
       const std::vector<SpectrumParameter> contents = Contents().all_parameters();
 
@@ -245,18 +245,18 @@ namespace Gambit
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
         {
-          SLHAea_add(slha, "Yu1", i+1, j+1, p.Yu1[i][j], "# Yu1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "Yd1", i+1, j+1, p.Yd1[i][j], "# Yd1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "Ye1", i+1, j+1, p.Ye1[i][j], "# Ye1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "Yu2", i+1, j+1, p.Yu2[i][j], "# Yu2("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "Yd2", i+1, j+1, p.Yd2[i][j], "# Yd2("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "Ye2", i+1, j+1, p.Ye2[i][j], "# Ye2("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYu1", i+1, j+1, p.ImYu1[i][j], "# ImYu1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYd1", i+1, j+1, p.ImYd1[i][j], "# ImYd1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYe1", i+1, j+1, p.ImYe1[i][j], "# ImYe1("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYu2", i+1, j+1, p.ImYu2[i][j], "# ImYu2("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYd2", i+1, j+1, p.ImYd2[i][j], "# ImYd2("+std::to_string(i)+","+std::to_string(j)+")", true);
-          SLHAea_add(slha, "ImYe2", i+1, j+1, p.ImYe2[i][j], "# ImYe2("+std::to_string(i)+","+std::to_string(j)+")", true);
+          SLHAea_add(slha, "Yu1", i+1, j+1, p.Yu1[i][j], "# Yu1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "Yd1", i+1, j+1, p.Yd1[i][j], "# Yd1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "Ye1", i+1, j+1, p.Ye1[i][j], "# Ye1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "Yu2", i+1, j+1, p.Yu2[i][j], "# Yu2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "Yd2", i+1, j+1, p.Yd2[i][j], "# Yd2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "Ye2", i+1, j+1, p.Ye2[i][j], "# Ye2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYu1", i+1, j+1, p.ImYu1[i][j], "# ImYu1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYd1", i+1, j+1, p.ImYd1[i][j], "# ImYd1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYe1", i+1, j+1, p.ImYe1[i][j], "# ImYe1("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYu2", i+1, j+1, p.ImYu2[i][j], "# ImYu2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYd2", i+1, j+1, p.ImYd2[i][j], "# ImYd2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
+          SLHAea_add(slha, "ImYe2", i+1, j+1, p.ImYe2[i][j], "# ImYe2("+std::to_string(i+1)+","+std::to_string(j+1)+")", true);
         }
 
       slhawrap = slha;
@@ -285,11 +285,11 @@ namespace Gambit
         typedef MTget::FInfo1 FInfo1;
         typedef MTget::FInfo2 FInfo2;
 
-        static const int i12v[] = {0,1};
+        static const int i12v[] = {1,2};
         static const std::set<int> i12(i12v, Utils::endA(i12v));
 
-        static const int i012v[] = {0,1,2};
-        static const std::set<int> i012(i012v, Utils::endA(i012v));
+        static const int i123v[] = {1,2,3};
+        static const std::set<int> i123(i123v, Utils::endA(i123v));
 
         /// Fill for mass1 map 
         {
@@ -398,17 +398,21 @@ namespace Gambit
         // Dimensionless block
         {
             MTget::fmap0 tmp_map;
+
             tmp_map["g1"]   = &THDMea::get_g1;
             tmp_map["g2"]   = &THDMea::get_g2;
             tmp_map["g3"]   = &THDMea::get_g3;
 
-            tmp_map["lambda_1"]  = &THDMea::get_lambda1;
-            tmp_map["lambda_2"]  = &THDMea::get_lambda2;
-            tmp_map["lambda_3"]  = &THDMea::get_lambda3;
-            tmp_map["lambda_4"]  = &THDMea::get_lambda4;
-            tmp_map["lambda_5"]  = &THDMea::get_lambda5;
-            tmp_map["lambda_6"]  = &THDMea::get_lambda6;
-            tmp_map["lambda_7"]  = &THDMea::get_lambda7;
+            tmp_map["tanb"]  = &THDMea::get_tanb;
+            tmp_map["alpha"] = &THDMea::get_alpha;
+
+            tmp_map["lambda1"]  = &THDMea::get_lambda1;
+            tmp_map["lambda2"]  = &THDMea::get_lambda2;
+            tmp_map["lambda3"]  = &THDMea::get_lambda3;
+            tmp_map["lambda4"]  = &THDMea::get_lambda4;
+            tmp_map["lambda5"]  = &THDMea::get_lambda5;
+            tmp_map["lambda6"]  = &THDMea::get_lambda6;
+            tmp_map["lambda7"]  = &THDMea::get_lambda7;
 
             map_collection[Par::dimensionless].map0 = tmp_map;
         }
@@ -417,21 +421,21 @@ namespace Gambit
         {
             MTget::fmap2 tmp_map;
 
-            tmp_map["Yu1"]   = FInfo2( &THDMea::get_Yu1, i012, i012);
-            tmp_map["Yd1"]   = FInfo2( &THDMea::get_Yd1, i012, i012);
-            tmp_map["Ye1"]   = FInfo2( &THDMea::get_Ye1, i012, i012);
+            tmp_map["Yu1"]   = FInfo2( &THDMea::get_Yu1, i123, i123);
+            tmp_map["Yd1"]   = FInfo2( &THDMea::get_Yd1, i123, i123);
+            tmp_map["Ye1"]   = FInfo2( &THDMea::get_Ye1, i123, i123);
 
-            tmp_map["ImYu1"] = FInfo2( &THDMea::get_ImYu1, i012, i012);
-            tmp_map["ImYd1"] = FInfo2( &THDMea::get_ImYd1, i012, i012);
-            tmp_map["ImYe1"] = FInfo2( &THDMea::get_ImYe1, i012, i012);
+            tmp_map["ImYu1"] = FInfo2( &THDMea::get_ImYu1, i123, i123);
+            tmp_map["ImYd1"] = FInfo2( &THDMea::get_ImYd1, i123, i123);
+            tmp_map["ImYe1"] = FInfo2( &THDMea::get_ImYe1, i123, i123);
 
-            tmp_map["Yu2"]   = FInfo2( &THDMea::get_Yu2, i012, i012);
-            tmp_map["Yd2"]   = FInfo2( &THDMea::get_Yd2, i012, i012);
-            tmp_map["Ye2"]   = FInfo2( &THDMea::get_Ye2, i012, i012);
+            tmp_map["Yu2"]   = FInfo2( &THDMea::get_Yu2, i123, i123);
+            tmp_map["Yd2"]   = FInfo2( &THDMea::get_Yd2, i123, i123);
+            tmp_map["Ye2"]   = FInfo2( &THDMea::get_Ye2, i123, i123);
 
-            tmp_map["ImYu2"] = FInfo2( &THDMea::get_ImYu2, i012, i012);
-            tmp_map["ImYd2"] = FInfo2( &THDMea::get_ImYd2, i012, i012);
-            tmp_map["ImYe2"] = FInfo2( &THDMea::get_ImYe2, i012, i012);
+            tmp_map["ImYu2"] = FInfo2( &THDMea::get_ImYu2, i123, i123);
+            tmp_map["ImYd2"] = FInfo2( &THDMea::get_ImYd2, i123, i123);
+            tmp_map["ImYe2"] = FInfo2( &THDMea::get_ImYe2, i123, i123);
 
             map_collection[Par::dimensionless].map2 = tmp_map;
         }

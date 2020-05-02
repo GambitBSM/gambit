@@ -376,7 +376,7 @@ namespace Gambit
         basis["lambda7"] = *Param.at("lambda7");
         basis["tanb"] = *Param.at("tanb");
         basis["m12_2"] = *Param.at("m12_2");
-       
+
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
         #ifdef SPECBIT_DEBUG
@@ -470,13 +470,13 @@ namespace Gambit
         {
           for(int j=0; j<3; j++)
           {
-            thdm_model.Yu2[i][j] = *Param["yu2_re"+std::to_string(i)+std::to_string(j)];
-            thdm_model.Yd2[i][j] = *Param["yd2_re"+std::to_string(i)+std::to_string(j)];
-            thdm_model.Ye2[i][j] = *Param["yl2_re"+std::to_string(i)+std::to_string(j)];
+            thdm_model.Yu2[i][j] = *Param["yu2_re_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.Yd2[i][j] = *Param["yd2_re_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.Ye2[i][j] = *Param["yl2_re_"+std::to_string(i+1)+std::to_string(j+1)];
 
-            thdm_model.ImYu2[i][j] = *Param["yu2_im"+std::to_string(i)+std::to_string(j)];
-            thdm_model.ImYd2[i][j] = *Param["yd2_im"+std::to_string(i)+std::to_string(j)];
-            thdm_model.ImYe2[i][j] = *Param["yl2_im"+std::to_string(i)+std::to_string(j)];
+            thdm_model.ImYu2[i][j] = *Param["yu2_im_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.ImYd2[i][j] = *Param["yd2_im_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.ImYe2[i][j] = *Param["yl2_im_"+std::to_string(i+1)+std::to_string(j+1)];
 
             thdm_model.Yu1[i][j] = -tanb * thdm_model.Yu2[i][j];
             thdm_model.Yd1[i][j] = -tanb * thdm_model.Yd2[i][j];
@@ -513,7 +513,7 @@ namespace Gambit
         // Note: SubSpectrum objects cannot be copied, but Spectrum
         // objects can due to a special copy constructor which does
         // the required cloning of the constituent SubSpectra.
-        static Spectrum full_spectrum;
+        //static Spectrum full_spectrum;
 
         // Note subtlety! There are TWO constructors for the Spectrum object:
         // If pointers to SubSpectrum objects are passed, it is assumed that
@@ -529,9 +529,10 @@ namespace Gambit
         static const Spectrum::mc_info mass_cut = runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
         static const Spectrum::mr_info mass_ratio_cut = runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
-        full_spectrum = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
-        result = full_spectrum;
-
+        std::cout << "before spectrum" << std::endl;
+        result = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
+        std::cout << "after spectrum" << std::endl;
+        //result = full_spectrum;
       }
       else
       {
