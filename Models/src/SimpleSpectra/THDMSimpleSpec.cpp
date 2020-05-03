@@ -82,7 +82,9 @@ namespace Gambit
     double THDMea::get_g1()    const { return getdata("GAUGE",1); }
     double THDMea::get_g2()    const { return getdata("GAUGE",2); }
     double THDMea::get_g3()    const { return getdata("GAUGE",3); }
-    double THDMea::get_sinW2() const { return (0.5 - pow( 0.25 - (1.0/getdata("SMINPUTS",1) * M_PI / (getdata("SMINPUTS",2) * pow(2,0.5)))/pow(getdata("SMINPUTS",4),2) , 0.5)); }
+    //double THDMea::get_sinW2() const { return (0.5 - pow( 0.25 - (1.0/getdata("SMINPUTS",1) * M_PI / (getdata("SMINPUTS",2) * pow(2,0.5)))/pow(getdata("SMINPUTS",4),2) , 0.5)); }
+    double THDMea::get_sinW2() const { return getdata("HMIX",23); }
+
 
     double THDMea::get_Yd1(int i, int j) const { return getdata("Yd1",i,j); }
     double THDMea::get_Yu1(int i, int j) const { return getdata("Yu1",i,j); }
@@ -387,13 +389,13 @@ namespace Gambit
         }
            
 
-        {
-            MTget::fmap0 tmp_map;
+        //{
+            //MTget::fmap0 tmp_map;
   
-            tmp_map["sinW2"] = &THDMea::get_sinthW2_pole;
+            //tmp_map["sinW2"] = &THDMea::get_sinthW2_pole;
   
-            map_collection[Par::Pole_Mixing].map0 = tmp_map;
-        }
+            //map_collection[Par::Pole_Mixing].map0 = tmp_map;
+        //}
 
         // Dimensionless block
         {
@@ -402,6 +404,8 @@ namespace Gambit
             tmp_map["g1"]   = &THDMea::get_g1;
             tmp_map["g2"]   = &THDMea::get_g2;
             tmp_map["g3"]   = &THDMea::get_g3;
+
+            tmp_map["sinW2"] = &THDMea::get_sinW2;
 
             tmp_map["tanb"]  = &THDMea::get_tanb;
             tmp_map["alpha"] = &THDMea::get_alpha;

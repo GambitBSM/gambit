@@ -529,9 +529,7 @@ namespace Gambit
         static const Spectrum::mc_info mass_cut = runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
         static const Spectrum::mr_info mass_ratio_cut = runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
-        std::cout << "before spectrum" << std::endl;
         result = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
-        std::cout << "after spectrum" << std::endl;
         //result = full_spectrum;
       }
       else

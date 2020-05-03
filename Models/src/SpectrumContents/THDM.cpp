@@ -50,7 +50,8 @@ namespace Gambit
     addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
     addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
-    addParameter(Par::Pole_Mixing, "sinW2", scalar, "HMIX",23);
+    //addParameter(Par::Pole_Mixing, "sinW2", scalar, "HMIX",23);
+    addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
     addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
 // TODO: Not sure this is necessary
@@ -102,7 +103,7 @@ namespace Gambit
     addParameter(Par::dimensionless, "lambda6",scalar,"MINPAR",16);
     addParameter(Par::dimensionless, "lambda7",scalar,"MINPAR",17);
 
-    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",10);
+    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",3);
     addParameter(Par::dimensionless, "alpha",scalar, "ALPHA",0);
 
     addParameter(Par::mass1, "m12_2",scalar,"MINPAR",18);
