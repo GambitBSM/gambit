@@ -731,7 +731,7 @@ START_MODULE
       #define FUNCTION DD_rel_WCs_flavscheme_DMEFT
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMEFT_spectrum, Spectrum)
-      ALLOW_MODEL(DMEFT)
+      ALLOW_JOINT_MODEL(DMEFT, DAMA_xsec)
       #undef FUNCTION
 
   #undef CAPABILITY 
@@ -1153,6 +1153,27 @@ START_MODULE
      #undef FUNCTION
   #undef CAPABILITY
 
+
+  #define CAPABILITY DAMA_LogLikelihood_mod_xsec_test
+  START_CAPABILITY
+     #define FUNCTION DAMA_GetLogLikelihood_mod_xsec_test
+     START_FUNCTION(double)
+     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
+     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
+     BACKEND_REQ(DD_Chi2_mod, (needs_DDCalc), double, (const int&))
+     BACKEND_REQ(DD_LogLikelihood_mod, (needs_DDCalc), double, (const double&))
+     BACKEND_REQ(InitWIMP, (needs_DDCalc), int, ())
+     BACKEND_REQ(SetWIMP_msigma, (needs_DDCalc), void, (const int&, const double&, const double&, const double&, const double&, const double&))
+     BACKEND_REQ(FreeWIMPs, (needs_DDCalc), void, ())
+     DEPENDENCY(mwimp, double)
+     ALLOW_MODEL(DAMA_xsec)
+     #undef FUNCTION
+  #undef CAPABILITY
+
+
+
+
+
   // INDIRECT DETECTION: NEUTRINOS =====================================
 
   // WIMP spin (x2)
@@ -1161,7 +1182,7 @@ START_MODULE
      #define FUNCTION jwimpx2_from_WIMPprops
      START_FUNCTION(unsigned int)
      DEPENDENCY(WIMP_properties,WIMPprops)
-     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM, DAMA_xsec) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
@@ -1171,7 +1192,7 @@ START_MODULE
      #define FUNCTION mwimp_from_WIMPprops
      START_FUNCTION(double)
      DEPENDENCY(WIMP_properties,WIMPprops)
-     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM, DAMA_xsec) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
@@ -1181,7 +1202,7 @@ START_MODULE
      #define FUNCTION wimp_sc_from_WIMPprops
      START_FUNCTION(bool)
      DEPENDENCY(WIMP_properties,WIMPprops)
-     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM) // WIMPprops struct is not defined for other models
+     ALLOW_MODELS(DMEFT, NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM, DAMA_xsec) // WIMPprops struct is not defined for other models
      #undef FUNCTION
   #undef CAPABILITY
 
