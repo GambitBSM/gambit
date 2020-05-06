@@ -12,8 +12,8 @@ Parameters:
     mH: 125
 
   NREO_DiracDM:
-    m: 
-      range: [1.0e-3, 1.0e+3]
+    m: # 100
+      range: [1.0e+1, 1.0e+3]
     c0_1: 1.65e-8  # 1.65*10**(-8)
       # range: [1.0e-10, 1.0e-6]
     c0_2: 0
@@ -60,20 +60,20 @@ Parameters:
     gamma: 1
 
   WIMP_sigmav:
-    A_bb:     1.0e-26
-    A_WW:     1.0e-26
-    A_cc:     0
-    A_ZZ:     0
-    A_tt:     0
-    A_hh:     0
-    A_tautau: 0
-    B_bb:     0 #1.0e-26
-    B_WW:     0 #1.0e-26
-    B_cc:     0
-    B_ZZ:     0
-    B_tt:     0
-    B_hh:     0
-    B_tautau: 0
+    A_bb:     0 #1 #1.0e-26
+    A_WW:     0 #3 #1.0e-26
+    A_cc:     0 #5
+    A_ZZ:     0 #7
+    A_tt:     0 #9
+    A_hh:     0 #11
+    A_tautau: 0 #13
+    B_bb:     1.0e-26 #2 #1.0e-26
+    B_WW:     0 #4 #1.0e-26
+    B_cc:     0 #6
+    B_ZZ:     0 #8
+    B_tt:     0 #10
+    B_hh:     0 #12
+    B_tautau: 0 #14
 
 Priors:
 
@@ -120,7 +120,7 @@ Scanner:
     sqrgrd:
       plugin: square_grid
       like: LogLike
-      grid_pts: 1
+      grid_pts: 10
 
 
 ObsLikes:

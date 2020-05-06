@@ -286,20 +286,51 @@ namespace Gambit
       // TODO: needs to be fixed once BFs are available directly from TH_Process
       std::string DMid = *Dep::DarkMatter_ID;
       TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+
+      cout << endl << "nuyield_from_DS receives the following channels from the WIMP_EFT catalog:" << endl;
+      for (auto x : annProc.channelList)
+      {
+        x.printChannel();
+        cout << endl;
+      }
+      cout << endl;
+
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
 
+      cout << endl << "Reading neutral_channels from get_DS_neutral_h_decay_channels:" << endl;
+      for (int i=0;i<neutral_channels.size();i++)
+      {
+        for (int j=0;j<neutral_channels[i].size();j++)
+        {
+          cout << neutral_channels[i][j] << " ";
+        }
+        cout << endl;
+      }
+      cout << endl;
+
       for (int i=0; i<29; i++)
       {
+        cout << endl << "Looking at the ";
+        for (int j=0;j<neutral_channels[i].size();j++)
+        {
+          cout << neutral_channels[i][j] << " ";
+        }
+        cout << "neutral_channel" << endl;
+        
         const TH_Channel* channel = annProc.find(neutral_channels[i]);
+
+        cout << "For which, I found this channel in the annihilation proccess:" << channel << endl;
 
         if (channel == NULL or i == 26) // Channel 26 has not been implemented in DarkSUSY.
         {
+          cout << "Setting it's branching fraction to zero" << endl;
           annihilation_bf[i] = 0.;
         }
         else
         {
+          cout << "Now I set it's branching fraction" << endl; 
           annihilation_bf[i] = channel->genRate->bind("v")->eval(0.);
           if (i == 10) // Add W- H+ for this channel
           {
@@ -329,6 +360,8 @@ namespace Gambit
         }
 
       }
+
+      exit(0);
 
       // Set Higgs masses
       if (Dep::TH_ProcessCatalog->hasParticleProperty("h0_1"))
