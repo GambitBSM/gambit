@@ -2766,6 +2766,7 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         double alpha = he->get(Par::dimensionless, "alpha");
         if (alpha>M_PI/2) alpha =- M_PI;
+        else if (alpha<M_PI/2) alpha =+ M_PI;
         result = alpha;
       }
 
@@ -2793,6 +2794,8 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         const double beta = atan(he->get(Par::dimensionless, "tanb"));
         const double alpha = he->get(Par::dimensionless, "alpha");
+        if (alpha>M_PI/2) alpha =- M_PI;
+        else if (alpha<M_PI/2) alpha =+ M_PI;
         result = beta - alpha;
       }
 
