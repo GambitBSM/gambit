@@ -47,14 +47,12 @@ namespace Gambit {
     /// Print information about this channel.
     void TH_Channel::printChannel() const
     {
-      // logger() << "Channel: ";
-      cout << "Channel: ";
+      logger() << "Channel: ";
       for ( auto it = finalStateIDs.begin(); it != finalStateIDs.end(); it++ )
       {
-        // logger() << *it << " ";
-        cout << *it << " ";
+        logger() << *it << " ";
       }
-      // logger() << EOM;
+      logger() << EOM;
     }
 
     /*! \brief Indicate whether or not the final states of this channel contain
