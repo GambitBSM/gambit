@@ -1853,19 +1853,13 @@ namespace Gambit
       std::cerr << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation." << std::endl;
     }
 
-    void nan_warning(std::string var_name) {
-       std::ostringstream msg;
-       msg << "SpecBit warning (non-fatal): " << var_name << " is NaN." << std::endl;
-       SpecBit_warning().raise(LOCAL_INFO,msg.str());
-       std::cerr << msg.str();
-    }
-
-    void check_nan(std::complex<double> var, std::string var_name) {
-      if (std::isnan(var.real()) || std::isnan(var.imag())) nan_warning(var_name);
-    }
-
-    void check_nan(double var, std::string var_name) {
-      if (std::isnan(var)) nan_warning(var_name);
+    void check_coupling(std::complex<double> var) {
+      if (std::isnan(var.real()) || std::isnan(var.imag())) {
+        std::ostringstream msg;
+        msg << "SpecBit warning (non-fatal) a coupling has evaluated to NaN." << std::endl;
+        SpecBit_warning().raise(LOCAL_INFO,msg.str());
+        std::cerr << msg.str();
+      }
     }
     // ---------------------------------------------------------------------
 
@@ -2560,198 +2554,7 @@ namespace Gambit
       loglike += loop_correction_mass_splitting_Hpm_THDM(container);
       return loglike;
     }
-
-    // purpose for which the couplings are to be filled
-    // this saves computation time
-    enum THDM_couplings_purpose{full, HB_couplings, HB_SM_like_couplings, HB_effc_couplings, HB_effc_SM_like_couplings};
-
-    // fill couplings from 2HDMC
-    THDM_couplings fill_THDM_couplings_struct(THDM_spectrum_container& container, THDM_couplings_purpose purpose) { 
-      THDM_couplings couplings;
-      switch(purpose) {
-         case full:
-            for (int h=1; h<5; h++) {
-              // *
-              for (int f1=1; f1<4; f1++) {
-                for (int f2=1; f2<4; f2++) {
-                  container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hll(h, f1, f2, couplings.hll_cs[h][f1][f2], couplings.hll_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hdu(h, f1, f2, couplings.hdu_cs[h][f1][f2], couplings.hdu_cp[h][f1][f2]);
-                  container.THDM_object->get_coupling_hln(h, f1, f2, couplings.hln_cs[h][f1][f2], couplings.hln_cp[h][f1][f2]);
-                  check_nan(couplings.hdd_cs[h][f1][f2], "hdd coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hdd_cp[h][f1][f2], "hdd coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
-                  check_nan(couplings.huu_cs[h][f1][f2], "huu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.huu_cp[h][f1][f2], "huu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
-                  check_nan(couplings.hll_cs[h][f1][f2], "hll coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hll_cp[h][f1][f2], "hll coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
-                  check_nan(couplings.hdu_cs[h][f1][f2], "hdu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hdu_cp[h][f1][f2], "hdu coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
-                  check_nan(couplings.hln_cs[h][f1][f2], "hln coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2)); check_nan(couplings.hln_cp[h][f1][f2], "hln coupling "+std::to_string(h)+std::to_string(f1)+std::to_string(f2));
-                }
-              }
-
-              // **
-              for (int v1=1; v1<4; v1++) {
-                for (int v2=1; v2<4; v2 ++) {
-                  container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
-                  check_nan(couplings.vvh[v1][v2][h], "vvh coupling "+std::to_string(v1)+std::to_string(v2)+std::to_string(h));
-                    for (int h2=1; h2<5; h2++) {
-                      container.THDM_object->get_coupling_vvhh(v1, v2, h, h2, couplings.vvhh[v1][v2][h][h2]);
-                      check_nan(couplings.vvhh[v1][v2][h][h2], "vvhh coupling "+std::to_string(v1)+std::to_string(v2)+std::to_string(h)+std::to_string(h2));
-                    }
-                }
-                for (int h2=1; h2<5; h2++) {
-                  container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
-                  check_nan(couplings.vhh[v1][h][h2], "vhh coupling "+std::to_string(v1)+std::to_string(h)+std::to_string(h2));
-                }
-              }
-              // **
-              for (int h2=1; h2<5; h2++) {
-                for (int h3=1; h3<5; h3++) {
-                  container.THDM_object->get_coupling_hhh(h, h2, h3, couplings.hhh[h][h2][h3]);
-                  check_nan(couplings.hhh[h][h2][h3], "hhh coupling "+std::to_string(h)+std::to_string(h2)+std::to_string(h3));
-                  for (int h4=1; h4<5; h4++) {
-                    container.THDM_object->get_coupling_hhhh(h,h2,h3,h4,couplings.hhhh[h][h2][h3][h4]);
-                    check_nan(couplings.hhhh[h][h2][h3][h4], "hhhh coupling "+std::to_string(h)+std::to_string(h2)+std::to_string(h3)+std::to_string(h4));
-                  }
-                }
-              }
-              // *
-            }
-         break;
-         case HB_couplings:
-            for (int h=1; h<5; h++) { 
-              container.THDM_object->get_coupling_hdd(h, 3, 3, couplings.hdd_cs[h][3][3], couplings.hdd_cp[h][3][3]);
-              container.THDM_object->get_coupling_huu(h, 3, 3, couplings.huu_cs[h][3][3], couplings.huu_cp[h][3][3]);
-              container.THDM_object->get_coupling_vvh(2, 2, h, couplings.vvh[2][2][h]);
-              container.THDM_object->get_coupling_vvh(3, 3, h, couplings.vvh[3][3][h]);
-              check_nan(couplings.hdd_cs[h][3][3], "hbb coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][3][3], "hbb coupling " +std::to_string(h));
-              check_nan(couplings.huu_cs[h][3][3], "htt coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "htt coupling " +std::to_string(h));
-              check_nan(couplings.vvh[2][2][h], "vvh coupling 22"+std::to_string(h));
-              check_nan(couplings.vvh[3][3][h], "vvh coupling 33"+std::to_string(h));
-              for (int h2=1; h2<5; h2++) {
-                container.THDM_object->get_coupling_vhh(2,h,h2, couplings.vhh[2][h][h2]);
-                check_nan(couplings.vhh[2][h][h2], "vhh coupling 2"+std::to_string(h)+std::to_string(h2));
-              }
-            }
-         break;
-         case HB_SM_like_couplings:
-            container.THDM_object->get_coupling_hdd(1,3,3,couplings.hdd_cs[1][3][3],couplings.hdd_cp[1][3][3]);
-            container.THDM_object->get_coupling_huu(1,3,3,couplings.huu_cs[1][3][3],couplings.huu_cp[1][3][3]);
-            check_nan(couplings.hdd_cs[1][3][3], "hbb coupling"); check_nan(couplings.hdd_cp[1][3][3], "hbb coupling");
-            check_nan(couplings.huu_cs[1][3][3], "htt coupling"); check_nan(couplings.huu_cp[1][3][3], "htt coupling");
-         break; 
-         case HB_effc_couplings:
-              for (int h1=1; h1<4; h1++) { 
-                for (int h2=1; h2<4; h2++) { 
-                  container.THDM_object->get_coupling_vhh(2,h1,h2,couplings.vhh[2][h1][h2]);
-                  check_nan(couplings.vhh[2][h1][h2], "vhh coupling 2"+std::to_string(h1)+std::to_string(h2));
-                }
-              }
-            // just fall through and execute next case statement as they have the same input
-            FALL_THROUGH;
-         case HB_effc_SM_like_couplings:
-            // fill neutral scalar coupling
-            for (int h=1; h<4; h++) { 
-              container.THDM_object->get_coupling_hdd(h,2,2,couplings.hdd_cs[h][2][2],couplings.hdd_cp[h][2][2]);
-              container.THDM_object->get_coupling_hdd(h,3,3,couplings.hdd_cs[h][3][3],couplings.hdd_cp[h][3][3]);
-              container.THDM_object->get_coupling_huu(h,2,2,couplings.huu_cs[h][2][2],couplings.huu_cp[h][2][2]);
-              container.THDM_object->get_coupling_huu(h,3,3,couplings.huu_cs[h][3][3],couplings.huu_cp[h][3][3]);
-              container.THDM_object->get_coupling_hll(h,2,2,couplings.hll_cs[h][2][2],couplings.hll_cp[h][2][2]);
-              container.THDM_object->get_coupling_hll(h,2,2,couplings.hll_cs[h][3][3],couplings.hll_cp[h][3][3]);
-              container.THDM_object->get_coupling_vvh(2,2,h,couplings.vvh[2][2][h]);
-              container.THDM_object->get_coupling_vvh(3,3,h,couplings.vvh[3][3][h]);
-              check_nan(couplings.hdd_cs[h][2][2], "hdd coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][2][2], "hdd coupling "+std::to_string(h));
-              check_nan(couplings.hdd_cs[h][3][3], "hdd coupling "+std::to_string(h)); check_nan(couplings.hdd_cp[h][3][3], "hdd coupling "+std::to_string(h));
-              check_nan(couplings.huu_cs[h][2][2], "huu coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][2][2], "huu coupling "+std::to_string(h));
-              check_nan(couplings.huu_cs[h][3][3], "huu coupling "+std::to_string(h)); check_nan(couplings.huu_cp[h][3][3], "huu coupling "+std::to_string(h));
-              check_nan(couplings.hll_cs[h][2][2], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][2][2], "hll coupling "+std::to_string(h));
-              check_nan(couplings.hll_cs[h][3][3], "hll coupling "+std::to_string(h)); check_nan(couplings.hll_cp[h][3][3], "hll coupling "+std::to_string(h));
-              check_nan(couplings.vhh[2][2][h], "vvh coupling 22"+std::to_string(h));
-              check_nan(couplings.vhh[3][3][h], "vvh coupling 33"+std::to_string(h));
-            }
-         break;
-      }
-      return couplings;
-    }
     
-    // Rollcall functions that will call the above filler function once setting up the correct environment
-    // Two helper functions at the top
-    // ---------------------------------------------------------------------
-    THDM_couplings get_THDM_couplings_helper(const Spectrum spec, const int y_type, THDM_couplings_purpose purpose) {
-      THDM_spectrum_container container;
-      THDM_couplings couplings; 
-      init_THDM_spectrum_container(container, spec, y_type); // initializes couplings at scale (if scale>0) or not
-      couplings = fill_THDM_couplings_struct(container, purpose);
-      // delete container.THDM_object; // must be deleted upon the of container usage or memory will overflow
-      return couplings;
-    }
-
-    std::vector<THDM_couplings> get_THDM_couplings_SM_like_helper(const Spectrum spec, THDM_couplings_purpose purpose) {
-      THDM_spectrum_container container;
-      std::vector<THDM_couplings> SM_like_couplings; 
-      init_THDM_spectrum_container(container, spec, 1); // initializes couplings at scale (if scale>0) or not
-      std::vector<double> m_hj;
-      m_hj.push_back(container.he->get(Par::mass1, "h0", 1));
-      m_hj.push_back(container.he->get(Par::mass1, "h0", 2));
-      m_hj.push_back(container.he->get(Par::mass1, "A0"));
-      for (int h=1; h<=3; h++) {
-        init_THDM_object_SM_like(m_hj[h-1], container.he, container.SM, container.sminputs, container.THDM_object);
-        SM_like_couplings.push_back(fill_THDM_couplings_struct(container, purpose));
-      }
-      return SM_like_couplings;
-    }
-
-    void get_THDM_couplings(THDM_couplings &result) {
-      using namespace Pipes::get_THDM_couplings;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
-      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, full);
-    }
-
-    void get_THDM_couplings_HB(THDM_couplings &result) {
-      using namespace Pipes::get_THDM_couplings_HB;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
-      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_couplings);
-    }
-
-    void get_THDM_couplings_HB_SM_like_model(std::vector<THDM_couplings> &result) { 
-      using namespace Pipes::get_THDM_couplings_HB_SM_like_model;
-      result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_SM_like_couplings);
-    }
-
-    void get_THDM_couplings_HB_effc(THDM_couplings &result) {
-      using namespace Pipes::get_THDM_couplings_HB_effc;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
-      result = get_THDM_couplings_helper(*Dep::THDM_spectrum, y_type, HB_effc_couplings);
-    }
-
-    void get_THDM_couplings_HB_effc_SM_like_model(std::vector<THDM_couplings> &result) { 
-      using namespace Pipes::get_THDM_couplings_HB_effc_SM_like_model;
-      result = get_THDM_couplings_SM_like_helper(*Dep::THDM_spectrum, HB_effc_SM_like_couplings);
-    }
-    // ---------------------------------------------------------------------
-
     // Observables
     // ---------------------------------------------------------------------
       void obs_mh0_pole(double& result) {
@@ -3084,28 +2887,26 @@ namespace Gambit
         result = he->get(Par::dimensionless, "g3");
       }
       // ---------------------------------------------------------------------
+      
 
       /// Put together the Higgs couplings for the THDM, from partial widths only
       void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result) {
         using namespace Pipes::THDM_higgs_couplings_pwid;
 
         // Retrieve spectrum contents
-        const Spectrum* fullspectrum = *Dep::THDM_spectrum;
+        const Spectrum fullspectrum = *Dep::THDM_spectrum;
 
         //const DecayTable::Entry& decays = *Dep::Higgs_decay_rates;
-        const SubSpectrum& spec = fullspectrum->get_HE();
+        const SubSpectrum& spec = fullspectrum.get_HE();
 
-        // Set up neutral Higgses
+        // Set up neutral Higgses 
         static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
 
-        // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
+        // Set the CP of the Higgs states.
         result.CP[0] = 1;  //h0_1
         result.CP[1] = 1;  //h0_2
         result.CP[2] = -1; //A0
 
-        // Work out which SM values correspond to which SUSY Higgs
-        //int higgs = (*Dep::SMlike_Higgs_PDG_code == 25 ? 0 : 1);
-        //int other_higgs = (higgs == 0 ? 1 : 0);
         int higgs = 0;
         int other_higgs = 1;
 
@@ -3130,15 +2931,15 @@ namespace Gambit
           result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(22, 0), std::pair<int,int>(22, 0));
           result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int,int>(21, 0), std::pair<int,int>(21, 0));
           result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int,int>(13, 1), std::pair<int,int>(-13, 1));
-          result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(21, 0));
+          result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(22, 0)); 
           result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int,int>(3, 1), std::pair<int,int>(-3, 1));
         }
 
         // Calculate hhZ effective couplings.  Here we scale out the kinematic prefactor
         // of the decay width, assuming we are well above threshold if the channel is open.
         // If not, we simply assume SM couplings.
-        const double mZ = fullspectrum->get(Par::Pole_Mass,23,0);
-        const double scaling = 8.*sqrt(2.)*pi/fullspectrum->get_SMInputs().GF;
+        const double mZ = fullspectrum.get(Par::Pole_Mass,23,0);
+        const double scaling = 8.*sqrt(2.)*pi/fullspectrum.get_SMInputs().GF;
         for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++) {
           double mhi = spec.get(Par::Pole_Mass, sHneut[i]);
@@ -3158,7 +2959,162 @@ namespace Gambit
 
         // Work out which invisible decays are possible
         //result.invisibles = get_invisibles(spec);
+    }
+
+    // fill necessary couplings from 2HDMC to create the THDM higgs couplings table
+    THDM_couplings fill_THDM_couplings_struct(THDM_couplings& couplings, THDM_spectrum_container& container) { 
+      for (int h=1; h<5; h++) {
+        for (int f1=1; f1<4; f1++) {
+          for (int f2=1; f2<4; f2++) {
+            container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
+            container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+            container.THDM_object->get_coupling_hll(h, f1, f2, couplings.hll_cs[h][f1][f2], couplings.hll_cp[h][f1][f2]);
+            check_coupling(couplings.hdd_cs[h][f1][f2] + couplings.hdd_cp[h][f1][f2]);
+            check_coupling(couplings.huu_cs[h][f1][f2] + couplings.huu_cp[h][f1][f2]);
+            check_coupling(couplings.hll_cs[h][f1][f2] + couplings.hll_cp[h][f1][f2]);
+          }
+        }
+
+        for (int v1=1; v1<4; v1++) {
+          for (int v2=1; v2<4; v2 ++) {
+            container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
+            check_coupling(couplings.vvh[v1][v2][h]);
+          }
+          for (int h2=1; h2<5; h2++) {
+            container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
+            check_coupling(couplings.vhh[v1][h][h2]);
+          }
+        }
       }
+    }
+
+    // Put together the Higgs couplings for the THDM, using 2HDMC
+    void THDM_higgs_couplings_2HDMC(HiggsCouplingsTable &result)
+    {
+      using namespace Pipes::THDM_higgs_couplings_2HDMC;
+
+      // Retrieve spectrum contents
+      const Spectrum fullspectrum = *Dep::THDM_spectrum;
+
+      //const DecayTable::Entry& decays = *Dep::Higgs_decay_rates;
+      const SubSpectrum& spec = fullspectrum.get_HE();
+      const SubSpectrum& SM = fullspectrum.get_LE();
+
+      // set up some necessary quantities
+      const double RWW = 0.77; 
+      const double RZZ = 1.0-RWW;
+      const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
+      const double g = spec.get(Par::dimensionless, "g1");
+      const double costw = sqrt(1.-spec.get(Par::dimensionless, "sinW2"));
+
+      // Set up neutral Higgses 
+      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+
+      // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
+      result.CP[0] = 1;  //h0_1
+      result.CP[1] = 1;  //h0_2
+      result.CP[2] = -1; //A0
+
+      // Work out which SM values correspond to which extra Higgs
+      int higgs = 0;
+      int other_higgs = 1;
+
+      // Set the decays
+      result.set_neutral_decays_SM(higgs, sHneut[higgs], *Dep::Reference_SM_Higgs_decay_rates);
+      result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
+      result.set_neutral_decays_SM(2, sHneut[2], *Dep::Reference_SM_A0_decay_rates);
+      result.set_neutral_decays(0, sHneut[0],  *Dep::Higgs_decay_rates);
+      result.set_neutral_decays(1, sHneut[1], *Dep::h0_2_decay_rates);
+      result.set_neutral_decays(2, sHneut[2], *Dep::A0_decay_rates);
+      result.set_charged_decays(0, "H+", *Dep::H_plus_decay_rates);
+      result.set_t_decays(*Dep::t_decay_rates);
+
+      // Use the branching fractions to compute gluon, gamma/Z effective couplings
+      for (int i = 0; i < 3; i++) {
+        result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int,int>(21, 0), std::pair<int,int>(21, 0));
+        result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(22, 0), std::pair<int,int>(22, 0));
+        result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(22, 0));
+      }
+
+      // set THDM model type
+      int y_type = -1;
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
+          }
+      }
+      // Initiate 2HDM container
+      THDM_spectrum_container container;
+      init_THDM_spectrum_container(container, fullspectrum, y_type);
+
+      // THDM couplings
+      THDM_couplings couplings;
+      fill_THDM_couplings_struct(couplings, container);
+
+      // SM-like couplings
+      std::vector<THDM_couplings> couplings_SM_like; 
+      THDM_couplings SM_couplings;
+      init_THDM_spectrum_container(container, fullspectrum, 1);
+      for (int h=1; h<=3; h++) {
+        SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
+        fill_THDM_couplings_struct(SM_couplings, container);
+        couplings_SM_like.push_back(SM_couplings);
+      }
+
+      // declare couplings
+      double cs, cp;
+
+      // Use couplings to get effective fermion & diboson couplings
+      for (int h = 1; h<=3; h++) {
+        // s
+        cs = abs(couplings.hdd_cs[h][2][2]/couplings_SM_like[h-1].hdd_cs[1][2][2]);
+        cp = abs(couplings.hdd_cp[h][2][2]/couplings_SM_like[h-1].hdd_cs[1][2][2]);
+        result.C_ss_s[h-1] = cs;
+        result.C_ss_p[h-1] = cp;
+        result.C_ss2[h-1] = pow(cs,2) + pow(cp,2);
+        // b
+        cs = abs(couplings.hdd_cs[h][3][3]/couplings_SM_like[h-1].hdd_cs[1][3][3]);
+        cp = abs(couplings.hdd_cp[h][3][3]/couplings_SM_like[h-1].hdd_cs[1][3][3]);
+        result.C_bb_s[h-1] = cs;
+        result.C_bb_p[h-1] = cp;
+        result.C_bb2[h-1] = pow(cs,2) + pow(cp,2);
+        // c
+        cs = abs(couplings.huu_cs[h][2][2]/couplings_SM_like[h-1].huu_cs[1][2][2]);
+        cp = abs(couplings.huu_cp[h][2][2]/couplings_SM_like[h-1].huu_cs[1][2][2]);
+        result.C_cc_s[h-1] = cs;
+        result.C_cc_p[h-1] = cp;
+        result.C_cc2[h-1] = pow(cs,2) + pow(cp,2);
+        // t
+        cs = abs(couplings.huu_cs[h][3][3]/couplings_SM_like[h-1].huu_cs[1][3][3]);
+        cp = abs(couplings.huu_cp[h][3][3]/couplings_SM_like[h-1].huu_cs[1][3][3]);
+        result.C_tt_s[h-1] = cs;
+        result.C_tt_p[h-1] = cp;
+        result.C_tt2[h-1] = pow(cs,2) + pow(cp,2);
+        // mu
+        cs = abs(couplings.hll_cs[h][2][2]/couplings_SM_like[h-1].hll_cs[1][2][2]);
+        cp = abs(couplings.hll_cp[h][2][2]/couplings_SM_like[h-1].hll_cs[1][2][2]);
+        result.C_mumu_s[h-1] = cs;
+        result.C_mumu_p[h-1] = cp;
+        result.C_mumu2[h-1] = pow(cs,2) + pow(cp,2);
+        // tautau
+        cs = abs(couplings.hll_cs[h][3][3]/couplings_SM_like[h-1].hll_cs[1][3][3]);
+        cp = abs(couplings.hll_cp[h][3][3]/couplings_SM_like[h-1].hll_cs[1][3][3]);
+        result.C_tautau_s[h-1] = cs;
+        result.C_tautau_p[h-1] = cp;
+        result.C_tautau2[h-1] = pow(cs,2) + pow(cp,2);
+        // Z
+        result.C_ZZ2[h-1] = pow(abs(couplings.vvh[2][2][h]/couplings_SM_like[h-1].vvh[2][2][1]),2);   
+        // W
+        result.C_WW2[h-1] = pow(abs(couplings.vvh[3][3][h]/couplings_SM_like[h-1].vvh[3][3][1]),2);
+
+        for(int h2 = 1; h2 <= 3; h2++) {
+            result.C_hiZ2[h-1][h2-1] = pow(abs(couplings.vhh[2][h][h2])/(g/2./costw),2);  
+        }
+      }
+
+    }
 
     void fill_map_from_THDMspectrum(std::map<std::string,double>& specmap, const Spectrum& thdmspec);
 

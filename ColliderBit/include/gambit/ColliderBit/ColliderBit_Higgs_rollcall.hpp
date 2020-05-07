@@ -62,11 +62,7 @@
     #define FUNCTION THDM_ModelParameters
       START_FUNCTION(hb_neutral_ModelParameters_part)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(fill_THDM_couplings_HB, THDM_couplings)
-      DEPENDENCY(fill_THDM_couplings_HB_SM_like_model, std::vector<THDM_couplings>)
-      DEPENDENCY(fill_THDM_decay_widths_HB, THDM_decay_widths)
-      DEPENDENCY(fill_THDM_decay_widths_HB_SM_like_model, std::vector<THDM_decay_widths>)
-      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -75,11 +71,7 @@
     #define FUNCTION THDM_ModelParameters_effc
       START_FUNCTION(hb_neutral_ModelParameters_effc)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(fill_THDM_couplings_HB_effc, THDM_couplings)
-      DEPENDENCY(fill_THDM_couplings_HB_effc_SM_like_model, std::vector<THDM_couplings>)
-      DEPENDENCY(fill_THDM_decay_widths_HB_effc, THDM_decay_widths)
-      DEPENDENCY(fill_THDM_decay_widths_HB_effc_SM_like_model, std::vector<THDM_decay_widths>)
-      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
@@ -114,32 +106,11 @@
     #define FUNCTION THDM_ModelParameters_charged
       START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(THDM_spectrum, Spectrum)
-      DEPENDENCY(fill_THDM_decay_widths_HB, THDM_decay_widths)
-      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
 
-  #undef CAPABILITY
-
-  #define CAPABILITY SM_higgs_mass_likelihood_THDM
-  START_CAPABILITY
-    #define FUNCTION SM_higgs_mass_likelihood
-      START_FUNCTION(double)
-      DEPENDENCY(THDM_spectrum, Spectrum)
-      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY SM_higgs_width_likelihood_THDM
-  START_CAPABILITY
-    #define FUNCTION SM_higgs_width_likelihood
-      START_FUNCTION(double)
-      DEPENDENCY(fill_THDM_total_widths, THDM_total_widths)
-      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-    #undef FUNCTION
   #undef CAPABILITY
 
   // Get a LEP Higgs chisq

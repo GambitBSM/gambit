@@ -82,6 +82,19 @@ namespace Gambit
       double C_Zga2[max_neutral_higgses];
       double C_ss2[max_neutral_higgses];
       double C_hiZ2[max_neutral_higgses][max_neutral_higgses];
+      /// Pseudoscalar and scalar effective couplings (not squared)
+      double C_tt_s[max_neutral_higgses];
+      double C_tt_p[max_neutral_higgses];
+      double C_bb_s[max_neutral_higgses];
+      double C_bb_p[max_neutral_higgses];
+      double C_cc_s[max_neutral_higgses];
+      double C_cc_p[max_neutral_higgses];
+      double C_ss_s[max_neutral_higgses];
+      double C_ss_p[max_neutral_higgses];
+      double C_tautau_s[max_neutral_higgses];
+      double C_tautau_p[max_neutral_higgses];
+      double C_mumu_s[max_neutral_higgses];
+      double C_mumu_p[max_neutral_higgses];
       /// @}
 
       /// Constructor
@@ -94,10 +107,20 @@ namespace Gambit
       {
         if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
         // If channel is missing from either SM or BSM decays, return unity.
-        if (!neutral_decays_SM_array[index]->has_channel(p1, p2) or !neutral_decays_array[index]->has_channel(p1, p2)) return 1.;
+        if (!neutral_decays_SM_array[index]->has_channel(p1, p2) or !neutral_decays_array[index]->has_channel(p1, p2)) {
+          std::cout << "[compute_effective_coupling] channel missing" << std::endl;
+          std::cout << "[compute_effective_coupling] neutral_decays_SM_array " << p1 << " "<< p2 << ": " << neutral_decays_SM_array[index]->has_channel(p1, p2) << std::endl;
+          std::cout << "[compute_effective_coupling] neutral_decays_array " << p1 << " "<< p2 << ": " << neutral_decays_array[index]->has_channel(p1, p2) << std::endl;
+          return 1.;
+        }
         double smwidth = neutral_decays_SM_array[index]->width_in_GeV;
         double smbf = neutral_decays_SM_array[index]->BF(p1, p2);
-        if (smwidth <= 0. or smbf <= 0.) return 1.;
+        if (smwidth <= 0. or smbf <= 0.) {
+          std::cout << "[compute_effective_coupling] negative width" << std::endl;
+          std::cout << "[compute_effective_coupling] smwidth: " << smwidth << std::endl;
+          std::cout << "[compute_effective_coupling] smbf: " << smbf << std::endl;
+          return 1.;
+        }
         double total_width_ratio = neutral_decays_array[index]->width_in_GeV / smwidth;
         double BF_ratio = neutral_decays_array[index]->BF(p1, p2) / smbf;
         return total_width_ratio * BF_ratio;

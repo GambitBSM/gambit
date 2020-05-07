@@ -493,66 +493,28 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY fill_THDM_couplings
-START_CAPABILITY
-  #define FUNCTION get_THDM_couplings
-  START_FUNCTION(THDM_couplings)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY fill_THDM_couplings_HB
-START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_HB
-  START_FUNCTION(THDM_couplings)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY fill_THDM_couplings_HB_SM_like_model
-START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_HB_SM_like_model
-  START_FUNCTION(std::vector<THDM_couplings>)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY fill_THDM_couplings_HB_effc
-START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_HB_effc
-  START_FUNCTION(THDM_couplings)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY fill_THDM_couplings_HB_effc_SM_like_model
-START_CAPABILITY
-  #define FUNCTION get_THDM_couplings_HB_effc_SM_like_model
-  START_FUNCTION(std::vector<THDM_couplings>)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  #undef FUNCTION
-#undef CAPABILITY
-
 // Generalised Higgs couplings
 #define CAPABILITY Higgs_Couplings
   #define FUNCTION THDM_higgs_couplings_pwid
   START_FUNCTION(HiggsCouplingsTable)
-  DEPENDENCY(THDM_spectrum, const Spectrum*)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  //DEPENDENCY(SMlike_Higgs_PDG_code, int)
+  DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
+  DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
+  DEPENDENCY(Reference_SM_A0_decay_rates, DecayTable::Entry)
+  DEPENDENCY(Higgs_decay_rates, DecayTable::Entry)
+  DEPENDENCY(h0_2_decay_rates, DecayTable::Entry)
+  DEPENDENCY(A0_decay_rates, DecayTable::Entry)
+  DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
+  DEPENDENCY(t_decay_rates, DecayTable::Entry)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  #undef FUNCTION
+
+  #define FUNCTION THDM_higgs_couplings_2HDMC
+  START_FUNCTION(HiggsCouplingsTable)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
   //DEPENDENCY(SMlike_Higgs_PDG_code, int)
   DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
   DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
