@@ -65,6 +65,39 @@ BE_NAMESPACE
     oneset.setMass(::softsusy::mElectron, sminputs.mE);
     oneset.setMass(::softsusy::mMuon,     sminputs.mMu);
     oneset.setPoleMZ(sminputs.mZ);
+
+    /// TODO PA: copying over from the old specbit this misses soem
+    /// setters compared to FS 2.0.1. Differences should be zero as
+    /// some just FS book keeping or neglible. However test anyway and then
+    /// probably keep version matching FS to make following easier
+    bool match_fs = true;
+    if(match_fs) {
+       oneset.setAlphaEmInput(1.0 / sminputs.alphainv);
+       // I don't think QedQcd uses this
+       oneset.setFermiConstant(sminputs.GF);
+       oneset.setAlphaSInput(sminputs.alphaS);
+       oneset.set_scale(sminputs.mZ);
+       oneset.setMass(::softsusy::mBottom, sminputs.mBmB);
+       oneset.setMass(::softsusy::mTau,sminputs.mTau);
+       // always zero so far anyway
+       oneset.setNeutrinoPoleMass(3, sminputs.mNu3);
+       oneset.setPoleMel(sminputs.mE);
+       oneset.setNeutrinoPoleMass(1, sminputs.mNu1);
+       oneset.setPoleMmuon(sminputs.mMu);
+       oneset.setNeutrinoPoleMass(2, sminputs.mNu2);
+       oneset.setMd2GeV(sminputs.mD);
+       oneset.setMu2GeV(sminputs.mU);
+       oneset.setMs2GeV(sminputs.mS);
+       oneset.setMcMc(sminputs.mCmC);
+    }
+    /// PoleMW can be set in FS if present in SLHA inpuit file,
+    /// and if not default value of 80.385 used I think
+    /// test for any impact anyway
+    /// Note here we set to a GAMBIT value mw_central_observed!
+    /// which matches FS default value but not the one in FS example
+    /// LesHouches input files
+    bool fix_extras = false;
+    if(fix_extras) oneset.setPoleMW(sminputs.mW);
   }  
   
   // Function to extract the FS settings form the yaml file
@@ -112,7 +145,6 @@ BE_NAMESPACE
     settings.set(Spectrum_generator_settings::eft_higgs_index, Options->getValueOrDef<int>(0,"eftHiggsIndex")); //If set to 0, the lightest field in the Higgs multiplet isinterpreted as SM-like Higgs. If set to 1, the 2nd lightest field is interpreted as SM-like etc
     settings.set(Spectrum_generator_settings::calculate_bsm_masses, Options->getValueOrDef<int>(1,"calculate_bsm_masses")); // enable/disable calculation of BSM pole masses, useful if e.g. only interested in Higgs mass calculation
     settings.set(Spectrum_generator_settings::threshold_corrections, Options->getValueOrDef<int>(123111321,"threshold_corrections"));
-
   }
  
 
@@ -138,7 +170,15 @@ BE_NAMESPACE
 
     // Fill QedQcd object with SMInputs values
     setup_QedQcd(qedqcd,sminputs);
-        
+
+    //create FS slha_io object and fill inputs
+    CMSSM_slha_io slha_io;
+    slha_io.set_sminputs(qedqcd);
+    slha_io.set_input(cmssm_input);
+    std::cout << "slha file after setting sm inputs = "
+              << slha_io.get_slha_io().get_data()
+              << std::endl;
+
     // create instance of spectrum generator
     //GAMBIT BOSS type
     //CMSSM_spectrum_generator_Two_scale spectrum_generator;
@@ -177,24 +217,9 @@ BE_NAMESPACE
     // if (spectrum_generator_settings.get(Spectrum_generator_settings::calculate_observables))
     //    observables = calculate_observables(std::get<0>(models), qedqcd, physical_input, scales.pole_mass_scale);
 
-    
-    //create FS slha_io object, as
-    // TODO: I think we can use this to wrap slhae object
-    CMSSM_slha_io slha_io;
-    try
-    {
-      slha_io.fill(qedqcd);
-      slha_io.fill(cmssm_input);
-    }
-    catch (const Error& error)
-    {
-       backend_error().raise(LOCAL_INFO, "FS does not fill slha correctly.");
-    }
 
     ///TODO:" make nice according to needs and create spectrum
     slha_io.set_spinfo(problems);
-    slha_io.set_sminputs(qedqcd);
-    slha_io.set_input(cmssm_input);
     slha_io.set_print_imaginary_parts_of_majorana_mixings(
       spectrum_generator_settings.get(
       Spectrum_generator_settings::force_positive_masses));
@@ -232,7 +257,6 @@ BE_NAMESPACE
          slha["DMASS"][""] << (*it)[0] << "1" <<  rel_uncertainty
                           << "# "
                           << Models::ParticleDB().long_name(std::stoi((*it)[0]),0);
-         
       }
     } 
     std::cout << "slha after adding DMASS: " << std::endl;
@@ -264,13 +288,12 @@ BE_NAMESPACE
     slha["DMASS"][""] << "6" << "0" <<  0.0 << "# top";
     slha["DMASS"][""] << "6" << "1" <<  0.0 << "# top";
     
-    // Not in SMINPUTS as pole masses 
+    // Not in SMINPUTS as pole masses
     // slha["DMASS"][""] << "1" << "0" <<  0.0 << "# d";
     // slha["DMASS"][""] << "1" << "1" <<  0.0 << "# d";
     // slha["DMASS"][""] << "2" << "0" <<  0.0 << "# u";
     // slha["DMASS"][""] << "2" << "1" <<  0.0 << "# u";
 
-    
     ///calling constructor from spectrum.hpp in Elements
     Spectrum spectrum(slha, Input.contents, scale, false);
 
@@ -279,11 +302,6 @@ BE_NAMESPACE
     spec = std::move(spectrum);
 
     std::cout << "End of FS inin function"  << std::endl;
-
-    backend_warning().raise(LOCAL_INFO, "New FS spectrum calculation not implimented yet.");
-
-    std::cout << "End of FS inin function after warning raised"  << std::endl;
-     
   }
 
 }
