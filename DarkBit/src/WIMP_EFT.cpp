@@ -478,39 +478,41 @@ namespace Gambit
         daFunk::vec<string>("d_3",   "W+", "u_2",   "e+_3", "Z0", "u_3",   "h0_1");
       auto p2 =
         daFunk::vec<string>("dbar_3","W-", "ubar_2","e-_3", "Z0", "ubar_3","h0_1");
-      // auto p1 =
-      //   daFunk::vec<string>("b",   "W+", "u_2",   "e+_3", "Z0", "u_3",   "h0_1");
-      // auto p2 =
-      //   daFunk::vec<string>("bbar","W-", "ubar_2","e-_3", "Z0", "ubar_3","h0_1");
       {
-        cout << endl << "TH_ProcessCatalog_WIMP_EFT is constructing channels..." << endl;
+        #ifdef DARKBIT_DEBUG
+          cout << "\nTH_ProcessCatalog_WIMP_EFT is constructing channels...\n";
+        #endif
         for ( unsigned int i = 0; i < channel.size(); i++ )
         {
-          cout << endl << channel[i] << " channel made from " << p1[i] << " and " << p2[i] << endl;
           double mtot_final =
             catalog.getParticleProperty(p1[i]).mass +
             catalog.getParticleProperty(p2[i]).mass;
           // Include final states that are open for T~m/20
+          
+          #ifdef DARKBIT_DEBUG
+            cout << endl << channel[i] << " channel made from " << p1[i] << " and " << p2[i] << endl;
+          #endif
           if ( WIMP_mass*2 > mtot_final*0.5 )
           {
-            cout << WIMP_mass*2 << " is strictly greater than " << mtot_final*0.5 << endl;
             double A = Dep::generic_WIMP_sigmav->A(channel[i]);
             double B = Dep::generic_WIMP_sigmav->B(channel[i]);
-            cout << "The corresponding parameters from generic_WIMP_sigmav, A: " << A << ", and B: " << B << endl;
             daFunk::Funk kinematicFunction = daFunk::funcM(wimpDM,
                 &WIMP_EFT_DM::sv, channel[i], WIMP_mass, A, B, daFunk::var("v"));
             TH_Channel new_channel(
                 daFunk::vec<string>(p1[i], p2[i]), kinematicFunction
                 );
-            cout << "Printing the new_channel getting pushed onto the channelList: " << endl;
-            new_channel.printChannel();
-            cout << endl;
             process_ann.channelList.push_back(new_channel);
+            #ifdef DARKBIT_DEBUG
+              cout << WIMP_mass*2 << " is strictly greater than " << mtot_final*0.5 << endl;
+              cout << "The corresponding parameters from generic_WIMP_sigmav, A: " << A << ", and B: " << B << endl;
+              cout << "Printing the new_channel getting pushed onto the channelList: ";
+              for ( auto it = new_channel.finalStateIDs.begin(); it != new_channel.finalStateIDs.end(); it++ ) cout << *it << " ";
+              cout << endl;
+            #endif
           }
-          else
-          {
-            cout << "Dark matter mass is too small to add current annihilation channel to the channelList" << endl;
-          }
+          #ifdef DARKBIT_DEBUG
+            else cout << "Dark matter mass is too small to add current annihilation channel to the channelList\n";
+          #endif
           if ( WIMP_mass*2 > mtot_final )
           {
             process_ann.resonances_thresholds.threshold_energy.

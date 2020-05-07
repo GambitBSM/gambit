@@ -287,50 +287,67 @@ namespace Gambit
       std::string DMid = *Dep::DarkMatter_ID;
       TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
 
-      cout << endl << "nuyield_from_DS receives the following channels from the WIMP_EFT catalog:" << endl;
-      for (auto x : annProc.channelList)
-      {
-        x.printChannel();
-        cout << endl;
-      }
-      cout << endl;
-
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
 
-      cout << endl << "Reading neutral_channels from get_DS_neutral_h_decay_channels:" << endl;
-      for (int i=0;i<neutral_channels.size();i++)
-      {
-        for (int j=0;j<neutral_channels[i].size();j++)
+      // Hack together a patch to let DS and TH_processCatalog talk properly about quarks
+      std::string bq_array[] = {"d_3","dbar_3"};
+      std::string cq_array[] = {"u_2","ubar_2"};
+      std::string tau_array[] = {"e+_3","e-_3"};
+      std::string tq_array[] = {"u_3","ubar_3"};
+      std::vector<str> bottomq (bq_array, bq_array + sizeof(bq_array)/sizeof(std::string));
+      std::vector<str> charmq (cq_array, cq_array + sizeof(cq_array)/sizeof(std::string));
+      std::vector<str> taul (tau_array, tau_array + sizeof(tau_array)/sizeof(std::string));
+      std::vector<str> topq (tq_array, tq_array + sizeof(tq_array)/sizeof(std::string));
+      neutral_channels[24] = bottomq;
+      neutral_channels[21] = charmq;
+      neutral_channels[18] = taul;
+      neutral_channels[23] = topq;
+      
+      #ifdef DARKBIT_DEBUG
+        // Print out the vector of channels from TH_ProcessCatalog
+        cout << "\nnuyield_from_DS receives the following channels from the WIMP_EFT catalog:\n";
+        for (auto x : annProc.channelList)
         {
-          cout << neutral_channels[i][j] << " ";
+          for (auto it=x.finalStateIDs.begin(); it!=x.finalStateIDs.end(); it++) cout << *it << " ";
+          cout << endl;
         }
+        // Print out the vector of channels from DS
+        cout << "\nReading neutral_channels from get_DS_neutral_h_decay_channels:\n";
+        for (int i=0;i<neutral_channels.size();i++)
+        {
+          for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
+          cout << endl;
+        }
+        // printout the vectors used to mimic the TH_ProcessCatalog format
+        cout << "\nMimicing TH_ProcessCatalog vector format:\n";
+        for(int i=0; i<2; i++) cout << bottomq[i] << "\t" << charmq[i] << "\t" << taul[i] << "\t" << topq[i] << endl;
         cout << endl;
-      }
-      cout << endl;
+      #endif
 
       for (int i=0; i<29; i++)
       {
-        cout << endl << "Looking at the ";
-        for (int j=0;j<neutral_channels[i].size();j++)
-        {
-          cout << neutral_channels[i][j] << " ";
-        }
-        cout << "neutral_channel" << endl;
-        
         const TH_Channel* channel = annProc.find(neutral_channels[i]);
-
-        cout << "For which, I found this channel in the annihilation proccess:" << channel << endl;
-
+        
+        #ifdef DARKBIT_DEBUG
+          // Print out the current neutral_channel
+          cout << "Looking at the ";
+          for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
+          cout << "neutral_channel" << endl;
+          cout << "For which, I found this channel pointer in the annihilation proccess:" << channel << endl;
+        #endif
+        
         if (channel == NULL or i == 26) // Channel 26 has not been implemented in DarkSUSY.
         {
-          cout << "Setting it's branching fraction to zero" << endl;
           annihilation_bf[i] = 0.;
+
+          #ifdef DARKBIT_DEBUG
+            cout << "Setting it's branching fraction to zero\n\n";
+          #endif
         }
         else
         {
-          cout << "Now I set it's branching fraction" << endl; 
           annihilation_bf[i] = channel->genRate->bind("v")->eval(0.);
           if (i == 10) // Add W- H+ for this channel
           {
@@ -344,6 +361,7 @@ namespace Gambit
 
           // Check that having this channel turned on makes sense at all.
           #ifdef DARKBIT_DEBUG
+            cout << "Now the channel's branching fraction is set\n";
             double mtot = 0;
             cout << "Particles and masses in DM annihilation final state: " << endl;
             for (auto p = neutral_channels[i].begin(); p != neutral_channels[i].end(); ++p)
@@ -361,7 +379,6 @@ namespace Gambit
 
       }
 
-      exit(0);
 
       // Set Higgs masses
       if (Dep::TH_ProcessCatalog->hasParticleProperty("h0_1"))
