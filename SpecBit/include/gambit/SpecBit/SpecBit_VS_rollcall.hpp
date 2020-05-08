@@ -13,7 +13,7 @@
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date Nov 2015
 ///
-///  \author José Eliel Camargo-Molina
+///  \author Jos Eliel Camargo-Molina
 ///          (elielcamargomolina@gmail.com)
 ///  \date Jun 2018++
 ///
