@@ -141,8 +141,8 @@ namespace Gambit {
 
      addParameter(Par::dimensionless, "sinW2", scalar, "SINTHETAW", 1); // TODO: No SLHA definition for this, just make up somewhere for it
 
-     addParameter(Par::dimensionless, "Yd", m3x3, "YU");
-     addParameter(Par::dimensionless, "Yu", m3x3, "YD");
+     addParameter(Par::dimensionless, "Yd", m3x3, "YD");
+     addParameter(Par::dimensionless, "Yu", m3x3, "YU");
      addParameter(Par::dimensionless, "Ye", m3x3, "YE");
 
      addParameter(Par::Pole_Mass, "~g", scalar, "MASS");
