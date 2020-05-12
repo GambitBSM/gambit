@@ -943,9 +943,8 @@ if(NOT ditched_${name}_${ver})
               COMMAND ${CMAKE_COMMAND} -E copy makefile.in makefile.in.tmp
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
-              # COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
-              # COMMAND sed -i "s/'csboutput_trans/'\\/csboutput_trans/g" ${dir}/S95tables_type3.F90
-              COMMAND ./my_configure
+              COMMAND ./my_configure --enable-chisq --clsbtablespath=${hb_tab_dir}
+              COMMAND sed -i "s/'csboutput_trans/'\\/csboutput_trans/g" ${dir}/S95tables_type3.F90
     BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh

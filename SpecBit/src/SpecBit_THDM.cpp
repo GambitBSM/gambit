@@ -2965,7 +2965,7 @@ namespace Gambit
     }
 
     // fill necessary couplings from 2HDMC to create the THDM higgs couplings table
-    THDM_couplings fill_THDM_couplings_struct(THDM_couplings& couplings, THDM_spectrum_container& container) { 
+    void fill_THDM_couplings_struct(THDM_couplings& couplings, THDM_spectrum_container& container) { 
       for (int h=1; h<5; h++) {
         for (int f1=1; f1<4; f1++) {
           for (int f2=1; f2<4; f2++) {
@@ -3001,12 +3001,8 @@ namespace Gambit
 
       //const DecayTable::Entry& decays = *Dep::Higgs_decay_rates;
       const SubSpectrum& spec = fullspectrum.get_HE();
-      const SubSpectrum& SM = fullspectrum.get_LE();
 
       // set up some necessary quantities
-      const double RWW = 0.77; 
-      const double RZZ = 1.0-RWW;
-      const double MZ = SM.get(Par::Pole_Mass,"Z0"), MW = SM.get(Par::Pole_Mass,"W+");
       const double g = spec.get(Par::dimensionless, "g1");
       const double costw = sqrt(1.-spec.get(Par::dimensionless, "sinW2"));
 

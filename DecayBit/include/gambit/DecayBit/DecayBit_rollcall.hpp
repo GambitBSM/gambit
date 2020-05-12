@@ -877,17 +877,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY THDM_widths_HB
-  START_CAPABILITY
-    #define FUNCTION get_THDM_widths_HB
-    START_FUNCTION(std::vector<THDM_decay_widths>)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-    ALLOW_MODEL_DEPENDENCE(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-    #undef FUNCTION
-  #undef CAPABILITY
-
   #define CAPABILITY Z_gamma_nu
   START_CAPABILITY
     #define FUNCTION Z_gamma_nu_2l

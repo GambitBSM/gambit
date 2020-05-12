@@ -42,7 +42,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-// #define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -414,6 +414,7 @@ namespace Gambit
           }
         }
 
+        // fill neutral effective couplings
         set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
       
         for (int h=1;h<=3;h++) {
@@ -479,6 +480,7 @@ namespace Gambit
           result.deltaMHplus[0] = 0.;
         }
 
+        // fill charged effective couplings
         set_CS_charged(result);
 
         // Set charged Higgs branching fractions and total width.
@@ -859,12 +861,12 @@ namespace Gambit
       #ifdef COLLIDERBIT_DEBUG
         // likelihood plots
         // csqmh
-        ofstream csqmhdbg;
+        std::ofstream csqmhdbg;
         csqmhdbg.open("HS_debug_csqmh.txt",std::ofstream::out | std::ofstream::app);
         csqmhdbg << csqmh << " " << ModelParam.Mh[0] << "\n";
         csqmhdbg.close();
 
-        ofstream csqmudbg;
+        std::ofstream csqmudbg;
         csqmudbg.open("HS_debug_csqmu.txt",std::ofstream::out | std::ofstream::app);
         csqmudbg << csqmu;
         //
