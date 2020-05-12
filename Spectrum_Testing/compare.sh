@@ -10,6 +10,7 @@ gambit_slha_2loop="../pre_verify_contents_MSSM.slha"
 grep -o '^[^#]*' $fs_slha_2loop > fs_slha_clean
 grep -o '^[^#]*' $gambit_slha_2loop > gambit_slha_clean
 
+# note in current set pre_verify_contents gets changed when test_spec in get_CMSSM_spectrum_FS and this vreaks comparison.
 numdiff --relative-tolerance 1e-8 --absolute-tolerance 1e-8 fs_slha_clean gambit_slha_clean
 
 # compare GAMBIT slha output from initialising spectrum with FS interface vs GAMBIT output from initialising with slhafile from standalone run of FS
@@ -40,9 +41,11 @@ numdiff --relative-tolerance 1e-8 --absolute-tolerance 1e-8 gb_fs_interface_clea
 
 # 1) 2-loop vs 3-loop rges leads to 1e-2 effects in some entries e.g. MSUSY.
 # see numdiff between pre_verify_contents_MSSM.slha and pre_verify_contents_MSSM.slha.modyaml_beta3loop or comparing FS files. 
-#2)  oneset.setPoleMmuon(sminputs.mMu); at code level is needed to get SMINPUTS block matching FlexibleSUSY.  Largets actual numerical impact is at 1e-7 relative error level on Te(2,2) ie muon soft trilnear.
-
+# 2)  oneset.setPoleMmuon(sminputs.mMu); at code level is needed to get SMINPUTS block matching FlexibleSUSY.  Largets actual numerical impact is at 1e-7 relative error level on Te(2,2) ie muon soft trilnear.
+# 3) oneset.setAlphaSInput(sminputs.alphaS);//tested: affects gauge couplings at 2-3e-3 level and charm yukawa at 1e-2
+# 4) oneset.setAlphaEmInput(1.0 / sminputs.alphainv); //tested: 1e-4 diff typically, but 1e-3 in some mixing elements and 1e-2 in GUT scale value
 
 
 # questions
 # Should we just pass on the FS settings and MODSEL now we use SLHAea interface?
+# How can we test the generation of the GAMBIT slha file uis correct in an automated way. i just found one bug that only shows up by comparing between the generated GAMBIT slha file and the one that is stored.  This bug was from an error in the getter maps due to an arror in the add_parameter in the contents object.
