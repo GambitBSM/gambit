@@ -137,9 +137,17 @@ int main()
   std::cout.precision(17);
   std::cerr.precision(17);
   std::ifstream fs_output("LesHouches.out.CMSSM.test_2L_RGEs");
+  if(!fs_output.good()) {
+     std::cerr << "FS output SLHA file not found." << std::endl;
+     return 1;
+  }
   SLHAea::Coll fs_slha(fs_output);
 
   std::ifstream gb_output("../GAMBIT_unimproved_spectrum.slha2");
+  if(!gb_output.good()) {
+     std::cerr << "GAMBIT output SLHA file not found." << std::endl;
+     return 1;
+  }
   SLHAea::Coll gb_slha(gb_output);
 
   const double tol = 1e-8;
