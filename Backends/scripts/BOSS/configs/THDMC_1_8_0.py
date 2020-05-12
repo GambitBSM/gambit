@@ -26,7 +26,7 @@
 
 castxml_cc_id  = 'gnu'      # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
 castxml_cc     = 'g++'      # Name a specific compiler: 'g++', 'cl', ...
-castxml_cc_opt = ''         # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
+castxml_cc_opt = '-std=c++11'         # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
 
 
 # ~~~~~ GAMBIT-specific options ~~~~~
