@@ -72,23 +72,23 @@ BE_NAMESPACE
     /// probably keep version matching FS to make following easier
     bool match_fs = true;
     if(match_fs) {
-       oneset.setAlphaEmInput(1.0 / sminputs.alphainv);
+       oneset.setAlphaEmInput(1.0 / sminputs.alphainv); //tested: 1e-4 diff typically, but 1e-3 in some mixing elemnets and 1e-2 in GUT scale value
        // I don't think QedQcd uses this
-       oneset.setFermiConstant(sminputs.GF);
-       oneset.setAlphaSInput(sminputs.alphaS);
-       oneset.set_scale(sminputs.mZ);
-       oneset.setMass(::softsusy::mBottom, sminputs.mBmB);
-       oneset.setMass(::softsusy::mTau,sminputs.mTau);
+       oneset.setFermiConstant(sminputs.GF); // tested: zero numerical difference but needed so GF can actually chanage from default and affect results
+       oneset.setAlphaSInput(sminputs.alphaS);//tested: affects gauge couplings at 2-3e-3 level and charm yukawa at 1e-2
+       oneset.set_scale(sminputs.mZ); // tested: zero diff
+       oneset.setMass(::softsusy::mBottom, sminputs.mBmB); //tested zero: diff
+       oneset.setMass(::softsusy::mTau,sminputs.mTau); //tested : zero diff
        // always zero so far anyway
-       oneset.setNeutrinoPoleMass(3, sminputs.mNu3);
-       oneset.setPoleMel(sminputs.mE);
-       oneset.setNeutrinoPoleMass(1, sminputs.mNu1);
-       oneset.setPoleMmuon(sminputs.mMu);
-       oneset.setNeutrinoPoleMass(2, sminputs.mNu2);
-       oneset.setMd2GeV(sminputs.mD);
-       oneset.setMu2GeV(sminputs.mU);
-       oneset.setMs2GeV(sminputs.mS);
-       oneset.setMcMc(sminputs.mCmC);
+       oneset.setNeutrinoPoleMass(3, sminputs.mNu3); //tested : zero diff
+       oneset.setPoleMel(sminputs.mE); //tested : zero diff
+       oneset.setNeutrinoPoleMass(1, sminputs.mNu1); //tested : zero diff
+       oneset.setPoleMmuon(sminputs.mMu); //tested largest impact is at 1e-7 relative error level on Te(2,2) ie muon soft trilnear.
+       oneset.setNeutrinoPoleMass(2, sminputs.mNu2); //tested : zero diff
+       oneset.setMd2GeV(sminputs.mD); //tested : zero diff
+       oneset.setMu2GeV(sminputs.mU); //tested : zero diff
+       oneset.setMs2GeV(sminputs.mS); //tested : zero diff
+       oneset.setMcMc(sminputs.mCmC); //tested : zero diff
     }
     /// PoleMW can be set in FS if present in SLHA inpuit file,
     /// and if not default value of 80.385 used I think
@@ -98,8 +98,8 @@ BE_NAMESPACE
     /// LesHouches input files
     bool fix_extras = false;
     if(fix_extras) oneset.setPoleMW(sminputs.mW);
-  }  
-  
+  }
+
   // Function to extract the FS settings form the yaml file
  void Get_yaml_settings(Spectrum_generator_settings& settings, const SpectrumInputs& Input)
   {
