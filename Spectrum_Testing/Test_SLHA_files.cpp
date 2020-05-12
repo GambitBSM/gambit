@@ -44,9 +44,9 @@ bool test_block_1_index(std::string Block_name, SLHAea::Coll slha_file1, SLHAea:
          const double fs_value = std::stod(slha_file1[Block_name][index][1]);
          const double gb_value = std::stod(slha_file2[Block_name][index][1]);
          if (!is_close_rel_tol(fs_value,gb_value,tol) && !is_close_rel_tol(fs_value,gb_value,tol)) {
-            std::cerr << "Test Fail: in Block " << Block_name 
-                      << " values for entry " << index
-                      << " do not match within relative and absolute tolerance"
+            std::cerr << Block_name  << "Test Fail: "
+                      << " Entry " << index
+                      << " no match within relative and absolute tolerance"
                       << tol << " as they are "
                       << fs_value << " and "  << gb_value<< std::endl; 
             num_fails_local++;
@@ -78,8 +78,8 @@ bool test_block_2_indices(std::string Block_name, SLHAea::Coll slha_file1, SLHAe
          const double fs_value = std::stod(slha_file1.at(Block_name).at(index1,index2).at(2));
          const double gb_value = std::stod(slha_file2.at(Block_name).at(index1,index2).at(2));
          if (!is_close_rel_tol(fs_value,gb_value,tol) && !is_close_abs_tol(fs_value,gb_value,tol) ) {
-            std::cerr << "Test Fail: in Block " << Block_name 
-                      << " values for entry " << index1 << "  "  << index2
+            std::cerr << Block_name  << "Test Fail: "
+                      << " Entries " << index1 << "  "  << index2
                       << " do not match within relative and absolute tolerance"
                       << tol << " as they are "
                       << fs_value << " and "  << gb_value<< std::endl; 
@@ -113,10 +113,10 @@ bool test_block_2_indices_sf_mixing(std::string Block_name, SLHAea::Coll slha_fi
          double fs_value = std::abs(std::stod(slha_file1.at(Block_name).at(index1,index2).at(2)));
          double gb_value = std::abs(std::stod(slha_file2.at(Block_name).at(index1,index2).at(2)));
          if (!is_close_rel_tol(fs_value,gb_value,tol) && !is_close_abs_tol(fs_value,gb_value,tol)) {
-            std::cerr << "Test Fail: in Block " << Block_name 
-                      << " values for entry " << index1 << "  "  << index2
+            std::cerr << Block_name  << "Test Fail: "
+                      << " Entries " << index1 << "  "  << index2
                       << " do not match within relative and absolute tolerance"
-                      << tol << " as they are "
+                      << tol << " Values are "
                       << fs_value << " and "  << gb_value<< std::endl; 
             num_fails_local++;
          }
