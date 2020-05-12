@@ -343,7 +343,7 @@ Rules:
   # Tell all functions that are able to dump SLHA files to do so.
   - options:
      drop_SLHA_file: true
-
+     SLHA_version: 2
   # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
     function: capture_rate_Sun_const_xsec
