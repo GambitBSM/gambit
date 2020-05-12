@@ -15,7 +15,7 @@ iv) be as easy as possible to redo for other models
 #include <fstream>
 #include <iostream>
 #include <string> 
-#include "../contrib/slhaea/include/SLHAea/slhaea.h"
+#include "../../contrib/slhaea/include/SLHAea/slhaea.h"
 
 bool is_close_abs_tol(double a, double b, double tol = std::numeric_limits<double>::epsilon()) {
       return std::fabs(a - b) < tol;

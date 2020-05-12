@@ -66,7 +66,7 @@ int main()
   }
   const SLHAea::Coll fs_slha(fs_output);
 
-  std::ifstream gb_output("../GAMBIT_unimproved_spectrum.slha2");
+  std::ifstream gb_output("../../GAMBIT_unimproved_spectrum.slha2");
   if(!gb_output.good()) {
      std::cerr << "GAMBIT output SLHA file not found." << std::endl;
      return 1;
