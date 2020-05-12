@@ -1,3 +1,17 @@
+/*
+
+Testing the fidelity of spectrum generators implemented in gambit compared to standalone.
+
+We compare slha files from the backlend, e.g. FS and gambit
+
+Need to deal with the following:
+ i) Should be case insenstive to bloack names
+ii) Different ordering of entries in some blocks, e.g. MASS block
+iii) sign converntion differences in mixing elements (compare absolute values)
+iv) be as easy as possible to redo for other models
+
+*/
+
 #include <fstream>
 #include <iostream>
 #include <string> 
@@ -85,7 +99,7 @@ bool test_block_2_indices(std::string Block_name, SLHAea::Coll slha_file1, SLHAe
 
 
 
-// for sfermion mixings ugnore signs 
+// for sfermion mixings ignore signs
 bool test_block_2_indices_sf_mixing(std::string Block_name, SLHAea::Coll slha_file1, SLHAea::Coll slha_file2, int & num_fails, double tol)
 {
    int num_fails_local = 0;
@@ -117,15 +131,6 @@ bool test_block_2_indices_sf_mixing(std::string Block_name, SLHAea::Coll slha_fi
    else
       return false;
 }
-
-
-
-/// Aimis to compare slha files from fs and gambit
-/// Need to deal: i) with different writing of blocknames (case insenstive)
-/// ii) Different ordering of MASS block - easy just get indet from interating and pass to other one  
-/// iii) sign converntion differences in mixing elemnts (compare absolute values)
-/// iv) be as easy as possible to redo for other models 
-
 
 int main()
 {
