@@ -163,77 +163,53 @@ namespace Gambit
           cout<<row.str()<<endl;
         }
     }
-    
+
+    /// Translate B->K*mumu observables from theory to LHCb convention
     void Kstarmumu_Theory2Experiment_translation(flav_observable_map& prediction)
     {
       vector<std::string > names={"S4", "S7", "S9"};
       for (unsigned i=0; i < names.size(); i++)
-        {
-          auto search = prediction.find( names[i]);
-          if (search != prediction.end()) {
-            prediction[names[i]]=(-1.)*prediction[names[i]];
-          }
+      {
+        auto search = prediction.find( names[i]);
+        if (search != prediction.end()) {
+          prediction[names[i]]=(-1.)*prediction[names[i]];
         }
+      }
     }
-     
-    
+
+    /// Translate B->K*mumu covariances from theory to LHCb convention
     void Kstarmumu_Theory2Experiment_translation(flav_covariance_map& prediction)
     {
-      vector<std::string > names={"S4", "S7", "S9"}; 
+      vector<std::string > names={"S4", "S7", "S9"};
       vector<std::string > names_exist;
 
       for (unsigned i=0; i < names.size(); i++)
-        {
-          auto search_i = prediction.find( names[i]);
-          if (search_i != prediction.end()) {  
-            names_exist.push_back(names[i]);
-          }
-        }
+      {
+        auto search_i = prediction.find(names[i]);
+        if (search_i != prediction.end()) names_exist.push_back(names[i]);
+      }
       //changing the rows:
       for (unsigned i=0; i <  names_exist.size(); i++)
+      {
+        string name1=names_exist[i];
+        std::map<const std::string, double> row=prediction[name1];
+        for (std::map<const std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
+        {
+          prediction[name1][it->first]=(-1.)*prediction[name1][it->first];
+        }
+      }
+      // changing the columns:
+      for (flav_covariance_map::iterator it=prediction.begin(); it !=prediction.end(); it++)
+      {
+        string name_columns=it->first;
+        for (unsigned i=0; i <  names_exist.size(); i++)
         {
           string name1=names_exist[i];
-          std::map<const std::string, double> row=prediction[name1];
-          for (std::map<const std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
-            {
-              prediction[name1][it->first]=(-1.)*prediction[name1][it->first];              
-              
-            }
+          prediction[name_columns][name1]=(-1)*prediction[name_columns][name1];
         }
-      // changing the columns:
-      for (flav_covariance_map::iterator it=prediction.begin(); it !=prediction.end(); it++) 
-        {
-          string name_columns=it->first;
-          for (unsigned i=0; i <  names_exist.size(); i++)
-            {
-              string name1=names_exist[i];
-              prediction[name_columns][name1]=(-1)*prediction[name_columns][name1];
-
-            }
-        }
+      }
     }
 
-    void Kstarmumu_Theory2Experiment_translation(flav_prediction& pred)
-    {
-      if(flav_debug)
-        {
-          vector<string> vec={"S3", "S4", "S5", "S8", "S9"};
-          cout<<"Changing convetion Before:"<<endl;
-          print(pred,vec);
-        }
-      Kstarmumu_Theory2Experiment_translation(pred.central_values);
-      Kstarmumu_Theory2Experiment_translation(pred.covariance);
-      if(flav_debug)
-        {
-          vector<string> vec={"S3", "S4", "S5", "S8", "S9"};
-          cout<<"Changing convetion After:"<<endl;
-          print(pred,vec);
-        }
-      
-      
-    }
-
-    
     /// Find the path to the latest installed version of the HepLike data
     str path_to_latest_heplike_data()
     {
@@ -713,7 +689,7 @@ namespace Gambit
       if (ModelInUse("WC_LR"))
         {
           result.SM = 1;
-          
+
           result.Re_DeltaC7  = *Param["Re_DeltaC7"];
           result.Im_DeltaC7  = *Param["Im_DeltaC7"];
           result.Re_DeltaC9  = *Param["Re_DeltaC9"];
@@ -724,7 +700,7 @@ namespace Gambit
           result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
           result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
           result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
-          
+
           result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_Prime"];
           result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_Prime"];
           result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_Prime"];
@@ -743,8 +719,8 @@ namespace Gambit
           result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
           result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
 
-          // right handed: 
-          result.deltaCp[7]=result.deltaCp[17]=result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime); 
+          // right handed:
+          result.deltaCp[7]=result.deltaCp[17]=result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
           result.deltaCp[9]=result.deltaCp[19]=result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
           result.deltaCp[10]=result.deltaCp[20]=result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
 
@@ -752,7 +728,7 @@ namespace Gambit
 
           result.deltaCQp[1]=result.deltaCQp[3]=result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
           result.deltaCQp[2]=result.deltaCQp[4]=result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
-          
+
         }
 
       else if (ModelInUse("WC_LUV"))
@@ -890,7 +866,12 @@ namespace Gambit
                                     bool SMCovarianceCached
                                     )
     {
-      if (flav_debug) std::cout << "Starting SuperIso_prediction" << std::endl;
+      if (flav_debug)
+      {
+        cout << "Starting SuperIso_prediction" << std::endl;
+        cout << "Changing convention. Before:"<<endl;
+        print(result,{"S3", "S4", "S5", "S8", "S9"});
+      }
 
       int nObservables = SI_obslist.size();
 
@@ -902,12 +883,14 @@ namespace Gambit
 
       // ---------- CENTRAL VALUES ----------
       double *result_central;
+
       // Reserve memory
       result_central = (double *) calloc(nObservables, sizeof(double));
-      // --- Needed for SuperIso backend
 
+      // Needed for SuperIso backend
       get_predictions_nuisance((char**)obsnames, &nObservables, &result_central, &param, &nuislist);
 
+      // Compute the central values
       for(int iObservable = 0; iObservable < nObservables; ++iObservable)
       {
         result.central_values[FB_obslist[iObservable]] = result_central[iObservable];
@@ -916,6 +899,7 @@ namespace Gambit
       // Free memory
       free(result_central);
       result_central = NULL;
+
       if (flav_debug)
       {
         for(int iObservable = 0; iObservable < nObservables; ++iObservable)
@@ -924,52 +908,61 @@ namespace Gambit
         }
       }
 
-      // ---------- COVARIANCE ----------
-      static bool first = true;
+      //Switch the observables to LHCb convention
+      Kstarmumu_Theory2Experiment_translation(result.central_values);
 
-      static const int nNuisance=161;
-      static char namenuisance[nNuisance+1][50];
-      static double **corr=(double  **) malloc((nNuisance+1)*sizeof(double *));  // Nuisance parameter correlations
-
-      if (first)
+      // If we need to compute the covariance, either because we're doing it for every point or we haven't cached the SM value, do it.
+      if (not useSMCovariance or not SMCovarianceCached)
       {
-        observables(0, NULL, 0, NULL, NULL, &nuislist, (char **)namenuisance, &param); // Initialization of namenuisance
 
-        // Reserve memory
-        for(int iObservable = 0; iObservable <= nNuisance; ++iObservable) {
-          corr[iObservable]=(double *) malloc((nNuisance+1)*sizeof(double));
-        }
-        // --- Needed for SuperIso backend
+        // ---------- COVARIANCE ----------
+        static bool first = true;
+        static const int nNuisance=161;
+        static char namenuisance[nNuisance+1][50];
+        static double **corr=(double  **) malloc((nNuisance+1)*sizeof(double *));  // Nuisance parameter correlations
 
-        convert_correlation((nuiscorr *)corrnuis, byVal(ncorrnuis), (double **)corr, (char **)namenuisance, byVal(nNuisance));
+        if (first)
+        {
+          observables(0, NULL, 0, NULL, NULL, &nuislist, (char **)namenuisance, &param); // Initialization of namenuisance
 
-        first = false;
-      }
+          // Reserve memory
+          for(int iObservable = 0; iObservable <= nNuisance; ++iObservable)
+          {
+            corr[iObservable]=(double *) malloc((nNuisance+1)*sizeof(double));
+          }
 
-      double **result_covariance;
-      
-      if (useSMCovariance and not SMCovarianceCached) {
-        // Make sure that we calculate the observables with no new physics contribution, we do not know how this is called the first time.
-        // Copy the parameters and set all Wilson Coefficients to 0.
-        parameters param_SM = param;
-        for(int ie=1;ie<=30;ie++) {
-          param_SM.deltaC[ie]=0.;
-          param_SM.deltaCp[ie]=0.;
-        }
-        for(int ie=1;ie<=6;ie++) {
-          param_SM.deltaCQ[ie]=0.;
-          param_SM.deltaCQp[ie]=0.;
+          // Needed for SuperIso backend
+          convert_correlation((nuiscorr *)corrnuis, byVal(ncorrnuis), (double **)corr, (char **)namenuisance, byVal(nNuisance));
+
+          first = false;
         }
 
-        // Use the SM observables to calculate the SM theory covariance.
-        get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param_SM, &nuislist, (double **)corr);
-      }
-      else {  
-        // Calculate covariance at the new physics point.
-        get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param, &nuislist, (double **)corr);
-      }
+        double **result_covariance;
 
-      if (not (useSMCovariance and SMCovarianceCached)) {
+        if (useSMCovariance)
+        {
+          // Copy the parameters and set all Wilson Coefficients to 0 (SM values)
+          parameters param_SM = param;
+          for(int ie=1;ie<=30;ie++)
+          {
+            param_SM.deltaC[ie]=0.;
+            param_SM.deltaCp[ie]=0.;
+          }
+          for(int ie=1;ie<=6;ie++)
+          {
+            param_SM.deltaCQ[ie]=0.;
+            param_SM.deltaCQp[ie]=0.;
+          }
+          // Use the SM values of the parameters to calculate the SM theory covariance.
+          get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param_SM, &nuislist, (double **)corr);
+        }
+        else
+        {
+          // Calculate covariance at the new physics point.
+          get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param, &nuislist, (double **)corr);
+        }
+
+        // Fill the covariance matrix in the result structure
         for(int iObservable=0; iObservable < nObservables; ++iObservable)
         {
           for(int jObservable = 0; jObservable < nObservables; ++jObservable)
@@ -977,13 +970,16 @@ namespace Gambit
             result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]] = result_covariance[iObservable][jObservable];
           }
         }
-      }
 
-      // Free memory  // We are not freeing the memory because we made the variable static. Just keeping this for reference on how to clean up the allocated memory in case of non-static caluclation of **corr.
-      // for(int iObservable = 0; iObservable <= nNuisance; ++iObservable) {
-      //   free(corr[iObservable]);
-      // }
-      // free(corr);
+        //Switch the covariances to LHCb convention
+        Kstarmumu_Theory2Experiment_translation(result.covariance);
+
+        // Free memory  // We are not freeing the memory because we made the variable static. Just keeping this for reference on how to clean up the allocated memory in case of non-static caluclation of **corr.
+        // for(int iObservable = 0; iObservable <= nNuisance; ++iObservable) {
+        //   free(corr[iObservable]);
+        // }
+        // free(corr);
+      }
 
       if (flav_debug)
       {
@@ -995,9 +991,10 @@ namespace Gambit
               obsnames[iObservable], obsnames[jObservable], result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]]);
            }
         }
+        cout << "Changing convention. After:"<<endl;
+        print(result,{"S3", "S4", "S5", "S8", "S9"});
+        std::cout << "Finished SuperIso_prediction" << std::endl;
       }
-      Kstarmumu_Theory2Experiment_translation(result); // this switches the observables to LHCb convention
-      if (flav_debug) std::cout << "Finished SuperIso_prediction" << std::endl;
 
     }
 
@@ -1071,7 +1068,7 @@ namespace Gambit
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_6_8)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_15_19)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_0p05_2)
-    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_2_4p3) 
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_2_4p3)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_4p3_8p68)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_14p18_16)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_16_18)
@@ -3546,7 +3543,7 @@ namespace Gambit
     }
 
 
-    
+
 
     /// HEPLike LogLikelihood B -> K* mu mu Br (LHCb)
     void HEPLike_B2KstarmumuBr_LogLikelihood_LHCb(double &result)
@@ -3640,7 +3637,7 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_B2KmumuBR_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
-    
+
     void HEPLike_Bs2phimumuBr_LogLikelihood(double &result)
     {
       using namespace Pipes::HEPLike_Bs2phimumuBr_LogLikelihood;

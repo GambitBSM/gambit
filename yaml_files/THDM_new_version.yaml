@@ -393,6 +393,9 @@ Rules:
   - capability: Reference_SM_A0_decay_rates
     function: Ref_SM_A0_decays_THDM
 
+  - capability: t_decay_rates
+    function: t_decays_THDM
+
   - capability: HB_ModelParameters_neutral
     function: THDM_ModelParameters_effc
     module: ColliderBit

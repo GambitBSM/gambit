@@ -64,6 +64,14 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+    #define FUNCTION t_decays_THDM
+    START_FUNCTION(DecayTable::Entry)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -874,17 +882,6 @@ START_MODULE
     #define FUNCTION get_mass_es_pseudonyms
     START_FUNCTION(mass_es_pseudonyms)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY THDM_widths_HB
-  START_CAPABILITY
-    #define FUNCTION get_THDM_widths_HB
-    START_FUNCTION(std::vector<THDM_decay_widths>)
-    NEEDS_CLASSES_FROM(THDMC,default)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL_DEPENDENCE(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-    ALLOW_MODEL_DEPENDENCE(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     #undef FUNCTION
   #undef CAPABILITY
 

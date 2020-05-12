@@ -69,7 +69,7 @@
 #define pow3(a) ((a)*(a)*(a))
 #define pow4(a) (pow2(a)*pow2(a))
 
-//#define DECAYBIT_DEBUG
+// #define DECAYBIT_DEBUG
 
 namespace Gambit
 {
@@ -3617,6 +3617,7 @@ namespace Gambit
    
     }
 
+  //    TODO
   // THDM width Hp->WZ (not available in 2HDMC)
   // void gamma_HpWZ(double& result) {
   // https://journals.aps.org/prd/pdf/10.1103/PhysRevD.61.095001
@@ -3626,7 +3627,6 @@ namespace Gambit
   //   const double z = mZ*mZ/(mHp*mHp);
   //   const double w = mW*mW/(mHp*mHp);
   //   const double lambda_1wz = pow((1-w-z),2) - 4.0*w*z;
-  //    TODO
   //   result = 0.0;
   // }
 
@@ -3638,7 +3638,7 @@ namespace Gambit
         // Set up neutral Higgses (keys)
         static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
         SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
-        // update h back to SM like after setting mass based on actual Higgs
+        // update h back to SM like (1) after setting mass based on reference Higgs
         h = 1;
       }
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
@@ -3666,8 +3666,8 @@ namespace Gambit
         for(int f2=1; f2<4; f2++) {
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hdd(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)down][f1-1], antiparticle_keys[(int)down][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_huu(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)up][f1-1], antiparticle_keys[(int)up][f2-1]);
-          result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhd(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)down][f1-1], antiparticle_keys[(int)up][f2-1]);
-          result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhd(h,f2,f1)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)up][f1-1], antiparticle_keys[(int)down][f2-1]);
+          result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hdu(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)down][f1-1], antiparticle_keys[(int)up][f2-1]);
+          result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hdu(h,f2,f1)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)up][f1-1], antiparticle_keys[(int)down][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hll(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)electron][f1-1], antiparticle_keys[(int)electron][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hln(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)electron][f1-1], particle_keys[(int)neutrino][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hln(h,f2,f1)/result.width_in_GeV : 0.0), 0.0, antiparticle_keys[(int)neutrino][f1-1], antiparticle_keys[(int)electron][f2-1]);
@@ -3808,33 +3808,63 @@ namespace Gambit
       using namespace Pipes::Ref_SM_A0_decays_THDM;
       h_decays_THDM(result, *Dep::THDM_spectrum, 1, 3, true);
     }
-    /// @}
-
-    // deprecated routine - used for testing
-    void get_THDM_widths_HB(std::vector<THDM_decay_widths> &result)  {
-      using namespace Pipes::get_THDM_widths_HB;
-      SpecBit::THDM_spectrum_container container;
+   
+    /// THDM decays: t from 2HDMC
+    void t_decays_THDM (DecayTable::Entry& result)
+    {
+      using namespace Pipes::t_decays_THDM;
       const Spectrum spec = *Dep::THDM_spectrum;
-       std::vector<THDM_decay_widths> widths_HB; 
-      // SM-like filling
-      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-      SpecBit::init_THDM_spectrum_container(container, spec, 1);
-      for (int h=1; h<=3; h++) {
-        SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
-        THDM_decay_widths decay_widths;
-        THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
-        // standard input
-        decay_widths.gamma_hll[1][3][3] = decay_table_2hdmc.get_gamma_hll(1,3,3);
-        // effc input
-         for (int h1=1; h1<4; h1++) { 
-            decay_widths.gamma_hgaga[h1] = decay_table_2hdmc.get_gamma_hgaga(h1); // fill neutral scalar widths
-            decay_widths.gamma_hZga[h1] = decay_table_2hdmc.get_gamma_hZga(h1);
-            decay_widths.gamma_hgg[h1] = decay_table_2hdmc.get_gamma_hgg(h1);
+      // set THDM model type
+      int y_type = -1;
+      for (auto const& THDM_model : THDM_model_lookup_map) {
+          // model match was found: set values based on matched model
+          if (ModelInUse(THDM_model.first)) {
+            y_type = THDM_model.second.model_y_type; 
+            break;
           }
-        widths_HB.push_back(decay_widths);
       }
-      result = widths_HB;
+      // fill BFs
+      
+      // set up container and 2HDMC decay table object
+      SpecBit::THDM_spectrum_container container;
+      SpecBit::init_THDM_spectrum_container(container, spec, y_type);
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+
+      // particle keys to simplify loops
+      enum p_family {up, down, electron, neutrino, vector, higgs};
+      const std::vector<std::vector<std::string>> particle_keys = {
+       {"u","c","t"}, {"d","s","b"}, {"e+","mu+","tau+"}, {"nu_e","nu_mu","nu_tau"},
+       {"gamma","Z0","W+"}, {"h0_1","h0_2","A0","H+"}
+      };
+      const std::vector<std::vector<std::string>> antiparticle_keys = {
+       {"ubar","cbar","tbar"}, {"dbar","sbar","bbar"}, {"e-","mu-","tau-"}, {"nubar_e","nubar_mu","nubar_tau"},
+       {"gamma","Z0","W-"}, {"h0_1","h0_2","A0","H-"}
+      };
+
+      // create GAMBIT decay table
+      result.calculator = "2HDMC";
+      result.calculator_version = "1.8.0";
+      result.positive_error = 0; //narrow width
+      result.negative_error = 0;
+      result.width_in_GeV = decay_table_2hdmc.get_gammatot_top();
+      // result.width_in_GeV = 1.41;
+      // result.positive_error = 1.9e-01;
+      // result.negative_error = 1.5e-01;
+
+      // fill the GAMBIT decay table
+      for(int f=1; f<4; f++) {
+        result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhd(3,4,f)/result.width_in_GeV : 0.0), 0.0, "H+", particle_keys[(int)down][f-1]);
+        for(int h=1; h<4; h++) {
+          result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhu(3,h,f)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)higgs][h-1], particle_keys[(int)up][f-1]);
+        }
+      }
+      
+      result.set_BF(0.0, 0.0, "W+", "b"); // TODO: not in 2HDMC
+      check_width(LOCAL_INFO, result.width_in_GeV, true, true);
     }
+     /// @}
+
+
 
     void Z_gamma_nu_2l(triplet<double>& gamma)
     {

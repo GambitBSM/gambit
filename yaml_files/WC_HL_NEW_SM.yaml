@@ -201,10 +201,9 @@ Rules:
     options:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-  # Use SM theory covariance matrix for every point
-  - capability: SuperIso_theory_covariance
-    function: SI_theory_covariance_SM
-
+  - options:
+        use_SM_covariance: true
+        
   # Use SuperIso instead of FeynHiggs for b->sgamma
   - capability: bsgamma
     function: SI_bsgamma
