@@ -194,10 +194,29 @@ START_MODULE
     ALLOW_MODELS(LCDM,LCDM_theta)
     MODEL_CONDITIONAL_DEPENDENCY(classy_parameters_EnergyInjection, pybind11::dict, AnnihilatingDM_general, DecayingDM_general)
     MODEL_CONDITIONAL_DEPENDENCY(classy_PlanckLike_input, pybind11::dict, cosmo_nuisance_Planck_lite,cosmo_nuisance_Planck_TTTEEE,cosmo_nuisance_Planck_TT,plik_dx11dr2_HM_v18_TT)
-    DEPENDENCY(helium_abundance, double)
+    //DEPENDENCY(helium_abundance, double)
     DEPENDENCY(classy_NuMasses_Nur_input, pybind11::dict)
     #undef FUNCTION
   #undef CAPABILITY
+
+  // Capability used to inform classy of the method for the helium abundance
+  // as an input: either from a numerical value, or using its own internal calculation.
+  #define CAPABILITY classy_baseline_plus_YHe
+  START_CAPABILITY
+
+    #define FUNCTION set_classy_YHe_numerical
+    START_FUNCTION(pybind11::dict)
+    DEPENDENCY(helium_abundance, double)
+    DEPENDENCY(classy_baseline_params, pybind11::dict)
+    #undef FUNCTION
+
+    #define FUNCTION set_classy_YHe_internal
+    START_FUNCTION(pybind11::dict)
+    DEPENDENCY(classy_baseline_params, pybind11::dict)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
 
   // Initialise CLASS either with the run options needed by
   // MontePython Likelihoods (t modes, Pk at specific z,..), or not.
@@ -222,7 +241,8 @@ START_MODULE
     #define FUNCTION set_classy_parameters_primordial_ps
     START_FUNCTION(Classy_input)
     DEPENDENCY(primordial_power_spectrum, Primordial_ps)
-    DEPENDENCY(classy_baseline_params, pybind11::dict)
+    //DEPENDENCY(classy_baseline_params, pybind11::dict)
+    DEPENDENCY(classy_baseline_plus_YHe, pybind11::dict)
     DEPENDENCY(k_pivot, double)
     #undef FUNCTION
 
@@ -230,7 +250,8 @@ START_MODULE
     #define FUNCTION set_classy_parameters_parametrised_ps
     START_FUNCTION(Classy_input)
     ALLOW_MODELS(PowerLaw_ps)
-    DEPENDENCY(classy_baseline_params, pybind11::dict)
+    //DEPENDENCY(classy_baseline_params, pybind11::dict)
+    DEPENDENCY(classy_baseline_plus_YHe, pybind11::dict)    
     DEPENDENCY(k_pivot, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -711,7 +732,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Good for cross-checks, innit.
+  // Good for cross-checks.
   #define CAPABILITY Neff
   START_CAPABILITY
     #define FUNCTION get_Neff_classy
@@ -788,6 +809,11 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(BBN_abundances, BBN_container)
     #undef FUNCTION
+
+    #define FUNCTION get_YHe_classy
+    START_FUNCTION(double)
+    BACKEND_REQ(class_get_YHe,(class_tag),double,())
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY BBN_LogLike
@@ -795,6 +821,7 @@ START_MODULE
     #define FUNCTION compute_BBN_LogLike
     START_FUNCTION(double)
     DEPENDENCY(BBN_abundances, BBN_container)
+    DEPENDENCY(helium_abundance, double) // If we want to use classy to override YHe from AlterBBN
     #undef FUNCTION
   #undef CAPABILITY
 

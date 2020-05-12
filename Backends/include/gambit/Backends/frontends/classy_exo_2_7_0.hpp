@@ -15,6 +15,7 @@
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2019 June
+///        2020 May
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -43,6 +44,7 @@ BE_CONV_FUNCTION(class_get_H0,              double, (), "class_get_H0")
 BE_CONV_FUNCTION(class_get_Da, double, (double), "class_get_Da")
 BE_CONV_FUNCTION(class_get_Dl, double, (double), "class_get_Dl")
 BE_CONV_FUNCTION(class_get_Hz, double, (double), "class_get_Hz")
+BE_CONV_FUNCTION(class_get_YHe, double, (), "class_get_YHe")
 
 //BE_CONV_FUNCTION(class_get_Omega0_nu,     double, (), "class_get_Omega0_nu") // (JR) would not use this, see comment in source file
 

@@ -53,7 +53,8 @@ namespace Gambit
       void set_abund_map(map_str_int);
 
       /// Setter functions for abundance vector
-      void set_BBN_abund(int, double);
+      void set_BBN_abund(int, double);      
+      void set_BBN_abund(str, double);
 
       /// Setter function for covariance matrix
       void set_BBN_covmat(int, int, double);

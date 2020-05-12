@@ -40,8 +40,11 @@ namespace Gambit
   /// Initialise the translation map from element name to position in abundance vector
   void BBN_container::set_abund_map(map_str_int map_in) {abund_map = map_in;}
 
-  /// Setter functions for abundance vector
+  /// Setter function for abundance vector using position 
   void BBN_container::set_BBN_abund(int pos, double val) {BBN_abund[pos] = val;}
+
+  /// Setter function for abundance vector using string name
+  void BBN_container::set_BBN_abund(str iso, double val) {BBN_abund[abund_map.at(iso)] = val;}
 
   /// Setter function for covariance matrix
   void BBN_container::set_BBN_covmat(int row, int col, double val) {BBN_covmat[row][col] = val;}

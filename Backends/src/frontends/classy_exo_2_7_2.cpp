@@ -15,6 +15,7 @@
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2019 June
+///        2020 May
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -328,6 +329,15 @@ BE_NAMESPACE
   {
     double H0 = cosmo.attr("Hubble")(0).cast<double>();
     return H0;
+  }
+
+  // Returns helium abundance
+  double class_get_YHe()
+  {
+    std::vector<std::string> yhevec{"YHe"};
+    pybind11::list yhe = pybind11::cast(yhevec);
+    double YHe = cosmo.attr("get_current_derived_parameters")(yhe)["YHe"].cast<double>();
+    return YHe;
   }
 
   // print primordial power spectrum for consistency check & debug purposes

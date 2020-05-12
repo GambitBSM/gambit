@@ -28,6 +28,7 @@
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2019 June, Nov
+///        2020 May
 ///
 ///  \author Sebastian Hoof
 ///          (hoof@uni-goettingen.de)
@@ -521,11 +522,21 @@ namespace Gambit
       result["omega_cdm"] =     *Param["omega_cdm"];
 
       // Depending on parametrisation, pass either Hubble or the acoustic scale
-      if (ModelInUse("LCDM")) result["H0"] = *Param["H0"];
-      else result["100*theta_s"] = *Param["100theta_s"];
+      if (ModelInUse("LCDM")) 
+      {  
+        result["H0"] = *Param["H0"];
+      }
+      else if (ModelInUse("LCDM_theta")) 
+      {
+        result["100*theta_s"] = *Param["100theta_s"];
+      }
+      else
+        CosmoBit_error().raise(LOCAL_INFO, "Neither LCDM or LCDM_theta seem to be in use...\n");
 
-      // Set helium abundance
-      result["YHe"] = *Dep::helium_abundance;
+      // S.B. 12/05 moved Helium abundance into separate capability to enable classy internal 
+      // calculation instead, if we want.
+      /*// Set helium abundance
+      result["YHe"] = *Dep::helium_abundance;*/
 
       // TODO: need to test if class or exo_class in use! does not work -> (JR) should be fixed with classy implementation
       // -> (JR again) not sure if that is actually true.. need to test.
@@ -605,6 +616,38 @@ namespace Gambit
       first_run = false;
     }
 
+    /* Treatment of Helium abundance */
+    // 1. Helium abundance as a numerical input (i.e. from BBN)
+    void set_classy_YHe_numerical(pybind11::dict &result)
+    {
+      using namespace Pipes::set_classy_YHe_numerical;
+      
+      // Remove all input
+      result.clear();
+
+      // Set helium abundance from the dependency, which is a numerical value,
+      // e.g. from AlterBBN
+      result["YHe"] = *Dep::helium_abundance;
+
+      // Merge it with the other classy input
+      merge_pybind_dicts(result, *Dep::classy_baseline_params, false);
+    }
+
+    // 2. Helium abundance computed internally within classy
+    void set_classy_YHe_internal(pybind11::dict &result)
+    {
+      using namespace Pipes::set_classy_YHe_internal;
+
+      // Remove all input
+      result.clear();
+
+      // Pass key "BBN" to classy, which tells it to use internal calculations
+      result["YHe"] = "BBN";
+
+      // Merge it with the other classy input
+      merge_pybind_dicts(result, *Dep::classy_baseline_params, false);
+    }
+
     /// Set the classy parameter for an LCDM run with a parameterised primordial power spectrum.
     void set_classy_parameters_parametrised_ps(Classy_input& result)
     {
@@ -642,7 +685,8 @@ namespace Gambit
       // 'classy_baseline_params'
       // Note: this should only contain a value for 'k_pivot' if the model 'LCDM'
       //    is in use.
-      pybind11::dict classy_base_dict = *Dep::classy_baseline_params;
+      //pybind11::dict classy_base_dict = *Dep::classy_baseline_params;
+      pybind11::dict classy_base_dict = *Dep::classy_baseline_plus_YHe;
 
       // Add classy_base_dict entries to the result dictionary of the type Classy_input
       std::string common_keys = result.add_dict(classy_base_dict);
@@ -684,7 +728,9 @@ namespace Gambit
       // Note: this should only contain a value for 'k_pivot' if the model 'LCDM'
       //    is in use, which is not allowed in this function as the full pk
       //    is provided by an external model scanned in combination with 'LCDM_no_primordial'
-      pybind11::dict classy_base_dict = *Dep::classy_baseline_params;
+      // pybind11::dict classy_base_dict = *Dep::classy_baseline_params;
+      pybind11::dict classy_base_dict = *Dep::classy_baseline_plus_YHe;
+
 
       // Add classy_base_dict entries to the result dictionary of the type Classy_input
       // The string common_keys will be empty if the two dictionaries 'result'
@@ -1578,6 +1624,14 @@ namespace Gambit
       BBN_container BBN_res = *Dep::BBN_abundances; // fill BBN_container with abundance results from AlterBBN
       const std::map<std::string, int>& abund_map = BBN_res.get_abund_map();
 
+      // S.B. horrible hacky override here to use the YHe value from classy. 
+      // Sorry, design principles. Sorry, modularity.
+      bool override = runOptions->getValueOrDef(false, "use_classy_value");
+      if (override)
+      {
+        BBN_res.set_BBN_abund("He4", *Dep::helium_abundance);
+      }        
+
       static bool first = true;
       const static str filename = runOptions->getValueOrDef<std::string>("default.dat", "DataFile");
       const static str path_to_file = GAMBIT_DIR "/CosmoBit/data/BBN/" + filename;
@@ -2019,6 +2073,14 @@ namespace Gambit
       result = BEreq::class_get_rs();
     }
 
+    /// Helium abundance
+    void get_YHe_classy(double& result)
+    {
+      using namespace Pipes::get_YHe_classy;
+
+      result = BEreq::class_get_YHe();
+    }
+
 
 /***************/
 /* MontePython */
@@ -2114,6 +2176,19 @@ namespace Gambit
           }
         }
         else experiments = subcaps.as<map_str_str>();
+
+        // S.B. remove the BBN likes from here: sub-caps aren't meant 
+        // to work like this, I guess.
+        experiments.erase("H2");
+        experiments.erase("D");
+        experiments.erase("H3");
+        experiments.erase("He3");
+        experiments.erase("He4");
+        experiments.erase("Yp");
+        experiments.erase("Li6");
+        experiments.erase("Li7");
+        experiments.erase("Be7");
+        experiments.erase("Li8");
 
         // Check that all the requested likelihoods can actually be provided by MP
         for (const auto& x : experiments)

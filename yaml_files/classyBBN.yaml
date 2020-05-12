@@ -1,0 +1,135 @@
+##########################################################################
+##
+##  YAML file for attempting to get YHe from CLASSY and not AlterBBN
+##
+##  \author Sanjay Bloor <sanjay.bloor12@imperial.ac.uk> 
+##          please shout at me for breaking everything
+##  \date 2020 May
+##
+##########################################################################
+
+Parameters:
+
+  # Neutrino masses, normal hierachy (NH)
+  StandardModel_mNudiff: !import include/StandardModel_mNudiff_NH_scan.yaml
+  #StandardModel_mNudiff: !import include/StandardModel_mNudiff_IH_scan.yaml
+
+  # base-line LCDM model parameters and prior
+  LCDM:
+    omega_b:
+      prior_type: flat
+      range: [0.020,0.024]
+    omega_cdm:
+      prior_type: flat
+      range: [0.10,0.13]
+    H0:
+      prior_type: flat
+      range: [62,74]
+    tau_reio:
+      prior_type: flat
+      range: [0.004,0.20]
+    T_cmb: 2.72548
+
+  # minimal base-line power-law power spectrum and priors
+  Minimal_PowerLaw_ps:
+    ln10A_s:
+      prior_type: flat
+      range: [2.9,3.2]
+    n_s:
+      prior_type: flat
+      range: [0.9,1.10]
+
+  # Include this if you use the Pantheon SNe likelihood into your scan
+  cosmo_nuisance_Pantheon: !import include/cosmo_nuisance_Pantheon.yaml
+
+Priors:
+  # Empty - they're all nice and easy, defined above
+
+Printer:
+  # cout is a debugger's best friend
+  printer: cout 
+
+Scanner:
+  # random to test
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
+
+
+ObsLikes:
+
+  # YHe + D likelihood from BBN
+  - purpose:      LogLike
+    capability:   BBN_LogLike
+    sub_capabilities: 
+      - D
+      - He4
+
+  # Print helium abundance
+  - purpose:      Observable
+    capability:   helium_abundance
+
+  # The total lnL from MontePython
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    sub_capabilities:
+      - bao_smallz_2014
+      - Pantheon
+
+  - purpose:      Observable
+    capability:   MP_LogLikes
+    type:         map_str_dbl
+    sub_capabilities:
+      - bao_smallz_2014
+      - Pantheon
+
+Rules:
+
+  # Get classy to compute YHe
+  - capability: classy_baseline_plus_YHe
+    function: set_classy_YHe_internal
+
+  # Get helium abundance (observable) from classy
+  - capability: helium_abundance
+    function: get_YHe_classy
+
+  # Overwrite alterBBN helium calculation with value from classy
+  - capability: BBN_LogLike
+    function: compute_BBN_LogLike
+    options:
+      use_classy_value: true
+
+  # Use quick settings for AlterBBN
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 1
+      err: 0
+
+  - capability: classy_final_input
+    function: set_classy_input_with_MPLike
+
+Logger:
+
+  redirection:
+    [Debug]      : "debug.log"
+    [Default]      : "default.log"
+    [CosmoBit]  : "CosmoBit.log"
+    [Scanner]      : "Scanner.log"
+
+#======== 9) Generic Name/Value Section ========
+KeyValues:
+
+  debug: true
+
+  # where to safe the output
+  default_output_path: "runs/classyBBN"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
