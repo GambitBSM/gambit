@@ -174,11 +174,11 @@ namespace Gambit
       spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
       // test against stored slha file from standalone version by
       // generating an SLHA of same GAMBIT form for easy diff
-      bool test_spec = true; // replace with preprocessor debug statement
+      bool test_spec = false; // replace with preprocessor debug statement
       if(test_spec) {
          double scale = spectrum.GetScale();
          // get slhaea object from test slha file
-         std::ifstream in_file("Spectrum_Testing/LesHouches.out.CMSSM.test_2L_RGEs");
+         std::ifstream in_file("SpecBit/Spectrum_Testing/LesHouches.out.CMSSM.test_2L_RGEs");
          SLHAea::Coll slha(in_file);
          add_DMASS_block(slha);
          Spectrum spectrum_test(slha, SpectrumContents::MSSM(), scale, false);
