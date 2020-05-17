@@ -82,7 +82,7 @@ namespace Gambit
          /// Verification routine should have taken care of invalid shapes etc, so won't check for that here.
 
          // Check scalar case
-         if(shape.size()==1 and shape[0]==1)
+         if(shape.size()==0)
          {
            std::ostringstream label;
            label << name <<" "<< Par::toString.at(tag);
