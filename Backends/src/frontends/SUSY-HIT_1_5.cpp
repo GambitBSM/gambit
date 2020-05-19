@@ -391,8 +391,6 @@ BE_INI_FUNCTION
   {
     // Make sure the spectrum object is at the SUSY scale
     double scale = Dep::MSSM_spectrum->GetScale();
-    double susy_scale = Dep::MSSM_spectrum->get(Par::mass1, "susy_scale");
-    if (scale != susy_scale) backend_error().raise(LOCAL_INFO, "MSSM_spectrum dependency is not at the SUSY scale.");
 
     // Get an SLHA1 object. SUSY-HIT is not SLHA2-compliant, despite its ability to deal with FV stop decays.
     slha = Dep::MSSM_spectrum->getSLHAea(1);
