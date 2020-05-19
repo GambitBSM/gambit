@@ -389,10 +389,8 @@ BE_INI_FUNCTION
   }
   else // Use the actual spectrum object.
   {
-    // Make sure the spectrum object is at the SUSY scale
-    double scale = Dep::MSSM_spectrum->GetScale();
-
-    // Get an SLHA1 object. SUSY-HIT is not SLHA2-compliant, despite its ability to deal with FV stop decays.
+  
+   // Get an SLHA1 object. SUSY-HIT is not SLHA2-compliant, despite its ability to deal with FV stop decays.
     slha = Dep::MSSM_spectrum->getSLHAea(1);
 
     // Check the tolerances for off-diagonal sfermion mixing.  It's a bit inefficient to redo this here,
