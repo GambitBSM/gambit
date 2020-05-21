@@ -95,7 +95,7 @@
   #define ALLOWED_MODEL_DEPENDENCE(MODULE,FUNCTION,MODEL)   MODULE_ALLOWED_MODEL(MODULE,FUNCTION,MODEL,IS_MODEL)
   #define ALLOW_MODEL_COMBINATION(...)                      DUMMYARG(__VA_ARGS__)
   #define MODEL_GROUP(GROUPNAME, GROUP)                     DUMMYARG(GROUPNAME, GROUP)
-  
+
   #define BE_GROUP(GROUP)                                   MODULE_BE_GROUP(GROUP,IS_MODEL)
   #define DECLARE_BACKEND_REQ(GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE) \
                                                             MODULE_BACKEND_REQ(MODEL, FUNCTION, GROUP, REQUIREMENT, TAGS, TYPE, ARGS, IS_VARIABLE, IS_MODEL)
@@ -206,14 +206,6 @@
         /* Add the model to GAMBIT model database */                           \
         int model_rego = add_model(STRINGIFY(MODEL), STRINGIFY(PARENT));       \
                                                                                \
-        namespace Accessors                                                    \
-        {                                                                      \
-          /* Add appropriate 'provides' check to confirm the parameters object
-             as a CAPABILITY of this model. */                                 \
-          template <>                                                          \
-          bool provides<Gambit::Tags::CAT(MODEL,_parameters)>(){return true;}  \
-        }                                                                      \
-                                                                               \
         /* Functor's actual "calculate" function.  Doesn't do anything. */     \
         void primary_parameters (ModelParameters&) {}                          \
                                                                                \
@@ -221,7 +213,7 @@
         MAKE_PRIMARY_MODEL_FUNCTOR(primary_parameters, CAT(MODEL,_parameters), \
                                    MODEL)                                      \
                                                                                \
-        /* Ini-function to set the name of the model hosted by the 
+        /* Ini-function to set the name of the model hosted by the
            ModelParameters object  */                                          \
         int added_model_name =                                                 \
          set_model_name(Functown::primary_parameters,STRINGIFY(MODEL));        \
@@ -258,13 +250,6 @@
                                                                                \
         /* Add PARAMETER to set of tags of known module functions.*/           \
         ADD_TAG_IN_CURRENT_NAMESPACE(PARAMETER)                                \
-                                                                               \
-        namespace Accessors                                                    \
-        {                                                                      \
-          /* Indicate that this PARAMETER can provide quantity CAPABILITY */   \
-          template <>                                                          \
-          bool provides<Gambit::Tags::CAPABILITY>() { return true; }           \
-        }                                                                      \
                                                                                \
         /* The wrapper function which extracts the value of PARAMETER from     \
            the parameter object. This is the analogue of a module function,    \
@@ -361,16 +346,6 @@
       namespace MODEL                                                          \
       {                                                                        \
                                                                                \
-        namespace Accessors                                                    \
-        {                                                                      \
-          /* Indicate that this MODEL can provide quantity MODEL_X_parameters*/\
-          template <>                                                          \
-          bool provides<Gambit::Tags::CAT(MODEL_X,_parameters)>()              \
-          {                                                                    \
-            return true;                                                       \
-          }                                                                    \
-        }                                                                      \
-                                                                               \
         /* Add MODEL_X_parameters to the set of tags of known functions        \
         provided by this model. */                                             \
         ADD_TAG_IN_CURRENT_NAMESPACE(CAT(MODEL_X,_parameters))                 \
@@ -390,7 +365,7 @@
         /* Call a function that tells the functor to take its parameter        \
            definition from MODEL_X's primary_parameters functor, and           \
            adds MODEL_X as a friend of MODEL if it is not a parent. */         \
-        int CAT(pars_for_,MODEL_X) =                                           \
+        const int CAT(pars_for_,MODEL_X) =                                     \
          copy_parameters(MODEL_X::Functown::primary_parameters,                \
           Functown::CAT(MODEL_X,_parameters),                                  \
           BOOST_PP_IIF(ADD_FRIEND,true,false),                                 \
@@ -475,10 +450,6 @@
      (&ORIGIN::FUNCTION, STRINGIFY(FUNCTION), STRINGIFY(CAPABILITY),           \
      "ModelParameters", STRINGIFY(ORIGIN), ModelDB());                         \
   }                                                                            \
-  /* Register the functor with the rollcall system. */                         \
-  int CAT(registered_,FUNCTION) = register_model_functor(Accessors::map_bools, \
-   Accessors::iCanDo, Accessors::provides<Gambit::Tags::CAPABILITY>,           \
-   STRINGIFY(CAPABILITY), STRINGIFY(FUNCTION));                                \
 
 /// Supplementary version of MAKE_FUNCTOR modded for primary_parameters functors.
 #define MAKE_PRIMARY_MODEL_FUNCTOR_SUPP(FUNCTION)                              \

@@ -5,7 +5,7 @@
 ///  A simple program that uses SpecBit, DecayBit and
 ///  PrecisionBit in standalone mode.  Basically
 ///  does the same thing SUSY-HIT, but
-///  - uses FlexibleSUSY for spectrum generation
+///  - uses SPheno for spectrum generation
 ///    instead of SuSpect
 ///  - uses FeynHiggs for MSSM Higgs decays instead
 ///    of SDECAY
@@ -18,6 +18,7 @@
 ///
 ///  \author Pat Scott
 ///  \date 2016 June
+///        2020 Apr (switched from FlexibleSUSY to SPheno)
 ///
 ///  *********************************************
 
@@ -59,7 +60,7 @@ int main()
     cout << "  MSSM spectrum generation, decay and EWPO calculator    " << endl;
     cout << "  based on GAMBIT modules SpecBit, DecayBit and          " << endl;
     cout << "  PrecisionBit.  Uses the following backends:            " << endl;
-    cout << "    FlexibleSUSY                                         " << endl;
+    cout << "    SPheno                                               " << endl;
     cout << "    GM2Calc                                              " << endl;
     cout << "    FeynHiggs                                            " << endl;
     cout << "    SDECAY (via SUSY-HIT)                                " << endl;
@@ -79,10 +80,11 @@ int main()
     // Initialise the random number generator.
     Random::create_rng_engine("default");
 
-    // Print some basic diagnostics.
-    cout << endl << SpecBit::Accessors::name() << " found." << endl;
-    cout << DecayBit::Accessors::name() << " found." << endl;
-    cout << PrecisionBit::Accessors::name() << " found." << endl << endl;
+    // Check that required backends are present
+    if (not Backends::backendInfo().works["SPheno4.0.3"]) backend_error().raise(LOCAL_INFO, "SPheno 4.0.3 is missing!");
+    if (not Backends::backendInfo().works["gm2calc1.3.0"]) backend_error().raise(LOCAL_INFO, "gm2calc 1.3.1 is missing!");
+    if (not Backends::backendInfo().works["FeynHiggs2.11.3"]) backend_error().raise(LOCAL_INFO, "FeynHiggs 2.11.3 is missing!");
+    if (not Backends::backendInfo().works["SUSY_HIT1.5"]) backend_error().raise(LOCAL_INFO, "SUSY-HIT 1.5 is missing!");
 
     // Read in the model
     YAML::Node infile, SM_parameters, SUSY_parameters;
@@ -117,6 +119,8 @@ int main()
                                                        : Models::MSSM20atQ::Functown::primary_parameters.getcontentsPtr();
 
     // Resolve backend requirements 'by hand'.  Must be done before dependencies are resolved.
+    get_MSSM_spectrum_SPheno.resolveBackendReq(&Backends::SPheno_4_0_3::Functown::run_SPheno);
+
     FH_AllHiggsMasses.resolveBackendReq(&Backends::FeynHiggs_2_11_3::Functown::FHHiggsCorr);
     FH_AllHiggsMasses.resolveBackendReq(&Backends::FeynHiggs_2_11_3::Functown::FHUncertainties);
     FH_Couplings.resolveBackendReq(&Backends::FeynHiggs_2_11_3::Functown::FHCouplings);
@@ -238,15 +242,15 @@ int main()
     if (model_is_GUT_scale)
     {
       Models::NUHM2::Functown::MSSM63atMGUT_parameters.notifyOfModel(SUSY_model);
-      get_MSSMatMGUT_spectrum_FS.notifyOfModel(SUSY_model);
     }
     else
     {
       Models::MSSM20atQ::Functown::MSSM25atQ_parameters.notifyOfModel(SUSY_model);
       Models::MSSM25atQ::Functown::MSSM30atQ_parameters.notifyOfModel(SUSY_model);
       Models::MSSM30atQ::Functown::MSSM63atQ_parameters.notifyOfModel(SUSY_model);
-      get_MSSMatQ_spectrum_FS.notifyOfModel(SUSY_model);
     }
+    SPheno_4_0_3_init.notifyOfModel(SUSY_model);
+    get_MSSM_spectrum_SPheno.notifyOfModel(SUSY_model);
     FH_AllHiggsMasses.notifyOfModel(SUSY_model);
     FH_Couplings.notifyOfModel(SUSY_model);
     SUSY_HIT_1_5_init.notifyOfModel(SUSY_model);
@@ -257,25 +261,20 @@ int main()
     if (model_is_GUT_scale)
     {
       Models::NUHM2::Functown::MSSM63atMGUT_parameters.resolveDependency(&Models::NUHM2::Functown::primary_parameters);
-      get_MSSMatMGUT_spectrum_FS.resolveDependency(&Models::NUHM2::Functown::MSSM63atMGUT_parameters);
-      get_MSSMatMGUT_spectrum_FS.resolveDependency(&get_SMINPUTS);
-      FeynHiggs_2_11_3_init.resolveDependency(&get_MSSMatMGUT_spectrum_FS);
-      make_MSSM_precision_spectrum_4H_W.resolveDependency(&get_MSSMatMGUT_spectrum_FS);
-      FH_HiggsMass.resolveDependency(&get_MSSMatMGUT_spectrum_FS);
-      FH_HeavyHiggsMasses.resolveDependency(&get_MSSMatMGUT_spectrum_FS);
+      get_MSSM_spectrum_SPheno.resolveDependency(&Models::NUHM2::Functown::MSSM63atMGUT_parameters);
     }
     else
     {
       Models::MSSM20atQ::Functown::MSSM25atQ_parameters.resolveDependency(&Models::MSSM20atQ::Functown::primary_parameters);
       Models::MSSM25atQ::Functown::MSSM30atQ_parameters.resolveDependency(&Models::MSSM20atQ::Functown::MSSM25atQ_parameters);
       Models::MSSM30atQ::Functown::MSSM63atQ_parameters.resolveDependency(&Models::MSSM25atQ::Functown::MSSM30atQ_parameters);
-      get_MSSMatQ_spectrum_FS.resolveDependency(&Models::MSSM30atQ::Functown::MSSM63atQ_parameters);
-      get_MSSMatQ_spectrum_FS.resolveDependency(&get_SMINPUTS);
-      FeynHiggs_2_11_3_init.resolveDependency(&get_MSSMatQ_spectrum_FS);
-      make_MSSM_precision_spectrum_4H_W.resolveDependency(&get_MSSMatQ_spectrum_FS);
-      FH_HiggsMass.resolveDependency(&get_MSSMatQ_spectrum_FS);
-      FH_HeavyHiggsMasses.resolveDependency(&get_MSSMatQ_spectrum_FS);
+      get_MSSM_spectrum_SPheno.resolveDependency(&Models::MSSM30atQ::Functown::MSSM63atQ_parameters);
     }
+    make_MSSM_precision_spectrum_4H_W.resolveDependency(&get_MSSM_spectrum_SPheno);
+    FH_HiggsMass.resolveDependency(&get_MSSM_spectrum_SPheno);
+    FH_HeavyHiggsMasses.resolveDependency(&get_MSSM_spectrum_SPheno);
+    FeynHiggs_2_11_3_init.resolveDependency(&get_MSSM_spectrum_SPheno);
+    get_MSSM_spectrum_SPheno.resolveDependency(&get_SMINPUTS);
 
     get_SMINPUTS.resolveDependency(&Models::StandardModel_SLHA2::Functown::primary_parameters);
     get_mass_es_pseudonyms.resolveDependency(&make_MSSM_precision_spectrum_4H_W);
@@ -442,8 +441,9 @@ int main()
     all_decays.resolveDependency(&neutralino_3_decays);
     all_decays.resolveDependency(&neutralino_4_decays);
 
-    // Set some module function options here if you need to, e.g.
-    //all_decays.setOption<double>("blahblah", 0.1);
+    // Set some module function options
+    get_MSSM_spectrum_SPheno.setOption<double>("n_run", 30);
+    get_MSSM_spectrum_SPheno.setOption<double>("delta_mass", 1.0e-4);
 
     try
     {
@@ -468,15 +468,15 @@ int main()
       if (model_is_GUT_scale)
       {
         Models::NUHM2::Functown::MSSM63atMGUT_parameters.reset_and_calculate();
-        get_MSSMatMGUT_spectrum_FS.reset_and_calculate();
       }
       else
       {
         Models::MSSM20atQ::Functown::MSSM25atQ_parameters.reset_and_calculate();
         Models::MSSM25atQ::Functown::MSSM30atQ_parameters.reset_and_calculate();
         Models::MSSM30atQ::Functown::MSSM63atQ_parameters.reset_and_calculate();
-        get_MSSMatQ_spectrum_FS.reset_and_calculate();
       }
+      SPheno_4_0_3_init.reset_and_calculate();
+      get_MSSM_spectrum_SPheno.reset_and_calculate();
       FeynHiggs_2_11_3_init.reset_and_calculate();
       FH_AllHiggsMasses.reset_and_calculate();
       FH_HiggsMass.reset_and_calculate();

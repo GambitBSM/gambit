@@ -22,6 +22,10 @@
 ///
 ///  *********************************************
 
+#include <regex>
+
+#include <boost/algorithm/string/replace.hpp>
+
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Elements/functors.hpp"
 #include "gambit/Elements/ini_catch.hpp"
@@ -44,21 +48,11 @@ namespace Gambit
   {
     str ns = STRINGIFY(NS_SEP);
     const str cc = "::";
-    #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
-      regex rgx1(ns), rgx2("my_ns"+cc), rgx3(cc+"\\("), rgx4(cc+"$");
-      s = regex_replace(s, rgx1, cc);
-      s = regex_replace(s, rgx2, "");
-      s = regex_replace(s, rgx3, "(");
-      s = regex_replace(s, rgx4, "");
-    #else                                // Using lame-o methods >:(
-      boost::replace_all(s, ns, cc);
-      boost::replace_all(s, "my_ns"+cc, "");
-      boost::replace_all(s, cc+"(", "(");
-      const int cclen = cc.length();
-      const int slen = s.length();
-      if (cclen > slen) return s;
-      if (s.substr(slen-cclen,cclen) == cc) s.replace(slen-cclen,cclen,"");
-    #endif
+    std::regex rgx1(ns), rgx2("my_ns"+cc), rgx3(cc+"\\("), rgx4(cc+"$");
+    s = std::regex_replace(s, rgx1, cc);
+    s = std::regex_replace(s, rgx2, "");
+    s = std::regex_replace(s, rgx3, "(");
+    s = std::regex_replace(s, rgx4, "");
     return s;
   }
 
@@ -166,9 +160,9 @@ namespace Gambit
     else if(dlerror() != NULL and symbol_names[0] != "no_symbol")
     {
       std::ostringstream err;
-      err << "None of the library symbols ("; 
+      err << "None of the library symbols (";
       for(str smb : symbol_names) { err << smb << ", "; }
-      err.seekp(-2, std::ios_base::end); 
+      err.seekp(-2, std::ios_base::end);
       err << ") was found." << std::endl
           << "The backend function from this symbol will be disabled (i.e. get status = -2)" << std::endl;
       backend_warning().raise(LOCAL_INFO, err.str());
@@ -342,9 +336,9 @@ namespace Gambit
         std::ostringstream err;
         Backends::backendInfo().classes_OK[be+ver] = false;
         Backends::backendInfo().constructor_status[be+ver+fixns(barename+args)] = "broken";
-        err << "None of the library symbols ("; 
+        err << "None of the library symbols (";
         for(str smb : symbol_names) { err << smb << ", "; }
-        err.seekp(-2, std::ios_base::end); 
+        err.seekp(-2, std::ios_base::end);
         err << ") was found in " << path << "."
             << std::endl << "The BOSSed type relying on factory " << name << args
             << " will be unavailable." << std::endl;

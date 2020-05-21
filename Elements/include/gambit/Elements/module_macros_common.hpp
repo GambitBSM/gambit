@@ -18,7 +18,7 @@
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2013 Nov
-//
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2014 Jan

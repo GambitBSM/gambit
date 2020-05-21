@@ -48,9 +48,9 @@
 #  \date 2015 Sep
 #
 #  \author Tomas Gonzalo
-#          (t.e.gonzalo@fys.uio.no)
+#          (tomas.gonzalo@monash.edu)
 #  \date 2016 Apr, Dec
-#  \date 2017 Nov
+#  \date 2020 Apr
 #
 #  \author James McKay
 #          (j.mckay14@imperial.ac.uk)
@@ -1118,9 +1118,11 @@ endif()
 set(name "spheno")
 set(ver "3.3.8")
 set(lib "lib/libSPheno.so")
-set(dl "https://${name}.hepforge.org/downloads/SPheno-${ver}.tar.gz")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
 set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1130,10 +1132,34 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} $F90=${CMAKE_Fortran_COMPILER} FFLAGS=${BACKEND_Fortran_FLAGS} ${lib}
+    BUILD_COMMAND ${MAKE_PARALLEL} $F90=${CMAKE_Fortran_COMPILER} FFLAGS=${SPheno_FLAGS} ${lib}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# SPheno
+set(name "spheno")
+set(ver "4.0.3")
+set(lib "lib/libSPheno.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} cleanall)
   set_as_default_version("backend" ${name} ${ver})
 endif()
 

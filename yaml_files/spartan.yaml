@@ -46,6 +46,8 @@ Printer:
 
   #printer: cout
 
+  #printer: none
+
 Scanner:
 
   use_scanner: random
@@ -111,13 +113,15 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/spartan"
+  default_output_path: "${PWD}/runs/spartan"
 
   rng:
     generator: ranlux48
     seed: -1
 
   print_timing_data: true
+
+  print_unitcube: true
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

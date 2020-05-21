@@ -16,6 +16,10 @@
 ///          (tomas.gonzalo@monash.edu
 ///  \date 2019 May
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #ifndef __FACTORY_DEFS_HPP__
@@ -322,7 +326,8 @@ namespace Gambit
                 double ret_val = (*this)->operator()(map);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
-                (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
+                if (vec.size() > 0 && (*this)->getPrinter().get_printUnitcube())
+                  (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
                 (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)
@@ -337,7 +342,8 @@ namespace Gambit
                 double ret_val = (*this)->operator()(map);
                 unsigned long long int id = Gambit::Printers::get_point_id();
                 (*this)->getPrinter().print(ret_val, (*this)->getPurpose(), rank, id);
-                if (vec.size() > 0) (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
+                if (vec.size() > 0 && (*this)->getPrinter().get_printUnitcube())
+                  (*this)->getPrinter().print(vec, "unitCubeParameters", rank, id);
                 (*this)->getPrinter().print(id,   "pointID", rank, id);
                 (*this)->getPrinter().print(rank, "MPIrank", rank, id);
                 (*this)->getPrinter().enable(); // Make sure printer is re-enabled (might have been disabled by invalid point error)

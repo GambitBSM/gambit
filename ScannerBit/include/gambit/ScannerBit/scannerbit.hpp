@@ -36,12 +36,11 @@ namespace Gambit
         error e = scan_error();
         warning w = scan_warning();
       }
-      catch (std::exception& e) 
+      catch (std::exception& e)
       {
         std::cout << "ScannerBit has failed to initialise due to a fatal exception: " << e.what() << std::endl;
-        //std::cout << "raised from ini_code_struct declared at: " << location << std::endl;
-        throw(e);      
-      }       
+        throw(e);
+      }
       return 0;
     }
 

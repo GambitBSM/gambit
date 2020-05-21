@@ -35,10 +35,6 @@
 include(CMakeParseArguments)
 include(ExternalProject)
 
-# Add precompiled header support
-##include(cmake/PrecompiledHeader.cmake)
-#include(cmake/cotire.cmake)
-
 # defining some colors
 string(ASCII 27 Esc)
 set(ColourReset "${Esc}[m")
@@ -210,10 +206,6 @@ function(add_gambit_library libraryname)
     make_symbols_visible(${libraryname})
   endif()
 
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${libraryname})
-  ##add_precompiled_header(${libraryname} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
-
 endfunction()
 
 # Macro to strip a library out of a set of full paths
@@ -350,10 +342,6 @@ function(add_gambit_executable executablename LIBRARIES)
     message(STATUS ${LIBRARIES})
   endif()
 
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${executablename})
-  ##add_precompiled_header(${executablename} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
-
 endfunction()
 
 # Standalone harvester script
@@ -377,10 +365,6 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
-        # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
-        if (EXCLUDE_FLEXIBLESUSY)
-          set(standalone_permitted 0)
-        endif()
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)

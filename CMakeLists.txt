@@ -32,15 +32,19 @@
 #
 #************************************************
 
-# Require a minimum cmake version of 2.8.5
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+# Define minimum cmake version
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
-SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_03 RelWithDebInfo MinSizeRel.")
+# Define minimum compiler versions
+set(MIN_GCC_VERSION 5.1)
+set(MIN_ICC_VERSION 15.0.2)
+
+SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET(CMAKE_BUILD_TYPE None CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release_03")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release_O3")
   SET(CMAKE_BUILD_TYPE Release CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-  SET(FORCE_03 TRUE)
+  SET(FORCE_O3 TRUE)
 endif()
 message("${Yellow}-- Build type is set to ${CMAKE_BUILD_TYPE} ${ColourReset}")
 
@@ -76,13 +80,14 @@ elseif (CXX_COMPILER_NAME MATCHES "icc.*$")
   message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to icc.  Did you mean icpc?")
 endif()
 
-# Use ccache to speed up re-compiling if it is available
-#find_program(CCACHE_FOUND ccache)
-#if(CCACHE_FOUND)
-#  message("-- Found ccache. Will use it to speed up recompilation.")
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-#endif(CCACHE_FOUND)
+# Include cmake utility scripts, including colour definitions.
+include(cmake/utilities.cmake)
+
+# Enforce minimum versions for the C/C++ compiler
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_ICC_VERSION) OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GCC_VERSION))
+  message(FATAL_ERROR "${BoldRed}\nGAMBIT requires at least g++ ${MIN_GCC_VERSION} or icpc ${MIN_ICC_VERSION}.  Please install a newer compiler.${ColourReset}")
+endif()
 
 # Don't relink all binaries when shared lib changes (programs will be rebuilt anyway if used headers change)
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
@@ -99,9 +104,6 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 # Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# Include cmake utility scripts, including colour definitions.
-include(cmake/utilities.cmake)
 
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
@@ -264,13 +266,27 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
 
-# Check for C++11, C++14 and C++17 support
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+if(HAVE_PYBIND11)
+  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
+     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
+    set(PERMIT_CXX17_CHECK FALSE)
+  else()
+    set(PERMIT_CXX17_CHECK TRUE)
+  endif()
+endif()
+
+# Check for C++11, C++14 and C++17 support.
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(PERMIT_CXX17_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+endif()
 if(COMPILER_SUPPORTS_CXX17)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else()
-  CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  if(PERMIT_CXX17_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  endif()
   CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
   if(COMPILER_SUPPORTS_CXX14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
