@@ -274,7 +274,6 @@ namespace Gambit
     /// Neutrino yield function pointer and setup
     void nuyield_from_DS(nuyield_info &result)
     {
-
       using namespace Pipes::nuyield_from_DS;
       double annihilation_bf[29];
       double Higgs_decay_BFs_neutral[29][3];
@@ -290,29 +289,6 @@ namespace Gambit
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
-
-      // cout << Models::ParticleDB().partmap::pdg_pair("b") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("bbar") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("c") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("cbar") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("tau-") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("tau+") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("t") << endl;
-      // cout << Models::ParticleDB().partmap::pdg_pair("tbar") << endl;
-
-      // // Hack together a patch to let DS and TH_processCatalog talk properly about quarks
-      // std::string bq_array[] = {"d_3","dbar_3"};
-      // std::string cq_array[] = {"u_2","ubar_2"};
-      // std::string tau_array[] = {"e+_3","e-_3"};
-      // std::string tq_array[] = {"u_3","ubar_3"};
-      // std::vector<str> bottomq (bq_array, bq_array + sizeof(bq_array)/sizeof(std::string));
-      // std::vector<str> charmq (cq_array, cq_array + sizeof(cq_array)/sizeof(std::string));
-      // std::vector<str> taul (tau_array, tau_array + sizeof(tau_array)/sizeof(std::string));
-      // std::vector<str> topq (tq_array, tq_array + sizeof(tq_array)/sizeof(std::string));
-      // // neutral_channels[24] = bottomq;
-      // // neutral_channels[21] = charmq;
-      // // neutral_channels[18] = taul;
-      // // neutral_channels[23] = topq;
       
       #ifdef DARKBIT_DEBUG
         Models::ParticleDB().partmap::check_contents();
@@ -330,15 +306,10 @@ namespace Gambit
           for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
           cout << endl;
         }
-        // // printout the vectors used to mimic the TH_ProcessCatalog format
-        // cout << "\nMimicing TH_ProcessCatalog vector format:\n";
-        // for(int i=0; i<2; i++) cout << bottomq[i] << "\t" << charmq[i] << "\t" << taul[i] << "\t" << topq[i] << endl;
-        // cout << endl;
       #endif
 
       for (int i=0; i<29; i++)
       {
-        // std::vector<int> pdgids;
         std::vector<str> pdgstrings;
         // I only want the particle long name corresponding the the 0th context integer
         // grab the pdg code for the particle, and manually set the context integer to 0
@@ -346,26 +317,9 @@ namespace Gambit
         {
           pdgstrings.push_back(Models::ParticleDB().partmap::long_name(Models::ParticleDB().partmap::pdg_pair(*it).first, 0));
         }
-        // for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) pdgids.push_back(Models::ParticleDB().partmap::pdg_pair(*it).first);
-        // for (auto it=pdgids.begin(); it!=pdgids.end(); it++) pdgstrings.push_back(Models::ParticleDB().partmap::long_name(*it,0));
-        
-        // int pdgid_one = pdgids[0];//Models::ParticleDB().partmap::pdg_pair(neutral_channels[i][0]).first;
-        // int pdgid_two = pdgids[1];//Models::ParticleDB().partmap::pdg_pair(neutral_channels[i][1]).first;
-        // std::string pdgstring_one = pdgstrings[0];//Models::ParticleDB().partmap::long_name(pdgid_one,0);
-        // std::string pdgstring_two = pdgstrings[1];//Models::ParticleDB().partmap::long_name(pdgid_two,0);
-        // std::vector<str> pdg_vector{pdgstring_one, pdgstring_two};
-        
         const TH_Channel* channel = annProc.find(pdgstrings);
-        // const TH_Channel* channel = annProc.find(neutral_channels[i]);
         
         #ifdef DARKBIT_DEBUG
-          // for (auto it=pdgids.begin(); it!=pdgids.end(); it++) cout << *it << " ";
-          // cout << endl;
-          // for (auto it=pdgstrings.begin(); it!=pdgstrings.end(); it++) cout << *it << " ";
-          // cout << endl;
-          // cout << pdgid_one << "\t" << pdgid_two << endl;
-          // cout << pdgstring_one << "\t" << pdgstring_two << endl;
-          // cout << pdg_vector[0] <<" "<< pdg_vector[1] << endl;
           // Print out the current neutral_channel
           cout << "Looking at the ";
           for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
@@ -393,12 +347,13 @@ namespace Gambit
             annihilation_bf[i] += channel->genRate->bind("v")->eval(0.);
           }
           annihilation_bf[i] /= *Dep::sigmav;
-
-          // Check that having this channel turned on makes sense at all.
+          
           #ifdef DARKBIT_DEBUG
+            // state the channel which is having its bf set
             cout << "For which, I found this channel in the annihilation proccess: ";
             for (auto it=channel->finalStateIDs.begin(); it!=channel->finalStateIDs.end(); it++) cout << *it << " ";
             cout << "\nNow the channel's branching fraction is set\n";
+            // Check that having this channel turned on makes sense at all.
             double mtot = 0;
             cout << "Particles and masses in DM annihilation final state: " << endl;
             for (auto p = pdgstrings.begin(); p != pdgstrings.end(); ++p)
@@ -415,7 +370,6 @@ namespace Gambit
         }
 
       }
-
 
       // Set Higgs masses
       if (Dep::TH_ProcessCatalog->hasParticleProperty("h0_1"))
