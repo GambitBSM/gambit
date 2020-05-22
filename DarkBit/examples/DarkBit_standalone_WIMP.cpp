@@ -32,7 +32,7 @@ using namespace DarkBit::Functown;     // Functors wrapping the module's actual 
 using namespace DarkBit::Accessors;    // Helper functions that provide some info about the module
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
-QUICK_FUNCTION(DarkBit, TH_ProcessCatalog, OLD_CAPABILITY, TH_ProcessCatalog_WIMP, DarkBit::TH_ProcessCatalog, ())
+QUICK_FUNCTION(DarkBit, TH_ProcessCatalog, OLD_CAPABILITY, TH_ProcessCatalog_WIMP, TH_ProcessCatalog, ())
 QUICK_FUNCTION(DarkBit, DarkMatter_ID, OLD_CAPABILITY, DarkMatter_ID_WIMP, std::string, ())
 QUICK_FUNCTION(DarkBit, DD_couplings, OLD_CAPABILITY, DD_couplings_WIMP, DM_nucleon_couplings, ())
 
@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
     // ---- Check that required backends are present ----
 
     if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
-    if (not Backends::backendInfo().works["gamLike1.0.0"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.0 is missing!");
+    if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.0.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.0.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
 
@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
     DDCalc_2_0_0_init.resolveDependency(&DD_couplings_WIMP);
 
     // Initialize gamLike backend
-    gamLike_1_0_0_init.reset_and_calculate();
+    gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
     DarkSUSY_5_1_3_init.reset_and_calculate();
@@ -403,26 +403,26 @@ int main(int argc, char* argv[])
 
     // Resolve Galactic halo requirements for gamLike
     set_gamLike_GC_halo.resolveDependency(&GalacticHalo_Einasto);
-    set_gamLike_GC_halo.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::set_halo_profile);
+    set_gamLike_GC_halo.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::set_halo_profile);
 
     // Calculate Fermi LAT dwarf likelihood
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_HESSGC_gamLike.resolveDependency(&GA_AnnYield_General);
     lnL_HESSGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_HESSGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_HESSGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_CTAGC_gamLike.resolveDependency(&GA_AnnYield_General);
     lnL_CTAGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_CTAGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_CTAGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_FermiGC_gamLike.resolveDependency(&GA_AnnYield_General);
     lnL_FermiGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_FermiGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_FermiGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
 
     // -- Calculate relic density --

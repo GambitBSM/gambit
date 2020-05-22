@@ -44,9 +44,6 @@
 #else
    // Otherwise, we are in the ScannerBit standalone executable and need only a limited set.
    #include "gambit/ScannerBit/printable_types.hpp"
-
-   // Already dealt with in basebaseprinter? Can possibly do this to deal with
-   // lack of new types, rest will be inherited anyway.
    #define PRINTABLE_TYPES SCANNER_PRINTABLE_TYPES
    #define RETRIEVABLE_TYPES SCANNER_RETRIEVABLE_TYPES
 #endif
@@ -108,7 +105,7 @@ namespace Gambit
         /// Signal printer to flush data in buffers to disk
         /// Printers should do this automatically as needed, but this is useful if a scanner is printing
         /// a bunch of data as a batch, to make sure it is all on disk after the batch is done.
-        virtual void flush() = 0;        
+        virtual void flush() = 0;
 
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
@@ -155,7 +152,7 @@ namespace Gambit
                    const int vertexID, const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, vertexID, rank, pointID);
+          if (printer_enabled) _print(in, label, vertexID, rank, pointID);
         }
 
         // Overload which automatically determines a unique ID code
@@ -165,11 +162,12 @@ namespace Gambit
                    const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, rank, pointID);
+          print(in, label, get_param_id(label), rank, pointID);
         }
 
       protected:
-        using BaseBasePrinter::_print; //unhide the default function in the base class
+        // Unhide the default function in the base class
+        using BaseBasePrinter::_print;
 
         // We need to have a virtual print method for every type that we want to
         // be able to print. The list of these types is maintained in

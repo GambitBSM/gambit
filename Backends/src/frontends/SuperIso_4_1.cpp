@@ -12,6 +12,7 @@
 ///         (nazila@cern.ch)
 /// \date 2016 Jul
 /// \date 2018 Jan
+/// \date 2019 Jul
 ///
 /// \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
@@ -26,12 +27,13 @@
 
 #include <sstream>
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/SuperIso_3_6.hpp"
+#include "gambit/Backends/frontends/SuperIso_4_1.hpp"
 #include "gambit/Backends/backend_types/SuperIso.hpp"
 
-/// Number of observables the SuperIso returns for B0 -> K(*) mu mu
-#define Nobs_BKsll 30
+/// Number of observables the SuperIso returns for B0 -> K(*) mu mu and Bs -> phi mu mu
 #define Nobs_BKll 2
+#define Nobs_BKsll 30
+#define Nobs_Bsphill 6
 
 
 // Initialisation
@@ -45,14 +47,14 @@ BE_NAMESPACE
   /// Helper functions to apply offsets to Wilson coefficients
   /// @{
   /// Note that we don't yet consider the impacts of modifying anything
-  /// except Re(O_7), Re(O_9), Re(O_10), Q_1 and Q_2.
-  void modify_WC(const parameters *param, double C0b[11])
+  /// except O_7, O_9, O_10, Q_1 and Q_2.
+  void modify_WC(const parameters *param, std::complex<double> C0b[11])
   {
-    C0b[7]+=param->Re_DeltaC7;
-    C0b[9]+=param->Re_DeltaC9;
-    C0b[10]+=param->Re_DeltaC10;
+    C0b[7]+=std::complex<double>(param->Re_DeltaC7, param->Im_DeltaC7);
+    C0b[9]+=std::complex<double>(param->Re_DeltaC9, param->Im_DeltaC9);
+    C0b[10]+=std::complex<double>(param->Re_DeltaC10, param->Im_DeltaC10);
   }
-  void modify_WC(const parameters *param, double C0b[11], std::complex<double> CQ0b[3])
+  void modify_WC(const parameters *param, std::complex<double> C0b[11], std::complex<double> CQ0b[3])
   {
     modify_WC(param, C0b);
     CQ0b[1]+=std::complex<double>(param->Re_DeltaCQ1, param->Im_DeltaCQ1);
@@ -75,7 +77,7 @@ BE_NAMESPACE
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
     double obs[Nobs_BKsll+1];
     Flav_KstarMuMu_obs results;
@@ -106,15 +108,35 @@ BE_NAMESPACE
     return results;
   }
 
+  double BRBKmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
+  {
+    check_model(param, LOCAL_INFO);
+    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
+
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
+    double obs[3];
+    Flav_KstarMuMu_obs results;
+    results.q2_min=Q2_min;
+    results.q2_max=Q2_max;
+
+    double mu_W=2.*param->mass_W;
+    double mu_b=param->mass_b_pole;
+
+    double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));        
+
+    return BR;
+  }
+
   /// RK* observables
   double RKstar_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
+    std::complex<double> C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
     std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
     double obs[Nobs_BKsll+1];
 
@@ -142,9 +164,9 @@ BE_NAMESPACE
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
+    std::complex<double> C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
     std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
     double obs[Nobs_BKll+1];
 
@@ -173,7 +195,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_1S/2.;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3];
 
     //cout<<"Checking WC at W scale , C7= "<<C0w[7]+C1w[7]+C2w[7]<<" ,C9= "<<C0w[9]+C1w[9]+C2w[9]<<" ,C10= "<<C0w[10]+C1w[10]+C2w[10]<<endl;
@@ -210,7 +232,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
 
     CW_calculator(flav,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -230,15 +252,16 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11];
-    std::complex<double> CQ0b[3],CQ1b[3];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(flav,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
 
-    return Bll(byVal(flav),(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),param,byVal(mu_b));
+    return Bll(byVal(flav),(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
   double BRBXsmumu_lowq2_CONV(const parameters *param)
@@ -247,7 +270,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -265,7 +288,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -283,7 +306,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -301,7 +324,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -319,7 +342,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -337,7 +360,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -355,7 +378,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b;
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
 
     CW_calculator(3,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -375,7 +398,7 @@ BE_NAMESPACE
     double mu_b=param->mass_b_1S/2.;
     double lambda_h=0.5;
     double mu_spec=sqrt(lambda_h*param->mass_b);
-    double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C0spec[11],C1spec[11],Cpb[11];
+    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C0spec[11],C1spec[11],Cpb[11];
     std::complex<double> CQpb[3];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
@@ -393,7 +416,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_1S/2.;
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
@@ -408,7 +431,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_1S/2.;
-    double C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11];
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b), param);

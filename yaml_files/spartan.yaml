@@ -35,7 +35,7 @@ Printer:
     output_file: "results.hdf5"
     group: "/spartan"
     delete_file_on_restart: true
-    buffer_length: 100
+    buffer_length: 1000
     #disable_autorepair: true
 
   #printer: ascii
@@ -107,7 +107,7 @@ Logger:
     [Default]      : "default.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
-  #debug: true
+  debug: true
 
 KeyValues:
 

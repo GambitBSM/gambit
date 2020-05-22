@@ -720,7 +720,7 @@ namespace Gambit
           {
             for (int l=0; l<3; l++)
             {
-              if ( (M[i] > (m_lep[j]+m_uquark[k]+m_dquark[l])) and (M[i] < 7.5) )  // For now, take 7.5 GeV to be the mass limit below which the RHN decay is to lepton+meson final state
+              if ( (M[i] > (m_lep[j]+m_uquark[k]+m_dquark[l])) and (M[i] > 7.5) )  // For now, take 7.5 GeV to be the mass limit below which the RHN decay is to lepton+meson final state
               {
                 decay_prod[0] = m_lep[j];
                 decay_prod[1] = m_uquark[k];
@@ -938,8 +938,8 @@ namespace Gambit
     {
       using namespace Pipes::lnL_R_pi;
       double R_pi = *Dep::R_pi;
-      double R_pi_exp = 1.23e-4; // Phys.Rev.Lett. 70 (1993) 17-20  
-      double R_pi_err = 0.005e-4;
+      double R_pi_exp = 1.2327e-4; // PDG average from Phys.Rev.Lett. 70 (1993) 17-20, Phys. Rev. Lett. 115, 071801 (2015), Phys. Rev. Lett. 68, 3000 (1992)
+      double R_pi_err = 0.0023e-4;
 
       result = Stats::gaussian_loglikelihood(R_pi, R_pi_exp, 0.0, R_pi_err, false);
     }

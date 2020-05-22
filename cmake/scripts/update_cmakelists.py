@@ -181,7 +181,7 @@ set(source_files                                \n"
         towrite+=")\n\n"
         towrite+="add_gambit_library("+mod+" OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})"
         cmakelist = "./"+mod+"/CMakeLists.txt"
-        candidate = "./scratch/"+mod+"_CMakeLists.txt"
+        candidate = "./scratch/build_time/"+mod+"_CMakeLists.txt"
         with open(candidate,"w") as f: f.write(towrite)
         update_only_if_different(cmakelist, candidate)
 

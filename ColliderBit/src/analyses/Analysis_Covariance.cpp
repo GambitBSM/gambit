@@ -115,8 +115,11 @@ namespace Gambit {
         results_SR2.n_signal = 15; // dummy number of signal events (usually incremented in the analysis code)
         add_result(results_SR2);
 
-        // Hard-code the a covariance matrix  between these (representing the bkg sys values above, rotated by 30 deg)
-        set_covariance({{71.6875, 32.1512},{32.1512, 34.5625}});
+        // Hard-code a covariance matrix  between these (representing the bkg sys values above, rotated by 30 deg)
+        Eigen::MatrixXd cov(2,2);
+        cov << 71.6875, 32.1512,
+               32.1512, 34.5625;
+        set_covariance(cov);
 
       }
 

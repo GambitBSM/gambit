@@ -84,8 +84,8 @@ namespace Gambit
       singletmodel.sinW2 = sinW2;
 
       // gauge couplings
-      singletmodel.g1 = e / sinW2;
-      singletmodel.g2 = e / cosW2;
+      singletmodel.g1 = sqrt(5/3) * e / sqrt(cosW2);
+      singletmodel.g2 = e / sqrt(sinW2);
       singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
@@ -146,8 +146,8 @@ namespace Gambit
       singletmodel.sinW2 = sinW2;
 
       // gauge couplings
-      singletmodel.g1 = e / sinW2;
-      singletmodel.g2 = e / cosW2;
+      singletmodel.g1 = sqrt(5/3) * e / sqrt(cosW2);
+      singletmodel.g2 = e / sqrt(sinW2);
       singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas

@@ -156,17 +156,20 @@ namespace Gambit
   }
 
   /// Disable a C, C++ or Fortran backend functor if its library is missing or the symbol cannot be found.
-  void set_backend_functor_status_C_CXX_Fortran(functor& be_functor, const str& symbol_name)
+  void set_backend_functor_status_C_CXX_Fortran(functor& be_functor, const std::vector<str>& symbol_names)
   {
     bool present = Backends::backendInfo().works.at(be_functor.origin() + be_functor.version());
     if (not present)
     {
       be_functor.setStatus(-1);
     }
-    else if(dlerror() != NULL and symbol_name != "no_symbol")
+    else if(dlerror() != NULL and symbol_names[0] != "no_symbol")
     {
       std::ostringstream err;
-      err << "Library symbol " << symbol_name << " not found."  << std::endl
+      err << "None of the library symbols ("; 
+      for(str smb : symbol_names) { err << smb << ", "; }
+      err.seekp(-2, std::ios_base::end); 
+      err << ") was found." << std::endl
           << "The backend function from this symbol will be disabled (i.e. get status = -2)" << std::endl;
       backend_warning().raise(LOCAL_INFO, err.str());
       be_functor.setStatus(-2);
@@ -255,7 +258,7 @@ namespace Gambit
 
 
   /// Disable a backend functor if its library is missing or the symbol cannot be found.
-  int set_backend_functor_status(functor& be_functor, const str& symbol_name)
+  int set_backend_functor_status(functor& be_functor, const std::vector<str>& symbol_names)
   {
     // Extract the backend that we're dealing with from the functor metadata.
     str be = be_functor.origin() + be_functor.version();
@@ -265,13 +268,15 @@ namespace Gambit
       // Now switch according to the language of the backend
       if (Backends::backendInfo().needsMathematica.at(be))
       {
+        if (symbol_names.size() != 1) backend_error().raise(LOCAL_INFO, be+" is a Mathematica backend; "
+         +be_functor.origin()+"::"+be_functor.name()+" can have only one symbol.");
         // And switch according to whether the language has its dependencies met or not
         #ifdef HAVE_MATHEMATICA
-          set_backend_functor_status_Mathematica(be_functor, symbol_name);
+          set_backend_functor_status_Mathematica(be_functor, symbol_names[0]);
         #else
           std::ostringstream err;
           err << "Mathematica is not found or it is disabled. " << std::endl
-              << "The backend function for the symbol " << symbol_name << " will be disabled  (i.e. get status = -5)" << endl;
+              << "The backend function for the symbol " << symbol_names[0] << " will be disabled  (i.e. get status = -5)" << endl;
           be_functor.setStatus(-5);
           backend_warning().raise(LOCAL_INFO, err.str());
         #endif
@@ -279,19 +284,21 @@ namespace Gambit
       // and so on.
       if (Backends::backendInfo().needsPython.at(be))
       {
+        if (symbol_names.size() != 1) backend_error().raise(LOCAL_INFO, be+" is a Python backend; "
+         +be_functor.origin()+"::"+be_functor.name()+" can have only one symbol.");
         #ifdef HAVE_PYBIND11
-          set_backend_functor_status_Python(be_functor, symbol_name);
+          set_backend_functor_status_Python(be_functor, symbol_names[0]);
         #else
           std::ostringstream err;
           err << "Pybind11 for interfacing with Python backends is not found or disabled. " << std::endl
-              << "The backend function for the symbol " << symbol_name << " will be disabled  (i.e. get status = -6)" << endl;
+              << "The backend function for the symbol " << symbol_names[0] << " will be disabled  (i.e. get status = -6)" << endl;
           be_functor.setStatus(-6);
           backend_warning().raise(LOCAL_INFO, err.str());
         #endif
       }
       else
       {
-        set_backend_functor_status_C_CXX_Fortran(be_functor, symbol_name);
+        set_backend_functor_status_C_CXX_Fortran(be_functor, symbol_names);
       }
 
     }
@@ -316,7 +323,7 @@ namespace Gambit
   }
 
   /// Get the status of a factory pointer to a BOSSed type's wrapper constructor.
-  int get_ctor_status(str be, str ver, str name, str barename, str args, str symbol_name)
+  int get_ctor_status(str be, str ver, str name, str barename, str args, const std::vector<str>& symbol_names)
   {
     bool present = Backends::backendInfo().works.at(be+ver);
     try
@@ -335,7 +342,10 @@ namespace Gambit
         std::ostringstream err;
         Backends::backendInfo().classes_OK[be+ver] = false;
         Backends::backendInfo().constructor_status[be+ver+fixns(barename+args)] = "broken";
-        err << "Library symbol " << symbol_name << " not found in " << path << "."
+        err << "None of the library symbols ("; 
+        for(str smb : symbol_names) { err << smb << ", "; }
+        err.seekp(-2, std::ios_base::end); 
+        err << ") was found in " << path << "."
             << std::endl << "The BOSSed type relying on factory " << name << args
             << " will be unavailable." << std::endl;
         backend_warning().raise(LOCAL_INFO, err.str());

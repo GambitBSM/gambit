@@ -194,6 +194,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// Scale test for various aspects of the printer buffer system
+  /// Creates 1000 items to be printed per point
+  #define CAPABILITY large_print
+  START_CAPABILITY
+    #define FUNCTION large_print
+    START_FUNCTION(map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Pythia backend tester
   #define CAPABILITY test_Pythia

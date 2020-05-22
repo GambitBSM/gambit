@@ -1,0 +1,236 @@
+#############################################################################
+## GAMBIT configuration for a MultiNest scan of flavour physics Wilson coeffs
+##
+## Uses likelihood constraints from flavour physics observables only,
+## without nuisance parameters.
+#############################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2:
+    alphaS    :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
+    mBmB      :  4.18000000E+00 # mb(mb)^MSbar &
+    alphainv  :  1.27940010E+02 # alpha^{-1}(mZ)^MSbar
+    mT        :  1.73340000E+02 # mtop(pole)
+    GF        :  1.16637870E-05 # G_Fermi
+    mZ        :  9.11876000E+01 # mZ(pole)
+    mTau      :  1.77682000E+00 # mtau(pole)
+    mNu3      :               0 # mnu3(pole)
+    mD        :  4.80000000E-03 # md(2 GeV)^MSbar
+    mU        :  2.30000000E-03 # mu(2 GeV)^MSbar
+    mS        :  9.50000000E-02 # ms(2 GeV)^MSbar
+    mCmC      :  1.27500000E+00 # mc(mc)^MSbar
+    mE        :  5.10998928E-04 # melectron(pole)
+    mMu       :  1.05658372E-01 # mmuon(pole)
+    mNu1      :               0 # mnu1(pole)
+    mNu2      :               0 # mnu2(pole)
+    CKM_lambda:  0.22537        # Wolfenstein \lambda
+    CKM_A     :  0.814          # Wolfenstein A
+    CKM_rhobar:  0.117          # Wolfenstein \bar\rho
+    CKM_etabar:  0.353          # Wolfenstein \bar\eta
+    theta12   :  0.58376        # solar angle
+    theta23   :  0.76958        # atmospheric mixing angle
+    theta13   :  0.15495        # reactor angle
+    delta13   :  0              # Dirac CP-violating phase
+    alpha1    :  0              # first Majorana CP-violating phase
+    alpha2    :  0              # second CP-violating Majorana phase
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  WC:
+    Re_DeltaC7: 0
+    Im_DeltaC7:  0
+    Re_DeltaC9: 0
+    Im_DeltaC9:  0
+    Re_DeltaC10: 0
+    Im_DeltaC10: 0
+    Re_DeltaCQ1: 0
+    Im_DeltaCQ1: 0
+    Re_DeltaCQ2: 0
+    Im_DeltaCQ2: 0
+
+
+Priors:
+
+  # All priors are simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: hdf5
+
+  options:
+    output_file: "WC_SM.hdf5"
+    group: "/WC"
+
+
+Scanner:
+
+  use_scanner: square_grid
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 400
+      tol: 0.1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 20000
+      convthresh: 1e-5
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 1
+
+
+ObsLikes:
+  # FIXME: How are the observables called inside superiso?
+  #- purpose:    RDRDstarTest
+  #  capability: RDRDstar_LogLikelihood
+
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_0p1_0p98_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_1p1_2p5_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_2p5_4_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_4_6_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_6_8_LHCb
+
+  - purpose:    Observable
+    capability: prediction_B2KstarmumuAng_15_19_LHCb
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_CMS
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Belle
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+#  - purpose:    RKTest
+#    capability: RK_LogLikelihood
+
+#  - purpose:    RKstarTest
+#    capability: RKstar_LogLikelihood_LHCb
+
+
+
+
+
+Rules:
+
+  - capability: prediction_B2mumu
+    options:
+      obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - capability: B2mumu_LogLikelihood_.*
+    options:
+      obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  - capability: prediction_B2KstarmumuAng_.*_Atlas
+    options:
+      obs_list: [FL, S3, S4, S5, S7, S8]
+
+  - capability: B2KstarmumuAng_LogLikelihood_Atlas
+    options:
+      obs_list: [FL, S3, S4, S5, S7, S8]
+
+  - capability: prediction_B2KstarmumuAng_.*_CMS
+    options:
+      obs_list: [P1, P5prime]
+
+  - capability: B2KstarmumuAng_LogLikelihood_CMS
+    options:
+      obs_list: [P1, P5prime]
+
+  - capability: prediction_B2KstarmumuAng_.*_Belle
+    options:
+      obs_list: [P4prime, P5prime]
+
+  - capability: B2KstarmumuAng_LogLikelihood_Belle
+    options:
+      obs_list: [P4prime, P5prime]
+
+  - capability: prediction_B2KstarmumuAng_.*_LHCb
+    options:
+      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    options:
+      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - options:
+        use_SM_covariance: true
+        
+  # Use SuperIso instead of FeynHiggs for b->sgamma
+  - capability: bsgamma
+    function: SI_bsgamma
+
+  # Use SuperIso instead of FeynHiggs for B_s->mumu
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+
+  # Use SuperIso instead of FeynHiggs for B_s->mumu
+  - capability: Btaunu
+    function: SI_Btaunu
+
+
+Logger:
+
+  redirection:
+    [Debug]   : "debug.log"
+    [Default] : "default.log"
+    [FlavBit] : "FlavBit.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/WC_SM"
+
+  debug: true

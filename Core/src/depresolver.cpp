@@ -316,7 +316,7 @@ namespace Gambit
        boundTEs(&equiv_classes),
        boundPrinter(&printer),
        index(get(vertex_index,masterGraph)),
-       activeFunctorGraphFile(GAMBIT_DIR "/scratch/GAMBIT_active_functor_graph.gv")
+       activeFunctorGraphFile(Utils::runtime_scratch()+"GAMBIT_active_functor_graph.gv")
     {
       addFunctors();
       logger() << LogTags::dependency_resolver << endl;

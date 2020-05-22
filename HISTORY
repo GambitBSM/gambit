@@ -3,6 +3,20 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.4.3
+Bugfix release
+- Further corrected auto-detection of static LAPACK libraries (for OSX this time)
+
+v1.4.2
+Bugfix release
+- Corrected auto-detection of static LAPACK libraries
+
+v1.4.1
+Bugfix release
+- Updated model-dependence declarations for some older module
+  functions to work more correctly with new neutrino models
+- Dropped ROOT 5 support
+
 v1.4.0
 Feature release
 - Added routines for right-handed neutrinos.

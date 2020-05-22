@@ -62,6 +62,12 @@
 #ifndef Python3_LANG
   #define Python3_LANG 5
 #endif
+#ifndef DATA_LANG
+  #define DATA_LANG 6
+#endif
+#ifndef Data_LANG
+  #define Data_LANG 6
+#endif
 
 /// Macro to help identifying the language of the backend
 #ifndef DEFINED_BACKENDLANG
@@ -93,5 +99,9 @@
 /// Macro that determines whether the language of the backend is Python
 #define USING_PYTHON IF_ELSE_TOKEN_DEFINED(BACKENDLANG,                                         \
         BOOST_PP_EQUAL(CAT(BACKENDLANG,_LANG), PYTHON_LANG), 0)
+
+/// Macro that determines whether the the backend is purely data
+#define DATA_ONLY IF_ELSE_TOKEN_DEFINED(BACKENDLANG,                                            \
+        BOOST_PP_EQUAL(CAT(BACKENDLANG,_LANG), DATA_LANG), 0)
 
 #endif // #defined __interoperability_macros_hpp__

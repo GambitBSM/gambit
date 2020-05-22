@@ -440,6 +440,17 @@ namespace Gambit
 
     /// @}
 
+    /// Scale test for various aspects of the printer buffer system
+    /// Creates 1000 items to be printed per point
+    void large_print(std::map<std::string,double>& result)
+    {
+        for(int i=0; i<1000; i++)
+        {
+            std::stringstream ss;
+            ss<<i;
+            result[ss.str()] = i;
+        }
+    }
 
     /// Test inline marginalisation of a Poisson likelihood over a log-normally or Gaussianly-distributed nuisance parameter.
     void marg_poisson_test(double &result)

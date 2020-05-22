@@ -3146,8 +3146,8 @@ SL_LL : |
 SL_M : |
   Measurements related to the tree-level leptonic and semileptonic B and D decays.
 
-SuperIso_3_6_init : |
-   Initalise SuperIso v3.6.
+SuperIso_4_1_init : |
+   Initalise SuperIso v4.1.
 
 SuperIso_modelinfo : |
    SuperIso internal model information.
@@ -3229,7 +3229,7 @@ RKstar_CONV:  |
 
 muegamma: |
    Calculates the BF for the mu- -> e- gamma process
- 
+
 tauegamma: |
    Calculates the BF for the tau- -> e- gamma process
 
@@ -3259,6 +3259,9 @@ taumumumu: |
 
 mueTi: |
    Calculates the ratio for mu-e conversion in Titanium wrt capture
+
+mueAu: |
+   Calculates the ratio for mu-e conversion in gold wrt capture
 
 muePb: |
    Calculates the ratio for mu-e conversion in lead wrt capture
@@ -3784,7 +3787,7 @@ RightHandedNeutrinos_parameters: |
 
 RightHandedNeutrinos_diff_parameters: |
    Parameters for the model RightHandedNeutrinos_diff (see ./gambit RightHandedNeutrinos_diff)
- 
+
 
 #-------------------------------------
 #  FeynHiggs capabilities
@@ -4007,7 +4010,7 @@ SeesawI_Theta: |
 
 SeesawI_Vnu: |
   Active neutrino mixing matrix in the type I seesaw mechanism
-  
+
 m_nu: |
   Matrix of active neutrinos
 
@@ -4226,7 +4229,7 @@ lnL_0nubb_KamLAND_Zen: |
 
 lnL_0nubb: |
   Log-likelihood for all neutrinoless double beta decay experiments
-  
+
 mbb_0nubb_Ge: |
   effective neutrino mass (mbetabeta) from neutrinoless double beta for 76Ge detector
 
@@ -4241,7 +4244,7 @@ lnL_mbb_0nubb_KamLAND_Zen: |
 
 lnL_mbb_0nubb: |
   Log-likelihood for the effective neutrino mass (mbetabeta) for the 136Xe detector and 76Ge detector
- 
+
 lnLatlase: |
   Log-likelihood for direct searches of right-handed neutrinos in the ATLAS experiment in the electron sector
 

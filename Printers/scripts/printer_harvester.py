@@ -21,7 +21,7 @@
 #  \author Ben Farmer
 #          (benjamin.farmer@fysik.su.se)
 #    \date 2015
-#          2018 Oct 
+#          2018 Oct
 #
 #*********************************************
 import os
@@ -95,7 +95,7 @@ def main(argv):
 
     # Don't touch any existing file unless it is actually different from what we will create
     header = "./Printers/include/gambit/Printers/printer_rollcall.hpp"
-    candidate = "./scratch/printer_rollcall.hpp.candidate"
+    candidate = "./scratch/build_time/printer_rollcall.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(header, candidate)
 

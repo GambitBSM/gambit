@@ -811,8 +811,8 @@ endif()
             towrite += "endif()\n\n"
 
     towrite += "set(SCANNERBIT_PLUGINS ${SCANNERBIT_PLUGINS} PARENT_SCOPE)\n"
-    towrite += "file( WRITE ${PROJECT_SOURCE_DIR}/scratch/scanbit_excluded_libs.yaml \"${exclude_lib_output}\" )\n"
-    towrite += "file( WRITE ${PROJECT_SOURCE_DIR}/scratch/scanbit_linked_libs.yaml \"${reqd_lib_output}\" )\n\n"
+    towrite += "file( WRITE ${PROJECT_SOURCE_DIR}/scratch/build_time/scanbit_excluded_libs.yaml \"${exclude_lib_output}\" )\n"
+    towrite += "file( WRITE ${PROJECT_SOURCE_DIR}/scratch/build_time/scanbit_linked_libs.yaml \"${reqd_lib_output}\" )\n\n"
 
     towrite += "#################################################################################\n\n"
     towrite += "foreach (plugin ${SCANNERBIT_PLUGINS})\n"
@@ -869,12 +869,12 @@ endif()
                 towrite += " "*6 + "not_found_include_paths: [" + ",".join(scanbit_reqs[type_key][plug_key][version_key][6]) + "]\n"
         towrite += "\n"
 
-    req_entries = "./scratch/scanbit_reqd_entries.yaml"
+    req_entries = "./scratch/build_time/scanbit_reqd_entries.yaml"
     candidate = build_dir+"/scanbit_reqd_entries.yaml.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(req_entries, candidate)
 
-    if verbose: print("Finished writing scratch/scanbit_reqd_entries.yaml")
+    if verbose: print("Finished writing scratch/build_time/scanbit_reqd_entries.yaml")
 
     # Make a candidate scanbit_reqd_entries.yaml file
     towrite = "\
@@ -909,12 +909,12 @@ endif()
                         towrite += " "*6 + flag + ": " + scanbit_flags[type_key][plug_key][version_key][flag][0] + "\n"
         towrite += "\n"
 
-    flag_entries = "./scratch/scanbit_flags.yaml"
+    flag_entries = "./scratch/build_time/scanbit_flags.yaml"
     candidate = build_dir+"/scanbit_flags.yaml.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(flag_entries, candidate)
 
-    if verbose: print("Finished writing scratch/scanbit_flags.yaml")
+    if verbose: print("Finished writing scratch/build_time/scanbit_flags.yaml")
 
     # Make a candidate linkedout.cmake file
     towrite = "\

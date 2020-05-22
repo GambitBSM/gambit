@@ -46,6 +46,8 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
                                 $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
+  # EXPERIMENTAL: Linking against Electric Fence for heap corruption debugging
+  #target_link_libraries(gambit PUBLIC efence) # just segfaults. Be good if it could be made to work though.
   # If Mathematica is present and the system is OS X, absolutize paths to avoid dylib errors
   if (${HAVE_MATHEMATICA} AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     Mathematica_ABSOLUTIZE_LIBRARY_DEPENDENCIES(gambit)
