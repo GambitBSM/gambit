@@ -153,7 +153,7 @@ START_MODULE
    #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY prediction_B2KstarGamma
+  #define CAPABILITY prediction_B2Kstargamma
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_B2Kstargamma
     START_FUNCTION(flav_prediction)
