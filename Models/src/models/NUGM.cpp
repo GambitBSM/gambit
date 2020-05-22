@@ -25,7 +25,7 @@
   void MODEL_NAMESPACE::NUGM_to_MSSM20atMGUT (const ModelParameters &myP, ModelParameters &targetP)
   {
 
-     logger()<<"Running interpret_as_parent calculations for NUGM --> MSSM30atMGUT."<<LogTags::info<<EOM;
+     logger()<<"Running interpret_as_parent calculations for NUGM --> MSSM20atMGUT."<<LogTags::info<<EOM;
      
      targetP.setValue("TanBeta", myP["TanBeta"] );
      targetP.setValue("SignMu",  myP["SignMu"] );
