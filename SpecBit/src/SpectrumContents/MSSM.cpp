@@ -179,7 +179,12 @@ namespace Gambit {
 
       // Copy some of the blocks verbatim
       // TODO: check case sensitiviy, do these in nicer order
+      // TODO: should we copy these over and ensure backend always creates them
+      // TODO: use something like slha(sminputs.getSLHAea) here or do that eralier and pass to backends
       output["SMINPUTS"] = raw["SMINPUTS"];
+      output["VCKMIN"] = raw["VCKMIN"];
+      output["UPMNSIN"] = raw["UPMNSIN"];
+
       output["DMASS"]    = raw["DMASS"]; // Not part of SLHA, but convenient to keep
       // PA: adding SPINFO to blocks copied over for now as FeynHiggs front end needs it
       // TODO: see below where Tomas wanted to construct it, so maybe adding it loke this is not the best approach. Indeed if we modify the spectrum contents, e.g, add precise Higgs mass calculation, we should really edit the SPINFO  Also this was always missing from GAMBIT slha files, not sure why FeynHiggs now needs it.

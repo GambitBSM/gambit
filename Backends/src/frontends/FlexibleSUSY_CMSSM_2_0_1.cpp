@@ -239,7 +239,9 @@ BE_NAMESPACE
     //get SLHEA object from slha_io
     SLHAea::Coll slha = slha_io.get_slha_io().get_data();
     std::cout << "In FS ini slha = "  << slha << std::endl;
-
+    /// Ugly solution to get VCKMIN and UPMNSIN inclded via gambit routines
+    sminputs.add_to_SLHAea(slha);
+    std::cout << "In FS ini after adding inputs via gambit slha = "  << slha << std::endl;
     // Add DMASS blocks for uncertainty estimate of spectrum generator
     // TODO: give different estmates for specifc masses, e.g. Higgs and W masses
     const double rel_uncertainty = 0.03; 
