@@ -27,7 +27,7 @@
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
 
-//#define DARKBIT_DEBUG
+// #define DARKBIT_DEBUG
 
 namespace Gambit
 {
@@ -274,7 +274,6 @@ namespace Gambit
     /// Neutrino yield function pointer and setup
     void nuyield_from_DS(nuyield_info &result)
     {
-
       using namespace Pipes::nuyield_from_DS;
       double annihilation_bf[29];
       double Higgs_decay_BFs_neutral[29][3];
@@ -290,22 +289,9 @@ namespace Gambit
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
-
-      // Hack together a patch to let DS and TH_processCatalog talk properly about quarks
-      std::string bq_array[] = {"d_3","dbar_3"};
-      std::string cq_array[] = {"u_2","ubar_2"};
-      std::string tau_array[] = {"e+_3","e-_3"};
-      std::string tq_array[] = {"u_3","ubar_3"};
-      std::vector<str> bottomq (bq_array, bq_array + sizeof(bq_array)/sizeof(std::string));
-      std::vector<str> charmq (cq_array, cq_array + sizeof(cq_array)/sizeof(std::string));
-      std::vector<str> taul (tau_array, tau_array + sizeof(tau_array)/sizeof(std::string));
-      std::vector<str> topq (tq_array, tq_array + sizeof(tq_array)/sizeof(std::string));
-      neutral_channels[24] = bottomq;
-      neutral_channels[21] = charmq;
-      neutral_channels[18] = taul;
-      neutral_channels[23] = topq;
       
       #ifdef DARKBIT_DEBUG
+        Models::ParticleDB().partmap::check_contents();
         // Print out the vector of channels from TH_ProcessCatalog
         cout << "\nnuyield_from_DS receives the following channels from the WIMP_EFT catalog:\n";
         for (auto x : annProc.channelList)
@@ -320,22 +306,24 @@ namespace Gambit
           for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
           cout << endl;
         }
-        // printout the vectors used to mimic the TH_ProcessCatalog format
-        cout << "\nMimicing TH_ProcessCatalog vector format:\n";
-        for(int i=0; i<2; i++) cout << bottomq[i] << "\t" << charmq[i] << "\t" << taul[i] << "\t" << topq[i] << endl;
-        cout << endl;
       #endif
 
       for (int i=0; i<29; i++)
       {
-        const TH_Channel* channel = annProc.find(neutral_channels[i]);
+        std::vector<str> pdgstrings;
+        // I only want the particle long name corresponding the the 0th context integer
+        // grab the pdg code for the particle, and manually set the context integer to 0
+        for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++)
+        {
+          pdgstrings.push_back(Models::ParticleDB().partmap::long_name(Models::ParticleDB().partmap::pdg_pair(*it).first, 0));
+        }
+        const TH_Channel* channel = annProc.find(pdgstrings);
         
         #ifdef DARKBIT_DEBUG
           // Print out the current neutral_channel
           cout << "Looking at the ";
           for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
           cout << "neutral_channel" << endl;
-          cout << "For which, I found this channel pointer in the annihilation proccess:" << channel << endl;
         #endif
         
         if (channel == NULL or i == 26) // Channel 26 has not been implemented in DarkSUSY.
@@ -343,7 +331,8 @@ namespace Gambit
           annihilation_bf[i] = 0.;
 
           #ifdef DARKBIT_DEBUG
-            cout << "Setting it's branching fraction to zero\n\n";
+            cout << "Annihilation Process doesn't have this channel.";
+            cout << "\nSetting it's branching fraction to zero\n\n";
           #endif
         }
         else
@@ -358,13 +347,16 @@ namespace Gambit
             annihilation_bf[i] += channel->genRate->bind("v")->eval(0.);
           }
           annihilation_bf[i] /= *Dep::sigmav;
-
-          // Check that having this channel turned on makes sense at all.
+          
           #ifdef DARKBIT_DEBUG
-            cout << "Now the channel's branching fraction is set\n";
+            // state the channel which is having its bf set
+            cout << "For which, I found this channel in the annihilation proccess: ";
+            for (auto it=channel->finalStateIDs.begin(); it!=channel->finalStateIDs.end(); it++) cout << *it << " ";
+            cout << "\nNow the channel's branching fraction is set\n";
+            // Check that having this channel turned on makes sense at all.
             double mtot = 0;
             cout << "Particles and masses in DM annihilation final state: " << endl;
-            for (auto p = neutral_channels[i].begin(); p != neutral_channels[i].end(); ++p)
+            for (auto p = pdgstrings.begin(); p != pdgstrings.end(); ++p)
             {
               double m = Dep::TH_ProcessCatalog->getParticleProperty(*p).mass;
               cout << "  " << *p << " " << m << endl;
@@ -378,7 +370,6 @@ namespace Gambit
         }
 
       }
-
 
       // Set Higgs masses
       if (Dep::TH_ProcessCatalog->hasParticleProperty("h0_1"))
@@ -579,191 +570,6 @@ namespace Gambit
       #endif
 
     }
-
-    /// grabbed from ScalarSingletDM.cpp
-    /// Set up process catalog for Z2 scalar singlet DM.
-    // void TH_ProcessCatalog_NREO(DarkBit::TH_ProcessCatalog &result)
-    // {
-    //   using namespace Pipes::TH_ProcessCatalog_NREO;
-    //   using std::vector;
-    //   using std::string;
-
-    //   // Initialize empty catalog and main annihilation process
-    //   TH_ProcessCatalog catalog;
-    //   TH_Process process_ann("S", "S");
-
-    //   // Explicitly state that Z2 Scalar DM is self-conjugate
-    //   process_ann.isSelfConj = true;
-
-    //   ///////////////////////////////////////
-    //   // Import particle masses and couplings
-    //   ///////////////////////////////////////
-
-    //   // Convenience macros
-    //   #define getSMmass(Name, spinX2)                                           \
-    //    catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-    //    (Name , TH_ParticleProperty(SM.get(Par::Pole_Mass,Name), spinX2)));
-    //   #define addParticle(Name, Mass, spinX2)                                   \
-    //    catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-    //    (Name , TH_ParticleProperty(Mass, spinX2)));
-
-    //   // Import Spectrum objects
-    //   const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum; /////////// need my own spectrum?
-    //   const SubSpectrum& he = spec.get_HE();
-    //   const SubSpectrum& SM = spec.get_LE();
-    //   const SMInputs& SMI   = spec.get_SMInputs();
-
-    //   // Import couplings
-    //   double lambda = he.get(Par::dimensionless,"lambda_hS");
-    //   double v = he.get(Par::mass1,"vev");
-
-    //   // Get SM pole masses
-    //   getSMmass("e-_1",     1)
-    //   getSMmass("e+_1",     1)
-    //   getSMmass("e-_2",     1)
-    //   getSMmass("e+_2",     1)
-    //   getSMmass("e-_3",     1)
-    //   getSMmass("e+_3",     1)
-    //   getSMmass("Z0",     2)
-    //   getSMmass("W+",     2)
-    //   getSMmass("W-",     2)
-    //   getSMmass("g",      2)
-    //   getSMmass("gamma",  2)
-    //   getSMmass("u_3",      1)
-    //   getSMmass("ubar_3",   1)
-    //   getSMmass("d_3",      1)
-    //   getSMmass("dbar_3",   1)
-
-    //   // Pole masses not available for the light quarks.
-    //   addParticle("u_1"   , SMI.mU,  1) // mu(2 GeV)^MS-bar, not pole mass
-    //   addParticle("ubar_1", SMI.mU,  1) // mu(2 GeV)^MS-bar, not pole mass
-    //   addParticle("d_1"   , SMI.mD,  1) // md(2 GeV)^MS-bar, not pole mass
-    //   addParticle("dbar_1", SMI.mD,  1) // md(2 GeV)^MS-bar, not pole mass
-    //   addParticle("u_2"   , SMI.mCmC,1) // mc(mc)^MS-bar, not pole mass
-    //   addParticle("ubar_2", SMI.mCmC,1) // mc(mc)^MS-bar, not pole mass
-    //   addParticle("d_2"   , SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
-    //   addParticle("dbar_2", SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
-    //   double alpha_s = SMI.alphaS;      // alpha_s(mZ)^MSbar
-
-    //   // Masses for neutrino flavour eigenstates. Set to zero.
-    //   // (presently not required)
-    //   addParticle("nu_e",     0.0, 1)
-    //   addParticle("nubar_e",  0.0, 1)
-    //   addParticle("nu_mu",    0.0, 1)
-    //   addParticle("nubar_mu", 0.0, 1)
-    //   addParticle("nu_tau",   0.0, 1)
-    //   addParticle("nubar_tau",0.0, 1)
-
-    //   // Higgs-sector masses
-    //   double mS = spec.get(Par::Pole_Mass,"S");
-    //   double mH = spec.get(Par::Pole_Mass,"h0_1");
-    //   addParticle("S",        mS, 0)  // Scalar Singlet DM
-    //   addParticle("h0_1",     mH, 0)  // SM-like Higgs
-    //   addParticle("pi0",   meson_masses.pi0,       0)
-    //   addParticle("pi+",   meson_masses.pi_plus,   0)
-    //   addParticle("pi-",   meson_masses.pi_minus,  0)
-    //   addParticle("eta",   meson_masses.eta,       0)
-    //   addParticle("rho0",  meson_masses.rho0,      1)
-    //   addParticle("rho+",  meson_masses.rho_plus,  1)
-    //   addParticle("rho-",  meson_masses.rho_minus, 1)
-    //   addParticle("omega", meson_masses.omega,     1)
-
-    //   // Get rid of convenience macros
-    //   #undef getSMmass
-    //   #undef addParticle
-
-
-    //   /////////////////////////////
-    //   // Import Decay information
-    //   /////////////////////////////
-
-    //   // Import decay table from DecayBit
-    //   const DecayTable* tbl = &(*Dep::decay_rates);
-
-    //   // Save Higgs width for later
-    //   double gammaH = tbl->at("h0_1").width_in_GeV;
-
-    //   // Set of imported decays
-    //   std::set<string> importedDecays;
-
-    //   // Minimum branching ratio to include
-    //   double minBranching = 0;
-
-    //   // Import relevant decays (only Higgs and subsequent decays)
-    //   using DarkBit_utils::ImportDecays;
-    //   // Notes: Virtual Higgs decays into offshell W+W- final states are not
-    //   // imported.  All other channels are correspondingly rescaled.  Decay
-    //   // into SS final states is accounted for, leading to zero photons.
-    //   ImportDecays("h0_1", catalog, importedDecays, tbl, minBranching,
-    //       daFunk::vec<std::string>("Z0", "W+", "W-", "e+_2", "e-_2", "e+_3", "e-_3"));
-
-    //   // Instantiate new ScalarSingletDM object
-    //   auto singletDM = boost::make_shared<ScalarSingletDM>(&catalog, gammaH, v, alpha_s, 0.0);
-
-    //   // Populate annihilation channel list and add thresholds to threshold
-    //   // list.
-    //   // (remark: the lowest threshold is here = 2*mS, whereas in DS-internal
-    //   // conventions, this lowest threshold is not listed)
-    //   process_ann.resonances_thresholds.threshold_energy.push_back(2*mS);
-    //   auto channel =
-    //     daFunk::vec<string>("bb", "WW", "cc", "tautau", "ZZ", "tt", "hh");
-    //   auto p1 =
-    //     daFunk::vec<string>("d_3",   "W+", "u_2",   "e+_3", "Z0", "u_3",   "h0_1");
-    //   auto p2 =
-    //     daFunk::vec<string>("dbar_3","W-", "ubar_2","e-_3", "Z0", "ubar_3","h0_1");
-    //   {
-    //     for ( unsigned int i = 0; i < channel.size(); i++ )
-    //     {
-    //       double mtot_final =
-    //         catalog.getParticleProperty(p1[i]).mass +
-    //         catalog.getParticleProperty(p2[i]).mass;
-    //       // Include final states that are open for T~m/20
-    //       if ( mS*2 > mtot_final*0.5 )
-    //       {
-    //         daFunk::Funk kinematicFunction = daFunk::funcM(singletDM,
-    //             &ScalarSingletDM::sv, channel[i], lambda, mS, daFunk::var("v"));
-    //         TH_Channel new_channel(
-    //             daFunk::vec<string>(p1[i], p2[i]), kinematicFunction
-    //             );
-    //         process_ann.channelList.push_back(new_channel);
-    //       }
-    //       if ( mS*2 > mtot_final )
-    //       {
-    //         process_ann.resonances_thresholds.threshold_energy.
-    //           push_back(mtot_final);
-    //       }
-    //     }
-    //   }
-
-    //   // Populate resonance list
-    //   if ( mH >= mS*2 ) process_ann.resonances_thresholds.resonances.
-    //       push_back(TH_Resonance(mH, gammaH));
-
-    //   catalog.processList.push_back(process_ann);
-
-    //   // Validate
-    //   catalog.validate();
-
-
-    //   #ifdef DARKBIT_DEBUG
-    //     // get DarkBit computed vSigma total
-    //     // so we can compare with that from MO
-    //     ScalarSingletDM test = *singletDM;
-    //     int nc = 7;
-    //     double total = 0;
-    //     for (int ii=0; ii < nc ; ii++)
-    //     {
-    //       total = total + test.sv(channel[ii], lambda, mS, 0.0);
-    //     }
-    //     cout << " --- Testing process catalouge --- " << endl;
-    //     cout << "Total sigma V from process catalouge = " << total << endl;
-    //     cout << " ---------- " << endl;
-    //   #endif
-
-
-
-    //   result = catalog;
-    // } // function TH_ProcessCatalog_NREO
 
     /// \brief Likelihood calculators for different IceCube event samples
     /// These functions all include the likelihood of the background-only model for the respective sample.

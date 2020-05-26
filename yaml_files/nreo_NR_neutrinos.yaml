@@ -12,8 +12,8 @@ Parameters:
     mH: 125
 
   NREO_DiracDM:
-    m: # 100
-      range: [1.0e+1, 1.0e+3]
+    m: 100
+      # range: [1.0e+1, 1.0e+3]
     c0_1: 1.65e-8  # 1.65*10**(-8)
       # range: [1.0e-10, 1.0e-6]
     c0_2: 0
