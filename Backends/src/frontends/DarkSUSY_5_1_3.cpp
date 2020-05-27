@@ -331,9 +331,10 @@ BE_NAMESPACE
     required_block("SELMIX",   mySLHA);
     required_block("SNUMIX",   mySLHA);
 
+    // TODO: decide how to pass bpole mass and then replace this commented out check 
     // Make sure the b pole mass is present in the MASS block
-    if (mySLHA.at("MASS").find(initVector<str>("5")) == mySLHA.at("MASS").end())
-      backend_error().raise(LOCAL_INFO, "DarkSUSY init_diskless needs b pole mass entry (5) in SLHA(ea) MASS block.");
+    // if (mySLHA.at("MASS").find(initVector<str>("5")) == mySLHA.at("MASS").end())
+    //   backend_error().raise(LOCAL_INFO, "DarkSUSY init_diskless needs b pole mass entry (5) in SLHA(ea) MASS block.");
 
     // Do some initial DarkSUSY housekeeping.
     dsmssmzero();            // zero all the MSSM parameters and variables
@@ -377,7 +378,9 @@ BE_NAMESPACE
     mspctm->mass(DSpart->kqd(1)) = mspctm->md2gev;                                 // use 2GeV d mass as proxy for pole
     mspctm->mass(DSpart->kqd(2)) = mspctm->ms2gev;                                 // use 2GeV s mass as proxy for pole
     mspctm->mass(DSpart->kqu(2)) = dsmqpole4loop(DSpart->kqu(2),mspctm->mcmc);     // use DarkSUSY internal routine to get mc pole
-    mspctm->mass(DSpart->kqd(3)) = to<double>(mySLHA.at("MASS").at(5).at(1));      // the GAMBIT way to get the bottom pole mass
+    /// TODO: replace this hack done just to temp avoid b pole mass problem
+    mspctm->mass(DSpart->kqd(3)) = 4.9;
+    // mspctm->mass(DSpart->kqd(3)) = to<double>(mySLHA.at("MASS").at(5).at(1));      // the GAMBIT way to get the bottom pole mass
     //mspctm->mass(DSpart->kqd(3)) = dsmqpole4loop(DSpart->kqd(3),mspctm->mbmb);   // the DarkSUSY SLHAreader way to get mb pole
 
     // Block MINPAR we skip, it is not needed
