@@ -6568,12 +6568,15 @@ diff -rupN susyhit-pristine/sdecay.f ../installed/susyhit/1.5/sdecay.f
        endif
  
  c------ end ramona chnaged
-@@ -12190,7 +12843,7 @@ c -- mb(mb)_MSbar --
+@@ -12188,9 +12841,9 @@ c -- first guess value for amb_pole --
+          samb = 4.9D0
+ c -- mb(mb)_MSbar --
           call SD_runmbmb(amzp,runmbz)
-       endif
+-      endif
++      !endif                                     !Modified by GAMBIT.
  
 -      if(flagshsin.eq.1.D0) then
-+      if(flagshsin.le.1.D0) then                 !Modified by GAMBIT.
++      else if(flagshsin.le.1.D0) then            !Modified by GAMBIT.
           samb = massval(34)
        endif
  

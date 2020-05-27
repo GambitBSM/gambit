@@ -45,7 +45,6 @@ BE_NAMESPACE
   void run_susy_hit(SLHAstruct slha, double W_width, double Z_width)
   {
     using SLHAea::to;
-
     // Set out all the SLHA1 PDG codes
     int pdg_codes[35];
     pdg_codes[0]  = 24;      // W+
@@ -164,6 +163,8 @@ BE_NAMESPACE
     {
       sd_leshouches2->massval(i) = (mass[pdg_codes[i-1]].is_data_line()) ? to<double>(mass[pdg_codes[i-1]][1]) : unlikely();
     }
+    /// TODO: replace this hack
+    sd_leshouches2->massval(34) = 4.9;
     for (int i=36; i<=50; ++i) sd_leshouches2->massval(i) = 0.0; // zeroing
 
     // NMIX
@@ -238,7 +239,10 @@ BE_NAMESPACE
     }
 
     // Tell SUSY-HIT not to bother calculating the b pole mass from mb(mb)_MSbar, just use the value we pass it.
-    sd_mbmb->i_sd_mbmb = 1;
+    //TODO: replace this hardcoding with an input (may not expose to user)
+    // to eitehr use our own mb (at least for testing) or let susy_hit do it
+    //sd_mbmb->i_sd_mbmb = 1;
+    sd_mbmb->i_sd_mbmb = 0;
 
     // Do calculation without flavour-violating light stop decays.
     flavviolation->ifavvio = 0;
