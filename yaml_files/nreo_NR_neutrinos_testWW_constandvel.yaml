@@ -110,8 +110,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 500
-      tol: 0.5
+      nlive: 50000
+      tol: 0.005
 
     twalk:
       plugin: twalk
@@ -182,6 +182,6 @@ KeyValues:
     seed: -1
 
 
-  print_timing_data: true
+ #  print_timing_data: true
 
-  debug: true
+  # debug: true
