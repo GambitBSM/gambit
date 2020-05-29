@@ -24,7 +24,6 @@
 // Only needed here
 #include "gambit/Utils/util_functions.hpp"
 
-using namespace ExampleBit_A::Accessors;    // Helper functions that provide some info about the module
 using namespace ExampleBit_A::Functown;     // Functors wrapping the module's actual module functions
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
@@ -70,21 +69,6 @@ int main()
 
     // Retrieve a raw pointer to the parameter set of each primary model to be scanned, for manually setting parameter values
     ModelParameters* CMSSM_primary_parameters = Models::CMSSM::Functown::primary_parameters.getcontentsPtr();
-
-    // Print some example diagnostics about ExampleBit_A
-    std::cout << std::endl << "My name is " << name() << std::endl;
-    std::cout << " I can calculate: " << endl << iCanDo << std::endl;
-    std::cout << " ...but I may need: " << endl << iMayNeed << std::endl << std::endl;
-    std::cout << "I can do nevents: " << provides("nevents") << std::endl;
-    if (requires("nevents_like","nevents"))
-    {
-      std::cout << " (I require nevents_like to do this though.)" << std::endl;
-    }
-    std::cout << "I can do nevents_like: " << provides("nevents_like") << std::endl;
-    if (requires("nevents","nevents_like"))
-    {
-      std::cout << " (I require nevents to do this though.)" << std::endl;
-    }
 
     // Resolve backend requirements 'by hand'.  Must be done before dependencies are resolved.
     function_pointer_retriever.resolveBackendReq(&Backends::LibFortran_1_0::Functown::externalFunction);

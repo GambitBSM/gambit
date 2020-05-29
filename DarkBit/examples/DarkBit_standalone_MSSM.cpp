@@ -31,7 +31,6 @@
 #include "gambit/Utils/util_functions.hpp"
 
 using namespace DarkBit::Functown;     // Functors wrapping the module's actual module functions
-using namespace DarkBit::Accessors;    // Helper functions that provide some info about the module
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
 QUICK_FUNCTION(DarkBit, decay_rates, NEW_CAPABILITY, createDecays, DecayTable, ())
@@ -128,7 +127,7 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
-    if (not Backends::backendInfo().works["DDCalc2.0.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.0.0 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["nulike1.0.8"]) backend_error().raise(LOCAL_INFO, "nulike 1.0.8 is missing!");
 
 
@@ -367,26 +366,26 @@ int main(int argc, char* argv[])
     DD_couplings_DarkSUSY.reset_and_calculate();
 
     // Initialize DDCalc backend
-    Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-    DDCalc_2_0_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
-    DDCalc_2_0_0_init.resolveDependency(&RD_fraction_one);
-    DDCalc_2_0_0_init.resolveDependency(&mwimp_generic);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+    DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
+    DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
     //Choose between the two backends
-    //DDCalc_2_0_0_init.resolveDependency(&DD_couplings_MicrOmegas);
-    DDCalc_2_0_0_init.resolveDependency(&DD_couplings_DarkSUSY);
-    DDCalc_2_0_0_init.reset_and_calculate();
+    //DDCalc_2_2_0_init.resolveDependency(&DD_couplings_MicrOmegas);
+    DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY);
+    DDCalc_2_2_0_init.reset_and_calculate();
 
     // Calculate direct detection rates for LUX 2016
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
     LUX_2016_Calc.reset_and_calculate();
 
     // Calculate direct detection likelihood for LUX 2016
     LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
     LUX_2016_GetLogLikelihood.reset_and_calculate();
 
     // Set generic scattering cross-section for later use

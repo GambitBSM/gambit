@@ -199,6 +199,16 @@ namespace Gambit
         _print(m, label, vID, mpirank, pointID);
       }
 
+      void HDF5Printer::_print(DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        std::map<std::string, double> m;
+        m["Gp_SI"] = value.gps;
+        m["Gn_SI"] = value.gns;
+        m["Gp_q2"] = value.gp_q2;
+        m["Gn_q2"] = value.gn_q2;
+        _print(m, label, vID, mpirank, pointID);
+      }
+
       void HDF5Printer::_print(Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
         std::map<std::string, double> m;

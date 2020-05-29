@@ -373,7 +373,6 @@ SPheno_internal: |
 #  ColliderBit capabilities
 #-------------------------------------
 
-
 DummyColliderObservable: |
    Dummy observable that creates a dependency on TestModel1D, which is used
    to satisfy the normal GAMBIT model requrements in a minimal way. Used
@@ -382,6 +381,9 @@ DummyColliderObservable: |
 RunMC: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
+
+CrossSection: |
+   Total cross-section used to scale Pythia event numbers.
 
 LHCEventLoopInfo: |
    Info about the event loop.
@@ -410,9 +412,6 @@ LHC_LogLike_SR_labels: |
    The indices of the signal regions whose delta-log-likelihood values contribute to
    LHC_Combined_LogLike and LHC_LogLike_per_analysis.
 
-MC_ConvergenceSettings : |
-   Convergence settings to be used for terminating Monte Carlo event generation.
-
 HardScatteringSim: |
    Provides a Pythia 8 instance within a container which is
    ready to simulate collision events for a model chosen by ScannerBit.
@@ -425,19 +424,9 @@ ATLASDetectorSim: |
    Provides a set functions within a container ready to apply ATLAS
    smearing and reconstruction efficiencies to an event.
 
-ATLASmultieffDetectorSim: |
-   Provides a set functions within a container ready to apply ATLAS
-   smearing to an event.  Effiencies must be applied on a per-analysis
-   basis.
-
 CMSDetectorSim: |
    Provides a set functions within a container ready to apply CMS
    smearing and reconstruction efficiencies to an event.
-
-CMSmultieffDetectorSim: |
-   Provides a set functions within a container ready to apply CMS
-   smearing to an event.  Effiencies must be applied on a per-analysis
-   basis.
 
 IdentityDetectorSim: |
    Provides a fake detector sim, which simply returns truth-level events.
@@ -446,17 +435,9 @@ ATLASSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
 
-ATLASmultieffSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing upon the
-   given HardScatteringEvent. No efficiencies are applied.
-
 CMSSmearedEvent: |
    Uses the given SimpleSmearingSim to apply smearing and
    reconstruction efficiencies upon the given HardScatteringEvent.
-
-CMSmultieffSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing upon the
-   given HardScatteringEvent. No efficiencies are applied.
 
 CopiedEvent: |
    Uses the given SimpleSmearingSim to do absolutely nothing to
@@ -467,19 +448,9 @@ ATLASAnalysisContainer: |
    capability ATLASSmearedEvent. The container is ready to apply each analysis to
    each event.
 
-ATLASmultieffAnalysisContainer: |
-   Provides a container of ATLAS analyses to be used with the detector simulation
-   capability ATLASmultieffSmearedEvent. The container is ready to apply each analysis to
-   each event.
-
 CMSAnalysisContainer: |
    Provides a container of CMS analyses to be used with the detector simulation
    capability CMSSmearedEvent. The container is ready to apply each analysis to
-   each event.
-
-CMSmultieffAnalysisContainer: |
-   Provides a container of CMS analyses to be used with the detector simulation
-   capability CMSmultieffSmearedEvent. The container is ready to apply each analysis to
    each event.
 
 IdentityAnalysisContainer: |
@@ -491,16 +462,8 @@ ATLASAnalysisNumbers: |
    Uses the given ATLASAnalysisContainer to perform all its
    analyses upon the given ATLASSmearedEvent.
 
-ATLASmultieffAnalysisNumbers: |
-   Uses the given ATLASmultieffAnalysisContainer to perform all its
-   analyses upon the given ATLASSmearedEvent.
-
 CMSAnalysisNumbers: |
    Uses the given CMSAnalysisContainer to perform all its analyses
-   upon the given CMSSmearedEvent.
-
-CMSmultieffAnalysisNumbers: |
-   Uses the given CMSmultieffAnalysisContainer to perform all its analyses
    upon the given CMSSmearedEvent.
 
 IdentityAnalysisNumbers: |
@@ -2932,12 +2895,6 @@ lnL_gm2 : |
 
 lnL_deltarho : |
    Log-likelihood of ∆ρ, the departure from one of the ratio of the Fermi effective coupling (G_F) in W and Z-mediated processes.
-
-sinW2: |
-   Precision value of the weak mixing angle sin^2 θ_W (not the effective one)
-
-lnL_sinW2: |
-   Log-likelihood of the weak mixing angle sin^2 θ_W (not the effective one)
 
 
 

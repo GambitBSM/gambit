@@ -263,13 +263,13 @@ namespace Gambit
       using namespace Pipes::sigma_SI_vnqn;
 
       double q0 = 0.04; // reference momentum transfer: 40 MeV
-      double gps = Dep::DD_couplings->gps;
-      double gpa = Dep::DD_couplings->gpa;
+      double gps = Dep::DD_couplings_fermionic_HP->gps;
+      double gpq2 = Dep::DD_couplings_fermionic_HP->gp_q2;
       double reduced_mass = *Dep::mwimp * m_proton / (*Dep::mwimp + m_proton);
 
       result[std::make_pair(0,0)] =   gev2cm2/pi*pow(reduced_mass*gps,2.0);
       result[std::make_pair(-2,0)] =  0.0;
-      result[std::make_pair(2,0)] =   gev2cm2/pi*pow(reduced_mass*gpa,2.0)*pow(q0/(*Dep::mwimp)/2.0,2.0);
+      result[std::make_pair(2,0)] =   gev2cm2/pi*pow(reduced_mass*gpq2,2.0)*pow(q0/(*Dep::mwimp)/2.0,2.0);
       result[std::make_pair(4,0)] =   0.0;
       result[std::make_pair(0,-2)] =  0.0;
       result[std::make_pair(0,2)] =   0.0;

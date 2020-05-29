@@ -14,12 +14,13 @@ Please cite the following GAMBIT papers, depending on your use of different modu
  - GAMBIT Flavour Workgroup: F. U. Bernlochner, et. al., **FlavBit**: A GAMBIT module for computing flavour observables and likelihoods, Eur. Phys. J. C 77 (2017) 786, arXiv:1705.07933
  - GAMBIT Scanner Workgroup: G. D. Martinez, et. al., Comparison of statistical sampling methods with **ScannerBit**, the GAMBIT scanning module, Eur. Phys. J. C 77 (2017) 761, arXiv:1705.07959
  - GAMBIT Dark Matter Workgroup: T. Bringmann, et. al., **DarkBit**: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
+ - **NeutrinoBit**: M. Chrzaszcz, M. Drewes, T. Gonzalo, J. Harz, S. Krishnamurthy, C. Weniger, A frequentist analysis of three right-handed neutrinos with GAMBIT, Eur. Phys. J. C (2020) in press, arXiv:1908.02302
 
 GAMBIT contains interfaces to various external codes, along with scripts for downloading and configuring them. Please cite as appropriate if you use those codes:
 
  - **Capt'n General** GAMBIT Collaboration: P. Athron, C. Balazs, et. al., Global analyses of Higgs portal singlet dark matter models using GAMBIT, Eur. Phys. J. C 79 (2019) 38, arXiv:1808.10465
  - **DarkSUSY:** P. Gondolo, J. Edsjo, et. al., DarkSUSY: computing supersymmetric dark matter properties numerically, JCAP 7 (2004) 8, arXiv: astro-ph/0406204
- - **DDCalc:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
+ - **DDCalc:** **(i)** GAMBIT Collaboration: P. Athron, C. Balazs, et. al. Global analyses of Higgs portal singlet dark matter models using GAMBIT, EPJC 79 (2019) 38, arxiv:1808.10465 **(ii)** P. Athron, J. M. Cornell, F. Kahlhoefer, J. Mckay, P. Scott, Impact of vacuum stability, perturbativity and XENON1T on global fits of Z_2​ and Z_3​ scalar singlet dark matter, EPJC 78 (2018) 1830, arxiv:1806.11281 **(iii)** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
  - **FeynHiggs:** **(i)** H. Bahl, W. Hollik, Precise prediction for the light MSSM Higgs boson mass combining effective field theory and fixed-order calculations, Eur. Phys. J. C 76 (2016) 499,  arXiv:1608.01880, **(ii)** T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, High-precision predictions for the light CP-even Higgs Boson Mass of the MSSM, Phys. Rev. Lett. 112 (2014) 141801, arXiv:1312.4937, **(iii)** M. Frank, T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, The Higgs Boson Masses and Mixings of the Complex MSSM in the Feynman-Diagrammatic Approach, JHEP 0702 (2007) 047, arXiv:hep-ph/0611326, **(iv)** G. Degrassi, S. Heinemeyer, W. Hollik, P. Slavich, G. Weiglein, Towards High-Precision Predictions for the MSSM Higgs Sector, Eur. Phys. J. C 28 (2003) 133, arXiv:hep-ph/0212020, **(v)** S. Heinemeyer, W. Hollik, G. Weiglein, The Masses of the Neutral CP-even Higgs Bosons in the MSSM: Accurate Analysis at the Two-Loop Level, Eur.Phys.J.C9:343-366 (1999), arXiv:hep-ph/9812472, **(vi)** S. Heinemeyer, W. Hollik, G. Weiglein, FeynHiggs: a program for the calculation of the masses of the neutral CP-even Higgs bosons in the MSSM, Comput. Phys. Commun. 124 (2000) 76, arXiv:hep-ph/9812320
  - **FlexibleSUSY:** P. Athron, J.-h. Park, D. Stöckinger, and A. Voigt, FlexibleSUSY - A spectrum generator generator for supersymmetric models, Comp. Phys. Comm. 190 (2015) 139, arXiv:1406.2319
  - **GamLike:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et. al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
@@ -48,12 +49,12 @@ GAMBIT is built using the CMake system (version 2.8.12 or greater required). The
 
 COMPULSORY:
 
- - gcc/gfortran 4.8.4 or greater, or icc/ifort 12.1.0 or greater
- - Python 2.7 or greater (Python 3 *is* now supported)
+ - gcc/gfortran 5.1 or greater, or icc/ifort 15.0.2 or greater
+ - Python 2.7 or greater (Python 3 is supported)
  - Python modules: yaml, os, re, datetime, sys, getopt, shutil and itertools.
  - git
  - Boost 1.41 or greater
- - GNU Scientific Library (GSL) 1.10 or greater
+ - GNU Scientific Library (GSL) 2.1 or greater
  - Eigen 3.1.0 or greater
  - LAPACK
  - PKG Config

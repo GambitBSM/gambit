@@ -34,6 +34,7 @@ struct Settings
     int nlive;
     int num_repeats;
     int nprior;
+    int nfail;
     bool do_clustering;
     int feedback;
     double precision_criterion;
@@ -50,6 +51,7 @@ struct Settings
     bool write_live;
     bool write_dead;
     bool write_prior;
+    bool maximise;
     double compression_factor;
     std::string base_dir;
     std::string file_root;
@@ -100,6 +102,12 @@ namespace Gambit
 
             /// Main interface to PolyChord dumper routine   
             void dumper(int, int, int, double*, double*, double*, double, double);
+
+            // PolyChord Hypercube index location for each parameter
+            // gambit_hypercube[paramname] = polychord_hypercube[index_map[paramname]]
+            // This is required because PolyChord needs parameters to be
+            // ordered slow-to-fast to exploit a speed hierarchy
+            std::unordered_map<std::string, int> index_map;
       };
 
       ///@{ C-functions to pass to PolyChord for the callbacks

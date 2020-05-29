@@ -157,6 +157,8 @@ namespace Gambit
 
        bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+       bool HDF5Reader::_retrieve(DM_nucleon_couplings_fermionic_HP& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(FlavBit::flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)

@@ -46,9 +46,11 @@ Printer:
 
   #printer: cout
 
+  #printer: none
+
 Scanner:
 
-  use_scanner: de
+  use_scanner: random
 
   scanners:
 
@@ -97,7 +99,7 @@ ObsLikes:
 Rules:
 
   # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike   
+  - capability: normaldist_loglike
     options:
         probability_of_validity: 1.0
 
@@ -111,13 +113,15 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/spartan"
+  default_output_path: "${PWD}/runs/spartan"
 
   rng:
     generator: ranlux48
     seed: -1
 
   print_timing_data: true
+
+  print_unitcube: true
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

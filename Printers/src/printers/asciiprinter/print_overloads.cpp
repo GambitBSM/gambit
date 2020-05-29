@@ -114,7 +114,7 @@ namespace Gambit
       m["upper"] = value.upper;
       _print(m, label, vID, mpirank, pointID);
     }
-    
+
     void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> channels;
@@ -140,6 +140,16 @@ namespace Gambit
         m["Gn_SI"] = value.gns;
         m["Gp_SD"] = value.gpa;
         m["Gn_SD"] = value.gna;
+        _print(m, label, vID, mpirank, pointID);
+      }
+
+      void asciiPrinter::_print(DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        std::map<std::string, double> m;
+        m["Gp_SI"] = value.gps;
+        m["Gn_SI"] = value.gns;
+        m["Gp_q2"] = value.gp_q2;
+        m["Gn_q2"] = value.gn_q2;
         _print(m, label, vID, mpirank, pointID);
       }
 

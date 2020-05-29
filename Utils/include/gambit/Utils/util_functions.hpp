@@ -39,19 +39,6 @@ extern "C"
   #include "mkpath/mkpath.h"
 }
 
-# if GAMBIT_CONFIG_FLAG_use_std_regex
-  #include <regex>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using std::regex; using std::regex_replace; }
-#elif GAMBIT_CONFIG_FLAG_use_boost_regex
-  #include <boost/regex.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using boost::regex; using boost::regex_replace; }
-#else
-  #include <boost/algorithm/string/replace.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 0
-#endif
-
 namespace Gambit
 {
 
@@ -96,7 +83,16 @@ namespace Gambit
     /// Strips leading and/or trailing parentheses from a string.
     EXPORT_SYMBOLS void strip_parentheses(str&);
 
-    /// Create a str of a specified length.
+    /// Test if a set of str,str pairs contains any entry with first element matching a given string
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching two given strings
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching a given pair
+    EXPORT_SYMBOLS bool sspairset_contains(const sspair&, const std::set<sspair>&);
+
+    /// Created a str of a specified length.
     EXPORT_SYMBOLS str str_fixed_len(str, int);
 
     /// Copy a str to a character array, stripping the null termination character.

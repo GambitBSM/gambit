@@ -1,0 +1,305 @@
+diff -rupN SPheno-4.0.3/Makefile ../installed/spheno/4.0.3/Makefile
+--- SPheno-4.0.3/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/spheno/4.0.3/Makefile	2020-04-14 20:08:12.767402034 +1000
+@@ -3,16 +3,21 @@
+ # cases NAG's nagfor, gfortran, g95, Lahey's lf95 and Intels ifort
+ # Please uncomment the corresponding line
+ # F90 = nagfor
+-# F90 = gfortran
++F90 = gfortran
+ # F90 = g95
+ # F90 = lf95
+-F90 = ifort
++# F90 = ifort
++F90_temp := ${F90} # Added by GAMBIT
++override F90 = ${notdir ${F90_temp}} # Added by GAMBIT
+ Model = src
+ version = 400.00
++all: bin/SPheno lib/libSPheno.so
+ bin/SPheno:
+ 	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
++lib/libSPheno.so:
++	cd ${Model} ; ${MAKE} $@ F90=${F90} version=${version}
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno lib/*.a *.o *~ */*.o */*~ include/*
+-.PHONY: bin/SPheno clean cleanall
++	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
++.PHONY: bin/SPheno lib/libSPheno.so clean cleanall
+diff -rupN SPheno-4.0.3/src/Makefile ../installed/spheno/4.0.3/src/Makefile
+--- SPheno-4.0.3/src/Makefile	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/spheno/4.0.3/src/Makefile	2020-04-14 19:56:20.702515194 +1000
+@@ -4,6 +4,7 @@ PreDef = -DGENERATIONMIXING  -DONLYDOUBL
+ InDir = ../include
+ Mdir = ${InDir}
+ name = ../lib/libSPheno.a
++shared = lib/libSPheno.so
+ 
+ #
+ # options for various compilers
+@@ -11,41 +12,52 @@ name = ../lib/libSPheno.a
+ 
+ # Intels ifort, default in optimized mode
+ F90 = ifort
+-comp = -c -O -module ${Mdir} -I${InDir} 
+-LFlagsB = -O  
++comp = -c -O -fPIC -module ${Mdir} -I${InDir} 
++LFlagsB = -O -fPIC
+ 
+ # Intels ifort, debug modus
+ ifeq (${F90},ifortg)
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fPIC 
+ endif
+ 
+ # gfortran
+ ifeq (${F90},gfortran)
+- comp = -c -O -J${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC 
++endif
++
++# gfortran, any version (Added by GAMBIT)
++ifneq (,$(findstring gfortran,${F90}))
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
+ endif
+ 
+ # g95 
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC  
+ endif
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC 
+ endif
+  
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fPIC
+ endif
+  
++.NOTPARALLEL:
+ .SUFFIXES : .o .ps .f90 .F90 .a
++${shared}:
++	${MAKE} F90=${F90} ${name}
++	${MAKE} F90=${F90} SPheno4.o
++	${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno4.o ../lib/libSPheno.a
+ bin/SPheno: ${name} SPheno4.o
+ 	${F90} -o SPheno ${LFlagsB} SPheno4.o ../lib/${name}
+ 	mv SPheno ../bin
+@@ -64,17 +76,17 @@ ${name}: ${name}(Control.o)  ${name}(Mat
+ clean:
+ 	rm -f *.o *~ */*.o */*~
+ cleanall:
+-	rm -f bin/SPheno4 lib/*.a *~ */*.o */*~ include/*
++	rm -f bin/SPheno4 lib/*.a lib/*.so *~ */*.o */*~ include/*
+ #
+ # Suffix rules
+ #
+ .f90.a:
+ 	${F90} ${comp} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .F90.a:
+ 	${F90} ${comp}  ${PreDef} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .f90.o: 
+ 	${F90} ${comp}  $< 
+diff -rupN SPheno-4.0.3/src/SPheno4.f90 ../installed/spheno/4.0.3/src/SPheno4.f90
+--- SPheno-4.0.3/src/SPheno4.f90	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/spheno/4.0.3/src/SPheno4.f90	2020-04-14 19:56:20.702515194 +1000
+@@ -12,7 +12,9 @@
+ !     the email above, if possible with a copy of the screen output 
+ ! written by Werner Porod
+ !-----------------------------------------------------------------
+-Program SPheno
++!Program SPheno ! Commented by GAMBIT
++Module SPheno ! Added by GAMBIT
++
+ 
+ !---------------------------------
+ ! loading necessary modules
+@@ -73,12 +75,17 @@ Implicit None
+  ! Input and output files
+  !------------------------------------------------------
+   Character(len=120) :: inputFileName, outputFileName
++
++ Contains ! Added by GAMBIT
++
++ Subroutine SPheno_Main() 
++
+  Iname = 1
+  NameOfUnit(1) = "SPheno3"
+  !--------------------------------------------------------------------------
+  ! set all parameters and low energy observables to zero
+  !--------------------------------------------------------------------------
+- Call Set_All_Parameters_0()
++ !Call Set_All_Parameters_0() ! Commented by GAMBIT
+ 
+  BRbtosgamma = 0._dp
+  BToSNuNu = 0._dp
+@@ -130,15 +137,15 @@ Implicit None
+  ! Note that either the file LesHouches.in or the file HighScale.in
+  ! must exist.
+  !--------------------------------------------------------------------------
+- Call ReadingData(kont)
++ !Call ReadingData(kont) ! Commented by GAMBIT
+  !---------------------------------------------
+  ! parameters for branching ratio calculations
+  !---------------------------------------------
+   ! relative precision for the calculation of phase space integrals
+-  epsI = 1.e-5_dp
+-  deltaM = 1.e-3_dp ! if mass/phase space is smaller, than mass is treated as 0
+-  CalcTBD = .False. ! if .True. than calculation of 3-body decays is enforced
+-  ratioWoM = 0._dp ! 1.e-4_dp
++  !epsI = 1.e-5_dp
++  !deltaM = 1.e-3_dp ! if mass/phase space is smaller, than mass is treated as 0
++  !CalcTBD = .False. ! if .True. than calculation of 3-body decays is enforced
++  !ratioWoM = 0._dp ! 1.e-4_dp
+ 
+  If ((HighScaleModel.Eq."NMSSM").And.(kont.Eq.0)) Then ! NMSSM model
+ 
+@@ -263,15 +270,15 @@ Implicit None
+  End If
+ 
+  If (kont.Ne.0) Call WriteNumberOfErrors(ErrCan)
+- Call LesHouches_Out(67, kont, id_p, c_name, HighScaleModel, M_GUT         &
+-      & , BRbtosgamma, Bs_ll, Bd_ll, DeltaMBd, DeltaMBs, BrBToSLL          &
+-      & , BtoSNuNu, BR_Bu_TauNu, R_Bu_TauNu, d_N                           &
+-      & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMuToEGamma, BrTauToEGamma  &
+-      & , BrTauToMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau &
+-      & , BR_Z_mu_tau, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu            &
+-      & , Rho_parameter, Ecms, Pm, Pp, ISR, SigSup, SigSdown, SigSle       &
+-      & , SigSn, SigChi0, SigC, SigS0, SigSP, SigHp                        &
+-      & , f_name=Trim(outputFileName))
++ !Call LesHouches_Out(67, kont, id_p, c_name, HighScaleModel, M_GUT         &
++ !     & , BRbtosgamma, Bs_ll, Bd_ll, DeltaMBd, DeltaMBs, BrBToSLL          &
++ !     & , BtoSNuNu, BR_Bu_TauNu, R_Bu_TauNu, d_N                           &
++ !     & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMuToEGamma, BrTauToEGamma  &
++ !     & , BrTauToMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau &
++ !     & , BR_Z_mu_tau, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu            &
++ !     & , Rho_parameter, Ecms, Pm, Pp, ISR, SigSup, SigSdown, SigSle       &
++ !     & , SigSn, SigChi0, SigC, SigS0, SigSP, SigHp                        &
++ !     & , f_name=Trim(outputFileName))
+  !------------------------------------------------------------
+  ! programs like micrOmegas do not yet use flavour mixing, in
+  ! this case a modified SLHA file is needed
+@@ -282,7 +289,9 @@ Implicit None
+  Call closing() ! closes the files
+  If ((kont.Ne.0).And.Non_Zero_Exit) Stop 99
+ 
+-Contains
++End Subroutine SPheno_Main ! Added by GAMBIT
++
++!Contains ! Commented by GAMBIT
+ 
+  Subroutine Swap_Order_Sf(Rij, id1, id2, id_p, names)
+  Implicit None
+@@ -360,6 +369,13 @@ Contains
+   Iname = Iname + 1
+   NameOfUnit(Iname) = "CalculateSpectrum"
+ 
++  ! Added by GAMBIT
++  If (SilenceOutput) Then
++    close(unit=6)
++  Else
++    open(unit=6, file="/dev/stdout")
++  Endif
++
+   kont = 0
+ 
+   If ( (HighScaleModel(1:4).Eq."MSSM").Or.(HighScaleModel.Eq."pMSSM") )  Then
+@@ -1493,5 +1509,7 @@ Contains
+ 
+  End Subroutine ReadingData
+ !include "CompareSUSYHD.f90"
+-End Program SPheno
++!End Program SPheno ! Commented by GAMBIT
++End Module SPheno ! Added by GAMBIT
++
+ 
+diff -rupN SPheno-4.0.3/src/Control.F90 ../installed/spheno/4.0.3/src/Control.F90
+--- SPheno-4.0.3/src/Control.F90	2017-05-23 01:02:41.000000000 +1000
++++ ../installed/spheno/4.0.3/src/Control.F90	2020-04-14 19:56:20.702515194 +1000
+@@ -26,6 +26,25 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++ ! Added by GAMBIT
++ Use, Intrinsic :: iso_c_binding
++ Implicit none
++
++ Type(c_funptr) :: ErrorHandler_cptr
++
++ ! Define interface of call-back routine.
++
++ Abstract Interface
++   Subroutine callback ()
++     Use, Intrinsic :: iso_c_binding
++   End Subroutine callback
++ End Interface
++
++ ! Variable to swith off screen output
++ Logical :: SilenceOutput = .False.
++
++ ! GAMBIT addition end
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -607,7 +626,7 @@ Contains
+ 
+  End Subroutine ModelNotIncluded
+ 
+-
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -615,8 +634,10 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+ 
+   Write (ErrCan,*) "  "
+@@ -631,6 +652,16 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
++
++  ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
++
+   Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram

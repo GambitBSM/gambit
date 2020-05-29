@@ -91,6 +91,7 @@ SUSY_HIT:
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
+  4.0.3:       ./Backends/installed/spheno/4.0.3/lib/libSPheno.so
 
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m

@@ -45,7 +45,7 @@ namespace Gambit
         out = buffer;\
         return valid;\
      }\
-      
+
      /// Templatable retrieve functions
      bool SQLiteReader::RETRIEVE_INT(bool     )
      bool SQLiteReader::RETRIEVE_INT(int      )
@@ -145,6 +145,8 @@ namespace Gambit
     #ifndef SCANNER_STANDALONE // All the types inside SQLITE_MODULE_BACKEND_TYPES need to go inside this def guard.
 
        bool SQLiteReader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+       bool SQLiteReader::_retrieve(DM_nucleon_couplings_fermionic_HP& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool SQLiteReader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }

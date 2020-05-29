@@ -1,7 +1,7 @@
 diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
---- SPheno-3.3.8/Makefile	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/Makefile	2017-06-10 23:38:28.663649893 +0200
-@@ -3,16 +3,19 @@
+--- SPheno-3.3.8/Makefile	2015-11-03 00:26:45.000000000 +1100
++++ ../installed/spheno/3.3.8/Makefile	2020-04-14 20:10:10.024864753 +1000
+@@ -3,16 +3,21 @@
  # cases NAG's nagfor, gfortran, g95, Lahey's lf95 and Intels ifort
  # Please uncomment the corresponding line
  # F90 = nagfor
@@ -11,12 +11,13 @@ diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
  # F90 = lf95
 -F90 = ifort
 +# F90 = ifort
++F90_temp := ${F90} # Added by GAMBIT
++override F90 = ${notdir ${F90_temp}} # Added by GAMBIT
  Model = src
  version = 330.00
 +all: bin/SPheno lib/libSPheno.so
  bin/SPheno:
--	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
-+	cd ${Model} ; ${MAKE} $@ F90=${F90} version=${version}
+ 	cd ${Model} ; ${MAKE} F90=${F90} version=${version}
 +lib/libSPheno.so:
 +	cd ${Model} ; ${MAKE} $@ F90=${F90} version=${version}
  clean:
@@ -27,272 +28,158 @@ diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
 +	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
 +.PHONY: bin/SPheno lib/libSPheno.so clean cleanall
 diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
---- SPheno-3.3.8/src/Makefile	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/src/Makefile	2017-06-10 23:38:28.667649893 +0200
-@@ -4,15 +4,17 @@ PreDef = -DGENERATIONMIXING  -DONLYDOUBL
+--- SPheno-3.3.8/src/Makefile	2015-11-03 00:26:45.000000000 +1100
++++ ../installed/spheno/3.3.8/src/Makefile	2020-04-14 20:12:07.650347088 +1000
+@@ -4,6 +4,7 @@ PreDef = -DGENERATIONMIXING  -DONLYDOUBL
  InDir = ../include
  Mdir = ${InDir}
  name = ../lib/libSPheno.a
-+shared = lib/libSPheno.so # Added by GAMBIT
-+objs = Control.o Mathematics.o RGEs.o MathematicsQP.o LoopFunctions.o StandardModel.o Model_Data.o Couplings.o SusyMasses.o LoopCouplings.o DecayFunctions.o SusyDecays.o ThreeBodyPhaseSpace.o ThreeBodyPhaseSpaceS.o Chargino3.o Gluino3.o Neutralino3.o Stop3BodyDecays.o Slepton3Body.o BranchingRatios.o EplusEminusProduction.o TwoLoopHiggsMass.o LoopMasses.o SugraRuns.o Experiment.o LowEnergy.o NMSSM_tools.o RPtools.o LHC_observables.o InputOutput.o SPheno3.o # Added by GAMBIT
++shared = lib/libSPheno.so
  
  #
  # options for various compilers
- #
+@@ -11,41 +12,52 @@ name = ../lib/libSPheno.a
  
  # Intels ifort, default in optimized mode
--F90 = ifort
+ F90 = ifort
 -comp = -c -O -module ${Mdir} -I${InDir} 
 -LFlagsB = -O  
-+#F90 = ifort
-+#comp = -c -O -module ${Mdir} -I${InDir} 
-+#LFlagsB = -O  
++comp = -c -O -fPIC -module ${Mdir} -I${InDir} 
++LFlagsB = -O -fPIC
  
  # Intels ifort, debug modus
  ifeq (${F90},ifortg)
-@@ -23,8 +25,8 @@ endif
+  F90 = ifort
+- comp = -c -g -module ${Mdir} -I${InDir} 
+- LFlagsB = -g  
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
++ LFlagsB = -g -fPIC 
+ endif
  
  # gfortran
  ifeq (${F90},gfortran)
 - comp = -c -O -J${Mdir} -I${InDir}
 - LFlagsB = -O  
-+ LFlagsB = -w -O2 -fPIC # Modified by GAMBIT
-+ comp = -c ${LFlagsB} -J${Mdir} -I${InDir} # Modified by GAMBIT  
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC 
++endif
++
++# gfortran, any version (Added by GAMBIT)
++ifneq (,$(findstring gfortran,${F90}))
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
  endif
  
  # g95 
-@@ -44,10 +46,14 @@ ifeq (${F90},nagfor)
-  comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
-  LFlagsB = -O
+ ifeq (${F90},g95)
+- comp = -c -O -fmod=${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC  
  endif
-+
-+.NOTPARALLEL:
+ 
+ # Lahey F95 compiler
+ ifeq (${F90},lf95)
+- comp = -c -O -M ${Mdir} -I${InDir}
+- LFlagsB = -O  
++ comp = -c -O -fPIC -M ${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC 
+ endif
   
+ # NAG f95/2003
+ ifeq (${F90},nagfor)
+- comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
+- LFlagsB = -O
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ LFlagsB = -O -fPIC
+ endif
+  
++.NOTPARALLEL:
  .SUFFIXES : .o .ps .f90 .F90 .a
-+${shared}: ${objs}
-+	${F90} -shared -o ../${shared} $^ ${LFlagsB}
++${shared}:
++	${MAKE} F90=${F90} ${name}
++	${MAKE} F90=${F90} SPheno3.o
++	${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno3.o ../lib/libSPheno.a
  bin/SPheno: ${name} SPheno3.o
--	${F90} -o SPheno ${LFlagsB} SPheno3.o ../lib/${name}
-+	${F90} -o SPheno ${LFlagsB} SPheno3.o ${name} 
+ 	${F90} -o SPheno ${LFlagsB} SPheno3.o ../lib/${name}
  	mv SPheno ../bin
- ${name}: ${name}(Control.o)  ${name}(Mathematics.o)  ${name}(RGEs.o)       \
-     ${name}(MathematicsQP.o)  ${name}(LoopFunctions.o) ${name}(StandardModel.o) \
-@@ -61,6 +67,7 @@ ${name}: ${name}(Control.o)  ${name}(Mat
-   ${name}(LoopMasses.o) ${name}(SugraRuns.o) ${name}(Experiment.o) \
-   ${name}(LowEnergy.o) ${name}(NMSSM_tools.o) ${name}(RPtools.o) \
-   ${name}(LHC_observables.o) ${name}(InputOutput.o) 
-+
+@@ -64,17 +76,17 @@ ${name}: ${name}(Control.o)  ${name}(Mat
  clean:
  	rm -f *.o *~ */*.o */*~
  cleanall:
-@@ -78,6 +85,8 @@ cleanall:
+-	rm -f bin/SPheno3 lib/*.a *~ */*.o */*~ include/*
++	rm -f bin/SPheno3 lib/*.a lib/*.so *~ */*.o */*~ include/*
+ #
+ # Suffix rules
+ #
+ .f90.a:
+ 	${F90} ${comp} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
+ 	rm -f $*.o
+ .F90.a:
+ 	${F90} ${comp}  ${PreDef} $<
+-	ar -ruc $@ $*.o
++	ar -ruc -U $@ $*.o
  	rm -f $*.o
  .f90.o: 
  	${F90} ${comp}  $< 
-+.F90.o:
-+	${F90} ${comp} ${PreDef} $< # Added by GAMBIT
- .f90.ps:
- 	a2ps  -o $*.ps $<
- .h.ps:
 diff -rupN SPheno-3.3.8/src/SPheno3.f90 ../installed/spheno/3.3.8/src/SPheno3.f90
---- SPheno-3.3.8/src/SPheno3.f90	2015-11-02 14:26:45.000000000 +0100
-+++ ../installed/spheno/3.3.8/src/SPheno3.f90	2017-06-10 23:38:28.667649893 +0200
-@@ -12,7 +12,9 @@
+--- SPheno-3.3.8/src/SPheno3.f90	2015-11-03 00:26:45.000000000 +1100
++++ ../installed/spheno/3.3.8/src/SPheno3.f90	2020-04-14 20:19:19.851804523 +1000
+@@ -12,7 +12,8 @@
  !     the email above, if possible with a copy of the screen output 
  ! written by Werner Porod
  !-----------------------------------------------------------------
 -Program SPheno
-+
-+!Program SPheno
++!Program SPheno ! Commented by GAMBIT
 +Module SPheno ! Added by GAMBIT
  
  !---------------------------------
  ! loading necessary modules
-@@ -75,203 +77,204 @@ Use InputOutput
+@@ -75,12 +76,16 @@ Use InputOutput
   !------------------------------------------------------
    Character(len=60) :: inputFileName, outputFileName
  
-- Iname = 1
-- NameOfUnit(1) = "SPheno3"
-- !--------------------------------------------------------------------------
-- ! set all parameters and low energy observables to zero
-- !--------------------------------------------------------------------------
++ Contains ! Added by GAMBIT
++
++ Subroutine SPheno_Main() 
++
+  Iname = 1
+  NameOfUnit(1) = "SPheno3"
+  !--------------------------------------------------------------------------
+  ! set all parameters and low energy observables to zero
+  !--------------------------------------------------------------------------
 - Call Set_All_Parameters_0()
--
-- BRbtosgamma = 0._dp
-- BToSNuNu = 0._dp
-- BrBToSLL = 0._dp
-- DeltaMBd = 0._dp
-- DeltaMBs = 0._dp
-- Bs_ll = 0._dp
-- Bd_ll = 0._dp
-- BR_Bu_TauNu = 0._dp
-- R_Bu_TauNu = 0._dp
--
-- epsK = 0._dp
-- DeltaMK2 = 0._dp
-- K0toPi0NuNu = 0._dp
-- KptoPipNuNu = 0._dp
--
-- a_e = 0._dp
-- a_mu = 0._dp
-- a_tau = 0._dp
-- d_e = 0._dp
-- d_mu = 0._dp
-- d_tau = 0._dp
-- BrMutoEGamma = 0._dp
-- BrTautoEGamma = 0._dp
-- BrTautoMuGamma = 0._dp
-- BrMu3e = 0._dp
-- BrTau3e = 0._dp
-- BrTau3Mu = 0._dp
-- BR_Z_e_mu = 0._dp
-- BR_Z_e_tau = 0._dp
-- BR_Z_mu_tau = 0._dp
-- rho_parameter = 0._dp
-- mf_nu = 0
-- !--------------------------------------------------------------------------
-- ! This routine call routines to
-- !   - initializ the error system
-- !   - to calculate the constants which are required for the 
-- !     calculation of the loop functions
-- !   - to get the standard model parameters
-- !   - to get SUSY parameters
-- ! The following steps are performed to get the parameters and flags
-- !   (i) The file LesHouches.in exists containing all necessary information.
-- !       In this case the remaining steps are skipped
-- !   (ii) Check if Control.in exists to set the error level and
-- !        to check if widths and cross sections shall be calculated
-- !   (iii) Check if StandardModel.in exists to change the default SM values
-- !   (iv) Read the information concerning the SUSY model from the file
-- !        HighScale.in
-- ! Note that either the file LesHouches.in or the file HighScale.in
-- ! must exist.
-- !--------------------------------------------------------------------------
++ !Call Set_All_Parameters_0() ! Commented by GAMBIT
+ 
+  BRbtosgamma = 0._dp
+  BToSNuNu = 0._dp
+@@ -132,15 +137,15 @@ Use InputOutput
+  ! Note that either the file LesHouches.in or the file HighScale.in
+  ! must exist.
+  !--------------------------------------------------------------------------
 - Call ReadingData(kont)
-- !---------------------------------------------
-- ! parameters for branching ratio calculations
-- !---------------------------------------------
--  ! relative precision for the calculation of phase space integrals
++ !Call ReadingData(kont) ! Commented by GAMBIT
+  !---------------------------------------------
+  ! parameters for branching ratio calculations
+  !---------------------------------------------
+   ! relative precision for the calculation of phase space integrals
 -  epsI = 1.e-5_dp
 -  deltaM = 1.e-3_dp ! if mass/phase space is smaller, than mass is treated as 0
 -  CalcTBD = .False. ! if .True. than calculation of 3-body decays is enforced
 -  ratioWoM = 0._dp ! 1.e-4_dp
--
-- If ((HighScaleModel.Eq."NMSSM").And.(kont.Eq.0)) Then ! NMSSM model
--
--  Call Model_NMSSM(m32, Grav_fac, F_GMSB, Ecms, Pm, Pp, ISR, Beam           &
--   & , SigSup , SigSdown, SigSle, SigSn, SigC, SigChi0, SigS0, SigSP, SigHp &
--   & , kont)
--
-- Else If (((HighScaleModel2.Eq."RPexplicit").Or.(Add_Rparity)).And.(kont.Eq.0)) Then ! bilinear RP
--
--  Call Model_bilinear_Rparity(add_Rparity, HighScaleModel, delta_mass, epsI     &
--       & , deltaM, ratioWoM, m32, grav_fac, CalcTBD, Ecms, Pm, Pp, ISR, Beam    &
--       & , SigSup , SigSdown, SigC, SigChi0, SigS0, SigSP, SigHp, M_GUT, kont)
--  
-- Else If (RP_trilinear) Then ! trilinear RP
--  HighScaleModel = "RPexplicit"
--  Call Model_trilinearL_Rparity(delta_mass, epsI, deltaM, ratioWoM    &
--       & , m32, grav_fac, CalcTBD, Ecms, Pm, Pp, ISR, Beam            &
--       & , SigSup , SigSdown, SigC, SigChi0, SigS0, SigSP, SigHp, kont)
--  
-- Else If (kont.Eq.0) Then  ! models with MSSM particle content
--                           ! at the electroweak scale 
--  Call Initialize_MSSM(GenerationMixing, id_gl, id_ph, id_Z, id_W      &
--                    & , id_nu, id_l, id_d, id_u, id_grav)
--  !---------------------------------------------------------------------------
--  ! calculation of the spectrum, the following parameters can be changed
--  ! with the help of the SLHA input file LesHouches.in or the file Control.in
--  ! 
--  !---------------------------------------------------------------------------
--   Call CalculateSpectrum(n_run, delta_mass, WriteOut, kont, tanb           &
--    & , vevSM, ChiPm%m, U, V, Chi0%m, N, S0%m, S0%m2, RS0, P0%m, P0%m2, RP0 &
--    & , Spm%m, Spm%m2, RSpm, Sdown%m, Sdown%m2, RSdown, Sup%m, Sup%m2, RSup &
--    & , Slepton%m, Slepton%m2, RSlepton, Sneut%m, Sneut%m2, RSneut, Glu%m   &
--    & , PhaseGlu, gauge, uL_L, uL_R, uD_L, uD_R, uU_L, uU_R, Y_l, Y_d, Y_u  &
--    & , Mi, A_l, A_d, A_u, M2_E, M2_L, M2_D, M2_Q, M2_U, M2_H, mu, B, m_GUT)
--
--   Q_in = Sqrt(GetRenormalizationScale())
--
--   If (kont.Eq.0) Then
--    Chi0%m2 = Chi0%m**2
--    ChiPm%m2 = ChiPm%m**2
--    Glu%m2 = Glu%m**2
--
--    Call Low_Energy_Constraints_MSSM(Q_in, gauge, Y_l, Y_d, Y_u, A_l, A_d, A_u &
--     & , Mi, mu, M2_E, M2_L, M2_D, M2_Q, M2_U, M2_H, B, tanb_Q, P0%m2, S0%m2   &
--     & , Spm%m2, CKM, kont, GenerationMixing, rho_parameter, DeltaMBd          &
--     & , DeltaMBs, BRbtosgamma, Bs_ll, Bd_ll, BrBToSLL, BtoSNuNu, BR_Bu_TauNu  &
--     & , R_Bu_TauNu, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu                  &
--     & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMutoEGamma, BrTautoEGamma       &
--     & , BrTautoMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau      &
--     & , BR_Z_mu_tau)
--   End If
--
--   !----------------------------------------------
--   ! reorder state identification if necessary
--   !----------------------------------------------
--   If ((.Not.GenerationMixing).And.(kont.Eq.0)) Then
--    Call Swap_Order_Sf(RSlepton(1,1), Slepton(1)%id, Slepton(2)%id, id_p, c_name)    
--    Call Swap_Order_Sf(RSlepton(3,3), Slepton(3)%id, Slepton(4)%id, id_p, c_name)    
--    Call Swap_Order_Sf(RSdown(1,1), Sdown(1)%id, Sdown(2)%id, id_p, c_name)    
--    Call Swap_Order_Sf(RSdown(3,3), Sdown(3)%id, Sdown(4)%id, id_p, c_name)    
--    Call Swap_Order_Sf(RSup(1,1), Sup(1)%id, Sup(2)%id, id_p, c_name)    
--    Call Swap_Order_Sf(RSup(3,3), Sup(3)%id, Sup(4)%id, id_p, c_name)    
--   End If
-- !-------------------------------------------------------------------
-- ! Calculation of the branching ratios and widths provided L_BR is
-- ! set .TRUE. (default) and that the routine Sugra has finished
-- ! correctly (kont.eq.0) 
-- !-------------------------------------------------------------------
--  If ((L_BR).And.(kont.Eq.0)) Then
--   Call CalculateBR(n_nu, id_nu, n_l, id_l, n_d, id_d, n_u, id_u, n_Z, id_Z     &
--     & , n_W, id_W, n_snu, n_sle, n_Sd, n_su, n_n, n_c, n_g, n_s0, n_p0, n_Spm  &
--     & , id_grav, id_gl, id_ph, gauge, Glu, PhaseGlu, ChiPM, U, V, Chi0, N      &
--     & , Sneut, RSneut, Slepton, RSlepton, Sup, RSup, Sdown, RSdown, uL_L, uL_R &
--     & , uD_L, uD_R, uU_L, uU_R, S0, RS0, P0, RP0, Spm, RSpm, epsI, deltaM      &
--     & , CalcTBD, ratioWoM, Y_d, A_d, Y_l, A_l, Y_u, A_u, mu, vevSM, F_Gmsb     &
--     & , m32, grav_fac)
--
--  End If
--
-- !---------------------------------------------------------------------------
-- ! Calculation of the cross sections in e+ e- annihilation provided L_Cs is
-- ! set .TRUE. (default) and that the routine Sugra has finished
-- ! correctly (kont.eq.0) 
-- ! The following input quantities can be specified in the file 
-- ! CrossSections.in: Ecms .... c.m.s enerergy in GeV
-- !                   Pm ...... degree of longitudinal polarization of incoming
-- !                             electron
-- !                   Pp ...... degree of longitudinal polarization of incoming
-- !                             positron
-- !                   ISR ..... if .TRUE. then the effect of initial state
-- !                             radiation will be included
-- ! In the case that the file CrossSections.in does not exist, the following
-- ! default values are used: Ecms = 500 GeV, Pm = Pp = 0, ISR = .TRUE.
-- !----------------------------------------------------------------------------
--
--  If ((L_CS).And.(kont.Eq.0)) Then
--   Ylp = Y_l / gauge(2)
--   Do i1=1,p_max
--    If (Ecms(i1).Eq.0._dp) Exit
--
--    Call CalculateCrossSections(Ecms(i1), Pm(i1), Pp(i1), ISR(i1), Beam(i1)  &
--           & , "Tesla800", Sup%m, RSup, mf_u, Sdown%m, RSdown, mf_d, Glu%m      &
--           & , SigSup(i1,:,:), SigSdown(i1,:,:), Slepton%m, RSlepton, Ylp     &
--           & , Sneut%m, RSneut, SigSle(i1,:,:), SigSn(i1,:,:), ChiPm%m, U, V       &
--           & , Chi0%m, N, SigC(i1,1:2,1:2), SigChi0(i1,1:4,1:4), S0%m, RS0, vevSM &
--           & , P0%m, RP0, Spm%m, RSpm, SigS0(i1,1:2), SigSP(i1,1:2,1)          &
--           & , SigHp(i1,1,1) )
--   End Do
--
--  End If
--
-- End If
--
-- If (kont.Ne.0) Call WriteNumberOfErrors(ErrCan)
--
++  !epsI = 1.e-5_dp
++  !deltaM = 1.e-3_dp ! if mass/phase space is smaller, than mass is treated as 0
++  !CalcTBD = .False. ! if .True. than calculation of 3-body decays is enforced
++  !ratioWoM = 0._dp ! 1.e-4_dp
+ 
+  If ((HighScaleModel.Eq."NMSSM").And.(kont.Eq.0)) Then ! NMSSM model
+ 
+@@ -256,14 +261,14 @@ Use InputOutput
+ 
+  If (kont.Ne.0) Call WriteNumberOfErrors(ErrCan)
+ 
 - Call LesHouches_Out(67, kont, id_p, c_name, HighScaleModel, M_GUT         &
 -      & , BRbtosgamma, Bs_ll, Bd_ll, DeltaMBd, DeltaMBs, BrBToSLL      &
 -      & , BtoSNuNu, BR_Bu_TauNu, R_Bu_TauNu                                &
@@ -301,219 +188,113 @@ diff -rupN SPheno-3.3.8/src/SPheno3.f90 ../installed/spheno/3.3.8/src/SPheno3.f9
 -      & , BR_Z_mu_tau, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu             &
 -      & , Rho_parameter, Ecms, Pm, Pp, ISR, SigSup, SigSdown, SigSle       &
 -      & , SigSn, SigChi0, SigC, SigS0, SigSP, SigHp, f_name=Trim(outputFileName))
-- !------------------------------------------------------------
-- ! programs like micrOmegas do not yet use flavour mixing, in
-- ! this case a modified SLHA file is needed
-- !------------------------------------------------------------
-- If ((Write_SLHA1).And.(kont.Eq.0)) Call WriteSPhenoOutputLHA1(35, M_GUT)
--
-- Call closing() ! closes the files
-- If ((kont.Ne.0).And.Non_Zero_Exit) Stop 99
-+! Iname = 1
-+! NameOfUnit(1) = "SPheno3"
-+! !--------------------------------------------------------------------------
-+! ! set all parameters and low energy observables to zero
-+! !--------------------------------------------------------------------------
-+! Call Set_All_Parameters_0()
-+!
-+! BRbtosgamma = 0._dp
-+! BToSNuNu = 0._dp
-+! BrBToSLL = 0._dp
-+! DeltaMBd = 0._dp
-+! DeltaMBs = 0._dp
-+! Bs_ll = 0._dp
-+! Bd_ll = 0._dp
-+! BR_Bu_TauNu = 0._dp
-+! R_Bu_TauNu = 0._dp
-+!
-+! epsK = 0._dp
-+! DeltaMK2 = 0._dp
-+! K0toPi0NuNu = 0._dp
-+! KptoPipNuNu = 0._dp
-+!
-+! a_e = 0._dp
-+! a_mu = 0._dp
-+! a_tau = 0._dp
-+! d_e = 0._dp
-+! d_mu = 0._dp
-+! d_tau = 0._dp
-+! BrMutoEGamma = 0._dp
-+! BrTautoEGamma = 0._dp
-+! BrTautoMuGamma = 0._dp
-+! BrMu3e = 0._dp
-+! BrTau3e = 0._dp
-+! BrTau3Mu = 0._dp
-+! BR_Z_e_mu = 0._dp
-+! BR_Z_e_tau = 0._dp
-+! BR_Z_mu_tau = 0._dp
-+! rho_parameter = 0._dp
-+! mf_nu = 0
-+! !--------------------------------------------------------------------------
-+! ! This routine call routines to
-+! !   - initializ the error system
-+! !   - to calculate the constants which are required for the 
-+! !     calculation of the loop functions
-+! !   - to get the standard model parameters
-+! !   - to get SUSY parameters
-+! ! The following steps are performed to get the parameters and flags
-+! !   (i) The file LesHouches.in exists containing all necessary information.
-+! !       In this case the remaining steps are skipped
-+! !   (ii) Check if Control.in exists to set the error level and
-+! !        to check if widths and cross sections shall be calculated
-+! !   (iii) Check if StandardModel.in exists to change the default SM values
-+! !   (iv) Read the information concerning the SUSY model from the file
-+! !        HighScale.in
-+! ! Note that either the file LesHouches.in or the file HighScale.in
-+! ! must exist.
-+! !--------------------------------------------------------------------------
-+! Call ReadingData(kont)
-+! !---------------------------------------------
-+! ! parameters for branching ratio calculations
-+! !---------------------------------------------
-+!  ! relative precision for the calculation of phase space integrals
-+!  epsI = 1.e-5_dp
-+!  deltaM = 1.e-3_dp ! if mass/phase space is smaller, than mass is treated as 0
-+!  CalcTBD = .False. ! if .True. than calculation of 3-body decays is enforced
-+!  ratioWoM = 0._dp ! 1.e-4_dp
-+!
-+! If ((HighScaleModel.Eq."NMSSM").And.(kont.Eq.0)) Then ! NMSSM model
-+!
-+!  Call Model_NMSSM(m32, Grav_fac, F_GMSB, Ecms, Pm, Pp, ISR, Beam           &
-+!   & , SigSup , SigSdown, SigSle, SigSn, SigC, SigChi0, SigS0, SigSP, SigHp &
-+!   & , kont)
-+!
-+! Else If (((HighScaleModel2.Eq."RPexplicit").Or.(Add_Rparity)).And.(kont.Eq.0)) Then ! bilinear RP
-+!
-+!  Call Model_bilinear_Rparity(add_Rparity, HighScaleModel, delta_mass, epsI     &
-+!       & , deltaM, ratioWoM, m32, grav_fac, CalcTBD, Ecms, Pm, Pp, ISR, Beam    &
-+!       & , SigSup , SigSdown, SigC, SigChi0, SigS0, SigSP, SigHp, M_GUT, kont)
-+!  
-+! Else If (RP_trilinear) Then ! trilinear RP
-+!  HighScaleModel = "RPexplicit"
-+!  Call Model_trilinearL_Rparity(delta_mass, epsI, deltaM, ratioWoM    &
-+!       & , m32, grav_fac, CalcTBD, Ecms, Pm, Pp, ISR, Beam            &
-+!       & , SigSup , SigSdown, SigC, SigChi0, SigS0, SigSP, SigHp, kont)
-+!  
-+! Else If (kont.Eq.0) Then  ! models with MSSM particle content
-+!                           ! at the electroweak scale 
-+!  Call Initialize_MSSM(GenerationMixing, id_gl, id_ph, id_Z, id_W      &
-+!                    & , id_nu, id_l, id_d, id_u, id_grav)
-+!  !---------------------------------------------------------------------------
-+!  ! calculation of the spectrum, the following parameters can be changed
-+!  ! with the help of the SLHA input file LesHouches.in or the file Control.in
-+!  ! 
-+!  !---------------------------------------------------------------------------
-+!   Call CalculateSpectrum(n_run, delta_mass, WriteOut, kont, tanb           &
-+!    & , vevSM, ChiPm%m, U, V, Chi0%m, N, S0%m, S0%m2, RS0, P0%m, P0%m2, RP0 &
-+!    & , Spm%m, Spm%m2, RSpm, Sdown%m, Sdown%m2, RSdown, Sup%m, Sup%m2, RSup &
-+!    & , Slepton%m, Slepton%m2, RSlepton, Sneut%m, Sneut%m2, RSneut, Glu%m   &
-+!    & , PhaseGlu, gauge, uL_L, uL_R, uD_L, uD_R, uU_L, uU_R, Y_l, Y_d, Y_u  &
-+!    & , Mi, A_l, A_d, A_u, M2_E, M2_L, M2_D, M2_Q, M2_U, M2_H, mu, B, m_GUT)
-+!
-+!   Q_in = Sqrt(GetRenormalizationScale())
-+!
-+!   If (kont.Eq.0) Then
-+!    Chi0%m2 = Chi0%m**2
-+!    ChiPm%m2 = ChiPm%m**2
-+!    Glu%m2 = Glu%m**2
-+!
-+!    Call Low_Energy_Constraints_MSSM(Q_in, gauge, Y_l, Y_d, Y_u, A_l, A_d, A_u &
-+!     & , Mi, mu, M2_E, M2_L, M2_D, M2_Q, M2_U, M2_H, B, tanb_Q, P0%m2, S0%m2   &
-+!     & , Spm%m2, CKM, kont, GenerationMixing, rho_parameter, DeltaMBd          &
-+!     & , DeltaMBs, BRbtosgamma, Bs_ll, Bd_ll, BrBToSLL, BtoSNuNu, BR_Bu_TauNu  &
-+!     & , R_Bu_TauNu, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu                  &
-+!     & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMutoEGamma, BrTautoEGamma       &
-+!     & , BrTautoMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau      &
-+!     & , BR_Z_mu_tau)
-+!   End If
-+!
-+!   !----------------------------------------------
-+!   ! reorder state identification if necessary
-+!   !----------------------------------------------
-+!   If ((.Not.GenerationMixing).And.(kont.Eq.0)) Then
-+!    Call Swap_Order_Sf(RSlepton(1,1), Slepton(1)%id, Slepton(2)%id, id_p, c_name)    
-+!    Call Swap_Order_Sf(RSlepton(3,3), Slepton(3)%id, Slepton(4)%id, id_p, c_name)    
-+!    Call Swap_Order_Sf(RSdown(1,1), Sdown(1)%id, Sdown(2)%id, id_p, c_name)    
-+!    Call Swap_Order_Sf(RSdown(3,3), Sdown(3)%id, Sdown(4)%id, id_p, c_name)    
-+!    Call Swap_Order_Sf(RSup(1,1), Sup(1)%id, Sup(2)%id, id_p, c_name)    
-+!    Call Swap_Order_Sf(RSup(3,3), Sup(3)%id, Sup(4)%id, id_p, c_name)    
-+!   End If
-+! !-------------------------------------------------------------------
-+! ! Calculation of the branching ratios and widths provided L_BR is
-+! ! set .TRUE. (default) and that the routine Sugra has finished
-+! ! correctly (kont.eq.0) 
-+! !-------------------------------------------------------------------
-+!  If ((L_BR).And.(kont.Eq.0)) Then
-+!   Call CalculateBR(n_nu, id_nu, n_l, id_l, n_d, id_d, n_u, id_u, n_Z, id_Z     &
-+!     & , n_W, id_W, n_snu, n_sle, n_Sd, n_su, n_n, n_c, n_g, n_s0, n_p0, n_Spm  &
-+!     & , id_grav, id_gl, id_ph, gauge, Glu, PhaseGlu, ChiPM, U, V, Chi0, N      &
-+!     & , Sneut, RSneut, Slepton, RSlepton, Sup, RSup, Sdown, RSdown, uL_L, uL_R &
-+!     & , uD_L, uD_R, uU_L, uU_R, S0, RS0, P0, RP0, Spm, RSpm, epsI, deltaM      &
-+!     & , CalcTBD, ratioWoM, Y_d, A_d, Y_l, A_l, Y_u, A_u, mu, vevSM, F_Gmsb     &
-+!     & , m32, grav_fac)
-+!
-+!  End If
-+!
-+! !---------------------------------------------------------------------------
-+! ! Calculation of the cross sections in e+ e- annihilation provided L_Cs is
-+! ! set .TRUE. (default) and that the routine Sugra has finished
-+! ! correctly (kont.eq.0) 
-+! ! The following input quantities can be specified in the file 
-+! ! CrossSections.in: Ecms .... c.m.s enerergy in GeV
-+! !                   Pm ...... degree of longitudinal polarization of incoming
-+! !                             electron
-+! !                   Pp ...... degree of longitudinal polarization of incoming
-+! !                             positron
-+! !                   ISR ..... if .TRUE. then the effect of initial state
-+! !                             radiation will be included
-+! ! In the case that the file CrossSections.in does not exist, the following
-+! ! default values are used: Ecms = 500 GeV, Pm = Pp = 0, ISR = .TRUE.
-+! !----------------------------------------------------------------------------
-+!
-+!  If ((L_CS).And.(kont.Eq.0)) Then
-+!   Ylp = Y_l / gauge(2)
-+!   Do i1=1,p_max
-+!    If (Ecms(i1).Eq.0._dp) Exit
-+!
-+!    Call CalculateCrossSections(Ecms(i1), Pm(i1), Pp(i1), ISR(i1), Beam(i1)  &
-+!           & , "Tesla800", Sup%m, RSup, mf_u, Sdown%m, RSdown, mf_d, Glu%m      &
-+!           & , SigSup(i1,:,:), SigSdown(i1,:,:), Slepton%m, RSlepton, Ylp     &
-+!           & , Sneut%m, RSneut, SigSle(i1,:,:), SigSn(i1,:,:), ChiPm%m, U, V       &
-+!           & , Chi0%m, N, SigC(i1,1:2,1:2), SigChi0(i1,1:4,1:4), S0%m, RS0, vevSM &
-+!           & , P0%m, RP0, Spm%m, RSpm, SigS0(i1,1:2), SigSP(i1,1:2,1)          &
-+!           & , SigHp(i1,1,1) )
-+!   End Do
-+!
-+!  End If
-+!
-+! End If
-+!
-+! If (kont.Ne.0) Call WriteNumberOfErrors(ErrCan)
-+!
-+! Call LesHouches_Out(67, kont, id_p, c_name, HighScaleModel, M_GUT         &
-+!      & , BRbtosgamma, Bs_ll, Bd_ll, DeltaMBd, DeltaMBs, BrBToSLL      &
-+!      & , BtoSNuNu, BR_Bu_TauNu, R_Bu_TauNu                                &
-+!      & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMuToEGamma, BrTauToEGamma  &
-+!      & , BrTauToMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau &
-+!      & , BR_Z_mu_tau, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu             &
-+!      & , Rho_parameter, Ecms, Pm, Pp, ISR, SigSup, SigSdown, SigSle       &
-+!      & , SigSn, SigChi0, SigC, SigS0, SigSP, SigHp, f_name=Trim(outputFileName))
-+! !------------------------------------------------------------
-+! ! programs like micrOmegas do not yet use flavour mixing, in
-+! ! this case a modified SLHA file is needed
-+! !------------------------------------------------------------
-+! If ((Write_SLHA1).And.(kont.Eq.0)) Call WriteSPhenoOutputLHA1(35, M_GUT)
-+!
-+! Call closing() ! closes the files
-+! If ((kont.Ne.0).And.Non_Zero_Exit) Stop 99
-+!
++ !Call LesHouches_Out(67, kont, id_p, c_name, HighScaleModel, M_GUT         &
++ !     & , BRbtosgamma, Bs_ll, Bd_ll, DeltaMBd, DeltaMBs, BrBToSLL      &
++ !     & , BtoSNuNu, BR_Bu_TauNu, R_Bu_TauNu                                &
++ !     & , a_e, a_mu, a_tau, d_e, d_mu, d_tau, BrMuToEGamma, BrTauToEGamma  &
++ !     & , BrTauToMuGamma, BrMu3e, BrTau3e, BrTau3Mu, BR_Z_e_mu, BR_Z_e_tau &
++ !     & , BR_Z_mu_tau, epsK, DeltaMK2, K0toPi0NuNu, KptoPipNuNu             &
++ !     & , Rho_parameter, Ecms, Pm, Pp, ISR, SigSup, SigSdown, SigSle       &
++ !     & , SigSn, SigChi0, SigC, SigS0, SigSP, SigHp, f_name=Trim(outputFileName))
+  !------------------------------------------------------------
+  ! programs like micrOmegas do not yet use flavour mixing, in
+  ! this case a modified SLHA file is needed
+@@ -273,7 +278,9 @@ Use InputOutput
+  Call closing() ! closes the files
+  If ((kont.Ne.0).And.Non_Zero_Exit) Stop 99
  
- Contains
+-Contains
++End Subroutine SPheno_Main ! Added by GAMBIT
++
++!Contains ! Commented by GAMBIT
  
-@@ -1505,5 +1508,4 @@ Contains
+  Subroutine Swap_Order_Sf(Rij, id1, id2, id_p, names)
+  Implicit None
+@@ -350,6 +357,13 @@ Contains
+   Iname = Iname + 1
+   NameOfUnit(Iname) = "CalculateSpectrum"
+ 
++  ! Added by GAMBIT
++  If (SilenceOutput) Then
++    close(unit=6)
++  Else
++    open(unit=6, file="/dev/stdout")
++  Endif
++
+   kont = 0
+   If ( (HighScaleModel(1:4).Eq."MSSM").Or.(HighScaleModel.Eq."pMSSM") )  Then
+    sinW2 = 1._dp - mW2/mZ2
+@@ -1505,5 +1519,5 @@ Contains
  
   End Subroutine ReadingData
  
 -End Program SPheno
 -
-+End Module SPheno
++!End Program SPheno ! Commented by GAMBIT
++End Module SPheno ! Added by GAMBIT
+diff -rupN SPheno-3.3.8/src/Control.F90 ../installed/spheno/3.3.8/src/Control.F90
+--- SPheno-3.3.8/src/Control.F90	2015-11-03 00:26:45.000000000 +1100
++++ ../installed/spheno/3.3.8/src/Control.F90	2020-04-14 20:15:14.412710707 +1000
+@@ -26,6 +26,25 @@ Module Control
+ !            and to write the corresponding numbers 
+ !-------------------------------------------------------------------
+ 
++ ! Added by GAMBIT
++ Use, Intrinsic :: iso_c_binding
++ Implicit none
++
++ Type(c_funptr) :: ErrorHandler_cptr
++
++ ! Define interface of call-back routine.
++
++ Abstract Interface
++   Subroutine callback ()
++     Use, Intrinsic :: iso_c_binding
++   End Subroutine callback
++ End Interface
++
++ ! Variable to swith off screen output
++ Logical :: SilenceOutput = .False.
++
++ ! GAMBIT addition end
++
+  Interface Is_NaN
+   Module Procedure IsNaN_r, IsNaN_v, IsNaN_m
+  End Interface
+@@ -601,7 +620,7 @@ Contains
+ 
+  End Subroutine ModelNotIncluded
+ 
+-
++ ! Subroutine modified by GAMBIT
+  Subroutine TerminateProgram
+  !-----------------------------------------------------------------------
+  ! This subroutine terminates a program if a fatal error occurs.
+@@ -609,8 +628,10 @@ Contains
+  ! the file which is connected to the channel ErrCan
+  ! written by Werner Porod, 20.9.2000
+  !-----------------------------------------------------------------------
++ Use, Intrinsic :: iso_c_binding
+  Implicit None
+ 
++  Procedure(callback), Pointer :: ErrorHandler_fptr
+   Integer :: i1
+ 
+   Write (ErrCan,*) "  "
+@@ -625,6 +646,16 @@ Contains
+   Do i1=ErrCan,ErrCan+NumberOfOpenFiles-1
+    Close(i1)
+   End Do
++
++  ! Convert C to Fortran procedure pointer.
++  Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++  ! Call the ErrorHandler
++  Call ErrorHandler_fptr()
++
++  ! This should never happen
++  Write(*,*) "DEBUG: SPheno has continued past the ErrorHandler call. This should never happen..."
++
+   Stop "Subroutine TerminateProgram"
+ 
+  End Subroutine TerminateProgram
