@@ -1,0 +1,243 @@
+##########################################################################
+## GAMBIT configuration file to validate the analysis
+## ATLAS_13TeV_2OSLEP_Z_139invfb
+##########################################################################
+
+
+Parameters:
+
+  # Dummy model to allow ColliderBit to perform a simple scan
+  # by replacing entries in a SLHA file
+  CB_SLHA_simpmod_scan_model:
+    m1:
+      prior_type: none
+    m2:
+      prior_type: none
+    xsec_fb:
+      prior_type: none
+    xsec_uncert_fb:
+      prior_type: none
+    br1: 1.0
+    br2: 0.5 
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  # These lines tell GAMBIT to use the hdf5 printer
+  # Can switch to the ascii printer by commenting out and
+  # using the ascii lines below
+
+#   printer: cout
+
+  printer: hdf5
+  options:
+    output_file: "ATLAS_13TeV_2OSLEP_Z_139invfb.hdf5"
+    group: "/ATLAS_13TeV_2OSLEP_Z_139invfb" 
+    delete_file_on_restart: false
+
+#   printer: ascii
+#   options:
+#    output_file: "gambit_output.txt"
+
+
+Scanner:
+
+  use_scanner: raster
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 1000
+      tol: 0.5
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 19200
+      convthresh: 1e-5
+      verbosity: 1
+      lambdajDE: false
+
+    raster:
+      plugin: raster
+      like: LogLike
+      parameters:
+        "CB_SLHA_simpmod_scan_model::m1": [150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 1050.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 1050.0, 1100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 1050.0, 1100.0, 1150.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 1050.0, 1100.0, 1150.0, 1200.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0, 1000.0, 1050.0, 1100.0, 1150.0, 1200.0, 1250.0]
+        "CB_SLHA_simpmod_scan_model::m2": [600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 650.0, 650.0, 650.0, 650.0, 650.0, 650.0, 650.0, 650.0, 650.0, 650.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 700.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 750.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 800.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 850.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 900.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 950.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1050.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1100.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1150.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1200.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1250.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0, 1300.0]
+        "CB_SLHA_simpmod_scan_model::xsec_fb": [205.0, 205.0, 205.0, 205.0, 205.0, 205.0, 205.0, 205.0, 205.0, 125.0, 125.0, 125.0, 125.0, 125.0, 125.0, 125.0, 125.0, 125.0, 125.0, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 78.3, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 32.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 21.6, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 14.5, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 9.9, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 6.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 4.8, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 3.1, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 2.4, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+        "CB_SLHA_simpmod_scan_model::xsec_uncert_fb": [16.65, 16.65, 16.65, 16.65, 16.65, 16.65, 16.65, 16.65, 16.65, 10.56, 10.56, 10.56, 10.56, 10.56, 10.56, 10.56, 10.56, 10.56, 10.56, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 6.26, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 4.58, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 3.11, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 2.14, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 1.07, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.76, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.38, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.22, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.17, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13]
+
+
+ObsLikes:
+
+    # Combined LHC likelihood
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # Observables (not included in likelihood)
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_analysis
+
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+Rules:
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: true
+      LHC_13TeV:
+        min_nEvents: 500000
+        max_nEvents: 500000
+        events_between_convergence_checks: 50000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - ATLAS_13TeV_2OSLEP_Z_139invfb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion 
+    function: getPythia_SLHA
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - Print:quiet = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - Beams:eCM = 13000
+          - SUSY:all = off
+          - SUSY:qqbar2squarkantisquark = on
+          - SUSY:gg2squarkantisquark = on
+          - SUSY:idA = 1000006
+          - SUSY:idB = 1000006
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - Next:numberCount = 1000
+      SLHA_filenames: ["./ColliderBit/data/Cutflows/ATLAS_13TeV_2OSLEP_Z_139invfb/ATLAS_13TeV_2OSLEP_Z_139invfb_1.slha"]
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 100000
+
+#  # Generate the event with Pythia
+  - capability: HardScatteringEvent
+    function: generateEventPythia 
+    module: ColliderBit
+
+  # Read a single SLHA file and replace some entries for each
+  # iteration of the scan
+  - capability: SLHAFileNameAndContent
+    function: getAndReplaceSLHAContent
+    options:
+      SLHA_filename: ColliderBit/data/Cutflows/ATLAS_13TeV_2OSLEP_Z_139invfb/ATLAS_13TeV_2OSLEP_Z_139invfb_1.slha
+      replace_SLHA_keys:
+        m1:
+          - MASS;1000023;1
+        m2:
+          - MASS;1000006;1
+        br1:
+          - 1000006;(any),2,1000023,6;0   # <-- BR for two-body decay 1000006 -> 1000023 6
+        br2:
+          - 1000023;(any),2,1000022,23;0  # <-- BR for two-body decay 1000023 -> 1000022 23
+          - 1000023;(any),2,1000022,25;0  # <-- BR for two-body decay 1000023 -> 1000022 25
+
+  # List the SLHA file entries that should be stored in the GAMBIT output.
+  # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
+  - capability: SLHAFileElements
+    function: getSLHAFileElements
+    type: map_str_dbl
+    options:
+      value_for_missing_elements: -9999
+      SLHA_keys:
+        - MASS;1000006;1
+        - MASS;1000022;1
+        - MASS;1000023;1
+        - NMIX;1,1;2
+        - NMIX;1,2;2
+        - NMIX;1,3;2
+        - NMIX;1,4;2
+        - STOPMIX;1,1;2
+        - STOPMIX;1,2;2
+        - STOPMIX;2,1;2
+        - STOPMIX;2,2;2
+        - 1000006;(any),2,1000023,6;0   # <-- BR for two-body decay 1000006 -> 1000023 6
+        - 1000023;(any),2,1000022,23;0  # <-- BR for two-body decay 1000023 -> 1000022 23
+        - 1000023;(any),2,1000022,25;0  # <-- BR for two-body decay 1000023 -> 1000022 25
+
+  # Assign cross-sections and uncertainties directly as parameters.
+  - capability: TotalCrossSection
+    function: getYAMLCrossSection_param 
+
+# Set the names of key log files
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  # Set the default output path
+  default_output_path: "runs/ATLAS_13TeV_2OSLEP_Z_139invfb"
+
+  # We set the errors from the physics modules to be non-fatal
+  # to avoid crashing the entire scan due to a rare problem point.
+  # This means we should pay close attention to the log files...
+  exceptions:
+    ColliderBit_error: fatal
+    DarkBit_error: fatal
+    DecayBit_error: fatal
+    FlavBit_error: fatal
+    PrecisionBit_error: fatal
+    SpecBit_error: fatal

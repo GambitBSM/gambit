@@ -1,0 +1,182 @@
+##########################################################################
+## GAMBIT configuration file to validate the analysis
+## CMS_13TeV_2LEPsoft_36invfb
+##########################################################################
+
+
+Parameters:
+
+  CB_SLHA_file_model:
+    dummy: 0.0
+
+Priors:
+
+
+Printer:
+
+   printer: cout
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+
+ObsLikes:
+
+  # Combined LHC likelihood
+  - purpose:    LogLike
+    capability: LHC_Combined_LogLike
+
+  # Observables (not included in likelihood)
+#  - purpose:    likelihood_details
+#    capability: LHC_LogLike_per_analysis
+
+  - purpose:    likelihood_details
+    capability: LHC_LogLike_per_SR
+
+  - purpose:    likelihood_details
+    capability: LHC_LogLike_SR_indices
+
+  - purpose:    Observable
+    capability: LHC_signals
+
+  - purpose:    Observable
+    capability: LHCEventLoopInfo
+
+Rules:
+
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 125715
+        max_nEvents: 125715
+        events_between_convergence_checks: 125715
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - CMS_13TeV_2LEPsoft_stop_36invfb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia_SLHA
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        pythia_settings:
+          - SLHA:verbose = 1
+          - Next:numberShowProcess = 1
+          - Print:quiet = off
+          - Next:numberShowProcess = 10
+          - Next:numberCount = 100
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 20
+          - SUSY:all = off
+          - SUSY:qqbar2squarkantisquark = on
+          - SUSY:gg2squarkantisquark = on
+          - SUSY:idA = 1000006
+          - SUSY:idB = 1000006
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
+  # SLHA file to read
+  - capability: SLHAFileNameAndContent
+    function: getNextSLHAFileNameAndContent
+    options:
+      SLHA_filenames: ["./ColliderBit/data/Cutflows/CMS_13TeV_2LEPsoft_36invfb/SRST_1.slha"]
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: false
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 100000
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4 
+
+# Set the names of key log files
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  # Set the default output path
+  default_output_path: "runs/MSSMEW/"
+
+  # We set the errors from the physics modules to be non-fatal
+  # to avoid crashing the entire scan due to a rare problem point.
+  # This means we should pay close attention to the log files...
+  exceptions:
+    ColliderBit_error: fatal
+    DarkBit_error: fatal
+    DecayBit_error: fatal
+    FlavBit_error: fatal
+    PrecisionBit_error: fatal
+    SpecBit_error: fatal

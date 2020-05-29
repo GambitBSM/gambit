@@ -1602,6 +1602,10 @@ def identifyIncludedHeaders(content, only_native=True):
 
         if line[0:8] == '#include':
 
+            # Make sure there's a whitespace after '#include' 
+            if line[8] != ' ':
+                line = line[0:8] + ' ' + line[8:]
+
             header_file_name = line.split()[1]
 
             # Skip standard headers (of the form: #include <FILENAME>)

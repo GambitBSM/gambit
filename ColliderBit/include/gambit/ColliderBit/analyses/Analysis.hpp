@@ -59,9 +59,9 @@ namespace Gambit
         void analyze(const HEPUtils::Event*);
         /// @}
 
-        /// Return the integrated luminosity (in inverse pb).
+        /// Return the integrated luminosity.
         double luminosity() const;
-        /// Set the integrated luminosity (in inverse pb).
+        /// Set the integrated luminosity.
         void set_luminosity(double);
         /// Set the analysis name
         void set_analysis_name(str);

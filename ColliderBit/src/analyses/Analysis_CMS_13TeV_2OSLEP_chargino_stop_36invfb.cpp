@@ -29,13 +29,170 @@ namespace Gambit {
     // - Analysis_CMS_13TeV_2OSLEP_stop_36invfb
     class Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb : public Analysis {
 
-
     protected:
       // Counters for the number of accepted events for each signal region
+
+      std::map<string, EventCounter> _counters = {
+        // Stop SRs
+        {"SR-stop-0", EventCounter("SR-stop-0")},
+        {"SR-stop-1", EventCounter("SR-stop-1")},
+        {"SR-stop-2", EventCounter("SR-stop-2")},
+        {"SR-stop-3", EventCounter("SR-stop-3")},
+        {"SR-stop-4", EventCounter("SR-stop-4")},
+        {"SR-stop-5", EventCounter("SR-stop-5")},
+        {"SR-stop-6", EventCounter("SR-stop-6")},
+        {"SR-stop-7", EventCounter("SR-stop-7")},
+        {"SR-stop-8", EventCounter("SR-stop-8")},
+        {"SR-stop-9", EventCounter("SR-stop-9")},
+        {"SR-stop-10", EventCounter("SR-stop-10")},
+        {"SR-stop-11", EventCounter("SR-stop-11")},
+        {"SR-stop-12", EventCounter("SR-stop-12")},
+        {"SR-stop-13", EventCounter("SR-stop-13")},
+        {"SR-stop-14", EventCounter("SR-stop-14")},
+        {"SR-stop-15", EventCounter("SR-stop-15")},
+        {"SR-stop-16", EventCounter("SR-stop-16")},
+        {"SR-stop-17", EventCounter("SR-stop-17")},
+        {"SR-stop-18", EventCounter("SR-stop-18")},
+        {"SR-stop-19", EventCounter("SR-stop-19")},
+        {"SR-stop-20", EventCounter("SR-stop-20")},
+        {"SR-stop-21", EventCounter("SR-stop-21")},
+        {"SR-stop-22", EventCounter("SR-stop-22")},
+        {"SR-stop-23", EventCounter("SR-stop-23")},
+        {"SR-stop-24", EventCounter("SR-stop-24")},
+        {"SR-stop-25", EventCounter("SR-stop-25")},
+        {"SR-stop-26", EventCounter("SR-stop-26")},
+        {"SR-stop-27", EventCounter("SR-stop-27")},
+        {"SR-stop-28", EventCounter("SR-stop-28")},
+        {"SR-stop-29", EventCounter("SR-stop-29")},
+        {"SR-stop-30", EventCounter("SR-stop-30")},
+        {"SR-stop-31", EventCounter("SR-stop-31")},
+        {"SR-stop-32", EventCounter("SR-stop-32")},
+        {"SR-stop-33", EventCounter("SR-stop-33")},
+        {"SR-stop-34", EventCounter("SR-stop-34")},
+        {"SR-stop-35", EventCounter("SR-stop-35")},
+        {"SR-stop-36", EventCounter("SR-stop-36")},
+        {"SR-stop-37", EventCounter("SR-stop-37")},
+        {"SR-stop-38", EventCounter("SR-stop-38")},
+        {"SR-stop-39", EventCounter("SR-stop-39")},
+        {"SR-stop-40", EventCounter("SR-stop-40")},
+        {"SR-stop-41", EventCounter("SR-stop-41")},
+        {"SR-stop-42", EventCounter("SR-stop-42")},
+        {"SR-stop-43", EventCounter("SR-stop-43")},
+        {"SR-stop-44", EventCounter("SR-stop-44")},
+        {"SR-stop-45", EventCounter("SR-stop-45")},
+        {"SR-stop-46", EventCounter("SR-stop-46")},
+        {"SR-stop-47", EventCounter("SR-stop-47")},
+        {"SR-stop-48", EventCounter("SR-stop-48")},
+        {"SR-stop-49", EventCounter("SR-stop-49")},
+        {"SR-stop-50", EventCounter("SR-stop-50")},
+        {"SR-stop-51", EventCounter("SR-stop-51")},
+        {"SR-stop-52", EventCounter("SR-stop-52")},
+        {"SR-stop-53", EventCounter("SR-stop-53")},
+        {"SR-stop-54", EventCounter("SR-stop-54")},
+        {"SR-stop-55", EventCounter("SR-stop-55")},
+        {"SR-stop-56", EventCounter("SR-stop-56")},
+        {"SR-stop-57", EventCounter("SR-stop-57")},
+        {"SR-stop-58", EventCounter("SR-stop-58")},
+        {"SR-stop-59", EventCounter("SR-stop-59")},
+        {"SR-stop-60", EventCounter("SR-stop-60")},
+        {"SR-stop-61", EventCounter("SR-stop-61")},
+        {"SR-stop-62", EventCounter("SR-stop-62")},
+        {"SR-stop-63", EventCounter("SR-stop-63")},
+        {"SR-stop-64", EventCounter("SR-stop-64")},
+        {"SR-stop-65", EventCounter("SR-stop-65")},
+        {"SR-stop-66", EventCounter("SR-stop-66")},
+        {"SR-stop-67", EventCounter("SR-stop-67")},
+        {"SR-stop-68", EventCounter("SR-stop-68")},
+        {"SR-stop-69", EventCounter("SR-stop-69")},
+        {"SR-stop-70", EventCounter("SR-stop-70")},
+        {"SR-stop-71", EventCounter("SR-stop-71")},
+        {"SR-stop-72", EventCounter("SR-stop-72")},
+        {"SR-stop-73", EventCounter("SR-stop-73")},
+        {"SR-stop-74", EventCounter("SR-stop-74")},
+        {"SR-stop-75", EventCounter("SR-stop-75")},
+        {"SR-stop-76", EventCounter("SR-stop-76")},
+        {"SR-stop-77", EventCounter("SR-stop-77")},
+        {"SR-stop-78", EventCounter("SR-stop-78")},
+        {"SR-stop-79", EventCounter("SR-stop-79")},
+        {"SR-stop-80", EventCounter("SR-stop-80")},
+        {"SR-stop-81", EventCounter("SR-stop-81")},
+        {"SR-stop-82", EventCounter("SR-stop-82")},
+        {"SR-stop-83", EventCounter("SR-stop-83")},
+        // Chargino SRs
+        {"SR-chargino-0", EventCounter("SR-chargino-0")},
+        {"SR-chargino-1", EventCounter("SR-chargino-1")},
+        {"SR-chargino-2", EventCounter("SR-chargino-2")},
+        {"SR-chargino-3", EventCounter("SR-chargino-3")},
+        {"SR-chargino-4", EventCounter("SR-chargino-4")},
+        {"SR-chargino-5", EventCounter("SR-chargino-5")},
+        {"SR-chargino-6", EventCounter("SR-chargino-6")},
+        {"SR-chargino-7", EventCounter("SR-chargino-7")},
+        {"SR-chargino-8", EventCounter("SR-chargino-8")},
+        {"SR-chargino-9", EventCounter("SR-chargino-9")},
+        {"SR-chargino-10", EventCounter("SR-chargino-10")},
+        {"SR-chargino-11", EventCounter("SR-chargino-11")},
+        {"SR-chargino-12", EventCounter("SR-chargino-12")},
+        {"SR-chargino-13", EventCounter("SR-chargino-13")},
+        {"SR-chargino-14", EventCounter("SR-chargino-14")},
+        {"SR-chargino-15", EventCounter("SR-chargino-15")},
+        {"SR-chargino-16", EventCounter("SR-chargino-16")},
+        {"SR-chargino-17", EventCounter("SR-chargino-17")},
+        {"SR-chargino-18", EventCounter("SR-chargino-18")},
+        {"SR-chargino-19", EventCounter("SR-chargino-19")},
+        {"SR-chargino-20", EventCounter("SR-chargino-20")},
+        {"SR-chargino-21", EventCounter("SR-chargino-21")},
+        {"SR-chargino-22", EventCounter("SR-chargino-22")},
+        {"SR-chargino-23", EventCounter("SR-chargino-23")},
+        {"SR-chargino-24", EventCounter("SR-chargino-24")},
+        {"SR-chargino-25", EventCounter("SR-chargino-25")},
+        {"SR-chargino-26", EventCounter("SR-chargino-26")},
+        {"SR-chargino-27", EventCounter("SR-chargino-27")},
+        {"SR-chargino-28", EventCounter("SR-chargino-28")},
+        {"SR-chargino-29", EventCounter("SR-chargino-29")},
+        {"SR-chargino-30", EventCounter("SR-chargino-30")},
+        {"SR-chargino-31", EventCounter("SR-chargino-31")},
+        {"SR-chargino-32", EventCounter("SR-chargino-32")},
+        {"SR-chargino-33", EventCounter("SR-chargino-33")},
+        {"SR-chargino-34", EventCounter("SR-chargino-34")},
+        {"SR-chargino-35", EventCounter("SR-chargino-35")},
+        {"SR-chargino-36", EventCounter("SR-chargino-36")},
+        {"SR-chargino-37", EventCounter("SR-chargino-37")},
+        {"SR-chargino-38", EventCounter("SR-chargino-38")},
+        {"SR-chargino-39", EventCounter("SR-chargino-39")},
+        {"SR-chargino-40", EventCounter("SR-chargino-40")},
+        {"SR-chargino-41", EventCounter("SR-chargino-41")},
+        {"SR-chargino-42", EventCounter("SR-chargino-42")},
+        {"SR-chargino-43", EventCounter("SR-chargino-43")},
+        {"SR-chargino-44", EventCounter("SR-chargino-44")},
+        {"SR-chargino-45", EventCounter("SR-chargino-45")},
+        {"SR-chargino-46", EventCounter("SR-chargino-46")},
+        {"SR-chargino-47", EventCounter("SR-chargino-47")},
+        {"SR-chargino-48", EventCounter("SR-chargino-48")},
+        {"SR-chargino-49", EventCounter("SR-chargino-49")},
+        {"SR-chargino-50", EventCounter("SR-chargino-50")},
+        {"SR-chargino-51", EventCounter("SR-chargino-51")},
+        {"SR-chargino-52", EventCounter("SR-chargino-52")},
+        {"SR-chargino-53", EventCounter("SR-chargino-53")},
+        {"SR-chargino-54", EventCounter("SR-chargino-54")},
+        {"SR-chargino-55", EventCounter("SR-chargino-55")},
+        {"SR-chargino-56", EventCounter("SR-chargino-56")},
+        {"SR-chargino-57", EventCounter("SR-chargino-57")},
+        {"SR-chargino-58", EventCounter("SR-chargino-58")},
+        {"SR-chargino-59", EventCounter("SR-chargino-59")},
+        {"SR-chargino-60", EventCounter("SR-chargino-60")},
+        {"SR-chargino-61", EventCounter("SR-chargino-61")},
+        {"SR-chargino-62", EventCounter("SR-chargino-62")},
+        {"SR-chargino-63", EventCounter("SR-chargino-63")},
+        {"SR-chargino-64", EventCounter("SR-chargino-64")},
+        {"SR-chargino-65", EventCounter("SR-chargino-65")},
+        {"SR-chargino-66", EventCounter("SR-chargino-66")},
+        {"SR-chargino-67", EventCounter("SR-chargino-67")},
+        {"SR-chargino-68", EventCounter("SR-chargino-68")},
+        {"SR-chargino-69", EventCounter("SR-chargino-69")},
+      };
+
       static const size_t NUMSR_stop = 84;
-      double _srnums_stop[NUMSR_stop];
       static const size_t NUMSR_chargino = 70;
-      double _srnums_chargino[NUMSR_chargino];
 
       Cutflow _cutflow;
 
@@ -49,12 +206,10 @@ namespace Gambit {
       {
         set_analysis_name("Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb");
         set_luminosity(35.9);
-        for (size_t i = 0; i < NUMSR_stop; ++i) _srnums_stop[i] = 0;
-        for (size_t i = 0; i < NUMSR_chargino; ++i) _srnums_chargino[i] = 0;
       }
 
       struct ptComparison {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       void run(const HEPUtils::Event* event)
@@ -79,10 +234,10 @@ namespace Gambit {
                                     0.0,    0.0,     0.0,       0.0,      0.0,     0.0,      0.0,   // eta > 2.5
                                   };
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons())
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
-          bool isEl=has_tag(_eff2dEl, electron->eta(), electron->pT());
+          bool isEl=has_tag(_eff2dEl, fabs(electron->eta()), electron->pT());
           if (isEl && electron->pT()>15. && fabs(electron->eta())<2.4) baselineElectrons.push_back(electron);
         }
 
@@ -101,23 +256,23 @@ namespace Gambit {
                                      0.0,    0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.4
                                  };
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons())
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons())
         {
-          bool isMu=has_tag(_eff2dMu, muon->eta(), muon->pT());
+          bool isMu=has_tag(_eff2dMu, fabs(muon->eta()), muon->pT());
           if (isMu && muon->pT()>15. && fabs(muon->eta())<2.4) baselineMuons.push_back(muon);
         }
 
         // Baseline jets
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets())
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. &&fabs(jet->eta())<2.4) baselineJets.push_back(jet);
         }
 
 
         // Signal leptons = electrons + muons
-        vector<HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalLeptons;
         signalLeptons=baselineElectrons;
         signalLeptons.insert(signalLeptons.end(),baselineMuons.begin(),baselineMuons.end());
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
@@ -127,10 +282,10 @@ namespace Gambit {
         const vector<double> bBJet={0,30., 40., 50., 70., 80., 90., 100.,150., 200., 10000.};
         const vector<double> cBJet={0.63, 0.705, 0.745, 0.76, 0.775, 0.79,0.795, 0.805, 0.795, 0.76};
         HEPUtils::BinnedFn2D<double> _eff2d(aBJet,bBJet,cBJet);
-        vector<HEPUtils::Jet*> signalJets,signalBJets;
+        vector<const HEPUtils::Jet*> signalJets,signalBJets;
         bool ISR_btag=false;
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
-          bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->eta(), baselineJets.at(iJet)->pT());
+          bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
           bool ovelap=false;
           for (size_t iEl=0;iEl<signalLeptons.size();iEl++) {
             if (signalLeptons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.4) ovelap=true;
@@ -194,102 +349,102 @@ namespace Gambit {
         if ( not same_flavor ) {
             if (met<200) {
                 if (nbj==0 and nj ==0) { //SR1_{0tag}^{0jet}
-                    if      (mT2< 20) ++_srnums_chargino[ 0];
-                    else if (mT2< 40) ++_srnums_chargino[ 1];
-                    else if (mT2< 60) ++_srnums_chargino[ 2];
-                    else if (mT2< 80) ++_srnums_chargino[ 3];
-                    else if (mT2<100) ++_srnums_chargino[ 4];
-                    else if (mT2<120) ++_srnums_chargino[ 5];
-                    else              ++_srnums_chargino[ 6];
+                    if      (mT2< 20) _counters.at("SR-chargino-0").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-1").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-2").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-3").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-4").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-5").add_event(event);
+                    else              _counters.at("SR-chargino-6").add_event(event);
                 }
                 if (nbj==0 and nj >=1) { //SR1_{0tag}^{jets}
-                    if      (mT2< 20) ++_srnums_chargino[14];
-                    else if (mT2< 40) ++_srnums_chargino[15];
-                    else if (mT2< 60) ++_srnums_chargino[16];
-                    else if (mT2< 80) ++_srnums_chargino[17];
-                    else if (mT2<100) ++_srnums_chargino[18];
-                    else if (mT2<120) ++_srnums_chargino[19];
-                    else              ++_srnums_chargino[20];
+                    if      (mT2< 20) _counters.at("SR-chargino-14").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-15").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-16").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-17").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-18").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-19").add_event(event);
+                    else              _counters.at("SR-chargino-20").add_event(event);
                 }
             } else if (met<300){
                 if (nbj==0 and nj ==0) { //SR2_{0tag}^{0jet}
-                    if      (mT2< 20) ++_srnums_chargino[28];
-                    else if (mT2< 40) ++_srnums_chargino[29];
-                    else if (mT2< 60) ++_srnums_chargino[30];
-                    else if (mT2< 80) ++_srnums_chargino[31];
-                    else if (mT2<100) ++_srnums_chargino[32];
-                    else if (mT2<120) ++_srnums_chargino[33];
-                    else              ++_srnums_chargino[34];
+                    if      (mT2< 20) _counters.at("SR-chargino-28").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-29").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-30").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-31").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-32").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-33").add_event(event);
+                    else              _counters.at("SR-chargino-34").add_event(event);
                 }
                 if (nbj==0 and nj >=1) { //SR2_{0tag}^{jets}
-                    if      (mT2< 20) ++_srnums_chargino[42];
-                    else if (mT2< 40) ++_srnums_chargino[43];
-                    else if (mT2< 60) ++_srnums_chargino[44];
-                    else if (mT2< 80) ++_srnums_chargino[45];
-                    else if (mT2<100) ++_srnums_chargino[46];
-                    else if (mT2<120) ++_srnums_chargino[47];
-                    else              ++_srnums_chargino[48];
+                    if      (mT2< 20) _counters.at("SR-chargino-42").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-43").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-44").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-45").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-46").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-47").add_event(event);
+                    else              _counters.at("SR-chargino-48").add_event(event);
                 }
             } else {
                 if (nbj==0 and nj >=0) { //SR3_{0tag}
-                    if      (mT2< 20) ++_srnums_chargino[56];
-                    else if (mT2< 40) ++_srnums_chargino[57];
-                    else if (mT2< 60) ++_srnums_chargino[58];
-                    else if (mT2< 80) ++_srnums_chargino[59];
-                    else if (mT2<100) ++_srnums_chargino[60];
-                    else if (mT2<120) ++_srnums_chargino[61];
-                    else              ++_srnums_chargino[62];
+                    if      (mT2< 20) _counters.at("SR-chargino-56").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-57").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-58").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-59").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-60").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-61").add_event(event);
+                    else              _counters.at("SR-chargino-62").add_event(event);
                 }
             }
         } else {
             if (met<200) {
                 if (nbj==0 and nj ==0) { //SR1_{0tag}^{0jet}
-                    if      (mT2< 20) ++_srnums_chargino[ 7];
-                    else if (mT2< 40) ++_srnums_chargino[ 8];
-                    else if (mT2< 60) ++_srnums_chargino[ 9];
-                    else if (mT2< 80) ++_srnums_chargino[10];
-                    else if (mT2<100) ++_srnums_chargino[11];
-                    else if (mT2<120) ++_srnums_chargino[12];
-                    else              ++_srnums_chargino[13];
+                    if      (mT2< 20) _counters.at("SR-chargino-7").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-8").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-9").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-10").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-11").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-12").add_event(event);
+                    else              _counters.at("SR-chargino-13").add_event(event);
                 }
                 if (nbj==0 and nj >=1) { //SR1_{0tag}^{jets}
-                    if      (mT2< 20) ++_srnums_chargino[21];
-                    else if (mT2< 40) ++_srnums_chargino[22];
-                    else if (mT2< 60) ++_srnums_chargino[23];
-                    else if (mT2< 80) ++_srnums_chargino[24];
-                    else if (mT2<100) ++_srnums_chargino[25];
-                    else if (mT2<120) ++_srnums_chargino[26];
-                    else              ++_srnums_chargino[27];
+                    if      (mT2< 20) _counters.at("SR-chargino-21").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-22").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-23").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-24").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-25").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-26").add_event(event);
+                    else              _counters.at("SR-chargino-27").add_event(event);
 
                 }
             } else if (met<300){
                 if (nbj==0 and nj ==0) { //SR2_{0tag}^{0jet}
-                    if      (mT2< 20) ++_srnums_chargino[35];
-                    else if (mT2< 40) ++_srnums_chargino[36];
-                    else if (mT2< 60) ++_srnums_chargino[37];
-                    else if (mT2< 80) ++_srnums_chargino[38];
-                    else if (mT2<100) ++_srnums_chargino[39];
-                    else if (mT2<120) ++_srnums_chargino[40];
-                    else              ++_srnums_chargino[41];
+                    if      (mT2< 20) _counters.at("SR-chargino-35").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-36").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-37").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-38").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-39").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-40").add_event(event);
+                    else              _counters.at("SR-chargino-41").add_event(event);
                 }
                 if (nbj==0 and nj >=1) { //SR2_{0tag}^{jets}
-                    if      (mT2< 20) ++_srnums_chargino[49];
-                    else if (mT2< 40) ++_srnums_chargino[50];
-                    else if (mT2< 60) ++_srnums_chargino[51];
-                    else if (mT2< 80) ++_srnums_chargino[52];
-                    else if (mT2<100) ++_srnums_chargino[53];
-                    else if (mT2<120) ++_srnums_chargino[54];
-                    else              ++_srnums_chargino[55];
+                    if      (mT2< 20) _counters.at("SR-chargino-49").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-50").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-51").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-52").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-53").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-54").add_event(event);
+                    else              _counters.at("SR-chargino-55").add_event(event);
                 }
             } else {
                 if (nbj==0 and nj >=0) { //SR3_{0tag}
-                    if      (mT2< 20) ++_srnums_chargino[63];
-                    else if (mT2< 40) ++_srnums_chargino[64];
-                    else if (mT2< 60) ++_srnums_chargino[65];
-                    else if (mT2< 80) ++_srnums_chargino[66];
-                    else if (mT2<100) ++_srnums_chargino[67];
-                    else if (mT2<120) ++_srnums_chargino[68];
-                    else              ++_srnums_chargino[69];
+                    if      (mT2< 20) _counters.at("SR-chargino-63").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-chargino-64").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-chargino-65").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-chargino-66").add_event(event);
+                    else if (mT2<100) _counters.at("SR-chargino-67").add_event(event);
+                    else if (mT2<120) _counters.at("SR-chargino-68").add_event(event);
+                    else              _counters.at("SR-chargino-69").add_event(event);
                 }
             }
         }
@@ -300,119 +455,119 @@ namespace Gambit {
         if ( not same_flavor ) {
             if (met<200) {
                 if (nbj==0) {                       //SR1_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[42];
-                    else if (mT2< 40) ++_srnums_stop[43];
-                    else if (mT2< 60) ++_srnums_stop[44];
-                    else if (mT2< 80) ++_srnums_stop[45];
-                    else if (mT2<100) ++_srnums_stop[46];
-                    else if (mT2<120) ++_srnums_stop[47];
-                    else              ++_srnums_stop[48];
+                    if      (mT2< 20) _counters.at("SR-stop-42").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-43").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-44").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-45").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-46").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-47").add_event(event);
+                    else              _counters.at("SR-stop-48").add_event(event);
                 }
                 if (nbj>=1 and nj >=1) {            //SR1_{tags}
-                    if      (mT2< 20) ++_srnums_stop[ 0];
-                    else if (mT2< 40) ++_srnums_stop[ 1];
-                    else if (mT2< 60) ++_srnums_stop[ 2];
-                    else if (mT2< 80) ++_srnums_stop[ 3];
-                    else if (mT2<100) ++_srnums_stop[ 4];
-                    else if (mT2<120) ++_srnums_stop[ 5];
-                    else              ++_srnums_stop[ 6];
+                    if      (mT2< 20) _counters.at("SR-stop-0").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-1").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-2").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-3").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-4").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-5").add_event(event);
+                    else              _counters.at("SR-stop-6").add_event(event);
                 }
             } else if (met<300){
                 if (nbj==0) {                       //SR2_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[56];
-                    else if (mT2< 40) ++_srnums_stop[57];
-                    else if (mT2< 60) ++_srnums_stop[58];
-                    else if (mT2< 80) ++_srnums_stop[59];
-                    else if (mT2<100) ++_srnums_stop[60];
-                    else if (mT2<120) ++_srnums_stop[61];
-                    else              ++_srnums_stop[62];
+                    if      (mT2< 20) _counters.at("SR-stop-56").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-57").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-58").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-59").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-60").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-61").add_event(event);
+                    else              _counters.at("SR-stop-62").add_event(event);
                 }
                 if (nbj>=1 and nj >=1) {            //SR2_{tags}
-                    if      (mT2< 20) ++_srnums_stop[14];
-                    else if (mT2< 40) ++_srnums_stop[15];
-                    else if (mT2< 60) ++_srnums_stop[16];
-                    else if (mT2< 80) ++_srnums_stop[17];
-                    else if (mT2<100) ++_srnums_stop[18];
-                    else if (mT2<120) ++_srnums_stop[19];
-                    else              ++_srnums_stop[20];
+                    if      (mT2< 20) _counters.at("SR-stop-14").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-15").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-16").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-17").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-18").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-19").add_event(event);
+                    else              _counters.at("SR-stop-20").add_event(event);
                 }
             } else {
                 if (nbj==0 and nj >=1 and nISR>0) { //SR3_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[70];
-                    else if (mT2< 40) ++_srnums_stop[71];
-                    else if (mT2< 60) ++_srnums_stop[72];
-                    else if (mT2< 80) ++_srnums_stop[73];
-                    else if (mT2<100) ++_srnums_stop[74];
-                    else if (mT2<120) ++_srnums_stop[75];
-                    else              ++_srnums_stop[76];
+                    if      (mT2< 20) _counters.at("SR-stop-70").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-71").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-72").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-73").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-74").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-75").add_event(event);
+                    else              _counters.at("SR-stop-76").add_event(event);
                 }
                 if (nbj>=1 and nj >=2 and nISR>0) { //SR3_{tags}
-                    if      (mT2< 20) ++_srnums_stop[28];
-                    else if (mT2< 40) ++_srnums_stop[29];
-                    else if (mT2< 60) ++_srnums_stop[30];
-                    else if (mT2< 80) ++_srnums_stop[31];
-                    else if (mT2<100) ++_srnums_stop[32];
-                    else if (mT2<120) ++_srnums_stop[33];
-                    else              ++_srnums_stop[34];
+                    if      (mT2< 20) _counters.at("SR-stop-28").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-29").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-30").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-31").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-32").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-33").add_event(event);
+                    else              _counters.at("SR-stop-34").add_event(event);
                 }
             }
         } else {
             if (met<200) {
                 if (nbj==0) {                       //SR1_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[49];
-                    else if (mT2< 40) ++_srnums_stop[50];
-                    else if (mT2< 60) ++_srnums_stop[51];
-                    else if (mT2< 80) ++_srnums_stop[52];
-                    else if (mT2<100) ++_srnums_stop[53];
-                    else if (mT2<120) ++_srnums_stop[54];
-                    else              ++_srnums_stop[55];
+                    if      (mT2< 20) _counters.at("SR-stop-49").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-50").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-51").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-52").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-53").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-54").add_event(event);
+                    else              _counters.at("SR-stop-55").add_event(event);
                 }
                 if (nbj>=1 and nj >=1) {            //SR1_{tags}
-                    if      (mT2< 20) ++_srnums_stop[ 7];
-                    else if (mT2< 40) ++_srnums_stop[ 8];
-                    else if (mT2< 60) ++_srnums_stop[ 9];
-                    else if (mT2< 80) ++_srnums_stop[10];
-                    else if (mT2<100) ++_srnums_stop[11];
-                    else if (mT2<120) ++_srnums_stop[12];
-                    else              ++_srnums_stop[13];
+                    if      (mT2< 20) _counters.at("SR-stop-7").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-8").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-9").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-10").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-11").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-12").add_event(event);
+                    else              _counters.at("SR-stop-13").add_event(event);
                 }
             } else if (met<300){
                 if (nbj==0) {                       //SR2_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[63];
-                    else if (mT2< 40) ++_srnums_stop[64];
-                    else if (mT2< 60) ++_srnums_stop[65];
-                    else if (mT2< 80) ++_srnums_stop[66];
-                    else if (mT2<100) ++_srnums_stop[67];
-                    else if (mT2<120) ++_srnums_stop[68];
-                    else              ++_srnums_stop[69];
+                    if      (mT2< 20) _counters.at("SR-stop-63").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-64").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-65").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-66").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-67").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-68").add_event(event);
+                    else              _counters.at("SR-stop-69").add_event(event);
                 }
                 if (nbj>=1 and nj >=1) {            //SR2_{tags}
-                    if      (mT2< 20) ++_srnums_stop[21];
-                    else if (mT2< 40) ++_srnums_stop[22];
-                    else if (mT2< 60) ++_srnums_stop[23];
-                    else if (mT2< 80) ++_srnums_stop[24];
-                    else if (mT2<100) ++_srnums_stop[25];
-                    else if (mT2<120) ++_srnums_stop[26];
-                    else              ++_srnums_stop[27];
+                    if      (mT2< 20) _counters.at("SR-stop-21").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-22").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-23").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-24").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-25").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-26").add_event(event);
+                    else              _counters.at("SR-stop-27").add_event(event);
                 }
             } else {
                 if (nbj==0 and nj >=1 and nISR>0) { //SR3_{0tag}
-                    if      (mT2< 20) ++_srnums_stop[77];
-                    else if (mT2< 40) ++_srnums_stop[78];
-                    else if (mT2< 60) ++_srnums_stop[79];
-                    else if (mT2< 80) ++_srnums_stop[80];
-                    else if (mT2<100) ++_srnums_stop[81];
-                    else if (mT2<120) ++_srnums_stop[82];
-                    else              ++_srnums_stop[83];
+                    if      (mT2< 20) _counters.at("SR-stop-77").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-78").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-79").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-80").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-81").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-82").add_event(event);
+                    else              _counters.at("SR-stop-83").add_event(event);
                 }
                 if (nbj>=1 and nj >=2 and nISR>0) { //SR3_{tags}
-                    if      (mT2< 20) ++_srnums_stop[35];
-                    else if (mT2< 40) ++_srnums_stop[36];
-                    else if (mT2< 60) ++_srnums_stop[37];
-                    else if (mT2< 80) ++_srnums_stop[38];
-                    else if (mT2<100) ++_srnums_stop[39];
-                    else if (mT2<120) ++_srnums_stop[40];
-                    else              ++_srnums_stop[41];
+                    if      (mT2< 20) _counters.at("SR-stop-35").add_event(event);
+                    else if (mT2< 40) _counters.at("SR-stop-36").add_event(event);
+                    else if (mT2< 60) _counters.at("SR-stop-37").add_event(event);
+                    else if (mT2< 80) _counters.at("SR-stop-38").add_event(event);
+                    else if (mT2<100) _counters.at("SR-stop-39").add_event(event);
+                    else if (mT2<120) _counters.at("SR-stop-40").add_event(event);
+                    else              _counters.at("SR-stop-41").add_event(event);
                 }
 
             }
@@ -425,135 +580,177 @@ namespace Gambit {
       {
         const Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_chargino_stop_36invfb*>(other);
-        for (size_t i = 0; i < NUMSR_stop; ++i)
-            _srnums_stop[i] += specificOther->_srnums_stop[i];
-        for (size_t i = 0; i < NUMSR_chargino; ++i)
-            _srnums_chargino[i] += specificOther->_srnums_chargino[i];
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 
       virtual void collect_results()
       {
         cout << _cutflow << endl;
-        cout << "------------- chargino ----------" << endl;
-        for (size_t ibin = 0; ibin < NUMSR_chargino; ++ibin) {
-            stringstream ss; ss << "sr-" << ibin;
-            cout << "sr-" << ibin << "\t" << _srnums_chargino[ibin] << endl;
-        }
-        cout << "--------------- stop ------------" << endl;
-        for (size_t ibin = 0; ibin < NUMSR_stop; ++ibin) {
-            stringstream ss; ss << "sr-" << ibin;
-            cout << "sr-" << ibin << "\t" << _srnums_stop[ibin] << endl;
-        }
 
-        static const size_t SR_size_cov_chargino = 70;
+        // Chargino SRs
+        add_result(SignalRegionData(_counters.at("SR-chargino-0"), 39, {41.9, 5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-1"), 24, {27.4, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-2"), 33, {34.1, 4.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-3"), 44, {42, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-4"), 13, {21.1, 3.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-5"), 6, {6, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-6"), 9, {7.9, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-7"), 43, {44.1, 7.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-8"), 40, {28.5, 4.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-9"), 39, {33.5, 4.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-10"), 33, {33.5, 4.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-11"), 17, {18.6, 2.6}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-12"), 6, {7.7, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-13"), 12, {12.5, 2.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-14"), 1484, {1493, 32}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-15"), 532, {558, 12}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-16"), 732, {719, 16}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-17"), 725, {730, 16}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-18"), 298, {316, 10}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-19"), 47, {45.1, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-20"), 13, {13.7, 2.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-21"), 1324, {1310, 29}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-22"), 499, {499, 12}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-23"), 609, {623, 14}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-24"), 659, {634, 15}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-25"), 284, {271.7, 8.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-26"), 57, {51.6, 3.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-27"), 47, {48.6, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-28"), 10, {10.3, 1.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-29"), 4, {7, 1.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-30"), 4, {6.5, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-31"), 6, {6.9, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-32"), 2, {2.19, 0.69}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-33"), 2, {1.59, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-34"), 7, {7.8, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-35"), 8, {10.9, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-36"), 12, {7.8, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-37"), 11, {7.3, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-38"), 10, {7.9, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-39"), 3, {1.9, 0.52}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-40"), 2, {1.28, 0.58}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-41"), 7, {7.1, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-42"), 511, {534, 15}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-43"), 162, {158.6, 5.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-44"), 156, {167.9, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-45"), 176, {157.9, 6.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-46"), 43, {42.4, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-47"), 5, {5.9, 1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-48"), 9, {9, 1.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-49"), 493, {474, 14}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-50"), 123, {134.8, 5.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-51"), 166, {155.1, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-52"), 118, {128.5, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-53"), 33, {37.1, 2.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-54"), 7, {7.29, 0.91}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-55"), 25, {23.9, 2.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-56"), 116, {127.9, 7.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-57"), 35, {28.3, 2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-58"), 29, {30.2, 2.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-59"), 21, {23.1, 2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-60"), 3, {4.96, 0.73}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-61"), 1, {1.12, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-62"), 5, {4.5, 1.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-63"), 110, {112.8, 6.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-64"), 35, {27.9, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-65"), 26, {24.2, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-66"), 26, {22.5, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-67"), 2, {5.2, 1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-68"), 1, {1.36, 0.36}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-69"), 14,  {10.6 , 1.2 }));
 
-        // Observed event counts
-        static const double OBSNUM_chargino[SR_size_cov_chargino] = {\
-            39, 24, 33, 44, 13, 6, 9, \
-            43, 40, 39, 33, 17, 6, 12, \
-            1484, 532, 732, 725, 298, 47, 13, \
-            1324, 499, 609, 659, 284, 57, 47, \
-            10, 4, 4, 6, 2, 2, 7, \
-            8, 12, 11, 10, 3, 2, 7, \
-            511, 162, 156, 176, 43, 5, 9, \
-            493, 123, 166, 118, 33, 7, 25, \
-            116, 35, 29, 21, 3, 1, 5, \
-            110, 35, 26, 26, 2, 1, 14 \
-        };
-        // Background estimates
-        static const double BKGNUM_chargino[SR_size_cov_chargino] = {\
-            41.9, 27.4, 34.1, 42, 21.1, 6, 7.9, \
-            44.1, 28.5, 33.5, 33.5, 18.6, 7.7, 12.5, \
-            1493, 558, 719, 730, 316, 45.1, 13.7, \
-            1310, 499, 623, 634, 271.7, 51.6, 48.6, \
-            10.3, 7, 6.5, 6.9, 2.19, 1.59, 7.8, \
-            10.9, 7.8, 7.3, 7.9, 1.9, 1.28, 7.1, \
-            534, 158.6, 167.9, 157.9, 42.4, 5.9, 9,
-            474, 134.8, 155.1, 128.5, 37.1, 7.29, 23.9, \
-            127.9, 28.3, 30.2, 23.1, 4.96, 1.12, 4.5, \
-            112.8, 27.9, 24.2, 22.5, 5.2, 1.36, 10.6 \
-        };
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR_chargino[SR_size_cov_chargino] = {\
-            5, 3.8, 4.8, 5.5, 3.4, 1.3, 2.1, \
-            7.5, 4.1, 4.4, 4.5, 2.6, 1.6, 2.5,\
-            32, 12, 16, 16, 10, 3.1, 2.8, \
-            29, 12, 14, 15, 8.9, 3.5, 5.5, \
-            1.7, 1.5, 1.3, 1.3, 0.69, 0.7, 1.8, \
-            1.9, 1.8, 1.4, 1.3, 0.52, 0.58, 1.4, \
-            15, 5.9, 6.1, 6.5, 2.9, 1, 1.7, \
-            14, 5.1, 5.5, 5.5, 2.5, 0.91, 2.4,\
-            7.2, 2, 2.4, 2, 0.73, 0.38, 1.2, \
-            6.3, 2.2, 1.8, 1.8, 1, 0.36, 1.2 \
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov_chargino; ++ibin) {
-          stringstream ss; ss << "sr-chargino-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM_chargino[ibin], {_srnums_chargino[ibin],  0.}, {BKGNUM_chargino[ibin], BKGERR_chargino[ibin]}));
-        }
-
-
-        static const size_t SR_size_cov_stop = 84;
-
-        // Observed event counts
-        static const double OBSNUM_stop[SR_size_cov_stop] = {\
-            3534, 1494, 1938, 2068, 879, 111, 15, \
-            3003, 1266, 1674, 1671, 798, 85, 16, \
-            1045, 357, 412, 389, 111, 11, 1, \
-            900, 315, 343, 325, 86, 13, 11, \
-            133, 44, 36, 26, 2, 1, 0, \
-            123, 27, 28, 38, 4, 1, 1, \
-            1523, 556, 765, 769, 311, 53, 22, \
-            1367, 539, 648, 692, 301, 63, 59, \
-            521, 166, 160, 182, 45, 7, 16, \
-            501, 135, 177, 128, 36, 9, 32,\
-            100, 27, 22, 12, 3, 0, 1, \
-            92, 26, 17, 12, 1, 1, 2 \
-        };
-        // Background estimates
-        static const double BKGNUM_stop[SR_size_cov_stop] = {\
-            3525, 1505, 1958, 2049, 897, 108.4, 13.4,\
-            2979, 1277, 1644, 1712, 762, 91.9, 18.1, \
-            1036, 363, 415, 377, 105.1, 12.3, 5.02, \
-            888, 319, 363, 323, 90.5, 10.8, 7.43, \
-            152.1, 35.5, 32.3, 25, 4.67, 0.41, 0.41, \
-            129.6, 29.6, 27.8, 22.2, 3.71, 0.47, 0.71, \
-            1542, 588, 756, 771, 338.3, 50.6, 21, \
-            1350, 526, 656, 670, 289.2, 57.9, 61.8, \
-            545, 164.3, 173.2, 165.1, 44.8, 7.1, 15.5, \
-            487, 140.7, 161.9, 134.5, 39.6, 8.1, 30.6, \
-            103.9, 21.3, 22.2, 15.4, 3.51, 0.53, 0.53,\
-            91.5, 20.1, 16.5, 13.7, 3.14, 0.78, 1.63 \
-        };
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR_stop[SR_size_cov_stop] = {\
-            80, 31, 42, 46, 22, 7.3, 2.2, \
-            68, 30, 35, 37, 19, 6.1, 2.1, \
-            37, 13, 14, 14, 6.5, 2, 0.82, \
-            30, 12, 14, 13, 5.5, 1.5, 0.98,\
-            9.9, 2.7, 2.3, 2.2, 0.77, 0.38, 0.26, \
-            8.9, 2.1, 2.1, 1.9, 0.57, 0.42, 0.38, \
-            33, 13, 15, 19, 9.3, 3.8, 3.8, \
-            33, 13, 15, 17, 7.6, 4.2, 5.8, \
-            18, 7.3, 6.2, 6.8, 3.1, 1.4, 3, \
-            16, 5.5, 5.9, 6.2, 2.7, 1.1, 3,\
-            6.8, 1.9, 2.1, 1.6, 0.6, 0.21, 0.34, \
-            6.1, 1.8, 1.4, 1.4, 0.58, 0.36, 0.42\
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov_stop; ++ibin) {
-          stringstream ss; ss << "sr-stop-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM_stop[ibin], {_srnums_stop[ibin],  0.}, {BKGNUM_stop[ibin], BKGERR_stop[ibin]}));
-        }
+        // Stop SRs
+        add_result(SignalRegionData(_counters.at("SR-stop-0"), 3534, {3525, 80}));
+        add_result(SignalRegionData(_counters.at("SR-stop-1"), 1494, {1505, 31}));
+        add_result(SignalRegionData(_counters.at("SR-stop-2"), 1938, {1958, 42}));
+        add_result(SignalRegionData(_counters.at("SR-stop-3"), 2068, {2049, 46}));
+        add_result(SignalRegionData(_counters.at("SR-stop-4"), 879, {897, 22}));
+        add_result(SignalRegionData(_counters.at("SR-stop-5"), 111, {108.4, 7.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-6"), 15, {13.4, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-7"), 3003, {2979, 68}));
+        add_result(SignalRegionData(_counters.at("SR-stop-8"), 1266, {1277, 30}));
+        add_result(SignalRegionData(_counters.at("SR-stop-9"), 1674, {1644, 35}));
+        add_result(SignalRegionData(_counters.at("SR-stop-10"), 1671, {1712, 37}));
+        add_result(SignalRegionData(_counters.at("SR-stop-11"), 798, {762, 19}));
+        add_result(SignalRegionData(_counters.at("SR-stop-12"), 85, {91.9, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-13"), 16, {18.1, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-14"), 1045, {1036, 37}));
+        add_result(SignalRegionData(_counters.at("SR-stop-15"), 357, {363, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-16"), 412, {415, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-17"), 389, {377, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-18"), 111, {105.1, 6.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-19"), 11, {12.3, 2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-20"), 1, {5.02, 0.82}));
+        add_result(SignalRegionData(_counters.at("SR-stop-21"), 900, {888, 30}));
+        add_result(SignalRegionData(_counters.at("SR-stop-22"), 315, {319, 12}));
+        add_result(SignalRegionData(_counters.at("SR-stop-23"), 343, {363, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-24"), 325, {323, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-25"), 86, {90.5, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-26"), 13, {10.8, 1.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-27"), 11, {7.43, 0.98}));
+        add_result(SignalRegionData(_counters.at("SR-stop-28"), 133, {152.1, 9.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-29"), 44, {35.5, 2.7}));
+        add_result(SignalRegionData(_counters.at("SR-stop-30"), 36, {32.3, 2.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-31"), 26, {25, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-32"), 2, {4.67, 0.77}));
+        add_result(SignalRegionData(_counters.at("SR-stop-33"), 1, {0.41, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-stop-34"), 0, {0.41, 0.26}));
+        add_result(SignalRegionData(_counters.at("SR-stop-35"), 123, {129.6, 8.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-36"), 27, {29.6, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-37"), 28, {27.8, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-38"), 38, {22.2, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-39"), 4, {3.71, 0.57}));
+        add_result(SignalRegionData(_counters.at("SR-stop-40"), 1, {0.47, 0.42}));
+        add_result(SignalRegionData(_counters.at("SR-stop-41"), 1, {0.71, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-stop-42"), 1523, {1542, 33}));
+        add_result(SignalRegionData(_counters.at("SR-stop-43"), 556, {588, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-44"), 765, {756, 15}));
+        add_result(SignalRegionData(_counters.at("SR-stop-45"), 769, {771, 19}));
+        add_result(SignalRegionData(_counters.at("SR-stop-46"), 311, {338.3, 9.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-47"), 53, {50.6, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-48"), 22, {21, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-49"), 1367, {1350, 33}));
+        add_result(SignalRegionData(_counters.at("SR-stop-50"), 539, {526, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-51"), 648, {656, 15}));
+        add_result(SignalRegionData(_counters.at("SR-stop-52"), 692, {670, 17}));
+        add_result(SignalRegionData(_counters.at("SR-stop-53"), 301, {289.2, 7.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-54"), 63, {57.9, 4.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-55"), 59, {61.8, 5.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-56"), 521, {545, 18}));
+        add_result(SignalRegionData(_counters.at("SR-stop-57"), 166, {164.3, 7.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-58"), 160, {173.2, 6.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-59"), 182, {165.1, 6.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-60"), 45, {44.8, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-61"), 7, {7.1, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-62"), 16, {15.5, 3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-63"), 501, {487, 16}));
+        add_result(SignalRegionData(_counters.at("SR-stop-64"), 135, {140.7, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-65"), 177, {161.9, 5.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-66"), 128, {134.5, 6.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-67"), 36, {39.6, 2.7}));
+        add_result(SignalRegionData(_counters.at("SR-stop-68"), 9, {8.1, 1.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-69"), 32, {30.6, 3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-70"), 100, {103.9, 6.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-71"), 27, {21.3, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-72"), 22, {22.2, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-73"), 12, {15.4, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-74"), 3, {3.51, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-75"), 0, {0.53, 0.21}));
+        add_result(SignalRegionData(_counters.at("SR-stop-76"), 1, {0.53, 0.34}));
+        add_result(SignalRegionData(_counters.at("SR-stop-77"), 92, {91.5, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-78"), 26, {20.1, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-79"), 17, {16.5, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-80"), 12, {13.7, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-81"), 1, {3.14, 0.58}));
+        add_result(SignalRegionData(_counters.at("SR-stop-82"), 1, {0.78, 0.36}));
+        add_result(SignalRegionData(_counters.at("SR-stop-83"), 2, {1.63, 0.42}));
 
       }
 
     protected:
       void analysis_specific_reset() {
-
-        for(size_t i=0;i<NUMSR_stop;i++) { _srnums_stop[i]=0; }
-        for(size_t i=0;i<NUMSR_chargino;i++) { _srnums_chargino[i]=0; }
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };
@@ -574,52 +771,77 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        static const size_t SR_size_cov = 70;
 
-        // Observed event counts
-        static const double OBSNUM[SR_size_cov] = {\
-            39, 24, 33, 44, 13, 6, 9, \
-            43, 40, 39, 33, 17, 6, 12, \
-            1484, 532, 732, 725, 298, 47, 13, \
-            1324, 499, 609, 659, 284, 57, 47, \
-            10, 4, 4, 6, 2, 2, 7, \
-            8, 12, 11, 10, 3, 2, 7, \
-            511, 162, 156, 176, 43, 5, 9, \
-            493, 123, 166, 118, 33, 7, 25, \
-            116, 35, 29, 21, 3, 1, 5, \
-            110, 35, 26, 26, 2, 1, 14 \
-        };
-        // Background estimates
-        static const double BKGNUM[SR_size_cov] = {\
-            41.9, 27.4, 34.1, 42, 21.1, 6, 7.9, \
-            44.1, 28.5, 33.5, 33.5, 18.6, 7.7, 12.5, \
-            1493, 558, 719, 730, 316, 45.1, 13.7, \
-            1310, 499, 623, 634, 271.7, 51.6, 48.6, \
-            10.3, 7, 6.5, 6.9, 2.19, 1.59, 7.8, \
-            10.9, 7.8, 7.3, 7.9, 1.9, 1.28, 7.1, \
-            534, 158.6, 167.9, 157.9, 42.4, 5.9, 9,
-            474, 134.8, 155.1, 128.5, 37.1, 7.29, 23.9, \
-            127.9, 28.3, 30.2, 23.1, 4.96, 1.12, 4.5, \
-            112.8, 27.9, 24.2, 22.5, 5.2, 1.36, 10.6 \
-        };
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR[SR_size_cov] = {\
-            5, 3.8, 4.8, 5.5, 3.4, 1.3, 2.1, \
-            7.5, 4.1, 4.4, 4.5, 2.6, 1.6, 2.5,\
-            32, 12, 16, 16, 10, 3.1, 2.8, \
-            29, 12, 14, 15, 8.9, 3.5, 5.5, \
-            1.7, 1.5, 1.3, 1.3, 0.69, 0.7, 1.8, \
-            1.9, 1.8, 1.4, 1.3, 0.52, 0.58, 1.4, \
-            15, 5.9, 6.1, 6.5, 2.9, 1, 1.7, \
-            14, 5.1, 5.5, 5.5, 2.5, 0.91, 2.4,\
-            7.2, 2, 2.4, 2, 0.73, 0.38, 1.2, \
-            6.3, 2.2, 1.8, 1.8, 1, 0.36, 1.2 \
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov; ++ibin) {
-          stringstream ss; ss << "sr-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_srnums_chargino[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        add_result(SignalRegionData(_counters.at("SR-chargino-0"), 39, {41.9, 5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-1"), 24, {27.4, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-2"), 33, {34.1, 4.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-3"), 44, {42, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-4"), 13, {21.1, 3.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-5"), 6, {6, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-6"), 9, {7.9, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-7"), 43, {44.1, 7.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-8"), 40, {28.5, 4.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-9"), 39, {33.5, 4.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-10"), 33, {33.5, 4.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-11"), 17, {18.6, 2.6}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-12"), 6, {7.7, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-13"), 12, {12.5, 2.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-14"), 1484, {1493, 32}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-15"), 532, {558, 12}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-16"), 732, {719, 16}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-17"), 725, {730, 16}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-18"), 298, {316, 10}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-19"), 47, {45.1, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-20"), 13, {13.7, 2.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-21"), 1324, {1310, 29}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-22"), 499, {499, 12}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-23"), 609, {623, 14}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-24"), 659, {634, 15}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-25"), 284, {271.7, 8.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-26"), 57, {51.6, 3.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-27"), 47, {48.6, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-28"), 10, {10.3, 1.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-29"), 4, {7, 1.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-30"), 4, {6.5, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-31"), 6, {6.9, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-32"), 2, {2.19, 0.69}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-33"), 2, {1.59, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-34"), 7, {7.8, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-35"), 8, {10.9, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-36"), 12, {7.8, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-37"), 11, {7.3, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-38"), 10, {7.9, 1.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-39"), 3, {1.9, 0.52}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-40"), 2, {1.28, 0.58}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-41"), 7, {7.1, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-42"), 511, {534, 15}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-43"), 162, {158.6, 5.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-44"), 156, {167.9, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-45"), 176, {157.9, 6.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-46"), 43, {42.4, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-47"), 5, {5.9, 1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-48"), 9, {9, 1.7}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-49"), 493, {474, 14}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-50"), 123, {134.8, 5.1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-51"), 166, {155.1, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-52"), 118, {128.5, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-53"), 33, {37.1, 2.5}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-54"), 7, {7.29, 0.91}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-55"), 25, {23.9, 2.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-56"), 116, {127.9, 7.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-57"), 35, {28.3, 2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-58"), 29, {30.2, 2.4}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-59"), 21, {23.1, 2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-60"), 3, {4.96, 0.73}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-61"), 1, {1.12, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-62"), 5, {4.5, 1.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-63"), 110, {112.8, 6.3}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-64"), 35, {27.9, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-65"), 26, {24.2, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-66"), 26, {22.5, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-67"), 2, {5.2, 1}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-68"), 1, {1.36, 0.36}));
+        add_result(SignalRegionData(_counters.at("SR-chargino-69"), 14,  {10.6 , 1.2 }));
 
         // Covariance matrix
         static const vector< vector<double> > BKGCOV = {
@@ -717,58 +939,91 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        static const size_t SR_size_cov = 84;
 
-        // Observed event counts
-        static const double OBSNUM[SR_size_cov] = {\
-            3534, 1494, 1938, 2068, 879, 111, 15, \
-            3003, 1266, 1674, 1671, 798, 85, 16, \
-            1045, 357, 412, 389, 111, 11, 1, \
-            900, 315, 343, 325, 86, 13, 11, \
-            133, 44, 36, 26, 2, 1, 0, \
-            123, 27, 28, 38, 4, 1, 1, \
-            1523, 556, 765, 769, 311, 53, 22, \
-            1367, 539, 648, 692, 301, 63, 59, \
-            521, 166, 160, 182, 45, 7, 16, \
-            501, 135, 177, 128, 36, 9, 32,\
-            100, 27, 22, 12, 3, 0, 1, \
-            92, 26, 17, 12, 1, 1, 2 \
-        };
-        // Background estimates
-        static const double BKGNUM[SR_size_cov] = {\
-            3525, 1505, 1958, 2049, 897, 108.4, 13.4,\
-            2979, 1277, 1644, 1712, 762, 91.9, 18.1, \
-            1036, 363, 415, 377, 105.1, 12.3, 5.02, \
-            888, 319, 363, 323, 90.5, 10.8, 7.43, \
-            152.1, 35.5, 32.3, 25, 4.67, 0.41, 0.41, \
-            129.6, 29.6, 27.8, 22.2, 3.71, 0.47, 0.71, \
-            1542, 588, 756, 771, 338.3, 50.6, 21, \
-            1350, 526, 656, 670, 289.2, 57.9, 61.8, \
-            545, 164.3, 173.2, 165.1, 44.8, 7.1, 15.5, \
-            487, 140.7, 161.9, 134.5, 39.6, 8.1, 30.6, \
-            103.9, 21.3, 22.2, 15.4, 3.51, 0.53, 0.53,\
-            91.5, 20.1, 16.5, 13.7, 3.14, 0.78, 1.63 \
-        };
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR[SR_size_cov] = {\
-            80, 31, 42, 46, 22, 7.3, 2.2, \
-            68, 30, 35, 37, 19, 6.1, 2.1, \
-            37, 13, 14, 14, 6.5, 2, 0.82, \
-            30, 12, 14, 13, 5.5, 1.5, 0.98,\
-            9.9, 2.7, 2.3, 2.2, 0.77, 0.38, 0.26, \
-            8.9, 2.1, 2.1, 1.9, 0.57, 0.42, 0.38, \
-            33, 13, 15, 19, 9.3, 3.8, 3.8, \
-            33, 13, 15, 17, 7.6, 4.2, 5.8, \
-            18, 7.3, 6.2, 6.8, 3.1, 1.4, 3, \
-            16, 5.5, 5.9, 6.2, 2.7, 1.1, 3,\
-            6.8, 1.9, 2.1, 1.6, 0.6, 0.21, 0.34, \
-            6.1, 1.8, 1.4, 1.4, 0.58, 0.36, 0.42\
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov; ++ibin) {
-          stringstream ss; ss << "sr-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_srnums_stop[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        add_result(SignalRegionData(_counters.at("SR-stop-0"), 3534, {3525, 80}));
+        add_result(SignalRegionData(_counters.at("SR-stop-1"), 1494, {1505, 31}));
+        add_result(SignalRegionData(_counters.at("SR-stop-2"), 1938, {1958, 42}));
+        add_result(SignalRegionData(_counters.at("SR-stop-3"), 2068, {2049, 46}));
+        add_result(SignalRegionData(_counters.at("SR-stop-4"), 879, {897, 22}));
+        add_result(SignalRegionData(_counters.at("SR-stop-5"), 111, {108.4, 7.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-6"), 15, {13.4, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-7"), 3003, {2979, 68}));
+        add_result(SignalRegionData(_counters.at("SR-stop-8"), 1266, {1277, 30}));
+        add_result(SignalRegionData(_counters.at("SR-stop-9"), 1674, {1644, 35}));
+        add_result(SignalRegionData(_counters.at("SR-stop-10"), 1671, {1712, 37}));
+        add_result(SignalRegionData(_counters.at("SR-stop-11"), 798, {762, 19}));
+        add_result(SignalRegionData(_counters.at("SR-stop-12"), 85, {91.9, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-13"), 16, {18.1, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-14"), 1045, {1036, 37}));
+        add_result(SignalRegionData(_counters.at("SR-stop-15"), 357, {363, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-16"), 412, {415, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-17"), 389, {377, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-18"), 111, {105.1, 6.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-19"), 11, {12.3, 2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-20"), 1, {5.02, 0.82}));
+        add_result(SignalRegionData(_counters.at("SR-stop-21"), 900, {888, 30}));
+        add_result(SignalRegionData(_counters.at("SR-stop-22"), 315, {319, 12}));
+        add_result(SignalRegionData(_counters.at("SR-stop-23"), 343, {363, 14}));
+        add_result(SignalRegionData(_counters.at("SR-stop-24"), 325, {323, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-25"), 86, {90.5, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-26"), 13, {10.8, 1.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-27"), 11, {7.43, 0.98}));
+        add_result(SignalRegionData(_counters.at("SR-stop-28"), 133, {152.1, 9.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-29"), 44, {35.5, 2.7}));
+        add_result(SignalRegionData(_counters.at("SR-stop-30"), 36, {32.3, 2.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-31"), 26, {25, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-32"), 2, {4.67, 0.77}));
+        add_result(SignalRegionData(_counters.at("SR-stop-33"), 1, {0.41, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-stop-34"), 0, {0.41, 0.26}));
+        add_result(SignalRegionData(_counters.at("SR-stop-35"), 123, {129.6, 8.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-36"), 27, {29.6, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-37"), 28, {27.8, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-38"), 38, {22.2, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-39"), 4, {3.71, 0.57}));
+        add_result(SignalRegionData(_counters.at("SR-stop-40"), 1, {0.47, 0.42}));
+        add_result(SignalRegionData(_counters.at("SR-stop-41"), 1, {0.71, 0.38}));
+        add_result(SignalRegionData(_counters.at("SR-stop-42"), 1523, {1542, 33}));
+        add_result(SignalRegionData(_counters.at("SR-stop-43"), 556, {588, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-44"), 765, {756, 15}));
+        add_result(SignalRegionData(_counters.at("SR-stop-45"), 769, {771, 19}));
+        add_result(SignalRegionData(_counters.at("SR-stop-46"), 311, {338.3, 9.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-47"), 53, {50.6, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-48"), 22, {21, 3.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-49"), 1367, {1350, 33}));
+        add_result(SignalRegionData(_counters.at("SR-stop-50"), 539, {526, 13}));
+        add_result(SignalRegionData(_counters.at("SR-stop-51"), 648, {656, 15}));
+        add_result(SignalRegionData(_counters.at("SR-stop-52"), 692, {670, 17}));
+        add_result(SignalRegionData(_counters.at("SR-stop-53"), 301, {289.2, 7.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-54"), 63, {57.9, 4.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-55"), 59, {61.8, 5.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-56"), 521, {545, 18}));
+        add_result(SignalRegionData(_counters.at("SR-stop-57"), 166, {164.3, 7.3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-58"), 160, {173.2, 6.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-59"), 182, {165.1, 6.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-60"), 45, {44.8, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-61"), 7, {7.1, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-62"), 16, {15.5, 3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-63"), 501, {487, 16}));
+        add_result(SignalRegionData(_counters.at("SR-stop-64"), 135, {140.7, 5.5}));
+        add_result(SignalRegionData(_counters.at("SR-stop-65"), 177, {161.9, 5.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-66"), 128, {134.5, 6.2}));
+        add_result(SignalRegionData(_counters.at("SR-stop-67"), 36, {39.6, 2.7}));
+        add_result(SignalRegionData(_counters.at("SR-stop-68"), 9, {8.1, 1.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-69"), 32, {30.6, 3}));
+        add_result(SignalRegionData(_counters.at("SR-stop-70"), 100, {103.9, 6.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-71"), 27, {21.3, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR-stop-72"), 22, {22.2, 2.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-73"), 12, {15.4, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-74"), 3, {3.51, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR-stop-75"), 0, {0.53, 0.21}));
+        add_result(SignalRegionData(_counters.at("SR-stop-76"), 1, {0.53, 0.34}));
+        add_result(SignalRegionData(_counters.at("SR-stop-77"), 92, {91.5, 6.1}));
+        add_result(SignalRegionData(_counters.at("SR-stop-78"), 26, {20.1, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR-stop-79"), 17, {16.5, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-80"), 12, {13.7, 1.4}));
+        add_result(SignalRegionData(_counters.at("SR-stop-81"), 1, {3.14, 0.58}));
+        add_result(SignalRegionData(_counters.at("SR-stop-82"), 1, {0.78, 0.36}));
+        add_result(SignalRegionData(_counters.at("SR-stop-83"), 2, {1.63, 0.42}));
 
         // Covariance matrix
         static const vector< vector<double> > BKGCOV = {

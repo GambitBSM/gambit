@@ -15,7 +15,9 @@
 /// @file Interactions between P4 and HepMC's simple vectors
 /// @author Andy Buckley <andy.buckley@cern.ch>
 
-#include "HepMC/GenEvent.h"
+
+//EDITED TP Aug 2019 - include path below was wrong, added the 3 to make it right.
+#include "HepMC3/GenEvent.h"
 
 #include "HEPUtils/Vectors.h"
 

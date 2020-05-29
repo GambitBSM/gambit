@@ -1,6 +1,386 @@
+diff -rupN pythia_8.212_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia_8.212_patched/include/Pythia8/GAMBIT_hepmc_writer.h
+--- pythia8212/include/Pythia8/GAMBIT_hepmc_writer.h	1970-01-01 10:00:00.000000000 +1000
++++ ../installed/pythia/8.212/include/Pythia8/GAMBIT_hepmc_writer.h	2019-09-12 17:09:59.225498541 +1000
+@@ -0,0 +1,100 @@
++#ifndef Pythia8_GAMBIT_hepmc_writer_H
++#define Pythia8_GAMBIT_hepmc_writer_H
++
++#include "HepMC3/GenEvent.h"
++#include "HepMC3/WriterAscii.h"
++#include "HepMC3/WriterAsciiHepMC2.h"
++#include "HepMC3/Print.h"
++
++#include "Pythia8/Pythia.h"
++#include "Pythia8Plugins/HepMC3.h"
++
++
++namespace Pythia8
++{
++
++  class GAMBIT_hepmc_writer
++  {
++
++  private:
++
++    std::string filename2;
++    std::string filename3;
++
++    bool HepMC2_ON = false;
++    bool HepMC3_ON = false;
++ 
++    HepMC3::Pythia8ToHepMC3 *pythiaToHepMC;
++    HepMC3::WriterAsciiHepMC2 *file2;
++    HepMC3::WriterAscii *file3;
++ 
++
++  public:
++
++    // Destructor
++    ~GAMBIT_hepmc_writer()
++    {
++      if(HepMC2_ON)
++      {
++        file2->close();
++        delete file2;
++      }
++
++      if(HepMC3_ON)
++      {
++        file3->close();
++        delete file3;
++      }
++
++      delete pythiaToHepMC;
++    }
++
++    void init(std::string filename_in, bool HepMC2, bool HepMC3)
++    {
++      if (HepMC2)
++      {
++        filename2 = filename_in+"2";
++        file2 = new HepMC3::WriterAsciiHepMC2(filename2.c_str());
++        HepMC2_ON = true;
++      }
++
++      if (HepMC3)
++      {
++        filename3 = filename_in+"3";
++        file3 = new HepMC3::WriterAscii(filename3.c_str());
++        HepMC3_ON = true;
++      }
++
++      pythiaToHepMC = new HepMC3::Pythia8ToHepMC3();
++    }
++
++
++    // Write current event to file in HepMC3 format
++    void write_event_HepMC3(Pythia* pythia)
++    {
++      // Construct new empty HepMC event and fill it.
++      HepMC3::GenEvent hepmc( HepMC3::Units::GEV, HepMC3::Units::MM );
++
++      pythiaToHepMC->fill_next_event(pythia->event, &hepmc, -1, &(pythia->info));
++
++      // Write the HepMC event to file. Done with it.
++      file3->write_event(hepmc);
++    }
++  
++    // Write current event to file in HepMC2 format
++    void write_event_HepMC2(Pythia* pythia)
++    {
++      // Construct new empty HepMC event and fill it.
++      HepMC3::GenEvent hepmc( HepMC3::Units::GEV, HepMC3::Units::MM );
++
++      pythiaToHepMC->fill_next_event(pythia->event, &hepmc, -1, &(pythia->info));
++
++      // Write the HepMC event to file. Done with it.
++      file2->write_event(hepmc);
++    }
++
++  };
++
++}
++
++#endif // Pythia8_GAMBIT_hepmc_writer_H
+diff -rupN pythia_8.212_original/include/Pythia8Plugins/HepMC3.h pythia_8.212_patched/include/Pythia8Plugins/HepMC3.h
+--- pythia8212/include/Pythia8Plugins/HepMC3.h	1970-01-01 10:00:00.000000000 +1000
++++ ../installed/pythia/8.212/include/Pythia8Plugins/HepMC3.h	2019-09-16 13:28:44.037718262 +1000
+@@ -0,0 +1,260 @@
++// HepMC3.h is a part of the PYTHIA event generator.
++// Copyright (C) 2015 Torbjorn Sjostrand.
++// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
++// Please respect the MCnet Guidelines, see GUIDELINES for details.
++
++// Author: Mikhail Kirsanov, Mikhail.Kirsanov@cern.ch
++// Copied from HepMC2.h and addapted by GAMBIT
++// Header file and function definitions for the Pythia8ToHepMC3 class,
++// which converts a PYTHIA event record to the standard HepMC3 format.
++
++#ifndef Pythia8_HepMC3_H
++#define Pythia8_HepMC3_H
++
++#include <vector>
++#include "HepMC3/GenEvent.h"
++#include "HepMC3/GenParticle.h"
++#include "HepMC3/GenVertex.h"
++#include "HepMC3/FourVector.h"
++
++#include "Pythia8/Pythia.h"
++
++namespace HepMC3 {
++
++//==========================================================================
++
++// The Pythia8ToHepMC class.
++
++class Pythia8ToHepMC3 {
++
++public:
++
++  // Constructor and destructor.
++  Pythia8ToHepMC3() : m_internal_event_number(0),
++    m_print_inconsistency(true), m_free_parton_warnings(true),
++    m_crash_on_problem(false),   m_convert_gluon_to_0(false),
++    m_store_pdf(true), m_store_proc(true), m_store_xsec(true),
++    m_store_weights(true)  {;}
++  virtual ~Pythia8ToHepMC3() {;}
++
++  // The recommended method to convert Pythia events into HepMC ones.
++  bool fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
++    int ievnum = -1) {return fill_next_event( pythia.event, evt, ievnum,
++    &pythia.info, &pythia.settings);}
++
++  // Alternative method to convert Pythia events into HepMC ones.
++  bool fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
++    int ievnum = -1, Pythia8::Info* pyinfo = 0,
++    Pythia8::Settings* pyset = 0);
++
++  // Read out values for some switches.
++  bool print_inconsistency()  const {return m_print_inconsistency;}
++  bool free_parton_warnings() const {return m_free_parton_warnings;}
++  bool crash_on_problem()     const {return m_crash_on_problem;}
++  bool convert_gluon_to_0()   const {return m_convert_gluon_to_0;}
++  bool store_pdf()            const {return m_store_pdf;}
++  bool store_proc()           const {return m_store_proc;}
++  bool store_xsec()           const {return m_store_xsec;}
++  bool store_weights()        const {return m_store_weights;}
++
++  // Set values for some switches.
++  void set_print_inconsistency(bool b = true)  {m_print_inconsistency = b;}
++  void set_free_parton_warnings(bool b = true) {m_free_parton_warnings = b;}
++  void set_crash_on_problem(bool b = false)    {m_crash_on_problem = b;}
++  void set_convert_gluon_to_0(bool b = false)  {m_convert_gluon_to_0 = b;}
++  void set_store_pdf(bool b = true)            {m_store_pdf = b;}
++  void set_store_proc(bool b = true)           {m_store_proc = b;}
++  void set_store_xsec(bool b = true)           {m_store_xsec = b;}
++  void set_store_weights(bool b = true)        {m_store_weights = b;}
++
++private:
++
++  // Following methods are not implemented for this class.
++  virtual bool fill_next_event( GenEvent*  ) { return 0; }
++  virtual void write_event( const GenEvent* ) {;}
++
++  // Use of copy constructor is not allowed.
++  Pythia8ToHepMC3( const Pythia8ToHepMC3& ) {;}
++
++  // Data members.
++  int  m_internal_event_number;
++  bool m_print_inconsistency, m_free_parton_warnings,
++       m_crash_on_problem, m_convert_gluon_to_0,
++       m_store_pdf, m_store_proc, m_store_xsec,
++       m_store_weights;
++
++};
++
++//==========================================================================
++
++// Main method for conversion from PYTHIA event to HepMC event.
++// Read one event from Pythia8 and fill a new GenEvent, alternatively
++// append to an existing GenEvent, and return T/F = success/failure.
++
++inline bool Pythia8ToHepMC3::fill_next_event( Pythia8::Event& pyev,
++  GenEvent* evt, int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
++
++  // 1. Error if no event passed.
++  if (!evt) {
++    std::cout << " Pythia8ToHepMC3::fill_next_event error: passed null event."
++              << std::endl;
++    return 0;
++  }
++
++  // Update event number counter.
++  if (ievnum >= 0) {
++    evt->set_event_number(ievnum);
++    m_internal_event_number = ievnum;
++  } else {
++    evt->set_event_number(m_internal_event_number);
++    ++m_internal_event_number;
++  }
++
++  evt->set_units(HepMC3::Units::GEV,HepMC3::Units::MM);
++
++  // 2. Fill particle information
++  std::vector<GenParticlePtr> hepevt_particles;
++  hepevt_particles.reserve( pyev.size() );
++
++  for (int i = 0; i < pyev.size(); ++i) {
++
++    // Fill the particle.
++    hepevt_particles.push_back( make_shared<GenParticle>( FourVector(pyev[i].px(), pyev[i].py(), pyev[i].pz(), pyev[i].e()), pyev[i].id(), pyev[i].statusHepMC() ));
++
++    hepevt_particles[i]->set_generated_mass( pyev[i].m() );
++
++  }
++
++  // 3. Fill vertex information
++  std::vector<GenVertexPtr> vertex_cache;
++
++  for (int i = 1; i < pyev.size(); ++i) {
++
++    std::vector<int> mothers = pyev[i].motherList();
++
++    if(mothers.size()) {
++      GenVertexPtr prod_vtx = hepevt_particles[mothers[0]]->end_vertex();
++
++      if(!prod_vtx) {
++        prod_vtx = make_shared<GenVertex>();
++        vertex_cache.push_back(prod_vtx);
++
++        for(unsigned int j=0; j<mothers.size(); ++j) {
++          prod_vtx->add_particle_in( hepevt_particles[mothers[j]] );
++        }
++      }
++      FourVector prod_pos( pyev[i].xProd(), pyev[i].yProd(), pyev[i].zProd(), pyev[i].tProd() );
++
++      // Update vertex position if necessary
++      if(!prod_pos.is_zero() && prod_vtx->position().is_zero()) prod_vtx->set_position( prod_pos );
++
++      prod_vtx->add_particle_out( hepevt_particles[i] );
++    }
++  }
++
++  evt->reserve( hepevt_particles.size(), vertex_cache.size() );
++
++  // Here we assume that the first two particles are the beam particles
++  vector<GenParticlePtr> beam_particles;
++  beam_particles.push_back(hepevt_particles[0]);
++  beam_particles.push_back(hepevt_particles[1]);
++
++  // Add particles and vertices in topological order
++  evt->add_tree( beam_particles );
++  //Attributes should be set after adding the particles to event
++  for(int i=0;i<pyev.size(); ++i) {
++    /* TODO: Set polarization */
++    // Colour flow uses index 1 and 2.
++    int colType = pyev[i].colType();
++    if (colType ==  -1 ||colType ==  1 || colType == 2)
++    {
++      int flow1=0, flow2=0;
++      if (colType ==  1 || colType == 2) flow1=pyev[i].col();
++      if (colType == -1 || colType == 2) flow2=pyev[i].acol();
++      hepevt_particles[i]->add_attribute("flow1",make_shared<IntAttribute>(flow1));
++      hepevt_particles[i]->add_attribute("flow2",make_shared<IntAttribute>(flow2));
++    }
++  }
++
++  // If hadronization switched on then no final coloured particles.
++  bool doHadr = (pyset == 0) ? m_free_parton_warnings : pyset->flag("HadronLevel:all") && pyset->flag("HadronLevel:Hadronize");
++
++  // 4. Check for particles which come from nowhere, i.e. are without
++  // mothers or daughters. These need to be attached to a vertex, or else
++  // they will never become part of the event.
++  for (int i = 1; i < pyev.size(); ++i) {
++
++    // Check for particles not added to the event
++    // NOTE: We have to check if this step makes any sense in HepMC event standard
++    if ( !hepevt_particles[i] ) {
++      std::cerr << "hanging particle " << i << std::endl;
++
++      GenVertexPtr prod_vtx;
++
++      prod_vtx->add_particle_out( hepevt_particles[i] );
++      evt->add_vertex(prod_vtx);
++    }
++
++    // Also check for free partons (= gluons and quarks; not diquarks?).
++    if ( doHadr && m_free_parton_warnings ) {
++      if ( hepevt_particles[i]->pid() == 21 && !hepevt_particles[i]->end_vertex() ) {
++        std::cerr << "gluon without end vertex " << i << std::endl;
++        if ( m_crash_on_problem ) exit(1);
++      }
++      if ( abs(hepevt_particles[i]->pid()) <= 6 && !hepevt_particles[i]->end_vertex() ) {
++        std::cerr << "quark without end vertex " << i << std::endl;
++        if ( m_crash_on_problem ) exit(1);
++      }
++    }
++  }
++
++  // 5. Store PDF, weight, cross section and other event information.
++  // Flavours of incoming partons.
++  if (m_store_pdf && pyinfo != 0) {
++    int id1pdf = pyinfo->id1pdf();
++     int id2pdf = pyinfo->id2pdf();
++     if ( m_convert_gluon_to_0 ) {
++       if (id1pdf == 21) id1pdf = 0;
++       if (id2pdf == 21) id2pdf = 0;
++      }
++
++      GenPdfInfoPtr pdfinfo = make_shared<GenPdfInfo>();
++      pdfinfo->set(id1pdf, id2pdf, pyinfo->x1pdf(), pyinfo->x2pdf(), pyinfo->QFac(), pyinfo->pdf1(), pyinfo->pdf2() );
++      // Store PDF information.
++      evt->set_pdf_info( pdfinfo );
++  }
++
++  // Store process code, scale, alpha_em, alpha_s.
++  if (m_store_proc && pyinfo != 0) {
++    evt->add_attribute("signal_process_id",make_shared<IntAttribute>( pyinfo->code()));
++    evt->add_attribute("event_scale",make_shared<DoubleAttribute>(pyinfo->QRen()));
++    evt->add_attribute("alphaQCD",make_shared<DoubleAttribute>(pyinfo->alphaS()));
++    evt->add_attribute("alphaQED",make_shared<DoubleAttribute>(pyinfo->alphaEM()));
++  }
++
++  // Store cross-section information in pb.
++  if (m_store_xsec && pyinfo != 0) {
++    GenCrossSectionPtr xsec = make_shared<GenCrossSection>();
++    xsec->set_cross_section( pyinfo->sigmaGen() * 1e9, pyinfo->sigmaErr() * 1e9);
++    evt->set_cross_section(xsec);
++  }
++
++  // Store event weights.
++  if (m_store_weights && pyinfo != 0) {
++    evt->weights().clear();
++    //for (int iweight=0; iweight < pyinfo->nWeights(); ++iweight) {
++    //  evt->weights().push_back(pyinfo->weight(iweight));
++    //}
++    evt->weights().push_back(pyinfo->weight());
++  }
++
++  // Done.
++  return true;
++
++}
++
++//==========================================================================
++
++} // end namespace HepMC
++
++#endif  // end Pythia8_HepMC3_H
+diff -rupN pythia_8.212_original/configure pythia_8.212_patched/configure
+--- pythia8212/configure	2015-09-24 01:34:22.000000000 +1000
++++ ../installed/pythia/8.212/configure	2019-09-12 17:39:52.310539585 +1000
+@@ -239,7 +239,7 @@ configure_package "FASTJET3" "/afs/cern.
+ configure_package "HEPMC2" "/afs/cern.ch/sw/lcg/releases/HepMC"\
+     "bin" "include" "lib" "" "HepMC/GenEvent.h" "HepMC" ""
+ configure_package "HEPMC3" "" \
+-    "bin" "include" "lib" "" "HepMC/GenEvent.h" "HepMC" ""
++    "bin" "include" "lib" "" "HepMC3/GenEvent.h" "HepMC3" ""
+ configure_package "LHAPDF5" "/afs/cern.ch/sw/lcg/releases/MCGenerators/lhapdf"\
+     "bin" "include" "lib" "" "" "LHAPDF" ""
+ if [ "$LHAPDF6_PLUGIN" = "LHAPDF6.h" ]; then configure_package\
 diff -rupN pythia_8.212_original/include/Pythia8/ParticleData.h pythia_8.212_patched/include/Pythia8/ParticleData.h
---- pythia_8.212_original/include/Pythia8/ParticleData.h	2015-09-23 16:34:38.000000000 +0100
-+++ pythia_8.212_patched/include/Pythia8/ParticleData.h	2018-12-12 18:42:55.377926731 +0000
+--- pythia_8.212_original/include/Pythia8/ParticleData.h	2015-09-23 17:34:38.000000000 +0200
++++ pythia_8.212_patched/include/Pythia8/ParticleData.h	2019-10-21 16:09:54.709296846 +0200
 @@ -347,6 +347,10 @@ public:
    bool init(string startFile = "../xmldoc/ParticleData.xml") {
      initCommon(); return readXML(startFile);}
@@ -52,8 +432,8 @@ diff -rupN pythia_8.212_original/include/Pythia8/ParticleData.h pythia_8.212_pat
  
  //==========================================================================
 diff -rupN pythia_8.212_original/include/Pythia8/PartonDistributions.h pythia_8.212_patched/include/Pythia8/PartonDistributions.h
---- pythia_8.212_original/include/Pythia8/PartonDistributions.h	2015-09-23 16:34:38.000000000 +0100
-+++ pythia_8.212_patched/include/Pythia8/PartonDistributions.h	2018-12-12 18:42:55.373926717 +0000
+--- pythia_8.212_original/include/Pythia8/PartonDistributions.h	2015-09-23 17:34:38.000000000 +0200
++++ pythia_8.212_patched/include/Pythia8/PartonDistributions.h	2019-10-21 16:09:54.713296864 +0200
 @@ -156,9 +156,8 @@ class MSTWpdf : public PDF {
  public:
  
@@ -138,8 +518,8 @@ diff -rupN pythia_8.212_original/include/Pythia8/PartonDistributions.h pythia_8.
    double *fLogXGrid;
    double *fQ2Grid;
 diff -rupN pythia_8.212_original/include/Pythia8/Pythia.h pythia_8.212_patched/include/Pythia8/Pythia.h
---- pythia_8.212_original/include/Pythia8/Pythia.h	2015-09-23 16:34:39.000000000 +0100
-+++ pythia_8.212_patched/include/Pythia8/Pythia.h	2018-12-12 18:42:55.373926717 +0000
+--- pythia_8.212_original/include/Pythia8/Pythia.h	2015-09-23 17:34:39.000000000 +0200
++++ pythia_8.212_patched/include/Pythia8/Pythia.h	2019-10-21 16:09:54.713296864 +0200
 @@ -56,6 +56,11 @@ public:
    // Constructor. (See Pythia.cc file.)
    Pythia(string xmlDir = "../share/Pythia8/xmldoc", bool printBanner = true);
@@ -162,8 +542,8 @@ diff -rupN pythia_8.212_original/include/Pythia8/Pythia.h pythia_8.212_patched/i
    // Generate the next event.
    bool next();
 diff -rupN pythia_8.212_original/include/Pythia8/Settings.h pythia_8.212_patched/include/Pythia8/Settings.h
---- pythia_8.212_original/include/Pythia8/Settings.h	2015-09-23 16:34:39.000000000 +0100
-+++ pythia_8.212_patched/include/Pythia8/Settings.h	2018-12-12 18:42:55.377926731 +0000
+--- pythia_8.212_original/include/Pythia8/Settings.h	2015-09-23 17:34:39.000000000 +0200
++++ pythia_8.212_patched/include/Pythia8/Settings.h	2019-10-21 16:09:54.713296864 +0200
 @@ -302,6 +302,9 @@ public:
    void resetMVec(string keyIn);
    void resetPVec(string keyIn);
@@ -175,8 +555,8 @@ diff -rupN pythia_8.212_original/include/Pythia8/Settings.h pythia_8.212_patched
  
    // Pointer to various information on the generation.
 diff -rupN pythia_8.212_original/include/Pythia8/SusyLesHouches.h pythia_8.212_patched/include/Pythia8/SusyLesHouches.h
---- pythia_8.212_original/include/Pythia8/SusyLesHouches.h	2015-09-23 16:34:40.000000000 +0100
-+++ pythia_8.212_patched/include/Pythia8/SusyLesHouches.h	2018-12-12 18:42:55.377926731 +0000
+--- pythia_8.212_original/include/Pythia8/SusyLesHouches.h	2015-09-23 17:34:40.000000000 +0200
++++ pythia_8.212_patched/include/Pythia8/SusyLesHouches.h	2019-10-21 16:21:22.136417708 +0200
 @@ -14,6 +14,9 @@
  #define Pythia8_SLHA_H
  
@@ -204,18 +584,16 @@ diff -rupN pythia_8.212_original/include/Pythia8/SusyLesHouches.h pythia_8.212_p
  
    //***************************** SLHA FILE I/O *****************************//
    // Read and write SLHA files
-@@ -400,6 +405,10 @@ public:
+@@ -400,6 +405,8 @@ public:
    int readFile(istream& ,int verboseIn=1,
      bool useDecayIn=true);
    //int writeFile(string filename): write SLHA file on filename
-+// NOTE: Gambit hack to include slhaea support
-+  // Read from SLHAea::Coll
-+  int readSLHAea(int verboseIn=1, bool useDecayIn=true);
++  // NOTE: Gambit hack to include slhaea support
 +  void setSLHAea(const SLHAea::Coll* inputSLHAea) { slhaeaCollPtr = inputSLHAea; }
  
    //Output utilities
    void printHeader();   // print Header
-@@ -641,6 +650,9 @@ private:
+@@ -641,6 +648,9 @@ private:
    int verboseSav;
    bool headerPrinted, footerPrinted, filePrinted;
    bool slhaRead, lhefRead, lhefSlha, useDecay;
@@ -226,8 +604,8 @@ diff -rupN pythia_8.212_original/include/Pythia8/SusyLesHouches.h pythia_8.212_p
  };
  
 diff -rupN pythia_8.212_original/src/ParticleData.cc pythia_8.212_patched/src/ParticleData.cc
---- pythia_8.212_original/src/ParticleData.cc	2015-09-23 16:35:08.000000000 +0100
-+++ pythia_8.212_patched/src/ParticleData.cc	2018-12-12 18:42:55.401926818 +0000
+--- pythia_8.212_original/src/ParticleData.cc	2015-09-23 17:35:08.000000000 +0200
++++ pythia_8.212_patched/src/ParticleData.cc	2019-10-21 16:09:54.733296958 +0200
 @@ -572,6 +572,8 @@ void ParticleData::initCommon() {
  
  void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
@@ -467,8 +845,8 @@ diff -rupN pythia_8.212_original/src/ParticleData.cc pythia_8.212_patched/src/Pa
    };
  
 diff -rupN pythia_8.212_original/src/PartonDistributions.cc pythia_8.212_patched/src/PartonDistributions.cc
---- pythia_8.212_original/src/PartonDistributions.cc	2015-09-23 16:35:08.000000000 +0100
-+++ pythia_8.212_patched/src/PartonDistributions.cc	2018-12-12 18:42:55.405926833 +0000
+--- pythia_8.212_original/src/PartonDistributions.cc	2015-09-23 17:35:08.000000000 +0200
++++ pythia_8.212_patched/src/PartonDistributions.cc	2019-10-21 16:09:54.733296958 +0200
 @@ -2133,17 +2133,10 @@ void NNPDF::init(int iFitIn, string xmlP
    for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
  
@@ -735,8 +1113,8 @@ diff -rupN pythia_8.212_original/src/PartonDistributions.cc pythia_8.212_patched
  //--------------------------------------------------------------------------
  
 diff -rupN pythia_8.212_original/src/ProcessLevel.cc pythia_8.212_patched/src/ProcessLevel.cc
---- pythia_8.212_original/src/ProcessLevel.cc	2015-09-23 16:35:08.000000000 +0100
-+++ pythia_8.212_patched/src/ProcessLevel.cc	2018-12-12 18:42:55.405926833 +0000
+--- pythia_8.212_original/src/ProcessLevel.cc	2015-09-23 17:35:08.000000000 +0200
++++ pythia_8.212_patched/src/ProcessLevel.cc	2019-10-21 16:09:54.733296958 +0200
 @@ -6,6 +6,20 @@
  // Function definitions (not found in the header) for the ProcessLevel class.
  
@@ -835,8 +1213,8 @@ diff -rupN pythia_8.212_original/src/ProcessLevel.cc pythia_8.212_patched/src/Pr
      // Update sum of maxima if current maximum violated.
      if (containerPtrs[iContainer]->newSigmaMax()) {
 diff -rupN pythia_8.212_original/src/Pythia.cc pythia_8.212_patched/src/Pythia.cc
---- pythia_8.212_original/src/Pythia.cc	2015-09-23 16:35:08.000000000 +0100
-+++ pythia_8.212_patched/src/Pythia.cc	2018-12-12 18:42:55.405926833 +0000
+--- pythia_8.212_original/src/Pythia.cc	2015-09-23 17:35:08.000000000 +0200
++++ pythia_8.212_patched/src/Pythia.cc	2019-10-21 16:09:54.733296958 +0200
 @@ -113,7 +113,9 @@ Pythia::Pythia(string xmlDir, bool print
      info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
      return;
@@ -996,8 +1374,8 @@ diff -rupN pythia_8.212_original/src/Pythia.cc pythia_8.212_patched/src/Pythia.c
       << "                                      |  | \n"
       << " |  |   Stephen Mrenna;  Computing Division, "
 diff -rupN pythia_8.212_original/src/ResonanceDecays.cc pythia_8.212_patched/src/ResonanceDecays.cc
---- pythia_8.212_original/src/ResonanceDecays.cc	2015-09-23 16:35:09.000000000 +0100
-+++ pythia_8.212_patched/src/ResonanceDecays.cc	2018-12-12 18:42:55.405926833 +0000
+--- pythia_8.212_original/src/ResonanceDecays.cc	2015-09-23 17:35:09.000000000 +0200
++++ pythia_8.212_patched/src/ResonanceDecays.cc	2019-10-21 16:09:54.733296958 +0200
 @@ -92,6 +92,10 @@ bool ResonanceDecays::next( Event& proce
            idProd.push_back( idNow);
          }
@@ -1017,11 +1395,11 @@ diff -rupN pythia_8.212_original/src/ResonanceDecays.cc pythia_8.212_patched/src
 -  if (mSumMin + MSAFETY > mMother) return false;
 +  // GAMBIT modification to allow decays at small mass splittings:
 +  // Switched order of the two next if-statements and changed
-+  // 0.5*MSAFETY to 0.1*MSAFETY.
++  // 0.5*MSAFETY to 0.01*MSAFETY.
  
    // If sum of masses below and no Breit-Wigners then done.
 -  if (mSum + 0.5 * MSAFETY < mMother && nBW == 0) return true;
-+  if (mSum + 0.1 * MSAFETY < mMother && nBW == 0) return true;
++  if (mSum + 0.01 * MSAFETY < mMother && nBW == 0) return true;
 +
 +  // If sum of minimal masses above mother mass then give up.
 +  if (mSumMin + MSAFETY > mMother) return false;
@@ -1029,817 +1407,69 @@ diff -rupN pythia_8.212_original/src/ResonanceDecays.cc pythia_8.212_patched/src
    // Else if below then retry Breit-Wigners, with simple treshold.
    if (mSum + MSAFETY < mMother) {
 diff -rupN pythia_8.212_original/src/SusyLesHouches.cc pythia_8.212_patched/src/SusyLesHouches.cc
---- pythia_8.212_original/src/SusyLesHouches.cc	2015-09-23 16:35:10.000000000 +0100
-+++ pythia_8.212_patched/src/SusyLesHouches.cc	2018-12-12 19:41:58.462788647 +0000
-@@ -7,6 +7,58 @@
- #include "Pythia8/SusyLesHouches.h"
- #include "Pythia8/Streams.h"
- 
-+// NOTE: Many macros for the Gambit slhaea hack
-+#define FILL_LHBLOCK(LHBLOCK, FILL_TYPE)   \
-+      for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {  \
-+        /* Add line to generic block (carbon copy of input structure) */  \
-+        genericBlocks[blockName].set(lineIter->str());  \
-+        if(!lineIter->is_data_line()) continue;  \
-+        ifail = LHBLOCK.set(SLHAea::to<int>(lineIter->at(0)),  \
-+                            SLHAea::to<FILL_TYPE>(lineIter->at(1)));  \
-+        if (ifail == 1) {  \
-+          message(0,"readSLHAea",blockName+" existing entry overwritten",0);  \
-+        }  \
-+      }
-+
-+#define FILL_STRING_LHBLOCK(LHBLOCK)   \
-+      for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {  \
-+        /* Add line to generic block (carbon copy of input structure) */  \
-+        genericBlocks[blockName].set(lineIter->str());  \
-+        if(!lineIter->is_data_line()) continue;  \
-+        ifail = LHBLOCK.set(SLHAea::to<int>(lineIter->at(0)), lineIter->at(1));  \
-+        if (ifail == 1) {  \
-+          message(0,"readSLHAea",blockName+" existing entry overwritten",0);  \
-+        }  \
-+      }
-+
-+#define FILL_LHMATRIXBLOCK(LHMATRIXBLOCK)   \
-+      for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {  \
-+        /* Add line to generic block (carbon copy of input structure) */  \
-+        genericBlocks[blockName].set(lineIter->str());  \
-+        if(!lineIter->is_data_line()) continue;  \
-+        ifail = LHMATRIXBLOCK.set(SLHAea::to<int>(lineIter->at(0)),  \
-+                                  SLHAea::to<int>(lineIter->at(1)),  \
-+                                  SLHAea::to<double>(lineIter->at(2)));  \
-+        if (ifail == -1) {  \
-+          message(0,"readSLHAea",blockName+" index out of range for matrix",0);  \
-+        }  \
-+      }
-+
-+#define FILL_LHTENSOR3BLOCK(LHTENSOR3BLOCK)   \
-+      for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {  \
-+        /* Add line to generic block (carbon copy of input structure) */  \
-+        genericBlocks[blockName].set(lineIter->str());  \
-+        if(!lineIter->is_data_line()) continue;  \
-+        ifail = LHTENSOR3BLOCK.set(SLHAea::to<int>(lineIter->at(0)),  \
-+                                   SLHAea::to<int>(lineIter->at(1)),  \
-+                                   SLHAea::to<int>(lineIter->at(2)),  \
-+                                   SLHAea::to<double>(lineIter->at(3)));  \
-+        if (ifail == -1) {  \
-+          message(0,"readSLHAea",blockName+" index out of range for tensor",0);  \
-+        }  \
-+      }
-+
-+
- namespace Pythia8 {
- 
- //==========================================================================
-@@ -20,6 +72,9 @@ namespace Pythia8 {
+--- pythia_8.212_original/src/SusyLesHouches.cc	2015-09-23 17:35:10.000000000 +0200
++++ pythia_8.212_patched/src/SusyLesHouches.cc	2019-10-21 16:19:59.620048538 +0200
+@@ -20,23 +20,34 @@ namespace Pythia8 {
  int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
    bool useDecayIn) {
  
-+// NOTE: Gambit hack for slhaea support
-+  // If the slhaeaCollPtr is set, use readSLHAea instead.
-+  if (slhaeaCollPtr) return readSLHAea(verboseIn, useDecayIn);
-   slhaFile = slhaFileIn;
-   // Check that input file is OK.
-   const char* cstring = slhaFile.c_str();
-@@ -635,6 +690,738 @@ int SusyLesHouches::readFile(istream& is
+-  slhaFile = slhaFileIn;
+-  // Check that input file is OK.
+-  const char* cstring = slhaFile.c_str();
+-  igzstream file(cstring);
+-
+-  // Exit if input file not found. Else print file name.
+-  if (!file.good()) {
+-    message(2,"readFile",slhaFile+" not found",0);
+-    return -1;
+-    slhaRead=false;
+-  }
+-  if (verboseSav >= 3) {
+-    message(0,"readFile","parsing "+slhaFile,0);
+-    filePrinted = true;
+-  }
++  // NOTE: Gambit hack for slhaea support:
++  // If the slhaeaCollPtr is set, get the SLHA content as a stringstream
++  // from that pointer and pass this to Pythia's readFile function.
++  if (slhaeaCollPtr) // GAMBIT hack
++  {
++    std::istringstream slhaea_content(slhaeaCollPtr->str());
++    return readFile( slhaea_content, verboseIn, useDecayIn );
++  }
++  else  // Pythia original
++  {
++    slhaFile = slhaFileIn;
++    // Check that input file is OK.
++    const char* cstring = slhaFile.c_str();
++    igzstream file(cstring);
++
++    // Exit if input file not found. Else print file name.
++    if (!file.good()) {
++      message(2,"readFile",slhaFile+" not found",0);
++      return -1;
++      slhaRead=false;
++    }
++    if (verboseSav >= 3) {
++      message(0,"readFile","parsing "+slhaFile,0);
++      filePrinted = true;
++    }
+ 
+-  return readFile( file, verboseIn, useDecayIn );
++    return readFile( file, verboseIn, useDecayIn );
++  }
+ }
+ 
+ int SusyLesHouches::readFile(istream& is, int verboseIn,
+@@ -635,7 +646,7 @@ int SusyLesHouches::readFile(istream& is
      return 102;
    }
    else return iFailFile;
+-
 +    
-+}
-+
-+//--------------------------------------------------------------------------
-+
-+// NOTE: Gambit hack for slhaea support
-+// Main routine to read in SLHA data from a SLHAea::Coll object
-+
-+int SusyLesHouches::readSLHAea(int verboseIn, bool useDecayIn) {
-+
-+  // Copy inputs to local
-+  slhaFile = "SLHAea::Coll instance";
-+  verboseSav = verboseIn;
-+  useDecay = useDecayIn;
-+
-+  // Exit if SLHAea::Coll pointer not found.
-+  if (!slhaeaCollPtr) {
-+    message(2,"readSLHAea","has no SLHAea::Coll pointer",0);
-+    return -1;
-+    slhaRead=false;
-+  }
-+
-+  if (verboseSav >= 3) {
-+    message(0,"readSLHAea","parsing SLHAea::Coll instance",0);
-+    filePrinted = true;
-+  }
-+
-+  // Array of particles read in.
-+  vector<int> idRead;
-+
-+  // Array of block names read in.
-+  vector<string> processedBlocks;
-+  
-+  //Initial values for read-in variables.
-+  slhaRead=true;
-+  lhefRead=false;
-+  lhefSlha=false;
-+  string newName, newAntiName;
-+  int ifail;
-+
-+  // Read in one block at a time.
-+  for (SLHAea::Coll::const_iterator blockIter = slhaeaCollPtr->begin(); blockIter != slhaeaCollPtr->end(); blockIter++) {
-+
-+    // Print header if not already done
-+    if (! headerPrinted) printHeader();
-+
-+    const SLHAea::Block::const_iterator blockDefIter = blockIter->find_block_def();
-+    if (blockDefIter == blockIter->end()) continue; // <-- Skip comment "blocks"
-+    string blockName = blockIter->name();
-+    string blockType = blockDefIter->at(0);
-+    toLower(blockName);
-+    toLower(blockType);
-+
-+    if (blockName == "qnumbers") {    // QNUMBERS blocks (cf. arXiv:0712.3311 [hep-ph])
-+      // ID code for new particle is the third entry of the block definition
-+      const string pdgString = blockDefIter->at(2);
-+      const string comment = blockDefIter->at(3).substr(1, blockDefIter->at(3).length()-1);
-+
-+      // Create new QNUMBERS LHblock with this code as zero'th entry
-+      LHblock<int> newQnumbers;
-+      newQnumbers.set(0, SLHAea::to<int>(pdgString));
-+
-+      // Default name: PDG code
-+      ostringstream idStream;
-+      idStream << newQnumbers(0);
-+      const string defName = idStream.str();
-+      const string defAntiName = "-"+defName;
-+      newName = defName;
-+      newAntiName = defAntiName;
-+
-+      // Attempt to extract names from comment string
-+      if (comment.length() >= 1) {
-+        int firstCommentBeg(0), firstCommentEnd(0);
-+        if ( comment.find(" ") == 0) firstCommentBeg = 1;
-+        if ( comment.find(" ",firstCommentBeg+1) == string::npos)
-+          firstCommentEnd = comment.length();
-+        else
-+          firstCommentEnd = comment.find(" ",firstCommentBeg+1);
-+        if (firstCommentEnd > firstCommentBeg)
-+          newName = comment.substr(firstCommentBeg,
-+                                   firstCommentEnd-firstCommentBeg);
-+        // Now see if there is a separate name for antiparticle
-+        int secondCommentBeg(firstCommentEnd+1), secondCommentEnd(0);
-+        if (secondCommentBeg < int(comment.length())) {
-+          if ( comment.find(" ",secondCommentBeg+1) == string::npos)
-+            secondCommentEnd = comment.length();
-+          else
-+            secondCommentEnd = comment.find(" ",secondCommentBeg+1);
-+          if (secondCommentEnd > secondCommentBeg)
-+            newAntiName = comment.substr(secondCommentBeg,
-+                                         secondCommentEnd-secondCommentBeg);
-+        }
-+      }
-+
-+      // If name given without specific antiname, set antiname to ""
-+      if (newName != defName && newAntiName == defAntiName) newAntiName = "";
-+      qnumbersName.push_back(newName);
-+      qnumbersAntiName.push_back(newAntiName);
-+      if (pdgString != newName) {
-+        message(0,"readSLHAea","storing QNUMBERS for id = "+pdgString+" "
-+                +newName+" "+newAntiName,0);
-+      } else {
-+        message(0,"readSLHAea","storing QNUMBERS for id = "+pdgString,0);
-+      }
-+
-+      // Fill in the rest of the QNUMBERS info
-+      FILL_LHBLOCK(newQnumbers, int)
-+
-+      // Add this new QNUMBERS block to the vector member within SusyLesHouches
-+      qnumbers.push_back(newQnumbers);
-+
-+    } else if (blockType == "block") {    // Generic blocks
-+      // Skip if several copies of same block 
-+      // (facility to use interpolation of different q= not implemented)
-+      // only first copy of a given block type is kept
-+      bool exists = false;
-+      for (int i=0; i<int(processedBlocks.size()); ++i) {
-+        if (blockName == processedBlocks[i]) {exists = true; break;}
-+      }
-+      if (exists) {
-+        message(0,"readSLHAea","skipping copy of block "+blockName,0);
-+        continue;
-+      }
-+      processedBlocks.push_back(blockName);
-+      // Copy input file as generic blocks (containing strings)
-+      // (more will be done with SLHA1 & 2 specific blocks below, this is
-+      //  just to make sure we have a complete copy of the input file,
-+      //  including also any unknown/user/generic blocks)
-+      LHgenericBlock gBlock;
-+      genericBlocks[blockName]=gBlock;
-+
-+      //Find Q=... for DRbar running blocks
-+      if (blockDefIter->data_size() > 3) {
-+        string qEquals = blockDefIter->at(2);
-+        toLower(qEquals);
-+        if (qEquals == "q=") {
-+          const double q = SLHAea::to<double>(blockDefIter->at(3));
-+          // SLHA1 running blocks
-+          if (blockName=="hmix") hmix.setq(q);
-+          else if (blockName=="yu") yu.setq(q);
-+          else if (blockName=="yd") yd.setq(q);
-+          else if (blockName=="ye") ye.setq(q);
-+          else if (blockName=="au") au.setq(q);
-+          else if (blockName=="ad") ad.setq(q);
-+          else if (blockName=="ae") ae.setq(q);
-+          else if (blockName=="msoft") msoft.setq(q);
-+          else if (blockName=="gauge") gauge.setq(q);
-+          // SLHA2 running blocks
-+          else if (blockName=="vckm") vckm.setq(q);
-+          else if (blockName=="upmns") upmns.setq(q);
-+          else if (blockName=="msq2") msq2.setq(q);
-+          else if (blockName=="msu2") msu2.setq(q);
-+          else if (blockName=="msd2") msd2.setq(q);
-+          else if (blockName=="msl2") msl2.setq(q);
-+          else if (blockName=="mse2") mse2.setq(q);
-+          else if (blockName=="tu") tu.setq(q);
-+          else if (blockName=="td") td.setq(q);
-+          else if (blockName=="te") te.setq(q);
-+          else if (blockName=="rvlamlle") rvlamlle.setq(q);
-+          else if (blockName=="rvlamlqd") rvlamlqd.setq(q);
-+          else if (blockName=="rvlamudd") rvlamudd.setq(q);
-+          else if (blockName=="rvtlle") rvtlle.setq(q);
-+          else if (blockName=="rvtlqd") rvtlqd.setq(q);
-+          else if (blockName=="rvtudd") rvtudd.setq(q);
-+          else if (blockName=="rvkappa") rvkappa.setq(q);
-+          else if (blockName=="rvd") rvd.setq(q);
-+          else if (blockName=="rvm2lh1") rvm2lh1.setq(q);
-+          else if (blockName=="rvsnvev") rvsnvev.setq(q);
-+          else if (blockName=="imau") imau.setq(q);
-+          else if (blockName=="imad") imad.setq(q);
-+          else if (blockName=="imae") imae.setq(q);
-+          else if (blockName=="imhmix") imhmix.setq(q);
-+          else if (blockName=="immsoft") immsoft.setq(q);
-+          else if (blockName=="imtu") imtu.setq(q);
-+          else if (blockName=="imtd") imtd.setq(q);
-+          else if (blockName=="imte") imte.setq(q);
-+          else if (blockName=="imvckm") imvckm.setq(q);
-+          else if (blockName=="imupmns") imupmns.setq(q);
-+          else if (blockName=="immsq2") immsq2.setq(q);
-+          else if (blockName=="immsu2") immsu2.setq(q);
-+          else if (blockName=="immsd2") immsd2.setq(q);
-+          else if (blockName=="immsl2") immsl2.setq(q);
-+          else if (blockName=="immse2") immse2.setq(q);
-+          else if (blockName=="nmssmrun") nmssmrun.setq(q);
-+          else message(0,"readSLHAea",blockName+" ignoring Q scale",0);  \
-+        }
-+      }
-+
-+      // MODEL
-+      if (blockName == "modsel") {
-+        ifail = -1;
-+        // The calls to set(...) below can only return ifail=0 or ifail=1
-+        try {
-+          ifail = modsel12.set(0, SLHAea::to<double>(blockIter->at(12).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel21.set(0, SLHAea::to<int>(blockIter->at(21).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel.set(1, SLHAea::to<int>(blockIter->at(1).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel.set(3, SLHAea::to<int>(blockIter->at(3).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel.set(4, SLHAea::to<int>(blockIter->at(4).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel.set(5, SLHAea::to<int>(blockIter->at(5).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        try {
-+          ifail = modsel.set(6, SLHAea::to<int>(blockIter->at(6).at(1)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        } catch (std::out_of_range& e) {}
-+
-+        if (ifail == -1) {
-+          message(1,"readSLHAea","no MODSEL entries read.",0);
-+        }
-+
-+      }
-+
-+      // MODEL PARAMETERS
-+      else if (blockName == "minpar") {
-+        FILL_LHBLOCK(minpar, double)
-+      }
-+      else if (blockName == "sminputs") {
-+        FILL_LHBLOCK(sminputs, double)
-+      }
-+      else if (blockName == "extpar") {
-+        FILL_LHBLOCK(extpar, double)
-+      }
-+      else if (blockName == "qextpar") {
-+        FILL_LHBLOCK(qextpar, double)
-+      }
-+      //FLV
-+      else if (blockName == "vckmin") {
-+        FILL_LHBLOCK(vckmin, double)
-+      }
-+      else if (blockName == "upmnsin") {
-+        FILL_LHBLOCK(upmnsin, double)
-+      }
-+      else if (blockName == "msq2in") {
-+        FILL_LHMATRIXBLOCK(msq2in)
-+      }
-+      else if (blockName == "msu2in") {
-+        FILL_LHMATRIXBLOCK(msu2in)
-+      }
-+      else if (blockName == "msd2in") {
-+        FILL_LHMATRIXBLOCK(msd2in)
-+      }
-+      else if (blockName == "msl2in") {
-+        FILL_LHMATRIXBLOCK(msl2in)
-+      }
-+      else if (blockName == "mse2in") {
-+        FILL_LHMATRIXBLOCK(mse2in)
-+      }
-+      else if (blockName == "tuin") {
-+        FILL_LHMATRIXBLOCK(tuin)
-+      }
-+      else if (blockName == "tdin") {
-+        FILL_LHMATRIXBLOCK(tdin)
-+      }
-+      else if (blockName == "tein") {
-+        FILL_LHMATRIXBLOCK(tein)
-+      }
-+      //RPV
-+      else if (blockName == "rvlamllein") {
-+        FILL_LHTENSOR3BLOCK(rvlamllein)
-+      }
-+      else if (blockName == "rvlamlqdin") {
-+        FILL_LHTENSOR3BLOCK(rvlamlqdin)
-+      }
-+      else if (blockName == "rvlamuddin") {
-+        FILL_LHTENSOR3BLOCK(rvlamuddin)
-+      }
-+      else if (blockName == "rvtllein") {
-+        FILL_LHTENSOR3BLOCK(rvtllein)
-+      }
-+      else if (blockName == "rvtlqdin") {
-+        FILL_LHTENSOR3BLOCK(rvtlqdin)
-+      }
-+      else if (blockName == "rvtuddin") {
-+        FILL_LHTENSOR3BLOCK(rvtuddin)
-+      }
-+      else if (blockName == "rvkappain") {
-+        FILL_LHBLOCK(rvkappain, double)
-+      }
-+      else if (blockName == "rvdin") {
-+        FILL_LHBLOCK(rvdin, double)
-+      }
-+      else if (blockName == "rvm2lh1in") {
-+        FILL_LHBLOCK(rvm2lh1in, double)
-+      }
-+      else if (blockName == "rvsnvevin") {
-+        FILL_LHBLOCK(rvsnvevin, double)
-+      }
-+      //CPV
-+      else if (blockName == "imminpar") {
-+        FILL_LHBLOCK(imminpar, double)
-+      }
-+      else if (blockName == "imextpar") {
-+        FILL_LHBLOCK(imextpar, double)
-+      }
-+      //CPV +FLV
-+      else if (blockName == "immsq2in") {
-+        FILL_LHMATRIXBLOCK(immsq2in)
-+      }
-+      else if (blockName == "immsu2in") {
-+        FILL_LHMATRIXBLOCK(immsu2in)
-+      }
-+      else if (blockName == "immsd2in") {
-+        FILL_LHMATRIXBLOCK(immsd2in)
-+      }
-+      else if (blockName == "immsl2in") {
-+        FILL_LHMATRIXBLOCK(immsl2in)
-+      }
-+      else if (blockName == "immse2in") {
-+        FILL_LHMATRIXBLOCK(immse2in)
-+      }
-+      else if (blockName == "imtuin") {
-+        FILL_LHMATRIXBLOCK(imtuin)
-+      }
-+      else if (blockName == "imtdin") {
-+        FILL_LHMATRIXBLOCK(imtdin)
-+      }
-+      else if (blockName == "imtein") {
-+        FILL_LHMATRIXBLOCK(imtein)
-+      }
-+      //Info:
-+      else if (blockName == "spinfo" || blockName=="dcinfo") {
-+        const string blockStr = (blockName=="dcinfo") ? "DCY" : "RGE";
-+
-+        for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {
-+          /* Add line to generic block (carbon copy of input structure) */
-+          genericBlocks[blockName].set(lineIter->str());
-+
-+          if(!lineIter->is_data_line()) continue;
-+          ifail = 0;
-+
-+          try {
-+            const int i = SLHAea::to<int>(lineIter->at(0));
-+            string entry = lineIter->at(1);
-+
-+            if (i == 3) {
-+              message(1,"readSLHAea","(from "+blockStr+" program): "+entry,0);
-+              if (blockName == "spinfo") spinfo3.set(entry); // type string
-+              else dcinfo3.set(entry); // type string
-+            } else if (i==4) {
-+              message(2,"readSLHAea","(from "+blockStr+" program): "+entry,0);
-+              if (blockName == "spinfo") spinfo4.set(entry); // type string
-+              else dcinfo4.set(entry); // type string
-+            } else {
-+              //Rewrite string in uppercase
-+              for (unsigned int j=0; j<entry.length(); j++)
-+                entry[j] = toupper(entry[j]);
-+              ifail = (blockName=="spinfo") ? spinfo.set(i,entry)
-+                      : dcinfo.set(i,entry); // type string
-+            }
-+          } catch (std::bad_cast& e) {
-+            ifail=-1;
-+          }
-+
-+          if (ifail == -1) {
-+            message(1,"readSLHAea",blockName+" reading error",0);
-+          }
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        }
-+      }
-+      //SPECTRUM
-+      //Pole masses
-+      else if (blockName == "mass") {
-+        FILL_LHBLOCK(mass, double)
-+      }
-+
-+      //Mixing
-+      else if (blockName == "alpha") {
-+        for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {
-+          /* Add line to generic block (carbon copy of input structure) */
-+          genericBlocks[blockName].set(lineIter->str());
-+
-+          if(!lineIter->is_data_line()) continue;
-+          ifail = alpha.set(0, SLHAea::to<double>(lineIter->at(0)));
-+          if (ifail == 1) {
-+            message(0,"readSLHAea",blockName+" existing entry overwritten",0);
-+          }
-+        }
-+      }
-+      else if (blockName == "stopmix") {
-+        FILL_LHMATRIXBLOCK(stopmix)
-+      }
-+      else if (blockName == "sbotmix") {
-+        FILL_LHMATRIXBLOCK(sbotmix)
-+      }
-+      else if (blockName == "staumix") {
-+        FILL_LHMATRIXBLOCK(staumix)
-+      }
-+      else if (blockName == "nmix") {
-+        FILL_LHMATRIXBLOCK(nmix)
-+      }
-+      else if (blockName == "umix") {
-+        FILL_LHMATRIXBLOCK(umix)
-+      }
-+      else if (blockName == "vmix") {
-+        FILL_LHMATRIXBLOCK(vmix)
-+      }
-+      //FLV
-+      else if (blockName == "usqmix") {
-+        FILL_LHMATRIXBLOCK(usqmix)
-+      }
-+      else if (blockName == "dsqmix") {
-+        FILL_LHMATRIXBLOCK(dsqmix)
-+      }
-+      else if (blockName == "selmix") {
-+        FILL_LHMATRIXBLOCK(selmix)
-+      }
-+      else if (blockName == "snumix") {
-+        FILL_LHMATRIXBLOCK(snumix)
-+      }
-+      else if (blockName == "snsmix") {
-+        FILL_LHMATRIXBLOCK(snsmix)
-+      }
-+      else if (blockName == "snamix") {
-+        FILL_LHMATRIXBLOCK(snamix)
-+      }
-+      //RPV
-+      else if (blockName == "rvnmix") {
-+        FILL_LHMATRIXBLOCK(rvnmix)
-+      }
-+      else if (blockName == "rvumix") {
-+        FILL_LHMATRIXBLOCK(rvumix)
-+      }
-+      else if (blockName == "rvvmix") {
-+        FILL_LHMATRIXBLOCK(rvvmix)
-+      }
-+      else if (blockName == "rvhmix") {
-+        FILL_LHMATRIXBLOCK(rvhmix)
-+      }
-+      else if (blockName == "rvamix") {
-+        FILL_LHMATRIXBLOCK(rvamix)
-+      }
-+      else if (blockName == "rvlmix") {
-+        FILL_LHMATRIXBLOCK(rvlmix)
-+      }
-+      //CPV
-+      else if (blockName == "cvhmix") {
-+        FILL_LHMATRIXBLOCK(cvhmix)
-+      }
-+      else if (blockName == "imcvhmix") {
-+        FILL_LHMATRIXBLOCK(imcvhmix)
-+      }
-+      //CPV + FLV
-+      else if (blockName == "imusqmix") {
-+        FILL_LHMATRIXBLOCK(imusqmix)
-+      }
-+      else if (blockName == "imdsqmix") {
-+        FILL_LHMATRIXBLOCK(imdsqmix)
-+      }
-+      else if (blockName == "imselmix") {
-+        FILL_LHMATRIXBLOCK(imselmix)
-+      }
-+      else if (blockName == "imsnumix") {
-+        FILL_LHMATRIXBLOCK(imsnumix)
-+      }
-+      else if (blockName == "imnmix") {
-+        FILL_LHMATRIXBLOCK(imnmix)
-+      }
-+      else if (blockName == "imumix") {
-+        FILL_LHMATRIXBLOCK(imumix)
-+      }
-+      else if (blockName == "imvmix") {
-+        FILL_LHMATRIXBLOCK(imvmix)
-+      }
-+      //NMSSM
-+      else if (blockName == "nmhmix") {
-+        FILL_LHMATRIXBLOCK(nmhmix)
-+      }
-+      else if (blockName == "nmamix") {
-+        FILL_LHMATRIXBLOCK(nmamix)
-+      }
-+      else if (blockName == "nmnmix") {
-+        FILL_LHMATRIXBLOCK(nmnmix)
-+      }
-+      
-+      //DRbar Lagrangian parameters
-+      else if (blockName == "gauge") {
-+        FILL_LHBLOCK(gauge, double)
-+      }
-+      else if (blockName == "yu") {
-+        FILL_LHMATRIXBLOCK(yu)
-+      }
-+      else if (blockName == "yd") {
-+        FILL_LHMATRIXBLOCK(yd)
-+      }
-+      else if (blockName == "ye") {
-+        FILL_LHMATRIXBLOCK(ye)
-+      }
-+      else if (blockName == "au") {
-+        FILL_LHMATRIXBLOCK(au)
-+      }
-+      else if (blockName == "ad") {
-+        FILL_LHMATRIXBLOCK(ad)
-+      }
-+      else if (blockName == "ae") {
-+        FILL_LHMATRIXBLOCK(ae)
-+      }
-+      else if (blockName == "hmix") {
-+        FILL_LHBLOCK(hmix, double)
-+      }
-+      else if (blockName == "msoft") {
-+        FILL_LHBLOCK(msoft, double)
-+      }
-+      //FLV
-+      else if (blockName == "vckm") {
-+        FILL_LHMATRIXBLOCK(vckm)
-+      }
-+      else if (blockName == "upmns") {
-+        FILL_LHMATRIXBLOCK(upmns)
-+      }
-+      else if (blockName == "msq2") {
-+        FILL_LHMATRIXBLOCK(msq2)
-+      }
-+      else if (blockName == "msu2") {
-+        FILL_LHMATRIXBLOCK(msu2)
-+      }
-+      else if (blockName == "msd2") {
-+        FILL_LHMATRIXBLOCK(msd2)
-+      }
-+      else if (blockName == "msl2") {
-+        FILL_LHMATRIXBLOCK(msl2)
-+      }
-+      else if (blockName == "mse2") {
-+        FILL_LHMATRIXBLOCK(mse2)
-+      }
-+      else if (blockName == "tu") {
-+        FILL_LHMATRIXBLOCK(tu)
-+      }
-+      else if (blockName == "td") {
-+        FILL_LHMATRIXBLOCK(td)
-+      }
-+      else if (blockName == "te") {
-+        FILL_LHMATRIXBLOCK(te)
-+      }
-+      //RPV
-+      else if (blockName == "rvlamlle") {
-+        FILL_LHTENSOR3BLOCK(rvlamlle)
-+      }
-+      else if (blockName == "rvlamlqd") {
-+        FILL_LHTENSOR3BLOCK(rvlamlqd)
-+      }
-+      else if (blockName == "rvlamudd") {
-+        FILL_LHTENSOR3BLOCK(rvlamudd)
-+      }
-+      else if (blockName == "rvtlle") {
-+        FILL_LHTENSOR3BLOCK(rvtlle)
-+      }
-+      else if (blockName == "rvtlqd") {
-+        FILL_LHTENSOR3BLOCK(rvtlqd)
-+      }
-+      else if (blockName == "rvtudd") {
-+        FILL_LHTENSOR3BLOCK(rvtudd)
-+      }
-+      else if (blockName == "rvkappa") {
-+        FILL_LHBLOCK(rvkappa, double)
-+      }
-+      else if (blockName == "rvd") {
-+        FILL_LHBLOCK(rvd, double)
-+      }
-+      else if (blockName == "rvm2lh1") {
-+        FILL_LHBLOCK(rvm2lh1, double)
-+      }
-+      else if (blockName == "rvsnvev") {
-+        FILL_LHBLOCK(rvsnvev, double)
-+      }
-+      //CPV
-+      else if (blockName == "imau") {
-+        FILL_LHMATRIXBLOCK(imau)
-+      }
-+      else if (blockName == "imad") {
-+        FILL_LHMATRIXBLOCK(imad)
-+      }
-+      else if (blockName == "imae") {
-+        FILL_LHMATRIXBLOCK(imae)
-+      }
-+      else if (blockName == "imhmix") {
-+        FILL_LHBLOCK(imhmix, double)
-+      }
-+      else if (blockName == "immsoft") {
-+        FILL_LHBLOCK(immsoft, double)
-+      }
-+      //CPV+FLV
-+      else if (blockName == "imvckm") {
-+        FILL_LHMATRIXBLOCK(imvckm)
-+      }
-+      else if (blockName == "imupmns") {
-+        FILL_LHMATRIXBLOCK(imupmns)
-+      }
-+      else if (blockName == "immsq2") {
-+        FILL_LHMATRIXBLOCK(immsq2)
-+      }
-+      else if (blockName == "immsu2") {
-+        FILL_LHMATRIXBLOCK(immsu2)
-+      }
-+      else if (blockName == "immsd2") {
-+        FILL_LHMATRIXBLOCK(immsd2)
-+      }
-+      else if (blockName == "immsl2") {
-+        FILL_LHMATRIXBLOCK(immsl2)
-+      }
-+      else if (blockName == "immse2") {
-+        FILL_LHMATRIXBLOCK(immse2)
-+      }
-+      else if (blockName == "imtu") {
-+        FILL_LHMATRIXBLOCK(imtu)
-+      }
-+      else if (blockName == "imtd") {
-+        FILL_LHMATRIXBLOCK(imtd)
-+      }
-+      else if (blockName == "imte") {
-+        FILL_LHMATRIXBLOCK(imte)
-+      }
-+      //NMSSM
-+      else if (blockName == "nmssmrun") {
-+        FILL_LHBLOCK(nmssmrun, double)
-+      }
-+      else message(0,"readSLHAea","storing non-SLHA(2) block: "+blockName,0);
-+
-+
-+    } else if (blockType == "decay") {    // Decay blocks
-+
-+      //Ignore decay if decay table read-in switched off
-+      if( !useDecay ) {
-+        message(0,"readSLHAea","ignoring DECAY table for "+blockName
-+                +" (DECAY read-in switched off)",0);
-+        continue;
-+      }
-+
-+      //Extract PDG code and width
-+      int idDecay = 0;
-+      double width = -1.;
-+      try {
-+        idDecay = SLHAea::to<int>(blockName);
-+        width = SLHAea::to<double>(blockDefIter->at(2));
-+      } catch (std::bad_cast& e) {
-+        message(0,"readFile",
-+                "PDG Code or decay width unreadable. Ignoring this DECAY block",0);
-+        continue;
-+      }
-+
-+      //Set PDG code and width
-+      if (width <= 0.0) {
-+        if (verboseSav >= 2)
-+          message(0,"readSLHAea","reading stable particle "+blockName
-+                  +"(forced width < 0 to zero)",0);
-+        decays.push_back(LHdecayTable(idDecay, 0.0));
-+        continue;
-+      } else if (blockIter->data_size() == 0) {
-+        if (verboseSav >= 2) message(0,"readSLHAea","reading WIDTH for "+blockName
-+                +" (but no decay channels found)",0);
-+        decays.push_back(LHdecayTable(idDecay, 0.0));
-+        continue;
-+      } else {
-+        decays.push_back(LHdecayTable(idDecay, width));
-+      }
-+      decayIndices[idDecay] = decays.size() - 1;
-+
-+      //Print verbosely
-+      if (verboseSav >= 2)
-+        message(0,"readSLHAea","reading  DECAY table for "+blockName,0);
-+
-+      //Extract and set the decay channels and branching ratios
-+      for(SLHAea::Block::const_iterator lineIter = blockIter->begin(); lineIter != blockIter->end(); lineIter++) {
-+        if(!lineIter->is_data_line()) continue;
-+        vector<int> idDa;
-+        int nDa = 0;
-+        double brat = -1.;
-+        try {
-+          brat = SLHAea::to<double>(lineIter->at(0));
-+          nDa = SLHAea::to<int>(lineIter->at(1));
-+          for (int i=0; i<nDa; i++) {
-+            const int idThis = SLHAea::to<int>(lineIter->at(2+i));
-+            idDa.push_back(idThis);
-+          }
-+        } catch (std::bad_cast& e) {
-+          // Stop reading decay line for bad decay data
-+          message(1,"readSLHAea","read error... ignoring decay channel",0);
-+        }
-+
-+        if(nDa < 2) {
-+          // Stop reading decay line for bad decay data
-+          message(1,"readSLHAea","Not enough daughters... ignoring decay channel",0);
-+        } else {
-+          // Append decay channel.
-+          decays[decayIndices[idDecay]].addChannel(brat,nDa,idDa);
-+        }
-+      }
-+    }
-+
-+  }
-+
-+
-+  //Print footer
-+  printFooter();
-+
-+  return 0;
- 
  }
  
-@@ -679,6 +1466,13 @@ void SusyLesHouches::printFooter() {
+ //--------------------------------------------------------------------------
+@@ -679,6 +690,13 @@ void SusyLesHouches::printFooter() {
  
  void SusyLesHouches::printSpectrum(int ifail) {
  
@@ -1853,3 +1483,79 @@ diff -rupN pythia_8.212_original/src/SusyLesHouches.cc pythia_8.212_patched/src/
    // Exit if output switched off
    if (verboseSav <= 0) return;
  
+@@ -1467,6 +1485,8 @@ int SusyLesHouches::checkSpectrum() {
+     }
+   }
+ 
++  // GAMBIT NMSSM hack
++  /*
+   // CPV
+   if (modsel(5) != 0) {
+     if (!cvhmix.exists()) {
+@@ -1474,6 +1494,7 @@ int SusyLesHouches::checkSpectrum() {
+       ifail=-1;
+     }
+   }
++  */ 
+ 
+   // FLV (regardless of whether RPV or not)
+   if (modsel(6) != 0) {
+@@ -1596,18 +1617,22 @@ int SusyLesHouches::checkSpectrum() {
+   }
+ 
+   //NMIX
+-  if (nmix.exists()) {
+-    for (int i=1;i<=4;i++) {
+-      double cn1=0.0;
+-      double cn2=0.0;
+-      for (int j=1;j<=4;j++) {
+-        cn1 += pow(nmix(i,j),2);
+-        cn2 += pow(nmix(j,i),2);
+-      }
+-      if (abs(1.0-cn1) > 1e-3 || abs(1.0-cn2) > 1e-3) {
+-        ifail=2;
+-        message(2,"checkSpectrum","NMIX is not unitary (wrong format?)",0);
+-        break;
++  // GAMBIT NMSSM hack: don't perform check for 4x4 NMIX block when the
++  // NMSSM i used, i.e. when modsel(3) == 1.
++  if (modsel(3) != 1) {
++    if (nmix.exists()) {
++      for (int i=1;i<=4;i++) {
++        double cn1=0.0;
++        double cn2=0.0;
++        for (int j=1;j<=4;j++) {
++          cn1 += pow(nmix(i,j),2);
++          cn2 += pow(nmix(j,i),2);
++        }
++        if (abs(1.0-cn1) > 1e-3 || abs(1.0-cn2) > 1e-3) {
++          ifail=2;
++          message(2,"checkSpectrum","NMIX is not unitary (wrong format?)",0);
++          break;
++        }
+       }
+     }
+   }
+@@ -1657,6 +1682,10 @@ int SusyLesHouches::checkSpectrum() {
+ 
+   }
+ 
++  // GAMBIT hack: these unitarity checks don't include
++  // the corresponding IM- blocks with the imaginary components.
++  // (Fixed in later Pythia versions.) 
++  /*
+   //STOPMIX, SBOTMIX
+   if (stopmix.exists() && sbotmix.exists()) {
+     for (int i=1;i<=2;i++) {
+@@ -1749,7 +1778,11 @@ int SusyLesHouches::checkSpectrum() {
+         break;
+       }
+     }
+-  }  //NMSSM:
++  }  
++  */ 
++
++
++  //NMSSM:
+   if (modsel(3) == 1) {
+     //NMNMIX
+     if ( nmnmix.exists() ) {

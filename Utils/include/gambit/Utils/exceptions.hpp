@@ -250,6 +250,28 @@ namespace Gambit
 
   };
 
+  /// Gambit halt loop exception class.
+  class halt_loop_exception : public special_exception
+  {
+
+    public:
+
+      /// Constructor
+      halt_loop_exception();
+
+  };
+
+  /// Gambit invalid loop iteration exception class.
+  class invalid_loop_iteration_exception : public special_exception
+  {
+
+    public:
+
+      /// Constructor
+      invalid_loop_iteration_exception();
+
+  };
+
   /// Gambit piped invalid point exception class.
   class Piped_invalid_point
   {

@@ -51,21 +51,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readFile__BOSS(arg_1);
         }
         
-        inline int SusyLesHouches::readSLHAea(int verboseIn, bool useDecayIn)
-        {
-            return get_BEptr()->readSLHAea(verboseIn, useDecayIn);
-        }
-        
-        inline int SusyLesHouches::readSLHAea(int verboseIn)
-        {
-            return get_BEptr()->readSLHAea__BOSS(verboseIn);
-        }
-        
-        inline int SusyLesHouches::readSLHAea()
-        {
-            return get_BEptr()->readSLHAea__BOSS();
-        }
-        
         inline void SusyLesHouches::setSLHAea(const ::SLHAea::Coll* inputSLHAea)
         {
             get_BEptr()->setSLHAea(inputSLHAea);

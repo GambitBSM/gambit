@@ -30,7 +30,6 @@ import modules.infomsg as infomsg
 
 def run():
 
-
     #
     # Loop over all functions 
     #

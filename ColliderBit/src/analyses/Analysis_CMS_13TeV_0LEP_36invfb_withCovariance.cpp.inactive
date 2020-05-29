@@ -179,7 +179,7 @@ namespace Gambit {
         // iht -= 1; //< change from the paper's indexing scheme to C++ zero-indexed
         // const size_t ibin = 40*inj + 10*inbj + (size_t)iht;
         // if (ibin >= NUMSR) throw std::runtime_error("ibin out of range");
-        // _srnums[ibin] += 1;
+        // _srnums[ibin] += event->weight();
 
 
         // Fill aggregate SR bins
@@ -192,40 +192,40 @@ namespace Gambit {
           if (btagged) nbjets += 1;
         }
 /*
-	if (njets >= 2 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 0] += 1;
-	if (njets >= 3 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 1] += 1;
-	if (njets >= 5 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 2] += 1;
-	if (njets >= 5 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 3] += 1;
-	if (njets >= 9 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 4] += 1;
-	if (njets >= 2 && nbjets >= 2 && ht >=  500 && htmiss >= 500) _srnums[ 5] += 1;
-	if (njets >= 3 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[ 6] += 1;
-	if (njets >= 5 && nbjets >= 3 && ht >=  500 && htmiss >= 500) _srnums[ 7] += 1;
-	if (njets >= 5 && nbjets >= 2 && ht >= 1500 && htmiss >= 750) _srnums[ 8] += 1;
-	if (njets >= 9 && nbjets >= 3 && ht >=  750 && htmiss >= 750) _srnums[ 9] += 1;
-	if (njets >= 7 && nbjets >= 1 && ht >=  300 && htmiss >= 300) _srnums[10] += 1;
-	if (njets >= 5 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[11] += 1;
+	if (njets >= 2 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 0] += event->weight();
+	if (njets >= 3 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 1] += event->weight();
+	if (njets >= 5 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 2] += event->weight();
+	if (njets >= 5 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 3] += event->weight();
+	if (njets >= 9 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 4] += event->weight();
+	if (njets >= 2 && nbjets >= 2 && ht >=  500 && htmiss >= 500) _srnums[ 5] += event->weight();
+	if (njets >= 3 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[ 6] += event->weight();
+	if (njets >= 5 && nbjets >= 3 && ht >=  500 && htmiss >= 500) _srnums[ 7] += event->weight();
+	if (njets >= 5 && nbjets >= 2 && ht >= 1500 && htmiss >= 750) _srnums[ 8] += event->weight();
+	if (njets >= 9 && nbjets >= 3 && ht >=  750 && htmiss >= 750) _srnums[ 9] += event->weight();
+	if (njets >= 7 && nbjets >= 1 && ht >=  300 && htmiss >= 300) _srnums[10] += event->weight();
+	if (njets >= 5 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[11] += event->weight();
 */
         if (njets == 2) {
             for (size_t ii=0;ii<=2;++ii){
                 // Signal region 0~29
                 if (nbjets == ii){
                     if (htmiss >=  300 && htmiss < 350){
-                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+0] += 1;  //Interval 1
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+1] += 1;  //Interval 2
-                        if (ht >= 1000            ) _srnums[ii*10+2] += 1;  //Interval 3
+                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+0] += event->weight();  //Interval 1
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+1] += event->weight();  //Interval 2
+                        if (ht >= 1000            ) _srnums[ii*10+2] += event->weight();  //Interval 3
                     }
                     if (htmiss >=  350 && htmiss < 500){
-                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+3] += 1;  //Interval 4
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+4] += 1;  //Interval 5
-                        if (ht >= 1000            ) _srnums[ii*10+5] += 1;  //Interval 6
+                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+3] += event->weight();  //Interval 4
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+4] += event->weight();  //Interval 5
+                        if (ht >= 1000            ) _srnums[ii*10+5] += event->weight();  //Interval 6
                     }
                     if (htmiss >=  500 && htmiss < 750){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+6] += 1;  //Interval 7
-                        if (ht >= 1000            ) _srnums[ii*10+7] += 1;  //Interval 8
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+6] += event->weight();  //Interval 7
+                        if (ht >= 1000            ) _srnums[ii*10+7] += event->weight();  //Interval 8
                     }
                     if (htmiss >=  750                ){
-                        if (ht >= 750 && ht < 1500) _srnums[ii*10+8] += 1;  //Interval 9
-                        if (ht >= 1500            ) _srnums[ii*10+9] += 1;  //Interval 10
+                        if (ht >= 750 && ht < 1500) _srnums[ii*10+8] += event->weight();  //Interval 9
+                        if (ht >= 1500            ) _srnums[ii*10+9] += event->weight();  //Interval 10
                     }
                 }
             }
@@ -241,22 +241,22 @@ namespace Gambit {
                     nb_flag = nbjets > ii;
                 if (nb_flag){
                     if (htmiss >=  300 && htmiss < 350){
-                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+30] += 1;  //Interval 1
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+31] += 1;  //Interval 2
-                        if (ht >= 1000            ) _srnums[ii*10+32] += 1;  //Interval 3
+                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+30] += event->weight();  //Interval 1
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+31] += event->weight();  //Interval 2
+                        if (ht >= 1000            ) _srnums[ii*10+32] += event->weight();  //Interval 3
                     }
                     if (htmiss >=  350 && htmiss < 500){
-                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+33] += 1;  //Interval 4
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+34] += 1;  //Interval 5
-                        if (ht >= 1000            ) _srnums[ii*10+35] += 1;  //Interval 6
+                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+33] += event->weight();  //Interval 4
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+34] += event->weight();  //Interval 5
+                        if (ht >= 1000            ) _srnums[ii*10+35] += event->weight();  //Interval 6
                     }
                     if (htmiss >=  500 && htmiss < 750){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+36] += 1;  //Interval 7
-                        if (ht >= 1000            ) _srnums[ii*10+37] += 1;  //Interval 8
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+36] += event->weight();  //Interval 7
+                        if (ht >= 1000            ) _srnums[ii*10+37] += event->weight();  //Interval 8
                     }
                     if (htmiss >=  750                ){
-                        if (ht >= 750 && ht < 1500) _srnums[ii*10+38] += 1;  //Interval 9
-                        if (ht >= 1500            ) _srnums[ii*10+39] += 1;  //Interval 10
+                        if (ht >= 750 && ht < 1500) _srnums[ii*10+38] += event->weight();  //Interval 9
+                        if (ht >= 1500            ) _srnums[ii*10+39] += event->weight();  //Interval 10
                     }
                 }
             }
@@ -271,22 +271,22 @@ namespace Gambit {
                     nb_flag = nbjets > ii;
                 if (nb_flag){
                     if (htmiss >=  300 && htmiss < 350){
-                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+70] += 1;  //Interval 1
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+71] += 1;  //Interval 2
-                        if (ht >= 1000            ) _srnums[ii*10+72] += 1;  //Interval 3
+                        if (ht >= 300 && ht < 500 ) _srnums[ii*10+70] += event->weight();  //Interval 1
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+71] += event->weight();  //Interval 2
+                        if (ht >= 1000            ) _srnums[ii*10+72] += event->weight();  //Interval 3
                     }
                     if (htmiss >=  350 && htmiss < 500){
-                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+73] += 1;  //Interval 4
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+74] += 1;  //Interval 5
-                        if (ht >= 1000            ) _srnums[ii*10+75] += 1;  //Interval 6
+                        if (ht >= 350 && ht < 500 ) _srnums[ii*10+73] += event->weight();  //Interval 4
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+74] += event->weight();  //Interval 5
+                        if (ht >= 1000            ) _srnums[ii*10+75] += event->weight();  //Interval 6
                     }
                     if (htmiss >=  500 && htmiss < 750){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*10+76] += 1;  //Interval 7
-                        if (ht >= 1000            ) _srnums[ii*10+77] += 1;  //Interval 8
+                        if (ht >= 500 && ht < 1000) _srnums[ii*10+76] += event->weight();  //Interval 7
+                        if (ht >= 1000            ) _srnums[ii*10+77] += event->weight();  //Interval 8
                     }
                     if (htmiss >=  750                ){
-                        if (ht >= 750 && ht < 1500) _srnums[ii*10+78] += 1;  //Interval 9
-                        if (ht >= 1500            ) _srnums[ii*10+79] += 1;  //Interval 10
+                        if (ht >= 750 && ht < 1500) _srnums[ii*10+78] += event->weight();  //Interval 9
+                        if (ht >= 1500            ) _srnums[ii*10+79] += event->weight();  //Interval 10
                     }
                 }
             }
@@ -301,20 +301,20 @@ namespace Gambit {
                     nb_flag = nbjets > ii;
                 if (nb_flag){
                     if (htmiss >=  300 && htmiss < 350){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+110] += 1;  //Interval 2
-                        if (ht >= 1000            ) _srnums[ii*8+111] += 1;  //Interval 3
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+110] += event->weight();  //Interval 2
+                        if (ht >= 1000            ) _srnums[ii*8+111] += event->weight();  //Interval 3
                     }
                     if (htmiss >=  350 && htmiss < 500){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+112] += 1;  //Interval 5
-                        if (ht >= 1000            ) _srnums[ii*8+113] += 1;  //Interval 6
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+112] += event->weight();  //Interval 5
+                        if (ht >= 1000            ) _srnums[ii*8+113] += event->weight();  //Interval 6
                     }
                     if (htmiss >=  500 && htmiss < 750){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+114] += 1;  //Interval 7
-                        if (ht >= 1000            ) _srnums[ii*8+115] += 1;  //Interval 8
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+114] += event->weight();  //Interval 7
+                        if (ht >= 1000            ) _srnums[ii*8+115] += event->weight();  //Interval 8
                     }
                     if (htmiss >=  750                ){
-                        if (ht >= 750 && ht < 1500) _srnums[ii*8+116] += 1;  //Interval 9
-                        if (ht >= 1500            ) _srnums[ii*8+117] += 1;  //Interval 10
+                        if (ht >= 750 && ht < 1500) _srnums[ii*8+116] += event->weight();  //Interval 9
+                        if (ht >= 1500            ) _srnums[ii*8+117] += event->weight();  //Interval 10
                     }
                 }
             }
@@ -329,20 +329,20 @@ namespace Gambit {
                     nb_flag = nbjets > ii;
                 if (nb_flag){
                     if (htmiss >=  300 && htmiss < 350){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+142] += 1;  //Interval 2
-                        if (ht >= 1000            ) _srnums[ii*8+143] += 1;  //Interval 3
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+142] += event->weight();  //Interval 2
+                        if (ht >= 1000            ) _srnums[ii*8+143] += event->weight();  //Interval 3
                     }
                     if (htmiss >=  350 && htmiss < 500){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+144] += 1;  //Interval 5
-                        if (ht >= 1000            ) _srnums[ii*8+145] += 1;  //Interval 6
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+144] += event->weight();  //Interval 5
+                        if (ht >= 1000            ) _srnums[ii*8+145] += event->weight();  //Interval 6
                     }
                     if (htmiss >=  500 && htmiss < 750){
-                        if (ht >= 500 && ht < 1000) _srnums[ii*8+146] += 1;  //Interval 7
-                        if (ht >= 1000            ) _srnums[ii*8+147] += 1;  //Interval 8
+                        if (ht >= 500 && ht < 1000) _srnums[ii*8+146] += event->weight();  //Interval 7
+                        if (ht >= 1000            ) _srnums[ii*8+147] += event->weight();  //Interval 8
                     }
                     if (htmiss >=  750                ){
-                        if (ht >= 750 && ht < 1500) _srnums[ii*8+148] += 1;  //Interval 9
-                        if (ht >= 1500            ) _srnums[ii*8+149] += 1;  //Interval 10
+                        if (ht >= 750 && ht < 1500) _srnums[ii*8+148] += event->weight();  //Interval 9
+                        if (ht >= 1500            ) _srnums[ii*8+149] += event->weight();  //Interval 10
                     }
                 }
             }

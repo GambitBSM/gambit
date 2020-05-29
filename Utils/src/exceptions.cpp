@@ -499,6 +499,18 @@ namespace Gambit
       }
     }
 
+  /// Gambit halt loop exception class methods.
+
+    /// Constructor
+    halt_loop_exception::halt_loop_exception() : special_exception("Immediate halt of GAMBIT loop requested.") {}
+
+
+  /// Gambit invalid loop iteration exception class methods.
+
+    /// Constructor
+    invalid_loop_iteration_exception::invalid_loop_iteration_exception() : special_exception("GAMBIT invalid loop iteration.") {}
+
+
     /// @{ SilentShutdownException member functions
     SilentShutdownException::SilentShutdownException() {}
     SilentShutdownException::SilentShutdownException(const std::string& message) : myWhat(message) {}

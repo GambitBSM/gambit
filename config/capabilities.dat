@@ -413,63 +413,52 @@ LHC_LogLike_SR_labels: |
    LHC_Combined_LogLike and LHC_LogLike_per_analysis.
 
 HardScatteringSim: |
-   Provides a Pythia 8 instance within a container which is
-   ready to simulate collision events for a model chosen by ScannerBit.
+   Provides a Monte Carlo generator instance ready to simulate collision events.
 
 HardScatteringEvent: |
-   Uses the given HardScatteringSim to generate the next event
-   of the collider simulation chain.
+   Uses a HardScatteringSim to generate the next event of the collider simulation chain.
+
+CrossSection: |
+   Provides a total cross-section to be applied to collider analyses.
 
 ATLASDetectorSim: |
-   Provides a set functions within a container ready to apply ATLAS
-   smearing and reconstruction efficiencies to an event.
+   Provides a detector simulation of ATLAS.
 
 CMSDetectorSim: |
-   Provides a set functions within a container ready to apply CMS
-   smearing and reconstruction efficiencies to an event.
+   Provides a detector simulation of CMS.
 
 IdentityDetectorSim: |
    Provides a fake detector sim, which simply returns truth-level events.
 
 ATLASSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing and
-   reconstruction efficiencies upon the given HardScatteringEvent.
+   Uses an ATLASDetectorSim to smear a HardScatteringEvent.
 
 CMSSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing and
-   reconstruction efficiencies upon the given HardScatteringEvent.
+   Uses a CMSDetectorSim to smear a HardScatteringEvent.
 
 CopiedEvent: |
-   Uses the given SimpleSmearingSim to do absolutely nothing to
-   the given HardScatteringEvent.
+   Uses an IdentityDetectorSim to do absolutely nothing to a HardScatteringEvent.
 
 ATLASAnalysisContainer: |
-   Provides a container of ATLAS analyses to be used with the detector simulation
-   capability ATLASSmearedEvent. The container is ready to apply each analysis to
-   each event.
+   Provides a container of ATLAS analyses to be applied to an ATLASSmearedEvent.
 
 CMSAnalysisContainer: |
-   Provides a container of CMS analyses to be used with the detector simulation
-   capability CMSSmearedEvent. The container is ready to apply each analysis to
-   each event.
+   Provides a container of CMS analyses to be applied to an ATLASSmearedEvent.
 
 IdentityAnalysisContainer: |
-   Provides a list of “identity” analyses (no detector
-   smearing) within a container that is ready to apply
-   them to an event.
+   Provides a container of 'truth-level analyses' to be applied to a CopiedEvent.
 
 ATLASAnalysisNumbers: |
-   Uses the given ATLASAnalysisContainer to perform all its
-   analyses upon the given ATLASSmearedEvent.
+   Uses an ATLASAnalysisContainer to perform all its
+   analyses upon a given ATLASSmearedEvent.
 
 CMSAnalysisNumbers: |
-   Uses the given CMSAnalysisContainer to perform all its analyses
-   upon the given CMSSmearedEvent.
+   Uses a CMSAnalysisContainer to perform all its
+   analyses upon a given CMSSmearedEvent.
 
 IdentityAnalysisNumbers: |
-   Uses the given IdentityAnalysisContainer
-   to perform all its analyses upon the given
-   CopiedEvent.
+   Uses an IdentityAnalysisContainer to perform all its
+   analyses upon a given CopiedEvent.
 
 AllAnalysisNumbers: |
    Combined analysis numbers from all LHC analyses used in a scan.
@@ -655,6 +644,10 @@ LEP205_xsec_chi00_34: |
 LEP205_xsec_chi00_44: |
    The LEP neutralino pair production cross-section for
    mass eigenstates 'chi04' and 'chi04' at centre of mass energy 205 GeV.
+
+LEP207_xsec_chi00_11: |
+   The LEP neutralino pair production cross-section for
+   mass eigenstates 'chi01' and 'chi01' at centre of mass energy 207 GeV.
 
 LEP208_xsec_chi00_11: |
    The LEP neutralino pair production cross-section for

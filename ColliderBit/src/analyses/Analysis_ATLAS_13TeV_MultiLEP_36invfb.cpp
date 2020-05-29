@@ -34,27 +34,27 @@ namespace Gambit {
     protected:
 
       // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        {"SR2_SF_loose", 0},
-        {"SR2_SF_tight", 0},
-        {"SR2_DF_100", 0},
-        {"SR2_DF_150", 0},
-        {"SR2_DF_200", 0},
-        {"SR2_DF_300", 0},
-        {"SR2_int", 0},
-        {"SR2_high", 0},
-        {"SR2_low", 0},
-        {"SR3_slep_a", 0},
-        {"SR3_slep_b", 0},
-        {"SR3_slep_c", 0},
-        {"SR3_slep_d", 0},
-        {"SR3_slep_e", 0},
-        {"SR3_WZ_0Ja", 0},
-        {"SR3_WZ_0Jb", 0},
-        {"SR3_WZ_0Jc", 0},
-        {"SR3_WZ_1Ja", 0},
-        {"SR3_WZ_1Jb", 0},
-        {"SR3_WZ_1Jc", 0}
+      std::map<string, EventCounter> _counters = {
+        {"SR2_SF_loose", EventCounter("SR2_SF_loose")},
+        {"SR2_SF_tight", EventCounter("SR2_SF_tight")},
+        {"SR2_DF_100", EventCounter("SR2_DF_100")},
+        {"SR2_DF_150", EventCounter("SR2_DF_150")},
+        {"SR2_DF_200", EventCounter("SR2_DF_200")},
+        {"SR2_DF_300", EventCounter("SR2_DF_300")},
+        {"SR2_int", EventCounter("SR2_int")},
+        {"SR2_high", EventCounter("SR2_high")},
+        {"SR2_low", EventCounter("SR2_low")},
+        {"SR3_slep_a", EventCounter("SR3_slep_a")},
+        {"SR3_slep_b", EventCounter("SR3_slep_b")},
+        {"SR3_slep_c", EventCounter("SR3_slep_c")},
+        {"SR3_slep_d", EventCounter("SR3_slep_d")},
+        {"SR3_slep_e", EventCounter("SR3_slep_e")},
+        {"SR3_WZ_0Ja", EventCounter("SR3_WZ_0Ja")},
+        {"SR3_WZ_0Jb", EventCounter("SR3_WZ_0Jb")},
+        {"SR3_WZ_0Jc", EventCounter("SR3_WZ_0Jc")},
+        {"SR3_WZ_1Ja", EventCounter("SR3_WZ_1Ja")},
+        {"SR3_WZ_1Jb", EventCounter("SR3_WZ_1Jb")},
+        {"SR3_WZ_1Jc", EventCounter("SR3_WZ_1Jc")},
       };
 
     private:
@@ -155,11 +155,11 @@ namespace Gambit {
       }
 
       struct ptComparison {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       struct ptJetComparison {
-        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
       void run(const HEPUtils::Event* event) {
@@ -167,8 +167,8 @@ namespace Gambit {
         double met = event->met();
 
         // Baseline objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT()>10. && electron->abseta()<2.47)baselineElectrons.push_back(electron);
         }
 
@@ -178,35 +178,35 @@ namespace Gambit {
         // Apply loose electron selection
         ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
 
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT()>10. && muon->abseta()<2.7)baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
 
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT()>20. && jet->abseta()<4.5)baselineJets.push_back(jet);
         }
 
         //Overlap Removal + Signal Objects
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
 
         const vector<double> aBJet={0,10.};
         const vector<double> bBJet={0,30., 40., 50., 70., 80., 90., 100.,150., 200., 10000.};
         const vector<double> cBJet={0.63, 0.705, 0.745, 0.76, 0.775, 0.79,0.795, 0.805, 0.795, 0.76};
         HEPUtils::BinnedFn2D<double> _eff2d(aBJet,bBJet,cBJet);
 
-        vector<HEPUtils::Jet*> overlapJet;
+        vector<const HEPUtils::Jet*> overlapJet;
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
-          vector<HEPUtils::Particle*> overlapEl;
-          bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->eta(), baselineJets.at(iJet)->pT());
+          vector<const HEPUtils::Particle*> overlapEl;
+          bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
           for (size_t iEl=0;iEl<baselineElectrons.size();iEl++) {
             if (baselineElectrons.at(iEl)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.2)overlapEl.push_back(baselineElectrons.at(iEl));
           }
@@ -236,7 +236,7 @@ namespace Gambit {
             if (baselineMuons.at(iMu)->mom().deltaR_eta(baselineJets.at(iJet)->mom())<0.2 && baselineMuons.at(iMu)->pT()>0.7*baselineJets.at(iJet)->pT())overlap=true;
           }
           if (!overlap) {
-            bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->eta(), baselineJets.at(iJet)->pT());
+            bool hasTag=has_tag(_eff2d, baselineJets.at(iJet)->abseta(), baselineJets.at(iJet)->pT());
             if(baselineJets.at(iJet)->abseta()<2.4)signalJets.push_back(baselineJets.at(iJet));
             if (baselineJets.at(iJet)->btag() && hasTag && baselineJets.at(iJet)->abseta()<2.4)signalBJets.push_back(baselineJets.at(iJet));
           }
@@ -259,8 +259,8 @@ namespace Gambit {
         size_t nSignalJets=signalJets.size();
         size_t nSignalBJets=signalBJets.size();
 
-        vector<vector<HEPUtils::Particle*>> SFOSpairs=getSFOSpairs(signalLeptons);
-        vector<vector<HEPUtils::Particle*>> OSpairs=getOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> SFOSpairs=getSFOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> OSpairs=getOSpairs(signalLeptons);
 
         //Variables
         double pT_l0=0.;
@@ -367,14 +367,14 @@ namespace Gambit {
         //2lep+0jet
         if (preselection && nSignalLeptons==2 && OSpairs.size()==1 && mll>40 && central_jet_veto && bjet_veto) {
           if (SFOSpairs.size()==1) {
-            if (mT2>100 && mll>111) _numSR["SR2_SF_loose"]++;
-            if (mT2>130 && mll>300) _numSR["SR2_SF_tight"]++;
+            if (mT2>100 && mll>111) _counters.at("SR2_SF_loose").add_event(event);
+            if (mT2>130 && mll>300) _counters.at("SR2_SF_tight").add_event(event);
           }
           if (SFOSpairs.size()==0) {
-            if (mT2>100 && mll>111) _numSR["SR2_DF_100"]++;
-            if (mT2>150 && mll>111) _numSR["SR2_DF_150"]++;
-            if (mT2>200 && mll>111) _numSR["SR2_DF_200"]++;
-            if (mT2>300 && mll>111) _numSR["SR2_DF_300"]++;
+            if (mT2>100 && mll>111) _counters.at("SR2_DF_100").add_event(event);
+            if (mT2>150 && mll>111) _counters.at("SR2_DF_150").add_event(event);
+            if (mT2>200 && mll>111) _counters.at("SR2_DF_200").add_event(event);
+            if (mT2>300 && mll>111) _counters.at("SR2_DF_300").add_event(event);
           }
         }
 
@@ -382,35 +382,35 @@ namespace Gambit {
         if (preselection && nSignalLeptons==2 && SFOSpairs.size()==1 && bjet_veto && nSignalJets>1 && pT_j0>30 && pT_j1>30 && pT_l1>25) {
           //SR2_int + SR2_high
           if (mll>81. && mll<101. && mjj>70. && mjj<100. && Z.pT()>80. && W.pT()>100. && mT2>100. && deltaR_jj<1.5 && deltaR_ll<1.8 && deltaPhi_met_W>0.5 && deltaPhi_met_W<3.0) {
-            if (met>150) _numSR["SR2_int"]++;
-            if (met>250) _numSR["SR2_high"]++;
+            if (met>150) _counters.at("SR2_int").add_event(event);
+            if (met>250) _counters.at("SR2_high").add_event(event);
           }
           //SR2_low_2J
-          if (nSignalJets==2 && mll>81. && mll<101. && mjj>70. && mjj<90. && met>100. && Z.pT()>60. && deltaPhi_met_Z<0.8 && deltaPhi_met_W>1.5 && (met/Z.pT())>0.6 && (met/Z.pT())<1.6 && (met/W.pT())<0.8) _numSR["SR2_low"]++;
+          if (nSignalJets==2 && mll>81. && mll<101. && mjj>70. && mjj<90. && met>100. && Z.pT()>60. && deltaPhi_met_Z<0.8 && deltaPhi_met_W>1.5 && (met/Z.pT())>0.6 && (met/Z.pT())<1.6 && (met/W.pT())<0.8) _counters.at("SR2_low").add_event(event);
           //SR2_low_3J
-          if (nSignalJets>2 && nSignalJets<6 && mll>86 && mll<96 && mjj>70. && mjj<90. && met>100 && Z.pT()>40 && deltaR_jj<2.2 && deltaPhi_met_W<2.2 && deltaPhi_met_ISR>2.4 && deltaPhi_met_jet0>2.6 && (met/W_ISR.at(1).pT())>0.4 && (met/W_ISR.at(1).pT())<0.8 && Z.abseta()<1.6 && pT_j2>30.) _numSR["SR2_low"]++;
+          if (nSignalJets>2 && nSignalJets<6 && mll>86 && mll<96 && mjj>70. && mjj<90. && met>100 && Z.pT()>40 && deltaR_jj<2.2 && deltaPhi_met_W<2.2 && deltaPhi_met_ISR>2.4 && deltaPhi_met_jet0>2.6 && (met/W_ISR.at(1).pT())>0.4 && (met/W_ISR.at(1).pT())<0.8 && Z.abseta()<1.6 && pT_j2>30.) _counters.at("SR2_low").add_event(event);
         }
 
         //3lep
         if (preselection && nSignalLeptons==3 && bjet_veto && SFOSpairs.size()) {
           if (mSFOS<81.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<30.) _numSR["SR3_slep_a"]++;
-            if (pT_l2>30.) _numSR["SR3_slep_b"]++;
+            if (pT_l2>20. && pT_l2<30.) _counters.at("SR3_slep_a").add_event(event);
+            if (pT_l2>30.) _counters.at("SR3_slep_b").add_event(event);
           }
           if (mSFOS>101.2 && met>130. && mTmin>110.) {
-            if (pT_l2>20. && pT_l2<50.) _numSR["SR3_slep_c"]++;
-            if (pT_l2>50. && pT_l2<80.) _numSR["SR3_slep_d"]++;
-            if (pT_l2>80.) _numSR["SR3_slep_e"]++;
+            if (pT_l2>20. && pT_l2<50.) _counters.at("SR3_slep_c").add_event(event);
+            if (pT_l2>50. && pT_l2<80.) _counters.at("SR3_slep_d").add_event(event);
+            if (pT_l2>80.) _counters.at("SR3_slep_e").add_event(event);
           }
           if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets==0 && mTmin>110.) {
-            if (met>60. && met<120.) _numSR["SR3_WZ_0Ja"]++;
-            if (met>120. && met<170.) _numSR["SR3_WZ_0Jb"]++;
-            if (met>170.) _numSR["SR3_WZ_0Jc"]++;
+            if (met>60. && met<120.) _counters.at("SR3_WZ_0Ja").add_event(event);
+            if (met>120. && met<170.) _counters.at("SR3_WZ_0Jb").add_event(event);
+            if (met>170.) _counters.at("SR3_WZ_0Jc").add_event(event);
           }
           if (mSFOS>81.2 && mSFOS<101.2 && nSignalJets>0) {
-            if (met>120. && met<200. && mTmin>110. && pTlll<120. && pT_j1>70.) _numSR["SR3_WZ_1Ja"]++;
-            if (met>200. && mTmin>110. && mTmin<160.) _numSR["SR3_WZ_1Jb"]++;
-            if (met>200. && pT_l2>35. && mTmin>160.) _numSR["SR3_WZ_1Jc"]++;
+            if (met>120. && met<200. && mTmin>110. && pTlll<120. && pT_j1>70.) _counters.at("SR3_WZ_1Ja").add_event(event);
+            if (met>200. && mTmin>110. && mTmin<160.) _counters.at("SR3_WZ_1Jb").add_event(event);
+            if (met>200. && pT_l2>35. && mTmin>160.) _counters.at("SR3_WZ_1Jc").add_event(event);
           }
         }
 
@@ -826,6 +826,8 @@ namespace Gambit {
         const Analysis_ATLAS_13TeV_MultiLEP_36invfb* specificOther
                 = dynamic_cast<const Analysis_ATLAS_13TeV_MultiLEP_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS1 != specificOther->NCUTS1) NCUTS1 = specificOther->NCUTS1;
         for (size_t j = 0; j < NCUTS1; j++) {
           cutFlowVector1[j] += specificOther->cutFlowVector1[j];
@@ -836,41 +838,35 @@ namespace Gambit {
           cutFlowVector2[j] += specificOther->cutFlowVector2[j];
           cutFlowVector2_str[j] = specificOther->cutFlowVector2_str[j];
         }
-
-        for (auto& el : _numSR) {
-          el.second += specificOther->_numSR.at(el.first);
-        }
-
       }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR2_SF_loose", 153., {_numSR["SR2_SF_loose"], 0.}, {133., 22.}));
-        add_result(SignalRegionData("SR2_SF_tight", 9., {_numSR["SR2_SF_tight"], 0.}, {9.8, 2.9}));
-        add_result(SignalRegionData("SR2_DF_100", 78., {_numSR["SR2_DF_100"], 0.}, {68., 7.}));
-        add_result(SignalRegionData("SR2_DF_150", 11, {_numSR["SR2_DF_150"], 0.}, {11.5, 3.1}));
-        add_result(SignalRegionData("SR2_DF_200", 6., {_numSR["SR2_DF_200"], 0.}, {2.1, 1.9}));
-        add_result(SignalRegionData("SR2_DF_300", 2., {_numSR["SR2_DF_300"], 0.}, {0.6, 0.6}));
-        add_result(SignalRegionData("SR2_int", 2., {_numSR["SR2_int"], 0.}, {4.1, 2.6}));
-        add_result(SignalRegionData("SR2_high", 0., {_numSR["SR2_high"], 0.}, {1.6, 1.6}));
-        add_result(SignalRegionData("SR2_low", 11., {_numSR["SR2_low"], 0.}, {4.2, 3.4}));
-        add_result(SignalRegionData("SR3_slep_a", 4., {_numSR["SR3_slep_a"], 0.}, {2.2, 0.8}));
-        add_result(SignalRegionData("SR3_slep_b", 3., {_numSR["SR3_slep_b"], 0.}, {2.8, 0.4}));
-        add_result(SignalRegionData("SR3_slep_c", 9., {_numSR["SR3_slep_c"], 0.}, {5.4, 0.9}));
-        add_result(SignalRegionData("SR3_slep_d", 0., {_numSR["SR3_slep_d"], 0.}, {1.4, 0.4}));
-        add_result(SignalRegionData("SR3_slep_e", 0., {_numSR["SR3_slep_e"], 0.}, {1.1, 0.2}));
-        add_result(SignalRegionData("SR3_WZ_0Ja", 21., {_numSR["SR3_WZ_0Ja"], 0.}, {21.7, 2.9}));
-        add_result(SignalRegionData("SR3_WZ_0Jb", 1., {_numSR["SR3_WZ_0Jb"], 0.}, {2.7, 0.5}));
-        add_result(SignalRegionData("SR3_WZ_0Jc", 2., {_numSR["SR3_WZ_0Jc"], 0.}, {1.6, 0.3}));
-        add_result(SignalRegionData("SR3_WZ_1Ja", 1., {_numSR["SR3_WZ_1Ja"], 0.}, {2.2, 0.5}));
-        add_result(SignalRegionData("SR3_WZ_1Jb", 3., {_numSR["SR3_WZ_1Jb"], 0.}, {1.8, 0.3}));
-        add_result(SignalRegionData("SR3_WZ_1Jc", 4., {_numSR["SR3_WZ_1Jc"], 0.}, {1.3, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR2_SF_loose"), 153., {133., 22.}));
+        add_result(SignalRegionData(_counters.at("SR2_SF_tight"), 9., {9.8, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_100"), 78., {68., 7.}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_150"), 11., {11.5, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_200"), 6., {2.1, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_300"), 2., {0.6, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR2_int"), 2., {4.1, 2.6}));
+        add_result(SignalRegionData(_counters.at("SR2_high"), 0., {1.6, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR2_low"), 11., {4.2, 3.4}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_a"), 4., {2.2, 0.8}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_b"), 3., {2.8, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_c"), 9., {5.4, 0.9}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_d"), 0., {1.4, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_e"), 0., {1.1, 0.2}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Ja"), 21., {21.7, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Jb"), 1., {2.7, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Jc"), 2., {1.6, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Ja"), 1., {2.2, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Jb"), 3., {1.8, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Jc"), 4., {1.3, 0.3}));
       }
 
 
-      vector<HEPUtils::P4> get_W_ISR(vector<HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met) {
+      vector<HEPUtils::P4> get_W_ISR(vector<const HEPUtils::Jet*> jets, HEPUtils::P4 Z, HEPUtils::P4 met) {
         HEPUtils::P4 Z_met_sys=Z+met;
         double deltaR_min=999;
         size_t Wjets_id1;
@@ -907,7 +903,7 @@ namespace Gambit {
     protected:
       void analysis_specific_reset() {
 
-        for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector1.begin(), cutFlowVector1.end(), 0);
         std::fill(cutFlowVector2.begin(), cutFlowVector2.end(), 0);
@@ -935,13 +931,12 @@ namespace Gambit {
 
       virtual void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR2_SF_loose", 153., {_numSR["SR2_SF_loose"], 0.}, {133., 22.}));
-        add_result(SignalRegionData("SR2_SF_tight", 9., {_numSR["SR2_SF_tight"], 0.}, {9.8, 2.9}));
-        add_result(SignalRegionData("SR2_DF_100", 78., {_numSR["SR2_DF_100"], 0.}, {68., 7.}));
-        add_result(SignalRegionData("SR2_DF_150", 11, {_numSR["SR2_DF_150"], 0.}, {11.5, 3.1}));
-        add_result(SignalRegionData("SR2_DF_200", 6., {_numSR["SR2_DF_200"], 0.}, {2.1, 1.9}));
-        add_result(SignalRegionData("SR2_DF_300", 2., {_numSR["SR2_DF_300"], 0.}, {0.6, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR2_SF_loose"), 153., {133., 22.}));
+        add_result(SignalRegionData(_counters.at("SR2_SF_tight"), 9., {9.8, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_100"), 78., {68., 7.}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_150"), 11,  {11.5, 3.1}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_200"), 6., {2.1, 1.9}));
+        add_result(SignalRegionData(_counters.at("SR2_DF_300"), 2., {0.6, 0.6}));
       }
 
     };
@@ -961,10 +956,9 @@ namespace Gambit {
 
       virtual void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR2_int", 2., {_numSR["SR2_int"], 0.}, {4.1, 2.6}));
-        add_result(SignalRegionData("SR2_high", 0., {_numSR["SR2_high"], 0.}, {1.6, 1.6}));
-        add_result(SignalRegionData("SR2_low", 11., {_numSR["SR2_low"], 0.}, {4.2, 3.4}));
+        add_result(SignalRegionData(_counters.at("SR2_int"), 2., {4.1, 2.6}));
+        add_result(SignalRegionData(_counters.at("SR2_high"), 0., {1.6, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR2_low"), 11., {4.2, 3.4}));
       }
 
     };
@@ -984,18 +978,17 @@ namespace Gambit {
 
       virtual void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR3_slep_a", 4., {_numSR["SR3_slep_a"], 0.}, {2.2, 0.8}));
-        add_result(SignalRegionData("SR3_slep_b", 3., {_numSR["SR3_slep_b"], 0.}, {2.8, 0.4}));
-        add_result(SignalRegionData("SR3_slep_c", 9., {_numSR["SR3_slep_c"], 0.}, {5.4, 0.9}));
-        add_result(SignalRegionData("SR3_slep_d", 0., {_numSR["SR3_slep_d"], 0.}, {1.4, 0.4}));
-        add_result(SignalRegionData("SR3_slep_e", 0., {_numSR["SR3_slep_e"], 0.}, {1.1, 0.2}));
-        add_result(SignalRegionData("SR3_WZ_0Ja", 21., {_numSR["SR3_WZ_0Ja"], 0.}, {21.7, 2.9}));
-        add_result(SignalRegionData("SR3_WZ_0Jb", 1., {_numSR["SR3_WZ_0Jb"], 0.}, {2.7, 0.5}));
-        add_result(SignalRegionData("SR3_WZ_0Jc", 2., {_numSR["SR3_WZ_0Jc"], 0.}, {1.6, 0.3}));
-        add_result(SignalRegionData("SR3_WZ_1Ja", 1., {_numSR["SR3_WZ_1Ja"], 0.}, {2.2, 0.5}));
-        add_result(SignalRegionData("SR3_WZ_1Jb", 3., {_numSR["SR3_WZ_1Jb"], 0.}, {1.8, 0.3}));
-        add_result(SignalRegionData("SR3_WZ_1Jc", 4., {_numSR["SR3_WZ_1Jc"], 0.}, {1.3, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_a"), 4., {2.2, 0.8}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_b"), 3., {2.8, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_c"), 9., {5.4, 0.9}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_d"), 0., {1.4, 0.4}));
+        add_result(SignalRegionData(_counters.at("SR3_slep_e"), 0., {1.1, 0.2}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Ja"), 21., {21.7, 2.9}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Jb"), 1., {2.7, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_0Jc"), 2., {1.6, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Ja"), 1., {2.2, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Jb"), 3., {1.8, 0.3}));
+        add_result(SignalRegionData(_counters.at("SR3_WZ_1Jc"), 4., {1.3, 0.3}));
       }
 
     };

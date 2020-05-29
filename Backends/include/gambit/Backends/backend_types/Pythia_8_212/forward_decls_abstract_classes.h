@@ -10,6 +10,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     namespace Pythia8
     {
+        class Abstract_GAMBIT_hepmc_writer;
         class Abstract_Pythia;
         class Abstract_PartonLevel;
         class Abstract_ResonanceDecays;
@@ -39,6 +40,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         class Abstract_Vec4;
         class Abstract_Hist;
     }
+    
     
     
     

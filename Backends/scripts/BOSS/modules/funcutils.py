@@ -548,6 +548,7 @@ def getFunctionNameDict(func_el):
     # Construct argument bracket
     args_bracket = constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
     func_name['long_templ_args'] = func_name['long_templ'] + args_bracket
+    func_name['short_templ_args'] = func_name['short_templ'] + args_bracket
 
     # Add return type
     func_name['long_templ_return_args'] = return_type + ' ' + func_name['long_templ_args']

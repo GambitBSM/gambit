@@ -1,0 +1,601 @@
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # SUSY parameters.
+  MSSM11atQ_mA:
+    M1: 89.54731975
+    M2: 348.032204
+    mu: -173.15193477
+    TanBeta: 30.03221058
+    Ad_3: 0.0
+    Ae_3: 0.0
+    Au_3: 0.0
+    M3: 5000.0
+    Qin: 3000.0
+    mA: 5000.0
+    ml2: 9000000.0
+    mq2: 9000000.0
+
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "EWMSSM.hdf5"
+  #   group: "/EWMSSM"
+  #   delete_file_on_restart: true
+  #   buffer_length: 1
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 8000
+      convthresh: 1e-4
+      verbosity: 1
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+
+ObsLikes:
+
+    #
+    # Likelihoods
+    #
+
+    # LHC likelihoods
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # # LEP likelihoods
+    # - purpose:    LogLike
+    #   capability: L3_Neutralino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: L3_Chargino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Hadronic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Chargino_Leptonic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Neutralino_Hadronic_LLike
+
+    # - purpose:    LogLike
+    #   capability: OPAL_Degenerate_Chargino_LLike
+
+    # # Likelihoods for invisible decays of Z and Higgs bosons
+    # - purpose:    LogLike
+    #   capability: lnL_Z_inv
+
+    # - purpose:    LogLike
+    #   capability: lnL_Higgs_invWidth
+
+    #
+    # Observables
+    #
+
+    - purpose:    Observable 
+      capability: TotalCrossSectionAsMap
+
+    - purpose:    Observable 
+      capability: PIDPairCrossSectionsInfo
+
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_SR
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_SR_indices
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+    # - purpose:    Observable
+    #   capability: all_BFs
+
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+Rules:
+
+  # # Tell all functions that are able to dump SLHA files to do so.
+  # - options:
+  #    drop_SLHA_file: true
+
+  # Set any pole masses by hand?
+  # NOTE: This will break the internal spectrum consistency -- use at your own risk!
+  - options:
+      override_FS_pole_masses:
+        h0_1: 125.09
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+    options:
+      allow_stable_charged_particles: false
+
+  # Require a small, additional mass difference before switching on new decay decay modes in the 
+  # limit of small chargino--neutralino mass difference. Can help avoid problems with chargino
+  # decays in Pythia (due to Pythia's MSAFETY check).
+  - capability: chargino_plus_1_decay_rates_smallsplit
+    function: chargino_plus_1_decays_smallsplit
+    options:
+      m_safety: 0.0011  
+
+  # Choose which BFs to print
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      # printall: true 
+      BFs: [ 
+             ["~u_1"], ["~u_2"], ["~d_1"], 
+             ["~chi0_2"], ["~chi0_3"], ["~chi0_4"],
+             ["~chi+_1"], ["~chi+_2"] 
+           ]
+
+
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_mA_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+      # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by 
+      # LEP measurements of the Z width.
+      mass_cut: [ 
+                  # ["|~chi0_1|", 1.0, 1000.0], 
+                  ["|~chi+_1|", 45.0, 1e+06], 
+                ] 
+      # mass_ratio_cut: [ 
+      #                   ["|~chi0_1|", "|~chi+_1|", 0.0, 1.0],
+      #                 ]
+
+  # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
+  # so that things depending on "MSSM_spectrum" will be happy.
+  - capability: MSSM_spectrum 
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  # Globally permit maximal mixing between gauge and family eigenstates
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+ # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+
+  ##### LHC Detector and Analysis rules #####
+
+  # Choose to where to get total cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+    # function: getYAMLCrossSection
+    # options:
+    #   cross_section_fb: 123.0
+    #   cross_section_uncert_fb: 1.23
+
+
+  # Choose how to do event weighting 
+  - capability: EventWeighterFunction
+    # function: setEventWeight_unity
+    function: setEventWeight_fromCrossSection
+
+
+  # Choose where to get PID pair cross-sections from.
+  # Note: This is not required if the "setEventWeight_unity" 
+  #       function is chosen above.
+  - capability: PIDPairCrossSectionsMap
+    function: getPIDPairCrossSectionsMap_salami
+    # function: getPIDPairCrossSectionsMap_xsecBE
+    # function: getPIDPairCrossSectionsMap_prospino
+    # options:
+    #   set_missing_cross_sections_to_zero: true
+
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 1
+      write_summary_to_log: true
+
+
+  # Choose Monte Carlo event simulator and options.
+  - capability: HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia
+    options:
+      # LHC_7TeV:
+      #   # 0.213 fb corresponds to ~1 expected event at L = 4.7 fb^-1.
+      #   xsec_veto: 0.213
+      #   pythia_settings:
+      #     - Print:quiet = off
+      #     - Next:numberCount = 0
+      #     - Random:setSeed = on
+      #     - Beams:eCM = 7000
+      #     - PartonLevel:MPI = off
+      #     - PartonLevel:ISR = on
+      #     - PartonLevel:FSR = on
+      #     - HadronLevel:all = on
+      #     - TauDecays:mode = 0
+      #     - TimeShower:pTmin = 2
+      #     - SUSY:all = off
+      #     - SUSY:gg2squarkantisquark = on
+      #     - SUSY:qqbar2squarkantisquark = on
+      #     - 23:mMin = 0.1
+      #     - 24:mMin = 0.1
+      #     - SUSY:idVecA = 1000005,1000006,2000006
+      #     - SUSY:idVecB = 1000005,1000006,2000006
+      # LHC_8TeV:
+      #   # 0.05 fb corresponds to ~1 expected event at L = 20 fb^-1.
+      #   xsec_veto: 0.05
+      #   pythia_settings:
+      #     - Print:quiet = off
+      #     - Next:numberCount = 0
+      #     - Random:setSeed = on
+      #     - Beams:eCM = 8000
+      #     - PartonLevel:MPI = off
+      #     - PartonLevel:ISR = on
+      #     - PartonLevel:FSR = on
+      #     - HadronLevel:all = on
+      #     - TauDecays:mode = 0
+      #     - TimeShower:pTmin = 2
+      #     - SUSY:all = off
+      #     - SUSY:gg2squarkantisquark = on
+      #     - SUSY:qqbar2squarkantisquark = on
+      #     - 23:mMin = 0.1
+      #     - 24:mMin = 0.1
+      #     - SUSY:idVecA = 1000005,1000006,2000006
+      #     - SUSY:idVecB = 1000005,1000006,2000006
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - Print:quiet = off
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      # LHC_7TeV:
+      #   partonOnly: false
+      #   antiktR: 0.4
+      # LHC_8TeV:
+      #   partonOnly: false
+      #   antiktR: 0.4
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      # LHC_7TeV:
+      #   partonOnly: false
+      #   antiktR: 0.5
+      # LHC_8TeV:
+      #   partonOnly: false
+      #   antiktR: 0.5
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      # LHC_7TeV:
+      #   min_nEvents: 1000000
+      #   max_nEvents: 1000000
+      #   events_between_convergence_checks: 10000000
+      #   target_fractional_uncert: 0.1
+      #   halt_when_systematic_dominated: true
+      #   all_analyses_must_converge: true
+      #   all_SR_must_converge: false
+      #   maxFailedEvents: 10
+      #   invalidate_failed_points: true
+      #   analyses:
+      #     - ATLAS_7TeV_1OR2LEPStop_4_7invfb
+      #     - ATLAS_7TeV_2LEPStop_4_7invfb
+      # LHC_8TeV:
+      #   min_nEvents: 1000000
+      #   max_nEvents: 1000000
+      #   events_between_convergence_checks: 10000000
+      #   target_fractional_uncert: 0.1
+      #   halt_when_systematic_dominated: true
+      #   all_analyses_must_converge: true
+      #   all_SR_must_converge: false
+      #   maxFailedEvents: 10
+      #   invalidate_failed_points: true
+      #   analyses:
+      #     - ATLAS_8TeV_0LEP_20invfb
+      #     - ATLAS_8TeV_0LEPStop_20invfb
+      #     - ATLAS_8TeV_1LEPStop_20invfb
+      #     - ATLAS_8TeV_2bStop_20invfb
+      #     - ATLAS_8TeV_2LEPEW_20invfb
+      #     - ATLAS_8TeV_2LEPStop_20invfb
+      #     - CMS_8TeV_1LEPDMTOP_20invfb
+      #     - CMS_8TeV_2LEPDMTOP_20invfb
+      #     - CMS_8TeV_MONOJET_20invfb
+      LHC_13TeV:
+        min_nEvents: 1000
+        max_nEvents: 1000
+        events_between_convergence_checks: 10000000
+        target_fractional_uncert: 0.1
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: true
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        invalidate_failed_points: true
+        analyses:
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
+          # #
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          - ATLAS_13TeV_0LEP_139invfb
+          # #
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          # #
+          # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+          # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+          # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          # - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          # #
+          # - ATLAS_13TeV_4LEP_36invfb
+          # #
+          # - ATLAS_13TeV_2bMET_36invfb
+          # #
+          # - ATLAS_13TeV_3b_24invfb
+          # - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          # - ATLAS_13TeV_3b_36invfb  # skip
+          # - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          # #
+          # - ATLAS_13TeV_PhotonGGM_36invfb
+          # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          # #
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          # #
+          # - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          # #
+          # - CMS_13TeV_1LEPbb_36invfb
+          # #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          # #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          # - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          # - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_36invfb
+          # - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          # #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          # #
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          # - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          # - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          # #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          # #
+          # - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          # - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          # #
+          # - CMS_13TeV_MONOJET_36invfb
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6  # 1
+      nuisance_prof_verbosity: 0
+
+
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: true
+      cap_loglike: true
+      cap_loglike_individual_analyses: false
+      skip_analyses:
+          # - ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb
+          # - ATLAS_13TeV_RJ3L_3Lep_36invfb
+          #
+          - ATLAS_13TeV_0LEP_36invfb  # skip
+          # - ATLAS_13TeV_0LEP_139invfb
+          #
+          # - ATLAS_13TeV_0LEPStop_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # - ATLAS_13TeV_2LEPStop_36invfb
+          #
+          # - ATLAS_13TeV_MultiLEP_2Lep0Jets_36invfb
+          # - ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb
+          # - ATLAS_13TeV_MultiLEP_3Lep_36invfb
+          #
+          # - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb  
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb  # skip
+          #
+          # - ATLAS_13TeV_4LEP_36invfb
+          #
+          # - ATLAS_13TeV_2bMET_36invfb
+          #
+          # - ATLAS_13TeV_3b_24invfb
+          - ATLAS_13TeV_3b_discoverySR_24invfb  # skip
+          - ATLAS_13TeV_3b_36invfb  # skip
+          - ATLAS_13TeV_3b_discoverySR_36invfb  # skip
+          #
+          # - ATLAS_13TeV_PhotonGGM_36invfb
+          # - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          #
+          # - ATLAS_13TeV_2OSLEP_Z_139invfb
+          #
+          - CMS_13TeV_0LEP_36invfb  # skip
+          # - CMS_13TeV_0LEP_137invfb
+          #
+          # - CMS_13TeV_1LEPbb_36invfb
+          #
+          # - CMS_13TeV_1LEPStop_36invfb
+          # - CMS_13TeV_2LEPStop_36invfb
+          #
+          # - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb_nocovar  # skip
+          # - CMS_13TeV_2LEPsoft_stop_36invfb
+          - CMS_13TeV_2LEPsoft_stop_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2OSLEP_36invfb_nocovar  # skip
+          #
+          # - CMS_13TeV_2OSLEP_for_stop_36invfb
+          # - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          #
+          # - CMS_13TeV_2SSLEP_Stop_inclusive_36invfb  
+          - CMS_13TeV_2SSLEP_Stop_exclusive_36invfb  # skip
+          - CMS_13TeV_2SSLEP_Stop_137invfb  # skip (too many SRs?)
+          #
+          # - CMS_13TeV_Photon_GMSB_36invfb
+          # - CMS_13TeV_2Photon_GMSB_36invfb
+          #
+          - CMS_13TeV_MultiLEP_2SSLep_36invfb  # skip
+          - CMS_13TeV_MultiLEP_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_2SSLep_36invfb 
+          - CMS_13TeV_MultiLEP_Full_3Lep_36invfb  # skip
+          # - CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
+          #
+          # - CMS_13TeV_MONOJET_36invfb
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    # [DarkBit] : "DarkBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+    # [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  rng:
+    seed: -1
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/EWMSSM/"
+
+  debug: true

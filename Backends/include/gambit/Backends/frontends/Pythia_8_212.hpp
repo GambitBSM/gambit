@@ -14,6 +14,10 @@ namespace Gambit
         {
             namespace Pythia8
             {
+                typedef ::Pythia_8_212::Pythia8::GAMBIT_hepmc_writer GAMBIT_hepmc_writer;
+            }
+            namespace Pythia8
+            {
                 typedef ::Pythia_8_212::Pythia8::Pythia Pythia;
             }
             namespace Pythia8

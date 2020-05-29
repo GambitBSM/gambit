@@ -501,6 +501,38 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose Monte Carlo event simulator and options.
+  - capability: HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - Print:quiet = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
@@ -532,43 +564,6 @@ Rules:
         # - ATLAS_13TeV_RJ3L_lowmass_36invfb
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
-
-  # Choose Monte Carlo event simulator and options.
-  - capability:  HardScatteringSim
-    type: ColliderPythia_defaultversion
-    function: getPythia
-    options:
-      LHC_13TeV:
-        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
-        xsec_veto: 0.028
-        pythia_settings:
-          - Print:quiet = on
-          - PartonLevel:MPI = off
-          - PartonLevel:ISR = on
-          - PartonLevel:FSR = on
-          - HadronLevel:all = on
-          - SUSY:all = on
-          - TauDecays:mode = 0
-          - TimeShower:pTmin = 2
-
-  # Choose to get cross-sections from the Monte Carlo
-  - capability: CrossSection
-    function: getMCxsec
-    module: ColliderBit
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes

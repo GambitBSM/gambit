@@ -1,0 +1,203 @@
+
+Parameters:
+
+    CB_SLHA_file_model:
+      dummy: 0.0
+
+
+Priors:
+
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "NMSSM.hdf5"
+  #   delete_file_on_restart: true
+  #   group: "/NMSSM"
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+
+    random: 
+      plugin: random 
+      like:  LogLike 
+      point_number: 1
+      output_file:  output 
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 40
+      convthresh: 1e-3
+      verbosity: 1
+
+
+ObsLikes:
+
+  # Combined LHC likelihood
+  - purpose:    LogLike
+    capability: LHC_Combined_LogLike
+
+  # # Observables
+
+  # - purpose:    likelihood_details
+  #   capability: LHC_LogLike_per_analysis
+
+  - purpose:    likelihood_details
+    capability: LHC_LogLike_per_SR
+
+  - purpose:    likelihood_details
+    capability: LHC_LogLike_SR_indices
+
+  - purpose:    Observable
+    capability: LHC_signals
+
+  - purpose:    Observable
+    capability: LHCEventLoopInfo
+
+
+Rules:
+
+
+  # Generate events (don't read LH event files)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+    module: ColliderBit
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV_SUSY_EWonly:
+        min_nEvents: 172004
+        max_nEvents: 172004
+        events_between_convergence_checks: 10000000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 100
+        analyses:
+          - CMS_13TeV_2LEPsoft_36invfb
+
+
+    # function: getPythia  #getPythiaNMSSM
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia_SLHA  #getPythiaNMSSM
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        pythia_settings:
+          - SLHA:verbose = 1
+          - Next:numberShowProcess = 1
+          - Print:quiet = off
+          - Next:numberCount = 100
+          - Random:setSeed = on
+          - Beams:eCM = 13000          
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = off
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = off
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
+          # - SLHA:NMSSM = on
+          # - SLHA:keepSM = off
+          # - SLHA:minMassSM = 10.0
+
+          # - SLHA:allowUserOverride = on
+          # - SLHA:keepSM = off
+          # - SUSY:qqbar2chi0chi0 = on
+          # - SUSY:qqbar2chi+-chi0 = on
+          # - SUSY:qqbar2chi+chi- = on
+
+  - capability: SLHAFileNameAndContent
+    function: getNextSLHAFileNameAndContent
+    options:
+      SLHA_filenames: ["./ColliderBit/data/Cutflows/CMS_13TeV_2LEPsoft_36invfb/CMS_150_143.slha"]
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: false
+      combine_SRs_without_covariances: false
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 100000
+
+  # Choose options for the LHC likelihood combination
+  - capability: LHC_Combined_LogLike
+    options:
+      skip_analyses: [ ]
+
+  # Get cross-section from Pythia
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+    module: ColliderBit
+
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [SpecBit] : "SpecBit.log"
+    [DecayBit] : "DecayBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+
+KeyValues:
+
+  debug: true
+
+  default_output_path: "runs/NMSSM/"
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  dependency_resolution:
+    prefer_model_specific_functions: false
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+

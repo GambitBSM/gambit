@@ -1,0 +1,336 @@
+
+Parameters:
+
+  # SM nuisance parameters fixed for now.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  MSSM11atQ_mA:
+    Ad_3: 0.0
+    Ae_3: 0.0
+    Au_3: 0.0
+    M3: 5000.0
+    Qin: 3000.0
+    mA: 5000.0
+    ml2: 9000000.0
+    mq2: 9000000.0
+
+#    M1: -50.5805392859
+#    M2: 149.269818382
+#    mu: 252.672434156
+#    TanBeta: 28.7085662456
+
+    M1: -69.082552
+    M2: 162.753080
+    mu: 281.715936
+    TanBeta: 52.665296
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "MSSMEW.hdf5"
+  #   group: "/MSSMEW"
+  #   delete_file_on_restart: false
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 19200
+      convthresh: 1e-5
+      verbosity: 1
+      lambdajDE: false
+
+
+ObsLikes:
+
+    # Combined LHC likelihood
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # LEP likelihoods
+    - purpose:    LogLike
+      capability: L3_Neutralino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: L3_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Neutralino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Degenerate_Chargino_LLike
+
+    # Likelihoods for invisible decays of Z and Higgs bosons
+    - purpose: LogLike
+      capability: lnL_Z_inv
+
+    - purpose: LogLike
+      capability: lnL_Higgs_invWidth
+
+    # Observables (not included in likelihood)
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_SR
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_SR_indices
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+      function:   get_MSSM_spectrum_as_map
+
+
+    # Observables for invisible decays of Z and Higgs bosons
+    - purpose: Observable
+      capability: Z_gamma_nu
+    
+    - purpose: Observable
+      capability: Z_gamma_chi_0
+    
+    - purpose: Observable
+      capability: inv_Higgs_BF
+
+
+Rules:
+
+  # Set any pole masses by hand?
+  # NOTE: This will break the internal spectrum consistency -- use at your own risk!
+  - options:
+      override_FS_pole_masses:
+        h0_1: 125.09
+      drop_SLHA_file: true
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+    options:
+      allow_stable_charged_particles: false
+
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_mA_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+
+  # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
+  # so that things depending on "MSSM_spectrum" will be happy.
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  # These options set various tolerances in the spectrum generation
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+      #gauge_mixing_tolerance_invalidates_point_only: false
+      #family_mixing_tolerance_invalidates_point_only: false
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+  # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+  ##### LHC Detector and Analysis rules #####
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      Pythia_SUSY_LHC_13TeV_EWonly:
+        min_nEvents: 10000
+        max_nEvents: 10000
+        events_between_convergence_checks: 10000
+        target_fractional_uncert: 0.1
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: true
+        all_SR_must_converge: false
+        maxFailedEvents: 1000
+        analyses:
+          - ATLAS_13TeV_2OSLEP_chargino_139invfb
+          - ATLAS_13TeV_2OSLEP_chargino_binned_139invfb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia 
+    options:
+      SLHA_filenames: 
+        - ColliderBit/data/ATLAS_13TeV_2OSLEP_chargino_139invfb.slha
+      Pythia_SUSY_LHC_13TeV_EWonly:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        pythia_settings:
+          - Print:quiet = off
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - SUSY:idA = 1000024
+          - SUSY:idB = 1000024
+        
+      
+      # TT_bWN_375_255.dat
+      # TT_directTT_450_200.dat
+      # TT_onestepBB_600_590_400.dat
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      Pythia_SUSY_LHC_13TeV_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      Pythia_SUSY_LHC_13TeV_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      combine_SRs_without_covariances: True 
+      covariance_marg_convthres_abs: 0.05
+      covariance_marg_convthres_rel: 0.05
+      covariance_nsamples_start: 200000
+
+  # List any analyses that should *NOT* be included in the total log-likelihood!
+  # These will still be computed if listed in the analysis setup above, 
+  # but their likelihood will not added to the combined likelihood.
+  - capability: LHC_Combined_LogLike
+    options:
+     skip_analyses: [ "CMS_13TeV_MultiLEP_Full_3Lep_36invfb",
+                      "CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb" ]
+
+  # Get cross-section from Pythia
+  - capability: TotalCrossSection
+    function: getYAMLCrossSection
+    module: ColliderBit
+    options: 
+      cross_section_pb: 0.79
+      cross_section_fractional_uncert: 0.0001
+
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+    module: ColliderBit
+
+  # Invisible Higgs branching ratio from CMS-PAS-HIG-17-023 with 10% theory error
+  # Path relative to GAMBIT build
+  - capability: lnL_Higgs_invWidth
+    function: lnL_Higgs_invWidth_SMlike
+    options:
+      BR_h_inv_chi2_data_file: ./DecayBit/data/arXiv_1306.2941_Figure_8_log_normal_50_profiled.dat
+
+
+# Set the names of key log files
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    # [DarkBit] : "DarkBit.log"
+    # [PrecisionBit] : "PrecisionBit.log"
+    # [FlavBit] : "FlavBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  # Set the default output path
+  default_output_path: "runs/MSSMEW/"
+
+  exceptions:
+    ColliderBit_error: fatal
+    DarkBit_error: fatal
+    DecayBit_error: fatal
+    FlavBit_error: fatal
+    PrecisionBit_error: fatal
+    SpecBit_error: fatal

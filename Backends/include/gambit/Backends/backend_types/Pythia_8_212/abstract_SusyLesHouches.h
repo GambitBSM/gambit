@@ -38,12 +38,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual int readFile__BOSS(::std::basic_istream<char, std::char_traits<char> >&) =0;
     
-                virtual int readSLHAea(int, bool) =0;
-    
-                virtual int readSLHAea__BOSS(int) =0;
-    
-                virtual int readSLHAea__BOSS() =0;
-    
                 virtual void setSLHAea(const ::SLHAea::Coll*) =0;
     
                 virtual void printHeader() =0;

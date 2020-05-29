@@ -81,6 +81,7 @@ namespace Gambit
   {
     if (local_rng == NULL) create_rng_engine("default", -1);
     return std::generate_canonical<double, 32>(rng());
+    //return 0.5768;//fix random number for testing so CBS and Gambit get the same numbers.
   }
 
 }

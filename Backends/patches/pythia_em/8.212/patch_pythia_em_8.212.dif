@@ -1017,11 +1017,11 @@ diff -rupN pythia_8.212_original/src/ResonanceDecays.cc pythia_8.212_patched/src
 -  if (mSumMin + MSAFETY > mMother) return false;
 +  // GAMBIT modification to allow decays at small mass splittings:
 +  // Switched order of the two next if-statements and changed
-+  // 0.5*MSAFETY to 0.1*MSAFETY.
++  // 0.5*MSAFETY to 0.01*MSAFETY.
  
    // If sum of masses below and no Breit-Wigners then done.
 -  if (mSum + 0.5 * MSAFETY < mMother && nBW == 0) return true;
-+  if (mSum + 0.1 * MSAFETY < mMother && nBW == 0) return true;
++  if (mSum + 0.01 * MSAFETY < mMother && nBW == 0) return true;
 +
 +  // If sum of minimal masses above mother mass then give up.
 +  if (mSumMin + MSAFETY > mMother) return false;

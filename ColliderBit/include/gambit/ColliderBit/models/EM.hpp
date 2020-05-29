@@ -33,22 +33,34 @@
 
 #define MODULE ColliderBit
 
+  // SLHAea object with spectrum and decays for a Pythia8 collider
+  #define CAPABILITY SpectrumAndDecaysForPythia
+
+
+    #define FUNCTION getSpectrumAndDecaysForPythia_EM
+    START_FUNCTION(SLHAstruct)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)      // @todo Why is this needed?
+    DEPENDENCY(decay_rates, DecayTable)
+    DEPENDENCY(EM_spectrum, Spectrum)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
   // Get Monte Carlo event generator
   #define CAPABILITY HardScatteringSim
 
     #define FUNCTION getPythia_EM
-    START_FUNCTION(ColliderPythia_EM_defaultversion)
+    START_FUNCTION(Py8Collider_EM_defaultversion)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(decay_rates, DecayTable)
-    DEPENDENCY(EM_spectrum, Spectrum)
+    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
 
     #define FUNCTION getPythia_EMAsBase
     START_FUNCTION(const BaseCollider*)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(HardScatteringSim, ColliderPythia_EM_defaultversion)
+    DEPENDENCY(HardScatteringSim, Py8Collider_EM_defaultversion)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -57,70 +69,11 @@
   // Run event generator
   #define CAPABILITY HardScatteringEvent
     #define FUNCTION generateEventPythia_EM
-    START_FUNCTION(Pythia_EM_default::Pythia8::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(HardScatteringSim, ColliderPythia_EM_defaultversion)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  // Get detector simulations
-
-  #define CAPABILITY ATLASDetectorSim
-    #define FUNCTION getBuckFastATLASPythia_EM
-    START_FUNCTION(BaseDetector<Pythia_EM_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY CMSDetectorSim
-    #define FUNCTION getBuckFastCMSPythia_EM
-    START_FUNCTION(BaseDetector<Pythia_EM_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY IdentityDetectorSim
-    #define FUNCTION getBuckFastIdentityPythia_EM
-    START_FUNCTION(BaseDetector<Pythia_EM_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  // Run detector simulations
-
-  #define CAPABILITY ATLASSmearedEvent
-    #define FUNCTION smearEventATLAS_EM
     START_FUNCTION(HEPUtils::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_EM_default::Pythia8::Event)
-    DEPENDENCY(ATLASDetectorSim, BaseDetector<Pythia_EM_default::Pythia8::Event>*)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY CMSSmearedEvent
-    #define FUNCTION smearEventCMS_EM
-    START_FUNCTION(HEPUtils::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_EM_default::Pythia8::Event)
-    DEPENDENCY(CMSDetectorSim, BaseDetector<Pythia_EM_default::Pythia8::Event>*)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY CopiedEvent
-    #define FUNCTION copyEvent_EM
-    START_FUNCTION(HEPUtils::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_EM, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_EM_default::Pythia8::Event)
-    DEPENDENCY(IdentityDetectorSim, BaseDetector<Pythia_EM_default::Pythia8::Event>*)
+    DEPENDENCY(HardScatteringSim, Py8Collider_EM_defaultversion)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
     #undef FUNCTION
   #undef CAPABILITY
 
