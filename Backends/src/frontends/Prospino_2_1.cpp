@@ -191,7 +191,7 @@ BE_NAMESPACE
     cerr << "DEBUG: process_specific_lowmass_mods: pid_pair = " << pid_pair.str() << endl;
 
     // Copy input array to output array
-    Farray<Fdouble,0,99> lowmass_out = Farray<Fdouble,0,99>(lowmass_in);
+    Farray<Fdouble,0,99> lowmass_out(lowmass_in);
 
     // Read the absolute-value pids
     int abs_pid1 = abs(pid_pair.pid1());
@@ -541,7 +541,8 @@ BE_NAMESPACE
     ps.i_error_in = i_error_in;
 
     // Are any process-specific modifications required for this process? And do they affect the trust_level?
-    Farray<Fdouble,0,99> lowmass_mod = process_specific_lowmass_mods(lowmass, pid_pair, trust_level);
+    Farray<Fdouble,0,99> lowmass_mod;
+    lowmass_mod = process_specific_lowmass_mods(lowmass, pid_pair, trust_level);
 
     // Call prospino
     Farray<Fdouble,0,6> prospino_result;
