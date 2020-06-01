@@ -54,7 +54,7 @@ with_axel=$($2 -E echo $3 | grep -o "WITH_AXEL")
 if [ ! -z "${with_axel}" ]; then
   if command -v axel >/dev/null; then
     # Go to wget/curl if POST data have been provided
-    if [ -z "$10" ]; then
+    if [ -z "${10}" ]; then
       if $2 -E chdir $1 axel $4 -o $filename; then
         axel_worked=1
       else
@@ -65,7 +65,7 @@ if [ ! -z "${with_axel}" ]; then
 fi
 if [ "${axel_worked}" = "0" ]; then
   if command -v wget >/dev/null; then
-    if [ -z "$10" ]; then
+    if [ -z "${10}" ]; then
       # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
       if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
         wget --no-check-certificate $4 -O $i/${filename}
@@ -73,7 +73,7 @@ if [ "${axel_worked}" = "0" ]; then
         wget $4 -O $1/${filename}
       fi
     else
-      wget --post-data "$10" ${11} -O $1/${filename}
+      wget --post-data "${10}" ${11} -O $1/${filename}
     fi
     wgetstatus=$?
     if [ ${wgetstatus} != 0 ]; then
@@ -91,10 +91,10 @@ if [ "${axel_worked}" = "0" ]; then
       exit 1
     fi
   elif command -v curl >/dev/null; then
-    if [ -z "$10" ]; then
+    if [ -z "${10}" ]; then
       $2 -E chdir $1 curl -L -O $4
     else
-      $2 -E chdir $1 curl -L -O -c $cfile --data "$10" ${11}
+      $2 -E chdir $1 curl -L -O -c $cfile --data "${10}" ${11}
       $2 -E chdir $1 curl -L -O -b $cfile $4
       $2 -E remove $1/$cfile
     fi
