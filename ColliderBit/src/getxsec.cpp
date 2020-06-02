@@ -77,246 +77,246 @@ namespace Gambit
 
 
     #ifdef HAVE_PYBIND11
-    /// Get a cross-section from the xsecBE backend
-    void getPIDPairCrossSectionsMap_xsecBE(map_PID_pair_PID_pair_xsec& result)
-    {
-      using namespace Pipes::getPIDPairCrossSectionsMap_xsecBE;
-
-      if(*Loop::iteration == COLLIDER_INIT)
+      /// Get a cross-section from the xsecBE backend
+      void getPIDPairCrossSectionsMap_xsecBE(map_PID_pair_PID_pair_xsec& result)
       {
-        result.clear();
-      }
-
-      if(*Loop::iteration == XSEC_CALCULATION)
-      {
-        // Create dicts to pass parameters and flags to the backend
-        pybind11::dict xsecBE_pars;
-        // pybind11::dict xsecBE_flags;
-
-        // // First set the flags
-        // xsecBE_flags["alphas_err"] = true;
-        // xsecBE_flags["scale_err"] = true;
-        // xsecBE_flags["pdf_err"] = true;
-        // xsecBE_flags["regression_err"] = true;
-        // BEreq::xsecBE_set_flags(xsecBE_flags);
-
-        // Then set the neceassary parameters and spectrum info:
-        // - Energy
-        // @todo This can't be hard-coded... Need to match it to collider energy!
-        xsecBE_pars["energy"] = 13000;
-        BEreq::xsecBE_set_parameters(xsecBE_pars);
-
-        // - Import the SLHA1 spectrum
-        const SLHAstruct& slha_spec = *Dep::SLHA1Spectrum;
-        str slha_string = slha_spec.str();
-        BEreq::xsecBE_import_slha_string(slha_string);
-
-        // Now get the cross-sections for all the requested PID pairs. Save the results
-        // in the result map (type map<PID_pair,PID_pair_xsec_container>)
-        for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+        using namespace Pipes::getPIDPairCrossSectionsMap_xsecBE;
+  
+        if(*Loop::iteration == COLLIDER_INIT)
         {
-
-          // Create PID_pair_xsec_container instance
-          // and set the PIDs
-          PID_pair_xsec_container pp_xs;
-          pp_xs.set_pid_pair(pid_pair);
-
-          // Get the PIDs as an iipair (= std::pair<int,int>)
-          iipair proc = pid_pair.PIDs();
-
-          // Get dictionary with cross-section results from backend
-          pybind11::dict xs_fb_dict = BEreq::xsecBE_get_xsection(proc);
-
-          // The xsec_container classes don't have asymmetric errors yet,
-          // so let's take the max error for now
-          double xs_fb = xs_fb_dict["central"].cast<double>();
-          double xs_symm_err_fb = std::max(xs_fb_dict["tot_err_down"].cast<double>(), xs_fb_dict["tot_err_up"].cast<double>());
-          // double xs_fb = xs_fb_dict["central"];
-          // double xs_symm_err_fb = std::max(xs_fb_dict["tot_err_down"], xs_fb_dict["tot_err_up"]);
-
-          // Update the PID_pair_xsec_container instance 
-          pp_xs.set_xsec(xs_fb, xs_symm_err_fb);
-          pp_xs.set_info_string("xsecBE_NLO");
-
-          // Add it to the result map
-          result[pid_pair] = pp_xs;
+          result.clear();
         }
+ 
+        if(*Loop::iteration == XSEC_CALCULATION)
+        {
+          // Create dicts to pass parameters and flags to the backend
+          pybind11::dict xsecBE_pars;
+          // pybind11::dict xsecBE_flags;
 
-      } // end iteration
+          // // First set the flags
+          // xsecBE_flags["alphas_err"] = true;
+          // xsecBE_flags["scale_err"] = true;
+          // xsecBE_flags["pdf_err"] = true;
+          // xsecBE_flags["regression_err"] = true;
+          // BEreq::xsecBE_set_flags(xsecBE_flags);
 
-    }
+          // Then set the neceassary parameters and spectrum info:
+          // - Energy
+          // @todo This can't be hard-coded... Need to match it to collider energy!
+          xsecBE_pars["energy"] = 13000;
+          BEreq::xsecBE_set_parameters(xsecBE_pars);
+
+          // - Import the SLHA1 spectrum
+          const SLHAstruct& slha_spec = *Dep::SLHA1Spectrum;
+          str slha_string = slha_spec.str();
+          BEreq::xsecBE_import_slha_string(slha_string);
+
+          // Now get the cross-sections for all the requested PID pairs. Save the results
+          // in the result map (type map<PID_pair,PID_pair_xsec_container>)
+          for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+          {
+
+            // Create PID_pair_xsec_container instance
+            // and set the PIDs
+            PID_pair_xsec_container pp_xs;
+            pp_xs.set_pid_pair(pid_pair);
+
+            // Get the PIDs as an iipair (= std::pair<int,int>)
+            iipair proc = pid_pair.PIDs();
+
+            // Get dictionary with cross-section results from backend
+            pybind11::dict xs_fb_dict = BEreq::xsecBE_get_xsection(proc);
+
+            // The xsec_container classes don't have asymmetric errors yet,
+            // so let's take the max error for now
+            double xs_fb = xs_fb_dict["central"].cast<double>();
+            double xs_symm_err_fb = std::max(xs_fb_dict["tot_err_down"].cast<double>(), xs_fb_dict["tot_err_up"].cast<double>());
+            // double xs_fb = xs_fb_dict["central"];
+            // double xs_symm_err_fb = std::max(xs_fb_dict["tot_err_down"], xs_fb_dict["tot_err_up"]);
+
+            // Update the PID_pair_xsec_container instance 
+            pp_xs.set_xsec(xs_fb, xs_symm_err_fb);
+            pp_xs.set_info_string("xsecBE_NLO");
+
+            // Add it to the result map
+            result[pid_pair] = pp_xs;
+          }
+
+        } // end iteration
+
+      }
     #endif
 
     #ifdef HAVE_PYBIND11
-    /// Get a cross-section from the salami backend (using Prospino for LO)
-    void getPIDPairCrossSectionsMap_salami(map_PID_pair_PID_pair_xsec& result)
-    {
-      using namespace Pipes::getPIDPairCrossSectionsMap_salami;
-
-      // Read options from yaml file
-      const static double fixed_xs_rel_err = runOptions->getValueOrDef<double>(-1.0, "fixed_relative_cross_section_uncertainty");
-
-      // Collider energy 
-      // @todo Need to get this from the collider options
-      double energy = 13000.;
-
-      if(*Loop::iteration == COLLIDER_INIT)
+      /// Get a cross-section from the salami backend (using Prospino for LO)
+      void getPIDPairCrossSectionsMap_salami(map_PID_pair_PID_pair_xsec& result)
       {
-        result.clear();
-      }
+        using namespace Pipes::getPIDPairCrossSectionsMap_salami;
+  
+        // Read options from yaml file
+        const static double fixed_xs_rel_err = runOptions->getValueOrDef<double>(-1.0, "fixed_relative_cross_section_uncertainty");
 
-      if(*Loop::iteration == XSEC_CALCULATION)
-      {
+        // Collider energy 
+        // @todo Need to get this from the collider options
+        double energy = 13000.;
 
-        // Get a copy of the SLHA1 spectrum that we can modify
-        SLHAstruct slha(*Dep::SLHA1Spectrum);
-
-        // Contstruct EXTPAR block from the GAMBIT model parameters
-        // @todo Put this in a separate utils function 'contruct_extpar_block'. 
-        SLHAea_add_block(slha, "EXTPAR");
-        slha["EXTPAR"][""] << 0 << *Param.at("Qin") << "# scale Q where the parameters below are defined";
-        slha["EXTPAR"][""] << 1 << *Param.at("M1") << "# M_1";
-        slha["EXTPAR"][""] << 2 << *Param.at("M2") << "# M_2";
-        slha["EXTPAR"][""] << 3 << *Param.at("M3") << "# M_3";
-        slha["EXTPAR"][""] << 11 << *Param.at("Au_33") << "# A_t";
-        slha["EXTPAR"][""] << 12 << *Param.at("Ad_33") << "# A_b";
-        slha["EXTPAR"][""] << 13 << *Param.at("Ae_33") << "# A_l";
-        if(Param.find("mu") != Param.end() && Param.find("mA") != Param.end())
+        if(*Loop::iteration == COLLIDER_INIT)
         {
-          slha["EXTPAR"][""] << 23 << *Param.at("mu") << "# mu";
-          slha["EXTPAR"][""] << 24 << pow(*Param.at("mA"),2) << "# m_A^2";
-        }
-        else if(Param.find("mHd2") != Param.end() && Param.find("mHd2") != Param.end())
-        {
-          slha["EXTPAR"][""] << 21 << *Param.at("mHd2") << "# m_Hd^2";
-          slha["EXTPAR"][""] << 22 << *Param.at("mHu2") << "# m_Hu^2";
-        }
-        else
-        {
-          ColliderBit_error().raise(LOCAL_INFO, "Got an unknown combination of Higgs sector parameters when trying to fill an SLHA EXTPAR block.");
-        }
-        slha["EXTPAR"][""] << 31 << sqrt(*Param.at("ml2_11")) << "# M_(L,11)";
-        slha["EXTPAR"][""] << 32 << sqrt(*Param.at("ml2_22")) << "# M_(L,22)";
-        slha["EXTPAR"][""] << 33 << sqrt(*Param.at("ml2_33")) << "# M_(L,33)";
-        slha["EXTPAR"][""] << 34 << sqrt(*Param.at("me2_11")) << "# M_(E,11)";
-        slha["EXTPAR"][""] << 35 << sqrt(*Param.at("me2_22")) << "# M_(E,22)";
-        slha["EXTPAR"][""] << 36 << sqrt(*Param.at("me2_33")) << "# M_(E,33)";
-        slha["EXTPAR"][""] << 41 << sqrt(*Param.at("mq2_11")) << "# M_(Q,11)";
-        slha["EXTPAR"][""] << 42 << sqrt(*Param.at("mq2_22")) << "# M_(Q,22)";
-        slha["EXTPAR"][""] << 43 << sqrt(*Param.at("mq2_33")) << "# M_(Q,33)";
-        slha["EXTPAR"][""] << 44 << sqrt(*Param.at("mu2_11")) << "# M_(U,11)";
-        slha["EXTPAR"][""] << 45 << sqrt(*Param.at("mu2_22")) << "# M_(U,22)";
-        slha["EXTPAR"][""] << 46 << sqrt(*Param.at("mu2_33")) << "# M_(U,33)";
-        slha["EXTPAR"][""] << 47 << sqrt(*Param.at("md2_11")) << "# M_(D,11)";
-        slha["EXTPAR"][""] << 48 << sqrt(*Param.at("md2_22")) << "# M_(D,22)";
-        slha["EXTPAR"][""] << 49 << sqrt(*Param.at("md2_33")) << "# M_(D,33)";
-
-        // Create a SLHA string
-        str slha_string = slha.str();
-
-        // 
-        // Init Prospino
-        // 
-
-        // We only want the LO cross-section from Prospino
-        const static int inlo = 0;
-        const static int isq_ng_in = 1;  // specify degenerate [0] or free [1] squark masses
-        const static int icoll_in = 1;   // collider : tevatron[0], lhc[1]
-        const static double energy_in = energy;  // collider energy in GeV
-        const static int i_error_in = 0; // with central scale [0] or scale variation [1]
-        const static bool set_missing_cross_sections_to_zero = runOptions->getValueOrDef<bool>(false, "set_missing_cross_sections_to_zero");
-
-        // Pass SLHA1 input to prospino
-        BEreq::prospino_read_slha1_input(slha);        
-
-        // Loop over each PID_pair in ActivePIDPairs
-        // and calculate LO cross-sections
-        std::map<PID_pair, PID_pair_xsec_container> pp_LOxs_map; 
-        for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
-        {
-          // Create PID_pair_xsec_container instance and set the PIDs
-          PID_pair_xsec_container pp_LOxs;
-          pp_LOxs.set_pid_pair(pid_pair);
-
-          // Call Prospino and get the result in a map<string,double>.
-          map_str_dbl prospino_output = BEreq::prospino_run_alloptions(pid_pair, inlo, isq_ng_in, icoll_in, energy_in, i_error_in, set_missing_cross_sections_to_zero);
-
-          // Get the trust_level
-          int prospino_trust_level = static_cast<int>(prospino_output.at("trust_level"));
-
-          // Update the PID_pair_xsec_container instance with the Prospino result
-          double LOxs_fb = prospino_output.at("LO_ms[pb]") * 1000.;
-          double LOxs_rel_err = prospino_output.at("LO_rel_error");
-          pp_LOxs.set_info_string("prospino_LO");
-
-          double LOxs_err_fb = LOxs_fb * LOxs_rel_err;
-          pp_LOxs.set_xsec(LOxs_fb, LOxs_err_fb);
-
-          cerr << "DEBUG: got trust_level: " << prospino_trust_level << endl;
-          pp_LOxs.set_trust_level(prospino_trust_level);
-
-          // Put the LO cross-section in the map
-          pp_LOxs_map[pid_pair] = pp_LOxs;
+          result.clear();
         }
 
-
-        // Pass a dictionary with parameters/settings (if any) to the backend
-        pybind11::dict salami_pars;
-        // (fill salami_pars here...)
-        BEreq::salami_set_parameters(salami_pars);
-
-        // Import the SLHA1 spectrum
-        BEreq::salami_import_slha_string(slha_string);
-
-        // Now get the cross-sections for all the requested PID pairs. Save the results
-        // in the result map (type map<PID_pair,PID_pair_xsec_container>)
-        for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+        if(*Loop::iteration == XSEC_CALCULATION)
         {
-          // Create PID_pair_xsec_container instance
-          // and set the PIDs
-          PID_pair_xsec_container pp_xs;
-          pp_xs.set_pid_pair(pid_pair);
 
-          // Get the PIDs as an iipair (= std::pair<int,int>)
-          iipair proc = pid_pair.PIDs();
+          // Get a copy of the SLHA1 spectrum that we can modify
+          SLHAstruct slha(*Dep::SLHA1Spectrum);
 
-          // Get LO cross-section value from map
-          double LOxs_fb = pp_LOxs_map.at(pid_pair).xsec();
-
-          // Get the trust_level to the level of the pp_LOxs
-          int LOxs_trust_level = pp_LOxs_map.at(pid_pair).trust_level();
-
-          // Get dictionary with cross-section results from backend
-          pybind11::dict xs_fb_dict = BEreq::salami_get_xsection(proc, energy, LOxs_fb);
-
-          // The xsec_container classes don't have asymmetric errors yet,
-          // so let's take the max error for now
-          double xs_fb = xs_fb_dict["central"].cast<double>();
-          double xs_err_fb = std::max(xs_fb_dict["tot_err_down"].cast<double>(), xs_fb_dict["tot_err_up"].cast<double>());
-
-          // Get the trust_level reported by the salami backend
-          int xs_trust_level = xs_fb_dict["trust_level"].cast<int>();
-
-          // Should we rather use the fixed uncertainty from the YAML file?
-          if(fixed_xs_rel_err >= 0.0)
+          // Contstruct EXTPAR block from the GAMBIT model parameters
+          // @todo Put this in a separate utils function 'contruct_extpar_block'. 
+          SLHAea_add_block(slha, "EXTPAR");
+          slha["EXTPAR"][""] << 0 << *Param.at("Qin") << "# scale Q where the parameters below are defined";
+          slha["EXTPAR"][""] << 1 << *Param.at("M1") << "# M_1";
+          slha["EXTPAR"][""] << 2 << *Param.at("M2") << "# M_2";
+          slha["EXTPAR"][""] << 3 << *Param.at("M3") << "# M_3";
+          slha["EXTPAR"][""] << 11 << *Param.at("Au_33") << "# A_t";
+          slha["EXTPAR"][""] << 12 << *Param.at("Ad_33") << "# A_b";
+          slha["EXTPAR"][""] << 13 << *Param.at("Ae_33") << "# A_l";
+          if(Param.find("mu") != Param.end() && Param.find("mA") != Param.end())
           {
-            xs_err_fb = xs_fb * fixed_xs_rel_err;
+            slha["EXTPAR"][""] << 23 << *Param.at("mu") << "# mu";
+            slha["EXTPAR"][""] << 24 << pow(*Param.at("mA"),2) << "# m_A^2";
+          }
+          else if(Param.find("mHd2") != Param.end() && Param.find("mHd2") != Param.end())
+          {
+            slha["EXTPAR"][""] << 21 << *Param.at("mHd2") << "# m_Hd^2";
+            slha["EXTPAR"][""] << 22 << *Param.at("mHu2") << "# m_Hu^2";
+          }
+          else
+          {
+            ColliderBit_error().raise(LOCAL_INFO, "Got an unknown combination of Higgs sector parameters when trying to fill an SLHA EXTPAR block.");
+          }
+          slha["EXTPAR"][""] << 31 << sqrt(*Param.at("ml2_11")) << "# M_(L,11)";
+          slha["EXTPAR"][""] << 32 << sqrt(*Param.at("ml2_22")) << "# M_(L,22)";
+          slha["EXTPAR"][""] << 33 << sqrt(*Param.at("ml2_33")) << "# M_(L,33)";
+          slha["EXTPAR"][""] << 34 << sqrt(*Param.at("me2_11")) << "# M_(E,11)";
+          slha["EXTPAR"][""] << 35 << sqrt(*Param.at("me2_22")) << "# M_(E,22)";
+          slha["EXTPAR"][""] << 36 << sqrt(*Param.at("me2_33")) << "# M_(E,33)";
+          slha["EXTPAR"][""] << 41 << sqrt(*Param.at("mq2_11")) << "# M_(Q,11)";
+          slha["EXTPAR"][""] << 42 << sqrt(*Param.at("mq2_22")) << "# M_(Q,22)";
+          slha["EXTPAR"][""] << 43 << sqrt(*Param.at("mq2_33")) << "# M_(Q,33)";
+          slha["EXTPAR"][""] << 44 << sqrt(*Param.at("mu2_11")) << "# M_(U,11)";
+          slha["EXTPAR"][""] << 45 << sqrt(*Param.at("mu2_22")) << "# M_(U,22)";
+          slha["EXTPAR"][""] << 46 << sqrt(*Param.at("mu2_33")) << "# M_(U,33)";
+          slha["EXTPAR"][""] << 47 << sqrt(*Param.at("md2_11")) << "# M_(D,11)";
+          slha["EXTPAR"][""] << 48 << sqrt(*Param.at("md2_22")) << "# M_(D,22)";
+          slha["EXTPAR"][""] << 49 << sqrt(*Param.at("md2_33")) << "# M_(D,33)";
+
+          // Create a SLHA string
+          str slha_string = slha.str();
+
+          // 
+          // Init Prospino
+          // 
+
+          // We only want the LO cross-section from Prospino
+          const static int inlo = 0;
+          const static int isq_ng_in = 1;  // specify degenerate [0] or free [1] squark masses
+          const static int icoll_in = 1;   // collider : tevatron[0], lhc[1]
+          const static double energy_in = energy;  // collider energy in GeV
+          const static int i_error_in = 0; // with central scale [0] or scale variation [1]
+          const static bool set_missing_cross_sections_to_zero = runOptions->getValueOrDef<bool>(false, "set_missing_cross_sections_to_zero");
+
+          // Pass SLHA1 input to prospino
+          BEreq::prospino_read_slha1_input(slha);        
+
+          // Loop over each PID_pair in ActivePIDPairs
+          // and calculate LO cross-sections
+          std::map<PID_pair, PID_pair_xsec_container> pp_LOxs_map; 
+          for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+          {
+            // Create PID_pair_xsec_container instance and set the PIDs
+            PID_pair_xsec_container pp_LOxs;
+            pp_LOxs.set_pid_pair(pid_pair);
+
+            // Call Prospino and get the result in a map<string,double>.
+            map_str_dbl prospino_output = BEreq::prospino_run_alloptions(pid_pair, inlo, isq_ng_in, icoll_in, energy_in, i_error_in, set_missing_cross_sections_to_zero);
+
+            // Get the trust_level
+            int prospino_trust_level = static_cast<int>(prospino_output.at("trust_level"));
+
+            // Update the PID_pair_xsec_container instance with the Prospino result
+            double LOxs_fb = prospino_output.at("LO_ms[pb]") * 1000.;
+            double LOxs_rel_err = prospino_output.at("LO_rel_error");
+            pp_LOxs.set_info_string("prospino_LO");
+
+            double LOxs_err_fb = LOxs_fb * LOxs_rel_err;
+            pp_LOxs.set_xsec(LOxs_fb, LOxs_err_fb);
+
+            cerr << "DEBUG: got trust_level: " << prospino_trust_level << endl;
+            pp_LOxs.set_trust_level(prospino_trust_level);
+
+            // Put the LO cross-section in the map
+            pp_LOxs_map[pid_pair] = pp_LOxs;
           }
 
-          // Update the PID_pair_xsec_container instance 
-          pp_xs.set_xsec(xs_fb, xs_err_fb);
-          pp_xs.set_info_string("salami_NLO");
 
-          // Set the trust_level
-          pp_xs.set_trust_level(std::min(LOxs_trust_level, xs_trust_level));
+          // Pass a dictionary with parameters/settings (if any) to the backend
+          pybind11::dict salami_pars;
+          // (fill salami_pars here...)
+          BEreq::salami_set_parameters(salami_pars);
 
-          // Add it to the result map
-          result[pid_pair] = pp_xs;
-        }
+          // Import the SLHA1 spectrum
+          BEreq::salami_import_slha_string(slha_string);
 
-      } // end iteration
+          // Now get the cross-sections for all the requested PID pairs. Save the results
+          // in the result map (type map<PID_pair,PID_pair_xsec_container>)
+          for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+          {
+            // Create PID_pair_xsec_container instance
+            // and set the PIDs
+            PID_pair_xsec_container pp_xs;
+            pp_xs.set_pid_pair(pid_pair);
 
-    }
+            // Get the PIDs as an iipair (= std::pair<int,int>)
+            iipair proc = pid_pair.PIDs();
+
+            // Get LO cross-section value from map
+            double LOxs_fb = pp_LOxs_map.at(pid_pair).xsec();
+
+            // Get the trust_level to the level of the pp_LOxs
+            int LOxs_trust_level = pp_LOxs_map.at(pid_pair).trust_level();
+
+            // Get dictionary with cross-section results from backend
+            pybind11::dict xs_fb_dict = BEreq::salami_get_xsection(proc, energy, LOxs_fb);
+
+            // The xsec_container classes don't have asymmetric errors yet,
+            // so let's take the max error for now
+            double xs_fb = xs_fb_dict["central"].cast<double>();
+            double xs_err_fb = std::max(xs_fb_dict["tot_err_down"].cast<double>(), xs_fb_dict["tot_err_up"].cast<double>());
+
+            // Get the trust_level reported by the salami backend
+            int xs_trust_level = xs_fb_dict["trust_level"].cast<int>();
+
+            // Should we rather use the fixed uncertainty from the YAML file?
+            if(fixed_xs_rel_err >= 0.0)
+            {
+              xs_err_fb = xs_fb * fixed_xs_rel_err;
+            }
+
+            // Update the PID_pair_xsec_container instance 
+            pp_xs.set_xsec(xs_fb, xs_err_fb);
+            pp_xs.set_info_string("salami_NLO");
+
+            // Set the trust_level
+            pp_xs.set_trust_level(std::min(LOxs_trust_level, xs_trust_level));
+
+            // Add it to the result map
+            result[pid_pair] = pp_xs;
+          }
+
+        } // end iteration
+
+      }
     #endif
 
 

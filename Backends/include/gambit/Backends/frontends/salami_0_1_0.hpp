@@ -20,9 +20,7 @@
 #define VERSION 0.1.0
 #define SAFE_VERSION 0_1_0
 
-#ifdef HAVE_PYBIND11
-
-/* The following macro imports the modudle in the Python interpreter
+/* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
@@ -38,31 +36,32 @@ LOAD_LIBRARY
  * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
  */
 
+#ifdef HAVE_PYBIND11
 
-BE_FUNCTION(import_slha_string, void, (std::string&), "import_slha_string", "salami_import_slha_string")
-BE_FUNCTION(set_parameters, void, (pybind11::dict&), "set_parameters", "salami_set_parameters")
-BE_FUNCTION(get_xsection, pybind11::dict, (iipair&, double&, double&), "get_xsection", "salami_get_xsection")
-// TODO: add double& first arg to get_xsection
+  BE_FUNCTION(import_slha_string, void, (std::string&), "import_slha_string", "salami_import_slha_string")
+  BE_FUNCTION(set_parameters, void, (pybind11::dict&), "set_parameters", "salami_set_parameters")
+  BE_FUNCTION(get_xsection, pybind11::dict, (iipair&, double&, double&), "get_xsection", "salami_get_xsection")
+  // TODO: add double& first arg to get_xsection
 
 
-/* At this point we have a minimal interface to the loaded library.
- * Any additional convenience functions could be constructed below
- * using the available pointers. All convenience functions must be
- * registred/wrapped via the macro BE_CONV_FUNCTION (see below). */
+  /* At this point we have a minimal interface to the loaded library.
+   * Any additional convenience functions could be constructed below
+   * using the available pointers. All convenience functions must be
+   * registred/wrapped via the macro BE_CONV_FUNCTION (see below). */
 
-// BE_NAMESPACE
-// {
-  /* Convenience functions go here */
-// }
-// END_BE_NAMESPACE
+  // BE_NAMESPACE
+  // {
+    /* Convenience functions go here */
+  // }
+  // END_BE_NAMESPACE
 
-/* Now register any convenience functions and wrap them in functors.
- *
- * Syntax for BE_CONV_FUNCTION:
- * BE_CONV_FUNCTION([function name], type, (arguments), "[choose capability name]") */
+  /* Now register any convenience functions and wrap them in functors.
+   *
+   * Syntax for BE_CONV_FUNCTION:
+   * BE_CONV_FUNCTION([function name], type, (arguments), "[choose capability name]") */
 
-// BE_INI_FUNCTION {}
-// END_BE_INI_FUNCTION
+  // BE_INI_FUNCTION {}
+  // END_BE_INI_FUNCTION
 
 #endif
 
