@@ -199,27 +199,27 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-# Flavio
-set(name "Flavio")
-set(ver "0.30.0")
-set(dl "https://www.physik.uzh.ch/~mchrzasz/Flavio/${name}-${ver}.tar.gz")
-set(md5 "d8f6a49be8ff509916ae1dc3f3b837f1")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
-    SOURCE_DIR ${dir}/flavio
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND cd flavio
-          COMMAND pip3 install -e .[plotting,sampling,testing] --user
-    INSTALL_COMMAND ""
-    )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
-
-endif()
+## Flavio
+#set(name "Flavio")
+#set(ver "0.30.0")
+#set(dl "https://www.physik.uzh.ch/~mchrzasz/Flavio/${name}-${ver}.tar.gz")
+#set(md5 "d8f6a49be8ff509916ae1dc3f3b837f1")
+#set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+#check_ditch_status(${name} ${ver} ${dir})
+#if(NOT ditched_${name}_${ver})
+#  ExternalProject_Add(${name}_${ver}
+#    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
+#    SOURCE_DIR ${dir}/flavio
+#    BUILD_IN_SOURCE 1
+#    CONFIGURE_COMMAND ""
+#    BUILD_COMMAND cd flavio
+#          COMMAND pip3 install -e .[plotting,sampling,testing] --user
+#    INSTALL_COMMAND ""
+#    )
+#  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+#  set_as_default_version("backend" ${name} ${ver})
+#
+#endif()
 
 
 # DDCalc
