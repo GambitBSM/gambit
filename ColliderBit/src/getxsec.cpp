@@ -76,6 +76,7 @@ namespace Gambit
     // ======= Module functions =======
 
 
+    #ifdef HAVE_PYBIND11
     /// Get a cross-section from the xsecBE backend
     void getPIDPairCrossSectionsMap_xsecBE(map_PID_pair_PID_pair_xsec& result)
     {
@@ -144,8 +145,9 @@ namespace Gambit
       } // end iteration
 
     }
+    #endif
 
-
+    #ifdef HAVE_PYBIND11
     /// Get a cross-section from the salami backend (using Prospino for LO)
     void getPIDPairCrossSectionsMap_salami(map_PID_pair_PID_pair_xsec& result)
     {
@@ -315,7 +317,7 @@ namespace Gambit
       } // end iteration
 
     }
-
+    #endif
 
 
     /// Get a cross-section from Prospino

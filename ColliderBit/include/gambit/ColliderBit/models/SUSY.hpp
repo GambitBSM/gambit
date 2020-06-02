@@ -99,6 +99,7 @@
   /// A map between PID pairs and cross-sections
   #define CAPABILITY PIDPairCrossSectionsMap
   
+    #ifdef HAVE_PYBIND11
     /// Get the PIDPairCrossSectionsMap using the 'xsec' backend
     /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
     /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
@@ -114,6 +115,7 @@
     BACKEND_REQ(xsecBE_set_parameters, (), void, (pybind11::dict&))
     BACKEND_REQ(xsecBE_get_xsection, (), pybind11::dict, (iipair&))
     #undef FUNCTION
+    #endif
 
     /// Get the PIDPairCrossSectionsMap using the Prospino backend
     #define FUNCTION getPIDPairCrossSectionsMap_prospino
@@ -128,6 +130,7 @@
     BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
     #undef FUNCTION
 
+    #ifdef HAVE_PYBIND11
     /// Get the PIDPairCrossSectionsMap using the 'salami' backend
     /// @todo 1. Replace SLHA1Spectrum dependency with SpectrumAndDecaysForPythia (to ensure same spectrum)
     /// @todo 2. Add a CB utility function that checks if a SLHAstruct is SLHA1 or SLHA2, and use it in this function
@@ -146,6 +149,7 @@
     BACKEND_REQ(prospino_run_alloptions, (libprospino), map_str_dbl, (const PID_pair&, const int&, const int&, const int&, const double&, const int&, const bool&))
     BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
     #undef FUNCTION
+    #endif
 
 
   #undef CAPABILITY
