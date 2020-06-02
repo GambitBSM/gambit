@@ -20,7 +20,9 @@
 #define VERSION 0.1.0
 #define SAFE_VERSION 0_1_0
 
-/* The following macro imports the modudle in the Python interpreter
+#ifdef HAVE_PYBIND11
+
+/* The following macro imports the modude in the Python interpreter
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
@@ -61,6 +63,8 @@ BE_FUNCTION(get_xsection, pybind11::dict, (iipair&), "get_xsection", "xsecBE_get
 
 // BE_INI_FUNCTION {}
 // END_BE_INI_FUNCTION
+
+#endif
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
