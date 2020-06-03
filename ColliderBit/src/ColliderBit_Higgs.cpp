@@ -61,22 +61,22 @@ namespace Gambit
 
         result.CS_lep_tautauhj_ratio[i] = couplings.C_tautau2[i];
 
-        result.CS_lep_hjZ_ratio[i] = couplings.C_ZZ2[i];
+        result.CS_lep_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
         result.CS_gg_hjZ_ratio[i] = 0.;
-        result.CS_dd_hjZ_ratio[i] = couplings.C_ZZ2[i];
-        result.CS_uu_hjZ_ratio[i] = couplings.C_ZZ2[i];
-        result.CS_ss_hjZ_ratio[i] = couplings.C_ZZ2[i];
-        result.CS_cc_hjZ_ratio[i] = couplings.C_ZZ2[i];
-        result.CS_bb_hjZ_ratio[i] = couplings.C_ZZ2[i];
+        result.CS_dd_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
+        result.CS_uu_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
+        result.CS_ss_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
+        result.CS_cc_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
+        result.CS_bb_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
 
-        result.CS_ud_hjWp_ratio[i] = couplings.C_WW2[i];
-        result.CS_cs_hjWp_ratio[i] = couplings.C_WW2[i];
-        result.CS_ud_hjWm_ratio[i] = couplings.C_WW2[i];
-        result.CS_cs_hjWm_ratio[i] = couplings.C_WW2[i];
+        result.CS_ud_hjWp_ratio[i] = pow(couplings.C_WW[i],2);
+        result.CS_cs_hjWp_ratio[i] = pow(couplings.C_WW[i],2);
+        result.CS_ud_hjWm_ratio[i] = pow(couplings.C_WW[i],2);
+        result.CS_cs_hjWm_ratio[i] = pow(couplings.C_WW[i],2);
 
-        result.CS_tev_vbf_ratio[i]  = couplings.C_WW2[i];
-        result.CS_lhc7_vbf_ratio[i] = couplings.C_WW2[i];
-        result.CS_lhc8_vbf_ratio[i] = couplings.C_WW2[i];
+        result.CS_tev_vbf_ratio[i]  = pow(couplings.C_WW[i],2);
+        result.CS_lhc7_vbf_ratio[i] = pow(couplings.C_WW[i],2);
+        result.CS_lhc8_vbf_ratio[i] = pow(couplings.C_WW[i],2);
 
         result.CS_gg_hj_ratio[i] = couplings.C_gg2[i];
 
@@ -86,7 +86,7 @@ namespace Gambit
 
         for(int j = 0; j < n_neutral_higgses; j++)
         {
-          result.CS_lep_hjhi_ratio[i][j] = couplings.C_hiZ2[i][j];
+          result.CS_lep_hjhi_ratio[i][j] = pow(couplings.C_hiZ[i][j],2);
         }
       }
     }
@@ -114,9 +114,9 @@ namespace Gambit
           result.ghjtautau_s[i] = couplings.C_tautau_s[i];
           result.ghjtautau_p[i] = couplings.C_tautau_p[i];
          
-          result.ghjZZ[i] = sqrt(couplings.C_ZZ2[i]);    
+          result.ghjZZ[i] = couplings.C_ZZ[i];    
    
-          result.ghjWW[i] = sqrt(couplings.C_WW2[i]);
+          result.ghjWW[i] = couplings.C_WW[i];
   
           result.ghjgaga[i] = sqrt(couplings.C_gaga2[i]);
    
@@ -125,7 +125,7 @@ namespace Gambit
           result.ghjgg[i] = sqrt(couplings.C_gg2[i]);
 
           for(int j = 0; j < n_neutral_higgses; j++)
-            result.ghjhiZ[i][j] = sqrt(couplings.C_hiZ2[i][j]);
+            result.ghjhiZ[i][j] = couplings.C_hiZ[i][j];
       }
     }
 
@@ -434,6 +434,8 @@ namespace Gambit
             }
 
             #ifdef COLLIDERBIT_DEBUG
+                std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
+                std::cout << "alpha " << he.get(Par::dimensionless,"alpha")  << std::endl;
                 printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
                 printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
                 printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
@@ -493,14 +495,6 @@ namespace Gambit
         result.BR_tWpb       = t_widths.BF("W+", "b");
         result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
 
-        #ifdef COLLIDERBIT_DEBUG
-          printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
-          printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
-          printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
-          printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
-          printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
-        #endif
-
         // extra HB v5 beta input
         result.BR_Hpjtb[0] = H_plus_widths.BF("t", "bbar");
         result.BR_HpjWZ[0] = 1.; // TODO |  H_plus_widths.BF("W+", "Z");
@@ -511,7 +505,18 @@ namespace Gambit
          for (int h=1;h<=3;h++) {
           result.BR_HpjhiW[h-1] = H_plus_widths.BF("W+",sHneut[h-1]);
          }
-        
+
+        #ifdef COLLIDERBIT_DEBUG
+        std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
+          printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
+          printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
+          printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
+          printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
+          printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
+          printf("4 %5s %16.8E\n", "BR_Hpjtb", result.BR_Hpjtb[0]);
+          printf("4 %5s %16.8E\n", "BR_HpjhiW", result.BR_HpjhiW[0]);
+        #endif
+
     }
 
     // fills THDM neutral model input for HB 4 
@@ -859,58 +864,6 @@ namespace Gambit
       }
       
       #ifdef COLLIDERBIT_DEBUG
-        // likelihood plots
-        // csqmh
-        std::ofstream csqmhdbg;
-        csqmhdbg.open("HS_debug_csqmh.txt",std::ofstream::out | std::ofstream::app);
-        csqmhdbg << csqmh << " " << ModelParam.Mh[0] << "\n";
-        csqmhdbg.close();
-
-        std::ofstream csqmudbg;
-        csqmudbg.open("HS_debug_csqmu.txt",std::ofstream::out | std::ofstream::app);
-        csqmudbg << csqmu;
-        //
-        for (int i = 0; i < 3; i++)
-        {
-           csqmudbg << " " << i << " " <<
-           ModelParam.CP[i] << " " <<
-           ModelParam.Mh[i] << " " <<
-           ModelParam.hGammaTot[i] << " " <<
-           ModelParam.CS_lep_hjZ_ratio[i] << " " <<
-           ModelParam.CS_tev_vbf_ratio[i] << " " <<
-           ModelParam.CS_lep_bbhj_ratio[i] << " " <<
-           ModelParam.CS_lep_tautauhj_ratio[i] << " " <<
-           ModelParam.CS_gg_hj_ratio[i] << " " <<
-           ModelParam.CS_tev_tthj_ratio[i] << " " <<
-           ModelParam.CS_lhc7_tthj_ratio[i] << " " <<
-           ModelParam.CS_lhc8_tthj_ratio[i];
-          for (int j = 0; j < 3; j++) csqmudbg << " " << ModelParam.CS_lep_hjhi_ratio[i][j];
-          csqmudbg << " " <<
-           ModelParam.BR_hjss[i] << " " <<
-           ModelParam.BR_hjcc[i] << " " <<
-           ModelParam.BR_hjbb[i] << " " <<
-           ModelParam.BR_hjmumu[i] << " " <<
-           ModelParam.BR_hjtautau[i] << " " <<
-           ModelParam.BR_hjWW[i] << " " <<
-           ModelParam.BR_hjZZ[i] << " " <<
-           ModelParam.BR_hjZga[i] << " " <<
-           ModelParam.BR_hjgaga[i] << " " <<
-           ModelParam.BR_hjgg[i] << " " <<
-           ModelParam.BR_hjinvisible[i];
-          for (int j = 0; j < 3; j++) csqmudbg << " " << ModelParam.BR_hjhihi[i][j];
-        }
-        csqmudbg << " " << 4 << " " <<
-         ModelParam_charged.MHplus[0] << " " <<
-         ModelParam_charged.HpGammaTot[0] << " " <<
-         ModelParam_charged.CS_lep_HpjHmi_ratio[0] << " " <<
-         ModelParam_charged.BR_Hpjcs[0] << " " <<
-         ModelParam_charged.BR_Hpjcb[0] << " " <<
-         ModelParam_charged.BR_Hptaunu[0] << " " <<
-         ModelParam_charged.BR_tWpb << " " <<
-         ModelParam_charged.BR_tHpjb[0] << "\n";
-        //
-        csqmudbg.close();
-
         std::cout << "HS output: " << std::endl << \
         "csqmu: " << csqmu << std::endl << \
         "csqmh: "<< csqmh << std::endl << \

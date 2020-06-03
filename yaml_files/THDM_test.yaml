@@ -43,7 +43,7 @@ Parameters:
       Qin:
           fixed_value: 91.1876 # = mZ
       QrunTo:
-          fixed_value: 1000 # for comparison with other literature
+          fixed_value: 750 # for comparison with other literature
 
 ##############################
 # Printer setup
@@ -72,13 +72,13 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 100000
+      NP: 2000
       convthresh: 1e-5
       verbosity: 1
 
     random:
       plugin: random
-      point_number: 10000
+      point_number: 100
       like:  LogLike
 
       # No options to set, but still need the nodes at the moment...
@@ -92,13 +92,13 @@ ObsLikes:
   # Likelihoods
   ###########################
 
-  - purpose:    LogLike
-    capability: h0_loop_order_corrections
-    function: check_h0_loop_order_corrections
+  # - purpose:    LogLike
+  #   capability: h0_loop_order_corrections
+  #   function: check_h0_loop_order_corrections
 
-  - purpose:    LogLike
-    capability: THDM_scalar_loop_order_corrections
-    function: check_THDM_scalar_loop_order_corrections
+  # - purpose:    LogLike
+  #   capability: THDM_scalar_loop_order_corrections
+  #   function: check_THDM_scalar_loop_order_corrections
 
   - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
@@ -109,50 +109,22 @@ ObsLikes:
   - purpose:    LogLike
     capability: NLO_unitarity_likelihood_THDM
 
-  - purpose:    LogLike
-    capability: oblique_parameters_likelihood_THDM
+  # - purpose:    LogLike
+  #   capability: oblique_parameters_likelihood_THDM
 
-  - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-
-  - capability: deltaMB_LL
-    function: deltaMB_likelihood
-    purpose: LogLike
-
-  - capability: deltaMBd_LL
-    function: deltaMBd_likelihood
-    purpose: LogLike
-
-  - capability: b2ll_LL
-    function: b2ll_likelihood
-    purpose: LogLike
-
-  - capability: SL_LL
-    function: SL_likelihood
-    purpose: LogLike
-
-  - purpose:    LogLike
-    capability: LUV_LL
-
-  ## -------------------------------------------
-
-  # -------------------------
-  # OFF - Currently not working in combo with HS
+  # ## -------------------------------------------
 
   # - purpose:    LogLike
+  #   capability: b2sgamma_LogLikelihood
+
+  # - purpose:    LogLike # Currently not working
   #   capability: B2mumu_LogLikelihood_LHCb
 
-  # - purpose:    LogLike
+  # - purpose:    LogLike # Currently not working
   #   capability: B2mumu_LogLikelihood_CMS
 
-  # - purpose:    LogLike
+  # - purpose:    LogLike # Currently not working
   #   capability: B2mumu_LogLikelihood_Atlas
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Not using in final scan
    
   # - purpose:    LogLike
   #   capability: B2KstarmumuAng_LogLikelihood_Atlas
@@ -163,58 +135,57 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: B2KstarmumuAng_LogLikelihood_Belle
 
+  # - purpose:    LogLike # Currently not working
+  #   capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
   # - purpose:    LogLike
   #   capability: B2KstarmumuBr_LogLikelihood_LHCb
 
   # - purpose:    LogLike
   #   capability: B2KmumuBr_LogLikelihood_LHCb
 
-  # -------------------------
+  # - capability: deltaMB_LL
+  #   function: deltaMB_likelihood
+  #   purpose: LogLike
 
+  # - capability: deltaMBd_LL
+  #   function: deltaMBd_likelihood
+  #   purpose: LogLike
 
-  # -------------------------
-  # OFF - Currently not working at all
+  # - capability: b2ll_LL
+  #   function: b2ll_likelihood
+  #   purpose: LogLike
 
-  # - purpose:    LogLike # 
-  #   capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+  # - capability: SL_LL
+  #   function: SL_likelihood
+  #   purpose: LogLike
 
-  # -------------------------
+  # - purpose:    LogLike
+  #   capability: LUV_LL
 
+  # ## -------------------------------------------
 
-  # -------------------------
-  # OFF - Need capability SuperIso_theory_covariance which is not on branch
+  # - capability: LEP_Higgs_LogLike
+  #   function: calc_HB_5_LEP_LogLike
+  #   purpose: LogLike
+  #   dependencies:
+  #     - capability: HB_ModelParameters_neutral
+  #       function: THDM_ModelParameters_effc
+  #       module: ColliderBit
+  #     - capability: HB_ModelParameters_charged
+  #       function: THDM_ModelParameters_charged
+  #       module: ColliderBit
 
-  # - purpose: LogLike
-  #   capability: RDRDstar_LogLikelihood
-
-  # - purpose: LogLike
-  #   capability: RKstar_LogLikelihood_LHCb
-
-  # -------------------------
-
-  ## -------------------------------------------
-
-  - capability: LEP_Higgs_LogLike
-    function: calc_HB_5_LEP_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
+  # - capability: LHC_Higgs_LogLike
+  #   function: calc_HS_2_LHC_LogLike
+  #   purpose: LogLike
+  #   dependencies:
+  #     - capability: HB_ModelParameters_neutral
+  #       function: THDM_ModelParameters_effc
+  #       module: ColliderBit
+  #     - capability: HB_ModelParameters_charged
+  #       function: THDM_ModelParameters_charged
+  #       module: ColliderBit
 
   #################
   # Observables
@@ -222,84 +193,8 @@ ObsLikes:
 
   # spectrum observables
 
-  - capability: mh0_pole
-    function: obs_mh0_pole
-    purpose: Observable
-
-  - capability: mh0_running
-    function: obs_mh0_running
-    purpose: Observable
-
-  - capability: mH0_pole
-    function: obs_mH0_pole
-    purpose: Observable
-
-  - capability: mH0_running
-    function: obs_mH0_running
-    purpose: Observable
-
-  - capability: mA0_pole
-    function: obs_mA0_pole
-    purpose: Observable
-
-  - capability: mA0_running
-    function: obs_mA0_running
-    purpose: Observable
-
-  - capability: mHpm_pole
-    function: obs_mHpm_pole
-    purpose: Observable
-
-  - capability: mHpm_running
-    function: obs_mHpm_running
-    purpose: Observable
-
-  - capability: lambda_1
-    function: obs_lambda_1
-    purpose: Observable
-
-  - capability: lambda_2
-    function: obs_lambda_2
-    purpose: Observable
-
-  - capability: lambda_3
-    function: obs_lambda_3
-    purpose: Observable
-
-  - capability: lambda_4
-    function: obs_lambda_4
-    purpose: Observable
-
-  - capability: lambda_5
-    function: obs_lambda_5
-    purpose: Observable
-
-  - capability: lambda_6
-    function: obs_lambda_6
-    purpose: Observable
-
-  - capability: lambda_7
-    function: obs_lambda_7
-    purpose: Observable
-
-  - capability: m12_2
-    function: obs_m12_2
-    purpose: Observable
-
-  - capability: m11_2
-    function: obs_m11_2
-    purpose: Observable
-
-  - capability: m22_2
-    function: obs_m22_2
-    purpose: Observable
-
-  - capability: tanb
-    function: obs_tanb
-    purpose: Observable
-
-  - capability: alpha
-    function: obs_alpha
+  - capability: THDM_spectrum_map
+    function: get_THDM_spectrum_as_map
     purpose: Observable
 
   - capability: sba
@@ -310,20 +205,26 @@ ObsLikes:
     function: obs_cba
     purpose: Observable
 
-  - capability: bsgamma
-    function: SI_bsgamma
+  - capability: ba
+    function: obs_ba
     purpose: Observable
 
-  - capability: DeltaMs
-    function: SI_Delta_MBs
-    purpose: Observable
+  # interesting flavour observables
 
-  - capability: vacuum_global_minimum
-    function: check_vacuum_global_minimum
-    purpose: Observable  
+  # - capability: bsgamma
+  #   function: SI_bsgamma
+  #   purpose: Observable
 
-  - capability: all_BFs
-    purpose: Observable
+  # - capability: DeltaMs
+  #   function: SI_Delta_MBs
+  #   purpose: Observable
+
+  # - capability: vacuum_global_minimum
+  #   function: check_vacuum_global_minimum
+  #   purpose: Observable  
+
+  # - capability: all_BFs
+  #   purpose: Observable
 
 Rules:
 
@@ -352,64 +253,11 @@ Rules:
   - capability: NLO_unitarity_likelihood_THDM
     function: get_NLO_unitarity_likelihood_THDM
     options:
-      check_correction_ratio: true
+      check_correction_ratio: false
 
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    module: ColliderBit
-
-  - capability: HB_ModelParameters_charged
-    function: THDM_ModelParameters_charged
-    module: ColliderBit
-
-  - capability: prediction_B2mumu
-    options:
-      obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  - capability: SuperIso_modelinfo
-    function: SI_fill
-  
-  - capability: bsgamma
-    function: SI_bsgamma
-
-  - capability: DeltaMs
-    function: SI_Delta_MBs
-
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-    module: FlavBit
-    
-  - capability: all_BFs
-    function: get_decaytable_as_map
-    options:
-      printall: true 
-
-  - capability: Reference_SM_Higgs_decay_rates
-    function: Ref_SM_Higgs_decays_THDM
-
-  - capability: Reference_SM_other_Higgs_decay_rates
-    function: Ref_SM_other_Higgs_decays_THDM
-
-  - capability: Reference_SM_A0_decay_rates
-    function: Ref_SM_A0_decays_THDM
-
-  - capability: t_decay_rates
-    function: t_decays_THDM
-
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    module: ColliderBit
-
-  - capability: HB_ModelParameters_charged
-    function: THDM_ModelParameters_charged
-    module: ColliderBit
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
-
-  # -------------------------
-  # OFF - b2mumu likelihoods
+  # - capability: prediction_B2mumu
+  #   options:
+  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
 
   # - capability: B2mumu_LogLikelihood_LHCb
   #   function: HEPLike_B2mumu_LogLikelihood_LHCb
@@ -425,12 +273,6 @@ Rules:
   #   function: HEPLike_B2mumu_LogLikelihood_Atlas
   #   options:
   #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - b2kstar likleihoods
 
   # - capability: prediction_B2KstarmumuAng_0p1_2_Atlas
   #   options:
@@ -529,16 +371,50 @@ Rules:
   #   options:
   #     obs_list: [P1, P5prime]
 
-  # -------------------------
+  - capability: SuperIso_theory_covariance
+    function: SI_theory_covariance
 
+  - capability: SuperIso_modelinfo
+    function: SI_fill
+  
+  - capability: bsgamma
+    function: SI_bsgamma
 
-  # -------------------------
-  # OFF - RK/RD star likelihoods
+  - capability: DeltaMs
+    function: SI_Delta_MBs
 
-  # - capability: SuperIso_theory_covariance
-  #   function: SI_theory_covariance
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    module: FlavBit
+    
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true 
 
-  # -------------------------
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_THDM
+
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_THDM
+
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_THDM
+
+  - capability: HB_ModelParameters_neutral
+    function: THDM_ModelParameters_effc
+    module: ColliderBit
+
+  - capability: HB_ModelParameters_charged
+    function: THDM_ModelParameters_charged
+    module: ColliderBit
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
+
+  - capability: t_decay_rates
+    function: t_decays_THDM
 
 
 #########################
@@ -548,15 +424,15 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
-    [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
-    [PrecisionBit] :  "PrecisionBit.log"
-    [ColliderBit] :  "ColliderBit.log"
-    [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
-    [Scanner]:  "Scanner.log"
+    [Debug] :  "stderr"
+    [Default] :  "stderr"
+    [DecayBit] :  "stderr"
+    [DarkBit] :  "stderr"
+    [PrecisionBit] :  "stderr"
+    [ColliderBit] :  "stderr"
+    [SpecBit] :  "stderr"
+    [Dependency Resolver] :  "stderr"
+    [Scanner]:  "stderr"
 
 ##########################
 # Name/Value Section
@@ -569,5 +445,5 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -5e7
     debug: false
     
-  default_output_path: "runs/THDMIIatQ/"
+  default_output_path: "runs/THDMII_test/"
   debug: true

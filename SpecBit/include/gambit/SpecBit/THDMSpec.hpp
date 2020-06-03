@@ -38,6 +38,8 @@
 
 #include "gambit/Elements/shared_types.hpp"
 
+// #define ALPHA_DEBUG
+
 namespace Gambit
 {
    namespace SpecBit
@@ -140,6 +142,16 @@ namespace Gambit
       }
 
       template <class Model>
+      double get_v1(const Model& model) {
+         return model.get_v1();
+      }
+
+      template <class Model>
+      double get_v2(const Model& model) {
+         return model.get_v2();
+      }
+
+      template <class Model>
       double get_vev(const Model& model) {
          return sqrt(pow(model.get_v1(),2) + pow(model.get_v2(),2));
       }
@@ -214,6 +226,56 @@ namespace Gambit
       template <class Model>
       double get_mHpm_goldstone_pole_slha(const Model& model) {
          return model.get_MHm_pole_slha(0);
+      }
+
+      template <class Model>
+      double get_alpha(const Model& model) {
+         // get cosa & sina
+         const double ca = model.get_ZH(0, 0), sa = model.get_ZH(0, 1);
+         // get alpha
+         double alpha = atan2(sa,ca);
+         // FS convention has physical states flipped
+         if (alpha < -M_PI/2.0) {
+            alpha += M_PI/2.0;
+         }
+         else {
+            alpha -= M_PI/2.0;
+         }
+        
+         return alpha;
+      }
+
+      template <class Model>
+      double get_alpha_pole_slha(const Model& model) {
+         // get cosa & sina
+         const double ca = model.get_ZH_pole_slha(0, 0), sa = model.get_ZH_pole_slha(0, 1);
+         // get alpha
+         double alpha = atan2(sa,ca);
+         // FS convention has physical states flipped
+         if (alpha<M_PI/2.0) {
+            alpha += M_PI/2.0;
+         }
+         else {
+            alpha -= M_PI/2.0;
+         }
+
+         return alpha;
+      }
+
+      template <class Model>
+      double get_beta(const Model& model) {
+         // get cosb & sinb
+         const double cb = model.get_ZA(0, 0), sb = model.get_ZA(0, 1);
+         // get beta
+         return atan2(sb,cb);
+      }
+
+      template <class Model>
+      double get_beta_pole_slha(const Model& model) {
+         // get cosb & sinb
+         const double cb = model.get_ZA_pole_slha(0, 0), sb = model.get_ZA_pole_slha(0, 1);
+         // get beta
+         return atan2(sb,cb);
       }
 
       // wrapper getter methods for higgs basis parameters 
@@ -374,17 +436,60 @@ namespace Gambit
          return model.get_v2()/model.get_v1();
       }
 
-      template <class Model>
-      double get_alpha(const Model& model) {
-         double v_1 = model.get_v1(), v_2 = model.get_v2();
-         double b = atan(v_2/v_1), v2 = pow(v_1,2) + pow(v_2,2);
-         double mA = get_mA_running(model), m_A2 = pow(mA,2);
-         double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
-         double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
-         double ba = 0.5*atan2(s2ba,c2ba);
-         double alpha = b - ba;
-         return alpha;
-      }
+      #ifdef ALPHA_DEBUG
+         // debug method to check that alpha agrees in all cases
+         template <class Model>
+         double get_alpha_calculated(const Model& model) {
+            double v_1 = model.get_v1(), v_2 = model.get_v2();
+            double b = atan(v_2/v_1), v2 = pow(v_1,2) + pow(v_2,2);
+            double mA = get_mA_running(model), m_A2 = pow(mA,2);
+            double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
+            double sb = sin(b), cb = cos(b), tb = v_2/v_1, ctb = v_1/v_2;
+            double sb2 = sb*sb, cb2 = cb*cb;
+            double m122 = model.get_M122();
+            double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam3 = model.get_Lambda3(), lam4 = model.get_Lambda4();
+            double lam5 = model.get_Lambda5(), lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7();
+
+            // method 1
+            double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
+            double ba = 0.5*atan2(s2ba,c2ba);
+            double alpha = b - ba;
+
+            if (alpha>M_PI/2.0) {
+               alpha =  alpha-M_PI;
+            }
+
+            std::cout << "-------------" << std::endl;
+            std::cout << "method 1" << std::endl;
+            std::cout << "s2ba: " <<  s2ba << std::endl;
+            std::cout << "c2ba: " <<  c2ba << std::endl;
+            std::cout << "ba: " << ba << std::endl;
+            std::cout << alpha << std::endl;
+
+            // method 2
+            double mA2 = m122/(sb*cb) - v2/2.0 * ( 2.0*lam5 + lam6*ctb + lam7*tb );
+            double mC2 = mA2 + v2/2.0 * ( lam5 - lam4 );
+
+            double M112 = mA2*sb2 + v2*( lam1*cb2 + 2.0*lam6*sb*cb + lam5*sb2 );
+            double M222 = mA2*cb2 + v2*( lam2*sb2 + 2.0*lam7*sb*cb + lam5*cb2 );
+            double M122 = -mA2*sb*cb + v2*( (lam3+lam4)*sb*cb + lam6*cb2 + lam7*sb2 );
+            
+            double s2a = 2*M122/sqrt( pow( ( M112 - M222 ) , 2 ) + 4.0*pow( ( M122 ) , 2 ) );
+            double c2a = ( M112 - M222 )/sqrt( pow( ( M112 - M222 ) , 2 ) + 4.0*pow( ( M122 ) , 2 ) );
+
+            double alpha_1 = asin(s2a)/2.0;
+            double alpha_2 = acos(c2a)/2.0;
+
+            alpha = atan2(s2a,c2a)/2.0;
+
+            std::cout << "-------------" << std::endl;
+            std::cout << "method 2" << std::endl;
+            std::cout << alpha << std::endl;
+            std::cout << "-------------" << std::endl;
+
+            return alpha;
+         }
+      #endif
 
       // Filler function for getter function pointer maps
       template <class MI>
@@ -455,6 +560,8 @@ namespace Gambit
             tmp_map["W-"] = &get_mW_running<Model>;
             // vev
             tmp_map["vev"]= &get_vev<Model>;
+            tmp_map["v1"]= &get_v1<Model>;
+            tmp_map["v2"]= &get_v2<Model>;
             map_collection[Par::mass1].map0_extraM = tmp_map;
          }
 
@@ -487,6 +594,12 @@ namespace Gambit
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             tmp_map["tanb"]= &get_tanb<Model>;
             tmp_map["alpha"]= &get_alpha<Model>;
+            tmp_map["alpha_pole"]= &get_alpha_pole_slha<Model>;
+            tmp_map["beta"]= &get_beta<Model>;
+            tmp_map["beta_pole"]= &get_beta_pole_slha<Model>;
+            #ifdef ALPHA_DEBUG
+               tmp_map["alpha_alt"]= &get_alpha_calculated<Model>;
+            #endif
             tmp_map["yukawaCoupling"]= &get_yukawa_type<Model>;
             map_collection[Par::dimensionless].map0_extraM = tmp_map;
          }

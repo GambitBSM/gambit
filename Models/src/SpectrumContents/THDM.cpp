@@ -38,21 +38,32 @@ namespace Gambit {
     std::vector<int> m4x4   = initVector(4,4); // "
     std::vector<int> m6x6   = initVector(6,6); // "
 
+    // gayge couplings, weinberg angle and vevs
     addParameter(Par::dimensionless, "g1", scalar);
     addParameter(Par::dimensionless, "g2", scalar);
     addParameter(Par::dimensionless, "g3", scalar);
-
     addParameter(Par::dimensionless, "sinW2", scalar);
+    addParameter(Par::mass1, "v1", scalar);
+    addParameter(Par::mass1, "v2", scalar);
 
+    // yukawas
     addParameter(Par::dimensionless, "Yd", m3x3);
     addParameter(Par::dimensionless, "Yu", m3x3);
     addParameter(Par::dimensionless, "Ye", m3x3);
 
+    // pole masses
     addParameter(Par::Pole_Mass, "h0",    v2);
     addParameter(Par::Pole_Mass, "A0", scalar);
     addParameter(Par::Pole_Mass, "H+", scalar);
     addParameter(Par::Pole_Mass, "W+", scalar);
 
+    // running masses
+    addParameter(Par::mass1, "h0",    v2);
+    addParameter(Par::mass1, "A0", scalar);
+    addParameter(Par::mass1, "H+", scalar);
+    addParameter(Par::mass1, "W+", scalar);
+
+    // generic basis
     addParameter(Par::mass1, "lambda_1");
     addParameter(Par::mass1, "lambda_2");
     addParameter(Par::mass1, "lambda_3");
@@ -60,11 +71,29 @@ namespace Gambit {
     addParameter(Par::mass1, "lambda_5");
     addParameter(Par::mass1, "lambda_6");
     addParameter(Par::mass1, "lambda_7");
-
-    addParameter(Par::dimensionless, "tanb");
-    addParameter(Par::dimensionless, "alpha");
     addParameter(Par::mass1, "m12_2");
+    addParameter(Par::mass1, "m11_2");
+    addParameter(Par::mass1, "m22_2");
 
+    // higgs basis
+    addParameter(Par::mass1, "Lambda_1");
+    addParameter(Par::mass1, "Lambda_2");
+    addParameter(Par::mass1, "Lambda_3");
+    addParameter(Par::mass1, "Lambda_4");
+    addParameter(Par::mass1, "Lambda_5");
+    addParameter(Par::mass1, "Lambda_6");
+    addParameter(Par::mass1, "Lambda_7");
+    addParameter(Par::mass1, "M12_2");
+    addParameter(Par::mass1, "M11_2");
+    addParameter(Par::mass1, "M22_2");
+
+    // angles
+    addParameter(Par::dimensionless, "tanb");
+    addParameter(Par::dimensionless, "beta");
+    addParameter(Par::dimensionless, "beta_pole");
+    addParameter(Par::dimensionless, "alpha");
+    addParameter(Par::dimensionless, "alpha_pole");
+    
   }
   
 }

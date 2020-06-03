@@ -112,7 +112,7 @@ namespace Gambit
     enum chi_options {less_than, greater_than, distance_from, observable, bound};
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
     enum particle_type {h0=1, H0, A0, G0, Hp, Hm, Gp, Gm};
-    struct physical_basis_input { double mh, mH, mC, mA, mG, mGC, tanb, sba, lambda6, lambda7, m122, alpha; };
+    struct physical_basis_input { double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha; };
 
     // model lookup map -> useful for looking up model info
     // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
@@ -299,6 +299,7 @@ namespace Gambit
         //  slha_io.set_extpar(input);
          slha_io.set_spectrum(thdmspec.model_interface.model);
          slha_io.write_to_file("SpecBit/initial_THDM_spectrum->slha");
+         thdmspec.model().print(std::cout);
       #endif
 
       // Retrieve any mass cuts
@@ -615,14 +616,14 @@ namespace Gambit
 
     // template to pass around physical basis
     template <class T> void fill_physical_basis(T& input, THDM_spectrum_container& container) { 
-      input.mh = container.he->get(Par::mass1, "h0", 1);
-      input.mH = container.he->get(Par::mass1, "h0", 2);
-      input.mA = container.he->get(Par::mass1, "A0");
-      input.mC = container.he->get(Par::mass1, "H+");
-      input.mG = container.he->get(Par::mass1, "G0");
-      input.mGC = container.he->get(Par::mass1, "G+");
-      input.tanb = container.he->get(Par::dimensionless, "tanb");
-      input.alpha = container.he->get(Par::dimensionless, "alpha");
+      input.mh = container.he->get(Par::Pole_Mass, "h0", 1);
+      input.mH = container.he->get(Par::Pole_Mass, "h0", 2);
+      input.mA = container.he->get(Par::Pole_Mass, "A0");
+      input.mC = container.he->get(Par::Pole_Mass, "H+");
+      input.mG = container.he->get(Par::Pole_Mass, "G0");
+      input.mGC = container.he->get(Par::Pole_Mass, "G+");
+      input.alpha = container.he->get(Par::dimensionless, "alpha_pole");
+      input.beta = container.he->get(Par::dimensionless, "beta_pole");
       input.m122 = container.he->get(Par::mass1, "m12_2");
     }
 
@@ -837,7 +838,7 @@ namespace Gambit
     std::complex<double> get_cubic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3) {
       std::complex<double> c(0.0,0.0);
       const std::complex<double> i(0.0,1.0);
-      const double ba = atan(container.he->get(Par::dimensionless, "tanb")) - container.he->get(Par::dimensionless, "alpha");
+      const double ba = container.he->get(Par::dimensionless, "beta") - container.he->get(Par::dimensionless, "alpha");
       const double Lam6 = container.higgs_pars.Lambda6;
       const std::vector<std::vector<complex<double>>> q = get_qij(ba, Lam6);
 
@@ -875,7 +876,7 @@ namespace Gambit
     std::complex<double> get_quartic_coupling(THDM_spectrum_container& container, particle_type p1, particle_type p2, particle_type p3, particle_type p4) {
       std::complex<double> c(0.0,0.0);
       const std::complex<double> i(0.0,1.0);
-      const double ba = atan(container.he->get(Par::dimensionless, "tanb")) - container.he->get(Par::dimensionless, "alpha");
+      const double ba = container.he->get(Par::dimensionless, "beta") - container.he->get(Par::dimensionless, "alpha");
       const double Lam1 = container.higgs_pars.Lambda4, Lam2 = container.higgs_pars.Lambda2, Lam3 = container.higgs_pars.Lambda3;
       const double Lam4 = container.higgs_pars.Lambda4, Lam5 = container.higgs_pars.Lambda5, Lam6 = container.higgs_pars.Lambda6, Lam7 = container.higgs_pars.Lambda7;
       const std::vector<std::vector<complex<double>>> q = get_qij(ba, Lam6);
@@ -943,7 +944,7 @@ namespace Gambit
         const physical_basis_input input_pars = fill_physical_basis_input(container);
         const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
         const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
-        const double b = atan(input_pars.tanb), a = input_pars.alpha;
+        const double b = input_pars.beta, a = input_pars.alpha;
         const double sba = sin(b-a), cba = (cos(b-a)), cbap = cos(b+a), sbap = sin(b+a);
         const double v = get_v(container);
         const std::complex<double> i(0.0,1.0);
@@ -1032,7 +1033,7 @@ namespace Gambit
         const physical_basis_input input_pars = fill_physical_basis_input(container);
         const double mh = input_pars.mh, mH = input_pars.mH, mA = input_pars.mA, mC = input_pars.mC, m122 = input_pars.m122;
         const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
-        const double b = atan(input_pars.tanb), a = input_pars.alpha;
+        const double b = input_pars.beta, a = input_pars.alpha;
         const double sba = sin(b-a), sbap = sin(b+a), sba2 = pow(sba,2), sab = sin(a-b), sab2 = pow(sab,2);
         const double cba = cos(b-a), cbap = cos(b+a), cba2 = pow(cba,2), cab = cos(a-b), cab2 = pow(cab,2);
         const double t2binv = 1.0/(tan(2.0*b)), sbinv = 1.0/sin(b), cbinv = 1.0/cos(b), sbinv2 = pow(sbinv,2), cbinv2 = pow(cbinv,2);
@@ -1229,14 +1230,13 @@ namespace Gambit
     }
 
     struct wavefunction_renormalization_input{
-      double mh; double mH; double mA; double mC; double mG; double mGC; double tanb; double alpha; double m122; std::vector<std::complex<double>> m; std::vector<std::complex<double>> g;
+      double mh; double mH; double mA; double mC; double mG; double mGC; double beta; double alpha; double m122; std::vector<std::complex<double>> m; std::vector<std::complex<double>> g;
     };
 
     wavefunction_renormalization_input fill_wavefunction_renormalization_input(THDM_spectrum_container& container){
       wavefunction_renormalization_input input;
       fill_physical_basis(input,container);
       input.m = get_cubic_couplings(container); 
-
       input.g = get_quartic_couplings(container);
       return input;
     }
@@ -1245,9 +1245,9 @@ namespace Gambit
 
     double mZw2(const void * params){
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, tanb = input_pars->tanb, alpha = input_pars->alpha, m122 = input_pars->m122;
+      const double mh = input_pars->mh, mH = input_pars->mH, b = input_pars->beta, alpha = input_pars->alpha, m122 = input_pars->m122;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2);
-      const double a = alpha, b = atan(tanb), sb = sin(b), cb = cos(b), sba = sin(b-a), cba = abs(cos(b-a)), s2b2a = sin(2.0*b - 2.0*a), t2b = tan(2.0*b);
+      const double a = alpha, sb = sin(b), cb = cos(b), sba = sin(b-a), cba = abs(cos(b-a)), s2b2a = sin(2.0*b - 2.0*a), t2b = tan(2.0*b);
       return 1.0/2.0*(mh2*pow(sba,2) + mH2*pow(cba,2) + (mh2 - mH2)*s2b2a*(1.0/t2b) - 2.0*m122*(1.0/sb)*(1.0/cb));
     }
 
@@ -1349,10 +1349,10 @@ namespace Gambit
 
     std::complex<double> Pi_tilde_hh(const double p2, void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, tanb = input_pars->tanb, alpha = input_pars->alpha;
+      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      const double beta = atan(tanb), sba = sin(beta-alpha), cba = abs(cos(beta-alpha));
+      const double sba = sin(beta-alpha), cba = abs(cos(beta-alpha));
       std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[9]*A0_bar(mC2) + g[10]*A0_bar(mA2) + g[15]*A0_bar(mh2) + g[17]*A0_bar(mH2));
       Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*pow(m[1],2)+pow(m[2],2))*B0_bar(p2,0,0);
       Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*pow(m[5],2)*B0_bar(p2,0.,mC2);
@@ -1370,10 +1370,10 @@ namespace Gambit
 
     std::complex<double> Pi_tilde_HH(const double p2, void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, tanb = input_pars->tanb, alpha = input_pars->alpha;
+      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      const double beta = atan(tanb), sba = sin(beta-alpha), cba = cos(beta-alpha);
+      const double sba = sin(beta-alpha), cba = cos(beta-alpha);
       std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[11]*A0_bar(mC2) + g[12]*A0_bar(mA2) + g[17]*A0_bar(mh2) + g[19]*A0_bar(mH2));
       Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*pow(m[3],2)+pow(m[4],2))*B0_bar(p2,0,0);
       Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*pow(m[7],2)*B0_bar(p2,0.,mC2);
@@ -1391,10 +1391,10 @@ namespace Gambit
 
     std::complex<double> Pi_tilde_hH(const double p2, void * params) {
       const wavefunction_renormalization_input* input_pars = static_cast<const wavefunction_renormalization_input*>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, tanb = input_pars->tanb, alpha = input_pars->alpha;
+      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
       const double mh2 = pow(mh,2), mH2 = pow(mH,2), mA2 = pow(mA,2), mC2 = pow(mC,2);
       const std::vector<std::complex<double>> m = input_pars->m, g = input_pars->g;
-      const double beta = atan(tanb), sba = sin(beta-alpha), cba = abs(cos(beta-alpha));
+      const double sba = sin(beta-alpha), cba = abs(cos(beta-alpha));
       std::complex<double> Pi = 1.0/(32.0*pow(M_PI,2))*(2.0*g[13]*A0_bar(mC2) + g[14]*A0_bar(mA2) + g[16]*A0_bar(mh2) + g[18]*A0_bar(mH2)); 
       Pi+=-1.0/(32.0*pow(M_PI,2))*(2.0*m[1]*m[3]+m[2]*m[4])*B0_bar(p2,0,0); 
       Pi+=-1.0/(32.0*pow(M_PI,2))*4.0*m[5]*m[7]*B0_bar(p2,0.,mC2); 
@@ -2183,8 +2183,8 @@ namespace Gambit
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
 
       // calculate LO beta functions 
-      const bool gauge_corrections = false;
-      const bool yukawa_corrections = false;
+      const bool gauge_corrections = true;
+      const bool yukawa_corrections = true;
       const std::complex<double> b_one = beta_one(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_two = beta_two(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_three = beta_three(container, gauge_corrections, yukawa_corrections);
@@ -2192,7 +2192,7 @@ namespace Gambit
       const std::complex<double> b_five = beta_five(container, gauge_corrections, yukawa_corrections);
 
       // wavefunction functions 
-      const bool wave_function_corrections = false;
+      const bool wave_function_corrections = true;
       std::complex<double> zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
       std::complex<double> B1_z, B2_z, B3_z, B20_z, B21_z, B22_z;
       if (wave_function_corrections) {
@@ -2557,224 +2557,12 @@ namespace Gambit
     
     // Observables
     // ---------------------------------------------------------------------
-      void obs_mh0_pole(double& result) {
-        using namespace Pipes::obs_mh0_pole;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "h0", 1);
-      }
-
-      void obs_mH0_pole(double& result) {
-        using namespace Pipes::obs_mH0_pole;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "h0", 2);
-      }
-
-      void obs_mA0_pole(double& result) {
-        using namespace Pipes::obs_mA0_pole;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "A0");
-      }
-
-      void obs_mHpm_pole(double& result) {
-        using namespace Pipes::obs_mHpm_pole;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::Pole_Mass, "H+");
-      }
-
-      void obs_mh0_running(double& result) {
-        using namespace Pipes::obs_mh0_running;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "h0", 1);
-      }
-
-      void obs_mH0_running(double& result) {
-        using namespace Pipes::obs_mH0_running;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "h0", 2);
-      }
-
-      void obs_mA0_running(double& result) {
-        using namespace Pipes::obs_mA0_running;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "A0");
-      }
-
-      void obs_mHpm_running(double& result) {
-        using namespace Pipes::obs_mHpm_running;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "H+");
-      }
-
-      void obs_lambda_1(double& result) {
-        using namespace Pipes::obs_lambda_1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_1");
-      }
-
-      void obs_lambda_2(double& result) {
-        using namespace Pipes::obs_lambda_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_2");
-      }
-
-      void obs_lambda_3(double& result) {
-        using namespace Pipes::obs_lambda_3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_3");
-      }
-
-      void obs_lambda_4(double& result) {
-        using namespace Pipes::obs_lambda_4;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_4");
-      }
-
-      void obs_lambda_5(double& result) {
-        using namespace Pipes::obs_lambda_5;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_5");
-      }
-
-      void obs_lambda_6(double& result) {
-        using namespace Pipes::obs_lambda_6;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_6");
-      }
-
-      void obs_lambda_7(double& result) {
-        using namespace Pipes::obs_lambda_7;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "lambda_7");
-      }
-
-      void obs_m12_2(double& result) {
-        using namespace Pipes::obs_m12_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "m12_2");
-      }
-
-      void obs_m11_2(double& result) {
-        using namespace Pipes::obs_m11_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "m11_2");
-      }
-
-      void obs_m22_2(double& result) {
-        using namespace Pipes::obs_m22_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "m22_2");
-      }
-
-      void obs_Lambda_1(double& result) {
-        using namespace Pipes::obs_Lambda_1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_1");
-      }
-
-      void obs_Lambda_2(double& result) {
-        using namespace Pipes::obs_Lambda_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_2");
-      }
-
-      void obs_Lambda_3(double& result) {
-        using namespace Pipes::obs_Lambda_3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_3");
-      }
-
-      void obs_Lambda_4(double& result) {
-        using namespace Pipes::obs_Lambda_4;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_4");
-      }
-
-      void obs_Lambda_5(double& result) {
-        using namespace Pipes::obs_Lambda_5;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_5");
-      }
-
-      void obs_Lambda_6(double& result) {
-        using namespace Pipes::obs_Lambda_6;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_6");
-      }
-
-      void obs_Lambda_7(double& result) {
-        using namespace Pipes::obs_Lambda_7;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "Lambda_7");
-      }
-
-      void obs_M12_2(double& result) {
-        using namespace Pipes::obs_M12_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "M12_2");
-      }
-
-      void obs_M11_2(double& result) {
-        using namespace Pipes::obs_M11_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "M11_2");
-      }
-
-      void obs_M22_2(double& result) {
-        using namespace Pipes::obs_M22_2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::mass1, "M22_2");
-      }
-
-      void obs_tanb(double& result) {
-        using namespace Pipes::obs_tanb;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "tanb");
-      }
-
-      void obs_alpha(double& result) {
-        using namespace Pipes::obs_alpha;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        double alpha = he->get(Par::dimensionless, "alpha");
-        if (alpha>M_PI/2) alpha =- M_PI;
-        else if (alpha<M_PI/2) alpha =+ M_PI;
-        result = alpha;
-      }
 
       void obs_sba(double& result) {
         using namespace Pipes::obs_sba;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const double beta = atan(he->get(Par::dimensionless, "tanb"));
+        const double beta = he->get(Par::dimensionless, "beta");
         const double alpha = he->get(Par::dimensionless, "alpha");
         result = sin(beta - alpha);
       }
@@ -2783,7 +2571,7 @@ namespace Gambit
         using namespace Pipes::obs_cba;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const double beta = atan(he->get(Par::dimensionless, "tanb"));
+        const double beta = he->get(Par::dimensionless, "beta");
         const double alpha = he->get(Par::dimensionless, "alpha");
         result = cos(beta - alpha);
       }
@@ -2792,74 +2580,9 @@ namespace Gambit
         using namespace Pipes::obs_ba;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const double beta = atan(he->get(Par::dimensionless, "tanb"));
-        double alpha = he->get(Par::dimensionless, "alpha");
-        if (alpha>M_PI/2) alpha =- M_PI;
-        else if (alpha<M_PI/2) alpha =+ M_PI;
+        const double beta = he->get(Par::dimensionless, "beta");
+        const double alpha = he->get(Par::dimensionless, "alpha");
         result = beta - alpha;
-      }
-
-      void obs_Yu1(double& result) {
-        using namespace Pipes::obs_Yu1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yu",1,1);
-      }
-
-      void obs_Yu2(double& result) {
-        using namespace Pipes::obs_Yu2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yu",2,2);
-      }
-
-      void obs_Yu3(double& result) {
-        using namespace Pipes::obs_Yu3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yu",3,3);
-      }
-
-      void obs_Yd1(double& result) {
-        using namespace Pipes::obs_Yd1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yd",1,1);
-      }
-
-      void obs_Yd2(double& result) {
-        using namespace Pipes::obs_Yd2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yd",2,2);
-      }
-
-      void obs_Yd3(double& result) {
-        using namespace Pipes::obs_Yd3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Yd",3,3);
-      }
-
-      void obs_Ye1(double& result) {
-        using namespace Pipes::obs_Ye1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Ye",1,1);
-      }
-
-      void obs_Ye2(double& result) {
-        using namespace Pipes::obs_Ye2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Ye",2,2);
-      }
-
-      void obs_Ye3(double& result) {
-        using namespace Pipes::obs_Ye3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "Ye",3,3);
       }
 
       void obs_vev(double& result) {
@@ -2869,26 +2592,6 @@ namespace Gambit
         result = he->get(Par::mass1, "vev");
       }
 
-      void obs_g1(double& result) {
-        using namespace Pipes::obs_g1;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "g1");
-      }
-
-      void obs_g2(double& result) {
-        using namespace Pipes::obs_g2;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "g2");
-      }
-
-      void obs_g3(double& result) {
-        using namespace Pipes::obs_g3;
-        const Spectrum spec = *Dep::THDM_spectrum;
-        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        result = he->get(Par::dimensionless, "g3");
-      }
       // ---------------------------------------------------------------------
       
 
@@ -2925,8 +2628,8 @@ namespace Gambit
 
         // Use them to compute effective couplings for all neutral higgses, except for hhZ.
         for (int i = 0; i < 3; i++) { 
-          result.C_WW2[i] = result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0));
-          result.C_ZZ2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0));
+          result.C_WW[i] = sqrt(result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0)));
+          result.C_ZZ[i] = sqrt(result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0)));
           result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int,int>(6, 1), std::pair<int,int>(-6, 1));
           result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int,int>(5, 1), std::pair<int,int>(-5, 1));
           result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int,int>(4, 1), std::pair<int,int>(-4, 1));
@@ -2952,11 +2655,11 @@ namespace Gambit
             double k[2] = {(mhj + mZ)/mhi, (mhj - mZ)/mhi};
             for (int l = 0; l < 2; l++) k[l] = (1.0 - k[l]) * (1.0 + k[l]);
             double K = mhi*sqrt(k[0]*k[1]);
-            result.C_hiZ2[i][j] = scaling / (K*K*K) * gamma;
+            result.C_hiZ[i][j] = sqrt( scaling / (K*K*K) * gamma );
           }
           else // If the channel is missing from the decays or kinematically disallowed, just return the SM result.
           {
-            result.C_hiZ2[i][j] = 1.;
+            result.C_hiZ[i][j] = 1.;
           }
         }
 
@@ -2965,6 +2668,7 @@ namespace Gambit
     }
 
     // fill necessary couplings from 2HDMC to create the THDM higgs couplings table
+    // todo: save computational time by filling only those required in each case
     void fill_THDM_couplings_struct(THDM_couplings& couplings, THDM_spectrum_container& container) { 
       for (int h=1; h<5; h++) {
         for (int f1=1; f1<4; f1++) {
@@ -3048,7 +2752,7 @@ namespace Gambit
       THDM_spectrum_container container;
       init_THDM_spectrum_container(container, fullspectrum, y_type);
 
-      // THDM couplings
+      // set up and fill the THDM couplings
       THDM_couplings couplings;
       fill_THDM_couplings_struct(couplings, container);
 
@@ -3056,7 +2760,9 @@ namespace Gambit
       std::vector<THDM_couplings> couplings_SM_like; 
       THDM_couplings SM_couplings;
       init_THDM_spectrum_container(container, fullspectrum, 1);
+      // loop over each neutral higgs
       for (int h=1; h<=3; h++) {
+        // init an SM like container for each neutral higgs
         SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
         fill_THDM_couplings_struct(SM_couplings, container);
         couplings_SM_like.push_back(SM_couplings);
@@ -3068,48 +2774,48 @@ namespace Gambit
       // Use couplings to get effective fermion & diboson couplings
       for (int h = 1; h<=3; h++) {
         // s
-        cs = abs(couplings.hdd_cs[h][2][2]/couplings_SM_like[h-1].hdd_cs[1][2][2]);
-        cp = abs(couplings.hdd_cp[h][2][2]/couplings_SM_like[h-1].hdd_cs[1][2][2]);
+        cs = (couplings.hdd_cs[h][2][2].imag()/couplings_SM_like[h-1].hdd_cs[1][2][2].imag());
+        cp = - (couplings.hdd_cp[h][2][2].real()/couplings_SM_like[h-1].hdd_cs[1][2][2].imag());
         result.C_ss_s[h-1] = cs;
         result.C_ss_p[h-1] = cp;
         result.C_ss2[h-1] = pow(cs,2) + pow(cp,2);
         // b
-        cs = abs(couplings.hdd_cs[h][3][3]/couplings_SM_like[h-1].hdd_cs[1][3][3]);
-        cp = abs(couplings.hdd_cp[h][3][3]/couplings_SM_like[h-1].hdd_cs[1][3][3]);
+        cs = (couplings.hdd_cs[h][3][3].imag()/couplings_SM_like[h-1].hdd_cs[1][3][3].imag());
+        cp = - (couplings.hdd_cp[h][3][3].real()/couplings_SM_like[h-1].hdd_cs[1][3][3].imag());
         result.C_bb_s[h-1] = cs;
         result.C_bb_p[h-1] = cp;
         result.C_bb2[h-1] = pow(cs,2) + pow(cp,2);
         // c
-        cs = abs(couplings.huu_cs[h][2][2]/couplings_SM_like[h-1].huu_cs[1][2][2]);
-        cp = abs(couplings.huu_cp[h][2][2]/couplings_SM_like[h-1].huu_cs[1][2][2]);
+        cs = (couplings.huu_cs[h][2][2].imag()/couplings_SM_like[h-1].huu_cs[1][2][2].imag());
+        cp = - (couplings.huu_cp[h][2][2].real()/couplings_SM_like[h-1].huu_cs[1][2][2].imag());
         result.C_cc_s[h-1] = cs;
         result.C_cc_p[h-1] = cp;
         result.C_cc2[h-1] = pow(cs,2) + pow(cp,2);
         // t
-        cs = abs(couplings.huu_cs[h][3][3]/couplings_SM_like[h-1].huu_cs[1][3][3]);
-        cp = abs(couplings.huu_cp[h][3][3]/couplings_SM_like[h-1].huu_cs[1][3][3]);
+        cs = (couplings.huu_cs[h][3][3].imag()/couplings_SM_like[h-1].huu_cs[1][3][3].imag());
+        cp = - (couplings.huu_cp[h][3][3].real()/couplings_SM_like[h-1].huu_cs[1][3][3].imag());
         result.C_tt_s[h-1] = cs;
         result.C_tt_p[h-1] = cp;
         result.C_tt2[h-1] = pow(cs,2) + pow(cp,2);
         // mu
-        cs = abs(couplings.hll_cs[h][2][2]/couplings_SM_like[h-1].hll_cs[1][2][2]);
-        cp = abs(couplings.hll_cp[h][2][2]/couplings_SM_like[h-1].hll_cs[1][2][2]);
+        cs = (couplings.hll_cs[h][2][2].imag()/couplings_SM_like[h-1].hll_cs[1][2][2].imag());
+        cp = - (couplings.hll_cp[h][2][2].real()/couplings_SM_like[h-1].hll_cs[1][2][2].imag());
         result.C_mumu_s[h-1] = cs;
         result.C_mumu_p[h-1] = cp;
         result.C_mumu2[h-1] = pow(cs,2) + pow(cp,2);
         // tautau
-        cs = abs(couplings.hll_cs[h][3][3]/couplings_SM_like[h-1].hll_cs[1][3][3]);
-        cp = abs(couplings.hll_cp[h][3][3]/couplings_SM_like[h-1].hll_cs[1][3][3]);
+        cs = (couplings.hll_cs[h][3][3].imag()/couplings_SM_like[h-1].hll_cs[1][3][3].imag());
+        cp = - (couplings.hll_cp[h][3][3].real()/couplings_SM_like[h-1].hll_cs[1][3][3].imag());
         result.C_tautau_s[h-1] = cs;
         result.C_tautau_p[h-1] = cp;
         result.C_tautau2[h-1] = pow(cs,2) + pow(cp,2);
         // Z
-        result.C_ZZ2[h-1] = pow(abs(couplings.vvh[2][2][h]/couplings_SM_like[h-1].vvh[2][2][1]),2);   
+        result.C_ZZ[h-1] = couplings.vvh[2][2][h].imag()/couplings_SM_like[h-1].vvh[2][2][1].imag();   
         // W
-        result.C_WW2[h-1] = pow(abs(couplings.vvh[3][3][h]/couplings_SM_like[h-1].vvh[3][3][1]),2);
+        result.C_WW[h-1] = couplings.vvh[3][3][h].imag()/couplings_SM_like[h-1].vvh[3][3][1].imag();
 
         for(int h2 = 1; h2 <= 3; h2++) {
-            result.C_hiZ2[h-1][h2-1] = pow(abs(couplings.vhh[2][h][h2])/(g/2./costw),2);  
+            result.C_hiZ[h-1][h2-1] = (couplings.vhh[2][h][h2].real())/(g/2./costw);  
         }
       }
 

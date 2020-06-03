@@ -272,13 +272,13 @@ namespace Gambit
             tmp_map["m22_2"]  = &THDMea::get_m22_2;
 
             // higgs basis potential parameters
-            tmp_map["Lambda_1"]  = &THDMea::get_lambda1;
-            tmp_map["Lambda_2"]  = &THDMea::get_lambda2;
-            tmp_map["Lambda_3"]  = &THDMea::get_lambda3;
-            tmp_map["Lambda_4"]  = &THDMea::get_lambda4;
-            tmp_map["Lambda_5"]  = &THDMea::get_lambda5;
-            tmp_map["Lambda_6"]  = &THDMea::get_lambda6;
-            tmp_map["Lambda_7"]  = &THDMea::get_lambda7;
+            tmp_map["Lambda_1"]  = &THDMea::get_Lambda1;
+            tmp_map["Lambda_2"]  = &THDMea::get_Lambda2;
+            tmp_map["Lambda_3"]  = &THDMea::get_Lambda3;
+            tmp_map["Lambda_4"]  = &THDMea::get_Lambda4;
+            tmp_map["Lambda_5"]  = &THDMea::get_Lambda5;
+            tmp_map["Lambda_6"]  = &THDMea::get_Lambda6;
+            tmp_map["Lambda_7"]  = &THDMea::get_Lambda7;
             tmp_map["M12_2"]  = &THDMea::get_M12_2;
             tmp_map["M11_2"]  = &THDMea::get_M11_2;
             tmp_map["M22_2"]  = &THDMea::get_M22_2;

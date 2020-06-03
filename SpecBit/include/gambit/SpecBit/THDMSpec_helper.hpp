@@ -133,8 +133,10 @@ namespace Gambit
 
     inline void set_SM(const std::unique_ptr<SubSpectrum>& he, const std::unique_ptr<SubSpectrum>& SM, const SMInputs& sminputs, THDMC_1_8_0::THDM* THDM_object){
       THDMC_1_8_0::SM* SM_object = THDM_object->get_SM_pointer();
+
       SM_object->set_alpha(1/(sminputs.alphainv));
       SM_object->set_alpha_s(sminputs.alphaS);
+
       // get vev from high energy spectrum & set GF based off VEV
       double vev = he->get(Par::mass1, "vev");
       double GF = 1.0/(sqrt(2)*pow(vev,2.0));
@@ -143,13 +145,22 @@ namespace Gambit
       SM_object->set_MZ(SM->get(Par::Pole_Mass,"Z0"));
       SM_object->set_MW(SM->get(Par::Pole_Mass,"W+"));
 
+      // lepton masses
       SM_object->set_lmass_pole(1,SM->get(Par::Pole_Mass,"e-_1"));
       SM_object->set_lmass_pole(2,SM->get(Par::Pole_Mass,"e-_2"));
       SM_object->set_lmass_pole(3,SM->get(Par::Pole_Mass,"e-_3"));
-      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //u
-      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //s
 
-      // set running masses
+      // quark pole masses
+      // SM_object->set_qmass_pole(3,SM->get(Par::Pole_Mass,"d_2")); //s
+      // SM_object->set_qmass_pole(4,SM->get(Par::Pole_Mass,"u_2")); //c
+      SM_object->set_qmass_pole(5,SM->get(Par::Pole_Mass,"d_3")); //b
+      SM_object->set_qmass_pole(6,SM->get(Par::Pole_Mass,"u_3")); //t
+
+      // quark running masses
+
+      SM_object->set_qmass_msbar(3,sminputs.mS); //s
+      SM_object->set_qmass_msbar(4,sminputs.mCmC); //c
+
       double tanb = he->get(Par::dimensionless, "tanb");
       const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
       const double cb = cos(b), sb = sin(b);
@@ -172,19 +183,19 @@ namespace Gambit
       double Yd1 = he->get(Par::dimensionless, "Yd", 1, 1);
       double Yu1 = he->get(Par::dimensionless, "Yu", 1, 1);
 
-      double Yd2 = he->get(Par::dimensionless, "Yd", 2, 2);
-      double Yu2 = he->get(Par::dimensionless, "Yu", 2, 2);
+      // double Yd2 = he->get(Par::dimensionless, "Yd", 2, 2);
+      // double Yu2 = he->get(Par::dimensionless, "Yu", 2, 2);
 
       double mu1 = Yu1 * beta_scaling_u/sqrt2v;
-      double mu2 = Yu2 * beta_scaling_u/sqrt2v;
+      // double mu2 = Yu2 * beta_scaling_u/sqrt2v;
 
       double md1 = Yd1 * beta_scaling_d/sqrt2v;
-      double md2 = Yd2 * beta_scaling_d/sqrt2v;
+      // double md2 = Yd2 * beta_scaling_d/sqrt2v;
 
-      SM_object->set_qmass_pole(1,md1); //d
-      SM_object->set_qmass_pole(2,mu1); //u
-      SM_object->set_qmass_pole(3,md2); //s
-      SM_object->set_qmass_pole(4,mu2); //c
+      SM_object->set_qmass_msbar(1,md1); //d
+      SM_object->set_qmass_msbar(2,mu1); //u
+      // SM_object->set_qmass_pole(3,md2); //s
+      // SM_object->set_qmass_pole(4,mu2); //c
 
     }
 
@@ -477,8 +488,7 @@ namespace Gambit
          if (!higgs_filled) fill_higgs_THDM_basis(basis, sminputs);
          if (!physical_filled) fill_physical_THDM_basis(basis, sminputs);
 
-         // calculate alpha 2 methods for now
-         // fill alpha
+         // calculate alpha
          double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = basis["tanb"];
          double beta = atan(tanb);

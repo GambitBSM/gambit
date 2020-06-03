@@ -1495,8 +1495,8 @@ namespace Gambit
       // Use them to compute effective couplings for all neutral higgses, except for hhZ.
       for (int i = 0; i < 3; i++)
       {
-        result.C_WW2[i] = result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0));
-        result.C_ZZ2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0));
+        result.C_WW[i] = sqrt(result.compute_effective_coupling(i, std::pair<int,int>(24, 0), std::pair<int,int>(-24, 0)));
+        result.C_ZZ[i] = sqrt(result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(23, 0)));
         result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int,int>(6, 1), std::pair<int,int>(-6, 1));
         result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int,int>(5, 1), std::pair<int,int>(-5, 1));
         result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int,int>(4, 1), std::pair<int,int>(-4, 1));
@@ -1524,11 +1524,11 @@ namespace Gambit
           double k[2] = {(mhj + mZ)/mhi, (mhj - mZ)/mhi};
           for (int l = 0; l < 2; l++) k[l] = (1.0 - k[l]) * (1.0 + k[l]);
           double K = mhi*sqrt(k[0]*k[1]);
-          result.C_hiZ2[i][j] = scaling / (K*K*K) * gamma;
+          result.C_hiZ[i][j] = sqrt( scaling / (K*K*K) * gamma );
         }
         else // If the channel is missing from the decays or kinematically disallowed, just return the SM result.
         {
-          result.C_hiZ2[i][j] = 1.;
+          result.C_hiZ[i][j] = 1.;
         }
       }
 
@@ -1616,8 +1616,8 @@ namespace Gambit
         std::complex<double> WW_SM(c_gWW_SM.re,c_gWW_SM.im);
         std::complex<double> ZZ(c_gZZ.re,c_gZZ.im);
         std::complex<double> ZZ_SM(c_gZZ_SM.re,c_gZZ_SM.im);
-        result.C_WW2[i] = pow(std::abs(WW/WW_SM), 2.);
-        result.C_ZZ2[i] = pow(std::abs(ZZ/ZZ_SM), 2.);
+        result.C_WW[i] = std::abs(WW/WW_SM);
+        result.C_ZZ[i] = std::abs(ZZ/ZZ_SM);
       }
 
       // Use couplings to get hhZ effective couplings
@@ -1627,7 +1627,7 @@ namespace Gambit
       {
         fh_complex c_gHV = Dep::FH_Couplings_output->couplings[H0HV(i+1,j+1)-1];
         double g2HV = c_gHV.re*c_gHV.re+c_gHV.im*c_gHV.im;
-        result.C_hiZ2[i][j] = g2HV/norm;
+        result.C_hiZ[i][j] = sqrt(g2HV/norm);
       }
 
       // Work out which invisible decays are possible

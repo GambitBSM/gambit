@@ -25,8 +25,8 @@ namespace Gambit
   {
     for (int i = 0; i < max_neutral_higgses; i++)
     {
-      C_WW2[i] = 1.0;
-      C_ZZ2[i] = 1.0;
+      C_WW[i] = 1.0;
+      C_ZZ[i] = 1.0;
       C_tt2[i] = 1.0;
       C_bb2[i] = 1.0;
       C_cc2[i] = 1.0;
@@ -36,7 +36,19 @@ namespace Gambit
       C_mumu2[i] = 1.0;
       C_Zga2[i] = 1.0;
       C_ss2[i] = 1.0;
-      for(int j = 0; j < max_neutral_higgses; j++) C_hiZ2[i][j] = 1.0;
+      for(int j = 0; j < max_neutral_higgses; j++) C_hiZ[i][j] = 1.0;
+      C_tt_s[i] = 1.0;
+      C_tt_p[i] = 1.0;
+      C_bb_s[i] = 1.0;
+      C_bb_p[i] = 1.0;
+      C_cc_s[i] = 1.0;
+      C_cc_p[i] = 1.0;
+      C_ss_s[i] = 1.0;
+      C_ss_p[i] = 1.0;
+      C_tautau_s[i] = 1.0;
+      C_tautau_p[i] = 1.0;
+      C_mumu_s[i] = 1.0;
+      C_mumu_p[i] = 1.0;
     }
   }
 
