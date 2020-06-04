@@ -4081,9 +4081,6 @@ Gamma_RHN2Bcl: |
 Gamma_RHN2Bplusl: |
   Decay rate of right-handed neutrinos to a positively-charged B meson and a lepton
 
-Gamma_RHN2Bsl: |
-  Decay rate of right-handed neutrinos to a strange B meson and a lepton
-
 Gamma_RHN2Dplusl: |
   Decay rate of right-handed neutrinos to a positively-charged D meson and a lepton
 
@@ -4116,6 +4113,24 @@ Gamma_RHN2rho0nu: |
 
 Gamma_RHN2rhoplusl: |
   Decay rate of right-handed neutrinos to a positively-charged rho meson and a lepton
+
+Gamma_RHN2Dstarplusl: |
+  Decay rate of right-handed neutrinos to a positively-charged D* meson and a lepton
+ 
+Gamma_RHN2Dstarsl: |
+  Decay rate of right-handed neutrinos to a positively-charged Ds* and a lepton
+
+Gamma_RHN2Jpsinu: |
+  Decay rate of right-handed neutrinos to a J/psi meson and a left-handed neutrino
+
+Gamma_RHN2etacnu: |
+  Decay rate of right-handed neutrinos to a eta_c meson and a left-handed neutrino
+
+Gamma_RHN2omeganu: |
+  Decay rate of right-handed neutrinos to a omega meson and a left-handed neutrino
+ 
+Gamma_RHN2phinu: |
+  Decay rate of right-handed neutrinos to a phi meson and a left-handed neutrino
 
 Gamma_RHN2nuuubar: |
   Decay rate of right-handed neutrinos to a left-handed neutrino and a meson composed of up-type quarks

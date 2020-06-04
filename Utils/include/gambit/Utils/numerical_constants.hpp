@@ -17,6 +17,10 @@
 ///          (c.weniger@uva.nl)
 ///  \date   2015 Apr
 ///  \date   2016 Mar
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Jan
 //
 ///  *********************************************
 
@@ -89,11 +93,46 @@ namespace Gambit
     static constexpr double B_s = 5.36679;        // B_s meson mass (GeV/c^2)
     static constexpr double B_c = 6.2751;         // B_c meson mass (GeV/c^2)
     static constexpr double eta_prime = 0.95778;  // eta prime meson mass (GeV/c^2)
+    static constexpr double eta_c = 2.9839;       // eta_c meson mass (GeV/c^2)
+    static constexpr double Dstar_plus = 2.01026; // charged D* meson mass (GeV/c^2)
+    static constexpr double Dstar_s = 2.1122;     // D*_s meson mass (GeV/c^2)
+    static constexpr double phi = 1.019461;       // phi meson mass (GeV/c^2)
+    static constexpr double Jpsi = 3.0969;        // Jpsi meson mass (GeV/c^2)
   } meson_masses;
 
   static const struct Mesons_decay_constants
   {
-    static constexpr double pi_plus = 0.13041;    // (GeV)
+    // PDG 2018
+    static constexpr double pi_plus = 0.1302;    // (GeV)
+    static constexpr double pi0 = 0.1302; // (GeV)
+    static constexpr double K_plus = 0.1557; // (GeV)
+    static constexpr double D_plus = 0.2126; // (GeV)
+    static constexpr double D_s = 0.2499; // (GeV)
+    static constexpr double B_plus = 0.190; // (GeV)
+
+    // From 1503.05762
+    static constexpr double B_c = 0.434; // (GeV)
+
+    // From 1805.08567
+    static constexpr double eta = 0.0817; // (GeV)
+    static constexpr double eta_prime = -0.0947; // (GeV)
+    static constexpr double eta_c = 0.237; // (GeV)
+
+    // From 0602110, using tau decays for rho
+    static constexpr double rho_plus = 0.209; // (GeV) 
+    static constexpr double rho0 = 0.209; // GeV
+    static constexpr double phi = 0.229; // (GeV)
+
+    // From 1708.07274, average of theoretical computations
+    static constexpr double Dstar_plus = 0.24675; // (GeV)
+    static constexpr double Dstar_s = 0.284; // (GeV)
+
+    // From 0901.3589, thought not sure where they got it from
+    static constexpr double omega = 0.195; // (GeV)
+
+    // From 1312.2858
+    static constexpr double Jpsi = 0.418; // (GeV)
+
   } meson_decay_constants;
 
 

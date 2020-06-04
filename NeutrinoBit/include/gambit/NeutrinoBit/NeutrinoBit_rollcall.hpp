@@ -290,16 +290,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY Gamma_RHN2pi0nu
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2pi0nu
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODELS(RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
   #define CAPABILITY Gamma_RHN2piplusl
   START_CAPABILITY
     #define FUNCTION Gamma_RHN2piplusl
@@ -350,16 +340,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY Gamma_RHN2Bsl
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2Bsl
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
-    #undef FUNCTION
-  #undef CAPABILITY
-
   #define CAPABILITY Gamma_RHN2Bcl
   START_CAPABILITY
     #define FUNCTION Gamma_RHN2Bcl
@@ -367,6 +347,16 @@ START_MODULE
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2pi0nu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2pi0nu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODELS(RightHandedNeutrinos)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -390,9 +380,39 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY Gamma_RHN2etacnu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2etacnu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY Gamma_RHN2rhoplusl
   START_CAPABILITY
     #define FUNCTION Gamma_RHN2rhoplusl
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2Dstarplusl
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2Dstarplusl
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2Dstarsl
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2Dstarsl
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
@@ -405,6 +425,40 @@ START_MODULE
     #define FUNCTION Gamma_RHN2rho0nu
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2omeganu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2omeganu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2phinu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2phinu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODEL(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Gamma_RHN2Jpsinu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2Jpsinu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_MODEL(RightHandedNeutrinos)
     #undef FUNCTION
@@ -435,6 +489,7 @@ START_MODULE
     #define FUNCTION Gamma_RHN2null
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -445,6 +500,7 @@ START_MODULE
     #define FUNCTION Gamma_RHN2nuuubar
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -455,6 +511,7 @@ START_MODULE
     #define FUNCTION Gamma_RHN2nuddbar
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -474,18 +531,23 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION Gamma_BBN
     START_FUNCTION(std::vector<double>)
-    DEPENDENCY(Gamma_RHN2pi0nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2piplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Kplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Dplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Dsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Bplusl, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2Bsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Bcl, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2pi0nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2etanu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2etaprimenu, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2etacnu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2rhoplusl, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2Dstarplusl, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2Dstarsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2rho0nu, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2omeganu, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2phinu, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2Jpsinu, std::vector<double>)
     DEPENDENCY(Gamma_RHN23nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2llnu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2null, std::vector<double>)
