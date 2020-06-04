@@ -112,8 +112,8 @@
       ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
       ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
       BACKEND_REQ(xsecBE_import_slha_string, (), void, (std::string&))
-      BACKEND_REQ(xsecBE_set_parameters, (), void, (pybind11::dict&))
-      BACKEND_REQ(xsecBE_get_xsection, (), pybind11::dict, (iipair&))
+      BACKEND_REQ(xsecBE_set_parameters, (), void, (PyDict&))
+      BACKEND_REQ(xsecBE_get_xsection, (), PyDict, (iipair&))
       #undef FUNCTION
     #endif
 
@@ -143,14 +143,13 @@
       ALLOW_MODELS(MSSM63atQ_mA, MSSM63atMGUT_mA)
       ALLOW_MODELS(CB_SLHA_file_model, CB_SLHA_simpmod_scan_model, CB_SLHA_scan_model)
       BACKEND_REQ(salami_import_slha_string, (), void, (std::string&))
-      BACKEND_REQ(salami_set_parameters, (), void, (pybind11::dict&))
-      BACKEND_REQ(salami_get_xsection, (), pybind11::dict, (iipair&, double&, double&))
+      BACKEND_REQ(salami_set_parameters, (), void, (PyDict&))
+      BACKEND_REQ(salami_get_xsection, (), PyDict, (iipair&, double&, double&))
       // Needs Prospino to get LO cross-section
       BACKEND_REQ(prospino_run_alloptions, (libprospino), map_str_dbl, (const PID_pair&, const int&, const int&, const int&, const double&, const int&, const bool&))
       BACKEND_REQ(prospino_read_slha1_input, (libprospino), void, (const SLHAstruct&))
       #undef FUNCTION
     #endif
-
 
   #undef CAPABILITY
   /// @}

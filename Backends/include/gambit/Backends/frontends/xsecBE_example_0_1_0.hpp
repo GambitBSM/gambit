@@ -26,24 +26,24 @@
 
 LOAD_LIBRARY
 
-/* Next we use macros BE_VARIABLE and BE_FUNCTION to extract pointers
- * to the variables and functions within the Python module.
- *
- * The macros create functors that wrap the library variables and functions.
- * These are used by the Core for dependency resolution and to set up a suitable
- * interface to the library functions/variables at module level. */
-
-/* Syntax for BE_FUNCTION (same as for any other backend):
- * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
- */
-
 #ifdef HAVE_PYBIND11
 
-  BE_FUNCTION(set_parameters, void, (pybind11::dict&), "set_parameters", "xsecBE_example_set_parameters")
-  BE_FUNCTION(set_flags, void, (pybind11::dict&), "set_flags", "xsecBE_example_set_flags")
+  /* Next we use macros BE_VARIABLE and BE_FUNCTION to extract pointers
+   * to the variables and functions within the Python module.
+   *
+   * The macros create functors that wrap the library variables and functions.
+   * These are used by the Core for dependency resolution and to set up a suitable
+   * interface to the library functions/variables at module level. */
 
-  BE_FUNCTION(xsec_fb, double, (iipair&, pybind11::dict&, pybind11::dict&), "xsec_fb", "xsecBE_example_xsec_fb")
-  BE_FUNCTION(xsec_err_fb, ddpair, (iipair&, pybind11::dict&, pybind11::dict&), "xsec_err_fb", "xsecBE_example_xsec_err_fb")
+  /* Syntax for BE_FUNCTION (same as for any other backend):
+   * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
+   */
+
+  BE_FUNCTION(set_parameters, void, (PyDict&), "set_parameters", "xsecBE_example_set_parameters")
+  BE_FUNCTION(set_flags, void, (PyDict&), "set_flags", "xsecBE_example_set_flags")
+
+  BE_FUNCTION(xsec_fb, double, (iipair&, PyDict&, PyDict&), "xsec_fb", "xsecBE_example_xsec_fb")
+  BE_FUNCTION(xsec_err_fb, ddpair, (iipair&, PyDict&, PyDict&), "xsec_err_fb", "xsecBE_example_xsec_err_fb")
 
 
   /* At this point we have a minimal interface to the loaded library.
@@ -62,10 +62,10 @@ LOAD_LIBRARY
    * Syntax for BE_CONV_FUNCTION:
    * BE_CONV_FUNCTION([function name], type, (arguments), "[choose capability name]") */
 
-  // BE_INI_FUNCTION {}
-  // END_BE_INI_FUNCTION
-
 #endif
+
+// BE_INI_FUNCTION {}
+// END_BE_INI_FUNCTION
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

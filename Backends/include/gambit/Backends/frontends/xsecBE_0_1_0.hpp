@@ -25,22 +25,22 @@
 
 LOAD_LIBRARY
 
-/* Next we use macros BE_VARIABLE and BE_FUNCTION to extract pointers
- * to the variables and functions within the Python module.
- *
- * The macros create functors that wrap the library variables and functions.
- * These are used by the Core for dependency resolution and to set up a suitable
- * interface to the library functions/variables at module level. */
-
-/* Syntax for BE_FUNCTION (same as for any other backend):
- * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
- */
-
 #ifdef HAVE_PYBIND11
 
+  /* Next we use macros BE_VARIABLE and BE_FUNCTION to extract pointers
+   * to the variables and functions within the Python module.
+   *
+   * The macros create functors that wrap the library variables and functions.
+   * These are used by the Core for dependency resolution and to set up a suitable
+   * interface to the library functions/variables at module level. */
+
+  /* Syntax for BE_FUNCTION (same as for any other backend):
+   * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
+   */
+
   BE_FUNCTION(import_slha_string, void, (std::string&), "import_slha_string", "xsecBE_import_slha_string")
-  BE_FUNCTION(set_parameters, void, (pybind11::dict&), "set_parameters", "xsecBE_set_parameters")
-  BE_FUNCTION(get_xsection, pybind11::dict, (iipair&), "get_xsection", "xsecBE_get_xsection")
+  BE_FUNCTION(set_parameters, void, (PyDict&), "set_parameters", "xsecBE_set_parameters")
+  BE_FUNCTION(get_xsection, PyDict, (iipair&), "get_xsection", "xsecBE_get_xsection")
 
 
 
@@ -60,10 +60,10 @@ LOAD_LIBRARY
    * Syntax for BE_CONV_FUNCTION:
    * BE_CONV_FUNCTION([function name], type, (arguments), "[choose capability name]") */
 
-  // BE_INI_FUNCTION {}
-  // END_BE_INI_FUNCTION
-
 #endif
+
+// BE_INI_FUNCTION {}
+// END_BE_INI_FUNCTION
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
