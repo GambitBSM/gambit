@@ -1164,7 +1164,7 @@ namespace Gambit
 		};
 
     // forward declaraion
-    double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container);
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
 
     // helper function to setup likelihood environment
     // this is called by the rollcall
@@ -1179,13 +1179,13 @@ namespace Gambit
             break;
           }
       }
-      SpecBit::THDM_spectrum_container container;
+      THDM_spectrum_container container;
       SpecBit::init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
       result = oblique_parameters_likelihood_THDM(container);
     }
 
     // calculates chi2 from EWPO in the THDM using 2HDMC
-    double oblique_parameters_likelihood_THDM(SpecBit::THDM_spectrum_container& container) { 
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
       THDMC_1_8_0::Constraints constraints_object(*(container.THDM_object));
 
       const double mh_ref = 125.0; 

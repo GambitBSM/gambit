@@ -21,6 +21,9 @@
 #ifndef __THDMC_types_hpp__
 #define __THDMC_types_hpp__
 
+#include "gambit/Backends/backend_types/THDMC_1_8_0/identification.hpp"
+#include "../../../../installed/THDMC/1.8.0/src/backend_types/THDMC_1_8_0/wrapper_THDM_decl.h"
+
 namespace Gambit
 {
 
@@ -59,6 +62,32 @@ namespace Gambit
     bool isValid;
   };
 
+  struct higgs_basis_pars { 
+         double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
+         double M11_2, M22_2, M12_2;
+  };
+
+  struct THDM_spectrum_container {
+    // variables
+    // (spectrum split for convenience)
+    std::unique_ptr<SubSpectrum> he;
+    std::unique_ptr<SubSpectrum> SM;
+    SMInputs sminputs;
+    THDMC_1_8_0::THDM* THDM_object;
+    higgs_basis_pars higgs_pars;
+    int yukawa_type;
+    // constructor
+    THDM_spectrum_container() {
+      THDM_object = new THDMC_1_8_0::THDM();
+    }
+    // destructor
+    ~THDM_spectrum_container() {
+      delete THDM_object;
+    }
+  };
+
 }
 
 #endif
+
+#include "gambit/Backends/backend_undefs.hpp"

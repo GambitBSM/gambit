@@ -3632,12 +3632,12 @@ namespace Gambit
 
     void h_decays_THDM(DecayTable::Entry& result,const Spectrum spec, const int y_type, int h, const bool SM) {
       // set up container and 2HDMC decay table object
-      SpecBit::THDM_spectrum_container container;
+      THDM_spectrum_container container;
       SpecBit::init_THDM_spectrum_container(container, spec, y_type);
       if (SM) {
         // Set up neutral Higgses (keys)
         static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-        SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
+        SpecBit::init_THDM_object_SM_like(container.he->get(Par::mass1,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
         // update h back to SM like (1) after setting mass based on reference Higgs
         h = 1;
       }
@@ -3826,7 +3826,7 @@ namespace Gambit
       // fill BFs
       
       // set up container and 2HDMC decay table object
-      SpecBit::THDM_spectrum_container container;
+      THDM_spectrum_container container;
       SpecBit::init_THDM_spectrum_container(container, spec, y_type);
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
 

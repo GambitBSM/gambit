@@ -28,7 +28,7 @@
 #include "gambit/Models/models/THDMIatQ.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
-#include "gambit/SpecBit/THDMSpec_helper.hpp"
+#include "gambit/SpecBit/THDMSpec_basis.hpp"
 
 // Activate debug output
 // #define THDM_DBUG

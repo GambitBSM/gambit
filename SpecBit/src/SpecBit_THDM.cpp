@@ -56,6 +56,7 @@
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
+#include "gambit/SpecBit/THDMSpec_basis.hpp"
 #include "gambit/SpecBit/THDMSpec_helper.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
@@ -616,14 +617,14 @@ namespace Gambit
 
     // template to pass around physical basis
     template <class T> void fill_physical_basis(T& input, THDM_spectrum_container& container) { 
-      input.mh = container.he->get(Par::Pole_Mass, "h0", 1);
-      input.mH = container.he->get(Par::Pole_Mass, "h0", 2);
-      input.mA = container.he->get(Par::Pole_Mass, "A0");
-      input.mC = container.he->get(Par::Pole_Mass, "H+");
-      input.mG = container.he->get(Par::Pole_Mass, "G0");
-      input.mGC = container.he->get(Par::Pole_Mass, "G+");
-      input.alpha = container.he->get(Par::dimensionless, "alpha_pole");
-      input.beta = container.he->get(Par::dimensionless, "beta_pole");
+      input.mh = container.he->get(Par::mass1, "h0", 1);
+      input.mH = container.he->get(Par::mass1, "h0", 2);
+      input.mA = container.he->get(Par::mass1, "A0");
+      input.mC = container.he->get(Par::mass1, "H+");
+      input.mG = container.he->get(Par::mass1, "G0");
+      input.mGC = container.he->get(Par::mass1, "G+");
+      input.alpha = container.he->get(Par::dimensionless, "alpha");
+      input.beta = container.he->get(Par::dimensionless, "beta");
       input.m122 = container.he->get(Par::mass1, "m12_2");
     }
 
@@ -1562,9 +1563,9 @@ namespace Gambit
       gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
       const int size = 3;
 
-      const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
-      const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
-      const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
+      // const std::vector<double> m_u = {container.SM->get(Par::mass1, "u_1"),container.SM->get(Par::mass1, "u_2"), container.SM->get(Par::Pole_Mass, "u_3")};
+      // const std::vector<double> m_d = {container.SM->get(Par::mass1, "d_1"), container.SM->get(Par::mass1, "d_2"), container.SM->get(Par::Pole_Mass, "d_3")};
+      // const std::vector<double> m_l = {container.SM->get(Par::Pole_Mass, "e-_1"), container.SM->get(Par::Pole_Mass, "e-_2"), container.SM->get(Par::Pole_Mass, "e-_3")};
 
       y_u = gsl_matrix_complex_alloc(size, size);
       y_d = gsl_matrix_complex_alloc(size, size);
@@ -2648,8 +2649,8 @@ namespace Gambit
         const double scaling = 8.*sqrt(2.)*pi/fullspectrum.get_SMInputs().GF;
         for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++) {
-          double mhi = spec.get(Par::Pole_Mass, sHneut[i]);
-          double mhj = spec.get(Par::Pole_Mass, sHneut[j]);
+          double mhi = spec.get(Par::mass1, sHneut[i]); //mass1 to be consistent
+          double mhj = spec.get(Par::mass1, sHneut[j]);
           if (mhi > mhj + mZ and result.get_neutral_decays(i).has_channel(sHneut[j], "Z0")) {
             double gamma = result.get_neutral_decays(i).width_in_GeV*result.get_neutral_decays(i).BF(sHneut[j], "Z0");
             double k[2] = {(mhj + mZ)/mhi, (mhj - mZ)/mhi};
