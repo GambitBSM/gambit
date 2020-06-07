@@ -39,7 +39,7 @@ Parameters:
   StandardModel_Higgs:
     mH: 125.09
 
-  WC:
+  WC_LR:
     Re_DeltaC7:
       range: [-3, 3]
     Im_DeltaC7: 

@@ -41,17 +41,17 @@ Parameters:
 
   WC:
     Re_DeltaC7:
-      range: [-0.2, 0.2]
+      range: [-1, 1]
     Im_DeltaC7: 
-      range: [-2, 2]
+      range: [-5, 5]
     Re_DeltaC9:
-       range: [-2, 1]
+       range: [-5, 5]
     Im_DeltaC9: 
-       range: [-3, 3]
+       range: [-5, 5]
     Re_DeltaC10:
-       range: [-1.5, 1.5]
+       range: [-5, 5]
     Im_DeltaC10: 
-       range: [-1.5, 1.5]
+       range: [-5, 5]
     Re_DeltaCQ1: 0
     Im_DeltaCQ1: 0
     Re_DeltaCQ2: 0
@@ -89,7 +89,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 1000
+      NP: 5000
       convthresh: 1e-5
 
     square_grid:
@@ -207,7 +207,7 @@ Rules:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
   - options:
-      use_SM_covariance: false
+      use_SM_covariance: true
         
 
 
