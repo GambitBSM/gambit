@@ -149,8 +149,8 @@ BE_NAMESPACE
 END_BE_NAMESPACE
 
 // Initialisation function (definition)
-BE_INI_FUNCTION
-{
+// BE_INI_FUNCTION
+// {
 
-}
-END_BE_INI_FUNCTION
+// }
+// END_BE_INI_FUNCTION
