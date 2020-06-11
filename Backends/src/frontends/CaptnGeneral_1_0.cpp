@@ -27,7 +27,7 @@ BE_INI_FUNCTION
     const int clen = 300;
     char solarmodel[clen];
     Utils::strcpy2f(solarmodel, clen, runOptions->getValueOrDef<str>(backendDir +
-                                                                    "/solarmodels/struct_b16_agss09_nohead.dat", "solarmodel"));
+                                                                    "/solarmodels/struct_b16_agss09_reduce10_nohead.dat", "solarmodel"));
 	//Capgen checks whether the arrays are already allocated, so it's fine to do this at point-level
 	  captn_init(solarmodel[0],rho0,vsun,v0,vesc);
 	  captn_init_oper();
