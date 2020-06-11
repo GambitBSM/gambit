@@ -107,20 +107,30 @@ Scanner:
       like: LogLike
       point_number: 10
 
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 1
+  
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 50000
-      tol: 0.05
+      nlive: 5000
+      tol: 0.1
 
     twalk:
       plugin: twalk
       like: LogLike
 
-    sqrgrd:
-      plugin: square_grid
+    polychord:
+      plugin: polychord
+      like:  LogLike
+      tol: 0.1
+    
+    diver:
+      plugin: diver
       like: LogLike
-      grid_pts: 1
+      NP: 500
 
 
 ObsLikes:
