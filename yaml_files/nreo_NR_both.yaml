@@ -12,14 +12,15 @@ Parameters:
     mH: 125
 
   NREO_DiracDM:
-    m: 
-      range: [80, 1.0e+4]
+    m:
+      prior_type: log # flat log prior
+      range: [1.0e+0, 1.0e+4]
     c0_1: 0  # 1.65*10**(-8)
       # range: [1.0e-10, 1.0e-6]
     c0_2: 0
     c0_3: 0
     c0_4: #1.65e-8
-      range: [3.02e-8, 3.02e-6]
+      range: [3.03e-7, 3.03e-5] # should correspond to a cross section of [10^-41 cm^2, 10^-37 cm^2]
     c0_5: 0
     c0_6: 0
     c0_7: 0
