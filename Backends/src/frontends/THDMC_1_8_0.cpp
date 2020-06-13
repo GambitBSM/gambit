@@ -18,26 +18,36 @@
 
 BE_NAMESPACE
 {
-    void init_THDM_spectrum_container_CONV(THDM_spectrum_container &container, Spectrum &spec, int yukawa_type, double scale, int SM_like) {
+    // fills the THDM spectrum container
+    // if the scale value is greater than zero we run our spectrum to this enegry
+    // for an SM-like model set SM_like to the Higgs number that you would like to use as the SM-Higgs
+    void init_THDM_spectrum_container_CONV(THDM_spectrum_container &container, const Spectrum &spec, int yukawa_type, double scale=0.0, int SM_like=0) {
 
-        container.he = spec.clone_HE(); // Copy "high-energy" SubSpectrum
+        // copy over the high energy, low energy spectra and sm inputs into the container
+        container.he = spec.clone_HE(); 
+        container.SM = spec.clone_LE();
+        container.sminputs = spec.get_SMInputs();  
 
+        // if we want to run the spectrum to scale do so here
         if(scale>0.0) {
             container.he->RunToScale(scale);
         }
 
-        container.SM = spec.clone_LE(); // Copy "low-energy" SubSpectrum 
-        container.sminputs = spec.get_SMInputs();   
-
+        // copy the Yukawa type into the container
         if (SM_like < 1) {
             container.yukawa_type = yukawa_type;
         }
+
+        // for a SM-like model the yukawa type is 1
         else {
             container.yukawa_type = 1;
         }
 
+        // fill THDM parameters into the 2HDMC
+        // both generic and physical parameters are filled using the added set_param_full method
+        // the use of basis transformations between the generic and physical basis have been patched
+        // to not occur when set_param_full has been used
         if (SM_like < 1) {
-        // fill THDM class
             double lambda_1 = container.he->get(Par::mass1,"lambda_1");
             double lambda_2 = container.he->get(Par::mass1,"lambda_2");
             double lambda_3 = container.he->get(Par::mass1, "lambda_3");
@@ -57,44 +67,42 @@ BE_NAMESPACE
                                     m12_2, tan_beta, mh, mH, mA, mC, sba);
             
         }
+
+        // set yukawa type in 2HDMC
         container.THDM_object->set_yukawas_type(container.yukawa_type);
 
-        // fill SM class
+        // get a pointer to the 2HDMC SM class
         THDMC_1_8_0::SM* SM_object = container.THDM_object->get_SM_pointer();
 
+        // set parameters in the SM class to match ours
         SM_object->set_alpha(1/(container.sminputs.alphainv));
         SM_object->set_alpha_s(container.sminputs.alphaS);
-
         // get vev from high energy spectrum & set GF based off VEV
         double vev = container.he->get(Par::mass1, "vev");
         double GF = 1.0/(sqrt(2)*pow(vev,2.0));
-        SM_object->set_GF(GF); //sminputs.GF);
-        
+        SM_object->set_GF(GF);
         SM_object->set_MZ(container.SM->get(Par::Pole_Mass,"Z0"));
         SM_object->set_MW(container.SM->get(Par::Pole_Mass,"W+"));
 
-        // lepton masses
+        // set lepton pole masses
         SM_object->set_lmass_pole(1,container.SM->get(Par::Pole_Mass,"e-_1"));
         SM_object->set_lmass_pole(2,container.SM->get(Par::Pole_Mass,"e-_2"));
         SM_object->set_lmass_pole(3,container.SM->get(Par::Pole_Mass,"e-_3"));
 
-        // quark pole masses
-        // SM_object->set_qmass_pole(3,SM->get(Par::Pole_Mass,"d_2")); //s
-        // SM_object->set_qmass_pole(4,SM->get(Par::Pole_Mass,"u_2")); //c
-        SM_object->set_qmass_pole(5,container.SM->get(Par::Pole_Mass,"d_3")); //b
-        SM_object->set_qmass_pole(6,container.SM->get(Par::Pole_Mass,"u_3")); //t
+        // bottom (pole) mass - from low energy spectrum
+        SM_object->set_qmass_pole(5,container.SM->get(Par::Pole_Mass,"d_3"));
+        // top (pole) mass - from low energy spectrum
+        SM_object->set_qmass_pole(6,container.SM->get(Par::Pole_Mass,"u_3"));
 
-        // quark running masses
+        // strange and charm (ms_bar) masses - from sm inputs
+        SM_object->set_qmass_msbar(3,container.sminputs.mS);
+        SM_object->set_qmass_msbar(4,container.sminputs.mCmC);
 
-        SM_object->set_qmass_msbar(3,container.sminputs.mS); //s
-        SM_object->set_qmass_msbar(4,container.sminputs.mCmC); //c
-
+        // up and down ma (ms_bar) masses are calculated from the Yukawa's in the high energy spectrum
         double tanb = container.he->get(Par::dimensionless, "tanb");
         const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
         const double cb = cos(b), sb = sin(b);
-
         double beta_scaling_u = sb, beta_scaling_d = sb;
-        
         switch(container.yukawa_type) {
             case 1:
                 break;
@@ -107,32 +115,22 @@ BE_NAMESPACE
                 beta_scaling_d = cb;
                 break;
             }
+        const double Yd1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
+        const double Yu1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
+        const double mu1 = Yu1 * beta_scaling_u/sqrt2v;
+        const double md1 = Yd1 * beta_scaling_d/sqrt2v;
+        SM_object->set_qmass_msbar(1,md1);
+        SM_object->set_qmass_msbar(2,mu1);
 
-        double Yd1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
-        double Yu1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
-
-        // double Yd2 = he->get(Par::dimensionless, "Yd", 2, 2);
-        // double Yu2 = he->get(Par::dimensionless, "Yu", 2, 2);
-
-        double mu1 = Yu1 * beta_scaling_u/sqrt2v;
-        // double mu2 = Yu2 * beta_scaling_u/sqrt2v;
-
-        double md1 = Yd1 * beta_scaling_d/sqrt2v;
-        // double md2 = Yd2 * beta_scaling_d/sqrt2v;
-
-        SM_object->set_qmass_msbar(1,md1); //d
-        SM_object->set_qmass_msbar(2,mu1); //u
-        // SM_object->set_qmass_pole(3,md2); //s
-        // SM_object->set_qmass_pole(4,mu2); //c
-
-        if (SM_like > 0) {
-             // Set up neutral Higgses 
+        // Set up an SM like model if the SM_like parameter is set to a neutral Higgs number
+        if (SM_like > 0 && SM_like < 4) {
+            // fetch the neutral Higgs mass & set up the SM-like THDM in the 2HDMC based upon this
             const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-            const double m_h = container.he->get(Par::mass1, sHneut[SM_like]);
+            const double m_h = container.he->get(Par::mass1, sHneut[SM_like-1]);
             container.THDM_object->set_param_sm(m_h);
         }
-
-        // fill higgs basis for quick access
+        
+        // add the Higgs basis parameters to the container via the higgs par struct
         container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda_1");
         container.higgs_pars.Lambda2 = container.he->get(Par::mass1,"Lambda_2");
         container.higgs_pars.Lambda3 = container.he->get(Par::mass1,"Lambda_3");
@@ -149,8 +147,8 @@ BE_NAMESPACE
 END_BE_NAMESPACE
 
 // Initialisation function (definition)
-// BE_INI_FUNCTION
-// {
+BE_INI_FUNCTION
+{
 
-// }
-// END_BE_INI_FUNCTION
+}
+END_BE_INI_FUNCTION

@@ -28,10 +28,10 @@ namespace Gambit
 // Convenience functions (registration)
 
 // Initialisation function (definition)
-BE_INI_FUNCTION{} END_BE_INI_FUNCTION
+// BE_INI_FUNCTION{} END_BE_INI_FUNCTION
 
 // Convenience functions (definitions)
-BE_CONV_FUNCTION(init_THDM_spectrum_container_CONV, void, (THDM_spectrum_container&, Spectrum&, int, double, int), "THDMC_test_CONV")
+BE_CONV_FUNCTION(init_THDM_spectrum_container_CONV, void, (THDM_spectrum_container&, const Spectrum&, int, double, int), "init_THDM_spectrum_container_CONV")
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"

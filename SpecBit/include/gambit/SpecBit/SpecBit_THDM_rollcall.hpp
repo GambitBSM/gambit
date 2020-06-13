@@ -82,6 +82,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -92,6 +94,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -106,6 +110,8 @@ START_CAPABILITY
   // physical models are checked in this likelihood so must be allowed
   ALLOW_MODEL(THDMI_physical, THDMII_physical, THDMLS_physical, THDMflipped_physical)     
   ALLOW_MODEL(THDMI_physicalatQ, THDMII_physicalatQ, THDMLS_physicalatQ, THDMflipped_physicalatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -117,6 +123,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -127,6 +135,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -137,6 +147,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -147,6 +159,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -157,6 +171,8 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 
@@ -193,6 +209,8 @@ START_CAPABILITY
   DEPENDENCY(t_decay_rates, DecayTable::Entry)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 

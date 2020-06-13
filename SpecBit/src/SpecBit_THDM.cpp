@@ -57,7 +57,6 @@
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
 #include "gambit/SpecBit/THDMSpec_basis.hpp"
-#include "gambit/SpecBit/THDMSpec_helper.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "flexiblesusy/src/spectrum_generator_settings.hpp"
@@ -1864,35 +1863,6 @@ namespace Gambit
     }
     // ---------------------------------------------------------------------
 
-    // Helper functions to run likelihoods/constraints between scales
-    // Evaluates a likelihood/constraint function at Qin & QRunTo
-    // Return the worse performing result
-    double specbit_function_between_scales_likelihood_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
-      THDM_spectrum_container container;
-      init_THDM_spectrum_container(container, spec, yukawa_type);
-      const double loglike = specbit_function(container);
-      double loglike_at_Q = L_MAX;
-      if (scale>0.0) {
-        THDM_spectrum_container container_at_scale;
-        init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
-        loglike_at_Q = specbit_function(container_at_scale);
-      }
-      return std::min(loglike,loglike_at_Q);
-    }
-
-    int specbit_function_between_scales_constraint_helper(std::function<double(THDM_spectrum_container&)> specbit_function, const Spectrum& spec, const double scale, const int yukawa_type) { 
-      THDM_spectrum_container container;
-      init_THDM_spectrum_container(container, spec, yukawa_type);
-      const int loglike = specbit_function(container);
-      int loglike_at_Q = 1;
-      if (scale>0.0) {
-        THDM_spectrum_container container_at_scale;
-        init_THDM_spectrum_container(container_at_scale, spec, yukawa_type, scale);
-        loglike_at_Q = specbit_function(container_at_scale);
-      }
-      return (loglike && loglike_at_Q);
-    }
-
     // Step Functions (forward declarations)
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container& container);
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
@@ -1907,177 +1877,310 @@ namespace Gambit
     // Observable Functions (forward declatations)
     double global_minimum_discriminant_THDM(THDM_spectrum_container& container);
 
+    // #define NEW_SPECBIT
+
     // Likelihood/constraint function callers
     // These call the likleihood/constraint functions after setting up the correct environment
     // ---------------------------------------------------------------------
     void get_unitarity_likelihood_THDM(double& result) {
       using namespace Pipes::get_unitarity_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
-      }
+      // define likelihood function to use
       std::function<double(THDM_spectrum_container&)> likelihood_function = unitarity_likelihood_THDM;
-      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
+        }
+      }
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void get_NLO_unitarity_likelihood_THDM(double& result) {
       using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
-      }
+      // define likelihood function to use
       std::function<double(THDM_spectrum_container&)> likelihood_function = NLO_unitarity_likelihood_THDM;
       if (runOptions->getValueOrDef<bool>(false, "check_correction_ratio")) {
         likelihood_function = NLO_unitarity_with_correction_ratio_likelihood_THDM;
       }
-
-      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
+        }
+      }
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void get_perturbativity_likelihood_THDM(double& result) {
       using namespace Pipes::get_perturbativity_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_perturbativity_likelihood_THDM");
-      }
-      // perturbativity can either be checked at the level of the generic potential couplings
-      // or then all four point Higgs interactions in the Higgs basis. The latter is default
-      // unless scanning in the mass basis then the generic potential couplings should suffice
-      // to help guide the scanner.
-
+      // define likelihood function to use
       std::function<double(THDM_spectrum_container&)> likelihood_function = perturbativity_likelihood_THDM;
-      if (runOptions->getValueOrDef<bool>(false, "simple_perturbativity")) {
-        likelihood_function = perturbativity_likelihood_simple_THDM;
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("get_perturbativity_likelihood_THDM");
+        }
       }
-      
-      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void get_stability_likelihood_THDM(double& result) {
       using namespace Pipes::get_stability_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_stability_likelihood_THDM");
-      }
+      // define likelihood function to use
       std::function<double(THDM_spectrum_container&)> likelihood_function = stability_likelihood_THDM;
-      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("get_stability_likelihood_THDM");
+        }
+      }
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void get_alignment_likelihood_THDM(double& result) {
       using namespace Pipes::get_alignment_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
-      }
+      // define likelihood function to use
       std::function<double(THDM_spectrum_container&)> likelihood_function = alignment_likelihood_THDM;
-      result = specbit_function_between_scales_likelihood_helper(likelihood_function, *Dep::THDM_spectrum, scale, y_type);  
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
+        }
+      }
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void check_vacuum_global_minimum(int& result) {
       using namespace Pipes::check_vacuum_global_minimum;
-      // set THDM model type
-      int y_type = -1; bool is_at_Q = false; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1; bool is_at_Q = false;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
             is_at_Q = THDM_model.second.is_model_at_Q; 
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        if (is_at_Q) scale = *Param.at("QrunTo");
-        else print_calculation_at_scale_warning("check_vacuum_global_minimum");
+      // define likelihood function to use
+      std::function<double(THDM_spectrum_container&)> likelihood_function = alignment_likelihood_THDM;
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      int loglike_at_Q = 1;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+        if (is_at_Q) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
+        }
+        else {
+          // print warning if we ask for likelihood at check_other_scale but not using FS model
+          print_calculation_at_scale_warning("check_vacuum_global_minimum");
+        }
       }
-      std::function<double(THDM_spectrum_container&)> check_discriminant_function = global_minimum_discriminant_THDM;
-      result = specbit_function_between_scales_constraint_helper(check_discriminant_function, *Dep::THDM_spectrum, scale, y_type);  
+      // return the worse performing likelihood
+      result = (loglike && loglike_at_Q);
     }
 
     void check_h0_loop_order_corrections(double& result) {
       using namespace Pipes::check_h0_loop_order_corrections;
-      // set THDM model type
-      int y_type = -1; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        scale = *Param.at("QrunTo");
+      // define likelihood function to use
+      std::function<double(THDM_spectrum_container&)> likelihood_function = loop_correction_mass_splitting_h0_THDM;
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
       }
-      std::function<double(THDM_spectrum_container&)> check_loop_corrections_h0_function = loop_correction_mass_splitting_h0_THDM;
-      result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_h0_function, *Dep::THDM_spectrum, scale, y_type);  
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
 
     void check_THDM_scalar_loop_order_corrections(double& result) {
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
-      // set THDM model type
-      int y_type = -1; double scale = 0.0;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1;
       for (auto const& THDM_model : THDM_model_lookup_map) {
           // model match was found: set values based on matched model
           if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
+            yukawa_type = THDM_model.second.model_y_type; 
             break;
           }
       }
-      if (runOptions->getValueOrDef<bool>(false, "check_all_scales")) {
-        scale = *Param.at("QrunTo");
+      // define likelihood function to use
+      std::function<double(THDM_spectrum_container&)> likelihood_function = loop_correction_mass_splitting_h0_THDM;
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      // evaluate loglike
+      const double loglike = likelihood_function(container);
+      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0) {
+          // get likelihood at check_other_scale 
+          THDM_spectrum_container container_at_scale;
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          loglike_at_Q = likelihood_function(container_at_scale);
       }
-      std::function<double(THDM_spectrum_container&)> check_loop_corrections_scalar_function = loop_correction_mass_splitting_scalar_THDM;
-      result = specbit_function_between_scales_likelihood_helper(check_loop_corrections_scalar_function, *Dep::THDM_spectrum, scale, y_type);  
-    
+      // return the worse performing likelihood
+      result = std::min(loglike,loglike_at_Q);
     }
     // ---------------------------------------------------------------------
 
@@ -2751,7 +2854,7 @@ namespace Gambit
       }
       // Initiate 2HDM container
       THDM_spectrum_container container;
-      init_THDM_spectrum_container(container, fullspectrum, y_type);
+      BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, byVal(y_type), 0.0, 0);
 
       // set up and fill the THDM couplings
       THDM_couplings couplings;
@@ -2760,11 +2863,11 @@ namespace Gambit
       // SM-like couplings
       std::vector<THDM_couplings> couplings_SM_like; 
       THDM_couplings SM_couplings;
-      init_THDM_spectrum_container(container, fullspectrum, 1);
+      
       // loop over each neutral higgs
       for (int h=1; h<=3; h++) {
         // init an SM like container for each neutral higgs
-        SpecBit::init_THDM_object_SM_like(container.he->get(Par::Pole_Mass,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
+        BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, 1, 0.0, byVal(h));
         fill_THDM_couplings_struct(SM_couplings, container);
         couplings_SM_like.push_back(SM_couplings);
       }

@@ -62,7 +62,6 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/SpecBit/THDMSpec_helper.hpp"
 
 //#define PRECISIONBIT_DEBUG
 
@@ -1180,7 +1179,7 @@ namespace Gambit
           }
       }
       THDM_spectrum_container container;
-      SpecBit::init_THDM_spectrum_container(container, *Dep::THDM_spectrum, y_type);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       result = oblique_parameters_likelihood_THDM(container);
     }
 

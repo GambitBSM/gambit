@@ -18,6 +18,7 @@
 
 // Must include models which are targets of translation functions
 #include "gambit/Models/models/THDMatQ.hpp"
+#include "gambit/Elements/sminputs.hpp"
 
 #define MODEL THDM
 #define FRIEND THDMatQ
