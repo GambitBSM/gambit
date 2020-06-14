@@ -28,7 +28,7 @@ namespace Gambit
 // Convenience functions (registration)
 
 // Initialisation function (definition)
-// BE_INI_FUNCTION{} END_BE_INI_FUNCTION
+// - Declared in source file
 
 // Convenience functions (definitions)
 BE_CONV_FUNCTION(init_THDM_spectrum_container_CONV, void, (THDM_spectrum_container&, const Spectrum&, int, double, int), "init_THDM_spectrum_container_CONV")

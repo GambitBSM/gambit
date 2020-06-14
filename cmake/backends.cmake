@@ -1276,7 +1276,9 @@ endif()
 # THDMC
 set(name "THDMC")
 set(ver "1.8.0")
+set(ver_underlined "1_8_0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(frontend_header_dir "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
 set(md5 "97a60d3d10637faf3fe26f704a666d26")
@@ -1297,6 +1299,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
     INSTALL_COMMAND ""
+    COMMAND cd ${frontend_header_dir} && patch < ${patch}/THDMC_1_8_0_hpp.patch
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
