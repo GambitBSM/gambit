@@ -530,10 +530,124 @@ namespace Gambit
         result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
 
       }
-
+     if (ModelInUse("THDM"))
+      {
+        result.Re_DeltaC7  = Dep::DeltaC7->re;
+        result.Im_DeltaC7  = Dep::DeltaC7->im;
+        result.Re_DeltaC9  = Dep::DeltaC9->re;
+        result.Im_DeltaC9  = Dep::DeltaC9->im;
+        result.Re_DeltaC10 = Dep::Delta10->re;
+        result.Im_DeltaC10 = Dep::DeltaC10->im;
+      }
+      
       if (flav_debug) cout<<"Finished SI_fill"<<endl;
     }
-
+    
+    //Green functios for Delta C7 in THDM
+    double F7_1(double t)
+    {
+	return -(t*(7 - 12*t - 3*Power(t,2) + 8*Power(t,3) + 
+           6*t*(-2 + 3*t)*Log(1/t)))/(72.*Power(-1 + t,4));
+    }
+    
+    double F7_2(double t)
+    {
+	return t*(3 - 8*t + 5*Power(t,2) + (-4 + 6*t)*Log(1/t))/
+           (12.*Power(-1 + t,3));
+    }
+    
+    /// Delta C7 from the general THDM
+    void calculate_DeltaC7(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC7;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double mHp = spectrum.get("H+");
+      double Ytt = spectrum.get("Yu2",3,3);
+      double Ytc = spectrum.get("Yu2",3,2);
+      double Ybb = spectrum.get("Yd2",3,3);
+      double Ysb = spectrum.get("Yd2",2,3);
+      double mT = Dep::SMINPUTS->mT;
+      
+    //Need to include CKM matrix elements  
+      result = (Ytc*Conjugate(Vcs) + Ytt*Conjugate(Vts))*
+      (Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt))*F7_1(pow(mT/mHp,2))
+      +(Vtb*Ybb + Vts*Ysb)*
+       (Conjugate(Vcs)*Conjugate(Ytc) + Conjugate(Vts)*Conjugate(Ytt))*F7_2(pow(mT/mHp,2)) 
+    }
+    
+    //Green functios for Delta C9 and Delta C10 in THDM
+    //Gamma penguin Green function
+    double DHp(double t)
+    {
+	return -t*(-38 + 117*t - 126*Power(t,2) + 47*Power(t,3) + 
+            6*(4 - 6*t + 3*Power(t,3))*Log(1/t))/
+           (108.*Power(-1 + t,4));
+    }
+    //Z penguin Green function
+    double CHp(double t)
+    {
+	return -(Power(t,2)*(-1 + t + Log(1/t)))/(8.*Power(-1 + t,2));
+    }
+    //Box diagram Green function
+    double BHp(double t, double l)
+    {
+	return(l*t*(-1 + t + t*Log(1/t)))/(16.*Power(-1 + t,2));
+    }
+    
+    /// Delta C9 from the general THDM
+    void calculate_DeltaC9(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double mZ = Dep::SMINPUTS->mZ;
+      double mW = Dep::SMINPUTS->mW;
+      double SW = Sqrt(1-pow(mW/mZ,2))
+      double mHp = spectrum.get("H+");
+      double Ytt = spectrum.get("Yu2",3,3);
+      double Ytc = spectrum.get("Yu2",3,2);
+      double Ymumu = spectrum.get("Yl2",2,2);
+      double Ymutau = spectrum.get("Yl2",2,3);
+      double mT = Dep::SMINPUTS->mT;
+      
+      double C9_gamma = (Ytc*Conjugate(Vcs) + Ytt*Conjugate(Vts))*
+             (Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt))*DHp(pow(mT/mHp,2));
+             
+      double C9_Z = (Ytc*Conjugate(Vcs) + Ytt*Conjugate(Vts))*
+             (Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt))*CHp(pow(mT/mHp,2));  
+             
+      double C9_Box = (Power(Ymumu,2) + Power(Ymutau,2))(Ytc*Conjugate(Vcs)*(Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt)) + 
+             Conjugate(Vts)*((Vtb*Ytc + Vcb*Ytt)*
+             Conjugate(Ytc) + Vtb*Ytt*Conjugate(Ytt)))*BHp(pow(mT/mHp,2));             
+      
+    //Need to include CKM matrix elements  
+      result = C9_gamma + (Power(mHp/mW,2)/Power(SW,2))*((-1 + 4*Power(SW,2))C9_Z + C9_Box)
+      
+    /// Delta C10 from the general THDM
+    void calculate_DeltaC10(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double mZ = Dep::SMINPUTS->mZ;
+      double mW = Dep::SMINPUTS->mW;
+      double SW = Sqrt(1-pow(mW/mZ,2))
+      double mHp = spectrum.get("H+");
+      double Ytt = spectrum.get("Yu2",3,3);
+      double Ytc = spectrum.get("Yu2",3,2);
+      double Ymumu = spectrum.get("Yl2",2,2);
+      double Ymutau = spectrum.get("Yl2",2,3);
+      double mT = Dep::SMINPUTS->mT;
+      
+            
+      double C10_Z = (Ytc*Conjugate(Vcs) + Ytt*Conjugate(Vts))*
+             (Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt))*CHp(pow(mT/mHp,2));  
+             
+      double C10_Box = (Power(Ymumu,2) + Power(Ymutau,2))(Ytc*Conjugate(Vcs)*(Vcb*Conjugate(Ytc) + Vtb*Conjugate(Ytt)) + 
+             Conjugate(Vts)*((Vtb*Ytc + Vcb*Ytt)*
+             Conjugate(Ytc) + Vtb*Ytt*Conjugate(Ytt)))*BHp(pow(mT/mHp,2));             
+      
+    //Need to include CKM matrix elements  
+      result = (Power(mHp/mW,2)/Power(SW,2))*(C10_Z + C9_Box)      
+      
 
     /// Br b-> s gamma decays
     void SI_bsgamma(double &result)

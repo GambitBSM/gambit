@@ -47,6 +47,39 @@
 #define MODULE FlavBit
 START_MODULE
 
+//C7 in the general THDM capability
+  #define CAPABILITY DeltaC7
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC7
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//C9 in the general THDM capability
+  #define CAPABILITY DeltaC9
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY   
+  
+//C10 in the general THDM capability
+  #define CAPABILITY DeltaC10
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY      
+
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
   START_CAPABILITY
@@ -63,7 +96,10 @@ START_MODULE
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
     MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, WC)
-    MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMI, THDMII, THDMLS, THDMflipped, THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10, std::complex<double>, THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
