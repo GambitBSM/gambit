@@ -16,37 +16,67 @@ Parameters:
       prior_type: log # flat log prior
       range: [1.0e+0, 1.0e+4]
     c0_1: 0  # 1.65*10**(-8)
+      # prior_type: log # flat log prior
       # range: [1.0e-10, 1.0e-6]
     c0_2: 0
+      # prior_type: log # flat log prior
     c0_3: 0
+      # prior_type: log # flat log prior
     c0_4: #1.65e-8
+      # prior_type: log # flat log prior
       range: [3.03e-7, 3.03e-5] # should correspond to a cross section of [10^-41 cm^2, 10^-37 cm^2]
     c0_5: 0
+      # prior_type: log # flat log prior
     c0_6: 0
+      # prior_type: log # flat log prior
     c0_7: 0
+      # prior_type: log # flat log prior
     c0_8: 0
+      # prior_type: log # flat log prior
     c0_9: 0
+      # prior_type: log # flat log prior
     c0_10: 0
+      # prior_type: log # flat log prior
     c0_11: 0
+      # prior_type: log # flat log prior
     c0_12: 0
+      # prior_type: log # flat log prior
     c0_13: 0
+      # prior_type: log # flat log prior
     c0_14: 0
+      # prior_type: log # flat log prior
     c0_15: 0
+      # prior_type: log # flat log prior
     c1_1: 0
+      # prior_type: log # flat log prior
     c1_2: 0
+      # prior_type: log # flat log prior
     c1_3: 0
+      # prior_type: log # flat log prior
     c1_4: 0
+      # prior_type: log # flat log prior
     c1_5: 0
+      # prior_type: log # flat log prior
     c1_6: 0
+      # prior_type: log # flat log prior
     c1_7: 0
+      # prior_type: log # flat log prior
     c1_8: 0
+      # prior_type: log # flat log prior
     c1_9: 0
+      # prior_type: log # flat log prior
     c1_10: 0
+      # prior_type: log # flat log prior
     c1_11: 0
+      # prior_type: log # flat log prior
     c1_12: 0
+      # prior_type: log # flat log prior
     c1_13: 0
+      # prior_type: log # flat log prior
     c1_14: 0
+      # prior_type: log # flat log prior
     c1_15: 0
+      # prior_type: log # flat log prior
 
   Halo_gNFW_rho0:
     rho0: .5
