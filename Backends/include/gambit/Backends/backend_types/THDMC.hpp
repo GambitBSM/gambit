@@ -22,7 +22,7 @@
 #define __THDMC_types_hpp__
 
 #include "gambit/Backends/backend_types/THDMC_1_8_0/identification.hpp"
-#include "../../../../installed/THDMC/1.8.0/src/backend_types/THDMC_1_8_0/wrapper_THDM_decl.h"
+#include "THDMC_1_8_0/wrapper_THDM_decl.h"
 
 namespace Gambit
 {
