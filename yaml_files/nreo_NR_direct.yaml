@@ -13,13 +13,13 @@ Parameters:
 
   NREO_DiracDM:
     m:
-      range: [1.0e-3, 1.0e+3]
-    c0_1: 1.65e-8  # 1.65*10**(-8)
+      range: [80, 1.0e+4]
+    c0_1: 0  # 1.65*10**(-8)
       # range: [1.0e-10, 1.0e-6]
     c0_2: 0
     c0_3: 0
-    c0_4: 1.65e-8
-      # range: [1.0e-10, 1.0e-6]
+    c0_4: # 1.65e-8
+      range: [3.02e-8, 3.02e-6]
     c0_5: 0
     c0_6: 0
     c0_7: 0
@@ -98,7 +98,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: sqrgrd
+  use_scanner: multinest
 
   scanners:
 
@@ -110,8 +110,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 500
-      tol: 0.5
+      nlive: 50000
+      tol: 0.005
 
     twalk:
       plugin: twalk
@@ -212,6 +212,6 @@ KeyValues:
     seed: -1
 
 
-  print_timing_data: true
+  # print_timing_data: true
 
-  debug: true
+  # debug: true

@@ -146,8 +146,8 @@ Scanner:
     multinest:
       plugin: multinest
       like:  LogLike
-      nlive: 5000
-      tol: 0.1
+      nlive: 500
+      tol: 0.5
 
     twalk:
       plugin: twalk
@@ -253,7 +253,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/nreo_NR_both_secondtry"
+  default_output_path: "runs/nreo_NR_both_multinest"
 
   rng:
     generator: ranlux48
