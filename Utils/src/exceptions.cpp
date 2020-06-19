@@ -392,13 +392,23 @@ namespace Gambit
     }
 
 
-  /// Gambit invalid point exception class methods.
+  /// Gambit invalid and suspicious point exception class methods.
 
     /// Constructor
     invalid_point_exception::invalid_point_exception() : special_exception("GAMBIT invalid point."), myThrower(NULL) {}
+    suspicious_point_exception::suspicious_point_exception() : special_exception("GAMBIT suspicious point."), myThrower(NULL) {}
 
     /// Set the pointer to the functor that threw the invalid point exception.
     void invalid_point_exception::set_thrower(functor* thrown_from)
+    {
+      #pragma omp critical (myThrower)
+      {
+        myThrower = thrown_from;
+      }
+    }
+
+    /// Set the pointer to the functor that threw the suspicious point exception.
+    void suspicious_point_exception::set_thrower(functor* thrown_from)
     {
       #pragma omp critical (myThrower)
       {
@@ -418,8 +428,20 @@ namespace Gambit
       return temp;
     }
 
-    /// Raise the exception, i.e. throw it with a message.
-    void invalid_point_exception::raise(const std::string& msg)
+    /// Retrieve pointer to the functor that threw the suspicious point exception.
+    functor* suspicious_point_exception::thrower()
+    {
+      functor* temp;
+      #pragma omp critical (myThrower)
+      {
+        temp = myThrower;
+      }
+      if (temp == NULL) utils_error().raise(LOCAL_INFO, "No throwing functor in suspicious_point_exception.");
+      return temp;
+    }
+
+    /// Raise the invalid point exception, i.e. throw it with a message and a code.
+    void invalid_point_exception::raise(const std::string& msg,int mycode)
     {
       if (omp_get_level()==0) // If not in an OpenMP parallel block, throw onwards
       {
@@ -427,6 +449,7 @@ namespace Gambit
         {
           myMessage = msg;
         }
+        invalidcode = mycode;
         throw(*this);
       }
       else
@@ -442,6 +465,18 @@ namespace Gambit
         }
         abort_here_and_now(); // If in an OpenMP parallel block, just abort immediately.
       }
+    }
+
+    /// Raise the new suspicious point exception, i.e. throw it with a message and a code.
+    void suspicious_point_exception::raise(const std::string& msg,int mycode)
+    {
+      #pragma omp critical (GAMBIT_exception)
+      {
+        myMessage = msg;
+      }
+
+      suspiciouscode = mycode;
+      throw(*this);
     }
 
     /// Cause the code to print the exception and abort.

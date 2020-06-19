@@ -117,6 +117,15 @@ namespace Gambit
             throw(e);
           }
         }
+        catch (suspicious_point_exception& esus)
+        {
+          if (not suspicious_point_exception_raised) acknowledgeSuspicion(esus);
+          if (omp_get_level()==0)                  // If not in an OpenMP parallel block, throw onwards
+          {
+            this->finishTiming(thread_num);        //Stop timing function evaluation
+            throw(esus);
+          }
+        }
         this->finishTiming(thread_num);            //Stop timing function evaluation
         logger().leaving_module();
       }

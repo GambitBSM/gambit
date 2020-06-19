@@ -82,6 +82,7 @@ namespace Gambit
     double functor::getInvalidationRate() { return 0; }
     void functor::setFadeRate(double) {}
     void functor::notifyOfInvalidation(const str&) {}
+    void functor::notifyOfSuspicion(const str&) {}
     void functor::reset() {}
     void functor::reset(int) {}
     /// @}
@@ -630,6 +631,8 @@ namespace Gambit
     /// Retrieve the previously saved exception generated when this functor invalidated the current point in model space.
     invalid_point_exception* functor::retrieve_invalid_point_exception() { return NULL; }
 
+    /// Retrieve the previously saved exception generated when this functor suspects the current point in model space.
+    suspicious_point_exception* functor::retrieve_suspicious_point_exception() { return NULL; }
 
     // Module_functor_common class methods
 
@@ -737,6 +740,13 @@ namespace Gambit
       retrieve_invalid_point_exception()->raise(msg);
     }
 
+    /// Tell the functor that it suspects the current point in model space, pass a message explaining why, and throw an exception.
+    void module_functor_common::notifyOfSuspicion(const str& msg)
+    {
+      acknowledgeSuspicion(suspicious_point());
+      retrieve_suspicious_point_exception()->raise(msg);
+    }
+
     /// Acknowledge that this functor invalidated the current point in model space.
     void module_functor_common::acknowledgeInvalidation(invalid_point_exception& e, functor* f)
     {
@@ -752,6 +762,19 @@ namespace Gambit
       if (omp_get_level()!=0) breakLoop();
     }
 
+    /// Acknowledge that this functor means the current point in model space is suspicious.
+    void module_functor_common::acknowledgeSuspicion(suspicious_point_exception& esus, functor* f)
+    {
+      if (f==NULL) f = this;
+      #pragma omp critical (raised_suspicious_point_exception)
+      {
+        esus.set_thrower(f);
+        raised_suspicious_point_exception = esus;
+        suspicious_point_exception_raised = true;
+      }
+      if (omp_get_level()!=0) breakLoop();
+    }
+
     /// Retrieve the previously saved exception generated when this functor invalidated the current point in model space.
     invalid_point_exception* module_functor_common::retrieve_invalid_point_exception()
     {
@@ -760,6 +783,18 @@ namespace Gambit
       {
         invalid_point_exception* e = (*f)->retrieve_invalid_point_exception();
         if (e != NULL) return e;
+      }
+      return NULL;
+    }
+
+    /// Retrieve the previously saved exception generated when this functor suspects the current point in model space.
+    suspicious_point_exception* module_functor_common::retrieve_suspicious_point_exception()
+    {
+      if (suspicious_point_exception_raised) return &raised_suspicious_point_exception;
+      for (auto f = myNestedFunctorList.begin(); f != myNestedFunctorList.end(); ++f)
+      {
+        suspicious_point_exception* esus = (*f)->retrieve_suspicious_point_exception();
+        if (esus != NULL) return esus;
       }
       return NULL;
     }
@@ -815,6 +850,11 @@ namespace Gambit
           {
             acknowledgeInvalidation(e,*it);
             if (omp_get_level()==0) throw(e); // If not in an OpenMP parallel block, inform of invalidation and throw onwards
+          }
+          catch (suspicious_point_exception& esus)
+          {
+            acknowledgeSuspicion(esus,*it);
+            if (omp_get_level()==0) throw(esus); // If not in an OpenMP parallel block, inform of suspicion and throw onwards
           }
         }
       }
@@ -1732,6 +1772,17 @@ namespace Gambit
             this->finishTiming(thread_num);
             leaving_multithreaded_region();
             throw(e);
+          }
+        }
+        catch (suspicious_point_exception& esus)
+        {
+
+          if (not suspicious_point_exception_raised) acknowledgeSuspicion(esus);
+          if (omp_get_level()==0)                  // If not in an OpenMP parallel block, throw onwards
+          {
+            this->finishTiming(thread_num);
+            leaving_multithreaded_region();
+            throw(esus);
           }
         }
         this->finishTiming(thread_num);

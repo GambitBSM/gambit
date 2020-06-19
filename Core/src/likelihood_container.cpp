@@ -60,6 +60,10 @@ namespace Gambit
     intraloopID(Printers::get_main_param_id(intralooptime_label)),
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
+    invalidcode_label     ("Invalidation Code"),
+    invalidcodeID(Printers::get_main_param_id(invalidcode_label)),
+    suspicioncode_label     ("Suspicion Code"),
+    suspicioncodeID(Printers::get_main_param_id(suspicioncode_label)),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -265,15 +269,33 @@ namespace Gambit
         // Catch points that are invalid, either due to low like or pathology.  Skip the rest of the vertices if a point is invalid.
         catch(invalid_point_exception& e)
         {
-          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
           compute_aux = false;
           point_invalidated = true;
+
+          int rankinv = printer.getRank();
+          printer.print(e.invalidcode,   invalidcode_label, invalidcodeID, rankinv, getPtID());
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
-          if (debug) cout << "Point invalid." << endl;
+          if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
+          break;
+        }
+
+        // Catch points that are suspicious.
+        catch(suspicious_point_exception& esus)
+        {
+          logger() << LogTags::core << "Point is suspicious at " << esus.thrower()->origin() << "::" << esus.thrower()->name() << ": " << esus.message() << "Suspicion code " << esus.suspiciouscode << EOM;
+          logger().leaving_module();
+          compute_aux = true;
+          point_invalidated = false;
+
+          int ranksus = printer.getRank();
+          printer.print(esus.suspiciouscode,   suspicioncode_label, suspicioncodeID, ranksus, getPtID());
+
+          if (debug) cout << "Point suspicious. Suspicion code: " << esus.suspiciouscode << endl;
           break;
         }
       }
@@ -299,7 +321,12 @@ namespace Gambit
           catch(Gambit::invalid_point_exception& e)
           {
             logger() << LogTags::core << "Additional observable invalidated by " << e.thrower()->origin()
-                     << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+                     << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
+          }
+          catch(Gambit::suspicious_point_exception& esus)
+          {
+            logger() << LogTags::core << "Additional observable raises suspicion by " << esus.thrower()->origin()
+                     << "::" << esus.thrower()->name() << ": " << esus.message() << "Suspicion code " << esus.suspiciouscode << EOM;
           }
         }
       }

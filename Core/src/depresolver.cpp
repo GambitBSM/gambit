@@ -643,7 +643,9 @@ namespace Gambit
             "Runtime, averaged over multiple calls [s]: " << T << EOM;
         }
         invalid_point_exception* e = masterGraph[*it]->retrieve_invalid_point_exception();
+        suspicious_point_exception* esus = masterGraph[*it]->retrieve_suspicious_point_exception();
         if (e != NULL) throw(*e);
+        if (esus != NULL) throw(*esus);
       }
       // Reset the cout output precision, in case any backends have messed with it during the ObsLike evaluation.
       cout << std::setprecision(boundCore->get_outprec());

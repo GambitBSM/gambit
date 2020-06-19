@@ -86,6 +86,13 @@ namespace Gambit
     return local;
   }
 
+  /// Suspicious point exceptions
+  suspicious_point_exception& suspicious_point()
+  {
+    static suspicious_point_exception local;
+    return local;
+  }
+
   namespace Printers
   {
 

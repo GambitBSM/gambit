@@ -110,6 +110,7 @@ namespace Gambit
       virtual double getInvalidationRate();
       virtual void setFadeRate(double);
       virtual void notifyOfInvalidation(const str&);
+      virtual void notifyOfSuspicion(const str&);
       virtual void reset();
       /// @}
 
@@ -258,6 +259,9 @@ namespace Gambit
 
       /// Retrieve the previously saved exception generated when this functor invalidated the current point in model space.
       virtual invalid_point_exception* retrieve_invalid_point_exception();
+
+      /// Retrieve the previously saved exception generated when this functor makes the current point in model space seem suspicious.
+      virtual suspicious_point_exception* retrieve_suspicious_point_exception();
 
       /// Notify the functor about an instance of the options class that contains
       /// information from its corresponding ini-file entry in the auxiliaries or
@@ -416,6 +420,9 @@ namespace Gambit
       /// Tell the functor that it invalidated the current point in model space, pass a message explaining why, and throw an exception.
       void notifyOfInvalidation(const str&);
 
+      /// Tell the functor that it suspects the current point in model space, pass a message explaining why, and throw an exception.
+      void notifyOfSuspicion(const str&);
+
       /// Getter for invalidation rate
       double getInvalidationRate();
 
@@ -566,6 +573,9 @@ namespace Gambit
       /// Retrieve the previously saved exception generated when this functor invalidated the current point in model space.
       virtual invalid_point_exception* retrieve_invalid_point_exception();
 
+      /// Retrieve the previously saved exception generated when this functor makes the current point in model space seem suspicious.
+      virtual suspicious_point_exception* retrieve_suspicious_point_exception();
+
 
     protected:
 
@@ -574,6 +584,9 @@ namespace Gambit
 
       /// Acknowledge that this functor invalidated the current point in model space.
       virtual void acknowledgeInvalidation(invalid_point_exception&, functor* f = NULL);
+
+      /// Acknowledge that this functor makes the current point in model space seem suspicious.
+      virtual void acknowledgeSuspicion(suspicious_point_exception&, functor* f = NULL);
 
       /// Do pre-calculate timing things
       virtual void startTiming(int);
@@ -599,8 +612,14 @@ namespace Gambit
       /// A flag indicating whether or not this functor has invalidated the current point
       bool point_exception_raised;
 
+      /// A flag indicating whether or not this functor suspects the current point
+      bool suspicious_point_exception_raised;
+
       /// An exception raised because this functor has invalidated the current point
       invalid_point_exception raised_point_exception;
+
+      /// An exception raised because this functor suspects the current point
+      suspicious_point_exception raised_suspicious_point_exception;
 
       /// Averaged runtime in ns
       double runtime_average;

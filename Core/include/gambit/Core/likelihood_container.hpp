@@ -91,6 +91,12 @@ namespace Gambit
       const int interloopID;
       const int totalloopID;
 
+      ///Invalid and Suspicion Code Printers
+      const str invalidcode_label;
+      const int invalidcodeID;
+      const str suspicioncode_label;
+      const int suspicioncodeID;
+
       /// Run in likelihood debug mode?
       bool debug;
 

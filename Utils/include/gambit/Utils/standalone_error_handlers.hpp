@@ -47,6 +47,9 @@ namespace Gambit
   /// Invalid point exceptions
   invalid_point_exception& invalid_point();
 
+  /// Suspicious point exceptions
+  suspicious_point_exception& suspicious_point();
+
   namespace Printers
   {
     /// Printer errors

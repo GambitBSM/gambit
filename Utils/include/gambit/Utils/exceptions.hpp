@@ -210,6 +210,10 @@ namespace Gambit
       /// Raise the exception, i.e. throw it.
       virtual void raise(const std::string&);
 
+      /// Integer codes used for exceptions
+      int invalidcode;
+      int suspiciouscode;
+
     private:
 
       /// What this exception is (for returning with what method).
@@ -245,8 +249,33 @@ namespace Gambit
       /// Retrieve pointer to the functor that threw the invalid point exception.
       functor* thrower();
 
-      /// Raise the exception, i.e. throw it.
-      virtual void raise(const std::string&);
+      /// Raise the exception, i.e. throw it. The default code is 1.
+      virtual void raise(const std::string&, int code = 1);
+
+  };
+
+  /// Gambit suspicious point exception class.
+  class suspicious_point_exception : public special_exception
+  {
+
+    private:
+
+      /// The functor responsible for throwing this exception.
+      functor* myThrower;
+
+    public:
+
+      /// Constructor
+      suspicious_point_exception();
+
+      /// Set the pointer to the functor that threw the suspicious point exception.
+      void set_thrower(functor*);
+
+      /// Retrieve pointer to the functor that threw the suspicious point exception.
+      functor* thrower();
+
+      /// Raise the exception, i.e. throw it. THe default code is 1.
+      virtual void raise(const std::string&, int code=1);
 
   };
 
