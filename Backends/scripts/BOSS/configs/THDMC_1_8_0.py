@@ -86,5 +86,11 @@ extra_output_dir       = 'BOSS_output'
 
 known_classes = {}
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
+
 pragmas_begin = []
 pragmas_end = []
