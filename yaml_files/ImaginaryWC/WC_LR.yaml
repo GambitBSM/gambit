@@ -42,16 +42,13 @@ Parameters:
   WC_LR:
     Re_DeltaC7:
       range: [-3, 3]
-    Im_DeltaC7: 
-      range: [-6, 6]
+    Im_DeltaC7: 0
     Re_DeltaC9:
        range: [-6, 6]
-    Im_DeltaC9: 
-       range: [-6, 6]
+    Im_DeltaC9: 0
     Re_DeltaC10:
        range: [-6, 6]
-    Im_DeltaC10: 
-       range: [-6, 6]
+    Im_DeltaC10: 0
     Re_DeltaCQ1: 0
     Im_DeltaCQ1: 0
     Re_DeltaCQ2: 0
@@ -59,16 +56,13 @@ Parameters:
 
     Re_DeltaC7_Prime:
       range: [-6, 6]
-    Im_DeltaC7_Prime:
-      range: [-6, 6]
+    Im_DeltaC7_Prime: 0
     Re_DeltaC9_Prime:
       range: [-6, 6]
-    Im_DeltaC9_Prime:
-      range: [-6, 6]
+    Im_DeltaC9_Prime: 0
     Re_DeltaC10_Prime:
       range: [-6, 6]
-    Im_DeltaC10_Prime:
-      range: [-6, 6]
+    Im_DeltaC10_Prime: 0
     Re_DeltaCQ1_Prime: 0
     Im_DeltaCQ1_Prime: 0
     Re_DeltaCQ2_Prime: 0
@@ -259,6 +253,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/WC_LR_IM"
+  default_output_path: "runs/WC_LR"
 
   debug: true

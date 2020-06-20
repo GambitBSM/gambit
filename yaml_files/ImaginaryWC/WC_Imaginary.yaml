@@ -43,15 +43,15 @@ Parameters:
     Re_DeltaC7:
       range: [-1, 1]
     Im_DeltaC7: 
-      range: [-5, 5]
+      range: [-6, 6]
     Re_DeltaC9:
-       range: [-5, 5]
+       range: [-6, 6]
     Im_DeltaC9: 
-       range: [-5, 5]
+       range: [-6, 6]
     Re_DeltaC10:
-       range: [-5, 5]
+       range: [-6, 6]
     Im_DeltaC10: 
-       range: [-5, 5]
+       range: [-6, 6]
     Re_DeltaCQ1: 0
     Im_DeltaCQ1: 0
     Re_DeltaCQ2: 0
@@ -89,8 +89,11 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 5000
+      NP: 20000
       convthresh: 1e-5
+      lambdajDE: false
+      lambda[0]: -0.1
+      
 
     square_grid:
       plugin: square_grid
