@@ -77,8 +77,8 @@
 #include "gambit/cmake/cmake_variables.hpp"
 
 
-//#define FLAVBIT_DEBUG
-//#define FLAVBIT_DEBUG_LL
+#define FLAVBIT_DEBUG
+#define FLAVBIT_DEBUG_LL
 
 namespace YAML
 {
@@ -839,19 +839,19 @@ namespace Gambit
       }
 
       int nObservables = SI_obslist.size();
-
+      if (flav_debug) cout<<"Number of obserables: "<<nObservables<<endl;
       char obsnames[nObservables][50];
       for(int iObservable = 0; iObservable < nObservables; iObservable++)
       {
         strcpy(obsnames[iObservable], SI_obslist[iObservable].c_str());
       }
-
+      if (flav_debug) cout<<"Copied obs"<<endl;
       // ---------- CENTRAL VALUES ----------
       double *result_central;
 
       // Reserve memory
       result_central = (double *) calloc(nObservables, sizeof(double));
-
+      
       // Needed for SuperIso backend
       get_predictions_nuisance((char**)obsnames, &nObservables, &result_central, &param, &nuislist);
 
@@ -872,33 +872,33 @@ namespace Gambit
           printf("%s=%.4e\n", obsnames[iObservable], result.central_values[FB_obslist[iObservable]]);
         }
       }
-
+      if (flav_debug) cout<<"2"<<endl;
       //Switch the observables to LHCb convention
       Kstarmumu_Theory2Experiment_translation(result.central_values);
-
+      if (flav_debug) cout<<"3"<<endl; 
       // If we need to compute the covariance, either because we're doing it for every point or we haven't cached the SM value, do it.
       if (not useSMCovariance or not SMCovarianceCached)
       {
-
+        if (flav_debug) cout<<"4"<<endl; 
         // ---------- COVARIANCE ----------
         static bool first = true;
         static const int nNuisance=161;
         static char namenuisance[nNuisance+1][50];
         static double **corr=(double  **) malloc((nNuisance+1)*sizeof(double *));  // Nuisance parameter correlations
-
+        
         if (first)
         {
           observables(0, NULL, 0, NULL, NULL, &nuislist, (char **)namenuisance, &param); // Initialization of namenuisance
-
+          if (flav_debug) cout<<"5"<<endl;
           // Reserve memory
           for(int iObservable = 0; iObservable <= nNuisance; ++iObservable)
           {
             corr[iObservable]=(double *) malloc((nNuisance+1)*sizeof(double));
           }
-
+          if (flav_debug) cout<<"6"<<endl;
           // Needed for SuperIso backend
           convert_correlation((nuiscorr *)corrnuis, byVal(ncorrnuis), (double **)corr, (char **)namenuisance, byVal(nNuisance));
-
+          if (flav_debug) cout<<"7"<<endl;
           first = false;
         }
 
@@ -918,15 +918,18 @@ namespace Gambit
             param_SM.deltaCQ[ie]=0.;
             param_SM.deltaCQp[ie]=0.;
           }
+          if (flav_debug) cout<<"70"<<endl; 
+          
           // Use the SM values of the parameters to calculate the SM theory covariance.
           get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param_SM, &nuislist, (double **)corr);
+          if (flav_debug) cout<<"71"<<endl; 
         }
         else
         {
           // Calculate covariance at the new physics point.
           get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param, &nuislist, (double **)corr);
         }
-
+        if (flav_debug) cout<<"8"<<endl; 
         // Fill the covariance matrix in the result structure
         for(int iObservable=0; iObservable < nObservables; ++iObservable)
         {
@@ -938,7 +941,7 @@ namespace Gambit
 
         //Switch the covariances to LHCb convention
         Kstarmumu_Theory2Experiment_translation(result.covariance);
-
+        if (flav_debug) cout<<"9"<<endl; 
         // Free memory  // We are not freeing the memory because we made the variable static. Just keeping this for reference on how to clean up the allocated memory in case of non-static caluclation of **corr.
         // for(int iObservable = 0; iObservable <= nNuisance; ++iObservable) {
         //   free(corr[iObservable]);

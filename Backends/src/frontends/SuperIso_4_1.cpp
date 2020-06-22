@@ -32,7 +32,7 @@
 
 /// Number of observables the SuperIso returns for B0 -> K(*) mu mu and Bs -> phi mu mu
 #define Nobs_BKll 2
-#define Nobs_BKsll 30
+#define Nobs_BKsll 33
 #define Nobs_Bsphill 6
 
 
@@ -74,6 +74,7 @@ BE_NAMESPACE
   /// B0 -> K*0 mu mu observables
   Flav_KstarMuMu_obs BKstarmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
+    std::cout<<"I am used"<<std::endl;
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
