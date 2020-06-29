@@ -37,6 +37,9 @@
 ///  \author Tomas Gonzalo
 ///  \date 2017 July
 ///
+///  \author Cristian Sierra
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __FlavBit_rollcall_hpp__
@@ -78,8 +81,30 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY      
+  #undef CAPABILITY   
+  
+//CQ1 in the general THDM capability
+  #define CAPABILITY DeltaCQ1
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
 
+//CQ2 in the general THDM capability
+  #define CAPABILITY DeltaCQ2
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY 
+  
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
   START_CAPABILITY
@@ -100,6 +125,8 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC9, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC10, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>, THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
