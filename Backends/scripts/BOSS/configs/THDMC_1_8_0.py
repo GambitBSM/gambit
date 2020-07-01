@@ -88,9 +88,15 @@ known_classes = {}
 
 # ~~~~~ Declarations to be added to the frontend header file ~~~~~
 
-convenience_functions = []
+convenience_functions = [
+{'name' : 'init_THDM_spectrum_container_CONV',
+'returntype' : 'void',
+'argtypes' : ['THDM_spectrum_container&', 'const Spectrum&', 'int', 'double', 'int'],
+'capname' : 'init_THDM_spectrum_container_CONV'
+}
+]
 
-ini_function_in_header = True
+ini_function_in_header = False
 
 pragmas_begin = []
 pragmas_end = []

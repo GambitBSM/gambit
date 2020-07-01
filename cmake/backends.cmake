@@ -1299,7 +1299,6 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
     INSTALL_COMMAND ""
-    COMMAND cd ${frontend_header_dir} && patch < ${patch}/THDMC_1_8_0_hpp.patch
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
