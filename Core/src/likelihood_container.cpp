@@ -213,8 +213,26 @@ namespace Gambit
           std::ostringstream debug_to_cout;
           if (debug) debug_to_cout << "  L" << likelihood_tag << ": ";
 
+
           // Calculate the likelihood component.
+          try
+          {
           dependencyResolver.calcObsLike(*it);
+          }
+          // Catch points that are suspicious.
+          catch(suspicious_point_exception& esus)
+          {
+            logger() << LogTags::core << "Point is suspicious at " << esus.thrower()->origin() << "::" << esus.thrower()->name() << ": " << esus.message() << "Suspicion code " << esus.suspiciouscode << EOM;
+            logger().leaving_module();
+
+            compute_aux = true;
+            point_invalidated = false;
+
+            int ranksus = printer.getRank();
+            printer.print(esus.suspiciouscode,   suspicioncode_label, suspicioncodeID, ranksus, getPtID());
+
+            if (debug) cout << "Point suspicious. Suspicion code: " << esus.suspiciouscode << endl;
+        }
 
           // Switch depending on whether the functor returns floats or doubles and a single likelihood or a vector of them.
           str rtype = return_types[*it];
@@ -284,20 +302,6 @@ namespace Gambit
           break;
         }
 
-        // Catch points that are suspicious.
-        catch(suspicious_point_exception& esus)
-        {
-          logger() << LogTags::core << "Point is suspicious at " << esus.thrower()->origin() << "::" << esus.thrower()->name() << ": " << esus.message() << "Suspicion code " << esus.suspiciouscode << EOM;
-          logger().leaving_module();
-          compute_aux = true;
-          point_invalidated = false;
-
-          int ranksus = printer.getRank();
-          printer.print(esus.suspiciouscode,   suspicioncode_label, suspicioncodeID, ranksus, getPtID());
-
-          if (debug) cout << "Point suspicious. Suspicion code: " << esus.suspiciouscode << endl;
-          break;
-        }
       }
 
 
