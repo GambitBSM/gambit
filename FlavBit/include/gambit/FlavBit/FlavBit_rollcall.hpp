@@ -1643,6 +1643,25 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+
+
+  /// HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+  #define CAPABILITY B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KstarmumuAng_0p1_0p98_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_1p1_2p5_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_2p5_4_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+
   /// HEPLike LogLikelihood B -> K* mu mu BR
   #define CAPABILITY B2KstarmumuBr_LogLikelihood_LHCb
   START_CAPABILITY
