@@ -851,10 +851,11 @@ namespace Gambit
 
       // Reserve memory
       result_central = (double *) calloc(nObservables, sizeof(double));
-      
+      if (flav_debug)  cout<<"Testing compution: "<<obsnames[0]<<" = "<< result_central[0]<<endl;
       // Needed for SuperIso backend
       get_predictions_nuisance((char**)obsnames, &nObservables, &result_central, &param, &nuislist);
-
+      if (flav_debug)  cout<<"Testing compution: "<<obsnames[0]<<" = "<< result_central[0]<<endl;
+      
       // Compute the central values
       for(int iObservable = 0; iObservable < nObservables; ++iObservable)
       {

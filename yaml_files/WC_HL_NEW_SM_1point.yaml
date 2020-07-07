@@ -277,7 +277,7 @@ Rules:
 
   - capability: prediction_B2KstarmumuAng_.*_Atlas
     options:
-      obs_list: [FL, S3, S4, S5, S7, S8]
+      obs_list: [FL, S3, S4, S5, S7, S8, A3, A4, A5, A7, A6]
 
   - capability: B2KstarmumuAng_LogLikelihood_Atlas
     options:

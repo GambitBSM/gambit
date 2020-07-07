@@ -32,7 +32,7 @@
 
 /// Number of observables the SuperIso returns for B0 -> K(*) mu mu and Bs -> phi mu mu
 #define Nobs_BKll 2
-#define Nobs_BKsll 33
+#define Nobs_BKsll 34
 #define Nobs_Bsphill 6
 
 
