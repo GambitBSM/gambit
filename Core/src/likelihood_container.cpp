@@ -185,6 +185,7 @@ namespace Gambit
       // If the shutdown has been triggered but the quit flag is present, then we let the likelihood evaluation proceed as normal.
 
       bool compute_aux = true;
+      bool point_suspicious = false;
 
       // Set the values of the parameter point in the PrimaryParameters functor, and log them to cout and/or the logs if desired.
       setParameters(in);
@@ -213,38 +214,55 @@ namespace Gambit
           std::ostringstream debug_to_cout;
           if (debug) debug_to_cout << "  L" << likelihood_tag << ": ";
 
-
           // Calculate the likelihood component.
           try
           {
-          dependencyResolver.calcObsLike(*it);
+            dependencyResolver.calcObsLike(*it);
           }
-          // Catch points that are suspicious.
           catch(suspicious_point_exception& esus)
           {
-            logger() << LogTags::core << "Point is suspicious at " << esus.thrower()->origin() << "::" << esus.thrower()->name() << ": " << esus.message() << "Suspicion code " << esus.suspiciouscode << EOM;
-            logger().leaving_module();
+            point_suspicious = true;
+            suspicioncode = esus.suspiciouscode; suspicionorigin = esus.thrower()->origin(); suspicionname = esus.thrower()->name(); suspicionmsg = esus.message();
+          }
 
-            compute_aux = true;
-            point_invalidated = false;
-
-            int ranksus = printer.getRank();
-            printer.print(esus.suspiciouscode,   suspicioncode_label, suspicioncodeID, ranksus, getPtID());
-
-            if (debug) cout << "Point suspicious. Suspicion code: " << esus.suspiciouscode << endl;
-        }
 
           // Switch depending on whether the functor returns floats or doubles and a single likelihood or a vector of them.
           str rtype = return_types[*it];
           if (rtype == "double")
           {
-            double result = dependencyResolver.getObsLike<double>(*it);
+            double result;
+            try
+            {
+              result = dependencyResolver.getObsLike<double>(*it);
+            }
+            catch(suspicious_point_exception& esus)
+            {
+              point_suspicious = true;
+              suspicioncode = esus.suspiciouscode;
+              suspicionorigin = esus.thrower()->origin();
+              suspicionname = esus.thrower()->name();
+              suspicionmsg = esus.message();
+            }
+
             if (debug) debug_to_cout << result;
             lnlike += result;
           }
           else if (rtype == "std::vector<double>")
           {
-            std::vector<double> result = dependencyResolver.getObsLike<std::vector<double> >(*it);
+            std::vector<double> result;
+            try
+            {
+            result = dependencyResolver.getObsLike<std::vector<double> >(*it);
+            }
+            catch(suspicious_point_exception& esus)
+            {
+              point_suspicious = true;
+              suspicioncode = esus.suspiciouscode;
+              suspicionorigin = esus.thrower()->origin();
+              suspicionname = esus.thrower()->name();
+              suspicionmsg = esus.message();
+            }
+
             for (auto jt = result.begin(); jt != result.end(); ++jt)
             {
               if (debug) debug_to_cout << *jt << " ";
@@ -253,13 +271,39 @@ namespace Gambit
           }
           else if (rtype == "float")
           {
-            float result = dependencyResolver.getObsLike<float>(*it);
+            float result;
+            try
+            {
+            result = dependencyResolver.getObsLike<float>(*it);
+            }
+            catch(suspicious_point_exception& esus)
+            {
+              point_suspicious = true;
+              suspicioncode = esus.suspiciouscode;
+              suspicionorigin = esus.thrower()->origin();
+              suspicionname = esus.thrower()->name();
+              suspicionmsg = esus.message();
+            }
+
             if (debug) debug_to_cout << result;
             lnlike += result;
           }
           else if (rtype == "std::vector<float>")
           {
-            std::vector<float> result = dependencyResolver.getObsLike<std::vector<float> >(*it);
+            std::vector<float> result;
+            try
+            {
+            result = dependencyResolver.getObsLike<std::vector<float> >(*it);
+            }
+            catch(suspicious_point_exception& esus)
+            {
+              point_suspicious = true;
+              suspicioncode = esus.suspiciouscode;
+              suspicionorigin = esus.thrower()->origin();
+              suspicionname = esus.thrower()->name();
+              suspicionmsg = esus.message();
+            }
+
             for (auto jt = result.begin(); jt != result.end(); ++jt)
             {
               if (debug) debug_to_cout << *jt << " ";
@@ -295,13 +339,22 @@ namespace Gambit
 
           int rankinv = printer.getRank();
           printer.print(e.invalidcode,   invalidcode_label, invalidcodeID, rankinv, getPtID());
-          // If print_ivalid_points is false disable the printer
+          // If print_invalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
           if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }
+        // If the suspicious point exception was raised in any of the tested regions
+        if(point_suspicious)
+        {
+          logger() << LogTags::core << "Point is suspicious at " << suspicionorigin << "::" << suspicionname << ": " << suspicionmsg << "Suspicion code " << suspicioncode << EOM;
+          logger().leaving_module();
 
+          int ranksus = printer.getRank();
+          printer.print(suspicioncode,   suspicioncode_label, suspicioncodeID, ranksus, getPtID());
+          if (debug) cout << "Point suspicious. Suspicion code: " << suspicioncode << endl;
+        }
       }
 
 
