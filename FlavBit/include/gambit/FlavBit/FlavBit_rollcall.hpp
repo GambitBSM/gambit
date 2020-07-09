@@ -81,7 +81,40 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+  #undef CAPABILITY
+  
+//C7' in the general THDM capability
+  #define CAPABILITY DeltaC7p
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC7p
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//C9' in the general THDM capability
+  #define CAPABILITY DeltaC9p
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9p
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
   #undef CAPABILITY   
+  
+//C10' in the general THDM capability
+  #define CAPABILITY DeltaC10p
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10p
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
   
 //CQ1 in the general THDM capability
   #define CAPABILITY DeltaCQ1
@@ -125,6 +158,9 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC9, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC10, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7p, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9p, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10p, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>, THDM, THDMatQ)
     #undef FUNCTION

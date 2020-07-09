@@ -58,6 +58,19 @@ BE_NAMESPACE
     CQ0b[1]+=std::complex<double>(param->Re_DeltaCQ1, param->Im_DeltaCQ1);
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
   }
+  
+   void modify_WCP(const parameters *param, double Cpb[11])
+  {
+    Cpb[7]+=param->Re_DeltaC7p;
+    Cpb[9]+=param->Re_DeltaC9p;
+    Cpb[10]+=param->Re_DeltaC10p;
+  }
+  void modify_WCP(const parameters *param, double Cpb[11], std::complex<double> CQpb[3])
+  {
+    modify_WCP(param, Cpb);
+    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1p, param->Im_DeltaCQ1p);
+    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2p, param->Im_DeltaCQ2p);
+  }
   /// @}
 
   /// Helper function to double-check that SuperIso can handle the model.
@@ -90,6 +103,8 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
+    
 
     results.BR = BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
 
@@ -126,6 +141,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
@@ -156,6 +172,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
@@ -198,6 +215,7 @@ BE_NAMESPACE
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b);
+    modify_WCP(param, Cpb);
 
     return bsgamma_Ecut(byVal(C0b),byVal(C1b),byVal(C2b),byVal(Cpb),byVal(mu_b),byVal(mu_W), E_t, param);
   }
@@ -218,6 +236,7 @@ BE_NAMESPACE
     CQ_calculator(flav,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(flav,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return Bsll_untag(flav,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -255,6 +274,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -273,6 +293,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -291,6 +312,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -309,6 +331,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -327,6 +350,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_zero(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -345,6 +369,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -363,6 +388,7 @@ BE_NAMESPACE
     CQ_calculator(3,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(3,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -383,6 +409,7 @@ BE_NAMESPACE
     C_calculator_base2(byVal(C0w),byVal(C1w),byVal(mu_W),byVal(C0spec),byVal(C1spec),byVal(mu_spec),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b);
+    modify_WCP(param, Cpb);
 
     return delta0(byVal(C0b),byVal(C0spec),byVal(C1b),byVal(C1spec),byVal(Cpb),param,byVal(mu_b),byVal(mu_spec),byVal(lambda_h));
   }
@@ -397,7 +424,7 @@ BE_NAMESPACE
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    modify_WC(param, C0b);
+    modify_WC(param, C0b);//Why does not scalars enter here?
 
     return AI_BKstarmumu(1.,6.,byVal(C0b),byVal(C1b),byVal(C2b),param,byVal(mu_b));
   }

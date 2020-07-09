@@ -107,6 +107,17 @@ namespace Gambit
     double Im_DeltaCQ1 = 0.;
     double Re_DeltaCQ2 = 0.;
     double Im_DeltaCQ2 = 0.;
+    //Prime WCs
+    double Re_DeltaC7p = 0.;
+    double Im_DeltaC7p = 0.;
+    double Re_DeltaC9p = 0.;
+    double Im_DeltaC9p = 0.;
+    double Re_DeltaC10p = 0.;
+    double Im_DeltaC10p = 0.;
+    double Re_DeltaCQ1p = 0.; /// Not necessary because CQ1,2=+-CQ1,2p at tree level
+    double Im_DeltaCQ1p = 0.;
+    double Re_DeltaCQ2p = 0.;
+    double Im_DeltaCQ2p = 0.;
   };
 
   /// This class holds all the B0 -> K*0 mumu observables
