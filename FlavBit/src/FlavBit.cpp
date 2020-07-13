@@ -576,6 +576,7 @@ namespace Gambit
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
       double mMu = Dep::SMINPUTS->mMu;
+      double mBmB = Dep::SMINPUTS->mBmB;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       double mZ = Dep::SMINPUTS->mZ;
@@ -588,7 +589,7 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4);   
       
-      result = (pow(pi,2)*xi_sb*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) + 
+      result = mBmB*(pow(pi,2)*xi_sb*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) + 
                pow(2,0.75)*sqrt(sminputs.GF)*(pow(mh,2) - pow(mH,2))*mMu*sin(2*alpha-beta) + 
                (pow(mh,2) + pow(mH,2))*(xi_mumu - pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb)))/
                (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                                          
@@ -607,6 +608,7 @@ namespace Gambit
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
       double mMu = Dep::SMINPUTS->mMu;
+      double mBmB = Dep::SMINPUTS->mBmB;
       double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
@@ -620,7 +622,7 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
       
-      result = (pow(pi,2)*xi_sb*(-xi_mumu + pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb))/
+      result = mBmB*(pow(pi,2)*xi_sb*(-xi_mumu + pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb))/
                (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);
            
       //re = real(result);
