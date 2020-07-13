@@ -23,7 +23,8 @@
 namespace Gambit
 {
   // Container for HiggsBounds parameter inputs (masses, BR's, CS's etc.)
-  struct hb_ModelParameters
+  // Compatible with v4.x HB
+  struct hb_neutral_ModelParameters_part
   {
     // Neutral Higgs Parameters
     double Mh[3];
@@ -65,8 +66,43 @@ namespace Gambit
     double BR_hjgg[3];
     double BR_hjinvisible[3];
     double BR_hjhihi[3][3];
+  };
 
-    // Charged Higgs Parameters
+  // compatible with v5.x(beta) HB 
+  // NB compatible with v4.x HB if coupling ratios are squared
+  struct hb_neutral_ModelParameters_effc
+  {
+   double Mh[3];
+   double deltaMh[3];
+   double CP[3];
+   double hGammaTot[3];
+   double ghjss_s[3];
+   double ghjss_p[3];
+   double ghjcc_s[3];
+   double ghjcc_p[3];
+   double ghjbb_s[3];
+   double ghjbb_p[3];
+   double ghjtt_s[3];
+   double ghjtt_p[3];
+   double ghjmumu_s[3];
+   double ghjmumu_p[3];
+   double ghjtautau_s[3];
+   double ghjtautau_p[3];
+   double ghjWW[3];
+   double ghjZZ[3];
+   double ghjZga[3];
+   double ghjgaga[3];
+   double ghjgg[3];
+   double ghjggZ[3];
+   double ghjhiZ[3][3];
+   double BR_hjinvisible[3];
+   double BR_hjhihi[3][3];
+  };
+
+  // compatible with v5.x(beta) HB 
+  // compatible with v4.x HB
+  struct hb_charged_ModelParameters
+  {
     double MHplus[1];
     double deltaMHplus[1];
     double HpGammaTot[1];
@@ -76,36 +112,11 @@ namespace Gambit
     double BR_Hpjcs[1];
     double BR_Hpjcb[1];
     double BR_Hptaunu[1];
+    // extra HB v5.x (beta) input
+    double BR_Hpjtb[1];
+    double BR_HpjWZ[1];
+    double BR_HpjhiW[3];
   };
-
-  struct hb_ModelParameters_effC
-  {
-   double Mh[3];
-   double hGammaTot[3];
-   double g2hjss_s[3];
-   double g2hjss_p[3];
-   double g2hjcc_s[3];
-   double g2hjcc_p[3];
-   double g2hjbb_s[3];
-   double g2hjbb_p[3];
-   double g2hjtt_s[3];
-   double g2hjtt_p[3];
-   double g2hjmumu_s[3];
-   double g2hjmumu_p[3];
-   double g2hjtautau_s[3];
-   double g2hjtautau_p[3];
-   double g2hjWW[3];
-   double g2hjZZ[3];
-   double g2hjZga[3];
-   double g2hjgaga[3];
-   double g2hjgg[3];
-   double g2hjggZ[3];
-   double g2hjhiZ[3];
-   double BR_hjinvisible[3];
-   double BR_hjhihi[3][3];
-  };
-
-
 }
 
 #endif /* defined __FeynHiggs_types_hpp__ */
