@@ -58,6 +58,14 @@
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+    // MSSM Higgs model parameters (effC)
+    #define FUNCTION MSSMHiggs_ModelParameters_effc
+      START_FUNCTION(hb_neutral_ModelParameters_effc)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   // HiggsBounds input model parameters charged
