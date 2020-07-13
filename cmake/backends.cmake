@@ -70,7 +70,6 @@
 #  \author Jonathan Cornell
 #          (jonathancornell@weber.edu)
 #  \date 2019 Mar
-<<<<<<< HEAD
 #  \author Marcin Chrzaszcz
 #          (mchrzasz@cern.ch)
 #  \date 2019 July
@@ -78,9 +77,7 @@
 #  \author Jihyun Bhom
 #          (jihyun.bhom@ifj.edu.pl)
 #  \date 2019 July
-=======
 #  \date 2020 Feb, Mar
->>>>>>> remotes/origin/HB_HS_upgrade_v2
 #
 #************************************************
 
