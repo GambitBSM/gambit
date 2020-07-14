@@ -137,6 +137,28 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY 
+ 
+ //CQ1p in the general THDM capability
+  #define CAPABILITY DeltaCQ1p
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1p
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+
+//CQ2p in the general THDM capability
+  #define CAPABILITY DeltaCQ2p
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2p
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
   
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
@@ -163,6 +185,8 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC10p, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1p, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2p, std::complex<double>, THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
