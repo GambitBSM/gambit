@@ -32,6 +32,10 @@
 ///          (a.m.b.krislock@fys.uio.no)
 ///  \date 2016 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Jul
+///
 ///  *********************************************
 
 #ifndef __Spectrum_hpp__
@@ -203,6 +207,7 @@ namespace Gambit
          double get(const Par::Tags partype, const std::string& mass) const;
          bool   has(const Par::Tags partype, const std::string& mass, const int index) const;
          double get(const Par::Tags partype, const std::string& mass, const int index) const;
+         double get(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const;
 
          /// @{ PDB getter/checker overloads
          bool   has(const Par::Tags partype, const int pdg_code, const int context) const;

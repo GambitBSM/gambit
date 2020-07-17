@@ -32,6 +32,10 @@
 ///          (a.m.b.krislock@fys.uio.no)
 ///  \date 2016 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Jul
+///
 ///  *********************************************
 
 #include "gambit/Elements/spectrum.hpp"
@@ -289,6 +293,25 @@ namespace Gambit
      // [[noreturn]]
      return result;
    }
+
+   double Spectrum::get(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const
+   {
+     double result(-1);
+     if( HE->has(partype,mass,index1,index2) )
+     { result = HE->get(partype,mass,index1,index2); }
+     else if( LE->has(partype,mass,index1,index2) )
+     { result = LE->get(partype,mass,index1,index2); }
+     else
+     {
+        std::ostringstream errmsg;
+        errmsg << "Error retrieving particle spectrum data!" << std::endl;
+        errmsg << "No pole mass with string reference '"<<mass<<"' and indices '"<<index1<<"' and '" << index2 << "' could be found in either LE or HE SubSpectrum!" <<std::endl;
+        utils_error().raise(LOCAL_INFO,errmsg.str());
+     }
+     // [[noreturn]]
+     return result;
+   }
+
 
    /// @{ PDB getter/checker overloads
 
