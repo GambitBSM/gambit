@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_2.2.3beta"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_2.2.3beta.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_2.2.3beta-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_2.2.3beta-prefix/src/higgssignals_2.2.3beta-stamp/higgssignals_2.2.3beta-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"higgssignals_2.2.3beta"
+		],
+		"name" : "higgssignals_2.2.3beta"
+	}
+}

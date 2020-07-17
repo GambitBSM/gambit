@@ -1,0 +1,112 @@
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/cristian/gambitgit/Backends/src/backend_info.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/backend_info.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/backend_singleton.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/backend_singleton.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/CaptnGeneral_1_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/CaptnGeneral_1_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/DDCalc_1_0_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/DDCalc_1_0_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/DDCalc_1_1_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/DDCalc_1_1_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/DDCalc_1_2_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/DDCalc_1_2_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/DDCalc_2_0_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/DDCalc_2_0_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/FeynHiggs_2_11_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/FeynHiggs_2_11_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/FeynHiggs_2_11_3.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/FeynHiggs_2_11_3.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/FeynHiggs_2_12_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/FeynHiggs_2_12_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/HiggsBounds_4_2_1.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/HiggsBounds_4_2_1.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/HiggsBounds_4_3_1.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/HiggsBounds_4_3_1.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/HiggsBounds_5_3_2beta.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/HiggsBounds_5_3_2beta.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/HiggsSignals_1_4.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/HiggsSignals_1_4.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/HiggsSignals_2_2_3beta.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/HiggsSignals_2_2_3beta.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibMathematicaTest.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibMathematicaTest.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibSecond_1_1.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibSecond_1_1.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibSecond_1_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibSecond_1_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibThird_1_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibThird_1_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibThird_1_1.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibThird_1_1.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/LibThird_1_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/LibThird_1_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_DiracSingletDM_Z2_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_DiracSingletDM_Z2_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_MSSM_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_MSSM_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_MajoranaSingletDM_Z2_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_MajoranaSingletDM_Z2_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_ScalarSingletDM_Z2_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_ScalarSingletDM_Z2_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_ScalarSingletDM_Z3_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_ScalarSingletDM_Z3_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/MicrOmegas_VectorSingletDM_Z2_3_6_9_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/MicrOmegas_VectorSingletDM_Z2_3_6_9_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/SPheno.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/SPheno.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/SUSY-HIT_1_5.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/SUSY-HIT_1_5.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/SUSYHD_1_0_2.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/SUSYHD_1_0_2.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/SuperIso_3_6.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/SuperIso_3_6.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/THDMC_compact_1_7_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/THDMC_compact_1_7_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/gamLike_1_0_0.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/gamLike_1_0_0.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/gamLike_1_0_1.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/gamLike_1_0_1.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/nulike_1_0_4.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/nulike_1_0_4.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/nulike_1_0_5.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/nulike_1_0_5.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/nulike_1_0_6.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/nulike_1_0_6.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/nulike_1_0_7.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/nulike_1_0_7.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/frontends/nulike_1_0_8.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/frontends/nulike_1_0_8.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/ini_functions.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/ini_functions.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/mathematica_helpers.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/mathematica_helpers.cpp.o"
+  "/home/cristian/gambitgit/Backends/src/python_helpers.cpp" "/home/cristian/gambitgit/Backends/CMakeFiles/Backends.dir/src/python_helpers.cpp.o"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
+
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "FJCORE"
+  "FJNS=gambit::fjcore"
+  "FS_MODEL_CMSSM_IS_BUILT=0"
+  "FS_MODEL_MDM_IS_BUILT=0"
+  "FS_MODEL_MSSMEFTHiggs_IS_BUILT=0"
+  "FS_MODEL_MSSMEFTHiggs_mAmu_IS_BUILT=0"
+  "FS_MODEL_MSSM_IS_BUILT=0"
+  "FS_MODEL_MSSM_mAmu_IS_BUILT=0"
+  "FS_MODEL_MSSMatMGUTEFTHiggs_IS_BUILT=0"
+  "FS_MODEL_MSSMatMGUTEFTHiggs_mAmu_IS_BUILT=0"
+  "FS_MODEL_MSSMatMGUT_IS_BUILT=0"
+  "FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT=0"
+  "FS_MODEL_MSSMatMSUSYEFTHiggs_mAmu_IS_BUILT=0"
+  "FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT=0"
+  "FS_MODEL_ScalarSingletDM_Z2_IS_BUILT=0"
+  "FS_MODEL_ScalarSingletDM_Z3_IS_BUILT=0"
+  "FS_MODEL_THDM_II_IS_BUILT=0"
+  "FS_MODEL_THDM_I_IS_BUILT=0"
+  "FS_MODEL_THDM_flipped_IS_BUILT=0"
+  "FS_MODEL_THDM_lepton_IS_BUILT=0"
+  "YAML_CPP_DLL"
+  )
+
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "/usr/include/python2.7"
+  "contrib/pybind11/include"
+  "/usr/include/eigen3"
+  "/usr/include/hdf5/serial"
+  "contrib/slhaea/include"
+  "contrib/mcutils/include"
+  "contrib/heputils/include"
+  "contrib/mkpath/include"
+  "contrib/yaml-cpp-0.6.2/include"
+  "contrib/fjcore-3.2.0"
+  "contrib/MassSpectra/flexiblesusy/.."
+  "contrib/MassSpectra/flexiblesusy/src"
+  "contrib/MassSpectra/flexiblesusy/config"
+  "contrib/MassSpectra/flexiblesusy/slhaea"
+  "Printers/include"
+  "Core/include"
+  "Logs/include"
+  "Utils/include"
+  "Elements/include"
+  "Models/include"
+  "cmake/include"
+  "Backends/include"
+  "ScannerBit/include"
+  "FlavBit/include"
+  "SpecBit/include"
+  "DecayBit/include"
+  )
+
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

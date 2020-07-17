@@ -1,0 +1,1 @@
+cmd='sed;-i;-e;s#ComplexType spi_(2, 6:7, nvec, 1)#ComplexType spi_(2, 6:7, nvec, LEGS)#g;src/Decays/VecSet.F;COMMAND;./configure;FC=/usr/bin/gfortran;FFLAGS= -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp;CC=/usr/bin/cc;CFLAGS= -fPIC -fopenmp;CXX=/usr/bin/c++;CXXFLAGS= -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations'

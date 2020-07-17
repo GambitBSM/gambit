@@ -1,0 +1,16 @@
+# Target labels
+ pythia_em_8.212
+# Source files and their labels
+/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212
+/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212.rule
+/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212-complete.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-install.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-mkdir.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-download.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-update.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-patch.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-configure.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-build.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-add_external_Pythia_model.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-BOSS.rule
+/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-verify.rule

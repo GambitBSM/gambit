@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations  -shared -Wl,-soname,libfirst.so -o examples/libfirst.so CMakeFiles/first.dir/examples/libfirst.cpp.o -Wl,-rpath,/home/cristian/gambitgit/contrib:/home/cristian/gambitgit/contrib/MassSpectra/flexiblesusy/src 

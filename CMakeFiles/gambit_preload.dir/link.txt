@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations  -shared -Wl,-soname,libgambit_preload.so -o contrib/libgambit_preload.so CMakeFiles/gambit_preload.dir/contrib/preload/gambit_preload.cpp.o 

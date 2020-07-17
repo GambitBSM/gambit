@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/nulike_1.0.7"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/nulike_1.0.7.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/nulike_1.0.7-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/nulike_1.0.7-prefix/src/nulike_1.0.7-stamp/nulike_1.0.7-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nulike_1.0.7"
+		],
+		"name" : "nulike_1.0.7"
+	}
+}

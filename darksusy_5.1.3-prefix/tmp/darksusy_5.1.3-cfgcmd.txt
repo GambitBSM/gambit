@@ -1,0 +1,1 @@
+cmd='./configure;FC=/usr/bin/gfortran;FCFLAGS= -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp;FFLAGS= -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp;CC=/usr/bin/cc;CFLAGS= -fPIC -fopenmp;CXX=/usr/bin/c++;CXXFLAGS= -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations'

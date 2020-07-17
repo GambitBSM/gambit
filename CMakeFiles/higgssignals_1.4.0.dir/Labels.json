@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_1.4.0"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_1.4.0.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgssignals_1.4.0-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgssignals_1.4.0-prefix/src/higgssignals_1.4.0-stamp/higgssignals_1.4.0-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"higgssignals_1.4.0"
+		],
+		"name" : "higgssignals_1.4.0"
+	}
+}

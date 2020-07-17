@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/gamlike_1.0.0"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/gamlike_1.0.0.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/gamlike_1.0.0-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/gamlike_1.0.0-prefix/src/gamlike_1.0.0-stamp/gamlike_1.0.0-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"gamlike_1.0.0"
+		],
+		"name" : "gamlike_1.0.0"
+	}
+}

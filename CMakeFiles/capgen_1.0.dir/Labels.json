@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/capgen_1.0"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/capgen_1.0.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/capgen_1.0-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/capgen_1.0-prefix/src/capgen_1.0-stamp/capgen_1.0-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"capgen_1.0"
+		],
+		"name" : "capgen_1.0"
+	}
+}

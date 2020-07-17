@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC  -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations  -shared -Wl,-soname,libobjective_test_functions.so -o lib/libobjective_test_functions.so CMakeFiles/objective_test_functions.dir/src/objectives/test_functions/examples.cpp.o 

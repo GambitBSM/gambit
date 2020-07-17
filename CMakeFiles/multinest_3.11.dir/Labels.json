@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/multinest_3.11"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/multinest_3.11.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/multinest_3.11-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/multinest_3.11-prefix/src/multinest_3.11-stamp/multinest_3.11-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"multinest_3.11"
+		],
+		"name" : "multinest_3.11"
+	}
+}

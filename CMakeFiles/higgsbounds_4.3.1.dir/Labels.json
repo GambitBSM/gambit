@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_4.3.1"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_4.3.1.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_4.3.1-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_4.3.1-prefix/src/higgsbounds_4.3.1-stamp/higgsbounds_4.3.1-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"higgsbounds_4.3.1"
+		],
+		"name" : "higgsbounds_4.3.1"
+	}
+}

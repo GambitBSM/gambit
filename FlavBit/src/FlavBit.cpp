@@ -563,7 +563,7 @@ namespace Gambit
     }   
     
      /// Delta CQ1 at tree level for the general THDM
-    void calculate_DeltaCQ1(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaCQ1(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ1;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -582,8 +582,8 @@ namespace Gambit
       double mZ = Dep::SMINPUTS->mZ;
       double mW = Dep::SMINPUTS->mW;
       double SW = sqrt(1-pow(mW/mZ,2));
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
       double Vts = -A*lambda*lambda;
@@ -595,7 +595,7 @@ namespace Gambit
                (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                                          
     }
     //At tree level we hace CQ1=CQ1p
-    void calculate_DeltaCQ1p(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaCQ1p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ1p;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -614,8 +614,8 @@ namespace Gambit
       double mZ = Dep::SMINPUTS->mZ;
       double mW = Dep::SMINPUTS->mW;
       double SW = sqrt(1-pow(mW/mZ,2));
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
       double Vts = -A*lambda*lambda;
@@ -628,7 +628,7 @@ namespace Gambit
     }    
     
      /// Delta CQ2 at tree level for the general THDM
-    void calculate_DeltaCQ2(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaCQ2(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ2;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -646,8 +646,8 @@ namespace Gambit
       double mW = Dep::SMINPUTS->mW;
       double SW = sqrt(1-pow(mW/mZ,2));
       double mA = spectrum.get(Par::Pole_Mass,"A0");
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
       //CKM elements
@@ -658,7 +658,7 @@ namespace Gambit
                (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                 
     }
     
-   void calculate_DeltaCQ2p(const SubSpectrum& thdmspec, std::complex<double> &result)
+   void calculate_DeltaCQ2p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ2p;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -676,8 +676,8 @@ namespace Gambit
       double mW = Dep::SMINPUTS->mW;
       double SW = sqrt(1-pow(mW/mZ,2));
       double mA = spectrum.get(Par::Pole_Mass,"A0");
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
       //CKM elements
@@ -703,7 +703,7 @@ namespace Gambit
     }
     
     /// Delta C7 from the general THDM
-    void calculate_DeltaC7(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC7(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC7;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -718,10 +718,10 @@ namespace Gambit
       double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = thdmspec.get(Par::dimensionless,"Yu2",3,3);
-      double Ytc = thdmspec.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = thdmspec.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
@@ -780,7 +780,7 @@ namespace Gambit
     }
     
     /// Delta C9 from the general THDM
-    void calculate_DeltaC9(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC9(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC9;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -799,10 +799,10 @@ namespace Gambit
       double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = thdmspec.get(Par::dimensionless,"Yu2",3,3);
-      double Ytc = thdmspec.get(Par::dimensionless,"Yu2",3,2);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = thdmspec.get(Par::dimensionless,"Ye2",2,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -832,7 +832,7 @@ namespace Gambit
     }  
     
     /// Delta C10 from the general THDM
-    void calculate_DeltaC10(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC10(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -851,10 +851,10 @@ namespace Gambit
       double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = thdmspec.get(Par::dimensionless,"Yu2",3,3);
-      double Ytc = thdmspec.get(Par::dimensionless,"Yu2",3,2);
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = thdmspec.get(Par::dimensionless,"Ye2",2,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -879,7 +879,7 @@ namespace Gambit
     } 
     /// Prime Wilson Coefficients in the general THDM      
     // Delta C7' from the general THDM
-    void calculate_DeltaC7p(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC7p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC7p;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -895,10 +895,10 @@ namespace Gambit
       double mS = Dep::SMINPUTS->mS;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = thdmspec.get(Par::dimensionless,"Yu2",3,3);
-      double Ytc = thdmspec.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = thdmspec.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
@@ -923,7 +923,7 @@ namespace Gambit
     }
     
     /// Delta C9' from the general THDM
-    void calculate_DeltaC9p(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC9p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC9p;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -944,10 +944,10 @@ namespace Gambit
       double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = thdmspec.get(Par::dimensionless,"Ye2",2,3);
-      double Ybb = thdmspec.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -977,7 +977,7 @@ namespace Gambit
     }  
       
     /// Delta C10' from the general THDM
-    void calculate_DeltaC10p(const SubSpectrum& thdmspec, std::complex<double> &result)
+    void calculate_DeltaC10p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10p;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -998,10 +998,10 @@ namespace Gambit
       double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ymumu = thdmspec.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = thdmspec.get(Par::dimensionless,"Ye2",2,3);
-      double Ybb = thdmspec.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = thdmspec.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;

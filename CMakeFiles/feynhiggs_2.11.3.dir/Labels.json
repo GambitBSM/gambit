@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/feynhiggs_2.11.3"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/feynhiggs_2.11.3.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/feynhiggs_2.11.3-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/feynhiggs_2.11.3-prefix/src/feynhiggs_2.11.3-stamp/feynhiggs_2.11.3-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"feynhiggs_2.11.3"
+		],
+		"name" : "feynhiggs_2.11.3"
+	}
+}

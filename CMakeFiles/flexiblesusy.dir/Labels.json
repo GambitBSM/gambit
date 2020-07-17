@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/flexiblesusy"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/flexiblesusy.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/flexiblesusy-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/flexiblesusy-prefix/src/flexiblesusy-stamp/flexiblesusy-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"flexiblesusy"
+		],
+		"name" : "flexiblesusy"
+	}
+}

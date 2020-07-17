@@ -1,0 +1,49 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/THDMC_1.7.0"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/THDMC_1.7.0.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/THDMC_1.7.0-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-BOSS.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/THDMC_1.7.0-prefix/src/THDMC_1.7.0-stamp/THDMC_1.7.0-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"THDMC_1.7.0"
+		],
+		"name" : "THDMC_1.7.0"
+	}
+}

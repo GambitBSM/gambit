@@ -1,0 +1,14 @@
+# Target labels
+ ddcalc_2.1.0
+# Source files and their labels
+/home/cristian/gambitgit/CMakeFiles/ddcalc_2.1.0
+/home/cristian/gambitgit/CMakeFiles/ddcalc_2.1.0.rule
+/home/cristian/gambitgit/CMakeFiles/ddcalc_2.1.0-complete.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-install.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-mkdir.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-download.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-update.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-patch.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-configure.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-build.rule
+/home/cristian/gambitgit/ddcalc_2.1.0-prefix/src/ddcalc_2.1.0-stamp/ddcalc_2.1.0-verify.rule

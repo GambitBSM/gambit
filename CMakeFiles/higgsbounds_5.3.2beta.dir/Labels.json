@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_5.3.2beta"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_5.3.2beta.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/higgsbounds_5.3.2beta-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/higgsbounds_5.3.2beta-prefix/src/higgsbounds_5.3.2beta-stamp/higgsbounds_5.3.2beta-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"higgsbounds_5.3.2beta"
+		],
+		"name" : "higgsbounds_5.3.2beta"
+	}
+}

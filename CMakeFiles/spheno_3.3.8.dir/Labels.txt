@@ -1,0 +1,14 @@
+# Target labels
+ spheno_3.3.8
+# Source files and their labels
+/home/cristian/gambitgit/CMakeFiles/spheno_3.3.8
+/home/cristian/gambitgit/CMakeFiles/spheno_3.3.8.rule
+/home/cristian/gambitgit/CMakeFiles/spheno_3.3.8-complete.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-install.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-mkdir.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-download.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-update.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-patch.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-configure.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-build.rule
+/home/cristian/gambitgit/spheno_3.3.8-prefix/src/spheno_3.3.8-stamp/spheno_3.3.8-verify.rule

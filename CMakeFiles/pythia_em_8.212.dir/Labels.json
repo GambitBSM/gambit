@@ -1,0 +1,52 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/CMakeFiles/pythia_em_8.212-complete.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-install.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-mkdir.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-download.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-update.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-patch.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-configure.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-build.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-add_external_Pythia_model.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-BOSS.rule"
+		},
+		{
+			"file" : "/home/cristian/gambitgit/pythia_em_8.212-prefix/src/pythia_em_8.212-stamp/pythia_em_8.212-verify.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"pythia_em_8.212"
+		],
+		"name" : "pythia_em_8.212"
+	}
+}
