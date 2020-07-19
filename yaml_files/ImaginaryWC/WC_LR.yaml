@@ -104,7 +104,7 @@ Scanner:
       NP: 1000
       convthresh: 1e-5
       lambdajDE: false
-      jDE = true
+      jDE:  true
 
     square_grid:
       plugin: square_grid
