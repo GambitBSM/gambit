@@ -77,8 +77,8 @@
 #include "gambit/cmake/cmake_variables.hpp"
 
 
-#define FLAVBIT_DEBUG
-#define FLAVBIT_DEBUG_LL
+//#define FLAVBIT_DEBUG
+//#define FLAVBIT_DEBUG_LL
 
 namespace YAML
 {
@@ -960,9 +960,9 @@ namespace Gambit
               obsnames[iObservable], obsnames[jObservable], result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]]);
            }
         }
-        cout << "Changing convention. After:"<<endl;
-        print(result,{"S3", "S4", "S5", "S8", "S9"});
-        std::cout << "Finished SuperIso_prediction" << std::endl;
+        if (flav_debug) cout << "Changing convention. After:"<<endl;
+        if (flav_debug) print(result,{"S3", "S4", "S5", "S8", "S9"});
+        if (flav_debug) std::cout << "Finished SuperIso_prediction" << std::endl;
       }
 
     }
