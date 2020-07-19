@@ -101,10 +101,10 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 20000
+      NP: 1000
       convthresh: 1e-5
       lambdajDE: false
-
+      jDE = true
 
     square_grid:
       plugin: square_grid

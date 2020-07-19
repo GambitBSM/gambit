@@ -93,7 +93,7 @@ Scanner:
       verbosity: 1
       convthresh: 1e-5
       lambdajDE: false
-      lambdajDE: false
+      jDE = false
       lambda: 0.1
       
 
