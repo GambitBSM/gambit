@@ -101,7 +101,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 1000
+      NP: 8000
       convthresh: 1e-5
       lambdajDE: false
       jDE:  true
