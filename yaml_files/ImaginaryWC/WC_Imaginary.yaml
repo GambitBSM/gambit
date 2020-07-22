@@ -89,10 +89,10 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 20000
+      NP: 10000
       convthresh: 1e-5
       lambdajDE: false
-      lambda[0]: -0.1
+      jDE:  true
       
 
     square_grid:
@@ -148,8 +148,8 @@ ObsLikes:
   - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
 
-  - purpose:    LogLike
-    capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+#  - purpose:    LogLike
+#    capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
 
   - purpose:    LogLike
     capability: B2KstarmumuBr_LogLikelihood_LHCb
@@ -206,15 +206,16 @@ Rules:
 
   - capability: prediction_B2KstarmumuAng_.*_LHCb
     options:
-      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, A3, A4, A5, A6, A7, A8, A9]
+       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+#      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, A3, A4, A5, A6, A7, A8, A9]
 
   - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
     options:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-  - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
-    options:
-      obs_list: [A3, A4, A5, A6, A7, A8, A9]
+#  - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+#    options:
+#      obs_list: [A3, A4, A5, A6, A7, A8, A9]
 
   - options:
       use_SM_covariance: true
