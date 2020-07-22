@@ -15,6 +15,7 @@
 ///
 ///  \author Ankit Beniwal
 ///  \date Jul 2019
+///  \date Jul 2020
 ///
 ///  \author Jonathan Cornell
 ///  \date Mar 2020
@@ -24,8 +25,8 @@
 
 #define BACKENDNAME HiggsSignals
 #define BACKENDLANG FORTRAN
-#define VERSION 2.4.0
-#define SAFE_VERSION 2_4_0
+#define VERSION 2.5.0
+#define SAFE_VERSION 2_5_0
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
@@ -75,7 +76,7 @@ BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR_HS, void, (double*, Farray<double,
 
 BE_FUNCTION(HiggsBounds_neutral_input_LEP_HS, void, (double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_lep_", "HiggsBounds_neutral_input_LEP_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_hadr_HS, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
+BE_FUNCTION(HiggsBounds_neutral_input_hadr_HS, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_hadr_", "HiggsBounds_neutral_input_hadr_HS")
 
 BE_FUNCTION(HiggsBounds_charged_input_HS, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3>&),
