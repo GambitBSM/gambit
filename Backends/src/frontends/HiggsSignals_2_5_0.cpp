@@ -57,8 +57,10 @@ BE_INI_FUNCTION
       mylocks.back()->get_lock();
     }
 
-    // Initialize HiggsSignals with 13 TeV LHC results and set pdf shape
-    initialize_HiggsSignals_LHC13(nHneut,nHplus);
+    // Initialize HiggsSignals using 'latestresults' analyses (see Backends/installed/higgssignals/2.5.0/data/Expt_tables/latestresults/)
+    initialize_HiggsSignals(nHneut,nHplus, "latestresults");
+    
+    // Set up Higgs mass pdf shape
     setup_pdf(pdf);
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)
