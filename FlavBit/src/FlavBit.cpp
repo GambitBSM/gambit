@@ -112,7 +112,7 @@ namespace Gambit
               ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
               ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
               ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ") or
-              ModelInUse("THDM") or ModelInUse("THDMatQ")) {
+              ModelInUse("THDM") or ModelInUse("THDMatQ") or ModelInUse("THDM_physical")) {
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
@@ -568,8 +568,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaCQ1;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
@@ -600,8 +600,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaCQ1p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
@@ -633,8 +633,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaCQ2;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -663,8 +663,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaCQ2p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -708,8 +708,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC7;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -785,8 +785,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC9;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -837,8 +837,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC10;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -884,8 +884,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC7p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -928,8 +928,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC9p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
@@ -982,8 +982,8 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC10p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = *Param["CKM_lambda"];
-      double A = *Param["CKM_A"];
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
       double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);

@@ -2,6 +2,11 @@
 [1;33mGAMBIT 1.4.3
 http://gambit.hepforge.org
 
+Starting scan.
+
+ [00;31;1mFATAL ERROR[00m
+
+GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
 [0mDescriptions are missing for the following models:
    THDMII_higgsatQ
    THDMI_higgs
@@ -27,14 +32,6 @@ http://gambit.hepforge.org
    THDM_physical
    THDMI_hybrid_lambda1atQ
 Please add descriptions of these to /home/cristian/gambitgit/config/models.dat
-
- [00;31;1mFATAL ERROR[00m
-
-GAMBIT has exited with fatal exception: GAMBIT error
-ERROR: The Core has encountered a problem.
-Parameter lambda6 of model THDM_physical is required by GAMBIT but is not in the inifile.
-
-Raised at: line 73 in function Gambit::Likelihood_Container_Factory::Likelihood_Container_Factory(const Gambit::gambit_core&, Gambit::DRes::DependencyResolver&, Gambit::IniParser::IniFile&, Gambit::Printers::BaseBasePrinter&) of /home/cristian/gambitgit/Core/src/container_factory.cpp.
 Descriptions are missing for the following capabilities:
    DeltaC10
    DeltaC10p
@@ -139,13 +136,103 @@ Starting GAMBIT
 WARNING! Running in SERIAL (no MPI) mode! Recompile with -DWITH_MPI=1 for MPI parallelisation
 ----------
 Running with 56 OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS).
-YAML file: yaml_files/THDM_physical.yaml
+YAML file: yaml_files/THDM.yaml
 Importing: include/StandardModel_SLHA2_defaults.yaml
-Initialising logger...  log_debug_messages = false; log messages tagged as 'Debug' will NOT be logged
-Checked that file runs/THDM_physical//samples//THDM_physical.hdf5 was readable (had RDONLY access and ID 16777216)
-Rank 0 resume flag? 1
-Checked that file runs/THDM_physical//samples//THDM_physical.hdf5 was readable (had RDONLY access and ID 16777216)
-Rank 0: output file readable? 1(filename: runs/THDM_physical//samples//THDM_physical.hdf5)
-Checked that file runs/THDM_physical//samples//THDM_physical.hdf5 was readable (had RDONLY access and ID 16777216)
+Initialising logger...  log_debug_messages = true; log messages tagged as 'Debug' WILL be logged. 
+WARNING: This may lead to very large log files!
 Resolving dependencies and backend requirements.  Hang tight...
 ...done!
+Entering random sampler.
+	number of points to calculate:  1
+  StandardModel_SLHA2:
+    CKM_A: 0.814
+    CKM_etabar: 0.353
+    CKM_lambda: 0.22537
+    CKM_rhobar: 0.117
+    GF: 1.16638e-05
+    alpha1: 0
+    alpha2: 0
+    alphaS: 0.1181
+    alphainv: 127.95
+    delta13: 0
+    mBmB: 4.18
+    mCmC: 1.28
+    mD: 0.0047
+    mE: 0.000510999
+    mMu: 0.105658
+    mNu1: 0
+    mNu2: 0
+    mNu3: 0
+    mS: 0.096
+    mT: 173.34
+    mTau: 1.77686
+    mU: 0.0022
+    mZ: 91.1876
+    theta12: 0.58376
+    theta13: 0.15495
+    theta23: 0.76958
+  THDM:
+    lambda1: 1
+    lambda2: 1
+    lambda3: 1
+    lambda4: 1
+    lambda5: 1
+    lambda6: 0
+    lambda7: 0
+    m12_2: 250000
+    tanb: 1
+    yd2_im_11: 0
+    yd2_im_12: 0
+    yd2_im_13: 0
+    yd2_im_21: 0
+    yd2_im_22: 0
+    yd2_im_23: 0
+    yd2_im_31: 0
+    yd2_im_32: 0
+    yd2_im_33: 0
+    yd2_re_11: 0
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22: 0
+    yd2_re_23: 0
+    yd2_re_31: 0
+    yd2_re_32: 0
+    yd2_re_33: 0.017
+    yl2_im_11: 0
+    yl2_im_12: 0
+    yl2_im_13: 0
+    yl2_im_21: 0
+    yl2_im_22: 0
+    yl2_im_23: 0
+    yl2_im_31: 0
+    yl2_im_32: 0
+    yl2_im_33: 0
+    yl2_re_11: 0
+    yl2_re_12: 0
+    yl2_re_13: 0
+    yl2_re_21: 0
+    yl2_re_22: 0.00043
+    yl2_re_23: 1
+    yl2_re_31: 0
+    yl2_re_32: 1
+    yl2_re_33: 0
+    yu2_im_11: 0
+    yu2_im_12: 0
+    yu2_im_13: 0
+    yu2_im_21: 0
+    yu2_im_22: 0
+    yu2_im_23: 0
+    yu2_im_31: 0
+    yu2_im_32: 0
+    yu2_im_33: 0
+    yu2_re_11: 0
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22: 0
+    yu2_re_23: 1
+    yu2_re_31: 1
+    yu2_re_32: 1
+    yu2_re_33: 0
+GAMBIT(mA2): 250000 | 0.70710678 | 0.70710678 | 60624.116 | 1 | 0 | 1 | 0 | 1

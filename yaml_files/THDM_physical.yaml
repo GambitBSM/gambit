@@ -26,17 +26,18 @@ Parameters:
             #range: [130.0, 5000.0]
             #prior_type: flat
         # --- Assuming a CP-conserving THDM model ---
-        lambda_6:
+        lambda6:
             fixed_value: 0.0
-        lambda_7:
+        lambda7:
             fixed_value: 0.0
         # -------------------------------------------
         m12_2:
             range: [250000.0, 4000000]
             prior_type: flat
         tanb:
-            range: [1, 50]
-            prior_type: flat
+            fixed_value: 1 #By fixing tanb=1 there are still plenty of solutions for mC in [500,2000]
+            #range: [1, 50]
+            #prior_type: flat
         sba:
             fixed_value: 1
             #range: [0.9, 1.0]
