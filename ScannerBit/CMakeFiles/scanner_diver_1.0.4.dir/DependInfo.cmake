@@ -30,6 +30,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "FS_MODEL_THDM_I_IS_BUILT=0"
   "FS_MODEL_THDM_flipped_IS_BUILT=0"
   "FS_MODEL_THDM_lepton_IS_BUILT=0"
+  "WITH_MPI"
   "YAML_CPP_DLL"
   )
 
@@ -52,6 +53,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "contrib/mkpath/include"
   "contrib/yaml-cpp-0.6.2/include"
   "ScannerBit/include/gambit/ScannerBit"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include"
+  "/usr/lib/openmpi/include"
+  "/usr/lib/openmpi/include/openmpi"
   "ScannerBit/include/gambit/ScannerBit/scanners/diver_1.0.4"
   )
 

@@ -1,0 +1,240 @@
+(Mon Jul 20 10:14:36 2020)(-0.57179 [s])[Default,Backends][Debug]:
+Custom user backend location file /home/cristian/gambitgit/config/backend_locations.yaml could not be read; employing default only.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.560985 [s])[Default,Backends][Debug]:
+Successfully loaded default backend location file /home/cristian/gambitgit/config/backend_locations.yaml.default.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.467619 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/ddcalc/1.1.0/lib/libDDCalc.so due to: 
+/home/cristian/gambitgit/Backends/installed/ddcalc/1.1.0/lib/libDDCalc.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.461994 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading Python backend LibSecond.
+GAMBIT was configured with Python 2 but this backend needs Python 3.
+
+Raised at: line 563 in function void Gambit::Backends::backend_info::loadLibrary_Python(const str&, const str&, const str&, const str&) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.461351 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/ddcalc/1.2.0/lib/libDDCalc.so due to: 
+/home/cristian/gambitgit/Backends/installed/ddcalc/1.2.0/lib/libDDCalc.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.44896 [s])[Default,Backends][Debug]:
+Python interpreter successfully started.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.339107 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libthird/1.2/libthird_1_2
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.337236 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so due to: 
+/home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.32831 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/spheno/3.3.8/lib/libSPheno.so due to: 
+/home/cristian/gambitgit/Backends/installed/spheno/3.3.8/lib/libSPheno.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.282646 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/VectorSingletDM_Z2/libmicromegas.so due to: 
+/home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/VectorSingletDM_Z2/libmicromegas.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.279642 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/susyhit/1.5/libsusyhit.so due to: 
+/home/cristian/gambitgit/Backends/installed/susyhit/1.5/libsusyhit.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.273503 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/nulike/1.0.4/lib/libnulike.so due to: 
+/home/cristian/gambitgit/Backends/installed/nulike/1.0.4/lib/libnulike.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.271705 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Could not find path for backend SUSYPOPE v0.2
+in /home/cristian/gambitgit/config/backend_locations.yaml.default.
+Setting path to "no path in config/backend_locations.yaml.default".
+Raised at: line 167 in function Gambit::str Gambit::Backends::backend_info::path(Gambit::str, Gambit::str) const of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.271682 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/no path in config/backend_locations.yaml.default due to: 
+/home/cristian/gambitgit/no path in config/backend_locations.yaml.default: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.268921 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/feynhiggs/2.11.3/lib/libFH.so due to: 
+/home/cristian/gambitgit/Backends/installed/feynhiggs/2.11.3/lib/libFH.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.26135 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/gm2calc/1.3.0/src/libgm2calc.so due to: 
+/home/cristian/gambitgit/Backends/installed/gm2calc/1.3.0/src/libgm2calc.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.258893 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so due to: 
+/home/cristian/gambitgit/Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.258574 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/feynhiggs/2.12.0/lib/libFH.so due to: 
+/home/cristian/gambitgit/Backends/installed/feynhiggs/2.12.0/lib/libFH.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.251157 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading Python backend LibThird.
+GAMBIT was configured with Python 2 but this backend needs Python 3.
+
+Raised at: line 563 in function void Gambit::Backends::backend_info::loadLibrary_Python(const str&, const str&, const str&, const str&) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.250552 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/higgssignals/2.2.3beta/lib/libhiggssignals.so due to: 
+/home/cristian/gambitgit/Backends/installed/higgssignals/2.2.3beta/lib/libhiggssignals.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.244646 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/feynhiggs/2.11.2/lib/libFH.so due to: 
+/home/cristian/gambitgit/Backends/installed/feynhiggs/2.11.2/lib/libFH.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.237311 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/THDMC_compact/1.7.0/lib/lib2HDMC_compact.so due to: 
+/home/cristian/gambitgit/Backends/installed/THDMC_compact/1.7.0/lib/lib2HDMC_compact.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.2364 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/higgsbounds/5.3.2beta/lib/libhiggsbounds.so due to: 
+/home/cristian/gambitgit/Backends/installed/higgsbounds/5.3.2beta/lib/libhiggsbounds.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.230897 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libFarrayTest.so
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.229502 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/capgen/1.0/gencaplib.so due to: 
+/home/cristian/gambitgit/Backends/installed/capgen/1.0/gencaplib.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.22798 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so due to: 
+/home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.225008 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/nulike/1.0.5/lib/libnulike.so due to: 
+/home/cristian/gambitgit/Backends/installed/nulike/1.0.5/lib/libnulike.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.223218 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/nulike/1.0.7/lib/libnulike.so due to: 
+/home/cristian/gambitgit/Backends/installed/nulike/1.0.7/lib/libnulike.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.221414 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/pythia/8.212/lib/libpythia8.so due to: 
+/home/cristian/gambitgit/Backends/installed/pythia/8.212/lib/libpythia8.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.21562 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libfirst.so
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.213797 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/nulike/1.0.8/lib/libnulike.so due to: 
+/home/cristian/gambitgit/Backends/installed/nulike/1.0.8/lib/libnulike.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.211787 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libsecond/1.0/libsecond_1_0.py
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.210961 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/ScalarSingletDM_Z2/libmicromegas.so due to: 
+/home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/ScalarSingletDM_Z2/libmicromegas.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.207836 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libfirst.so
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.207132 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/ScalarSingletDM_Z3/libmicromegas.so due to: 
+/home/cristian/gambitgit/Backends/installed/micromegas/3.6.9.2/ScalarSingletDM_Z3/libmicromegas.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.204117 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/higgssignals/1.4.0/lib/libhiggssignals.so due to: 
+/home/cristian/gambitgit/Backends/installed/higgssignals/1.4.0/lib/libhiggssignals.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.201436 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/gamlike/1.0.0/lib/gamLike.so due to: 
+/home/cristian/gambitgit/Backends/installed/gamlike/1.0.0/lib/gamLike.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.200496 [s])[Default,Backends][Warning][Non-fatal]:
+WARNING: A problem has been raised by the backend system.
+Failed loading library from /home/cristian/gambitgit/Backends/installed/higgsbounds/4.3.1/lib/libhiggsbounds.so due to: 
+/home/cristian/gambitgit/Backends/installed/higgsbounds/4.3.1/lib/libhiggsbounds.so: cannot open shared object file: No such file or directory
+All functions in this backend library will be disabled (i.e. given status = -1).
+Raised at: line 427 in function void Gambit::Backends::backend_info::loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool) of /home/cristian/gambitgit/Backends/src/backend_info.cpp.
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.197892 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libfortran.so
+--<>--<>--<>--<>--<>--<>--<>--
+(Mon Jul 20 10:14:36 2020)(-0.196767 [s])[Default,Backends][Info]:
+Succeeded in loading /home/cristian/gambitgit/Backends/examples/libthird/1.0/libthird_1_0
+--<>--<>--<>--<>--<>--<>--<>--

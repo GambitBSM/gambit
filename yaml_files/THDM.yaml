@@ -1,12 +1,12 @@
 ##########################################################################
 ## GAMBIT configuration for running a diver scan of the THDM
-## THDM Type I 
+## THDM Type III 
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals
+## THDMC, SuperIso, HiggsBounds, HiggsSignals
 ##########################################################################
 
 Parameters:
@@ -40,14 +40,233 @@ Parameters:
             fixed_value: 0
         # -------------------------------------------
         m12_2:
-            fixed_value: 500
+            fixed_value: 250000 #This is 500**2
             #ranges: [-1e6, -1e4, 1e4, 1e6]
             #prior_type: double_log_flat_join
         tanb:
             fixed_value: 1
             #range: [0.1, 100]
             #prior_type: log
-
+        yu2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_23:
+            fixed_value: 1
+           # range: [-2.5, 2.5]
+            #prior_type: flat
+        yu2_re_31:
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_32:
+            #same_as: THDM::yu2_re_23 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_33:
+            fixed_value: 0.017
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_22:
+            fixed_value: 0.00043
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_23:
+            fixed_value: 1
+            #range: [-1.0, 1.0]
+            #prior_type: flat
+        yl2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_32:
+            #same_as: THDM::yl2_re_23
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+#
+#
 ##############################
 # Printer setup
 ##############################
@@ -280,13 +499,13 @@ Rules:
     # -------------------------------------------
 
     # Specifies effc coupling input for HB/HS
-    - capability: HB_ModelParameters_neutral
-      function: THDM_ModelParameters_effc
-      module: ColliderBit
+    #- capability: HB_ModelParameters_neutral
+     # function: THDM_ModelParameters_effc
+      #module: ColliderBit
 
-    - capability: HB_ModelParameters_charged
-      function: THDM_ModelParameters_charged
-      module: ColliderBit
+    #- capability: HB_ModelParameters_charged
+     # function: THDM_ModelParameters_charged
+      #module: ColliderBit
 
     # -------------------------------------------
 
@@ -335,11 +554,12 @@ Logger:
   redirection:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
-    [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
-    [PrecisionBit] :  "PrecisionBit.log"
-    [ColliderBit] :  "ColliderBit.log"
+   # [DecayBit] :  "DecayBit.log"
+   # [DarkBit] :  "DarkBit.log"
+   # [PrecisionBit] :  "PrecisionBit.log"
+   # [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
+    [FlavBit] :  "FlavBit.log"
     [Dependency Resolver] :  "depresolver.log"
     [Scanner]:  "Scanner.log"
 

@@ -47,6 +47,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "FS_MODEL_THDM_I_IS_BUILT=0"
   "FS_MODEL_THDM_flipped_IS_BUILT=0"
   "FS_MODEL_THDM_lepton_IS_BUILT=0"
+  "WITH_MPI"
   "YAML_CPP_DLL"
   )
 
@@ -55,6 +56,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/python2.7"
   "contrib/pybind11/include"
   "/usr/include/eigen3"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include"
+  "/usr/lib/openmpi/include"
+  "/usr/lib/openmpi/include/openmpi"
   "/usr/include/hdf5/serial"
   "contrib/slhaea/include"
   "contrib/mcutils/include"

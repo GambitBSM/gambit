@@ -125,6 +125,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.5/Modules/FindGit.cmake"
   "/usr/share/cmake-3.5/Modules/FindHDF5.cmake"
   "/usr/share/cmake-3.5/Modules/FindLAPACK.cmake"
+  "/usr/share/cmake-3.5/Modules/FindMPI.cmake"
   "/usr/share/cmake-3.5/Modules/FindOpenMP.cmake"
   "/usr/share/cmake-3.5/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/share/cmake-3.5/Modules/FindPackageMessage.cmake"

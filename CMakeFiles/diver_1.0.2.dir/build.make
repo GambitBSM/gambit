@@ -112,7 +112,7 @@ diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-configure: diver_1.0.2-pref
 diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-build: diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-configure
 diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-build: diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-verify
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/cristian/gambitgit/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Performing build step for 'diver_1.0.2'"
-	cd /home/cristian/gambitgit/ScannerBit/installed/diver/1.0.2 && /usr/bin/make libdiver.so FF=/usr/bin/gfortran MODULE=J "FOPT= -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp" "SO_LINK_FLAGS= -fopenmp"
+	cd /home/cristian/gambitgit/ScannerBit/installed/diver/1.0.2 && /usr/bin/make libdiver.so FF=/usr/bin/gfortran MODULE=J "FOPT=-fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp -DMPI -I/usr/lib/openmpi/include -I/usr/lib/openmpi/lib" "SO_LINK_FLAGS=-Wl,-rpath  -Wl,/usr/lib/openmpi/lib  -Wl,--enable-new-dtags -Wl,--no-as-needed  /usr/lib/openmpi/lib/libmpi_usempif08.so /usr/lib/openmpi/lib/libmpi_usempi_ignore_tkr.so /usr/lib/openmpi/lib/libmpi_mpifh.so /usr/lib/openmpi/lib/libmpi.so -fopenmp"
 	cd /home/cristian/gambitgit/ScannerBit/installed/diver/1.0.2 && /usr/bin/cmake -E touch /home/cristian/gambitgit/diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-build
 
 diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-verify: diver_1.0.2-prefix/src/diver_1.0.2-stamp/diver_1.0.2-download

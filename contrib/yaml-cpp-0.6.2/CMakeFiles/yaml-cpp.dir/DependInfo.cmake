@@ -39,6 +39,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "WITH_MPI"
   "YAML_CPP_DLL"
   )
 
@@ -47,6 +48,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/python2.7"
   "contrib/pybind11/include"
   "/usr/include/eigen3"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent"
+  "/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include"
+  "/usr/lib/openmpi/include"
+  "/usr/lib/openmpi/include/openmpi"
   "/usr/include/hdf5/serial"
   "contrib/slhaea/include"
   "contrib/mcutils/include"

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_FLAGS =  -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations -fvisibility=hidden -fvisibility-inlines-hidden  
 
-CXX_DEFINES = -DYAML_CPP_DLL
+CXX_DEFINES = -DWITH_MPI -DYAML_CPP_DLL
 
-CXX_INCLUDES = -I/usr/include/python2.7 -I/home/cristian/gambitgit/contrib/pybind11/include -I/usr/include/eigen3 -I/usr/include/hdf5/serial -I/home/cristian/gambitgit/contrib/slhaea/include -I/home/cristian/gambitgit/contrib/mcutils/include -I/home/cristian/gambitgit/contrib/heputils/include -I/home/cristian/gambitgit/contrib/mkpath/include -I/home/cristian/gambitgit/contrib/yaml-cpp-0.6.2/include -I/home/cristian/gambitgit/contrib/yaml-cpp-0.6.2/src 
+CXX_INCLUDES = -I/usr/include/python2.7 -I/home/cristian/gambitgit/contrib/pybind11/include -I/usr/include/eigen3 -I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent -I/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include -I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi -I/usr/include/hdf5/serial -I/home/cristian/gambitgit/contrib/slhaea/include -I/home/cristian/gambitgit/contrib/mcutils/include -I/home/cristian/gambitgit/contrib/heputils/include -I/home/cristian/gambitgit/contrib/mkpath/include -I/home/cristian/gambitgit/contrib/yaml-cpp-0.6.2/include -I/home/cristian/gambitgit/contrib/yaml-cpp-0.6.2/src 
 

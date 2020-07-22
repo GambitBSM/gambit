@@ -181,6 +181,13 @@ Printers/bin/hdf5combine: Utils/CMakeFiles/Utils.dir/src/version.cpp.o
 Printers/bin/hdf5combine: Utils/CMakeFiles/Utils.dir/src/yaml_parser_base.cpp.o
 Printers/bin/hdf5combine: CMakeFiles/hdf5combine.dir/build.make
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/hdf5/serial/lib/libhdf5.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_cxx.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_usempif08.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_usempi_ignore_tkr.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_mpifh.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libdl.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libgsl.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libgslcblas.so
@@ -195,6 +202,11 @@ Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libpython2.7.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libsqlite3.so
 Printers/bin/hdf5combine: contrib/yaml-cpp-0.6.2/libyaml-cpp.a
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/hdf5/serial/lib/libhdf5.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_cxx.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_usempif08.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_usempi_ignore_tkr.so
+Printers/bin/hdf5combine: /usr/lib/openmpi/lib/libmpi_mpifh.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libgsl.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libgslcblas.so
 Printers/bin/hdf5combine: /usr/lib/x86_64-linux-gnu/libpthread.so

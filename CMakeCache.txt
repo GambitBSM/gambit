@@ -375,6 +375,74 @@ LIBDL_INCLUDE_DIR:PATH=/usr/include
 //Path to a library.
 LIBDL_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libdl.so
 
+//Executable for running MPI programs.
+MPIEXEC:FILEPATH=/usr/bin/mpiexec
+
+//Maximum number of processors available to run MPI applications.
+MPIEXEC_MAX_NUMPROCS:STRING=2
+
+//Flag used by MPI to specify the number of processes for MPIEXEC;
+// the next option will be the number of processes.
+MPIEXEC_NUMPROC_FLAG:STRING=-np
+
+//These flags will come after all flags given to MPIEXEC.
+MPIEXEC_POSTFLAGS:STRING=
+
+//These flags will be directly before the executable that is being
+// run by MPIEXEC.
+MPIEXEC_PREFLAGS:STRING=
+
+//Path to a program.
+MPI_CXX_COMPILER:FILEPATH=/usr/bin/mpicxx
+
+//MPI CXX compilation flags
+MPI_CXX_COMPILE_FLAGS:STRING=
+
+//MPI CXX include path
+MPI_CXX_INCLUDE_PATH:STRING=/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;/usr/lib/openmpi/include;/usr/lib/openmpi/include/openmpi
+
+//MPI CXX libraries to link against
+MPI_CXX_LIBRARIES:STRING=/usr/lib/openmpi/lib/libmpi_cxx.so;/usr/lib/openmpi/lib/libmpi.so
+
+//MPI CXX linking flags
+MPI_CXX_LINK_FLAGS:STRING= -Wl,-rpath  -Wl,/usr/lib/openmpi/lib  -Wl,--enable-new-dtags
+
+//Path to a program.
+MPI_C_COMPILER:FILEPATH=/usr/bin/mpicc
+
+//MPI C compilation flags
+MPI_C_COMPILE_FLAGS:STRING=
+
+//MPI C include path
+MPI_C_INCLUDE_PATH:STRING=/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;/usr/lib/openmpi/include;/usr/lib/openmpi/include/openmpi
+
+//MPI C libraries to link against
+MPI_C_LIBRARIES:STRING=/usr/lib/openmpi/lib/libmpi.so
+
+//MPI C linking flags
+MPI_C_LINK_FLAGS:STRING= -Wl,-rpath  -Wl,/usr/lib/openmpi/lib  -Wl,--enable-new-dtags
+
+//Extra MPI libraries to link against
+MPI_EXTRA_LIBRARY:STRING=/usr/lib/openmpi/lib/libmpi.so
+
+//Path to a program.
+MPI_Fortran_COMPILER:FILEPATH=/usr/bin/mpif90
+
+//MPI Fortran compilation flags
+MPI_Fortran_COMPILE_FLAGS:STRING=
+
+//MPI Fortran include path
+MPI_Fortran_INCLUDE_PATH:STRING=/usr/lib/openmpi/include;/usr/lib/openmpi/lib
+
+//MPI Fortran libraries to link against
+MPI_Fortran_LIBRARIES:STRING=/usr/lib/openmpi/lib/libmpi_usempif08.so;/usr/lib/openmpi/lib/libmpi_usempi_ignore_tkr.so;/usr/lib/openmpi/lib/libmpi_mpifh.so;/usr/lib/openmpi/lib/libmpi.so
+
+//MPI Fortran linking flags
+MPI_Fortran_LINK_FLAGS:STRING= -Wl,-rpath  -Wl,/usr/lib/openmpi/lib  -Wl,--enable-new-dtags
+
+//MPI library to link against
+MPI_LIBRARY:FILEPATH=/usr/lib/openmpi/lib/libmpi_cxx.so
+
 //C++ compiler flags for OpenMP parallization
 OpenMP_CXX_FLAGS:STRING=-fopenmp
 
@@ -433,7 +501,7 @@ WERROR:BOOL=OFF
 WITH_HEPMC:BOOL=OFF
 
 //Compile with MPI enabled
-WITH_MPI:BOOL=OFF
+WITH_MPI:BOOL=ON
 
 //Compile with RestFrames enabled
 WITH_RESTFRAMES:BOOL=OFF
@@ -774,6 +842,12 @@ FIND_PACKAGE_MESSAGE_DETAILS_GSL:INTERNAL=[;/usr/lib/x86_64-linux-gnu/libgsl.so;
 FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[/usr/bin/git][v2.7.4()]
 //Details about finding LibDL
 FIND_PACKAGE_MESSAGE_DETAILS_LibDL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libdl.so][/usr/include][v()]
+//Details about finding MPI_C
+FIND_PACKAGE_MESSAGE_DETAILS_MPI_C:INTERNAL=[/usr/lib/openmpi/lib/libmpi.so][/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;/usr/lib/openmpi/include;/usr/lib/openmpi/include/openmpi][v()]
+//Details about finding MPI_CXX
+FIND_PACKAGE_MESSAGE_DETAILS_MPI_CXX:INTERNAL=[/usr/lib/openmpi/lib/libmpi_cxx.so;/usr/lib/openmpi/lib/libmpi.so][/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent;/usr/lib/openmpi/include/openmpi/opal/mca/event/libevent2021/libevent/include;/usr/lib/openmpi/include;/usr/lib/openmpi/include/openmpi][v()]
+//Details about finding MPI_Fortran
+FIND_PACKAGE_MESSAGE_DETAILS_MPI_Fortran:INTERNAL=[/usr/lib/openmpi/lib/libmpi_usempif08.so;/usr/lib/openmpi/lib/libmpi_usempi_ignore_tkr.so;/usr/lib/openmpi/lib/libmpi_mpifh.so;/usr/lib/openmpi/lib/libmpi.so][/usr/lib/openmpi/include;/usr/lib/openmpi/lib][v()]
 //Details about finding PYTHON
 FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=/usr/bin/python2
 //Details about finding PkgConfig
@@ -880,6 +954,50 @@ LAPACK_vecLib_LIBRARY-ADVANCED:INTERNAL=1
 LIBDL_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: LIBDL_LIBRARY
 LIBDL_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPIEXEC
+MPIEXEC-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPIEXEC_MAX_NUMPROCS
+MPIEXEC_MAX_NUMPROCS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPIEXEC_NUMPROC_FLAG
+MPIEXEC_NUMPROC_FLAG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPIEXEC_POSTFLAGS
+MPIEXEC_POSTFLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPIEXEC_PREFLAGS
+MPIEXEC_PREFLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_COMPILER
+MPI_CXX_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_COMPILE_FLAGS
+MPI_CXX_COMPILE_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_INCLUDE_PATH
+MPI_CXX_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_LIBRARIES
+MPI_CXX_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_CXX_LINK_FLAGS
+MPI_CXX_LINK_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_C_COMPILER
+MPI_C_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_C_COMPILE_FLAGS
+MPI_C_COMPILE_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_C_INCLUDE_PATH
+MPI_C_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_C_LIBRARIES
+MPI_C_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_C_LINK_FLAGS
+MPI_C_LINK_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_Fortran_COMPILER
+MPI_Fortran_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_Fortran_COMPILE_FLAGS
+MPI_Fortran_COMPILE_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_Fortran_INCLUDE_PATH
+MPI_Fortran_INCLUDE_PATH-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_Fortran_LIBRARIES
+MPI_Fortran_LIBRARIES-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: MPI_Fortran_LINK_FLAGS
+MPI_Fortran_LINK_FLAGS-ADVANCED:INTERNAL=1
+//Scratch variable for MPI header detection
+MPI_HEADER_PATH:INTERNAL=MPI_HEADER_PATH-NOTFOUND
+//Scratch variable for MPI lib detection
+MPI_LIB:INTERNAL=MPI_LIB-NOTFOUND
 //ADVANCED property for variable: OpenMP_CXX_FLAGS
 OpenMP_CXX_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OpenMP_C_FLAGS
