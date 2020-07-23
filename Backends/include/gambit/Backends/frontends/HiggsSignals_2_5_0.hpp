@@ -46,7 +46,8 @@ LOAD_LIBRARY
 /* Syntax for BE_FUNCTION:
  * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
 
-BE_FUNCTION(initialize_HiggsSignals, void, (int&, int&, const char*), "initialize_higgssignals_", "initialize_HiggsSignals")
+BE_FUNCTION(initialize_HiggsSignals, void, (int&, int&, char*, size_t), "initialize_higgssignals_", "initialize_HiggsSignals")
+BE_FUNCTION(initialize_HiggsSignals_latestresults, void, (int&, int&), "initialize_higgssignals_latestresults_", "initialize_HiggsSignals_latestresults")
 BE_FUNCTION(initialize_HiggsBounds_int_HS, void, (int&, int&, int&), "initialize_higgsbounds_int_", "initialize_HiggsBounds_int_HS")
 
 BE_FUNCTION(setup_pdf, void, (int&), "setup_pdf_", "setup_pdf")

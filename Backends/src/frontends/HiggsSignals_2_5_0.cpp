@@ -57,9 +57,9 @@ BE_INI_FUNCTION
       mylocks.back()->get_lock();
     }
 
-    // Initialize HiggsSignals using 'latestresults' analyses (see Backends/installed/higgssignals/2.5.0/data/Expt_tables/latestresults/)
-    initialize_HiggsSignals(nHneut,nHplus, "latestresults");
-    
+    // Initialize HiggsSignals with 'latestresults' analyses
+    initialize_HiggsSignals_latestresults(nHneut, nHplus);
+
     // Set up Higgs mass pdf shape
     setup_pdf(pdf);
 
