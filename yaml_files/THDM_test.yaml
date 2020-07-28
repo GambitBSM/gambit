@@ -33,6 +33,7 @@ Parameters:
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
+        # --- Assuming a CP-conserving THDM model ---
         lambda6: 
             fixed_value: 1
         lambda7:
@@ -277,7 +278,7 @@ Printer:
   #printer: hdf5
 
   options:
-    # name of output file, which format should have when using cout?
+    # name of output file
     output_file: "THDM.hdf5"
     group: "/THDM"
     delete_file_on_restart: true

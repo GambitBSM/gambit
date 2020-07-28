@@ -21,11 +21,11 @@
 
 #ifndef __THDMSimpleSpec_hpp__
 #define __THDMSimpleSpec_hpp__
-
 #include "gambit/Elements/spec.hpp"
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
+#include "gambit/Elements/thdm_slhahelp.hpp"
 
 namespace Gambit
 {
@@ -173,6 +173,15 @@ namespace Gambit
             virtual ~THDMSimpleSpec() {};
 
             virtual double GetScale() const;
+
+            /// Add SLHAea object to another
+            virtual void add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const override {
+               // Add SPINFO data if not already present
+               SLHAea_add_GAMBIT_SPINFO(slha);
+
+               // All THDM  blocks
+               slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
+            }
            
             /// Map filler
             /// Used to initialise maps of function pointers

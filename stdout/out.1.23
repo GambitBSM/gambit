@@ -27,11 +27,6 @@ http://gambit.hepforge.org
    THDM_physical
    THDMI_hybrid_lambda1atQ
 Please add descriptions of these to /home/cristian/gambitgit/config/models.dat
-Starting scan.
-
- [00;31;1mFATAL ERROR[00m
-
-GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
 Descriptions are missing for the following capabilities:
    DeltaC10
    DeltaC10p
@@ -232,7 +227,12 @@ Entering random sampler.
     yu2_re_21: 0
     yu2_re_22: 0
     yu2_re_23: 1
-    yu2_re_31: 1
+    yu2_re_31: 0
     yu2_re_32: 1
-    yu2_re_33: 0
+    yu2_re_33: 1
 GAMBIT(mA2): 250000 | 0.70710678 | 0.70710678 | 60624.116 | 1 | 0 | 1 | 0 | 1
+Starting scan.
+
+ [00;31;1mFATAL ERROR[00m
+
+GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)

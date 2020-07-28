@@ -34,28 +34,28 @@ namespace Gambit
           const double m_Hp = thdmspec.get(Par::Pole_Mass, "H+");
           const double alpha = thdmspec.get(Par::dimensionless, "alpha");
           const double tanb = thdmspec.get(Par::dimensionless, "tanb");
-          const double lambda1 = thdmspec.get(Par::mass1, "lambda_1");
-          const double lambda2 = thdmspec.get(Par::mass1, "lambda_2");
-          const double lambda3 = thdmspec.get(Par::mass1, "lambda_3");
-          const double lambda4 = thdmspec.get(Par::mass1, "lambda_4");
-          const double lambda5 = thdmspec.get(Par::mass1, "lambda_5");
+          const double lambda1 = thdmspec.get(Par::dimensionless, "lambda1");
+          const double lambda2 = thdmspec.get(Par::dimensionless, "lambda2");
+          const double lambda3 = thdmspec.get(Par::dimensionless, "lambda3");
+          const double lambda4 = thdmspec.get(Par::dimensionless, "lambda4");
+          const double lambda5 = thdmspec.get(Par::dimensionless, "lambda5");
           const double beta = atan(tanb);
           const double sba = sin(beta - alpha);
-          const double lambda6 = thdmspec.get(Par::mass1,"lambda_6");
-          const double lambda7 = thdmspec.get(Par::mass1,"lambda_7");
+          const double lambda6 = thdmspec.get(Par::dimensionless,"lambda6");
+          const double lambda7 = thdmspec.get(Par::dimensionless,"lambda7");
           const double m12_2 = thdmspec.get(Par::mass1,"m12_2");
           const double MW = thdmspec.get(Par::Pole_Mass,"W+");
           const double g = thdmspec.get(Par::dimensionless,"g1");
           const double g_prime = thdmspec.get(Par::dimensionless,"g2");
           const double g_3 = thdmspec.get(Par::dimensionless,"g3");
-          const int yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
+          //const int yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
 
           SLHAea_add_block(slha, "MODSEL");;
           SLHAea_add(slha, "MODSEL", 0, 10, "THDM", true); // 10 = THDM
           SLHAea_add(slha, "MODSEL", 1, 10, "THDM", true); // 10 = THDM
 
           SLHAea_add_block(slha, "FMODSEL"); // Flavor MODSEL
-          SLHAea_add(slha, "FMODSEL", 1, (30 + yukawa_coupling), "THDM", true); // THDM Model Type 30+yukawas_type
+          //SLHAea_add(slha, "FMODSEL", 1, (30 + yukawa_coupling), "THDM", true); // THDM Model Type 30+yukawas_type
           SLHAea_add(slha, "FMODSEL", 5, 0, "No CP-violation", true); // 0 = No CP-violation
 
           SLHAea_add_block(slha, "MSOFT", thdmspec.GetScale());
@@ -87,8 +87,43 @@ namespace Gambit
 
           SLHAea_add_block(slha, "ALPHA");
           SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
+          
+          SLHAea_add_block(slha, "YU1");
+          SLHAea_add_block(slha, "YD1");
+          SLHAea_add_block(slha, "YE1");
+          SLHAea_add_block(slha, "YU2");
+          SLHAea_add_block(slha, "YD2");
+          SLHAea_add_block(slha, "YE2");
+ 
+          SLHAea_add_block(slha, "IMYU1");
+          SLHAea_add_block(slha, "IMYD1");
+          SLHAea_add_block(slha, "IMYE1");
+          SLHAea_add_block(slha, "IMYU2");
+          SLHAea_add_block(slha, "IMYD2");
+          SLHAea_add_block(slha, "IMYE2");
 
-          std::vector<double> matrix_u, matrix_d, matrix_l;
+
+
+          for(int i=1;i<=3;i++)
+          {
+              for(int j=1;j<=3;j++)
+              {
+              SLHAea_add(slha,"YU1",i,j,thdmspec.get(Par::dimensionless, "Yu1", i, j),"Yu1", true);
+              SLHAea_add(slha,"YD1",i,j,thdmspec.get(Par::dimensionless, "Yd1", i, j),"Yd1", true);
+              SLHAea_add(slha,"YE1",i,j,thdmspec.get(Par::dimensionless, "Ye1", i, j),"Ye1", true);
+              SLHAea_add(slha,"YU2",i,j,thdmspec.get(Par::dimensionless, "Yu2", i, j),"Yu2", true);
+              SLHAea_add(slha,"YD2",i,j,thdmspec.get(Par::dimensionless, "Yd2", i, j),"Yd2", true);
+              SLHAea_add(slha,"YE2",i,j,thdmspec.get(Par::dimensionless, "Ye2", i, j),"Ye2", true);
+             
+              SLHAea_add(slha,"IMYU1",i,j,thdmspec.get(Par::dimensionless, "ImYu1", i, j),"ImYu1", true);
+              SLHAea_add(slha,"IMYD1",i,j,thdmspec.get(Par::dimensionless, "ImYd1", i, j),"ImYd1", true);
+              SLHAea_add(slha,"IMYE1",i,j,thdmspec.get(Par::dimensionless, "ImYe1", i, j),"ImYe1", true);
+              SLHAea_add(slha,"IMYU2",i,j,thdmspec.get(Par::dimensionless, "ImYu2", i, j),"ImYu2", true);
+              SLHAea_add(slha,"IMYD2",i,j,thdmspec.get(Par::dimensionless, "ImYd2", i, j),"ImYd2", true);
+              SLHAea_add(slha,"IMYE2",i,j,thdmspec.get(Par::dimensionless, "ImYe2", i, j),"ImYe2", true);
+              }  
+          }
+          /*std::vector<double> matrix_u, matrix_d, matrix_l;
           std::vector<double> u_coupl_matrix, d_coupl_matrix, l_coupl_matrix;
 
           for (int i=0;i<9;i++) {
@@ -137,7 +172,8 @@ namespace Gambit
           SLHAea_add_block(slha, "LCOUPL");
           SLHAea_add_matrix(slha, "LCOUPL", l_coupl_matrix, 3, 3, "LL", true);
 
-          
+          */
+         
         }
         else {
           // at the moment only SLHA2 is called, but in case, throw an error

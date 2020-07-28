@@ -1329,13 +1329,13 @@ namespace Gambit
 
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container& container) {
       std::vector<double> Lambda(8);
-      Lambda[1] = container.he->get(Par::mass1, "lambda_1");
-      Lambda[2] = container.he->get(Par::mass1, "lambda_2");
-      Lambda[3] = container.he->get(Par::mass1, "lambda_3");
-      Lambda[4] = container.he->get(Par::mass1, "lambda_4");
-      Lambda[5] = container.he->get(Par::mass1, "lambda_5");
-      Lambda[6] = container.he->get(Par::mass1, "lambda_6");
-      Lambda[7] = container.he->get(Par::mass1, "lambda_7");
+      Lambda[1] = container.he->get(Par::mass1, "lambda1");
+      Lambda[2] = container.he->get(Par::mass1, "lambda2");
+      Lambda[3] = container.he->get(Par::mass1, "lambda3");
+      Lambda[4] = container.he->get(Par::mass1, "lambda4");
+      Lambda[5] = container.he->get(Par::mass1, "lambda5");
+      Lambda[6] = container.he->get(Par::mass1, "lambda6");
+      Lambda[7] = container.he->get(Par::mass1, "lambda7");
       return Lambda;
     }
 

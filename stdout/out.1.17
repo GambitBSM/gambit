@@ -190,12 +190,7 @@ Entering random sampler.
     yd2_re_13: 0
     yd2_re_21: 0
     yd2_re_22: 0
-  Starting scan.
-
- [00;31;1mFATAL ERROR[00m
-
-GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
-  yd2_re_23: 0
+    yd2_re_23: 0
     yd2_re_31: 0
     yd2_re_32: 0
     yd2_re_33: 0.017
@@ -232,7 +227,12 @@ GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
     yu2_re_21: 0
     yu2_re_22: 0
     yu2_re_23: 1
-    yu2_re_31: 1
+    yu2_re_31: 0
     yu2_re_32: 1
-    yu2_re_33: 0
+    yu2_re_33: 1
 GAMBIT(mA2): 250000 | 0.70710678 | 0.70710678 | 60624.116 | 1 | 0 | 1 | 0 | 1
+Starting scan.
+
+ [00;31;1mFATAL ERROR[00m
+
+GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)

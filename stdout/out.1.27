@@ -2,6 +2,11 @@
 [1;33mGAMBIT 1.4.3
 http://gambit.hepforge.org
 
+Starting scan.
+
+ [00;31;1mFATAL ERROR[00m
+
+GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
 [0mDescriptions are missing for the following models:
    THDMII_higgsatQ
    THDMI_higgs
@@ -227,12 +232,7 @@ Entering random sampler.
     yu2_re_21: 0
     yu2_re_22: 0
     yu2_re_23: 1
-    yu2_re_31: 1
+    yu2_re_31: 0
     yu2_re_32: 1
-    yu2_re_33: 0
+    yu2_re_33: 1
 GAMBIT(mA2): 250000 | 0.70710678 | 0.70710678 | 60624.116 | 1 | 0 | 1 | 0 | 1
-Starting scan.
-
- [00;31;1mFATAL ERROR[00m
-
-GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)

@@ -136,6 +136,11 @@ Importing: include/StandardModel_SLHA2_defaults.yaml
 Initialising logger...  log_debug_messages = true; log messages tagged as 'Debug' WILL be logged. 
 WARNING: This may lead to very large log files!
 Resolving dependencies and backend requirements.  Hang tight...
+Starting scan.
+
+ [00;31;1mFATAL ERROR[00m
+
+GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
 ...done!
 Entering random sampler.
 	number of points to calculate:  1
@@ -148,12 +153,7 @@ Entering random sampler.
     alpha1: 0
     alpha2: 0
     alphaS: 0.1181
-    alphainv: 127.95Starting scan.
-
- [00;31;1mFATAL ERROR[00m
-
-GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
-
+    alphainv: 127.95
     delta13: 0
     mBmB: 4.18
     mCmC: 1.28
@@ -232,7 +232,7 @@ GAMBIT has exited with fatal exception: SLHAea::Block::at(‘1,1’)
     yu2_re_21: 0
     yu2_re_22: 0
     yu2_re_23: 1
-    yu2_re_31: 1
+    yu2_re_31: 0
     yu2_re_32: 1
-    yu2_re_33: 0
+    yu2_re_33: 1
 GAMBIT(mA2): 250000 | 0.70710678 | 0.70710678 | 60624.116 | 1 | 0 | 1 | 0 | 1
