@@ -72,7 +72,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: de
+  use_scanner: square_grid
 
   scanners:
 
@@ -94,7 +94,7 @@ Scanner:
     square_grid:
       plugin: square_grid
       like: LogLike
-      grid_pts: 20
+      grid_pts: 100
 
 
 ObsLikes:
