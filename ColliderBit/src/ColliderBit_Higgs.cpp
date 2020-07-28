@@ -279,7 +279,7 @@ namespace Gambit
       set_SMLikeHiggs_ModelParameters_charged(result);
     }
 
-    /// MSSM Higgs model parameters
+    /// MSSM Higgs neutral model parameters for HB 4
     void MSSMHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::MSSMHiggs_ModelParameters;
@@ -341,6 +341,82 @@ namespace Gambit
       }
       // Retrieve cross-section ratios from the HiggsCouplingsTable
       set_CS_neutral(result, *Dep::Higgs_Couplings, 3);
+    }
+
+    // fills MSSM neutral model input for HB 5
+    void MSSMHiggs_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
+    {
+        using namespace Pipes::MSSMHiggs_ModelParameters_effc;
+
+        // Set up neutral Higgses
+        static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+
+        // Set the CP of the Higgs states.
+        for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+
+        // Retrieve higgs partial widths
+        const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
+
+        // Retrieve masses
+        const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
+        const SubSpectrum& he = fullspectrum.get_HE();
+
+        // Neutral higgs masses and errors
+        for(int i = 0; i < 3; i++)
+        {
+          result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
+          bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
+          bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
+          if (has_high_err and has_low_err)
+          {
+            double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+            double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+            result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+          }
+          else
+          {
+            result.deltaMh[i] = 0.;
+          }
+        }
+
+        // fill neutral effective couplings
+        set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
+      
+        for (int h=1;h<=3;h++) {
+          // Total width
+          result.hGammaTot[h-1] = h0_widths[h-1]->width_in_GeV;
+
+          // Do decays to other neutral higgses
+          for (int h2=1; h2<=3; h2++) {
+
+            if (2.*result.Mh[h2-1] < result.Mh[h-1] and h0_widths[h-1]->has_channel(sHneut[h2-1],sHneut[h2-1]))
+            {
+              result.BR_hjhihi[h-1][h2-1] = h0_widths[h-1]->BF(sHneut[h2-1],sHneut[h2-1]);
+            }
+            else
+            {
+              result.BR_hjhihi[h-1][h2-1] = 0.;
+            }
+
+            #ifdef COLLIDERBIT_DEBUG
+                std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
+                printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
+                printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
+                printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
+                printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
+                printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
+                printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
+                printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
+                printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
+                printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
+                printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
+                printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
+                printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
+                printf("%2d %2d hj->hihi %16.8E\n", h, h2, result.BR_hjhihi[h-1][h2-1]);
+              #endif
+
+          }
+        }
     }
 
      /// MSSM Higgs model parameters
@@ -592,7 +668,6 @@ namespace Gambit
         }
       }
     }
-
 
     /// Get a LEP chisq from HiggsBounds
     void calc_HB_LEP_LogLike(double &result)

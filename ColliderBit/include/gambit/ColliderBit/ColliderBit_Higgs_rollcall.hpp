@@ -74,6 +74,13 @@
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
       ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
       ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+      
+    // MSSM Higgs model parameters (effC)
+    #define FUNCTION MSSMHiggs_ModelParameters_effc
+      START_FUNCTION(hb_neutral_ModelParameters_effc)
+      DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+      ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
   #undef CAPABILITY

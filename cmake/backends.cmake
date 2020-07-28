@@ -935,7 +935,7 @@ if(NOT ditched_${name}_${ver})
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DLEP_CHISQ=ON
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHB.a lib/objects/libHB.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
@@ -1085,8 +1085,8 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHS.a lib/objects/libHS.a
           COMMAND ${CMAKE_COMMAND} -E copy "${hb_dir}/build/lib/libHB.a" lib/objects/libHB.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHS.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHS.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
