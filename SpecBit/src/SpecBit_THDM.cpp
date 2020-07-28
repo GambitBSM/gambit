@@ -1868,8 +1868,7 @@ namespace Gambit
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container& container);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container& container);
-    double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container);
-    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container);
+    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections);
     double perturbativity_likelihood_THDM(THDM_spectrum_container& container);
     double perturbativity_likelihood_simple_THDM(THDM_spectrum_container& container);
     double stability_likelihood_THDM(THDM_spectrum_container& container);
@@ -1934,16 +1933,20 @@ namespace Gambit
           }
       }
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container&)> likelihood_function = NLO_unitarity_likelihood_THDM;
-      if (runOptions->getValueOrDef<bool>(false, "check_correction_ratio")) {
-        likelihood_function = NLO_unitarity_with_correction_ratio_likelihood_THDM;
-      }
+      // get options
+      const bool check_corrections_ratio = runOptions->getValueOrDef<bool>(false, "check_correction_ratio");
+      const bool wave_function_corrections = runOptions->getValueOrDef<bool>(false, "wave_function_corrections");
+      const bool gauge_corrections = runOptions->getValueOrDef<bool>(false, "gauge_corrections");
+      const bool yukawa_corrections = runOptions->getValueOrDef<bool>(false, "yukawa_corrections");
+      // create likelihood function
+      std::function<double(THDM_spectrum_container&, const bool, const bool, const bool, const bool)> likelihood_function = NLO_unitarity_likelihood_THDM;
+      
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
       // evaluate loglike
-      const double loglike = likelihood_function(container);
+      const double loglike = likelihood_function(container, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections);
       // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
@@ -1952,7 +1955,7 @@ namespace Gambit
           // get likelihood at check_other_scale 
           THDM_spectrum_container container_at_scale;
           BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
-          loglike_at_Q = likelihood_function(container_at_scale);
+          loglike_at_Q = likelihood_function(container_at_scale, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections);
         }
         else {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
@@ -2275,7 +2278,7 @@ namespace Gambit
       return lo_eigenvalues;
     }
 
-    std::vector<std::complex<double>> get_NLO_scattering_eigenvalues(THDM_spectrum_container& container) {
+    std::vector<std::complex<double>> get_NLO_scattering_eigenvalues(THDM_spectrum_container& container, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections) {
       const std::complex<double> i(0.0,1.0);
 
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
@@ -2287,8 +2290,6 @@ namespace Gambit
       double c2a = cos(2.0*a), c2b = cos(2.0*b), s2a = sin(2.0*a), s2b = sin(2.0*b);
 
       // calculate LO beta functions 
-      const bool gauge_corrections = true;
-      const bool yukawa_corrections = true;
       const std::complex<double> b_one = beta_one(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_two = beta_two(container, gauge_corrections, yukawa_corrections);
       const std::complex<double> b_three = beta_three(container, gauge_corrections, yukawa_corrections);
@@ -2296,7 +2297,6 @@ namespace Gambit
       const std::complex<double> b_five = beta_five(container, gauge_corrections, yukawa_corrections);
 
       // wavefunction functions 
-      const bool wave_function_corrections = true;
       std::complex<double> zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
       std::complex<double> B1_z, B2_z, B3_z, B20_z, B21_z, B22_z;
       if (wave_function_corrections) {
@@ -2432,10 +2432,10 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error,0.0,0.0,sigma,false);
     }
 
-    double NLO_unitarity_likelihood_helper_THDM(THDM_spectrum_container& container, const bool check_correction_ratio) { 
+    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections) { 
       const std::complex<double> i(0.0,1.0);
       
-      std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container);
+      std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
       const double unitarity_upper_limit = 0.50;
       const double sigma = 0.01;
@@ -2477,14 +2477,6 @@ namespace Gambit
 
       return Stats::gaussian_upper_limit(error+error_ratio,0.0,0.0,sigma,false);
   }
-
-    double NLO_unitarity_with_correction_ratio_likelihood_THDM(THDM_spectrum_container& container) { 
-      return NLO_unitarity_likelihood_helper_THDM(container, true);
-    }
-
-    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container& container) { 
-      return NLO_unitarity_likelihood_helper_THDM(container, false);
-    }
 
     double perturbativity_likelihood_simple_THDM(THDM_spectrum_container& container) {
       // check lambda_i (generic couplings)

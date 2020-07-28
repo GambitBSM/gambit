@@ -72,7 +72,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 100000
+      NP: 2000
       convthresh: 1e-5
       verbosity: 1
 
@@ -288,6 +288,9 @@ Rules:
     function: get_NLO_unitarity_likelihood_THDM
     options:
       check_correction_ratio: true
+      wave_function_corrections: true
+      gauge_corrections: true
+      yukawa_corrections: true
 
   - capability: Reference_SM_Higgs_decay_rates
     function: Ref_SM_Higgs_decays_THDM
