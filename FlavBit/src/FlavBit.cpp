@@ -3345,7 +3345,7 @@ namespace Gambit
     void HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020(double &result)
     {
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020;
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/NAME_q2_";
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/CERN-EP-2020-027_q2_";
       if (flav_debug) std::cout << "Starting HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020"<<std::endl;
       static std::vector<str> obs_list = runOptions->getValue<std::vector<str>>("obs_list");
       static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian = {
@@ -3354,7 +3354,7 @@ namespace Gambit
         HepLike_default::HL_nDimGaussian(inputfile + "2.5_4.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "4.0_6.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0.yaml"),
-        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.0.yaml"),
       };
       if (flav_debug) std::cout << inputfile + "15.0_19.yaml"<<std::endl;
       static bool first = true;
@@ -3364,7 +3364,9 @@ namespace Gambit
         {
           if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
           nDimGaussian[i].Read();
+          if (flav_debug) std::cout << "Read"<<endl;
         }
+        if (flav_debug) std::cout <<" Read all"<<endl;
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
         first = false;
       }
@@ -3390,7 +3392,7 @@ namespace Gambit
     void HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020(double &result)
     {
       using namespace Pipes::HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020;
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/NAME_q2_";
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/CERN-EP-2020-027_q2_";
       if (flav_debug) std::cout << "Starting HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020"<<std::endl;
       static std::vector<str> obs_list = runOptions->getValue<std::vector<str>>("obs_list");
       static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian = {
@@ -3399,7 +3401,7 @@ namespace Gambit
         HepLike_default::HL_nDimGaussian(inputfile + "2.5_4.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "4.0_6.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0.yaml"),
-        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.0.yaml"),
       };
       if (flav_debug) std::cout << inputfile + "15.0_19.yaml"<<std::endl;
       static bool first = true;

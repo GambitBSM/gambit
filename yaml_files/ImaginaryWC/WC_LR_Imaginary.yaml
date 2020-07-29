@@ -40,10 +40,8 @@ Parameters:
     mH: 125.09
 
   WC_LR:
-    Re_DeltaC7:
-      range: [-3, 3]
-    Im_DeltaC7: 
-      range: [-6, 6]
+    Re_DeltaC7: 0
+    Im_DeltaC7: 0
     Re_DeltaC9:
        range: [-6, 6]
     Im_DeltaC9: 
@@ -57,10 +55,8 @@ Parameters:
     Re_DeltaCQ2: 0
     Im_DeltaCQ2: 0
 
-    Re_DeltaC7_Prime:
-      range: [-6, 6]
-    Im_DeltaC7_Prime:
-      range: [-6, 6]
+    Re_DeltaC7_Prime: 0
+    Im_DeltaC7_Prime: 0
     Re_DeltaC9_Prime:
       range: [-6, 6]
     Im_DeltaC9_Prime:
@@ -124,9 +120,6 @@ ObsLikes:
   #  capability: RDRDstar_LogLikelihood
 
   - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-
-  - purpose:    LogLike
     capability: B2mumu_LogLikelihood_LHCb
 
   - purpose:    Observable
@@ -154,22 +147,22 @@ ObsLikes:
     capability: B2mumu_LogLikelihood_Atlas
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
 
   - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_CMS
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_Belle
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
 
 #  - purpose:    LogLike
 #    capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
     
   - purpose:    LogLike
-    capability: B2KstarmumuBr_LogLikelihood_LHCb
+    capability: B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
 
   - purpose:    LogLike
     capability: Bs2phimumuBr_LogLikelihood
@@ -201,7 +194,7 @@ Rules:
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
 
-  - capability: B2KstarmumuAng_LogLikelihood_Atlas
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
 
@@ -217,16 +210,15 @@ Rules:
     options:
       obs_list: [P4prime, P5prime]
 
-  - capability: B2KstarmumuAng_LogLikelihood_Belle
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
     options:
       obs_list: [P4prime, P5prime]
 
   - capability: prediction_B2KstarmumuAng_.*_LHCb
-    options: 
+    options:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
-#    obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, A3, A4, A5, A6, A7, A8, A9]
 
-  - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
     options:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
@@ -270,6 +262,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/WC_LR_IM"
+  default_output_path: "runs/WC_LR_IM_NOC7"
 
   debug: true

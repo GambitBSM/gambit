@@ -40,10 +40,8 @@ Parameters:
     mH: 125.09
 
   WC:
-    Re_DeltaC7:
-      range: [-1, 1]
-    Im_DeltaC7: 
-      range: [-6, 6]
+    Re_DeltaC7: 0
+    Im_DeltaC7: 0
     Re_DeltaC9:
        range: [-6, 6]
     Im_DeltaC9: 
@@ -107,9 +105,6 @@ ObsLikes:
   #  capability: RDRDstar_LogLikelihood
 
   - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-
-  - purpose:    LogLike
     capability: B2mumu_LogLikelihood_LHCb
 
   - purpose:    Observable
@@ -137,22 +132,22 @@ ObsLikes:
     capability: B2mumu_LogLikelihood_Atlas
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
 
   - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_CMS
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_Belle
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
 
   - purpose:    LogLike
-    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    capability: B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
 
 #  - purpose:    LogLike
 #    capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
 
   - purpose:    LogLike
-    capability: B2KstarmumuBr_LogLikelihood_LHCb
+    capability: B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
 
   - purpose:    LogLike
     capability: Bs2phimumuBr_LogLikelihood
@@ -184,7 +179,7 @@ Rules:
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
 
-  - capability: B2KstarmumuAng_LogLikelihood_Atlas
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
     options:
       obs_list: [FL, S3, S4, S5, S7, S8]
 
@@ -200,7 +195,7 @@ Rules:
     options:
       obs_list: [P4prime, P5prime]
 
-  - capability: B2KstarmumuAng_LogLikelihood_Belle
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
     options:
       obs_list: [P4prime, P5prime]
 
@@ -209,7 +204,7 @@ Rules:
        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 #      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, A3, A4, A5, A6, A7, A8, A9]
 
-  - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+  - capability: B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
     options:
       obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
