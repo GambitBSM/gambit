@@ -41,12 +41,12 @@ HiggsBounds:
   4.2.1:       ./Backends/installed/higgsbounds/4.2.1/lib/libhiggsbounds.so
   4.3.1:       ./Backends/installed/higgsbounds/4.3.1/lib/libhiggsbounds.so
   5.3.2beta:   ./Backends/installed/higgsbounds/5.3.2beta/lib/libhiggsbounds.so
-  5.7.0:       ./Backends/installed/higgsbounds/5.7.0/build/lib/libhiggsbounds.so
+  5.8.0:       ./Backends/installed/higgsbounds/5.8.0/build/lib/libhiggsbounds.so
 
 HiggsSignals:
   1.4:         ./Backends/installed/higgssignals/1.4.0/lib/libhiggssignals.so
   2.2.3beta:   ./Backends/installed/higgssignals/2.2.3beta/lib/libhiggssignals.so
-  2.4.0:       ./Backends/installed/higgssignals/2.4.0/build/lib/libhiggssignals.so
+  2.5.0:       ./Backends/installed/higgssignals/2.5.0/build/lib/libhiggssignals.so
 
 FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so

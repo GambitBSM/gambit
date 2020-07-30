@@ -573,6 +573,14 @@ HB_ModelParameters: |
    Provides SM and MSSM input parameters for LEP and LHC Higgs
    likelihood calculations.
 
+HB_ModelParameters_charged:
+   Provides SM and MSSM input parameters for charged Higgs(es) for LEP and LHC Higgs
+   likelihood calculations.
+
+HB_ModelParameters_neutral:
+   Provides SM and MSSM input parameters for neutral Higgs(es) for LEP and LHC Higgs
+   likelihood calculations.
+
 # LEP cross-section capabilities
 
 
@@ -2220,6 +2228,9 @@ HiggsBounds_4_3_1_init:
 HiggsBounds_5_3_2beta_init: |
    Initialises HiggsBounds backend, version 5.3.2beta.
 
+HiggsBounds_5_8_0_init: 
+   Initialises HiggsBounds backend, version 5.8.0.
+
 finish_HiggsBounds: |
    Finishes HiggsBound.
 
@@ -2260,7 +2271,10 @@ HiggsBounds_set_mass_uncertainties: |
    Assign mass uncertainties for HiggsBounds backend.
 
 run_HiggsBounds_classic: |
-   Runs HiggsBounds after initialization.
+   Runs HiggsBounds after initialization in 'classic' mode.
+
+run_HiggsBounds: 
+   Run HiggsBounds after initialization.
 
 finish_HiggsBounds_chisqtables: |
    Generates chi squared tables from HiggsBounds.
@@ -2271,6 +2285,8 @@ initialize_HiggsBounds_chisqtables: |
 HB_calc_stats: |
    To quote from HiggsBounds: "this is in the middle of development! DO NOT USE!"
 
+HiggsBounds_get_LEPChisq: 
+   HiggsBounds capability to calculate the LEP chi-square value.
 
 #-------------------------------------
 #  HiggsSignals capabilities
@@ -2281,6 +2297,9 @@ HiggsSignals_1_4_init: |
 
 HiggsSignals_2_2_3beta_init: |
    Initialise HiggsSignals backend, version 2.2.3beta.
+
+HiggsSignals_2_5_0_init: 
+   Initialise HiggsSignals backend, version 2.5.0.
 
 HiggsSignals_neutral_input_MassUncertainty: |
    Assign mass uncertainties for HiggsSignals backend.
