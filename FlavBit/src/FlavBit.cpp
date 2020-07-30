@@ -59,8 +59,8 @@
 #include "gambit/Elements/thdm_slhahelp.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
-#define FLAVBIT_DEBUG
-// #define FLAVBIT_DEBUG_LL
+//#define FLAVBIT_DEBUG
+//#define FLAVBIT_DEBUG_LL
 
 namespace Gambit
 {
@@ -136,7 +136,6 @@ namespace Gambit
         if (spectrum["MODSEL"][6].is_data_line()) result.FV=SLHAea::to<int>(spectrum["MODSEL"][6][1]);
         if (spectrum["MODSEL"][12].is_data_line()) result.Q=SLHAea::to<double>(spectrum["MODSEL"][12][1]);
       }
-     cout<<result.model<<endl;
       if (result.NMSSM != 0) result.model=result.NMSSM;
       if (result.RV != 0) result.model=-2;
       if (result.CPV != 0) result.model=-2;
@@ -178,7 +177,6 @@ namespace Gambit
         if (spectrum["UPMNSIN"][5].is_data_line()) result.PMNS_alpha1=SLHAea::to<double>(spectrum["UPMNSIN"][5][1]);
         if (spectrum["UPMNSIN"][6].is_data_line()) result.PMNS_alpha2=SLHAea::to<double>(spectrum["UPMNSIN"][6][1]);
       }
-      cout<<"MINPAR"<<endl;
 
       if (!spectrum["MINPAR"].empty())
       {
@@ -214,14 +212,15 @@ namespace Gambit
           case 10:
           {
             // THDM model parameter
-
+            
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
+            cout<<"THDM_model value is "<<result.THDM_model<<endl;
+            if (result.THDM_model == 0) result.THDM_model=10;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if(spectrum["MINPAR"][18].is_data_line()) result.m12=SLHAea::to<double>(spectrum["MINPAR"][18][1]);
             if(spectrum["ALPHA"][0].is_data_line()) result.alpha=SLHAea::to<double>(spectrum["ALPHA"][0][1]);
-            if (!spectrum["MSOFT"].empty()) {
-              cout<<"Inside if"<<endl; 
+            if (!spectrum["MSOFT"].empty()) { 
               if (!spectrum["MSOFT"].front().empty()) result.MSOFT_Q=SLHAea::to<double>(spectrum["MSOFT"].front().at(3));
             }
             for(int i=1; i<4; i++)
@@ -499,10 +498,7 @@ namespace Gambit
         result.Q = result.mass_Z;
       }
 
-      cout<<"Entering BEreq::slha_adjust(&result) "<<endl;
-      cout<<"before, result.model= "<<result.model<<endl;
       BEreq::slha_adjust(&result);
-      cout<<"after, result.model=  "<<result.model<<endl;
 
       // Set the Z and W widths
       result.width_Z = Dep::Z_decay_rates->width_in_GeV;
@@ -1043,8 +1039,8 @@ namespace Gambit
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       double E_cut=1.6;
-      cout<<param.model<<endl;
       result=BEreq::bsgamma_CONV(&param, byVal(E_cut));
+      cout<<"bsgamma_CONV in FlavBit.cpp computed succesfully"<<endl;
 
       if (flav_debug) printf("BR(b->s gamma)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SI_bsgamma"<<endl;

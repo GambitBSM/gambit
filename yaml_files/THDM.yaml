@@ -584,4 +584,4 @@ KeyValues:
     core_warning: fatal
 
   default_output_path: "runs/THDM/"
-  debug: true
+  debug: false
