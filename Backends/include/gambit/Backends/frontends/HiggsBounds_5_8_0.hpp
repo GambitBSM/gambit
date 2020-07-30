@@ -83,7 +83,7 @@ BE_FUNCTION(HiggsBounds_charged_input_hadr, void, (int&, double*, double*, doubl
 	    "higgsbounds_charged_input_hadr_","HiggsBounds_charged_input_hadr")
 
 // Allowed model usage
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ, THDM, THDMI, THDMII, THDMLS, THDMflipped, THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

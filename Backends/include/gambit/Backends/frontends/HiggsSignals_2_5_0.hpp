@@ -55,6 +55,8 @@ BE_FUNCTION(run_HiggsSignals_LHC_Run1_combination, void, (double&, double&, doub
 BE_FUNCTION(run_HiggsSignals, void, (double&, double&, double&, int&, double&), "run_higgssignals_", "run_HiggsSignals")
 BE_FUNCTION(run_HiggsSignals_STXS, void, (double&, double&, double&, int&, double&), "run_higgssignals_stxs_", "run_HiggsSignals_STXS")
 BE_FUNCTION(HiggsSignals_neutral_input_MassUncertainty, void, (double*), "higgssignals_neutral_input_massuncertainty_", "HiggsSignals_neutral_input_MassUncertainty")
+BE_FUNCTION(HiggsBounds_get_LEPChisq, void, (double&, double&, double&, int&), "higgsbounds_get_lepchisq_", "HiggsBounds_get_LEPChisq")
+
 
 BE_FUNCTION(finish_HiggsSignals, void, (), "finish_higgssignals_", "finish_HiggsSignals")
 BE_FUNCTION(finish_HiggsBounds_HS, void, (), "finish_higgsbounds_", "finish_HiggsBounds_HS")
@@ -84,7 +86,7 @@ BE_FUNCTION(HiggsBounds_charged_input_hadr_HS, void, (int&, double*, double*, do
 	    "higgsbounds_charged_input_hadr_","HiggsBounds_charged_input_hadr_HS")
 
 // Allowed model usage
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, NMSSM66atQ, THDM, THDMI, THDMII, THDMLS, THDMflipped, THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"
