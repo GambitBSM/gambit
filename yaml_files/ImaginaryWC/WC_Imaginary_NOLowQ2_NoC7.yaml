@@ -247,6 +247,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/WC_IM"
+  default_output_path: "runs/WC_IM_NOLowQ2_NoC7"
 
   debug: true
