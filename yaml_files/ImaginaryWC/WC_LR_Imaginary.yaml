@@ -40,8 +40,10 @@ Parameters:
     mH: 125.09
 
   WC_LR:
-    Re_DeltaC7: 0
-    Im_DeltaC7: 0
+    Re_DeltaC7:
+       range: [-1, 1]
+    Im_DeltaC7:
+       range: [-2, 2]
     Re_DeltaC9:
        range: [-6, 6]
     Im_DeltaC9: 
@@ -55,8 +57,10 @@ Parameters:
     Re_DeltaCQ2: 0
     Im_DeltaCQ2: 0
 
-    Re_DeltaC7_Prime: 0
-    Im_DeltaC7_Prime: 0
+    Re_DeltaC7_Prime:
+       range: [-3, 3] 
+    Im_DeltaC7_Prime:
+       range: [-3, 3]
     Re_DeltaC9_Prime:
       range: [-6, 6]
     Im_DeltaC9_Prime:
