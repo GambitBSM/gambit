@@ -63,6 +63,8 @@ namespace Gambit
            double get_ms()             const;
 
            double get_vev()            const;
+           double get_v1()            const;
+           double get_v2()            const;
            double get_g1()             const;
            double get_g2()             const;
            double get_g3()             const;

@@ -38,7 +38,7 @@ namespace Gambit
         double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
         double M11_2, M12_2, M22_2;
         double mW;
-        double vev;
+        double vev, v1, v2;
         double g1, g2, g3, sinW2;
         double Yd[3], Ye[3], Yu[3];
         double yukawaCoupling;
@@ -94,6 +94,8 @@ namespace Gambit
             // /// Wrapper-side interface functions to parameter object
             /// @{ getter functions
             double get_vev()      const { return params.vev;      } 
+            double get_v1()      const { return params.v1;      } 
+            double get_v2()      const { return params.v2;      } 
             double get_g1()       const { return params.g1; }
             double get_g2()       const { return params.g2; }
             double get_g3()       const { return params.g3; }
@@ -182,6 +184,8 @@ namespace Gambit
             void set_M12_2(double in )                { params.M12_2=in; }
 
             void set_vev(double in)             { params.vev=in; } 
+            void set_v1(double in)             { params.v1=in; } 
+            void set_v2(double in)             { params.v2=in; } 
             void set_g1(double in)              { params.g1=in; }
             void set_g2(double in)              { params.g2=in; }
             void set_g3(double in)              { params.g3=in; }
@@ -210,6 +214,8 @@ namespace Gambit
                using namespace Par;
 
                getters[mass1]        .map0W["vev"]       = &Self::get_vev;
+               getters[mass1]        .map0W["v1"]       = &Self::get_v1;
+               getters[mass1]        .map0W["v2"]       = &Self::get_v2;
                getters[mass1]        .map0W["lambda_1"]  = &Self::get_lambda1;
                getters[mass1]        .map0W["lambda_2"]  = &Self::get_lambda2;
                getters[mass1]        .map0W["lambda_3"]  = &Self::get_lambda3;
@@ -283,6 +289,8 @@ namespace Gambit
                using namespace Par;
 
                setters[mass1].map0W["vev"]       = &Self::set_vev;
+               setters[mass1].map0W["v1"]       = &Self::set_v1;
+               setters[mass1].map0W["v2"]       = &Self::set_v2;
                setters[mass1].map0W["lambda_1"]  = &Self::set_lambda1;
                setters[mass1].map0W["lambda_2"]  = &Self::set_lambda2;
                setters[mass1].map0W["lambda_3"]  = &Self::set_lambda3;

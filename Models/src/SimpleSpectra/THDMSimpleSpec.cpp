@@ -90,6 +90,16 @@ namespace Gambit
       double THDMea::get_ms() const { return getdata("SMINPUTS",23); }
 
       double THDMea::get_vev()      const { return sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2))); } 
+      double THDMea::get_v1()      const { 
+        const double tb = getdata("MINPAR",3);
+        const double v = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
+        return sqrt(pow(v,2)*pow(tb,2)/(1+pow(tb,2))); 
+        } 
+      double THDMea::get_v2()      const { 
+        const double tb = getdata("MINPAR",3);
+        const double v = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
+        return sqrt(pow(v,2)/(1+pow(tb,2))); 
+        } 
       double THDMea::get_g1()       const { return getdata("GAUGE",1); }
       double THDMea::get_g2()       const { return getdata("GAUGE",1); }
       double THDMea::get_g3()       const { return getdata("GAUGE",1); }
@@ -258,6 +268,8 @@ namespace Gambit
 
             // vev
             tmp_map["vev"]  = &THDMea::get_vev;
+            tmp_map["v1"]  = &THDMea::get_v1;
+            tmp_map["v2"]  = &THDMea::get_v2;
 
             // coupling basis potential parameters
             tmp_map["lambda_1"]  = &THDMea::get_lambda1;
