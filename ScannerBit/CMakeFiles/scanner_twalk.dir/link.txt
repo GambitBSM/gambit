@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC  -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations  -shared -Wl,-soname,libscanner_twalk.so -o lib/libscanner_twalk.so CMakeFiles/scanner_twalk.dir/src/scanners/twalk/twalk.cpp.o 

@@ -1,1 +1,0 @@
-/usr/bin/gfortran  -fPIC  -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp  -shared -Wl,-soname,libfortran.so -o examples/libfortran.so CMakeFiles/fortran.dir/examples/libfortran.f90.o -Wl,-rpath,/home/cristian/gambitgit/contrib:/home/cristian/gambitgit/contrib/MassSpectra/flexiblesusy/src 

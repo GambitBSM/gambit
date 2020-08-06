@@ -1,1 +1,0 @@
-/usr/bin/c++    -fPIC -std=c++17 -fopenmp -Wall -Wextra -Wno-deprecated-declarations   CMakeFiles/scanlibs.dir/src/scanlibs/scanlibs.cpp.o  -o bin/scanlibs -rdynamic ../contrib/yaml-cpp-0.6.2/libyaml-cpp.a -Wl,-rpath,/home/cristian/gambitgit/contrib:/home/cristian/gambitgit/contrib/MassSpectra/flexiblesusy/src 

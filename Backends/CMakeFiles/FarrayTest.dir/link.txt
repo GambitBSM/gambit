@@ -1,1 +1,0 @@
-/usr/bin/gfortran  -fPIC  -fPIC -ffree-line-length-none -ffixed-line-length-none -cpp -fopenmp  -shared -Wl,-soname,libFarrayTest.so -o examples/libFarrayTest.so CMakeFiles/FarrayTest.dir/examples/libFarrayTest.f90.o -Wl,-rpath,/home/cristian/gambitgit/contrib:/home/cristian/gambitgit/contrib/MassSpectra/flexiblesusy/src 
