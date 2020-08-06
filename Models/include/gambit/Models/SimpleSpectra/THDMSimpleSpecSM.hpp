@@ -34,7 +34,7 @@ namespace Gambit
       {
         double mh0, mH0, mA0, mC, mG0, mGC;
         double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7;
-        double tanb, alpha, m11_2, m12_2, m22_2;
+        double tanb, beta, alpha, m11_2, m12_2, m22_2;
         double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
         double M11_2, M12_2, M22_2;
         double mW;
@@ -115,6 +115,7 @@ namespace Gambit
             double get_mG0()                const { return params.mG0; }
             double get_mGC()                const { return params.mGC; }
             double get_tanb()               const { return params.tanb; }
+            double get_beta()               const { return params.beta; }
             double get_alpha()              const { return params.alpha; }
             double get_yukawaCoupling()     const { return params.yukawaCoupling; }
 
@@ -159,6 +160,7 @@ namespace Gambit
             void set_mG0(double in)                         { params.mG0=in; }
             void set_mGC(double in)                         { params.mGC=in; }
             void set_tanb(double in)                        { params.tanb=in; }
+            void set_beta(double in)                        { params.beta=in; }
             void set_yukawaCoupling(double in)              { params.yukawaCoupling=in; }
 
             void set_lambda1(double in)               { params.lambda1=in; }
@@ -239,6 +241,8 @@ namespace Gambit
                getters[mass1]        .map0W["M12_2"]  = &Self::get_M12_2;
 
                getters[dimensionless].map0W["tanb"] = &Self::get_tanb;
+               getters[dimensionless].map0W["beta"] = &Self::get_beta;
+               getters[dimensionless].map0W["beta_pole"] = &Self::get_beta;
 
                getters[Pole_Mass].map1W["h0"]    = FInfo1W( &Self::get_mh0, i12 );
                getters[Pole_Mass].map0W["A0"]    = &Self::get_mA0;
@@ -265,6 +269,7 @@ namespace Gambit
                getters[dimensionless].map0W["g3"] = &Self::get_g3;
                getters[dimensionless].map0W["sinW2"] = &Self::get_sinW2;
                getters[dimensionless].map0W["alpha"] = &Self::get_alpha;
+               getters[dimensionless].map0W["alpha_pole"] = &Self::get_alpha;
 
                getters[dimensionless].map0W["yukawaCoupling"] = &Self::get_yukawaCoupling;
               
@@ -314,6 +319,7 @@ namespace Gambit
                setters[mass1].map0W["M12_2"]     = &Self::set_M12_2;
 
                setters[dimensionless].map0W["tanb"] = &Self::set_tanb;
+               setters[dimensionless].map0W["beta"] = &Self::set_beta;
 
                setters[dimensionless].map0W["g1"] = &Self::set_g1;
                setters[dimensionless].map0W["g2"] = &Self::set_g2;

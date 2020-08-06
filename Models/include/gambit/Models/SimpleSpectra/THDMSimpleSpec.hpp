@@ -80,6 +80,7 @@ namespace Gambit
            double get_mG0()                 const;
            double get_mGC()                 const;
            double get_tanb()               const;
+           double get_beta()              const;
            double get_alpha()              const;
            double get_yukawaCoupling()     const;
 

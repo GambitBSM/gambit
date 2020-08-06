@@ -119,6 +119,7 @@ namespace Gambit
       double THDMea::get_mG0()                const { return 0.0; }
       double THDMea::get_mGC()                const { return 0.0; }
       double THDMea::get_tanb()               const { return getdata("MINPAR",3); }
+      double THDMea::get_beta()               const { return atan(getdata("MINPAR",3)); }
       double THDMea::get_alpha()              const { return getdata("ALPHA",0); }
       double THDMea::get_m12_2()              const { return getdata("MINPAR",18); }
       double THDMea::get_yukawaCoupling()     const { return (getdata("FMODSEL",1) - 30); }
@@ -372,7 +373,14 @@ namespace Gambit
               tmp_map["g2"]   = &THDMea::get_g2;
               tmp_map["g3"]   = &THDMea::get_g3;
 
-                map_collection[Par::dimensionless].map0 = tmp_map;
+              // angles
+              tmp_map["alpha"]   = &THDMea::get_alpha;
+              tmp_map["alpha_pole"]   = &THDMea::get_alpha;
+              tmp_map["tanb"]   = &THDMea::get_tanb;
+              tmp_map["beta"]   = &THDMea::get_beta;
+              tmp_map["beta_pole"]   = &THDMea::get_beta;
+            
+              map_collection[Par::dimensionless].map0 = tmp_map;
             }
 
             { // Yukawas block
