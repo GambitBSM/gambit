@@ -1,3 +1,0 @@
-repository='https://github.com/patscott/pippi.git'
-module=''
-tag=''

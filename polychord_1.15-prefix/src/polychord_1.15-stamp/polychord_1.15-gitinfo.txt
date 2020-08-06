@@ -1,3 +1,0 @@
-repository='https://github.com/PolyChord/PolyChordLite'
-module=''
-tag=''

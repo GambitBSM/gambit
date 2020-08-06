@@ -1,1 +1,0 @@
-cmd='./configure;--enable-shared;--cxx="/usr/bin/c++";--cxx-common=" -fPIC -std=c++14 -fopenmp -Wall -Wextra -Wno-deprecated-declarations -fno-math-errno -funsafe-math-optimizations -fcx-limited-range -Wno-extra -Wno-deprecated-declarations -I/usr/include -I/home/cristian/gambitgit/contrib/slhaea/include";--cxx-shared="-shared";--lib-suffix=".so"'
