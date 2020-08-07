@@ -40,6 +40,10 @@
 #  \date 2019 Feb
 #  \date 2020 May
 #
+#  \author Patrick Stoecker
+#          (stoecker@physik.rwth-aachen.de)
+#  \date 2020 Aug
+#
 #************************************************
 
 # Constants
@@ -49,58 +53,62 @@ cfile=cookie
 axel_worked=0
 filename=$($2 -E echo $4 | sed 's#.*/##g')
 $2 -E make_directory $1 >/dev/null
-with_axel=$($2 -E echo $3 | grep -o "WITH_AXEL")
-# Go to wget/curl if axel is not present
-if [ ! -z "${with_axel}" ]; then
-  if command -v axel >/dev/null; then
-    # Go to wget/curl if POST data have been provided
-    if [ -z "${10}" ]; then
-      if $2 -E chdir $1 axel $4 -o $filename; then
-        axel_worked=1
-      else
-        $2 -E echo "Axel failed! The link probably redirects to https. Falling back to wget/curl..."
+
+# Perform download only if the tarball does not already exist (e.g. it was moved there manually)
+if [ ! -f $1/${filename} ]; then
+  with_axel=$($2 -E echo $3 | grep -o "WITH_AXEL")
+  # Go to wget/curl if axel is not present
+  if [ ! -z "${with_axel}" ]; then
+    if command -v axel >/dev/null; then
+      # Go to wget/curl if POST data have been provided
+      if [ -z "${10}" ]; then
+        if $2 -E chdir $1 axel $4 -o $filename; then
+          axel_worked=1
+        else
+          $2 -E echo "Axel failed! The link probably redirects to https. Falling back to wget/curl..."
+        fi
       fi
     fi
   fi
-fi
-if [ "${axel_worked}" = "0" ]; then
-  if command -v wget >/dev/null; then
-    if [ -z "${10}" ]; then
-      # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
-      if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
-        wget --no-check-certificate $4 -O $i/${filename}
+  if [ "${axel_worked}" = "0" ]; then
+    if command -v wget >/dev/null; then
+      if [ -z "${10}" ]; then
+        # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
+        if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
+          wget --no-check-certificate $4 -O $i/${filename}
+        else
+          wget $4 -O $1/${filename}
+        fi
       else
-        wget $4 -O $1/${filename}
+        wget --post-data "${10}" ${11} -O $1/${filename}
+      fi
+      wgetstatus=$?
+      if [ ${wgetstatus} != 0 ]; then
+        $2 -E cmake_echo_color --red --bold  "ERROR: wget failed to download file"
+        case ${wgetstatus} in
+          1) $2 -E cmake_echo_color --red --bold  "Generic error code" ;;
+          2) $2 -E cmake_echo_color --red --bold  "Parse error" ;;
+          3) $2 -E cmake_echo_color --red --bold  "File I/O error" ;;
+          4) $2 -E cmake_echo_color --red --bold  "Network failure. Check url of the backend" ;;
+          5) $2 -E cmake_echo_color --red --bold  "Expired or wrong certificate. To download backend insecurely, use 'IGNORE_HTTP_CERTIFICATE=1 make <backend>'" ;;
+          6) $2 -E cmake_echo_color --red --bold  "Authentication error" ;;
+          7) $2 -E cmake_echo_color --red --bold  "Protocol error" ;;
+          8) $2 -E cmake_echo_color --red --bold  "Server issued error response" ;;
+        esac
+        exit 1
+      fi
+    elif command -v curl >/dev/null; then
+      if [ -z "${10}" ]; then
+        $2 -E chdir $1 curl -L -O $4
+      else
+        $2 -E chdir $1 curl -L -O -c $cfile --data "${10}" ${11}
+        $2 -E chdir $1 curl -L -O -b $cfile $4
+        $2 -E remove $1/$cfile
       fi
     else
-      wget --post-data "${10}" ${11} -O $1/${filename}
-    fi
-    wgetstatus=$?
-    if [ ${wgetstatus} != 0 ]; then
-      $2 -E cmake_echo_color --red --bold  "ERROR: wget failed to download file"
-      case ${wgetstatus} in
-        1) $2 -E cmake_echo_color --red --bold  "Generic error code" ;;
-        2) $2 -E cmake_echo_color --red --bold  "Parse error" ;;
-        3) $2 -E cmake_echo_color --red --bold  "File I/O error" ;;
-        4) $2 -E cmake_echo_color --red --bold  "Network failure. Check url of the backend" ;;
-        5) $2 -E cmake_echo_color --red --bold  "Expired or wrong certificate. To download backend insecurely, use 'IGNORE_HTTP_CERTIFICATE=1 make <backend>'" ;;
-        6) $2 -E cmake_echo_color --red --bold  "Authentication error" ;;
-        7) $2 -E cmake_echo_color --red --bold  "Protocol error" ;;
-        8) $2 -E cmake_echo_color --red --bold  "Server issued error response" ;;
-      esac
+      $2 -E cmake_echo_color --red --bold "ERROR: No axel, no wget, no curl?  What kind of OS are you running anyway?"
       exit 1
     fi
-  elif command -v curl >/dev/null; then
-    if [ -z "${10}" ]; then
-      $2 -E chdir $1 curl -L -O $4
-    else
-      $2 -E chdir $1 curl -L -O -c $cfile --data "${10}" ${11}
-      $2 -E chdir $1 curl -L -O -b $cfile $4
-      $2 -E remove $1/$cfile
-    fi
-  else
-    $2 -E cmake_echo_color --red --bold "ERROR: No axel, no wget, no curl?  What kind of OS are you running anyway?"
-    exit 1
   fi
 fi
 # Check the MD5 sum

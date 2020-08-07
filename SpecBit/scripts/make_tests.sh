@@ -1,4 +1,4 @@
-MS=../contrib/MassSpectra
+MS=../../contrib/MassSpectra
 FS=$MS/flexiblesusy
 
 FSMODEL1=$FS/models/CMSSM

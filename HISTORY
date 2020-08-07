@@ -3,6 +3,11 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.4.5
+Bugfix release
+- Fixed BOSS problem with parsing template brackets.
+- Small fix to the cmake system for the Pythia 8.212 backend (c++14 vs c++17 issue).
+
 v1.4.4
 Bugfix release
 - Corrected frontend of DDCalc 2.0 such that SD couplings are passed correctly.

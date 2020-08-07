@@ -693,6 +693,12 @@ namespace Gambit
       // Get the spectrum from the Backend
       myPipe::BEreq::SPheno_MSSMspectrum(spectrum, inputs);
 
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
+
+      // Drop SLHA files if requested
+      spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+
     }
 
   // Runs FlexibleSUSY MSSMEFTHiggs model spectrum generator with SUSY

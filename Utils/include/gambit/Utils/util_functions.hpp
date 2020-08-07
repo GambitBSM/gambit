@@ -221,6 +221,9 @@ namespace Gambit
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
 
+    /// Get the sign of a (hopefully numeric type)
+    template <typename T> int sgn(T val) {  return (T(0) < val) - (val < T(0)); }
+
     // Dummy functions for variadic variables to avoid compiler warnings
     template<typename... T> void dummy_function() {}
     template<typename T> void dummy_function(T one)

@@ -298,6 +298,8 @@ int main(int argc, char* argv[])
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
     RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
     RD_oh2_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
+    // Maximum core time to allow for relic density calculation, in seconds
+    RD_oh2_general.setOption<double>("timeout", 10800.);
     RD_oh2_general.reset_and_calculate();
 
     // Calculate WMAP likelihoods -- Choose one of the two relic density calculators
@@ -360,8 +362,7 @@ int main(int argc, char* argv[])
     // The below calculates the DD couplings using the full 1 loop calculation of
     // Drees Nojiri Phys.Rev. D48 (1993) 3483
     DD_couplings_DarkSUSY.setOption<bool>("loop", true);
-    // When the calculation is done at tree level (loop = false), setting the below to false
-    // approximates the squark propagator as 1/m_sq^2 to avoid poles.
+    // Setting the below to false approximates the squark propagator as 1/m_sq^2 to avoid poles.
     // DD_couplings_DarkSUSY.setOption<bool>("pole", false);
     DD_couplings_DarkSUSY.reset_and_calculate();
 
