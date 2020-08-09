@@ -214,7 +214,7 @@ namespace Gambit
             // THDM model parameter
             
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-            cout<<"THDM_model value is "<<result.THDM_model<<endl;
+            // cout<<"THDM_model value is "<<result.THDM_model<<endl;
             if (result.THDM_model == 0) result.THDM_model=10;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
@@ -1040,8 +1040,6 @@ namespace Gambit
       parameters const& param = *Dep::SuperIso_modelinfo;
       double E_cut=1.6;
       result=BEreq::bsgamma_CONV(&param, byVal(E_cut));
-      cout<<"bsgamma_CONV in FlavBit.cpp computed succesfully"<<endl;
-
       if (flav_debug) printf("BR(b->s gamma)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SI_bsgamma"<<endl;
     }

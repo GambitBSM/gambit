@@ -447,13 +447,17 @@ ObsLikes:
     #################
     # Observables
     #################
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
 
     # Checks if the vacuum leads to a global minimum solution
     # Returns 0 if it is metastable or unstable (otherwise 1)
     # Only supports CP-conserving models
-    - capability: vacuum_global_minimum
-      function: check_vacuum_global_minimum
-      purpose: Observable
+   # - capability: vacuum_global_minimum
+    #  function: check_vacuum_global_minimum
+     # purpose: Observable
   
 Rules:
 
@@ -461,10 +465,10 @@ Rules:
     # Likelihood/Observable Rules
     ##############################
 
-    - capability: THDM_spectrum
-      function: get_THDM_spectrum
-      options:
-        check_perturbativity: false
+   # - capability: THDM_spectrum
+     # function: get_THDM_spectrum
+     # options:
+    #    check_perturbativity: false
     # [check_perturbativity: true] a hard cut-off on perturabitivity 
     # on spectrum generation only required in physical basis
     # -------------------------------------------
