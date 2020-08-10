@@ -188,12 +188,10 @@ BE_NAMESPACE
   {
     check_model(param, LOCAL_INFO);
 
-    cout<<"Inside bsgamma_CONV, after check_model, model= "<<param->model<<endl;
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_1S/2.;
     double C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3];
-    cout<<"Exactly before CW_calculator"<<endl;
     //cout<<"Params WC: "<<param->mtmt<<" "<<mu_W<<"  "<<param->mass_top_pole<<" "<<param->mass_b<<endl;
 
     //cout<<"Cross check NO WC: "<<param->alphas_MZ<<" "<<param->mass_Z<<" "<<param->mass_b<<" "<<param->mass_top_pole<<" "<<param->mass_mu<<" "<<param->mass_s<<" "<<mu_W<<endl;
