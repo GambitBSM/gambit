@@ -139,6 +139,25 @@ namespace Gambit
       }
       /// @}
 
+      /**
+       * @brief Get a `std::vector` of a particular type
+       *
+       * If the entry is a scalar rather than a vector, try to convert it to a size one
+       * `std::vector`
+       */
+      template<typename TYPE>
+      std::vector<TYPE> getVector(std::string key) const
+      {
+        if (getNode(key).IsScalar())
+        {
+          return {getValue<TYPE>(key)};
+        } 
+        else
+        {
+          return getValue<std::vector<TYPE>>(key);
+        }
+      }
+
       /// Retrieve values from key-value pairs in options node.
       /// Works for an arbitrary set of input keys (of any type), and returns
       /// all values as strings.
