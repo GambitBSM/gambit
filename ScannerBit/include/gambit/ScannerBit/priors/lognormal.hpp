@@ -88,7 +88,12 @@ namespace Gambit
       {
         static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
         const double prod = std::accumulate(vec.begin(), vec.end(), 1, std::multiplies<double>());
-        return -0.5 * col.Square(vec, mu) - norm - std::log(prod);
+        std::vector<double> log_vec;
+        for (const auto& v: vec)
+        {
+          log_vec.push_back(std::log(v) / std::log(base));
+        }
+        return -0.5 * col.Square(log_vec, mu) - norm - std::log(prod);
       }
     };
 
