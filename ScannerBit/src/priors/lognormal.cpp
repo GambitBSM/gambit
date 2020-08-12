@@ -96,7 +96,7 @@ namespace Gambit
 
       if (options.hasKey("mu"))
       {
-        std::vector <double> mu = options.getVector<double>("mu");
+        mu = options.getVector<double>("mu");
         if (mu.size() != param.size())
         {
           std::stringstream err;
