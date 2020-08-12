@@ -45,48 +45,82 @@ scanner_plugin(minuit2, version(6, 23, 01))
       // Retrieve the dimensionality of the scan
       const int dim = get_dimension();
 
-      Gambit::Scanner::like_ptr loglike_hypercube = get_purpose(get_inifile_value<std::string>("like"));
+      Gambit::Scanner::like_ptr model = get_purpose(get_inifile_value<std::string>("like"));
 
       double offset = get_inifile_value<double>("likelihood: lnlike_offset", 0.);
-      loglike_hypercube->setPurposeOffset(offset);
+      model->setPurposeOffset(offset);
   
       // minuit2 algorithm options
       const auto algorithm{get_inifile_value<std::string>("algorithm", "minimize")};
       const auto max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};   
-      const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};   
+      const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};
+      const auto precision{get_inifile_value<double>("precision", 0.0001)};   
       const auto print_level{get_inifile_value<int>("print_level", 1)};   
       const auto start{get_inifile_value<double>("unit_hypercube_start", 0.5)}; 
-      const auto step{get_inifile_value<double>("unit_hypercube_step", 0.01)}; 
+      const auto step{get_inifile_value<double>("unit_hypercube_step", 0.01)};
+      const auto strategy{get_inifile_value<int>("strategy", 1)};
 
-      ROOT::Math::Minimizer* min = new ROOT::Minuit2::Minuit2Minimizer(algorithm.c_str());
+      ROOT::Minuit2::EMinimizerType kalgorithm;
+      if (algorithm == "simplex")
+      {
+        kalgorithm = ROOT::Minuit2::kSimplex;
+      }
+      else if (algorithm == "minimize")
+      {
+        kalgorithm = ROOT::Minuit2::kCombined;
+      }
+      else if (algorithm == "scan")
+      {
+        kalgorithm = ROOT::Minuit2::kScan;
+      }
+      else if (algorithm == "fumili")
+      {
+        kalgorithm = ROOT::Minuit2::kFumili;
+      }
+      else if (algorithm == "bfgs")
+      { 
+        kalgorithm = ROOT::Minuit2::kMigradBFGS;
+      }
+      else if (algorithm == "migrad")
+      { 
+        kalgorithm = ROOT::Minuit2::kMigrad;
+      }
+      else 
+      {
+        throw std::runtime_error("Unknown minuit2 algorithm: " + algorithm);
+      }
+
+      ROOT::Math::Minimizer* min = new ROOT::Minuit2::Minuit2Minimizer(kalgorithm);
       min->SetMaxFunctionCalls(max_loglike_calls);
       min->SetTolerance(tolerance);
       min->SetPrintLevel(print_level);
+      min->SetPrecision(precision);
+      min->SetStrategy(strategy);
 
-      auto chi_squared = [&loglike_hypercube, dim] (const double* x)
+      auto chi_squared = [&model, dim] (const double* x)
       {
         std::vector<double> v;
         for (int i = 0; i < dim; i++)
         {
           v.push_back(x[i]);
         }
-        return -2. * loglike_hypercube(v);
+        return -2. * model(v);
       };
 
-      ROOT::Math::Functor f(chi_squared, dim); // TODO this is surely wrong!
+      ROOT::Math::Functor f(chi_squared, dim);
       min->SetFunction(f);
 
       // set the free variables to be minimized
       for (int i = 0; i < dim; i++)
       {
         std::string name = "x_" + std::to_string(i);
-        min->SetVariable(i, name, start, step);
+        min->SetLimitedVariable(i, name, start, step, 0., 1.);
       }
 
       // do the minimization
       min->Minimize();
-
-      std::cout << "minimum chi-squared = " <<  min->MinValue() << std::endl;
+  
+      std::cout << "minimum chi-squared = " << min->MinValue() << std::endl;
 
       const double *best_fit_hypercube = min->X();
       for (int i = 0; i < dim; i++)
@@ -96,7 +130,13 @@ scanner_plugin(minuit2, version(6, 23, 01))
       }
 
       // convert result to physical parameters
-      // TODO
+      std::vector<double> v;
+      for (int i = 0; i < dim; i++)
+      {
+        v.push_back(best_fit_hypercube[i]);
+      }  
+      auto best_fit_physical = model.transform(v);    
+      std::cout << "best-fit physical = " << best_fit_physical << std::endl;
 
       // manually delete the pointer
       delete min;
