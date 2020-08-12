@@ -30,7 +30,7 @@ Printer:
   #  buffer_length: 1000
   #  delete_file_on_restart: true
 
-  printer: hdf5
+  printer: none
   options:
     output_file: "results.hdf5"
     group: "/spartan"
@@ -50,14 +50,14 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: minuit2
 
   scanners:
 
-    random:
-      plugin: random
+    minuit2:
+      plugin: minuit2
       like: LogLike
-      point_number: 1000
+      print_level: 100
 
     de:
       plugin: diver

@@ -19,6 +19,8 @@
 #ifndef __minuit2_hpp__
 #define __minuit2_hpp__
 
+#define ROOT_Math_VecTypes
+#define MATHCORE_STANDALONE
 #include "gambit/ScannerBit/scanner_plugin.hpp"
 
 #endif  // __minuit2_hpp__
