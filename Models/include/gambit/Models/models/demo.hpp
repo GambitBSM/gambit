@@ -22,6 +22,31 @@
 #ifndef __demo_hpp__
 #define __demo_hpp__
 
+#define MODEL trivial_1d
+  START_MODEL
+  DEFINEPARS(x1)
+#undef MODEL
+
+#define MODEL trivial_2d
+  START_MODEL
+  DEFINEPARS(x1, x2)
+#undef MODEL
+
+#define MODEL trivial_3d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3)
+#undef MODEL
+
+#define MODEL trivial_4d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4)
+#undef MODEL
+
+#define MODEL trivial_5d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4, x5)
+#undef MODEL
+
 // This is the normal distribution toy model used in ExampleBit_A.
 #define MODEL NormalDist
   START_MODEL

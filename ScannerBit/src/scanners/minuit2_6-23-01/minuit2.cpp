@@ -53,6 +53,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
       // minuit2 algorithm options
       const auto algorithm{get_inifile_value<std::string>("algorithm", "minimize")};
       const auto max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};   
+      const auto max_iterations{get_inifile_value<int>("max_iterations", 100000)};
       const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};
       const auto precision{get_inifile_value<double>("precision", 0.0001)};   
       const auto print_level{get_inifile_value<int>("print_level", 1)};   
@@ -91,12 +92,13 @@ scanner_plugin(minuit2, version(6, 23, 01))
       }
 
       ROOT::Math::Minimizer* min = new ROOT::Minuit2::Minuit2Minimizer(kalgorithm);
+      min->SetStrategy(strategy);
       min->SetMaxFunctionCalls(max_loglike_calls);
+      min->SetMaxIterations(max_iterations);
       min->SetTolerance(tolerance);
       min->SetPrintLevel(print_level);
       min->SetPrecision(precision);
-      min->SetStrategy(strategy);
-
+      
       auto chi_squared = [&model, dim] (const double* x)
       {
         std::vector<double> v;
@@ -137,6 +139,25 @@ scanner_plugin(minuit2, version(6, 23, 01))
       }  
       auto best_fit_physical = model.transform(v);    
       std::cout << "best-fit physical = " << best_fit_physical << std::endl;
+
+      // whether succssful
+      const int status = min->Status();
+      switch (status) {
+        case 0:
+          break; 
+        case 5:
+          throw std::runtime_error("Minuit2: Covar is not pos def");
+        case 1:
+          throw std::runtime_error("Minuit2: Covar was made pos def");
+        case 2:
+          throw std::runtime_error("Minuit2: Hesse is not valid");
+        case 3:
+          throw std::runtime_error("Minuit2: Edm is above max");
+        case 4:
+          throw std::runtime_error("Minuit2: Reached call limit");
+        default:
+          throw std::runtime_error("Unknown minuit2 error: " + std::to_string(status));
+       }
 
       // manually delete the pointer
       delete min;
