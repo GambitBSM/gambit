@@ -40,35 +40,37 @@ Parameters:
     mH: 125.09
 
 
+  WC_LR:
+    Re_DeltaC7: 0.01
+    Im_DeltaC7: 0.01
+    Re_DeltaC9: -1.
+    Im_DeltaC9: 0.5
+    Re_DeltaC10: 2.
+    Im_DeltaC10: 1.
+    Re_DeltaCQ1: 0
+    Im_DeltaCQ1: 0
+    Re_DeltaCQ2: 0
+    Im_DeltaCQ2: 0
 
+    Re_DeltaC7_Prime: -0.01
+    Im_DeltaC7_Prime: 0.02
+    Re_DeltaC9_Prime: 0.5
+    Im_DeltaC9_Prime: -1.
+    Re_DeltaC10_Prime: -2.
+    Im_DeltaC10_Prime: 0
+    Re_DeltaCQ1_Prime: 0
+    Im_DeltaCQ1_Prime: 0
+    Re_DeltaCQ2_Prime: 0
+    Im_DeltaCQ2_Prime: 0
+
+                                              
+    
 
 
 
 Priors:
 
-  WC_LR:
-      Re_DeltaC7: 0.01
-      Im_DeltaC7: 0.01
-      Re_DeltaC9: -1.
-      Im_DeltaC9: 0.5
-      Re_DeltaC10: 2.
-      Im_DeltaC10: 1.
-      Re_DeltaCQ1: 0
-      Im_DeltaCQ1: 0
-      Re_DeltaCQ2: 0
-      Im_DeltaCQ2: 0
-
-      Re_DeltaC7_Prime: -0.01
-      Im_DeltaC7_Prime: 0.02
-      Re_DeltaC9_Prime: 0.5
-      Im_DeltaC9_Prime: -1.
-      Re_DeltaC10_Prime: -2.
-      Im_DeltaC10_Prime: 0
-      Re_DeltaCQ1_Prime: 0
-      Im_DeltaCQ1_Prime: 0
-      Re_DeltaCQ2_Prime: 0
-      Im_DeltaCQ2_Prime: 0
- 
+  # All priors are simple, so specified in Parameters section
 
 
 Printer:
@@ -99,7 +101,7 @@ Scanner:
       convthresh: 1e-5
       lambdajDE: false
       jDE:  true
-
+      
 
     square_grid:
       plugin: square_grid
@@ -221,7 +223,7 @@ Rules:
 
   - options:
       use_SM_covariance: true
-
+        
 
 
   # Use SuperIso instead of FeynHiggs for b->sgamma
