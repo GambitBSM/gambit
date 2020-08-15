@@ -56,8 +56,8 @@ Parameters:
     Im_DeltaC7_Prime: 0.02
     Re_DeltaC9_Prime: 0.5
     Im_DeltaC9_Prime: -1.
-    Re_DeltaC10_Prime: -2.
-    Im_DeltaC10_Prime: 0
+    Re_DeltaC10_Prime: -1.
+    Im_DeltaC10_Prime: -2.
     Re_DeltaCQ1_Prime: 0
     Im_DeltaCQ1_Prime: 0
     Re_DeltaCQ2_Prime: 0
