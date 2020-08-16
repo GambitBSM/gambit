@@ -24,7 +24,7 @@ BE_NAMESPACE
     // if the scale value is greater than zero we run our spectrum to this enegry
     // for an SM-like model set SM_like to the Higgs number that you would like to use as the SM-Higgs
     void init_THDM_spectrum_container_CONV(THDM_spectrum_container &container, const Spectrum &spec, int yukawa_type, double scale=0.0, int SM_like=0) {
-
+        
         // copy over the high energy, low energy spectra and sm inputs into the container
         container.he = spec.clone_HE(); 
         container.SM = spec.clone_LE();
@@ -45,6 +45,18 @@ BE_NAMESPACE
             container.yukawa_type = 1;
         }
 
+        // add the Higgs basis parameters to the container via the higgs par struct
+        container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda_1");
+        container.higgs_pars.Lambda2 = container.he->get(Par::mass1,"Lambda_2");
+        container.higgs_pars.Lambda3 = container.he->get(Par::mass1,"Lambda_3");
+        container.higgs_pars.Lambda4 = container.he->get(Par::mass1,"Lambda_4");
+        container.higgs_pars.Lambda5 = container.he->get(Par::mass1,"Lambda_5");
+        container.higgs_pars.Lambda6 = container.he->get(Par::mass1,"Lambda_6");
+        container.higgs_pars.Lambda7 = container.he->get(Par::mass1,"Lambda_7");
+        container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
+        container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
+        container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");
+
         // fill THDM parameters into the 2HDMC
         // both generic and physical parameters are filled using the added set_param_full method
         // the use of basis transformations between the generic and physical basis have been patched
@@ -63,8 +75,15 @@ BE_NAMESPACE
             double mH = container.he->get(Par::mass1, "h0", 2);
             double mA = container.he->get(Par::mass1, "A0");
             double mC = container.he->get(Par::mass1, "H+");
-            double alpha = container.he->get(Par::dimensionless, "alpha");
-            double sba = sin(container.he->get(Par::dimensionless, "beta") - alpha);
+            // double alpha = container.he->get(Par::dimensionless, "alpha");
+            // be consistent in calculating sinba {
+                double v2 = container.he->get(Par::mass1, "v2");
+                double mC_2 = container.higgs_pars.M22_2 + 0.5*v2*container.higgs_pars.Lambda3;
+                double mA_2 = mC_2 - 0.5*v2*(container.higgs_pars.Lambda5 - container.higgs_pars.Lambda4);
+                double s2ba = -2.*container.higgs_pars.Lambda6*v2, c2ba = -(mA_2+(container.higgs_pars.Lambda5-container.higgs_pars.Lambda1)*v2);
+                double ba = 0.5*atan2(s2ba,c2ba);
+            // }
+            double sba = sin(ba);
             container.THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                     m12_2, tan_beta, mh, mH, mA, mC, sba);
             
@@ -159,17 +178,6 @@ BE_NAMESPACE
             decay_table_2hdmc.print_decays(4);
         #endif
 
-        // add the Higgs basis parameters to the container via the higgs par struct
-        container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda_1");
-        container.higgs_pars.Lambda2 = container.he->get(Par::mass1,"Lambda_2");
-        container.higgs_pars.Lambda3 = container.he->get(Par::mass1,"Lambda_3");
-        container.higgs_pars.Lambda4 = container.he->get(Par::mass1,"Lambda_4");
-        container.higgs_pars.Lambda5 = container.he->get(Par::mass1,"Lambda_5");
-        container.higgs_pars.Lambda6 = container.he->get(Par::mass1,"Lambda_6");
-        container.higgs_pars.Lambda7 = container.he->get(Par::mass1,"Lambda_7");
-        container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
-        container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
-        container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");
     }
 
 }

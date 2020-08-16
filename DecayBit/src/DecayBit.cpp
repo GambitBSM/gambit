@@ -3737,16 +3737,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 1);
-
-      // if (SM) {
-      //   // Set up neutral Higgses (keys)
-      //   static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-      //   SpecBit::init_THDM_object_SM_like(container.he->get(Par::mass1,sHneut[h-1]), container.he, container.SM, container.sminputs, container.THDM_object);
-      //   // update h back to SM like (1) after setting mass based on reference Higgs
-      //   h = 1;
-      // }
-      //
-      // h_decays_THDM(result, *Dep::THDM_spectrum, y_type, 1, false);
    }
 
    void h0_2_decays_THDM(DecayTable::Entry& result) {
@@ -3764,9 +3754,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 2);
-      
-      // // fill BFs
-      // h_decays_THDM(result, *Dep::THDM_spectrum, y_type, 2, false);
    }
   
    void A0_decays_THDM(DecayTable::Entry& result) {
@@ -3784,9 +3771,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 3);
-      
-      // fill BFs
-      // h_decays_THDM(result, *Dep::THDM_spectrum, y_type, 3, false);
    }
 
    void Hpm_decays_THDM(DecayTable::Entry& result) {
@@ -3804,8 +3788,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 4);
-      // fill BFs
-      // h_decays_THDM(result, *Dep::THDM_spectrum, y_type, 4, false);
    }
 
     /// Reference SM Higgs decays from 2HDMC: h0_1
@@ -3815,7 +3797,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 1);
       h_decays_THDM(result, container, 1);
-      // h_decays_THDM(result, *Dep::THDM_spectrum, 1, 1, true);
     }
     /// Reference SM Higgs decays from 2HDMC: h0_2
     void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result) {
@@ -3824,7 +3805,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 2);
       h_decays_THDM(result, container, 1);
-      // h_decays_THDM(result, *Dep::THDM_spectrum, 1, 2, true);
     }
     /// Reference SM Higgs decays from 2HDMC: A0
     void Ref_SM_A0_decays_THDM(DecayTable::Entry& result) {
@@ -3833,7 +3813,6 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 3);
       h_decays_THDM(result, container, 1);
-      // h_decays_THDM(result, *Dep::THDM_spectrum, 1, 3, true);
     }
    
     /// THDM decays: t from 2HDMC
