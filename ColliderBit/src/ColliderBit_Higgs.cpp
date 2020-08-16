@@ -470,6 +470,17 @@ namespace Gambit
 
       // Cross section
       set_CS_charged(result);
+
+      // extra HB v5 beta input
+      result.BR_Hpjtb[0] = H_plus_widths.BF("t", "bbar");
+      result.BR_HpjWZ[0] = H_plus_widths.has_channel("W+","Z0") ? H_plus_widths.BF("W+","Z0") : 0.; 
+
+      // Set up neutral Higgses (keys)
+      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      
+      for (int h=1;h<=3;h++) {
+        result.BR_HpjhiW[h-1] = H_plus_widths.BF("W+",sHneut[h-1]);
+      }
      
     }
 
