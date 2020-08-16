@@ -23,7 +23,7 @@
 namespace Gambit
 {
   // Container for HiggsBounds parameter inputs (masses, BR's, CS's etc.)
-  // Compatible with v4.x HB
+  // Compatible with v4 HB
   struct hb_neutral_ModelParameters_part
   {
     // Neutral Higgs Parameters
@@ -68,8 +68,7 @@ namespace Gambit
     double BR_hjhihi[3][3];
   };
 
-  // compatible with v5.x(beta) HB 
-  // NB compatible with v4.x HB if coupling ratios are squared
+  // compatible with v4/5 HB
   struct hb_neutral_ModelParameters_effc
   {
    double Mh[3];
@@ -95,12 +94,17 @@ namespace Gambit
    double ghjgg[3];
    double ghjggZ[3];
    double ghjhiZ[3][3];
+   // these are for HB v5 & are inputted using nonSMBR
    double BR_hjinvisible[3];
-   double BR_hjhihi[3][3];
+   double BR_hkhjhi[3][3][3];
+   double BR_hjhiZ[3][3];
+   double BR_hjemu[3];
+   double BR_hjetau[3];
+   double BR_hjmutau[3];
+   double BR_hjHpiW[3][1];
   };
 
-  // compatible with v5.x(beta) HB 
-  // compatible with v4.x HB
+  // compatible with v4/5 HB
   struct hb_charged_ModelParameters
   {
     double MHplus[1];
@@ -112,7 +116,7 @@ namespace Gambit
     double BR_Hpjcs[1];
     double BR_Hpjcb[1];
     double BR_Hptaunu[1];
-    // extra HB v5.x (beta) input
+    // extra HB v5 input
     double BR_Hpjtb[1];
     double BR_HpjWZ[1];
     double BR_HpjhiW[3];
