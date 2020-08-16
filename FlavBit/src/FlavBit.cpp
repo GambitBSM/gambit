@@ -3564,11 +3564,13 @@ namespace Gambit
       };
 
       result = 0;
-
+      cout<<"kstarmumu Br"<<endl;
+        
       for (unsigned int i = 0; i < BifurGaussian.size(); i++)
       {
         double theory = prediction[i].central_values.begin()->second;
         double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        cout<<theory<<endl;
         result += BifurGaussian[i].GetLogLikelihood(theory, theory_variance);
       }
 
