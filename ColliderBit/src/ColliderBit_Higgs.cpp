@@ -51,9 +51,9 @@ namespace Gambit
   {
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios from a GAMBIT HiggsCouplingsTable
-    void set_CS_neutral(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
+    void set_CS_neutral(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int nNeutral)
     {
-      for(int i = 0; i < n_neutral_higgses; i++)
+      for(int i = 0; i < nNeutral; i++)
       {
         result.CS_bg_hjb_ratio[i] = couplings.C_bb2[i];
         result.CS_bb_hj_ratio[i]  = couplings.C_bb2[i];
@@ -62,7 +62,7 @@ namespace Gambit
         result.CS_lep_tautauhj_ratio[i] = couplings.C_tautau2[i];
 
         result.CS_lep_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
-        result.CS_gg_hjZ_ratio[i] = 0.;
+        result.CS_gg_hjZ_ratio[i] = 0.; //TODO
         result.CS_dd_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
         result.CS_uu_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
         result.CS_ss_hjZ_ratio[i] = pow(couplings.C_ZZ[i],2);
@@ -84,7 +84,7 @@ namespace Gambit
         result.CS_lhc7_tthj_ratio[i] = couplings.C_tt2[i];
         result.CS_lhc8_tthj_ratio[i] = couplings.C_tt2[i];
 
-        for(int j = 0; j < n_neutral_higgses; j++)
+        for(int j = 0; j < nNeutral; j++)
         {
           result.CS_lep_hjhi_ratio[i][j] = pow(couplings.C_hiZ[i][j],2);
         }
@@ -92,9 +92,9 @@ namespace Gambit
     }
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios (HB 5 input) from a GAMBIT HiggsCouplingsTable
-    void set_CS_neutral_effc(hb_neutral_ModelParameters_effc &result, const HiggsCouplingsTable& couplings, int n_neutral_higgses)
+    void set_CS_neutral_effc(hb_neutral_ModelParameters_effc &result, const HiggsCouplingsTable& couplings, int nNeutral)
     {
-      for(int i = 0; i < n_neutral_higgses; i++)
+      for(int i = 0; i < nNeutral; i++)
       {
           result.ghjss_s[i] = couplings.C_ss_s[i];
           result.ghjss_p[i] = couplings.C_ss_p[i];
@@ -124,9 +124,43 @@ namespace Gambit
 
           result.ghjgg[i] = sqrt(couplings.C_gg2[i]);
 
-          for(int j = 0; j < n_neutral_higgses; j++)
+          for(int j = 0; j < nNeutral; j++)
             result.ghjhiZ[i][j] = couplings.C_hiZ[i][j];
       }
+    }
+
+    /// Helper function to set HiggsBounds/Signals non SM branchings (v5) from a GAMBIT HiggsCouplingsTable
+    template <class T>
+    void set_nonSMBR(T &result, const HiggsCouplingsTable& Higgs_Couplings, int nNeutral)
+    {
+      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Higgs_Couplings.get_neutral_decays_array(3);
+      const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      // Loop over Higgs & fill
+      for (int j = 1; j <= nNeutral; j++) {
+        for (int i = 1; i <= nNeutral; i++) {
+          for (int k = 1; k <= nNeutral; k++) {
+              // h -> h,h
+              if (2.*result.Mh[k-1] < (result.Mh[j-1]+result.Mh[i-1]) and h0_widths[k-1]->has_channel(sHneut[j-1],sHneut[i-1])) {
+                result.BR_hkhjhi[k-1][j-1][i-1] = h0_widths[k-1]->BF(sHneut[j-1],sHneut[i-1]);
+              }
+              else {
+                result.BR_hkhjhi[k-1][j-1][i-1] = 0.;
+              }
+            }
+            result.BR_hjhiZ[j-1][i-1] = h0_widths[j-1]->has_channel("Z0",sHneut[i-1]) ? h0_widths[j-1]->BF("Z0",sHneut[i-1]) : 0.; 
+          }
+        // invisibles
+        result.BR_hjinvisible[j-1] = 0.;
+        for (auto it = Higgs_Couplings.invisibles.begin(); it != Higgs_Couplings.invisibles.end(); ++it) {
+          result.BR_hjinvisible[j-1] += h0_widths[j-1]->BF(*it, *it);
+        }
+        // other
+        result.BR_hjemu[j-1] = h0_widths[j-1]->has_channel("e+","mu-") ? h0_widths[j-1]->BF("e+","mu-") : 0.; 
+        result.BR_hjetau[j-1] = h0_widths[j-1]->has_channel("e+","tau-") ? h0_widths[j-1]->BF("e+","tau-") : 0.;  
+        result.BR_hjmutau[j-1] = h0_widths[j-1]->has_channel("mu+","tau-") ? h0_widths[j-1]->BF("mu+","tau-") : 0.; 
+        result.BR_hjHpiW[j-1][0] = h0_widths[j-1]->has_channel("H+","W-") ? h0_widths[j-1]->BF("H+","W-") : 0.; 
+      }
+
     }
 
     void set_CS_charged(hb_charged_ModelParameters &result)
@@ -354,14 +388,11 @@ namespace Gambit
         // Set the CP of the Higgs states.
         for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
 
-        // Retrieve higgs partial widths
-        const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
-
         // Retrieve masses
         const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
         const SubSpectrum& he = fullspectrum.get_HE();
 
-        // Neutral higgs masses and errors
+        // Neutral higgs masses, widths and errors
         for(int i = 0; i < 3; i++)
         {
           result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
@@ -377,46 +408,35 @@ namespace Gambit
           {
             result.deltaMh[i] = 0.;
           }
+
+          // Total width - get HB to calculate this 
+          result.hGammaTot[i] = -1;
         }
 
         // fill neutral effective couplings
         set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
+        // fill non SM BRs
+        set_nonSMBR(result, *Dep::Higgs_Couplings, 3);
       
-        for (int h=1;h<=3;h++) {
-          // Total width
-          result.hGammaTot[h-1] = h0_widths[h-1]->width_in_GeV;
-
-          // Do decays to other neutral higgses
-          for (int h2=1; h2<=3; h2++) {
-
-            if (2.*result.Mh[h2-1] < result.Mh[h-1] and h0_widths[h-1]->has_channel(sHneut[h2-1],sHneut[h2-1]))
-            {
-              result.BR_hjhihi[h-1][h2-1] = h0_widths[h-1]->BF(sHneut[h2-1],sHneut[h2-1]);
+        #ifdef COLLIDERBIT_DEBUG
+          for (int h=1;h<=3;h++) {
+            for (int h2=1; h2<=3; h2++) {
+              std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
+              printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
+              printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
+              printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
+              printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
+              printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
+              printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
+              printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
+              printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
+              printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
+              printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
+              printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
+              printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
             }
-            else
-            {
-              result.BR_hjhihi[h-1][h2-1] = 0.;
-            }
-
-            #ifdef COLLIDERBIT_DEBUG
-                std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
-                printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
-                printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
-                printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
-                printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
-                printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
-                printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
-                printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
-                printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
-                printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
-                printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
-                printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
-                printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
-                printf("%2d %2d hj->hihi %16.8E\n", h, h2, result.BR_hjhihi[h-1][h2-1]);
-              #endif
-
           }
-        }
+        #endif
     }
 
      /// MSSM Higgs model parameters
@@ -596,20 +616,33 @@ namespace Gambit
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
-      Farray<double, 1,3, 1,3> ghjhiZ;
-      Farray<double, 1,3> BR_HpjhiW;
-      for(int i = 0; i < 3; i++) 
-      {
-        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
-        for(int j = 0; j < 3; j++) {
-          ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+      const int nNeutral = 3;
+
+      Farray<double, 1,nNeutral> BR_HpjhiW, BR_hjHpiW;
+      Farray<double, 1,nNeutral, 1,nNeutral> ghjhiZ, BR_hjhiZ;
+      Farray<double, 1,nNeutral, 1,nNeutral, 1,nNeutral> BR_hkhjhi;
+
+      for(int j = 0; j < nNeutral; j++) {
+        BR_HpjhiW(j+1) = ModelParam_charged.BR_HpjhiW[j];
+        BR_hjHpiW(j+1) = ModelParam.BR_hjHpiW[j][0];
+        //
+        for(int i = 0; i < nNeutral; i++) {
+          ghjhiZ(j+1,i+1) = ModelParam.ghjhiZ[j][i];
+          BR_hjhiZ(j+1,i+1) = ModelParam.BR_hjhiZ[j][i];
+          
+          //
+          for(int k = 0; k < nNeutral; k++) {
+            BR_hkhjhi(k+1, j+1, i+1) = ModelParam.BR_hkhjhi[k][j][i];
+          }
+          //
         }
+        //
       }
 
       BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
-						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
+		                                        &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
                                             &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
@@ -617,6 +650,12 @@ namespace Gambit
                                             &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
                                             &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
                                             ghjhiZ);
+
+      BEreq::HiggsBounds_neutral_input_nonSMBR(
+        &ModelParam.BR_hjinvisible[0], BR_hkhjhi,
+        BR_hjhiZ, &ModelParam.BR_hjemu[0],
+        &ModelParam.BR_hjetau[0], &ModelParam.BR_hjmutau[0],
+        BR_hjHpiW);
 
       BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
                                         &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
