@@ -458,28 +458,28 @@ namespace Gambit
       double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
       result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
 
-      // Set charged Higgs branching fractions and total width.
-      result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
-      result.BR_Hpjcs[0]   = H_plus_widths.BF("c", "sbar");
-      result.BR_Hpjcb[0]   = H_plus_widths.BF("c", "bbar");
-      result.BR_Hptaunu[0] = H_plus_widths.BF("tau+", "nu_tau");
-
-      // Set top branching fractions
-      result.BR_tWpb       = t_widths.BF("W+", "b");
-      result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
-
       // Cross section
       set_CS_charged(result);
 
+      // Set charged Higgs branching fractions and total width.
+      result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
+      result.BR_Hpjcs[0]   = H_plus_widths.has_channel("c", "sbar") ? H_plus_widths.BF("c", "sbar") : 0.; 
+      result.BR_Hpjcb[0]   = H_plus_widths.has_channel("c", "bbar") ? H_plus_widths.BF("c", "bbar") : 0.; 
+      result.BR_Hptaunu[0] = H_plus_widths.has_channel("tau+", "nu_tau") ? H_plus_widths.BF("tau+", "nu_tau") : 0.; 
+
+      // Set top branching fractions
+      result.BR_tWpb       = t_widths.has_channel("W+", "b") ? t_widths.BF("W+", "b") : 0.; 
+      result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
+
       // extra HB v5 beta input
-      result.BR_Hpjtb[0] = H_plus_widths.BF("t", "bbar");
+      result.BR_Hpjtb[0] = H_plus_widths.has_channel("t", "bbar") ? H_plus_widths.BF("t", "bbar"): 0.;
       result.BR_HpjWZ[0] = H_plus_widths.has_channel("W+","Z0") ? H_plus_widths.BF("W+","Z0") : 0.; 
 
       // Set up neutral Higgses (keys)
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
       
       for (int h=1;h<=3;h++) {
-        result.BR_HpjhiW[h-1] = H_plus_widths.BF("W+",sHneut[h-1]);
+        result.BR_HpjhiW[h-1] = H_plus_widths.has_channel("W+",sHneut[h-1]) ? H_plus_widths.BF("W+",sHneut[h-1]): 0.;
       }
      
     }
