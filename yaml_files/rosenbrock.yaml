@@ -1,0 +1,52 @@
+# MultiNest with Rosenbrock toy-function
+
+Parameters:
+  trivial_2d:
+    x1:
+      range: [-5, 5]
+    x2:
+      range: [-5, 5]
+    x3:
+      range: [-5, 5]
+    x4:
+      range: [-5, 5]
+    x5:
+      range: [-5, 5]
+    x6:
+      range: [-5, 5]
+    x7:
+      range: [-5, 5]
+    x8:
+      range: [-5, 5]
+    x9:
+      range: [-5, 5]
+    x10:
+      range: [-5, 5]
+
+Printer:
+  printer: none
+
+Scanner:
+
+  use_scanner: multinest
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 1000
+      tol: 0.1
+      IS: True
+      mmodal: False
+      ceff: False
+      efr: 0.3
+      updInt: 5000
+      maxModes: 10
+      nClsPar: 2
+
+ObsLikes:
+  - purpose: LogLike
+    capability: rosenbrock
+    module: TestFunctionBit
+    type: double

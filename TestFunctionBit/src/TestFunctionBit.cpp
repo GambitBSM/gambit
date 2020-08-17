@@ -22,6 +22,7 @@
 
 
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -103,5 +104,86 @@ namespace Gambit
                 - (x[0] - x[1]) *  (x[0] - x[1])
                 + 1.5 * x[0] - 2.5 * x[1] - 1.;
     }
+
+    void ackley(double &loglike)
+    {
+      using namespace Pipes::ackley;
+      auto x = get_arguments(Param);
+      double r2 = 0.;
+      double c = 0.;
+      for (const auto& p : x)
+      {
+        r2 += p * p;
+        c += std::cos(2. * M_PI * p);
+      }
+      loglike = 20. * std::exp(-0.2 * std::sqrt(r2 / x.size()))
+                + std::exp(c / x.size())
+                - M_E - 20.;
+    }
+
+    void eggbox(double &loglike)
+    {
+      using namespace Pipes::eggbox;
+      auto x = get_arguments(Param);
+	    double prod = 1.;
+	    for (const auto& p : x)
+	    {
+		    prod *= std::cos(p * 5. * M_PI);
+	    }
+	    loglike = std::pow(prod + 2., 5.);
+    }
+
+    void rastrigin(double &loglike)
+    {
+      using namespace Pipes::rastrigin;
+      auto x = get_arguments(Param);
+      double r2 = 0.;
+      double c = 0.;
+      for (const auto& p : x)
+      {
+        r2 += p * p;
+        c += std::cos(2. * M_PI * p);
+      }
+	    loglike = x.size() * 10. + r2 - 10. * c;
+    }
+
+    void beale(double &loglike)
+    {
+      using namespace Pipes::beale;
+      auto x = get_arguments(Param);
+	    loglike = - std::pow(1.5 - x[0] - x[1] * x[0], 2)
+                - std::pow(2.25 - x[0] - x[1] * x[1] * x[0], 2)
+                - std::pow(2.625 - x[0] - x[1] * x[1] * x[1] * x[0], 2);
+    }
+
+    double logaddexp(double x, double y)
+    {
+      return std::max(x, y) + std::log1p(std::exp(-std::abs(x - y))); 
+    }
+
+    void shells(double &loglike)
+    {
+      using namespace Pipes::shells;
+      auto x = get_arguments(Param);
+
+      const double radius = 0.1;
+      const double width = 2.;
+      const std::vector<double> center = {-3.5, 3.5};
+      static double norm = - 0.5 * std::log(2. * M_PI * width * width);
+
+      loglike = std::numeric_limits<double>::lowest();
+      for (const auto& c: center)
+      {
+        double r2 = 0.;
+        for (const auto& p : x)
+        {
+          r2 += (c - p) * (c - p);
+        }
+        double d = (std::sqrt(r2) - radius) * (std::sqrt(r2) - radius);
+        double delta = -d / (2. * width * width) - norm;
+        loglike = logaddexp(loglike, delta);
+      }
+    }
+
   }  // namespace TestFunctionBit
 }  // namespace Gambit

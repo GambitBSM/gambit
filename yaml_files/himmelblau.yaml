@@ -1,0 +1,36 @@
+# MultiNest with Himmelblau toy-function
+
+Parameters:
+  trivial_2d:
+    x1:
+      range: [-5, 5]
+    x2:
+      range: [-5, 5]
+
+Printer:
+  printer: none
+
+Scanner:
+
+  use_scanner: multinest
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 500
+      tol: 0.01
+      IS: True
+      mmodal: True
+      ceff: False
+      efr: 0.5
+      updInt: 1000
+      maxModes: 10
+      nClsPar: 2
+
+ObsLikes:
+  - purpose: LogLike
+    capability: himmelblau
+    module: TestFunctionBit
+    type: double

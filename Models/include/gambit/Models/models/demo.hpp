@@ -47,6 +47,11 @@
   DEFINEPARS(x1, x2, x3, x4, x5)
 #undef MODEL
 
+#define MODEL trivial_10d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10)
+#undef MODEL
+
 // This is the normal distribution toy model used in ExampleBit_A.
 #define MODEL NormalDist
   START_MODEL

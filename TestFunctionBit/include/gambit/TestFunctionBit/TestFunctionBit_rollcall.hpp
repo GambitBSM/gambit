@@ -42,7 +42,8 @@ START_MODULE
                  trivial_2d,
                  trivial_3d,
                  trivial_4d,
-                 trivial_5d)
+                 trivial_5d,
+                 trivial_10d)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -54,7 +55,8 @@ START_MODULE
                  trivial_2d,
                  trivial_3d,
                  trivial_4d,
-                 trivial_5d)
+                 trivial_5d,
+                 trivial_10d)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -71,6 +73,66 @@ START_MODULE
     #define FUNCTION mccormick
     START_FUNCTION(double)
     ALLOW_MODELS(trivial_2d)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ackley
+  START_CAPABILITY
+    #define FUNCTION ackley
+    START_FUNCTION(double)
+    ALLOW_MODELS(trivial_1d,
+                 trivial_2d,
+                 trivial_3d,
+                 trivial_4d,
+                 trivial_5d,
+                 trivial_10d)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY eggbox
+  START_CAPABILITY
+    #define FUNCTION eggbox
+    START_FUNCTION(double)
+    ALLOW_MODELS(trivial_1d,
+                 trivial_2d,
+                 trivial_3d,
+                 trivial_4d,
+                 trivial_5d,
+                 trivial_10d)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY rastrigin
+  START_CAPABILITY
+    #define FUNCTION rastrigin
+    START_FUNCTION(double)
+    ALLOW_MODELS(trivial_1d,
+                 trivial_2d,
+                 trivial_3d,
+                 trivial_4d,
+                 trivial_5d,
+                 trivial_10d)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY beale
+  START_CAPABILITY
+    #define FUNCTION beale
+    START_FUNCTION(double)
+    ALLOW_MODELS(trivial_2d)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY shells
+  START_CAPABILITY
+    #define FUNCTION shells
+    START_FUNCTION(double)
+    ALLOW_MODELS(trivial_1d,
+                 trivial_2d,
+                 trivial_3d,
+                 trivial_4d,
+                 trivial_5d,
+                 trivial_10d)
     #undef FUNCTION
   #undef CAPABILITY
 
