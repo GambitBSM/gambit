@@ -42,7 +42,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-// #define COLLIDERBIT_DEBUG
+#define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -410,7 +410,7 @@ namespace Gambit
           }
 
           // Total width - get HB to calculate this 
-          result.hGammaTot[i] = -1;
+          result.hGammaTot[i] = -1.;
         }
 
         // fill neutral effective couplings
@@ -877,14 +877,27 @@ namespace Gambit
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
-      Farray<double, 1,3, 1,3> ghjhiZ;
-      Farray<double, 1,3> BR_HpjhiW;
-      for(int i = 0; i < 3; i++) 
-      {
-        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
-        for(int j = 0; j < 3; j++) {
-          ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+      const int nNeutral = 3;
+
+      Farray<double, 1,nNeutral> BR_HpjhiW, BR_hjHpiW;
+      Farray<double, 1,nNeutral, 1,nNeutral> ghjhiZ, BR_hjhiZ;
+      Farray<double, 1,nNeutral, 1,nNeutral, 1,nNeutral> BR_hkhjhi;
+
+      for(int j = 0; j < nNeutral; j++) {
+        BR_HpjhiW(j+1) = ModelParam_charged.BR_HpjhiW[j];
+        BR_hjHpiW(j+1) = ModelParam.BR_hjHpiW[j][0];
+        //
+        for(int i = 0; i < nNeutral; i++) {
+          ghjhiZ(j+1,i+1) = ModelParam.ghjhiZ[j][i];
+          BR_hjhiZ(j+1,i+1) = ModelParam.BR_hjhiZ[j][i];
+          
+          //
+          for(int k = 0; k < nNeutral; k++) {
+            BR_hkhjhi(k+1, j+1, i+1) = ModelParam.BR_hkhjhi[k][j][i];
+          }
+          //
         }
+        //
       }
 
       BEreq::HiggsBounds_neutral_input_properties_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
@@ -898,6 +911,11 @@ namespace Gambit
                                             &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
                                             &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
                                             ghjhiZ);
+
+      BEreq::HiggsBounds_neutral_input_nonSMBR_HS(&ModelParam.BR_hjinvisible[0], BR_hkhjhi,
+                                                  BR_hjhiZ, &ModelParam.BR_hjemu[0],
+                                                  &ModelParam.BR_hjetau[0], &ModelParam.BR_hjmutau[0],
+                                                  BR_hjHpiW);
 
       BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
                                         &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
