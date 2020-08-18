@@ -46,7 +46,7 @@
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
-#define COLLIDERBIT_DEBUG
+// #define COLLIDERBIT_DEBUG
 
 namespace Gambit
 {
@@ -144,14 +144,20 @@ namespace Gambit
         for (int i = 1; i <= nNeutral; i++) {
           for (int k = 1; k <= nNeutral; k++) {
               // h -> h,h
-              if (2.*result.Mh[k-1] < (result.Mh[j-1]+result.Mh[i-1]) and h0_widths[k-1]->has_channel(sHneut[j-1],sHneut[i-1])) {
+              if (result.Mh[k-1] > (result.Mh[j-1]+result.Mh[i-1]) and h0_widths[k-1]->has_channel(sHneut[j-1],sHneut[i-1])) {
                 result.BR_hkhjhi[k-1][j-1][i-1] = h0_widths[k-1]->BF(sHneut[j-1],sHneut[i-1]);
               }
               else {
                 result.BR_hkhjhi[k-1][j-1][i-1] = 0.;
               }
+              #ifdef COLLIDERBIT_DEBUG
+                std::cout << "h->hh ("<< k << ", " << j << ", " << i << "): " << result.BR_hkhjhi[k - 1][j - 1][i - 1] << std::endl;
+              #endif
             }
             result.BR_hjhiZ[j-1][i-1] = h0_widths[j-1]->has_channel("Z0",sHneut[i-1]) ? h0_widths[j-1]->BF("Z0",sHneut[i-1]) : 0.; 
+            #ifdef COLLIDERBIT_DEBUG
+              std::cout << "h->hZ ("<< j << ", " << i << "): " << result.BR_hjhiZ[j - 1][i - 1] << std::endl;
+            #endif
           }
         // invisibles
         result.BR_hjinvisible[j-1] = 0.;
