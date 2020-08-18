@@ -1597,7 +1597,7 @@ namespace Gambit
             std::complex<double> SM_L(fh_SM_L.re,fh_SM_L.im);
             std::complex<double> SM_R(fh_SM_R.re,fh_SM_R.im);
             g_s[k-2][j] = 0.5*(R/SM_R + L/SM_L).imag(); // always real*I => imag?
-            g_p[k-2][j] = 0.5*(R/SM_R - L/SM_L).real(); // always imaginary*I => real?
+            g_p[k-2][j] = - 0.5*(R/SM_R - L/SM_L).real(); // always imaginary*I => real? needs minus sign?
             g2_s[k-2][j] = pow(std::abs(g_s[k-2][j]), 2.);
             g2_p[k-2][j] = pow(std::abs(g_p[k-2][j]), 2.);
           }
