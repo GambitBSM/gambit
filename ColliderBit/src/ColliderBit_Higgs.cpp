@@ -417,6 +417,8 @@ namespace Gambit
 
           // Total width - get HB to calculate this 
           result.hGammaTot[i] = -1.;
+          // Total width - use calculated
+          // result.hGammaTot[i] = decays.width_in_GeV;
         }
 
         // fill neutral effective couplings
