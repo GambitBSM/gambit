@@ -26,7 +26,7 @@ namespace Gambit
 {
     namespace Priors
     {
-        //if the parameter has a fixed value
+        /** @brief A fixed parameter */
         class FixedPrior : public BasePrior
         {
         private:
@@ -86,9 +86,16 @@ namespace Gambit
 
                 iter = (iter + 1)%value.size();
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            {
+              // arbitrary as every value of unit hypercube maps to the same fixed parameter
+              std::vector<double> u(value.size(), 0.5);
+              return u;
+            }
         };
 
-        //if the parameter shares multiple different parameters
+        /** @brief A parameter that is fixed to a different parameter */
         class MultiPriors : public BasePrior
         {
         private:
@@ -96,7 +103,8 @@ namespace Gambit
             std::vector<double> scale, shift;
 
         public:
-            MultiPriors(const std::vector<std::string>& param, const Options& options) : BasePrior(param), scale(param.size(), 1.0), shift(param.size(), 0.0)
+            MultiPriors(const std::vector<std::string>& param, const Options& options) :
+                BasePrior(param), scale(param.size(), 1.0), shift(param.size(), 0.0)
             {
                 if (options.hasKey("same_as"))
                 {
@@ -157,6 +165,14 @@ namespace Gambit
                     outputMap[*it] = (*it1)*value + *it2;
                 }
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            {
+              // arbitrary as every value of unit hypercube maps to the same fixed parameter
+              std::vector<double> u(scale.size(), 0.5);
+              return u;
+            }
+
         };
 
         LOAD_PRIOR(fixed_value, FixedPrior)

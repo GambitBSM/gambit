@@ -62,8 +62,16 @@ namespace Gambit
       /** @brief Transform from unit hypercube to parameter */
       virtual void transform(const std::vector<double> &, std::unordered_map<std::string, double> &) const = 0;
 
+      /** @brief Transform from parameter back to unit hypercube */
+      virtual std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const
+       {
+        Scanner::scan_error().raise(LOCAL_INFO, "inverse_transform not implemented");
+        return {0.};
+      }
+
       /** @brief Log of PDF density */
-      virtual double operator()(const std::vector<double> &) const {
+      virtual double operator()(const std::vector<double> &) const
+      {
         Scanner::scan_error().raise(LOCAL_INFO, "operator() not implemented");
         return 0.;
       }

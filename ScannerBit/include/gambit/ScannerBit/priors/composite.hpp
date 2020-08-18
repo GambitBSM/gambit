@@ -2,7 +2,8 @@
 //  *********************************************
 ///  \file
 ///
-///  Prior object construction routines
+///  Combine several priors to a prior for
+///  e.g. an entire model
 ///  
 ///
 ///  *********************************************
@@ -58,9 +59,9 @@ namespace Gambit
             
             CompositePrior(const std::vector<std::string> &params, const Options &options);
             
-            inline std::vector<std::string> getShownParameters() const {return shown_param_names;}
+            inline std::vector<std::string> getShownParameters() const { return shown_param_names; }
             
-            // Transformation from unit hypercube to my_ranges
+            // Transformation from unit hypercube to physical parameters
             void transform(const std::vector<double> &unitPars, std::unordered_map<std::string,double> &outputMap) const
             {
                 std::vector<double>::const_iterator unit_it = unitPars.begin(), unit_next;
@@ -71,6 +72,18 @@ namespace Gambit
                     unit_it = unit_next;
                     (*it)->transform(subUnit, outputMap);
                 }
+            }
+
+            // Transformation from physical parameters back to unit hypercube
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            {
+                std::vector<double> u;
+                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
+                {
+                    auto ublock = (*it)->inverse_transform(physical);
+                    u.insert(u.end(), ublock.begin(), ublock.end());
+                }
+                return u;          
             }
             
             //~CompositePrior() noexcept

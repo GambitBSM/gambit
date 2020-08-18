@@ -23,6 +23,12 @@ Scanner:
       max_iterations: 10000
       max_loglike_calls: 100000000
       algorithm: simplex
+      physical_start:
+        trivial_2d::x1: -2.
+        trivial_2d::x2: 2. 
+      unit_hypercube_step:
+        trivial_2d::x1: 0.04
+        trivial_2d::x2: 0.008  
 
 ObsLikes:
   - purpose: LogLike
