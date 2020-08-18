@@ -428,7 +428,7 @@ namespace Gambit
         //for debug reasons may choose to continue with negative mass
         const bool continue_with_negative_mass = false;
 
-        if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_C"] < 0.0) {
+        if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_Hp"] < 0.0) {
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
           if (!continue_with_negative_mass) invalid_point().raise(msg.str());

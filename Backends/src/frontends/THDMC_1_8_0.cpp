@@ -77,7 +77,7 @@ BE_NAMESPACE
             double mC = container.he->get(Par::mass1, "H+");
             // double alpha = container.he->get(Par::dimensionless, "alpha");
             // be consistent in calculating sinba {
-                double v2 = container.he->get(Par::mass1, "v2");
+                double v2 = pow(container.he->get(Par::mass1, "vev"),2);
                 double mC_2 = container.higgs_pars.M22_2 + 0.5*v2*container.higgs_pars.Lambda3;
                 double mA_2 = mC_2 - 0.5*v2*(container.higgs_pars.Lambda5 - container.higgs_pars.Lambda4);
                 double s2ba = -2.*container.higgs_pars.Lambda6*v2, c2ba = -(mA_2+(container.higgs_pars.Lambda5-container.higgs_pars.Lambda1)*v2);
@@ -159,23 +159,25 @@ BE_NAMESPACE
         }
 
         #ifdef THDMC_DEBUG
-            // params in all bases
-            container.THDM_object->print_param_phys();
-            container.THDM_object->print_param_gen();
-            container.THDM_object->print_param_higgs();
-            container.THDM_object->get_alpha();
-            // set up decay table
-            THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
-            // widths
-            decay_table_2hdmc.print_width(1);
-            decay_table_2hdmc.print_width(2);
-            decay_table_2hdmc.print_width(3);
-            decay_table_2hdmc.print_width(4);
-            // decays
-            decay_table_2hdmc.print_decays(1);
-            decay_table_2hdmc.print_decays(2);
-            decay_table_2hdmc.print_decays(3);
-            decay_table_2hdmc.print_decays(4);
+            if (SM_like == 0) {
+                // params in all bases
+                container.THDM_object->print_param_phys();
+                container.THDM_object->print_param_gen();
+                container.THDM_object->print_param_higgs();
+                container.THDM_object->get_alpha();
+                // set up decay table
+                THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+                // widths
+                decay_table_2hdmc.print_width(1);
+                decay_table_2hdmc.print_width(2);
+                decay_table_2hdmc.print_width(3);
+                decay_table_2hdmc.print_width(4);
+                // decays
+                decay_table_2hdmc.print_decays(1);
+                decay_table_2hdmc.print_decays(2);
+                decay_table_2hdmc.print_decays(3);
+                decay_table_2hdmc.print_decays(4);
+            }
         #endif
 
     }
