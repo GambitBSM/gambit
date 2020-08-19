@@ -66,6 +66,7 @@ namespace Gambit
 
          /// Transformation from unit interval to the double log + flat join (inverse prior transform)
          void transform(const std::vector <double> &unitpars, std::unordered_map <std::string, double> &output) const;
+         std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override;
 
          /// Probability density function
          double operator()(const std::vector<double> &vec) const;

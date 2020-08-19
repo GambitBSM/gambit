@@ -198,14 +198,14 @@ namespace Gambit
          output[myparameter] = x;
       }
 
-      std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+      std::vector<double> DoubleLogFlatJoin::inverse_transform(const std::unordered_map<std::string, double> &physical) const
       {
         const double p = physical.at(myparameter);
 
         if (p < flat_start && p >= lower)
         {
           // log prior from lower to flat_start
-          double u01 = std::log(x / lower) / std::log(flat_start / lower);
+          double u01 = std::log(p / lower) / std::log(flat_start / lower);
           return {u01 * P01};
         }
         else if (p < flat_end)
@@ -217,7 +217,7 @@ namespace Gambit
         else if (p < upper)
         {
           // log prior from flat_end to upper
-          double u01 = std::log(x / flat_end) / std::log(upper / flat_end);
+          double u01 = std::log(p / flat_end) / std::log(upper / flat_end);
           return {P01 + P12 + u01 * P23};
         }
         else
