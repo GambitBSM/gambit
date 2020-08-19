@@ -83,7 +83,31 @@ namespace Gambit
                     auto ublock = (*it)->inverse_transform(physical);
                     u.insert(u.end(), ublock.begin(), ublock.end());
                 }
-                return u;          
+
+                // check it
+
+                for (const auto &p : u)
+                {
+                  if (p > 1. || p < 0.)
+                  {
+                    throw std::runtime_error("unit hypercube outside 0 and 1");
+                  }
+                }
+
+                auto round_trip = physical;
+                transform(u, round_trip);
+                const double rtol = 1e-4;
+                for (const auto &s : physical) 
+                {
+                  const double rdiff = (s.second - round_trip.at(s.first)) / 
+                                       std::max(s.second, round_trip.at(s.first));
+                  if (std::abs(rdiff) > rtol)
+                  {
+                    throw std::runtime_error("could not convert physical parameters to hypercube");
+                  }
+                }
+
+                return u;        
             }
             
             //~CompositePrior() noexcept

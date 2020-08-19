@@ -325,18 +325,10 @@ namespace Gambit
                 return map;
             }
 
-            std::unordered_map<std::string, double> get_map() const { return map; }
-
             std::vector<std::string> get_names() const
             {
-              std::vector<std::string> names;
-              for (const auto& s : map)
-              {
-                names.push_back(s.first);
-              } 
-              return names;
+              return (*this)->getPrior().getShownParameters();
             }
-
 
             std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical)
             {

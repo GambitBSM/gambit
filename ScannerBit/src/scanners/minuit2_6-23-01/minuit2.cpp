@@ -30,12 +30,49 @@
 #include "Math/Functor.h"
 
 
-scanner_plugin(minuit2, version(6, 23, 01))
+typedef std::unordered_map<std::string, double> param_map;
+
+/** @brief Check that a yaml node does not contain unexpected keys */
+void check_node_keys(YAML::Node node, std::vector<std::string> keys)
 {
+  if (node) 
+  {
+    for (const auto &s : node)
+    {
+      const auto key = s.first.as<std::string>();
+      if (std::find(keys.begin(), keys.end(), key) == keys.end())
+      {
+        throw std::runtime_error("Minuit2: unexpected key = " + key);
+      }
+    }    
+  }
+}
+
+/** @brief Get a particular key from a node */
+double get_node_value(YAML::Node node, std::string key, double default_)
+{
+  if (node && node[key])
+  {
+    return node[key].as<double>();
+  }
+  return default_;
+}
+
+/** @brief Get values from a map in a particular order */
+std::vector<double> get_values(param_map map, std::vector<std::string> keys) 
+{
+  std::vector<double> values;
+  for (const auto& k : keys)
+  {
+    values.push_back(map.at(k));
+  }
+  return values;
+}
+
+scanner_plugin(minuit2, version(6, 23, 01))
+{                                                                   
   reqd_libraries("Minuit2", "Minuit2Math");
   reqd_headers("Minuit2/Minuit2Minimizer.h", "Math/Functor.h");
-
-  typedef std::unordered_map<std::string, double> param_map;
 
   int plugin_main(void)
   {
@@ -44,8 +81,9 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     // retrive the model - contains loglike etc
     Gambit::Scanner::like_ptr model = get_purpose(get_inifile_value<std::string>("like"));
-    double offset = get_inifile_value<double>("likelihood: lnlike_offset", 0.);
+    const auto offset = get_inifile_value<double>("likelihood: lnlike_offset", 0.);
     model->setPurposeOffset(offset);
+    const auto names = model.get_names();
 
     // minuit2 algorithm options
     const auto algorithm{get_inifile_value<std::string>("algorithm", "minimize")};
@@ -56,59 +94,79 @@ scanner_plugin(minuit2, version(6, 23, 01))
     const auto print_level{get_inifile_value<int>("print_level", 1)}; 
     const auto strategy{get_inifile_value<int>("strategy", 1)};
 
-    // get starting point (optional). Default is center of hypercube for each parameter
-    std::vector<double> start(dim, 0.5);
-    param_map start_map = model.transform(start);
-    auto start_node = get_inifile_node("physical_start");
+    // get starting point (optional). It can be written in hypercube or physical
+    // parameters. Default is center of hypercube for each parameter
 
-    if (start_node) 
+    const auto hypercube_start_node = get_inifile_node("unit_hypercube_start");
+    const auto physical_start_node = get_inifile_node("start");
+    
+    if (hypercube_start_node && physical_start_node)
     {
-      for (const auto &s : start_map)
-      {
-         if (start_node[s.first])
-         {
-            start_map.at(s.first) = start_node[s.first].as<double>();
-         }
-      }    
+      throw std::runtime_error("Minuit2: start specified by unit hypercube or physical parameters");
+    }
+
+    const double default_start = 0.5;
+    const std::vector<double> default_hypercube_start(dim, default_start);
+    param_map start_map = model.transform(default_hypercube_start);
+
+    const auto start_node = physical_start_node ? physical_start_node : hypercube_start_node;
+    check_node_keys(start_node, names);
+
+    for (auto &s : start_map)
+    {
+      s.second = get_node_value(start_node, s.first, physical_start_node ? s.second : default_start);
     } 
 
-    const std::vector<double> hypercube_start = model.inverse_transform(start_map);
+    const std::vector<double> hypercube_start = physical_start_node ? 
+      model.inverse_transform(start_map) : get_values(start_map, names);
+  
+    // get hypercube step (optional). It can be written in hypercube or physical
+    // parameters. Default is same for each parameter
 
-    // check it
-
-    for (const auto &p : hypercube_start)
-    {
-      if (p > 1. || p < 0.)
-      {
-        throw std::runtime_error("Minuit2: start outside prior ranges");
-      }
-    }
-
-    const param_map round_trip = model.transform(hypercube_start);
-    for (const auto &s : start_map) 
-    {
-      if (s.second != round_trip.at(s.first))
-      {
-        throw std::runtime_error("Minuit2: could not convert physical parameters to hypercube");
-      }
-    }
-
-    // get hypercube step (optional). Default is same for each parameter
     const double default_step = 0.01;
-    auto step_node = get_inifile_node("unit_hypercube_step");
+    const auto hypercube_step_node = get_inifile_node("unit_hypercube_step");
+    const auto physical_step_node = get_inifile_node("step");
+
+    if (hypercube_step_node && physical_step_node)
+    {
+      throw std::runtime_error("Minuit2: step specified by unit hypercube or physical parameters");
+    }
+
+    check_node_keys(physical_step_node ? physical_step_node : hypercube_step_node, names);
+
     std::vector<double> hypercube_step;
 
-    for (const auto &s : start_map)
+    if (physical_step_node)
     {
-       if (step_node && step_node[s.first])
-       {
-          hypercube_step.push_back(step_node[s.first].as<double>());
-       }  
-       else
-       {
+      const auto center = model.transform(hypercube_start);
+
+      for (int i = 0; i < dim; i++)
+      {
+        if (!physical_step_node[names[i]])
+        {
           hypercube_step.push_back(default_step);
-       }
-    }    
+        }
+        else
+        {
+          double physical_step = physical_step_node[names[i]].as<double>();
+          auto forward = center;
+          forward.at(names[i]) += physical_step;
+          auto backward = center;
+          backward.at(names[i]) -= physical_step;
+          const auto hypercube_forward = model.inverse_transform(forward);
+          const auto hypercube_backward = model.inverse_transform(backward);
+          const double mean_step = 0.5 * (hypercube_forward[i] - hypercube_backward[i]);
+          hypercube_step.push_back(mean_step);
+        }
+      }  
+    }
+    else
+    {
+      for (const auto& n : names)
+      {
+         hypercube_step.push_back(get_node_value(hypercube_step_node, n, default_step));
+      } 
+    }
 
     // select algorithm
 
@@ -165,7 +223,6 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     // set the free variables to be minimized
     
-    auto names = model.get_names();
     for (int i = 0; i < dim; i++)
     {
       min->SetLimitedVariable(i, names[i], hypercube_start[i], hypercube_step[i], 0., 1.);
@@ -221,4 +278,3 @@ scanner_plugin(minuit2, version(6, 23, 01))
     return 0;
   }
 }
-
