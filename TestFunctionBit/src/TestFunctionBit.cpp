@@ -32,7 +32,7 @@
 namespace Gambit
 {
   namespace TestFunctionBit
-  { 
+  {
     typedef Gambit::Models::safe_param_map<Gambit::safe_ptr<const double>> map;
     std::vector<double> get_arguments(map param)
     {
@@ -100,7 +100,7 @@ namespace Gambit
     {
       using namespace Pipes::mccormick;
       auto x = get_arguments(Param);
-      loglike = - std::sin(x[0] + x[1]) 
+      loglike = - std::sin(x[0] + x[1])
                 - (x[0] - x[1]) *  (x[0] - x[1])
                 + 1.5 * x[0] - 2.5 * x[1] - 1.;
     }
@@ -125,12 +125,12 @@ namespace Gambit
     {
       using namespace Pipes::eggbox;
       auto x = get_arguments(Param);
-	    double prod = 1.;
-	    for (const auto& p : x)
-	    {
-		    prod *= std::cos(p * 5. * M_PI);
-	    }
-	    loglike = std::pow(prod + 2., 5.);
+      double prod = 1.;
+      for (const auto& p : x)
+      {
+        prod *= std::cos(p * 5. * M_PI);
+      }
+      loglike = std::pow(prod + 2., 5.);
     }
 
     void rastrigin(double &loglike)
@@ -144,21 +144,21 @@ namespace Gambit
         r2 += p * p;
         c += std::cos(2. * M_PI * p);
       }
-	    loglike = x.size() * 10. + r2 - 10. * c;
+      loglike = x.size() * 10. + r2 - 10. * c;
     }
 
     void beale(double &loglike)
     {
       using namespace Pipes::beale;
       auto x = get_arguments(Param);
-	    loglike = - std::pow(1.5 - x[0] - x[1] * x[0], 2)
+      loglike = - std::pow(1.5 - x[0] - x[1] * x[0], 2)
                 - std::pow(2.25 - x[0] - x[1] * x[1] * x[0], 2)
                 - std::pow(2.625 - x[0] - x[1] * x[1] * x[1] * x[0], 2);
     }
 
     double logaddexp(double x, double y)
     {
-      return std::max(x, y) + std::log1p(std::exp(-std::abs(x - y))); 
+      return std::max(x, y) + std::log1p(std::exp(-std::abs(x - y)));
     }
 
     void shells(double &loglike)
@@ -172,7 +172,7 @@ namespace Gambit
       static double norm = - 0.5 * std::log(2. * M_PI * width * width);
 
       loglike = std::numeric_limits<double>::lowest();
-      for (const auto& c: center)
+      for (const auto& c : center)
       {
         double r2 = 0.;
         for (const auto& p : x)

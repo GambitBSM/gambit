@@ -35,7 +35,7 @@ typedef std::unordered_map<std::string, double> param_map;
 /** @brief Check that a yaml node does not contain unexpected keys */
 void check_node_keys(YAML::Node node, std::vector<std::string> keys)
 {
-  if (node) 
+  if (node)
   {
     for (const auto &s : node)
     {
@@ -44,7 +44,7 @@ void check_node_keys(YAML::Node node, std::vector<std::string> keys)
       {
         throw std::runtime_error("Minuit2: unexpected key = " + key);
       }
-    }    
+    }
   }
 }
 
@@ -59,7 +59,7 @@ double get_node_value(YAML::Node node, std::string key, double default_)
 }
 
 /** @brief Get values from a map in a particular order */
-std::vector<double> get_values(param_map map, std::vector<std::string> keys) 
+std::vector<double> get_values(param_map map, std::vector<std::string> keys)
 {
   std::vector<double> values;
   for (const auto& k : keys)
@@ -70,7 +70,7 @@ std::vector<double> get_values(param_map map, std::vector<std::string> keys)
 }
 
 scanner_plugin(minuit2, version(6, 23, 01))
-{                                                                   
+{
   reqd_libraries("Minuit2", "Minuit2Math");
   reqd_headers("Minuit2/Minuit2Minimizer.h", "Math/Functor.h");
 
@@ -87,11 +87,11 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     // minuit2 algorithm options
     const auto algorithm{get_inifile_value<std::string>("algorithm", "minimize")};
-    const auto max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};   
+    const auto max_loglike_calls{get_inifile_value<int>("max_loglike_calls", 100000)};
     const auto max_iterations{get_inifile_value<int>("max_iterations", 100000)};
     const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};
-    const auto precision{get_inifile_value<double>("precision", 0.0001)};   
-    const auto print_level{get_inifile_value<int>("print_level", 1)}; 
+    const auto precision{get_inifile_value<double>("precision", 0.0001)};
+    const auto print_level{get_inifile_value<int>("print_level", 1)};
     const auto strategy{get_inifile_value<int>("strategy", 1)};
 
     // get starting point (optional). It can be written in hypercube or physical
@@ -99,7 +99,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
 
     const auto hypercube_start_node = get_inifile_node("unit_hypercube_start");
     const auto physical_start_node = get_inifile_node("start");
-    
+
     if (hypercube_start_node && physical_start_node)
     {
       throw std::runtime_error("Minuit2: start specified by unit hypercube or physical parameters");
@@ -115,11 +115,11 @@ scanner_plugin(minuit2, version(6, 23, 01))
     for (auto &s : start_map)
     {
       s.second = get_node_value(start_node, s.first, physical_start_node ? s.second : default_start);
-    } 
+    }
 
-    const std::vector<double> hypercube_start = physical_start_node ? 
+    const std::vector<double> hypercube_start = physical_start_node ?
       model.inverse_transform(start_map) : get_values(start_map, names);
-  
+
     // get hypercube step (optional). It can be written in hypercube or physical
     // parameters. Default is same for each parameter
 
@@ -158,14 +158,14 @@ scanner_plugin(minuit2, version(6, 23, 01))
           const double mean_step = 0.5 * (hypercube_forward[i] - hypercube_backward[i]);
           hypercube_step.push_back(mean_step);
         }
-      }  
+      }
     }
     else
     {
       for (const auto& n : names)
       {
          hypercube_step.push_back(get_node_value(hypercube_step_node, n, default_step));
-      } 
+      }
     }
 
     // select algorithm
@@ -188,14 +188,14 @@ scanner_plugin(minuit2, version(6, 23, 01))
       kalgorithm = ROOT::Minuit2::kFumili;
     }
     else if (algorithm == "bfgs")
-    { 
+    {
       kalgorithm = ROOT::Minuit2::kMigradBFGS;
     }
     else if (algorithm == "migrad")
-    { 
+    {
       kalgorithm = ROOT::Minuit2::kMigrad;
     }
-    else 
+    else
     {
       throw std::runtime_error("Minuit2: Unknown algorithm: " + algorithm);
     }
@@ -207,7 +207,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
     min->SetTolerance(tolerance);
     min->SetPrintLevel(print_level);
     min->SetPrecision(precision);
-    
+
     auto chi_squared = [&model, dim] (const double* x)
     {
       std::vector<double> v;
@@ -222,7 +222,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
     min->SetFunction(f);
 
     // set the free variables to be minimized
-    
+
     for (int i = 0; i < dim; i++)
     {
       min->SetLimitedVariable(i, names[i], hypercube_start[i], hypercube_step[i], 0., 1.);
@@ -248,15 +248,15 @@ scanner_plugin(minuit2, version(6, 23, 01))
     for (int i = 0; i < dim; i++)
     {
       v.push_back(best_fit_hypercube[i]);
-    }  
-    auto best_fit_physical = model.transform(v);    
+    }
+    auto best_fit_physical = model.transform(v);
     std::cout << "best-fit physical = " << best_fit_physical << std::endl;
 
-    // whether succssful
+    // whether successful
     const int status = min->Status();
     switch (status) {
       case 0:
-        break; 
+        break;
       case 5:
         throw std::runtime_error("Minuit2: Covar is not pos def");
       case 1:
