@@ -274,13 +274,14 @@ set(md5 "862cc44a3defa0674e6b5a9960ed6f89")
 set(dl "https://github.com/GooFit/Minuit2/archive/v6-23-01.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
+
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -Dminuit2_mpi=${WITH_MPI} -Dminuit2_omp=${FOUND_OPENMPI}
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ""
   )
