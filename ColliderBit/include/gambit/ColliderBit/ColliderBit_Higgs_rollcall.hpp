@@ -184,6 +184,10 @@
     double*, double*, double*, double*,
     double*, double*, double*, double*,
     double*, Farray<double, 1,3, 1,3>&))
+    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
+    (double*, Farray<double, 1,3, 1,3, 1,3>&, 
+    Farray<double, 1,3, 1,3>&, double*, double*, 
+    double*, Farray<double, 1,3>&))
     BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
     (double*, double*, double*, double*,
     double*, double*, double*, double*,
