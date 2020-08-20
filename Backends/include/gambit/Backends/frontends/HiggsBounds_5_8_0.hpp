@@ -16,6 +16,7 @@
 ///
 ///  \author Ankit Beniwal
 ///  \date Jul 2019
+///  \date Jul 2020
 ///
 ///  \author Jonathan Cornell
 ///  \date Mar 2020
@@ -25,8 +26,8 @@
 
 #define BACKENDNAME HiggsBounds
 #define BACKENDLANG FORTRAN
-#define VERSION 5.7.0
-#define SAFE_VERSION 5_7_0
+#define VERSION 5.8.0
+#define SAFE_VERSION 5_8_0
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
@@ -47,13 +48,14 @@ LOAD_LIBRARY
  * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
 
 BE_FUNCTION(initialize_HiggsBounds_int, void, (int&, int&, int&), "initialize_higgsbounds_int_", "initialize_HiggsBounds_int")
+BE_FUNCTION(run_HiggsBounds, void, (int&, int&, double&, int&), "run_higgsbounds_", "run_HiggsBounds")
 BE_FUNCTION(run_HiggsBounds_classic, void, (int&, int&, double&, int&), "run_higgsbounds_classic_", "run_HiggsBounds_classic")
 BE_FUNCTION(finish_HiggsBounds, void, (), "finish_higgsbounds_", "finish_HiggsBounds")
 BE_FUNCTION(HiggsBounds_set_mass_uncertainties, void, (double*, double*), "higgsbounds_set_mass_uncertainties_", "HiggsBounds_set_mass_uncertainties")
 
 // LEP chisq extension specific
 BE_FUNCTION(initialize_HiggsBounds_chisqtables, void, (), "initialize_higgsbounds_chisqtables_", "initialize_HiggsBounds_chisqtables")
-BE_FUNCTION(HB_calc_stats, void, (double&, double&, double&, int&), "hb_calc_stats_", "HB_calc_stats")
+BE_FUNCTION(HiggsBounds_get_LEPChisq, void, (double&, double&, double&, int&), "higgsbounds_get_lepchisq_", "HiggsBounds_get_LEPChisq")
 BE_FUNCTION(finish_HiggsBounds_chisqtables, void, (), "finish_higgsbounds_chisqtables_","finish_HiggsBounds_chisqtables")
 
 // Input sub-routines
@@ -61,9 +63,9 @@ BE_FUNCTION(HiggsBounds_input_SLHA, void, (const char&), "higgsbounds_input_slha
 BE_FUNCTION(HiggsBounds_neutral_input_properties, void, (double*, double*, double*), "higgsbounds_neutral_input_properties_", "HiggsBounds_neutral_input_properties")
 BE_FUNCTION(HiggsBounds_neutral_input_effC, void, (double*, double*, double*, double*,
 						   double*, double*, double*, double*,
-                                                   double*, double*, double*, double*,
-                                                   double*, double*, double*, double*,
-                                                   double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC")
+						   double*, double*, double*, double*,
+						   double*, double*, double*, double*,
+						   double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_effc_", "HiggsBounds_neutral_input_effC")
 
 BE_FUNCTION(HiggsBounds_neutral_input_SMBR, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*),
 	    "higgsbounds_neutral_input_smbr_", "HiggsBounds_neutral_input_SMBR")
@@ -72,7 +74,7 @@ BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR, void, (double*, Farray<double, 1,
 
 BE_FUNCTION(HiggsBounds_neutral_input_LEP, void, (double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_lep_", "HiggsBounds_neutral_input_LEP")
-BE_FUNCTION(HiggsBounds_neutral_input_hadr, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
+BE_FUNCTION(HiggsBounds_neutral_input_hadr, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_hadr_", "HiggsBounds_neutral_input_hadr")
 
 BE_FUNCTION(HiggsBounds_charged_input, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3>&),

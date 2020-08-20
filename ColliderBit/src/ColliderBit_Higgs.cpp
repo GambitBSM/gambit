@@ -27,6 +27,10 @@
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@uclouvain.be)
+///  \date 2020 Jul
+///
 ///  *********************************************
 
 #include <cmath>
@@ -685,38 +689,39 @@ namespace Gambit
 
       BEreq::HiggsBounds_set_mass_uncertainties(&ModelParam.deltaMh[0],&ModelParam_charged.deltaMHplus[0]);
 
-         // run Higgs bounds 'classic'
-        double obsratio;
-        int HBresult, chan, ncombined;
+      // run Higgs bounds 'classic'
+      double obsratio;
+      int HBresult, chan, ncombined;
 
-        BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
+      BEreq::run_HiggsBounds_classic(HBresult,chan,obsratio,ncombined);
 
-        #ifdef COLLIDERBIT_DEBUG
-          std::cout << "HB output: " << std::endl << \
-          "hbres: " << HBresult << std::endl << \
-          "hbchan: "<< chan << std::endl << \
-          "hbobs: " << obsratio << std::endl << \
-          "hbcomb: " << ncombined << std::endl;
-        #endif
+      #ifdef COLLIDERBIT_DEBUG
+        std::cout << "HB output: " << std::endl << \
+        "hbres: " << HBresult << std::endl << \
+        "hbchan: "<< chan << std::endl << \
+        "hbobs: " << obsratio << std::endl << \
+        "hbcomb: " << ncombined << std::endl;
+      #endif
 
-        // extract the LEP chisq
-        double chisq_withouttheory,chisq_withtheory;
-        int chan2;
-        double theor_unc = 1.5; // theory uncertainty
-        BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
+      // extract the LEP chisq
+      double chisq_withouttheory,chisq_withtheory;
+      int chan2;
+      double theor_unc = 1.5; // theory uncertainty
+      BEreq::HB_calc_stats(theor_unc,chisq_withouttheory,chisq_withtheory,chan2);
 
-        // Catch HiggsBound's error value, chisq = -999
-        if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
-        {
-          std::ostringstream err;
-          err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
-          // ColliderBit_warning().raise(LOCAL_INFO,err.str());
-          // chisq_withouttheory = 0.0;
-          invalid_point().raise(err.str());
-        } 
-        result = -0.5*chisq_withouttheory;
+      // Catch HiggsBound's error value, chisq = -999
+      if( fabs(chisq_withouttheory - (-999.)) < 1e-6)
+      {
+        std::ostringstream err;
+        err <<  "Got chisq=-999 from HB_calc_stats in HiggsBounds, indicating a cross-section outside tabulated range. Will use chisq=0." << std::endl;
+        // ColliderBit_warning().raise(LOCAL_INFO,err.str());
+        // chisq_withouttheory = 0.0;
+        invalid_point().raise(err.str());
+      } 
+    
+      result = -0.5*chisq_withouttheory;
     }
-    // ***
+
 
     /// Get an LHC chisq from HiggsSignals
     void calc_HS_LHC_LogLike(double &result)
@@ -764,7 +769,7 @@ namespace Gambit
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
-     // run HiggsSignals
+      // run HiggsSignals
       int mode = 1; // 1- peak-centered chi2 method (recommended)
       double csqmu, csqmh, csqtot, Pvalue;
       int nobs;
