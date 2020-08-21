@@ -59,7 +59,7 @@ namespace Gambit
       }
       chi_sq /= sigma * sigma;
 
-      static double norm = 0.5 * x.size() * std::log(2. * M_PI * sigma);
+      static double norm = 0.5 * x.size() * std::log(2. * M_PI * sigma * sigma);
       loglike = -0.5 * chi_sq - norm;
     }
 
