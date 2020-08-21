@@ -224,6 +224,7 @@ namespace Gambit
         {
           scan_err << "no inverse transformation for doublelogflatjoin - outside range"
                    << scan_end;
+        return {};  // silence compiler warning (reaches end non-void function)
         }
       }
       

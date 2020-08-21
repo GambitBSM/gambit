@@ -99,9 +99,10 @@ namespace Gambit
                 const double rtol = 1e-4;
                 for (const auto &s : physical) 
                 {
-                  const double rdiff = (s.second - round_trip.at(s.first)) / 
-                                       std::max(s.second, round_trip.at(s.first));
-                  if (std::abs(rdiff) > rtol)
+                  const double a = round_trip.at(s.first);
+                  const double b = s.second;
+                  const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
+                  if (rdiff > rtol)
                   {
                     throw std::runtime_error("could not convert physical parameters to hypercube");
                   }

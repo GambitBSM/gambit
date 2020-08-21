@@ -82,7 +82,27 @@ namespace Gambit
                         
                         y = b;
                 }
-                
+
+                /**
+                  * @brief x = L^-1 y where L is the lower-diagonal Cholesky matrix
+                  *
+                  * Found by forward substituion since L is lower-diagonal.
+                  */
+                std::vector<double> invElMult(const std::vector<double> &y) const
+                {
+                  std::vector<double> x(y.size(), 0.);
+                  for (int i = 0, n = x.size(); i < n; i++)
+                  {
+                    double sum_ = 0;
+                    for (int j = 0; j < i; j++)
+                    {
+                      sum_ += el[i][j] * x[j];
+                    }
+                    x[i] = (y[i] - sum_) / el[i][i];
+                  }
+                  return x;
+                }
+
                 double Square(const std::vector<double> &y, const std::vector<double> &y0)
                 {
                         int i, j, num = y.size();
