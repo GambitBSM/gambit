@@ -202,19 +202,19 @@ namespace Gambit
       {
         const double p = physical.at(myparameter);
 
-        if (p < flat_start && p >= lower)
+        if (p >= lower && p < flat_start)
         {
           // log prior from lower to flat_start
           double u01 = std::log(p / lower) / std::log(flat_start / lower);
           return {u01 * P01};
         }
-        else if (p < flat_end)
+        else if (p >= flat_start && p < flat_end)
         {
           // flat prior from flat_start to flat_end
-          double u01 = (p - flat_start) / (flat_start - flat_end);
+          double u01 = (p - flat_start) / (flat_end - flat_start);
           return {P01 + u01 * P12};
         }
-        else if (p < upper)
+        else if (p>= flat_end && p < upper)
         {
           // log prior from flat_end to upper
           double u01 = std::log(p / flat_end) / std::log(upper / flat_end);
@@ -222,7 +222,7 @@ namespace Gambit
         }
         else
         {
-          scan_err << "no inverse transformation for doublelogflatjoin - outside range"
+          scan_err << "no inverse transformation for double_log_flat_join - outside range"
                    << scan_end;
         return {};  // silence compiler warning (reaches end non-void function)
         }
