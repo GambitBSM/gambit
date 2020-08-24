@@ -591,8 +591,10 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
+  set(pythia_CXX_SONAME_FLABS "-Wl,-dylib_install_name")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-soname")
 endif()
 
 # - Add option to turn off intel IPO if insufficient memory exists to use it.
@@ -618,7 +620,7 @@ if(EXCLUDE_HEPMC)
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch_nohepmc}
-      CONFIGURE_COMMAND ./configure --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --lib-suffix=".so"
+      CONFIGURE_COMMAND ./configure --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
       BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
       INSTALL_COMMAND ""
     )
@@ -638,7 +640,7 @@ else()
       SOURCE_DIR ${dir}
       BUILD_IN_SOURCE 1
       PATCH_COMMAND patch -p1 < ${patch}
-      CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --lib-suffix=".so"
+      CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
       BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
       INSTALL_COMMAND ""
     )
