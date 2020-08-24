@@ -19,19 +19,15 @@ Scanner:
     minuit2:
       plugin: minuit2
       like: LogLike
-      print_level: 100
-      max_iterations: 10000
-      max_loglike_calls: 100000000
-      algorithm: simplex
+
       start:
-        trivial_2d::x1: -2.
-        trivial_2d::x2: 2. 
+        trivial_2d::x1: -1.
+        trivial_2d::x2: -1.
       step:
-        trivial_2d::x1: 0.04
-        trivial_2d::x2: 0.008  
+        trivial_2d::x1: 0.2
+        trivial_2d::x2: 0.2
 
 ObsLikes:
   - purpose: LogLike
-    capability: mccormick
+    capability: rosenbrock
     module: TestFunctionBit
-    type: double

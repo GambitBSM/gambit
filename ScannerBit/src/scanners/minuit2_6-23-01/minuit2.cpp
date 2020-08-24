@@ -92,7 +92,7 @@ scanner_plugin(minuit2, version(6, 23, 01))
     const auto tolerance{get_inifile_value<double>("tolerace", 0.0001)};
     const auto precision{get_inifile_value<double>("precision", 0.0001)};
     const auto print_level{get_inifile_value<int>("print_level", 1)};
-    const auto strategy{get_inifile_value<int>("strategy", 1)};
+    const auto strategy{get_inifile_value<int>("strategy", 2)};
 
     // get starting point (optional). It can be written in hypercube or physical
     // parameters. Default is center of hypercube for each parameter
@@ -257,8 +257,6 @@ scanner_plugin(minuit2, version(6, 23, 01))
     switch (status) {
       case 0:
         break;
-      case 5:
-        throw std::runtime_error("Minuit2: Covar is not pos def");
       case 1:
         throw std::runtime_error("Minuit2: Covar was made pos def");
       case 2:
@@ -267,6 +265,8 @@ scanner_plugin(minuit2, version(6, 23, 01))
         throw std::runtime_error("Minuit2: Edm is above max");
       case 4:
         throw std::runtime_error("Minuit2: Reached call limit");
+      case 5:
+        throw std::runtime_error("Minuit2: Covar is not pos def");
       default:
         throw std::runtime_error("Minuit2: Unknown error: " + std::to_string(status));
      }

@@ -34,12 +34,14 @@ namespace Gambit
   namespace TestFunctionBit
   {
     typedef Gambit::Models::safe_param_map<Gambit::safe_ptr<const double>> map;
+
     std::vector<double> get_arguments(map param)
     {
       std::vector<double> x;
-      for (const auto& p : param)
+      for (int i = 0, n = param.size(); i < n; i++)
       {
-        x.push_back(*p.second);
+        std::string name = "x" + std::to_string(i + 1);
+        x.push_back(*param.at(name));
       }
       return x;
     }
