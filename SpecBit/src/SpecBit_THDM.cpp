@@ -501,6 +501,7 @@ namespace Gambit
         thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
         thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
 
+        cout<<*Param["yu2_re_33"]<<endl;
         // std::cout << "Spectrum YU: (" << beta_scaling_u << ") " << thdm_model.Yu[0] << " " << thdm_model.Yu[1] <<" " << thdm_model.Yu[2] << std::endl;
         // std::cout << "Spectrum MU: " << sminputs.mU<< " " << sminputs.mCmC <<" " << sminputs.mT << std::endl;
 

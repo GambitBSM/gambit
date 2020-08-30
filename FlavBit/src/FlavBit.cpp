@@ -585,9 +585,8 @@ namespace Gambit
       double mBmB = Dep::SMINPUTS->mBmB;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
-      double mZ = Dep::SMINPUTS->mZ;
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW = sqrt(0.23356489);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -617,9 +616,8 @@ namespace Gambit
       double mBmB = Dep::SMINPUTS->mBmB;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
-      double mZ = Dep::SMINPUTS->mZ;
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW = sqrt(0.23356489);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -647,10 +645,9 @@ namespace Gambit
       double sinb = sin(beta), cosb = cos(beta);
       double mMu = Dep::SMINPUTS->mMu;
       double mBmB = Dep::SMINPUTS->mBmB;
-      double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW = sqrt(0.23356489);
       double mA = spectrum.get(Par::Pole_Mass,"A0");
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
@@ -697,14 +694,14 @@ namespace Gambit
     double F7_1(double t)
     {
 	if(fabs(1.-t)<1.e-5) return F7_1(0.9999);
-	return -(t*(7 - 12*t - 3*t*t + 8*t*t*t + 
+	return -((7 - 12*t - 3*t*t + 8*t*t*t + 
            6*t*(-2 + 3*t)*log(1/t)))/(72.*pow(-1 + t,4));
     }
     
     double F7_2(double t)
     {
     if(fabs(1.-t)<1.e-5) return F7_2(0.9999);
-	return t*(3 - 8*t + 5*t*t + (-4 + 6*t)*log(1/t))/
+	return sqrt(t)*(3 - 8*t + 5*t*t + (-4 + 6*t)*log(1/t))/
            (12.*pow(-1 + t,3));
     }
     
@@ -742,14 +739,12 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4);         
       
-      result = (1/real(Vtb*conj(Vts)))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
-               (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2))
-               +(Vtb*xi_bb + Vts*xi_sb)*
+      result = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
+               (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
+               + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (conj(Vcs)*conj(xi_tc) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2))); 
        
-      //re = real(result);
                
-      //im = imag(result);         
     }
     
     //Green functios for Delta C9 and Delta C10 in THDM
@@ -758,7 +753,7 @@ namespace Gambit
     {
      if(fabs(1.-t)<1.e-5) return DHp(0.9999);
      
-	 return -t*(-38 + 117*t - 126*t*t + 47*pow(t,3) + 
+	 return -(-38 + 117*t - 126*t*t + 47*pow(t,3) + 
             6*(4 - 6*t + 3*pow(t,3))*log(1/t))/
            (108.*pow(t-1,4));
     }
@@ -767,22 +762,22 @@ namespace Gambit
     {
 	 if(fabs(1.-t)<1.e-5) return CHp(0.9999);	
 		
-	 return -t*t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
+	 return -t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
     }
     //Box diagram Green function
-    double BHp(double t, double l)
+    double BHp(double t)
     {
-	 if(fabs(1.-t)<1.e-5) return BHp(0.9999,l);
+	 if(fabs(1.-t)<1.e-5) return BHp(0.9999);
 		
-	 return l*t*(-1 + t + t*log(1/t))/(16.*pow(t-1,2));
+	 return (-1 + t + t*log(1/t))/(16.*pow(t-1,2));
     }
     
     //Box diagram Green function for C9' and C10'
-    double BHpp(double t, double l)
+    double BHpp(double t)
     {
-	 if(fabs(1.-t)<1.e-5) return BHpp(0.9999,l);
+	 if(fabs(1.-t)<1.e-5) return BHpp(0.9999);
 		
-	 return (l*(-1 + t + t*log(1/t)))/(16.*pow(t-1,2));
+	 return ((-1 + t + t*log(1/t)))/(16.*pow(t-1,2));
     }
     
     /// Delta C9 from the general THDM
@@ -799,10 +794,9 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mMu = Dep::SMINPUTS->mMu;
-      double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW =sqrt(0.23356489);
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
@@ -819,18 +813,18 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
       
-      std::complex<double> C9_gamma = (xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
+      std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
                                       (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
              
-      std::complex<double> C9_Z = (xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
+      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
                                   (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));  
              
-      std::complex<double> C9_Box = (pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + 
+      std::complex<double> C9_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + 
                                      conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*
-                                     conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2),pow(mMu/mHp,2)); 
+                                     conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); 
                           
 
-      result = (1/real(Vtb*conj(Vts)))*(C9_gamma + (pow(mHp/mW,2)/pow(SW,2))*((-1 + 4*pow(SW,2))*C9_Z + C9_Box));
+      result = C9_gamma + C9_Z + C9_Box;
 
       //re = real(result);
                
@@ -851,34 +845,41 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mMu = Dep::SMINPUTS->mMu;
-      double mZ = Dep::SMINPUTS->mZ;
+     // double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW =sqrt(0.23356489);
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      //cout<<"Ymutau = "<<Ymutau<<endl;
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_mutau = Ymutau/cosb;
+      //cout<<"xi_tt "<<xi_tt<<endl;
       //CKM elements
       double Vcs = 1 - (1/2)*lambda*lambda;
       double Vcb = A*lambda*lambda;
       double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      // cout<<"Vcs is  = "<<Vcs<<endl; 
       
-      std::complex<double> C10_Z = (xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
-                                   (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));  
+      std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
              
-      std::complex<double> C10_Box = (pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + 
-                                      conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*
-                                      conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2),pow(mMu/mHp,2));
-             
-      result = (1/real(Vtb*conj(Vts)))*((pow(mHp/mW,2)/pow(SW,2))*(C10_Z + C10_Box));                   
+      //cout<<"C10_Z  = "<<C10_Z<<endl;
+     // cout<<"prefactZ = "<<(1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))<<endl;
+ 
+      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+
+     // cout<<"C10_box  = "<<C10_Box<<endl; 
+     // cout<<"prefactor_box  = "<<(1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt))) <<endl; 
+
+      result = C10_Z + C10_Box;
+            
 
       //re = real(result);
       //im = imag(result);        
@@ -898,7 +899,7 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      double mS = Dep::SMINPUTS->mS;
+      //double mS = Dep::SMINPUTS->mS;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
@@ -918,10 +919,10 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
       
-      result = (1/real(Vtb*conj(Vts)))*((mBmB*mS/(mHp*mHp))*(xi_sb*conj(Vtb))*
+      result =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*
                (Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
-                +(mS/(mBmB))*(Vtb*xi_sb)*
-               (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2))); 
+                +
+               (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2)); 
               
       //re = real(result);
                
@@ -942,12 +943,11 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      double mS = Dep::SMINPUTS->mS;
+      //double mS = Dep::SMINPUTS->mS;
       double mMu = Dep::SMINPUTS->mMu;
-      double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW = sqrt(0.23356489);
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
@@ -965,17 +965,17 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
       
-      std::complex<double> C9p_gamma = (mBmB*mS/(mHp*mHp))*(xi_bb*Vtb + xi_sb*Vts)*
+      std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_bb*Vtb + xi_sb*Vts)*
                                        (Vtb*xi_sb)*DHp(pow(mT/mHp,2));
              
-      std::complex<double> C9p_Z = (mBmB*mS)*(xi_sb*Vtb)*
+      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
                                    (xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));  
              
-      std::complex<double> C9p_Box = (mBmB*mS)*conj(xi_sb)*(pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) 
-                                     + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2),pow(mMu/mHp,2))); 
+      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*conj(xi_sb)*(pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) 
+                                     + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2))); 
               
                         
-      result = (1/real(Vtb*conj(Vts)))*(C9p_gamma + (pow(1/mW,2)/pow(SW,2))*((-1 + 4*pow(SW,2))*C9p_Z + C9p_Box));
+      result = C9p_gamma + C9p_Z + C9p_Box;
       
       //re = real(result);
                
@@ -996,12 +996,11 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      double mS = Dep::SMINPUTS->mS;
+      //double mS = Dep::SMINPUTS->mS;
       double mMu = Dep::SMINPUTS->mMu;
-      double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      double SW = sqrt(0.23356489);
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
@@ -1018,12 +1017,16 @@ namespace Gambit
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
              
-      std::complex<double> C10p_Z = (mBmB*mS)*(xi_sb*Vtb)*(xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));  
-             
-      std::complex<double> C10p_Box = (mBmB*mS)*conj(xi_sb)*((pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) 
-                                      + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2),pow(mMu/mHp,2))));  
+       std::complex<double> C10p_Z = (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
+                                   (xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));
+
+      std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*conj(xi_sb)*(pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb)
+                                     + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2)));
+
+
+      result = C10p_Z + C10p_Box;
+     
                         
-      result = (1/real(Vtb*conj(Vts)))*((pow(1/mW,2)/pow(SW,2))*(C10p_Z + C10p_Box));
       
       //re = real(result);
                

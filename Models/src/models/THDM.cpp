@@ -154,8 +154,8 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
                                             "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
-      targetP.setValue(yukawa_key, 0.0);
+  {
+    targetP.setValue(yukawa_key, myP.getValue(yukawa_key));  
   }
 
 
@@ -213,7 +213,7 @@ void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelPa
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
   {  
-      targetP.setValue(yukawa_key, 0.0);
+   targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
   }
 
 
