@@ -184,7 +184,7 @@ START_MODULE
     DEPENDENCY(classy_MPLike_input, pybind11::dict)
     DEPENDENCY(classy_NuMasses_Nur_input, pybind11::dict)
     DEPENDENCY(classy_primordial_input, pybind11::dict)
-    MODEL_CONDITIONAL_DEPENDENCY(classy_parameters_EnergyInjection, pybind11::dict, AnnihilatingDM_general, DecayingDM_general)
+    //MODEL_CONDITIONAL_DEPENDENCY(classy_parameters_EnergyInjection, pybind11::dict, AnnihilatingDM_general, DecayingDM_general)
     MODEL_CONDITIONAL_DEPENDENCY(classy_PlanckLike_input, pybind11::dict, cosmo_nuisance_Planck_lite,cosmo_nuisance_Planck_TTTEEE,cosmo_nuisance_Planck_TT,plik_dx11dr2_HM_v18_TT)
     #undef FUNCTION
   #undef CAPABILITY
@@ -227,15 +227,22 @@ START_MODULE
   #define CAPABILITY classy_parameters_EnergyInjection
   START_CAPABILITY
     #define FUNCTION set_classy_parameters_EnergyInjection_AnnihilatingDM
-    START_FUNCTION(pybind11::dict)
-    ALLOW_MODELS(AnnihilatingDM_general)
+    START_FUNCTION(Classy_input)
+    DEPENDENCY(classy_input_params,Classy_input)
+    ALLOW_MODEL(AnnihilatingDM_general)
     DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
     #undef FUNCTION
 
     #define FUNCTION set_classy_parameters_EnergyInjection_DecayingDM
-    START_FUNCTION(pybind11::dict)
-    ALLOW_MODELS(DecayingDM_general)
+    START_FUNCTION(Classy_input)
+    DEPENDENCY(classy_input_params,Classy_input)
+    ALLOW_MODEL(DecayingDM_general)
     DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
+    #undef FUNCTION
+
+    #define FUNCTION set_classy_parameters_no_EnergyInjection
+    START_FUNCTION(Classy_input)
+    DEPENDENCY(classy_input_params,Classy_input)
     #undef FUNCTION
   #undef CAPABILITY
 

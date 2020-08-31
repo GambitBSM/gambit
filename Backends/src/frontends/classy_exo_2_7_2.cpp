@@ -11,6 +11,7 @@
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
 ///  \date 2019 June
+///  \date 2020 June, Aug
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
@@ -357,7 +358,12 @@ BE_INI_FUNCTION
     static int max_errors = 100;
 
     // get input for CLASS run set by CosmoBit
-    Classy_input input_container= *Dep::classy_input_params;
+    // If annihilating or decaying DM models are scanned, get the input dictionary
+    // with the energy injection related parameters. If not, simply get the 
+    // standard parameters set in 'classy_parameters'
+    Classy_input input_container = *Dep::classy_parameters_EnergyInjection;
+    
+    // extract python input dictionary
     pybind11::dict cosmo_input_dict = input_container.get_input_dict();
 
     // Check whether the energy injection tables have changed.

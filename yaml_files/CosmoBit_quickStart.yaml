@@ -87,9 +87,9 @@ Parameters:
     ln10A_s: 3.044
     n_s: 0.9649
 
-  #AnnihilatingDM_photon:
-  #  mass: 0.001
-  #  sigmav: 0.000001
+  AnnihilatingDM_photon:
+    mass: 0.001
+    sigmav: 0.000001
 
   # Uncomment to allow for non-standard values of dNeff
   #dNurCMB:

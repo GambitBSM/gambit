@@ -11,7 +11,7 @@
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
 ///  \date 2019 June
-///  \date 2020 July
+///  \date 2020 July, Aug
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
@@ -56,7 +56,7 @@ LOAD_LIBRARY
   BE_CONV_FUNCTION(class_get_scale_independent_growth_factor,   double, (double), "class_get_scale_independent_growth_factor")
   BE_CONV_FUNCTION(class_get_scale_independent_growth_factor_f,   double, (double), "class_get_scale_independent_growth_factor_f")
 
-  BE_INI_DEPENDENCY(classy_input_params, Classy_input)
+  BE_INI_DEPENDENCY(classy_parameters_EnergyInjection, Classy_input)
 
 #endif
 

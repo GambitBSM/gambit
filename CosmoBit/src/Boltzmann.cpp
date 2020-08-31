@@ -228,11 +228,11 @@ namespace Gambit
 
       // TODO: need to test if class or exo_class in use! does not work -> (JR) should be fixed with classy implementation
       // -> (JR again) not sure if that is actually true.. need to test.
-      if (ModelInUse("DecayingDM_general") || ModelInUse("AnnihilatingDM_general"))
-      {
-        // Add decaying/annihilating DM-specific options to Python dictionary passed to CLASS (consistency checks only executed in first run).
-        std::string common_keystwo = result.add_dict(*Dep::classy_parameters_EnergyInjection);
-      }
+      //if (ModelInUse("DecayingDM_general") || ModelInUse("AnnihilatingDM_general"))
+      //{
+      //  // Add decaying/annihilating DM-specific options to Python dictionary passed to CLASS (consistency checks only executed in first run).
+      //  std::string common_keystwo = result.add_dict(*Dep::classy_parameters_EnergyInjection);
+      //}
 
       // Other CLASS input direct from the YAML file.
       // Check if these are already contained in the input dictionary -- if so throw an error.
@@ -366,17 +366,20 @@ namespace Gambit
     }
 
     /// Set the parameters for exoCLASS for a scenario with annihilating dark matter.
-    void set_classy_parameters_EnergyInjection_AnnihilatingDM(pybind11::dict &result)
+    //void set_classy_parameters_EnergyInjection_AnnihilatingDM(pybind11::dict &result)
+    void set_classy_parameters_EnergyInjection_AnnihilatingDM(Classy_input &result)
     {
       using namespace Pipes::set_classy_parameters_EnergyInjection_AnnihilatingDM;
 
-      // Make sure nothing from previous run is contained
-      result.clear();
+      // Init dictionary to which all energy injection related parameters
+      // will be added. At the end, this is merged into the Classy_input instance
+      pybind11::dict result_dict;
+      Classy_input classy_in = *Dep::classy_input_params;
 
       // Set relevant inputs for the scenario of s-wave annihilating DM
       const ModelParameters& NP_params = *Dep::AnnihilatingDM_general_parameters;
-      result["DM_annihilation_cross_section"] = NP_params.at("sigmav");
-      result["DM_annihilation_mass"] = NP_params.at("mass");
+      result_dict["DM_annihilation_cross_section"] = NP_params.at("sigmav");
+      result_dict["DM_annihilation_mass"] = NP_params.at("mass");
 
       // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
       static DarkAges::Energy_injection_efficiency_table fz;
@@ -391,32 +394,32 @@ namespace Gambit
       // to CLASS instead
       if (f_eff_mode)
       {
-        result["f_eff_type"] = "pointer_to_fz_eff";
+        result_dict["f_eff_type"] = "pointer_to_fz_eff";
       }
       else
       {
-        result["f_eff_type"] = "pointer_to_fz_channel";
+        result_dict["f_eff_type"] = "pointer_to_fz_channel";
       }
 
       // Set the lengths of the input tables (since we are passing pointers to arrays CLASS has to know how long they are)
-      result["energyinj_coef_num_lines"] = fz.redshift.size();
+      result_dict["energyinj_coef_num_lines"] = fz.redshift.size();
 
       // Add the pointers to arrays class needs to know about to input dictionary
       // NOTE: memory addresses are passed as strings (the Python wrapper for CLASS 
       // converts every entry to a string internally so we need to do that for the 
       // memory addresses, before Python casts them to something else)
-      result["energyinj_coef_z"] = memaddress_to_uint(fz.redshift.data());
+      result_dict["energyinj_coef_z"] = memaddress_to_uint(fz.redshift.data());
       if (f_eff_mode)
       {
-        result["energyinj_coef_tot"] = memaddress_to_uint(fz.f_eff.data());
+        result_dict["energyinj_coef_tot"] = memaddress_to_uint(fz.f_eff.data());
       }
       else
       {
-        result["energyinj_coef_heat"] = memaddress_to_uint(fz.f_heat.data());
-        result["energyinj_coef_lya"] = memaddress_to_uint(fz.f_lya.data());
-        result["energyinj_coef_ionH"] = memaddress_to_uint(fz.f_hion.data());
-        result["energyinj_coef_ionHe"] = memaddress_to_uint(fz.f_heion.data());
-        result["energyinj_coef_lowE"] = memaddress_to_uint(fz.f_lowe.data());
+        result_dict["energyinj_coef_heat"] = memaddress_to_uint(fz.f_heat.data());
+        result_dict["energyinj_coef_lya"] = memaddress_to_uint(fz.f_lya.data());
+        result_dict["energyinj_coef_ionH"] = memaddress_to_uint(fz.f_hion.data());
+        result_dict["energyinj_coef_ionHe"] = memaddress_to_uint(fz.f_heion.data());
+        result_dict["energyinj_coef_lowE"] = memaddress_to_uint(fz.f_lowe.data());
       }
 
       // Check if the table has changed compared to the previous iteration.
@@ -424,24 +427,30 @@ namespace Gambit
       // to the dictionary.
       // The classy frontend will just look for the key - the value is not important here.
       if (fz != cached_fz)
-        result["EnergyInjection_changed"] = "yes";
+        result_dict["EnergyInjection_changed"] = "yes";
 
       // Copy fz to cache
       cached_fz = fz;
+
+      // add energy injection parameters to classy input
+      classy_in.merge_input_dicts(result_dict);
+      result = classy_in;
     }
 
     /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
-    void set_classy_parameters_EnergyInjection_DecayingDM(pybind11::dict &result)
+    void set_classy_parameters_EnergyInjection_DecayingDM(Classy_input &result)
     {
       using namespace Pipes::set_classy_parameters_EnergyInjection_DecayingDM;
 
-      // Make sure nothing from previous run is contained
-      result.clear();
+      // Init dictionary to which all energy injection related parameters
+      // will be added. At the end, this is merged into the Classy_input instance
+      pybind11::dict result_dict;
+      Classy_input classy_in = *Dep::classy_input_params;
 
       // Set relevant inputs for the scenario of decaying DM
       const ModelParameters& NP_params = *Dep::DecayingDM_general_parameters;
-      result["DM_decay_tau"] = NP_params.at("lifetime");
-      result["DM_decay_fraction"] = NP_params.at("fraction");
+      result_dict["DM_decay_tau"] = NP_params.at("lifetime");
+      result_dict["DM_decay_fraction"] = NP_params.at("fraction");
 
       // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
       static DarkAges::Energy_injection_efficiency_table fz;
@@ -456,32 +465,32 @@ namespace Gambit
       // file writing & deleting we pass pointers to the vector/arrays to CLASS instead.
       if (f_eff_mode)
       {
-        result["f_eff_type"] = "pointer_to_fz_eff";
+        result_dict["f_eff_type"] = "pointer_to_fz_eff";
       }
       else
       {
-        result["f_eff_type"] = "pointer_to_fz_channel";
+        result_dict["f_eff_type"] = "pointer_to_fz_channel";
       }
 
       // Set the lengths of the input tables (since we are passing pointers to arrays CLASS has to know how long they are)
-      result["energyinj_coef_num_lines"] = fz.redshift.size();
+      result_dict["energyinj_coef_num_lines"] = fz.redshift.size();
 
       // Add the pointers to arrays class needs to know about to input dictionary
       // NOTE: memory addresses are passed as strings (the Python wrapper for CLASS 
       // converts every entry to a string internally so we need to do that for the 
       // memory addresses, before Python casts them to something else)
-      result["energyinj_coef_z"] = memaddress_to_uint(fz.redshift.data());
+      result_dict["energyinj_coef_z"] = memaddress_to_uint(fz.redshift.data());
       if (f_eff_mode)
       {
-        result["energyinj_coef_tot"] = memaddress_to_uint(fz.f_eff.data());
+        result_dict["energyinj_coef_tot"] = memaddress_to_uint(fz.f_eff.data());
       }
       else
       {
-        result["energyinj_coef_heat"] = memaddress_to_uint(fz.f_heat.data());
-        result["energyinj_coef_lya"] = memaddress_to_uint(fz.f_lya.data());
-        result["energyinj_coef_ionH"] = memaddress_to_uint(fz.f_hion.data());
-        result["energyinj_coef_ionHe"] = memaddress_to_uint(fz.f_heion.data());
-        result["energyinj_coef_lowE"] = memaddress_to_uint(fz.f_lowe.data());
+        result_dict["energyinj_coef_heat"] = memaddress_to_uint(fz.f_heat.data());
+        result_dict["energyinj_coef_lya"] = memaddress_to_uint(fz.f_lya.data());
+        result_dict["energyinj_coef_ionH"] = memaddress_to_uint(fz.f_hion.data());
+        result_dict["energyinj_coef_ionHe"] = memaddress_to_uint(fz.f_heion.data());
+        result_dict["energyinj_coef_lowE"] = memaddress_to_uint(fz.f_lowe.data());
       }
 
       // Check if the table has changed compared to the previous iteration.
@@ -489,10 +498,27 @@ namespace Gambit
       // to the dictionary.
       // The classy frontend will just look for the key - the value is not important here.
       if (fz != cached_fz)
-        result["EnergyInjection_changed"] = "yes";
+        result_dict["EnergyInjection_changed"] = "yes";
 
       // Copy fz to cache
       cached_fz = fz;
+
+      // add energy injection parameters to classy input
+      classy_in.merge_input_dicts(result_dict);
+      result = classy_in;
+    }
+
+    /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
+    void set_classy_parameters_no_EnergyInjection(Classy_input &result)
+    {
+      using namespace Pipes::set_classy_parameters_no_EnergyInjection;
+
+      // This function is choosen if exo_class is used but no annihilating
+      // or decaying DM model is scanned over -> no need to pass any 
+      // energy injection related parameters to CLASS, simply use result 
+      // from classy_input_params
+      result = *Dep::classy_input_params;
+
     }
 
     /// Add all inputs for CLASS needed to produce the correct output to be
