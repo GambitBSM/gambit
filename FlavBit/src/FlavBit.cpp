@@ -722,7 +722,6 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      //cout<<"mBmB  = "<<mBmB<<endl; 
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
@@ -730,20 +729,9 @@ namespace Gambit
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-     // cout<<"xi_tt "<<xi_tt<<endl;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      //cout<<"1st term "<<-((sqrt(2)*mBmB*tanb)/v)<<endl;
-      //cout<<"2nd term "<<Ybb/cosb<<endl;
-      //cout<<"cosb "<<cosb<<endl;
-      //cout<<"Ybb "<<Ybb<<endl;
-      //cout<<"xi_bb "<<xi_bb<<endl;
       double xi_sb = Ysb/cosb;
-      //CKM elements as in hep-ph/0406184
-      //double rhobar = Dep::SMINPUTS->CKM_rhobar;
-      //double etabar = Dep::SMINPUTS->CKM_etabar;
-      //double rho = rhobar/(1-(1/2)*lambda*lambda);
-      //double eta = etabar/(1-(1/2)*lambda*lambda);
       double Vcs = 1 - (1/2)*lambda*lambda;
       double Vcb = A*lambda*lambda;
       double Vts = -A*lambda*lambda;
@@ -755,7 +743,6 @@ namespace Gambit
                (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
                + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (conj(Vcs)*conj(xi_tc) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2))); 
-       
                
     }
     
@@ -838,9 +825,6 @@ namespace Gambit
 
       result = C9_gamma + C9_Z + C9_Box;
 
-      //re = real(result);
-               
-      //im = imag(result);   
     }  
     
     /// Delta C10 from the general THDM
@@ -857,7 +841,6 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mMu = Dep::SMINPUTS->mMu;
-     // double mZ = Dep::SMINPUTS->mZ;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
       double SW =sqrt(0.23356489);
@@ -867,7 +850,6 @@ namespace Gambit
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      //cout<<"Ymutau = "<<Ymutau<<endl;
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
@@ -882,19 +864,12 @@ namespace Gambit
       
       std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
              
-      //cout<<"C10_Z  = "<<C10_Z<<endl;
-     // cout<<"prefactZ = "<<(1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))<<endl;
  
       std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
 
-     // cout<<"C10_box  = "<<C10_Box<<endl; 
-     // cout<<"prefactor_box  = "<<(1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt))) <<endl; 
 
       result = C10_Z + C10_Box;
-            
 
-      //re = real(result);
-      //im = imag(result);        
     } 
     /// Prime Wilson Coefficients in the general THDM      
     // Delta C7' from the general THDM
@@ -911,7 +886,6 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      //double mS = Dep::SMINPUTS->mS;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
@@ -922,11 +896,6 @@ namespace Gambit
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      //CKM elements as in hep-ph/0406184
-      //double rhobar = Dep::SMINPUTS->CKM_rhobar;
-      //double etabar = Dep::SMINPUTS->CKM_etabar;
-      //double rho = rhobar/(1-(1/2)*lambda*lambda);
-      //double eta = etabar/(1-(1/2)*lambda*lambda);
       double Vcb = A*lambda*lambda;
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
@@ -936,9 +905,6 @@ namespace Gambit
                 +
                (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2)); 
               
-      //re = real(result);
-               
-      //im = imag(result);        
     }
     
     /// Delta C9' from the general THDM
@@ -955,7 +921,6 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      //double mS = Dep::SMINPUTS->mS;
       double mMu = Dep::SMINPUTS->mMu;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
@@ -988,10 +953,7 @@ namespace Gambit
               
                         
       result = C9p_gamma + C9p_Z + C9p_Box;
-      
-      //re = real(result);
                
-      //im = imag(result);   
     }  
       
     /// Delta C10' from the general THDM
@@ -1008,7 +970,6 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
-      //double mS = Dep::SMINPUTS->mS;
       double mMu = Dep::SMINPUTS->mMu;
       //Check later how to deal with mW
       double mW = Dep::SMINPUTS->mW;
@@ -1038,11 +999,6 @@ namespace Gambit
 
       result = C10p_Z + C10p_Box;
      
-                        
-      
-      //re = real(result);
-               
-      //im = imag(result); 
     }         
       
     /// Br b	-> s gamma decays

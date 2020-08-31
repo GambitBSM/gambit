@@ -166,7 +166,7 @@ START_MODULE
     #define FUNCTION SI_fill
     START_FUNCTION(parameters)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC)
-   // ALLOW_MODELS(THDM, THDM_physical, THDMI, THDMII, THDMLS, THDMflipped)
+   // ALLOW_MODELS(THDM, THDMI, THDMII, THDMLS, THDMflipped)
    // ALLOW_MODELS(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     ALLOW_MODELS(THDMatQ)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
