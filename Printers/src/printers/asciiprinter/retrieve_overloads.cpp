@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/asciireader.hpp"
@@ -248,6 +252,8 @@ namespace Gambit
     bool asciiReader::_retrieve(std::vector<float>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(std::vector<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+    bool asciiReader::_retrieve(std::complex<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(map_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }

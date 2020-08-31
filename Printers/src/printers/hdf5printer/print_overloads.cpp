@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 
@@ -97,6 +101,33 @@ namespace Gambit
           }
           buffer_manager.get_buffer(vID, i, ss.str()).RA_write(value[i],ppid,primary_printer->global_index_lookup);
         }
+      }
+    }
+
+    void HDF5Printer::_print(std::complex<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
+
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      // Write to each buffer
+      PPIDpair ppid(pointID,mpirank);
+      if(synchronised)
+      {
+        // Write the data to the selected buffer ("just works" for simple numeric types)
+        buffer_manager.get_buffer(vID, 0, real).append(value.real(),ppid);
+        buffer_manager.get_buffer(vID, 1, imag).append(value.imag(),ppid);
+      }
+      else
+      {
+        // Queue up a desynchronised ("random access") dataset write to previous scan iteration
+        if(not seen_PPID_before(ppid))
+        {
+          add_PPID_to_list(ppid);
+        }
+        buffer_manager.get_buffer(vID, 0, real).RA_write(value.real(),ppid,primary_printer->global_index_lookup);
+        buffer_manager.get_buffer(vID, 1, imag).RA_write(value.imag(),ppid,primary_printer->global_index_lookup);
       }
     }
 

@@ -20,6 +20,10 @@
 ///  \date 2014 Jan
 ///  \date 2017 Mar
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/asciiprinter.hpp"
@@ -83,6 +87,13 @@ namespace Gambit
     #define ADD_ASCII_VECTOR_PRINTS(TYPES) BOOST_PP_SEQ_FOR_EACH(ASIMPLEPRINT_VEC, _, TYPES)
     ADD_ASCII_SIMPLE_PRINTS(SCANNER_SIMPLE_TYPES)
     ADD_ASCII_VECTOR_PRINTS(SCANNER_VECTOR_TYPES)
+
+    void asciiPrinter::_print(std::complex<double> const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    {
+      std::vector<str> labels = {label + "::real", label + "::imag"};
+      std::vector<double> values = {value.real(), value.imag()};
+      addtobuffer(values, labels, IDcode, thread, pointID);
+    }
 
     void asciiPrinter::_print(map_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
