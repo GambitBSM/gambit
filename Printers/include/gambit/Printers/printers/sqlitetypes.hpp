@@ -13,6 +13,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __SQLITETYPES__
@@ -28,6 +32,7 @@
   (float)                   \
   (double)                  \
   (std::vector<double>)     \
+  (std::complex<double>)    \
   (bool)                    \
   (map_str_dbl)             \
   (ModelParameters)         \

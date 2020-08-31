@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/hdf5printer_v2.hpp"
@@ -71,6 +75,16 @@ namespace Gambit
         // Write to each buffer
         basic_print(value[i],ss.str(),mpirank,pointID);
       }
+    }
+
+    void HDF5Printer2::_print(std::complex<double> const& value, const std::string& label, const int /*vID*/, const unsigned int mpirank, const unsigned long pointID)
+    {
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      // Write to each buffer
+      basic_print(value.real(), real, mpirank, pointID);
+      basic_print(value.imag(), real, mpirank, pointID);
     }
 
     void HDF5Printer2::_print(const map_str_dbl& map, const std::string& label, const int /*vID*/, const unsigned int mpirank, const unsigned long pointID)

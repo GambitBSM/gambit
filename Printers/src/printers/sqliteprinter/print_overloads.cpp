@@ -15,6 +15,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 
@@ -68,6 +72,15 @@ namespace Gambit
         ss<<label<<"["<<i<<"]";
         _print(value.at(i), ss.str(), vID, mpirank, pointID);  
       }
+    }
+
+    void SQLitePrinter::_print(std::complex<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      _print(value.real(), real, vID, mpirank, pointID);
+      _print(value.imag(), imag, vID, mpirank, pointID);
     }
 
     void SQLitePrinter::_print(triplet<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)

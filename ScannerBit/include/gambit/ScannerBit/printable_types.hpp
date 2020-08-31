@@ -19,6 +19,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __scannerbit_printable_types_hpp__
@@ -68,6 +72,7 @@ namespace Gambit
   #define SCANNER_PRINTABLE_TYPES \
     SCANNER_SIMPLE_TYPES       \
     SCANNER_VECTOR_TYPES       \
+    (std::complex<double>)     \
     (map_str_dbl)              \
     (Gambit::ModelParameters)
 
@@ -75,6 +80,7 @@ namespace Gambit
     SCANNER_SIMPLE_TYPES       \
     (std::string)              \
     (std::vector<double>)      \
+    (std::complex<double>)     \
     (map_str_dbl)              \
     (Gambit::ModelParameters)
 

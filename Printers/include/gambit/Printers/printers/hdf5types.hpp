@@ -17,6 +17,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Nov
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __HDF5TYPES__
@@ -32,6 +36,7 @@
   (float)                   \
   (double)                  \
   (std::vector<double>)     \
+  (std::complex<double>)    \
   (bool)                    \
   (map_str_dbl)             \
   (ModelParameters)         \

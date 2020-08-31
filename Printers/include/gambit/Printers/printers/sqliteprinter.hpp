@@ -42,6 +42,7 @@
   (double)                  \
   (bool)                    \
   (std::vector<double>)     \
+  (std::complex<double>)    \
   (map_str_dbl)             \
   (ModelParameters)         \
  

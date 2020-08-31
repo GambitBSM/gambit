@@ -57,6 +57,15 @@ namespace Gambit
     void coutPrinter::PRINT(std::vector<bool     >)
     #undef PRINT
 
+    void coutPrinter::_print(const std::complex<double>& value, const str& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      _print(value.real(), real, vID, mpirank, pointID);
+      _print(value.imag(), imag, vID, mpirank, pointID);
+    }
+
     void coutPrinter::_print(const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
       // For maps of doubles, we split them up and print each named entry individually
