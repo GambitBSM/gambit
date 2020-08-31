@@ -107,11 +107,11 @@ namespace Gambit
       //{
       //FlavBit_error().raise(LOCAL_INFO, "Sorry Flavor Physics is not yet supported for the general THDM.");
       //}
-      else if(ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
-              ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
-              ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
-              ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ") or
-              ModelInUse("THDM") or ModelInUse("THDMatQ") or ModelInUse("THDM_physical")) {
+      //else if(ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
+         //     ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
+       //       ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
+     //         ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ") or
+      else if(ModelInUse("THDMatQ")) {
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
@@ -214,7 +214,7 @@ namespace Gambit
             // THDM model parameter
             
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-            // cout<<"THDM_model value is "<<result.THDM_model<<endl;
+           // cout<<"THDM_model value is "<<result.THDM_model<<endl;
             if (result.THDM_model == 0) result.THDM_model=10;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
@@ -541,14 +541,17 @@ namespace Gambit
         result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
 
       }
-     if (ModelInUse("THDM"))
+     if (ModelInUse("THDMatQ"))
       {
         result.Re_DeltaC7  = Dep::DeltaC7->real();
         result.Im_DeltaC7  = Dep::DeltaC7->imag();
         result.Re_DeltaC9  = Dep::DeltaC9->real();
+        cout<<"After result.Re_DeltaC9"<<Dep::DeltaC9->real()<<endl;
         result.Im_DeltaC9  = Dep::DeltaC9->imag();
         result.Re_DeltaC10 = Dep::DeltaC10->real();
+        cout<<"After result.Re_DeltaC10"<<Dep::DeltaC10->real()<<endl;
         result.Im_DeltaC10 = Dep::DeltaC10->imag();
+        cout<<"After result.Re_DeltaC7"<<Dep::DeltaC7->real()<<endl;
         result.Re_DeltaCQ1 = Dep::DeltaCQ1->real();
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
@@ -719,6 +722,7 @@ namespace Gambit
       double cosb = cos(beta);
       double mT = Dep::SMINPUTS->mT;
       double mBmB = Dep::SMINPUTS->mBmB;
+      //cout<<"mBmB  = "<<mBmB<<endl; 
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
@@ -726,8 +730,14 @@ namespace Gambit
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+     // cout<<"xi_tt "<<xi_tt<<endl;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      //cout<<"1st term "<<-((sqrt(2)*mBmB*tanb)/v)<<endl;
+      //cout<<"2nd term "<<Ybb/cosb<<endl;
+      //cout<<"cosb "<<cosb<<endl;
+      //cout<<"Ybb "<<Ybb<<endl;
+      //cout<<"xi_bb "<<xi_bb<<endl;
       double xi_sb = Ysb/cosb;
       //CKM elements as in hep-ph/0406184
       //double rhobar = Dep::SMINPUTS->CKM_rhobar;
@@ -738,6 +748,8 @@ namespace Gambit
       double Vcb = A*lambda*lambda;
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4);         
+      cout<<"prefactor diag = "<<((1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))))<<endl;
+      cout<<"prefactor mix = "<<((1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*(conj(Vcs)*conj(xi_tc) + conj(Vts)*conj(xi_tt))))<<endl;
       
       result = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
                (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
