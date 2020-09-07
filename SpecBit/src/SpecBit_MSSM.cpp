@@ -1569,37 +1569,61 @@ namespace Gambit
         result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int,int>(21, 0), std::pair<int,int>(21, 0));
         result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(22, 0), std::pair<int,int>(22, 0));
         result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int,int>(23, 0), std::pair<int,int>(22, 0));
-        result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int,int>(13, 1), std::pair<int,int>(-13, 1));
-        result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int,int>(3, 1), std::pair<int,int>(-3, 1));
-        result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int,int>(4, 1), std::pair<int,int>(-4, 1));
       }
 
       // Use couplings to get effective third-generation couplings
       for(int i = 0; i < 3; i++)
       {
-        // Compute effective couplings
-        double g2_s[3], g2_p[3];
+        // Compute effective couplings (g[generation][type])
+        double g_s[2][3], g_p[2][3], g2_s[2][3], g2_p[2][3];
+        // 
         for (int j = 0; j < 3; j++) // j=0,1,2 => tau, t, b
         {
-          fh_complex fh_L = Dep::FH_Couplings_output->couplings[H0FF(i+1,j+2,3,3)-1];
-          fh_complex fh_R = Dep::FH_Couplings_output->couplings[H0FF(i+1,j+2,3,3)+Roffset-1];
-          fh_complex fh_SM_L = Dep::FH_Couplings_output->couplings_sm[H0FF(i+1,j+2,3,3)-1];
-          fh_complex fh_SM_R = Dep::FH_Couplings_output->couplings_sm[H0FF(i+1,j+2,3,3)+RSMoffset-1];
-          std::complex<double> L(fh_L.re,fh_L.im);
-          std::complex<double> R(fh_R.re,fh_R.im);
-          std::complex<double> SM_L(fh_SM_L.re,fh_SM_L.im);
-          std::complex<double> SM_R(fh_SM_R.re,fh_SM_R.im);
-          g2_s[j] = 0.25*pow(std::abs(R/SM_R + L/SM_L), 2.);
-          g2_p[j] = 0.25*pow(std::abs(R/SM_R - L/SM_L), 2.);
+          for (int k = 2; k <= 3; k++) // k=2,3 => 2nd & 3rd generation final states (1st genertaion not filled)
+          {
+            fh_complex fh_L = Dep::FH_Couplings_output->couplings[H0FF(i+1,j+2,k,k)-1];
+            fh_complex fh_R = Dep::FH_Couplings_output->couplings[H0FF(i+1,j+2,k,k)+Roffset-1];
+            fh_complex fh_SM_L = Dep::FH_Couplings_output->couplings_sm[H0FF(i+1,j+2,k,k)-1];
+            fh_complex fh_SM_R = Dep::FH_Couplings_output->couplings_sm[H0FF(i+1,j+2,k,k)+RSMoffset-1];
+            std::complex<double> L(fh_L.re,fh_L.im);
+            std::complex<double> R(fh_R.re,fh_R.im);
+            std::complex<double> SM_L(fh_SM_L.re,fh_SM_L.im);
+            std::complex<double> SM_R(fh_SM_R.re,fh_SM_R.im);
+            g_s[k-2][j] = 0.5*(R/SM_R + L/SM_L).imag(); // always real*I => imag?
+            g_p[k-2][j] = - 0.5*(R/SM_R - L/SM_L).real(); // always imaginary*I => real? needs minus sign?
+            g2_s[k-2][j] = pow(std::abs(g_s[k-2][j]), 2.);
+            g2_p[k-2][j] = pow(std::abs(g_p[k-2][j]), 2.);
+          }
         }
-        result.C_tautau2[i] = g2_s[0] + g2_p[0];
-        result.C_tt2[i]     = g2_s[1] + g2_p[1];
-        result.C_bb2[i]     = g2_s[2] + g2_p[2];
+
+        result.C_mumu_s[i] = g_s[0][0];
+        result.C_mumu_p[i] = g_p[0][0];
+        result.C_mumu2[i] = g2_s[0][0] + g2_p[0][0];
+
+        result.C_tautau_s[i] = g_s[1][0];
+        result.C_tautau_p[i] = g_p[1][0];
+        result.C_tautau2[i] = g2_s[1][0] + g2_p[1][0];
+
+        result.C_cc_s[i] = g_s[0][1];
+        result.C_cc_p[i] = g_p[0][1];
+        result.C_cc2[i] = g2_s[0][1] + g2_p[0][1];
+
+        result.C_tt_s[i] = g_s[1][1];
+        result.C_tt_p[i] = g_p[1][1];
+        result.C_tt2[i] = g2_s[1][1] + g2_p[1][1];
+
+        result.C_ss_s[i] = g_s[0][2];
+        result.C_ss_p[i] = g_p[0][2];
+        result.C_ss2[i] = g2_s[0][2] + g2_p[0][2];
+
+        result.C_bb_s[i] = g_s[1][2];
+        result.C_bb_p[i] = g_p[1][2];
+        result.C_bb2[i] = g2_s[1][2] + g2_p[1][2];
 
         // Calculate CP of state
-        if(g2_p[2] < 1e-10)
+        if(g2_p[1][2] < 1e-10)
           result.CP[i] = 1;
-        else if(g2_s[2] < 1e-10)
+        else if(g2_s[1][2] < 1e-10)
           result.CP[i] = -1;
         else
           result.CP[i] = 0.;
