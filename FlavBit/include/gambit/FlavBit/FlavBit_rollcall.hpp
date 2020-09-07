@@ -1659,6 +1659,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// HEPLike LogLikelihood B -> K* mu mu Angular without the first q2 bin
+  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
+    START_FUNCTION(double)
+     DEPENDENCY(prediction_B2KstarmumuAng_2_4_Atlas, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_4_8_Atlas, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
   /// HEPLike LogLikelihood B -> K* mu mu Angular
   #define CAPABILITY B2KstarmumuAng_LogLikelihood_CMS
   START_CAPABILITY
@@ -1688,7 +1699,20 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+
   /// HEPLike LogLikelihood B -> K* mu mu Angular
+  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KstarmumuAng_4_8_Belle, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_10p9_12p9_Belle, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_14p18_19_Belle, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  /// HEPLike LogLikelihood B -> K* mu mu Angular without the first q2 bin
   #define CAPABILITY B2KstarmumuAng_LogLikelihood_LHCb
   START_CAPABILITY
     #define FUNCTION HEPLike_B2KstarmumuAng_LogLikelihood_LHCb
@@ -1718,6 +1742,37 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// HEPLike LogLikelihood B -> K* mu mu Angular
+  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KstarmumuAng_1p1_2p5_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_2p5_4_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+  #define CAPABILITY B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KstarmumuAng_0p1_0p98_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_1p1_2p5_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_2p5_4_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+
   /// HEPLike LogLikelihood B -> K* mu mu BR
   #define CAPABILITY B2KstarmumuBr_LogLikelihood_LHCb
   START_CAPABILITY
@@ -1733,6 +1788,22 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// HEPLike LogLikelihood B -> K* mu mu BR
+  #define CAPABILITY B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2KstarmumuBr_1p1_2p5, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuBr_2p5_4, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuBr_4_6, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuBr_6_8, flav_prediction)
+    DEPENDENCY(prediction_B2KstarmumuBr_15_19, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+  
   /// HEPLike LogLikelihood B -> K mu mu BR
   #define CAPABILITY B2KmumuBr_LogLikelihood_LHCb
   START_CAPABILITY
