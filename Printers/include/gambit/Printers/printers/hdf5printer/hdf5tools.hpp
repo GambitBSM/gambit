@@ -211,8 +211,13 @@ namespace Gambit
          template<>
          std::vector<bool> getChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
 
-         /// @}
+         // Match fixed integers to HDF5 types
+         int inttype_from_h5type(hid_t h5type);
+   
+         // Query whether type integer indicates general 'float' or 'int'
+         bool is_float_type(int inttype);
 
+         /// @}
       }
 
       /// True types
@@ -268,6 +273,17 @@ namespace Gambit
       SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(int64_t,  H5T_NATIVE_INT64)
       SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(uint64_t, H5T_NATIVE_UINT64)
       /// @}
+
+      // Template function to match datatypes to fixed integers
+      template<class T> constexpr int h5v2_type() {return -1;}
+      template<> constexpr int h5v2_type<int               >() {return 0;}
+      template<> constexpr int h5v2_type<unsigned int      >() {return 1;}
+      template<> constexpr int h5v2_type<long              >() {return 2;}
+      template<> constexpr int h5v2_type<unsigned long     >() {return 3;}
+      template<> constexpr int h5v2_type<long long         >() {return 4;}
+      template<> constexpr int h5v2_type<unsigned long long>() {return 5;}
+      template<> constexpr int h5v2_type<float             >() {return 6;}
+      template<> constexpr int h5v2_type<double            >() {return 7;}
 
       //!_______________________________________________________________________________________
 

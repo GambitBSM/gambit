@@ -60,8 +60,6 @@ namespace Gambit
     gambit_core::gambit_core(const Models::ModelFunctorClaw &claw, const Backends::backend_info &beinfo )
      : modelInfo(&claw)
      , backendData(&beinfo)
-     , capability_dbase_file(GAMBIT_DIR "/scratch/central_capabilities.dat")
-     , model_dbase_file(GAMBIT_DIR "/scratch/central_models.dat")
      , input_capability_descriptions(GAMBIT_DIR "/config/capabilities.dat")
      , input_model_descriptions(GAMBIT_DIR "/config/models.dat")
      , outprec(8)
@@ -391,7 +389,7 @@ namespace Gambit
       out << YAML::EndSeq;
       // Create file and write YAML output there
       std::ofstream outfile;
-      outfile.open(capability_dbase_file);
+      outfile.open(Utils::runtime_scratch()+"central_capabilities.dat");
       outfile << "# Auto-generated capability description library. Edits will be erased." << endl;;
       outfile << "# Edit \"" << input_capability_descriptions << "\" instead." << endl << endl << out.c_str();
 
@@ -487,7 +485,7 @@ namespace Gambit
       out2 << YAML::EndSeq;
       // Create file and write YAML output there
       std::ofstream outfile2;
-      outfile2.open(model_dbase_file);
+      outfile2.open(Utils::runtime_scratch()+"central_models.dat");
       outfile2 << "# Auto-generated model description library. Edits will be erased." << endl;;
       outfile2 << "# Edit \"" << input_model_descriptions << "\" instead." << endl << endl << out2.c_str();
 
@@ -719,7 +717,7 @@ namespace Gambit
         cout << endl;
       }
 
-      // Silently print the logs to scratch/default.log
+      // Silently print the logs to scratch/run_time/<processID>/default.log
       logger().emit_backlog(false);
       // Split.
       logger().disable();

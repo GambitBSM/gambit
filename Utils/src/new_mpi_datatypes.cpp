@@ -77,6 +77,42 @@ namespace Gambit
          return !( l == r );
      }
 
+     #ifdef WITH_MPI
+     MPI_Datatype mpi_HDF5bufferchunk_type;
+
+     void define_mpiHDF5bufferchunk()
+     {
+         static const unsigned int SIZE = HDF5bufferchunk::SIZE;
+         static const unsigned int NBUFFERS = HDF5bufferchunk::NBUFFERS;
+         static bool defined(false);
+         if(not defined)
+         {
+             int nblocks = 8;
+             int blocklengths[8] = {1,1,NBUFFERS,SIZE,SIZE,NBUFFERS*SIZE,NBUFFERS*SIZE,NBUFFERS*SIZE};
+             MPI_Datatype types[8];
+             types[0] = MPI_UNSIGNED;
+             types[1] = MPI_UNSIGNED;
+             types[2] = MPI_INT;
+             types[3] = MPI_UNSIGNED_LONG_LONG;
+             types[4] = MPI_UNSIGNED;
+             types[5] = MPI_DOUBLE;
+             types[6] = MPI_LONG_LONG;
+             types[7] = MPI_INT;
+             MPI_Aint offsets[8];
+             offsets[0] = offsetof(HDF5bufferchunk, used_size);
+             offsets[1] = offsetof(HDF5bufferchunk, used_nbuffers);
+             offsets[2] = offsetof(HDF5bufferchunk, name_id);
+             offsets[3] = offsetof(HDF5bufferchunk, pointIDs);
+             offsets[4] = offsetof(HDF5bufferchunk, ranks);
+             offsets[5] = offsetof(HDF5bufferchunk, values);
+             offsets[6] = offsetof(HDF5bufferchunk, values_int);
+             offsets[7] = offsetof(HDF5bufferchunk, valid);
+             MPI_Type_create_struct(nblocks, blocklengths, offsets, types, &mpi_HDF5bufferchunk_type);
+             MPI_Type_commit(&mpi_HDF5bufferchunk_type);
+             defined=true;
+         }
+     }
+     #endif
 
      // DEPRECATED! We no longer actually send this stuff via MPI,
      // and there were slight issues with non-standards compliance
@@ -153,7 +189,7 @@ namespace Gambit
   // /// Definition needed for specialisation of GMPI::get_mpi_data_type<T>() to VBIDpair type
   // /// so that template MPI Send and Receive functions work.
   // //template<> MPI_Datatype GMPI::get_mpi_data_type<Printers::VBIDpair>() { return Printers::mpi_VBIDpair_type; }
-  // #ifdef WITH_MPI
+  #ifdef WITH_MPI
   // MPI_Datatype GMPI::get_mpi_data_type<Printers::VBIDpair>::type()
   // { return Printers::mpi_VBIDpair_type; }
 
@@ -162,6 +198,9 @@ namespace Gambit
 
   // MPI_Datatype GMPI::get_mpi_data_type<Printers::PPIDpair>::type()
   // { return Printers::mpi_PPIDpair_type; }
-  // #endif
+
+  MPI_Datatype GMPI::get_mpi_data_type<Printers::HDF5bufferchunk>::type()
+  { return Printers::mpi_HDF5bufferchunk_type; }
+  #endif
 
 } // end namespace Gambit

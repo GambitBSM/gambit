@@ -30,7 +30,6 @@ exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 comp
 def main(argv):
 
     model_headers=set([])
-    exclude_models=set([])
 
     # Handle command line options
     verbose = False
@@ -39,18 +38,15 @@ def main(argv):
     except getopt.GetoptError:
         print('Usage: collider_harvestor.py [flags]')
         print(' flags:')
-        print('        -v                   : More verbose output')
-        print('        -x model1,model2,... : Exclude model1, model2, etc.')
+        print('        -v : More verbose output')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
         verbose = True
         print('collider_harvester.py: verbose=True')
-      elif opt in ('-x','--exclude-models'):
-        exclude_models.update(neatsplit(",",arg))
 
     # Get list of models to include in ColliderBit_model_rollcall.hpp
-    model_headers.update(retrieve_generic_headers(verbose,"./ColliderBit/include/gambit/ColliderBit/models","model",exclude_models))
+    model_headers.update(retrieve_generic_headers(verbose,"./ColliderBit/include/gambit/ColliderBit/models","model", set()))
 
     if verbose:
         print("ColliderBit model headers identified:")

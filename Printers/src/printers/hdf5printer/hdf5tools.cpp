@@ -619,6 +619,12 @@ namespace Gambit {
       hid_t getH5DatasetType(hid_t group_id, const std::string& dset_name)
       {
           hid_t dataset_id = openDataset(group_id, dset_name);
+          if(dataset_id<0)
+          {
+            std::ostringstream errmsg;
+            errmsg << "Failed to open dataset '"<<dset_name<<"' while attempting to check its HDF5 data type! See stderr output for more details.";
+            printer_error().raise(LOCAL_INFO, errmsg.str());
+          }
           hid_t type_id = H5Dget_type(dataset_id);
           if(type_id<0)
           {
@@ -760,7 +766,55 @@ namespace Gambit {
       }
 
       /// @}
-      
+ 
+      // Match fixed integers to HDF5 types
+      int inttype_from_h5type(hid_t h5type)
+      {
+          #define ELSEIF(r,data,elem) \
+            else if(H5Tequal(h5type,get_hdf5_data_type<elem>::type())) \
+            { \
+               out = h5v2_type<elem>(); \
+            }
+
+          int out;
+          if(h5type==-1)
+          {
+              std::ostringstream errmsg;
+              errmsg<<"No fixed ID assigned for this type! (h5type = "<<h5type<<")!";
+              printer_error().raise(LOCAL_INFO, errmsg.str());        
+          }
+          BOOST_PP_SEQ_FOR_EACH(ELSEIF, _, H5_OUTPUT_TYPES)
+          #undef ELSEIF
+          else
+          {
+              std::ostringstream errmsg;
+              errmsg<<"Unrecognised HDF5 type (h5type = "<<h5type<<")!";
+              printer_error().raise(LOCAL_INFO, errmsg.str());       
+          }
+          return out;
+      }
+
+      // Query whether type integer indicates general 'float' or 'int'
+      bool is_float_type(int inttype)
+      {
+          bool out(false);
+          switch(inttype)
+          {
+              case h5v2_type<int               >():
+              case h5v2_type<unsigned int      >():
+              case h5v2_type<long              >():
+              case h5v2_type<unsigned long     >():
+              case h5v2_type<long long         >():
+              case h5v2_type<unsigned long long>():
+                  out = false;
+                  break;
+              case h5v2_type<float             >():
+              case h5v2_type<double            >():
+                  out = true;
+                  break;
+          }
+          return out;
+      }
 
     }
 

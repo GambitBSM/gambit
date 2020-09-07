@@ -13,6 +13,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 Mar
 ///
+///  \author Ben Farmer
+///          (b.farmer@imperial.ac.uk)
+///  \date 2019 Nov
+///
 ///  *********************************************
 
 #ifndef __HDF5TYPES__
@@ -34,9 +38,9 @@
   (triplet<double>)         \
   (map_intpair_dbl)         \
 
-
-#define HDF5_MODULE_BACKEND_TYPES \
-  (DM_nucleon_couplings)    \
-  (Flav_KstarMuMu_obs)      \
+#define HDF5_MODULE_BACKEND_TYPES        \
+  (DM_nucleon_couplings)                 \
+  (DM_nucleon_couplings_fermionic_HP)    \
+  (Flav_KstarMuMu_obs)                   \
 
 #endif

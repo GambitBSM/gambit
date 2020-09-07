@@ -7,6 +7,8 @@
 ## nuisance parameters are used. See the ColliderBit paper for more details.
 ##########################################################################
 
+# NB: This example yaml file uses flexiblesusy, so make sure you have
+# built gambit with the correct " -DBUILD_FS_MODELS" option
 
 Parameters:
 

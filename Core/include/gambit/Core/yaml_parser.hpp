@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2013 June
@@ -20,6 +20,7 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///  \date 2015 Mar
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -41,10 +42,10 @@ namespace Gambit
 
     namespace Types
     {
+
       // Dependency and Observable have the same type (and purpose entry is
       // irrelevant for dependencies)
       struct Observable
-
       {
         std::string purpose;
         std::string capability;
@@ -56,6 +57,7 @@ namespace Gambit
         bool printme; // Instruction to printer as to whether to write result to disk
         bool weakrule;  // Indicates that rule can be broken
         Options options;
+        YAML::Node subcaps;
         std::vector<Observable> dependencies;
         std::vector<Observable> backends;
         std::vector<std::string> functionChain;
@@ -71,6 +73,7 @@ namespace Gambit
           version(),
           printme(true),
           options(),
+          subcaps(),
           dependencies(),
           backends(),
           functionChain()
@@ -109,59 +112,14 @@ namespace Gambit
 }
 
 
-// Rules for inifile --> Structs mapping
+// Rules for inifile --> Observable mapping
 namespace YAML
 {
- 
-  using namespace Gambit::IniParser::Types;
-  
-  template<> struct convert<Observable>
+  template<>
+  struct convert<Gambit::IniParser::Types::Observable>
   {
-    static bool decode(const Node& node, Observable& rhs)
-    {
-      #define READ(NAME) \
-      if (node[#NAME].IsDefined()) \
-        rhs.NAME = node[#NAME].as<std::string>();
-
-      READ(purpose)
-      READ(capability)
-      READ(type)
-      READ(function)
-      READ(module)
-      READ(backend)
-      READ(version)
-
-      if (node.Tag() == "!weak" or node.Tag() == "!weakrule") 
-        rhs.weakrule = true;
-      else 
-        rhs.weakrule = false;
-
-      // Strip leading "Gambit::" namespaces and whitespace, but preserve
-      // "const ".
-      rhs.type = Gambit::Utils::fix_type(rhs.type);
-      
-      if (node["printme"].IsDefined())
-          rhs.printme = node["printme"].as<bool>();
-
-      if (node["options"].IsDefined())
-          rhs.options = Gambit::Options(node["options"]);
-      #undef READ
-      if (node["functionChain"].IsDefined())
-          rhs.functionChain = node["functionChain"].as<std::vector<std::string>>();
-      for(YAML::const_iterator it=node["dependencies"].begin();
-          it!=node["dependencies"].end(); ++it)
-      {
-        rhs.dependencies.push_back((*it).as<Observable>());
-      }
-      for(YAML::const_iterator it=node["backends"].begin();
-          it!=node["backends"].end(); ++it)
-      {
-        rhs.backends.push_back((*it).as<Observable>());
-      }
-      return true;
-    }
+    static bool decode(const Node&, Gambit::IniParser::Types::Observable&);
   };
-
 }
 
 

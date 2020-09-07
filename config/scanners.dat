@@ -103,16 +103,19 @@ polychord: |
 
   YAML options (defaults):
       nlive (25*nDims)              number of live points
-      num_repeats (5*nDims):        length of slice sampling chain
+      num_repeats (2*nslow):        length of slice sampling chain
+      fast_params ([])              list of parameters which are fast
+      frac_slow (0.75)              fraction of time to spend on slow parameters
       nprior (10*nlive):            rejection sample the prior by this amount
       do_clustering (1):            perform clustering?
       fb (1):                       Feedback level 
       tol (0.5):                    defines the stopping criteria
       logZero (-1E90):              points with loglike < logZero will be ignored by PolyChord
-      maxiter (0):                  Max no. of iterations, a non-positive value means infinity.
-      outfile (0):                  write output files?
+      maxiter (-1):                 Max no. of iterations, a negative value means infinity.
+      outfile (1):                  write output files?
       compression_factor (exp(-1)): update/dump every time volume drops by this amount
       seed (-1):                    seed for random number generator. Negative means seed from system time
+      maximise (0)                  perform nelder meade maximisation at end?
 
   Auxillary output variables:
       Posterior:    Statistical weight of each point.

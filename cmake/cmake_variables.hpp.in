@@ -40,9 +40,6 @@
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
 
-/// Found regex in STL
-#cmakedefine HAVE_REGEX_H 1
-
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1
 

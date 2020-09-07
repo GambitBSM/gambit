@@ -382,7 +382,7 @@ namespace Gambit
         case MC_INIT:
           // Initialization
           /// Option cMC_numSpecSamples<int>: number of samples to draw from tabulated
-          /// spectra (default 10)
+          /// spectra (default 25)
           cMC_numSpecSamples = runOptions->getValueOrDef<int>   (25, "cMC_numSpecSamples");
           /// Option cMC_endCheckFrequency: number of events to wait between successive
           /// checks of the convergence criteria (default 25)

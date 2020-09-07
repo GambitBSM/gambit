@@ -157,7 +157,7 @@ def main(argv):
 
     # Don't touch any existing file unless it is actually different from what we will create
     header = "./Elements/include/gambit/Elements/module_types_rollcall.hpp"
-    candidate = "./scratch/module_types_rollcall.hpp.candidate"
+    candidate = "./scratch/build_time/module_types_rollcall.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(header, candidate)
 
@@ -254,7 +254,7 @@ namespace Gambit                                  \n\
 
     # Don't touch any existing file unless it is actually different from what we will create
     header = "./Backends/include/gambit/Backends/backend_functor_types.hpp"
-    candidate = "./scratch/backend_functor_types.hpp.candidate"
+    candidate = "./scratch/build_time/backend_functor_types.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(header, candidate)
 
@@ -299,7 +299,7 @@ namespace Gambit                                  \n\
 
     # Don't touch any existing file unless it is actually different from what we will create
     source = "./Elements/include/gambit/Elements/module_functor_types.hpp"
-    candidate = "./scratch/module_functor_types.hpp.candidate"
+    candidate = "./scratch/build_time/module_functor_types.hpp.candidate"
     with open(candidate,"w") as f: f.write(towrite)
     update_only_if_different(source, candidate)
 
@@ -310,7 +310,7 @@ namespace Gambit                                  \n\
         print("Generated Backends/backend_functor_types.hpp.")
 
     # Pickle the types for later usage by standalone_facilitator.py
-    with open('./scratch/harvested_types.pickle', 'wb') as handle:
+    with open('./scratch/build_time/harvested_types.pickle', 'wb') as handle:
         pickle.dump(returned_types, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Handle command line arguments (verbosity)

@@ -33,6 +33,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
 ///  \date 2018 Oct
+///  \date 2020 May
 ///
 /// \author Aaron Vincent
 ///         (aaron.vincent@cparc.ca)
@@ -71,6 +72,9 @@ namespace Gambit
 
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
+
+  /// Shorthand for a pointer to a void function with no arguments
+  typedef void (*fptr_void)();
 
   // Useful unqualified functions
   using std::cout;
@@ -594,12 +598,12 @@ namespace Gambit
       template<typename T2>
       FcomplexT operator / (const FcomplexT<T2> &in)
       {
-        FcomplexT out = (*this)*in;
+        FcomplexT out;
 
         if(in.abs() != 0)
         {
-          out.re /= in.abs();
-          out.im /= in.abs();
+          out.re = (re*in.re + im*in.im) / in.abs();
+          out.im = (im*in.re - re*in.im) / in.abs();
         }
         else
         {

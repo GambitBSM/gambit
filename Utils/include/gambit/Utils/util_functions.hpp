@@ -29,6 +29,7 @@
 #include <cmath>
 
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -37,19 +38,6 @@ extern "C"
 {
   #include "mkpath/mkpath.h"
 }
-
-# if GAMBIT_CONFIG_FLAG_use_std_regex
-  #include <regex>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using std::regex; using std::regex_replace; }
-#elif GAMBIT_CONFIG_FLAG_use_boost_regex
-  #include <boost/regex.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using boost::regex; using boost::regex_replace; }
-#else
-  #include <boost/algorithm/string/replace.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 0
-#endif
 
 namespace Gambit
 {
@@ -69,6 +57,12 @@ namespace Gambit
   namespace Utils
   {
 
+    /// Return the path to the build-time scratch directory
+    const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+
+    /// Return the path the the run-specific scratch directory
+    EXPORT_SYMBOLS const str& runtime_scratch();
+
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
     EXPORT_SYMBOLS std::vector<str> delimiterSplit(str s, str delim);
@@ -86,6 +80,15 @@ namespace Gambit
     /// Strips leading and/or trailing parentheses from a string.
     EXPORT_SYMBOLS void strip_parentheses(str&);
 
+    /// Test if a set of str,str pairs contains any entry with first element matching a given string
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching two given strings
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching a given pair
+    EXPORT_SYMBOLS bool sspairset_contains(const sspair&, const std::set<sspair>&);
+
     /// Created a str of a specified length.
     EXPORT_SYMBOLS str str_fixed_len(str, int);
 
@@ -100,6 +103,9 @@ namespace Gambit
 
     /// Perform a (possibly) case-insensitive string comparison
     EXPORT_SYMBOLS bool iequals(const std::string& a, const std::string& b, bool case_sensitive=false);
+
+    /// Split string into vector of strings, using a delimiter string
+    EXPORT_SYMBOLS std::vector<std::string> split(const std::string& input, const std::string& delimiter);
 
     /************************************************************************/
     /* Comparator for case-insensitive comparison in STL assos. containers  */
@@ -122,7 +128,7 @@ namespace Gambit
       }
     };
 
-    
+
     /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
     //   int vv[] = { 12,43 };
@@ -211,6 +217,9 @@ namespace Gambit
     /// Check if a string represents an integer
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
+
+    /// Get the sign of a (hopefully numeric type)
+    template <typename T> int sgn(T val) {  return (T(0) < val) - (val < T(0)); }
 
     // Dummy functions for variadic variables to avoid compiler warnings
     template<typename... T> void dummy_function() {}
