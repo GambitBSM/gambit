@@ -26,6 +26,7 @@
 ///  \date 2018 Jan
 ///  \date 2020 Jan
 ///  \date 2020 Feb
+///  \date 2020 May
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -1058,7 +1059,13 @@ namespace Gambit
 
     SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
     SI_SINGLE_PREDICTION_FUNCTION(b2sgamma)
+    
     SI_SINGLE_PREDICTION_FUNCTION(B2Kstargamma)
+    SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_lowq2)
+    SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_highq2)
+    SI_SINGLE_PREDICTION_FUNCTION(AFBBXsmumu_lowq2)
+    SI_SINGLE_PREDICTION_FUNCTION(AFBBXsmumu_highq2)
+    
     SI_SINGLE_PREDICTION_FUNCTION_BINS(Bs2phimumuBr,_1_6)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(Bs2phimumuBr,_15_19)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_0p1_0p98)
