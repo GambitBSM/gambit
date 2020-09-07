@@ -21,6 +21,9 @@
 ///  \author Jonathan Cornell
 ///  \date 2016-2017
 ///
+///  \author Ankit Beniwal
+///  \date 2020
+///
 ///  *********************************************
 
 #include "gambit/Elements/standalone_module.hpp"
@@ -363,7 +366,8 @@ int main(int argc, char* argv[])
     // Drees Nojiri Phys.Rev. D48 (1993) 3483
     DD_couplings_DarkSUSY.setOption<bool>("loop", true);
     // Setting the below to false approximates the squark propagator as 1/m_sq^2 to avoid poles.
-    // DD_couplings_DarkSUSY.setOption<bool>("pole", false);
+    // To reproduce numbers in Tables 11/12 of DarkBit paper (https://arxiv.org/abs/1705.07920), set "pole" to true.
+    DD_couplings_DarkSUSY.setOption<bool>("pole", false);
     DD_couplings_DarkSUSY.reset_and_calculate();
 
     // Initialize DDCalc backend

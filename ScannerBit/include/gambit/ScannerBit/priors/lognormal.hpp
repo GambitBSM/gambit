@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  Multivariate Gaussian prior
+///  Multivariate Log-Normal prior
 ///
 ///  *********************************************
 ///
@@ -22,11 +22,12 @@
 ///
 ///  *********************************************
 
-#ifndef __PRIOR_GAUSSIAN_HPP__
-#define __PRIOR_GAUSSIAN_HPP__
+#ifndef __PRIOR_LOGNORMAL_HPP__
+#define __PRIOR_LOGNORMAL_HPP__
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -42,24 +43,27 @@ namespace Gambit
   namespace Priors
   {
     /**
-     * @brief  Multi-dimensional Gaussian prior
+     * @brief  Multi-dimensional Log-Normal prior
      *
-     * Defined by a covariance matrix and mean.
+     * Defined by a covariance matrix and mean of \f$\log x\f$.
      *
      * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its 
      * diagonal entries, denoted \f$\sigma\f$.
+     *
+     * The base is by default 10.
      */
-    class Gaussian : public BasePrior
+    class LogNormal : public BasePrior
     {
      private:
       std::vector <double> mu;
+      double base{10.};
       mutable Cholesky col;
 
      public:
-      // Constructor defined in gaussian.cpp
-      Gaussian(const std::vector<std::string>&, const Options&);
+      // Constructor defined in LogNormal.cpp
+      LogNormal(const std::vector<std::string>&, const Options&);
 
-      // Transformation from unit interval to the Gaussian
+      // Transformation from unit interval to the Log-Normal
       void transform(const std::vector <double> &unitpars, std::unordered_map<std::string, double> &outputMap) const
       {
         std::vector<double> vec(unitpars.size());
@@ -76,20 +80,26 @@ namespace Gambit
         auto m_it = mu.begin();
         for (auto str_it = param_names.begin(), str_end = param_names.end(); str_it != str_end; str_it++)
         {
-          outputMap[*str_it] = *(v_it++) + *(m_it++);
+          outputMap[*str_it] = std::pow(base, *(v_it++) + *(m_it++));
         }
       }
 
       double operator()(const std::vector<double> &vec) const
       {
         static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
-        return -0.5 * col.Square(vec, mu) - norm;
+        const double prod = std::accumulate(vec.begin(), vec.end(), 1, std::multiplies<double>());
+        std::vector<double> log_vec;
+        for (const auto& v: vec)
+        {
+          log_vec.push_back(std::log(v) / std::log(base));
+        }
+        return -0.5 * col.Square(log_vec, mu) - norm - std::log(prod);
       }
     };
 
-    LOAD_PRIOR(gaussian, Gaussian)
+    LOAD_PRIOR(lognormal, LogNormal)
 
   }  // namespace Priors
 }  // namespace Gambit
 
-#endif  // __PRIOR_GAUSSIAN_HPP__
+#endif  // __PRIOR_LOGNORMAL_HPP__

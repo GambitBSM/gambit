@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  Multivariate Gaussian prior
+///  Multivariate Log-Normal prior
 ///
 ///  *********************************************
 ///
@@ -22,20 +22,21 @@
 ///
 ///  *********************************************
 
-#include "gambit/ScannerBit/priors/gaussian.hpp"
+#include <cmath>
+#include "gambit/ScannerBit/priors/lognormal.hpp"
 
 namespace Gambit
 {
   namespace Priors
   {
-    Gaussian::Gaussian(const std::vector<std::string>& param, const Options& options) :
+    LogNormal::LogNormal(const std::vector<std::string>& param, const Options& options) :
       BasePrior(param, param.size()), col(param.size())
     {
       std::vector<std::vector<double>> cov_matrix(param.size(), std::vector<double>(param.size(), 0.));
 
       if (options.hasKey("sigma") && options.hasKey("cov_matrix")) {
           std::stringstream err;
-          err << "Gaussian prior: "
+          err << "LogNormal prior: "
               << "define covariance matrix by either 'cov_matrix' or 'sigma'"
               << std::endl;
           Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -47,7 +48,7 @@ namespace Gambit
         if (cov_matrix.size() != param.size())
         {
           std::stringstream err;
-          err << "Gaussian prior: "
+          err << "LogNormal prior: "
               << "'cov_matrix' is not the same dimension as the parameters"
               << std::endl;
           Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -58,7 +59,7 @@ namespace Gambit
           if (row.size() != cov_matrix.size())
           {
             std::stringstream err;
-            err << "Gaussian prior: "
+            err << "LogNormal prior: "
                 << "'cov_matrix' is not square"
                 << std::endl;
             Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -71,7 +72,7 @@ namespace Gambit
         if (sigma.size() != param.size())
         {
             std::stringstream err;
-            err << "Gaussian prior: "
+            err << "LogNormal prior: "
                 << "'sigma' is not the same dimension as the parameters"
                 << std::endl;
             Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -87,7 +88,7 @@ namespace Gambit
       else
       {
         std::stringstream err;
-        err << "Gaussian prior: "
+        err << "LogNormal prior: "
             << "the covariance matrix is not defined by either 'cov_matrix' or 'sigma'"
             << std::endl;
         Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -99,7 +100,7 @@ namespace Gambit
         if (mu.size() != param.size())
         {
           std::stringstream err;
-          err << "Gaussian prior: "
+          err << "LogNormal prior: "
               << "'mu' vector is not the same dimension as the parameters"
               << std::endl;
           Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -108,7 +109,7 @@ namespace Gambit
       else
       {
         std::stringstream err;
-        err << "Gaussian prior: "
+        err << "LogNormal prior: "
             << "'mu' vector is required"
             << std::endl;
         Scanner::scan_error().raise(LOCAL_INFO, err.str());
@@ -117,12 +118,40 @@ namespace Gambit
       if (!col.EnterMat(cov_matrix))
       {
         std::stringstream err;
-        err << "Gaussian prior: "
+        err << "LogNormal prior: "
             << "covariance matrix is not positive-definite"
             << std::endl;
         Scanner::scan_error().raise(LOCAL_INFO, err.str());
       }
-    }
 
+      if (options.hasKey("base"))
+      {
+        if (options.getValue<std::string>("base") == "e")
+        {
+          base = M_E;
+        } 
+        else
+        {
+          base = options.getValue<double>("base");
+        }
+      }
+      else
+      {
+        std::stringstream err;
+        err << "LogNormal prior: "
+            << "'base' is required"
+            << std::endl;
+        Scanner::scan_error().raise(LOCAL_INFO, err.str());
+      }
+
+      if (base <= 0.)
+      {
+        std::stringstream err;
+        err << "LogNormal prior: "
+            << "'base' must be positive"
+            << std::endl;
+        Scanner::scan_error().raise(LOCAL_INFO, err.str());
+      }
+    }
   }  // namespace Priors
 }  // namespace Gambit

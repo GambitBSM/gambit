@@ -18,8 +18,14 @@ Parameters:
 
 Priors:
 
-  # None needed: flat priors are automatically generated for mu and sigma
-
+  # None needed: flat priors are automatically generated for NormalDist::mu and NormalDist::sigma
+  # If you wanted to use a Gaussian prior on these parameters instead, you would comment
+  # out their ranges above, and do e.g.
+  #prior1:
+  #  parameters: ["NormalDist::mu", "NormalDist::sigma"]
+  #  prior_type: gaussian
+  # mu: [18, 5]
+  #  sigma: [3.0, 1]
 
 Printer:
 
