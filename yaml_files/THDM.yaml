@@ -220,16 +220,24 @@ ObsLikes:
   # Observables
   #################
 
+  # THDM parameters
+
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
     purpose: Observable
 
+  # branching fractions
+
   - capability: all_BFs
     purpose: Observable
+
+  # vacuum meta-stability discriminant
 
   - capability: vacuum_global_minimum
     function: check_vacuum_global_minimum
     purpose: Observable  
+
+  # angles
 
   - capability: sba
     function: obs_sba
@@ -247,13 +255,114 @@ ObsLikes:
     function: obs_vev
     purpose: Observable
 
+  # bsgamma
+
   - capability: bsgamma
     function: SI_bsgamma
     purpose: Observable
 
+  # meson mixing
+
   - capability: DeltaMs
     function: SI_Delta_MBs
     purpose: Observable
+
+    # RD
+
+  - capability: RD
+    function: SI_RD
+    purpose: Observable
+
+    # RDstar
+
+  - capability: RDstar
+    function: SI_RDstar
+    purpose: Observable
+    
+    # BDmunu
+
+  - capability: BDmunu
+    function: SI_BDmunu
+    purpose: Observable
+
+    # BDstarmunu
+
+  - capability: BDstarmunu
+    function: SI_BDstarmunu
+    purpose: Observable
+
+    # Btaunu
+
+  - capability: Btaunu
+    function: SI_Btaunu
+    purpose: Observable
+
+    # Dstaunu
+
+  - capability: Dstaunu
+    function: SI_Dstaunu
+    purpose: Observable
+
+    # Dsmunu
+
+  - capability: Dsmunu
+    function: SI_Dsmunu
+    purpose: Observable
+
+    # Dmunu
+
+  - capability: Dmunu
+    function: SI_Dmunu
+    purpose: Observable
+
+    # BKstarmumu_11_25
+
+  - capability: BKstarmumu_11_25
+    function: SI_BKstarmumu_11_25
+    purpose: Observable
+
+    # BKstarmumu_25_40
+
+  - capability: BKstarmumu_25_40
+    function: SI_BKstarmumu_25_40
+    purpose: Observable
+
+    # BKstarmumu_40_60
+
+  - capability: BKstarmumu_40_60
+    function: SI_BKstarmumu_40_60
+    purpose: Observable
+
+    # BKstarmumu_60_80
+
+  - capability: BKstarmumu_60_80
+    function: SI_BKstarmumu_60_80
+    purpose: Observable
+
+    # BKstarmumu_15_17
+
+  - capability: BKstarmumu_15_17
+    function: SI_BKstarmumu_15_17
+    purpose: Observable
+
+    # BKstarmumu_17_19
+
+  - capability: BKstarmumu_17_19
+    function: SI_BKstarmumu_17_19
+    purpose: Observable
+
+    # Bsmumu_untag
+
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    purpose: Observable
+
+    # Bmumu
+
+  - capability: Bmumu
+    function: SI_Bmumu
+    purpose: Observable
+     
 
 Rules:
 
