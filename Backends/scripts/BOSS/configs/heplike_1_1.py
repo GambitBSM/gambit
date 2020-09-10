@@ -28,7 +28,7 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 # ~~~~~ GAMBIT-specific options ~~~~~
 
 gambit_backend_name    = 'HepLike'
-gambit_backend_version = '1.0'
+gambit_backend_version = '1.1'
 gambit_base_namespace  = ''
 
 
