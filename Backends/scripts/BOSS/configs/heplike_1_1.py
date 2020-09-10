@@ -81,8 +81,6 @@ load_functions = [
     'GetLogLikelihood(double, double )',
 ]
 
-print('Funcitions: ', load_functions)
-
 ditch = []
 
 

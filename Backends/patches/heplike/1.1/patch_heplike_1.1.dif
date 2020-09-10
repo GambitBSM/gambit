@@ -1,0 +1,12 @@
+diff -rupN HEPLike-1.1_pristine/CMakeLists.txt HEPLike-1.1/CMakeLists.txt
+--- HEPLike-1.1/CMakeLists.txt	2020-09-10 15:35:49.694725153 +1000
++++ ../installed/heplike/1.1/CMakeLists.txt	2020-09-10 15:36:08.934943534 +1000
+@@ -50,7 +50,7 @@ find_package(GSL REQUIRED)
+ find_package(ROOT REQUIRED COMPONENTS MathCore RIO Hist Tree Net)
+ 
+ include(${ROOT_USE_FILE})
+-include_directories(${CMAKE_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS})
++include_directories(${CMAKE_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+ add_definitions(${ROOT_CXX_FLAGS})
+ 
+ 
