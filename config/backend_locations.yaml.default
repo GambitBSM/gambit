@@ -24,7 +24,7 @@ Flavio:
   0.30.0:      ./Backends/installed/Flavio/0.30.0/flavio/flavio
 
 HepLike:
-  1.0:         ./Backends/installed/heplike/1.0/libHEPLike.so
+  1.1:         ./Backends/installed/heplike/1.1/libHEPLike.so
 
 HepLikeData:
   1.0:         ./Backends/installed/heplikedata/1.0
