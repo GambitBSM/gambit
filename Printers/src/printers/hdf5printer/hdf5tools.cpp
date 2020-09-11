@@ -284,7 +284,6 @@ namespace Gambit {
             readable=true;
           }
           // DEBUG
-          std::cout<<"Checked that file "<<fname<<" was readable (had RDONLY access and ID "<<file_id<<")"<<std::endl;
           return readable;
       }
 
