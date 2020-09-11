@@ -3254,7 +3254,7 @@ namespace Gambit
         HepLike_default::HL_nDimGaussian(inputfile + "2.5_4.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "4.0_6.0.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0.yaml"),
-        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "11.0_12.5.yaml"),
       };
 
       static bool first = true;
