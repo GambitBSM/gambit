@@ -783,10 +783,10 @@ namespace Gambit
                  &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
                  &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
 
-*/      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam.MHplus[0], &ModelParam.HpGammaTot[0], &ModelParam.CS_lep_HpjHmi_ratio[0],
             &ModelParam.BR_tWpb, &ModelParam.BR_tHpjb[0], &ModelParam.BR_Hpjcs[0],
             &ModelParam.BR_Hpjcb[0], &ModelParam.BR_Hptaunu[0]);
-/*	    */
+	    */
 
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
