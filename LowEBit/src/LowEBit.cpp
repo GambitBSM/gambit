@@ -32,6 +32,7 @@ namespace Gambit
       {
           using namespace Pipes::CPV_Wilson_q_Simple;
 
+	  	  double mH = 125.09;
 		  double kappaS[6] = {
 			  (*Param["kappaU"])*(*Param["SinPhiU"]),
 			  (*Param["kappaD"])*(*Param["SinPhiD"]),
@@ -105,6 +106,7 @@ namespace Gambit
 		  double Bd4[6] = {0,0.936,0,0,0,0};
 		  double Bs4[6] = {0,0,0.936,0,0,0};
 
+		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;}
 		  for(int i = 0; i<6; i++){
 			  for(int j = 0; j<6; j++){
 		          result.Cu[1] = result.Cu[1] + kappaS[i]*Mu3[i][j]*kappaC[j] + kappaS[i]*Bu3[i];
@@ -116,6 +118,7 @@ namespace Gambit
 				  result.Cw[1] = result.Cw[1] + kappaS[i]*Mw[i][j]*kappaC[j];
 			  }
 		  }
+		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
 	  }
 			  
 
@@ -306,6 +309,7 @@ namespace Gambit
 	  {
 		  using namespace Pipes::lnL_EDM_n_gaussianStep;
 		  double mu = 0.2E-26, sig = 1.6E-26, offset = 2.9E-26;
+		  cout << "Dep::EDM_n: " << abs(*Dep::EDM_n) << endl;
 		  if(abs(*Dep::EDM_n) < 2.9E-26)
 		  {
 			result = 0.0;
