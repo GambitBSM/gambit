@@ -275,10 +275,13 @@ namespace Gambit
     {
       bool match1, match2;
       // Loop over all the default versions of BOSSed backends and replace any corresponding *_default leading namespace with the explicit version.
-      for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+      if ((s1.find("_default") != std::string::npos) || (s2.find("_default") != std::string::npos))
       {
-        s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
-        s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+        {
+          s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
+          s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        }
       }
       // Does it just match?
       if (stringComp(s1, s2, with_regex)) return true;
