@@ -46,6 +46,12 @@ namespace Gambit
         {"SR0-loose-bveto", EventCounter("SR0-loose-bveto")},
         {"SR0-tight-bveto", EventCounter("SR0-tight-bveto")},
         {"SR0-breq", EventCounter("SR0-breq")},
+        {"SR1-loose-bveto", EventCounter("SR1-loose-bveto")},
+        {"SR1-tight-bveto", EventCounter("SR1-tight-bveto")},
+        {"SR1-breq", EventCounter("SR1-breq")},
+        {"SR2-loose-bveto", EventCounter("SR2-loose-bveto")},
+        {"SR2-tight-bveto", EventCounter("SR2-tight-bveto")},
+        {"SR2-breq", EventCounter("SR2-breq")},
         {"SR5L", EventCounter("SR5L")}
       };
 
@@ -389,6 +395,7 @@ namespace Gambit
 
         // Count signal leptons
         size_t nSignalLeptons = signalLeptons.size();
+        size_t nSignalTaus = signalTaus.size();
 
         // Count number of b-tagged jets
         size_t NbJets = bTagger(signalJets, signalTaus);
@@ -510,6 +517,24 @@ namespace Gambit
         // SR0-breq
         if (nSignalLeptons >= 4 && NbJets >= 1 && !Zlike && meff > 1300.) _counters.at("SR0-breq").add_event(event);
 
+        // SR1-loose-bveto
+        if (nSignalLeptons == 3 && nSignalTaus >= 1 && NbJets == 0 && !Zlike && meff > 600.) _counters.at("SR1-loose-bveto").add_event(event);
+
+        // SR1-tight-bveto
+        if (nSignalLeptons == 3 && nSignalTaus >= 1 && NbJets == 0 && !Zlike && meff > 1000.) _counters.at("SR1-tight-bveto").add_event(event);
+
+        // SR1-breq
+        if (nSignalLeptons == 3 && nSignalTaus >= 1 && NbJets >= 1 && !Zlike && meff > 1300.) _counters.at("SR1-breq").add_event(event);
+
+        // SR2-loose-bveto
+        if (nSignalLeptons == 2 && nSignalTaus >= 2 && NbJets == 0 && !Zlike && meff > 600.) _counters.at("SR2-loose-bveto").add_event(event);
+
+        // SR2-tight-bveto
+        if (nSignalLeptons == 2 && nSignalTaus >= 2 && NbJets == 0 && !Zlike && meff > 1000.) _counters.at("SR2-tight-bveto").add_event(event);
+
+        // SR2-breq
+        if (nSignalLeptons == 2 && nSignalTaus >= 2 && NbJets >= 1 && !Zlike && meff > 1100.) _counters.at("SR2-breq").add_event(event);
+
         // SR5L
         if (nSignalLeptons >= 5) _counters.at("SR5L").add_event(event);
 
@@ -614,6 +639,12 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR0-loose-bveto"), 11., {11.4, 2.4}));
         add_result(SignalRegionData(_counters.at("SR0-tight-bveto"), 1., {3.5, 2.0}));
         add_result(SignalRegionData(_counters.at("SR0-breq"), 3., {1.16, 0.26}));
+        add_result(SignalRegionData(_counters.at("SR1-loose-bveto"), 7., {7.7, 1.8}));
+        add_result(SignalRegionData(_counters.at("SR1-tight-bveto"), 2., {1.6, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR1-breq"), 2., {2.2, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR2-loose-bveto"), 5., {3.3, 2.2}));
+        add_result(SignalRegionData(_counters.at("SR2-tight-bveto"), 2., {0.33, 0.24}));
+        add_result(SignalRegionData(_counters.at("SR2-breq"), 1., {0.5, 0.27}));
         add_result(SignalRegionData(_counters.at("SR5L"), 21., {12.6, 2.6}));
 
 
