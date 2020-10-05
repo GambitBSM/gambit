@@ -59,10 +59,13 @@ namespace Gambit
 
       #ifdef CHECK_CUTFLOW
         vector<int> cutFlowVector;
+        vector<int> cutFlowVector_table10;
         vector<string> cutFlowVector_str;
+        vector<string> cutFlowVector_str_table10;
         size_t NCUTS;
         vector<double> cutFlowVectorATLAS_200_50;
         vector<double> cutFlowVectorATLAS_300_100;
+        vector<double> cutFlowVectorATLAS_table10_1300_800;
       #endif
 
       struct ptComparison
@@ -255,9 +258,12 @@ namespace Gambit
           for (size_t i=0;i<NCUTS;i++)
           {
             cutFlowVector.push_back(0);
+            cutFlowVector_table10.push_back(0);
             cutFlowVectorATLAS_200_50.push_back(0);
             cutFlowVectorATLAS_300_100.push_back(0);
+            cutFlowVectorATLAS_table10_1300_800.push_back(0);
             cutFlowVector_str.push_back("");
+            cutFlowVector_str_table10.push_back("");
           }
         #endif
 
@@ -579,6 +585,32 @@ namespace Gambit
           cutFlowVectorATLAS_300_100[10] = 19.46;
           cutFlowVectorATLAS_300_100[11] = 0.06;
 
+          cutFlowVector_str_table10[0] = "Initial";
+          cutFlowVector_str_table10[1] = "Good Event";
+          cutFlowVector_str_table10[2] = "N_e_mu >= 2";
+          cutFlowVector_str_table10[3] = "Trigger";
+          cutFlowVector_str_table10[4] = "N_e_mu >= 4";
+          cutFlowVector_str_table10[5] = "Z-veto";
+          cutFlowVector_str_table10[6] = "b-veto";
+          cutFlowVector_str_table10[7] = "meff > 600 (SR0-loose-bveto)";
+          cutFlowVector_str_table10[8] = "meff > 1250 (SR0-tight-bveto)";
+          cutFlowVector_str_table10[9] = "b-req";
+          cutFlowVector_str_table10[10] = "meff > 1300 (SR0-breq)";
+          cutFlowVector_str_table10[11] = "SR5L";
+
+          cutFlowVectorATLAS_table10_1300_800[0] = -1;
+          cutFlowVectorATLAS_table10_1300_800[1] = 52.96;
+          cutFlowVectorATLAS_table10_1300_800[2] = 52.38;
+          cutFlowVectorATLAS_table10_1300_800[3] = 52.26;
+          cutFlowVectorATLAS_table10_1300_800[4] = 33.54;
+          cutFlowVectorATLAS_table10_1300_800[5] = 31.57;
+          cutFlowVectorATLAS_table10_1300_800[6] = 16.50;
+          cutFlowVectorATLAS_table10_1300_800[7] = 16.50;
+          cutFlowVectorATLAS_table10_1300_800[8] = 15.91;
+          cutFlowVectorATLAS_table10_1300_800[9] = 15.06;
+          cutFlowVectorATLAS_table10_1300_800[10] = 14.78;
+          cutFlowVectorATLAS_table10_1300_800[11] = 9.45;
+
           for (size_t j=0;j<NCUTS;j++)
           {
             if(
@@ -609,6 +641,39 @@ namespace Gambit
               )
 
             cutFlowVector[j]++;
+          }
+
+
+          for (size_t j=0;j<NCUTS;j++)
+          {
+            if(
+              (j==0) ||
+
+              (j==1 && generator_filter) ||
+
+              (j==2 && generator_filter && nSignalLeptons >= 2) ||
+
+              (j==3 && generator_filter && nSignalLeptons >= 2 && trigger) ||
+
+              (j==4 && generator_filter && nSignalLeptons >= 4 && trigger) ||
+
+              (j==5 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike) ||
+
+              (j==6 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike && NbJets == 0) ||
+
+              (j==7 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike && NbJets == 0 && meff > 600) ||
+
+              (j==8 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike && NbJets == 0 && meff > 1250) ||
+
+              (j==9 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike && NbJets >= 1) ||
+
+              (j==10 && generator_filter && nSignalLeptons >= 4 && trigger && !Zlike && NbJets >= 1 && meff > 1300) ||
+
+              (j==11 && generator_filter && nSignalLeptons >= 5 && trigger)
+
+              )
+
+            cutFlowVector_table10[j]++;
           }
         #endif
       }
@@ -705,32 +770,30 @@ namespace Gambit
                                         << endl;
           }
 
+          // Table 10. Working point: (1300, 800)
+          cutFlowVector_scaled_row.clear();
+          cutFlowVector_scaled_xs.clear();
+          scale_factor_row = cutFlowVectorATLAS_table10_1300_800[scale_to_row]/cutFlowVector_table10[scale_to_row];
+          scale_factor_xs = 0.24 * 139. / cutFlowVector_table10[0];  // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1wino#
+          for (size_t i=0 ; i < cutFlowVector_table10.size() ; i++)
+          {
+            cutFlowVector_scaled_row.push_back(cutFlowVector[i] * scale_factor_row);
+            cutFlowVector_scaled_xs.push_back(cutFlowVector[i] * scale_factor_xs);
+          }
+          cout << "DEBUG CUTFLOW:   Table 10. Working point 1300, 800" << endl;
+          cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled row)    GAMBIT(scaled xs*L) " << endl;
+          cout << "DEBUG CUTFLOW:   ----------------------------------------------------------------- " << endl;
 
-          // // Working point: (300, 100%)
-          // cutFlowVector_scaled.clear();
-          // cutFlowVector_scaled_2.clear();
-          // scale_factor = cutFlowVectorATLAS_300_100[scale_to_row]/cutFlowVector[scale_to_row];
-          // scale_factor_xs = cutFlowVectorATLAS_300_100[scale_to_row_2]/cutFlowVector[scale_to_row_2];
-          // for (size_t i=0 ; i < cutFlowVector.size() ; i++)
-          // {
-          //   cutFlowVector_scaled.push_back(cutFlowVector[i] * scale_factor);
-          //   cutFlowVector_scaled_2.push_back(cutFlowVector[i] * scale_factor_xs);
-          // }
-          // cout << "DEBUG CUTFLOW:   Working point 300, 100%" << endl;
-          // cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled)    GAMBIT(scaled) " << endl;
-          // cout << "DEBUG CUTFLOW:   -------------------------------------------------------- " << endl;
-
-          // for (size_t j = 0; j < NCUTS; j++) 
-          // {
-          //   scaled_prefix = j == scale_to_row ? "*" : "";
-          //   scaled_prefix = j == scale_to_row_2 ? "**" : "";
-          //   cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_300_100[j] << "\t\t"
-          //                               << cutFlowVector[j] << "\t\t"
-          //                               << scaled_prefix << cutFlowVector_scaled[j] << "\t\t"
-          //                               << scaled_prefix << cutFlowVector_scaled_2[j] << "\t\t"
-          //                               << cutFlowVector_str[j]
-          //                               << endl;
-          // }
+          for (size_t j = 0; j < NCUTS; j++)
+          {
+            scaled_prefix = j == scale_to_row ? "*" : "";
+            cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_table10_1300_800[j] << "\t"
+                                        << cutFlowVector_table10[j] << "\t\t"
+                                        << scaled_prefix << cutFlowVector_scaled_row[j] << "\t\t"
+                                        << cutFlowVector_scaled_xs[j] << "\t\t"
+                                        << cutFlowVector_str_table10[j]
+                                        << endl;
+          }
         #endif
       }
 
