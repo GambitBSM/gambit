@@ -72,7 +72,7 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 2000
+      NP: 20000
       convthresh: 1e-5
       verbosity: 1
 
@@ -265,6 +265,10 @@ ObsLikes:
 
   - capability: DeltaMs
     function: SI_Delta_MBs
+    purpose: Observable
+
+  - capability: DeltaMd
+    function: SI_Delta_MBd
     purpose: Observable
 
     # RD
