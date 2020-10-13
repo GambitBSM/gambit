@@ -158,7 +158,7 @@ namespace Gambit
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
         Options resume_reader_options();
- 
+
         ///@}
 
         ///@{ Print functions
@@ -166,7 +166,7 @@ namespace Gambit
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}

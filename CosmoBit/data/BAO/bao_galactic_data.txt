@@ -1,0 +1,21 @@
+# galactic BAO data points used in 1907.11594 (see Table 1)
+
+# z, quantity, sigma, type (D_V/rs=3, Dv/Mpc=4, DA/rs=5, c/Hrs=6, rs/D_v=7)
+# For a given type, the quantity correspond to the listed
+# possibilities above
+#
+# 6DF
+# Note that for 6DF, the rs_rescale factor was divided directly
+# into the numbers for the mean value and sigma. The rs_rescale
+# used is 1.0268, coming from
+# rs_EH98 = 153.94      (Eisenstein Hu 98 approximated value)
+# rs_CAMB = 149.92     (CAMB or CLASS, exact integrated value)
+# given the fiducial cosmology of 1106.3366v1, a flat LCDM with
+# Omega_m = 0.27, h = 0.7, omega_b = 0.02227
+# Note that the reduction of the error bar still rounds up to 0.015
+6DF    0.106   0.327   0.015    7
+#
+# SDSS DR7 MGS, Ross et al. 1409.3242v1
+MGS     0.15   4.47     0.16    3
+# SDSS DR14 eBOSS QSO, Ata et al. 1705.06373
+QSO     1.52   26.0     1.00    3

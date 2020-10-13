@@ -188,9 +188,14 @@ BE_FUNCTION(DDCalc_FreeAll,       void, (), "C_DDUtils_ddcalc_freeall",       "F
 
 // DM mass, couplings and fraction of cosmological DM that is accounted for by model
 BE_INI_DEPENDENCY(mwimp, double)
-BE_INI_DEPENDENCY(DD_couplings, DM_nucleon_couplings)
 BE_INI_DEPENDENCY(RD_fraction, double)
 BE_INI_DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+BE_INI_CONDITIONAL_DEPENDENCY(DD_couplings_fermionic_HP, DM_nucleon_couplings_fermionic_HP,
+                              MajoranaSingletDM_Z2, DiracSingletDM_Z2)
+BE_INI_CONDITIONAL_DEPENDENCY(DD_couplings, DM_nucleon_couplings, MSSM63atQ,
+                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
+                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
+                              VectorSingletDM_Z2)
 
 // Convenience function for returning detector index given an analysis name.
 BE_CONV_FUNCTION(DDCalc_Experiment, int, (const str&), "DD_Experiment")

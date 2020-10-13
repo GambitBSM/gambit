@@ -23,6 +23,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #ifndef __base_base_printer_hpp__
@@ -74,9 +78,10 @@ namespace Gambit
         int rank;
         std::set<std::string> print_list; // List of names of data that may be printed (i.e. with printme=true)
         bool resume; // Flag to query to determine if printer is appending points to existing output
+        bool printUnitcube; // Flag whether unitCubeParameters should be printed.
 
       public:
-        BaseBasePrinter(): rank(0), printer_enabled(true), printer_cooldown(-1) {}
+        BaseBasePrinter(): rank(0), printUnitcube(false), printer_enabled(true), printer_cooldown(-1) {}
         virtual ~BaseBasePrinter() {}
         /// Function to signal to the printer to write buffer contents to disk
         //virtual void flush() {}; // TODO: needed?
@@ -92,6 +97,10 @@ namespace Gambit
         /// Retrieve/Set MPI rank (setting is useful for e.g. the postprocessor to re-print points from other ranks)
         int  getRank() {return rank;}
         void setRank(int r) {rank = r;}
+
+        // Retrieve and set the state of the 'printUnitcube' flag
+        bool& get_printUnitcube() { return printUnitcube; }
+        void set_printUnitcube(const bool& rflag) { printUnitcube = rflag; }
 
         /// Retrieve/Set print list for this printer
         /// Required by e.g. postprocessor.

@@ -1,0 +1,9 @@
+# Commented all bins not compatible with BOSS DR12 (with z>0.2)
+# Low redshift samples 6DF and MGS can be used with BOSS DR12
+#
+# z, quantity, sigma, type (D_V/rs=3, Dv/Mpc=4, DA/rs=5, c/Hrs=6, rs/D_v=7)
+# For a given type, the quantity correspond to the listed
+# possibilities above
+#
+# 6dF+MGS, Carter et al. 1803.01746
+6dF+MGS     0.122   3.654     0.115    3

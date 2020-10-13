@@ -43,6 +43,8 @@
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
 #    \date 2018 Oct
+#    \date 2020 Sep
+#
 #*********************************************
 
 import pickle
@@ -96,6 +98,12 @@ def main(argv):
 
     # List of directory names to ignore when searching for headers
     exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts"])
+
+    # If any variation of pybind11 is in the excluded_modules list, ditch all pybind11 dependent types
+    if "pybind" in exclude_header or "pybind11" in exclude_header or "Pybind" in exclude_header or "Pybind11" in exclude_header :
+      exclude_pybind11 = True
+    else:
+      exclude_pybind11 = False
 
     # Load up the sets of equivalent types and namespaces
     equiv_ns = get_default_boss_namespaces()
@@ -179,13 +187,27 @@ def main(argv):
             if verbose: print("  Scanning header {0} for types used to instantiate module functor class templates".format(header))
             module = "__NotAModule__"
             continued_line = ""
+            ignore_lines = False
+            nguards = 0
             for line in readlines_nocomments(f):
                 continued_line += line
                 if line.strip().endswith(","): continue
                 # If this line defines the module name, update it.
                 module = update_module(continued_line,module)
-                # Check for calls to module functor creation macros, and harvest the types used.
-                addiffunctormacro(continued_line,module,modules,returned_types,full_type_headers,intrinsic_types,exclude_types,equiv_classes,equiv_ns,verbose=verbose)
+                # If a HAVE_PYBIND11 guard is found and pybind11 is ditched, pause reading
+                if line.strip().endswith("#ifdef HAVE_PYBIND11") and exclude_pybind11 :
+                  ignore_lines = True
+                # Count the number of ifdefs or ifndefs while ignoring lines to ensure it ends where it should
+                if ignore_lines and ("ifdef" in line or "ifndef" in line) :
+                  nguards += 1
+                if ignore_lines and line.strip().endswith("#endif"):
+                  nguards -= 1
+                  # if there is no open ifdef or ifndef then restore ignore_lines
+                  if nguards == 0:
+                    ignore_lines = False
+                if not ignore_lines:
+                  # Check for calls to module functor creation macros, and harvest the types used.
+                  addiffunctormacro(continued_line,module,modules,returned_types,full_type_headers,intrinsic_types,exclude_types,equiv_classes,equiv_ns,verbose=verbose)
                 continued_line = ""
 
     if verbose:
@@ -200,11 +222,25 @@ def main(argv):
         with open(header) as f:
             if verbose: print("  Scanning header {0} for types used to instantiate backend functor class templates".format(header))
             continued_line = ""
+            ignore_lines = False
+            nguards = 0
             for line in readlines_nocomments(f):
                 continued_line += line
                 if line.strip().endswith(","): continue
-                # Check for calls to backend functor creation macros, and harvest the types used.
-                addifbefunctormacro(continued_line,be_types,type_packs,equiv_classes,equiv_ns,verbose=verbose)
+                # If a HAVE_PYBIND11 guard is found and pybind11 is ditched, pause reading
+                if line.strip().endswith("#ifdef HAVE_PYBIND11") and exclude_pybind11 :
+                  ignore_lines = True
+                # Count the number of ifdefs or ifndefs while ignoring lines to ensure it ends where it should
+                if ignore_lines and ("ifdef" in line or "ifndef" in line) :
+                  nguards += 1
+                if ignore_lines and line.strip().endswith("#endif"):
+                  nguards -= 1
+                  # if there is no open ifdef or ifndef then restore ignore_lines
+                  if nguards == 0:
+                    ignore_lines = False
+                if not ignore_lines:
+                  # Check for calls to backend functor creation macros, and harvest the types used.
+                  addifbefunctormacro(continued_line,be_types,type_packs,equiv_classes,equiv_ns,verbose=verbose)
                 continued_line = ""
 
     if verbose:

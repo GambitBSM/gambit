@@ -63,7 +63,7 @@
     ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
     BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPheno, 3.3.8), (libSPheno))
+    BACKEND_OPTION((SPheno, 3.3.8, 4.0.3), (libSPheno))
     #undef FUNCTION
 
     /// Get MSSM spectrum from CMSSM boundary conditions

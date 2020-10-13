@@ -23,7 +23,6 @@
 
 #include "gambit/Models/models/Axions.hpp"
 
-
 #define MODEL QCDAxion
 void MODEL_NAMESPACE::QCDAxion_to_GeneralALP (const ModelParameters &myparams, ModelParameters &parentparams)
 {

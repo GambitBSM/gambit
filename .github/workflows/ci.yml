@@ -1,0 +1,128 @@
+name: Gambit CI
+
+on:
+  push:
+    branches: [ master, gitlab-ci ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron:  '* * * * 1'
+
+jobs:
+  gambit_build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ubuntu, ubuntu-py2] #, fedora
+        #mpi: [ON, OFF]
+    container: gambitbsm/gambit-base:${{ matrix.arch }}
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        mkdir -p BUILD
+        cd BUILD
+        echo "Sourcing setup.sh"
+        cat /etc/profile.d/gambit-setup.sh
+        source /etc/profile.d/gambit-setup.sh
+        echo "Making buildenv.sh"
+        > buildenv.sh
+        echo "source /etc/profile.d/gambit-setup.sh" >> buildenv.sh
+        echo "export CMAKE_BUILD_TYPE=None" >> buildenv.sh
+        echo "export CMAKE_C_COMPILER=$(which gcc)" >> buildenv.sh
+        echo "export CMAKE_CXX_COMPILER=$(which g++)" >> buildenv.sh
+        echo "export CMAKE_Fortran_COMPILER=$(which gfortran)" >> buildenv.sh
+        PYTHON_LIBRARY=$(python -c 'from __future__ import print_function; from distutils.sysconfig import get_config_var; print("%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME")))')
+        PYTHON_INCLUDE_DIR=$(python -c 'from __future__ import print_function; from distutils import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+        echo "export PYTHON_EXECUTABLE=$(which python)" >> buildenv.sh
+        echo "export PYTHON_LIBRARY=$PYTHON_LIBRARY" >> buildenv.sh
+        echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
+        echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
+        cat buildenv.sh
+        pip install pyyaml pybind11 h5py
+    - name: Configure with cmake
+      run: |
+        cd BUILD/ && . buildenv.sh
+        cmake .. -D WITH_ROOT=ON -D WITH_RESTFRAMES=ON -D WITH_HEPMC=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+    - name: Build scanners
+      run: |
+        cd BUILD/ && . buildenv.sh
+        make -j$(nproc) scanners
+        cmake ..
+    - name: Build Gambit
+      run: |
+        cd BUILD && . buildenv.sh
+        make -j$(nproc) gambit
+    - name: Build backends
+      run: |
+        cd BUILD && . buildenv.sh
+        make -j$(nproc) backends
+    - name: CLI test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -h
+    - name: WC test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -f yaml_files/WC_lite.yaml
+    - name: ColliderBit test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+    - name: Build standalones
+      run: |
+        cd BUILD && . buildenv.sh
+        make standalones
+    # - name: Validation dependencies
+    #   run: |
+    #     . BUILD/buildenv.sh
+    #     pip install cowsay
+    #     # Fetch my tests
+    #     git clone https://github.com/andrewfowlie/gambit_bats
+    #     cd gambit_bats
+    #     cowsay "$(git log -n 5)"
+    #     # Install BATS
+    #     git clone https://github.com/bats-core/bats-core.git
+    #     echo 'export PATH=$PATH:$GITHUB_WORKSPACE/gambit_bats/bats-core/bin' >> ../BUILD/buildenv.sh
+    #     # Install numdiff
+    #     git clone https://github.com/tjhei/numdiff
+    #     (cd numdiff && ./configure && make)
+    #     echo 'export PATH=$PATH:$GITHUB_WORKSPACE/gambit_bats/numdiff' >> ../BUILD/buildenv.sh
+    # - name: Validate with BATS
+    #   run: |
+    #     #cat BUILD/buildenv.sh
+    #     . BUILD/buildenv.sh
+    #     cowsay "Testing GAMBIT on $(date)"
+    #     cowsay "$(git log -n 5)"
+    #     cd gambit_bats
+    #     ls
+    #     #echo "Testing BATS"
+    #     #bats -h
+    #     #echo "Testing numdiff"
+    #     #numdiff || true
+    #     echo "Running BATS"
+    #     export GAMBIT="$GITHUB_WORKSPACE"
+    #     #(python2 `which bats` *.bats | tee $GAMBIT/bats.txt) || true
+    #     (bats *.bats | tee $GAMBIT/bats.txt) || true
+    #     cd ..
+    #     # Note email addresses for failed tests
+    #     source gambit_bats/email.bash
+    #     export BATS_FAIL_EMAIL=$(bats_fail_email ./bats.tap)
+    #     export GIT_FAIL_EMAIL="$(git_fail_email ./gambit_bats) $(git_fail_email ./)"
+    #     cowsay "For BATS yaml failures, contact $BATS_FAIL_EMAIL"
+    #     cowsay "For GAMBIT and test changes, contact $GIT_FAIL_EMAIL"
+    #     echo
+    #     # Run again, now with TAP output (may fail, causing the job to report correctly)
+    #     echo "Running BATS with TAP output (to bats.tap)"
+    #     cd gambit_bats
+    #     bats --tap *.bats > $GAMBIT/bats.tap
+    # - name: Upload BATS output
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: bats_tests
+    #     path: bats.t*

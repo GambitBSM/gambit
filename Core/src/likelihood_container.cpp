@@ -131,10 +131,10 @@ namespace Gambit
         std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
       #endif
       cout << parstream.str();
-      // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
+      logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
-    logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
+    //logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
 
 
   }

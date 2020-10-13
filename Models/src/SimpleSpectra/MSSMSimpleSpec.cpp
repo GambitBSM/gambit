@@ -277,6 +277,10 @@ namespace Gambit
       double MSSMea::get_TYu(int i, int j) const { return getdata("Tu",i,j); }
       double MSSMea::get_TYe(int i, int j) const { return getdata("Te",i,j); }
 
+      double MSSMea::get_ad(int i, int j) const { return getdata("Ad",i,j); }
+      double MSSMea::get_au(int i, int j) const { return getdata("Au",i,j); }
+      double MSSMea::get_ae(int i, int j) const { return getdata("Ae",i,j); }
+
       double MSSMea::get_Yd(int i, int j) const { return getdata("Yd",i,j); }
       double MSSMea::get_Yu(int i, int j) const { return getdata("Yu",i,j); }
       double MSSMea::get_Ye(int i, int j) const { return getdata("Ye",i,j); }
@@ -411,6 +415,8 @@ namespace Gambit
       /// Add SLHAea object to another
       void MSSMSimpleSpec::add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const
       {
+        slha = slhawrap.get_slhaea();
+
         // Add SPINFO data if not already present
         SLHAea_add_GAMBIT_SPINFO(slha);
 
@@ -499,9 +505,9 @@ namespace Gambit
             tmp_map["TYd"]= FInfo2( &Model::get_TYd, i123, i123);
             tmp_map["TYe"]= FInfo2( &Model::get_TYe, i123, i123);
             tmp_map["TYu"]= FInfo2( &Model::get_TYu, i123, i123);
-            tmp_map["ad"] = FInfo2( &Model::get_TYd, i123, i123);
-            tmp_map["ae"] = FInfo2( &Model::get_TYe, i123, i123);
-            tmp_map["au"] = FInfo2( &Model::get_TYu, i123, i123);
+            tmp_map["ad"] = FInfo2( &Model::get_ad, i123, i123);
+            tmp_map["ae"] = FInfo2( &Model::get_ae, i123, i123);
+            tmp_map["au"] = FInfo2( &Model::get_au, i123, i123);
             map_collection[Par::mass1].map2 = tmp_map;
          }
          {

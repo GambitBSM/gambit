@@ -21,6 +21,9 @@
 #include <map>
 #include <sstream>
 
+#include "gambit/Utils/standalone_error_handlers.hpp"
+#include "gambit/Utils/local_info.hpp"
+
 #ifndef __ASCIItableReader__
 #define __ASCIItableReader__
 

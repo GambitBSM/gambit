@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2013 May, June, July
@@ -16,6 +16,7 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///  \date 2015 Mar
+///  \date 2020 Apr
 ///
 ///  *********************************************
 
@@ -35,7 +36,7 @@ namespace Gambit
       // Perform the basic read and parse operations defined by the parent.
       YAML::Node root = filename_to_node(filename);
       basicParse(root,filename);
-      
+
       // Get the observables and rules sections
       YAML::Node outputNode = root["ObsLikes"];
       YAML::Node rulesNode = root["Rules"];
@@ -67,6 +68,60 @@ namespace Gambit
     const ObservablesType& IniFile::getRules() const { return rules; }
     /// @}
 
+  }
+
+}
+
+// Methods for converting from inifile to Observable format
+namespace YAML
+{
+  using namespace Gambit::IniParser::Types;
+
+  bool convert<Observable>::decode(const Node& node, Observable& rhs)
+  {
+    #define READ(NAME) if (node[#NAME].IsDefined()) rhs.NAME = node[#NAME].as<std::string>();
+    READ(purpose)
+    READ(capability)
+    READ(type)
+    READ(function)
+    READ(module)
+    READ(backend)
+    READ(version)
+    #undef READ
+
+    if (node.Tag() == "!weak" or node.Tag() == "!weakrule")
+      rhs.weakrule = true;
+    else
+      rhs.weakrule = false;
+
+    // Strip leading "Gambit::" namespaces and whitespace, but preserve "const ".
+    rhs.type = Gambit::Utils::fix_type(rhs.type);
+
+    if (node["printme"].IsDefined())
+        rhs.printme = node["printme"].as<bool>();
+
+    if (node["options"].IsDefined())
+        rhs.options = Gambit::Options(node["options"]);
+
+    if (node["sub_capabilities"].IsDefined())
+        rhs.subcaps = node["sub_capabilities"];
+
+    if (node["functionChain"].IsDefined())
+        rhs.functionChain = node["functionChain"].as<std::vector<std::string>>();
+
+    for(YAML::const_iterator it=node["dependencies"].begin();
+        it!=node["dependencies"].end(); ++it)
+    {
+      rhs.dependencies.push_back((*it).as<Observable>());
+    }
+
+    for(YAML::const_iterator it=node["backends"].begin();
+        it!=node["backends"].end(); ++it)
+    {
+      rhs.backends.push_back((*it).as<Observable>());
+    }
+
+    return true;
   }
 
 }

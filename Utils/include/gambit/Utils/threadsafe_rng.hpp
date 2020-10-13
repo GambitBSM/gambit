@@ -128,7 +128,7 @@ namespace Gambit
     public:
 
       /// Choose the engine to use for random number generation, based on the contents of the ini file.
-      static void create_rng_engine(str, int);
+      static void create_rng_engine(str, int=-1);
 
       /// Draw a single uniform random deviate from the interval (0,1) using the chosen RNG engine
       static double draw();

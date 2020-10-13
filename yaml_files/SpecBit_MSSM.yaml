@@ -5,6 +5,10 @@
 ## Only requires SpecBit.
 ##########################################################################
 
+# NB: If MSSMspectrum_test is chosen this example yaml file will use
+# flexiblesusy, so then make sure you have
+# built gambit with -DBUILD_FS_MODELS="CMSSM;MSSMatMGUT;MSSM"
+
 
 Parameters:
 

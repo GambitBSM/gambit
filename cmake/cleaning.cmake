@@ -79,7 +79,7 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}"
 ##### distclean ########
 
 # Add a true clean target that can have dependencies, to allow us to trigger cleaning of external projects (or run any other custom commands)
-add_custom_target(distclean COMMAND ${CMAKE_MAKE_PROGRAM} clean)
+add_custom_target(distclean COMMAND ${MAKE_SERIAL} clean)
 
 # Ensure that distclean cleans the backends (the entry for each backend will be added in backends.cmake)
 add_custom_target(clean-backends)

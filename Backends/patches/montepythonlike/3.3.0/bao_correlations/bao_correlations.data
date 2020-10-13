@@ -1,0 +1,16 @@
+# (JR) this file is just copied from the "bao_small_z" likelihood. 
+#  you can add any kinds of settings here. The file will be read in 
+#  and executed when the likelihood object (called bao_correlations) 
+#  is created
+
+# BAO BOSS 2014 low redshift likelihood
+# Uses 6FD (arXiv:1106.3366v1) and MGS (arXiv:1409.3242v1) samples
+# Intended to be compatible with BOSS DR12 (which is z>0.2)
+# By Thejs Brinckmann June 2017
+bao_correlations.data_directory           = data.path['data']
+bao_correlations.dr12_data_file           = 'COMBINEDDR12_BAO_consensus_dM_Hz/BAO_consensus_results_dM_Hz.txt'
+bao_correlations.dr12_cov_file            = 'COMBINEDDR12_BAO_consensus_dM_Hz/BAO_consensus_covtot_dM_Hz.txt'
+bao_correlations.dr12_rs_rescale          = 1.
+bao_correlations.dr12_rd_fid_in_Mpc       = 147.78
+bao_correlations.dr14_file                = 'bao_eBOSS_2017.txt'
+bao_correlations.data_nz                  = 'bao_correlations/bao_correlations_nz.dat'

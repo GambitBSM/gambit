@@ -9,11 +9,12 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Sebastian Hoof
-///          (s.hoof15@imperial.ac.uk)
+///          (hoof@uni-goettingen.de)
 ///  \date 2016 Oct
-///  \date 2017 Jan, Feb, Jun, Jul, Sep - Dec
-///  \date 2018 Jan, Mar - May, Sep
-///  \date 2019 Feb
+///  \date 2017 Jan, Feb, June, July, Sept - Dec
+///  \date 2018 Jan, Mar - May, Sept
+///  \date 2019 Feb, May - July
+///  \date 2020 Sept
 ///
 ///  *********************************************
 
@@ -28,6 +29,8 @@
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_spline.h>
+#include <gsl/gsl_interp2d.h>
+#include <gsl/gsl_spline2d.h>
 #include <gsl/gsl_histogram.h>
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_matrix.h>
@@ -71,13 +74,15 @@ namespace Gambit
     {
       public:
         // Overloaded class creators for the AxionInterpolator class using the init function below.
+        AxionInterpolator();
+        AxionInterpolator(const std::vector<double> x, const std::vector<double> y, std::string type);
+        AxionInterpolator(const std::vector<double> x, const std::vector<double> y);
         AxionInterpolator(std::string file, std::string type);
         AxionInterpolator(std::string file);
-        AxionInterpolator();
         AxionInterpolator& operator=(AxionInterpolator&&);
-        // Destructor
+        // Destructor.
         ~AxionInterpolator();
-        // Delete copy constructor and assignment operator to avoid shallow copies
+        // Delete copy constructor and assignment operator to avoid shallow copies.
         AxionInterpolator(const AxionInterpolator&) = delete;
         AxionInterpolator operator=(const AxionInterpolator&) = delete;
         // Routine to access interpolated values.
@@ -88,6 +93,7 @@ namespace Gambit
       private:
         // Initialiser for the AxionInterpolator class.
         void init(std::string file, std::string type);
+        void init(const std::vector<double> x, const std::vector<double> y, std::string type);
         // The gsl objects for the interpolating functions.
         gsl_interp_accel *acc;
         gsl_spline *spline;
@@ -96,23 +102,16 @@ namespace Gambit
         double up;
     };
 
+    // Default constructor.
+    AxionInterpolator::AxionInterpolator() {}
+
     // Initialiser for the AxionInterpolator class.
-    void AxionInterpolator::init(std::string file, std::string type)
+    void AxionInterpolator::init(const std::vector<double> x, const std::vector<double> y, std::string type)
     {
-      // Check if file exists.
-      if (not(Utils::file_exists(file)))
-      {
-        DarkBit_error().raise(LOCAL_INFO, "ERROR! File '"+file+"' not found!");
-      } else {
-        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+type+"' method." << EOM;
-      };
-      // Read numerical values from data file.
-      ASCIItableReader tab (file);
-      tab.setcolnames("x", "y");
-      // Initialise gsl interpolation routine.
-      int pts = tab["x"].size();
-      const double* x = &tab["x"][0];
-      const double* y = &tab["y"][0];
+      int pts = x.size();
+      // Get first and last value of the "x" component.
+      lo = x.front();
+      up = x.back();
       acc = gsl_interp_accel_alloc ();
       if (type == "cspline")
       {
@@ -125,17 +124,35 @@ namespace Gambit
       else
       {
         DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type '"+type+"' not known to class AxionInterpolator.\n       Available types: 'linear' and 'cspline'.");
-      };
-      gsl_spline_init (spline, x, y, pts);
-      // Get first and last value of the "x" component.
-      lo = tab["x"].front();
-      up = tab["x"].back();
-    };
+      }
+
+      gsl_spline_init (spline, &x[0], &y[0], pts);
+    }
 
     // Overloaded class creators for the AxionInterpolator class using the init function above.
-    AxionInterpolator::AxionInterpolator(std::string file, std::string type) { init(file, type); };
-    AxionInterpolator::AxionInterpolator(std::string file) { init(file, "linear"); };
-    AxionInterpolator::AxionInterpolator() {};
+    AxionInterpolator::AxionInterpolator(const std::vector<double> x, const std::vector<double> y, std::string type) { init(x, y, type); }
+    AxionInterpolator::AxionInterpolator(const std::vector<double> x, const std::vector<double> y) { init(x, y, "linear"); }
+
+    // Initialiser for the AxionInterpolator class.
+    void AxionInterpolator::init(std::string file, std::string type)
+    {
+      // Check if file exists.
+      if (not(Utils::file_exists(file)))
+      {
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! File '"+file+"' not found!");
+      } else {
+        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+type+"' method." << EOM;
+      }
+      // Read numerical values from data file.
+      ASCIItableReader tab (file);
+      tab.setcolnames("x", "y");
+
+      init(tab["x"],tab["y"],type);
+    }
+
+    // Overloaded class creators for the AxionInterpolator class using the init function above.
+    AxionInterpolator::AxionInterpolator(std::string file, std::string type) { init(file, type); }
+    AxionInterpolator::AxionInterpolator(std::string file) { init(file, "linear"); }
 
     // Move assignment operator
     AxionInterpolator& AxionInterpolator::operator=(AxionInterpolator&& interp)
@@ -153,23 +170,176 @@ namespace Gambit
     // Destructor
     AxionInterpolator::~AxionInterpolator()
     {
-        gsl_spline_free (spline);
-        gsl_interp_accel_free (acc);
+      gsl_spline_free (spline);
+      gsl_interp_accel_free (acc);
     }
 
     // Routine to access interpolated values.
-    double AxionInterpolator::interpolate(double x) { return gsl_spline_eval(spline, x, acc); };
+    double AxionInterpolator::interpolate(double x) { return gsl_spline_eval(spline, x, acc); }
 
     // Routines to return upper and lower boundaries of interpolating function
-    double AxionInterpolator::lower() { return lo; };
-    double AxionInterpolator::upper() { return up; };
+    double AxionInterpolator::lower() { return lo; }
+    double AxionInterpolator::upper() { return up; }
 
+
+    /*! \brief Two-dimensional integration container for bilinear interpolation and bicubic splines.
+     */
+
+    // AxionInterpolator2D class: Provides a 2-D interpolation container based on the gsl library.
+    // Can be declared static for efficiency & easy one-time initialisation of interpolating functions.
+    class AxionInterpolator2D
+    {
+      public:
+        // Overloaded class creators for the AxionInterpolator class using the init function below.
+        AxionInterpolator2D();
+        AxionInterpolator2D(std::string file, std::string type);
+        AxionInterpolator2D(std::string file);
+        AxionInterpolator2D& operator=(AxionInterpolator2D&&);
+        // Destructor.
+        ~AxionInterpolator2D();
+        // Delete copy constructor and assignment operator to avoid shallow copies.
+        AxionInterpolator2D(const AxionInterpolator2D&) = delete;
+        AxionInterpolator2D operator=(const AxionInterpolator2D&) = delete;
+        // Routine to access interpolated values.
+        double interpolate(double x, double y);
+        // Routine to check if a point is inside the interpolating box.
+        bool is_inside_box(double x, double y);
+      private:
+        // Initialiser for the AxionInterpolator2D class.
+        void init(std::string file, std::string type);
+        // The gsl objects for the interpolating functions that need to be available to the class routines.
+        gsl_interp_accel *x_acc;
+        gsl_interp_accel *y_acc;
+        gsl_spline2d *spline;
+        double* z;
+        // Upper and lower "x" and "y" values available to the interpolating function.
+        double x_lo, y_lo, x_up, y_up;
+    };
+
+    // Move assignment operator
+    AxionInterpolator2D& AxionInterpolator2D::operator=(AxionInterpolator2D&& interp)
+    {
+      if(this != &interp)
+      {
+        std::swap(x_acc,interp.x_acc);
+        std::swap(y_acc,interp.y_acc);
+        std::swap(spline,interp.spline);
+        std::swap(x_lo,interp.x_lo);
+        std::swap(x_up,interp.x_up);
+        std::swap(y_lo,interp.y_lo);
+        std::swap(y_up,interp.y_up);
+        std::swap(z,interp.z);
+      }
+      return *this;
+    }
+
+    // Destructor
+    AxionInterpolator2D::~AxionInterpolator2D()
+    {
+      gsl_spline2d_free (spline);
+      gsl_interp_accel_free (x_acc);
+      gsl_interp_accel_free (y_acc);
+      free(z);
+    }
+
+    // Initialiser for the AxionInterpolator class.
+    void AxionInterpolator2D::init(std::string file, std::string type)
+    {
+      // Check if file exists.
+      if (not(Utils::file_exists(file)))
+      {
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! File '"+file+"' not found!");
+      } else {
+        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+type+"' method." << EOM;
+      }
+      // Read numerical values from data file.
+      ASCIItableReader tab (file);
+      tab.setcolnames("x", "y", "z");
+      // Initialise gsl interpolation routine.
+      // Get unique entries of "x" and "y" for the grid and grid size.
+      std::vector<double> x_vec = tab["x"];
+      sort(x_vec.begin(), x_vec.end());
+      x_vec.erase(unique(x_vec.begin(), x_vec.end()), x_vec.end());
+      int nx = x_vec.size();
+      std::vector<double> y_vec = tab["y"];
+      sort(y_vec.begin(), y_vec.end());
+      y_vec.erase(unique(y_vec.begin(), y_vec.end()), y_vec.end());
+      int ny = y_vec.size();
+      int n_grid_pts = tab["z"].size();
+
+      if (nx*ny != n_grid_pts)
+      {
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! The number of grid points ("+std::to_string(n_grid_pts)+") for AxionInterpolator2D does not equal the number of unique 'x' and 'y' values ("+std::to_string(nx)+" and "+std::to_string(ny)+")!\n       Check formatting of the file: '"+file+"'.");
+      }
+
+      const double* x = &x_vec[0];
+      const double* y = &y_vec[0];
+      // Allocate memory for "z" values array in gsl format
+      z = (double*) malloc(nx * ny * sizeof(double));
+
+      if (type == "bicubic")
+      {
+        spline = gsl_spline2d_alloc(gsl_interp2d_bicubic, nx, ny);
+      }
+      else if (type == "bilinear")
+      {
+        spline = gsl_spline2d_alloc(gsl_interp2d_bilinear, nx, ny);
+      }
+      else
+      {
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type '"+type+"' not known to class AxionInterpolator2D.\n       Available types: 'bilinear' and 'bicubic'.");
+      }
+
+      x_acc = gsl_interp_accel_alloc();
+      y_acc = gsl_interp_accel_alloc();
+
+      // Determine first and last "x" and "y" values and grid step size.
+      x_lo = x_vec.front();
+      x_up = x_vec.back();
+      y_lo = y_vec.front();
+      y_up = y_vec.back();
+      double x_delta = (x_up-x_lo) / (nx-1);
+      double y_delta = (y_up-y_lo) / (ny-1);
+
+      // Intialise grid.
+      for (int i = 0; i < n_grid_pts; i++)
+      {
+        // Determine appropriate indices for the grid points.
+        double temp = (tab["x"][i]-x_lo) / x_delta;
+        int ind_x = (int) (temp+0.5);
+        temp = (tab["y"][i]-y_lo) / y_delta;
+        int ind_y = (int) (temp+0.5);
+
+        //std::cout << ind_x << "/" << nx-1 << " " << tab["x"][i] << " vs " << x[ind_x] << " " << ind_y << "/" << ny-1 << " " << tab["y"][i] << " vs " << y[ind_y] << std::endl;
+
+        gsl_spline2d_set(spline, z, ind_x, ind_y, tab["z"][i]);
+      }
+      gsl_spline2d_init (spline, x, y, z, nx, ny);
+    }
+
+    // Default creator with dummy entries for the objects w/ memory allocation
+    AxionInterpolator2D::AxionInterpolator2D()
+    {
+      x_acc = gsl_interp_accel_alloc();
+      y_acc = gsl_interp_accel_alloc();
+      spline = gsl_spline2d_alloc(gsl_interp2d_bilinear, 2, 2);
+      z = (double*) malloc(2 * 2 * sizeof(double));
+    }
+    // Overloaded class creators for the AxionInterpolator class using the init function above.
+    AxionInterpolator2D::AxionInterpolator2D(std::string file, std::string type) { init(file, type); }
+    AxionInterpolator2D::AxionInterpolator2D(std::string file) { init(file, "bilinear"); }
+
+    // Routine to access interpolated values.
+    double AxionInterpolator2D::interpolate(double x, double y) { return gsl_spline2d_eval(spline, x, y, x_acc, y_acc); }
+
+    // Routine to check if a point is inside the interpolating box.
+    bool AxionInterpolator2D::is_inside_box(double x, double y) { return ((x >= x_lo) && (x <= x_up) && (y >= y_lo) && (y <= y_up)); }
 
      /*! \brief H.E.S.S.-likelihood-related interpolation routines.
      */
 
     // Auxillary function for a parabola (needed for H.E.S.S. likelihood approximation).
-    double parabola(double x, const double params[]) { return params[0]*x*x + params[1]*x + params[2]; };
+    double parabola(double x, const double params[]) { return params[0]*x*x + params[1]*x + params[2]; }
 
     // Auxillary function to return the appropriate intersection between a parabola and a line (needed for H.E.S.S. likelihood).
     double intersect_parabola_line(double a, double b, double sign, const double pparams[])
@@ -184,7 +354,7 @@ namespace Gambit
       temp1 = x1 - x2;
       double temp2 = y1 - y2;
       return sqrt(temp1*temp1 + temp2*temp2);
-    };
+    }
 
     // HESS_Interpolator class: Provides a customised interpolation container for the H.E.S.S. likelihood.
     class HESS_Interpolator
@@ -207,7 +377,7 @@ namespace Gambit
     };
 
     // Class creator. Needs path to tabulated H.E.S.S. data.
-    HESS_Interpolator::HESS_Interpolator (std::string file)
+    HESS_Interpolator::HESS_Interpolator(std::string file)
     {
       // Initialise upper part of the likelihood interpolation (i.e. higher axion-photon coupling).
       interp_lnL = ASCIItableReader(file);
@@ -224,10 +394,10 @@ namespace Gambit
         } else {
           const double lnLvals [7] = {0., -2.30259, -2.99573, -4.60517, -2.99573, -2.30259, 0.};
           gsl_spline_init (spline[i], epsvals, lnLvals, pts);
-        };
-      };
+        }
+      }
     }
- 
+
     // Destructor
     HESS_Interpolator::~HESS_Interpolator()
     {
@@ -260,11 +430,12 @@ namespace Gambit
           if ( (epsilon > interp_lnL["lnL"+std::to_string(index_lo)].front()) && (epsilon < interp_lnL["lnL"+std::to_string(index_lo)].back()) )
           {
             z_lo = gsl_spline_eval (spline[index_lo], epsilon, acc[index_lo]);
-          };
+          }
+
           if ( (epsilon > interp_lnL["lnL"+std::to_string(index_hi)].front()) && (epsilon < interp_lnL["lnL"+std::to_string(index_hi)].back()) )
           {
             z_hi = gsl_spline_eval (spline[index_hi], epsilon, acc[index_hi]);
-          };
+          }
 
           // Linear interpolation in Gamma.
           double a = static_cast<double>(index_hi) - (gamma-0.4)/0.05;
@@ -294,15 +465,15 @@ namespace Gambit
             gammavals[3] = 1.0;
             gammavals[2] = intersect_parabola_line(a, b, temp1, ppars90)/temp2;
             gammavals[1] = intersect_parabola_line(a, b, temp1, ppars95)/temp2;
-          };
+          }
             gsl_interp_accel *acc = gsl_interp_accel_alloc ();
             gsl_spline *spline = gsl_spline_alloc (gsl_interp_cspline, 4);
             gsl_spline_init (spline, gammavals, loglikevals, 4);
             result = gsl_spline_eval (spline, distance, acc);
             gsl_spline_free (spline);
             gsl_interp_accel_free (acc);
-          };
-        };
+          }
+        }
       // CAVE: There used to be a bug with log-likelihood > 0.0; this is fixed now, but still safeguard the result against roundoff errors.
       return std::min(result,0.0);
     }
@@ -337,7 +508,7 @@ namespace Gambit
         gsl_spline *linear_interp[3];
     };
 
-    SolarModel::SolarModel() {};
+    SolarModel::SolarModel() {}
     SolarModel::SolarModel(std::string file)
     {
       data = ASCIItableReader(file);
@@ -347,7 +518,7 @@ namespace Gambit
       {
         DarkBit_error().raise(LOCAL_INFO, "ERROR! Solar model file '"+file+"' not compatible with GAMBIT!\n"
                                           "       See [arXiv:1810.07192] or example file in 'DarkBit/data/' for the correct format.");
-      };
+      }
       data.setcolnames("mass", "radius", "temperature", "rho", "Pressure", "Luminosity", "X_H1", "X_He4", "X_He3", "X_C12", "X_C13", "X_N14", "X_N15", "X_O16", "X_O17", "X_O18", "X_Ne", "X_Na", "X_Mg", "X_Al", "X_Si", "X_P", "X_S", "X_Cl", "X_Ar",
                        "X_K", "X_Ca", "X_Sc", "X_Ti", "X_V", "X_Cr", "X_Mn", "X_Fe", "X_Co", "X_Ni");
 
@@ -389,7 +560,7 @@ namespace Gambit
           double temp = x_intercept*Z_vals[j]/A_vals[j];
           ne += temp;
           sum += temp*(1.0 + Z_vals[j]);
-        };
+        }
         double kss = factor*sum*rho_intercept/t_intercept;
         kappa_s_sq.push_back(kss);
         double wpls = factor*ne*rho_intercept/(1.0E+6*m_electron);
@@ -409,7 +580,7 @@ namespace Gambit
           double temp = data[j+6][i]*Z_vals[j]/A_vals[j];
           ne += temp;
           sum += temp*(1.0 + Z_vals[j]);
-        };
+        }
         double kss = factor*sum*data["rho"][i]/temperature[i];
         kappa_s_sq.push_back(kss);
         double wpls = factor*ne*data["rho"][i]/(1.0E+6*m_electron);
@@ -417,7 +588,7 @@ namespace Gambit
         #ifdef AXION_DEBUG_MODE
           printf("%5.4f %1.6e %1.6e %1.6e\n", data["radius"][i], temperature[i], kss, wpls);
         #endif
-      };
+      }
       // Set up the interpolating functions for temperature and screening scale.
       accel[0] = gsl_interp_accel_alloc ();
       linear_interp[0] = gsl_spline_alloc (gsl_interp_linear, pts);
@@ -438,7 +609,7 @@ namespace Gambit
 
     // Move assignment operator
     SolarModel& SolarModel::operator=(SolarModel &&model)
-    { 
+    {
       if (this != &model)
       {
         std::swap(data,model.data);
@@ -607,8 +778,8 @@ namespace Gambit
       // Check if a pre-computed a file for a given model exists.
       user_gagg_file_missing = not(Utils::file_exists(darkbitdata_path+"CAST/"+data_set+"_ReferenceCounts_"+solar_model_gagg+"_gagg.dat"));
       user_gaee_file_missing = not(Utils::file_exists(darkbitdata_path+"CAST/"+data_set+"_ReferenceCounts_"+solar_model_gaee+"_gaee.dat"));
-      if (not(user_gagg_file_missing)) { logger() << LogTags::info << "Found pre-calculated axion-photon counts file for experiment '"+data_set+"' and solar model '"+solar_model_gagg+"'. Skipping calculation step..." << EOM; };
-      if (not(user_gaee_file_missing)) { logger() << LogTags::info << "Found pre-calculated axion-electron counts file for experiment '"+data_set+"' and solar model '"+solar_model_gaee+"'. Skipping calculation step..." << EOM; };
+      if (not(user_gagg_file_missing)) { logger() << LogTags::info << "Found pre-calculated axion-photon counts file for experiment '"+data_set+"' and solar model '"+solar_model_gagg+"'. Skipping calculation step..." << EOM; }
+      if (not(user_gaee_file_missing)) { logger() << LogTags::info << "Found pre-calculated axion-electron counts file for experiment '"+data_set+"' and solar model '"+solar_model_gaee+"'. Skipping calculation step..." << EOM; }
 
       // If either file does not exists, compute it.
       if (user_gagg_file_missing || user_gaee_file_missing)
@@ -654,8 +825,8 @@ namespace Gambit
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No solar model file found for '"+solar_model_gagg+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'SolarModel_*.dat' for available options *.");
-          };
-        };
+          }
+        }
 
         // Load and interpolate effective exposure and the data for the axion-electron spectrum (with its nasty peaks).
         AxionInterpolator eff_exposure (darkbitdata_path+"CAST/"+data_set+"_EffectiveExposure.dat");
@@ -668,8 +839,8 @@ namespace Gambit
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No spectrum file found for axion-electron interactions and model '"+solar_model_gaee+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'Axion_Spectrum_*_gaee.dat' for available options *.");
-          };
-        };
+          }
+        }
         double all_peaks [32] = {0.653029, 0.779074, 0.920547, 0.956836, 1.02042, 1.05343, 1.3497, 1.40807, 1.46949, 1.59487, 1.62314, 1.65075, 1.72461, 1.76286, 1.86037, 2.00007, 2.45281, 2.61233, 3.12669, 3.30616, 3.88237, 4.08163, 5.64394,
                                  5.76064, 6.14217, 6.19863, 6.58874, 6.63942, 6.66482, 7.68441, 7.74104, 7.76785};
 
@@ -688,7 +859,7 @@ namespace Gambit
                        "and model '"+solar_model_gaee+"' for axion-electron interactions.\n\n"
                        "coupling log10(m/eV) [erg_low/keV, erg_high/keV] log10(counts)" << std::endl;
         #endif
-        for(int bin = 0; bin < n_bins; bin++)
+        for (int bin = 0; bin < n_bins; bin++)
         {
           erg_lo = erg_hi;
           erg_hi += bin_delta;
@@ -700,8 +871,8 @@ namespace Gambit
           for (int i = 0; i < 32; i++)
           {
             double temp = all_peaks[i];
-            if ( (erg_lo < temp) && (temp < erg_hi) ) { relevant_peaks.push_back(temp); };
-          };
+            if ( (erg_lo < temp) && (temp < erg_hi) ) { relevant_peaks.push_back(temp); }
+          }
           relevant_peaks.push_back(erg_hi);
 
           for (int i = 0; i < n_mass_bins; i++)
@@ -720,7 +891,7 @@ namespace Gambit
               #endif
 
               gagg_counts[bin*n_mass_bins+i] = log10(temp*gagg_result);
-            };
+            }
             // Only perform integration if axion-electron counts file does not exist.
             if (user_gaee_file_missing)
             {
@@ -733,13 +904,13 @@ namespace Gambit
               #endif
 
               // Include efficiency factor from not integrating over the full Solar disc in CAST2007 here:
-              if (data_set=="CAST2007") { gaee_result = 0.826*gaee_result; };
+              if (data_set=="CAST2007") { gaee_result = 0.826*gaee_result; }
               gaee_counts[bin*n_mass_bins+i] = log10(prefactor_gaee*gaee_result);
-            };
-          };
+            }
+          }
           gsl_integration_workspace_free (v);
           gsl_integration_workspace_free (w);
-        };
+        }
 
 
         // Write the results to a file (if the file does not yet exist).
@@ -756,12 +927,12 @@ namespace Gambit
           for (int i = 0; i < n_mass_bins; i++)
           {
             gagg_file << log_masses[i];
-            for (int j = 0; j < n_bins; j++) { gagg_file << " " << gagg_counts[j*n_mass_bins+i]; };
-            if (i < n_mass_bins-1) { gagg_file << "\n"; };
-          };
+            for (int j = 0; j < n_bins; j++) { gagg_file << " " << gagg_counts[j*n_mass_bins+i]; }
+            if (i < n_mass_bins-1) { gagg_file << "\n"; }
+          }
           gagg_file.close();
           logger() << LogTags::info << "Output file '"+darkbitdata_path+"CAST/"+data_set+"_ReferenceCounts_"+solar_model_gagg+"_gagg.dat"+"' written for axion-photon interactions." << EOM;
-        };
+        }
 
         if (user_gaee_file_missing)
         {
@@ -776,13 +947,13 @@ namespace Gambit
           for (int i = 0; i < n_mass_bins; i++)
           {
             gaee_file << log_masses[i];
-            for (int j = 0; j < n_bins; j++) { gaee_file << " " << gaee_counts[j*n_mass_bins+i]; };
-            if (i < n_mass_bins-1) { gaee_file << "\n"; };
-          };
+            for (int j = 0; j < n_bins; j++) { gaee_file << " " << gaee_counts[j*n_mass_bins+i]; }
+            if (i < n_mass_bins-1) { gaee_file << "\n"; }
+          }
           gaee_file.close();
           logger() << LogTags::info << "Output file '"+darkbitdata_path+"CAST/"+data_set+"_ReferenceCounts_"+solar_model_gaee+"_gagg.dat"+"' written for axion-electron interactions." << EOM;
-        };
-      };
+        }
+      }
 
       // Read in pre-integrated fluxes for the chosen models.
       // 0-entry = mass values; remaining entries = counts in bins.
@@ -808,7 +979,7 @@ namespace Gambit
         const double* flux_gaee = &gaee_data[bin+1][0];
         gsl_spline_init (gagg_linear_interp[bin], mass_gagg, flux_gagg, gagg_pts);
         gsl_spline_init (gaee_linear_interp[bin], mass_gaee, flux_gaee, gaee_pts);
-      };
+      }
     }
 
     // Move constructor
@@ -834,7 +1005,7 @@ namespace Gambit
         gsl_spline_free (gaee_li);
       for(auto gaee_ac : gaee_acc)
         gsl_interp_accel_free (gaee_ac);
- 
+
     }
 
     // Returns reference value counts for the photon-axion contribution.
@@ -847,10 +1018,10 @@ namespace Gambit
       // Only perform a calculation for valid masses.
       if (lgm < 2.0)
       {
-        for (int i = 0; i < n_bins; i++) { result.push_back(gsl_spline_eval(gagg_linear_interp[i], lgm, gagg_acc[i])); };
+        for (int i = 0; i < n_bins; i++) { result.push_back(gsl_spline_eval(gagg_linear_interp[i], lgm, gagg_acc[i])); }
       } else {
-        for (int i = 0; i < n_bins; i++) { result.push_back(0.0); };
-      };
+        for (int i = 0; i < n_bins; i++) { result.push_back(0.0); }
+      }
 
       return result;
     }
@@ -865,16 +1036,16 @@ namespace Gambit
       // Only perform a calculation for valid masses.
       if (lgm < 2.0)
       {
-        for (int i = 0; i < n_bins; i++) { result.push_back(gsl_spline_eval(gaee_linear_interp[i], lgm, gaee_acc[i])); };
+        for (int i = 0; i < n_bins; i++) { result.push_back(gsl_spline_eval(gaee_linear_interp[i], lgm, gaee_acc[i])); }
       } else {
-        for (int i = 0; i < n_bins; i++) { result.push_back(0.0); };
-      };
+        for (int i = 0; i < n_bins; i++) { result.push_back(0.0); }
+      }
 
       return result;
     }
 
     // Use simplified version of Gaussian likelihood from GAMBIT Utils.
-    double gaussian_nuisance_lnL(double theo, double obs, double sigma) { return Stats::gaussian_loglikelihood(theo, obs, 0, sigma, false); };
+    double gaussian_nuisance_lnL(double theo, double obs, double sigma) { return Stats::gaussian_loglikelihood(theo, obs, 0, sigma, false); }
 
     ////////////////////////////////////////////////////////
     //                                                    //
@@ -906,7 +1077,7 @@ namespace Gambit
         res = gR.interpolate (-4.99);
       } else {
         res = gR.interpolate (lgT);
-      };
+      }
 
       return res;
     }
@@ -926,7 +1097,8 @@ namespace Gambit
         res = gS.interpolate (-4.99);
       } else {
         res = gS.interpolate (lgT);
-      };
+      }
+
       return res;
     }
 
@@ -967,7 +1139,7 @@ namespace Gambit
     double log_chi (double T, double beta, double Tchi)
     {
       double result = 0.0;
-      if (T > Tchi) { result = -beta*log10(T/Tchi); };
+      if (T > Tchi) { result = -beta*log10(T/Tchi); }
 
       return result;
     }
@@ -986,7 +1158,7 @@ namespace Gambit
        const double log_chi_err_vals [20] = {0.014468, 0.0361846, 0.014468, 0.014468, 0.064104, 0.064104, 0.0510815, 0.0361846, 0.0510815, 0.064104, 0.0878027, 0.110042, 0.142159, 0.163124, 0.183873, 0.224965, 0.255557, 0.286023, 0.316401, 0.356804};
 
        double dummy = 0.0;
-       for (int i = 0; i < 20; i++) { dummy = dummy + gaussian_nuisance_lnL(log_chi_vals[i], log_chi(temp_vals[i],beta,Tchi), log_chi_err_vals[i]); };
+       for (int i = 0; i < 20; i++) { dummy = dummy + gaussian_nuisance_lnL(log_chi_vals[i], log_chi(temp_vals[i],beta,Tchi), log_chi_err_vals[i]); }
 
        result = dummy;
      }
@@ -1029,7 +1201,7 @@ namespace Gambit
 
         // Prefactor: 1096 W * 1 h * (10^-17/eV * 4.98 T * 4.2 m)^4 / 16.
         result = 0.00282962979*eff*factor*(power/1096.0)/erg;
-      };
+      }
 
       return result;
     }
@@ -1112,7 +1284,7 @@ namespace Gambit
       {
         dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[i]) + gsl_pow_2(gaee*1E13)*pow(10,lg_ref_counts_gaee[i]);
         counts.push_back(gsl_pow_2(gagg*1E19)*dummy);
-      };
+      }
 
       result = counts;
     }
@@ -1142,8 +1314,8 @@ namespace Gambit
         {
           CAST_SolarModel_Interpolator dummy (solar_model_gagg, solar_model_gaee, "CAST2017_"+exp_names[e]);
           lg_ref_counts.push_back(std::move(dummy));
-        };
-      };
+        }
+      }
       lg_ref_counts_not_calculated = false;
 
       for (int e = 0; e < n_exps; e++)
@@ -1157,10 +1329,10 @@ namespace Gambit
         {
           dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[bin]) + gsl_pow_2(gaee*1E13)*pow(10,lg_ref_counts_gaee[bin]);
           counts.push_back(gsl_pow_2(gagg*1E19)*dummy);
-        };
+        }
 
         res.push_back(counts);
-      };
+      }
 
       result = res;
     }
@@ -1175,7 +1347,7 @@ namespace Gambit
       {
         double mu = s[i] + bkg_counts[i];
         result += sig_counts[i]*gsl_sf_log(mu) - mu;
-      };
+      }
 
       return result;
     }
@@ -1197,8 +1369,8 @@ namespace Gambit
       static bool norm_not_calculated = true;
       if (norm_not_calculated)
       {
-        for (int i = 0; i < n_bins; i++) { norm += gsl_sf_lnfact(dat_vac[i]); };
-      };
+        for (int i = 0; i < n_bins; i++) { norm += gsl_sf_lnfact(dat_vac[i]); }
+      }
       norm_not_calculated = false;
 
       result = CAST_lnL_general(sig_vac, bkg_vac, dat_vac) - norm;
@@ -1247,13 +1419,13 @@ namespace Gambit
       {
         for (int bin = 0; bin < n_bins; bin++)
         {
-          for (int e = 0; e < n_exps; e++) { norm += gsl_sf_lnfact(dat_vac_all[e][bin]); };
-        };
-      };
+          for (int e = 0; e < n_exps; e++) { norm += gsl_sf_lnfact(dat_vac_all[e][bin]); }
+        }
+      }
       norm_not_calculated = false;
 
       result = 0.0;
-      for (int e = 0; e < n_exps; e++) { result = result + CAST_lnL_general(sig_vac[e], bkg_vac_all[e], dat_vac_all[e]); };
+      for (int e = 0; e < n_exps; e++) { result = result + CAST_lnL_general(sig_vac[e], bkg_vac_all[e], dat_vac_all[e]); }
       result = result - norm;
     }
 
@@ -1300,7 +1472,7 @@ namespace Gambit
         gsl_histogram_fscanf (f, h);
         fclose(f);
         init_flag = true;
-      };
+      }
 
       // Likelihood shape parameters based on limits from astro-ph/9801286.
       const double a = 0.013060890;
@@ -1314,8 +1486,8 @@ namespace Gambit
         double s_ref = gsl_pow_2(gsl_histogram_get(h, index));
         double s_rel = s/s_ref;
         // Only apply contraints for a signal > threshold a.
-        if (s_rel > a) { l = -0.5 * gsl_pow_2( (s_rel - a)/b ); };
-      };
+        if (s_rel > a) { l = -0.5 * gsl_pow_2( (s_rel - a)/b ); }
+      }
 
       result = l;
     }
@@ -1342,7 +1514,7 @@ namespace Gambit
         double var_theo = gsl_pow_2(0.13*s);
         double var_tot = var_exp + var_theo;
         l = -0.5*gsl_pow_2(s)/var_tot;
-      };
+      }
 
       result = l;
     }
@@ -1366,7 +1538,7 @@ namespace Gambit
         //double s = 0.035083106*(0.45/0.2804)*(*Dep::Haloscope_signal);
         double s = 0.0273012*(*Dep::Haloscope_signal);
         l = -0.5 * gsl_pow_2(s/sigma);
-      };
+      }
 
       result = l;
     }
@@ -1406,8 +1578,8 @@ namespace Gambit
         double s = (0.45/0.3)*(*Dep::Haloscope_signal);
         if (s > offset) {
           l = -0.5 * gsl_pow_2( (s - offset)/sigma );
-        };
-      };
+        }
+      }
 
       result = l;
     }
@@ -1438,7 +1610,7 @@ namespace Gambit
       // Tabulated data: x = log10(T/GeV), y = F1(T); gR and gS from 0910.1066 .
       static AxionInterpolator F1 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun1.dat", "linear");
       double res = -1.0;
-      if ((lgT > 3.0) && (lgT < -5.0)) { res = F1.interpolate (lgT); };
+      if ((lgT > 3.0) && (lgT < -5.0)) { res = F1.interpolate (lgT); }
       return res;
     }
 
@@ -1450,7 +1622,7 @@ namespace Gambit
       // Tabulated data: x = log10(T/GeV), y = F3(T); gR and gS from 0910.1066 .
       static AxionInterpolator F3 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun3.dat", "linear");
       double res = 0.0;
-      if ((lgT > 3.0) && (lgT < -5.0)) { res = F3.interpolate (lgT); };
+      if ((lgT > 3.0) && (lgT < -5.0)) { res = F3.interpolate (lgT); }
       return res;
     }
 
@@ -1466,7 +1638,7 @@ namespace Gambit
     double axion_mass_temp(double T, double beta, double Tchi)
     {
       double res = 1.0;
-      if (T > Tchi) { res = pow(T/Tchi,-0.5*beta); };
+      if (T > Tchi) { res = pow(T/Tchi,-0.5*beta); }
       return res;
     }
 
@@ -1523,12 +1695,12 @@ namespace Gambit
       if ( (r > Tchi) && (beta > 1.0E-10) )
       {
         r = 0.76*pow((10.0/(pi*pi)) * gsl_pow_2(m_pl*ma0) * pow(Tchi, beta), 1.0/(4.0+beta));
-      };
+      }
       // Find appropriate values for r_lo and r_up
       r_up = r;
       r_lo = r;
-      while (GSL_FN_EVAL(&F,r_up) > 0.0) { r_up = 2.0*r_up; };
-      while (GSL_FN_EVAL(&F,r_lo) < 0.0) { r_lo = 0.5*r_lo; };
+      while (GSL_FN_EVAL(&F,r_up) > 0.0) { r_up = 2.0*r_up; }
+      while (GSL_FN_EVAL(&F,r_lo) < 0.0) { r_lo = 0.5*r_lo; }
 
       // Execute equation solver until we reach 10^-6 absolute precision.
       gsl_root_fsolver_set(s, &F, r_lo, r_up);
@@ -1600,69 +1772,75 @@ namespace Gambit
       double fa = *Param["fa"];
       double Tosc = *Dep::AxionOscillationTemperature;
 
-      // For sampling purposes only: Map pi < thetai < 3*pi to its equivalent value in (-pi,pi].
-      if ( (thetai>pi) && (thetai<3.0*pi) ) {thetai = thetai - 2.0*pi;};
+      if ( (thetai<-pi) || (thetai>3.0*pi) ) { DarkBit_error().raise(LOCAL_INFO, "ERROR! The parameter 'thetai' should be chosen from the interval [-pi,3pi]."); }
+      // If thetai in (pi,3pi): map it back to its equivalent value in (-pi,pi]. This is to allow sampling around pi and easier averaging.
+      if (thetai>pi) { thetai = thetai - 2.0*pi; }
 
-      // TCMB in MeV.
-      const double TCMB = T_CMB*K2eV*1.0E-6;
-      // Critical energy density today * h^2 (in eV^4).
-      const double ede_crit_today = 3.0*2.69862E-11;
-
-      struct AxionEDT_params p = {ma0, beta, Tchi, thetai, Tosc};
-
-      // Function, Jacobian, number of dimensions + pointer to params.
-      gsl_odeiv2_system sys = {scal_field_eq, scal_field_eq_jac, 2, &p};
-      // Evolution from Temp = 1e5 x Tosc to Temp = 0.001 x Tosc.
-      double tau2 = -0.001, tau1 = -1E5;
-      // Initial conditions for (u and v = u') as functions of temperature:
-      double y[2] = {1.0, 0.0};
-      // Settings for the driver: pointer to the ODE system sys, the gsl method, initial step size,
-      // absolute accuracy in y[0] and y[1], relative accuracy in y[0] and y[1].
-      // Other possible choices: gsl_odeiv2_step_rk4 (classic), gsl_odeiv2_step_rk8pd, gsl_odeiv2_step_rkf45 (standard choices).
-      gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_bsimp, -0.1*tau1, 1E-8, 1E-8);
-
-      // Numerically solve ODE by continuing the integration well into the harmonic and adiabatic regime (stopping conditions
-      // via check1 = |\hat(theta)| and check2 = 3H/m need to be satisfied).
-      double new_step;
-      double check1 = 1.0, check2 = 1.0;
-      int i = 0;
-
-      #ifdef AXION_DEBUG_MODE
-        std::cout << "DEBUGGING INFO for relic density calculation:\n"
-                     "#'temperature' theta dtheta/dtau" << std::endl;
-      #endif
-
-      do
+      // Only do computations if thetai > 0.
+      result = 0.0;
+      if (fabs(thetai) > 0)
       {
-        i++;
-        new_step = -pow(10.0, 1.0 + (log10(-tau2)-1.0)*i/1000.0);
-        int status = gsl_odeiv2_driver_apply (d, &tau1, new_step, y);
-        if (status != GSL_SUCCESS) {std::cout << "Error, return value = " << d << std::endl;};
-        check1 = fabs(thetai)*sqrt(gsl_pow_2( fabs(y[0]) ) + gsl_pow_2( fabs((-new_step)*y[1]*hubble_rad_dom(-new_step*Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi))) ));
-        check2 = 3.0*hubble_rad_dom(-new_step*Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi));
+        // TCMB in MeV.
+        const double TCMB = *Dep::T_cmb*K2eV*1.0E-6;
+        // Critical energy density today * h^2 (in eV^4).
+        const double ede_crit_today = 3.0*2.69862E-11;
+
+        struct AxionEDT_params p = {ma0, beta, Tchi, thetai, Tosc};
+
+        // Function, Jacobian, number of dimensions + pointer to params.
+        gsl_odeiv2_system sys = {scal_field_eq, scal_field_eq_jac, 2, &p};
+        // Evolution from Temp = 1e5 x Tosc to Temp = 0.001 x Tosc.
+        double tau2 = -0.001, tau1 = -1E5;
+        // Initial conditions for (u and v = u') as functions of temperature:
+        double y[2] = {1.0, 0.0};
+        // Settings for the driver: pointer to the ODE system sys, the gsl method, initial step size,
+        // absolute accuracy in y[0] and y[1], relative accuracy in y[0] and y[1].
+        // Other possible choices: gsl_odeiv2_step_rk4 (classic), gsl_odeiv2_step_rk8pd, gsl_odeiv2_step_rkf45 (standard choices).
+        gsl_odeiv2_driver * d = gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_bsimp, -0.1*tau1, 1E-8, 1E-8);
+
+        // Numerically solve ODE by continuing the integration well into the harmonic and adiabatic regime (stopping conditions
+        // via check1 = |hat(theta)| and check2 = 3H/m need to be satisfied).
+        double new_step;
+        double check1 = 1.0, check2 = 1.0;
+        int i = 0;
 
         #ifdef AXION_DEBUG_MODE
-          std::cout << -new_step << " " << thetai*y[0] << " " << -tau2*thetai*y[1] << std::endl;
+          std::cout << "DEBUGGING INFO for relic density calculation:\n"
+                       "#'temperature' theta dtheta/dtau" << std::endl;
         #endif
 
-      } while ( ((check1>1.0E-2) || (check2>1.0E-3)) && (i<1E3) );
+        do
+        {
+          i++;
+          new_step = -pow(10.0, 1.0 + (log10(-tau2)-1.0)*i/1000.0);
+          int status = gsl_odeiv2_driver_apply (d, &tau1, new_step, y);
+          if (status != GSL_SUCCESS) { std::cout << "Error, return value = " << d << std::endl; }
+          check1 = fabs(thetai)*sqrt(gsl_pow_2( fabs(y[0]) ) + gsl_pow_2( fabs((-new_step)*y[1]*hubble_rad_dom(-new_step*Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi))) ));
+          check2 = 3.0*hubble_rad_dom(-new_step*Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi));
 
-      i++;
-      if (i>=1E+3)
-      {
-        std::ostringstream buffer;
-        buffer << "T_end: " << -new_step << " | theta_hat_val: " << check1 << ", theta_der: "<< -tau2*y[1]*thetai << ", 3H/m_osc: " << 3.0*hubble_rad_dom(Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi)) << ", 3H/m: " << check2 << " .\n";
-        DarkBit_warning().raise(LOCAL_INFO, "WARNING! Maximum number of integration steps reached for energy density calculator!\n         "+buffer.str());
-      };
+          #ifdef AXION_DEBUG_MODE
+            std::cout << -new_step << " " << thetai*y[0] << " " << -tau2*thetai*y[1] << std::endl;
+          #endif
 
-      // Calculate the axion energy density at the stopping point.
-      double ede = 1E+18*gsl_pow_2(fa)*(0.5*gsl_pow_2(y[1]*thetai*hubble_rad_dom(-new_step*Tosc)*(-new_step)) + gsl_pow_2(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi))*(1.0 - gsl_sf_cos(y[0]*thetai)));
-      // Use conservation of entropy to scale the axion energy density to its present value (relative to the critical energy density).
-      double OmegaAh2 = ede*gsl_pow_3(TCMB/(-new_step*Tosc))*(gStar_S(TCMB)/gStar_S(-new_step*Tosc))*(1.0/axion_mass_temp(-new_step*Tosc,beta,Tchi))/ede_crit_today;
+        } while ( ((check1>1.0E-2) || (check2>1.0E-3)) && (i<1E3) );
 
-      gsl_odeiv2_driver_free (d);
+        i++;
+        if (i>=1E+3)
+        {
+          std::ostringstream buffer;
+          buffer << "T_end: " << -new_step << " | theta_hat_val: " << check1 << ", theta_der: "<< -tau2*y[1]*thetai << ", 3H/m_osc: " << 3.0*hubble_rad_dom(Tosc)/(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi)) << ", 3H/m: " << check2 << " .\n";
+          DarkBit_warning().raise(LOCAL_INFO, "WARNING! Maximum number of integration steps reached for energy density calculator!\n         "+buffer.str());
+        }
 
-      result = OmegaAh2;
+        // Calculate the axion energy density at the stopping point.
+        double ede = 1E+18*gsl_pow_2(fa)*(0.5*gsl_pow_2(y[1]*thetai*hubble_rad_dom(-new_step*Tosc)*(-new_step)) + gsl_pow_2(ma0*axion_mass_temp(-new_step*Tosc,beta,Tchi))*(1.0 - gsl_sf_cos(y[0]*thetai)));
+        // Use conservation of entropy to scale the axion energy density to its present value (relative to the critical energy density).
+        double OmegaAh2 = ede*gsl_pow_3(TCMB/(-new_step*Tosc))*(gStar_S(TCMB)/gStar_S(-new_step*Tosc))*(1.0/axion_mass_temp(-new_step*Tosc,beta,Tchi))/ede_crit_today;
+
+        gsl_odeiv2_driver_free (d);
+
+        result = OmegaAh2;
+      }
     }
 
     //////////////////////////////////////////////
@@ -1685,10 +1863,9 @@ namespace Gambit
      void calc_RParameter(double &result)
      {
        using namespace Pipes::calc_RParameter;
-       const ModelParameters& params = *Dep::GeneralALP_parameters;
-       double gaee2 = gsl_pow_2(1.0E+13 * std::fabs(params.at("gaee")));
-       double gagg = 1.0E+10*std::fabs(params.at("gagg")); // gagg needs to be in 10^-10 GeV^-1.
-       double lgma0 = log10(params.at("ma0"));
+       double gaee2 = gsl_pow_2(1.0E+13*std::fabs(*Param["gaee"]));
+       double gagg = 1.0E+10*std::fabs(std::fabs(*Param["gagg"]));
+       double lgma0 = log10(*Param["ma0"]);
        // Value for He-abundance Y from 1503.08146: <Y> = 0.2515(17).
        const double Y = 0.2515;
        // Use interpolation for the finite-mass correction.
@@ -1696,12 +1873,12 @@ namespace Gambit
        // Initialise an effective axion-photon coupling, valid for low masses.
        double geff = gagg;
        // Apply correction for higher mass values...
-       if ((lgma0 > correction.lower()) && (lgma0 < correction.upper())) { geff *= pow(10, 0.5*correction.interpolate(lgma0)); };
+       if ((lgma0 > correction.lower()) && (lgma0 < correction.upper())) { geff *= pow(10, 0.5*correction.interpolate(lgma0)); }
        // ... or set to zero if mass is too high.
-       if (lgma0 >= correction.upper()) { geff = 0.0; };
+       if (lgma0 >= correction.upper()) { geff = 0.0; }
        // Expressions only valid for gaee2 < 35.18 but limits should become stronger for gaee2 > 35.18 (but perhaps not gaee2 >> 35.18).
        // Conservative approach: Constrain gaee2 > 35.18 at the level of gaee2 = 35.18.
-       if (gaee2 > 35.18) { gaee2 = 35.18; };
+       if (gaee2 > 35.18) { gaee2 = 35.18; }
 
        result = -0.421824 - 0.0948659*(-4.675 + sqrt(21.8556 + 21.0824*geff)) - 0.00533169*gaee2 - 0.0386834*(-1.23 - 0.137991*pow(gaee2,0.75) + sqrt(1.5129 + gaee2)) + 7.3306*Y;
      }
@@ -1725,53 +1902,15 @@ namespace Gambit
     //      White Dwarf cooling hints      //
     /////////////////////////////////////////
 
-    // White Dwarf interpolator class
-    class WDInterpolator
-    {
-      private:
-
-        gsl_interp_accel *acc;
-        gsl_spline *spline;
-
-      public:
-
-        // Constructor
-        WDInterpolator(int npoints)
-        {
-          acc = gsl_interp_accel_alloc();
-          spline = gsl_spline_alloc(gsl_interp_cspline, npoints);
-        }
-     
-        // Destructor
-        ~WDInterpolator()
-        { 
-          gsl_spline_free (spline);
-          gsl_interp_accel_free (acc);
-        }
-
-        // Delete copy constructor and assignment operator to avoid shallow copies
-        WDInterpolator(const WDInterpolator&) = delete;
-        WDInterpolator operator=(const WDInterpolator&) = delete;
-
-        // Init
-        void init(std::vector<double> x, std::vector<double> y, int npoints)
-        {
-          gsl_spline_init(spline, x.data(), y.data(), npoints);
-        }
-
-        // Evaluation function
-        double eval(double x)
-        {
-          return gsl_spline_eval(spline, x, acc);
-        }
-    };
-
     // Capability function to compute the cooling likelihood of G117-B15A (1205.6180; observations from Kepler+ (2011)).
     void calc_lnL_WDVar_G117B15A(double &result)
     {
       using namespace Pipes::calc_lnL_WDVar_G117B15A;
       // Rescale coupling to be used in their model prediction.
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
+      // it is conservative to use the prediction for x = 30 for x > 30.
+      x = std::min(x,30.0);
 
       // Values for the model prediction provided by the authors.
       const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.1, 22.5, 25.0, 27.5, 30.0};
@@ -1779,24 +1918,9 @@ namespace Gambit
       const double err = 0.09;
 
       // Use interpolation for the model predction, but only initialise once.
-      static bool init_flag = false;
-      static WDInterpolator interp(14);
-      if (not(init_flag))
-      {
-        interp.init (xvals, dPidts, 14);
-        init_flag = true;
-      };
+      static AxionInterpolator period_change (xvals, dPidts, "cspline");
 
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prediction for x = 30 for x > 30.
-      double pred;
-      if (x > 30.0)
-      {
-        pred = interp.eval (30.0);
-      } else {
-        pred = interp.eval (x);
-      };
-
+      double pred = period_change.interpolate(x);
       result = -0.5 * gsl_pow_2(4.19 - pred) / (0.73*0.73 + err*err);
     }
 
@@ -1806,31 +1930,18 @@ namespace Gambit
       using namespace Pipes::calc_lnL_WDVar_R548;
       // Rescale coupling to be used in their model prediction.
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
+      // it is conservative to use the prodiction for x = 30 for x > 30.
+      x = std::min(x,30.0);
 
       // Values for the model prediction provided by the authors.
       const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0, 27.5, 30.0};
       const std::vector<double> dPidts  = {1.075373, 1.095319, 1.123040, 1.289434, 1.497666, 1.869437, 2.300523, 2.844954, 3.379978, 4.086028, 4.847149, 5.754807, 6.714841, 7.649140};
       const double err = 0.09;
 
-      // Use interpolation for the model predction, but only initialise once.
-      static bool init_flag = false;
-      static WDInterpolator interp(14);
-      if (not(init_flag))
-      {
-        interp.init (xvals, dPidts, 14);
-        init_flag = true;
-      };
+      static AxionInterpolator period_change (xvals, dPidts, "cspline");
 
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prodiction for x = 30 for x > 30.
-      double pred;
-      if (x > 30.0)
-      {
-        pred = interp.eval (30.0);
-      } else {
-        pred = interp.eval (x);
-      };
-
+      double pred = period_change.interpolate(x);
       result = -0.5 * gsl_pow_2(3.3 - pred) / (1.1*1.1 + err*err);
     }
 
@@ -1840,31 +1951,20 @@ namespace Gambit
       using namespace Pipes::calc_lnL_WDVar_PG1351489;
       // Rescale coupling to be used in their model prediction.
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      // We only have predictions up to x = 20. Limits should get stronger for x > 20, so
+      // it is conservative to use the prodiction for x = 20 for x > 20.
+      x = std::min(x,20.0);
 
       // Values for the model prediction provided by the authors.
       const std::vector<double> xvals = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
       const std::vector<double> dPidts = {0.90878126, 0.96382008, 1.2022906, 1.5712931, 2.1220619, 2.8002354, 3.6172605, 4.5000560, 5.5256592, 6.5055283, 7.5341296};
       const double err = 0.5;
 
-      // Use interpolation for the model predction, but only initialise once.
-      static bool init_flag = false;
-      static WDInterpolator interp(11);
-      if (not(init_flag))
-      {
-        interp.init (xvals, dPidts, 11);
-        init_flag = true;
-      };
+      static AxionInterpolator period_change (xvals, dPidts, "cspline");
 
       // We only have predictions up to x = 20. Limits should get stronger for x > 20, so
       // it is conservative to use the prodiction for x = 20 for x > 20.
-      double pred;
-      if (x > 20.0)
-      {
-        pred = interp.eval (20.0);
-      } else {
-        pred = interp.eval (x);
-      };
-
+      double pred = period_change.interpolate(x);
       result = -0.5 * gsl_pow_2(2.0 - pred) / (0.9*0.9 + err*err);
     }
 
@@ -1874,53 +1974,54 @@ namespace Gambit
       using namespace Pipes::calc_lnL_WDVar_L192;
       // Rescale coupling to be used in their model prediction.
       double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
+      // it is conservative to use the prediction for x = 30 for x > 30.
+      x = std::min(x,23.0);
 
       // Values for the model prediction provided by the authors.
       const std::vector<double> xvals = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0};
       const std::vector<double> dPidts = {2.41, 2.40, 2.44, 2.42, 2.50, 2.57, 2.63, 2.74, 2.83, 2.99, 3.15, 3.32, 3.52, 3.70, 3.90, 4.08, 4.42, 4.69, 4.98, 5.34, 5.62, 6.02, 6.27, 6.62, 7.04, 7.38, 7.89, 8.09, 8.65, 9.16, 9.62};
       const double err = 0.85;
 
-      // Use interpolation for the model predction, but only initialise once.
-      static bool init_flag = false;
-      static WDInterpolator interp(31);
-      if (not(init_flag))
-      {
-        interp.init (xvals, dPidts, 31);
-        init_flag = true;
-      };
+      static AxionInterpolator period_change (xvals, dPidts, "cspline");
 
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prediction for x = 30 for x > 30.
-      double pred;
-      if (x > 30.0)
-      {
-        pred = interp.eval (30.0);
-      } else {
-        pred = interp.eval (x);
-      };
-
+      double pred = period_change.interpolate(x);
       result = -0.5 * gsl_pow_2(3.0 - pred) / (0.6*0.6 + err*err);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    //      SN 1987A limits (from axion-photon conversion in the B-field of the Milky Way)      //
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //      SN 1987A limits (from axion-photon conversion in the B-field of the Milky Way or axion-photon decay)      //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Capability function to calculate the likelihood for SN 1987A (based on model prediction from 1410.3747
-    // and data from 25 to 100 MeV photons interpreted by Chupp et al., Phys. Rev. Lett. 62, 505 (1989)).
+    // Capability function to calculate the likelihood for SN 1987A (based on data from 25 to 100 MeV photons, interpreted
+    // by Chupp et al., Phys. Rev. Lett. 62, 505 (1989). Use 10 sec of data for conversion.
     void calc_lnL_SN1987A (double &result)
     {
       using namespace Pipes::calc_lnL_SN1987A;
-      double ma0  = (1.0E+10*(*Param["ma0"]))/5.433430;
-      double gagg = (1.0E+12*std::fabs(*Param["gagg"]))/5.339450;
+      double f_10s = *Dep::PhotonFluence_SN1987A_Conversion;
 
-      // Standard devation of the null observation.
-      const double sigma = 0.2;
+      // Standard devations of the null observation.
+      const double sigma_10s = 0.2;
 
-      double obs = 0.570589*gsl_pow_4(gagg);
-      if (ma0 > 1.0) { obs = obs*pow(ma0, -4.021046); };
+      double ratio = f_10s/sigma_10s;
 
-      result = -0.5 * gsl_pow_2(obs/sigma);
+      result = -0.5*ratio*ratio;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    //      SN 1987A photon fluence (from axion-photon conversion in the B-field of the Milky Way)      //
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Capability function to calculate the photon fluence from SN 1987A as a result of axion-photon
+    // conversion in the B-field of the Milky Way (based on arXiv:1410.3747).
+    void calc_PhotonFluence_SN1987A_Conversion (double &result)
+    {
+      using namespace Pipes::calc_PhotonFluence_SN1987A_Conversion;
+      double m = (1.0E+10*(*Param["ma0"]))/5.433430;
+      double g = (1.0E+12*std::fabs(*Param["gagg"]))/5.339450;
+
+      result = 0.570589*gsl_pow_4(g);
+      if (m > 1.0) { result = result*pow(m, -4.021046); }
     }
 
     //////////////////////////////////////////////////////////////////
@@ -1936,7 +2037,7 @@ namespace Gambit
 
       // Compute the domensionless parameters Epsilon and Gamma from the axion mass and axion-photon coupling (see 1311.3148).
       const double c_epsilon = 0.071546787;
-      const double c_gamma   = 0.015274036*370.0/sqrt(37.0);
+      const double c_gamma = 0.015274036*370.0/sqrt(37.0);
       double epsilon = log10(m_ax*c_epsilon) + 5.0;
       double gamma = log10(gagg*c_gamma) + 20.0;
 

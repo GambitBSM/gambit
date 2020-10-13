@@ -1,0 +1,616 @@
+##########################################################################
+##
+##
+##      explanatory yaml file for CosmoBit
+##
+##  \author Janina Renk <janina.renk@fysik.su.se>
+##      \date 2019 Sep, 2020 Aug
+##
+##  \author Patrick Stoecker <stoecker@physik.rwth-aachen.de>
+##      \date 2020 Aug
+##
+##########################################################################
+
+# =======  Install GAMBIT =========
+#
+#   => To install GAMBIT do
+#     (check README.md for more details on prerequisites & dependencies)
+#
+#         Note:
+#         -----
+#           *) for this specific yaml file you only need CosmoBit, DarkBit, NeutrinoBit and PrecisionBit
+#                 => there is no need to build all Bits of GAMBIT, you can ditch the others
+#                    with the cmake flag -Ditch="Collider;Decay;Spec;Flav"
+#           *) if you want to force GAMBIT to configure with python2 and
+#                 if you have python3 installed, you have to set cmake flags to your python2 library and
+#                 interpreters s.t. GAMBIT chooses python2
+#                 If the -DFORCE_PYTHON2 flag does not do the job you have to provide the following paths, something like
+#                 -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython2.7.so -DPYTHON_EXECUTABLE=/usr/bin/python2.7
+#           *) you will need the python package cython (included in the cmake prerequisite)
+#
+#
+#      cmake -Ditch="Collider;Decay;Spec;Flav" ..
+#      make -jn scanners (where n specifies the desired number of cores for the build, e.g. 4)
+#      cmake ..
+#      make -jn gambit
+#
+#   => To look at available capabilities of different Bits and explanations of capabilites, models & their parameters.. do
+#      ./gambit CosmoBit  (DarkBit,...)
+#      ./gambit <capability_name>
+#      ./gambit <model_name>
+#
+#
+# ======================================
+
+# ======= Install needed backends =========
+#
+#   => To use this yaml file you need to make
+#
+#     make -jn alterbbn darkages montepythonlike plc plc_data classy_exo_2.7.2
+#
+#       *) alterbbn: to calculate light element abundance (https://alterbbn.hepforge.org/)
+#            => the resulting helium fraction is an input for CLASS
+#       *) darkages: DarkAges module to compute the energy deposition of any exotic kind. (https://github.com/pstoecker/DarkAges)
+#       *) montepythonlike: to have cosmological likelihoods from MontePython available to use (almost) out of the box
+#            (https://www.groundai.com/project/montepython-3-boosted-mcmc-sampler-and-other-features/2#bib.bib81)
+#       *) plc: Planck likelihoods
+#       *) plc_data: download of data needed for Planck likelihood calculations
+#       *) classy(_exo_2.7.2): Boltzmann solver to get CMB spectra, mPk,.. (http://class-code.net/)
+#
+#           Note:
+#           -----
+#              x Alternatively you can also make 'classy' (standard version of CLASS) instead of 'classy_exo_2.7.0'
+#                 If you do that, however, you won't be able to use any capabilities depending on CLASS output when you
+#                 scan a model with exotic energy injection into the CMB.
+#              x If you have more than one classy version installed, GAMBIT will throw an error during the
+#                 dependency resolution. This is the case as the different CLASS versions can all satisfy
+#                 the same capabilities. To fix this, either set a rule for each CLASS-related capability which
+#                 version GAMBIT should use (see comments in section C.7)) or (easier) uninstall all classy versions you don't want to use (see below).
+#
+#
+#    => To clean/nuke a backend just do
+#
+#     make clean-<backendname>
+#     make nuke-<backendname>
+#
+#    => To check if a backend is correctly installed & look at available backed functions
+#     ./gambit backends
+#     ./gambit <backend_name>
+#
+#
+# ======================================
+#
+#
+
+Parameters:
+#======== Input parameter declarations =======
+#  In this section the models to be scanned over are specified. You can
+#  set all model parameters here or import another yaml file containing them.
+#
+#  => for more details check out chapter 6.2 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908)
+#  => for the definition of all models introduced with CosmoBit, check Appendix B of the CosmoBit
+#     module paper (GAMBIT Cosmology Workgroup, Renk, et al. arXiv:2009.xxxxx )
+#
+#     The different types of models described in Appendix B) are:
+#      B.1) Standard cosmology – LCDM
+#      B.2) Primordial power spectra & inflationary models
+#      B.3) Neutrino Masses
+#      B.4) Non-standard radiation content (optional)
+#      B.5) Energy injection (from decaying/annihilating DM models) (optional)
+#      B.6) Cosmological nuisance parameters (depending on included likelihoods)
+#      B.7) Neutron lifetime (optional)
+#
+
+
+  # ====== B.1) Standard cosmology – LCDM =======
+
+  # choose either base-line LCDM model parameters and prior
+  # with H0 as model parameter or ..
+  LCDM:
+    omega_b:
+      prior_type: flat
+      range: [0.020,0.024]
+    omega_cdm:
+      prior_type: flat
+      range: [0.10,0.13]
+    H0:
+      prior_type: flat
+      range: [62,74]
+    tau_reio:
+      prior_type: flat
+      range: [0.004,0.20]
+    T_cmb:
+      # FIRAS measurement 2.72548 \pm 0.00057
+      #
+      # -> Fix to central vsalue
+      fixed_value: 2.72548
+      #
+      # -> vary within error range
+      #prior_type: gaussian
+      #mean: [2.75248]
+      #sigs: [0.00057]
+
+
+
+  # .. LCDM_theta with 100theta_s instead of H0
+  # as model parameter
+  # LCDM_theta:
+  #   omega_b:
+  #     prior_type: flat
+  #     range: [0.020,0.024]
+  #   omega_cdm:
+  #     prior_type: flat
+  #     range: [0.10,0.13]
+  #   100theta_s:
+  #     prior_type: flat
+  #     range: [1.03955,1.04265]
+  #   tau_reio:
+  #     prior_type: flat
+  #     range: [0.004,0.20]
+  #   T_cmb: 2.72548
+
+
+  # ====== B.2) Primordial power spectra & inflationary models =======
+
+  # For a primordial power spectrum that is described by a
+  # power-law choose the model PowerLaw_ps and set the relevant
+  # parameters and priors
+  PowerLaw_ps:
+    ln10A_s:
+      prior_type: flat
+      range: [2.9,3.2]
+    n_s:
+      prior_type: flat
+      range: [0.9,1.10]
+    r: 0
+    N_pivot: 55
+
+  # If you wish to include a concrete inflationary model instead, comment the lines above and
+  # include, e.g. Inflation_InstReh_1linear
+  # For a full list of all implemented inflation models and their parameters refer to Appendix B.2
+  # of the CosmoBit module paper
+  #Inflation_InstReh_1linear:
+  #  lambda:
+  #    range: [1.9e-10,2.2e-10]
+  #    prior_type: flat
+
+
+  # ====== B.3) Neutrino Masses =======
+
+  # Neutrino masses, choose between normal hierarchy (NH) and inverted hierarchy (IH)
+  StandardModel_mNudiff: !import include/StandardModel_mNudiff_NH_scan.yaml
+  #StandardModel_mNudiff: !import include/StandardModel_mNudiff_IH_scan.yaml
+
+  # To fix the sum of the neutrino masses to 0.06 eV with only one massive neutrino
+  # (as in Planck 'baseline' analysis don't include the model 'StandardModel_mNudiff'
+  # into the scan)
+  # uncomment the line below (and do not use 'StandardModel_mNudiff')
+  #StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
+
+
+
+  # ====== B.4) Non-standard radiation content (optional) =======
+
+  # If you would like to study extensions of LCDM including non-standard radiation
+  # content, you can add the most general model 'etaBBN_rBBN_rCMB_dNurBBN_dNurCMB'
+  # and its parameters, or any child model thereof. See Appendix B.4 of the CosmoBit
+  # module paper for a detailed description.
+
+  # example 1: extension of standard LCDM allowing for an increased value of dNeff
+  # during the epoch of recombination and today. If you want dNeff to be allowed to
+  # take negative values (knowing this can lead to an unphysical negative contribution to
+  # Omega_r0, the energy density in radiation today) you can do this by
+  # including an additional rule. It's explained below, search for #negative-dNeff
+  dNurCMB:
+   dNur_CMB:
+     prior_type: flat
+     range: [0.0,1.0]
+
+  # example 2: Most general model for non-standard radiation content and its parameters.
+  #etaBBN_rBBN_rCMB_dNurBBN_dNurCMB:
+  #  eta_BBN:  # baryon-to-photon ratio during BBN
+  #    prior_type: flat
+  #    range: [5e-10,7e-10]
+  #  r_BBN:    # = T_nu/T_nu^LCDM, parametrises non-standard neutrino temperature during BBN
+  #    prior_type: flat
+  #    range: [0.2,1.2]
+  #  r_CMB:    # = T_nu/T_nu^LCDM, parametrises non-standard neutrino temperature during recombination
+  #    prior_type: flat
+  #    range: [0.2,1.2]
+  #  dNur_BBN: # additional ur species during BBN
+  #   prior_type: flat
+  #   range: [0.0,1.0]
+  #  dNur_CMB: # additional ur species during recombination (assumed to be still ur today)
+  #   prior_type: flat
+  #   range: [0.0,1.0]
+
+
+  # ====== B.5) Energy injection (optional) =======
+
+  # If you would like to study scenarios of energy injection between z~30 and z~2700 of annihilating or decaying DM,
+  # you need to include a model, which is in relation to AnnihilatingDM_general or DecayingDM_general and provides the
+  # injected spectrum of photons and e+/e-. See Appendix B.5 of the CosmoBit module paper.
+  # In the initial CosmoBit version, We provide simple "mixture" models for both scenarios and child models thereof.
+  # These mixture models assume mono-energetic dark matter decays/annihilations into photons, and e+/e- with branching fractions BR_el and BR_ph
+  # The complementary branching fraction (1-BR_el-BR_ph) accounts for possible inefficient final states such as neutrinos
+  # In the examples included, no inefficient contribution is assumed such that BR_el + BR_ph = 1 holds
+  # And BR_ph has to be derived from BR_el -> "same_as" prior
+  # To study one of the natively supported models, you just need to include the model in the scan.
+  #AnnihilatingDM_mixture:
+  #  mass:                    # (mass in GeV)
+  #    range: [1e-2, 1e4]
+  #    prior_type: log
+  #  BR_el:
+  #    range: [0.0, 1.0]
+  #  BR_ph:
+  #    same_as: AnnihilatingDM_mixture::BR_el
+  #    shift: 1.0
+  #    scale: -1.0
+  #  sigmav:                 # (< sigma v > in cm^3 s^-1)
+  #    range: [1e-28, 1e-24]
+  #    prior_type: log
+
+  #DecayingDM_mixture:
+  #  mass:                   # (mass in Gev)
+  #    range: [1e-2, 1e4]
+  #    prior_type: log
+  #  BR_el:
+  #    range: [0.0, 1.0]
+  #  BR_ph:
+  #    same_as: DecayingDM_mixture::BR_el
+  #    shift: 1.0
+  #    scale: -1.0
+  #  lifetime:               # (lifetime in s)
+  #    range: [1e14, 1e18]
+  #    prior_type: log
+  #  fraction:               # (initial fractional decaying dark matter abundance)
+  #    range: [1e-12, 1e-6]
+  #    prior_type: log
+
+  # ====== B.6) Cosmological nuisance parameters (depending on included likelihoods) =======
+
+  # If likelihoods that require the use of nuisance parameters are used in the scan, the
+  # parameters have to be included as models here.
+  #  => if you don't include the Planck likelihoods into the scan you should get a FATAL Error
+  #     telling you that no function requires any of the model parameters, comment this line out
+  #     to fix it
+  # (try to comment this line or the Planck likelihoods then you can see the different error messages)
+  cosmo_nuisance_Planck_lite: !import include/Planck_2018/cosmo_nuisance_Planck_lite_flat.yaml
+
+  # Include this if you use the Pantheon SNe likelihood into your scan
+  # Note: - for all official MontePython likelihoods that require nuisance parameters, a model
+  #   called 'cosmo_nuisance_<likelihood_name>' is implemented. Run ./gambit cosmo_nuisance_<likelihood_name>
+  #   to check the names of the parameters in GAMBIT and set the ranges and priors here.
+  #   - if you include a nuisance model that is not required by any likelihood, GAMBIT will
+  #   exit and tell you the name of the parameter that is not needed. Likewise, if you forget
+  #   to include a nuisance parameter model, GAMBIT will tell you which one is (likely) missing.
+  cosmo_nuisance_Pantheon:
+    M:
+      prior_type: flat
+      range: [-20,-18]
+
+
+  # ====== B.7) Neutron lifetime (optional) =======
+
+  # Neutron lifetime.  If this is not included as a model, the lifetime will default to 879.4 s
+  # (PDG 2019 recommendation http://pdg.lbl.gov/2019/listings/rpp2019-list-n.pdf).
+  # Note: If you include any likelihoods related to the neutron lifetime, you have to include
+  # PrecisionBit in the build!
+  nuclear_params_neutron_lifetime:
+    neutron_lifetime:
+      range: [875,895]
+
+
+Priors:
+#======== Prior setup ========
+# you can also have an extra section specifying priors. Or just do it as above
+# for details check chapter 6.3 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908)
+
+
+Printer:
+#======== Output setup ========
+# different output formats, for details check chapter 6.6 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908)
+  printer: cout
+
+  #printer: ascii
+  #options:
+  #  output_file: "gambit_output.data"
+
+Scanner:
+#======== Scanner setup ========
+# different scanner settings, for details check chapter 6.7 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908)
+#   comparison of different sampling algorithms in https://arxiv.org/abs/1705.07959
+
+  # Just for testing, you can use the random sampler for testing.
+  # (Then you don't need the make scanners and extra cmake step when building)
+  use_scanner: random
+
+  scanners:
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 1000
+      tol: 0.01
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
+
+ObsLikes:
+#======== Observables of interest ========
+#
+# Specify all likelihoods (driving the scan) and observables (just printed, don't influence scan)
+# that should be calculated
+#
+# See chapter 4 of the CosmoBit Module paper for details on the available likelihoods.
+#
+
+
+  # ---- 4.1) BBN -----
+  # Likelihood from BBN, based only helium and deuterium abundances
+  - purpose:      LogLike
+    capability:   BBN_LogLike
+    sub_capabilities: [He4, D]
+
+  # Print lithium-7 abundance + error
+  - purpose:      Observable
+    capability:   BBN_abundances
+    sub_capabilities: [Li7]
+
+  # Available neutron lifetime likelihoods (only turn either of these on if varying the neutron lifetime)
+  # (PrecisionBit has to be build for this!)
+  #- purpose:      LogLike
+  #  capability:   lnL_neutron_lifetime_beam
+  #- purpose:      LogLike
+  #  capability:   lnL_neutron_lifetime_bottle
+
+
+  # ---- 4.2) CMB -----
+  # if you type e.g., ./gambit Planck_lowl_loglike you will see that there are different functions that
+  # can satisfy this capability. The dependency resolver won't decide ambiguities for you so
+  # you have to pick the function that you want to use
+  - purpose:      LogLike
+    capability:   Planck_lowl_loglike
+    function:     function_Planck_lowl_TTEE_2018_loglike
+
+
+  # ---- 4.3) Late-time cosmology: MontePython Likelihoods -----
+  # The total lnL from MontePython
+  # Since the single MontePython likelihoods are not implemented in GAMBIT as capabilities
+  # (and are more flexible -- you import them at runtime and don't need to know their name
+  # at compile time) you just tell GAMBIT to include the likelihoods coming from MP here
+  # => specify which ones to use below as sub-capabilities
+  # => this would e.g. contain LogLike(BAO)+LogLike(Pantheon)
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    # add likelihoods to be used for scan here & set path to the '<likelihood_name>.data' file containing
+    # the settings you want the likelihood to run with (e.g. path to data, which z-bins to use... ).
+    # Note that the path has to be relative to your GAMBIT directory.
+    # If you set it so "default" the default MontePython file 'likelihoods/<likelihood_name>/<likelihood_name>.data'
+    # will be used
+    sub_capabilities:
+      bao_smallz_2014: default # to use default .data file with settings for likelihood calculation ..
+      #bao_smallz_2014: CosmoBit/data/BAO/bao_galactic_settings.data # .. or use custom .data file
+      Pantheon: default
+      #Planck_SZ: default
+
+  # A breakdown of each likelihood component in the above total lnL
+  # (just to print the single contributions of the total sum)
+  # => this would e.g. print LogLike(BAO) and LogLike(Pantheon)
+  # => In case the user wants to get a specific likelihood (e.g LogLike(hst))
+  #    but does not want to use it to drive the scan, it can be added as a sub-capability
+  - purpose:          Observable
+    capability:       MP_LogLikes
+    type:             map_str_dbl
+    sub_capabilities: hst
+
+
+  # Print out the Hubble parameter today
+  # (you can add any other capability that returns a
+  # double, int, vector, or string to double/int map here)
+  - purpose:      Observable
+    capability:   H0
+    type:         double
+
+Rules:
+#======== Rule entries ========
+# Specify all additional rules and settings for the scan.
+# For details of all backend interfaces and related settings, see Appendix C
+# of the CosmoBit module paper.
+
+
+  # ---- C.1) BBN & AlterBBN related settings -----
+
+  # error calculation precision settings for AlterBBN
+  # (use 1 and 0 to speed up Helium abundance calculation for testing)
+  # (For more precise calculations, use 3 or 7)
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  # correlation matrix for BBN error calculation, determined from theoretical error estimates of
+  # isotope abundances determined by AlterBBN.
+  # In order to speed up the error estimation of the BBN abundances, we provide the option to manually set the covariance
+  # matrix used for the evaluation of the BBN likelihood by assuming their relative errors and/or their correlations are constant.
+  # We performed parameter scans of  non-standard cosmologies (with varying baryon-to-photon ration and dNeff and taking the
+  # the uncertainties in the neutron lifetime into account) and chose conservative values for all error estimates and correlations.
+  # The advantage of the use of pre-defined correlation matrix is to safe computational resources when performing
+  # large parameter scans and to remove the effect of some outliers of the error estimates due to numerical problems in the error estimation.
+  # See discussion in section 4.1 of the CosmoBit module paper (around eq. 4.3) for more details on how this was obtained.
+  # This option can be used by specifying the names of the isotopes of which the covariance matrix should be modified. (If missing, an error is thrown)
+  # Relative uncertainties can be passed vie 'relative_errors' (If not present, uncertainties are derived from the AlterBBN results)
+  # Alternatively to relative uncertainties, the absloute uncertainties can be passed via 'absolute_errors' (This is mutually exclusive with 'relative_errors')
+  # The correlation matrix can be passed via 'correlation_matrix' (If not present, the correlation matrix is assumed to be a unit matrix)
+  - capability: BBN_abundances
+    options:
+      isotope_basis: [Yp, D, He3, Be7, Li7]
+      correlation_matrix: [[+1.000e00, +1.524e-2, +2.667e-2, +2.303e-2, +2.429e-2],
+                           [+1.524e-2, +1.000e00, -8.160e-1, -3.775e-1, -3.653e-1],
+                           [+2.667e-2, -8.160e-1, +1.000e00, +3.897e-1, +3.780e-1],
+                           [+2.303e-2, -3.775e-1, +3.897e-1, +1.000e00, +9.974e-1],
+                           [+2.429e-2, -3.653e-1, +3.780e-1, +9.974e-1, +1.000e00]]
+      relative_errors: [1.348e-3, 1.596e-2, 1.618e-2, 6.788e-2, 6.579e-2]
+
+  # Set path to file containing measured values of light element abundances to use for
+  # Likelihood calculation (assumes root directory is gambit/CosmoBit/data/BBN)
+  - capability: BBN_LogLike
+    options:
+      DataFile: default.dat     # Use the Yp measurement from PDG 2017 and the updated D/H measurement of 1801.08023
+      #DataFile: ConsD_2014.dat # Use the Yp measurement from PDG 2017 and the conservative D/H measurement of 1412.4043
+      #DataFile: AlterBBN.dat   # Use the observed values given in AlterBBN
+
+
+  # ---- C.2) CLASS related settings -----
+
+  # Specify any CLASS input parameters (except model parameters) that usually go into the .ini file here
+  # Note: - all ouput-related parameters for any included likelihood (which spectra need to be computed,
+  #     mPk up to which redshifts, precision parameters,..) are passed automatically to CLASS. So in principle,
+  #     there is no need to pass anything here.
+  #     - do NOT pass any parameters here that are supposed to be scanned over. GAMBIT will exit
+  #     with a fatal error if you are trying to overwrite a model parameter.
+  - capability: classy_input_params
+    function: set_classy_input_params
+    options:
+      classy_dict:
+        #back_integration_stepsize: 7.e-3
+        #tol_background_integration: 1.e-2
+        #background_verbose: 3
+
+
+  # ---- C.3) DarkAges related settings -----
+
+  # Options recognised by DarkAges. The user can choose if the energy injection efficiency
+  # functions f_eff are calculated via the transfer functions or the factorised approach.
+  # See chapter 5.4 and Appendix C.3 of the module paper for details on the two approaches.
+  # The options below are set to their default values
+  - capability: DarkAges_1_2_0_init
+    options:
+      f_eff_mode: false    # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
+      print_table: false   # Print the table to stdout. Useful for debugging
+      z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
+
+
+  # ---- C.4) MontePython related settings -----
+
+  # You need to choose whether to have the possibility to set up the class parameters with arguments from MontePython Likelihoods.
+  # GAMBIT will tell you if you get this wrong; if it doesn't complain it is fine.
+  # Option a): If MontePython is installed, use this option. Everything will be taken care of
+  #       automatically (even if no MontePython likelihoods are in use)
+  # Option b): MontePython is not installed
+  - capability: classy_MPLike_input
+    function: set_classy_input_with_MPLike    # uncomment for option a)
+    #function: set_classy_input_no_MPLike   # uncomment for option b)
+    module: CosmoBit
+
+  # This rule is only strictly needed when
+  # Option a): more than one MP likelihoods with nuisance parameters are in use
+  # Option b): if no MP settings shall be passed to CLASS, i.e. if no MP likelihood
+  #     is in use. In practice, you should never have to set this. GAMBIT will take
+  #     care of this automatically.
+  # => It's best to play safe and never include this rule, unless GAMBIT specifically
+  # asks you to do so.
+  #- capability: parameter_dict_for_MPLike
+  #  function: set_parameter_dict_for_MPLike          # uncomment for option a)
+  #  function: pass_empty_parameter_dict_for_MPLike   # uncomment for option b)
+
+
+  # ---- C.5) MultimodeCode related settings -----
+
+  # pass input settings to MultiModeCode
+  - capability: multimode_input_parameters
+    function: set_multimode_inputs
+    options:
+      k_pivot: 0.002
+      dlnk: 0.4
+      numsteps: 200
+      k_min: 1e-7
+      k_max: 1e6
+
+  # Pass primordial power spectrum to CLASS
+  # Option a): pass the parametrised primordial power spectrum (i.e. not the full shape but only A_s
+  #   n_s and r)
+  # Option b): pass the full shape of the primordial power spectrum
+  #   to CLASS (recommended when studying inflationary models)
+  - capability: classy_primordial_input
+    function: set_classy_parameters_parametrised_ps   # uncomment for option a)
+  #  function: set_classy_parameters_primordial_ps    # uncomment for option b)
+
+
+  # ---- C.6) plc related settings -----
+
+  # If you use any of the Planck likelihoods and you do not want to download the
+  # Planck data through gambit (type 'make plc_data' in the build directory)
+  # then you can set the path to the directory where you have downloaded the data
+
+  #- capability: plc_3_0_init
+  #  options:
+  #    plc_data_3_path: /path/to/plc_3.0 # 2018 data
+  #    plc_data_2_path: /path/to/plc_2.0 # 2015 data
+
+
+
+  # ---- C.7) Finally "Global" (CossmoBit-wide) settings ----
+
+  # By default, CosmoBit does not allow negative values for dNur_BBN and dNur_CMB as this can
+  # lead to unphysical inputs in cases where dN_ur < 0 and abs(dN_ur) > N_ur contribution from
+  # 3 SM neutrinos today. If you want to circumvent this limitation, uncomment the following lines
+  # (#negative-dNeff)
+  #- module: CosmoBit
+  #  options:
+  #    allow_negative_delta_N_ur: true
+
+  # The rules below are only needed when you have multiple classy version installed at the same
+  # time. The easiest way to choose one is just to run 'make nuke-classy_<version>' for
+  # all versions but the one you would like to use.
+  # If you want to keep all of them installed, fix the version you want to use with the
+  # rules below
+  #- capability: MP_LogLikes
+  #  backends:
+  #  - {capability: get_classy_cosmo_object, backend: classy, version: 2.6.3}
+  #  - {capability: get_MP_loglike, backend: MontePythonLike}
+  #
+  #- capability: lensed_Cl_TT
+  #  backends:
+  #  - {capability: class_get_lensed_cl, backend: classy, version: 2.6.3}
+  #
+  #- capability: lensed_Cl_TE
+  #  backends:
+  #  - {capability: class_get_lensed_cl, backend: classy, version: 2.6.3}
+  #
+  #- capability: lensed_Cl_EE
+  #  backends:
+  #  - {capability: class_get_lensed_cl, backend: classy, version: 2.6.3}
+  #
+  #- capability: lensed_Cl_PhiPhi
+  #  backends:
+  #  - {capability: class_get_lensed_cl, backend: classy, version: 2.6.3}
+
+#======== Logging setup ========
+Logger:
+  # log tags => check default.log and CosmoBit.log to see more details than
+  # printed to screen
+  redirection:
+    [Debug]        : "debug.log"
+    [Default]      : "default.log"
+    [CosmoBit]     : "CosmoBit.log"
+    [Scanner]      : "Scanner.log"
+
+#======== Generic Name/Value Section ========
+KeyValues:
+
+  # if set to true, the log files will contain more information, e.g.
+  # the complete input dictionary passed to CLASS for each parameter point
+  debug: true
+
+  # where to safe the output
+  default_output_path: "runs/CosmoBit_tutorial"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e30

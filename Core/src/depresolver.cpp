@@ -30,6 +30,10 @@
 ///  \date 2017 June
 ///        2019 May
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #include "gambit/Core/depresolver.hpp"
@@ -43,11 +47,10 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-#ifdef HAVE_REGEX_H
-  #include <regex>
-#endif
+#include <regex>
 
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #ifdef HAVE_GRAPHVIZ
   #include <boost/graph/graphviz.hpp>
 #endif
@@ -247,29 +250,23 @@ namespace Gambit
     }
 
     // Check whether s1 (wildcard + regex allowed) matches s2
-    bool stringComp(const str & s1, const str & s2, bool
-                   #ifdef HAVE_REGEX_H
-                     with_regex
-                   #endif
-                   )
+    bool stringComp(const str & s1, const str & s2, bool with_regex)
     {
       if ( s1 == s2 ) return true;
       if ( s1 == "" ) return true;
       if ( s1 == "*" ) return true;
-      #ifdef HAVE_REGEX_H
-        try
-        {
-          if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
-        }
-        catch (std::regex_error & err)
-        {
-          std::ostringstream errmsg;
-          errmsg << "ERROR during regex string comparison." << std::endl;
-          errmsg << "  Comparing regular expression: " << s1 << std::endl;
-          errmsg << "  with test string: " << s2 << std::endl;
-          dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
-        }
-      #endif
+      try
+      {
+        if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
+      }
+      catch (std::regex_error & err)
+      {
+        std::ostringstream errmsg;
+        errmsg << "ERROR during regex string comparison." << std::endl;
+        errmsg << "  Comparing regular expression: " << s1 << std::endl;
+        errmsg << "  with test string: " << s2 << std::endl;
+        dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+      }
       return false;
     }
 
@@ -872,6 +869,9 @@ namespace Gambit
     // (i.e. give it the list of functors that need printing)
     void DependencyResolver::initialisePrinter()
     {
+      // Send the state of the "print_unitcube" flag to the printer
+      boundPrinter->set_printUnitcube(print_unitcube);
+
       std::vector<int> functors_to_print;
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       //IndexMap index = get(vertex_index, masterGraph); // Now done in the constructor
@@ -963,11 +963,10 @@ namespace Gambit
       #endif
 
       const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      //entries = boundIniFile->getObservables();
       for (IniParser::ObservablesType::const_iterator it =
           entries.begin(); it != entries.end(); ++it)
       {
-        if ( moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) )
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs))
         {
           #ifdef DEPRES_DEBUG
             cout << "Getting option from: " << it->capability << " " << it->type << endl;
@@ -1002,8 +1001,63 @@ namespace Gambit
           }
         }
       }
-      Options myOptions(nodes);
-      return myOptions;
+      return Options(nodes);
+    }
+
+    /// Collect sub-capabilities
+    Options DependencyResolver::collectSubCaps(const DRes::VertexID & vertex)
+    {
+      #ifdef DEPRES_DEBUG
+        cout << "Searching for subcaps of " << masterGraph[vertex]->capability() << endl;
+      #endif
+
+      YAML::Node nodes;
+      const IniParser::ObservablesType& entries = boundIniFile->getObservables();
+
+      // Iterate over the ObsLikes entries
+      for (auto it = entries.begin(); it != entries.end(); ++it)
+      {
+        // Select only those entries that match the current graph vertex (i.e. module function)
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) and not it->subcaps.IsNull())
+        {
+          #ifdef DEPRES_DEBUG
+            cout << "Found subcaps for " << it->capability << " " << it->type << " " << it->module << ":" << endl;
+          #endif
+          // The user has given just a single entry as a subcap
+          if (it->subcaps.IsScalar())
+          {
+            str key = it->subcaps.as<str>();
+            if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+            nodes[key] = YAML::Node();
+          }
+          // The user has passed a simple list of subcaps
+          else if (it->subcaps.IsSequence())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              if (not jt->IsScalar())
+               dependency_resolver_error().raise(LOCAL_INFO,"Attempt to pass map using sequence syntax for subcaps of "+it->capability+".");
+              str key = jt->as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = YAML::Node();
+            }
+          }
+          // The user has passed some more complicated subcap structure than just a list of strings
+          else if (it->subcaps.IsMap())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              str key = jt->first.as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = jt->second.as<YAML::Node>();
+            }
+          }
+          #ifdef DEPRES_DEBUG
+            cout << nodes << endl;
+          #endif
+        }
+      }
+      return Options(nodes);
     }
 
     /// Resolve dependency
@@ -1228,7 +1282,9 @@ namespace Gambit
         str errmsg = "None of the vertex candidates for";
         errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
         errmsg += "\nfulfills all rules in the YAML file.";
-        errmsg += "\nPlease check your YAML file for contradictory rules.";
+        errmsg += "\nPlease check your YAML file for contradictory rules, and";
+        errmsg += "\nensure that you have built GAMBIT in the first place with";
+        errmsg += "\nall of the components that you are trying to use.";
         dependency_resolver_error().raise(LOCAL_INFO,errmsg);
       }
 
@@ -1429,10 +1485,13 @@ namespace Gambit
       #endif
 
       // Read ini entries
-      use_regex    = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_regex");
-      print_timing = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
-      if ( use_regex )    logger() << "Using regex for string comparison." << endl;
-      if ( print_timing ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      use_regex      = boundIniFile->getValueOrDef<bool>(true,  "dependency_resolution", "use_regex");
+      print_timing   = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
+      print_unitcube = boundIniFile->getValueOrDef<bool>(false, "print_unitcube");
+
+      if ( use_regex      ) logger() << "Using regex for string comparison." << endl;
+      if ( print_timing   ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      if ( print_unitcube ) logger() << "Printing of unitCubeParameters will be enabled." << EOM;
 
       //
       // Main loop: repeat until dependency queue is empty
@@ -1595,12 +1654,16 @@ namespace Gambit
         }
         else // if output vertex
         {
-          //iniEntry = NULL;
-          //boost::tie(iniEntry, fromVertex) = resolveDependency(toVertex, quantity);
           iniEntry = findIniEntry(quantity, boundIniFile->getObservables(), "ObsLike");
           outInfo.vertex = fromVertex;
           outInfo.iniEntry = iniEntry;
           outputVertexInfos.push_back(outInfo);
+          // Don't need subcaps during dry-run
+          if (not boundCore->show_runorder)
+          {
+            Options mySubCaps = collectSubCaps(fromVertex);
+            masterGraph[fromVertex]->notifyOfSubCaps(mySubCaps);
+          }
         }
 
         // If fromVertex is new, activate it
@@ -1788,6 +1851,12 @@ namespace Gambit
                 // It has, so resolve the backend requirement with that function and add it to the list of successful resolutions.
                 resolveRequirement(solution,vertex);
                 previous_successes.push_back(solution);
+
+                // If *req is in remaining_reqs, remove it
+                if (remaining_reqs.find(*req) != remaining_reqs.end())
+                {
+                  remaining_reqs.erase(*req);
+                }
               }
               else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
               {
@@ -2117,6 +2186,15 @@ namespace Gambit
           else errmsg += "group " + group;
           errmsg += " of module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name()
            + "\nViable candidates are:\n" + printGenericFunctorList(vertexCandidates);
+          errmsg += "\nIf you don't need all the above backends, you can resolve the ambiguity simply by";
+          errmsg += "\nuninstalling the backends you don't use.";
+          errmsg += "\n\nAlternatively, you can add an entry in your YAML file that selects which backend";
+          errmsg += "\nthe module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name() + " should use. A YAML file entry";
+          errmsg += "\nthat selects e.g. the first candidate above could read\n";
+          errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
+          errmsg += "\n    function: "+masterGraph[vertex]->name();
+          errmsg += "\n    backends:";
+          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }

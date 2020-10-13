@@ -42,7 +42,26 @@ namespace Gambit
     //////////////////////////////////////////////////////////////////////////
 
     /*! \brief Capture rate of regular dark matter in the Sun (no v-dependent
-     *         or q-dependent cross-sections) (s^-1).
+     *         or q-dependent cross-sections) (s^-1). DarkSUSY 5 version.
+     */
+    void capture_rate_Sun_const_xsec_DS5(double &result)
+    {
+      using namespace Pipes::capture_rate_Sun_const_xsec_DS5;
+
+      if (BEreq::cap_Sun_v0q0_isoscalar.origin()=="DarkSUSY")
+        if(!(*Dep::DarkSUSY5_PointInit_LocalHalo))
+          DarkBit_error().raise(LOCAL_INFO,"DarkSUSY halo model not initialized!");
+
+      // When calculating the solar capture rate, DarkSUSY assumes that the
+      // proton and neutron scattering cross-sections are the same; we
+      // assume that whichever backend has been hooked up here does so too.
+
+      result = BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
+
+    }
+
+    /*! \brief Capture rate of regular dark matter in the Sun (no v-dependent
+     *         or q-dependent cross-sections) (s^-1). DarkSUSY 6 version.
      */
     void capture_rate_Sun_const_xsec(double &result)
     {
@@ -52,14 +71,15 @@ namespace Gambit
         if(!(*Dep::DarkSUSY_PointInit_LocalHalo))
           DarkBit_error().raise(LOCAL_INFO,"DarkSUSY halo model not initialized!");
 
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      double rho0 = LocalHaloParameters.rho0;
+      double rho0_eff = (*Dep::RD_fraction)*rho0;
+
       // When calculating the solar capture rate, DarkSUSY assumes that the
       // proton and neutron scattering cross-sections are the same; we
       // assume that whichever backend has been hooked up here does so too.
-      result = BEreq::cap_Sun_v0q0_isoscalar(
-          *Dep::mwimp, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
 
-      //cout << "mwimp" << *Dep::mwimp << "sigma_SI_p: " << *Dep::sigma_SI_p << " sigma_SD_p: " << *Dep::sigma_SD_p << "result: " << result << "\n";
-      //cout << "capture rate via capture_rate_Sun_const_xsec = " << result << "\n";
+      result = BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp, rho0_eff, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
 
     }
 
@@ -79,9 +99,6 @@ namespace Gambit
       {
         result = maxcap;
       }
-
-      //cout << "mwimp" << *Dep::mwimp << "sigma_SI_p: " << *Dep::sigma_SI_p << " sigma_SD_p: " << *Dep::sigma_SD_p << "result: " << result << "\n";
-      //cout << "capture rate via capture_rate_Sun_const_xsec_capgen = " << result << "\n";
 
     }
 
@@ -209,7 +226,6 @@ namespace Gambit
       double Higgs_mass_charged;
 
       // Set annihilation branching fractions
-      // TODO: needs to be fixed once BFs are available directly from TH_Process
       std::string DMid = *Dep::DarkMatter_ID;
       TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
@@ -285,7 +301,6 @@ namespace Gambit
           LOCAL_INFO, "H- decays exist in process catalog but not H+.");
 
       // Set the neutral Higgs decay branching fractions
-      // TODO: needs to be fixed once BFs are available directly from TH_Process
       for (int i=0; i<3; i++)       // Loop over the three neutral Higgs
       {
 
@@ -432,7 +447,7 @@ namespace Gambit
       #endif
 
       // Set up DarkSUSY to do neutrino yields for this particular WIMP
-      BEreq::nuyield_setup(annihilation_bf, Higgs_decay_BFs_neutral,
+      BEreq::DS_nuyield_setup(annihilation_bf, Higgs_decay_BFs_neutral,
           Higgs_decay_BFs_charged, Higgs_masses_neutral,
           Higgs_mass_charged, *Dep::mwimp);
 
@@ -686,46 +701,87 @@ namespace Gambit
 #endif
     }
 
-    /// Function to set Local Halo Parameters in DarkSUSY
+    /// Function to set Local Halo Parameters in DarkSUSY (DS5 only)
+    void DarkSUSY5_PointInit_LocalHalo_func(bool &result)
+    {
+      using namespace Pipes::DarkSUSY5_PointInit_LocalHalo_func;
+
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+
+      double rho0 = LocalHaloParameters.rho0;
+      double rho0_eff = (*Dep::RD_fraction)*rho0;
+      double vrot = LocalHaloParameters.vrot;
+      double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
+      double vesc = LocalHaloParameters.vesc;
+      /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
+      double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
+
+      BEreq::dshmcom->rho0 = rho0;
+      BEreq::dshmcom->v_sun = vrot;
+      BEreq::dshmcom->v_earth = v_earth;
+      BEreq::dshmcom->rhox = rho0_eff;
+
+      BEreq::dshmframevelcom->v_obs = vrot;
+
+      BEreq::dshmisodf->vd_3d = vd_3d;
+      BEreq::dshmisodf->vgalesc = vesc;
+
+      BEreq::dshmnoclue->vobs = vrot;
+
+      logger() << LogTags::debug
+               << "Updating DarkSUSY halo parameters:" << std::endl
+               << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
+               << "    rho0_eff [GeV/cm^3] = " << rho0_eff << std::endl
+               << "    v_sun [km/s]  = " << vrot<< std::endl
+               << "    v_earth [km/s]  = " << v_earth << std::endl
+               << "    v_obs [km/s]  = " << vrot << std::endl
+               << "    vd_3d [km/s]  = " << vd_3d << std::endl
+               << "    v_esc [km/s]  = " << vesc << EOM;
+
+      result = true;
+
+      return;
+    }
+
+    /// Function to set Local Halo Parameters in DarkSUSY (DS 6)
     void DarkSUSY_PointInit_LocalHalo_func(bool &result)
     {
-        using namespace Pipes::DarkSUSY_PointInit_LocalHalo_func;
+      using namespace Pipes::DarkSUSY_PointInit_LocalHalo_func;
 
-          LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
 
-          double rho0 = LocalHaloParameters.rho0;
-          double rho0_eff = (*Dep::RD_fraction)*rho0;
-          double vrot = LocalHaloParameters.vrot;
-          double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
-          double vesc = LocalHaloParameters.vesc;
-          /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
-          double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
+      double rho0 = LocalHaloParameters.rho0;
+      double vrot = LocalHaloParameters.vrot;
+      double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
+      double vesc = LocalHaloParameters.vesc;
+      /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
+      double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
 
-          BEreq::dshmcom->rho0 = rho0;
-          BEreq::dshmcom->v_sun = vrot;
-          BEreq::dshmcom->v_earth = v_earth;
-          BEreq::dshmcom->rhox = rho0_eff;
+      BEreq::dshmcom->rho0 = rho0;
+      BEreq::dshmcom->v_sun = vrot;
+      BEreq::dshmcom->v_earth = v_earth;
 
-          BEreq::dshmframevelcom->v_obs = vrot;
+      BEreq::dshmframevelcom->v_obs = vrot;
 
-          BEreq::dshmisodf->vd_3d = vd_3d;
-          BEreq::dshmisodf->vgalesc = vesc;
+      BEreq::dshmisodf->vd_3d = vd_3d;
+      BEreq::dshmisodf->vgalesc = vesc;
 
-          BEreq::dshmnoclue->vobs = vrot;
+      BEreq::dshmnoclue->vobs = vrot;
 
-          logger() << LogTags::debug
-                   << "Updating DarkSUSY halo parameters:" << std::endl
-                   << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
-                   << "    rho0_eff [GeV/cm^3] = " << rho0_eff << std::endl
-                   << "    v_sun [km/s]  = " << vrot<< std::endl
-                   << "    v_earth [km/s]  = " << v_earth << std::endl
-                   << "    v_obs [km/s]  = " << vrot << std::endl
-                   << "    vd_3d [km/s]  = " << vd_3d << std::endl
-                   << "    v_esc [km/s]  = " << vesc << EOM;
+      logger() << LogTags::debug
+               << "Updating DarkSUSY halo parameters:" << std::endl
+               << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
+               << "    v_sun [km/s]  = " << vrot<< std::endl
+               << "    v_earth [km/s]  = " << v_earth << std::endl
+               << "    v_obs [km/s]  = " << vrot << std::endl
+               << "    vd_3d [km/s]  = " << vd_3d << std::endl
+               << "    v_esc [km/s]  = " << vesc << EOM;
 
-          result = true;
+      result = true;
 
-          return;
+      return;
     }
+
   }
 }
+

@@ -15,17 +15,9 @@
 ///  \date 2014 Mar, Sep, Nov
 ///  \date 2015 Jan, Mar
 ///
-///  \author Abram Krislock
-///          (abram.krislock@fysik.su.se)
-///  \date 2013 Dec
-//
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2014 Mar
-///
-///  \author Anders Kvellestad
-///          (anderkve@fys.uio.no)
-///  \date 2014 Oct
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.su)
@@ -71,5 +63,3 @@ namespace Gambit
 
 
 #endif //__shared_types_hpp__
-
-
