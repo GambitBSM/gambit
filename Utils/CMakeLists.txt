@@ -25,6 +25,7 @@
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
+                 src/ascii_dict_reader.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
                  src/integration.cpp
@@ -47,6 +48,7 @@ set(source_files src/ascii_table_reader.cpp
 )
 
 set(header_files include/gambit/Utils/ascii_table_reader.hpp
+                 include/gambit/Utils/ascii_dict_reader.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
                  include/gambit/Utils/exceptions.hpp

@@ -29,3 +29,7 @@
 [None,                                       BR_BXsmumu,                          None                ]
 [None,                                       BR_BXsee,                            None                ]
 [None,                                       BR_B0Kstar0gamma,                    None                ]
+[BRBXsmumu_lowq2,                            BR_BXsmumu_1_6,                      None                ]
+[BRBXsmumu_highq2,                           BR_BXsmumu_14.2_22,                  None                ]
+[AFBBXsmumu_lowq2,                           AFB_BXsmumu_1_6,                     None                ]
+[AFBBXsmumu_highq2,                          AFB_BXsmumu_14.2_22,                 None                ]

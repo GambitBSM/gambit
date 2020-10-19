@@ -1,0 +1,5 @@
+# Uses combined 6FDGRS and MGS measurement from Carter et. al., 2018 (arXiv:1803.01746)
+# Compatible with BOSS DR12, but incompatible with bao_smallz_2014
+bao_smallz_combined_2018.data_directory      = data.path['data']
+bao_smallz_combined_2018.file                = 'bao_smallz_combined_2018.txt'
+bao_smallz_combined_2018.exclude             = []

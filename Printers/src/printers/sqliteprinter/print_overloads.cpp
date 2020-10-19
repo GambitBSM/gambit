@@ -19,7 +19,7 @@
 
 
 #include "gambit/Printers/printers/sqliteprinter.hpp"
-#include "gambit/Utils/stream_overloads.hpp"
+#include "gambit/Printers/printers/common_print_overloads.hpp"
 
 namespace Gambit
 {
@@ -43,89 +43,17 @@ namespace Gambit
     void SQLitePrinter::PRINT(double   ,"REAL")
     #undef PRINT
 
-    void SQLitePrinter::_print(ModelParameters const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> parameter_map = value.getValues();
-      _print(parameter_map, label, vID, mpirank, pointID);
-    }
-
-    void SQLitePrinter::_print(const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for (std::map<std::string, double>::const_iterator
-           it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        _print(it->second, ss.str(), vID, mpirank, pointID);
-      }
-    }
-
-    void SQLitePrinter::_print(std::vector<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for(unsigned int i=0;i<value.size();i++)
-      {
-        std::stringstream ss;
-        ss<<label<<"["<<i<<"]";
-        _print(value.at(i), ss.str(), vID, mpirank, pointID);
-      }
-    }
-
-    void SQLitePrinter::_print(triplet<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> m;
-      m["central"] = value.central;
-      m["lower"] = value.lower;
-      m["upper"] = value.upper;
-      _print(m, label, vID, mpirank, pointID);
-    }
-
-    void SQLitePrinter::_print(map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for (auto it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::("<<it->first.first<<","<<it->first.second<<")";
-        _print(it->second, ss.str(), vID, mpirank, pointID);
-      }
-    }
-
-    #ifndef SCANNER_STANDALONE // All types that are defined by backends need to go inside this include guard
-      void SQLitePrinter::_print(DM_nucleon_couplings const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_SD"] = value.gpa;
-        m["Gn_SD"] = value.gna;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void SQLitePrinter::_print(DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_q2"] = value.gp_q2;
-        m["Gn_q2"] = value.gn_q2;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void SQLitePrinter::_print(Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        std::ostringstream bins;
-        bins << value.q2_min << "_" << value.q2_max;
-        m["BR_"+bins.str()] = value.BR;
-        m["AFB_"+bins.str()] = value.AFB;
-        m["FL_"+bins.str()] = value.FL;
-        m["S3_"+bins.str()] = value.S3;
-        m["S4_"+bins.str()] = value.S4;
-        m["S5_"+bins.str()] = value.S5;
-        m["S7_"+bins.str()] = value.S7;
-        m["S8_"+bins.str()] = value.S8;
-        m["S9_"+bins.str()] = value.S9;
-        _print(m, label, vID, mpirank, pointID);
-      }
+    // Piggyback off existing print functions to build standard overloads
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, std::vector<double>)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, ModelParameters)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, triplet<double>)
+    #ifndef SCANNER_STANDALONE
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, DM_nucleon_couplings)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, DM_nucleon_couplings_fermionic_HP)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, Flav_KstarMuMu_obs)
+      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, BBN_container)
     #endif
 
     /// @}
@@ -133,5 +61,3 @@ namespace Gambit
   }
 }
 
-#undef DBUG
-#undef DEBUG_MODE

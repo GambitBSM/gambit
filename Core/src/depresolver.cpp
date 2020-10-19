@@ -1851,6 +1851,12 @@ namespace Gambit
                 // It has, so resolve the backend requirement with that function and add it to the list of successful resolutions.
                 resolveRequirement(solution,vertex);
                 previous_successes.push_back(solution);
+
+                // If *req is in remaining_reqs, remove it
+                if (remaining_reqs.find(*req) != remaining_reqs.end())
+                {
+                  remaining_reqs.erase(*req);
+                }
               }
               else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
               {
@@ -2180,6 +2186,15 @@ namespace Gambit
           else errmsg += "group " + group;
           errmsg += " of module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name()
            + "\nViable candidates are:\n" + printGenericFunctorList(vertexCandidates);
+          errmsg += "\nIf you don't need all the above backends, you can resolve the ambiguity simply by";
+          errmsg += "\nuninstalling the backends you don't use.";
+          errmsg += "\n\nAlternatively, you can add an entry in your YAML file that selects which backend";
+          errmsg += "\nthe module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name() + " should use. A YAML file entry";
+          errmsg += "\nthat selects e.g. the first candidate above could read\n";
+          errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
+          errmsg += "\n    function: "+masterGraph[vertex]->name();
+          errmsg += "\n    backends:";
+          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }

@@ -544,6 +544,7 @@ def get_all_files_with_ext(verbose,starting_dir,ext_set,kind):
 def retrieve_generic_headers(verbose,starting_dir,kind,excludes,exclude_list=[]):
     headers=[]
     for root,dirs,files in os.walk(starting_dir):
+        if root.endswith("shared_includes"): continue
         for name in files:
             exclude = False
             for x in excludes:

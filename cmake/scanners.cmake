@@ -114,10 +114,10 @@ endif()
 
 # PolyChord
 set(name "polychord")
-set(ver "1.16")
+set(ver "1.17.1")
 set(lib "libchord")
-set(md5 "ca1def7c88effac6c8ca35b0f1598ca3")
-set(dl "https://github.com/PolyChord/PolyChordLite/archive/40022f52d37b3bd74e2f99c0e59d014899d24fb4.tar.gz")
+set(md5 "c47a4b58e1ce5b98eec3b7d79ec7284f")
+set(dl "https://github.com/PolyChord/PolyChordLite/archive/${ver}.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 set(pcSO_LINK "${CMAKE_Fortran_COMPILER} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS} ${CMAKE_CXX_MPI_SO_LINK_FLAGS}")
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")

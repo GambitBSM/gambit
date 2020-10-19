@@ -54,6 +54,15 @@ namespace Gambit
   /// Make sure there are no nasty surprises from regular C abs()
   using std::abs;
 
+  /// Convert the memory address a pointer points to to an unsigned integer
+  /// (The size of uintptr_t  depends on system & ensures it is big
+  /// enough to store memory addresses of the underlying setup)
+  template<typename T>
+  uintptr_t memaddress_to_uint(T* ptr)
+  {
+    return reinterpret_cast<uintptr_t>(ptr);
+  }
+
   namespace Utils
   {
 

@@ -6,7 +6,7 @@
 ##########################################################################
 
 # NB: This example yaml file uses flexiblesusy, so make sure you have
-# built gambit with the correct " -DBUILD_FS_MODELS" option
+# built gambit with -DBUILD_FS_MODELS="MSSM"
 
 
 Parameters:

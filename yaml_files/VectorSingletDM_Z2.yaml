@@ -133,9 +133,12 @@ ObsLikes:
 ##############################################################################################
 Rules:
 
-  # Use the DarkBit native calculator for the relic density
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    function: RD_oh2_general
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
+    options:
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -164,9 +167,11 @@ Rules:
       sigmal_obs: 50.0
       sigmal_obserr: 15.0
 
-  # Choose to use capgen for solar capture rate
+   # Choose to use DarkSUSY or capgen for solar capture rate
   - capability: capture_rate_Sun
-    function: capture_rate_Sun_const_xsec_capgen
+    #function: capture_rate_Sun_const_xsec_DS5
+    function: capture_rate_Sun_const_xsec
+    #function: capture_rate_Sun_const_xsec_capgen
 
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
@@ -176,8 +181,13 @@ Rules:
   - capability: DD_couplings
     function: DD_couplings_VectorSingletDM_Z2
 
-  # Choose to use DarkSUSY's yield tables for indirect detection
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  # Choose to use DarkSUSY yield tables for indirect detection
   - capability: SimYieldTable
+    #function: SimYieldTable_DS5
     function: SimYieldTable_DarkSUSY
     options:
       allow_yield_extrapolation: true
@@ -195,7 +205,8 @@ Rules:
 ##############################################################################################
 Printer:
 
-  printer: hdf5
+  #printer: hdf5
+  printer: cout
 
   options:
     output_file: "VectorSingletDM_Z2.hdf5"

@@ -23,6 +23,7 @@
 ///  *********************************************
 
 #include "gambit/Printers/printers/asciiprinter.hpp"
+#include "gambit/Printers/printers/common_print_overloads.hpp"
 
 namespace Gambit
 {
@@ -100,21 +101,6 @@ namespace Gambit
       addtobuffer(vdvalue,names,IDcode,thread,pointID);
     }
 
-    void asciiPrinter::_print(ModelParameters const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> parameter_map = value.getValues();
-      _print(parameter_map, label, vID, mpirank, pointID);
-    }
-
-    void asciiPrinter::_print(triplet<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> m;
-      m["central"] = value.central;
-      m["lower"] = value.lower;
-      m["upper"] = value.upper;
-      _print(m, label, vID, mpirank, pointID);
-    }
-
     void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> channels;
@@ -131,45 +117,14 @@ namespace Gambit
       addtobuffer(vdvalue,channels,IDcode,thread,pointID);
     }
 
-    #ifndef SCANNER_STANDALONE // All the types inside ASCII_MODULE_BACKEND_TYPES need to go inside this def guard.
-
-      void asciiPrinter::_print(DM_nucleon_couplings const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_SD"] = value.gpa;
-        m["Gn_SD"] = value.gna;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void asciiPrinter::_print(DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_q2"] = value.gp_q2;
-        m["Gn_q2"] = value.gn_q2;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void asciiPrinter::_print(Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        std::ostringstream bins;
-        bins << value.q2_min << "_" << value.q2_max;
-        m["BR_"+bins.str()] = value.BR;
-        m["AFB_"+bins.str()] = value.AFB;
-        m["FL_"+bins.str()] = value.FL;
-        m["S3_"+bins.str()] = value.S3;
-        m["S4_"+bins.str()] = value.S4;
-        m["S5_"+bins.str()] = value.S5;
-        m["S7_"+bins.str()] = value.S7;
-        m["S8_"+bins.str()] = value.S8;
-        m["S9_"+bins.str()] = value.S9;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
+    // Piggyback off existing print functions to build standard overloads
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, ModelParameters)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
+    #ifndef SCANNER_STANDALONE
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings_fermionic_HP)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, Flav_KstarMuMu_obs)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
     #endif
 
     /// @}

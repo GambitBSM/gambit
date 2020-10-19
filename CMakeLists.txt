@@ -113,7 +113,7 @@ string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${it
 # otherwise it seems to get it wrong.  Also, we need to add versions of python
 # greater than 3.3 manually, for compatibility with CMake 2.8.12.
 # If pybind11 is ditched, do not worry about PythonLibs
-set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9)
 # If both FORCE_PYTHON2 and FORCE_PYTHON3 are set, throw error
 if (FORCE_PYTHON2 AND FORCE_PYTHON3)
   message(FATAL_ERROR "Two different versions of python requested. Switch either FORCE_PYTHON2 or FORCE_PYTHON3 off.")
@@ -139,7 +139,7 @@ else()
     find_package(PythonInterp 2 REQUIRED)
     if (PYTHON_VERSION_MINOR LESS 7)
       message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
-                          "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+                          "please use -D PYTHON_EXECUTABLE=path/to/preferred/python.")
     endif()
     if(NOT DITCH_PYBIND)
       find_package(PythonLibs 2)
@@ -161,61 +161,65 @@ if(PYTHONLIBS_FOUND)
     message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
             "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
             "   libraries are only used for providing support for Python backends at runtime.  However, if you\n"
-            "   have matching versions installed, you can make this message go away by trying the following\n"
+            "   have matching versions installed, you can make this message go away by trying one of the following\n"
             "   (making sure to clean out your build directory in between any such changes):\n"
             "   1. invoke cmake as cmake -DFORCE_PYTHON2=True .. (or similar)\n"
             "   2. invoke cmake as cmake -DFORCE_PYTHON3=True .. (or similar)\n"
             "   3. set the following variables when invoking cmake:\n"
             "     PYTHON_LIBRARY\n"
             "     PYTHON_INCLUDE_DIR\n"
-            "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
-            "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)\n")
+            "     PYTHON_EXECUTABLE\n")
   endif()
 endif()
 
 # Check for pybind11 if PythonLibs were found and not ditched
-if(DITCH_PYBIND)
-  message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
-elseif(NOT PYTHONLIBS_FOUND)
-  message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
-          "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
-          "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
-          "   directory in between any such changes).  If that does not work, you can manually set the\n"
-          "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
-          "     PYTHON_LIBRARY\n"
-          "     PYTHON_INCLUDE_DIR\n"
-          "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
-          "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
-else()
-  set(MIN_pybind11_VERSION "2.4.3")
-  set(PREFERRED_pybind11_VERSION "2.4.3")
-  set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
-  find_package(pybind11 QUIET)
-  if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
-    use_contributed_pybind11()
+if(NOT PYTHONLIBS_FOUND)
+  if(DITCH_PYBIND)
+    message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
+  else()
+    message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
+            "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
+            "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
+            "   directory in between any such changes).  If that does not work, you can manually set the\n"
+            "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
+            "     PYTHON_LIBRARY\n"
+            "     PYTHON_INCLUDE_DIR\n"
+            "     PYTHON_EXECUTABLE")
+  set(itch "${itch};pybind11")
   endif()
+else()
+  set(MIN_pybind11_VERSION "2.5.0")
+  set(PREFERRED_pybind11_VERSION "2.5.0")
+  set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
+  include_directories("${PYTHON_INCLUDE_DIRS}")
+  find_package(pybind11 QUIET)
   if(pybind11_FOUND)
     if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
-      message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
-      set(pybind11_FOUND FALSE)
+      if(EXISTS "${pybind11_CONTRIB_DIR}")
+        use_contributed_pybind11()
+      else()
+        message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
+        set(pybind11_FOUND FALSE)
+      endif()
     else()
       message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
-      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+      include_directories("${PYBIND11_INCLUDE_DIR}")
     endif()
-  else()
-    message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
   endif()
-  if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
-    message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
-    execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
-    if(${result} STREQUAL "0")
-      execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+  if(NOT pybind11_FOUND)
+    if(EXISTS "${pybind11_CONTRIB_DIR}")
       use_contributed_pybind11()
-      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
     else()
-      message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
-              "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
-              "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+      message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
+      execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
+      if(${result} STREQUAL "0")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+        use_contributed_pybind11()
+      else()
+        message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
+                "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
+                "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+      endif()
     endif()
   endif()
   set(HAVE_PYBIND11 "${pybind11_FOUND}")
@@ -267,10 +271,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${mylibdir} )
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${mylibdir} )
 # Second, for multi-config builds (e.g. msvc)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mybindir} )
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
+  string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mybindir} )
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
 
 # Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
@@ -281,6 +285,11 @@ if(HAVE_PYBIND11)
   else()
     set(PERMIT_CXX17_CHECK TRUE)
   endif()
+endif()
+
+# Check if we are using gnu version 7.2, and forbid the use of C++17 if so.
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.1 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
+  set(PERMIT_CXX17_CHECK FALSE)
 endif()
 
 # Check for C++11, C++14 and C++17 support.
@@ -311,6 +320,16 @@ else()
       endif()
     endif()
   endif()
+endif()
+
+# Check for C99, C11 and C18 support
+include(CheckCCompilerFlag)
+CHECK_C_COMPILER_FLAG("-std=c18" COMPILER_SUPPORTS_C18)
+CHECK_C_COMPILER_FLAG("-std=c11" COMPILER_SUPPORTS_C11)
+CHECK_C_COMPILER_FLAG("-std=c99" COMPILER_SUPPORTS_C99)
+if(NOT COMPILER_SUPPORTS_C99)
+  message("${BoldRed}   The compiler ${CMAKE_C_COMPILER} has no C99 support.  AlterBBN will be ditched.${ColourReset}")
+  set(itch "${itch};alterbbn")
 endif()
 
 # Check for Boost
@@ -465,6 +484,10 @@ else()
   set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
 endif()
+set(BACKEND_C18_FLAGS "${BACKEND_C_FLAGS} -std=c18")
+set(BACKEND_C11_FLAGS "${BACKEND_C_FLAGS} -std=c11")
+set(BACKEND_C99_FLAGS "${BACKEND_C_FLAGS} -std=c99")
+set(BACKEND_GNU99_FLAGS "${BACKEND_C_FLAGS} -std=gnu99")
 
 # Make symbols hidden by default when compiling GAMBIT source files only
 if(${CMAKE_MAJOR_VERSION} MATCHES "2")
@@ -645,3 +668,4 @@ include(cmake/executables.cmake)
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
 endif()
+

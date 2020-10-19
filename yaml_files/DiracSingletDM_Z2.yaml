@@ -131,12 +131,42 @@ ObsLikes:
       purpose:    Observable
 
 ##############################################################################################
-
 Rules:
 
-  # Use the DarkBit native calculator for the relic density
+  # Use DDCalc 2.0.0
+  - capability: LUX.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: XENON1T.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: PandaX.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: PICO.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: CRESST.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: CDMS.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+  - capability: DarkSide.*
+    backends:
+    - {backend: DDCalc, version: 2.0.0}
+
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    function: RD_oh2_general
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
+    options:
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -165,9 +195,20 @@ Rules:
       sigmal_obs: 50.0
       sigmal_obserr: 15.0
 
+  # Use DS5 or DS6 (DS_genericWIMP) for calculating neutrino yields
+  - capability: nuyield_ptr
+    function: nuyield_from_DS
+    backends:
+    #  - {backend: DarkSUSY, version: 5.1.3}
+      - {backend: DarkSUSY_generic_wimp}
+
   # Choose to use capgen for solar capture
   - capability: capture_rate_Sun
     function: capture_rate_Sun_vnqn
+
+  # Use micromega's calculations of the direct detection couplings
+  - capability: DD_couplings
+    function: DD_couplings_MicrOmegas
 
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
@@ -175,6 +216,7 @@ Rules:
 
   # Choose to use DarkSUSY's yield tables for indirect detection
   - capability: SimYieldTable
+    #function: SimYieldTable_DS5
     function: SimYieldTable_DarkSUSY
     options:
       allow_yield_extrapolation: true
@@ -192,6 +234,7 @@ Rules:
 ##############################################################################################
 Printer:
 
+  #printer: cout
   printer: hdf5
 
   options:
@@ -224,7 +267,6 @@ Scanner:
       plugin: twalk
       sqrtR: 1.001
       timeout_mins: 1380
-
 
 ##############################################################################################
 Logger:

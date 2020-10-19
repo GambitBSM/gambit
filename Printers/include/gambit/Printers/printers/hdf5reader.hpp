@@ -124,7 +124,7 @@ namespace Gambit
         #define DECLARE_RETRIEVE(r,data,i,elem) bool _retrieve(elem&, const std::string&, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_RETRIEVE
 

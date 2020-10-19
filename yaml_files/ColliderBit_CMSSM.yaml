@@ -8,7 +8,8 @@
 ##########################################################################
 
 # NB: This example yaml file uses flexiblesusy, so make sure you have
-# built gambit with the correct " -DBUILD_FS_MODELS" option
+# built gambit with -DBUILD_FS_MODELS="CMSSM"
+
 
 Parameters:
 
@@ -281,6 +282,11 @@ Rules:
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
 
+  - capability: HardScatteringSim
+    type: const BaseCollider*
+    function: getPythiaAsBase
+    module: ColliderBit
+
   # Choose to get cross-sections from the Monte Carlo
   - capability: CrossSection
     function: getMCxsec
@@ -299,6 +305,21 @@ Rules:
       LHC_13TeV:
         partonOnly: false
         antiktR: 0.4
+
+  # Choose ATLAS smearing function
+  - capability: ATLASSmearedEvent
+    function: smearEventATLAS
+    module: ColliderBit
+
+  # Choose CMS smearing function
+  - capability: CMSSmearedEvent
+    function: smearEventCMS
+    module: ColliderBit
+
+  # Choose copied event function
+  - capability: CopiedEvent
+    function: copyEvent
+    module: ColliderBit
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes

@@ -978,9 +978,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
     
-  #define CAPABILITY theta12_lnL
+  #define CAPABILITY theta12_NuFit_v3_2_lnL
   START_CAPABILITY
-    #define FUNCTION theta12_lnL
+    #define FUNCTION theta12_NuFit_v3_2_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(theta12, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY theta12_NuFit_v4_1_lnL
+  START_CAPABILITY
+    #define FUNCTION theta12_NuFit_v4_1_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta12, double)
@@ -995,9 +1004,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY theta23_lnL
+  #define CAPABILITY theta23_NuFit_v3_2_lnL
   START_CAPABILITY
-    #define FUNCTION theta23_lnL
+    #define FUNCTION theta23_NuFit_v3_2_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(theta23, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY theta23_NuFit_v4_1_lnL
+  START_CAPABILITY
+    #define FUNCTION theta23_NuFit_v4_1_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta23, double)
@@ -1012,15 +1030,24 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
     
-  #define CAPABILITY theta13_lnL
+  #define CAPABILITY theta13_NuFit_v3_2_lnL
   START_CAPABILITY
-    #define FUNCTION theta13_lnL
+    #define FUNCTION theta13_NuFit_v3_2_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta13, double)
     #undef FUNCTION
   #undef CAPABILITY
  
+  #define CAPABILITY theta13_NuFit_v4_1_lnL
+  START_CAPABILITY
+    #define FUNCTION theta13_NuFit_v4_1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(theta13, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY deltaCP
   START_CAPABILITY
     #define FUNCTION deltaCP
@@ -1029,33 +1056,72 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY deltaCP_lnL
+  #define CAPABILITY deltaCP_NuFit_v3_2_lnL
   START_CAPABILITY
-    #define FUNCTION deltaCP_lnL
+    #define FUNCTION deltaCP_NuFit_v3_2_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(deltaCP, double)
     #undef FUNCTION
   #undef CAPABILITY  
     
-  #define CAPABILITY md21_lnL
+  #define CAPABILITY deltaCP_NuFit_v4_1_lnL
   START_CAPABILITY
-    #define FUNCTION md21_lnL
+    #define FUNCTION deltaCP_NuFit_v4_1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(deltaCP, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY md21_NuFit_v3_2_lnL
+  START_CAPABILITY
+    #define FUNCTION md21_NuFit_v3_2_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(md21, double)
     #undef FUNCTION
   #undef CAPABILITY  
   
-  #define CAPABILITY md3l_lnL
+  #define CAPABILITY md21_NuFit_v4_1_lnL
   START_CAPABILITY
-    #define FUNCTION md3l_lnL
+    #define FUNCTION md21_NuFit_v4_1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(md21, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY md3l_NuFit_v3_2_lnL
+  START_CAPABILITY
+    #define FUNCTION md3l_NuFit_v3_2_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(md31, double)
     DEPENDENCY(md32, double)
     #undef FUNCTION
   #undef CAPABILITY 
+
+  #define CAPABILITY md3l_NuFit_v4_1_lnL
+  START_CAPABILITY
+    #define FUNCTION md3l_NuFit_v4_1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(md31, double)
+    DEPENDENCY(md32, double)
+    #undef FUNCTION
+  #undef CAPABILITY 
+
+  #define CAPABILITY md21_md3l_NuFit_v4_1_lnL
+  START_CAPABILITY
+    #define FUNCTION md21_md3l_NuFit_v4_1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(ordering, bool)
+    DEPENDENCY(md21, double)
+    DEPENDENCY(md31, double)
+    DEPENDENCY(md32, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   #define CAPABILITY sum_mnu_lnL
   START_CAPABILITY

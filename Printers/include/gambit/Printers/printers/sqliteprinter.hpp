@@ -29,33 +29,6 @@
 #include "gambit/Printers/printers/sqlitetypes.hpp"
 #include "gambit/Utils/util_functions.hpp" // Need Utils::ci_less to make map find() functions case-insensitive, since SQLite is case insensitive
 
-// Sequence of all types printable by the SQLitePrinter,
-// except those that require special backend types
-#define SQL_TYPES           \
-  (int)                     \
-  (uint)                    \
-  (long)                    \
-  (ulong)                   \
-  (longlong)                \
-  (ulonglong)               \
-  (float)                   \
-  (double)                  \
-  (bool)                    \
-  (std::vector<double>)     \
-  (map_str_dbl)             \
-  (ModelParameters)         \
-
-/*(std::vector<double>)     \
-  (triplet<double>)         \
-  (map_intpair_dbl)         \
-  */
-// Printable types that need to be excluded in
-// standalone builds
-#define SQL_MODULE_BACKEND_TYPES           \
-  /*(DM_nucleon_couplings)                 \
-    (DM_nucleon_couplings_fermionic_HP)    \
-    (Flav_KstarMuMu_obs)                   \
-  */
 
 namespace Gambit
 {
@@ -93,9 +66,9 @@ namespace Gambit
         ///@{ Print functions
         using BasePrinter::_print; // Tell compiler we are using some of the base class overloads of this on purpose.
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const unsigned int, const unsigned long);
-        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , SQLITE_TYPES)
+        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , SQL_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , SQLITE_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , SQL_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}

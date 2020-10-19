@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include <cstring>
 
 #include "yaml-cpp/yaml.h"
 

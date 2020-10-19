@@ -165,16 +165,16 @@ def main(argv):
 #                                               \n\
 #***********************************************\n\
                                                 \n"
-        if (mod == "Backends"):
-            towrite += "\
-include(../cmake/toy_backends.cmake)          \n\n"
-        towrite += "\
+        towrite+= "\
 set(source_files                                \n"
         for cpp in srcs: towrite+='src/{0}\n'.format(cpp)
         towrite+=")\n\nset(header_files\n"
         for hpp in headers: towrite+='include/{0}\n'.format(hpp)
         towrite+=")\n\n"
-        towrite+="add_gambit_library("+mod+" OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})"
+        towrite+="add_gambit_library("+mod+" OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})\n"
+        if (mod == "Backends"):
+          towrite+= "\n\
+include(../cmake/toy_backends.cmake)          \n"
         cmakelist = "./"+mod+"/CMakeLists.txt"
         candidate = "./scratch/build_time/"+mod+"_CMakeLists.txt"
         with open(candidate,"w") as f: f.write(towrite)

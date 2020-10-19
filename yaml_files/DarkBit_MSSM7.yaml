@@ -10,7 +10,8 @@
 ##########################################################################
 
 # NB: This example yaml file uses flexiblesusy, so make sure you have
-# built gambit with the correct " -DBUILD_FS_MODELS" option
+# built gambit with -DBUILD_FS_MODELS="MSSM"
+
 
 Parameters:
 
@@ -122,7 +123,7 @@ Printer:
 
   printer: hdf5
   options:
-    output_file: "MSSM7.hdf5"
+    output_file: "MSSM7_DarkBit.hdf5"
     group: "/MSSM7"
     delete_file_on_restart: true
 
@@ -131,6 +132,8 @@ Printer:
   #  output_file: "MSSM7.txt"
   #  buffer_length: 10
   #  delete_file_on_restart: true
+
+  #printer: cout
 
 
 Scanner:
@@ -262,9 +265,11 @@ ObsLikes:
 
 Rules:
 
-  # Options for Process Catalog setup
-  - function: TH_Process_Catalog_MSSM
+  - capability: TH_ProcessCatalog
+    #function: TH_ProcessCatalog_DS5_MSSM
+    function: TH_ProcessCatalog_DS_MSSM
     options:
+       # options are identical for DS5 and DS (=DS6+) versions
        ignore_three_body: false # Ignore 3 body final states?
        ProcessCatalog_MinBranching: 0 # Minimum branching fraction of included processes
 
@@ -275,8 +280,9 @@ Rules:
        CoannSfermions: true # Are sfermions included in coannihilations?
        CoannMaxMass: 1.6 # Maximum sparticle mass to include in coannihilations in units of DM mass
 
-  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  # Choose to use DarkSUSY (5 or 6) rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec_DS5
     function: capture_rate_Sun_const_xsec
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
@@ -306,11 +312,11 @@ Rules:
        oh2_obs: 0.1188
     #function: RD_fraction_one # Do not rescale the local DM density
 
-  - function: DarkSUSY_PointInit_MSSM
-    options:
-       # Set the below to true to write SLHA file to disk and read it in using DarkSUSY
-       # SLHA reader instead of using diskless initialisation (not recommended!)
-       use_dsSLHAread: false
+#  - function: DarkSUSY_5_1_3_init
+#    options:
+#       # Set the below to true to write SLHA file to disk and read it in using DarkSUSY
+#       # SLHA reader instead of using diskless initialisation (not recommended!)
+#       use_dsSLHAread: false
 
   # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
   # values from the GAMBIT decay table (internal_decays=false).
@@ -320,13 +326,15 @@ Rules:
        VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
        VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
-  # Use DarkSUSY (not recommended), MicrOmegas or the DarkBit native calculator for the relic density?
+  # Use DarkSUSY directly (not recommended), MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
   # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
-    function: RD_oh2_general
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
     options:
-      fast: 1  # 0: standard, 1: fast (defalt)
-    #function: RD_oh2_DarkSUSY
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
     #options:
     #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
     #  omtype: 1  # 0: no coann, 1: all coann (default)
@@ -334,6 +342,20 @@ Rules:
     #options:
     #  fast: 1  # 0: standard (default), 1: fast
     #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Choose between initializing the invariant rate calculation for DS5 and DS6
+  - capability: RD_eff_annrate_DSprep_MSSM
+    function: RD_annrate_DSprep_MSSM_func
+    #function: RD_annrate_DSprep_MSSM_func
+
+  # Input type for oh2 calculations needed by DS5 and DS6, respectively
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
 
   # Gamma-ray likelihoods (See DarkBit paper for details on version options)
   -  function: lnL_FermiLATdwarfs_gamLike
@@ -349,10 +371,12 @@ Rules:
        version: "spectral_externalJ"
        # Other options are integral_fixedJ, integral_externalJ, and spectral_fixedJ
 
-  # Choose to use DarkSUSY yield tables for indirect detection
+  # Choose to use DarkSUSY DS5 or DS6 yield tables for indirect detection
   - capability: SimYieldTable
+    #function: SimYieldTable_DS5
     function: SimYieldTable_DarkSUSY
     options:
+       # options are identical for DS5 and DS6
        allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
 
   # Other options can be obtained by uncommenting the relevant lines below (and commenting the above)
@@ -374,8 +398,10 @@ Rules:
 
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
-    function: DD_couplings_DarkSUSY
+    #function: DD_couplings_DarkSUSY_DS5
+    function: DD_couplings_DarkSUSY_MSSM
     options:
+      # these options are identical for the DS5 and DS6 (DS_MSSM) versions
       # If the below is true, 1 loop effects as discuseed in Drees Nojiri
       # Phys.Rev. D48 (1993) 3483 are included (default: true)
       loop: true
@@ -552,9 +578,9 @@ Logger:
     [Default] : "default.log"
     [DecayBit] : "DecayBit.log"
     [DarkBit] : "DarkBit.log"
-    [PrecisionBit] : "PrecisionBit.log"
-    [FlavBit] : "FlavBit.log"
-    [ColliderBit] : "ColliderBit.log"
+#    [PrecisionBit] : "PrecisionBit.log"
+#    [FlavBit] : "FlavBit.log"
+#    [ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 

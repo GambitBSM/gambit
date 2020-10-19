@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  ScannerBit interface to PolyChord 1.14
+///  ScannerBit interface to PolyChord 1.17.1
 ///
 ///  Header file
 ///
@@ -17,6 +17,10 @@
 ///  \author Will Handley
 ///          (wh260@cam.ac.uk)
 ///  \date 2018 May
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date May 2020
 ///
 ///  *********************************************
 
@@ -108,6 +112,14 @@ namespace Gambit
             // This is required because PolyChord needs parameters to be
             // ordered slow-to-fast to exploit a speed hierarchy
             std::unordered_map<std::string, int> index_map;
+
+            /// copy of the settings in use.
+            Settings boundSettings;
+
+            /// Disable printing for speeds greater and equal than
+            /// Speeds start at 0
+            /// A value of -1 means that all evaluations are printed
+            int printer_speed_threshold = -1;
       };
 
       ///@{ C-functions to pass to PolyChord for the callbacks

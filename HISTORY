@@ -3,6 +3,19 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.5.0
+Feature release
+- Added CosmoBit module
+- Added some simple cmake help in CMAKE_FLAGS.md
+- Added new "None" printer
+- Added log-normal prior to ScannerBit
+- Added ability to use scientific notation and environment variables in yaml files
+- Added ability to explicitly ditch pybind11 (and thus all support for Python backends)
+- Added frontends for SPheno 4.0.3, DDCalc 2.1.0, 2.2.0, gamLike 1.0.1, nulike 1.0.8
+- Improved support for parallel backend builds
+- Redesign of ColliderBit + many new analyses
+- Removed support for ditching of models
+
 v1.4.5
 Bugfix release
 - Fixed BOSS problem with parsing template brackets.
@@ -28,7 +41,7 @@ Bugfix release
 
 v1.4.0
 Feature release
-- Added routines for right-handed neutrinos.
+- Added NeutrinoBit module (with routines for right-handed neutrinos).
 
 v1.3.1
 Bugfix release

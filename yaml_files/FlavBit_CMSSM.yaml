@@ -6,7 +6,8 @@
 ##########################################################################
 
 # NB: This example yaml file uses flexiblesusy, so make sure you have
-# built gambit with the correct " -DBUILD_FS_MODELS" option
+# built gambit with -DBUILD_FS_MODELS="CMSSM"
+
 
 Parameters:
 
@@ -71,19 +72,37 @@ ObsLikes:
 
     # Flavour physics likelihoods
     - purpose:    LogLike
-      capability: b2ll_LL
+      capability: B2mumu_LogLikelihood_LHCb
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_CMS
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_Atlas
 
     - purpose:    LogLike
       capability: SL_LL
 
     - purpose:    LogLike
-      capability: b2sll_LL
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
 
     - purpose:    LogLike
-      capability: b2sgamma_LL
+      capability: B2KstarmumuAng_LogLikelihood_CMS
 
     - purpose:    LogLike
-      capability: LUV_LL
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb
+
+    - purpose:    LogLike
+      capability: b2sgamma_LogLikelihood
+
+    - purpose:    LogLike
+      capability: RK_LogLikelihood
+
+    - purpose:    LogLike
+      capability: RKstar_LogLikelihood_LHCb
 
     # SM nuisance parameter likelihoods
     - capability: lnL_t_mass
@@ -102,123 +121,6 @@ Rules:
   #- options:
   #    drop_SLHA_file: true
 
-  # Globally set the SuperIso observables to be considered
-  - options:
-      SuperIso_obs_list: [
-        AI_BKstargamma,
-        BR_BXsgamma,
-        BRuntag_Bsmumu,
-        BR_Bdmumu,
-        BR_BXsmumu_1_6,
-        BR_BXsmumu_14.2_22,
-        BR_BXsee_1_6,
-        BR_BXsee_14.2_22,
-        BR_B0Kstar0gamma,
-        dGamma/dq2_B0Kstar0mumu_0.1_0.98,
-        FL_B0Kstar0mumu_0.1_0.98,
-        AFB_B0Kstar0mumu_0.1_0.98,
-        S3_B0Kstar0mumu_0.1_0.98,
-        S4_B0Kstar0mumu_0.1_0.98,
-        S5_B0Kstar0mumu_0.1_0.98,
-        S7_B0Kstar0mumu_0.1_0.98,
-        S8_B0Kstar0mumu_0.1_0.98,
-        S9_B0Kstar0mumu_0.1_0.98,
-        dGamma/dq2_B0Kstar0mumu_1.1_2.5,
-        FL_B0Kstar0mumu_1.1_2.5,
-        AFB_B0Kstar0mumu_1.1_2.5,
-        S3_B0Kstar0mumu_1.1_2.5,
-        S4_B0Kstar0mumu_1.1_2.5,
-        S5_B0Kstar0mumu_1.1_2.5,
-        S7_B0Kstar0mumu_1.1_2.5,
-        S8_B0Kstar0mumu_1.1_2.5,
-        S9_B0Kstar0mumu_1.1_2.5,
-        dGamma/dq2_B0Kstar0mumu_2.5_4,
-        FL_B0Kstar0mumu_2.5_4,
-        AFB_B0Kstar0mumu_2.5_4,
-        S3_B0Kstar0mumu_2.5_4,
-        S4_B0Kstar0mumu_2.5_4,
-        S5_B0Kstar0mumu_2.5_4,
-        S7_B0Kstar0mumu_2.5_4,
-        S8_B0Kstar0mumu_2.5_4,
-        S9_B0Kstar0mumu_2.5_4,
-        dGamma/dq2_B0Kstar0mumu_4_6,
-        FL_B0Kstar0mumu_4_6,
-        AFB_B0Kstar0mumu_4_6,
-        S3_B0Kstar0mumu_4_6,
-        S4_B0Kstar0mumu_4_6,
-        S5_B0Kstar0mumu_4_6,
-        S7_B0Kstar0mumu_4_6,
-        S8_B0Kstar0mumu_4_6,
-        S9_B0Kstar0mumu_4_6,
-        dGamma/dq2_B0Kstar0mumu_6_8,
-        FL_B0Kstar0mumu_6_8,
-        AFB_B0Kstar0mumu_6_8,
-        S3_B0Kstar0mumu_6_8,
-        S4_B0Kstar0mumu_6_8,
-        S5_B0Kstar0mumu_6_8,
-        S7_B0Kstar0mumu_6_8,
-        S8_B0Kstar0mumu_6_8,
-        S9_B0Kstar0mumu_6_8,
-        dGamma/dq2_B0Kstar0mumu_15_17,
-        FL_B0Kstar0mumu_15_17,
-        AFB_B0Kstar0mumu_15_17,
-        S3_B0Kstar0mumu_15_17,
-        S4_B0Kstar0mumu_15_17,
-        S5_B0Kstar0mumu_15_17,
-        S7_B0Kstar0mumu_15_17,
-        S8_B0Kstar0mumu_15_17,
-        S9_B0Kstar0mumu_15_17,
-        dGamma/dq2_B0Kstar0mumu_17_19,
-        FL_B0Kstar0mumu_17_19,
-        AFB_B0Kstar0mumu_17_19,
-        S3_B0Kstar0mumu_17_19,
-        S4_B0Kstar0mumu_17_19,
-        S5_B0Kstar0mumu_17_19,
-        S7_B0Kstar0mumu_17_19,
-        S8_B0Kstar0mumu_17_19,
-        S9_B0Kstar0mumu_17_19,
-        dGamma/dq2_BKstarmumu_1.1_6,
-        dGamma/dq2_BKstarmumu_15_19,
-        BR_B0Kstar0ee_0.1_19.2,
-        R-1_B0Kstar0ll_0.045_1.1,
-        R-1_B0Kstar0ll_1.1_6,
-        R-1_B0Kstar0ll_0.045_1.1_Belle,
-        R-1_B0Kstar0ll_1.1_6_Belle,
-        R-1_B0Kstar0ll_0.1_8_Belle,
-        R-1_B0Kstar0ll_15_19_Belle,
-        dGamma/dq2_B0K0mumu_1.1_6,
-        dGamma/dq2_B0K0mumu_15_22,
-        dGamma/dq2_BKmumu_1.1_6,
-        FH_BKmumu_1.1_6,
-        dGamma/dq2_BKmumu_15_22,
-        FH_BKmumu_15_22,
-        R-1_BKll_1.1_6,
-        dGamma/dq2_Bsphimumu_0.1_2,
-        FL_Bsphimumu_0.1_2,
-        S3_Bsphimumu_0.1_2,
-        S4_Bsphimumu_0.1_2,
-        S7_Bsphimumu_0.1_2,
-        dGamma/dq2_Bsphimumu_2_5,
-        FL_Bsphimumu_2_5,
-        S3_Bsphimumu_2_5,
-        S4_Bsphimumu_2_5,
-        S7_Bsphimumu_2_5,
-        dGamma/dq2_Bsphimumu_5_8,
-        FL_Bsphimumu_5_8,
-        S3_Bsphimumu_5_8,
-        S4_Bsphimumu_5_8,
-        S7_Bsphimumu_5_8,
-        dGamma/dq2_Bsphimumu_15_17,
-        FL_Bsphimumu_15_17,
-        S3_Bsphimumu_15_17,
-        S4_Bsphimumu_15_17,
-        S7_Bsphimumu_15_17,
-        dGamma/dq2_Bsphimumu_17_19,
-        FL_Bsphimumu_17_19,
-        S3_Bsphimumu_17_19,
-        S4_Bsphimumu_17_19,
-        S7_Bsphimumu_17_19]
-
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
       gauge_mixing_tolerance: 0.5
@@ -232,13 +134,67 @@ Rules:
   - capability: muon_gm2_SM
     function: gm2_SM_ee
 
+  # Use SM theory covariance matrix for every point
+  - capability: SuperIso_theory_covariance
+    function: SI_theory_covariance_SM
+
   # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: bsgamma
-    function: SI_bsgamma
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
+  - capability: SuperIso_prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+
+  # Define observables to predict
+  - capability: prediction_B2mumu
+    options:
+      obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # Define observables used in Likelihood
+  - capability: B2mumu_LogLikelihood_.*
+    options:
+      obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # Define observables to predict
+  - capability: prediction_B2KstarmumuAng_.*_Atlas
+    options:
+      obs_list: [FL, S3, S4, S5, S7, S8]
+
+  # Define observables used in Likelihood
+  - capability: B2KstarmumuAng_LogLikelihood_Atlas
+    options:
+      obs_list: [FL, S3, S4, S5, S7, S8]
+
+  # Define observables to predict
+  - capability: prediction_B2KstarmumuAng_.*_CMS
+    options:
+      obs_list: [P1, P5prime]
+
+  # Define observables used in Likelihood
+  - capability: B2KstarmumuAng_LogLikelihood_CMS
+    options:
+      obs_list: [P1, P5prime]
+
+  # Define observables to predict
+  - capability: prediction_B2KstarmumuAng_.*_Belle
+    options:
+      obs_list: [P4prime, P5prime]
+
+  # Define observables used in Likelihood
+  - capability: B2KstarmumuAng_LogLikelihood_Belle
+    options:
+      obs_list: [P4prime, P5prime]
+
+  # Define observables to predict
+  - capability: prediction_B2KstarmumuAng_.*_LHCb
+    options:
+      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  # Define observables used in Likelihood
+  - capability: B2KstarmumuAng_LogLikelihood_LHCb
+    options:
+      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates

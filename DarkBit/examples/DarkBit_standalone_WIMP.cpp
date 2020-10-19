@@ -15,6 +15,8 @@
 ///  \date 2016 July
 ///  \author Sebastian Wild
 ///  \date 2016 Aug
+///  \date 2020
+///  \author Torsten Bringmann
 ///
 ///  *********************************************
 
@@ -87,7 +89,7 @@ namespace Gambit
   namespace DarkBit
   {
 
-    void TH_ProcessCatalog_WIMP(DarkBit::TH_ProcessCatalog& result)
+    void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
       using namespace Pipes::TH_ProcessCatalog_WIMP;
       using std::vector;
@@ -267,7 +269,7 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.2"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.2 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
@@ -317,7 +319,7 @@ int main(int argc, char* argv[])
     gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_5_1_3_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_2_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
@@ -327,7 +329,7 @@ int main(int argc, char* argv[])
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dshayield);
+    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
     SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
     SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
@@ -425,6 +427,7 @@ int main(int argc, char* argv[])
 
 
     // -- Calculate relic density --
+    // *any* of the models listed by "ALLOW_MODELS" in DarkBit_rollcall.hpp will work here
     RD_eff_annrate_from_ProcessCatalog.notifyOfModel("ScalarSingletDM_Z2");
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
@@ -434,24 +437,15 @@ int main(int argc, char* argv[])
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
 
-    RD_oh2_general.resolveDependency(&RD_spectrum_ordered_func);
-    RD_oh2_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdthlim);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdtab);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdeqn);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdwintp);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::widths);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdmgev);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpth);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpars);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdswitch);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdlun);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpadd);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rddof);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::DSparticle_code);
-
+      
+    RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
+    RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdens);
+ 
 
     // ---- Calculate direct detection constraints ----
 
@@ -643,8 +637,8 @@ int main(int argc, char* argv[])
           RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_ordered_func.reset_and_calculate();
-          RD_oh2_general.reset_and_calculate();
-          oh2 = RD_oh2_general(0);
+          RD_oh2_DS_general.reset_and_calculate();
+          oh2 = RD_oh2_DS_general(0);
           //std::cout << "Omega h^2 = " << oh2 << std::endl;
           oh2_array[i][j] = oh2;
         }

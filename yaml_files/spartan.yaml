@@ -91,6 +91,7 @@ Scanner:
     polychord:
       plugin: polychord
       like:  LogLike
+      print_parameters_in_native_output: true
       tol: 0.1
 
 

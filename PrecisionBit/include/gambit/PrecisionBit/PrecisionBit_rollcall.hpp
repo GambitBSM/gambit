@@ -253,6 +253,27 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Neutron lifetime likelihood: beam
+  #define CAPABILITY lnL_neutron_lifetime_beam
+  START_CAPABILITY
+    #define FUNCTION lnL_neutron_lifetime_beam_Yue
+    START_FUNCTION(double)
+    ALLOW_MODEL(nuclear_params_neutron_lifetime)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Neutron lifetime likelihood: bottle
+  #define CAPABILITY lnL_neutron_lifetime_bottle
+  START_CAPABILITY
+    #define FUNCTION lnL_neutron_lifetime_bottle_PDG19
+    START_FUNCTION(double)
+    ALLOW_MODEL(nuclear_params_neutron_lifetime)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+
+
 #undef MODULE
 
 

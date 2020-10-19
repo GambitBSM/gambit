@@ -1,26 +1,11 @@
-MSSM20atQ:
-  Ad_3: 500
-  Ae_12: 500
-  Ae_3: 500
-  Au_3: 500
-  M1: 5000
-  M2: 300
-  M3: 150
-  Qin: 1e3
+NUHM2:
+  A0: 8000
+  M0: 2000
+  M12: 1200
   SignMu: 1
-  TanBeta: 22
-  mHd2: 1.3e6
-  mHu2: 16770
-  md2_12: 3e5
-  md2_3: 3e5
-  me2_12: 3e5
-  me2_3: 3e5
-  ml2_12: 3e5
-  ml2_3: 3e5
-  mq2_12: 3e5
-  mq2_3: 3e5
-  mu2_12: 3e5
-  mu2_3: 3e5
+  TanBeta: 20
+  mHd: 2000
+  mHu: 1000
 
 StandardModel_SLHA2:
   CKM_A: 0.814
