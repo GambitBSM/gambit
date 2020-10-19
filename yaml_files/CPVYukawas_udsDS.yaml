@@ -3,13 +3,13 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-  nEDMme:
-      gTu: -0.204
-      gTd: 0.784
-      gTs: -0.0027
-      rhoU: 0.55
-      rhoD: 1.10
-
+# nEDMme:
+#    gTu: -0.204
+#    gTd: 0.784
+#    gTs: -0.0027
+#    rhoU: 0.55
+#    rhoD: 1.10
+ 
 #  diaEDMme:
 #    CSchiff_Hg: 2.6
 #    CSchiff_Ra: 0.0
@@ -27,31 +27,31 @@ Parameters:
 #    b_Ra: 0.0
 #    b_Rn: 0.0
 #    b_Xe: 0.0
-#  StandardModel_Higgs:
-#     mH: 150.
-#     #range: [110.,250.]
-#     #prior_type: flat
+  StandardModel_Higgs:
+     mH: 150.
+     #range: [110.,250.]
+     #prior_type: flat
 
   CPVYukawas:
-    kappaU: #1.
-      range: [0.,5.]
-      prior_type: flat
+    kappaU: 1.
+    #range: [0.,5.]
+    # prior_type: flat
     kappaD: 0.
     # range: [0.,10.]
     #  prior_type: flat
-    kappaS: 0.
-#      range: [0.,25.]
-#      prior_type: flat
+    kappaS: #0.
+       range: [0.,5.]
+       prior_type: flat
     kappaC: 0.
-    kappaB: 0.
-    #       range: [1.,1.5]
-    #   prior_type: flat
+    kappaB: #0.
+       range: [0.,1.5]
+       prior_type: flat
     kappaT: 0.
 #      range: [0.,10.]
 #  prior_type: flat
-    SinPhiU: #0. 
-     range: [-1.,1.]
-     prior_type: flat
+    SinPhiU: 0. 
+    #     range: [-1.,1.]
+    # prior_type: flat
     SinPhiD: 0
     #      range: [-1.,1.]
     #  prior_type: flat
@@ -111,10 +111,10 @@ Scanner:
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [600, 600]
+      grid_pts: [100, 100]
           #, 1000, 1000, 1000, 1000]
           #parameters: ["StandardModel_Higgs::mH","CPVYukawas::kappaB" ]
-      parameters: ["CPVYukawas::kappaU", "CPVYukawas::SinPhiU"]
+      parameters: ["CPVYukawas::kappaB", "CPVYukawas::kappaS"]
           #, "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
           # , "CPVYukawas::kappaS", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
 
@@ -124,23 +124,23 @@ ObsLikes:
   #   function: calc_HB_LEP_LogLike_CPVYukawas
   #   purpose: LogLike
  
- #  - capability: LHC_Higgs_LogLike
- #    function: calc_HS_LHC_LogLike_CPVYukawas
- #    purpose: LogLike
- #
-
-
-
-
-
-
-  - capability: lnL_EDM_n
-    function: lnL_EDM_n_gaussianStep
-#    function: lnL_EDM_n_gaussianOverall
-    purpose: LogLike
+   - capability: LHC_Higgs_LogLike
+     function: calc_HS_LHC_LogLike_CPVYukawas
+     purpose: LogLike
  
-  - capability: EDM_n
-    purpose: Observable
+
+
+
+
+
+
+        #  - capability: lnL_EDM_n
+        #    function: lnL_EDM_n_gaussianStep
+        ##    function: lnL_EDM_n_gaussianOverall
+        #    purpose: LogLike
+        # 
+        #  - capability: EDM_n
+        #    purpose: Observable
  
 
 
@@ -186,18 +186,18 @@ ObsLikes:
 
 
 Rules:
-        #   - capability: LHC_Higgs_LogLike
-        #     function: calc_HS_LHC_LogLike_CPVYukawas
-        #     purpose: LogLike
+           - capability: LHC_Higgs_LogLike
+             function: calc_HS_LHC_LogLike_CPVYukawas
+             purpose: LogLike
+             dependencies:
+              - capability: HB_ModelParameters
+                function: SMHiggs_ModelParameters
+                module: ColliderBit
+
+
+        #   - capability: lnL_EDM_n
+        #     function: lnL_EDM_n_gaussianStep
         #     dependencies:
-        #      - capability: HB_ModelParameters
-        #        function: SMHiggs_ModelParameters
-        #        module: ColliderBit
-
-
-   - capability: lnL_EDM_n
-     function: lnL_EDM_n_gaussianStep
-     dependencies:
              #            - capability: EDM_n
              #  function
     

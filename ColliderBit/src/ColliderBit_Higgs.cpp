@@ -687,6 +687,7 @@ namespace Gambit
         ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
         ghjmumu_s[Hneut], ghjmumu_p[Hneut], ghjtautau_s[Hneut], ghjtautau_p[Hneut],
         ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut];
+
       Farray<double, 1,3, 1,3> ghjhiZ;
       double BR_hjinvisible[Hneut], BR_hjemu[Hneut], BR_hjetau[Hneut],
         BR_hjmutau[Hneut], BR_hjHpiW[Hneut];
@@ -767,18 +768,20 @@ namespace Gambit
 	+ 0.0000373436 *kappaC *kappaTau *cosPhiC *cosPhiTau + 4.14361E-7 *kappaMu *kappaTau *cosPhiMu *cosPhiTau 
 	+ 1.15958E-7 *kappaS *kappaTau *cosPhiS *cosPhiTau - 0.00201279 *kappaT *kappaTau *cosPhiT *cosPhiTau;
       ghjgaga[i] = sqrt(ghjgaga[i]);
-      ghjgg[i]=0.0119731 *pow(kappaB,2) + 0.000298235 *pow(kappaC,2) + 5.0322E-8 *pow(kappaS,2) 
-	+ 1.58466 *pow(kappaT,2) + 0.00114605 *pow(kappaB* sinPhiB,2) + 0.00400575 *kappaB *kappaC* sinPhiB* sinPhiC 
-	+ 0.0000208779 *pow(kappaC* sinPhiC,2) + 0.0000473915 *kappaB *kappaS* sinPhiB* sinPhiS 
-	+ 7.93784E-6 *kappaC *kappaS* sinPhiC* sinPhiS + 1.73214E-9 *pow(kappaS* sinPhiS,2) 
-	- 0.284265 *kappaB *kappaT* sinPhiB* sinPhiT - 0.0540516 *kappaC *kappaT* sinPhiC* sinPhiT - 0.000794079 *kappaS *kappaT* sinPhiS* sinPhiT 
-	+ 2.08269 *pow(kappaT* sinPhiT,2) + 0.00367473 *kappaB *kappaC *cosPhiB *cosPhiC + 0.0000434461 *kappaB *kappaS *cosPhiB *cosPhiS 
-	+ 7.50993E-6 *kappaC *kappaS *cosPhiC *cosPhiS - 0.166289 *kappaB *kappaT *cosPhiB *cosPhiT - 0.0336165 *kappaC *kappaT *cosPhiC *cosPhiT 
-	- 0.000511357 *kappaS *kappaT *cosPhiS *cosPhiT; 
+
+      ghjgg[i] = 0.00855073 *pow(kappaB,2) + 0.000212989 *pow(kappaC,2) + 3.59382E-8 *pow(kappaS,2) 
+	      + 1.13171 *pow(kappaT,2) + 0.000818468 *pow(kappaB *sinPhiB,2) + 0.00286077 *kappaB *kappaC *sinPhiB *sinPhiC 
+	      + 0.0000149103 *pow(kappaC *sinPhiC,2) + 0.00262436 *kappaB *kappaC *cosPhiB *cosPhiC + 0.0000338453 *kappaB *kappaS *sinPhiB *sinPhiS 
+	      + 5.66892E-6 *kappaC *kappaS *sinPhiC *sinPhiS + 1.23703E-9 *pow(kappaS *sinPhiS,2) + 0.0000310277 *kappaB *kappaS *cosPhiB *cosPhiS 
+	      + 5.36333E-6 *kappaC *kappaS *cosPhiC *cosPhiS - 0.203012 *kappaB *kappaT *sinPhiB *sinPhiT 
+	      - 0.0386017 *kappaC *kappaT *sinPhiC *sinPhiT - 0.000567103 *kappaS *kappaT *sinPhiS *sinPhiT + 1.48739 *pow(kappaT *sinPhiT,2) 
+	      - 0.118758 *kappaB *kappaT *cosPhiB *cosPhiT - 0.0240077 *kappaC *kappaT *cosPhiC *cosPhiT 
+	      - 0.000365193 *kappaS *kappaT *cosPhiS *cosPhiT;
+
       // h-gluon-gluon (change?)
       ghjgg[i]=sqrt(ghjgg[i]); // h-gluon-gluon (change?)
-      ghjhiZ[i]=0.; // h-h-Z 
- 
+      ghjhiZ=0.; // h-h-Z 
+
       cout << "gammaTotal before: " <<  GammaTotal[i] << endl;
       GammaTotal[i] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
       GammaTotal[i] = GammaTotal[i]* ( 1
