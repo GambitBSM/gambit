@@ -3,12 +3,12 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-# nEDMme:
-#    gTu: -0.204
-#    gTd: 0.784
-#    gTs: -0.0027
-#    rhoU: 0.55
-#    rhoD: 1.10
+  nEDMme:
+    gTu: -0.204
+    gTd: 0.784
+    gTs: -0.0027
+    rhoU: 0.55
+    rhoD: 1.10
  
 #  diaEDMme:
 #    CSchiff_Hg: 2.6
@@ -27,51 +27,44 @@ Parameters:
 #    b_Ra: 0.0
 #    b_Rn: 0.0
 #    b_Xe: 0.0
-  StandardModel_Higgs:
-     mH: 150.
-     #range: [110.,250.]
-     #prior_type: flat
+#  StandardModel_Higgs:
+#     mH: 150.
+#     #range: [110.,250.]
+#     #prior_type: flat
 
   CPVYukawas:
-    kappaU: 1.
-    #range: [0.,5.]
-    # prior_type: flat
-    kappaD: 0.
-    # range: [0.,10.]
-    #  prior_type: flat
-    kappaS: #0.
-       range: [0.,5.]
-       prior_type: flat
-    kappaC: 0.
-    kappaB: #0.
-       range: [0.,1.5]
-       prior_type: flat
-    kappaT: 0.
-#      range: [0.,10.]
-#  prior_type: flat
-    SinPhiU: 0. 
-    #     range: [-1.,1.]
-    # prior_type: flat
-    SinPhiD: 0
-    #      range: [-1.,1.]
-    #  prior_type: flat
-    SinPhiS: 0.
-#      range: [-1.,1.]
-#      prior_type: flat
-    SinPhiC: 0.
-    SinPhiB: 0.
-    #     range: [-1.,1.]
-    # prior_type: flat
-    SinPhiT: 0.
-#       range: [-1.,1.]
-#       prior_type: flat
-    
-    kappaE: 1.
-    kappaMu: 1.
-    kappaTau: 1.
-    SinPhiE: 0.
-    SinPhiMu: 0.
-    SinPhiTau: 0.   
+    CuHp: 
+     range: [-0.01,0.01]
+     prior_type: flat
+    CuHm:
+     #     range: [-0.001,0.001]
+     range: [-0.0004,0.0004]
+     prior_type: flat
+    CtHp: 
+     range: [-32.,32.]
+     prior_type: flat
+    CtHm:
+     range: [-32.,32.]
+     #     range: [-1.,1.]
+     prior_type: flat
+    CdHp: 0.
+    CdHm: 0.
+    CsHp: 0.
+    CsHm: 0.
+    CcHp: 0.
+    CcHm: 0.
+    CbHp: 0.
+    CbHm: 0.
+    CeHp: 0.
+    CeHm: 0.
+    CmuHp: 0.
+    CmuHm: 0.
+    CtauHp: 0.
+    CtauHm: 0.
+
+
+
+
 
 Printer:
 
@@ -91,7 +84,7 @@ Printer:
 
 
 Scanner:
-  use_scanner: grid
+  use_scanner: diver
 
   scanners:
     multinest:
@@ -104,17 +97,17 @@ Scanner:
     diver:
       plugin: diver
       like: LogLike
-      NP: 10000
+      NP: 20000
       verbosity: 1
       convthresh: 0.1
 
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [100, 100]
+      grid_pts: [500, 500]
           #, 1000, 1000, 1000, 1000]
           #parameters: ["StandardModel_Higgs::mH","CPVYukawas::kappaB" ]
-      parameters: ["CPVYukawas::kappaB", "CPVYukawas::kappaS"]
+      parameters: ["CPVYukawas::CuHm", "CPVYukawas::CtHm"]
           #, "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
           # , "CPVYukawas::kappaS", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
 
@@ -124,9 +117,9 @@ ObsLikes:
   #   function: calc_HB_LEP_LogLike_CPVYukawas
   #   purpose: LogLike
  
-   - capability: LHC_Higgs_LogLike
-     function: calc_HS_LHC_LogLike_CPVYukawas
-     purpose: LogLike
+        #   - capability: LHC_Higgs_LogLike
+        #     function: calc_HS_LHC_LogLike_CPVYukawas
+        #     purpose: LogLike
  
 
 
@@ -134,13 +127,15 @@ ObsLikes:
 
 
 
-        #  - capability: lnL_EDM_n
-        #    function: lnL_EDM_n_gaussianStep
-        ##    function: lnL_EDM_n_gaussianOverall
-        #    purpose: LogLike
-        # 
-        #  - capability: EDM_n
-        #    purpose: Observable
+          - capability: lnL_EDM_n
+            function: lnL_EDM_n_gaussianStep
+        #    function: lnL_EDM_n_gaussianOverall
+            purpose: LogLike
+         
+          - capability: EDM_n
+            function: EDM_n_quark
+            purpose: Observable
+            module: LowEBit
  
 
 
@@ -186,20 +181,22 @@ ObsLikes:
 
 
 Rules:
-           - capability: LHC_Higgs_LogLike
-             function: calc_HS_LHC_LogLike_CPVYukawas
+        #           - capability: LHC_Higgs_LogLike
+        #             function: calc_HS_LHC_LogLike_CPVYukawas
+        #             purpose: LogLike
+        #             dependencies:
+        #              - capability: HB_ModelParameters
+        #                function: SMHiggs_ModelParameters
+        #                module: ColliderBit
+
+
+           - capability: lnL_EDM_n
+             function: lnL_EDM_n_gaussianStep
              purpose: LogLike
              dependencies:
-              - capability: HB_ModelParameters
-                function: SMHiggs_ModelParameters
-                module: ColliderBit
-
-
-        #   - capability: lnL_EDM_n
-        #     function: lnL_EDM_n_gaussianStep
-        #     dependencies:
-             #            - capability: EDM_n
-             #  function
+              - capability: EDM_n
+                function: EDM_n_quark
+                module: LowEBit
     
     #   - capability: lnL_EDM_dia
     #     function: lnL_EDM_199Hg_step

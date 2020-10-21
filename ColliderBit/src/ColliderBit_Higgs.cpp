@@ -705,48 +705,55 @@ namespace Gambit
       //
       //setup_output_level(0) only gives debug information - not called
       //setup_Nparam(number of free model parameters = 12) not called - even though might be needed but is not listed in Backends/include/gambit/Backends/frontends/HiggsSignals_2_2_3beta.hpp
+      double gf = Dep::SMINPUTS->GF;
+      double vev = 1/sqrt(sqrt(2.)*gf);
+      double Lambda = 1000.;
+      double mu = Dep::SMINPUTS->mU;
+      double md = Dep::SMINPUTS->mD;
+      double ms = Dep::SMINPUTS->mS;
+      double mc = Dep::SMINPUTS->mCmC;
+      double mb = Dep::SMINPUTS->mBmB;
+      double mt = Dep::SMINPUTS->mT;
+      double mmu = Dep::SMINPUTS->mMu;
+      double mtau = Dep::SMINPUTS->mTau;
 
-
-      double kappaS = *Param["kappaS"];
-      double kappaC = *Param["kappaC"];
-      double kappaB = *Param["kappaB"];
-      double kappaT = *Param["kappaT"];
-      double kappaMu = *Param["kappaMu"];
-      double kappaTau = *Param["kappaTau"];
-      double sinPhiS = *Param["SinPhiS"];
-      double sinPhiC = *Param["SinPhiC"];
-      double sinPhiB = *Param["SinPhiB"];
-      double sinPhiT = *Param["SinPhiT"];
-      double sinPhiMu = *Param["SinPhiMu"];
-      double sinPhiTau = *Param["SinPhiTau"];
-      double cosPhiS = sqrt(1. - pow(*Param["SinPhiS"],2));
-      double cosPhiC = sqrt(1. - pow(*Param["SinPhiC"],2));
-      double cosPhiB = sqrt(1. - pow(*Param["SinPhiB"],2));
-      double cosPhiT = sqrt(1. - pow(*Param["SinPhiT"],2));
-      double cosPhiMu = sqrt(1. - pow(*Param["SinPhiMu"],2));
-      double cosPhiTau = sqrt(1. - pow(*Param["SinPhiTau"],2));
+      double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
+      double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md;
+      double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/ms;
+      double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mc;
+      double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mb;
+      double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mt;
+      double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
+      double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
+ 
+      double cosThU = sqrt(1. - pow(sinThU,2));
+      double cosThD = sqrt(1. - pow(sinThD,2));
+      double cosThS = sqrt(1. - pow(sinThS,2));
+      double cosThC = sqrt(1. - pow(sinThC,2));
+      double cosThB = sqrt(1. - pow(sinThB,2));
+      double cosThT = sqrt(1. - pow(sinThT,2));
+      double cosThMu = sqrt(1. - pow(sinThMu,2));
+      double cosThTau = sqrt(1. - pow(sinThTau,2));
 
 
       for(int i = 0; i<Hneut; i++){
-      ghjss_p[i] = kappaS*sinPhiS;
-      ghjss_s[i] = kappaS*cosPhiS;
-      ghjcc_p[i] = kappaC*sinPhiC;
-      ghjcc_s[i] = kappaC*cosPhiC;
-      ghjbb_p[i] = kappaB*sinPhiB;
-      ghjbb_s[i] = kappaB*cosPhiB;
-      ghjtt_p[i] = kappaT*sinPhiT;
-      ghjtt_s[i] = kappaT*cosPhiT;
-      ghjmumu_p[i] = kappaMu*sinPhiMu;
-      ghjmumu_s[i] = kappaMu*cosPhiMu;
-      ghjtautau_p[i] = kappaTau*sinPhiTau;
-      ghjtautau_s[i] = kappaTau*cosPhiTau;
+      ghjss_p[i] = (*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS;
+      ghjss_s[i] = (*Param["CsHm"])*sinThS + (*Param["CsHp"])*cosThS;
+      ghjss_p[i] = (*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC;
+      ghjss_s[i] = (*Param["CcHm"])*sinThC + (*Param["CcHp"])*cosThC;
+      ghjss_p[i] = (*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB;
+      ghjss_s[i] = (*Param["CbHm"])*sinThB + (*Param["CbHp"])*cosThB;
+      ghjss_p[i] = (*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT;
+      ghjss_s[i] = (*Param["CtHm"])*sinThT + (*Param["CtHp"])*cosThT;
+      ghjss_p[i] = (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu;
+      ghjss_s[i] = (*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau;
 
       // hVV
       ghjWW[i]=1.;
       ghjZZ[i]=1.;
       ghjZga[i]=1.; // h-Z-photon (change?)
       //the following numeric values are with a SM-Higgs mass. Formulae found in 1310.1385. Results than multiplied with complex conjugate.
-      ghjgaga[i] = 1.61137 + 0.0000369539 *pow(kappaB,2) + 0.0000147277 *pow(kappaC,2) + 1.97566E-9 *pow(kappaMu,2) + 1.55315E-10 *pow(kappaS,2) 
+      ghjgaga[i] = 1.61137 /*+ 0.0000369539 *pow(kappaB,2) + 0.0000147277 *pow(kappaC,2) + 1.97566E-9 *pow(kappaMu,2) + 1.55315E-10 *pow(kappaS,2) 
 	+ 0.0782548 *pow(kappaT,2) + 0.0000237393 *pow(kappaTau,2) + 3.53719E-6 *pow(kappaB *sinPhiB,2) + 0.00931582 *kappaB *cosPhiB 
 	+ 0.0000494538 *kappaB *kappaC *sinPhiB *sinPhiC + 1.03101E-6 *pow(kappaC *sinPhiC,2) + 0.00753304 *kappaC *cosPhiC 
 	+ 0.000045367 *kappaB *kappaC *cosPhiB *cosPhiC + 5.23318E-7 *kappaB *kappaMu *sinPhiB *sinPhiMu 
@@ -766,17 +773,17 @@ namespace Gambit
 	+ 1.23307E-7 *kappaS *kappaTau *sinPhiS *sinPhiTau - 0.00327124 *kappaT *kappaTau *sinPhiT *sinPhiTau 
 	+ 1.82919E-6 *pow(kappaTau *sinPhiTau,2) + 0.00913359 *kappaTau *cosPhiTau + 0.0000582519 *kappaB *kappaTau *cosPhiB *cosPhiTau 
 	+ 0.0000373436 *kappaC *kappaTau *cosPhiC *cosPhiTau + 4.14361E-7 *kappaMu *kappaTau *cosPhiMu *cosPhiTau 
-	+ 1.15958E-7 *kappaS *kappaTau *cosPhiS *cosPhiTau - 0.00201279 *kappaT *kappaTau *cosPhiT *cosPhiTau;
+	+ 1.15958E-7 *kappaS *kappaTau *cosPhiS *cosPhiTau - 0.00201279 *kappaT *kappaTau *cosPhiT *cosPhiTau*/;
       ghjgaga[i] = sqrt(ghjgaga[i]);
 
-      ghjgg[i] = 0.00855073 *pow(kappaB,2) + 0.000212989 *pow(kappaC,2) + 3.59382E-8 *pow(kappaS,2) 
+      ghjgg[i] =0./* 0.00855073 *pow(kappaB,2) + 0.000212989 *pow(kappaC,2) + 3.59382E-8 *pow(kappaS,2) 
 	      + 1.13171 *pow(kappaT,2) + 0.000818468 *pow(kappaB *sinPhiB,2) + 0.00286077 *kappaB *kappaC *sinPhiB *sinPhiC 
 	      + 0.0000149103 *pow(kappaC *sinPhiC,2) + 0.00262436 *kappaB *kappaC *cosPhiB *cosPhiC + 0.0000338453 *kappaB *kappaS *sinPhiB *sinPhiS 
 	      + 5.66892E-6 *kappaC *kappaS *sinPhiC *sinPhiS + 1.23703E-9 *pow(kappaS *sinPhiS,2) + 0.0000310277 *kappaB *kappaS *cosPhiB *cosPhiS 
 	      + 5.36333E-6 *kappaC *kappaS *cosPhiC *cosPhiS - 0.203012 *kappaB *kappaT *sinPhiB *sinPhiT 
 	      - 0.0386017 *kappaC *kappaT *sinPhiC *sinPhiT - 0.000567103 *kappaS *kappaT *sinPhiS *sinPhiT + 1.48739 *pow(kappaT *sinPhiT,2) 
 	      - 0.118758 *kappaB *kappaT *cosPhiB *cosPhiT - 0.0240077 *kappaC *kappaT *cosPhiC *cosPhiT 
-	      - 0.000365193 *kappaS *kappaT *cosPhiS *cosPhiT;
+	      - 0.000365193 *kappaS *kappaT *cosPhiS *cosPhiT*/;
 
       // h-gluon-gluon (change?)
       ghjgg[i]=sqrt(ghjgg[i]); // h-gluon-gluon (change?)
@@ -785,9 +792,9 @@ namespace Gambit
       cout << "gammaTotal before: " <<  GammaTotal[i] << endl;
       GammaTotal[i] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
       GammaTotal[i] = GammaTotal[i]* ( 1
-			+ (pow(kappaS,2)-1)*2.4637E-4 +(pow(kappaC,2)-1)*2.8828E-2 +(pow(kappaB,2)-1)*5.895E-1 +(pow(kappaT,2)-1)*0E0 
+		/*	+ (pow(kappaS,2)-1)*2.4637E-4 +(pow(kappaC,2)-1)*2.8828E-2 +(pow(kappaB,2)-1)*5.895E-1 +(pow(kappaT,2)-1)*0E0 
 			+ (pow(kappaMu,2)-1)*2.2446E-4 +(pow(kappaTau,2)-1)*6.3347E-2 +(pow(ghjgaga[i],2)-1)*2.30946E-3 
-			+ (pow(ghjgg[i],2)-1)*7.81082E-2 + (pow(ghjWW[i],2)-1)*2.09566E-1 + (pow(ghjZZ[i],2)-1)*2.64394E-2
+			+ (pow(ghjgg[i],2)-1)*7.81082E-2 + (pow(ghjWW[i],2)-1)*2.09566E-1 + (pow(ghjZZ[i],2)-1)*2.64394E-2*/
 	      	      );
 	      //how does the decay rate change in the model
       cout << "gammaTotal after: " <<  GammaTotal[i] << endl;

@@ -135,6 +135,7 @@
     #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
     START_FUNCTION(double)
     ALLOW_MODELS(CPVYukawas)
+    DEPENDENCY(SMINPUTS, SMInputs)
     // TODO: JC: Delete the below, it is not needed?
     // DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)

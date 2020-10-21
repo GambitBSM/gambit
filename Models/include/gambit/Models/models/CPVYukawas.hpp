@@ -11,6 +11,10 @@
 //  \author Jonathan Cornell
 //          (jonathan.cornell@uc.edu)
 //  \date 2019 Jan
+//  \author Dimitrios Skodras
+//          (dimitrios.skodras@udo.edu)
+//  \date 2020 Oct
+
 //
 //  *********************************************
 
@@ -21,14 +25,11 @@
 	START_MODEL
 
 	// Quark Yukawas
-	DEFINEPARS(kappaU, kappaD, kappaS)
-	DEFINEPARS(kappaC, kappaB, kappaT)
-	DEFINEPARS(SinPhiU, SinPhiD, SinPhiS)
-	DEFINEPARS(SinPhiC, SinPhiB, SinPhiT)
+	DEFINEPARS(CuHm, CuHp, CdHm, CdHp, CsHm, CsHp)
+	DEFINEPARS(CcHm, CcHp, CbHm, CbHp, CtHm, CtHp)
 
 	// Lepton Yukawas
-	DEFINEPARS(kappaE, kappaMu, kappaTau)
-	DEFINEPARS(SinPhiE, SinPhiMu, SinPhiTau)
+	DEFINEPARS(CeHm, CeHp, CmuHm, CmuHp, CtauHm, CtauHp)
 #undef MODEL
 
 #endif
