@@ -75,15 +75,9 @@ BE_NAMESPACE
             double mH = container.he->get(Par::mass1, "h0", 2);
             double mA = container.he->get(Par::mass1, "A0");
             double mC = container.he->get(Par::mass1, "H+");
-            // double alpha = container.he->get(Par::dimensionless, "alpha");
-            // be consistent in calculating sinba {
-                double v2 = pow(container.he->get(Par::mass1, "vev"),2);
-                double mC_2 = container.higgs_pars.M22_2 + 0.5*v2*container.higgs_pars.Lambda3;
-                double mA_2 = mC_2 - 0.5*v2*(container.higgs_pars.Lambda5 - container.higgs_pars.Lambda4);
-                double s2ba = -2.*container.higgs_pars.Lambda6*v2, c2ba = -(mA_2+(container.higgs_pars.Lambda5-container.higgs_pars.Lambda1)*v2);
-                double ba = 0.5*atan2(s2ba,c2ba);
-            // }
-            double sba = sin(ba);
+            double alpha = container.he->get(Par::dimensionless, "alpha");
+            double beta = container.he->get(Par::dimensionless, "beta");
+            double sba = sin(beta - alpha);
             container.THDM_object->set_param_full(lambda_1, lambda_2, lambda_3, lambda_4, lambda_5, lambda_6, lambda_7, \
                                     m12_2, tan_beta, mh, mH, mA, mC, sba);
             

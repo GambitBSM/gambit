@@ -229,40 +229,6 @@ namespace Gambit
       }
 
       template <class Model>
-      double get_alpha(const Model& model) {
-         // get cosa & sina
-         const double ca = model.get_ZH(0, 0), sa = model.get_ZH(0, 1);
-         // get alpha
-         double alpha = atan2(sa,ca);
-         // FS convention has physical states flipped
-         if (alpha < -M_PI/2.0) {
-            alpha += M_PI/2.0;
-         }
-         else {
-            alpha -= M_PI/2.0;
-         }
-        
-         return alpha;
-      }
-
-      template <class Model>
-      double get_alpha_pole_slha(const Model& model) {
-         // get cosa & sina
-         const double ca = model.get_ZH_pole_slha(0, 0), sa = model.get_ZH_pole_slha(0, 1);
-         // get alpha
-         double alpha = atan2(sa,ca);
-         // FS convention has physical states flipped
-         if (alpha<M_PI/2.0) {
-            alpha += M_PI/2.0;
-         }
-         else {
-            alpha -= M_PI/2.0;
-         }
-
-         return alpha;
-      }
-
-      template <class Model>
       double get_beta(const Model& model) {
          // get cosb & sinb
          const double cb = model.get_ZA(0, 0), sb = model.get_ZA(0, 1);
@@ -276,6 +242,42 @@ namespace Gambit
          const double cb = model.get_ZA_pole_slha(0, 0), sb = model.get_ZA_pole_slha(0, 1);
          // get beta
          return atan2(sb,cb);
+      }
+
+      template <class Model>
+      double get_alpha(const Model& model) {
+         // get cosa & sina
+         const double ca = model.get_ZH(0, 0), sa = model.get_ZH(0, 1);
+         // get alpha
+         double alpha = atan2(sa,ca);
+         const double beta = get_beta(model);
+         const double ba = beta - alpha;
+         if (ba > M_PI_2) {
+            alpha += M_PI;
+         }
+         else if (ba < -M_PI_2) {
+            alpha -= M_PI;
+         }
+
+         return alpha;
+      }
+
+      template <class Model>
+      double get_alpha_pole_slha(const Model& model) {
+         // get cosa & sina
+         const double ca = model.get_ZH_pole_slha(0, 0), sa = model.get_ZH_pole_slha(0, 1);
+         // get alpha
+         double alpha = atan2(sa,ca);
+         const double beta = get_beta(model);
+         const double ba = beta - alpha;
+         if (ba > M_PI_2) {
+            alpha += M_PI;
+         }
+         else if (ba < -M_PI_2) {
+            alpha -= M_PI;
+         }
+
+         return alpha;
       }
 
       // wrapper getter methods for higgs basis parameters 
