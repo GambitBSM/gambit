@@ -110,6 +110,7 @@ START_CAPABILITY
 	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	ALLOW_MODELS(diaEDMme)
+        ALLOW_MODELS(CPVYukawas)
 	#undef FUNCTION
 
 	#define FUNCTION EDM_225Ra_quark
@@ -169,7 +170,7 @@ START_CAPABILITY
 
 #define CAPABILITY lnL_EDM_para
 START_CAPABILITY
-    #define FUNCTION lnL_EDM_ThO_step
+    #define FUNCTION lnL_EDM_ThO_gaussianStep
     START_FUNCTION(double)
     DEPENDENCY(EDM_para, double)
     #undef FUNCTION

@@ -44,12 +44,12 @@ namespace Gambit
 		  double mt = Dep::SMINPUTS->mT;
 //
 //		//MqX are from draft with orders <10^-9 omitted
-		  double Mu3[6] = {1.73E-0,0,0,0,0,1.41E-5};
-		  double Md3[6] = {0,6.92E-1,0,0,0,1.26E-5};
-		  double Ms3[6] = {0,0,3.48E-2,0,0,1.26E-5};
-		  double Mu4[6] = {-1.83E-0,0,0,0,0,0};
-		  double Md4[6] = {0,-8.47E-1,0,0,0,0};
-		  double Ms4[6] = {0,0,-4.25E-2,0,0,0};
+		  double Mu3[6] = {1.73E-0,0,0,0,0,-1.41E-5};
+		  double Md3[6] = {0,6.92E-1,0,0,0,-1.26E-5};
+		  double Ms3[6] = {0,0,3.48E-2,0,0,-1.26E-5};
+		  double Mu4[6] = {-1.83E-0,0,0,0,0,2.24E-5};
+		  double Md4[6] = {0,-8.47E-1,0,0,0,2.24E-5};
+		  double Ms4[6] = {0,0,-4.25E-2,0,0,2.24E-5};
 		  double Mw[6] = {0,0,0,0,0,-4.70E-7};
 //
 		  double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
@@ -70,24 +70,24 @@ namespace Gambit
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
-		  double CqH[6] = {
-			  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
-			  (*Param["CdHm"])*cosThD + (*Param["CdHp"]*sinThD),
-			  (*Param["CsHm"])*cosThS + (*Param["CsHp"]*sinThS),
-			  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
-			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
-			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
-		  		  };
+	//	  double CqH[6] = {
+	//		  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
+	//		  (*Param["CdHm"])*cosThD + (*Param["CdHp"]*sinThD),
+	//		  (*Param["CsHm"])*cosThS + (*Param["CsHp"]*sinThS),
+	//		  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
+	//		  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
+	//		  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
+	//	  		  };
 //		  }
 //		  else if(sampleStyle==2){
-//		  double CqH[6] = {
-//			  (*Param["CuHm"]),
-//			  (*Param["CdHm"]),
-//			  (*Param["CsHm"]),
-//			  (*Param["CcHm"]),
-//			  (*Param["CbHm"]),
-//			  (*Param["CtHm"])
-//				  };
+		  double CqH[6] = {
+			  (*Param["CuHm"]),
+			  (*Param["CdHm"]),
+			  (*Param["CsHm"]),
+			  (*Param["CcHm"]),
+			  (*Param["CbHm"]),
+			  (*Param["CtHm"])
+				  };
 
 //		  }
 
@@ -102,9 +102,9 @@ namespace Gambit
 			  result.Cw[1] = result.Cw[1] + Mw[i]*CqH[i];
 			  }
 		  for(int i = 1; i<3; i++) {
-			  cout << "Cu"<<i<< " " << result.Cu[i];
-			  cout << "Cd"<<i<< " " << result.Cd[i];
-			  cout << "Cs"<<i<< " " << result.Cs[i];
+			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
+			  cout << "Cd"<<i<< " " << result.Cd[i] << " ";
+			  cout << "Cs"<<i<< " " << result.Cs[i] << " " << endl;
 		  }
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
@@ -120,6 +120,7 @@ namespace Gambit
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
 		  double me = Dep::SMINPUTS->mE;
+		  double mt = Dep::SMINPUTS->mT;
 //
 		  double Me3[2] = {1.04E-0,-1.77E-6};
 //
@@ -132,20 +133,16 @@ namespace Gambit
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
-		  double CeH[2] = {
-			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
-			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
-		  		  };
+//		  double CeH[2] = {
+//			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
+//			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
+//		  		  };
 //		  }
 //		  else if(sampleStyle==2){
-//		  double CqH[6] = {
-//			  (*Param["CuHm"]),
-//			  (*Param["CdHm"]),
-//			  (*Param["CsHm"]),
-//			  (*Param["CcHm"]),
-//			  (*Param["CbHm"]),
-//			  (*Param["CtHm"])
-//				  };
+		  double CeH[2] = {
+			  (*Param["CeHm"]),
+			  (*Param["CtHm"])
+				  };
 
 //		  }
 
@@ -177,6 +174,7 @@ namespace Gambit
          result.u = sqrt(2.)*gf/pow(gsat2GeV,2)*2./3.*mu*c.Cu[1]*gev2cm;
          result.d = sqrt(2.)*gf/pow(gsat2GeV,2)*(-1./3.)*md*c.Cd[1]*gev2cm;
          result.s = sqrt(2.)*gf/pow(gsat2GeV,2)*(-1./3.)*ms*c.Cs[1]*gev2cm;
+	 cout << "du: " << result.u << " dd: " << result.d << " ds: " << result.s << endl;
          //Heavy quarks for completeness??
       }
 
@@ -212,6 +210,7 @@ namespace Gambit
          result.u = -sqrt(2.)*gf/gsat2GeV*mu*c.Cu[2]*gev2cm;
          result.d = -sqrt(2.)*gf/gsat2GeV*md*c.Cd[2]*gev2cm;
          result.s = -sqrt(2.)*gf/gsat2GeV*ms*c.Cs[2]*gev2cm;
+	 cout << "cdu: " << result.u << " cdd: " << result.d << " cds: " << result.s << endl;
          //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
       }
 
@@ -224,47 +223,22 @@ namespace Gambit
          result = dEDM.e ;
       }
 
-          void lnL_EDM_n_gaussianStep(double &result)
+          void lnL_EDM_ThO_gaussianStep(double &result)
 	  {
 		  using namespace Pipes::lnL_EDM_ThO_gaussianStep;
-		  double mu = 0.2E-26, sig = 1.6E-26, offset = 2.9E-26;
+		  double mu = 4.3E-30, sig = 4.0E-30, offset = 1.1E-29; //taken from ACME: https://doi.org/10.1038/s41586-018-0599-8
 		  cout << "Dep::EDM_ThO: " << abs(*Dep::EDM_para) << endl;
-		  if(abs(*Dep::EDM_ThO_electron) < 2.9E-26)
+		  if(abs(*Dep::EDM_para) < 1.1E-29)
 		  {
 			result = 0.0;
 			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2));
 		  }
 		  else{
-			if(*Dep::EDM_ThO_electron < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
+			if(*Dep::EDM_para < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
 			else{offset = -offset;}
-			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_ThO_electron - mu + offset)/sig,2));
+			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_para - mu + offset)/sig,2));
 		  }
-/*		  if(abs(*Dep::EDM_n) < 2.9E-26)
-			{
-				double mu = -0.2E-26, sig = 2.0E-26;
-				// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
-				result = -1./2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2));
-			}
-		  else{result = -1.0E50;}		  
-		  result = gaussian_upper_limit(*Dep::EDM_n,mu,
-
-*/
 	  }
-
-
-
-      void lnL_EDM_129Xe_step(double &result)
-      // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
-      {
-    	  using namespace Pipes::lnL_EDM_129Xe_step;
-    	  
-		  if (abs(*Dep::EDM_dia) > 6.6E-27) //95% CL limit from arXiv:hep-ex/0602020
-    		  result = 0.0;
-    	  else
-//    		  result = -1.0E50;
-    		  result = 10.0;
-      }
-
 
 	  void EDM_129Xe_quark(double &result)
       // Calculation of 199Xe EDM from quark and CEDMs in e cm
@@ -367,22 +341,30 @@ namespace Gambit
 	  // 2.(+4 -1) 
          result = 2.0E-3 * (*Param["CSchiff_Hg"]) * gPiNN * 
 			 ((*Param["a0_Hg"]+*Param["b_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d));
+	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
+	 cout << "dHg: " << result << endl;
       }
 
       void lnL_EDM_199Hg_step(double &result)
       // Step function likelihood for 199Hg EDM (TODO: improve this!!!!!)
       {
     	  using namespace Pipes::lnL_EDM_199Hg_step;
-    /*	  double sigma = 4.23E-30; //1601.04339
-		  double mean = 2.2E-30; //1601.04339
-		  result = 1/(sqrt(2*pi)*sigma) * exp(-pow(*Dep::EDM_dia - mean,2)/(2*sigma*sigma));
-	*/	  
-		  if (abs(*Dep::EDM_dia) < 7.4E-30) //90% CL limit from arXiv:hep-ex/0602020
-			{result = 1.0;}
-    	  else{
-    		  result = -1.0E0;
+    		  double sig = 4.23E-30; //1601.04339
+		  double mu = 2.2E-30; //1601.04339
+		  double offset = 7.4E-30;//90% CL limit from arXiv:hep-ex/0602020
+		  double value = *Dep::EDM_dia;
+		  
+		  cout << "Dep::EDM_dia: " << abs(value) << endl;
+		  if(abs(value) < 7.4E-30)
+		  {
+			result = 0.0;
+			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2));
 		  }
-  
+		  else{
+			if(value < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
+			else{offset = -offset;}
+			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((value - mu + offset)/sig,2));
+		  }
       }
 
       void EDM_n_quark(double &result)
