@@ -91,9 +91,7 @@ namespace Gambit {
     // angles
     addParameter(Par::dimensionless, "tanb");
     addParameter(Par::dimensionless, "beta");
-    addParameter(Par::dimensionless, "beta_pole");
     addParameter(Par::dimensionless, "alpha");
-    addParameter(Par::dimensionless, "alpha_pole");
     
   }
   

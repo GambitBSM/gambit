@@ -375,10 +375,8 @@ namespace Gambit
 
               // angles
               tmp_map["alpha"]   = &THDMea::get_alpha;
-              tmp_map["alpha_pole"]   = &THDMea::get_alpha;
               tmp_map["tanb"]   = &THDMea::get_tanb;
               tmp_map["beta"]   = &THDMea::get_beta;
-              tmp_map["beta_pole"]   = &THDMea::get_beta;
             
               map_collection[Par::dimensionless].map0 = tmp_map;
             }

@@ -228,62 +228,15 @@ namespace Gambit
          return model.get_MHm_pole_slha(0);
       }
 
-      template <class Model>
-      double get_beta(const Model& model) {
-         // get cosb & sinb
-         const double cb = model.get_ZA(0, 0), sb = model.get_ZA(0, 1);
-         // get beta
-         return atan2(sb,cb);
-      }
-
-      template <class Model>
-      double get_beta_pole_slha(const Model& model) {
-         // get cosb & sinb
-         const double cb = model.get_ZA_pole_slha(0, 0), sb = model.get_ZA_pole_slha(0, 1);
-         // get beta
-         return atan2(sb,cb);
-      }
-
-      template <class Model>
-      double get_alpha(const Model& model) {
-         // get cosa & sina
-         const double ca = model.get_ZH(0, 0), sa = model.get_ZH(0, 1);
-         // get alpha
-         double alpha = atan2(sa,ca);
-         const double beta = get_beta(model);
-         const double ba = beta - alpha;
-         if (ba > M_PI_2) {
-            alpha += M_PI;
-         }
-         else if (ba < -M_PI_2) {
-            alpha -= M_PI;
-         }
-
-         return alpha;
-      }
-
-      template <class Model>
-      double get_alpha_pole_slha(const Model& model) {
-         // get cosa & sina
-         const double ca = model.get_ZH_pole_slha(0, 0), sa = model.get_ZH_pole_slha(0, 1);
-         // get alpha
-         double alpha = atan2(sa,ca);
-         const double beta = get_beta(model);
-         const double ba = beta - alpha;
-         if (ba > M_PI_2) {
-            alpha += M_PI;
-         }
-         else if (ba < -M_PI_2) {
-            alpha -= M_PI;
-         }
-
-         return alpha;
-      }
-
       // wrapper getter methods for higgs basis parameters 
       // forward declaration as needed
       template <class Model>
       double get_tanb(const Model& model);
+
+      template <class Model>
+      double get_beta(const Model& model) {
+         return atan(get_tanb(model));
+      }
 
       template <class Model>
       double get_Lambda1(const Model& model) {
@@ -436,6 +389,25 @@ namespace Gambit
       template <class Model>
       double get_tanb(const Model& model) {
          return model.get_v2()/model.get_v1();
+      }
+
+      template <class Model>
+      double get_alpha(const Model& model) {
+         double v_1 = model.get_v1(), v_2 = model.get_v2();
+         double b = atan(v_2/v_1), v2 = pow(v_1,2) + pow(v_2,2);
+         double mA = get_mA_running(model), m_A2 = pow(mA,2);
+         double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
+         double sb = sin(b), cb = cos(b), tb = v_2/v_1, ctb = v_1/v_2;
+         double sb2 = sb*sb, cb2 = cb*cb;
+         double m122 = model.get_M122();
+         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam3 = model.get_Lambda3(), lam4 = model.get_Lambda4();
+         double lam5 = model.get_Lambda5(), lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7();
+
+         double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
+         // gaurenteed to be in quadrant I or IV, due to 1/2 factor
+         double ba = 0.5*atan2(s2ba,c2ba);
+         double alpha = b - ba;
+         return alpha;
       }
 
       #ifdef ALPHA_DEBUG
@@ -596,9 +568,7 @@ namespace Gambit
             tmp_map["sinW2"] = &get_sinthW2_DRbar<Model>;
             tmp_map["tanb"]= &get_tanb<Model>;
             tmp_map["alpha"]= &get_alpha<Model>;
-            tmp_map["alpha_pole"]= &get_alpha_pole_slha<Model>;
             tmp_map["beta"]= &get_beta<Model>;
-            tmp_map["beta_pole"]= &get_beta_pole_slha<Model>;
             #ifdef ALPHA_DEBUG
                tmp_map["alpha_alt"]= &get_alpha_calculated<Model>;
             #endif

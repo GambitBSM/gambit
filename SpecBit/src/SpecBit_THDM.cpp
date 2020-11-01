@@ -2868,10 +2868,10 @@ namespace Gambit
       double error_ratio = 0.0;
 
 #ifdef SPECBIT_DEBUG
-      int counter_nlo = 0;
-      std::vector<string> nlo_eig_names = {"a00_even_plus", "a00_even_minus", "a00_odd_plus", "a00_odd_minus",
-                                           "a01_even_plus", "a01_even_minus", "a01_odd_plus", "a01_odd_minus", "a10_odd", "a11_even_plus",
-                                           "a11_even_minus", "a11_odd"};
+      // int counter_nlo = 0;
+      // std::vector<string> nlo_eig_names = {"a00_even_plus", "a00_even_minus", "a00_odd_plus", "a00_odd_minus",
+      //                                      "a01_even_plus", "a01_even_minus", "a01_odd_plus", "a01_odd_minus", "a10_odd", "a11_even_plus",
+      //                                      "a11_even_minus", "a11_odd"};
 #endif
 
       for (auto const &eig : NLO_eigenvalues)
@@ -2881,8 +2881,8 @@ namespace Gambit
           error += abs(eig - i / 2.0) - unitarity_upper_limit;
         }
 #ifdef SPECBIT_DEBUG
-        std::cout << nlo_eig_names[counter_nlo] << ": " << eig << " | " << abs(eig - i / 2) << std::endl;
-        counter_nlo++;
+        // std::cout << nlo_eig_names[counter_nlo] << ": " << eig << " | " << abs(eig - i / 2) << std::endl;
+        // counter_nlo++;
 #endif
       }
       if (check_correction_ratio)
