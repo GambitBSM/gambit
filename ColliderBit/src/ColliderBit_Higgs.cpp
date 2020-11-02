@@ -739,21 +739,24 @@ namespace Gambit
       for(int i = 0; i<Hneut; i++){
       ghjss_p[i] = (*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS;
       ghjss_s[i] = (*Param["CsHm"])*sinThS + (*Param["CsHp"])*cosThS;
-      ghjss_p[i] = (*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC;
-      ghjss_s[i] = (*Param["CcHm"])*sinThC + (*Param["CcHp"])*cosThC;
-      ghjss_p[i] = (*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB;
-      ghjss_s[i] = (*Param["CbHm"])*sinThB + (*Param["CbHp"])*cosThB;
-      ghjss_p[i] = (*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT;
-      ghjss_s[i] = (*Param["CtHm"])*sinThT + (*Param["CtHp"])*cosThT;
-      ghjss_p[i] = (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu;
-      ghjss_s[i] = (*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau;
+      ghjcc_p[i] = (*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC;
+      ghjcc_s[i] = (*Param["CcHm"])*sinThC + (*Param["CcHp"])*cosThC;
+      ghjbb_p[i] = (*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB;
+      ghjbb_s[i] = (*Param["CbHm"])*sinThB + (*Param["CbHp"])*cosThB;
+      ghjtt_p[i] = (*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT;
+      ghjtt_s[i] = (*Param["CtHm"])*sinThT + (*Param["CtHp"])*cosThT;
+      ghjmumu_p[i] = (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu;
+      ghjmumu_s[i] = (*Param["CmuHm"])*sinThMu + (*Param["CmuHp"])*cosThMu;
+      ghjtautau_p[i] = (*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau;
+      ghjtautau_s[i] = (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"])*sinThTau;
 
       // hVV
       ghjWW[i]=1.;
       ghjZZ[i]=1.;
       ghjZga[i]=1.; // h-Z-photon (change?)
       //the following numeric values are with a SM-Higgs mass. Formulae found in 1310.1385. Results than multiplied with complex conjugate.
-      ghjgaga[i] = 1.61137 /*+ 0.0000369539 *pow(kappaB,2) + 0.0000147277 *pow(kappaC,2) + 1.97566E-9 *pow(kappaMu,2) + 1.55315E-10 *pow(kappaS,2) 
+      ghjgaga[i] = -1.04129 
+	      /*+ 0.0000369539 *pow(kappaB,2) + 0.0000147277 *pow(kappaC,2) + 1.97566E-9 *pow(kappaMu,2) + 1.55315E-10 *pow(kappaS,2) 
 	+ 0.0782548 *pow(kappaT,2) + 0.0000237393 *pow(kappaTau,2) + 3.53719E-6 *pow(kappaB *sinPhiB,2) + 0.00931582 *kappaB *cosPhiB 
 	+ 0.0000494538 *kappaB *kappaC *sinPhiB *sinPhiC + 1.03101E-6 *pow(kappaC *sinPhiC,2) + 0.00753304 *kappaC *cosPhiC 
 	+ 0.000045367 *kappaB *kappaC *cosPhiB *cosPhiC + 5.23318E-7 *kappaB *kappaMu *sinPhiB *sinPhiMu 
@@ -776,14 +779,132 @@ namespace Gambit
 	+ 1.15958E-7 *kappaS *kappaTau *cosPhiS *cosPhiTau - 0.00201279 *kappaT *kappaTau *cosPhiT *cosPhiTau*/;
       ghjgaga[i] = sqrt(ghjgaga[i]);
 
-      ghjgg[i] =0./* 0.00855073 *pow(kappaB,2) + 0.000212989 *pow(kappaC,2) + 3.59382E-8 *pow(kappaS,2) 
-	      + 1.13171 *pow(kappaT,2) + 0.000818468 *pow(kappaB *sinPhiB,2) + 0.00286077 *kappaB *kappaC *sinPhiB *sinPhiC 
-	      + 0.0000149103 *pow(kappaC *sinPhiC,2) + 0.00262436 *kappaB *kappaC *cosPhiB *cosPhiC + 0.0000338453 *kappaB *kappaS *sinPhiB *sinPhiS 
-	      + 5.66892E-6 *kappaC *kappaS *sinPhiC *sinPhiS + 1.23703E-9 *pow(kappaS *sinPhiS,2) + 0.0000310277 *kappaB *kappaS *cosPhiB *cosPhiS 
-	      + 5.36333E-6 *kappaC *kappaS *cosPhiC *cosPhiS - 0.203012 *kappaB *kappaT *sinPhiB *sinPhiT 
-	      - 0.0386017 *kappaC *kappaT *sinPhiC *sinPhiT - 0.000567103 *kappaS *kappaT *sinPhiS *sinPhiT + 1.48739 *pow(kappaT *sinPhiT,2) 
-	      - 0.118758 *kappaB *kappaT *cosPhiB *cosPhiT - 0.0240077 *kappaC *kappaT *cosPhiC *cosPhiT 
-	      - 0.000365193 *kappaS *kappaT *cosPhiS *cosPhiT*/;
+      ghjgg[i] =0.006290625010238506*pow((*Param["CtHm"]),2) + 0.9990252202861851*pow((*Param["CtHp"]),2) - \
+		0.000027089997790387234*(*Param["CbHm"])*(*Param["CtHm"])*cosThB + \
+		0.000891735387584407*(*Param["CbHp"])*(*Param["CtHp"])*cosThB + \
+		2.916514571639365*pow(10,-8)*pow((*Param["CbHm"]),2)*pow(cosThB,2) + \
+		1.9899197370675947*pow(10,-7)*pow((*Param["CbHp"]),2)*pow(cosThB,2) - \
+		2.4942655686159687*pow(10,-6)*(*Param["CcHm"])*(*Param["CtHm"])*cosThC + \
+		0.00008236361851064285*(*Param["CcHp"])*(*Param["CtHp"])*cosThC + \
+		5.370662583802915*pow(10,-9)*(*Param["CbHm"])*(*Param["CcHm"])*cosThB*cosThC + \
+		3.675910867115173*pow(10,-8)*(*Param["CbHp"])*(*Param["CcHp"])*cosThB*cosThC + \
+		2.4724732107927947*pow(10,-10)*pow((*Param["CcHm"]),2)*pow(cosThC,2) + \
+		1.6975961958756663*pow(10,-9)*pow((*Param["CcHp"]),2)*pow(cosThC,2) - \
+		3.371748438675548*pow(10,-11)*(*Param["CdHm"])*(*Param["CtHm"])*cosThD + \
+		1.1137469628321865*pow(10,-9)*(*Param["CdHp"])*(*Param["CtHp"])*cosThD + \
+		7.260062204057451*pow(10,-14)*(*Param["CbHm"])*(*Param["CdHm"])*cosThB*cosThD + \
+		4.970683219026287*pow(10,-13)*(*Param["CbHp"])*(*Param["CdHp"])*cosThB*cosThD + \
+		6.6845790544938286*pow(10,-15)*(*Param["CcHm"])*(*Param["CdHm"])*cosThC*cosThD + \
+		4.591086796478438*pow(10,-14)*(*Param["CcHp"])*(*Param["CdHp"])*cosThC*cosThD + \
+		4.518107308577258*pow(10,-20)*pow((*Param["CdHm"]),2)*pow(cosThD,2) + \
+		3.104106563152081*pow(10,-19)*pow((*Param["CdHp"]),2)*pow(cosThD,2) - \
+		1.3371739579187153*pow(10,-8)*(*Param["CsHm"])*(*Param["CtHm"])*cosThS + \
+		4.4169098581825755*pow(10,-7)*(*Param["CsHp"])*(*Param["CtHp"])*cosThS + \
+		2.8792083065215112*pow(10,-11)*(*Param["CbHm"])*(*Param["CsHm"])*cosThB*cosThS + \
+		1.9712789749109267*pow(10,-10)*(*Param["CbHp"])*(*Param["CsHp"])*cosThB*cosThS + \
+		2.6509821814670007*pow(10,-12)*(*Param["CcHm"])*(*Param["CsHm"])*cosThC*cosThS + \
+		1.8207382114489247*pow(10,-11)*(*Param["CcHp"])*(*Param["CsHp"])*cosThC*cosThS + \
+		3.583597971196735*pow(10,-17)*(*Param["CdHm"])*(*Param["CsHm"])*cosThD*cosThS + \
+		2.4620599359069126*pow(10,-16)*(*Param["CdHp"])*(*Param["CsHp"])*cosThD*cosThS + \
+		7.105948100649103*pow(10,-15)*pow((*Param["CsHm"]),2)*pow(cosThS,2) + \
+		4.882032079661053*pow(10,-14)*pow((*Param["CsHp"]),2)*pow(cosThS,2) - \
+		7.21321546325541*pow(10,-12)*(*Param["CtHm"])*(*Param["CuHm"])*cosThU + \
+		2.3826501258395936*pow(10,-10)*(*Param["CtHp"])*(*Param["CuHp"])*cosThU + \
+		1.553152434322002*pow(10,-14)*(*Param["CbHm"])*(*Param["CuHm"])*cosThB*cosThU + \
+		1.0633832811723*pow(10,-13)*(*Param["CbHp"])*(*Param["CuHp"])*cosThB*cosThU + \
+		1.4300387433461167*pow(10,-15)*(*Param["CcHm"])*(*Param["CuHm"])*cosThC*cosThU + \
+		9.82175835124416*pow(10,-15)*(*Param["CcHp"])*(*Param["CuHp"])*cosThC*cosThU + \
+		1.9331265125863557*pow(10,-20)*(*Param["CdHm"])*(*Param["CuHm"])*cosThD*cosThU + \
+		1.3281293040757236*pow(10,-19)*(*Param["CdHp"])*(*Param["CuHp"])*cosThD*cosThU + \
+		7.666427306208178*pow(10,-18)*(*Param["CsHm"])*(*Param["CuHm"])*cosThS*cosThU + \
+		5.267109686383153*pow(10,-17)*(*Param["CsHp"])*(*Param["CuHp"])*cosThS*cosThU + \
+		2.06777852894836*pow(10,-21)*pow((*Param["CuHm"]),2)*pow(cosThU,2) + \
+		1.420640216804829*pow(10,-20)*pow((*Param["CuHp"]),2)*pow(cosThU,2) - \
+		0.000027089997790387234*(*Param["CbHp"])*(*Param["CtHm"])*sinThB + \
+		0.000891735387584407*(*Param["CbHm"])*(*Param["CtHp"])*sinThB + \
+		4.5631423884630625*pow(10,-7)*(*Param["CbHm"])*(*Param["CbHp"])*cosThB*sinThB + \
+		5.370662583802915*pow(10,-9)*(*Param["CbHp"])*(*Param["CcHm"])*cosThC*sinThB + \
+		3.675910867115173*pow(10,-8)*(*Param["CbHm"])*(*Param["CcHp"])*cosThC*sinThB + \
+		7.260062204057451*pow(10,-14)*(*Param["CbHp"])*(*Param["CdHm"])*cosThD*sinThB + \
+		4.970683219026287*pow(10,-13)*(*Param["CbHm"])*(*Param["CdHp"])*cosThD*sinThB + \
+		2.8792083065215112*pow(10,-11)*(*Param["CbHp"])*(*Param["CsHm"])*cosThS*sinThB + \
+		1.9712789749109267*pow(10,-10)*(*Param["CbHm"])*(*Param["CsHp"])*cosThS*sinThB + \
+		1.553152434322002*pow(10,-14)*(*Param["CbHp"])*(*Param["CuHm"])*cosThU*sinThB + \
+		1.0633832811723*pow(10,-13)*(*Param["CbHm"])*(*Param["CuHp"])*cosThU*sinThB + \
+		1.9899197370675947*pow(10,-7)*pow((*Param["CbHm"]),2)*pow(sinThB,2) + \
+		2.916514571639365*pow(10,-8)*pow((*Param["CbHp"]),2)*pow(sinThB,2) - \
+		2.4942655686159687*pow(10,-6)*(*Param["CcHp"])*(*Param["CtHm"])*sinThC + \
+		0.00008236361851064285*(*Param["CcHm"])*(*Param["CtHp"])*sinThC + \
+		3.675910867115173*pow(10,-8)*(*Param["CbHp"])*(*Param["CcHm"])*cosThB*sinThC + \
+		5.370662583802915*pow(10,-9)*(*Param["CbHm"])*(*Param["CcHp"])*cosThB*sinThC + \
+		3.889687033909892*pow(10,-9)*(*Param["CcHm"])*(*Param["CcHp"])*cosThC*sinThC + \
+		6.6845790544938286*pow(10,-15)*(*Param["CcHp"])*(*Param["CdHm"])*cosThD*sinThC + \
+		4.591086796478438*pow(10,-14)*(*Param["CcHm"])*(*Param["CdHp"])*cosThD*sinThC + \
+		2.6509821814670007*pow(10,-12)*(*Param["CcHp"])*(*Param["CsHm"])*cosThS*sinThC + \
+		1.8207382114489247*pow(10,-11)*(*Param["CcHm"])*(*Param["CsHp"])*cosThS*sinThC + \
+		1.4300387433461167*pow(10,-15)*(*Param["CcHp"])*(*Param["CuHm"])*cosThU*sinThC + \
+		9.82175835124416*pow(10,-15)*(*Param["CcHm"])*(*Param["CuHp"])*cosThU*sinThC + \
+		3.675910867115173*pow(10,-8)*(*Param["CbHm"])*(*Param["CcHm"])*sinThB*sinThC + \
+		5.370662583802915*pow(10,-9)*(*Param["CbHp"])*(*Param["CcHp"])*sinThB*sinThC + \
+		1.6975961958756663*pow(10,-9)*pow((*Param["CcHm"]),2)*pow(sinThC,2) + \
+		2.4724732107927947*pow(10,-10)*pow((*Param["CcHp"]),2)*pow(sinThC,2) - \
+		3.371748438675548*pow(10,-11)*(*Param["CdHp"])*(*Param["CtHm"])*sinThD + \
+		1.1137469628321865*pow(10,-9)*(*Param["CdHm"])*(*Param["CtHp"])*sinThD + \
+		4.970683219026287*pow(10,-13)*(*Param["CbHp"])*(*Param["CdHm"])*cosThB*sinThD + \
+		7.260062204057451*pow(10,-14)*(*Param["CbHm"])*(*Param["CdHp"])*cosThB*sinThD + \
+		4.591086796478438*pow(10,-14)*(*Param["CcHp"])*(*Param["CdHm"])*cosThC*sinThD + \
+		6.6845790544938286*pow(10,-15)*(*Param["CcHm"])*(*Param["CdHp"])*cosThC*sinThD + \
+		7.111834588019614*pow(10,-19)*(*Param["CdHm"])*(*Param["CdHp"])*cosThD*sinThD + \
+		3.583597971196735*pow(10,-17)*(*Param["CdHp"])*(*Param["CsHm"])*cosThS*sinThD + \
+		2.4620599359069126*pow(10,-16)*(*Param["CdHm"])*(*Param["CsHp"])*cosThS*sinThD + \
+		1.9331265125863557*pow(10,-20)*(*Param["CdHp"])*(*Param["CuHm"])*cosThU*sinThD + \
+		1.3281293040757236*pow(10,-19)*(*Param["CdHm"])*(*Param["CuHp"])*cosThU*sinThD + \
+		4.970683219026287*pow(10,-13)*(*Param["CbHm"])*(*Param["CdHm"])*sinThB*sinThD + \
+		7.260062204057451*pow(10,-14)*(*Param["CbHp"])*(*Param["CdHp"])*sinThB*sinThD + \
+		4.591086796478438*pow(10,-14)*(*Param["CcHm"])*(*Param["CdHm"])*sinThC*sinThD + \
+		6.6845790544938286*pow(10,-15)*(*Param["CcHp"])*(*Param["CdHp"])*sinThC*sinThD + \
+		3.104106563152081*pow(10,-19)*pow((*Param["CdHm"]),2)*pow(sinThD,2) + \
+		4.518107308577258*pow(10,-20)*pow((*Param["CdHp"]),2)*pow(sinThD,2) - \
+		1.3371739579187153*pow(10,-8)*(*Param["CsHp"])*(*Param["CtHm"])*sinThS + \
+		4.4169098581825755*pow(10,-7)*(*Param["CsHm"])*(*Param["CtHp"])*sinThS + \
+		1.9712789749109267*pow(10,-10)*(*Param["CbHp"])*(*Param["CsHm"])*cosThB*sinThS + \
+		2.8792083065215112*pow(10,-11)*(*Param["CbHm"])*(*Param["CsHp"])*cosThB*sinThS + \
+		1.8207382114489247*pow(10,-11)*(*Param["CcHp"])*(*Param["CsHm"])*cosThC*sinThS + \
+		2.6509821814670007*pow(10,-12)*(*Param["CcHm"])*(*Param["CsHp"])*cosThC*sinThS + \
+		2.4620599359069126*pow(10,-16)*(*Param["CdHp"])*(*Param["CsHm"])*cosThD*sinThS + \
+		3.583597971196735*pow(10,-17)*(*Param["CdHm"])*(*Param["CsHp"])*cosThD*sinThS + \
+		1.1185253779451926*pow(10,-13)*(*Param["CsHm"])*(*Param["CsHp"])*cosThS*sinThS + \
+		7.666427306208178*pow(10,-18)*(*Param["CsHp"])*(*Param["CuHm"])*cosThU*sinThS + \
+		5.267109686383153*pow(10,-17)*(*Param["CsHm"])*(*Param["CuHp"])*cosThU*sinThS + \
+		1.9712789749109267*pow(10,-10)*(*Param["CbHm"])*(*Param["CsHm"])*sinThB*sinThS + \
+		2.8792083065215112*pow(10,-11)*(*Param["CbHp"])*(*Param["CsHp"])*sinThB*sinThS + \
+		1.8207382114489247*pow(10,-11)*(*Param["CcHm"])*(*Param["CsHm"])*sinThC*sinThS + \
+		2.6509821814670007*pow(10,-12)*(*Param["CcHp"])*(*Param["CsHp"])*sinThC*sinThS + \
+		2.4620599359069126*pow(10,-16)*(*Param["CdHm"])*(*Param["CsHm"])*sinThD*sinThS + \
+		3.583597971196735*pow(10,-17)*(*Param["CdHp"])*(*Param["CsHp"])*sinThD*sinThS + \
+		4.882032079661053*pow(10,-14)*pow((*Param["CsHm"]),2)*pow(sinThS,2) + \
+		7.105948100649103*pow(10,-15)*pow((*Param["CsHp"]),2)*pow(sinThS,2) + \
+		2.3826501258395936*pow(10,-10)*(*Param["CtHp"])*(*Param["CuHm"])*sinThU - \
+		7.21321546325541*pow(10,-12)*(*Param["CtHm"])*(*Param["CuHp"])*sinThU + \
+		1.0633832811723*pow(10,-13)*(*Param["CbHp"])*(*Param["CuHm"])*cosThB*sinThU + \
+		1.553152434322002*pow(10,-14)*(*Param["CbHm"])*(*Param["CuHp"])*cosThB*sinThU + \
+		9.82175835124416*pow(10,-15)*(*Param["CcHp"])*(*Param["CuHm"])*cosThC*sinThU + \
+		1.4300387433461167*pow(10,-15)*(*Param["CcHm"])*(*Param["CuHp"])*cosThC*sinThU + \
+		1.3281293040757236*pow(10,-19)*(*Param["CdHp"])*(*Param["CuHm"])*cosThD*sinThU + \
+		1.9331265125863557*pow(10,-20)*(*Param["CdHm"])*(*Param["CuHp"])*cosThD*sinThU + \
+		5.267109686383153*pow(10,-17)*(*Param["CsHp"])*(*Param["CuHm"])*cosThS*sinThU + \
+		7.666427306208178*pow(10,-18)*(*Param["CsHm"])*(*Param["CuHp"])*cosThS*sinThU + \
+		3.25483613939933*pow(10,-20)*(*Param["CuHm"])*(*Param["CuHp"])*cosThU*sinThU + \
+		1.0633832811723*pow(10,-13)*(*Param["CbHm"])*(*Param["CuHm"])*sinThB*sinThU + \
+		1.553152434322002*pow(10,-14)*(*Param["CbHp"])*(*Param["CuHp"])*sinThB*sinThU + \
+		9.82175835124416*pow(10,-15)*(*Param["CcHm"])*(*Param["CuHm"])*sinThC*sinThU + \
+		1.4300387433461167*pow(10,-15)*(*Param["CcHp"])*(*Param["CuHp"])*sinThC*sinThU + \
+		1.3281293040757236*pow(10,-19)*(*Param["CdHm"])*(*Param["CuHm"])*sinThD*sinThU + \
+		1.9331265125863557*pow(10,-20)*(*Param["CdHp"])*(*Param["CuHp"])*sinThD*sinThU + \
+		5.267109686383153*pow(10,-17)*(*Param["CsHm"])*(*Param["CuHm"])*sinThS*sinThU + \
+		7.666427306208178*pow(10,-18)*(*Param["CsHp"])*(*Param["CuHp"])*sinThS*sinThU + \
+		1.420640216804829*pow(10,-20)*pow((*Param["CuHm"]),2)*pow(sinThU,2) + \
+		2.06777852894836*pow(10,-21)*pow((*Param["CuHp"]),2)*pow(sinThU,2);
 
       // h-gluon-gluon (change?)
       ghjgg[i]=sqrt(ghjgg[i]); // h-gluon-gluon (change?)

@@ -33,24 +33,24 @@ Parameters:
 #     #prior_type: flat
 
   CPVYukawas:
-    CuHp: 0. 
-    #     range: [-0.01,0.01]
-    # prior_type: flat
-    CuHm: 
-          range: [-1.0E-4,1.0E-4]
+    CsHp:  
+     range: [-1.0E+0,1.0E+0]
+     prior_type: flat
+    CsHm: 
+          range: [-1.0E-2,1.0E-2]
      #     range: [-1.0E-4,1.0E-4]
           prior_type: flat
     CtHp: 0.
     #range: [-32.,32.]
     # prior_type: flat
-    CtHm:
-     range: [-5.E-1,5.E-1]
+    CtHm: 0.
+    #     range: [-5.E-1,5.E-1]
      #     range: [-1.,1.]
-     prior_type: flat
+     # prior_type: flat
+    CuHp: 0.
+    CuHm: 0.
     CdHp: 0.
     CdHm: 0.
-    CsHp: 0.
-    CsHm: 0.
     CcHp: 0.
     CcHm: 0.
     CbHp: 0.
@@ -87,7 +87,7 @@ Printer:
 
 
 Scanner:
-  use_scanner: grid
+  use_scanner: diver
 
   scanners:
     multinest:

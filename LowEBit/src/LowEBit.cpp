@@ -32,10 +32,13 @@ namespace Gambit
       {
           using namespace Pipes::CPV_Wilson_q_Simple;
 
-//	  	  double mH = 125.09;
+	  	  double mH = 125.09;
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
+		  double me = Dep::SMINPUTS->mE;
+		  double mmu = Dep::SMINPUTS->mMu;
+		  double mtau = Dep::SMINPUTS->mTau;
 		  double mu = Dep::SMINPUTS->mU;
 		  double md = Dep::SMINPUTS->mD;
 		  double ms = Dep::SMINPUTS->mS;
@@ -44,23 +47,26 @@ namespace Gambit
 		  double mt = Dep::SMINPUTS->mT;
 //
 //		//MqX are from draft with orders <10^-9 omitted
-		  double Mu3[6] = {1.73E-0,0,0,0,0,-1.41E-5};
-		  double Md3[6] = {0,6.92E-1,0,0,0,-1.26E-5};
-		  double Ms3[6] = {0,0,3.48E-2,0,0,-1.26E-5};
-		  double Mu4[6] = {-1.83E-0,0,0,0,0,2.24E-5};
-		  double Md4[6] = {0,-8.47E-1,0,0,0,2.24E-5};
-		  double Ms4[6] = {0,0,-4.25E-2,0,0,2.24E-5};
-		  double Mw[6] = {0,0,0,0,0,-4.70E-7};
+		  double Mu3[9] = {3.23E-9, 2.20E-7, 1.37E-6, 1.34E-0+1.95E-1*std::log(pow(mH/Lambda,2)), -1.48E-13, -2.96E-12, 1.14E-6, 5.21E-7, -1.41E-5};
+		  double Md3[9] = {3.26E-9, 2.23E-7, 1.40E-6, -3.21E-13, 6.20E-1+3.61E-2*std::log(pow(mH/Lambda,2)), -2.51E-12, 9.91E-7, 9.04E-7, -1.26E-5};
+		  double Ms3[9] = {1.40E-6, 2.23E-7, 1.40E-6, -1.27E-10, -4.99E-11, 3.11E-2+1.81E-3*std::log(pow(mH/Lambda,2)), 9.91E-7, 9.04E-7, -1.26E-5};
+		  double Mu4[9] = {0,0,0,-1.83E-0, 7.88E-13, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
+		  double Md4[9] = {0,0,0,1.70E-12, -8.47E-1, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
+		  double Ms4[9] = {0,0,0,6.76E-10, 3.13E-10, -4.25E-2, 2.84E-10, 4.24E-10, 2.24E-5};
+		  double Mw[9] = {0,0,0,0,0,0,0,0,-4.70E-7};
 //
+		  double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/me;
+		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
+		  double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
 		  double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
 		  double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md;
 		  double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/ms;
 		  double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mc;
 		  double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mb;
 		  double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mt;
-		  cout << "vev " << vev << endl;
-		  cout << "sinU " << sinThU << endl;
-		  cout << "sinT " << sinThT << endl;
+		  double cosThE = sqrt(1.-sinThE*sinThE);
+		  double cosThMu = sqrt(1.-sinThMu*sinThMu);
+		  double cosThTau = sqrt(1.-sinThTau*sinThTau);
 		  double cosThU = sqrt(1.-sinThU*sinThU);
 		  double cosThD = sqrt(1.-sinThD*sinThD);
 		  double cosThS = sqrt(1.-sinThS*sinThS);
@@ -68,31 +74,35 @@ namespace Gambit
 		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
+
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
-	//	  double CqH[6] = {
-	//		  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
-	//		  (*Param["CdHm"])*cosThD + (*Param["CdHp"]*sinThD),
-	//		  (*Param["CsHm"])*cosThS + (*Param["CsHp"]*sinThS),
-	//		  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
-	//		  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
-	//		  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
-	//	  		  };
+		  double CqH[9] = {
+			  (*Param["CeHm"])*cosThU + (*Param["CeHp"]*sinThE),
+			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
+			  (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"]*sinThTau),
+			  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
+			  (*Param["CdHm"])*cosThD + (*Param["CdHp"]*sinThD),
+			  (*Param["CsHm"])*cosThS + (*Param["CsHp"]*sinThS),
+			  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
+			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
+			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
+		  		  };
 //		  }
 //		  else if(sampleStyle==2){
-		  double CqH[6] = {
-			  (*Param["CuHm"]),
-			  (*Param["CdHm"]),
-			  (*Param["CsHm"]),
-			  (*Param["CcHm"]),
-			  (*Param["CbHm"]),
-			  (*Param["CtHm"])
-				  };
+	//	  double CqH[6] = {
+	//		  (*Param["CuHm"]),
+	//		  (*Param["CdHm"]),
+	//		  (*Param["CsHm"]),
+	//		  (*Param["CcHm"]),
+	//		  (*Param["CbHm"]),
+	//		  (*Param["CtHm"])
+	//			  };
 
 //		  }
 
 		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;}
-		  for(int i = 0; i<6; i++){
+		  for(int i = 0; i<9; i++){
 		          result.Cu[1] = result.Cu[1] + Mu3[i]*CqH[i];
 		          result.Cd[1] = result.Cd[1] + Md3[i]*CqH[i];
 		          result.Cs[1] = result.Cs[1] + Ms3[i]*CqH[i];
@@ -116,19 +126,40 @@ namespace Gambit
       {
           using namespace Pipes::CPV_Wilson_l_Simple;
 
+	  	  double mH = 125.09;
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
 		  double me = Dep::SMINPUTS->mE;
+		  double mmu = Dep::SMINPUTS->mMu;
+		  double mtau = Dep::SMINPUTS->mTau;
+		  double mu = Dep::SMINPUTS->mU;
+		  double md = Dep::SMINPUTS->mD;
+		  double ms = Dep::SMINPUTS->mS;
+		  double mc = Dep::SMINPUTS->mCmC;
+		  double mb = Dep::SMINPUTS->mBmB;
 		  double mt = Dep::SMINPUTS->mT;
-//
-		  double Me3[2] = {1.04E-0,-1.77E-6};
+//				   e	    				   mu	    tau      u         d        s        c        b         t
+		  double Me3[9] = {3.94E-1 , 1.07E-7, 6.67E-7, 6.90E-9, 3.26E-9, 3.27E-8, 7.31E-7, 3.48E-7, -5.02E-7};
+		  Me3[0] = Me3[0] +  3.08E-1*std::log(mH*mH/(Lambda*Lambda));
 //
 		  double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/me;
+		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
+		  double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
+		  double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
+		  double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md;
+		  double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/ms;
+		  double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mc;
+		  double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mb;
 		  double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mt;
-		  cout << "sinE " << sinThE << endl;
-		  cout << "sinT " << sinThT << endl;
 		  double cosThE = sqrt(1.-sinThE*sinThE);
+		  double cosThMu = sqrt(1.-sinThMu*sinThMu);
+		  double cosThTau = sqrt(1.-sinThTau*sinThTau);
+		  double cosThU = sqrt(1.-sinThU*sinThU);
+		  double cosThD = sqrt(1.-sinThD*sinThD);
+		  double cosThS = sqrt(1.-sinThS*sinThS);
+		  double cosThC = sqrt(1.-sinThC*sinThC);
+		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
@@ -139,18 +170,25 @@ namespace Gambit
 //		  		  };
 //		  }
 //		  else if(sampleStyle==2){
-		  double CeH[2] = {
+		  double CeH[9] = {
 			  (*Param["CeHm"]),
+			  (*Param["CmuHm"]),
+			  (*Param["CtauHm"]),
+			  (*Param["CuHm"]),
+			  (*Param["CdHm"]),
+			  (*Param["CsHm"]),
+			  (*Param["CcHm"]),
+			  (*Param["CbHm"]),
 			  (*Param["CtHm"])
 				  };
 
 //		  }
 
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
-		  for(int i = 0; i<6; i++){
+		  for(int i = 0; i<9; i++){
 		          result.Ce[1] = result.Ce[1] + Me3[i]*CeH[i];
 			  }
-		  for(int i = 1; i<3; i++) {
+		  for(int i = 1; i<9; i++) {
 			  cout << "Ce"<<i<< " " << result.Ce[i];
 		  }
 //
