@@ -39,6 +39,15 @@ namespace Gambit
     	   // for operator 2. Cq[0] is not used. Cw is for the Weinberg operator.
     	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3], Cw[3];
 	 };
+     class CPV_WC_l
+	 {
+	    public:
+    	   CPV_WC_l();
+    	   // Cl[1] is the Wilson coefficient for operator 1, Cl[2]
+    	   // for operator 2. Cl[0] is not used. 
+    	   double Ce[3], Cmu[3], Ctau[3];
+	 };
+
 
      // Quark (chromo)electric dipole moments
      class dq
@@ -46,6 +55,13 @@ namespace Gambit
         public:
            dq();
            double u, d, s, c, b, t;
+     };
+     // Lepton electric dipole moments
+     class dl
+     {
+        public:
+           dl();
+           double e, mu, tau;
      };
   }
 }

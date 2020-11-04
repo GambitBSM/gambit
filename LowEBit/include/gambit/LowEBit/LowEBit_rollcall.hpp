@@ -43,6 +43,18 @@ START_CAPABILITY
     // uncertainties
    #define FUNCTION CPV_Wilson_q_Simple
    START_FUNCTION(CPV_WC_q)
+   DEPENDENCY(SMINPUTS, SMInputs)
+   ALLOW_MODELS(CPVYukawas)
+   #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY CPV_Wilson_Coeff_l
+START_CAPABILITY
+	// Simple calculation 3.4-3.6 of 1811.05480, ignoring
+    // uncertainties
+   #define FUNCTION CPV_Wilson_l_Simple
+   START_FUNCTION(CPV_WC_l)
+   DEPENDENCY(SMINPUTS, SMInputs)
    ALLOW_MODELS(CPVYukawas)
    #undef FUNCTION
 #undef CAPABILITY
@@ -53,6 +65,16 @@ START_CAPABILITY
    // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
    START_FUNCTION(dq)
    DEPENDENCY(CPV_Wilson_Coeff_q, CPV_WC_q)
+   DEPENDENCY(SMINPUTS, SMInputs)
+   #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY EDM_l
+START_CAPABILITY
+   #define FUNCTION EDM_l_Wilson
+   // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
+   START_FUNCTION(dl)
+   DEPENDENCY(CPV_Wilson_Coeff_l, CPV_WC_l)
    DEPENDENCY(SMINPUTS, SMInputs)
    #undef FUNCTION
 #undef CAPABILITY
@@ -76,6 +98,7 @@ START_CAPABILITY
    DEPENDENCY(EDM_q, dq)
    DEPENDENCY(CEDM_q, dq)
    ALLOW_MODELS(nEDMme)
+   ALLOW_MODELS(CPVYukawas)
    #undef FUNCTION
 #undef CAPABILITY
 
@@ -87,6 +110,7 @@ START_CAPABILITY
 	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	ALLOW_MODELS(diaEDMme)
+        ALLOW_MODELS(CPVYukawas)
 	#undef FUNCTION
 
 	#define FUNCTION EDM_225Ra_quark
@@ -114,6 +138,16 @@ START_CAPABILITY
 	#undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY EDM_para // EDMs of paramagnetic systems
+	START_CAPABILITY
+	#define FUNCTION EDM_ThO_electron
+	// Calculation of ThO EDM from electron EDMs in e cm
+	START_FUNCTION(double)
+	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(EDM_l, dl)
+	#undef FUNCTION
+#undef CAPABILITY
+
 #define CAPABILITY lnL_EDM_dia
 START_CAPABILITY
     #define FUNCTION lnL_EDM_129Xe_step
@@ -131,6 +165,14 @@ START_CAPABILITY
     #define FUNCTION lnL_EDM_199Hg_step
     START_FUNCTION(double)
     DEPENDENCY(EDM_dia, double)
+    #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY lnL_EDM_para
+START_CAPABILITY
+    #define FUNCTION lnL_EDM_ThO_gaussianStep
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_para, double)
     #undef FUNCTION
 #undef CAPABILITY
 

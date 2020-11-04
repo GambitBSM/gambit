@@ -31,10 +31,21 @@ namespace Gambit
     	  for (int i = 0; i <= 2; i++)
     		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = Cw[i] = 0;
       }
+      CPV_WC_l::CPV_WC_l()
+      {
+    	  for (int i = 0; i <= 2; i++)
+    		  Ce[i] = Cmu[i] = Ctau[i] = 0;
+      }
+
 
       dq::dq()
       {
     	  u = d = s = c = b = t = 0;
       }
+      dl::dl()
+      {
+    	  e = mu = tau = 0;
+      }
+ 
    }
 }
