@@ -1,6 +1,6 @@
 diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
---- src/CalcLH.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/CalcLH.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/CalcLH.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/CalcLH.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -1,6 +1,6 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -19,8 +19,8 @@ diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
---- src/CalcMSSM.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/CalcMSSM.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/CalcMSSM.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/CalcMSSM.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -1,7 +1,7 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -31,8 +31,8 @@ diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
  using namespace std;
  
 diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
---- src/CalcPhys.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/CalcPhys.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/CalcPhys.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/CalcPhys.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -50,8 +50,8 @@ diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
---- src/Constraints.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/Constraints.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/Constraints.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/Constraints.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -86,8 +86,8 @@ diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
  
  double Constraints::delta_rho(double mh) {
 diff -ruN src/Constraints.h src_patched/Constraints.h
---- src/Constraints.h	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/Constraints.h	2020-04-20 21:29:42.000000000 +0930
+--- src/Constraints.h	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/Constraints.h	2020-11-09 13:05:54.000000000 +1030
 @@ -3,7 +3,7 @@
  
  #include "SM.h"
@@ -117,587 +117,4729 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
  
    double dmu_f(double z);
    double dmu_g(double z);
+@@ -289,7 +289,7 @@
+ 
+   double delta;
+ 
+-  constexpr static double Z_LIMIT_MCH = 39.6;
++  double Z_LIMIT_MCH = 39.6;
+ 
+ };
+ 
 diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
---- src/DecayTable.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/DecayTable.cpp	2020-04-20 21:29:42.000000000 +0930
-@@ -1,4 +1,4 @@
+--- src/DecayTable.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/DecayTable.cpp	1970-01-01 09:30:00.000000000 +0930
+@@ -1,1915 +0,0 @@
 -#include "DecayTable.h"
-+#include "DecayTableTHDM.h"
- #include "Util.h"
- #include <iostream>
- #include <gsl/gsl_integration.h>
-@@ -25,14 +25,14 @@
- const static double dmtb = 10.;
- 
- 
+-#include "Util.h"
+-#include <iostream>
+-#include <gsl/gsl_integration.h>
+-#include <gsl/gsl_sf_dilog.h>
+-
+-using namespace std;
+-
+-// Particle naming
+-const char *dnames[4] = {" ","d ", "s ", "b "};
+-const char *unames[4] = {" ","u ", "c ", "t "};
+-const char *lnames[4] = {" ","e ", "mu", "ta"};
+-const char *nnames[4] = {" ","ve", "vm", "vt"};
+-const char *hnames[6] = {" ","h ", "H ", "A ", "H+", "H-"};
+-const char *vnames[5] = {" ","ga", "Z ", "W+", "W-"};
+-const int dPDG[4] = {0 ,1 , 3 , 5 };
+-const int uPDG[4] = {0 ,2 , 4 , 6 };
+-const int lPDG[4] = {0 ,11, 13, 15};
+-const int nPDG[4] = {0 ,12, 14, 16};
+-const int hPDG[5] = {0 ,25, 35, 36, 37};
+-const int vPDG[4] = {0 ,22, 23, 24};
+-
+-// Limit on off-shell tails (# GeV above 3-body threshold)
+-const static double dmtt = 10.;
+-const static double dmtb = 10.;
+-
+-
 -DecayTable::DecayTable(THDM mod) {
-+DecayTableTHDM::DecayTableTHDM(THDM mod) {
-   set_model(mod);
-   qcd_on=true;
-   
- 
- }
- 
+-  set_model(mod);
+-  qcd_on=true;
+-  
+-
+-}
+-
 -void DecayTable::set_model(THDM mod) {
-+void DecayTableTHDM::set_model(THDM mod) {
-   model = mod;
-   sm = mod.get_SM();
-   int i,j,k;
-@@ -61,12 +61,12 @@
- }
- 
- 
+-  model = mod;
+-  sm = mod.get_SM();
+-  int i,j,k;
+-  for (i=1;i<5;i++) {
+-    gammatot_h[i]=-1.;
+-    gamma_hgg[i]=-1.;
+-    gamma_hgaga[i]=-1.;
+-    gamma_hZga[i]=-1.;
+-    for (j=1;j<5;j++) {
+-      gamma_hvv[i][j]=-1.;
+-      for (k=1;k<5;k++) {
+-        gamma_uhd[i][j][k]=-1.;
+-        gamma_hdd[i][j][k]=-1.;
+-        gamma_huu[i][j][k]=-1.;
+-        gamma_uhu[i][j][k]=-1.;
+-        gamma_hdu[i][j][k]=-1.;
+-        gamma_hll[i][j][k]=-1.;
+-        gamma_hln[i][j][k]=-1.;
+-        gamma_hvh[i][j][k]=-1.;
+-        gamma_hhh[i][j][k]=-1.;
+-      }
+-    }
+-  }
+-  
+- 
+-}
+-
+-
 -THDM DecayTable::get_model() {
-+THDM DecayTableTHDM::get_model() {
-   return model;
- }
- 
- 
+-  return model;
+-}
+-
+-
 -double DecayTable::get_gamma_uhd(int u, int h, int d) {
-+double DecayTableTHDM::get_gamma_uhd(int u, int h, int d) {
- 
-   if ((u<1)||(u>3)) return 0.;
-   if (h!=4) return 0.;
-@@ -106,7 +106,7 @@
- }
- 
- 
+-
+-  if ((u<1)||(u>3)) return 0.;
+-  if (h!=4) return 0.;
+-  if ((d<1)||(d>3)) return 0.;
+-
+-  if (gamma_uhd[u][h][d]>=0) return gamma_uhd[u][h][d];
+-
+-  double M =  sm.get_umass_pole(u);
+-  double m1 = model.get_hmass(h);
+-  double m2 = sm.get_dmass_pole(d);
+-  
+-  if (M<(m1+m2)) {
+-    gamma_uhd[u][h][d]=0.;
+-    return gamma_uhd[u][h][d];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_hdu(h,d,u,cs,cp);
+-  cp = -cp;
+-
+-  gamma_uhd[u][h][d] =  1./(16.*M_PI)*M*pow(1.-m1*m1/(M*M),2)*(pow(abs(cs),2)+pow(abs(cp),2));
+-  
+-  if (qcd_on) {
+-    double mt = sm.get_qmass_pole(6);
+-    double mb = sm.get_qmass_pole(5);
+-    double as = sm.run_alphas_MSbar(mt,mt,mb);
+-
+-    double qH = pow(m1/M,2);
+-    
+-    double K = 1.+as/M_PI*(7.-8.*pow(M_PI,2)/9.-2.*log(1.-qH)+2.*(1.-qH)+(4./9.+2./3.*log(1.-qH))*pow(1.-qH,2));
+-    
+-    gamma_uhd[u][h][d] = gamma_uhd[u][h][d]*K;
+-  }
+-  
+-
+-  return gamma_uhd[u][h][d];
+-}
+-
+-
 -double DecayTable::get_gamma_hdd(int h, int d1, int d2) {
-+double DecayTableTHDM::get_gamma_hdd(int h, int d1, int d2) {
- 
-   if ((h<1)||(h>3)) return 0.;
-   if ((d1<1)||(d1>3)) return 0.;
-@@ -154,7 +154,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>3)) return 0.;
+-  if ((d1<1)||(d1>3)) return 0.;
+-  if ((d2<1)||(d2>3)) return 0.;
+-
+-  if (gamma_hdd[h][d1][d2]>=0) return gamma_hdd[h][d1][d2];
+-
+-  double M = model.get_hmass(h);
+-  double m1p = sm.get_dmass_pole(d1);
+-  double m2p = sm.get_dmass_pole(d2);
+-  
+-  double m1 = sm.get_dmass_MSbar(d1);
+-  double m2 = sm.get_dmass_MSbar(d2);
+-  double m1run = sm.get_dmass_MSbar(d1);
+-  double m2run = sm.get_dmass_MSbar(d2);
+-  if (m1 > 0) {
+-      double Qinit = m1;
+-      if (d1==2) {
+-       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
+-       Qinit = SM::Q_ms;
+-      }
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m1run = sm.run_qmass_MSbar(m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-  if (m2 > 0) {
+-      double Qinit = m2;
+-      if (d2==2) {
+-       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
+-       Qinit = SM::Q_ms;
+-      }
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m2run = sm.run_qmass_MSbar(m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-
+-  if (M<(m1p+m2p)) {
+-    gamma_hdd[h][d1][d2] = 0.;
+-    return gamma_hdd[h][d1][d2];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_hdd(h,d1,d2,cs,cp);
+-
+-  gamma_hdd[h][d1][d2] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
+-  return gamma_hdd[h][d1][d2];
+-}
+-
+-
 -double DecayTable::get_gamma_huu(int h, int u1, int u2) {
-+double DecayTableTHDM::get_gamma_huu(int h, int u1, int u2) {
- 
-   if ((h<1)||(h>3)) return 0.;
-   if ((u1<1)||(u1>3)) return 0.;
-@@ -252,7 +252,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>3)) return 0.;
+-  if ((u1<1)||(u1>3)) return 0.;
+-  if ((u2<1)||(u2>3)) return 0.;
+-
+-  if (gamma_huu[h][u1][u2]>=0) return gamma_huu[h][u1][u2];
+-
+-  double M = model.get_hmass(h);
+-  double m1 = sm.get_umass_pole(u1);
+-  double m2 = sm.get_umass_pole(u2);
+-
+-  double m1m1 = sm.get_umass_MSbar(u1);
+-  double m2m2 = sm.get_umass_MSbar(u2);
+-  double m1run = sm.get_umass_MSbar(u1);
+-  double m2run = sm.get_umass_MSbar(u2);
+-  
+-  if (m1m1 > 0) {
+-      double Qinit = m1m1;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m1run = sm.run_qmass_MSbar(m1m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-  if (m2m2 > 0) {
+-      double Qinit = m2m2;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m2run = sm.run_qmass_MSbar(m2m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-
+-
+-  if ((u1<3)&&(u2<3)&&(M<(m1+m2))) {
+-    gamma_huu[h][u1][u2] = 0.;
+-    return gamma_huu[h][u1][u2];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_huu(h,u1,u2,cs,cp);
+- 
+- 
+- 
+-  if ((u1 < 3)||(u2<3)) {
+-    if (M>(m1+m2)) { 
+-	    gamma_huu[h][u1][u2] = hff_onshell(M,m1,m1run,m2,m2run,cs,cp,3,h,false);
+-  	} else {
+-		gamma_huu[h][u1][u2] = 0.;
+-	}
+-    return gamma_huu[h][u1][u2];
+-  
+-  } else  {
+-
+-      double mt_mt = sm.get_qmass_MSbar(6);
+-      double mb_mb = sm.get_qmass_MSbar(5);
+-      
+-      double mb = sm.get_qmass_pole(5);
+-      double gtop = sm.get_gamma_top();
+-      
+-      double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mt_mt,mb_mb);
+-      double mW = sm.get_MW(); 
+-
+-      int dl = 3;
+-      int du = 3; 
+-
+-      if (M < m1+mb+mW+dmtt) {
+-        gamma_huu[h][u1][u2] = 0.;
+-      } else if (M < m1+m2-dl*gtop) {
+-        double htt = htt_offshell(M, m1,m2,3,h);
+-      	gamma_huu[h][u1][u2] = htt;
+-      } else if (M < m1+m2+du*gtop) {
+-        double x[4], y[4];
+-      
+-        x[0] = m1+m2-(dl+1)*gtop;
+-        x[1] = m1+m2-dl*gtop;
+-        x[2] = m1+m2+du*gtop;
+-        x[3] = m1+m2+(du+1)*gtop;
+-      
+-        y[0] = htt_offshell(x[0],m1,m2,3,h);    
+-        y[1] = htt_offshell(x[1],m1,m2,3,h);    
+-        y[2] = htt_onshell(x[2],m1,m2,3,h);    
+-        y[3] = htt_onshell(x[3],m1,m2,3,h);    
+- 
+-        double hinter = cubic(M,x,y);
+-      	gamma_huu[h][u1][u2] = hinter;
+-      
+-      
+-      } else {
+-        double htt = htt_onshell(M,m1,m2,3,h);
+-        double hff = hff_onshell(M,mtr,mtr,mtr,mtr,cs,cp,3,h,true);
+-      
+-        double R = 2.*m1/M;
+-        double hinter = interp(R, htt, hff, 0.5);
+-  
+-    	gamma_huu[h][u1][u2] = hinter;
+-      }
+-  }
+-
+-  return gamma_huu[h][u1][u2];
+-}
+-
+-
 -double DecayTable::get_gamma_hdu(int h, int d, int u) {
-+double DecayTableTHDM::get_gamma_hdu(int h, int d, int u) {
- 
-   if ((h<4)||(h>4)) return 0.;
-   if ((d<1)||(d>3)) return 0.;
-@@ -347,7 +347,7 @@
- }
- 
- 
+-
+-  if ((h<4)||(h>4)) return 0.;
+-  if ((d<1)||(d>3)) return 0.;
+-  if ((u<1)||(u>3)) return 0.;
+-
+-  if (gamma_hdu[h][d][u]>=0) return gamma_hdu[h][d][u];
+-
+-  double M = model.get_hmass(h);
+-  double m1p = sm.get_dmass_pole(d);
+-  double m2p = sm.get_umass_pole(u);
+-  
+-  double m1 = sm.get_dmass_MSbar(d);
+-  double m2 = sm.get_umass_MSbar(u);
+-  double m1run = sm.get_dmass_MSbar(d);
+-  double m2run = sm.get_umass_MSbar(u);
+-  
+-  double mW = sm.get_MW();
+-  
+-  if (m1 > 0) {
+-      double Qinit = m1;
+-      if (d==2) {
+-       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
+-       Qinit = SM::Q_ms;
+-      }
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m1run = sm.run_qmass_MSbar(m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-  if (m2 > 0) {
+-      double Qinit = m2;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      m2run = sm.run_qmass_MSbar(m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_hdu(h,d,u,cs,cp);
+-  
+-  if (h<4) {
+-	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
+-	return gamma_hdu[h][d][u];
+-  }
+-
+-  if (u<3) {
+-	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
+-	return gamma_hdu[h][d][u];
+-  }
+- 
+-	double mb = sm.get_qmass_pole(5);
+-	double gtop = sm.get_gamma_top();
+-
+-	int dl = 0;
+-	int du = 1; 
+-
+-	if (M < m1p+mb+mW+dmtb) {
+-		gamma_hdu[h][d][u] = 0.;
+-		return gamma_hdu[h][d][u];
+-	}
+-	
+-	if (M < m1p+m2p-dl*gtop) {
+-		gamma_hdu[h][d][u] = htb_offshell(M,m1p,m1run,m2p,m2run,cs,cp,3);
+-		return gamma_hdu[h][d][u];
+-	}
+-	
+-	if (M < m1p+m2p+du*gtop) {
+-		double x[4], y[4];
+-
+-		x[0] = m1p+m2p-(dl+1)*gtop;
+-		x[1] = m1p+m2p-dl*gtop;
+-		x[2] = m1p+m2p+du*gtop;
+-		x[3] = m1p+m2p+(du+1)*gtop;
+-
+-		y[0] = htb_offshell(x[0],m1p,m1run,m2p,m2run,cs,cp,3);    
+-		y[1] = htb_offshell(x[1],m1p,m1run,m2p,m2run,cs,cp,3);    
+-		y[2] = hpff_onshell(x[2],m1p,m1run,m2p,m2run,cs,cp,3,h);    
+-		y[3] = hpff_onshell(x[3],m1p,m1run,m2p,m2run,cs,cp,3,h);    
+-
+-		double hinter = cubic(M,x,y);
+-		gamma_hdu[h][d][u] = hinter;
+-		return gamma_hdu[h][d][u];
+-	}
+-
+-	double htd1 = hpff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h);
+-	double htd2 = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
+-
+-	double hinter = htd1;
+-
+-	double R = (m1p+m2p)/M;
+-	hinter = interp(R, htd1, htd2, 2.);  	
+-	gamma_hdu[h][d][u]=hinter;
+-	    
+-	return gamma_hdu[h][d][u];
+-	
+-}
+-
+-
 -double DecayTable::get_gamma_hll(int h, int l1, int l2) {
-+double DecayTableTHDM::get_gamma_hll(int h, int l1, int l2) {
- 
-   if ((h<1)||(h>3)) return 0.;
-   if ((l1<1)||(l1>3)) return 0.;
-@@ -373,7 +373,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>3)) return 0.;
+-  if ((l1<1)||(l1>3)) return 0.;
+-  if ((l2<1)||(l2>3)) return 0.;
+-
+-  if (gamma_hll[h][l1][l2]>=0) return gamma_hll[h][l1][l2];
+-
+-  double M = model.get_hmass(h);
+-  double m1 = sm.get_lmass_pole(l1);
+-  double m2 = sm.get_lmass_pole(l2);
+-
+-  if (M<(m1+m2)) {
+-    gamma_hll[h][l1][l2] = 0.;
+-    return gamma_hll[h][l1][l2];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_hll(h,l1,l2,cs,cp);
+-
+-  gamma_hll[h][l1][l2] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
+-
+-  return gamma_hll[h][l1][l2];
+-}
+-
+-
 -double DecayTable::get_gamma_hln(int h, int l, int n) {
-+double DecayTableTHDM::get_gamma_hln(int h, int l, int n) {
- 
-   if ((h<1)||(h>4)) return 0.;
-   if ((l<1)||(l>3)) return 0.;
-@@ -399,7 +399,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>4)) return 0.;
+-  if ((l<1)||(l>3)) return 0.;
+-  if ((n<1)||(n>3)) return 0.;
+-
+-  if (gamma_hln[h][l][n]>=0) return gamma_hln[h][l][n];
+-
+-  double M = model.get_hmass(h);
+-  double m1 = sm.get_lmass_pole(l);
+-  double m2 = 0.;
+-
+-  if (M<(m1+m2)) {
+-    gamma_hln[h][l][n] = 0.;
+-    return gamma_hln[h][l][n];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_hln(h,l,n,cs,cp);
+-
+-  
+-  gamma_hln[h][l][n] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
+-  return gamma_hln[h][l][n];
+-}
+-
+-
 -double DecayTable::get_gamma_hgg(int h) {
-+double DecayTableTHDM::get_gamma_hgg(int h) {
- 
-   if (!qcd_on) return 0.;
- 
-@@ -412,7 +412,7 @@
- }
- 
- 
+-
+-  if (!qcd_on) return 0.;
+-
+-  if ((h<1)||(h>3)) return 0.;
+-
+-  if (gamma_hgg[h]>=0) return gamma_hgg[h];
+-  
+-  gamma_hgg[h] = hgg(h);
+-  return gamma_hgg[h];
+-}
+-
+-
 -double DecayTable::get_gamma_hgaga(int h) {
-+double DecayTableTHDM::get_gamma_hgaga(int h) {
- 
-   if (!qcd_on) return 0.;
- 
-@@ -425,7 +425,7 @@
- }
- 
- 
+-
+-  if (!qcd_on) return 0.;
+-
+-  if ((h<1)||(h>3)) return 0.;
+-
+-  if (gamma_hgaga[h]>=0) return gamma_hgaga[h];
+-  
+-  gamma_hgaga[h] = hgaga(h);
+-  return gamma_hgaga[h];
+-}
+-
+-
 -double DecayTable::get_gamma_hZga(int h) {
-+double DecayTableTHDM::get_gamma_hZga(int h) {
- 
-   if ((h<1)||(h>3)) return 0.;
- 
-@@ -436,7 +436,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>3)) return 0.;
+-
+-  if (gamma_hZga[h]>=0) return gamma_hZga[h];
+-  
+-  gamma_hZga[h] = hZga(h);
+-  return gamma_hZga[h];
+-}
+-
+-
 -double DecayTable::get_gamma_hvv(int h, int V) {
-+double DecayTableTHDM::get_gamma_hvv(int h, int V) {
- 
-   if ((h<1)||(h>=4)) return 0.;
-   if ((V<1)||(V>3)) return 0.;
-@@ -455,7 +455,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>=4)) return 0.;
+-  if ((V<1)||(V>3)) return 0.;
+-
+-  if ((h<=3)&&(V==1)) {
+-    return get_gamma_hgaga(h);
+-  }
+-
+-  if (gamma_hvv[h][V]>=0) return gamma_hvv[h][V];
+-  
+-  double M = model.get_hmass(h);
+-  
+-  gamma_hvv[h][V] = hvv_all(h,V,M);
+-  return gamma_hvv[h][V];
+-
+-}
+-
+-
 -double DecayTable::get_gamma_hvh(int H, int V, int h) {
-+double DecayTableTHDM::get_gamma_hvh(int H, int V, int h) {
- 
-   if ((H<1)||(H>4)||(h==H)) return 0.;
-   if ((V<1)||(V>3)) return 0.;
-@@ -558,7 +558,7 @@
- }
- 
- 
+-
+-  if ((H<1)||(H>4)||(h==H)) return 0.;
+-  if ((V<1)||(V>3)) return 0.;
+-  if ((h<1)||(h>4)) return 0.;
+-  
+-  if ((H==4)&&(V!=3)) return 0;
+-  if ((H!=4)&&(h==4)&&(V!=3)) return 0;
+-  
+-  if (V==1) return 0;
+-
+-  if (gamma_hvh[H][V][h]>=0) return gamma_hvh[H][V][h];
+-
+-  double M  = model.get_hmass(H);
+-  double m1  = model.get_hmass(h);
+-  double m2 = sm.get_vmass(V);
+-  
+-  double GV = sm.get_gamma_V(V);
+-  gamma_hvh[H][V][h] = 0.;
+-  
+-  if (M<=m1) {
+-    gamma_hvh[H][V][h] = 0.;
+-    return gamma_hvh[H][V][h];
+-  }
+-
+-  if (M>(m1+m2+5*GV)) {
+-    gamma_hvh[H][V][h] = hvh_onshell(H,V,h,M);
+-    return gamma_hvh[H][V][h];
+-  } 
+-    
+-  if (M>m1+2*GV) {
+-    gsl_integration_workspace * w = gsl_integration_workspace_alloc(1000);
+-        
+-    double result, error;
+-    
+-    integration_params ip;
+-    ip.M = M;
+-    ip.m1 = m1;
+-    ip.m2 = m2;
+-    ip.gamma = GV;
+-  
+-    gsl_function F;
+-    F.function = &hvh_fcn;
+-    F.params = &ip;
+-      
+-    double k = pow(m1/M,2);
+-    double imin = 0.;
+-    double imax = 1.-k;
+-  
+-    gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
+-    int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
+-			  w, &result, &error); 
+-    if (status) 
+-      if (status!=GSL_EROUND) {
+-        printf("GSL integration warning in H%1d -> VH%1d (off-shell). Please check result.\n", H, h);
+-        if (EXIT_ON_GSL_ERROR) exit(-1);
+-      }
+-    gsl_set_error_handler(old_handler);
+-    old_handler = NULL;
+-    gsl_integration_workspace_free (w);
+-    w = NULL;
+-  
+-    complex <double> c;
+-    model.get_coupling_vhh(V,H,h,c);
+-  
+-    double dV = 0.;
+-    double stw = sm.get_sintw();
+-    double ctw = sm.get_costw();
+-    double GF = sm.get_GF();
+-    double MW = sm.get_MW();
+-
+-    if (V==1) {
+-      gamma_hvh[H][V][h] = 0.;
+-      return gamma_hvh[H][V][h];
+-    } else if(V==2) {
+-      dV = 3./pow(ctw,2)*(7./12.-10./9.*pow(stw,2)+40./27.*pow(stw,4));
+-    } else if(V==3) {
+-      dV = 3.;
+-    } else {
+-      gamma_hvh[H][V][h] = 0.;
+-      return gamma_hvh[H][V][h];
+-    }
+-
+-    double KHHV = 3.*GF/(16.*sqrt(2)*pow(M_PI,3))*pow(MW,2)*pow(abs(c),2)*M*dV;
+-    gamma_hvh[H][V][h] = KHHV*result;
+-    
+-    // Count both H+W- and H-W+ final states in partial width to charged states
+-    // also done in hvh_onshell
+-    if ((h==4)&&(V==3)) gamma_hvh[H][V][h] = 2*gamma_hvh[H][V][h];
+-
+-    if (M>(m1+m2)) {
+-      double G2 = hvh_onshell(H,V,h,M); 
+-      gamma_hvh[H][V][h] = max(gamma_hvh[H][V][h],G2);
+-    }
+-
+-    return gamma_hvh[H][V][h];
+-  }
+-
+-
+-  return gamma_hvh[H][V][h];
+-}
+-
+-
 -double DecayTable::get_gamma_hhh(int h, int h1, int h2) {
-+double DecayTableTHDM::get_gamma_hhh(int h, int h1, int h2) {
- 
-   if ((h<1)||(h>4)) return 0.;
-   if ((h1<1)||(h1>4)) return 0.;
-@@ -587,7 +587,7 @@
- }
- 
- 
+-
+-  if ((h<1)||(h>4)) return 0.;
+-  if ((h1<1)||(h1>4)) return 0.;
+-  if ((h2<1)||(h2>4)) return 0.;
+-
+-  if (gamma_hhh[h][h1][h2]>=0) return gamma_hhh[h][h1][h2];
+-  double Sf = 1.;
+-  if ((h1==h2)&&(h1!=4)) Sf = 0.5;
+-
+-  double M = model.get_hmass(h);
+-  double m1 = model.get_hmass(h1);
+-  double m2 = model.get_hmass(h2);
+-
+-  complex <double> c;
+-  model.get_coupling_hhh(h,h1,h2,c);
+-  
+-  gamma_hhh[h][h1][h2] = 0.;
+-
+-  if (M>(m1+m2)) {
+-    double M2    = pow(abs(c),2);
+-    gamma_hhh[h][h1][h2] = Sf/(8.*M_PI)*M2*PS2(M,m1,m2);
+-    return gamma_hhh[h][h1][h2];
+-  }
+-
+-  return gamma_hhh[h][h1][h2];
+-}
+-
+-
 -double DecayTable::get_gammatot_top() {
-+double DecayTableTHDM::get_gammatot_top() {
- 
-   double gtot = 0.;
-   
-@@ -609,7 +609,7 @@
- }
- 
- 
+-
+-  double gtot = 0.;
+-  
+-  gtot += sm.get_gamma_top();
+-  
+-  gtot += get_gamma_uhd(3,4,1);
+-  gtot += get_gamma_uhd(3,4,2);
+-  gtot += get_gamma_uhd(3,4,3);
+-
+-  gtot += get_gamma_uhu(3,1,1);
+-  gtot += get_gamma_uhu(3,1,2);
+-  gtot += get_gamma_uhu(3,2,1);
+-  gtot += get_gamma_uhu(3,2,2);
+-  gtot += get_gamma_uhu(3,3,1);
+-  gtot += get_gamma_uhu(3,3,2);
+-
+-  return gtot;
+-
+-}
+-
+-
 -double DecayTable::get_gammatot_h(int h) {
-+double DecayTableTHDM::get_gammatot_h(int h) {
- 
-   if (h>4) return 0.;
- 
-@@ -657,25 +657,25 @@
- }
- 
- 
+-
+-  if (h>4) return 0.;
+-
+-  if (gammatot_h[h]>=0) return gammatot_h[h];
+-
+-  gammatot_h[h] = 0.;
+-  
+-  // Fermionic modes
+-  for (int i=1;i<4;i++) {
+-    for (int j=1;j<4;j++) {
+-       gammatot_h[h]+=get_gamma_hdd(h,i,j);
+-       gammatot_h[h]+=get_gamma_huu(h,i,j);
+-       gammatot_h[h]+=get_gamma_hdu(h,i,j);
+-       gammatot_h[h]+=get_gamma_hll(h,i,j);
+-       gammatot_h[h]+=get_gamma_hln(h,i,j);
+-    }
+-  }
+-  
+-  // Vector bosons
+-  for (int i=1;i<4;i++) {
+-     gammatot_h[h]+=get_gamma_hvv(h,i);
+-  }
+-
+-  // Z gamma
+-   gammatot_h[h] += get_gamma_hZga(h);
+-
+-  // Gluons
+-   gammatot_h[h] += get_gamma_hgg(h);
+-
+-  // H -> VH
+-  for (int i=1;i<4;i++) {
+-    for (int j=1;j<=4;j++) {
+-       gammatot_h[h]+=get_gamma_hvh(h,i,j);
+-    }
+-  }
+-
+-  // Higgses
+-  for (int i=1;i<5;i++) {
+-    for (int j=1;j<5;j++) {
+-       gammatot_h[h]+=get_gamma_hhh(h,i,j);
+-    }
+-  }
+-
+-  return gammatot_h[h];
+-}
+-
+-
 -double  DecayTable::get_gammatot_v(int v) {
-+double  DecayTableTHDM::get_gammatot_v(int v) {
-   return sm.get_gamma_V(v);
- }
- 
- 
- 
+-  return sm.get_gamma_V(v);
+-}
+-
+-
+-
 -void DecayTable::print_decay_LesHouches(FILE* output, double br, int id1, int id2) {
-+void DecayTableTHDM::print_decay_LesHouches(FILE* output, double br, int id1, int id2) {
-   if (br>0) 
-     fprintf(output,"     % 16.8e     %1i     %3i   %3i\n",br,2,id1,id2);
- }
- 
- 
+-  if (br>0) 
+-    fprintf(output,"     % 16.8e     %1i     %3i   %3i\n",br,2,id1,id2);
+-}
+-
+-
 -void DecayTable::print_decay(const char *h, const char *id1, const char *id2, double g, double br) { 
-+void DecayTableTHDM::print_decay(const char *h, const char *id1, const char *id2, double g, double br) { 
-   if (br>THDM::EPS)
-     printf("%2s -> %2s %2s %12.3e   %12.3e\n",h,id1,id2,g,br);
- }
- 
- 
+-  if (br>THDM::EPS)
+-    printf("%2s -> %2s %2s %12.3e   %12.3e\n",h,id1,id2,g,br);
+-}
+-
+-
 -void DecayTable::print_top_decays() {
-+void DecayTableTHDM::print_top_decays() {
-   double gtot = get_gammatot_top();
-   double gt[12],br[12];
- 
-@@ -715,7 +715,7 @@
- }
- 
- 
+-  double gtot = get_gammatot_top();
+-  double gt[12],br[12];
+-
+-  gt[0] = sm.get_gamma_tWd(1);
+-  gt[1] = sm.get_gamma_tWd(2);
+-  gt[2] = sm.get_gamma_tWd(3);
+-  gt[3] = get_gamma_uhd(3,4,1);
+-  gt[4] = get_gamma_uhd(3,4,2);
+-  gt[5] = get_gamma_uhd(3,4,3);
+-  gt[6] = get_gamma_uhu(3,1,1);
+-  gt[7] = get_gamma_uhu(3,1,2);
+-  gt[8] = get_gamma_uhu(3,2,1);
+-  gt[9] = get_gamma_uhu(3,2,2);
+-  gt[10] = get_gamma_uhu(3,3,1);
+-  gt[11] = get_gamma_uhu(3,3,2);
+-
+-  for (int i=0;i<12;i++) {
+-    br[i]=gt[i]/gtot;
+-  }
+-
+-  printf("\nDecay table for %s\n", unames[3]);
+-  printf("Total width:%12.3e GeV      BR\n", gtot);
+-  print_decay(unames[3],vnames[3],dnames[1],gt[0],br[0]);
+-  print_decay(unames[3],vnames[3],dnames[2],gt[1],br[1]);
+-  print_decay(unames[3],vnames[3],dnames[3],gt[2],br[2]);
+-  print_decay(unames[3],hnames[4],dnames[1],gt[3],br[3]);
+-  print_decay(unames[3],hnames[4],dnames[2],gt[4],br[4]);
+-  print_decay(unames[3],hnames[4],dnames[3],gt[5],br[5]);
+-  print_decay(unames[3],hnames[1],unames[1],gt[6],br[6]);
+-  print_decay(unames[3],hnames[1],unames[2],gt[7],br[7]);
+-  print_decay(unames[3],hnames[2],unames[1],gt[8],br[8]);
+-  print_decay(unames[3],hnames[2],unames[2],gt[9],br[9]);
+-  print_decay(unames[3],hnames[3],unames[1],gt[10],br[10]);
+-  print_decay(unames[3],hnames[3],unames[2],gt[11],br[11]);
+-
+-   printf("---------------------------------------\n");
+-}
+-
+-
 -void DecayTable::print_top_decays_LesHouches(FILE* output, bool full) {
-+void DecayTableTHDM::print_top_decays_LesHouches(FILE* output, bool full) {
-   double gtot = get_gammatot_top();
-   double gt[12],br[12];
- 
-@@ -755,22 +755,22 @@
- }
- 
- 
+-  double gtot = get_gammatot_top();
+-  double gt[12],br[12];
+-
+-  gt[0] = sm.get_gamma_tWd(1);
+-  gt[1] = sm.get_gamma_tWd(2);
+-  gt[2] = sm.get_gamma_tWd(3);
+-  gt[3] = get_gamma_uhd(3,4,1);
+-  gt[4] = get_gamma_uhd(3,4,2);
+-  gt[5] = get_gamma_uhd(3,4,3);
+-  gt[6] = get_gamma_uhu(3,1,1);
+-  gt[7] = get_gamma_uhu(3,1,2);
+-  gt[8] = get_gamma_uhu(3,2,1);
+-  gt[9] = get_gamma_uhu(3,2,2);
+-  gt[10] = get_gamma_uhu(3,3,1);
+-  gt[11] = get_gamma_uhu(3,3,2);
+-
+-  for (int i=0;i<12;i++) {
+-    br[i]=gt[i]/gtot;
+-  }
+-
+-  fprintf(output,"DECAY  6   % 16.8e   # top decays\n",gtot);
+-  if (full) {
+-    fprintf(output,"#            BR          NDA    ID1   ID2\n");
+-    print_decay_LesHouches(output,br[0],vPDG[3],dPDG[1]);
+-    print_decay_LesHouches(output,br[1],vPDG[3],dPDG[2]);
+-    print_decay_LesHouches(output,br[2],vPDG[3],dPDG[3]);
+-    print_decay_LesHouches(output,br[3],hPDG[4],dPDG[1]);
+-    print_decay_LesHouches(output,br[4],hPDG[4],dPDG[2]);
+-    print_decay_LesHouches(output,br[5],hPDG[4],dPDG[3]);
+-    print_decay_LesHouches(output,br[6],hPDG[1],uPDG[1]);
+-    print_decay_LesHouches(output,br[7],hPDG[1],uPDG[2]);
+-    print_decay_LesHouches(output,br[8],hPDG[2],uPDG[1]);
+-    print_decay_LesHouches(output,br[9],hPDG[2],uPDG[2]);
+-    print_decay_LesHouches(output,br[10],hPDG[3],uPDG[1]);
+-    print_decay_LesHouches(output,br[11],hPDG[3],uPDG[2]);
+-  }
+-}
+-
+-
 -void DecayTable::print_decays(int h) {
-+void DecayTableTHDM::print_decays(int h) {
-   print_decays(0,h,true,false);
- }
- 
- 
+-  print_decays(0,h,true,false);
+-}
+-
+-
 -void DecayTable::print_width(int h) {
-+void DecayTableTHDM::print_width(int h) {
-   printf(" Total width for %s: %10.3e GeV\n", hnames[h], get_gammatot_h(h));
- }
- 
- 
+-  printf(" Total width for %s: %10.3e GeV\n", hnames[h], get_gammatot_h(h));
+-}
+-
+-
 -void DecayTable::print_decays_LesHouches(FILE* output, int h, bool full) {
-+void DecayTableTHDM::print_decays_LesHouches(FILE* output, int h, bool full) {
-   print_decays(output,h,full,true);
- }
- 
- 
+-  print_decays(output,h,full,true);
+-}
+-
+-
 -double DecayTable::br(double dG, double G) {
-+double DecayTableTHDM::br(double dG, double G) {
- 
-   double BR = 0.;
- 
-@@ -783,7 +783,7 @@
- }
- 
- 
+-
+-  double BR = 0.;
+-
+-  if (G>0.) {
+-    BR = dG/G;
+-    if (BR<THDM::EPS) BR = 0.;
+-  }
+-  
+-  return BR;
+-}
+-
+-
 -void DecayTable::print_decays(FILE* output,int h, bool full, bool les) {
-+void DecayTableTHDM::print_decays(FILE* output,int h, bool full, bool les) {
- 
-   if ((h<1)||(h>4)) return;
- 
-@@ -966,11 +966,11 @@
-   if (!les) printf("---------------------------------------\n");
- }
- 
+-
+-  if ((h<1)||(h>4)) return;
+-
+-  double gtot = get_gammatot_h(h);
+-
+-  if (les) {
+-    if (h==1) 
+-      fprintf(output,"DECAY  25   % 16.8e   # h1 decays, lightest CP-even Higgs\n",gtot);
+-    else if (h==2)
+-      fprintf(output,"DECAY  35   % 16.8e   # h2 decays, heaviest CP-even Higgs\n",gtot);
+-    else if (h==3)
+-      fprintf(output,"DECAY  36   % 16.8e   # h3 decays, CP-odd Higgs\n",gtot);
+-    else if (h==4)
+-      fprintf(output,"DECAY  37   % 16.8e   # Charged Higgs decays\n",gtot);
+-    fprintf(output,"#            BR          NDA    ID1   ID2\n");
+-  } else {
+-    printf("\nDecay table for %s\n", hnames[h]);
+-    printf("Total width:%12.3e GeV      BR\n", gtot);
+-  }
+-
+-  if (!full) return;
+-
+-  double gdd[4][4];
+-  double guu[4][4];
+-  double gdu[4][4];
+-  double gll[4][4];
+-  double gln[4][4];
+-  double gvv[4];
+-  double gvh[4][5];
+-  double ghh[5];
+-  double ghZga;
+-  double ghgg;
+-  double brdd[4][4];
+-  double bruu[4][4];
+-  double brdu[4][4];
+-  double brll[4][4];
+-  double brln[4][4];
+-  double brvv[4];
+-  double brvh[4][5];
+-  double brhh[5];
+-  double brhZga = 0.;
+-  double brhgg = 0.;
+-  
+-  // Fermion decay modes
+-  for (int i=1;i<4;i++) {
+-    for (int j=1;j<4;j++) {
+-      gdd[i][j]=get_gamma_hdd(h,i,j);
+-      guu[i][j]=get_gamma_huu(h,i,j);
+-      gdu[i][j]=get_gamma_hdu(h,i,j);
+-      gll[i][j]=get_gamma_hll(h,i,j);
+-      gln[i][j]=get_gamma_hln(h,i,j);
+-      brdd[i][j] = br(gdd[i][j],gtot);
+-      bruu[i][j] = br(guu[i][j],gtot);
+-      brdu[i][j] = br(gdu[i][j],gtot);
+-      brll[i][j] = br(gll[i][j],gtot);
+-      brln[i][j] = br(gln[i][j],gtot);
+-    }
+-  }
+-
+-  // Vector bosons
+-  for (int i=1;i<4;i++) {
+-    gvv[i]=get_gamma_hvv(h,i);
+-    brvv[i]=br(gvv[i],gtot);
+-    for (int j=1;j<5;j++) {
+-      gvh[i][j]=get_gamma_hvh(h,i,j);
+-      brvh[i][j]=br(gvh[i][j],gtot);
+-    }
+-  }
+-
+-  // Z gamma
+-  ghZga = get_gamma_hZga(h);
+-  brhZga = br(ghZga,gtot);
+-
+-  // Gluons
+-  ghgg = get_gamma_hgg(h);
+-  brhgg = br(ghgg,gtot);
+-
+-  for (int i=1;i<=4;i++) {
+-    ghh[i]=get_gamma_hhh(h,i,i);
+-    brhh[i]=br(ghh[i],gtot);
+-  }
+-
+-  if (h==4) {
+-    for (int j=1;j<4;j++) {
+-      for (int i=1;i<4;i++) {
+-        if (les)
+-	  print_decay_LesHouches(output,brdu[i][j],uPDG[j],-dPDG[i]);
+-	else 
+-	  print_decay(hnames[h],unames[j],dnames[i],gdu[i][j],brdu[i][j]);
+-      }
+-    }
+-    for (int i=1;i<4;i++) {
+-      for (int j=1;j<4;j++) {
+-        if (les)
+-	  print_decay_LesHouches(output,brln[i][j],-lPDG[i],nPDG[j]);
+-	else 
+-	  print_decay(hnames[h],lnames[i],nnames[j],gln[i][j],brln[i][j]);
+-      }
+-    }
+-    for (int i=2;i<4;i++) {
+-      for (int j=1;j<=4;j++) {
+-        int sgn = 1;
+-        if ((i==3)&&(h!=4)) sgn = -1;
+-        if (les)
+-	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],sgn*hPDG[j]);
+-	else 
+-	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
+-      }
+-    }
+-  } else {
+-    for (int i=1;i<4;i++) {
+-      for (int j=1;j<4;j++) {
+-	if (les)
+-	  print_decay_LesHouches(output,brdd[i][j],dPDG[i],-dPDG[j]);
+-	else 
+-	  print_decay(hnames[h],dnames[i],dnames[j],gdd[i][j],brdd[i][j]);
+-	if (les)
+-	  print_decay_LesHouches(output,bruu[i][j],uPDG[i],-uPDG[j]);
+-	else 
+-	  print_decay(hnames[h],unames[i],unames[j],guu[i][j],bruu[i][j]);
+-      }
+-    }
+-    for (int i=1;i<4;i++) {
+-      for (int j=1;j<4;j++) {
+-	if (les)
+-	  print_decay_LesHouches(output,brll[i][j],lPDG[i],-lPDG[j]);
+-	else 
+-	  print_decay(hnames[h],lnames[i],lnames[j],gll[i][j],brll[i][j]);
+-      }    
+-    }
+-    for (int i=1;i<4;i++) {
+-      int sgn = 1;
+-      if (i==3) sgn = -1;
+-      if (les) {
+-	print_decay_LesHouches(output,brvv[i],vPDG[i],sgn*vPDG[i]);
+-      } else {
+-	print_decay(hnames[h],vnames[i],vnames[i+(sgn==-1)],gvv[i],brvv[i]);
+-      }
+-    }
+-
+-    if (les) 
+-      print_decay_LesHouches(output,brhZga,23,22);
+-    else
+-      print_decay(hnames[h],"Z ","ga",ghZga,brhZga);
+-
+-    if (les) 
+-      print_decay_LesHouches(output,brhgg,21,21);
+-    else
+-      print_decay(hnames[h],"g ","g ",ghgg,brhgg);
+-
+-    for (int i=1;i<=4;i++) {
+-      int sgn = 1;
+-      if (i==4) sgn = -1;
+-      if (les) {
+-        print_decay_LesHouches(output,brhh[i],hPDG[i],sgn*hPDG[i]);
+-      } else {
+-	print_decay(hnames[h],hnames[i],hnames[i+(sgn==-1)],ghh[i],brhh[i]);
+-      }
+-    }
+-    for (int i=1;i<4;i++) {
+-      for (int j=1;j<=3;j++) {
+-        if (les) {
+-	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],hPDG[j]);
+-        } else 
+-	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
+-      }
+-    }
+-
+-    // Special case with H+ W- charged conjugate final state
+-    if (les) {
+-      print_decay_LesHouches(output,0.5*brvh[3][4],vPDG[3],-hPDG[4]);
+-      print_decay_LesHouches(output,0.5*brvh[3][4],hPDG[4],-vPDG[3]);
+-    } else {
+-      print_decay(hnames[h],vnames[3],hnames[5],0.5*gvh[3][4],0.5*brvh[3][4]);
+-      print_decay(hnames[h],hnames[4],vnames[4],0.5*gvh[3][4],0.5*brvh[3][4]);
+-    }
+-
+-  }
+-  
+-  if (!les) printf("---------------------------------------\n");
+-}
+-
 -void DecayTable::set_qcd(bool set) {
-+void DecayTableTHDM::set_qcd(bool set) {
-   qcd_on=set;
- }
- 
+-  qcd_on=set;
+-}
+-
 -double DecayTable::hvv_offshell(int h, int V,double M) {
-+double DecayTableTHDM::hvv_offshell(int h, int V,double M) {
- 
-   double m = sm.get_vmass(V);
- 
-@@ -1033,7 +1033,7 @@
- 
- }
- 
+-
+-  double m = sm.get_vmass(V);
+-
+-  double GV = sm.get_gamma_V(V);
+-  double G = 0.;
+- 
+-  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
+-        
+-  double result, error;
+-    
+-  integration_params ip;
+-  ip.M = M;
+-  ip.m1 = m;
+-  ip.m2 = m;
+-  ip.gamma = GV;
+-  
+-  gsl_function F;
+-  F.function = &hvv_fcn;
+-  F.params = &ip;
+-      
+-  double k = pow(m/M,2);
+-  double imin = 0.;
+-  double imax = 1.-k;
+-  
+-  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
+-  int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
+-			w, &result, &error); 
+-    
+-  if (status) 
+-    if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H%1d -> VV (off-shell). Please check result.\n", h);
+-      if (EXIT_ON_GSL_ERROR) exit(-1);
+-    }
+-  gsl_set_error_handler(old_handler);
+-  gsl_integration_workspace_free (w);
+-  old_handler = NULL;
+-  w = NULL;
+-
+-  complex <double> c;
+-  model.get_coupling_vvh(V,V,h,c);
+-  
+-  double dV = 0.;
+-  double stw = sm.get_sintw();
+-  double GF = sm.get_GF();
+-
+-  if (V==1) {
+-    return 0.;
+-  } else if(V==2) {
+-    dV = 3.*(7./12.-10./9.*pow(stw,2)+40./27.*pow(stw,4));
+-// Note that there is a typo in Djouadis review for the last term! (40/9 instead of 40/27)
+-  } else if(V==3) {
+-    dV = 3.;
+-  } else return 0.;
+-
+-  double KHVV = 3.*pow(abs(c),2)*GF/(64.*sqrt(2.)*pow(M_PI,3))*M*dV;
+-  G = KHVV*result;
+-
+-
+-  return G;
+-
+-}
+-
 -double DecayTable::hvv_all(int h, int V,double M) {
-+double DecayTableTHDM::hvv_all(int h, int V,double M) {
- 
-   double m = sm.get_vmass(V);
- 
-@@ -1091,7 +1091,7 @@
- }
- 
- 
+-
+-  double m = sm.get_vmass(V);
+-
+-  double GV = sm.get_gamma_V(V);
+-  double G = 0.;
+- 
+-  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
+-        
+-  double result, error;
+-    
+-  integration_params2 ip;
+-  ip.M = M;
+-  ip.m = m;
+-  ip.gamma = GV;
+-  
+-  gsl_function F;
+-  F.function = &hvv_fcn1;
+-  F.params = &ip;
+-      
+-  double imin = 0.;
+-  double imax = 1.;
+-  
+-  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
+-  int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
+-			w, &result, &error); 
+-    
+-  if (status) 
+-    if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H%1d -> VV (off-shell). Please check the result.\n", h);
+-      if (EXIT_ON_GSL_ERROR) exit(-1);
+-    }
+-  gsl_set_error_handler(old_handler);
+-  gsl_integration_workspace_free (w);
+-  old_handler = NULL;
+-  w = NULL;
+-
+-  complex <double> c;
+-  model.get_coupling_vvh(V,V,h,c);
+-  
+-  double dV = 0.;
+-
+-  if (V==1) {
+-    return 0.;
+-  } else if(V==2) {
+-    dV = 0.5;
+-  } else if(V==3) {
+-    dV = 1.;
+-  } else return 0.;
+-
+-  double KHVV = dV*pow(abs(c),2)/(64.*M_PI)*pow(M,3)/pow(m,4);
+-  G = KHVV*result;
+-
+-  return G;
+-
+-}
+-
+-
 -double DecayTable::hvv_onshell(int h, int V, double M) {
-+double DecayTableTHDM::hvv_onshell(int h, int V, double M) {
-   double m = sm.get_vmass(V);
-   double Sf = 0.;
- 
-@@ -1123,7 +1123,7 @@
- }
- 
- 
+-  double m = sm.get_vmass(V);
+-  double Sf = 0.;
+-
+-  if (V==1) {
+-    return 0.;
+-  } else if(V==2) {
+-    Sf = 0.5;
+-  } else if(V==3) {
+-    Sf = 1.;
+-  } else return 0.;
+-  
+-  if (M<2.*m) return 0.0;
+-
+-  complex <double> c;
+-  model.get_coupling_vvh(V,V,h,c);
+-
+-  double M2 = 0.;
+-  
+-  if (m>0) {
+-    double x = pow(M/m,2);
+-    M2    = 4.*pow(abs(c),2)*(3.-x+x*x/4.);
+-  } else {
+-    M2    = 16.*pow(abs(c),2);
+-  }
+-
+-  double G = Sf/(32.*M_PI)*M2*PS2(M,m,m);
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::hvh_onshell(int H, int V, int h, double M) {
-+double DecayTableTHDM::hvh_onshell(int H, int V, int h, double M) {
-   double m1 = sm.get_vmass(V);
-   double m2  = model.get_hmass(h);
- 
-@@ -1148,7 +1148,7 @@
- }
- 
- 
+-  double m1 = sm.get_vmass(V);
+-  double m2  = model.get_hmass(h);
+-
+-  if (M<m1+m2) return 0.;
+-
+-  complex <double> c;
+-  model.get_coupling_vhh(V,H,h,c);
+-  
+-  int dV = 1;
+-
+-  if (V==1) {
+-    return 0.;
+-  } 
+-  if ((V==3) && (h==4)) {
+-    dV = 2;
+-  }
+-  
+-
+-  double G = pow(abs(c),2)/(16.*M_PI)*pow(m1,2)/M*sqrt(L(pow(m2,2),pow(m1,2),pow(M,2)))*L(pow(m2,2),pow(M,2),pow(m1,2))*dV;
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::PS2(double M, double m1, double m2) {
-+double DecayTableTHDM::PS2(double M, double m1, double m2) {
-   double absp1 = sqrt((pow(M,2)-pow(m1+m2,2))*(pow(M,2)-pow(m1-m2,2)))/(2.*M);
-   double PS = absp1/pow(M,2);
- 
-@@ -1157,7 +1157,7 @@
- 
- 
- 
+-  double absp1 = sqrt((pow(M,2)-pow(m1+m2,2))*(pow(M,2)-pow(m1-m2,2)))/(2.*M);
+-  double PS = absp1/pow(M,2);
+-
+-  return PS;
+-}
+-
+-
+-
 -double DecayTable::hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h) {
-+double DecayTableTHDM::hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h) {
- 
-   double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
- 
-@@ -1217,7 +1217,7 @@
- }
- 
- 
+-
+-  double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
+-
+-  complex <double> cd = cs+cp;
+-  complex <double> cu = cs-cp;
+-  
+-  double cdcu = real(cd*cu);
+-  double cd2 = pow(abs(cd),2);
+-  double cu2 = pow(abs(cu),2);
+-  
+-  if (m1run > 0) {
+-  	cd2 = cd2*pow(m1/m1run,2);
+-  }
+-  
+-  if (m2run > 0) {
+-  	cu2 = cu2*pow(m2/m2run,2);
+-  	
+-  }
+-  
+-  if ((m1run>0)&&(m2run>0)) {
+-	cdcu=cdcu*m1*m2/(m1run*m2run);
+-  }
+-  
+-  double qd = pow(m1/M,2);
+-  double qu = pow(m2/M,2);
+-  double Q = 1.-qu-qd;
+-  double q = sqrt(qu*qd);
+-  double lam = L(pow(m1,2), pow(m2,2), pow(M,2));
+-  double sqL = sqrt(lam);
+-
+-  double D_udp = 0.;
+-  double D_dup = 0.;
+-  double D_udm = 0.;
+-  
+-  if ((Nc==3)&&qcd_on) {
+-
+-     double xd = 2.*qd/(Q+sqL);       
+-     double xu = 2.*qu/(Q+sqL);
+-
+-     if(m1 > 0) {
+-       D_dup = DHp(qd,qu,xd,xu,sqL);      
+-     }
+-     
+-     if(m2 > 0) {
+-       D_udp = DHp(qu,qd,xu,xd,sqL);           
+-     }   
+-
+-     if(q > 0) {
+-        D_udm = DHm(qu,qd,xu,xd,sqL);
+-     }
+-
+-  }
+-
+-  double G = Nc*M/(16.*M_PI)*sqL*(Q*(cu2*(1.+4./3.*as*D_udp)+cd2*(1.+4./3.*as*D_dup))+4*q*cdcu*(1.+4./3.*as*D_udm));
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt=false) {
-+double DecayTableTHDM::hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt=false) {
- 
-   if (M<(m1+m2)) return 0.;
- 
-@@ -1265,7 +1265,7 @@
- }
- 
- 
+-
+-  if (M<(m1+m2)) return 0.;
+-
+-  double M2    = 2.*(pow(M,2)-pow(m1+m2,2))*pow(abs(cs),2)+
+-    2.*(pow(M,2)-pow(m1-m2,2))*pow(abs(cp),2);
+-
+-  double G = Nc*1./(8.*M_PI)*M2*PS2(M,m1,m2);
+-
+-  complex <double> cst,cpt;
+-  model.get_coupling_huu(h,3,3,cst,cpt);
+-  double mt = sm.get_umass_MSbar(3);
+-  double Qinit = mt;
+-  if(sm.b_HD) Qinit = SM::Q_HD;
+-  double mtrun = sm.run_qmass_MSbar(mt,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-  
+-  // Apply QCD corrections for decay to quarks
+-  if ((Nc==3)&&qcd_on) {
+-    if (h<3) {
+-      int Nf = sm.get_Nactivef(M);
+-      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
+-      double K = 1.+5.67*as+(35.94-1.36*Nf)*pow(as,2);      
+-      // massive corrections from hep-ph/9505358 only for q1=q2
+-      if((abs(cs)>0.)&&(m1run-m2run<THDM::EPS)) K=K+m1run/mtrun*real(cst*conj(cs))/real(cs*conj(cs))*(1.57-2./3.*log(pow(M,2)/pow(sm.get_qmass_pole(6),2)))*pow(as,2);
+-      if((abs(cs)>0.)&&(m1run-m2run<THDM::EPS)&&(m1run>0.)&&(m2run>0.)&&(!tt)) K=K+sqrt(m1run*m2run)/mtrun*real(cst*conj(cs))/real(cs*conj(cs))*(1./9.*pow(log(pow(m1run/M,2)),2))*pow(as,2);
+-      if (K<0) K=0;
+-      G = G*K;   
+-    } else if (h==3) {
+-      int Nf = sm.get_Nactivef(M);
+-      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
+-      double K = 1.+5.67*as+(35.94-1.36*Nf)*pow(as,2);      
+-      // massive corrections from hep-ph/9505358 only for q1=q2
+-      if((abs(cp)>0.)&&(m1run-m2run<THDM::EPS)) K=K+sqrt(m1run*m2run)/mtrun*real(cpt*conj(cp))/real(cp*conj(cp))*(3.83-log(pow(M,2)/pow(sm.get_qmass_pole(6),2)))*pow(as,2);
+-      if((abs(cp)>0.)&&(m1run-m2run<THDM::EPS)&&(m1run>0.)&&(m2run>0)&&(!tt)) K=K+m1run/mtrun*real(cpt*conj(cp))/real(cp*conj(cp))*(1./6.*pow(log(pow(m1run/M,2)),2))*pow(as,2);     
+-      if (K<0) K=0;
+-      G = G*K;
+-    } else if (h==4) {
+-      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
+-      double K = 1.+5.67*as;
+-      if (K<0) K=0;
+-      G = G*K;
+-    }
+-  }
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::get_gamma_uhu(int u1, int h, int u2) {
-+double DecayTableTHDM::get_gamma_uhu(int u1, int h, int u2) {
- 
-   if (u1!=3) return 0.;
-   if ((h<1)||(h>3)) return 0.;
-@@ -1303,7 +1303,7 @@
- }
- 
- 
+-
+-  if (u1!=3) return 0.;
+-  if ((h<1)||(h>3)) return 0.;
+-  if ((u2<1)||(u2>=u1)) return 0.;
+-
+-  if (gamma_uhu[u1][h][u2]>=0) return gamma_uhu[u1][h][u2];
+-
+-  double M =  sm.get_umass_pole(u1);
+-  double m1 = model.get_hmass(h);
+-  double m2 = sm.get_umass_pole(u2);
+-  
+-  if (M<(m1+m2)) {
+-    gamma_uhu[u1][h][u2]=0.;
+-    return gamma_uhu[u1][h][u2];
+-  }
+-
+-  complex <double> cs,cp;
+-  model.get_coupling_huu(h,u1,u2,cs,cp);
+- 
+-  double x1 = m1/M;
+-  double x2 = m2/M; 	
+-
+-
+-  gamma_uhu[u1][h][u2] = 0;
+-
+-  if (h<3) {
+-  	gamma_uhu[u1][h][u2] = real(cs*conj(cs))*M/(16*M_PI)*((1+x2)*(1+x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
+-  } else if (h==3) {
+- 	gamma_uhu[u1][h][u2] = real(cp*conj(cp))*M/(16*M_PI)*((1-x2)*(1-x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
+-  }
+-  
+-//  printf("uhu %d %d %d %16.8E %16.8E %16.8E %16.8E %16.8E\n", u1, h, u2, gamma_uhu[u1][h][u2], pow(1-x2,2), pow(1+x2,2),pow(1+x2,2)/(pow(1-x2,2)),x2);
+-         
+-  return gamma_uhu[u1][h][u2];
+-}
+-
+-
 -double DecayTable::htt_onshell(double M, double m1, double m2,  int Nc, int h) {
-+double DecayTableTHDM::htt_onshell(double M, double m1, double m2,  int Nc, int h) {
- 
-   complex <double> cs, cp;
-   complex <double> cs_mtp, cp_mtp;
-@@ -1359,7 +1359,7 @@
- }
- 
- 
+-
+-  complex <double> cs, cp;
+-  complex <double> cs_mtp, cp_mtp;
+-  model.get_coupling_huu(h,3, 3,cs,cp);
+-
+-  double mtp = sm.get_qmass_pole(6);
+-  double mt_mt = sm.get_qmass_MSbar(6);
+-  double mbp = sm.get_qmass_pole(5);
+-  double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mtp,mbp);
+-
+-  cs_mtp = cs*mtp/mtr;
+-  cp_mtp = cp*mtp/mtr;
+-  
+-  double M2    = 2.*(pow(M,2)-pow(m1+m2,2))*pow(abs(cs_mtp),2)+
+-    2.*(pow(M,2)-pow(m1-m2,2))*pow(abs(cp_mtp),2);
+-
+-  double G = Nc*1./(8.*M_PI)*M2*PS2(M,m1,m2);
+-  
+-  // Threshold QCD corrections for tt decay, with full mass dependence
+-  if (Nc==3&&qcd_on) {
+-    double K = 1;
+-    if (h!=4) {
+-      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      
+-      double mf = m1;
+-      double b = sqrt(1.-4.*pow(mf/M,2));
+-      double L = log((1.+b)/(1.-b));
+-      double x = (1.-b)/(1.+b);
+-      double dL1 =  gsl_sf_dilog(x);
+-      double dL2 =  gsl_sf_dilog(-x);
+-
+-      double b2 = pow(b, 2);
+-      
+-      // Threshold corrections for tt decay [hep-ph/0503172]
+-      double A = (1.+b2)*(4.*dL1+2.*dL2-3.*L*log(2./(1.+b))-2.*L*log(b))-3.*b*log(4./(1.-b2))-4.*b*log(b);
+-            
+-      double DH = 0;
+-      if (h<3) {
+-      	DH = A/b + 1./(16.*pow(b,3))*(3.+34.*pow(b,2)-13.*pow(b,4))*L+3./(8.*pow(b,2))*(7.*pow(b,2)-1);      
+-      } else if (h==3) {
+-      	DH = A/b + 1./(16.*b)*(19.+2*b2+3*pow(b,4))*L+3./8.*(7.-b2);
+-      }
+-      
+-      K = 1.+4./3.*as/M_PI*DH;
+-    } else if (h==4) {
+-      K = 1.;
+-    }
+-    
+-    G = G*K;
+-  }
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::htt_offshell(double M, double m1, double m2, int Nc, int h) {
-+double DecayTableTHDM::htt_offshell(double M, double m1, double m2, int Nc, int h) {
- 
-   complex <double> cs, cp;
-   complex <double> cs_mtp, cp_mtp;
-@@ -1414,7 +1414,7 @@
- }
- 
- 
+-
+-  complex <double> cs, cp;
+-  complex <double> cs_mtp, cp_mtp;
+-  model.get_coupling_huu(h,3, 3,cs,cp);
+-
+-  double mtp = sm.get_qmass_pole(6);
+-  double mt_mt = sm.get_qmass_MSbar(6);
+-  double mbp = sm.get_qmass_pole(5);
+-  double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mtp,mbp);
+-
+-  cs_mtp = cs*mtp/mtr;
+-  cp_mtp = cp*mtp/mtr;
+-
+-  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
+-        
+-  double result, error;
+-    
+-  integration_params_tt ip;
+-  ip.M = M;
+-  ip.mt = m1;
+-  ip.mb = mbp;
+-  ip.mW = sm.get_MW();
+-  ip.gtop = sm.get_gamma_top();
+-  ip.h = h;
+-  gsl_function F;
+-  F.function = &htt_fcn1;
+-  F.params = &ip;
+-      
+-  double imin = 2.*m1/M;
+-  double imax = 2.;
+-    
+-  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
+-  int status = gsl_integration_qags (&F,imin,imax,0,1e-3,1000,
+-			w, &result, &error); 
+-    
+-  if (status) {
+-    if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H%1d -> tt (offshell). Please check result.\n", h);
+-      if (EXIT_ON_GSL_ERROR) exit(-1);
+-  	}
+-  }
+-  gsl_set_error_handler(old_handler);
+-  gsl_integration_workspace_free (w);
+-  old_handler = NULL;
+-  w = NULL;
+-
+-
+-  double v2 = sm.get_v2();
+-  double G = Nc*pow(M,3)/(64.*pow(M_PI,3)*v2)*(pow(abs(cs_mtp),2)+pow(abs(cp_mtp),2))*result;
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc) {
-+double DecayTableTHDM::htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc) {
- 
-   complex <double> I(0.0,1.0);
- 
-@@ -1469,7 +1469,7 @@
-   return G;
- }
- 
+-
+-  complex <double> I(0.0,1.0);
+-
+-  double md = m1;
+-  double mb  = sm.get_dmass_pole(3);
+-
+-  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
+-		
+-  double result, error;
+-  
+-  integration_params_tb ip;
+-  ip.M = M;
+-  ip.mt = m2;
+-  ip.md = md;
+-  ip.mb = mb;
+-  ip.mW = sm.get_MW();
+-  ip.gtop = sm.get_gamma_top();  
+-  
+-  ip.Z_u = real(I*(-cs+cp))*sm.get_v()/(sqrt(2)*m2run);
+-  ip.Z_d = 0;
+-  if (m1run>0){
+-     ip.Z_d = real(I*( cs+cp))*sm.get_v()/(sqrt(2)*m1run);
+-  }
+-  gsl_function F;
+-  F.function = &htb_fcn1;
+-  F.params = &ip;
+-	
+-  double imin = pow((md+mb),2);
+-  double imax = pow((M - ip.mW),2);
+-  
+-  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
+-  int status = gsl_integration_qags (&F,imin,imax,0.,1e-3,1000,
+-			w, &result, &error);
+-	
+-  if (status) {
+-    if (status!=GSL_EROUND) {
+-      printf("GSL integration warning in H+ -> tb (offshell). Please check the result.\n");
+-      if (EXIT_ON_GSL_ERROR) exit(-1);
+-	}
+-  }
+-  gsl_set_error_handler(old_handler);
+-  gsl_integration_workspace_free (w);
+-  old_handler = NULL;
+-  w = NULL;
+-  
+-  double GF = sm.get_GF();
+-  
+-  double KHtb = 3*pow(GF,2)/(16*pow(M*M_PI,3));
+-
+-  double G = KHtb*result;
+- 
+-  return G;
+-}
+-
 -double DecayTable::hgaga(int h) {
-+double DecayTableTHDM::hgaga(int h) {
- 
-   complex <double> I(0.,1);
- 
-@@ -1566,7 +1566,7 @@
- 
- 
- 
+-
+-  complex <double> I(0.,1);
+-
+-  double alpha 	= sm.get_alpha0();
+-  double v  		= sm.get_v();
+-  double v2 		= sm.get_v2();
+-  double mW 		= sm.get_MW();
+-  
+-  double M 		= model.get_hmass(h);
+-  double M2 		= M*M;  
+-
+-  double mHp 		= model.get_hmass(4);
+-
+-  double tau_W   = M2/(4.*mW*mW);
+-  double tau_Hp  = M2/(4.*mHp*mHp);
+-
+-  int Nc = 3;
+-
+-  complex <double> gS, gP;
+-  complex <double> S_sum(0.,0.), P_sum(0.,0.);
+-
+-  // Down-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_hdd(h,i,i,gS,gP);
+-    double m = sm.get_dmass_MSbar(i);
+-    double mp = sm.get_dmass_pole(i);    
+-
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-
+-      double m_HD = sm.run_qmass_MSbar(m,Qinit,M/2.,sm.get_qmass_pole(6),sm.get_qmass_pole(5))*mp/sm.run_qmass_MSbar(m,Qinit,mp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));      
+-      double tau = M2/(4.*m_HD*m_HD);
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      complex <double> Sd = 2.*Nc*pow(-1./3,2)*gS*v/mrun*F_sf(tau);
+-      complex <double> Pd = 2.*Nc*pow(-1./3,2)*gP*v/mrun*F_pf(tau);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-  
+-  // Up-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_huu(h,i,i,gS,gP);
+-    double m = sm.get_umass_MSbar(i);
+-    double mp = sm.get_umass_pole(i);    
+-
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      double m_HD = sm.run_qmass_MSbar(m,Qinit,M/2.,sm.get_qmass_pole(6),sm.get_qmass_pole(5))*mp/sm.run_qmass_MSbar(m,Qinit,mp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));      
+-      double tau = M2/(4.*m_HD*m_HD);
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      complex <double> Sd = 2.*Nc*pow(2./3,2)*gS*v/mrun*F_sf(tau);
+-      complex <double> Pd = 2.*Nc*pow(2./3,2)*gP*v/mrun*F_pf(tau);
+-
+-// QCD corrections in heavy quark limit for CP-even Higgs
+-      if ((!sm.b_HD) && (qcd_on) && (i==3)) {
+-        double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-        Sd=Sd*(1.-as/M_PI);
+-      }
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Leptons
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_hll(h,i,i,gS,gP);
+-    double m = sm.get_lmass_pole(i);
+-    
+-    if (m > 0) {
+-      double tau = M2/(4.*m*m);
+-      complex <double> Sd = 2.*pow(-1.,2)*gS*v/m*F_sf(tau);
+-      complex <double> Pd = 2.*pow(-1.,2)*gP*v/m*F_pf(tau);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Charged Higgs and W contribution to scalar operator
+-  complex <double> g_hww,g_hhchc;
+-  model.get_coupling_vvh(3,3,h,g_hww);
+-  model.get_coupling_hhh(h,4,4,g_hhchc);
+-
+-  g_hww = g_hww*v/(2.*pow(mW,2));
+-  
+-  S_sum = S_sum + g_hww*F_1(tau_W) + g_hhchc/v*v2/(2.*pow(mHp,2))*F_0(tau_Hp);
+-    
+-  double G = pow(M,3)*pow(alpha,2)/(256.*pow(M_PI,3)*v2)*(pow(abs(S_sum),2)+pow(abs(P_sum),2));
+-
+-  return G;
+-}
+-
+-
+-
 -double DecayTable::hZga(int h) {
-+double DecayTableTHDM::hZga(int h) {
- 
-   complex <double> I(0.,1);
- 
-@@ -1684,7 +1684,7 @@
- }
- 
- 
+-
+-  complex <double> I(0.,1);
+-
+-  double alpha 	= sm.get_alpha0();
+-  double GF     = sm.get_GF();
+-  double v  		= sm.get_v();
+-  double v2 		= sm.get_v2();
+-  double mW 		= sm.get_MW();
+-  double mW2 		= mW*mW;
+-  double mZ 		= sm.get_MZ();
+-  double mZ2 		= mZ*mZ;
+-  double stw            = sm.get_sintw();
+-  double ctw            = sm.get_costw();
+-  
+-  double M 		= model.get_hmass(h);
+-  double M2 		= M*M;  
+-
+-  double mHp 		= model.get_hmass(4);
+-
+-  double tau_W   = (4.*mW2)/M2;
+-  double tau_Hp  = (4.*mHp*mHp)/M2;
+-
+-  double lambda_W   = (4.*mW2)/mZ2;
+-  double lambda_Hp  = (4.*mHp*mHp)/mZ2;
+-
+-  int Nc = 3;
+-
+-  if (M<mZ) return 0.;
+-
+-  complex <double> gS, gP;
+-  complex <double> S_sum(0.,0.), P_sum(0.,0.);
+-
+-  // Down-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_hdd(h,i,i,gS,gP);
+-    double m = sm.get_dmass_MSbar(i);
+-    double mp = sm.get_dmass_pole(i);    
+-
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      double tau = (4.*mp*mp)/M2;
+-      double lambda = (4.*mp*mp)/mZ2;
+-      double Qf = -1./3.;
+-      double I3f = -1./2.;
+-      complex <double> Sd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/mrun*FF_s(tau,lambda);
+-      complex <double> Pd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/mrun*FF_p(tau,lambda);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Up-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_huu(h,i,i,gS,gP);
+-    double m = sm.get_umass_MSbar(i);
+-    double mp = sm.get_umass_pole(i);        
+-
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      double tau = (4.*mp*mp)/M2;
+-      double lambda = (4.*mp*mp)/mZ2;
+-      double Qf = 2./3.;
+-      double I3f = 1./2.;
+-      complex <double> Sd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/mrun*FF_s(tau,lambda);
+-      complex <double> Pd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/mrun*FF_p(tau,lambda);
+-
+-      // QCD corrections in heavy top quark limit
+-      if ((!sm.b_HD)&&(qcd_on)&&(i==3)) {
+-//        QCD corrections disabled (as in HDECAY)  
+-//        double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-//        Sd=Sd*(1.-as/M_PI);
+-      }
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Leptons
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_hll(h,i,i,gS,gP);
+-    double m = sm.get_lmass_pole(i);
+-    
+-    if (m > 0) {
+-      double tau = (4.*m*m)/M2;
+-      double lambda = (4.*m*m)/mZ2;
+-      double Qf = -1.;
+-      double I3f = -1./2.;
+-      complex <double> Sd =  2.*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/m*FF_s(tau,lambda);
+-      complex <double> Pd =  2.*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/m*FF_p(tau,lambda);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Charged Higgs and W contribution to scalar operator
+-  complex <double> g_hww,g_hhchc;
+-  model.get_coupling_vvh(3,3,h,g_hww);
+-  model.get_coupling_hhh(h,4,4,g_hhchc);
+-
+-  g_hww = g_hww*v/(2.*pow(mW,2));
+-
+-//  S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw*ctw-1.)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
+-
+-// Charged Higgs contribution above differs with a factor ctw compared to HDECAY. 
+-// The normalisation below gives same result but is not consistent with formulas 2.23 and 2.33 in Anatomy II
+-  S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw-1./ctw)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
+-
+-  double G = alpha*pow(GF,2)*mW2*pow(M,3)*pow((1.-mZ2/M2),3)/(64.*pow(M_PI,4))*(pow(abs(S_sum),2)+pow(abs(P_sum),2));
+-
+-  return G;
+-}
+-
+-
 -double DecayTable::hgg(int h) {
-+double DecayTableTHDM::hgg(int h) {
- 
-   double v  = sm.get_v();
-   double v2 = sm.get_v2();
-@@ -1755,7 +1755,7 @@
- }
- 
- 
+-
+-  double v  = sm.get_v();
+-  double v2 = sm.get_v2();
+-  
+-  double M = model.get_hmass(h);
+-  double M2 = M*M;  
+-
+-  double mt   = sm.get_qmass_MSbar(6);
+-
+-  complex <double> S_sum(0.,0.);
+-  complex <double> P_sum(0.,0.);
+-  complex <double> gS,gP;
+-
+-  // Down-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_hdd(h,i,i,gS,gP);
+-    double m = sm.get_dmass_MSbar(i);
+-    double mp = sm.get_dmass_pole(i);    
+-
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      double tau = M2/(4.*mp*mp);
+-
+-      complex <double> Sd = gS*v/mrun*F_sf(tau);
+-      complex <double> Pd = gP*v/mrun*F_pf(tau);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  // Up-type quarks
+-  for (int i=1;i<=3;i++) {
+-    model.get_coupling_huu(h,i,i,gS,gP);
+-    double m = sm.get_umass_MSbar(i);
+-    
+-    if (m > 0) {
+-      double Qinit = m;
+-      if(sm.b_HD) Qinit = SM::Q_HD;
+-      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-      double mp = sm.get_umass_pole(i);    
+-      double tau = M2/(4.*mp*mp);
+-
+-      complex <double> Sd = gS*v/mrun*F_sf(tau);
+-      complex <double> Pd = gP*v/mrun*F_pf(tau);
+-      S_sum = S_sum + Sd;
+-      P_sum = P_sum + Pd;
+-    }
+-  }
+-
+-  int Nf = sm.get_Nactivef(M);
+-  double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
+-
+-  double KS = 1;
+-  double KP = 1;
+-  // NNLO QCD corrections in heavy top quark limit
+-  // hep-ph/9705240 (CP-even Higgses)
+-  // hep-ph/9807241 (CP-odd)
+-  if (qcd_on) {
+-    KS = 1.+as/M_PI*(95./4.-7./6.*Nf)+pow(as/M_PI,2)*(156.808-5.708*log(mt*mt/M2));
+-    KP = 1.+as/M_PI*(97./4.-7./6.*Nf)+pow(as/M_PI,2)*(171.544-5.*log(mt*mt/M2));
+-  }
+-  
+-  double G = pow(M,3)*pow(as,2)/(32.*pow(M_PI,3)*v2)*(KS*pow(abs(S_sum),2)+KP*pow(abs(P_sum),2));
+-
+-  return G;
+-}
+-
+-
 -complex <double> DecayTable::F_sf(double t) {
-+complex <double> DecayTableTHDM::F_sf(double t) {
-   double ti = 1./t;
-   complex <double> c;
-   c = ti*(1.+(1.-ti)*ftau(t));
-@@ -1763,7 +1763,7 @@
- }
- 
- 
+-  double ti = 1./t;
+-  complex <double> c;
+-  c = ti*(1.+(1.-ti)*ftau(t));
+-  return c;
+-}
+-
+-
 -complex <double> DecayTable::F_pf(double t) {
-+complex <double> DecayTableTHDM::F_pf(double t) {
-   double ti = 1./t;
-   complex <double> c;
-   c = ti*ftau(t);
-@@ -1771,7 +1771,7 @@
- }
- 
- 
+-  double ti = 1./t;
+-  complex <double> c;
+-  c = ti*ftau(t);
+-  return c;
+-}
+-
+-
 -complex <double> DecayTable::F_0(double t) {
-+complex <double> DecayTableTHDM::F_0(double t) {
-   double ti = 1./t;
-   complex <double> c;
-   c = ti*(-1.+ti*ftau(t));
-@@ -1780,7 +1780,7 @@
- }
- 
- 
+-  double ti = 1./t;
+-  complex <double> c;
+-  c = ti*(-1.+ti*ftau(t));
+-// same sign as in Djouadi
+-  return c;
+-}
+-
+-
 -complex <double> DecayTable::F_1(double t) {
-+complex <double> DecayTableTHDM::F_1(double t) {
-   double ti = 1./t;
-   complex <double> c;
-   c = 2.+3.*ti+3.*ti*(2.-ti)*ftau(t);
-@@ -1789,7 +1789,7 @@
- }
- 
- 
+-  double ti = 1./t;
+-  complex <double> c;
+-  c = 2.+3.*ti+3.*ti*(2.-ti)*ftau(t);
+-// opposite sign to Djouadi
+- return c;
+-}
+-
+-
 -complex <double> DecayTable::ftau(double t) {
-+complex <double> DecayTableTHDM::ftau(double t) {
- 
-   complex <double> c;
-   complex <double> I(0.,1.);
-@@ -1800,7 +1800,10 @@
-   }
- 
-   if (t>1.) {
+-
+-  complex <double> c;
+-  complex <double> I(0.,1.);
+-
+-  if (t<=1.) {
+-    double x = asin(sqrt(t));
+-    c = x*x;
+-  }
+-
+-  if (t>1.) {
 -    complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-+    complex <double> x;
-+    if (t>10E12) x = log(t)-I*M_PI;
-+    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-+    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-     c = -1./4.*x*x;
-   }
- 
-@@ -1808,7 +1811,7 @@
- }
- 
- 
+-    c = -1./4.*x*x;
+-  }
+-
+-  return c;
+-}
+-
+-
 -complex <double> DecayTable::gtau(double t) {
-+complex <double> DecayTableTHDM::gtau(double t) {
- 
-   complex <double> c;
-   complex <double> I(0.,1.);
-@@ -1819,7 +1822,10 @@
-   }
- 
-   if (t>1.) {
+-
+-  complex <double> c;
+-  complex <double> I(0.,1.);
+-
+-  if (t<=1.) {
+-    double x = asin(sqrt(t));
+-    c = x*sqrt(1./t-1.);
+-  }
+-
+-  if (t>1.) {
 -    complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-+    complex <double> x;
-+    if (t>10E12) x = log(t)-I*M_PI;
-+    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-+    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
-     c = 1./2.*x*sqrt(1.-1./t);
-   }
- 
-@@ -1828,32 +1834,32 @@
- 
- 
- 
+-    c = 1./2.*x*sqrt(1.-1./t);
+-  }
+-
+-  return c;
+-}
+-
+-
+-
 -complex <double> DecayTable::I_2(double tau, double lambda) {
-+complex <double> DecayTableTHDM::I_2(double tau, double lambda) {
-   complex <double> c;
-   c = -tau*lambda/2./(tau-lambda)*(ftau(1./tau)-ftau(1./lambda));
-   return c;
- }
- 
+-  complex <double> c;
+-  c = -tau*lambda/2./(tau-lambda)*(ftau(1./tau)-ftau(1./lambda));
+-  return c;
+-}
+-
 -complex <double> DecayTable::I_1(double tau, double lambda) {
-+complex <double> DecayTableTHDM::I_1(double tau, double lambda) {
-   complex <double> c;
-   c = tau*lambda/2./(tau-lambda) + tau*tau*lambda*lambda/2./(tau-lambda)/(tau-lambda)*(ftau(1./tau)-ftau(1./lambda)) + 
-                                    tau*tau*lambda/(tau-lambda)/(tau-lambda)*(gtau(1./tau)-gtau(1./lambda));
-   return c;
- }
- 
+-  complex <double> c;
+-  c = tau*lambda/2./(tau-lambda) + tau*tau*lambda*lambda/2./(tau-lambda)/(tau-lambda)*(ftau(1./tau)-ftau(1./lambda)) + 
+-                                   tau*tau*lambda/(tau-lambda)/(tau-lambda)*(gtau(1./tau)-gtau(1./lambda));
+-  return c;
+-}
+-
 -complex <double> DecayTable::FF_s(double tau, double lambda) {
-+complex <double> DecayTableTHDM::FF_s(double tau, double lambda) {
-   complex <double> c;
-   c = I_1(tau,lambda) - I_2(tau,lambda);
-   return c;
- }
- 
+-  complex <double> c;
+-  c = I_1(tau,lambda) - I_2(tau,lambda);
+-  return c;
+-}
+-
 -complex <double> DecayTable::FF_p(double tau, double lambda) {
-+complex <double> DecayTableTHDM::FF_p(double tau, double lambda) {
-   complex <double> c;
-   c = I_2(tau,lambda);
-   return c;
- }
- 
+-  complex <double> c;
+-  c = I_2(tau,lambda);
+-  return c;
+-}
+-
 -complex <double> DecayTable::FW(double tau, double lambda) {
-+complex <double> DecayTableTHDM::FW(double tau, double lambda) {
-   complex <double> c;
-   double ctw            = sm.get_costw();
-   double stw            = sm.get_sintw();
-@@ -1861,20 +1867,20 @@
-   return c;
- }
- 
+-  complex <double> c;
+-  double ctw            = sm.get_costw();
+-  double stw            = sm.get_sintw();
+-  c = ctw*(4.*(3.-stw*stw/ctw/ctw)*I_2(tau,lambda) + ((1.+2./tau)*stw*stw/ctw/ctw-(5.+2/tau))*I_1(tau,lambda));
+-  return c;
+-}
+-
 -complex <double> DecayTable::FHp(double tau, double lambda) {
-+complex <double> DecayTableTHDM::FHp(double tau, double lambda) {
-   complex <double> c;
-   c = I_1(tau,lambda);
-   return c;
- }
- 
- // Interpolation with power c
+-  complex <double> c;
+-  c = I_1(tau,lambda);
+-  return c;
+-}
+-
+-// Interpolation with power c
 -double DecayTable::interp(double R, double x, double y, double c) {
-+double DecayTableTHDM::interp(double R, double x, double y, double c) {
- 
-   double ival = pow(R,c)*x + (1.-pow(R,c))*y;
-    return ival;
- }
- 
+-
+-  double ival = pow(R,c)*x + (1.-pow(R,c))*y;
+-   return ival;
+-}
+-
 -double DecayTable::DHp(double ui, double uj, double xi, double xj, double sqL) {
-+double DecayTableTHDM::DHp(double ui, double uj, double xi, double xj, double sqL) {
-  
-  double eps = 1.E-12;
-  
-@@ -1889,7 +1895,7 @@
-  
- }      
- 
+- 
+- double eps = 1.E-12;
+- 
+- if (ui < eps) ui = eps;
+- if (uj < eps) uj = eps;
+- if (xi < eps) xi = eps;
+- if (xj < eps) xj = eps;
+- 
+- double D = 9./4. + (3.-2*ui+2.*uj)/4.*log(ui/uj) + ((3./2.-ui-uj)*pow(sqL,2)+5.*ui*uj)/(2.*sqL*(1.-ui-uj))*log(xi*xj)+BHp(ui,uj,xi,xj,sqL);
+-
+- return D;
+- 
+-}      
+-
 -double DecayTable::DHm(double ui, double uj, double xi, double xj, double sqL) {
-+double DecayTableTHDM::DHm(double ui, double uj, double xi, double xj, double sqL) {
-  
-  double eps = 1.E-12;
-  
-@@ -1904,7 +1910,7 @@
-  
- }     
- 
+- 
+- double eps = 1.E-12;
+- 
+- if (ui < eps) ui = eps;
+- if (uj < eps) uj = eps;
+- if (xi < eps) xi = eps;
+- if (xj < eps) xj = eps;
+- 
+- double D = 3. + (uj-ui)/2.*log(ui/uj)+(pow(sqL,2)+2.*(1.-ui-uj))/(2.*sqL)*log(xi*xj)+BHp(ui,uj,xi,xj,sqL);
+-
+- return D;
+- 
+-}     
+-
 -double DecayTable::BHp(double ui, double uj, double xi, double xj, double sqL) {
-+double DecayTableTHDM::BHp(double ui, double uj, double xi, double xj, double sqL) {
- 
- 	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
-     B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
+-
+-	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
+-    B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
+-    B = B+(sqL+ui-uj)/sqL*(log(1.+xi)-xi/(1.+xi)*log(xi))+(sqL+uj-ui)/sqL*(log(1.+xj)-xj/(1.+xj)*log(xj));
+-
+-	return B;
+-}
+-
 diff -ruN src/DecayTable.h src_patched/DecayTable.h
---- src/DecayTable.h	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/DecayTable.h	2020-04-20 21:29:42.000000000 +0930
-@@ -12,12 +12,12 @@
- /**
- * @brief Calculates the decay modes of 2HDM Higgs bosons
- * 
+--- src/DecayTable.h	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/DecayTable.h	1970-01-01 09:30:00.000000000 +0930
+@@ -1,389 +0,0 @@
+-#if !defined(DECAY_H)
+-#define DECAY_H
+-
+-#include "SM.h"
+-#include "THDM.h"
+-#include <complex>
+-#include <gsl/gsl_matrix.h>
+-#include <gsl/gsl_integration.h>
+-
+-using namespace std;
+-
+-/**
+-* @brief Calculates the decay modes of 2HDM Higgs bosons
+-* 
 -* Given a THDM object, a DecayTable can be generated. From this table, the
-+* Given a THDM object, a DecayTableTHDM can be generated. From this table, the
- * Higgs boson decay widths and branching ratios are obtained. For the complete
- * list of available decay modes, we refer to the complete documentation, or
- * the list of member methods below.
- */
+-* Higgs boson decay widths and branching ratios are obtained. For the complete
+-* list of available decay modes, we refer to the complete documentation, or
+-* the list of member methods below.
+-*/
 -class DecayTable {
-+class DecayTableTHDM {
- 
-  public: 
-     
-@@ -30,13 +30,13 @@
-   * 
-   * @param mod Two-Higgs doublet model for which to calculate decay modes
-   */
+-
+- public: 
+-    
+-  /**
+-  * @brief Default constructor
+-  * 
+-  * This default constructor takes a THDM object as argument for which 
+-  * the decays are to be calculated. %SM properties are taken from the SM
+-  * object in the THDM.
+-  * 
+-  * @param mod Two-Higgs doublet model for which to calculate decay modes
+-  */
 -  DecayTable(THDM mod);
-+  DecayTableTHDM(THDM mod);
- 
- 
-   /**
-   * @brief Sets underlying 2HDM
-   * 
+-
+-
+-  /**
+-  * @brief Sets underlying 2HDM
+-  * 
 -  * This method sets the THDM underlying the DecayTable.
-+  * This method sets the THDM underlying the DecayTableTHDM.
-   * 
-   * @param model Two-Higgs doublet model for which to calculate decay modes
-   */
-@@ -48,7 +48,7 @@
-   * 
-   * Use to obtain the underlying THDM object
-   * 
+-  * 
+-  * @param model Two-Higgs doublet model for which to calculate decay modes
+-  */
+-	void set_model(THDM model);
+-
+-
+-  /**
+-  * @brief Underlying 2HDM
+-  * 
+-  * Use to obtain the underlying THDM object
+-  * 
 -  * @returns The THDM object on which this DecayTable operates
-+  * @returns The THDM object on which this DecayTableTHDM operates
-   */
- 	THDM get_model();  
- 
-@@ -317,9 +317,9 @@
-   */
-   void    set_qcd(bool set);
- 
+-  */
+-	THDM get_model();  
+-
+-
+-  /**
+-  * @brief Decay width \f$\Gamma(h\to u_1\overline{u}_2) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to a pair of up-type quarks. QCD corrections have been included.
+-  * 
+-  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
+-  * @param u1 Index of up-type quark (1,2,3 = \f$ u,c,t \f$)
+-  * @param u2 Index of up-type antiquark (1,2,3 = \f$ \bar{u},\bar{c},\bar{t} \f$)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_huu(int h, int u1, int u2);
+-
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to d_1\overline{d}_2) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to a pair of down-type quarks. QCD corrections have been included.
+-  * 
+-  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
+-  * @param d1 Index of down-type quark (1,2,3 = \f$ d,s,b \f$)
+-  * @param d2 Index of down-type antiquark (1,2,3 = \f$ \bar{d},\bar{s},\bar{b} \f$)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hdd(int h, int d1, int d2);
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to l_1\overline{l}_2) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to a pair of charged leptons.
+-  * 
+-  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
+-  * @param l1 Index of lepton (1,2,3 = \f$ e,\mu,\tau \f$)
+-  * @param l2 Index of antilepton (1,2,3 = \f$ \bar{e},\bar{\mu},\bar{\tau} \f$)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hll(int h, int l1, int l2);
+-
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to u\overline{d}) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to a pair of quarks. QCD corrections have been included.
+-  * 
+-  * @param h  Index of Higgs boson (4 = H+)
+-  * @param d  Index of down-type antiquark (1,2,3 = \f$ \bar{d},\bar{s},\bar{b} \f$)
+-  * @param u  Index of up-type quark (1,2,3 = \f$ u,c,t \f$)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hdu(int h, int d, int u);
+-
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to l\overline{\nu}_{l'}) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to lepton-neutrino.
+-  * 
+-  * @param h  Index of Higgs boson (4 = H+)
+-  * @param l  Index of charged lepton (1,2,3 = \f$ e^+,\mu^+,\tau^+ \f$)
+-  * @param n  Index of neutrino (1,2,3 = \f$ \nu_e,\nu_\mu,\nu_\tau \f$)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hln(int h, int l, int n);  
+-  
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to H_1 H_2) \f$
+-  * 
+-  * This method calculates the on-shell decay width for the decay of Higgs
+-  * boson \a h to a pair of Higgs bosons
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * @param h1 Index of first Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * @param h2 Index of second Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hhh(int h, int h1, int h2);
+-
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to VV) \f$
+-  * 
+-  * This method calculates the decay width for the Higgs boson \a h 
+-  * to a pair of vector bosons. The decay mode with one vector
+-  * boson off-shell is included.
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * @param v  Index of vector bosons (1,2,3 = \f$\gamma \f$,Z,W)
+-  * 
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hvv(int h, int v);
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to VH) \f$
+-  * 
+-  * This method calculates the decay width for the Higgs boson \a h 
+-  * to one massive vector and one Higgs boson. Decay with the vector
+-  * boson off-shell is included.
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * @param V  Index of vector boson (2,3 = \f$\gamma \f$,Z,W)
+-  * @param H  Index of final-state Higgs boson (1,2,3,4 = h,H,A,H+)
+-	*
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hvh(int H, int V, int h);
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to gg) \f$
+-  * 
+-  * This method calculates the decay width for the Higgs boson \a h 
+-  * to a pair of gluons. LO QCD corrections are included.
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
+-	*
+-  * @returns The decay width in GeV
+-  */
+-  double  get_gamma_hgg(int h);
+-
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to \gamma\gamma) \f$
+-  * 
+-  * This method calculates the decay width for the neutral
+-  * Higgs boson \a h to a pair of photons.
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
+-	*
+-  * @returns The decay width in GeV
+-  */
+-	double  get_gamma_hgaga(int h);
+-
+-  /**
+-  * @brief Decay width \f$ \Gamma(h\to Z\gamma) \f$
+-  * 
+-  * This method calculates the decay width for the neutral
+-  * Higgs boson \a h to a Z and a photon.
+-  * 
+-  * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
+-	*
+-  * @returns The decay width in GeV
+-  */
+-	double  get_gamma_hZga(int h);
+-
+-  /**
+-  * @brief Total width \f$ \Gamma_h \f$
+-  * 
+-  * Calculates the total decay width of Higgs boson \a h 
+-  * 
+-  * @param h  Index of Higgs boson (1,2,3,4 = h,H,A,H+)
+-	*
+-  * @returns Total width in GeV
+-  */
+-  double  get_gammatot_h(int h);
+-
+-  /**
+-  * @brief Total width \f$ \Gamma_V \f$
+-  * 
+-  * Returns the total decay width of vector boson \a v 
+-  * 
+-  * @param v  Index of vector boson (2,3 = Z,W)
+-	*
+-  * @returns Total width in GeV
+-  */
+-  double  get_gammatot_v(int v);
+-
+-  /**
+-  * @brief Total width \f$ \Gamma_t \f$
+-  * 
+-  * Returns the total decay width of the top quark 
+-  * 
+-  * @returns Total width in GeV
+-  */
+-  double  get_gammatot_top();
+-
+-
+-  /**
+-  * @brief Decay width for \f$ t \to H^+X \f$
+-  * 
+-  * Returns the decay width of the top quark in the charged Higgs mode
+-  * 
+-  * @returns Decay width in GeV
+-  * 
+-  * @param u Index of decaying quark (1,2,3 = \f$ u,c,t \f$)
+-  * @param h Index of Higgs boson (4 = H+)
+-	* @param d Index of down-type quark (1,2,3 = \f$ d,s,b \f$)
+-  */
+-  double  get_gamma_uhd(int u, int h, int d);
+-
+-
+-  double  get_gamma_uhu(int u1, int h, int u2);
+-
+-  
+-  /**
+-  *	@brief Prints the decay modes of a Higgs boson
+-  *
+-  * The decay modes of Higgs boson \a h are printed to stdout
+-  * 
+-  * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
+-  */
+-  void    print_decays(int h);
+-
+-  /**
+-  *	@brief Prints the total width of a Higgs boson
+-  *
+-  * The total decay width of Higgs boson \a h are printed to stdout
+-  * 
+-  * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
+-  */
+-  void    print_width(int h);
+-
+-  /**
+-  *	@brief Prints the decay modes of the top quark
+-  *
+-  * The decay modes of the top quark are printed to stdout
+-  */
+-  void    print_top_decays();
+-
+-  /**
+-  *	@brief Prints decay information for a Higgs boson in LesHouches format
+-  *
+-  * The decay information for Higgs boson \a h are printed to a file in
+-  * LesHouches format
+-  *
+-  * @param output The name of the output file to write
+-  * @param h 			Index of Higgs boson (1,2,3,4 = h,H,A,H+)
+-  * @param full 	If \a true, all decay modes are printed, if \a false only the total width
+-  */
+-  void    print_decays_LesHouches(FILE* output, int h, bool full);
+-
+-  /**
+-  *	@brief Prints decay information for the top quark in LesHouches format
+-  *
+-  * The decay information for the top quark are printed to a file in
+-  * LesHouches format
+-  *
+-  * @param output The name of the output file to write
+-  * @param full 	If \a true, all decay modes are printed, if \a false only the total width
+-  */
+-  void    print_top_decays_LesHouches(FILE* output, bool full);
+-
+-  /**
+-  *     @brief Turns QCD corrections on or off
+-  *
+-  * This method is used to turn QCD corrections on or off. If the output is 
+-  * meant to be used with the MadGraph/MadEvent 2HDMC model 
+-  * QCD corrections should be turned off to get a consistent result. 
+-  *
+-  * @param set  If \a true QCD corrections are turned on, 
+-  *             if \a false QCD corrections are turned off
+-  */
+-  void    set_qcd(bool set);
+-
 -  static double  DHp(double ui, double uj, double xi, double xj, double sqL);
 -  static double  DHm(double ui, double uj, double xi, double xj, double sqL);
 -  static double  BHp(double ui, double uj, double xi, double xj, double sqL);
+-
+-
+- private:
+-  THDM model;
+-  SM sm;
+-  
+-  complex <double> F_sf(double t);
+-  complex <double> F_pf(double t);
+-  complex <double> F_0(double t);
+-  complex <double> F_1(double t);
+-  complex <double> ftau(double t);
+-  complex <double> gtau(double t);
+-  complex <double> I_1(double tau, double lambda);
+-  complex <double> I_2(double tau, double lambda);
+-  complex <double> FF_s(double tau, double lambda);
+-  complex <double> FF_p(double tau, double lambda);
+-  complex <double> FW(double tau, double lambda);
+-  complex <double> FHp(double tau, double lambda);
+-
+-  double gammatot_h[5];
+-  double gamma_uhd[5][5][5];
+-  double gamma_uhu[5][5][5];
+-  double gamma_hdd[5][5][5];
+-  double gamma_huu[5][5][5];
+-  double gamma_hdu[5][5][5];
+-  double gamma_hll[5][5][5];
+-  double gamma_hln[5][5][5];
+-  double gamma_hgg[5];
+-  double gamma_hgaga[5];
+-  double gamma_hZga[5];
+-  double gamma_hvv[5][5];
+-  double gamma_hvh[5][5][5];
+-  double gamma_hhh[5][5][5];
+-
+-  double  br(double dG, double G);
+-
+-  double  hvv_onshell(int h, int V, double M);
+-  double  hvv_offshell(int h, int V, double M);
+-  double  hvv_all(int h, int V, double M);
+-  double  hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt);
+-  double  hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h);
+-  double  htt_onshell(double M, double m1, double m2, int Nc, int h);
+-  double  htt_offshell(double M, double m1, double m2, int Nc, int h);
+-  double  htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc);
+-
+-  double  hvh_onshell(int H, int V, int h, double M);
+-  double  hvh_offshell(int H, int V, int h, double M);
+-  double  hdu_offshell(int h, int d, int u, double M);
+-  double  hgaga(int h);
+-  double  hZga(int h);
+-  double  hgg(int h);
+-  double  PS2(double M, double m1, double m2);
+-  
+-  double  interp(double R, double x, double y, double c);
+-
+-  bool    qcd_on;
+-  int     err_code;
+-
+-  void    print_decay_LesHouches(FILE* output, double br, int id1, int id2);
+-  void    print_decay(const char *h, const char *id1, const char *id2, double g, double br);
+-  void    print_decays(FILE* output, int h, bool full, bool lh);
+-
+-
+-
+-};
+-
+-#endif
+diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
+--- src/DecayTableTHDM.cpp	1970-01-01 09:30:00.000000000 +0930
++++ src_patched/DecayTableTHDM.cpp	2020-11-09 13:05:54.000000000 +1030
+@@ -0,0 +1,2001 @@
++#include "DecayTableTHDM.h"
++#include "Util.h"
++#include <iostream>
++#include <gsl/gsl_integration.h>
++#include <gsl/gsl_sf_dilog.h>
++
++using namespace std;
++
++// Particle naming
++const char *dnames[4] = {" ","d ", "s ", "b "};
++const char *unames[4] = {" ","u ", "c ", "t "};
++const char *lnames[4] = {" ","e ", "mu", "ta"};
++const char *nnames[4] = {" ","ve", "vm", "vt"};
++const char *hnames[6] = {" ","h ", "H ", "A ", "H+", "H-"};
++const char *vnames[5] = {" ","ga", "Z ", "W+", "W-"};
++const int dPDG[4] = {0 ,1 , 3 , 5 };
++const int uPDG[4] = {0 ,2 , 4 , 6 };
++const int lPDG[4] = {0 ,11, 13, 15};
++const int nPDG[4] = {0 ,12, 14, 16};
++const int hPDG[5] = {0 ,25, 35, 36, 37};
++const int vPDG[4] = {0 ,22, 23, 24};
++
++// Limit on off-shell tails (# GeV above 3-body threshold)
++const static double dmtt = 10.;
++const static double dmtb = 10.;
++
++
++DecayTableTHDM::DecayTableTHDM(THDM mod) {
++  set_model(mod);
++  qcd_on=true;
++  
++
++}
++
++void DecayTableTHDM::set_model(THDM mod) {
++  model = mod;
++  sm = mod.get_SM();
++  int i,j,k;
++  for (i=1;i<5;i++) {
++    gammatot_h[i]=-1.;
++    gamma_hgg[i]=-1.;
++    gamma_hgaga[i]=-1.;
++    gamma_hZga[i]=-1.;
++    for (j=1;j<5;j++) {
++      gamma_hvv[i][j]=-1.;
++      for (k=1;k<5;k++) {
++        gamma_uhd[i][j][k]=-1.;
++        gamma_hdd[i][j][k]=-1.;
++        gamma_huu[i][j][k]=-1.;
++        gamma_uhu[i][j][k]=-1.;
++        gamma_hdu[i][j][k]=-1.;
++        gamma_hll[i][j][k]=-1.;
++        gamma_hln[i][j][k]=-1.;
++        gamma_hvh[i][j][k]=-1.;
++        gamma_hhh[i][j][k]=-1.;
++      }
++    }
++  }
++  
++ 
++}
++
++
++THDM DecayTableTHDM::get_model() {
++  return model;
++}
++
++
++double DecayTableTHDM::get_gamma_uhd(int u, int h, int d) {
++
++  if ((u<1)||(u>3)) return 0.;
++  if (h!=4) return 0.;
++  if ((d<1)||(d>3)) return 0.;
++
++  if (gamma_uhd[u][h][d]>=0) return gamma_uhd[u][h][d];
++
++  double M =  sm.get_umass_pole(u);
++  double m1 = model.get_hmass(h);
++  double m2 = sm.get_dmass_pole(d);
++  
++  if (M<(m1+m2)) {
++    gamma_uhd[u][h][d]=0.;
++    return gamma_uhd[u][h][d];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hdu(h,d,u,cs,cp);
++  cp = -cp;
++
++  gamma_uhd[u][h][d] =  1./(16.*M_PI)*M*pow(1.-m1*m1/(M*M),2)*(pow(abs(cs),2)+pow(abs(cp),2));
++  
++  if (qcd_on) {
++    double mt = sm.get_qmass_pole(6);
++    double mb = sm.get_qmass_pole(5);
++    double as = sm.run_alphas_MSbar(mt,mt,mb);
++
++    double qH = pow(m1/M,2);
++    
++    double K = 1.+as/M_PI*(7.-8.*pow(M_PI,2)/9.-2.*log(1.-qH)+2.*(1.-qH)+(4./9.+2./3.*log(1.-qH))*pow(1.-qH,2));
++    
++    gamma_uhd[u][h][d] = gamma_uhd[u][h][d]*K;
++  }
++  
++
++  return gamma_uhd[u][h][d];
++}
++
++
++double DecayTableTHDM::get_gamma_uhd_flipped(int u, int h, int d) {
++
++  if ((u<1)||(u>3)) return 0.;
++  if (h!=4) return 0.;
++  if ((d<1)||(d>3)) return 0.;
++
++  if (gamma_uhd[u][h][d]>=0) return gamma_uhd[u][h][d];
++
++  double M =  sm.get_umass_pole(u);
++  double m1 = model.get_hmass(h);
++  double m2 = sm.get_dmass_pole(d);
++
++  if (M<(m1+m2)) {
++    gamma_uhd[u][h][d]=0.;
++    return gamma_uhd[u][h][d];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hdu(h,u,d,cs,cp);
++
++  cp = -cp;
++
++  gamma_uhd[u][h][d] =  1./(16.*M_PI)*M*pow(1.-m1*m1/(M*M),2)*(pow(abs(cs),2)+pow(abs(cp),2));
++
++  if (qcd_on) {
++    double mt = sm.get_qmass_pole(6);
++    double mb = sm.get_qmass_pole(5);
++    double as = sm.run_alphas_MSbar(mt,mt,mb);
++
++    double qH = pow(m1/M,2);
++
++    double K = 1.+as/M_PI*(7.-8.*pow(M_PI,2)/9.-2.*log(1.-qH)+2.*(1.-qH)+(4./9.+2./3.*log(1.-qH))*pow(1.-qH,2));
++
++    gamma_uhd[u][h][d] = gamma_uhd[u][h][d]*K;
++  }
++
++
++  return gamma_uhd[u][h][d];
++}
++
++
++
++double DecayTableTHDM::get_gamma_hdd(int h, int d1, int d2) {
++
++  if ((h<1)||(h>3)) return 0.;
++  if ((d1<1)||(d1>3)) return 0.;
++  if ((d2<1)||(d2>3)) return 0.;
++
++  if (gamma_hdd[h][d1][d2]>=0) return gamma_hdd[h][d1][d2];
++
++  double M = model.get_hmass(h);
++  double m1p = sm.get_dmass_pole(d1);
++  double m2p = sm.get_dmass_pole(d2);
++  
++  double m1 = sm.get_dmass_MSbar(d1);
++  double m2 = sm.get_dmass_MSbar(d2);
++  double m1run = sm.get_dmass_MSbar(d1);
++  double m2run = sm.get_dmass_MSbar(d2);
++  if (m1 > 0) {
++      double Qinit = m1;
++      if (d1==2) {
++       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
++       Qinit = SM::Q_ms;
++      }
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m1run = sm.run_qmass_MSbar(m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++  if (m2 > 0) {
++      double Qinit = m2;
++      if (d2==2) {
++       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
++       Qinit = SM::Q_ms;
++      }
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m2run = sm.run_qmass_MSbar(m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++
++  if (M<(m1p+m2p)) {
++    gamma_hdd[h][d1][d2] = 0.;
++    return gamma_hdd[h][d1][d2];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hdd(h,d1,d2,cs,cp);
++
++  gamma_hdd[h][d1][d2] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
++  return gamma_hdd[h][d1][d2];
++}
++
++
++double DecayTableTHDM::get_gamma_huu(int h, int u1, int u2) {
++
++  if ((h<1)||(h>3)) return 0.;
++  if ((u1<1)||(u1>3)) return 0.;
++  if ((u2<1)||(u2>3)) return 0.;
++
++  if (gamma_huu[h][u1][u2]>=0) return gamma_huu[h][u1][u2];
++
++  double M = model.get_hmass(h);
++  double m1 = sm.get_umass_pole(u1);
++  double m2 = sm.get_umass_pole(u2);
++
++  double m1m1 = sm.get_umass_MSbar(u1);
++  double m2m2 = sm.get_umass_MSbar(u2);
++  double m1run = sm.get_umass_MSbar(u1);
++  double m2run = sm.get_umass_MSbar(u2);
++  
++  if (m1m1 > 0) {
++      double Qinit = m1m1;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m1run = sm.run_qmass_MSbar(m1m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++  if (m2m2 > 0) {
++      double Qinit = m2m2;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m2run = sm.run_qmass_MSbar(m2m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++
++
++  if ((u1<3)&&(u2<3)&&(M<(m1+m2))) {
++    gamma_huu[h][u1][u2] = 0.;
++    return gamma_huu[h][u1][u2];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_huu(h,u1,u2,cs,cp);
++ 
++ 
++ 
++  if ((u1 < 3)||(u2<3)) {
++    if (M>(m1+m2)) { 
++	    gamma_huu[h][u1][u2] = hff_onshell(M,m1,m1run,m2,m2run,cs,cp,3,h,false);
++  	} else {
++		gamma_huu[h][u1][u2] = 0.;
++	}
++    return gamma_huu[h][u1][u2];
++  
++  } else  {
++
++      double mt_mt = sm.get_qmass_MSbar(6);
++      double mb_mb = sm.get_qmass_MSbar(5);
++      
++      double mb = sm.get_qmass_pole(5);
++      double gtop = sm.get_gamma_top();
++      
++      double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mt_mt,mb_mb);
++      double mW = sm.get_MW(); 
++
++      int dl = 3;
++      int du = 3; 
++
++      if (M < m1+mb+mW+dmtt) {
++        gamma_huu[h][u1][u2] = 0.;
++      } else if (M < m1+m2-dl*gtop) {
++        double htt = htt_offshell(M, m1,m2,3,h);
++      	gamma_huu[h][u1][u2] = htt;
++      } else if (M < m1+m2+du*gtop) {
++        double x[4], y[4];
++      
++        x[0] = m1+m2-(dl+1)*gtop;
++        x[1] = m1+m2-dl*gtop;
++        x[2] = m1+m2+du*gtop;
++        x[3] = m1+m2+(du+1)*gtop;
++      
++        y[0] = htt_offshell(x[0],m1,m2,3,h);    
++        y[1] = htt_offshell(x[1],m1,m2,3,h);    
++        y[2] = htt_onshell(x[2],m1,m2,3,h);    
++        y[3] = htt_onshell(x[3],m1,m2,3,h);    
++ 
++        double hinter = cubic(M,x,y);
++      	gamma_huu[h][u1][u2] = hinter;
++      
++      
++      } else {
++        double htt = htt_onshell(M,m1,m2,3,h);
++        double hff = hff_onshell(M,mtr,mtr,mtr,mtr,cs,cp,3,h,true);
++      
++        double R = 2.*m1/M;
++        double hinter = interp(R, htt, hff, 0.5);
++  
++    	gamma_huu[h][u1][u2] = hinter;
++      }
++  }
++
++  return gamma_huu[h][u1][u2];
++}
++
++
++double DecayTableTHDM::get_gamma_hdu(int h, int d, int u) {
++
++  if ((h<4)||(h>4)) return 0.;
++  if ((d<1)||(d>3)) return 0.;
++  if ((u<1)||(u>3)) return 0.;
++
++  if (gamma_hdu[h][d][u]>=0) return gamma_hdu[h][d][u];
++
++  double M = model.get_hmass(h);
++  double m1p = sm.get_dmass_pole(d);
++  double m2p = sm.get_umass_pole(u);
++  
++  double m1 = sm.get_dmass_MSbar(d);
++  double m2 = sm.get_umass_MSbar(u);
++  double m1run = sm.get_dmass_MSbar(d);
++  double m2run = sm.get_umass_MSbar(u);
++  
++  double mW = sm.get_MW();
++  
++  if (m1 > 0) {
++      double Qinit = m1;
++      if (d==2) {
++       // Special case of strange mass where scale is not ms(ms) but ms(Q_ms=2 GeV)
++       Qinit = SM::Q_ms;
++      }
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m1run = sm.run_qmass_MSbar(m1,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++  if (m2 > 0) {
++      double Qinit = m2;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      m2run = sm.run_qmass_MSbar(m2,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hdu(h,d,u,cs,cp);
++  
++  if (h<4) {
++	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
++	return gamma_hdu[h][d][u];
++  }
++
++  if (u<3) {
++	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
++	return gamma_hdu[h][d][u];
++  }
++ 
++	double mb = sm.get_qmass_pole(5);
++	double gtop = sm.get_gamma_top();
++
++	int dl = 0;
++	int du = 1; 
++
++	if (M < m1p+mb+mW+dmtb) {
++		gamma_hdu[h][d][u] = 0.;
++		return gamma_hdu[h][d][u];
++	}
++	
++	if (M < m1p+m2p-dl*gtop) {
++		gamma_hdu[h][d][u] = htb_offshell(M,m1p,m1run,m2p,m2run,cs,cp,3);
++		return gamma_hdu[h][d][u];
++	}
++	
++	if (M < m1p+m2p+du*gtop) {
++		double x[4], y[4];
++
++		x[0] = m1p+m2p-(dl+1)*gtop;
++		x[1] = m1p+m2p-dl*gtop;
++		x[2] = m1p+m2p+du*gtop;
++		x[3] = m1p+m2p+(du+1)*gtop;
++
++		y[0] = htb_offshell(x[0],m1p,m1run,m2p,m2run,cs,cp,3);    
++		y[1] = htb_offshell(x[1],m1p,m1run,m2p,m2run,cs,cp,3);    
++		y[2] = hpff_onshell(x[2],m1p,m1run,m2p,m2run,cs,cp,3,h);    
++		y[3] = hpff_onshell(x[3],m1p,m1run,m2p,m2run,cs,cp,3,h);    
++
++		double hinter = cubic(M,x,y);
++		gamma_hdu[h][d][u] = hinter;
++		return gamma_hdu[h][d][u];
++	}
++
++	double htd1 = hpff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h);
++	double htd2 = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
++
++	double hinter = htd1;
++
++	double R = (m1p+m2p)/M;
++	hinter = interp(R, htd1, htd2, 2.);  	
++	gamma_hdu[h][d][u]=hinter;
++	    
++	return gamma_hdu[h][d][u];
++	
++}
++
++
++double DecayTableTHDM::get_gamma_hll(int h, int l1, int l2) {
++
++  if ((h<1)||(h>3)) return 0.;
++  if ((l1<1)||(l1>3)) return 0.;
++  if ((l2<1)||(l2>3)) return 0.;
++
++  if (gamma_hll[h][l1][l2]>=0) return gamma_hll[h][l1][l2];
++
++  double M = model.get_hmass(h);
++  double m1 = sm.get_lmass_pole(l1);
++  double m2 = sm.get_lmass_pole(l2);
++
++  if (M<(m1+m2)) {
++    gamma_hll[h][l1][l2] = 0.;
++    return gamma_hll[h][l1][l2];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hll(h,l1,l2,cs,cp);
++
++  gamma_hll[h][l1][l2] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
++
++  return gamma_hll[h][l1][l2];
++}
++
++
++double DecayTableTHDM::get_gamma_hln(int h, int l, int n) {
++
++  if ((h<1)||(h>4)) return 0.;
++  if ((l<1)||(l>3)) return 0.;
++  if ((n<1)||(n>3)) return 0.;
++
++  if (gamma_hln[h][l][n]>=0) return gamma_hln[h][l][n];
++
++  double M = model.get_hmass(h);
++  double m1 = sm.get_lmass_pole(l);
++  double m2 = 0.;
++
++  if (M<(m1+m2)) {
++    gamma_hln[h][l][n] = 0.;
++    return gamma_hln[h][l][n];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_hln(h,l,n,cs,cp);
++
++  
++  gamma_hln[h][l][n] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
++  return gamma_hln[h][l][n];
++}
++
++
++double DecayTableTHDM::get_gamma_hgg(int h) {
++
++  if (!qcd_on) return 0.;
++
++  if ((h<1)||(h>3)) return 0.;
++
++  if (gamma_hgg[h]>=0) return gamma_hgg[h];
++  
++  gamma_hgg[h] = hgg(h);
++  return gamma_hgg[h];
++}
++
++
++double DecayTableTHDM::get_gamma_hgaga(int h) {
++
++  if (!qcd_on) return 0.;
++
++  if ((h<1)||(h>3)) return 0.;
++
++  if (gamma_hgaga[h]>=0) return gamma_hgaga[h];
++  
++  gamma_hgaga[h] = hgaga(h);
++  return gamma_hgaga[h];
++}
++
++
++double DecayTableTHDM::get_gamma_hZga(int h) {
++
++  if ((h<1)||(h>3)) return 0.;
++
++  if (gamma_hZga[h]>=0) return gamma_hZga[h];
++  
++  gamma_hZga[h] = hZga(h);
++  return gamma_hZga[h];
++}
++
++
++double DecayTableTHDM::get_gamma_hvv(int h, int V) {
++
++  if ((h<1)||(h>=4)) return 0.;
++  if ((V<1)||(V>3)) return 0.;
++
++  if ((h<=3)&&(V==1)) {
++    return get_gamma_hgaga(h);
++  }
++
++  if (gamma_hvv[h][V]>=0) return gamma_hvv[h][V];
++  
++  double M = model.get_hmass(h);
++  
++  gamma_hvv[h][V] = hvv_all(h,V,M);
++  return gamma_hvv[h][V];
++
++}
++
++
++double DecayTableTHDM::get_gamma_hvh(int H, int V, int h) {
++
++  if ((H<1)||(H>4)||(h==H)) return 0.;
++  if ((V<1)||(V>3)) return 0.;
++  if ((h<1)||(h>4)) return 0.;
++  
++  if ((H==4)&&(V!=3)) return 0;
++  if ((H!=4)&&(h==4)&&(V!=3)) return 0;
++  
++  if (V==1) return 0;
++
++  if (gamma_hvh[H][V][h]>=0) return gamma_hvh[H][V][h];
++
++  double M  = model.get_hmass(H);
++  double m1  = model.get_hmass(h);
++  double m2 = sm.get_vmass(V);
++  
++  double GV = sm.get_gamma_V(V);
++  gamma_hvh[H][V][h] = 0.;
++  
++  if (M<=m1) {
++    gamma_hvh[H][V][h] = 0.;
++    return gamma_hvh[H][V][h];
++  }
++
++  if (M>(m1+m2+5*GV)) {
++    gamma_hvh[H][V][h] = hvh_onshell(H,V,h,M);
++    return gamma_hvh[H][V][h];
++  } 
++    
++  if (M>m1+2*GV) {
++    gsl_integration_workspace * w = gsl_integration_workspace_alloc(1000);
++        
++    double result, error;
++    
++    integration_params ip;
++    ip.M = M;
++    ip.m1 = m1;
++    ip.m2 = m2;
++    ip.gamma = GV;
++  
++    gsl_function F;
++    F.function = &hvh_fcn;
++    F.params = &ip;
++      
++    double k = pow(m1/M,2);
++    double imin = 0.;
++    double imax = 1.-k;
++  
++    gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
++    int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
++			  w, &result, &error); 
++    if (status) 
++      if (status!=GSL_EROUND) {
++        printf("GSL integration warning in H%1d -> VH%1d (off-shell). Please check result.\n", H, h);
++        if (EXIT_ON_GSL_ERROR) exit(-1);
++      }
++    gsl_set_error_handler(old_handler);
++    old_handler = NULL;
++    gsl_integration_workspace_free (w);
++    w = NULL;
++  
++    complex <double> c;
++    model.get_coupling_vhh(V,H,h,c);
++  
++    double dV = 0.;
++    double stw = sm.get_sintw();
++    double ctw = sm.get_costw();
++    double GF = sm.get_GF();
++    double MW = sm.get_MW();
++
++    if (V==1) {
++      gamma_hvh[H][V][h] = 0.;
++      return gamma_hvh[H][V][h];
++    } else if(V==2) {
++      dV = 3./pow(ctw,2)*(7./12.-10./9.*pow(stw,2)+40./27.*pow(stw,4));
++    } else if(V==3) {
++      dV = 3.;
++    } else {
++      gamma_hvh[H][V][h] = 0.;
++      return gamma_hvh[H][V][h];
++    }
++
++    double KHHV = 3.*GF/(16.*sqrt(2)*pow(M_PI,3))*pow(MW,2)*pow(abs(c),2)*M*dV;
++    gamma_hvh[H][V][h] = KHHV*result;
++    
++    // Count both H+W- and H-W+ final states in partial width to charged states
++    // also done in hvh_onshell
++    if ((h==4)&&(V==3)) gamma_hvh[H][V][h] = 2*gamma_hvh[H][V][h];
++
++    if (M>(m1+m2)) {
++      double G2 = hvh_onshell(H,V,h,M); 
++      gamma_hvh[H][V][h] = max(gamma_hvh[H][V][h],G2);
++    }
++
++    return gamma_hvh[H][V][h];
++  }
++
++
++  return gamma_hvh[H][V][h];
++}
++
++
++double DecayTableTHDM::get_gamma_hhh(int h, int h1, int h2) {
++
++  if ((h<1)||(h>4)) return 0.;
++  if ((h1<1)||(h1>4)) return 0.;
++  if ((h2<1)||(h2>4)) return 0.;
++
++  if (gamma_hhh[h][h1][h2]>=0) return gamma_hhh[h][h1][h2];
++  double Sf = 1.;
++  if ((h1==h2)&&(h1!=4)) Sf = 0.5;
++
++  double M = model.get_hmass(h);
++  double m1 = model.get_hmass(h1);
++  double m2 = model.get_hmass(h2);
++
++  complex <double> c;
++  model.get_coupling_hhh(h,h1,h2,c);
++  
++  gamma_hhh[h][h1][h2] = 0.;
++
++  if (M>(m1+m2)) {
++    double M2    = pow(abs(c),2);
++    gamma_hhh[h][h1][h2] = Sf/(8.*M_PI)*M2*PS2(M,m1,m2);
++    return gamma_hhh[h][h1][h2];
++  }
++
++  return gamma_hhh[h][h1][h2];
++}
++
++
++double DecayTableTHDM::get_gammatot_top() {
++
++  double gtot = 0.;
++  
++  gtot += sm.get_gamma_top();
++  
++  gtot += get_gamma_uhd(3,4,1);
++  gtot += get_gamma_uhd(3,4,2);
++  gtot += get_gamma_uhd(3,4,3);
++
++  gtot += get_gamma_uhu(3,1,1);
++  gtot += get_gamma_uhu(3,1,2);
++  gtot += get_gamma_uhu(3,2,1);
++  gtot += get_gamma_uhu(3,2,2);
++  gtot += get_gamma_uhu(3,3,1);
++  gtot += get_gamma_uhu(3,3,2);
++
++  return gtot;
++
++}
++
++
++double DecayTableTHDM::get_gammatot_h(int h) {
++
++  if (h>4) return 0.;
++
++  if (gammatot_h[h]>=0) return gammatot_h[h];
++
++  gammatot_h[h] = 0.;
++  
++  // Fermionic modes
++  for (int i=1;i<4;i++) {
++    for (int j=1;j<4;j++) {
++       gammatot_h[h]+=get_gamma_hdd(h,i,j);
++       gammatot_h[h]+=get_gamma_huu(h,i,j);
++       gammatot_h[h]+=get_gamma_hdu(h,i,j);
++       gammatot_h[h]+=get_gamma_hll(h,i,j);
++       gammatot_h[h]+=get_gamma_hln(h,i,j);
++    }
++  }
++  
++  // Vector bosons
++  for (int i=1;i<4;i++) {
++     gammatot_h[h]+=get_gamma_hvv(h,i);
++  }
++
++  // Z gamma
++   gammatot_h[h] += get_gamma_hZga(h);
++
++  // Gluons
++   gammatot_h[h] += get_gamma_hgg(h);
++
++  // H -> VH
++  for (int i=1;i<4;i++) {
++    for (int j=1;j<=4;j++) {
++       gammatot_h[h]+=get_gamma_hvh(h,i,j);
++    }
++  }
++
++  // Higgses
++  for (int i=1;i<5;i++) {
++    for (int j=1;j<5;j++) {
++       gammatot_h[h]+=get_gamma_hhh(h,i,j);
++    }
++  }
++
++  return gammatot_h[h];
++}
++
++
++double  DecayTableTHDM::get_gammatot_v(int v) {
++  return sm.get_gamma_V(v);
++}
++
++
++
++void DecayTableTHDM::print_decay_LesHouches(FILE* output, double br, int id1, int id2) {
++  if (br>0) 
++    fprintf(output,"     % 16.8e     %1i     %3i   %3i\n",br,2,id1,id2);
++}
++
++
++void DecayTableTHDM::print_decay(const char *h, const char *id1, const char *id2, double g, double br) { 
++  if (br>THDM::EPS)
++    printf("%2s -> %2s %2s %12.3e   %12.3e\n",h,id1,id2,g,br);
++}
++
++
++void DecayTableTHDM::print_top_decays() {
++  double gtot = get_gammatot_top();
++  double gt[12],br[12];
++
++  gt[0] = sm.get_gamma_tWd(1);
++  gt[1] = sm.get_gamma_tWd(2);
++  gt[2] = sm.get_gamma_tWd(3);
++  gt[3] = get_gamma_uhd(3,4,1);
++  gt[4] = get_gamma_uhd(3,4,2);
++  gt[5] = get_gamma_uhd(3,4,3);
++  gt[6] = get_gamma_uhu(3,1,1);
++  gt[7] = get_gamma_uhu(3,1,2);
++  gt[8] = get_gamma_uhu(3,2,1);
++  gt[9] = get_gamma_uhu(3,2,2);
++  gt[10] = get_gamma_uhu(3,3,1);
++  gt[11] = get_gamma_uhu(3,3,2);
++
++  for (int i=0;i<12;i++) {
++    br[i]=gt[i]/gtot;
++  }
++
++  printf("\nDecay table for %s\n", unames[3]);
++  printf("Total width:%12.3e GeV      BR\n", gtot);
++  print_decay(unames[3],vnames[3],dnames[1],gt[0],br[0]);
++  print_decay(unames[3],vnames[3],dnames[2],gt[1],br[1]);
++  print_decay(unames[3],vnames[3],dnames[3],gt[2],br[2]);
++  print_decay(unames[3],hnames[4],dnames[1],gt[3],br[3]);
++  print_decay(unames[3],hnames[4],dnames[2],gt[4],br[4]);
++  print_decay(unames[3],hnames[4],dnames[3],gt[5],br[5]);
++  print_decay(unames[3],hnames[1],unames[1],gt[6],br[6]);
++  print_decay(unames[3],hnames[1],unames[2],gt[7],br[7]);
++  print_decay(unames[3],hnames[2],unames[1],gt[8],br[8]);
++  print_decay(unames[3],hnames[2],unames[2],gt[9],br[9]);
++  print_decay(unames[3],hnames[3],unames[1],gt[10],br[10]);
++  print_decay(unames[3],hnames[3],unames[2],gt[11],br[11]);
++
++   printf("---------------------------------------\n");
++}
++
++
++void DecayTableTHDM::print_top_decays_LesHouches(FILE* output, bool full) {
++  double gtot = get_gammatot_top();
++  double gt[12],br[12];
++
++  gt[0] = sm.get_gamma_tWd(1);
++  gt[1] = sm.get_gamma_tWd(2);
++  gt[2] = sm.get_gamma_tWd(3);
++  gt[3] = get_gamma_uhd(3,4,1);
++  gt[4] = get_gamma_uhd(3,4,2);
++  gt[5] = get_gamma_uhd(3,4,3);
++  gt[6] = get_gamma_uhu(3,1,1);
++  gt[7] = get_gamma_uhu(3,1,2);
++  gt[8] = get_gamma_uhu(3,2,1);
++  gt[9] = get_gamma_uhu(3,2,2);
++  gt[10] = get_gamma_uhu(3,3,1);
++  gt[11] = get_gamma_uhu(3,3,2);
++
++  for (int i=0;i<12;i++) {
++    br[i]=gt[i]/gtot;
++  }
++
++  fprintf(output,"DECAY  6   % 16.8e   # top decays\n",gtot);
++  if (full) {
++    fprintf(output,"#            BR          NDA    ID1   ID2\n");
++    print_decay_LesHouches(output,br[0],vPDG[3],dPDG[1]);
++    print_decay_LesHouches(output,br[1],vPDG[3],dPDG[2]);
++    print_decay_LesHouches(output,br[2],vPDG[3],dPDG[3]);
++    print_decay_LesHouches(output,br[3],hPDG[4],dPDG[1]);
++    print_decay_LesHouches(output,br[4],hPDG[4],dPDG[2]);
++    print_decay_LesHouches(output,br[5],hPDG[4],dPDG[3]);
++    print_decay_LesHouches(output,br[6],hPDG[1],uPDG[1]);
++    print_decay_LesHouches(output,br[7],hPDG[1],uPDG[2]);
++    print_decay_LesHouches(output,br[8],hPDG[2],uPDG[1]);
++    print_decay_LesHouches(output,br[9],hPDG[2],uPDG[2]);
++    print_decay_LesHouches(output,br[10],hPDG[3],uPDG[1]);
++    print_decay_LesHouches(output,br[11],hPDG[3],uPDG[2]);
++  }
++}
++
++
++void DecayTableTHDM::print_decays(int h) {
++  print_decays(0,h,true,false);
++}
++
++
++void DecayTableTHDM::print_width(int h) {
++  printf(" Total width for %s: %10.3e GeV\n", hnames[h], get_gammatot_h(h));
++}
++
++
++void DecayTableTHDM::print_decays_LesHouches(FILE* output, int h, bool full) {
++  print_decays(output,h,full,true);
++}
++
++
++double DecayTableTHDM::br(double dG, double G) {
++
++  double BR = 0.;
++
++  if (G>0.) {
++    BR = dG/G;
++    if (BR<THDM::EPS) BR = 0.;
++  }
++  
++  return BR;
++}
++
++
++void DecayTableTHDM::print_decays(FILE* output,int h, bool full, bool les) {
++
++  if ((h<1)||(h>4)) return;
++
++  double gtot = get_gammatot_h(h);
++
++  if (les) {
++    if (h==1) 
++      fprintf(output,"DECAY  25   % 16.8e   # h1 decays, lightest CP-even Higgs\n",gtot);
++    else if (h==2)
++      fprintf(output,"DECAY  35   % 16.8e   # h2 decays, heaviest CP-even Higgs\n",gtot);
++    else if (h==3)
++      fprintf(output,"DECAY  36   % 16.8e   # h3 decays, CP-odd Higgs\n",gtot);
++    else if (h==4)
++      fprintf(output,"DECAY  37   % 16.8e   # Charged Higgs decays\n",gtot);
++    fprintf(output,"#            BR          NDA    ID1   ID2\n");
++  } else {
++    printf("\nDecay table for %s\n", hnames[h]);
++    printf("Total width:%12.3e GeV      BR\n", gtot);
++  }
++
++  if (!full) return;
++
++  double gdd[4][4];
++  double guu[4][4];
++  double gdu[4][4];
++  double gll[4][4];
++  double gln[4][4];
++  double gvv[4];
++  double gvh[4][5];
++  double ghh[5];
++  double ghZga;
++  double ghgg;
++  double brdd[4][4];
++  double bruu[4][4];
++  double brdu[4][4];
++  double brll[4][4];
++  double brln[4][4];
++  double brvv[4];
++  double brvh[4][5];
++  double brhh[5];
++  double brhZga = 0.;
++  double brhgg = 0.;
++  
++  // Fermion decay modes
++  for (int i=1;i<4;i++) {
++    for (int j=1;j<4;j++) {
++      gdd[i][j]=get_gamma_hdd(h,i,j);
++      guu[i][j]=get_gamma_huu(h,i,j);
++      gdu[i][j]=get_gamma_hdu(h,i,j);
++      gll[i][j]=get_gamma_hll(h,i,j);
++      gln[i][j]=get_gamma_hln(h,i,j);
++      brdd[i][j] = br(gdd[i][j],gtot);
++      bruu[i][j] = br(guu[i][j],gtot);
++      brdu[i][j] = br(gdu[i][j],gtot);
++      brll[i][j] = br(gll[i][j],gtot);
++      brln[i][j] = br(gln[i][j],gtot);
++    }
++  }
++
++  // Vector bosons
++  for (int i=1;i<4;i++) {
++    gvv[i]=get_gamma_hvv(h,i);
++    brvv[i]=br(gvv[i],gtot);
++    for (int j=1;j<5;j++) {
++      gvh[i][j]=get_gamma_hvh(h,i,j);
++      brvh[i][j]=br(gvh[i][j],gtot);
++    }
++  }
++
++  // Z gamma
++  ghZga = get_gamma_hZga(h);
++  brhZga = br(ghZga,gtot);
++
++  // Gluons
++  ghgg = get_gamma_hgg(h);
++  brhgg = br(ghgg,gtot);
++
++  for (int i=1;i<=4;i++) {
++    ghh[i]=get_gamma_hhh(h,i,i);
++    brhh[i]=br(ghh[i],gtot);
++  }
++
++  if (h==4) {
++    for (int j=1;j<4;j++) {
++      for (int i=1;i<4;i++) {
++        if (les)
++	  print_decay_LesHouches(output,brdu[i][j],uPDG[j],-dPDG[i]);
++	else 
++	  print_decay(hnames[h],unames[j],dnames[i],gdu[i][j],brdu[i][j]);
++      }
++    }
++    for (int i=1;i<4;i++) {
++      for (int j=1;j<4;j++) {
++        if (les)
++	  print_decay_LesHouches(output,brln[i][j],-lPDG[i],nPDG[j]);
++	else 
++	  print_decay(hnames[h],lnames[i],nnames[j],gln[i][j],brln[i][j]);
++      }
++    }
++    for (int i=2;i<4;i++) {
++      for (int j=1;j<=4;j++) {
++        int sgn = 1;
++        if ((i==3)&&(h!=4)) sgn = -1;
++        if (les)
++	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],sgn*hPDG[j]);
++	else 
++	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
++      }
++    }
++  } else {
++    for (int i=1;i<4;i++) {
++      for (int j=1;j<4;j++) {
++	if (les)
++	  print_decay_LesHouches(output,brdd[i][j],dPDG[i],-dPDG[j]);
++	else 
++	  print_decay(hnames[h],dnames[i],dnames[j],gdd[i][j],brdd[i][j]);
++	if (les)
++	  print_decay_LesHouches(output,bruu[i][j],uPDG[i],-uPDG[j]);
++	else 
++	  print_decay(hnames[h],unames[i],unames[j],guu[i][j],bruu[i][j]);
++      }
++    }
++    for (int i=1;i<4;i++) {
++      for (int j=1;j<4;j++) {
++	if (les)
++	  print_decay_LesHouches(output,brll[i][j],lPDG[i],-lPDG[j]);
++	else 
++	  print_decay(hnames[h],lnames[i],lnames[j],gll[i][j],brll[i][j]);
++      }    
++    }
++    for (int i=1;i<4;i++) {
++      int sgn = 1;
++      if (i==3) sgn = -1;
++      if (les) {
++	print_decay_LesHouches(output,brvv[i],vPDG[i],sgn*vPDG[i]);
++      } else {
++	print_decay(hnames[h],vnames[i],vnames[i+(sgn==-1)],gvv[i],brvv[i]);
++      }
++    }
++
++    if (les) 
++      print_decay_LesHouches(output,brhZga,23,22);
++    else
++      print_decay(hnames[h],"Z ","ga",ghZga,brhZga);
++
++    if (les) 
++      print_decay_LesHouches(output,brhgg,21,21);
++    else
++      print_decay(hnames[h],"g ","g ",ghgg,brhgg);
++
++    for (int i=1;i<=4;i++) {
++      int sgn = 1;
++      if (i==4) sgn = -1;
++      if (les) {
++        print_decay_LesHouches(output,brhh[i],hPDG[i],sgn*hPDG[i]);
++      } else {
++	print_decay(hnames[h],hnames[i],hnames[i+(sgn==-1)],ghh[i],brhh[i]);
++      }
++    }
++    for (int i=1;i<4;i++) {
++      for (int j=1;j<=3;j++) {
++        if (les) {
++	  print_decay_LesHouches(output,brvh[i][j],vPDG[i],hPDG[j]);
++        } else 
++	  print_decay(hnames[h],vnames[i],hnames[j],gvh[i][j],brvh[i][j]);
++      }
++    }
++
++    // Special case with H+ W- charged conjugate final state
++    if (les) {
++      print_decay_LesHouches(output,0.5*brvh[3][4],vPDG[3],-hPDG[4]);
++      print_decay_LesHouches(output,0.5*brvh[3][4],hPDG[4],-vPDG[3]);
++    } else {
++      print_decay(hnames[h],vnames[3],hnames[5],0.5*gvh[3][4],0.5*brvh[3][4]);
++      print_decay(hnames[h],hnames[4],vnames[4],0.5*gvh[3][4],0.5*brvh[3][4]);
++    }
++
++  }
++  
++  if (!les) printf("---------------------------------------\n");
++}
++
++void DecayTableTHDM::set_qcd(bool set) {
++  qcd_on=set;
++}
++
++double DecayTableTHDM::hvv_offshell(int h, int V,double M) {
++
++  double m = sm.get_vmass(V);
++
++  double GV = sm.get_gamma_V(V);
++  double G = 0.;
++ 
++  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
++        
++  double result, error;
++    
++  integration_params ip;
++  ip.M = M;
++  ip.m1 = m;
++  ip.m2 = m;
++  ip.gamma = GV;
++  
++  gsl_function F;
++  F.function = &hvv_fcn;
++  F.params = &ip;
++      
++  double k = pow(m/M,2);
++  double imin = 0.;
++  double imax = 1.-k;
++  
++  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
++  int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
++			w, &result, &error); 
++    
++  if (status) 
++    if (status!=GSL_EROUND) {
++      printf("GSL integration warning in H%1d -> VV (off-shell). Please check result.\n", h);
++      if (EXIT_ON_GSL_ERROR) exit(-1);
++    }
++  gsl_set_error_handler(old_handler);
++  gsl_integration_workspace_free (w);
++  old_handler = NULL;
++  w = NULL;
++
++  complex <double> c;
++  model.get_coupling_vvh(V,V,h,c);
++  
++  double dV = 0.;
++  double stw = sm.get_sintw();
++  double GF = sm.get_GF();
++
++  if (V==1) {
++    return 0.;
++  } else if(V==2) {
++    dV = 3.*(7./12.-10./9.*pow(stw,2)+40./27.*pow(stw,4));
++// Note that there is a typo in Djouadis review for the last term! (40/9 instead of 40/27)
++  } else if(V==3) {
++    dV = 3.;
++  } else return 0.;
++
++  double KHVV = 3.*pow(abs(c),2)*GF/(64.*sqrt(2.)*pow(M_PI,3))*M*dV;
++  G = KHVV*result;
++
++
++  return G;
++
++}
++
++double DecayTableTHDM::hvv_all(int h, int V,double M) {
++
++  double m = sm.get_vmass(V);
++
++  double GV = sm.get_gamma_V(V);
++  double G = 0.;
++ 
++  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
++        
++  double result, error;
++    
++  integration_params2 ip;
++  ip.M = M;
++  ip.m = m;
++  ip.gamma = GV;
++  
++  gsl_function F;
++  F.function = &hvv_fcn1;
++  F.params = &ip;
++      
++  double imin = 0.;
++  double imax = 1.;
++  
++  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
++  int status = gsl_integration_qags (&F,imin,imax,0,1e-5,1000,
++			w, &result, &error); 
++    
++  if (status) 
++    if (status!=GSL_EROUND) {
++      printf("GSL integration warning in H%1d -> VV (off-shell). Please check the result.\n", h);
++      if (EXIT_ON_GSL_ERROR) exit(-1);
++    }
++  gsl_set_error_handler(old_handler);
++  gsl_integration_workspace_free (w);
++  old_handler = NULL;
++  w = NULL;
++
++  complex <double> c;
++  model.get_coupling_vvh(V,V,h,c);
++  
++  double dV = 0.;
++
++  if (V==1) {
++    return 0.;
++  } else if(V==2) {
++    dV = 0.5;
++  } else if(V==3) {
++    dV = 1.;
++  } else return 0.;
++
++  double KHVV = dV*pow(abs(c),2)/(64.*M_PI)*pow(M,3)/pow(m,4);
++  G = KHVV*result;
++
++  return G;
++
++}
++
++
++double DecayTableTHDM::hvv_onshell(int h, int V, double M) {
++  double m = sm.get_vmass(V);
++  double Sf = 0.;
++
++  if (V==1) {
++    return 0.;
++  } else if(V==2) {
++    Sf = 0.5;
++  } else if(V==3) {
++    Sf = 1.;
++  } else return 0.;
++  
++  if (M<2.*m) return 0.0;
++
++  complex <double> c;
++  model.get_coupling_vvh(V,V,h,c);
++
++  double M2 = 0.;
++  
++  if (m>0) {
++    double x = pow(M/m,2);
++    M2    = 4.*pow(abs(c),2)*(3.-x+x*x/4.);
++  } else {
++    M2    = 16.*pow(abs(c),2);
++  }
++
++  double G = Sf/(32.*M_PI)*M2*PS2(M,m,m);
++
++  return G;
++}
++
++
++double DecayTableTHDM::hvh_onshell(int H, int V, int h, double M) {
++  double m1 = sm.get_vmass(V);
++  double m2  = model.get_hmass(h);
++
++  if (M<m1+m2) return 0.;
++
++  complex <double> c;
++  model.get_coupling_vhh(V,H,h,c);
++  
++  int dV = 1;
++
++  if (V==1) {
++    return 0.;
++  } 
++  if ((V==3) && (h==4)) {
++    dV = 2;
++  }
++  
++
++  double G = pow(abs(c),2)/(16.*M_PI)*pow(m1,2)/M*sqrt(L(pow(m2,2),pow(m1,2),pow(M,2)))*L(pow(m2,2),pow(M,2),pow(m1,2))*dV;
++
++  return G;
++}
++
++
++double DecayTableTHDM::PS2(double M, double m1, double m2) {
++  double absp1 = sqrt((pow(M,2)-pow(m1+m2,2))*(pow(M,2)-pow(m1-m2,2)))/(2.*M);
++  double PS = absp1/pow(M,2);
++
++  return PS;
++}
++
++
++
++double DecayTableTHDM::hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h) {
++
++  double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
++
++  complex <double> cd = cs+cp;
++  complex <double> cu = cs-cp;
++  
++  double cdcu = real(cd*cu);
++  double cd2 = pow(abs(cd),2);
++  double cu2 = pow(abs(cu),2);
++  
++  if (m1run > 0) {
++  	cd2 = cd2*pow(m1/m1run,2);
++  }
++  
++  if (m2run > 0) {
++  	cu2 = cu2*pow(m2/m2run,2);
++  	
++  }
++  
++  if ((m1run>0)&&(m2run>0)) {
++	cdcu=cdcu*m1*m2/(m1run*m2run);
++  }
++  
++  double qd = pow(m1/M,2);
++  double qu = pow(m2/M,2);
++  double Q = 1.-qu-qd;
++  double q = sqrt(qu*qd);
++  double lam = L(pow(m1,2), pow(m2,2), pow(M,2));
++  double sqL = sqrt(lam);
++
++  double D_udp = 0.;
++  double D_dup = 0.;
++  double D_udm = 0.;
++  
++  if ((Nc==3)&&qcd_on) {
++
++     double xd = 2.*qd/(Q+sqL);       
++     double xu = 2.*qu/(Q+sqL);
++
++     if(m1 > 0) {
++       D_dup = DHp(qd,qu,xd,xu,sqL);      
++     }
++     
++     if(m2 > 0) {
++       D_udp = DHp(qu,qd,xu,xd,sqL);           
++     }   
++
++     if(q > 0) {
++        D_udm = DHm(qu,qd,xu,xd,sqL);
++     }
++
++  }
++
++  double G = Nc*M/(16.*M_PI)*sqL*(Q*(cu2*(1.+4./3.*as*D_udp)+cd2*(1.+4./3.*as*D_dup))+4*q*cdcu*(1.+4./3.*as*D_udm));
++
++  return G;
++}
++
++
++double DecayTableTHDM::hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt=false) {
++
++  if (M<(m1+m2)) return 0.;
++
++  double M2    = 2.*(pow(M,2)-pow(m1+m2,2))*pow(abs(cs),2)+
++    2.*(pow(M,2)-pow(m1-m2,2))*pow(abs(cp),2);
++
++  double G = Nc*1./(8.*M_PI)*M2*PS2(M,m1,m2);
++
++  complex <double> cst,cpt;
++  model.get_coupling_huu(h,3,3,cst,cpt);
++  double mt = sm.get_umass_MSbar(3);
++  double Qinit = mt;
++  if(sm.b_HD) Qinit = SM::Q_HD;
++  double mtrun = sm.run_qmass_MSbar(mt,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++  
++  // Apply QCD corrections for decay to quarks
++  if ((Nc==3)&&qcd_on) {
++    if (h<3) {
++      int Nf = sm.get_Nactivef(M);
++      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
++      double K = 1.+5.67*as+(35.94-1.36*Nf)*pow(as,2);      
++      // massive corrections from hep-ph/9505358 only for q1=q2
++      if((abs(cs)>0.)&&(m1run-m2run<THDM::EPS)) K=K+m1run/mtrun*real(cst*conj(cs))/real(cs*conj(cs))*(1.57-2./3.*log(pow(M,2)/pow(sm.get_qmass_pole(6),2)))*pow(as,2);
++      if((abs(cs)>0.)&&(m1run-m2run<THDM::EPS)&&(m1run>0.)&&(m2run>0.)&&(!tt)) K=K+sqrt(m1run*m2run)/mtrun*real(cst*conj(cs))/real(cs*conj(cs))*(1./9.*pow(log(pow(m1run/M,2)),2))*pow(as,2);
++      if (K<0) K=0;
++      G = G*K;   
++    } else if (h==3) {
++      int Nf = sm.get_Nactivef(M);
++      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
++      double K = 1.+5.67*as+(35.94-1.36*Nf)*pow(as,2);      
++      // massive corrections from hep-ph/9505358 only for q1=q2
++      if((abs(cp)>0.)&&(m1run-m2run<THDM::EPS)) K=K+sqrt(m1run*m2run)/mtrun*real(cpt*conj(cp))/real(cp*conj(cp))*(3.83-log(pow(M,2)/pow(sm.get_qmass_pole(6),2)))*pow(as,2);
++      if((abs(cp)>0.)&&(m1run-m2run<THDM::EPS)&&(m1run>0.)&&(m2run>0)&&(!tt)) K=K+m1run/mtrun*real(cpt*conj(cp))/real(cp*conj(cp))*(1./6.*pow(log(pow(m1run/M,2)),2))*pow(as,2);     
++      if (K<0) K=0;
++      G = G*K;
++    } else if (h==4) {
++      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5))/M_PI;
++      double K = 1.+5.67*as;
++      if (K<0) K=0;
++      G = G*K;
++    }
++  }
++
++  return G;
++}
++
++
++double DecayTableTHDM::get_gamma_uhu(int u1, int h, int u2) {
++
++  if (u1!=3) return 0.;
++  if ((h<1)||(h>3)) return 0.;
++  if ((u2<1)||(u2>=u1)) return 0.;
++
++  if (gamma_uhu[u1][h][u2]>=0) return gamma_uhu[u1][h][u2];
++
++  double M =  sm.get_umass_pole(u1);
++  double m1 = model.get_hmass(h);
++  double m2 = sm.get_umass_pole(u2);
++  
++  if (M<(m1+m2)) {
++    gamma_uhu[u1][h][u2]=0.;
++    return gamma_uhu[u1][h][u2];
++  }
++
++  complex <double> cs,cp;
++  model.get_coupling_huu(h,u1,u2,cs,cp);
++ 
++  double x1 = m1/M;
++  double x2 = m2/M; 	
++
++
++  gamma_uhu[u1][h][u2] = 0;
++
++  if (h<3) {
++  	gamma_uhu[u1][h][u2] = real(cs*conj(cs))*M/(16*M_PI)*((1+x2)*(1+x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
++  } else if (h==3) {
++ 	gamma_uhu[u1][h][u2] = real(cp*conj(cp))*M/(16*M_PI)*((1-x2)*(1-x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
++  }
++  
++//  printf("uhu %d %d %d %16.8E %16.8E %16.8E %16.8E %16.8E\n", u1, h, u2, gamma_uhu[u1][h][u2], pow(1-x2,2), pow(1+x2,2),pow(1+x2,2)/(pow(1-x2,2)),x2);
++         
++  return gamma_uhu[u1][h][u2];
++}
++
++double DecayTableTHDM::get_gamma_uhu_flipped(int u1, int h, int u2) {
++
++  if (u1!=3) return 0.;
++  if ((h<1)||(h>3)) return 0.;
++  if ((u2<1)||(u2>=u1)) return 0.;
++
++  double M =  sm.get_umass_pole(u1);
++  double m1 = model.get_hmass(h);
++  double m2 = sm.get_umass_pole(u2);
++
++  if (M<(m1+m2)) {
++    gamma_uhu[u1][h][u2]=0.;
++    return gamma_uhu[u1][h][u2];
++  }
++
++  complex <double> cs,cp;
++
++    // added to to compute chirality flipped states
++    complex <double> cs_flipped,cp_flipped;
++    model.get_coupling_huu(h,u2,u1,cs_flipped,cp_flipped);
++
++  double x1 = m1/M;
++  double x2 = m2/M;
++
++
++  gamma_uhu[u1][h][u2] = 0;
++
++  if (h<3) {
++    gamma_uhu[u1][h][u2] += real(cs_flipped*conj(cs_flipped) + cp_flipped*conj(cp_flipped))*M/(16*M_PI)*((1+x2)*(1+x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
++  } else if (h==3) {
++    gamma_uhu[u1][h][u2] = real(cp_flipped*conj(cp_flipped) + cp_flipped*conj(cp_flipped))*M/(16*M_PI)*((1-x2)*(1-x2)-x1*x1)*sqrt(1-(x1+x2)*(x1+x2))*sqrt(1-(x1-x2)*(x1-x2));
++  }
++
++//  printf("uhu %d %d %d %16.8E %16.8E %16.8E %16.8E %16.8E\n", u1, h, u2, gamma_uhu[u1][h][u2], pow(1-x2,2), pow(1+x2,2),pow(1+x2,2)/(pow(1-x2,2)),x2);
++
++  return gamma_uhu[u1][h][u2];
++}
++
++
++double DecayTableTHDM::htt_onshell(double M, double m1, double m2,  int Nc, int h) {
++
++  complex <double> cs, cp;
++  complex <double> cs_mtp, cp_mtp;
++  model.get_coupling_huu(h,3, 3,cs,cp);
++
++  double mtp = sm.get_qmass_pole(6);
++  double mt_mt = sm.get_qmass_MSbar(6);
++  double mbp = sm.get_qmass_pole(5);
++  double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mtp,mbp);
++
++  cs_mtp = cs*mtp/mtr;
++  cp_mtp = cp*mtp/mtr;
++  
++  double M2    = 2.*(pow(M,2)-pow(m1+m2,2))*pow(abs(cs_mtp),2)+
++    2.*(pow(M,2)-pow(m1-m2,2))*pow(abs(cp_mtp),2);
++
++  double G = Nc*1./(8.*M_PI)*M2*PS2(M,m1,m2);
++  
++  // Threshold QCD corrections for tt decay, with full mass dependence
++  if (Nc==3&&qcd_on) {
++    double K = 1;
++    if (h!=4) {
++      double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      
++      double mf = m1;
++      double b = sqrt(1.-4.*pow(mf/M,2));
++      double L = log((1.+b)/(1.-b));
++      double x = (1.-b)/(1.+b);
++      double dL1 =  gsl_sf_dilog(x);
++      double dL2 =  gsl_sf_dilog(-x);
++
++      double b2 = pow(b, 2);
++      
++      // Threshold corrections for tt decay [hep-ph/0503172]
++      double A = (1.+b2)*(4.*dL1+2.*dL2-3.*L*log(2./(1.+b))-2.*L*log(b))-3.*b*log(4./(1.-b2))-4.*b*log(b);
++            
++      double DH = 0;
++      if (h<3) {
++      	DH = A/b + 1./(16.*pow(b,3))*(3.+34.*pow(b,2)-13.*pow(b,4))*L+3./(8.*pow(b,2))*(7.*pow(b,2)-1);      
++      } else if (h==3) {
++      	DH = A/b + 1./(16.*b)*(19.+2*b2+3*pow(b,4))*L+3./8.*(7.-b2);
++      }
++      
++      K = 1.+4./3.*as/M_PI*DH;
++    } else if (h==4) {
++      K = 1.;
++    }
++    
++    G = G*K;
++  }
++
++  return G;
++}
++
++
++double DecayTableTHDM::htt_offshell(double M, double m1, double m2, int Nc, int h) {
++
++  complex <double> cs, cp;
++  complex <double> cs_mtp, cp_mtp;
++  model.get_coupling_huu(h,3, 3,cs,cp);
++
++  double mtp = sm.get_qmass_pole(6);
++  double mt_mt = sm.get_qmass_MSbar(6);
++  double mbp = sm.get_qmass_pole(5);
++  double mtr = sm.run_qmass_MSbar(mt_mt,mt_mt,M,mtp,mbp);
++
++  cs_mtp = cs*mtp/mtr;
++  cp_mtp = cp*mtp/mtr;
++
++  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
++        
++  double result, error;
++    
++  integration_params_tt ip;
++  ip.M = M;
++  ip.mt = m1;
++  ip.mb = mbp;
++  ip.mW = sm.get_MW();
++  ip.gtop = sm.get_gamma_top();
++  ip.h = h;
++  gsl_function F;
++  F.function = &htt_fcn1;
++  F.params = &ip;
++      
++  double imin = 2.*m1/M;
++  double imax = 2.;
++    
++  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
++  int status = gsl_integration_qags (&F,imin,imax,0,1e-3,1000,
++			w, &result, &error); 
++    
++  if (status) {
++    if (status!=GSL_EROUND) {
++      printf("GSL integration warning in H%1d -> tt (offshell). Please check result.\n", h);
++      if (EXIT_ON_GSL_ERROR) exit(-1);
++  	}
++  }
++  gsl_set_error_handler(old_handler);
++  gsl_integration_workspace_free (w);
++  old_handler = NULL;
++  w = NULL;
++
++
++  double v2 = sm.get_v2();
++  double G = Nc*pow(M,3)/(64.*pow(M_PI,3)*v2)*(pow(abs(cs_mtp),2)+pow(abs(cp_mtp),2))*result;
++
++  return G;
++}
++
++
++double DecayTableTHDM::htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc) {
++
++  complex <double> I(0.0,1.0);
++
++  double md = m1;
++  double mb  = sm.get_dmass_pole(3);
++
++  gsl_integration_workspace * w = gsl_integration_workspace_alloc (1000);
++		
++  double result, error;
++  
++  integration_params_tb ip;
++  ip.M = M;
++  ip.mt = m2;
++  ip.md = md;
++  ip.mb = mb;
++  ip.mW = sm.get_MW();
++  ip.gtop = sm.get_gamma_top();  
++  
++  ip.Z_u = real(I*(-cs+cp))*sm.get_v()/(sqrt(2)*m2run);
++  ip.Z_d = 0;
++  if (m1run>0){
++     ip.Z_d = real(I*( cs+cp))*sm.get_v()/(sqrt(2)*m1run);
++  }
++  gsl_function F;
++  F.function = &htb_fcn1;
++  F.params = &ip;
++	
++  double imin = pow((md+mb),2);
++  double imax = pow((M - ip.mW),2);
++  
++  gsl_error_handler_t *old_handler = gsl_set_error_handler_off();
++  int status = gsl_integration_qags (&F,imin,imax,0.,1e-3,1000,
++			w, &result, &error);
++	
++  if (status) {
++    if (status!=GSL_EROUND) {
++      printf("GSL integration warning in H+ -> tb (offshell). Please check the result.\n");
++      if (EXIT_ON_GSL_ERROR) exit(-1);
++	}
++  }
++  gsl_set_error_handler(old_handler);
++  gsl_integration_workspace_free (w);
++  old_handler = NULL;
++  w = NULL;
++  
++  double GF = sm.get_GF();
++  
++  double KHtb = 3*pow(GF,2)/(16*pow(M*M_PI,3));
++
++  double G = KHtb*result;
++ 
++  return G;
++}
++
++double DecayTableTHDM::hgaga(int h) {
++
++  complex <double> I(0.,1);
++
++  double alpha 	= sm.get_alpha0();
++  double v  		= sm.get_v();
++  double v2 		= sm.get_v2();
++  double mW 		= sm.get_MW();
++  
++  double M 		= model.get_hmass(h);
++  double M2 		= M*M;  
++
++  double mHp 		= model.get_hmass(4);
++
++  double tau_W   = M2/(4.*mW*mW);
++  double tau_Hp  = M2/(4.*mHp*mHp);
++
++  int Nc = 3;
++
++  complex <double> gS, gP;
++  complex <double> S_sum(0.,0.), P_sum(0.,0.);
++
++  // Down-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_hdd(h,i,i,gS,gP);
++    double m = sm.get_dmass_MSbar(i);
++    double mp = sm.get_dmass_pole(i);    
++
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++
++      double m_HD = sm.run_qmass_MSbar(m,Qinit,M/2.,sm.get_qmass_pole(6),sm.get_qmass_pole(5))*mp/sm.run_qmass_MSbar(m,Qinit,mp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));      
++      double tau = M2/(4.*m_HD*m_HD);
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      complex <double> Sd = 2.*Nc*pow(-1./3,2)*gS*v/mrun*F_sf(tau);
++      complex <double> Pd = 2.*Nc*pow(-1./3,2)*gP*v/mrun*F_pf(tau);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++  
++  // Up-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_huu(h,i,i,gS,gP);
++    double m = sm.get_umass_MSbar(i);
++    double mp = sm.get_umass_pole(i);    
++
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      double m_HD = sm.run_qmass_MSbar(m,Qinit,M/2.,sm.get_qmass_pole(6),sm.get_qmass_pole(5))*mp/sm.run_qmass_MSbar(m,Qinit,mp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));      
++      double tau = M2/(4.*m_HD*m_HD);
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      complex <double> Sd = 2.*Nc*pow(2./3,2)*gS*v/mrun*F_sf(tau);
++      complex <double> Pd = 2.*Nc*pow(2./3,2)*gP*v/mrun*F_pf(tau);
++
++// QCD corrections in heavy quark limit for CP-even Higgs
++      if ((!sm.b_HD) && (qcd_on) && (i==3)) {
++        double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++        Sd=Sd*(1.-as/M_PI);
++      }
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Leptons
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_hll(h,i,i,gS,gP);
++    double m = sm.get_lmass_pole(i);
++    
++    if (m > 0) {
++      double tau = M2/(4.*m*m);
++      complex <double> Sd = 2.*pow(-1.,2)*gS*v/m*F_sf(tau);
++      complex <double> Pd = 2.*pow(-1.,2)*gP*v/m*F_pf(tau);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Charged Higgs and W contribution to scalar operator
++  complex <double> g_hww,g_hhchc;
++  model.get_coupling_vvh(3,3,h,g_hww);
++  model.get_coupling_hhh(h,4,4,g_hhchc);
++
++  g_hww = g_hww*v/(2.*pow(mW,2));
++  
++  S_sum = S_sum + g_hww*F_1(tau_W) + g_hhchc/v*v2/(2.*pow(mHp,2))*F_0(tau_Hp);
++    
++  double G = pow(M,3)*pow(alpha,2)/(256.*pow(M_PI,3)*v2)*(pow(abs(S_sum),2)+pow(abs(P_sum),2));
++
++  return G;
++}
++
++
++
++double DecayTableTHDM::hZga(int h) {
++
++  complex <double> I(0.,1);
++
++  double alpha 	= sm.get_alpha0();
++  double GF     = sm.get_GF();
++  double v  		= sm.get_v();
++  double v2 		= sm.get_v2();
++  double mW 		= sm.get_MW();
++  double mW2 		= mW*mW;
++  double mZ 		= sm.get_MZ();
++  double mZ2 		= mZ*mZ;
++  double stw            = sm.get_sintw();
++  double ctw            = sm.get_costw();
++  
++  double M 		= model.get_hmass(h);
++  double M2 		= M*M;  
++
++  double mHp 		= model.get_hmass(4);
++
++  double tau_W   = (4.*mW2)/M2;
++  double tau_Hp  = (4.*mHp*mHp)/M2;
++
++  double lambda_W   = (4.*mW2)/mZ2;
++  double lambda_Hp  = (4.*mHp*mHp)/mZ2;
++
++  int Nc = 3;
++
++  if (M<mZ) return 0.;
++
++  complex <double> gS, gP;
++  complex <double> S_sum(0.,0.), P_sum(0.,0.);
++
++  // Down-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_hdd(h,i,i,gS,gP);
++    double m = sm.get_dmass_MSbar(i);
++    double mp = sm.get_dmass_pole(i);    
++
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      double tau = (4.*mp*mp)/M2;
++      double lambda = (4.*mp*mp)/mZ2;
++      double Qf = -1./3.;
++      double I3f = -1./2.;
++      complex <double> Sd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/mrun*FF_s(tau,lambda);
++      complex <double> Pd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/mrun*FF_p(tau,lambda);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Up-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_huu(h,i,i,gS,gP);
++    double m = sm.get_umass_MSbar(i);
++    double mp = sm.get_umass_pole(i);        
++
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      double tau = (4.*mp*mp)/M2;
++      double lambda = (4.*mp*mp)/mZ2;
++      double Qf = 2./3.;
++      double I3f = 1./2.;
++      complex <double> Sd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/mrun*FF_s(tau,lambda);
++      complex <double> Pd =  2.*Nc*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/mrun*FF_p(tau,lambda);
++
++      // QCD corrections in heavy top quark limit
++      if ((!sm.b_HD)&&(qcd_on)&&(i==3)) {
++//        QCD corrections disabled (as in HDECAY)  
++//        double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++//        Sd=Sd*(1.-as/M_PI);
++      }
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Leptons
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_hll(h,i,i,gS,gP);
++    double m = sm.get_lmass_pole(i);
++    
++    if (m > 0) {
++      double tau = (4.*m*m)/M2;
++      double lambda = (4.*m*m)/mZ2;
++      double Qf = -1.;
++      double I3f = -1./2.;
++      complex <double> Sd =  2.*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gS*v/m*FF_s(tau,lambda);
++      complex <double> Pd =  2.*Qf*(I3f-2.*pow(stw,2)*Qf)/ctw*gP*v/m*FF_p(tau,lambda);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Charged Higgs and W contribution to scalar operator
++  complex <double> g_hww,g_hhchc;
++  model.get_coupling_vvh(3,3,h,g_hww);
++  model.get_coupling_hhh(h,4,4,g_hhchc);
++
++  g_hww = g_hww*v/(2.*pow(mW,2));
++
++//  S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw*ctw-1.)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
++
++// Charged Higgs contribution above differs with a factor ctw compared to HDECAY. 
++// The normalisation below gives same result but is not consistent with formulas 2.23 and 2.33 in Anatomy II
++  S_sum = S_sum - g_hww*FW(tau_W,lambda_W) - (2.*ctw-1./ctw)*g_hhchc/v*v2/(2.*pow(mHp,2))*FHp(tau_Hp,lambda_Hp);
++
++  double G = alpha*pow(GF,2)*mW2*pow(M,3)*pow((1.-mZ2/M2),3)/(64.*pow(M_PI,4))*(pow(abs(S_sum),2)+pow(abs(P_sum),2));
++
++  return G;
++}
++
++
++double DecayTableTHDM::hgg(int h) {
++
++  double v  = sm.get_v();
++  double v2 = sm.get_v2();
++  
++  double M = model.get_hmass(h);
++  double M2 = M*M;  
++
++  double mt   = sm.get_qmass_MSbar(6);
++
++  complex <double> S_sum(0.,0.);
++  complex <double> P_sum(0.,0.);
++  complex <double> gS,gP;
++
++  // Down-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_hdd(h,i,i,gS,gP);
++    double m = sm.get_dmass_MSbar(i);
++    double mp = sm.get_dmass_pole(i);    
++
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      double tau = M2/(4.*mp*mp);
++
++      complex <double> Sd = gS*v/mrun*F_sf(tau);
++      complex <double> Pd = gP*v/mrun*F_pf(tau);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  // Up-type quarks
++  for (int i=1;i<=3;i++) {
++    model.get_coupling_huu(h,i,i,gS,gP);
++    double m = sm.get_umass_MSbar(i);
++    
++    if (m > 0) {
++      double Qinit = m;
++      if(sm.b_HD) Qinit = SM::Q_HD;
++      double mrun = sm.run_qmass_MSbar(m,Qinit,M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++      double mp = sm.get_umass_pole(i);    
++      double tau = M2/(4.*mp*mp);
++
++      complex <double> Sd = gS*v/mrun*F_sf(tau);
++      complex <double> Pd = gP*v/mrun*F_pf(tau);
++      S_sum = S_sum + Sd;
++      P_sum = P_sum + Pd;
++    }
++  }
++
++  int Nf = sm.get_Nactivef(M);
++  double as = sm.run_alphas_MSbar(M,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++
++  double KS = 1;
++  double KP = 1;
++  // NNLO QCD corrections in heavy top quark limit
++  // hep-ph/9705240 (CP-even Higgses)
++  // hep-ph/9807241 (CP-odd)
++  if (qcd_on) {
++    KS = 1.+as/M_PI*(95./4.-7./6.*Nf)+pow(as/M_PI,2)*(156.808-5.708*log(mt*mt/M2));
++    KP = 1.+as/M_PI*(97./4.-7./6.*Nf)+pow(as/M_PI,2)*(171.544-5.*log(mt*mt/M2));
++  }
++  
++  double G = pow(M,3)*pow(as,2)/(32.*pow(M_PI,3)*v2)*(KS*pow(abs(S_sum),2)+KP*pow(abs(P_sum),2));
++
++  return G;
++}
++
++
++complex <double> DecayTableTHDM::F_sf(double t) {
++  double ti = 1./t;
++  complex <double> c;
++  c = ti*(1.+(1.-ti)*ftau(t));
++  return c;
++}
++
++
++complex <double> DecayTableTHDM::F_pf(double t) {
++  double ti = 1./t;
++  complex <double> c;
++  c = ti*ftau(t);
++  return c;
++}
++
++
++complex <double> DecayTableTHDM::F_0(double t) {
++  double ti = 1./t;
++  complex <double> c;
++  c = ti*(-1.+ti*ftau(t));
++// same sign as in Djouadi
++  return c;
++}
++
++
++complex <double> DecayTableTHDM::F_1(double t) {
++  double ti = 1./t;
++  complex <double> c;
++  c = 2.+3.*ti+3.*ti*(2.-ti)*ftau(t);
++// opposite sign to Djouadi
++ return c;
++}
++
++
++complex <double> DecayTableTHDM::ftau(double t) {
++
++  complex <double> c;
++  complex <double> I(0.,1.);
++
++  if (t<=1.) {
++    double x = asin(sqrt(t));
++    c = x*x;
++  }
++
++  if (t>1.) {
++    complex <double> x;
++    if (t>10E12) x = log(t)-I*M_PI;
++    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    c = -1./4.*x*x;
++  }
++
++  return c;
++}
++
++
++complex <double> DecayTableTHDM::gtau(double t) {
++
++  complex <double> c;
++  complex <double> I(0.,1.);
++
++  if (t<=1.) {
++    double x = asin(sqrt(t));
++    c = x*sqrt(1./t-1.);
++  }
++
++  if (t>1.) {
++    complex <double> x;
++    if (t>10E12) x = log(t)-I*M_PI;
++    else x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    // complex <double> x = log((sqrt(t)+sqrt(t-1))/(sqrt(t)-sqrt(t-1)))-I*M_PI;
++    c = 1./2.*x*sqrt(1.-1./t);
++  }
++
++  return c;
++}
++
++
++
++complex <double> DecayTableTHDM::I_2(double tau, double lambda) {
++  complex <double> c;
++  c = -tau*lambda/2./(tau-lambda)*(ftau(1./tau)-ftau(1./lambda));
++  return c;
++}
++
++complex <double> DecayTableTHDM::I_1(double tau, double lambda) {
++  complex <double> c;
++  c = tau*lambda/2./(tau-lambda) + tau*tau*lambda*lambda/2./(tau-lambda)/(tau-lambda)*(ftau(1./tau)-ftau(1./lambda)) + 
++                                   tau*tau*lambda/(tau-lambda)/(tau-lambda)*(gtau(1./tau)-gtau(1./lambda));
++  return c;
++}
++
++complex <double> DecayTableTHDM::FF_s(double tau, double lambda) {
++  complex <double> c;
++  c = I_1(tau,lambda) - I_2(tau,lambda);
++  return c;
++}
++
++complex <double> DecayTableTHDM::FF_p(double tau, double lambda) {
++  complex <double> c;
++  c = I_2(tau,lambda);
++  return c;
++}
++
++complex <double> DecayTableTHDM::FW(double tau, double lambda) {
++  complex <double> c;
++  double ctw            = sm.get_costw();
++  double stw            = sm.get_sintw();
++  c = ctw*(4.*(3.-stw*stw/ctw/ctw)*I_2(tau,lambda) + ((1.+2./tau)*stw*stw/ctw/ctw-(5.+2/tau))*I_1(tau,lambda));
++  return c;
++}
++
++complex <double> DecayTableTHDM::FHp(double tau, double lambda) {
++  complex <double> c;
++  c = I_1(tau,lambda);
++  return c;
++}
++
++// Interpolation with power c
++double DecayTableTHDM::interp(double R, double x, double y, double c) {
++
++  double ival = pow(R,c)*x + (1.-pow(R,c))*y;
++   return ival;
++}
++
++double DecayTableTHDM::DHp(double ui, double uj, double xi, double xj, double sqL) {
++ 
++ double eps = 1.E-12;
++ 
++ if (ui < eps) ui = eps;
++ if (uj < eps) uj = eps;
++ if (xi < eps) xi = eps;
++ if (xj < eps) xj = eps;
++ 
++ double D = 9./4. + (3.-2*ui+2.*uj)/4.*log(ui/uj) + ((3./2.-ui-uj)*pow(sqL,2)+5.*ui*uj)/(2.*sqL*(1.-ui-uj))*log(xi*xj)+BHp(ui,uj,xi,xj,sqL);
++
++ return D;
++ 
++}      
++
++double DecayTableTHDM::DHm(double ui, double uj, double xi, double xj, double sqL) {
++ 
++ double eps = 1.E-12;
++ 
++ if (ui < eps) ui = eps;
++ if (uj < eps) uj = eps;
++ if (xi < eps) xi = eps;
++ if (xj < eps) xj = eps;
++ 
++ double D = 3. + (uj-ui)/2.*log(ui/uj)+(pow(sqL,2)+2.*(1.-ui-uj))/(2.*sqL)*log(xi*xj)+BHp(ui,uj,xi,xj,sqL);
++
++ return D;
++ 
++}     
++
++double DecayTableTHDM::BHp(double ui, double uj, double xi, double xj, double sqL) {
++
++	double B=(1.-ui-uj)/sqL*(4.*gsl_sf_dilog(xi*xj)-2.*gsl_sf_dilog(-xi)-2.*gsl_sf_dilog(-xj)+2.*log(xi*xj)*log(1.-xi*xj)-log(xi)*log(1.+xi)-log(xj)*log(1.+xj));
++    B = B-4.*(log(1.-xi*xj)+xi*xj/(1.-xi*xj)*log(xi*xj));
++    B = B+(sqL+ui-uj)/sqL*(log(1.+xi)-xi/(1.+xi)*log(xi))+(sqL+uj-ui)/sqL*(log(1.+xj)-xj/(1.+xj)*log(xj));
++
++	return B;
++}
++
+diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
+--- src/DecayTableTHDM.h	1970-01-01 09:30:00.000000000 +0930
++++ src_patched/DecayTableTHDM.h	2020-11-09 13:05:54.000000000 +1030
+@@ -0,0 +1,390 @@
++#if !defined(DECAY_H)
++#define DECAY_H
++
++#include "SM.h"
++#include "THDM.h"
++#include <complex>
++#include <gsl/gsl_matrix.h>
++#include <gsl/gsl_integration.h>
++
++using namespace std;
++
++/**
++* @brief Calculates the decay modes of 2HDM Higgs bosons
++* 
++* Given a THDM object, a DecayTableTHDM can be generated. From this table, the
++* Higgs boson decay widths and branching ratios are obtained. For the complete
++* list of available decay modes, we refer to the complete documentation, or
++* the list of member methods below.
++*/
++class DecayTableTHDM {
++
++ public: 
++    
++  /**
++  * @brief Default constructor
++  * 
++  * This default constructor takes a THDM object as argument for which 
++  * the decays are to be calculated. %SM properties are taken from the SM
++  * object in the THDM.
++  * 
++  * @param mod Two-Higgs doublet model for which to calculate decay modes
++  */
++  DecayTableTHDM(THDM mod);
++
++
++  /**
++  * @brief Sets underlying 2HDM
++  * 
++  * This method sets the THDM underlying the DecayTableTHDM.
++  * 
++  * @param model Two-Higgs doublet model for which to calculate decay modes
++  */
++	void set_model(THDM model);
++
++
++  /**
++  * @brief Underlying 2HDM
++  * 
++  * Use to obtain the underlying THDM object
++  * 
++  * @returns The THDM object on which this DecayTableTHDM operates
++  */
++	THDM get_model();  
++
++
++  /**
++  * @brief Decay width \f$\Gamma(h\to u_1\overline{u}_2) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to a pair of up-type quarks. QCD corrections have been included.
++  * 
++  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
++  * @param u1 Index of up-type quark (1,2,3 = \f$ u,c,t \f$)
++  * @param u2 Index of up-type antiquark (1,2,3 = \f$ \bar{u},\bar{c},\bar{t} \f$)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_huu(int h, int u1, int u2);
++
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to d_1\overline{d}_2) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to a pair of down-type quarks. QCD corrections have been included.
++  * 
++  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
++  * @param d1 Index of down-type quark (1,2,3 = \f$ d,s,b \f$)
++  * @param d2 Index of down-type antiquark (1,2,3 = \f$ \bar{d},\bar{s},\bar{b} \f$)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hdd(int h, int d1, int d2);
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to l_1\overline{l}_2) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to a pair of charged leptons.
++  * 
++  * @param h  Index of Higgs boson (1,2,3 = h,H,A)
++  * @param l1 Index of lepton (1,2,3 = \f$ e,\mu,\tau \f$)
++  * @param l2 Index of antilepton (1,2,3 = \f$ \bar{e},\bar{\mu},\bar{\tau} \f$)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hll(int h, int l1, int l2);
++
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to u\overline{d}) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to a pair of quarks. QCD corrections have been included.
++  * 
++  * @param h  Index of Higgs boson (4 = H+)
++  * @param d  Index of down-type antiquark (1,2,3 = \f$ \bar{d},\bar{s},\bar{b} \f$)
++  * @param u  Index of up-type quark (1,2,3 = \f$ u,c,t \f$)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hdu(int h, int d, int u);
++
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to l\overline{\nu}_{l'}) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to lepton-neutrino.
++  * 
++  * @param h  Index of Higgs boson (4 = H+)
++  * @param l  Index of charged lepton (1,2,3 = \f$ e^+,\mu^+,\tau^+ \f$)
++  * @param n  Index of neutrino (1,2,3 = \f$ \nu_e,\nu_\mu,\nu_\tau \f$)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hln(int h, int l, int n);  
++  
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to H_1 H_2) \f$
++  * 
++  * This method calculates the on-shell decay width for the decay of Higgs
++  * boson \a h to a pair of Higgs bosons
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
++  * @param h1 Index of first Higgs boson (1,2,3,4 = h,H,A,H+)
++  * @param h2 Index of second Higgs boson (1,2,3,4 = h,H,A,H+)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hhh(int h, int h1, int h2);
++
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to VV) \f$
++  * 
++  * This method calculates the decay width for the Higgs boson \a h 
++  * to a pair of vector bosons. The decay mode with one vector
++  * boson off-shell is included.
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
++  * @param v  Index of vector bosons (1,2,3 = \f$\gamma \f$,Z,W)
++  * 
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hvv(int h, int v);
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to VH) \f$
++  * 
++  * This method calculates the decay width for the Higgs boson \a h 
++  * to one massive vector and one Higgs boson. Decay with the vector
++  * boson off-shell is included.
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
++  * @param V  Index of vector boson (2,3 = \f$\gamma \f$,Z,W)
++  * @param H  Index of final-state Higgs boson (1,2,3,4 = h,H,A,H+)
++	*
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hvh(int H, int V, int h);
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to gg) \f$
++  * 
++  * This method calculates the decay width for the Higgs boson \a h 
++  * to a pair of gluons. LO QCD corrections are included.
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3,4 = h,H,A,H+)
++	*
++  * @returns The decay width in GeV
++  */
++  double  get_gamma_hgg(int h);
++
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to \gamma\gamma) \f$
++  * 
++  * This method calculates the decay width for the neutral
++  * Higgs boson \a h to a pair of photons.
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
++	*
++  * @returns The decay width in GeV
++  */
++	double  get_gamma_hgaga(int h);
++
++  /**
++  * @brief Decay width \f$ \Gamma(h\to Z\gamma) \f$
++  * 
++  * This method calculates the decay width for the neutral
++  * Higgs boson \a h to a Z and a photon.
++  * 
++  * @param h  Index of decaying Higgs boson (1,2,3 = h,H,A)
++	*
++  * @returns The decay width in GeV
++  */
++	double  get_gamma_hZga(int h);
++
++  /**
++  * @brief Total width \f$ \Gamma_h \f$
++  * 
++  * Calculates the total decay width of Higgs boson \a h 
++  * 
++  * @param h  Index of Higgs boson (1,2,3,4 = h,H,A,H+)
++	*
++  * @returns Total width in GeV
++  */
++  double  get_gammatot_h(int h);
++
++  /**
++  * @brief Total width \f$ \Gamma_V \f$
++  * 
++  * Returns the total decay width of vector boson \a v 
++  * 
++  * @param v  Index of vector boson (2,3 = Z,W)
++	*
++  * @returns Total width in GeV
++  */
++  double  get_gammatot_v(int v);
++
++  /**
++  * @brief Total width \f$ \Gamma_t \f$
++  * 
++  * Returns the total decay width of the top quark 
++  * 
++  * @returns Total width in GeV
++  */
++  double  get_gammatot_top();
++
++
++  /**
++  * @brief Decay width for \f$ t \to H^+X \f$
++  * 
++  * Returns the decay width of the top quark in the charged Higgs mode
++  * 
++  * @returns Decay width in GeV
++  * 
++  * @param u Index of decaying quark (1,2,3 = \f$ u,c,t \f$)
++  * @param h Index of Higgs boson (4 = H+)
++	* @param d Index of down-type quark (1,2,3 = \f$ d,s,b \f$)
++  */
++  double  get_gamma_uhd(int u, int h, int d);
++  double  get_gamma_uhd_flipped(int u, int h, int d);
++
++  double  get_gamma_uhu(int u1, int h, int u2);
++  double  get_gamma_uhu_flipped(int u1, int h, int u2);
++
++  
++  /**
++  *	@brief Prints the decay modes of a Higgs boson
++  *
++  * The decay modes of Higgs boson \a h are printed to stdout
++  * 
++  * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
++  */
++  void    print_decays(int h);
++
++  /**
++  *	@brief Prints the total width of a Higgs boson
++  *
++  * The total decay width of Higgs boson \a h are printed to stdout
++  * 
++  * @param h Index of Higgs boson (1,2,3,4 = h,H,A,H+)
++  */
++  void    print_width(int h);
++
++  /**
++  *	@brief Prints the decay modes of the top quark
++  *
++  * The decay modes of the top quark are printed to stdout
++  */
++  void    print_top_decays();
++
++  /**
++  *	@brief Prints decay information for a Higgs boson in LesHouches format
++  *
++  * The decay information for Higgs boson \a h are printed to a file in
++  * LesHouches format
++  *
++  * @param output The name of the output file to write
++  * @param h 			Index of Higgs boson (1,2,3,4 = h,H,A,H+)
++  * @param full 	If \a true, all decay modes are printed, if \a false only the total width
++  */
++  void    print_decays_LesHouches(FILE* output, int h, bool full);
++
++  /**
++  *	@brief Prints decay information for the top quark in LesHouches format
++  *
++  * The decay information for the top quark are printed to a file in
++  * LesHouches format
++  *
++  * @param output The name of the output file to write
++  * @param full 	If \a true, all decay modes are printed, if \a false only the total width
++  */
++  void    print_top_decays_LesHouches(FILE* output, bool full);
++
++  /**
++  *     @brief Turns QCD corrections on or off
++  *
++  * This method is used to turn QCD corrections on or off. If the output is 
++  * meant to be used with the MadGraph/MadEvent 2HDMC model 
++  * QCD corrections should be turned off to get a consistent result. 
++  *
++  * @param set  If \a true QCD corrections are turned on, 
++  *             if \a false QCD corrections are turned off
++  */
++  void    set_qcd(bool set);
++
 +  double  DHp(double ui, double uj, double xi, double xj, double sqL);
 +  double  DHm(double ui, double uj, double xi, double xj, double sqL);
 +  double  BHp(double ui, double uj, double xi, double xj, double sqL);
- 
- 
-  private:
++
++
++ private:
++  THDM model;
++  SM sm;
++  
++  complex <double> F_sf(double t);
++  complex <double> F_pf(double t);
++  complex <double> F_0(double t);
++  complex <double> F_1(double t);
++  complex <double> ftau(double t);
++  complex <double> gtau(double t);
++  complex <double> I_1(double tau, double lambda);
++  complex <double> I_2(double tau, double lambda);
++  complex <double> FF_s(double tau, double lambda);
++  complex <double> FF_p(double tau, double lambda);
++  complex <double> FW(double tau, double lambda);
++  complex <double> FHp(double tau, double lambda);
++
++  double gammatot_h[5];
++  double gamma_uhd[5][5][5];
++  double gamma_uhu[5][5][5];
++  double gamma_hdd[5][5][5];
++  double gamma_huu[5][5][5];
++  double gamma_hdu[5][5][5];
++  double gamma_hll[5][5][5];
++  double gamma_hln[5][5][5];
++  double gamma_hgg[5];
++  double gamma_hgaga[5];
++  double gamma_hZga[5];
++  double gamma_hvv[5][5];
++  double gamma_hvh[5][5][5];
++  double gamma_hhh[5][5][5];
++
++  double  br(double dG, double G);
++
++  double  hvv_onshell(int h, int V, double M);
++  double  hvv_offshell(int h, int V, double M);
++  double  hvv_all(int h, int V, double M);
++  double  hff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h, bool tt);
++  double  hpff_onshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc, int h);
++  double  htt_onshell(double M, double m1, double m2, int Nc, int h);
++  double  htt_offshell(double M, double m1, double m2, int Nc, int h);
++  double  htb_offshell(double M, double m1, double m1run, double m2, double m2run, complex<double> cs, complex<double> cp, int Nc);
++
++  double  hvh_onshell(int H, int V, int h, double M);
++  double  hvh_offshell(int H, int V, int h, double M);
++  double  hdu_offshell(int h, int d, int u, double M);
++  double  hgaga(int h);
++  double  hZga(int h);
++  double  hgg(int h);
++  double  PS2(double M, double m1, double m2);
++  
++  double  interp(double R, double x, double y, double c);
++
++  bool    qcd_on;
++  int     err_code;
++
++  void    print_decay_LesHouches(FILE* output, double br, int id1, int id2);
++  void    print_decay(const char *h, const char *id1, const char *id2, double g, double br);
++  void    print_decays(FILE* output, int h, bool full, bool lh);
++
++
++
++};
++
++#endif
 diff -ruN src/Demo.cpp src_patched/Demo.cpp
---- src/Demo.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/Demo.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/Demo.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/Demo.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -5,7 +5,7 @@
   http://2hdmc.hepforge.org
  *******************************************************************************/
@@ -716,9 +4858,16 @@ diff -ruN src/Demo.cpp src_patched/Demo.cpp
  
    // Print total widths of Higgs bosons
    table.print_width(1);
+@@ -117,4 +117,6 @@
+ 
+   // Write output to LesHouches file
+   model.write_LesHouches("Demo_out.lha", 1, 0, 1, hbhsres_ptr);
++
++  model.free_gsl();
+ }
 diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
---- src/HBHS.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/HBHS.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/HBHS.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/HBHS.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -1,5 +1,5 @@
  #include "HBHS.h"
 -#include "DecayTable.h"
@@ -772,8 +4921,8 @@ diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
  
    const std::array<double, nHplus> MHp{model.get_hmass(4)};
 diff -ruN src/HBHS.h src_patched/HBHS.h
---- src/HBHS.h	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/HBHS.h	2020-04-20 21:29:42.000000000 +0930
+--- src/HBHS.h	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/HBHS.h	2020-11-09 13:05:54.000000000 +1030
 @@ -1,7 +1,7 @@
  #ifndef HBHS_H
  #define HBHS_H
@@ -784,9 +4933,51 @@ diff -ruN src/HBHS.h src_patched/HBHS.h
  #include <array>
  
 diff -ruN src/SM.cpp src_patched/SM.cpp
---- src/SM.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/SM.cpp	2020-04-20 21:29:42.000000000 +0930
-@@ -878,3 +878,16 @@
+--- src/SM.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/SM.cpp	2020-11-09 13:05:54.000000000 +1030
+@@ -105,17 +105,25 @@
+ double SM::get_CKM_element(int i, int j) {
+ 
+   if ((i>0)&&(i<=3)&&(j>0)&&(j<=3))
+-    return m_CKM[i-1][j-1];
++    return abs(m_CKM[i-1][j-1]);
+   else
+     return 0.;
+ }
+ 
++std::complex<double> SM::get_CKM_element_complex(int i, int j) {
++  if ((i>0)&&(i<=3)&&(j>0)&&(j<=3))
++  {
++    return m_CKM[i-1][j-1];
++  }   
++  else
++    return 0.;
++}
+ 
+ gsl_matrix* SM::get_CKM_matrix() {
+   gsl_matrix *ckm = gsl_matrix_alloc(3,3);
+   for (int i=0;i<3;i++) {
+     for (int j=0; j<3;j++) {
+-      gsl_matrix_set(ckm,i,j,m_CKM[i][j]);
++      gsl_matrix_set(ckm,i,j,abs(m_CKM[i][j]));
+     }
+   }
+   return ckm;
+@@ -308,6 +316,13 @@
+   clear_lookup();
+ }
+ 
++void SM::set_CKM_element_complex(int i, int j, std::complex<double> Vij) {
++  if ((i>0)&&(i<=3)&&(j>0)&&(j<=3)) 
++  {
++    m_CKM[i-1][j-1] = Vij;
++  }
++}
++
+ 
+ double SM::get_qmass_pole(int flav) {
+   if ((flav>=1)&&(flav<=6)) {
+@@ -878,3 +893,16 @@
    m_qmass_ms[6] = get_qmass_MSbar(6);
  
  }
@@ -804,9 +4995,34 @@ diff -ruN src/SM.cpp src_patched/SM.cpp
 +    clear_lookup();
 +}
 diff -ruN src/SM.h src_patched/SM.h
---- src/SM.h	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/SM.h	2020-04-20 21:29:42.000000000 +0930
-@@ -527,6 +527,8 @@
+--- src/SM.h	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/SM.h	2020-11-09 13:05:54.000000000 +1030
+@@ -2,6 +2,7 @@
+ #define SM_H
+ 
+ #include <gsl/gsl_matrix.h>
++#include <complex>
+ 
+ /**
+ * @brief Class describing the Standard Model
+@@ -287,6 +288,8 @@
+   */
+   void set_diagonal_CKM();
+ 
++  void set_CKM_element_complex(int i, int j, std::complex<double> Vij);
++
+   /**
+   * @brief Full CKM matrix
+   *
+@@ -310,6 +313,7 @@
+   * @see get_CKM
+   */
+   double get_CKM_element(int i, int j);
++  std::complex<double> get_CKM_element_complex(int i, int j);
+ 
+   /**
+   * @brief Sets the pole mass of a lepton
+@@ -527,6 +531,8 @@
    double get_gamma_top();
    double get_gamma_tWd(int d);
  
@@ -815,9 +5031,18 @@ diff -ruN src/SM.h src_patched/SM.h
  
  
  
+@@ -566,7 +572,7 @@
+   double m_MZ;
+   double m_GammaW;
+   double m_GammaZ;
+-  double m_CKM[3][3];
++  std::complex<double> m_CKM[3][3];
+ 
+   double m_qmass_ms[7];
+ 
 diff -ruN src/THDM.cpp src_patched/THDM.cpp
---- src/THDM.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/THDM.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/THDM.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/THDM.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -6,7 +6,7 @@
  *******************************************************************************/
  
@@ -836,7 +5061,24 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  
      double gtoth = table.get_gammatot_h(1);
      double gtotH = table.get_gammatot_h(2);
-@@ -192,6 +192,7 @@
+@@ -185,6 +185,16 @@
+   init();
+ }
+ 
++// destructor to free GSL matrices
++void THDM::free_gsl() {
++  gsl_matrix_complex_free(kappa_D);
++  gsl_matrix_complex_free(kappa_U);
++  gsl_matrix_complex_free(kappa_L);
++  gsl_matrix_complex_free(rho_D);
++  gsl_matrix_complex_free(rho_U);
++  gsl_matrix_complex_free(rho_L);
++  gsl_matrix_complex_free(rho_N);
++}
+ 
+ void THDM::init() {
+   if (first_run) {
+@@ -192,6 +202,7 @@
    }
  
    params_set = false;
@@ -844,8 +5086,40 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    yukawas_type = -1;
  
    v2 = sm.get_v2();
-@@ -220,6 +221,54 @@
-   gsl_matrix_set_zero(rho_N);
+@@ -203,23 +214,71 @@
+   beta	=	0;
+   m22_2	=	0;
+ 
+-  kappa_D = gsl_matrix_alloc(3,3);
+-  kappa_U = gsl_matrix_alloc(3,3);
+-  kappa_L = gsl_matrix_alloc(3,3);
+-  rho_D   = gsl_matrix_alloc(3,3);
+-  rho_U   = gsl_matrix_alloc(3,3);
+-  rho_L   = gsl_matrix_alloc(3,3);
+-  rho_N   = gsl_matrix_alloc(3,3);
+-
+-  gsl_matrix_set_zero(kappa_D);
+-  gsl_matrix_set_zero(kappa_U);
+-  gsl_matrix_set_zero(kappa_L);
+-  gsl_matrix_set_zero(rho_D);
+-  gsl_matrix_set_zero(rho_U);
+-  gsl_matrix_set_zero(rho_L);
+-  gsl_matrix_set_zero(rho_N);
++  kappa_D = gsl_matrix_complex_alloc(3,3);
++  kappa_U = gsl_matrix_complex_alloc(3,3);
++  kappa_L = gsl_matrix_complex_alloc(3,3);
++  rho_D   = gsl_matrix_complex_alloc(3,3);
++  rho_U   = gsl_matrix_complex_alloc(3,3);
++  rho_L   = gsl_matrix_complex_alloc(3,3);
++  rho_N   = gsl_matrix_complex_alloc(3,3);
++
++  gsl_matrix_complex_set_zero(kappa_D);
++  gsl_matrix_complex_set_zero(kappa_U);
++  gsl_matrix_complex_set_zero(kappa_L);
++  gsl_matrix_complex_set_zero(rho_D);
++  gsl_matrix_complex_set_zero(rho_U);
++  gsl_matrix_complex_set_zero(rho_L);
++  gsl_matrix_complex_set_zero(rho_N);
  }
  
 +bool THDM::set_param_full(double lambda1, double lambda2, double lambda3,
@@ -899,7 +5173,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  
  bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
  			 double lambda4, double lambda5, double lambda6,
-@@ -273,6 +322,7 @@
+@@ -273,6 +332,7 @@
      params_set=false;
    }
  
@@ -907,7 +5181,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    return params_set;
  }
  
-@@ -347,6 +397,7 @@
+@@ -347,6 +407,7 @@
    sinba = sba;
  
    params_set=true;
@@ -915,7 +5189,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  
    return params_set;
  }
-@@ -385,6 +436,8 @@
+@@ -385,6 +446,8 @@
      params_set = false;
    }
  
@@ -924,7 +5198,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    return params_set;
  }
  
-@@ -507,6 +560,7 @@
+@@ -507,6 +570,7 @@
    set_yukawas_inert();
  
    params_set = true;
@@ -932,7 +5206,491 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    return params_set;
  }
  
-@@ -986,33 +1040,45 @@
+@@ -612,6 +676,69 @@
+   return pset;
+ }
+ 
++// --- BEGIN custom functions for GSL conversions
++int THDM::num_rows(gsl_matrix * A) {
++    int r = A->size1;
++    return r;
++}
++
++int THDM::num_rows_complex(gsl_matrix_complex * A) {
++    int r = A->size1;
++    return r;
++}
++
++gsl_complex THDM::convertDoubleToComplex(double x, double y) {
++  gsl_complex converted;
++  GSL_SET_REAL(&converted,x);
++  GSL_SET_IMAG(&converted,y);
++  return converted;
++}
++
++gsl_complex THDM::convertDoubleComplexToComplex(complex<double> x) {
++  gsl_complex converted;
++  GSL_SET_REAL(&converted, x.real());
++  GSL_SET_IMAG(&converted, x.imag());
++  return converted;
++}
++
++
++gsl_matrix_complex* THDM::convertMatrixToComplex(gsl_matrix * matrix) {
++  int size = num_rows(matrix);
++  gsl_matrix_complex *converted = gsl_matrix_complex_alloc(size,size);
++  gsl_complex element;
++  for (int i=0; i<size; i++)
++  {
++    for (int j=0; j<size; j++)
++    {
++      GSL_SET_COMPLEX(&element,gsl_matrix_get(matrix,i,j),0.0);
++      gsl_matrix_complex_set(converted,i,j,element);
++    }
++  }
++  return converted;
++}
++
++gsl_matrix_complex_float * THDM::convertMatrixToComplexFloat(gsl_matrix_complex * matrix) {
++  int size = num_rows_complex(matrix);
++  gsl_matrix_complex_float *converted = NULL;
++  converted = gsl_matrix_complex_float_alloc(size, size);
++  gsl_complex        element;
++  gsl_complex_float element_float;
++  for (int i=0; i<size; i++)
++  {
++    for (int j=0; j<size; j++)
++    {
++      element = gsl_matrix_complex_get(matrix,i,j);
++      element_float = {{(float)GSL_REAL(element),(float)GSL_IMAG(element)}};
++      gsl_matrix_complex_float_set(converted,i,j,element_float);
++    }
++  }
++  return converted;
++}
++
++complex<double> THDM::GSLComplexToDoubleComplex(gsl_complex toConvert) {
++  return GSL_REAL(toConvert) + complex<double>(0,1)*GSL_IMAG(toConvert);
++}
++// --- END custom functions for GSL conversions
+ 
+ void THDM::set_kappa() {
+   set_kappa_D();
+@@ -621,27 +748,32 @@
+ 
+ 
+ void THDM::set_kappa_D() {
+-  gsl_matrix *md = sm.get_MD();
+-  gsl_matrix_memcpy(kappa_D,md);
+-  gsl_matrix_scale(kappa_D,sqrt(2)/sm.get_v());
+-  gsl_matrix_free(md);
++  gsl_matrix* m = sm.get_MD();
++  gsl_matrix_complex *md = convertMatrixToComplex(m);
++  gsl_matrix_free(m);
++  gsl_matrix_complex_memcpy(kappa_D,md);
++  gsl_matrix_complex_scale(kappa_D,convertDoubleToComplex(sqrt(2)/sm.get_v(),0));
++  gsl_matrix_complex_free(md);
+ }
+ 
+ 
+ void THDM::set_kappa_U() {
+-  gsl_matrix *mu = sm.get_MU();
+-  gsl_matrix_memcpy(kappa_U,mu);
+-  gsl_matrix_scale(kappa_U,sqrt(2)/sm.get_v());
+-  gsl_matrix_free(mu);
++  gsl_matrix* m = sm.get_MU();
++  gsl_matrix_complex *mu = convertMatrixToComplex(m);
++  gsl_matrix_free(m);
++  gsl_matrix_complex_memcpy(kappa_U,mu);
++  gsl_matrix_complex_scale(kappa_U,convertDoubleToComplex(sqrt(2)/sm.get_v(),0));
++  gsl_matrix_complex_free(mu);
+ }
+ 
+ 
+ void THDM::set_kappa_L() {
+-  gsl_matrix *ml = sm.get_ML();
+-  gsl_matrix_memcpy(kappa_L,ml);
+-  gsl_matrix_scale(kappa_L,sqrt(2)/sm.get_v());
+-  gsl_matrix_free(ml);
+-
++  gsl_matrix* m = sm.get_ML();
++  gsl_matrix_complex *ml = convertMatrixToComplex(m);
++  gsl_matrix_free(m);
++  gsl_matrix_complex_memcpy(kappa_L,ml);
++  gsl_matrix_complex_scale(kappa_L,convertDoubleToComplex(sqrt(2)/sm.get_v(),0));
++  gsl_matrix_complex_free(ml);
+ }
+ 
+ 
+@@ -664,26 +796,32 @@
+ 
+   set_kappa();
+ 
+-  gsl_matrix_memcpy(rho_D,kappa_D);
+-  gsl_matrix_memcpy(rho_U,kappa_U);
+-  gsl_matrix_memcpy(rho_L,kappa_L);
++  if (type==-1) {
++    // we have a general type-III,
++    // rhos must be set through explicit function call later
++    return;
++  }
++
++  gsl_matrix_complex_memcpy(rho_D,kappa_D);
++  gsl_matrix_complex_memcpy(rho_U,kappa_U);
++  gsl_matrix_complex_memcpy(rho_L,kappa_L);
+ 
+   if (type==1) {
+-    gsl_matrix_scale(rho_D,1./tan(beta));
+-    gsl_matrix_scale(rho_U,1./tan(beta));
+-    gsl_matrix_scale(rho_L,1./tan(beta));
++    gsl_matrix_complex_scale(rho_D,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_U,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_L,convertDoubleToComplex(1./tan(beta),0));
+   } else if (type==2) {
+-    gsl_matrix_scale(rho_D,-tan(beta));
+-    gsl_matrix_scale(rho_U,1./tan(beta));
+-    gsl_matrix_scale(rho_L,-tan(beta));
++    gsl_matrix_complex_scale(rho_D,convertDoubleToComplex(-tan(beta),0));
++    gsl_matrix_complex_scale(rho_U,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_L,convertDoubleToComplex(-tan(beta),0));
+   } else if (type==3) {
+-    gsl_matrix_scale(rho_D,-tan(beta));
+-    gsl_matrix_scale(rho_U,1./tan(beta));
+-    gsl_matrix_scale(rho_L,1./tan(beta));
++    gsl_matrix_complex_scale(rho_D,convertDoubleToComplex(-tan(beta),0));
++    gsl_matrix_complex_scale(rho_U,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_L,convertDoubleToComplex(1./tan(beta),0));
+   } else if (type==4) {
+-    gsl_matrix_scale(rho_D,1./tan(beta));
+-    gsl_matrix_scale(rho_U,1./tan(beta));
+-    gsl_matrix_scale(rho_L,-tan(beta));
++    gsl_matrix_complex_scale(rho_D,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_U,convertDoubleToComplex(1./tan(beta),0));
++    gsl_matrix_complex_scale(rho_L,convertDoubleToComplex(-tan(beta),0));
+   }
+ 
+ }
+@@ -703,9 +841,9 @@
+   set_kappa();
+ 
+   // Set all rhos to 0
+-  gsl_matrix_set_zero(rho_D);
+-  gsl_matrix_set_zero(rho_U);
+-  gsl_matrix_set_zero(rho_L);
++  gsl_matrix_complex_set_zero(rho_D);
++  gsl_matrix_complex_set_zero(rho_U);
++  gsl_matrix_complex_set_zero(rho_L);
+ }
+ 
+ 
+@@ -715,11 +853,11 @@
+ 
+   set_kappa_D();
+ 
+-  gsl_matrix_set_zero(rho_D);
++  gsl_matrix_complex_set_zero(rho_D);
+ 
+-  gsl_matrix_set(rho_D,0,0,rhod);
+-  gsl_matrix_set(rho_D,1,1,rhos);
+-  gsl_matrix_set(rho_D,2,2,rhob);
++  gsl_matrix_complex_set(rho_D,0,0,convertDoubleToComplex(rhod,0));
++  gsl_matrix_complex_set(rho_D,1,1,convertDoubleToComplex(rhos,0));
++  gsl_matrix_complex_set(rho_D,2,2,convertDoubleToComplex(rhob,0));
+ }
+ 
+ 
+@@ -729,11 +867,11 @@
+ 
+   set_kappa_U();
+ 
+-  gsl_matrix_set_zero(rho_U);
++  gsl_matrix_complex_set_zero(rho_U);
+ 
+-  gsl_matrix_set(rho_U,0,0,rhou);
+-  gsl_matrix_set(rho_U,1,1,rhoc);
+-  gsl_matrix_set(rho_U,2,2,rhot);
++  gsl_matrix_complex_set(rho_U,0,0,convertDoubleToComplex(rhou,0));
++  gsl_matrix_complex_set(rho_U,1,1,convertDoubleToComplex(rhoc,0));
++  gsl_matrix_complex_set(rho_U,2,2,convertDoubleToComplex(rhot,0));
+ }
+ 
+ 
+@@ -743,110 +881,117 @@
+ 
+   set_kappa_L();
+ 
+-  gsl_matrix_set_zero(rho_L);
++  gsl_matrix_complex_set_zero(rho_L);
+ 
+-  gsl_matrix_set(rho_L,0,0,rhoe);
+-  gsl_matrix_set(rho_L,1,1,rhomu);
+-  gsl_matrix_set(rho_L,2,2,rhotau);
++  gsl_matrix_complex_set(rho_L,0,0,convertDoubleToComplex(rhoe,0));
++  gsl_matrix_complex_set(rho_L,1,1,convertDoubleToComplex(rhomu,0));
++  gsl_matrix_complex_set(rho_L,2,2,convertDoubleToComplex(rhotau,0));
+ }
+ 
+ 
+-void THDM::set_yukawas_down(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23) {
++void THDM::set_yukawas_down(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                            complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                            complex<double> rho21, complex<double> rho31, complex<double> rho32) {
+   yukawas_type=-1;
+   set_kappa_D();
+ 
+-  gsl_matrix_set_zero(rho_D);
++  gsl_matrix_complex_set_zero(rho_D);
+ 
+-  gsl_matrix_set(rho_D,0,0,rho11);
+-  gsl_matrix_set(rho_D,1,1,rho22);
+-  gsl_matrix_set(rho_D,2,2,rho33);
++  gsl_matrix_complex_set(rho_D,0,0,convertDoubleComplexToComplex(rho11));
++  gsl_matrix_complex_set(rho_D,1,1,convertDoubleComplexToComplex(rho22));
++  gsl_matrix_complex_set(rho_D,2,2,convertDoubleComplexToComplex(rho33));
+ 
+-	// Off-diagonal elements are symmetric
+-  gsl_matrix_set(rho_D,0,1,rho12);
+-  gsl_matrix_set(rho_D,0,2,rho13);
+-  gsl_matrix_set(rho_D,1,2,rho23);
+-  gsl_matrix_set(rho_D,1,0,rho12);
+-  gsl_matrix_set(rho_D,2,0,rho13);
+-  gsl_matrix_set(rho_D,2,1,rho23);
++	// Off-diagonal elements may not be symmetric
++  gsl_matrix_complex_set(rho_D,0,1,convertDoubleComplexToComplex(rho12));
++  gsl_matrix_complex_set(rho_D,0,2,convertDoubleComplexToComplex(rho13));
++  gsl_matrix_complex_set(rho_D,1,2,convertDoubleComplexToComplex(rho23));
++  gsl_matrix_complex_set(rho_D,1,0,convertDoubleComplexToComplex(rho21));
++  gsl_matrix_complex_set(rho_D,2,0,convertDoubleComplexToComplex(rho31));
++  gsl_matrix_complex_set(rho_D,2,1,convertDoubleComplexToComplex(rho32));
+ }
+ 
+ 
+-void THDM::set_yukawas_up(double rho11, double rho22, double rho33, double rho12, double rho13,double rho23) {
++void THDM::set_yukawas_up(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                          complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                          complex<double> rho21, complex<double> rho31, complex<double> rho32) {
+   yukawas_type=-1;
+   set_kappa_U();
+ 
+-  gsl_matrix_set_zero(rho_U);
++  gsl_matrix_complex_set_zero(rho_U);
+ 
+-  gsl_matrix_set(rho_U,0,0,rho11);
+-  gsl_matrix_set(rho_U,1,1,rho22);
+-  gsl_matrix_set(rho_U,2,2,rho33);
++  gsl_matrix_complex_set(rho_U,0,0,convertDoubleComplexToComplex(rho11));
++  gsl_matrix_complex_set(rho_U,1,1,convertDoubleComplexToComplex(rho22));
++  gsl_matrix_complex_set(rho_U,2,2,convertDoubleComplexToComplex(rho33));
+ 
+-	// Off-diagonal elements are symmetric
+-  gsl_matrix_set(rho_U,0,1,rho12);
+-  gsl_matrix_set(rho_U,0,2,rho13);
+-  gsl_matrix_set(rho_U,1,2,rho23);
+-  gsl_matrix_set(rho_U,1,0,rho12);
+-  gsl_matrix_set(rho_U,2,0,rho13);
+-  gsl_matrix_set(rho_U,2,1,rho23);
++	// Off-diagonal elements may not be symmetric
++  gsl_matrix_complex_set(rho_U,0,1,convertDoubleComplexToComplex(rho12));
++  gsl_matrix_complex_set(rho_U,0,2,convertDoubleComplexToComplex(rho13));
++  gsl_matrix_complex_set(rho_U,1,2,convertDoubleComplexToComplex(rho23));
++  gsl_matrix_complex_set(rho_U,1,0,convertDoubleComplexToComplex(rho21));
++  gsl_matrix_complex_set(rho_U,2,0,convertDoubleComplexToComplex(rho31));
++  gsl_matrix_complex_set(rho_U,2,1,convertDoubleComplexToComplex(rho32));
+ }
+ 
+ 
+-void THDM::set_yukawas_lepton(double rho11, double rho22, double rho33, double rho12, double rho13, double rho23) {
++void THDM::set_yukawas_lepton(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                              complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                              complex<double> rho21, complex<double> rho31, complex<double> rho32) {
+   yukawas_type=-1;
+   set_kappa_L();
+ 
+-  gsl_matrix_set_zero(rho_L);
++  gsl_matrix_complex_set_zero(rho_L);
+ 
+-  gsl_matrix_set(rho_L,0,0,rho11);
+-  gsl_matrix_set(rho_L,1,1,rho22);
+-  gsl_matrix_set(rho_L,2,2,rho33);
++  gsl_matrix_complex_set(rho_L,0,0,convertDoubleComplexToComplex(rho11));
++  gsl_matrix_complex_set(rho_L,1,1,convertDoubleComplexToComplex(rho22));
++  gsl_matrix_complex_set(rho_L,2,2,convertDoubleComplexToComplex(rho33));
+ 
+-	// Off-diagonal elements are symmetric
+-  gsl_matrix_set(rho_L,0,1,rho12);
+-  gsl_matrix_set(rho_L,0,2,rho13);
+-  gsl_matrix_set(rho_L,1,2,rho23);
+-  gsl_matrix_set(rho_L,1,0,rho12);
+-  gsl_matrix_set(rho_L,2,0,rho13);
+-  gsl_matrix_set(rho_L,2,1,rho23);
++	// Off-diagonal elements may not be symmetric
++  gsl_matrix_complex_set(rho_L,0,1,convertDoubleComplexToComplex(rho12));
++  gsl_matrix_complex_set(rho_L,0,2,convertDoubleComplexToComplex(rho13));
++  gsl_matrix_complex_set(rho_L,1,2,convertDoubleComplexToComplex(rho23));
++  gsl_matrix_complex_set(rho_L,1,0,convertDoubleComplexToComplex(rho21));
++  gsl_matrix_complex_set(rho_L,2,0,convertDoubleComplexToComplex(rho31));
++  gsl_matrix_complex_set(rho_L,2,1,convertDoubleComplexToComplex(rho32));
+ }
+ 
+ 
+-void THDM::get_yukawas_down(gsl_matrix *rho_D_out) {
+-  gsl_matrix_memcpy(rho_D_out,rho_D);
++void THDM::get_yukawas_down(gsl_matrix_complex *rho_D_out) {
++  gsl_matrix_complex_memcpy(rho_D_out,rho_D);
+ }
+ 
+ 
+-void THDM::get_yukawas_up(gsl_matrix *rho_U_out) {
+-  gsl_matrix_memcpy(rho_U_out,rho_U);
++void THDM::get_yukawas_up(gsl_matrix_complex *rho_U_out) {
++  gsl_matrix_complex_memcpy(rho_U_out,rho_U);
+ }
+ 
+ 
+-void THDM::get_yukawas_lepton(gsl_matrix *rho_L_out) {
+-  gsl_matrix_memcpy(rho_L_out,rho_L);
++void THDM::get_yukawas_lepton(gsl_matrix_complex *rho_L_out) {
++  gsl_matrix_complex_memcpy(rho_L_out,rho_L);
+ }
+ 
+-void THDM::get_kappa_down(double &kd, double &ks, double &kb) {
+-  kd=gsl_matrix_get(kappa_D,0,0);
+-  ks=gsl_matrix_get(kappa_D,1,1);
+-  kb=gsl_matrix_get(kappa_D,2,2);
++void THDM::get_kappa_down(complex<double> &kd, complex<double> &ks, complex<double> &kb) {
++  kd=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_D,0,0));
++  ks=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_D,1,1));
++  kb=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_D,2,2));
+ }
+ 
+-void THDM::get_kappa_up(double &ku, double &kc, double &kt) {
+-  ku=gsl_matrix_get(kappa_U,0,0);
+-  kc=gsl_matrix_get(kappa_U,1,1);
+-  kt=gsl_matrix_get(kappa_U,2,2);
++void THDM::get_kappa_up(complex<double> &ku, complex<double> &kc, complex<double> &kt) {
++  ku=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_U,0,0));
++  kc=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_U,1,1));
++  kt=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_U,2,2));
+ }
+ 
+-void THDM::get_kappa_lepton(double &ke, double &kmu, double &ktau) {
+-  ke=gsl_matrix_get(kappa_L,0,0);
+-  kmu=gsl_matrix_get(kappa_L,1,1);
+-  ktau=gsl_matrix_get(kappa_L,2,2);
++void THDM::get_kappa_lepton(complex<double> &ke, complex<double> &kmu, complex<double> &ktau) {
++  ke=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_L,0,0));
++  kmu=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_L,1,1));
++  ktau=GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_L,2,2));
+ }
+ 
+-void THDM::get_kappa_down(double mu,double &kd, double &ks, double &kb) {
+-  double kd_pole=gsl_matrix_get(kappa_D,0,0);
+-  double ks_pole=gsl_matrix_get(kappa_D,1,1);
+-  double kb_pole=gsl_matrix_get(kappa_D,2,2);
++
++void THDM::get_kappa_down(double mu,complex<double> &kd, complex<double> &ks, complex<double> &kb) {
++  double kd_pole=GSL_REAL(gsl_matrix_complex_get(kappa_D,0,0));
++  double ks_pole=GSL_REAL(gsl_matrix_complex_get(kappa_D,1,1));
++  double kb_pole=GSL_REAL(gsl_matrix_complex_get(kappa_D,2,2));
+ 
+    double mb_mb = sm.get_qmass_MSbar(5);
+   double mb_pole = sm.get_qmass_pole(5);
+@@ -858,10 +1003,10 @@
+   kb = kb_pole/mb_pole*mb_run;
+ }
+ 
+-void THDM::get_kappa_up(double mu, double &ku, double &kc, double &kt) {
+-  double ku_pole=gsl_matrix_get(kappa_U,0,0);
+-  double kc_pole=gsl_matrix_get(kappa_U,1,1);
+-  double kt_pole=gsl_matrix_get(kappa_U,2,2);
++void THDM::get_kappa_up(double mu, complex<double> &ku, complex<double> &kc, complex<double> &kt) {
++  double ku_pole=GSL_REAL(gsl_matrix_complex_get(kappa_U,0,0));
++  double kc_pole=GSL_REAL(gsl_matrix_complex_get(kappa_U,1,1));
++  double kt_pole=GSL_REAL(gsl_matrix_complex_get(kappa_U,2,2));
+ 
+   double mt_mt = sm.get_qmass_MSbar(6);
+   double mc_mc = sm.get_qmass_MSbar(4);
+@@ -876,15 +1021,15 @@
+   kt = kt_pole/mt_pole*mt_run;
+ }
+ 
+-void THDM::get_kappa_lepton(double mu, double &ke, double &kmu, double &ktau) {
++void THDM::get_kappa_lepton(double mu, complex<double> &ke, complex<double> &kmu, complex<double> &ktau) {
+   get_kappa_lepton(ke,kmu,ktau);
+ }
+ 
+ 
+-void THDM::get_rho_down(double mu,double &rd, double &rs, double &rb) {
+-  double rd_pole=gsl_matrix_get(rho_D,0,0);
+-  double rs_pole=gsl_matrix_get(rho_D,1,1);
+-  double rb_pole=gsl_matrix_get(rho_D,2,2);
++void THDM::get_rho_down(double mu,complex<double> &rd, complex<double> &rs, complex<double> &rb) {
++  double rd_pole=GSL_REAL(gsl_matrix_complex_get(rho_D,0,0));
++  double rs_pole=GSL_REAL(gsl_matrix_complex_get(rho_D,1,1));
++  double rb_pole=GSL_REAL(gsl_matrix_complex_get(rho_D,2,2));
+ 
+   double mb_mb = sm.get_qmass_MSbar(5);
+   double mb_pole = sm.get_qmass_pole(5);
+@@ -896,10 +1041,10 @@
+   rb = rb_pole/mb_pole*mb_run;
+ }
+ 
+-void THDM::get_rho_up(double mu, double &ru, double &rc, double &rt) {
+-  double ru_pole=gsl_matrix_get(rho_U,0,0);
+-  double rc_pole=gsl_matrix_get(rho_U,1,1);
+-  double rt_pole=gsl_matrix_get(rho_U,2,2);
++void THDM::get_rho_up(double mu, complex<double> &ru, complex<double> &rc, complex<double> &rt) {
++  double ru_pole=GSL_REAL(gsl_matrix_complex_get(rho_U,0,0));
++  double rc_pole=GSL_REAL(gsl_matrix_complex_get(rho_U,1,1));
++  double rt_pole=GSL_REAL(gsl_matrix_complex_get(rho_U,2,2));
+ 
+   double mt_mt = sm.get_qmass_MSbar(6);
+   double mc_mc = sm.get_qmass_MSbar(4);
+@@ -914,30 +1059,30 @@
+   rt = rt_pole/mt_pole*mt_run;
+ }
+ 
+-void THDM::get_rho_lepton(double mu, double &re, double &rmu, double &rtau) {
++void THDM::get_rho_lepton(double mu, complex<double> &re, complex<double> &rmu, complex<double> &rtau) {
+   get_yukawas_lepton(re,rmu,rtau);
+ }
+ 
+ 
+ 
+-void THDM::get_yukawas_down(double &rhod, double &rhos, double &rhob) {
+-  rhod=gsl_matrix_get(rho_D,0,0);
+-  rhos=gsl_matrix_get(rho_D,1,1);
+-  rhob=gsl_matrix_get(rho_D,2,2);
++void THDM::get_yukawas_down(complex<double> &rhod, complex<double> &rhos, complex<double> &rhob) {
++  rhod=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_D,0,0));
++  rhos=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_D,1,1));
++  rhob=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_D,2,2));
+ }
+ 
+ 
+-void THDM::get_yukawas_up(double &rhou, double &rhoc, double &rhot) {
+-  rhou=gsl_matrix_get(rho_U,0,0);
+-  rhoc=gsl_matrix_get(rho_U,1,1);
+-  rhot=gsl_matrix_get(rho_U,2,2);
++void THDM::get_yukawas_up(complex<double> &rhou, complex<double> &rhoc, complex<double> &rhot) {
++  rhou=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_U,0,0));
++  rhoc=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_U,1,1));
++  rhot=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_U,2,2));
+ }
+ 
+ 
+-void THDM::get_yukawas_lepton(double &rhoe, double &rhomu, double &rhotau) {
+-  rhoe=gsl_matrix_get(rho_L,0,0);
+-  rhomu=gsl_matrix_get(rho_L,1,1);
+-  rhotau=gsl_matrix_get(rho_L,2,2);
++void THDM::get_yukawas_lepton(complex<double> &rhoe, complex<double> &rhomu, complex<double> &rhotau) {
++  rhoe=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_L,0,0));
++  rhomu=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_L,1,1));
++  rhotau=GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_L,2,2));
+ }
+ 
+ 
+@@ -986,33 +1131,45 @@
    lambda6=lambda[6];
    lambda7=lambda[7];
    tan_beta=tan(beta);
@@ -1004,7 +5762,372 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2062,7 +2128,7 @@
+@@ -1148,8 +1305,8 @@
+   double cba = get_cba();
+ 
+   if ((f1<=3)&&(f1>=1)&&(f2<=3)&&(f2>=1)) {
+-    double kd = gsl_matrix_get(kappa_D,f1-1,f2-1);
+-    double rd = gsl_matrix_get(rho_D,f1-1,f2-1);
++    complex<double> kd = GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_D,f1-1,f2-1));
++    complex<double> rd = GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_D,f1-1,f2-1));
+ 
+     if (f1==f2) {
+       double mms  = sm.get_dmass_MSbar(f1);
+@@ -1175,16 +1332,16 @@
+ 
+     switch(h) {
+     case 1:
+-      x = -I/sqrt(2.)*(kd*sba+rd*cba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(kd*sba+rd.real()*cba);
++      y = -I/sqrt(2.)*(rd.imag()*cba);
+       break;
+     case 2:
+-      x = -I/sqrt(2.)*(kd*cba-rd*sba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(kd*cba-rd.real()*sba);
++      y = -I/sqrt(2.)*(-rd.imag()*sba);
+       break;
+     case 3:
+-      x = 0.0;
+-      y = -I*I/sqrt(2.)*rd;
++      x = -I*I/sqrt(2.)*rd.imag();
++      y = -I*I/sqrt(2.)*rd.real();
+       break;
+     }
+ 
+@@ -1208,8 +1365,8 @@
+   double cba = get_cba();
+ 
+   if ((f1<=3)&&(f1>=1)&&(f2<=3)&&(f2>=1)) {
+-    double ku = gsl_matrix_get(kappa_U,f1-1,f2-1);
+-    double ru = gsl_matrix_get(rho_U,f1-1,f2-1);
++    complex<double> ku = GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_U,f1-1,f2-1));
++    complex<double> ru = GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_U,f1-1,f2-1));
+ 
+     double mms  = sm.get_umass_MSbar(f1);
+     double mp   = sm.get_umass_pole(f1);
+@@ -1228,16 +1385,16 @@
+ 
+     switch(h) {
+     case 1:
+-      x = -I/sqrt(2.)*(ku*sba+ru*cba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(ku*sba+ru.real()*cba);
++      y = -I/sqrt(2.)*(ru.imag()*cba);
+       break;
+     case 2:
+-      x = -I/sqrt(2.)*(ku*cba-ru*sba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(ku*cba-ru.real()*sba);
++      y = -I/sqrt(2.)*(-ru.imag()*sba);
+       break;
+     case 3:
+-      x = 0.0;
+-      y = -I*(-I/sqrt(2.))*ru;
++      x = -I*(-I/sqrt(2.))*ru.imag();
++      y = -I*(-I/sqrt(2.))*ru.real();
+       break;
+     }
+ 
+@@ -1261,21 +1418,21 @@
+   double cba = get_cba();
+ 
+   if ((f1<=3)&&(f1>=1)&&(f2<=3)&&(f2>=1)) {
+-    double kl = gsl_matrix_get(kappa_L,f1-1,f2-1);
+-    double rl = gsl_matrix_get(rho_L,f1-1,f2-1);
++    complex<double> kl = GSLComplexToDoubleComplex(gsl_matrix_complex_get(kappa_L,f1-1,f2-1));
++    complex<double> rl = GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_L,f1-1,f2-1));
+ 
+     switch(h) {
+     case 1:
+-      x = -I/sqrt(2.)*(kl*sba+rl*cba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(kl*sba+rl.real()*cba);
++      y = -I/sqrt(2.)*(rl.imag()*cba);
+       break;
+     case 2:
+-      x = -I/sqrt(2.)*(kl*cba-rl*sba);
+-      y = 0.0;
++      x = -I/sqrt(2.)*(kl*cba-rl.real()*sba);
++      y = -I/sqrt(2.)*(-rl.imag()*sba);
+       break;
+     case 3:
+-      x = 0.0;
+-      y = -I*I/sqrt(2.)*rl;
++      x = -I*I/sqrt(2.)*rl.imag();
++      y = -I*I/sqrt(2.)*rl.real();
+       break;
+     }
+ 
+@@ -1292,28 +1449,38 @@
+   cs = 0.;
+   cp = 0.;
+ 
+-  gsl_matrix* ckm = sm.get_CKM_matrix();
++  gsl_matrix_complex* ckm = convertMatrixToComplex(sm.get_CKM_matrix());
+ 
+   if (h!=4) return;
+ 
+   double mHp = get_hmass(4);
+ 
+   if ((u<=3)&&(u>=1)&&(d<=3)&&(d>=1)) {
+-    gsl_matrix *RD = gsl_matrix_alloc(3,3);
+-    gsl_matrix *RU = gsl_matrix_alloc(3,3);
++    gsl_matrix_complex_float *RD = gsl_matrix_complex_float_alloc(3,3);
++    gsl_matrix_complex_float *RU = gsl_matrix_complex_float_alloc(3,3);
++
++    gsl_complex_float gsl_one = {{1,0}};
++    gsl_complex_float gsl_zero = {{0,0}};;
+ 
+-    gsl_matrix_view A = gsl_matrix_submatrix(ckm,0,0,3,3);
+-    gsl_matrix_view B = gsl_matrix_submatrix(rho_D,0,0,3,3);
+-    gsl_blas_dgemm(CblasNoTrans,CblasNoTrans,1.0, &A.matrix, &B.matrix,0.0,RD);
+-    B = gsl_matrix_submatrix(rho_U,0,0,3,3);
+-    gsl_blas_dgemm(CblasConjTrans,CblasNoTrans,1.0, &B.matrix, &A.matrix,0.0,RU);
+-
+-    double rd = gsl_matrix_get(RD,u-1,d-1);
+-    double ru = gsl_matrix_get(RU,u-1,d-1);
+-    gsl_matrix_free(RD);
+-    gsl_matrix_free(RU);
+-    gsl_matrix_free(ckm);
++    gsl_matrix_complex_float * A = convertMatrixToComplexFloat(ckm);
++    gsl_matrix_complex_float * B = convertMatrixToComplexFloat(rho_D);
+ 
++    gsl_blas_cgemm(CblasNoTrans,CblasNoTrans,gsl_one, A, B, gsl_zero, RD);
++    B = convertMatrixToComplexFloat(rho_U);
++
++    gsl_blas_cgemm(CblasConjTrans,CblasNoTrans,gsl_one, B, A, gsl_zero, RU);
++
++    gsl_complex_float rd_gslf = gsl_matrix_complex_float_get(RD,u-1,d-1);
++    gsl_complex_float ru_gslf = gsl_matrix_complex_float_get(RU,u-1,d-1);
++
++    complex<double> rd(GSL_REAL(rd_gslf), GSL_IMAG(rd_gslf));
++    complex<double> ru(GSL_REAL(ru_gslf), GSL_IMAG(ru_gslf));;
++    gsl_matrix_complex_float_free(RD);
++    gsl_matrix_complex_float_free(RU);
++    gsl_matrix_complex_free(ckm);
++    //
++    gsl_matrix_complex_float_free(A);
++    gsl_matrix_complex_float_free(B);
+ 
+     double mdms  = sm.get_dmass_MSbar(d);
+     double Qinit  = mdms;
+@@ -1343,13 +1510,89 @@
+       ru = ru/mup*murun;
+     }
+ 
+-    cs = -I*0.5*(rd-ru);
+-    cp = -I*0.5*(rd+ru);
++    cs = -I*0.5*(rd-conj(ru));
++    cp = -I*0.5*(rd+conj(ru));
+   }
+ 
+ 
+ }
+ 
++
++// chirality flipped process
++void THDM::get_coupling_hud(int h,int d,int u,complex <double> &cs, complex <double> &cp) {
++    complex <double> I(0.0,1.0);
++    
++    complex <double> x(0.,0.);
++    complex <double> y(0.,0.);
++    cs = 0.;
++    cp = 0.;
++    
++    gsl_matrix_complex* ckm = convertMatrixToComplex(sm.get_CKM_matrix());
++    
++    if (h!=4) return;
++    
++    double mHp = get_hmass(4);
++    
++    if ((u<=3)&&(u>=1)&&(d<=3)&&(d>=1)) {
++        gsl_matrix_complex_float *RD = gsl_matrix_complex_float_alloc(3,3);
++        gsl_matrix_complex_float *RU = gsl_matrix_complex_float_alloc(3,3);
++        
++        gsl_complex_float gsl_one = {{1,0}};
++        gsl_complex_float gsl_zero = {{0,0}};;
++  
++        gsl_matrix_complex_float * A = convertMatrixToComplexFloat(ckm);
++        gsl_matrix_complex_float * B = convertMatrixToComplexFloat(rho_D);
++        
++        gsl_blas_cgemm(CblasNoTrans,CblasNoTrans,gsl_one, A, B, gsl_zero, RD);
++        B = convertMatrixToComplexFloat(rho_U);
++        
++        gsl_blas_cgemm(CblasConjTrans,CblasNoTrans,gsl_one, B, A,gsl_zero,RU);
++        
++        // this here has been flipped
++        gsl_complex_float rd_gslf = gsl_matrix_complex_float_get(RD,d-1,u-1);
++        gsl_complex_float ru_gslf = gsl_matrix_complex_float_get(RU,d-1,u-1);
++        
++        complex<double> rd(GSL_REAL(rd_gslf), GSL_IMAG(rd_gslf));
++        complex<double> ru(GSL_REAL(ru_gslf), GSL_IMAG(ru_gslf));;
++        gsl_matrix_complex_float_free(RD);
++        gsl_matrix_complex_float_free(RU);
++        gsl_matrix_complex_free(ckm);
++        //
++        gsl_matrix_complex_float_free(A);
++        gsl_matrix_complex_float_free(B);
++        
++        double mdms  = sm.get_dmass_MSbar(d);
++        double Qinit  = mdms;
++        double mdp   = sm.get_dmass_pole(d);
++        double mums  = sm.get_umass_MSbar(u);
++        double mup   = sm.get_umass_pole(u);
++        
++        // Special case for strange quark not defined as ms(ms)
++        if (d==2) {
++            Qinit = SM::Q_ms;
++        }
++        
++        // Starting scale for MSbar mass evolution for comp with HD
++        if(sm.b_HD) Qinit = SM::Q_HD;
++        double mdrun = sm.run_qmass_MSbar(mdms,Qinit,mHp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++        
++        Qinit  = mums;
++        // Starting scale for MSbar mass evolution for comp with HD
++        if(sm.b_HD) Qinit = SM::Q_HD;
++        double murun = sm.run_qmass_MSbar(mums,Qinit,mHp,sm.get_qmass_pole(6),sm.get_qmass_pole(5));
++        
++        if (mdrun>0) {
++            rd = rd/mdp*mdrun;
++        }
++        if (murun>0) {
++            ru = ru/mup*murun;
++        }
++        
++        cs = -I*0.5*(rd-conj(ru));
++        cp = -I*0.5*(rd+conj(ru));
++    }
++}
++
+ void THDM::get_coupling_hln(int h,int l,int n,complex <double> &cs, complex <double> &cp) {
+   complex <double> I(0.0,1.0);
+ 
+@@ -1361,11 +1604,11 @@
+   if (h!=4) return;
+ 
+   if ((n<=3)&&(n>=1)&&(l<=3)&&(l>=1)) {
+-    double rl = gsl_matrix_get(rho_L,n-1,l-1);
+-    double rn = gsl_matrix_get(rho_N,n-1,l-1);
++    complex<double> rl = GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_L,n-1,l-1));
++    complex<double> rn = GSLComplexToDoubleComplex(gsl_matrix_complex_get(rho_N,n-1,l-1));
+ 
+-    cs = -I*0.5*(rl-rn);
+-    cp = -I*0.5*(rl+rn);
++    cs = -I*0.5*(rl-conj(rn));
++    cp = -I*0.5*(rl+conj(rn));
+   }
+ 
+ }
+@@ -1991,54 +2234,57 @@
+   fprintf(output,"Block ALPHA     # Effective Higgs mixing parameter\n");
+   fprintf(output,"            % 16.8e   # alpha\n",-asin(sba)+atan(tan_beta));
+ 
+-  double lu[4][4],ld[4][4],ll[4][4];
+-  for (int i=0;i<4;i++) {
+-    for (int j=0;j<4;j++) {
+-      lu[i][j]=0.;
+-      ld[i][j]=0.;
+-      ll[i][j]=0.;
+-    }
+-  }
+-  double k1,k2,k3,r1,r2,r3;
+-  get_kappa_up(k1,k2,k3);
+-  get_yukawas_up(r1,r2,r3);
+-  (k1>0 ? lu[1][1] = r1/k1 : lu[1][1]=0.);
+-  (k2>0 ? lu[2][2] = r2/k2 : lu[2][2]=0.);
+-  (k3>0 ? lu[3][3] = r3/k3 : lu[3][3]=0.);
+-
+-  get_kappa_down(k1,k2,k3);
+-  get_yukawas_down(r1,r2,r3);
+-  (k1>0 ? ld[1][1] = r1/k1 : ld[1][1]=0.);
+-  (k2>0 ? ld[2][2] = r2/k2 : ld[2][2]=0.);
+-  (k3>0 ? ld[3][3] = r3/k3 : ld[3][3]=0.);
+-
+-  get_kappa_lepton(k1,k2,k3);
+-  get_yukawas_lepton(r1,r2,r3);
+-  (k1>0 ? ll[1][1] = r1/k1 : ll[1][1]=0.);
+-  (k2>0 ? ll[2][2] = r2/k2 : ll[2][2]=0.);
+-  (k3>0 ? ll[3][3] = r3/k3 : ll[3][3]=0.);
+-
+-
+-  fprintf(output,"Block UCOUPL\n");
+-  for (int i=1;i<=3;i++) {
+-    for (int j=1;j<=3;j++) {
+-       fprintf(output,"%5d%6d   % 16.8e   # LU_{%d,%d}\n",i,j,lu[i][j],i,j);
+-    }
+-  }
+-
+-  fprintf(output,"Block DCOUPL\n");
+-  for (int i=1;i<=3;i++) {
+-    for (int j=1;j<=3;j++) {
+-       fprintf(output,"%5d%6d   % 16.8e   # LD_{%d,%d}\n",i,j,ld[i][j],i,j);
+-    }
+-  }
+-
+-  fprintf(output,"Block LCOUPL\n");
+-  for (int i=1;i<=3;i++) {
+-    for (int j=1;j<=3;j++) {
+-       fprintf(output,"%5d%6d   % 16.8e   # LL_{%d,%d}\n",i,j,ll[i][j],i,j);
+-    }
+-  }
++  // commented out as we have not adapted this code to use complex Yukawas
++  // -----
++  // double lu[4][4],ld[4][4],ll[4][4];
++  // for (int i=0;i<4;i++) {
++  //   for (int j=0;j<4;j++) {
++  //     lu[i][j]=0.;
++  //     ld[i][j]=0.;
++  //     ll[i][j]=0.;
++  //   }
++  // }
++  // double k1,k2,k3,r1,r2,r3;
++  // get_kappa_up(k1,k2,k3);
++  // get_yukawas_up(r1,r2,r3);
++  // (k1>0 ? lu[1][1] = r1/k1 : lu[1][1]=0.);
++  // (k2>0 ? lu[2][2] = r2/k2 : lu[2][2]=0.);
++  // (k3>0 ? lu[3][3] = r3/k3 : lu[3][3]=0.);
++
++  // get_kappa_down(k1,k2,k3);
++  // get_yukawas_down(r1,r2,r3);
++  // (k1>0 ? ld[1][1] = r1/k1 : ld[1][1]=0.);
++  // (k2>0 ? ld[2][2] = r2/k2 : ld[2][2]=0.);
++  // (k3>0 ? ld[3][3] = r3/k3 : ld[3][3]=0.);
++
++  // get_kappa_lepton(k1,k2,k3);
++  // get_yukawas_lepton(r1,r2,r3);
++  // (k1>0 ? ll[1][1] = r1/k1 : ll[1][1]=0.);
++  // (k2>0 ? ll[2][2] = r2/k2 : ll[2][2]=0.);
++  // (k3>0 ? ll[3][3] = r3/k3 : ll[3][3]=0.);
++
++
++  // fprintf(output,"Block UCOUPL\n");
++  // for (int i=1;i<=3;i++) {
++  //   for (int j=1;j<=3;j++) {
++  //      fprintf(output,"%5d%6d   % 16.8e   # LU_{%d,%d}\n",i,j,lu[i][j],i,j);
++  //   }
++  // }
++
++  // fprintf(output,"Block DCOUPL\n");
++  // for (int i=1;i<=3;i++) {
++  //   for (int j=1;j<=3;j++) {
++  //      fprintf(output,"%5d%6d   % 16.8e   # LD_{%d,%d}\n",i,j,ld[i][j],i,j);
++  //   }
++  // }
++
++  // fprintf(output,"Block LCOUPL\n");
++  // for (int i=1;i<=3;i++) {
++  //   for (int j=1;j<=3;j++) {
++  //      fprintf(output,"%5d%6d   % 16.8e   # LL_{%d,%d}\n",i,j,ll[i][j],i,j);
++  //   }
++  // }
++  // -----
+ 
+ #if defined HiggsBounds
+ 
+@@ -2062,7 +2308,7 @@
  #endif
  
  
@@ -1013,7 +6136,46 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    table.set_qcd(qcd_on);
    fprintf(output,"#     PDG   Width\n");
    table.print_top_decays_LesHouches(output,fulldecay);
-@@ -2672,23 +2738,29 @@
+@@ -2548,21 +2794,23 @@
+ 
+ 
+ void THDM::print_yukawas() {
+-  printf("\nInvariant Yukawa matrices in convention of Haber");
+-  if (yukawas_type>0)
+-    printf(" for type %i",yukawas_type);
+-  printf("\n\nkappa_D\n");
+-  print_gsl_matrix(kappa_D,3,3);
+-  printf("kappa_U\n");
+-  print_gsl_matrix(kappa_U,3,3);
+-  printf("kappa_L\n");
+-  print_gsl_matrix(kappa_L,3,3);
+-  printf("rho_D\n");
+-  print_gsl_matrix(rho_D,3,3);
+-  printf("rho_U\n");
+-  print_gsl_matrix(rho_U,3,3);
+-  printf("rho_L\n");
+-  print_gsl_matrix(rho_L,3,3);
++  // commented out as we have not yet adapted this code to complex Yukawas.
++  // -----
++  // printf("\nInvariant Yukawa matrices in convention of Haber");
++  // if (yukawas_type>0)
++  //   printf(" for type %i",yukawas_type);
++  // printf("\n\nkappa_D\n");
++  // print_gsl_matrix(kappa_D,3,3);
++  // printf("kappa_U\n");
++  // print_gsl_matrix(kappa_U,3,3);
++  // printf("kappa_L\n");
++  // print_gsl_matrix(kappa_L,3,3);
++  // printf("rho_D\n");
++  // print_gsl_matrix(rho_D,3,3);
++  // printf("rho_U\n");
++  // print_gsl_matrix(rho_U,3,3);
++  // printf("rho_L\n");
++  // print_gsl_matrix(rho_L,3,3);
+ }
+ 
+ 
+@@ -2672,23 +2920,29 @@
  
  
  double THDM::get_m12_2() {
@@ -1058,7 +6220,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2696,6 +2768,10 @@
+@@ -2696,6 +2950,10 @@
    return sm;
  }
  
@@ -1070,9 +6232,30 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  void THDM::set_SM(SM sm_in) {
    sm=sm_in;
 diff -ruN src/THDM.h src_patched/THDM.h
---- src/THDM.h	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/THDM.h	2020-04-20 21:29:42.000000000 +0930
-@@ -65,6 +65,13 @@
+--- src/THDM.h	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/THDM.h	2020-11-09 13:05:54.000000000 +1030
+@@ -3,8 +3,11 @@
+ 
+ #include "SM.h"
+ #include <complex>
++#include <vector>
+ #include <gsl/gsl_matrix.h>
+ #include <gsl/gsl_matrix.h>
++#include <gsl/gsl_blas.h>
++#include <gsl/gsl_complex_math.h>
+ 
+ using namespace std;
+ 
+@@ -48,6 +51,8 @@
+   */
+   THDM();
+ 
++  // Free GSL (run at end)
++  void free_gsl();
+ 
+   /**
+   * @brief Sets the underlying SM
+@@ -65,6 +70,13 @@
    * @returns The SM object specifying the parameters used in this 2HDM
    */
    SM get_SM();
@@ -1086,7 +6269,123 @@ diff -ruN src/THDM.h src_patched/THDM.h
  
    /**
    * @brief Specifies 2HDM using generic potential
-@@ -849,8 +856,6 @@
+@@ -465,7 +477,9 @@
+   * @param rho13 Yukawa coupling \f$ \rho^D_{db} \f$
+   * @param rho23 Yukawa coupling \f$ \rho^D_{sb} \f$
+   */
+-  void set_yukawas_down(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
++  void set_yukawas_down(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                        complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                        complex<double> rho21, complex<double> rho31, complex<double> rho32);
+ 
+ 
+   /**
+@@ -483,7 +497,9 @@
+   * @param rho13 Yukawa coupling \f$ \rho^U_{ut} \f$
+   * @param rho23 Yukawa coupling \f$ \rho^U_{ct} \f$
+   */
+-  void set_yukawas_up(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
++  void set_yukawas_up(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                      complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                      complex<double> rho21, complex<double> rho31, complex<double> rho32);
+ 
+ 
+   /**
+@@ -501,7 +517,9 @@
+   * @param rho13 Yukawa coupling \f$ \rho^L_{e\tau} \f$
+   * @param rho23 Yukawa coupling \f$ \rho^L_{\mu\tau} \f$
+   */
+-  void set_yukawas_lepton(double rho11,double rho22,double rho33,double rho12,double rho13,double rho23);
++  void set_yukawas_lepton(complex<double> rho11, complex<double> rho22, complex<double> rho33, 
++                          complex<double> rho12, complex<double> rho13, complex<double> rho23, 
++                          complex<double> rho21, complex<double> rho31, complex<double> rho32);
+ 
+   /**
+   * @brief Initializes and sets Yukawa couplings for the inert 2HDM
+@@ -520,7 +538,7 @@
+   * @param rhos Returned value of \f$ \rho^D_{ss} \f$
+   * @param rhob Returned value of \f$ \rho^D_{bb} \f$
+   */
+-  void get_yukawas_down(double &rhod, double &rhos, double &rhob);
++  void get_yukawas_down(complex<double> &rhod, complex<double> &rhos, complex<double> &rhob);
+ 
+ 
+   /**
+@@ -530,7 +548,7 @@
+   * @param rhoc Returned value of \f$ \rho^U_{cc} \f$
+   * @param rhot Returned value of \f$ \rho^U_{tt} \f$
+   */
+-  void get_yukawas_up(double &rhou, double &rhoc, double &rhot);
++  void get_yukawas_up(complex<double> &rhou, complex<double> &rhoc, complex<double> &rhot);
+ 
+ 
+   /**
+@@ -540,26 +558,26 @@
+   * @param rhomu Returned value of \f$ \rho^L_{\mu\mu} \f$
+   * @param rhotau Returned value of \f$ \rho^L_{\tau\tau} \f$
+   */
+-  void get_yukawas_lepton(double &rhoe, double &rhomu, double &rhotau);
++  void get_yukawas_lepton(complex<double> &rhoe, complex<double> &rhomu, complex<double> &rhotau);
+ 
+ 
+-  void get_kappa_down(double &kd, double &ks, double &kb);
+-  void get_kappa_up(double &ku, double &kc, double &kt);
+-  void get_kappa_lepton(double &ke, double &kmu, double &ktau);
+-
+-  void get_kappa_down(double mu, double &kd, double &ks, double &kb);
+-  void get_kappa_up(double mu, double &ku, double &kc, double &kt);
+-  void get_kappa_lepton(double mu, double &ke, double &kmu, double &ktau);
+-  void get_rho_down(double mu, double &rd, double &rs, double &rb);
+-  void get_rho_up(double mu, double &ru, double &rc, double &rt);
+-  void get_rho_lepton(double mu, double &re, double &rmu, double &rtau);
++  void get_kappa_down(complex<double> &kd, complex<double> &ks, complex<double> &kb);
++  void get_kappa_up(complex<double> &ku, complex<double> &kc, complex<double> &kt);
++  void get_kappa_lepton(complex<double> &ke, complex<double> &kmu, complex<double> &ktau);
++
++  void get_kappa_down(double mu, complex<double> &kd, complex<double> &ks, complex<double> &kb);
++  void get_kappa_up(double mu, complex<double> &ku, complex<double> &kc, complex<double> &kt);
++  void get_kappa_lepton(double mu, complex<double> &ke, complex<double> &kmu, complex<double> &ktau);
++  void get_rho_down(double mu, complex<double> &rd, complex<double> &rs, complex<double> &rb);
++  void get_rho_up(double mu, complex<double> &ru, complex<double> &rc, complex<double> &rt);
++  void get_rho_lepton(double mu, complex<double> &re, complex<double> &rmu, complex<double> &rtau);
+ 
+   /**
+   * @brief Returns Yukawa matrix for down-type quarks
+   *
+   * @param rho_D_out Returned Yukawa matrix \f$ \rho^D \f$
+   */
+-  void get_yukawas_down(gsl_matrix *rho_D_out);
++  void get_yukawas_down(gsl_matrix_complex *rho_D_out);
+ 
+ 
+   /**
+@@ -567,7 +585,7 @@
+   *
+   * @param rho_U_out Returned Yukawa matrix \f$ \rho^U \f$
+   */
+-  void get_yukawas_up(gsl_matrix *rho_U_out);
++  void get_yukawas_up(gsl_matrix_complex *rho_U_out);
+ 
+ 
+   /**
+@@ -575,7 +593,7 @@
+   *
+   * @param rho_L_out Returned Yukawa matrix \f$ \rho^L \f$
+   */
+-  void get_yukawas_lepton(gsl_matrix *rho_L_out);
++  void get_yukawas_lepton(gsl_matrix_complex *rho_L_out);
+ 
+ 
+   /**
+@@ -621,6 +639,7 @@
+   * @param cp Returned (complex) value for pseudoscalar coupling
+   */
+   void get_coupling_hdu(int h,int d,int u,complex <double> &cs, complex <double> &cp);
++  void get_coupling_hud(int h,int d,int u,complex <double> &cs, complex <double> &cp);
+ 
+   /**
+   * @brief Couplings of Higgses to charged leptons
+@@ -849,10 +868,17 @@
    */
    void write_LesHouches(const char* file, bool fulldecay, bool couplings, bool qcd_on=true, const HBHSResult *hbhs=nullptr);
  
@@ -1094,24 +6393,49 @@ diff -ruN src/THDM.h src_patched/THDM.h
 -
    double get_alpha();
  
++  //custom functions
++  int num_rows(gsl_matrix * A);
++  int num_rows_complex(gsl_matrix_complex * A);
++  gsl_complex convertDoubleToComplex(double x, double y);
++  gsl_complex convertDoubleComplexToComplex(complex<double> x);
++  gsl_matrix_complex * convertMatrixToComplex(gsl_matrix * matrix);
++  gsl_matrix_complex_float * convertMatrixToComplexFloat(gsl_matrix_complex * matrix);
++  complex<double> GSLComplexToDoubleComplex(gsl_complex toConvert);
++
    /**
-@@ -867,7 +872,13 @@
+ 	* @brief Small value
+ 	*
+@@ -867,14 +893,20 @@
    double      m22_2;
    double      sinba;
    bool        params_set;
 +  bool        params_full_set;
    double      v2;
+-  gsl_matrix *kappa_D;
+-  gsl_matrix *kappa_U;
+-  gsl_matrix *kappa_L;
+-  gsl_matrix *rho_D;
+-  gsl_matrix *rho_U;
+-  gsl_matrix *rho_L;
+-  gsl_matrix *rho_N;
 +  double      m_h;
 +  double      m_H;
 +  double      m_A;
 +  double      m_Hp;
 +  double      m12_2;
-   gsl_matrix *kappa_D;
-   gsl_matrix *kappa_U;
-   gsl_matrix *kappa_L;
++  gsl_matrix_complex *kappa_D;
++  gsl_matrix_complex *kappa_U;
++  gsl_matrix_complex *kappa_L;
++  gsl_matrix_complex *rho_D;
++  gsl_matrix_complex *rho_U;
++  gsl_matrix_complex *rho_L;
++  gsl_matrix_complex *rho_N;
+   int         yukawas_type;
+ 
+   static bool first_run;
 diff -ruN src/Util.cpp src_patched/Util.cpp
---- src/Util.cpp	2020-04-20 21:29:42.000000000 +0930
-+++ src_patched/Util.cpp	2020-04-20 21:29:42.000000000 +0930
+--- src/Util.cpp	2020-11-09 13:05:54.000000000 +1030
++++ src_patched/Util.cpp	2020-11-09 13:05:54.000000000 +1030
 @@ -161,7 +161,7 @@
      
    if (status) 

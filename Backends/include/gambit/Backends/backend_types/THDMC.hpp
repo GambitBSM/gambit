@@ -82,6 +82,7 @@ namespace Gambit
     }
     // destructor
     ~THDM_spectrum_container() {
+      THDM_object.free_gsl();
       delete THDM_object;
     }
   };
