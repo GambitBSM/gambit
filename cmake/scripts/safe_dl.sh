@@ -51,7 +51,10 @@ cfile=cookie
 
 # Download
 axel_worked=0
-suffix=$($2 -E echo $4 | sed 's#.*\.##g')
+suffix=$($2 -E echo $4 | grep -o '\(zip\|tar.gz\|tgz\)')
+if [ ! -z ${sufix} ]; then
+  suffix=$($2 -E echo $4 | sed 's#.*\.##g')
+fi
 filename=$7_$8.${suffix}
 $2 -E make_directory $1 >/dev/null
 

@@ -30,6 +30,10 @@
 #          (b.farmer@imperial.ac.uk)
 #  \date 2018 Oct
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Nov
+#
 #************************************************
 
 
@@ -128,7 +132,11 @@ macro(add_extra_targets type package ver dir dl target)
     endif()
 
     # Add extra targets needed for backend bases, scanners and self-contained backends
-    string(REGEX REPLACE ".*/" "${${effective_type}_download}/" short_dl "${dl}")
+    string(REGEX MATCH "zip|tar.gz|tgz" suffix "${dl}")
+    if("${suffix}" STREQUAL "")
+      string(REGEX REPLACE ".*\\." "" suffix ${dl})
+    endif()
+    set(short_dl "${${effective_type}_download}/${package}_${ver}.${suffix}")
     add_external_clean(${pname} ${dir} ${short_dl} "${updated_target}")
     add_dependencies(clean-${effective_type}s clean-${pname})
     add_dependencies(nuke-${effective_type}s nuke-${pname})
