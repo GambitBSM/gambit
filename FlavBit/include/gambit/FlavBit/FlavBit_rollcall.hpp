@@ -1363,7 +1363,6 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_LHCb
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    DEPENDENCY(LHC_Higgs_LogLike, double)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1374,7 +1373,6 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_CMS
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    DEPENDENCY(LHC_Higgs_LogLike, double)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1385,7 +1383,6 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_Atlas
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    DEPENDENCY(LHC_Higgs_LogLike, double)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1508,7 +1505,6 @@ START_MODULE
     #define FUNCTION HEPLike_RK_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(prediction_RK_LHCb_1p1_6, flav_prediction)
-    DEPENDENCY(LHC_Higgs_LogLike, double)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1520,7 +1516,6 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(prediction_RKstar_LHCb_0p045_1p1, flav_prediction)
     DEPENDENCY(prediction_RKstar_LHCb_1p1_6, flav_prediction)
-    DEPENDENCY(LHC_Higgs_LogLike, double)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
