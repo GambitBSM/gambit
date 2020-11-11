@@ -1918,8 +1918,19 @@ namespace Gambit
       MReal DeltaMHiggs = BEreq::SUSYHD_DeltaMHiggs(parameterList);
 
       result.central = MHiggs;
-      result.upper = DeltaMHiggs;
-      result.lower = DeltaMHiggs;
+
+      bool use_SHD_uncertainty = runOptions->getValueOrDef<bool>(true, "use_SHD_uncertainty");
+
+      if(use_SHD_uncertainty)
+      {
+        result.upper = DeltaMHiggs;
+        result.lower = DeltaMHiggs;
+      }
+      else
+      {
+        result.upper = 0.0;
+        result.lower = 0.0;
+      }
 
     }
 

@@ -315,7 +315,7 @@ namespace Gambit
       //--------------------------------------------------------------------------
       //------calculation of the planck loglikelihood-----------------------------
       //--------------------------------------------------------------------------
-      int tmp_result = 0.0; // temporary to not spoil the printer output if the TT works but EE fails.
+      double tmp_result = 0.0; // temporary to not spoil the printer output if the TT works but EE fails.
       tmp_result += BEreq::plc_loglike_lowl_TT_2018(&cl_and_pars_TT[0]);
       tmp_result += BEreq::plc_loglike_lowl_EE_2018(&cl_and_pars_EE[0]);
 
