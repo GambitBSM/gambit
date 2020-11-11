@@ -51,7 +51,8 @@ cfile=cookie
 
 # Download
 axel_worked=0
-filename=$($2 -E echo $4 | sed 's#.*/##g')
+suffix=$($2 -E echo $4 | sed 's#.*\.##g')
+filename=$7_$8.${suffix}
 $2 -E make_directory $1 >/dev/null
 
 # Perform download only if the tarball does not already exist (e.g. it was moved there manually)
