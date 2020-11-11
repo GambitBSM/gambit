@@ -16,8 +16,8 @@
 
 #define BACKENDNAME HepLikeData
 #define BACKENDLANG Data
-#define VERSION 1.0
-#define SAFE_VERSION 1_0
+#define VERSION 1.1
+#define SAFE_VERSION 1_1
 
 // Load it
 LOAD_LIBRARY
