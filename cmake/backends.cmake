@@ -83,7 +83,6 @@
 #  \author Will Handley
 #          (wh260@cam.ac.uk)
 #  \date 2020 Mar
->>>>>>> master
 #
 #************************************************
 
