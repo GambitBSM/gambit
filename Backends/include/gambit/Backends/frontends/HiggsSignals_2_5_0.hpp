@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-/// Frontend for HiggsSignals backend
+///  Frontend for HiggsSignals backend
 ///
 ///  *********************************************
 ///
@@ -15,6 +15,7 @@
 ///
 ///  \author Ankit Beniwal
 ///  \date Jul 2019
+///  \date Jul 2020
 ///
 ///  \author Jonathan Cornell
 ///  \date Mar 2020
@@ -24,8 +25,8 @@
 
 #define BACKENDNAME HiggsSignals
 #define BACKENDLANG FORTRAN
-#define VERSION 2.4.0
-#define SAFE_VERSION 2_4_0
+#define VERSION 2.5.0
+#define SAFE_VERSION 2_5_0
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
@@ -45,8 +46,8 @@ LOAD_LIBRARY
 /* Syntax for BE_FUNCTION:
  * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]") */
 
-BE_FUNCTION(initialize_HiggsSignals, void, (int&, int&, const char*), "initialize_higgssignals_", "initialize_HiggsSignals")
-BE_FUNCTION(initialize_HiggsSignals_LHC13, void, (int&, int&), "initialize_higgssignals_lhc13_", "initialize_HiggsSignals_LHC13")
+BE_FUNCTION(initialize_HiggsSignals, void, (int&, int&, char*, size_t), "initialize_higgssignals_", "initialize_HiggsSignals")
+BE_FUNCTION(initialize_HiggsSignals_latestresults, void, (int&, int&), "initialize_higgssignals_latestresults_", "initialize_HiggsSignals_latestresults")
 BE_FUNCTION(initialize_HiggsBounds_int_HS, void, (int&, int&, int&), "initialize_higgsbounds_int_", "initialize_HiggsBounds_int_HS")
 
 BE_FUNCTION(setup_pdf, void, (int&), "setup_pdf_", "setup_pdf")
@@ -75,7 +76,7 @@ BE_FUNCTION(HiggsBounds_neutral_input_nonSMBR_HS, void, (double*, Farray<double,
 
 BE_FUNCTION(HiggsBounds_neutral_input_LEP_HS, void, (double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_lep_", "HiggsBounds_neutral_input_LEP_HS")
-BE_FUNCTION(HiggsBounds_neutral_input_hadr_HS, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
+BE_FUNCTION(HiggsBounds_neutral_input_hadr_HS, void, (int&, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&),
 	    "higgsbounds_neutral_input_hadr_", "HiggsBounds_neutral_input_hadr_HS")
 
 BE_FUNCTION(HiggsBounds_charged_input_HS, void, (double*, double*, double*, double*, double*, double*, double*, double*, double*, double*, Farray<double, 1,3>&),

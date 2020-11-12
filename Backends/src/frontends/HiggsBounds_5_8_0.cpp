@@ -21,6 +21,7 @@
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@uclouvain.be)
 ///  \date 2019 Jul
+///  \date 2020 Jul
 ///
 ///  \author Jonathan Cornell
 ///          (jonathancornell@weber.edu)
@@ -29,7 +30,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/HiggsBounds_5_7_0.hpp"
+#include "gambit/Backends/frontends/HiggsBounds_5_8_0.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
 BE_INI_FUNCTION

@@ -17,6 +17,7 @@
 ///  \author Ankit Beniwal
 ///          (ankit.beniwal@uclouvain.be)
 ///  \date 2019 Jul
+///  \date 2020 Jul
 ///
 ///  \author Jonathan Cornell
 ///          (jonathancornell@weber.edu)
@@ -26,7 +27,7 @@
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
-#include "gambit/Backends/frontends/HiggsSignals_2_4_0.hpp"
+#include "gambit/Backends/frontends/HiggsSignals_2_5_0.hpp"
 #include "gambit/Utils/file_lock.hpp"
 
 BE_INI_FUNCTION
@@ -56,8 +57,10 @@ BE_INI_FUNCTION
       mylocks.back()->get_lock();
     }
 
-    // Initialize HiggsSignals with 13 TeV LHC results and set pdf shape
-    initialize_HiggsSignals_LHC13(nHneut,nHplus);
+    // Initialize HiggsSignals with 'latestresults' analyses
+    initialize_HiggsSignals_latestresults(nHneut, nHplus);
+
+    // Set up Higgs mass pdf shape
     setup_pdf(pdf);
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)

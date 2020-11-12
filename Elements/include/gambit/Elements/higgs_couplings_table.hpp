@@ -70,8 +70,8 @@ namespace Gambit
 
       /// Effective couplings for neutral higgses
       /// @{
-      double C_WW2[max_neutral_higgses];
-      double C_ZZ2[max_neutral_higgses];
+      double C_WW[max_neutral_higgses];
+      double C_ZZ[max_neutral_higgses];
       double C_tt2[max_neutral_higgses];
       double C_bb2[max_neutral_higgses];
       double C_cc2[max_neutral_higgses];
@@ -81,7 +81,20 @@ namespace Gambit
       double C_mumu2[max_neutral_higgses];
       double C_Zga2[max_neutral_higgses];
       double C_ss2[max_neutral_higgses];
-      double C_hiZ2[max_neutral_higgses][max_neutral_higgses];
+      double C_hiZ[max_neutral_higgses][max_neutral_higgses];
+      /// Pseudoscalar and scalar effective couplings (not squared)
+      double C_tt_s[max_neutral_higgses];
+      double C_tt_p[max_neutral_higgses];
+      double C_bb_s[max_neutral_higgses];
+      double C_bb_p[max_neutral_higgses];
+      double C_cc_s[max_neutral_higgses];
+      double C_cc_p[max_neutral_higgses];
+      double C_ss_s[max_neutral_higgses];
+      double C_ss_p[max_neutral_higgses];
+      double C_tautau_s[max_neutral_higgses];
+      double C_tautau_p[max_neutral_higgses];
+      double C_mumu_s[max_neutral_higgses];
+      double C_mumu_p[max_neutral_higgses];
       /// @}
 
       /// Constructor
