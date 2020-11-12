@@ -62,6 +62,7 @@
 #  \date 2017 Jun
 #  \date 2018 Aug
 #  \date 2019 Jun
+#  \date 2020 Jul
 #
 #  \author Aaron Vincent
 #          (aaron.vincent@cparc.ca)
@@ -794,12 +795,12 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
-# HiggsBounds 5.7.0
+# HiggsBounds 5.8.0
 set(name "higgsbounds")
-set(ver "5.7.0")
+set(ver "5.8.0")
 set(lib "libhiggsbounds")
 set(dl "https://gitlab.com/higgsbounds/higgsbounds/-/archive/${ver}/higgsbounds-${ver}.tar.gz")
-set(md5 "d9d382de7be9779d0087055ab408910d")
+set(md5 "a81c46e26b0449e931e301a30e7421b6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
@@ -814,7 +815,7 @@ if(NOT ditched_${name}_${ver})
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DLEP_CHISQ=ON
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHB.a lib/objects/libHB.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
@@ -940,15 +941,15 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
-# HiggsSignals 2.4.0
+# HiggsSignals 2.5.0
 set(name "higgssignals")
-set(ver "2.4.0")
+set(ver "2.5.0")
 set(lib "libhiggssignals")
-set(dl "https://gitlab.com/higgsbounds/higgssignals/-/archive/2.4.0/higgssignals-2.4.0.tar.gz")
-set(md5 "c03a05d13edfc8da07e932ea2524b52d")
+set(dl "https://gitlab.com/higgsbounds/higgssignals/-/archive/${ver}/higgssignals-${ver}.tar.gz")
+set(md5 "1e9c9c4977829acfee754672ae39abdd")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(hb_name "higgsbounds")
-set(hb_ver "5.7.0")
+set(hb_ver "5.8.0")
 set(hb_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -963,8 +964,8 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHS.a lib/objects/libHS.a
           COMMAND ${CMAKE_COMMAND} -E copy "${hb_dir}/build/lib/libHB.a" lib/objects/libHB.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHS.a
-          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects tar -xf libHB.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHS.a
+          COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
