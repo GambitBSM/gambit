@@ -2268,14 +2268,9 @@ HiggsBounds_4_3_1_init:
 HiggsBounds_5_3_2beta_init: |
    Initialises HiggsBounds backend, version 5.3.2beta.
 
-<<<<<<< HEAD
 HiggsBounds_5_7_0_init: |
-=======
-HiggsBounds_5_8_0_init: 
-   Initialises HiggsBounds backend, version 5.8.0.
->>>>>>> HB_HS_upgrade_v2
 
-HiggsBounds_5_8_0_init: 
+HiggsBounds_5_8_0_init: |
    Initialises HiggsBounds backend, version 5.8.0.
 
 finish_HiggsBounds: |
@@ -2320,7 +2315,7 @@ HiggsBounds_set_mass_uncertainties: |
 run_HiggsBounds_classic: |
    Runs HiggsBounds after initialization in 'classic' mode.
 
-run_HiggsBounds: 
+run_HiggsBounds: |
    Run HiggsBounds after initialization.
 
 finish_HiggsBounds_chisqtables: |
@@ -2345,12 +2340,8 @@ HiggsSignals_1_4_init: |
 HiggsSignals_2_2_3beta_init: |
    Initialise HiggsSignals backend, version 2.2.3beta.
 
-<<<<<<< HEAD
-HiggsSignals_2_4_0_init: |
-=======
-HiggsSignals_2_5_0_init: 
+HiggsSignals_2_5_0_init: |
    Initialise HiggsSignals backend, version 2.5.0.
->>>>>>> HB_HS_upgrade_v2
 
 HiggsSignals_neutral_input_MassUncertainty: |
    Assign mass uncertainties for HiggsSignals backend.

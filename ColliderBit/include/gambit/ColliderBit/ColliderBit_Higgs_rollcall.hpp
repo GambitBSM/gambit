@@ -196,37 +196,6 @@
     BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
 
-    #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
-    START_FUNCTION(double)
-    ALLOW_MODELS(CPVYukawas)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    // TODO: JC: Delete the below, it is not needed?
-    // DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
-    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-    BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals),
-       void, (double*, double*, double*))
-    BACKEND_REQ(HiggsBounds_neutral_input_effC_HS, (libhiggssignals), void,
-      (double*, double*, double*, double*, double*, double*,
-       double*, double*, double*, double*, double*, double*,
-       double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&))
-    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
-      (double*, Farray<double, 1,3, 1,3, 1,3>&,
-       Farray<double, 1,3, 1,3>&, double*, double*,
-       double*, Farray<double, 1,3>&))
-//    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggsbounds), void,
-//      (double*, Farray<double, 1,3, 1,3, 1,3>&,
-//       Farray<double, 1,3, 1,3>&, double*, double*,
-//       double*, double*))
- 
-    BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
-//    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*)) -- Appears to be missing in HS 2.4.0
-    BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (double&, double&, double&, int&, double&) )
-    BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
-    BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
-    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
-    BACKEND_OPTION( (HiggsSignals, 2.2.3beta, 2.4.0), (libhiggssignals) )
-    #undef FUNCTION
-
     #define FUNCTION calc_HS_2_LHC_LogLike
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
@@ -251,6 +220,33 @@
     BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
 
+    #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
+    START_FUNCTION(double)
+    ALLOW_MODELS(CPVYukawas)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
+    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
+    BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals), void,
+    (double*, double*, double*))
+    BACKEND_REQ(HiggsBounds_neutral_input_effC_HS, (libhiggssignals), void,
+    (double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, Farray<double, 1,3, 1,3>&))
+    BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
+    (double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, Farray<double, 1,3>&))
+    BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (int&, double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_LHC_Run1_combination, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_STXS, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
+    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
+    BACKEND_OPTION( (HiggsSignals, 2.5.0), (libhiggssignals) )
+    #undef FUNCTION
+
+
   #undef CAPABILITY
 
 
@@ -267,3 +263,43 @@
 
 
 #undef MODULE
+
+
+//    #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
+//    START_FUNCTION(double)
+//    ALLOW_MODELS(CPVYukawas)
+//    DEPENDENCY(SMINPUTS, SMInputs)
+//    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
+//    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
+//    // TODO: JC: Delete the below, it is not needed?
+//    // DEPENDENCY(HB_ModelParameters, hb_ModelParameters)
+//    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+//    BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals),
+//       void, (double*, double*, double*))
+//    BACKEND_REQ(HiggsBounds_neutral_input_effC_HS, (libhiggssignals), void,
+//      (double*, double*, double*, double*, double*, double*,
+//       double*, double*, double*, double*, double*, double*,
+//       double*, double*, double*, double*, double*, Farray<double, 1,3, 1,3>&))
+//    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
+//      (double*, Farray<double, 1,3, 1,3, 1,3>&,
+//       Farray<double, 1,3, 1,3>&, double*, double*,
+//       double*, Farray<double, 1,3>&))
+//    BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
+//    (double*, double*, double*, double*,
+//    double*, double*, double*, double*,
+//    double*, double*, Farray<double, 1,3>&))
+// 
+//
+//    BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
+////    BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*)) -- Appears to be missing in HS 2.4.0
+//    BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (double&, double&, double&, int&, double&) )
+//    BACKEND_REQ(run_HiggsBounds_classic, (libhiggsbounds), void, (int&, int&, double&, int&))
+//    BACKEND_REQ(run_HiggsSignals_LHC_Run1_combination, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+//    BACKEND_REQ(run_HiggsSignals_STXS, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+// 
+////    BACKEND_REQ(HB_calc_stats, (libhiggsbounds), void, (double&, double&, double&, int&))
+//    BACKEND_OPTION( (HiggsBounds), (libhiggsbounds) )
+//    BACKEND_OPTION( (HiggsSignals, 2.2.3beta, 2.4.0, 2.5.0), (libhiggssignals) )
+//    #undef FUNCTION
+//
+//
