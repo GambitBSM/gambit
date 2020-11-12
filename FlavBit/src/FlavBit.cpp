@@ -2704,6 +2704,7 @@ namespace Gambit
       //Charged higgs contributions are being neglected
       //no longer
       for (int phi=0; phi<=3; ++phi)
+      {
        /*if (phi==0)
        {
         Aloop1L += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, mvl, ml[l], mh, xi_L, v, cab);
@@ -3038,8 +3039,6 @@ namespace Gambit
 
       int l = 2, lp = 1;
 
-      // One loop amplitude
-      complex<double> Aloop1L = 0;
       // One loop amplitude
       complex<double> Aloop1L = 0;
       complex<double> Aloop1R = 0;
@@ -3379,42 +3378,18 @@ namespace Gambit
          }
          else if(k == l) // l(i)- -> l(j)- l(k)- l(k)+
          {
-                   l2lll += real( 1/(pow(mphi[phi]*mphi[phip],2))*( (Yukawas::yff_phi(f, k, i, phi,  ml[
-k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas:
-:yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v
-, cab)))
-                                                           + (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_
-L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_ph
-i(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))
-)
-                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], x
-i_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
- k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)
-)))
-                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], x
-i_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
- i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)
-)))));
+                   l2lll += real( 1/(pow(mphi[phi]*mphi[phip],2))*( (Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)))
+                                                           + (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)))
+                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))))
+                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))))));
          }
 
          else if(j == k) // l(i)- -> l(j)- l(j)- l(l)+
          {
-                   l2lll +=  real(0.5*(1/pow(mphi[phi]*mphi[phip],2))*( two*(Yukawas::yff_phi(f, k, i, p
-hi,  ml[k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(
-Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f,  l, l, phi, ml[l], xi_L,
- VCKM, v, cab)))
-                                                           + two*(Yukawas::yff_phi(f, i, k, phi,  ml[i],
- xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(Yukawas::yf
-f_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, ca
-b)))
-                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], x
-i_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
- k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))
-))
-                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], x
-i_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
- i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))
-))));
+                   l2lll +=  real(0.5*(1/pow(mphi[phi]*mphi[phip],2))*( two*(Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f,  l, l, phi, ml[l], xi_L, VCKM, v, cab)))
+                                                           + two*(Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)))
+                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))))
+                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))))));
           }
          }
        }
@@ -3709,8 +3684,7 @@ endl;
 
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
 
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_gmu_ge_2_err, exp_gmu_g
-e_2_err, profile);
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_gmu_ge_2_err, exp_gmu_ge_2_err, profile);
     }
     /// Likelihood for l -> l gamma processes
     void l2lgamma_likelihood(double &result)
@@ -3719,8 +3693,8 @@ e_2_err, profile);
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
-      static double th_err[4];
-      double theory[4];
+      static double th_err[3];
+      double theory[3];
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -3740,15 +3714,13 @@ e_2_err, profile);
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
 
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 3; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
 
         // Init over.
         first = false;
       }
 
-     theory[0] = *Dep::deltaamu;
-     if(flav_debug) cout << "Delta a_mu =     " << theory[0] << endl;
      theory[1] = *Dep::muegamma;
      if(flav_debug) cout << "mu- -> e- gamma = " << theory[1] << endl;
      theory[2] = *Dep::tauegamma;
@@ -3757,7 +3729,7 @@ e_2_err, profile);
      if(flav_debug) cout << "tau- -> mu- gamma = " << theory[3] << endl;
 
      result = 0;
-     for (int i = 0; i < 4; ++i)
+     for (int i = 0; i < 3; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
 
     }
