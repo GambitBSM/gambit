@@ -50,6 +50,26 @@
 #define MODULE FlavBit
 START_MODULE
 
+//Observable: mu-e universality for the gTHDM from JHEP07(2013)044
+  #define CAPABILITY Gmu_ge_2
+  START_CAPABILITY
+    #define FUNCTION gmu_ge_2
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//  mu-e universality likelihood
+  #define CAPABILITY gmu_ge_2_lnL
+  START_CAPABILITY
+    #define FUNCTION gmu_ge_2_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(Gmu_ge_2, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
 //C7 in the general THDM capability
   #define CAPABILITY DeltaC7
   START_CAPABILITY
@@ -291,6 +311,14 @@ START_MODULE
     BACKEND_REQ(Kmunu_pimunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
     #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION Rmu_THDM
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  
   #undef CAPABILITY
 
   // Observable: Rmu23
@@ -313,6 +341,14 @@ START_MODULE
     BACKEND_REQ(Dstaunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
     #undef FUNCTION
+  //Function for the general THDM
+    #define FUNCTION Dstaunu_THDM
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   // Observable: BR(Ds->mu nu)
@@ -324,6 +360,12 @@ START_MODULE
     BACKEND_REQ(Dsmunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
     #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION Dsmunu_THDM
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
   #undef CAPABILITY
 
   // Observable: BR(D->mu nu)
@@ -334,6 +376,13 @@ START_MODULE
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Dmunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
+    #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION Dmunu_THDM
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -663,6 +712,13 @@ START_MODULE
     DEPENDENCY(mu_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_muegamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau -> e gamma
@@ -676,6 +732,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_tauegamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -691,6 +754,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumugamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: mu- -> e- e- e+
@@ -704,6 +774,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(mu_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_mueee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -719,6 +796,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taueee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
    // Observable: tau- -> mu- mu- mu+
@@ -732,6 +816,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumumumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -747,6 +838,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumuee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau- -> e- e- mu+
@@ -760,6 +858,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taueemu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -775,6 +880,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_tauemumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau- -> mu- mu- e+
@@ -788,6 +900,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumumue
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 

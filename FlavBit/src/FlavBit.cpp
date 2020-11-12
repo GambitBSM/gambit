@@ -40,7 +40,11 @@
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
-///  \date 2020 June
+///  \date 2020 June, Sep, Oct
+///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
 ///
 ///  *********************************************
 
@@ -549,7 +553,7 @@ namespace Gambit
         result.Re_DeltaC10 = Dep::DeltaC10->real();
         cout<<"After result.Re_DeltaC10"<<Dep::DeltaC10->real()<<endl;
         result.Im_DeltaC10 = Dep::DeltaC10->imag();
-        cout<<"After result.Re_DeltaC7"<<Dep::DeltaC7->real()<<endl;
+        //cout<<"After result.Re_DeltaC7"<<Dep::DeltaC7->real()<<endl;
         result.Re_DeltaCQ1 = Dep::DeltaCQ1->real();
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
@@ -809,6 +813,7 @@ namespace Gambit
       double Vcb = A*lambda*lambda;
       double Vts = -A*lambda*lambda;
       double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      // cout<< "Vcb = " << Vcb << endl;
       
       std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
                                       (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
@@ -901,7 +906,7 @@ namespace Gambit
       result =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*
                (Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
                 +
-               (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2)); 
+               (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2)); 
               
     }
     
@@ -997,7 +1002,50 @@ namespace Gambit
 
       result = C10p_Z + C10p_Box;
      
-    }         
+    }        
+
+   /// mu-e universality for the general THDM from JHEP07(2013)044
+   /// Green functions
+    double Fint(double x)
+    {
+       if (x < 0) FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
+       else if (x==0)
+        return 1;
+       else
+        return 1 + 9*x - 9*pow(x,2) - pow(x,3) + 6*x*(1 + x)*log(x);
+    }
+    
+    double Fps(double x)
+    {
+      if (x < 0) FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
+       else if (x==0)
+        return 1;
+      else
+       return 1 - 8*x + 8*pow(x,3) - pow(x,4) - 12*pow(x,2)*log(x);
+    }
+    
+    void gmu_ge_2(double &result)
+    {
+      using namespace Pipes::gmu_ge_2;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mMu = Dep::SMINPUTS->mMu;
+      double mTau = Dep::SMINPUTS->mTau;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double D = (2*mMu*Fint(pow(mMu,2)/pow(mTau,2)))/(mTau*Fps(pow(mMu,2)/pow(mTau,2)));
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
+      //cout<<"D = "<<D<<endl;
+      
+      result = 1 + R*R/4 - D*R;                                          
+    }           
       
     /// Br b	-> s gamma decays
 
@@ -1043,6 +1091,41 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Bsee_untag"<<endl;
     }
 
+    // Br D_s->tau nu in gTHDM
+    void Dstaunu_THDM(double &result)
+    {
+      using namespace Pipes::Dstaunu_THDM;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double m_Ds = 1.9683;
+      double f_Ds = 0.2486;
+      double hbar = 6.582119514e-25;
+      double life_Ds = 5.e-13;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
+      double Vcs = 1 - (1/2)*lambda*lambda;
+      double Vcb = A*lambda*lambda;
+      double Vts = -A*lambda*lambda;
+      double mTau = Dep::SMINPUTS->mTau;
+      double mS = Dep::SMINPUTS->mS;
+      double mCmC = Dep::SMINPUTS->mCmC;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Y22 = -((v*(-((sqrt(2)*mCmC*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      double X22 = (v*(-((sqrt(2)*mS*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vcb*Ysb))/(sqrt(2)*mS);
+      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*Z33)/(pow(mHp,2)*(mS + mCmC)*Vcs);
+
+      result = (pow(1 - Deltaij,2)*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+  
+      if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
+      if (flav_debug) cout << "Finished Dstaunu_THDM" << endl;
+    }
 
     /// Br B0->mumu decays
     void SI_Bmumu(double &result)
@@ -1100,6 +1183,42 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Dsmunu"<<endl;
     }
 
+    /// Br D_s->mu nu in gTHDM
+    void Dsmunu_THDM(double &result)
+    {
+      using namespace Pipes::Dsmunu_THDM;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double m_Ds = 1.9683;
+      double f_Ds = 0.2486;
+      double hbar = 6.582119514e-25;
+      double life_Ds = 5.e-13;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double A = Dep::SMINPUTS->CKM.A;
+      double Vcs = 1 - (1/2)*lambda*lambda;
+      double Vcb = A*lambda*lambda;
+      double Vts = -A*lambda*lambda;
+      double mMu = Dep::SMINPUTS->mMu;
+      double mS = Dep::SMINPUTS->mS;
+      double mCmC = Dep::SMINPUTS->mCmC;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Y22 = -((v*(-((sqrt(2)*mCmC*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      double X22 = (v*(-((sqrt(2)*mS*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vcb*Ysb))/(sqrt(2)*mS);
+      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+      
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*Z22)/(pow(mHp,2)*(mS + mCmC)*Vcs);
+
+      result = (pow(1 - Deltaij,2)*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+  
+      if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
+      if (flav_debug) cout << "Finished Dsmunu_THDM" << endl;
+    } 
+
 
     /// Br D -> mu nu
     void SI_Dmunu(double &result)
@@ -1114,6 +1233,36 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Dmunu"<<endl;
     }
 
+    /// Br D->mu nu in gTHDM
+    void Dmunu_THDM(double &result)
+    {
+      using namespace Pipes::Dmunu_THDM;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double m_D = 1.86961;
+      double f_D = 0.2135;
+      double hbar = 6.582119514e-25;
+      double life_D = 1.040e-12;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double Vcd = -lambda;
+      double Vtd = 8.54e-3;
+      double mMu = Dep::SMINPUTS->mMu;
+      double mCmC = Dep::SMINPUTS->mCmC;
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Y21 = -((v*(-((sqrt(2)*mCmC*tanb*Vcd)/v) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
+      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+      
+      double Deltaij = (pow(m_D,2)*Y21*Z22)/(pow(mHp,2)*Vcd);
+
+      result = (pow(1 - Deltaij,2)*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+  
+      if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
+      if (flav_debug) cout << "Finished Dmunu_THDM" << endl;
+    }
 
     /// Br B -> D tau nu
     void SI_BDtaunu(double &result)
@@ -1231,7 +1380,7 @@ namespace Gambit
     }
 
 
-    /// B->K mu nu / B-> pi mu nu
+    /// BR(K->mu nu) /BR pi -> mu nu)
     void SI_Rmu(double &result)
     {
       using namespace Pipes::SI_Rmu;
@@ -1242,6 +1391,41 @@ namespace Gambit
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SI_Rmu"<<endl;
+    }
+
+    /// BR(K->mu nu) /BR pi-> mu nu) in gTHDM
+    void Rmu_THDM(double &result)
+    {
+      using namespace Pipes::Rmu_THDM;
+      if (flav_debug) cout<<"Starting Rmu_THDM"<<endl;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double delta_em = -0.0070;
+      double m_pi = 0.13957;
+      double m_K = 0.493677;
+      double fK_fpi = 1.193;
+      double life_pi=2.6033e-8;
+      double life_K=1.2380e-8; 
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double Vud = 1. - 0.5*pow(lambda,2);
+      double Vus = lambda;
+      double Vub = 3.55e-3;//From superiso 3.4 manual
+      double mMu = Dep::SMINPUTS->mMu;
+      double mS = Dep::SMINPUTS->mS;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double X12 = (v*(-((sqrt(2)*mS*tanb*Vus)/v) + sqrt(1 + pow(tanb,2))*Vub*Ysb))/(sqrt(2)*mS);
+      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+     
+      double Deltaij = (pow(m_K,2)*X12*Z22)/(pow(mHp,2)*Vus);
+      double leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
+      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*pow(1 - Deltaij,2)*(1.+delta_em);
+
+      if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
+      if (flav_debug) cout<<"Finished Rmu_THDM"<<endl;
     }
 
 
@@ -1745,6 +1929,13 @@ namespace Gambit
       pmc.value_th(45,0)=Dep::BKstarmumu_17_19->S7;
       pmc.value_th(46,0)=Dep::BKstarmumu_17_19->S8;
       pmc.value_th(47,0)=Dep::BKstarmumu_17_19->S9;
+
+      double FL = pmc.value_th(24,0);
+      double S5 = pmc.value_th(28,0);
+      double AFB = pmc.value_th(25,0);
+
+      cout<<"BKstarmumu_6_8->P5' "<< S5/sqrt(FL*(1-FL)) <<endl;
+      cout<<"BKstarmumu_6_8->P2 "<< 2*AFB/(3*(1-FL)) <<endl;
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
@@ -2314,6 +2505,8 @@ namespace Gambit
         return 10.0/3;
     }
 
+    // TODO add RHN contributions to muon g-2
+
     // Contribution to mu -> e gamma from RHNs
     void RHN_muegamma(double &result)
     {
@@ -2413,6 +2606,519 @@ namespace Gambit
       result *= (norm(k2l) + norm(k2r));
 
       result /= Dep::tau_minus_decay_rates->width_in_GeV;
+    }
+
+
+// BR(mu -> e  gamma) for gTHDM from 1511.08880
+    void THDM_muegamma(double &result)
+    {
+      using namespace Pipes::THDM_muegamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double Alpha = 1/(sminputs.alphainv);
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double cab = cos(alpha-beta);
+      double mE = Dep::SMINPUTS->mE;
+      double mMu = Dep::SMINPUTS->mMu;
+      double mTau = Dep::SMINPUTS->mTau;
+      double mNu1 = Dep::SMINPUTS->mNu1;
+      double mNu2 = Dep::SMINPUTS->mNu2;
+      double mNu3 = Dep::SMINPUTS->mNu3;
+      double mBmB = Dep::SMINPUTS->mBmB;
+      double mT = Dep::SMINPUTS->mT;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      vector<double> mphi = {mh, mH, mA, mHp};
+      double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double A      = Dep::SMINPUTS->CKM.A;
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double rhobar = Dep::SMINPUTS->CKM.rhobar;
+      double etabar = Dep::SMINPUTS->CKM.etabar;
+      complex<double> Vud(1 - (1/2)*lambda*lambda);
+      complex<double> Vcd(-lambda,0);
+      complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vus(lambda,0);
+      complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      complex<double> Vts(-A*lambda*lambda,0);
+      complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vcb(A*lambda*lambda,0);
+      complex<double> Vtb(1,0);
+      double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      double xiemu = Yemu/cosb;
+      double ximue = Ymue/cosb;
+      double xietau = Yetau/cosb;
+      double xitaue = Ytaue/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double xitaumu = Ytaumu/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0,   0,  xitc,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0,   0,  xisb,
+              0, xisb, xibb;
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      int l = 0, lp = 1;
+
+      // One loop amplitude
+      complex<double> Aloop1L = 0;
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+       /*if (phi==0)
+       {
+        Aloop1L += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, mvl, ml[l], mh, xi_L, v, cab);
+        Aloop1R += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, mvl, ml[l], mh, xi_L, v, cab);
+       }
+       else if (phi==1)
+       {
+        Aloop1L += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, mvl, ml[l], mH, xi_L, v, cab);
+        Aloop1R += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, mvl, ml[l], mH, xi_L, v, cab);
+       }
+       else if (phi==2)
+       {
+        Aloop1L += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, mvl, ml[l], mA, xi_L, v, cab);
+        Aloop1R += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, mvl, ml[l], mA, xi_L, v, cab);
+       }*/
+        for (int li = 0; li <=2; ++li)
+        {
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+        }
+      }
+
+      /// Two loop amplitude
+      vector<double> Qf = {2/3,-1/3,-1};
+      vector<double> Nc = {3,3,1};
+      //Fermionic contribution
+      complex<double> Aloop2fL = 0;
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+         for (int lf=0; lf<=2; ++lf)
+              {
+               {
+                 if (phi==0)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                   }
+                 else if (phi==1)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                 else if (phi==2)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                }
+               }
+
+      //Bosonic contribution
+      complex<double> Aloop2bL = 0;
+      complex<double> Aloop2bR = 0;
+      double mW = Dep::SMINPUTS->mW;
+      double mZ = Dep::SMINPUTS->mZ;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       complex<double> sab(sqrt(1-cab*cab),0);
+       complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       if (phi==0)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+       }
+       else if (phi==1)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+       }
+      }
+
+      result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
+    }
+
+// BR(tau -> e gamma) for gTHDM from 1511.08880
+    void THDM_tauegamma(double &result)
+    {
+      using namespace Pipes::THDM_tauegamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double Alpha = 1/(sminputs.alphainv);
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double cab = cos(alpha-beta);
+      double mE = Dep::SMINPUTS->mE;
+      double mMu = Dep::SMINPUTS->mMu;
+      double mTau = Dep::SMINPUTS->mTau;
+      double mNu1 = Dep::SMINPUTS->mNu1;
+      double mNu2 = Dep::SMINPUTS->mNu2;
+      double mNu3 = Dep::SMINPUTS->mNu3;
+      double mBmB = Dep::SMINPUTS->mBmB;
+      double mT = Dep::SMINPUTS->mT;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      vector<double> mphi = {mh, mH, mA, mHp};
+      double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double A      = Dep::SMINPUTS->CKM.A;
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double rhobar = Dep::SMINPUTS->CKM.rhobar;
+      double etabar = Dep::SMINPUTS->CKM.etabar;
+      complex<double> Vud(1 - (1/2)*lambda*lambda);
+      complex<double> Vcd(-lambda,0);
+      complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vus(lambda,0);
+      complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      complex<double> Vts(-A*lambda*lambda,0);
+      complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vcb(A*lambda*lambda,0);
+      complex<double> Vtb(1,0);
+      double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      double xiemu = Yemu/cosb;
+      double ximue = Ymue/cosb;
+      double xietau = Yetau/cosb;
+      double xitaue = Ytaue/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double xitaumu = Ytaumu/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0,   0,  xitc,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0,   0,  xisb,
+              0, xisb, xibb;
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      int l = 2, lp = 0;
+
+      // One loop amplitude
+      complex<double> Aloop1L = 0;
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=2; ++phi)
+      {
+//       if (phi==0)
+//       {
+//        Aloop1L += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mh, xi_L, v, cab);
+//        Aloop1R += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mh, xi_L, v, cab);
+//       }
+//       else if (phi==1)
+//       {
+//       Aloop1L += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mH, xi_L, v, cab);//        Aloop1R += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mH, xi_L, v, cab);
+//       }
+//       else if (phi==2)
+//       {
+//        Aloop1L += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mA, xi_L, v, cab);
+//        Aloop1R += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mA, xi_L, v, cab);
+        for (int li = 0; li <=2; ++li)
+        {
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l-2, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l-2, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+        }
+      }
+
+      /// Two loop amplitude
+      vector<double> Qf = {2/3,-1/3,-1};
+      vector<double> Nc = {3,3,1};
+      //Fermionic contribution
+      complex<double> Aloop2fL = 0;
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+         for (int lf=0; lf<=2; ++lf)
+              {
+               {
+                 if (phi==0)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                   }
+                 else if (phi==1)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                 else if (phi==2)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                }
+               }
+
+      //Bosonic contribution
+      complex<double> Aloop2bL = 0;
+      complex<double> Aloop2bR = 0;
+      double mW = Dep::SMINPUTS->mW;
+      double mZ = Dep::SMINPUTS->mZ;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       complex<double> sab(sqrt(1-cab*cab),0);
+       complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       if (phi==0)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+       }
+       else if (phi==1)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+       }
+      }
+      result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
+    }
+
+// BR(tau -> mu gamma) for gTHDM from 1511.08880
+    void THDM_taumugamma(double &result)
+    {
+      using namespace Pipes::THDM_taumugamma;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double Alpha = 1/(sminputs.alphainv);
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double cab = cos(alpha-beta);
+      double mE = Dep::SMINPUTS->mE;
+      double mMu = Dep::SMINPUTS->mMu;
+      double mTau = Dep::SMINPUTS->mTau;
+      double mNu1 = Dep::SMINPUTS->mNu1;
+      double mNu2 = Dep::SMINPUTS->mNu2;
+      double mNu3 = Dep::SMINPUTS->mNu3;
+      double mBmB = Dep::SMINPUTS->mBmB;
+      double mT = Dep::SMINPUTS->mT;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      vector<double> mphi = {mh, mH, mA, mHp};
+      double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double A      = Dep::SMINPUTS->CKM.A;
+      double lambda = Dep::SMINPUTS->CKM.lambda;
+      double rhobar = Dep::SMINPUTS->CKM.rhobar;
+      double etabar = Dep::SMINPUTS->CKM.etabar;
+      complex<double> Vud(1 - (1/2)*lambda*lambda);
+      complex<double> Vcd(-lambda,0);
+      complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vus(lambda,0);
+      complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      complex<double> Vts(-A*lambda*lambda,0);
+      complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vcb(A*lambda*lambda,0);
+      complex<double> Vtb(1,0);
+      double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      double xiemu = Yemu/cosb;
+      double ximue = Ymue/cosb;
+      double xietau = Yetau/cosb;
+      double xitaue = Ytaue/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double xitaumu = Ytaumu/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0,   0,  xitc,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0,   0,  xisb,
+              0, xisb, xibb;
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      int l = 2, lp = 1;
+
+      // One loop amplitude
+      complex<double> Aloop1L = 0;
+      // One loop amplitude
+      complex<double> Aloop1L = 0;
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+      {
+//       if (phi==0)
+//       {
+//        Aloop1L += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mh, xi_L, v, cab);
+//       Aloop1R += (1/(16*pow(pi*mh,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mh, xi_L, v, cab);//       }
+//       else if (phi==1)
+//       {
+//        Aloop1L += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mH, xi_L, v, cab);
+//        Aloop1R += (1/(16*pow(pi*mH,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mH, xi_L, v, cab);
+//       }
+//       else if (phi==2)
+//       {
+//        Aloop1L += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1L(lp, l, lp, phi, ml[l], mA, xi_L, v, cab);
+//        Aloop1R += (1/(16*pow(pi*mA,2)))*Amplitudes::A_loop1R(lp, l, lp, phi, ml[l], mA, xi_L, v, cab);
+//       }
+        for (int li = 0; li <=2; ++li)
+        {
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l-2, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l-2, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+        }
+      }
+      /// Two loop amplitude
+      vector<double> Qf = {2/3,-1/3,-1};
+      vector<double> Nc = {3,3,1};
+      //Fermionic contribution
+      complex<double> Aloop2fL = 0;
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+         for (int lf=0; lf<=2; ++lf)
+              {
+               {
+                 if (phi==0)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                   }
+                 else if (phi==1)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                 else if (phi==2)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                }
+               }
+
+      //Bosonic contribution
+      complex<double> Aloop2bL = 0;
+      complex<double> Aloop2bR = 0;
+      double mW = Dep::SMINPUTS->mW;
+      double mZ = Dep::SMINPUTS->mZ;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       complex<double> sab(sqrt(1-cab*cab),0);
+       complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       if (phi==0)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+       }
+       else if (phi==1)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+       }
+      }
+      result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
+
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
     }
 
     // General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
@@ -2594,6 +3300,214 @@ namespace Gambit
       result /= Dep::tau_minus_decay_rates->width_in_GeV;
     }
 
+    //l2lll from THDMs
+
+    // General contribution to l_\i^- -> l_\j^- l_\k^- l_\l^+ for gTHDM from 1511.08880
+    double THDM_l2lll(int i, int j, int k, int l, SMInputs sminputs, Spectrum spectrum)
+    {
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double cab = cos(alpha-beta);
+      double mE = sminputs.mE;
+      double mMu = sminputs.mMu;
+      double mTau = sminputs.mTau;
+      vector<double> ml = {mE, mMu, mTau};
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      vector<double> mphi= {mh, mH, mA};
+      double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double A      = sminputs.CKM.A;
+      double lambda = sminputs.CKM.lambda;
+      double rhobar = sminputs.CKM.rhobar;
+      double etabar = sminputs.CKM.etabar;
+      complex<double> Vud(1 - (1/2)*lambda*lambda);
+      complex<double> Vcd(-lambda,0);
+      complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vus(lambda,0);
+      complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      complex<double> Vts(-A*lambda*lambda,0);
+      complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      complex<double> Vcb(A*lambda*lambda,0);
+      complex<double> Vtb(1,0);
+      double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      double xiemu = Yemu/cosb;
+      double ximue = Ymue/cosb;
+      double xietau = Yetau/cosb;
+      double xitaue = Ytaue/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double xitaumu = Ytaumu/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      Eigen::Matrix3cd xi_L, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      int f=0;
+      double l2lll = 0;
+      complex<double> two(2,0);
+
+      for (int phi=0; phi<=2; ++phi)
+      {
+        for (int phip=0; phip<=2; ++phip)
+        {
+         if(j == k and k == l) // l(i)- -> l(j)- l(j)- l(j)+
+         {
+
+                   l2lll += real(0.5*(1/pow(mphi[phi]*mphi[phip],2))*( two*(Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)))
+                                                           + two*(Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)))
+                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))))
+                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))))));
+         }
+         else if(k == l) // l(i)- -> l(j)- l(k)- l(k)+
+         {
+                   l2lll += real( 1/(pow(mphi[phi]*mphi[phip],2))*( (Yukawas::yff_phi(f, k, i, phi,  ml[
+k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas:
+:yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v
+, cab)))
+                                                           + (Yukawas::yff_phi(f, i, k, phi,  ml[i], xi_
+L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab)) * (conj(Yukawas::yff_ph
+i(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab))
+)
+                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], x
+i_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
+ k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)
+)))
+                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], x
+i_L, VCKM, v, cab)*Yukawas::yff_phi(f, k, k, phi, ml[k], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
+ i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, k, k, phip, ml[k], xi_L, VCKM, v, cab)
+)))));
+         }
+
+         else if(j == k) // l(i)- -> l(j)- l(j)- l(l)+
+         {
+                   l2lll +=  real(0.5*(1/pow(mphi[phi]*mphi[phip],2))*( two*(Yukawas::yff_phi(f, k, i, p
+hi,  ml[k], xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(
+Yukawas::yff_phi(f, k, i, phip, ml[k], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f,  l, l, phi, ml[l], xi_L,
+ VCKM, v, cab)))
+                                                           + two*(Yukawas::yff_phi(f, i, k, phi,  ml[i],
+ xi_L, VCKM, v, cab)*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)) * (conj(Yukawas::yf
+f_phi(f, i, k, phip, ml[i], xi_L, VCKM, v, cab))*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, ca
+b)))
+                                                           +   (Yukawas::yff_phi(f, k, i, phi,  ml[k], x
+i_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
+ k, i, phip, ml[k], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))
+))
+                                                           +   (Yukawas::yff_phi(f, i, k, phi,  ml[i], x
+i_L, VCKM, v, cab)*Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab) * (conj(Yukawas::yff_phi(f,
+ i, k, phip, ml[i], xi_L, VCKM, v, cab))*conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))
+))));
+          }
+         }
+       }
+
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      return (BRtautomununu/(32*pow(sminputs.GF,2)))*l2lll;
+    }
+
+
+    // Contribution to mu -> e e e from THDM
+    void THDM_mueee(double &result)
+    {
+      using namespace Pipes::THDM_mueee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, mu = 1;
+      result =  THDM_l2lll(mu, e, e, e, sminputs,spectrum);
+
+    }
+
+    // Contribution to tau -> e e e from THDM
+    void THDM_taueee(double &result)
+    {
+      using namespace Pipes::THDM_taueee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, tau = 2;
+      result =  THDM_l2lll(tau, e, e, e, sminputs, spectrum);
+
+    }
+
+    // Contribution to tau -> mu mu mu from THDM
+    void THDM_taumumumu(double &result)
+    {
+      using namespace Pipes::THDM_taumumumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int mu = 1, tau = 2;
+      result =  THDM_l2lll(tau, mu, mu, mu, sminputs, spectrum);
+
+    }
+
+    // Contribution to tau^- -> mu^- e^- e^+ from THDM
+    void THDM_taumuee(double &result)
+    {
+      using namespace Pipes::THDM_taumuee;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, mu = 1, tau = 2;
+      result =  THDM_l2lll(tau, mu, e, e, sminputs, spectrum);
+
+    }
+
+    // Contribution to tau^- -> e^- e^- mu^+ from THDM
+    void THDM_taueemu(double &result)
+    {
+      using namespace Pipes::THDM_taueemu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, mu = 1, tau = 2;
+      result =  THDM_l2lll(tau, e, e, mu, sminputs, spectrum);
+
+    }
+
+    // Contribution to tau^- -> e^- mu^- mu^+ from THDM
+    void THDM_tauemumu(double &result)
+    {
+      using namespace Pipes::THDM_tauemumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, mu = 1, tau = 2;
+      result =  THDM_l2lll(tau, e, mu, mu, sminputs, spectrum);
+
+    }
+
+    // Contribution to tau^- -> mu^- mu^- e^+ from THDM
+    void THDM_taumumue(double &result)
+    {
+      using namespace Pipes::THDM_taumumue;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      int e = 0, mu = 1, tau = 2;
+      result =  THDM_l2lll(tau, mu, mu, e, sminputs, spectrum);
+
+    }
+
     // Form factors for to mu - e conversion
     void RHN_mue_FF(const SMInputs sminputs, std::vector<double> &mnu, Eigen::Matrix<complex<double>,3,6> &U, const double mH, complex<double> &g0SL, complex<double> &g0SR, complex<double> &g0VL, complex<double> &g0VR, complex<double> &g1SL, complex<double> &g1SR, complex<double> &g1VL, complex<double> &g1VR)
     {
@@ -2762,6 +3676,42 @@ namespace Gambit
 
     }
 
+
+   /// Likelihood for  mu-e universality
+    void gmu_ge_2_likelihood(double &result)
+    {
+      using namespace Pipes::gmu_ge_2_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_gmu_ge_2_err, th_err;
+
+      if (flav_debug) cout << "gmu_ge_2_likelihood"<<endl;
+
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in gmu_ge_2_ikelihood"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "gmu_ge_2");
+        fread.initialise_matrices();
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_gmu_ge_2_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_gmu_ge_2_err << " " << th_err <<
+endl;
+
+      double theory_prediction = *Dep::Gmu_ge_2;
+      double theory_gmu_ge_2_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_gmu_ge_2_err<<endl;
+
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_gmu_ge_2_err, exp_gmu_g
+e_2_err, profile);
+    }
     /// Likelihood for l -> l gamma processes
     void l2lgamma_likelihood(double &result)
     {
@@ -2769,8 +3719,8 @@ namespace Gambit
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
-      static double th_err[3];
-      double theory[3];
+      static double th_err[4];
+      double theory[4];
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -2790,22 +3740,24 @@ namespace Gambit
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
 
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 4; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
 
         // Init over.
         first = false;
       }
 
-     theory[0] = *Dep::muegamma;
-     if(flav_debug) cout << "mu- -> e- gamma = " << theory[0] << endl;
-     theory[1] = *Dep::tauegamma;
-     if(flav_debug) cout << "tau- -> e- gamma = " << theory[1] << endl;
-     theory[2] = *Dep::taumugamma;
-     if(flav_debug) cout << "tau- -> mu- gamma = " << theory[2] << endl;
+     theory[0] = *Dep::deltaamu;
+     if(flav_debug) cout << "Delta a_mu =     " << theory[0] << endl;
+     theory[1] = *Dep::muegamma;
+     if(flav_debug) cout << "mu- -> e- gamma = " << theory[1] << endl;
+     theory[2] = *Dep::tauegamma;
+     if(flav_debug) cout << "tau- -> e- gamma = " << theory[2] << endl;
+     theory[3] = *Dep::taumugamma;
+     if(flav_debug) cout << "tau- -> mu- gamma = " << theory[3] << endl;
 
      result = 0;
-     for (int i = 0; i < 3; ++i)
+     for (int i = 0; i < 4; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
 
     }

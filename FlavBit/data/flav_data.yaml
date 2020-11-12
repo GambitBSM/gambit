@@ -156,7 +156,17 @@
   correlation:
   - name: NONE
 
-
+- name: gmu_ge_2
+  islimit: false
+  exp_value: 1.0036
+  exp_stat_error: 0.0020
+  exp_sys_error: 0.000
+  exp_source: BABAR_arXiv:0912.0242
+  th_error: 0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
 ##########################################
 
