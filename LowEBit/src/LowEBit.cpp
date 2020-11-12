@@ -78,7 +78,7 @@ namespace Gambit
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
 		  double CqH[9] = {
-			  (*Param["CeHm"])*cosThU + (*Param["CeHp"]*sinThE),
+			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
 			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
 			  (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"]*sinThTau),
 			  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
@@ -448,6 +448,7 @@ namespace Gambit
 			else{offset = -offset;}
 			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu + offset)/sig,2));
 		  }
+		  cout << "result_EDM_n: " << result << endl;
 /*		  if(abs(*Dep::EDM_n) < 2.9E-26)
 			{
 				double mu = -0.2E-26, sig = 2.0E-26;
