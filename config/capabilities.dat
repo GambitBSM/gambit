@@ -2275,6 +2275,9 @@ HiggsBounds_5_8_0_init:
    Initialises HiggsBounds backend, version 5.8.0.
 >>>>>>> HB_HS_upgrade_v2
 
+HiggsBounds_5_8_0_init: 
+   Initialises HiggsBounds backend, version 5.8.0.
+
 finish_HiggsBounds: |
    Finishes HiggsBound.
 
