@@ -366,6 +366,7 @@ START_MODULE
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: BR(D->mu nu)
