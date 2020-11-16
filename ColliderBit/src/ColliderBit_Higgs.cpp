@@ -1138,7 +1138,7 @@ namespace Gambit
       int nobs, nobs1, nobs2;
 
       // Run the main subroutines
-      BEreq::run_HiggsSignals(mode, csqmu, csqmh, csqtot, nobs, Pvalue);
+      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);//mode, 
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 

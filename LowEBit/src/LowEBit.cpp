@@ -441,7 +441,7 @@ namespace Gambit
 		  if(abs(*Dep::EDM_n) < 2.9E-26)
 		  {
 			result = 0.0;
-			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow(( - mu )/sig,2));
+			result = -1/2.*( - std::log(2*pi) - 2*std::log(sig) + std::pow(( - mu )/sig,2)); //check - factors of 2 missing
 		  }
 		  else{
 			if(*Dep::EDM_n < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
@@ -464,11 +464,13 @@ namespace Gambit
 	  void lnL_EDM_n_gaussianOverall(double &result)
 	  {
 			using namespace Pipes::lnL_EDM_n_gaussianOverall;
-			double mu = -0.2E-26, sig = 2.0E-26;
+			double mu = 0., sig = 2.0E-26;//mu=-0.0E-26
 			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
 			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
 			// likelihood accordingly?
-			result = -1./2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_n - mu)/sig,2));
+			cout << "mu_n: " << mu << endl;
+		  	cout << "result_EDM_n: " << result << endl;
+			result = -1.*(+ std::pow((*Dep::EDM_n - mu)/sig,2));//std::log(2*pi) + 2*std::log(sig) 
 	  }
 
    }

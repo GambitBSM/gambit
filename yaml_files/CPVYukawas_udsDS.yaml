@@ -10,31 +10,31 @@ Parameters:
     rhoU: 0.55
     rhoD: 1.10
 
-  diaEDMme:
-    CSchiff_Hg: -2.6
-    CSchiff_Ra: 0.0
-    CSchiff_Rn: 0.0
-    CSchiff_Xe: 0.0
-    a0_Hg: 0.028
-    a0_Ra: 0.0
-    a0_Rn: 0.0
-    a0_Xe: 0.0
-    a1_Hg: 0.32
-    a1_Ra: 0.0
-    a1_Rn: 0.0
-    a1_Xe: 0.0
-    b_Hg: 0.0
-    b_Ra: 0.0
-    b_Rn: 0.0
-    b_Xe: 0.0
-#  StandardModel_Higgs:
-#     mH: 150.
-#     #range: [110.,250.]
-#     #prior_type: flat
+    #  diaEDMme:
+    #    CSchiff_Hg: -2.6
+    #    CSchiff_Ra: 0.0
+    #    CSchiff_Rn: 0.0
+    #    CSchiff_Xe: 0.0
+    #    a0_Hg: 0.028
+    #    a0_Ra: 0.0
+    #    a0_Rn: 0.0
+    #    a0_Xe: 0.0
+    #    a1_Hg: 0.32
+    #    a1_Ra: 0.0
+    #    a1_Rn: 0.0
+    #    a1_Xe: 0.0
+    #    b_Hg: 0.0
+    #    b_Ra: 0.0
+    #    b_Rn: 0.0
+    #    b_Xe: 0.0
+  StandardModel_Higgs:
+     mH: 150.
+     #range: [110.,250.]
+     #prior_type: flat
 
   CPVYukawas:
     CbHp:  
-     range: [-1.0E+0,1.0E+0]
+     range: [-1.0E-2,1.0E-2]
      prior_type: flat
     CbHm: 
           range: [-1.0E-2,1.0E-2]
@@ -47,8 +47,8 @@ Parameters:
     #     range: [-5.E-1,5.E-1]
      #     range: [-1.,1.]
      # prior_type: flat
-    CuHp: 0.
-    CuHm: 0.
+    CbHp: 0.
+    CbHm: 0.
     CdHp: 0.
     CdHm: 0.
     CcHp: 0.
@@ -107,7 +107,7 @@ Scanner:
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [500, 500]
+      grid_pts: [200, 200]
           #, 1000, 1000, 1000, 1000]
           #parameters: ["StandardModel_Higgs::mH","CPVYukawas::kappaB" ]
       parameters: ["CPVYukawas::CbHm", "CPVYukawas::CbHp"]
@@ -121,23 +121,28 @@ ObsLikes:
   #   purpose: LogLike
  
            - capability: LHC_Higgs_LogLike
-             function: calc_HS_LHC_LogLike_CPVYukawas
+             function: calc_HS_2_LHC_LogLike
+             #_CPVYukawas
              purpose: LogLike
- 
+             dependencies:
+              - capability: HB_ModelParameters
+                function: SMHiggs_ModelParameters
+                module: ColliderBit
 
 
 
 
 
 
-        #  - capability: lnL_EDM_n
-        #    function: lnL_EDM_n_gaussianStep
-        #    purpose: LogLike
-        # 
-        #  - capability: EDM_n
-        #    function: EDM_n_quark
-        #    purpose: Observable
-        #    module: LowEBit
+
+         # - capability: lnL_EDM_n
+         #   function: lnL_EDM_n_gaussianOverall
+         #   purpose: LogLike
+         
+          #- capability: EDM_n
+          #  function: EDM_n_quark
+          #  purpose: Observable
+          #  module: LowEBit
         #
         #  - capability: lnL_EDM_para
         #    function: lnL_EDM_ThO_gaussianStep
@@ -186,13 +191,18 @@ ObsLikes:
 
 
 Rules:
-                   - capability: LHC_Higgs_LogLike
-                     function: calc_HS_LHC_LogLike_CPVYukawas
-                     purpose: LogLike
-                     dependencies:
-                      - capability: HB_ModelParameters
-                        function: SMHiggs_ModelParameters
-                        module: ColliderBit
+                          - capability: LHC_Higgs_LogLike
+                            function: calc_HS_LHC_LogLike
+                            #_CPVYukawas
+                            purpose: LogLike
+                            dependencies:
+                             - capability: HB_ModelParameters
+                               function: SMHiggs_ModelParameters
+                               module: ColliderBit
+                             - capability: HB_ModelParameters_charged
+                               function: SMHiggs_ModelParameters_charged
+                               module: ColliderBit
+ 
  #   - capability: lnL_EDM_para
  #     function: lnL_EDM_ThO_gaussianStep
  #     dependencies: 
@@ -201,13 +211,13 @@ Rules:
  #          module: LowEBit
  #
 
-  #  - capability: lnL_EDM_n
-  #    function: lnL_EDM_n_gaussianStep
-  #    purpose: LogLike
-  #    dependencies:
-  #     - capability: EDM_n
-  #       function: EDM_n_quark
-  #       module: LowEBit
+ #   - capability: lnL_EDM_n
+ #     function: lnL_EDM_n_gaussianOverall
+ #     purpose: LogLike
+ #     dependencies:
+ #      - capability: EDM_n
+ #        function: EDM_n_quark
+ #        module: LowEBit
     
  #   - capability: lnL_EDM_dia
  #     function: lnL_EDM_199Hg_step
