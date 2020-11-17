@@ -272,9 +272,9 @@ namespace Gambit
         // mvl,ml is mass of neutrino,lepton in loop
         // mphi is array of Higgs boson masses
         //Incoming fermion is the dominant contribution here (can be generalized).
-        // complex<double> Log(log(pow(mphi/ml,2))-(3/2),0);
-        // complex<double> six(6,0);
-        // return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, v, cab))*(conj(Yukawas::yff_phi(f, l, l, phi, ml, xi_L, v, cab))*Log+(Yukawas::yff_phi(f, l, l, phi, ml, xi_L, v, cab)/six));
+        //complex<double> Log(log(pow(mphi/ml[l],2))-(3./2.),0);
+        //complex<double> six(6,0);
+        //return  conj(Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, v, cab))*(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))*Log+(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)/six));
         //General contribution
         if ((phi == 0) or (phi == 1) or (phi == 2))
         {
@@ -303,9 +303,9 @@ namespace Gambit
         // phi = 0,1,2,3 for h,H,A,H+
         // mvl,ml is mass of neutrino,lepton in loop
         // mphi is array of Higgs boson masses
-         //complex<double> Log(log(pow(mphi/ml,2))-(3/2),0);
-         //complex<double> six(6,0);
-         //return Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, v, cab)*(Yukawas::yff_phi(f, l, l, phi, ml, xi_L, v, cab)*Log+(conj(Yukawas::yff_phi(f, l, l, phi, ml, xi_L, v, cab))/six));
+        //complex<double> Log(log(pow(mphi/ml[l],2))-(3./2.),0);
+        //complex<double> six(6.,0);
+        //return Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, v, cab)*(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, v, cab)*Log+(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, v, cab))/six));
         //General contribution
         if ((phi == 0) or (phi == 1) or (phi == 2))
         {
