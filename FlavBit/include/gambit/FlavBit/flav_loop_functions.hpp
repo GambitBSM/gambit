@@ -66,49 +66,42 @@ namespace Gambit
     complex<double> yff_phi(int f, int i, int j, int phi, double mf, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, double v, double cab)
     {
        complex<double> I(0,1);
-       if (phi==0)
+       switch(phi)
        {
-        return Vertices_THDM::yff_h(i, j, mf, xi_f, v, cab);
-       }
-       else if (phi==1)
-       {
-        return Vertices_THDM::yff_H(i, j, mf, xi_f, v, cab);
-       }
-       else if (phi==2)
-       {
-         if (f==2)//flip sign if it is an up-like quark
-         {
-           return -I*(1/sqrt(2))*xi_f(i,j);
-         }
-         else
-         {
-           return I*(1/sqrt(2))*xi_f(i,j);
-         }
-       }
-       else if (phi == 3)
-       {
-         if (f==2)//flip sign and include CKM Matrix if it is an up-like quark
+         case 0 :
+           return Vertices_THDM::yff_h(i, j, mf, xi_f, v, cab);
+         case 1 :
+           return Vertices_THDM::yff_H(i, j, mf, xi_f, v, cab);
+         case 2 :
+           if (f==2)//flip sign if it is an up-like quark
            {
-             complex<double> vertex_total(0,0);
-             for  (int kk = 0; kk <= 2; ++kk)
-             {
-               vertex_total += -VCKM(i,kk)*xi_f(kk,j);
-             }
-               return vertex_total;
-             }
-             else if (f==1)//include CKM Matrix if it is an down-like quark
-             {
-               complex<double> vertex_total(0,0);
-               for  (int kk = 0; kk <= 2; ++kk)
+             return -I*(1/sqrt(2))*xi_f(i,j);
+           }
+           else
+           {
+             return I*(1/sqrt(2))*xi_f(i,j);
+           }
+         case 3 :
+           complex<double> vertex_total(0,0);
+           switch(f)
+           {
+             case 2 ://flip sign and include CKM Matrix if it is an up-like quark
+               for (int kk = 0; kk <= 2; ++kk)
+               {
+                 vertex_total += -VCKM(i,kk)*xi_f(kk,j);
+               }
+               break;
+             case 1 ://include CKM Matrix if it is an down-like quark
+               for (int kk = 0; kk <= 2; ++kk)
                {
                  vertex_total += VCKM(i,kk)*xi_f(kk,j);
                }
-               return vertex_total;
-             }
-             else if (f==0)//if it is a charged lepton
-             {
-               return xi_f(i,j);
-             }
+               break;
+             case 0 ://if it is a charged lepton
+               vertex_total += xi_f(i,j);
+               break;
+           }
+           return vertex_total;
        }
     }
     }
