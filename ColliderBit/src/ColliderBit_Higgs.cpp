@@ -977,18 +977,32 @@ namespace Gambit
     {
       using namespace Pipes::calc_HS_LHC_LogLike_CPVYukawas;
 
-      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
-      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
+//      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
+//      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> ghjhiZ;
       Farray<double, 1,3> BR_HpjhiW;
       for(int i = 0; i < 3; i++) 
       {
-        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
+//        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
+        BR_HpjhiW(i+1) = 0.;
         for(int j = 0; j < 3; j++) {
-          ghjhiZ(i+1,j+1) = ModelParam.ghjhiZ[i][j];
+          ghjhiZ(i+1,j+1) = 0;//ModelParam.ghjhiZ[i][j];
         }
       }
+      int Hneut = 1;
+      double Mh[Hneut];
+      Mh[0] = 125.09;
+      double GammaTot[Hneut];
+      double CP[Hneut];
+      CP[0] = 0.;
+      //const HiggsCouplingsTable::h0_decay_array_type&  h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(1);
+      GammaTot[0] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
+
+      double ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
+        ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
+        ghjmumu_s[Hneut], ghjmumu_p[Hneut], ghjtautau_s[Hneut], ghjtautau_p[Hneut],
+        ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut];
 
       double gf = Dep::SMINPUTS->GF;
       double vev = 1/sqrt(sqrt(2.)*gf);
@@ -1020,42 +1034,46 @@ namespace Gambit
       double cosThMu = sqrt(1. - pow(sinThMu,2));
       double cosThTau = sqrt(1. - pow(sinThTau,2));
 
-      int Hneut = 1;
       for(int i = 0; i<Hneut; i++){
-	      ModelParam.ghjss_p[i] = (*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS;
-	      ModelParam.ghjss_s[i] = (*Param["CsHm"])*sinThS + (*Param["CsHp"])*cosThS;
-	      ModelParam.ghjcc_p[i] = (*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC;
-	      ModelParam.ghjcc_s[i] = (*Param["CcHm"])*sinThC + (*Param["CcHp"])*cosThC;
-	      ModelParam.ghjbb_p[i] = (*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB;
-	      ModelParam.ghjbb_s[i] = (*Param["CbHm"])*sinThB + (*Param["CbHp"])*cosThB;
-	      ModelParam.ghjtt_p[i] = (*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT;
-	      ModelParam.ghjtt_s[i] = (*Param["CtHm"])*sinThT + (*Param["CtHp"])*cosThT;
-	      ModelParam.ghjmumu_p[i] = (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu;
-	      ModelParam.ghjmumu_s[i] = (*Param["CmuHm"])*sinThMu + (*Param["CmuHp"])*cosThMu;
-	      ModelParam.ghjtautau_p[i] = (*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau;
-	      ModelParam.ghjtautau_s[i] = (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"])*sinThTau;
+	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./ms;
+	      ghjss_s[i] = 1+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./ms;
+	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mc;
+	      ghjcc_s[i] = 1+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mc;
+	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mb;
+	      ghjbb_s[i] = 1+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mb;
+	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mt;
+	      ghjtt_s[i] = 1+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mt;
+	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mmu;
+	      ghjmumu_s[i] = 1+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mmu;
+	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mtau;
+	      ghjtautau_s[i] = 1+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mtau;
+	      ghjWW[i] = 1;
+	      ghjZZ[i] = 1;
+	      ghjZga[i] = 1;
+	      ghjgaga[i] = 1;
+	      ghjgg[i] = 1;
       }
 
-      BEreq::HiggsBounds_neutral_input_properties_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
+      BEreq::HiggsBounds_neutral_input_properties_HS(&Mh[0], &GammaTot[0], &CP[0]);
 
-      BEreq::HiggsBounds_neutral_input_effC_HS(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
-					    &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
-                                            &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
-                                            &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
-                                            &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
-                                            &ModelParam.ghjtautau_s[0], &ModelParam.ghjtautau_p[0],
-                                            &ModelParam.ghjWW[0], &ModelParam.ghjZZ[0], &ModelParam.ghjZga[0],
-                                            &ModelParam.ghjgaga[0], &ModelParam.ghjgg[0],
+      BEreq::HiggsBounds_neutral_input_effC_HS(&ghjss_s[0], &ghjss_p[0],
+					    &ghjcc_s[0], &ghjcc_p[0],
+                                            &ghjbb_s[0], &ghjbb_p[0],
+                                            &ghjtt_s[0], &ghjtt_p[0],
+                                            &ghjmumu_s[0], &ghjmumu_p[0],
+                                            &ghjtautau_s[0], &ghjtautau_p[0],
+                                            &ghjWW[0], &ghjZZ[0], &ghjZga[0],
+                                            &ghjgaga[0], &ghjgg[0],
                                             ghjhiZ);
 
-      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
-                                        &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
-                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
-                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
-                                        &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
-                                        &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
-
-      BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
+//      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+//                                        &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
+//                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
+//                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
+//                                        &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
+//                                        &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
+//
+//      BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
       // add uncertainties to cross-sections and branching ratios
       // double dCS[5] = {0.,0.,0.,0.,0.};
@@ -1064,21 +1082,23 @@ namespace Gambit
 
 
 
+      cout << "gbbs: " << ghjbb_s[0] << " gbbp: " << ghjbb_p[0] << endl;
 
 
             // run HiggsSignals
-      int mode = 1; // 1- peak-centered chi2 method (recommended)
+//      int mode = 1; // 1- peak-centered chi2 method (recommended) - not needed in HS-2.5.0 anymore
       double csqmu, csqmh, csqtot, Pvalue;
       double csqmu1, csqmh1, csqtot1, Pvalue1;
       double csqmu2, csqmh2, csqtot2, Pvalue2;
       int nobs, nobs1, nobs2;
 
       // Run the main subroutines
-      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);//is this really using HSv2.5? is mode in there or not?
+      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(csqtot + csqtot1 + csqtot2);
+      cout << "csqtot: " << csqtot << " result: " << result << endl;
     }
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
     

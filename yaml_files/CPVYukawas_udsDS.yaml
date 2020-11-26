@@ -3,12 +3,12 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-  nEDMme:
-    gTu: -0.204
-    gTd: 0.784
-    gTs: -0.0027
-    rhoU: 0.55
-    rhoD: 1.10
+  #  nEDMme:
+  #    gTu: -0.204
+  #    gTd: 0.784
+  #    gTs: -0.0027
+  #    rhoU: 0.55
+  #    rhoD: 1.10
 
     #  diaEDMme:
     #    CSchiff_Hg: -2.6
@@ -27,17 +27,17 @@ Parameters:
     #    b_Ra: 0.0
     #    b_Rn: 0.0
     #    b_Xe: 0.0
-  StandardModel_Higgs:
-     mH: 150.
-     #range: [110.,250.]
-     #prior_type: flat
+#  StandardModel_Higgs:
+#     mH: 150.
+#     #range: [110.,250.]
+#     #prior_type: flat
 
   CPVYukawas:
     CbHp:  
-     range: [-1.0E-2,1.0E-2]
+     range: [-6.0E-3,6.0E-3]
      prior_type: flat
     CbHm: 
-          range: [-1.0E-2,1.0E-2]
+          range: [-6.0E-3,6.0E-3]
      #     range: [-1.0E-4,1.0E-4]
           prior_type: flat
     CtHp: 0.
@@ -47,8 +47,8 @@ Parameters:
     #     range: [-5.E-1,5.E-1]
      #     range: [-1.,1.]
      # prior_type: flat
-    CbHp: 0.
-    CbHm: 0.
+    CuHp: 0.
+    CuHm: 0.
     CdHp: 0.
     CdHm: 0.
     CcHp: 0.
@@ -121,17 +121,12 @@ ObsLikes:
   #   purpose: LogLike
  
            - capability: LHC_Higgs_LogLike
-             function: calc_HS_2_LHC_LogLike
-             #_CPVYukawas
+             function: calc_HS_LHC_LogLike_CPVYukawas
              purpose: LogLike
              dependencies:
-              - capability: HB_ModelParameters
-                function: SMHiggs_ModelParameters
-                module: ColliderBit
-
-
-
-
+               - capability: HB_ModelParameters
+                 function: SMHiggs_ModelParameters
+                 module: ColliderBit
 
 
 
@@ -192,16 +187,21 @@ ObsLikes:
 
 Rules:
                           - capability: LHC_Higgs_LogLike
-                            function: calc_HS_LHC_LogLike
-                            #_CPVYukawas
+                            function: calc_HS_LHC_LogLike_CPVYukawas
                             purpose: LogLike
                             dependencies:
-                             - capability: HB_ModelParameters
-                               function: SMHiggs_ModelParameters
-                               module: ColliderBit
-                             - capability: HB_ModelParameters_charged
-                               function: SMHiggs_ModelParameters_charged
-                               module: ColliderBit
+                              - capability: HB_ModelParameters
+                                function: SMHiggs_ModelParameters
+                                module: ColliderBit
+                              - capability: HB_ModelParameters_charged
+                                function: SMHiggs_ModelParameters_charged
+                                module: ColliderBit
+                                    #                             - capability: HB_ModelParameters
+                                    #                               function: MSSMHiggs_ModelParameters_effc
+                                    #                               module: ColliderBit
+          
+
+
  
  #   - capability: lnL_EDM_para
  #     function: lnL_EDM_ThO_gaussianStep
