@@ -2188,6 +2188,7 @@ namespace Gambit
     // Step Functions (forward declarations)
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container &container);
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container &container);
+    double scalar_masses_THDM(THDM_spectrum_container &container, const double max_scalar_mass);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container &container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections);
@@ -2553,6 +2554,43 @@ namespace Gambit
         THDM_spectrum_container container_at_scale;
         BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
         loglike_at_Q = likelihood_function(container_at_scale);
+      }
+      // return the worse performing likelihood
+      result = std::min(loglike, loglike_at_Q);
+    }
+
+    void check_THDM_scalar_masses(double &result)
+    {
+      using namespace Pipes::check_THDM_scalar_masses;
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1;
+      for (auto const &THDM_model : THDM_model_lookup_map)
+      {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model.first))
+        {
+          yukawa_type = THDM_model.second.model_y_type;
+          break;
+        }
+      }
+      // define likelihood function to use
+      std::function<double(THDM_spectrum_container &, const double)> likelihood_function = scalar_masses_THDM;
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      const double max_scalar_mass = runOptions->getValueOrDef<double>(3000.0, "maximum_scalar_mass");
+      // evaluate loglike
+      const double loglike = likelihood_function(container, max_scalar_mass);
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (check_other_scale > 0.0)
+      {
+        // get likelihood at check_other_scale
+        THDM_spectrum_container container_at_scale;
+        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+        loglike_at_Q = likelihood_function(container_at_scale, max_scalar_mass);
       }
       // return the worse performing likelihood
       result = std::min(loglike, loglike_at_Q);
@@ -3115,6 +3153,15 @@ namespace Gambit
       loglike += loop_correction_mass_splitting_A0_THDM(container);
       loglike += loop_correction_mass_splitting_Hpm_THDM(container);
       return loglike;
+    }
+
+    // enforces an upper limit on the heavy scalar masses from the yaml
+     double scalar_masses_THDM(THDM_spectrum_container &container, const double max_scalar_mass)
+    {
+      if (container.he->get(Par::Pole_Mass, "h0", 2) > max_scalar_mass) return -L_MAX;
+      if (container.he->get(Par::Pole_Mass, "A0") > max_scalar_mass) return -L_MAX;
+      if (container.he->get(Par::Pole_Mass, "H+") > max_scalar_mass) return -L_MAX;
+      return 0;
     }
 
     // Observables

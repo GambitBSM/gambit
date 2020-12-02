@@ -528,15 +528,19 @@ namespace Gambit
             result.deltaMh[i] = 0.;
           }
 
+          const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
+
           // Total width - get HB to calculate this 
-          result.hGammaTot[i] = -1.;
+            // result.hGammaTot[i] = -1.;
+          // Total width - use calculated
+          result.hGammaTot[i] = decays.width_in_GeV;
         }
 
         // fill neutral effective couplings
         set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
          // fill non SM BRs
         set_nonSMBR(result, *Dep::Higgs_Couplings, 3);
-      
+        
         #ifdef COLLIDERBIT_DEBUG
           for (int h=1;h<=3;h++) {
             for (int h2=1; h2<=3; h2++) {

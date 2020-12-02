@@ -101,6 +101,10 @@ ObsLikes:
     function: check_THDM_scalar_loop_order_corrections
 
   - purpose:    LogLike
+    capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
+
+  - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
 
   - purpose:    LogLike
@@ -319,41 +323,41 @@ ObsLikes:
     function: SI_Dmunu
     purpose: Observable
 
-    # BKstarmumu_11_25
+  #   # BKstarmumu_11_25
 
-  - capability: BKstarmumu_11_25
-    function: SI_BKstarmumu_11_25
-    purpose: Observable
+  # - capability: BKstarmumu_11_25
+  #   function: SI_BKstarmumu_11_25
+  #   purpose: Observable
 
-    # BKstarmumu_25_40
+  #   # BKstarmumu_25_40
 
-  - capability: BKstarmumu_25_40
-    function: SI_BKstarmumu_25_40
-    purpose: Observable
+  # - capability: BKstarmumu_25_40
+  #   function: SI_BKstarmumu_25_40
+  #   purpose: Observable
 
-    # BKstarmumu_40_60
+  #   # BKstarmumu_40_60
 
-  - capability: BKstarmumu_40_60
-    function: SI_BKstarmumu_40_60
-    purpose: Observable
+  # - capability: BKstarmumu_40_60
+  #   function: SI_BKstarmumu_40_60
+  #   purpose: Observable
 
-    # BKstarmumu_60_80
+  #   # BKstarmumu_60_80
 
-  - capability: BKstarmumu_60_80
-    function: SI_BKstarmumu_60_80
-    purpose: Observable
+  # - capability: BKstarmumu_60_80
+  #   function: SI_BKstarmumu_60_80
+  #   purpose: Observable
 
-    # BKstarmumu_15_17
+  #   # BKstarmumu_15_17
 
-  - capability: BKstarmumu_15_17
-    function: SI_BKstarmumu_15_17
-    purpose: Observable
+  # - capability: BKstarmumu_15_17
+  #   function: SI_BKstarmumu_15_17
+  #   purpose: Observable
 
-    # BKstarmumu_17_19
+  #   # BKstarmumu_17_19
 
-  - capability: BKstarmumu_17_19
-    function: SI_BKstarmumu_17_19
-    purpose: Observable
+  # - capability: BKstarmumu_17_19
+  #   function: SI_BKstarmumu_17_19
+  #   purpose: Observable
 
     # Bsmumu_untag
 
@@ -384,7 +388,12 @@ Rules:
   - capability: all_BFs
     function: get_decaytable_as_map
     options:
-      printall: true 
+      printall: true
+      
+  - capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
+    options:
+      maximum_scalar_mass: 3000
 
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
