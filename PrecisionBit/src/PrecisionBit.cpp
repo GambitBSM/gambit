@@ -33,6 +33,10 @@
 ///         (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Oct
 ///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
+///
 ///  *********************************************
 
 #include <algorithm>
@@ -48,11 +52,13 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 
+#include "gambit/Elements/gambit_module_headers.hpp"
 // intorduce FlavBit helper routines for likelihood calculations
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
+// Amplitudes needed for muon g-2 calculation
+//#include "gambit/FlavBit/flav_loop_functions.hpp"
 
-#include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
@@ -1108,6 +1114,184 @@ namespace Gambit
       #ifdef PRECISIONBIT_DEBUG
         printf("(g-2)_mu=%.3e\n",result.central);
         cout<<"Finished SI_muon_gm2"<<endl;
+      #endif
+    }
+
+    // Calculation of muon g-2 in PrecisionBit
+    // For general THDM only
+    void THDM_mumugamma(triplet<double> &result)
+    {
+      using namespace Pipes::THDM_mumugamma;
+
+      #ifdef PRECISIONBIT_DEBUG
+        cout<<"Starting THDM_mumugamma"<<endl;
+      #endif
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 1;
+
+      const double Alpha = 1/(sminputs.alphainv);
+      const double alpha = spectrum.get(Par::dimensionless,"alpha");
+      const double tanb = spectrum.get(Par::dimensionless,"tanb");
+      const double beta = atan(tanb);
+      const double cosb = cos(beta);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double cab = cos(alpha-beta);
+      const double mE = (*sminputspointer)->mE;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
+      const double mNu1 = (*sminputspointer)->mNu1;
+      const double mNu2 = (*sminputspointer)->mNu2;
+      const double mNu3 = (*sminputspointer)->mNu3;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mT = (*sminputspointer)->mT;
+      const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      const double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const vector<double> mphi = {mh, mH, mA, mHp};
+      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double rhobar = (*sminputspointer)->CKM.rhobar;
+      const double etabar = (*sminputspointer)->CKM.etabar;
+      const complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const complex<double> Vcd(-lambda,0);
+      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vus(lambda,0);
+      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const complex<double> Vts(-A*lambda*lambda,0);
+      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vcb(A*lambda*lambda,0);
+      const complex<double> Vtb(1,0);
+      const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      const double xitc = Ytc/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      const double xisb = Ysb/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      const double xiemu = Yemu/cosb;
+      const double ximue = Ymue/cosb;
+      const double xietau = Yetau/cosb;
+      const double xitaue = Ytaue/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const double ximutau = Ymutau/cosb;
+      const double xitaumu = Ytaumu/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0,   0,  xitc,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0,   0,  xisb,
+              0, xisb, xibb;
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      // One loop amplitude
+      complex<double> Aloop1L = 0;
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+      {
+        for (int li = 0; li <=2; ++li)
+        {
+          if ((phi == 0) and (li == 1))
+          {
+            // Ignore purely SM contributions with SM higgs and no flavour changing 
+            Aloop1L += 0.0;
+            Aloop1R += 0.0;
+          } else
+          {
+            Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*FlavBit::Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*FlavBit::Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          }
+        }
+      }
+
+      /// Two loop amplitude
+      const vector<double> Qf = {2/3,-1/3,-1};
+      const vector<double> Nc = {3,3,1};
+      //Fermionic contribution
+      complex<double> Aloop2fL = 0;
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+         for (int lf=0; lf<=2; ++lf)
+              {
+               {
+                 if (phi==0)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                 else if (phi==1)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                 else if (phi==2)
+                 {
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
+                }
+               }
+
+      //Bosonic contribution
+      complex<double> Aloop2bL = 0;
+      complex<double> Aloop2bR = 0;
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       const complex<double> sab(sqrt(1-cab*cab),0);
+       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       if (phi==0)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*FlavBit::Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*FlavBit::Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+       }
+       else if (phi==1)
+       {
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*FlavBit::Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*FlavBit::Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+       }
+      }
+
+      result.central = Aloop1L.real()+Aloop2fL.real()+Aloop2bL.real() + Aloop1R.real()+Aloop2fR.real()+Aloop2bR.real();
+      result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
+      result.lower = result.upper;
+
+      #ifdef PRECISIONBIT_DEBUG
+        printf("(g-2)_mu=%.3e\n",result.central);
+        cout<<"Finished THDM_mumugamma"<<endl;
       #endif
     }
 

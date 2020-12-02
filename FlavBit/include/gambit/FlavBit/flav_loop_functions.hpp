@@ -134,7 +134,7 @@ namespace Gambit
            }
            else
            {
-             FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FH");
+             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FH");
            }
          }
 
@@ -162,7 +162,7 @@ namespace Gambit
             }
             else
             {
-              FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FA");
+              //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FA");
             }
         }
 
@@ -196,7 +196,7 @@ namespace Gambit
            }
            else
            {
-             FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog GW");
+             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog GW");
            }
         }
     }

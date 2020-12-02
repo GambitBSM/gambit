@@ -38,6 +38,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Jan
 ///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
+///
 ///  *********************************************
 
 
@@ -197,6 +201,15 @@ START_MODULE
 
   // Observable: BSM contribution to (g-2)_mu
   #define CAPABILITY muon_gm2
+
+    // Muon g-2 -- Using PrecisionBit
+    // Function for gTHDM
+    #define FUNCTION THDM_mumugamma
+    START_FUNCTION(triplet<double>)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
 
     // Muon g-2 -- Using SuperIso
     #define FUNCTION SI_muon_gm2
