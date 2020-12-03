@@ -38,39 +38,39 @@ namespace Gambit
     //Yukawas vertices for THDM
     namespace Vertices_THDM
     {
-    complex<double> yff_h(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double v, double cab)
+    complex<double> yff_h(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
     {
       Eigen::Matrix3i delta_ij;
       delta_ij << 1.0,  0.0,  0.0,
                   0.0,  1.0,  0.0,
                   0.0,  0.0,  1.0;
 
-      return (mf/v)*(std::sqrt(1-cab*cab))*delta_ij(f,fp) + (cab/std::sqrt(2))*xi_f(f,fp);
+      return (mf/vev)*(std::sqrt(1-cosab*cosab))*delta_ij(f,fp) + (cosab/std::sqrt(2))*xi_f(f,fp);
     }
 
-    complex<double> yff_H(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double v, double cab)
+    complex<double> yff_H(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
     {
       Eigen::Matrix3i delta_ij;
       delta_ij << 1.0,  0.0,  0.0,
                   0.0,  1.0,  0.0,
                   0.0,  0.0,  1.0;
 
-      return (mf/v)*cab*delta_ij(f,fp) - (std::sqrt(1-cab*cab)/std::sqrt(2))*xi_f(f,fp);
+      return (mf/vev)*cosab*delta_ij(f,fp) - (std::sqrt(1-cosab*cosab)/std::sqrt(2))*xi_f(f,fp);
     }
     }
 
     //Auxiliary function to flip the sign and choose the scalar field in the fermion-fermion-Higgs vertex
     namespace Yukawas
     {
-    complex<double> yff_phi(int f, int i, int j, int phi, double mf, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, double v, double cab)
+    complex<double> yff_phi(int f, int i, int j, int phi, double mf, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, double vev, double cosab)
     {
        complex<double> I(0,1);
        switch(phi)
        {
          case 0 :
-           return Vertices_THDM::yff_h(i, j, mf, xi_f, v, cab);
+           return Vertices_THDM::yff_h(i, j, mf, xi_f, vev, cosab);
          case 1 :
-           return Vertices_THDM::yff_H(i, j, mf, xi_f, v, cab);
+           return Vertices_THDM::yff_H(i, j, mf, xi_f, vev, cosab);
          case 2 :
            if (f==2)//flip sign if it is an up-like quark
            {
@@ -256,17 +256,17 @@ namespace Gambit
     namespace Amplitudes
     {
         //1-loop AL and AR amplitudes
-        complex<double> A_loop1L(int f, int l, int li, int lp, int phi, vector<double> mvl, vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double v, double cab)
+        complex<double> A_loop1L(int f, int l, int li, int lp, int phi, vector<double> mnu, vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
         {
         // f = 0,1,2 for electron,down,up fermion families
         // l,li,lp = 0,1,2 are the generation numbers of incoming,internal,outgoing lepton
         // phi = 0,1,2,3 for h,H,A,H+
-        // mvl,ml is mass of neutrino,lepton in loop
+        // mnu,ml is mass of neutrino,lepton in loop
         // mphi is array of Higgs boson masses
         //Incoming fermion is the dominant contribution here (can be generalized).
         //complex<double> Log(std::log(std::pow(mphi/ml[l],2))-(3./2.),0);
         //complex<double> six(6,0);
-        //return  conj(Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, v, cab))*(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab))*Log+(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, v, cab)/six));
+        //return  conj(Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, vev, cosab))*(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, vev, cosab))*Log+(Yukawas::yff_phi(f, l, l, phi, ml[l], xi_L, VCKM, vev, cosab)/six));
         //General contribution
         if ((phi == 0) or (phi == 1) or (phi == 2))
         {
@@ -275,29 +275,29 @@ namespace Gambit
           complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::E(x)/24.,0.);
           complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::E(x)/24.,0.);
           complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::F(x)/3., 0.);
-          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,v,cab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,v,cab) \
-                 + term2*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,v,cab)) *Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,v,cab) \
-                 + term3*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,v,cab))*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,v,cab));
+          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab) \
+                 + term2*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab)) *Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab) \
+                 + term3*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab));
         }
         else if (phi == 3)
         {
           //SSF diagram
-          double x = std::pow(mvl[li]/mphi,2);
+          double x = std::pow(mnu[li]/mphi,2);
           complex<double> term1(ml[l]/ml[l] * OneLoopFunctions::B(x)/24.,0.);
-          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,v,cab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,v,cab);
+          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
         }
 
-        complex<double> A_loop1R(int f, int l, int li, int lp, int phi, vector<double> mvl, vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double v, double cab)
+        complex<double> A_loop1R(int f, int l, int li, int lp, int phi, vector<double> mnu, vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
         {
         // f = 0,1,2 for electroni,down,up fermion families
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
         // phi = 0,1,2,3 for h,H,A,H+
-        // mvl,ml is mass of neutrino,lepton in loop
+        // mnu,ml is mass of neutrino,lepton in loop
         // mphi is array of Higgs boson masses
         //complex<double> Log(std::log(std::pow(mphi/ml[l],2))-(3./2.),0);
         //complex<double> six(6.,0);
-        //return Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, v, cab)*(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, v, cab)*Log+(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, v, cab))/six));
+        //return Yukawas::yff_phi(f, l, lp, phi, ml[l], xi_L, VCKM, vev, cosab)*(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, vev, cosab)*Log+(conj(Yukawas::yff_phi(f, l, l, phi, ml[l], VCKM, xi_L, vev, cosab))/six));
         //General contribution
         if ((phi == 0) or (phi == 1) or (phi == 2))
         {
@@ -306,58 +306,58 @@ namespace Gambit
           complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::E(x)/24.,0.);
           complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::E(x)/24.,0.);
           complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::F(x)/3., 0.);
-          return term1*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,v,cab))*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,v,cab) \
-                 + term2*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,v,cab)) *Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,v,cab) \
-                 + term3*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,v,cab)*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,v,cab);
+          return term1*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab) \
+                 + term2*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab)) *Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab) \
+                 + term3*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab)*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab);
         }
         else if (phi == 3)
         {
           //SSF diagram
-          double x = std::pow(mvl[l]/mphi,2);
+          double x = std::pow(mnu[l]/mphi,2);
           complex<double> term1(ml[lp]/ml[l] * OneLoopFunctions::B(x)/24.,0.);
-          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,v,cab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,v,cab);
+          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
         }
 
         //2-loop fermionic contribution
         //AL
-        complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double v, double cab)
+        complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
         {
         complex<double> I(0,1);
              if (lf==0)
              {
-              return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+              return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
              }
              else if (lf==1)
              {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
              }
              else if (lf==2)
              {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
              }
         }
         //AR
-        complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double v, double cab)
+        complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
         {
         complex<double> I(0,1);
          if (lf==0)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
            }
            else if (lf==1)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
            }
            else if (lf==2)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, v, cab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, v, cab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, v, cab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
            }
          }
 
       //2-loop bosonic contribution
       //AL
-      complex<double> A_loop2bL(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double v, double cab, double mW, double mZ)
+      complex<double> A_loop2bL(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ)
       {
         double sw2 = 1-std::pow(mW/mZ,2);
         double tw2 = sw2/(1-sw2);
@@ -373,10 +373,10 @@ namespace Gambit
         complex<double> four(4,0);
         complex<double> twenty3(23,0);
         //Contributions from Z-boson diagrams are neglected.
-        return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, v, cab))*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
+        return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
       }
       //AR
-      complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double v, double cab, double mW, double mZ)
+      complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ)
       {
         double sw2 = 1-std::pow(mW/mZ,2);
         double tw2 = sw2/(1-sw2);
@@ -392,7 +392,7 @@ namespace Gambit
         complex<double> four(4,0);
         complex<double> twenty3(23,0);
         //Contributions from Z-boson diagrams are neglected.
-        return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, v, cab)*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
+        return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
       }
     }
 
