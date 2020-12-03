@@ -108,7 +108,7 @@ namespace Gambit
     //2-loop functions for BR(l>l' gamma) for the gTHDM
     namespace TwoLoopFunctions
     {
-        complex<double> FH(complex<double> x)
+        complex<double> TwoLoopFH(complex<double> x)
         {
            complex<double> z(1 - 4*real(x),0);
            if (imag(std::sqrt(z))!=0 or real(std::sqrt(z))>0)
@@ -128,16 +128,16 @@ namespace Gambit
              gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
              complex<double> Dilog2(reD2.val,imD2.val);
              complex<double> Dilogs = (-x/(two*std::sqrt(z)))*((-two + two*two*x)*Dilog1 + (two - two*two*x)*Dilog2);
-             // cout<<"FH(x) = " << real(Logs+Dilogs) << endl;
+             // cout<<"OneLoopFH(x) = " << real(Logs+Dilogs) << endl;
              return real(Logs+Dilogs);
            }
            else
            {
-             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FH");
+             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog OneLoopFH");
            }
          }
 
-        complex<double> FA(complex<double> x)
+        complex<double> TwoLoopFA(complex<double> x)
         {
            complex<double> z(1 - 4*real(x),0);
            if (imag(std::sqrt(z))!=0 or real(std::sqrt(z))>0)
@@ -161,11 +161,11 @@ namespace Gambit
             }
             else
             {
-              //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog FA");
+              //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopFA");
             }
         }
 
-        complex<double> GW(complex<double> x)
+        complex<double> TwoLoopGW(complex<double> x)
         {
            complex<double> z(1 - 4*real(x),0);
            if (imag(std::sqrt(z))!=0 or real(std::sqrt(z))>0)
@@ -195,7 +195,7 @@ namespace Gambit
            }
            else
            {
-             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog GW");
+             //FlavBit_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopGW");
            }
         }
     }
@@ -203,7 +203,7 @@ namespace Gambit
     // Loop functions for one loop diagrams
     namespace OneLoopFunctions
     {
-      double B(const double x)
+      double OneLoopB(const double x)
       {
         if(x == 0)
           return 2.;
@@ -215,7 +215,7 @@ namespace Gambit
           return 2.*(1. - 6.*x + 3.*x*x + 2.*x*x*x - 6.*x*x*std::log(x))/(std::pow(1.-x,4));
       }
 
-      double C(const double x)
+      double OneLoopC(const double x)
       {
         if(x == 0)
           return 3.;
@@ -227,7 +227,7 @@ namespace Gambit
           return 3.*(1. - 1.*x*x + 2.*x*x*std::log(x))/(std::pow(1.-x,3));
       }
 
-      double E(const double x)
+      double OneLoopE(const double x)
       {
         if(x == 0)
           return 4.;
@@ -239,7 +239,7 @@ namespace Gambit
           return 2.*(2. + 3.*x - 6.*x*x + 1.*x*x*x + 6.*x*std::log(x))/(std::pow(1.-x,4));
       }
 
-      double F(const double x)
+      double OneLoopF(const double x)
       {
         if(x == 0)
           return 1./0.;
@@ -272,9 +272,9 @@ namespace Gambit
         {
           //FFS diagram
           double x = std::pow(ml[li]/mphi,2);
-          complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::E(x)/24.,0.);
-          complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::E(x)/24.,0.);
-          complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::F(x)/3., 0.);
+          complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::OneLoopE(x)/24.,0.);
+          complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::OneLoopE(x)/24.,0.);
+          complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::OneLoopF(x)/3., 0.);
           return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab) \
                  + term2*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab)) *Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab) \
                  + term3*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab));
@@ -283,7 +283,7 @@ namespace Gambit
         {
           //SSF diagram
           double x = std::pow(mnu[li]/mphi,2);
-          complex<double> term1(ml[l]/ml[l] * OneLoopFunctions::B(x)/24.,0.);
+          complex<double> term1(ml[l]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
           return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
         }
@@ -303,9 +303,9 @@ namespace Gambit
         {
           //FFS diagram
           double x = std::pow(ml[li]/mphi,2);
-          complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::E(x)/24.,0.);
-          complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::E(x)/24.,0.);
-          complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::F(x)/3., 0.);
+          complex<double> term1(ml[l]*ml[l]/std::pow(ml[l],2)  * OneLoopFunctions::OneLoopE(x)/24.,0.);
+          complex<double> term2(ml[l]*ml[lp]/std::pow(ml[l],2) * OneLoopFunctions::OneLoopE(x)/24.,0.);
+          complex<double> term3(ml[l]*ml[li]/std::pow(ml[l],2) * OneLoopFunctions::OneLoopF(x)/3., 0.);
           return term1*conj(Yukawas::yff_phi(f,l,li,phi,ml[l],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab) \
                  + term2*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab)) *Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab) \
                  + term3*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab)*Yukawas::yff_phi(f,lp,li,phi,ml[lp],xi_L,VCKM,vev,cosab);
@@ -314,7 +314,7 @@ namespace Gambit
         {
           //SSF diagram
           double x = std::pow(mnu[l]/mphi,2);
-          complex<double> term1(ml[lp]/ml[l] * OneLoopFunctions::B(x)/24.,0.);
+          complex<double> term1(ml[lp]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
           return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
         }
@@ -326,15 +326,15 @@ namespace Gambit
         complex<double> I(0,1);
              if (lf==0)
              {
-              return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+              return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
              }
              else if (lf==1)
              {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
              }
              else if (lf==2)
              {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
              }
         }
         //AR
@@ -343,15 +343,15 @@ namespace Gambit
         complex<double> I(0,1);
          if (lf==0)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
            }
            else if (lf==1)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
            }
            else if (lf==2)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::FA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
            }
          }
 
@@ -363,8 +363,8 @@ namespace Gambit
         double tw2 = sw2/(1-sw2);
         complex<double> xWphi(std::pow(mW/mphi,2),0);
         complex<double> xWZ(std::pow(mW/mZ,2),0);
-        complex<double> FHm = (xWphi*TwoLoopFunctions::FH(xWZ)-xWZ*TwoLoopFunctions::FH(xWphi))/(xWphi-xWZ);
-        complex<double> FAm = (xWphi*TwoLoopFunctions::FA(xWZ)-xWZ*TwoLoopFunctions::FA(xWphi))/(xWphi-xWZ);
+        complex<double> FHm = (xWphi*TwoLoopFunctions::TwoLoopFH(xWZ)-xWZ*TwoLoopFunctions::TwoLoopFH(xWphi))/(xWphi-xWZ);
+        complex<double> FAm = (xWphi*TwoLoopFunctions::TwoLoopFA(xWZ)-xWZ*TwoLoopFunctions::TwoLoopFA(xWphi))/(xWphi-xWZ);
         complex<double> pH(5-tw2+(1-tw2)/(2*std::pow(mW/mphi,2)),0);
         complex<double> pA(7-3*tw2-(1-tw2)/(2*std::pow(mW/mphi,2)),0);
         complex<double> onehalf(0.5,0);
@@ -373,7 +373,7 @@ namespace Gambit
         complex<double> four(4,0);
         complex<double> twenty3(23,0);
         //Contributions from Z-boson diagrams are neglected.
-        return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
+        return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
       }
       //AR
       complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ)
@@ -382,8 +382,8 @@ namespace Gambit
         double tw2 = sw2/(1-sw2);
         complex<double> xWphi(std::pow(mW/mphi,2),0);
         complex<double> xWZ(std::pow(mW/mZ,2),0);
-        complex<double> FHm = (xWphi*TwoLoopFunctions::FH(xWZ)-xWZ*TwoLoopFunctions::FH(xWphi))/(xWphi-xWZ);
-        complex<double> FAm = (xWphi*TwoLoopFunctions::FA(xWZ)-xWZ*TwoLoopFunctions::FA(xWphi))/(xWphi-xWZ);
+        complex<double> FHm = (xWphi*TwoLoopFunctions::TwoLoopFH(xWZ)-xWZ*TwoLoopFunctions::TwoLoopFH(xWphi))/(xWphi-xWZ);
+        complex<double> FAm = (xWphi*TwoLoopFunctions::TwoLoopFA(xWZ)-xWZ*TwoLoopFunctions::TwoLoopFA(xWphi))/(xWphi-xWZ);
         complex<double> pH(5-tw2+(1-tw2)/(2*std::pow(mW/mphi,2)),0);
         complex<double> pA(7-3*tw2-(1-tw2)/(2*std::pow(mW/mphi,2)),0);
         complex<double> onehalf(0.5,0);
@@ -392,7 +392,7 @@ namespace Gambit
         complex<double> four(4,0);
         complex<double> twenty3(23,0);
         //Contributions from Z-boson diagrams are neglected.
-        return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(three*TwoLoopFunctions::FH(xWphi)+(twenty3/four)*TwoLoopFunctions::FA(xWphi)+(three/four)*TwoLoopFunctions::GW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::FH(xWphi)-TwoLoopFunctions::FA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::FA(xWphi)+TwoLoopFunctions::GW(xWphi))));
+        return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
       }
     }
 
