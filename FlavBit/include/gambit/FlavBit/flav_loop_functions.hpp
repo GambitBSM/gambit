@@ -25,9 +25,9 @@
 
 #ifndef __flav_loop_functions_hpp
 #define __flav_loop_functions_hpp
+#include <complex>
 #include <gsl/gsl_sf_dilog.h>
 #include <gsl/gsl_sf_result.h>
-#include <complex>
 
 namespace Gambit
 {
