@@ -58,7 +58,7 @@
 #include "gambit/FlavBit/Flav_reader.hpp"
 #include "gambit/FlavBit/Kstarmumu_theory_err.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
-#include "gambit/FlavBit/flav_loop_functions.hpp"
+#include "gambit/Elements/flav_loop_functions.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Elements/thdm_slhahelp.hpp"
 #include "gambit/Utils/statistics.hpp"
@@ -1623,8 +1623,8 @@ namespace Gambit
       std::complex<double> C10_mu = {0.0, 0.0}, C10_e = {0.0, 0.0};
       for(int i=0; i<3; i++)
       {
-        C10_mu += 1.0/(4.0*sinW2)*Theta.adjoint()(i,1)*Theta(1,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
-        C10_e += 1.0/(4.0*sinW2)*Theta.adjoint()(i,0)*Theta(0,i) * LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+        C10_mu += 1.0/(4.0*sinW2)*Theta.adjoint()(i,1)*Theta(1,i) * Gambit::LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
+        C10_e += 1.0/(4.0*sinW2)*Theta.adjoint()(i,0)*Theta(0,i) * Gambit::LoopFunctions::E(pow(mt/mW,2),pow(mN[i]/mW,2));
       }
       std::complex<double> C9_mu = - C10_mu, C9_e = -C10_e;
 

@@ -57,7 +57,7 @@
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
 // Amplitudes needed for muon g-2 calculation
-//#include "gambit/FlavBit/flav_loop_functions.hpp"
+#include "gambit/Elements/flav_loop_functions.hpp"
 
 #include "gambit/Elements/smlike_higgs.hpp"
 #include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
@@ -1230,8 +1230,8 @@ namespace Gambit
             Aloop1R += 0.0;
           } else
           {
-            Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*FlavBit::Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-            Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*FlavBit::Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
           }
         }
       }
@@ -1248,18 +1248,18 @@ namespace Gambit
                {
                  if (phi==0)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                  else if (phi==1)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                  else if (phi==2)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*FlavBit::Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                 }
                }
@@ -1275,13 +1275,13 @@ namespace Gambit
        const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
        if (phi==0)
        {
-        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*FlavBit::Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
-        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*FlavBit::Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
        }
        else if (phi==1)
        {
-        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*FlavBit::Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
-        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*FlavBit::Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
+        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
        }
       }
 
