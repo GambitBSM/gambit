@@ -193,6 +193,127 @@ namespace Gambit
              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopGW");
            }
         }
+
+      // Two Loop Functions for Muon g-2 for gTHDM
+      double TwoLoopPhi(double m1, double m2, double m3)
+      { 
+        if (m3 != 0)
+        {
+          complex<double> lambda = std::sqrt(pow(m1,4)+pow(m2,4)+pow(m3,4)-2*pow(m1*m2,2)-2*pow(m2*m3,2)-2*pow(m3*m1,2));
+          complex<double> alphap = (pow(m3,2)+pow(m1,2)-pow(m2,2)-lambda) / (2*pow(m3,2));
+          complex<double> alpham = (pow(m3,2)-pow(m1,2)+pow(m2,2)-lambda) / (2*pow(m3,2));
+          gsl_sf_result reD1, imD1;
+          gsl_sf_complex_dilog_e(abs(alphap), arg(alphap), &reD1, &imD1);
+          complex<double> Dilog1(reD1.val,imD1.val);
+          gsl_sf_result reD2, imD2;
+          gsl_sf_complex_dilog_e(abs(alpham), arg(alpham), &reD2, &imD2);
+          complex<double> Dilog2(reD2.val,imD2.val);
+          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(pow(m1/m3,2))*std::log*(pow(m2/m3,2)) - 2.*Dilog1 - 2.*Dilog2 + pow(math::pi,2)/3.);
+        } 
+        else 
+        { 
+          utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopPhi");
+        }
+      }   
+        
+      complex<double> TwoLoopfgammaphi(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      {
+        double sw2 = 1-std::pow(mW/mZ,2);
+        double Fphi = -2. + std::log(std::pow(mphi/mf,2)) - (std::pow(mphi,2)-2.*std::pow(mf,2))/std::pow(mphi,2) * TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
+        return Nc * std::pow(Qf * alph * mmu,2) / pow(2.*math::pi*mW,2) / sw2 * std::pow(mf/mphi,2) * Fphi;
+      }
+
+      complex<double> TwoLoopfZbosonphi(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      {
+        double sw2 = 1-std::pow(mW/mZ,2);
+        double cw2 = 1-sw2;
+        double Fphi = -2. + std::log(std::pow(mphi/mf,2)) - (std::pow(mphi,2)-2.*std::pow(mf,2))/std::pow(mphi,2) * TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
+        double FZ   = -2. + std::log(std::pow(mZ/mf,2)) - (std::pow(mZ,2)-2.*std::pow(mf,2))/std::pow(mZ,2) * TwoLoopFunctions::TwoLoopPhi(mZ,mf,mf)/(std::pow(mZ,2)-4.*std::pow(mf,2))
+        return -Nc * Qf * std::pow(alph * mmu,2) / std::pow(2.*math::pi*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
+
+      complex<double> TwoLoopfgammaA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      {
+        double sw2 = 1-std::pow(mW/mZ,2);
+        double Fphi = TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
+        return Nc * std::pow(Qf * alph * mmu,2) / pow(2.*math::pi*mW,2) / sw2 * std::pow(mf/mphi,2) * Fphi;
+      }
+
+      complex<double> TwoLoopfZbosonA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      {
+        double sw2 = 1-std::pow(mW/mZ,2);
+        double cw2 = 1-sw2;
+        double Fphi = TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
+        double FZ   = TwoLoopFunctions::TwoLoopPhi(mZ,mf,mf)/(std::pow(mZ,2)-4.*std::pow(mf,2))
+        return -Nc * Qf * std::pow(alph * mmu,2) / std::pow(2.*math::pi*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
+      }
+
+      complex<double> TwoLoopfC(int f, double Nc, double Qu, double Qd, double alph, double mmu, double mf, double mphi, double mW)
+      {
+        double sw2 = 1-std::pow(mW/mZ,2);
+        switch(f)
+        {
+          case 0: 
+            double xl = std::pow(mf/mphi,2);
+            complex<double> z = 1.-1./xl;
+            if (z != 0.)
+            {
+              gsl_sf_result reD, imD;
+              gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
+              complex<double> Dilog(reD.val,imD.val);
+              return xl + xl * (xl-1.) * (Dilog-std::pow(std::math,2)/6.) + (xl-0.5)*std::log(xl);
+            } 
+            else 
+            {
+              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfC lepton case");
+            }
+            break;
+          case 1: 
+            double xu = std::pow(mu/mphi,2);
+            double xd = std::pow(md/mphi,2);
+            double y  = std::pow(xu-xd,2) - 2.*(xu+xd) + 1.;
+            double s  = (Qu + Qd) / 4.;
+            double c  = std::pow(xu-xd,2) - Qu*xu + Qd*xd;
+            double cb = (xu-Qu)*xu - (xd+Qd)*xd;
+            complex<double> z = 1.-xd/xu;
+            if (z != 0.)
+            {
+              gsl_sf_result reD, imD;
+              gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
+              complex<double> Dilog(reD.val,imD.val);
+              return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \\
+                     + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)) \\
+                     + (s+xd) * std::log(xd) + (s-xu)*std::log(xu);
+            }
+            else
+            {
+              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfC down quark case");
+            }
+            break;
+          case 2: 
+            double xu = std::pow(mu/mphi,2);
+            double xd = std::pow(md/mphi,2);
+            double y  = std::pow(xu-xd,2) - 2.*(xu+xd) + 1.;
+            double s  = (Qu + 2. + Qd + 2.) / 4.;
+            double c  = std::pow(xu-xd,2) - (Qu+2.)*xu + (Qd+2.)*xd;
+            double cb = (xu-Qu-2.)*xu - (xd+Qd+2.)*xd;
+            complex<double> z = 1.-xd/xu;
+            if (z != 0.)
+            {
+              gsl_sf_result reD, imD;
+              gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
+              complex<double> Dilog(reD.val,imD.val);
+              return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \\
+                     + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)) \\
+                     + (s+xd) * std::log(xd) + (s-xu)*std::log(xu) \\
+                     - 4./3. * (xu-xd-1.)/y * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) - 1./3.*(std::pow(std::log(xd),2)-std::pow(std::log(xu),2));
+            }
+            else
+            {
+              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfC up quark case");
+            }
+            break;
+        }
+      }
     }
 
     // Loop functions for one loop diagrams
@@ -388,6 +509,36 @@ namespace Gambit
         complex<double> twenty3(23,0);
         //Contributions from Z-boson diagrams are neglected.
         return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
+      }
+    }
+
+    // Two Loop Contributions for gTHDM from 1607.06292
+    namespace TwoLoopContributions
+    {
+      double gm2mu_loop2f(int f, int fi, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      { 
+        switch (f)
+        {
+          case 0: Eigen::Matrix3cd xi_f = xi_L; break;
+          case 1: Eigen::Matrix3cd xi_f = xi_D; break;
+          case 2: Eigen::Matrix3cd xi_f = xi_U; break;
+        }
+        if ((phi == 0) or (phi == 1))
+        {
+          return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab)
+        }
+        else if (phi == 2)
+        {
+          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf, alph, mmu, mf, mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf, alph, mmu, mf, mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab)
+        }
+        else if (phi == 3)
+        { 
+          return TwoLoopFunctions::TwoLoopfC(Nc, Qf, alph, mmu, mf, mphi, mW) * Yukawas::yff_phi(0, 1, 1, 2, mf, xi_f, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 2, mf, xi_f, VCKM, vev, cosab)
+        }
+        else if (phi == 4)
+        {
+          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, 0, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 0, mf, xi_f, VCKM, vev, cosab)
+        }
       }
     }
 
