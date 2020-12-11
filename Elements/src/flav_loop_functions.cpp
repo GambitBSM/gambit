@@ -314,6 +314,60 @@ namespace Gambit
             break;
         }
       }
+
+      double TwoLoopf1(double x, void * params)
+      {
+        double w = *(double *) params;
+        return w/2. * (2.*x*(1.-x)-1.) / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+      }
+
+      double TwoLoopf2(double x, void * params)
+      {
+        double w = *(double *) params;
+        return 1./2. * x*(x-1.) / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+      }
+
+      double TwoLoopf3(double x, void * params)
+      {
+        double w = *(double *) params;
+        return 1./2. * x*w*((3.*x*(4.*x-1.)+10.)-x*(1.-x)) / (w-x(1.-x)) * std::log(x/(x*(1.-x)));
+      }
+
+      double TwoLoopf4(double x, void * params)
+      {
+        double w = *(double *) params;
+        return w/2. * 1. / (w-x(1.-x)) * std::log(x/(x*(1.-x)));
+      }
+      
+      double TwoLoopF1(double w, gsl_function fun)
+      {
+        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
+        double result, error
+        gsl_integration_workspace * work = gsl_integration_workspace_alloc (1000);
+
+        fun.function = &TwoLoopf2;
+        fun.params = &w;
+
+        gsl_integration_qags (&fun, 0, 1, 0, 1e-7, 1000, work, &result, &error);
+
+        gsl_integration_workspace_free(w);
+
+        return result;
+      }
+
+      double TwoLoopG(double wa, double wb, double x)
+      {
+        return std::log((wa*x+wb*(1.-x)) / (x*(1.-x))) / (x*(1.-x)-wa*x-wb*(1.-x));
+      }
+
+      double TwoLoopG1(double x)
+      {
+        double wa *(double *) params;
+        double wb *(double *) params;
+        double n  *(double *) params;
+        return std::pow(x,n) * TwoLoopG(wa, wb, xa);
+      }
+
     }
 
     // Loop functions for one loop diagrams
