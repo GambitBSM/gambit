@@ -1195,7 +1195,7 @@ namespace Gambit
       const double xitaumu = Ytaumu/cosb;
       const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
 
-      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, xi_0, VCKM;
 
       xi_L << xiee,  xiemu,  xietau,
               ximue, ximumu, ximutau,
@@ -1208,6 +1208,10 @@ namespace Gambit
       xi_D << 0,   0,    0,
               0,   0,  xisb,
               0, xisb, xibb;
+
+      xi_0 << 0, 0, 0,
+              0, 0, 0,
+              0, 0, 0;
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
@@ -1237,10 +1241,13 @@ namespace Gambit
       }
 
       /// Two loop amplitude
-      const vector<double> Qf = {2/3,-1/3,-1};
-      const vector<double> Nc = {3,3,1};
+      //const vector<double> Qf = {2/3,-1/3,-1};
+      //const vector<double> Nc = {3,3,1};
+      const vector<double> Qf = {-1.,-1./3.,2./3.};
+      const vector<double> Nc = { 1.,    3.,   3.};
       //Fermionic contribution
-      complex<double> Aloop2fL = 0;
+      
+      /*complex<double> Aloop2fL = 0;
       complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
          for (int lf=0; lf<=2; ++lf)
@@ -1262,7 +1269,7 @@ namespace Gambit
                   Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                 }
-               }
+               }*/
 
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
