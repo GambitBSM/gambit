@@ -339,33 +339,51 @@ namespace Gambit
         return w/2. * 1. / (w-x(1.-x)) * std::log(x/(x*(1.-x)));
       }
       
-      double TwoLoopF1(double w, gsl_function fun)
+      double TwoLoopF(double w, gsl_function fun)
       {
         // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
-        double result, error
-        gsl_integration_workspace * work = gsl_integration_workspace_alloc (1000);
+        double result, error;
+        const int alloc = 1000;
+        gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
 
         fun.function = &TwoLoopf2;
         fun.params = &w;
 
-        gsl_integration_qags (&fun, 0, 1, 0, 1e-7, 1000, work, &result, &error);
+        gsl_integration_qags (&fun, 0, 1, 0, 1e-7, alloc, work, &result, &error);
 
         gsl_integration_workspace_free(w);
 
         return result;
       }
 
-      double TwoLoopG(double wa, double wb, double x)
+      struct G_params {double wa; double wb; int n;};
+
+      double TwoLoopg(double x, void * params)
       {
-        return std::log((wa*x+wb*(1.-x)) / (x*(1.-x))) / (x*(1.-x)-wa*x-wb*(1.-x));
+        struct G_params * p = (struct G_params *) params;
+        double wa = (p->wa);
+        double wb = (p->wb);
+        int    n  = (p->n);
+        return std::pow(x,n) * std::log((wa*x+wb*(1.-x)) / (x*(1.-x))) / (x*(1.-x)-wa*x-wb*(1.-x));
       }
 
-      double TwoLoopG1(double x)
+      double TwoLoopG(double wa, double wb, int n)
       {
-        double wa *(double *) params;
-        double wb *(double *) params;
-        double n  *(double *) params;
-        return std::pow(x,n) * TwoLoopG(wa, wb, xa);
+        // Integral of std::pow(x,n) * std::log((wa*x+wb*(1.-x)) / (x*(1.-x))) / (x*(1.-x)-wa*x-wb*(1.-x))
+        double result, error;
+        const int alloc = 1000;
+        gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
+
+        gsl_function fun
+        struct G_params = {wa, wb, n}
+        fun.function = &TwoLoopg;
+        fun.params = &params;
+
+        gsl_integration_qags (&fun, 0, 1, 0, 1e-7, alloc, work, &result, &error);
+
+        gsl_integration_workspace_free(w);
+
+        return result;
       }
 
     }
@@ -594,6 +612,71 @@ namespace Gambit
           return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf, alph, mmu, mf, mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, 0, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 0, mf, xi_f, VCKM, vev, cosab)
         }
       }
+
+      double gm2mu_barrzeephigammaf(int f, int fi, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      {
+        const double x = std::pow(mf/mphi,2);
+        switch (f)
+        {
+          case 0: Eigen::Matrix3cd xi_f = xi_L; const int Nc = 1; break;
+          case 1: Eigen::Matrix3cd xi_f = xi_D; const int Nc = 3; break;
+          case 2: Eigen::Matrix3cd xi_f = xi_U; const int Nc = 3; break;
+        }
+          double term1 = yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real * yff_phi(f, fi, fi, phi, mloop, xi_f, VCKM, vev, cosab).real * TwoLoopFunctions::TwoLoopF1(x);
+          double term2 = yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).imag * yff_phi(f, fi, fi, phi, mloop, xi_f, VCKM, vev, cosab).imag * TwoLoopFunctions::TwoLoopF4(x);
+          return(alph * Nc * std::pow(mmu * Qf / vev,2)) / (4. * std::pow(math::pi,3)) (term1 + term2);
+        }
+      }
+
+      double gm2mu_barrzeephigammaC(int phi, double mmu, double mHp, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+      {
+        const double x = std::pow(mHp/mphi,2);
+        return alph * std::pow(mmu/mphi,2) / (8. * std::pow(math::pi,3)) * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real * coup * TwoLoopFunctions::TwoLoopF2(x);
+      }
+        
+      double gm2mu_barrzeephigammaW(int phi, double mmu, double mW, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+      {
+        const double x = std::pow(mW/mphi,2);
+        return alph * std::pow(mmu/vev,2) / (8. * std::pow(math::pi,3)) * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real * coup * TwoLoopFunctions::TwoLoopF3(x);
+      }
+
+      double gm2mu_barrzeeCHiggsWBosontb(double mmu, double mt, double mb, double mHp, double Qt, double Qb, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      {
+        const double sw2 = 1 - std:pow(mW/mZ,2);
+        const int Nc = 3;
+        const double xtC = std::pow(mt/mHp,2);
+        const double xbC = std::pow(mb/mHp,2);
+        const double xtW = std::pow(mt/mW,2);
+        const double xbW = std::pow(mb/mW,2);
+        term1 = std::pow(mt,2)*Qt * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real.conj * yff_phi(2, 2, 2, phi, mmu, xi_U, VCKM, vev, cosab).real * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        term2 = std::pow(mt,2)*Qb * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real.conj * yff_phi(2, 2, 2, phi, mmu, xi_U, VCKM, vev, cosab).real * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        term3 = std::pow(mb,2)*Qt * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real.conj * yff_phi(2, 2, 2, phi, mmu, xi_D, VCKM, vev, cosab).real * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        term4 = std::pow(mb,2)*Qb * yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real.conj * yff_phi(2, 2, 2, phi, mmu, xi_D, VCKM, vev, cosab).real * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-2.*TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+2.*TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        return alph*Nc*std::pow(VCKM[3][2]*mmu/vev,2) / (32.*std::pow(math::pi,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4)
+      }
+
+      double gm2mu_barrzeeCHiggsWBosonC(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      {
+        const double sw2 = 1 - std:pow(mW/mZ,2);
+        const double xSC = std::pow(mphi,mHp,2);
+        const double xSW = std::pow(mphi, mW,2);
+        const double xCW = std::pow(mHp, mW,2);
+        term1 = (TwoLoopFunctions::TwoLoopG(1.,xSC,3)-TwoLoopFunctions::TwoLoopG(xCW,xSW,3));
+        term2 = (TwoLoopFunctions::TwoLoopG(1.,xSC,2)-TwoLoopFunctions::TwoLoopG(xCW,xSW,2));
+        return alph*std::pow(mmu,2)     / (64.*std::pow(math::pi,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * real(yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).conj * coup) * (term1-term2);
+      }
+
+      double gm2mu_barrzeeCHiggsWBosonW(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      {
+        const double sw2 = 1 - std:pow(mW/mZ,2);
+        const double xSC = std::pow(mphi,mHp,2);
+        const double xSW = std::pow(mphi,mW,2);
+        const double xWC = std::pow(mW,  mHp,2);
+        term1 = (std::pow(mHp,2)-3.*std::pow(mW,2)-std::phi(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,2)-TwoLoopFunctions::TwoLoopG(1.,xSW,2));
+        term2 = (std::pow(mHp,2)+   std::pow(mW,2)-std::phi(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,3)-TwoLoopFunctions::TwoLoopG(1.,xSW,3));
+        return alph*std::pow(mmu/vev,2) / (64.*std::pow(math::pi,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * real(yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).conj * coup) * (term1-term2);
+      }
+
     }
 
     // Loop functions for LFV diagrams

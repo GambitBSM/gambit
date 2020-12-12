@@ -51,10 +51,31 @@ namespace Gambit
     namespace TwoLoopFunctions
     {
       complex<double> TwoLoopFH(complex<double> x);
-
       complex<double> TwoLoopFA(complex<double> x);
-
       complex<double> TwoLoopGW(complex<double> x);
+
+      // Two Loop Functions for Muon g-2 for gTHDM
+      double TwoLoopPhi(double m1, double m2, double m3)
+
+      complex<double> TwoLoopfgammaphi(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      complex<double> TwoLoopfZbosonphi(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      complex<double> TwoLoopfgammaA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      complex<double> TwoLoopfZbosonA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+
+      complex<double> TwoLoopfC(int f, double Nc, double Qu, double Qd, double alph, double mmu, double mf, double mphi, double mW)
+
+      double TwoLoopf1(double x, void * params)
+      double TwoLoopf2(double x, void * params)
+      double TwoLoopf3(double x, void * params)
+      double TwoLoopf4(double x, void * params)
+
+      double TwoLoopF(double w, gsl_function fun)
+
+      struct G_params {double wa; double wb; int n;};
+
+      double TwoLoopg(double x, void * params)
+
+      double TwoLoopG(double wa, double wb, int n)
     }
 
     // Loop functions for one loop diagrams
@@ -89,6 +110,25 @@ namespace Gambit
       complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ);
     }
 
+    // Two Loop Contributions for gTHDM from 1607.06292
+    namespace TwoLoopContributions
+    {
+      double gm2mu_loop2f(int f, int fi, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double
+mW, double mZ, double alph)
+
+      double gm2mu_barrzeephigammaf(int f, int fi, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosa
+b, double mW, double mZ, double alph)
+      double gm2mu_barrzeephigammaC(int phi, double mmu, double mHp, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+      double gm2mu_barrzeephigammaW(int phi, double mmu, double mW, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+
+      double gm2mu_barrzeeCHiggsWBosontb(double mmu, double mt, double mb, double mHp, double Qt, double Qb, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev
+, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double
+mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double
+mW, double mZ, double alph)
+    }
+    
     // Loop functions for LFV diagrams
     namespace LoopFunctions
     {
