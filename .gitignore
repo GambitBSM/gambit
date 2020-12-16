@@ -67,6 +67,8 @@ contrib/pybind11/
 
 # Local configuration files
 config/*_locations.yaml
+config/ditched.dat
+config/ditched.yaml
 
 # Scratch files
 scratch/**
