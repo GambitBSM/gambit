@@ -30,6 +30,10 @@
 #          (wh260@cam.ac.uk)
 #  \date 2018 Dec
 #
+#  \author Markus Prim
+#          (markus.prim@cern.ch)
+#  \date 2020 Dec
+#
 #************************************************
 
 include(CMakeParseArguments)
@@ -108,6 +112,7 @@ macro(retrieve_bits bits root excludes quiet)
       if(${excluded})
         if(NOT ${quiet} STREQUAL "Quiet")
           message("${BoldCyan} X Excluding ${child} from GAMBIT configuration.${ColourReset}")
+          file(APPEND config/ditched.dat "${child},")
         endif()
       else()
         list(APPEND ${bits} ${child})

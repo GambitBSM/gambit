@@ -30,6 +30,10 @@
 #          (b.farmer@imperial.ac.uk)
 #  \date 2018 Oct
 #
+#  \author Markus Prim
+#          (markus.prim@cern.ch)
+#  \date 2020 Dec
+#
 #************************************************
 
 # Define minimum cmake version
@@ -105,6 +109,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Create the config/ditched.dat which is used by the diagnostic system to identify what has been ditched or disabled.
+file(WRITE config/ditched.dat)
+
 # Check if pybind11 is to be ditched
 string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
@@ -176,6 +183,7 @@ endif()
 if(NOT PYTHONLIBS_FOUND)
   if(DITCH_PYBIND)
     message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
+    file(APPEND config/ditched.dat "pybind11,")
   else()
     message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
             "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
@@ -329,6 +337,7 @@ CHECK_C_COMPILER_FLAG("-std=c11" COMPILER_SUPPORTS_C11)
 CHECK_C_COMPILER_FLAG("-std=c99" COMPILER_SUPPORTS_C99)
 if(NOT COMPILER_SUPPORTS_C99)
   message("${BoldRed}   The compiler ${CMAKE_C_COMPILER} has no C99 support.  AlterBBN will be ditched.${ColourReset}")
+  file(APPEND config/ditched.dat "alterbbn,")
   set(itch "${itch};alterbbn")
 endif()
 
@@ -357,6 +366,7 @@ if(EIGEN3_FOUND)
   message("-- Eigen version: ${EIGEN3_VERSION}")
 else()
   message("${BoldRed}   Eigen v3.1.0 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
+  file(APPEND config/ditched.dat "gm2calc,flexiblesusy")
   set(itch "${itch};gm2calc;flexiblesusy")
   message(FATAL_ERROR "\nFlexibleSUSY is currently included in the GAMBIT distribution, so in fact it cannot be ditched.  Please install Eigen3.\n(Note that this will change in future GAMBIT versions, where FlexibleSUSY will be a 'true' backend.)")
 endif()
@@ -408,9 +418,11 @@ endif()
 
 # Check for Mathematica
 string(REGEX MATCH ";M;|;Ma;|;Mat;|;Math;|;Mathe;|;Mathem;|;Mathema;|;Mathemat;|;Mathemati;|;Mathematic;|;Mathematica;|;m;|;ma;|;mat;|;math;|;mathe;|;mathem;|;mathema;|;mathemat;|;mathemati;|;mathematic;|;mathematica" DITCH_MATHEMATICA ";${itch};")
+
 if(DITCH_MATHEMATICA)
   set(HAVE_MATHEMATICA 0)
   message("${BoldCyan} X Excluding Mathematica from GAMBIT configuration. All backends using Mathematica will be disabled${ColourReset}")
+  file(APPEND config/ditched.dat "mathematica,")
 else()
   find_library(LIBUUID NAMES uuid)
   if(LIBUUID)

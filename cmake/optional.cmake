@@ -176,6 +176,7 @@ if(NOT LAPACK_LINKLIBS AND NOT LAPACK_FOUND)
   # In future MN and FS need to be ditched if lapack cannot be found, and the build allowed to continue.
   message(FATAL_ERROR "${BoldRed}LAPACK shared library not found.${ColourReset}")
   message("${BoldRed}   LAPACK shared library not found. Excluding FlexibleSUSY and MultiNest from GAMBIT configuration. ${ColourReset}")
+  file(APPEND config/ditched.dat "flexiblesusy,multinest,")
 endif()
 
 # Helper function to check if ROOT has been compiled with the same standard as we are using here.  If not, downgrade to the standard that ROOT was compiled with.
@@ -298,6 +299,7 @@ if(HDF5_FOUND)
   endif()
 else()
   message("${BoldRed}   No HDF5 C libraries found. Excluding hdf5printer and hdf5reader from GAMBIT configuration.${ColourReset}")
+  file(APPEND config/ditched.dat "hdf5printer,hdf5reader,")
   set(itch "${itch}" "hdf5printer" "hdf5reader")
 endif()
 
@@ -311,6 +313,7 @@ if(SQLite3_FOUND)
   endif()
 else()
   message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+  file(APPEND config/ditched.dat "sqliteprinter,sqlitereader,")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 

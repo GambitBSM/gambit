@@ -196,6 +196,7 @@ function(check_ditch_status name version dir)
         set(ditched_${name}_${version} TRUE)
         set(ditched_${name}_${version} TRUE PARENT_SCOPE)
         message("${BoldCyan} X Excluding ${name} ${version} from GAMBIT configuration.${ColourReset}")
+        file(APPEND config/ditched.dat "${name}_${version},")
       endif()
       # Remove the build and source dirs to prevent errors when building after later re-cmaking without ditching this component
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${name}_${version}-prefix)
