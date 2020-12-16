@@ -681,3 +681,6 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
 endif()
 
+# Create the ditched.yaml for the diagnostic system form the ditched.dat created by CMake.
+# We can already create this at configure time, so let us do it now.
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Utils/scripts/parse_ditch_list.py --file ${PROJECT_SOURCE_DIR}/config/ditched.dat --ditch-string ${itch_with_commas})
