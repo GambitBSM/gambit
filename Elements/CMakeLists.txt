@@ -12,10 +12,15 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2015 Apr
 #
+#  \author Douglas Jacob
+#          (douglas.jacob@monash.edu)
+#  \date 2020 Dec
+#
 #************************************************
 
 set(source_files src/decay_table.cpp
                  src/equivalency_singleton.cpp
+                 src/flav_loop_functions.cpp
                  src/functors.cpp
                  src/higgs_couplings_table.cpp
                  src/ini_functions.cpp
@@ -34,6 +39,7 @@ set(source_files src/decay_table.cpp
 
 set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/equivalency_singleton.hpp
+                 include/gambit/Elements/flav_loop_functions.hpp
                  include/gambit/Elements/functors.hpp
                  include/gambit/Elements/functor_definitions.hpp
                  include/gambit/Elements/higgs_couplings_table.hpp

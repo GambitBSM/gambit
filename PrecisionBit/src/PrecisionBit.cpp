@@ -1292,7 +1292,7 @@ namespace Gambit
        }
       }
 
-      result.central = Aloop1L.real()+Aloop2fL.real()+Aloop2bL.real() + Aloop1R.real()+Aloop2fR.real()+Aloop2bR.real();
+      result.central = Aloop1L.real()+/*Aloop2fL.real()*/+Aloop2bL.real() + Aloop1R.real()+/*Aloop2fR.real()*/+Aloop2bR.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
