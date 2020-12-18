@@ -36,29 +36,29 @@ ksz_norm:
   range: [0.0,10.0]
 gal545_A_100:
   prior_type: gaussian
-  mean: [8.6]
-  sigs: [2.0]
+  mu: [8.6]
+  sigma: [2.0]
 gal545_A_143:
   prior_type: gaussian
-  mean: [10.6]
-  sigs: [2.0]
+  mu: [10.6]
+  sigma: [2.0]
 gal545_A_143_217:
   prior_type: gaussian
-  mean: [23.5]
-  sigs: [8.5]
+  mu: [23.5]
+  sigma: [8.5]
 gal545_A_217:
   prior_type: gaussian
-  mean: [91.9]
-  sigs: [20.0]
+  mu: [91.9]
+  sigma: [20.0]
 calib_100T:
   prior_type: gaussian
-  mean: [1.0002]
-  sigs: [0.0007]
+  mu: [1.0002]
+  sigma: [0.0007]
 calib_217T:
   prior_type: gaussian
-  mean: [0.99805]
-  sigs: [0.00065]
+  mu: [0.99805]
+  sigma: [0.00065]
 A_planck:
   prior_type: gaussian
-  mean: [1.0]
-  sigs: [0.0025]
+  mu: [1.0]
+  sigma: [0.0025]

@@ -79,7 +79,7 @@ if [ ! -f $1/${filename} ]; then
       if [ -z "${10}" ]; then
         # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
         if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
-          wget --no-check-certificate $4 -O $i/${filename}
+          wget --no-check-certificate $4 -O $1/${filename}
         else
           wget $4 -O $1/${filename}
         fi

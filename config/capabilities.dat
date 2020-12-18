@@ -1100,7 +1100,7 @@ RD_spectrum_ordered: |
    ordered with increasing p_eff, and coannihilation thresholds
    included
 
-RD_eff_annrate_DSprep: |
+RD_eff_annrate_DS5prep: |
    Ensures that DarkSUSY (up to version 5) is correctly initialized
    for relic density calculations.
 

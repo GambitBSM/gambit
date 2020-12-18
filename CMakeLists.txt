@@ -227,7 +227,7 @@ endif()
 
 # Check for required Python libraries
 foreach(module yaml os re datetime sys getopt shutil itertools)
-  find_python_module(${module} REQUIRED)
+  gambit_find_python_module(${module} REQUIRED)
 endforeach()
 
 # Check for axel

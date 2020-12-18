@@ -311,12 +311,12 @@ int main(int argc, char* argv[])
       RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_SUSY_DS5);
       RD_spectrum_ordered_func.reset_and_calculate();
 
-      RD_annrate_DS5prep_MSSM_func.resolveDependency(&RD_spectrum_SUSY_DS5);
-      RD_annrate_DS5prep_MSSM_func.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdmgev);
-      RD_annrate_DS5prep_MSSM_func.reset_and_calculate();
+      RD_annrate_DS5prep_func.resolveDependency(&RD_spectrum_SUSY_DS5);
+      RD_annrate_DS5prep_func.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdmgev);
+      RD_annrate_DS5prep_func.reset_and_calculate();
 
       RD_eff_annrate_DS_MSSM.notifyOfModel("MSSM30atQ");
-      RD_eff_annrate_DS_MSSM.resolveDependency(&RD_annrate_DS5prep_MSSM_func);
+      RD_eff_annrate_DS_MSSM.resolveDependency(&RD_annrate_DS5prep_func);
       RD_eff_annrate_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsanwx);
       RD_eff_annrate_DS_MSSM.reset_and_calculate();
 

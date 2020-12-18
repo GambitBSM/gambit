@@ -26,6 +26,7 @@ diff -rupN darksusy-6.2.2_original/makefile.in darksusy-6.2.2_patched/makefile.i
  
  .PHONY: all config_paths darksusy_lib dslib private install_tables \
  	clean clobber uninstall rmmore libisajet pdf-manual \
+
 diff -rupN darksusy-6.2.2_original/src/include/dsdmdcom.h darksusy-6.2.2_patched/src/include/dsdmdcom.h
 --- darksusy-6.2.2_original/src/include/dsdmdcom.h
 +++ darksusy-6.2.2_patched/src/include/dsdmdcom.h
@@ -56,7 +57,7 @@ diff -rupN darksusy-6.2.2_original/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f darks
           
           deltaZ =dcmplx(2*E2J*EvJ + 2*CW*kJ*kv 
       -    + MB**2 - Mf**2 + Mff**2,Mf*width(f)/mx)*
-diff -rupN darksusy-6.2.2_original/src_models/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.2.2_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+diff -rupN darksusy-6.2.2_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.2.2_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
 --- darksusy-6.2.2_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
 +++ darksusy-6.2.2_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
 @@ -76,7 +76,7 @@ c...Read it in
@@ -68,3 +69,105 @@ diff -rupN darksusy-6.2.2_original/src_models/src_models/mssm/ge_slha/dsgive_mod
  
  c...Transfer stuff from the SLHA data structure to DarkSUSY
        call dsfromslha
+diff -rupN darksusy-6.2.2_original/src_models/mssm/an_ib/dsIBffdxdy.f darksusy-6.2.2_patched/src_models/mssm/an_ib/dsIBffdxdy.f
+--- darksusy-6.2.2_original/src_models/mssm/an_ib/dsIBffdxdy.f
++++ darksusy-6.2.2_patched/src_models/mssm/an_ib/dsIBffdxdy.f
+@@ -15,6 +15,7 @@
+ *** date: 2007-07-05
+ *** update: 2016-04-04 (switched to analytic tree-level expressions to avoid
+ ***                     recursive call to dssigmav0)
++***         2020-10-23 bug-fix for light fermions (corrected FSR-subtraction)
+ *****************************************************************************
+ 
+       real*8 function dsIBffdxdy(IBch,x,y)
+@@ -22,7 +23,6 @@
+       implicit none
+       include 'dsmssm.h'
+       include 'dsmpconst.h'
+-      include 'dshmcom.h'
+       include 'dsidtag.h'
+       include 'dsio.h'
+ 
+@@ -126,30 +126,33 @@ c...set up couplings
+ 
+ c...import IB expressions for |M|**2 from form/mathematica; 
+ c...for light leptons and quarks, take the simplified expression with mf=0:
+-
+-      if ((IBch.eq.4).or.(IBch.eq.5).or.(IBch.eq.7).or.
+-     -    (IBch.eq.8).or.(IBch.eq.10)) then
+-            tmpresult=
+-     -        -2*m0**6*(-1 + x)*(x**2 - 2*x*y + 2*y**2)*
+-     -       ((C11/((msf1**2 + m0**2*(1 - 2*y))*
+-     -             (msf1**2 + m0**2*(1 - 2*x + 2*y))) + 
+-     -         C12/
+-     -          ((msf2**2 + m0**2*(1 - 2*y))*
+-     -          (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2 + 
+-     -        (C151/
+-     -          ((msf1**2 + m0**2*(1 - 2*y))*
+-     -            (msf1**2 + m0**2*(1 - 2*x + 2*y))) + 
+-     -          C152/
+-     -          ((msf2**2 + m0**2*(1 - 2*y))*
+-     -            (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2)
+-           endif
+-
++c... TB bug fix 10/2020: this does NOT work when trying to consistently
++c...                     subtract the FSR contribution later on
++c...                     -> ALWAYS use the full expressions!
++
++c      if ((IBch.eq.4).or.(IBch.eq.5).or.(IBch.eq.7).or.
++c     -    (IBch.eq.8).or.(IBch.eq.10)) then
++c            tmpresult=
++c     -        -2*m0**6*(-1 + x)*(x**2 - 2*x*y + 2*y**2)*
++c     -       ((C11/((msf1**2 + m0**2*(1 - 2*y))*
++c     -             (msf1**2 + m0**2*(1 - 2*x + 2*y))) +
++c     -         C12/
++c     -          ((msf2**2 + m0**2*(1 - 2*y))*
++c     -          (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2 +
++c     -        (C151/
++c     -          ((msf1**2 + m0**2*(1 - 2*y))*
++c     -            (msf1**2 + m0**2*(1 - 2*x + 2*y))) +
++c     -          C152/
++c     -          ((msf2**2 + m0**2*(1 - 2*y))*
++c     -            (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2)
++c           endif
++c
+ c...for heavy leptons and quarks, add
+ c...contributions from all linear independent combinations of coupling
+ c...constants separately, utilizing various symmetries
+-
+-      if ((IBch.eq.6).or.(IBch.eq.9).or.(IBch.eq.11)
+-     -    .or.(IBch.eq.12)) then
++c
++c      if ((IBch.eq.6).or.(IBch.eq.9).or.(IBch.eq.11)
++c     -    .or.(IBch.eq.12)) then
+ 
+           zf=(mz**2*(16*m0**4+GZ**2*mz**2-8*m0**2*mz**2
+      -       +mz**4))/(-4*m0**2 + mz**2)**2
+@@ -190,7 +193,8 @@ c...constants separately, utilizing vari
+      -
+      -  +  dsIBffdxdy_8(x,y,CZ5,CH,m0,mf,mz,mh03,GZ,Gh03)
+ 
+-      endif   ! contribution from heavy fermions
++c... TB bugfix 10/20: ALWAYS use the full expressions (see above)
++c      endif   ! contribution from heavy fermions
+ 
+ 
+ c... this is the analytically obtained 2-body 
+@@ -217,6 +221,7 @@ c 
+      -        (mz**2*(GZ**2*mz**2 + (-4*m0**2 + mz**2)**2))))/
+      -   (Gh03**2*mh03**2 + (-4*m0**2 + mh03**2)**2)
+ 
++
+         msq2bodyds = msq2body
+ 
+ 
+@@ -288,6 +293,9 @@ c      if (IBch.eq.5.or.IBch.eq.6.or.   
+                                                      ! only for those channels for
+ c     -    IBch.eq.9.or.IBch.eq.11.or.IBch.eq.12)    ! which Pythia runs exist.
+      
++c... TEST: the FSR contribution *can* be larger -- but should not be so by much!
++c      write(*,*) IBch, tmpresult, dsIBfsrdxdy(IBch,x,y), '(',x,y, ')'
++     
+       tmpresult = tmpresult - dsIBfsrdxdy(IBch,x,y)
+ 
+       dsIBffdxdy=tmpresult

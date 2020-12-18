@@ -16,6 +16,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Jun
 ///
+///  \author Markus Prim
+///          (markus.prim@kit.edu)
+///  \date 2020 Jun
+///
 ///  *********************************************
 
 #include <map>
@@ -192,6 +196,11 @@ namespace Gambit
             filename = optarg;
             found_inifile = true;
         }
+      }
+      if (show_runorder and not resume) 
+      {
+          cout << "This is a dry-run, ignoring the restart flag (-r/--restart), i.e. not deleting any files." << endl;
+          resume = true;
       }
       // Set flag telling core object that command line option processing is complete
       processed_options = true;

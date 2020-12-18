@@ -2,7 +2,7 @@ name: Gambit CI
 
 on:
   push:
-    branches: [ master, gitlab-ci ]
+    branches: [ master, ci-* ]
   pull_request:
     branches: [ master ]
   schedule:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   gambit_build:
-    runs-on: ubuntu-latest
+    runs-on: [docker, self-hosted]
     strategy:
       fail-fast: false
       matrix:

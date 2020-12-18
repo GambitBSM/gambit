@@ -160,14 +160,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY RD_eff_annrate_DSprep_MSSM
+  #define CAPABILITY RD_eff_annrate_DS5prep
   START_CAPABILITY
-    #define FUNCTION RD_annrate_DS5prep_MSSM_func
+    #define FUNCTION RD_annrate_DS5prep_func
       START_FUNCTION(int)
       DEPENDENCY(RD_spectrum, RD_spectrum_type)
       BACKEND_REQ(rdmgev, (ds5), DS5_RDMGEV)
       BACKEND_OPTION((DarkSUSY, 5.1.3), (ds5))
     #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY RD_eff_annrate_DSprep_MSSM
+  START_CAPABILITY
     #define FUNCTION RD_annrate_DSprep_MSSM_func
       START_FUNCTION(int)
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
@@ -180,13 +184,19 @@ START_MODULE
 
   #define CAPABILITY RD_eff_annrate
   START_CAPABILITY
+    #define FUNCTION RD_eff_annrate_DS5_MSSM
+      START_FUNCTION(fptr_dd)
+      ALLOW_MODELS(MSSM63atQ)
+      DEPENDENCY(RD_eff_annrate_DS5prep, int)
+      BACKEND_REQ(dsanwx, (ds5), double, (double&))
+      BACKEND_OPTION((DarkSUSY, 5.1.3), (ds5))
+    #undef FUNCTION
     #define FUNCTION RD_eff_annrate_DS_MSSM
       START_FUNCTION(fptr_dd)
       ALLOW_MODELS(MSSM63atQ)
-      MODEL_CONDITIONAL_DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int, MSSM63atQ)
-      BACKEND_REQ(dsanwx, (ds5or6), double, (double&))
-      BACKEND_OPTION((DarkSUSY, 5.1.3), (ds5or6))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds5or6))
+      DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int)
+      BACKEND_REQ(dsanwx, (ds6), double, (double&))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)

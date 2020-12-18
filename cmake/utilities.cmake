@@ -584,7 +584,7 @@ endfunction()
 
 
 # Simple function to find specific Python modules
-macro(find_python_module module)
+macro(gambit_find_python_module module)
   execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
@@ -594,7 +594,7 @@ macro(find_python_module module)
       if (${ARGV1} STREQUAL "REQUIRED")
         message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
       else()
-        message(FATAL_ERROR "-- Unrecognised second argument to find_python_module: ${ARGV1}.")
+        message(FATAL_ERROR "-- Unrecognised second argument to gambit_find_python_module: ${ARGV1}.")
       endif()
     endif()
     message(STATUS "FAILED to find Python module ${module}.")
