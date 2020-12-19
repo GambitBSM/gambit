@@ -632,9 +632,11 @@ namespace Gambit
     // Two Loop Contributions for gTHDM from 1607.06292
     namespace TwoLoopContributions
     {
-      std::complex<double> gm2mu_loop2f(int f, int fi, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
+        const int fi = 2; // Internal flavour is the heaviest
         switch (f)
         {
           case 0: xi_f = xi_L; break;
@@ -643,86 +645,98 @@ namespace Gambit
         }
         if ((phi == 0) or (phi == 1))
         {
-          return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
+          return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 2)
         {
-          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
+          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 3)
         {
-          double Qu = Qf[2];
-          double Qd = Qf[1]; 
-          return TwoLoopFunctions::TwoLoopfC(f, Nc, Qu, Qd, alph, mmu, mf, mphi, mW, mZ) * Yukawas::yff_phi(0, 1, 1, 2, mf[f], xi_f, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 2, mf[f], xi_f, VCKM, vev, cosab);
+          const double Qu = Qf[2], Qd = Qf[1]; 
+          return TwoLoopFunctions::TwoLoopfC(f, Nc, Qu, Qd, alph, mmu, mf, mphi, mW, mZ) * Yukawas::yff_phi(fe, l, lp, 2, mf[f], xi_f, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 2, mf[f], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 4)
         {
-          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(0, 1, 1, 0, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 0, mf[f], xi_f, VCKM, vev, cosab);
+          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * Yukawas::yff_phi(fe, l, lp, 0, mmu, xi_L, VCKM, vev, cosab) * Yukawas::yff_phi(f, fi, fi, 0, mf[f], xi_f, VCKM, vev, cosab);
         }
       }
 
-      double gm2mu_barrzeephigammaf(int f, int fi, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeephigammaf(int f, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
       {
         const double x = std::pow(mf/mphi,2);
         Eigen::Matrix3cd xi_f;
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
+        const int fi = 2; // Internal flavour is the heaviest
         switch (f)
         {
           case 0: xi_f = xi_L; break;
           case 1: xi_f = xi_D; break;
           case 2: xi_f = xi_U; break;
         }
-          double term1 = Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real() * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab).real() * TwoLoopFunctions::TwoLoopF1(x);
-          double term2 = Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).imag() * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab).imag() * TwoLoopFunctions::TwoLoopF4(x);
+          double term1 = Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab).real() * TwoLoopFunctions::TwoLoopF1(x);
+          double term2 = Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).imag() * Yukawas::yff_phi(f, fi, fi, phi, mf, xi_f, VCKM, vev, cosab).imag() * TwoLoopFunctions::TwoLoopF4(x);
           return(alph * Nc * std::pow(mmu * Qf / vev,2)) / (4. * std::pow(M_PI,3)) * (term1 + term2);
       }
 
       double gm2mu_barrzeephigammaC(int phi, double mmu, double mHp, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
         const double x = std::pow(mHp/mphi,2);
-        return alph * std::pow(mmu/mphi,2) / (8. * std::pow(M_PI,3)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real() /** coup*/ * TwoLoopFunctions::TwoLoopF2(x);
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
+        return alph * std::pow(mmu/mphi,2) / (8. * std::pow(M_PI,3)) * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() /** coup*/ * TwoLoopFunctions::TwoLoopF2(x);
       }
         
       double gm2mu_barrzeephigammaW(int phi, double mmu, double mW, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
         const double x = std::pow(mW/mphi,2);
-        return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab).real() /** coup*/ * TwoLoopFunctions::TwoLoopF3(x);
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
+        return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() /** coup*/ * TwoLoopFunctions::TwoLoopF3(x);
       }
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int phi, double mmu, double mt, double mb, double mHp, double Qt, double Qb, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
-        const int Nc = 3;
+        const int phi = 3; // Charged Higgs boson
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
+        const int ft = 2, fb = 1, fi = 2; // Internal flavour is the heaviest
+        const int Nc = 3; // Since internal fermions are top+bottom, number of colours is 3
+        const double mt = mf[2], mb = mf[1];
         const double xtC = std::pow(mt/mHp,2);
         const double xbC = std::pow(mb/mHp,2);
         const double xtW = std::pow(mt/mW,2);
         const double xbW = std::pow(mb/mW,2);
-        double term1 = std::pow(mt,2)*Qt * std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(2, 2, 2, phi, mmu, xi_U, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
-        double term2 = std::pow(mt,2)*Qb * std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(2, 2, 2, phi, mmu, xi_U, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
-        double term3 = std::pow(mb,2)*Qt * std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(2, 2, 2, phi, mmu, xi_D, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
-        double term4 = std::pow(mb,2)*Qb * std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(2, 2, 2, phi, mmu, xi_D, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-2.*TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+2.*TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        const double Qt = Qf[2], Qb = Qf[1];
+        // Top contributions
+        double term1 = std::pow(mt,2)*Qt * std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(ft, fi, fi, phi, mmu, xi_U, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        double term2 = std::pow(mt,2)*Qb * std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(ft, fi, fi, phi, mmu, xi_U, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        // Bottom contributions
+        double term3 = std::pow(mb,2)*Qt * std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(fb, fi, fi, phi, mmu, xi_D, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
+        double term4 = std::pow(mb,2)*Qb * std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)).real() * Yukawas::yff_phi(fb, fi, fi, phi, mmu, xi_D, VCKM, vev, cosab).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-2.*TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+2.*TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
         return alph*Nc*std::pow(VCKM(3,2)*mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonC(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
         const double xSC = std::pow(mphi/mHp, 2);
         const double xSW = std::pow(mphi/mW,  2);
         const double xCW = std::pow(mHp/mW,   2);
         double term1 = (TwoLoopFunctions::TwoLoopG(1.,xSC,3)-TwoLoopFunctions::TwoLoopG(xCW,xSW,3));
         double term2 = (TwoLoopFunctions::TwoLoopG(1.,xSC,2)-TwoLoopFunctions::TwoLoopG(xCW,xSW,2));
-        return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)) /** coup*/) * (term1-term2);
+        return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) /** coup*/) * (term1-term2);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonW(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int phi, double mmu, double mphi, double mHp, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
+        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
         const double xSC = std::pow(mphi/mHp,2);
         const double xSW = std::pow(mphi/mW, 2);
         const double xWC = std::pow(mW/mHp,  2);
         double term1 = (std::pow(mHp,2)-3.*std::pow(mW,2)-std::pow(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,2)-TwoLoopFunctions::TwoLoopG(1.,xSW,2));
         double term2 = (std::pow(mHp,2)+   std::pow(mW,2)-std::pow(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,3)-TwoLoopFunctions::TwoLoopG(1.,xSW,3));
-        return alph*std::pow(mmu/vev,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(Yukawas::yff_phi(0, 1, 1, phi, mmu, xi_L, VCKM, vev, cosab)) /** coup*/) * (term1-term2);
+        return alph*std::pow(mmu/vev,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) /** coup*/) * (term1-term2);
       }
 
     }

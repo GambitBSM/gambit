@@ -1139,6 +1139,8 @@ namespace Gambit
       const double cosb = cos(beta);
       const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       const double cab = cos(alpha-beta);
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
       const double mE = (*sminputspointer)->mE;
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
@@ -1241,41 +1243,36 @@ namespace Gambit
       }
 
       /// Two loop amplitude
-      //const vector<double> Qf = {2/3,-1/3,-1};
-      //const vector<double> Nc = {3,3,1};
       const vector<double> Qf = {-1.,-1./3.,2./3.};
       const vector<double> Nc = { 1.,    3.,   3.};
+      complex<double> Aloop2f = 0.0;
       //Fermionic contribution
-      
-      /*complex<double> Aloop2fL = 0;
-      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=3; ++phi)
+      { 
+        for (int f=0; f<=2; ++f)
+        {
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[f], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, v, cab, mW, mZ, Alpha);
+        }
+      }
+
+      //Barr-Zee contribution
+      complex<double> Aloop2BZ = 0.0;
       for (int phi=0; phi<=2; ++phi)
-         for (int lf=0; lf<=2; ++lf)
-              {
-               {
-                 if (phi==0)
-                 {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
-                 }
-                 else if (phi==1)
-                 {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
-                 }
-                 else if (phi==2)
-                 {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
-                 }
-                }
-               }*/
+      {
+        for (int f=0; f<=2; ++f)
+        {
+          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
+        }
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mW, mphi[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+      }
+      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
 
       //Bosonic contribution
-      complex<double> Aloop2bL = 0;
+      /*complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
-      const double mW = (*sminputspointer)->mW;
-      const double mZ = (*sminputspointer)->mZ;
       for (int phi=0; phi<=1; ++phi)
       {
        const complex<double> sab(sqrt(1-cab*cab),0);
@@ -1290,9 +1287,9 @@ namespace Gambit
         Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
         Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
        }
-      }
+      }*/
 
-      result.central = Aloop1L.real()+/*Aloop2fL.real()*/+Aloop2bL.real() + Aloop1R.real()+/*Aloop2fR.real()*/+Aloop2bR.real();
+      result.central = Aloop1L.real() + Aloop1R.real() + Aloop2f.real() + Aloop2BZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
