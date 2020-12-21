@@ -68,6 +68,10 @@ namespace Gambit
       std::complex<double> TwoLoopfgammaA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ);
       std::complex<double> TwoLoopfZbosonA(double Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ);
 
+      std::complex<double> TwoLoopfCl(int xl);
+      std::complex<double> TwoLoopfCd(int xu, double xd, double Qu, double Qd);
+      std::complex<double> TwoLoopfCu(int xu, double xd, double Qu, double Qd);
+
       std::complex<double> TwoLoopfC(int f, double Nc, double Qu, double Qd, double alph, double mmu, std::vector<double> mf, double mphi, double mW, double mZ);
 
       double TwoLoopf1(double x, void * params);
