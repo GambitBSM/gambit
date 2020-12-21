@@ -1149,7 +1149,7 @@ namespace Gambit
       const double mNu3 = (*sminputspointer)->mNu3;
       const double mBmB = (*sminputspointer)->mBmB;
       const double mT = (*sminputspointer)->mT;
-      const double m12 = (*sminputspointer)->m12;
+      const double m122 = spectrum.get(Par::mass1, "m12_2");
       const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
@@ -1258,11 +1258,11 @@ namespace Gambit
       }
 
       std::vector<double> couplingphiCC = { \
-      ((mh^2-2.*mHp^2) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*std::pow(m12,2)+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v), \
-      ((pow(mH,2)-2.*pow(mHp,2)) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*pow(m12,2)/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v), \
+      ((pow(mh,2)-2.*pow(mHp,2)) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v), \
+      ((pow(mH,2)-2.*pow(mHp,2)) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v), \
       0.};
-      std::vector<double> couplingphiWW = {-std::sqrt(1-std::pow(cosab,2)), cosab, 0.};
-      std::vector<complex<double>> couplingphiCW = {(cosab,-0.), (std::sqrt(1-std::pow(cosab,2)),-0.), (0.,-1.)};
+      std::vector<double> couplingphiWW = {-sqrt(1-pow(cab,2)), cab, 0.};
+      std::vector<complex<double>> couplingphiCW = {(cab,-0.), (sqrt(1-pow(cab,2)),-0.), (0.,-1.)};
 
       //Barr-Zee contribution
       complex<double> Aloop2BZ = 0.;

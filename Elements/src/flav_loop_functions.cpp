@@ -267,7 +267,7 @@ namespace Gambit
         }
       }
 
-      std::complex<double> TwoLoopfCd(double xu, double xd, double Qu, double, Qd)
+      std::complex<double> TwoLoopfCd(double xu, double xd, double Qu, double Qd)
       {
         double y  = std::pow(xu-xd,2) - 2.*(xu+xd) + 1.;
         double s  = (Qu + Qd) / 4.;
@@ -289,7 +289,7 @@ namespace Gambit
         }      
       }
 
-      std::complex<double> TwoLoopfCu(double xu, double xd, double Qu, double, Qd)
+      std::complex<double> TwoLoopfCu(double xu, double xd, double Qu, double Qd)
       {
         double y  = std::pow(xu-xd,2) - 2.*(xu+xd) + 1.;
         double s  = (Qu + 2. + Qd + 2.) / 4.;
@@ -757,7 +757,7 @@ namespace Gambit
         const double xWC = std::pow(mW/mHp,  2);
         double term1 = (std::pow(mHp,2)-3.*std::pow(mW,2)-std::pow(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,2)-TwoLoopFunctions::TwoLoopG(1.,xSW,2));
         double term2 = (std::pow(mHp,2)+   std::pow(mW,2)-std::pow(mphi,2)) * (TwoLoopFunctions::TwoLoopG(xWC,xSC,3)-TwoLoopFunctions::TwoLoopG(1.,xSW,3));
-        return alph*std::pow(mmu/vev,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiWW * coupingphiCW) * (term1-term2);
+        return alph*std::pow(mmu/vev,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiWW * couplingphiCW) * (term1-term2);
       }
 
     }
