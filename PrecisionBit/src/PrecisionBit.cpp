@@ -1149,6 +1149,7 @@ namespace Gambit
       const double mNu3 = (*sminputspointer)->mNu3;
       const double mBmB = (*sminputspointer)->mBmB;
       const double mT = (*sminputspointer)->mT;
+      const double m12 = (*sminputspointer)->m12;
       const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
@@ -1245,28 +1246,36 @@ namespace Gambit
       /// Two loop amplitude
       const vector<double> Qf = {-1.,-1./3.,2./3.};
       const vector<double> Nc = { 1.,    3.,   3.};
-      complex<double> Aloop2f = 0.0;
+
+      complex<double> Aloop2f = 0.;
       //Fermionic contribution
       for (int phi=0; phi<=3; ++phi)
       { 
         for (int f=0; f<=2; ++f)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[f], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[f], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, v, cab, mW, mZ, Alpha);
         }
       }
 
+      std::vector<double> couplingphiCC = { \
+      ((mh^2-2.*mHp^2) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*std::pow(m12,2)+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v), \
+      ((pow(mH,2)-2.*pow(mHp,2)) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*pow(m12,2)/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v), \
+      0.};
+      std::vector<double> couplingphiWW = {-std::sqrt(1-std::pow(cosab,2)), cosab, 0.};
+      std::vector<complex<double>> couplingphiCW = {(cosab,-0.), (std::sqrt(1-std::pow(cosab,2)),-0.), (0.,-1.)};
+
       //Barr-Zee contribution
-      complex<double> Aloop2BZ = 0.0;
+      complex<double> Aloop2BZ = 0.;
       for (int phi=0; phi<=2; ++phi)
       {
         for (int f=0; f<=2; ++f)
         {
           Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
         }
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mW, mphi[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
       }
       Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
 
