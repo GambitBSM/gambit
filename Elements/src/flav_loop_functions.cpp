@@ -226,13 +226,13 @@ namespace Gambit
         return Nc * std::pow(Qf * alph * mmu,2) / pow(2.*M_PI*mW,2) / sw2 * std::pow(mf/mphi,2) * Fphi;
       }
 
-      std::complex<double> TwoLoopfZbosonphi(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      std::complex<double> TwoLoopfZbosonphi(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ, double glv, double gfv)
       {
         double sw2 = 1-std::pow(mW/mZ,2);
         double cw2 = 1-sw2;
         std::complex<double> Fphi = -2. + std::log(std::pow(mphi/mf,2)) - (std::pow(mphi,2)-2.*std::pow(mf,2))/std::pow(mphi,2) * TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
         std::complex<double> FZ   = -2. + std::log(std::pow(mZ/mf,2)) - (std::pow(mZ,2)-2.*std::pow(mf,2))/std::pow(mZ,2) * TwoLoopFunctions::TwoLoopPhi(mZ,mf,mf)/(std::pow(mZ,2)-4.*std::pow(mf,2));
-        return -Nc * Qf * std::pow(alph * mmu,2) / std::pow(2.*M_PI*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
+        return -Nc * Qf * glv * gfv * std::pow(alph * mmu,2) / std::pow(2.*M_PI*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
       }
 
       std::complex<double> TwoLoopfgammaA(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
@@ -242,13 +242,13 @@ namespace Gambit
         return Nc * std::pow(Qf * alph * mmu,2) / pow(2.*M_PI*mW,2) / sw2 * std::pow(mf/mphi,2) * Fphi;
       }
 
-      std::complex<double> TwoLoopfZbosonA(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
+      std::complex<double> TwoLoopfZbosonA(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ, double glv, double gfv)
       {
         double sw2 = 1-std::pow(mW/mZ,2);
         double cw2 = 1-sw2;
         std::complex<double> Fphi = TwoLoopFunctions::TwoLoopPhi(mphi,mf,mf)/(std::pow(mphi,2)-4.*std::pow(mf,2));
         std::complex<double> FZ   = TwoLoopFunctions::TwoLoopPhi(mZ,mf,mf)/(std::pow(mZ,2)-4.*std::pow(mf,2));
-        return -Nc * Qf * std::pow(alph * mmu,2) / std::pow(2.*M_PI*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
+        return -Nc * Qf * glv * gfv * std::pow(alph * mmu,2) / std::pow(2.*M_PI*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
       }
 
       std::complex<double> TwoLoopfCl(double xl)
@@ -652,7 +652,7 @@ namespace Gambit
     // Two Loop Contributions for gTHDM from 1607.06292
     namespace TwoLoopContributions
     {
-      std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_0, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_0, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
         const int fe = 0, l = 1, lp = 1; //External fermions are both muons
@@ -665,11 +665,11 @@ namespace Gambit
         }
         if ((phi == 0) or (phi == 1))
         {
-          return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
+          return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ, gfv[0], gfv[2])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 2)
         {
-          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
+          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ, gfv[0], gfv[2])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, phi, mf[f], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 3)
         {
@@ -679,7 +679,7 @@ namespace Gambit
         }
         else if (phi == 4)
         {
-          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, 0, mmu, xi_0, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, 0, mf[f], xi_0, VCKM, vev, cosab);
+          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ, gfv[0], gfv[2])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, 0, mmu, xi_0, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, 0, mf[f], xi_0, VCKM, vev, cosab);
         }
       }
 
