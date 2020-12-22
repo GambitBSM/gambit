@@ -1235,7 +1235,8 @@ namespace Gambit
             // Ignore purely SM contributions with SM higgs and no flavour changing 
             Aloop1L += 0.0;
             Aloop1R += 0.0;
-          } else
+          }
+          else
           {
             Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
             Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
@@ -1248,7 +1249,7 @@ namespace Gambit
       const vector<double> Nc = { 1.,    3.,   3.};
 
       const double sw2 = 1 - pow(mW/mZ,2);
-      const std::vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
+      const vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
 
       complex<double> Aloop2f = 0.;
       //Fermionic contribution
@@ -1256,17 +1257,17 @@ namespace Gambit
       { 
         for (int f=0; f<=2; ++f)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[f], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
         }
       }
 
-      const std::vector<double> couplingphiCC = { \
+      const vector<double> couplingphiCC = { \
       ((pow(mh,2)-2.*pow(mHp,2)) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v), \
       ((pow(mH,2)-2.*pow(mHp,2)) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v), \
       0.};
-      const std::vector<double> couplingphiWW = {-sqrt(1-pow(cab,2)), cab, 0.};
-      const std::vector<complex<double>> couplingphiCW = {(cab,-0.), (sqrt(1-pow(cab,2)),-0.), (0.,-1.)};
-
+      const vector<double> couplingphiWW = {-sqrt(1-pow(cab,2)), cab, 0.};
+      const vector<complex<double>> couplingphiCW = {(cab,-0.), (sqrt(1-pow(cab,2)),-0.), (0.,-1.)};
+      
       //Barr-Zee contribution
       complex<double> Aloop2BZ = 0.;
       for (int phi=0; phi<=2; ++phi)

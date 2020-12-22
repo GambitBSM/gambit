@@ -202,16 +202,17 @@ namespace Gambit
       { 
         if (m3 != 0)
         {
-          std::complex<double> lambda = std::sqrt(pow(m1,4)+pow(m2,4)+pow(m3,4)-2*pow(m1*m2,2)-2*pow(m2*m3,2)-2*pow(m3*m1,2));
-          std::complex<double> alphap = (pow(m3,2)+pow(m1,2)-pow(m2,2)-lambda) / (2*pow(m3,2));
-          std::complex<double> alpham = (pow(m3,2)-pow(m1,2)+pow(m2,2)-lambda) / (2*pow(m3,2));
+          std::complex<double> argum  = std::complex<double> (std::pow(m1,4)+std::pow(m2,4)+std::pow(m3,4)-2*std::pow(m1*m2,2)-2*std::pow(m2*m3,2)-2*std::pow(m3*m1,2));
+          std::complex<double> lambda = std::sqrt(argum);
+          std::complex<double> alphap = (std::pow(m3,2)+std::pow(m1,2)-std::pow(m2,2)-lambda) / (2*std::pow(m3,2));
+          std::complex<double> alpham = (std::pow(m3,2)-std::pow(m1,2)+std::pow(m2,2)-lambda) / (2*std::pow(m3,2));
           gsl_sf_result reD1, imD1;
           gsl_sf_complex_dilog_e(abs(alphap), arg(alphap), &reD1, &imD1);
           std::complex<double> Dilog1(reD1.val,imD1.val);
           gsl_sf_result reD2, imD2;
           gsl_sf_complex_dilog_e(abs(alpham), arg(alpham), &reD2, &imD2);
           std::complex<double> Dilog2(reD2.val,imD2.val);
-          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(m1/m3,2))*std::log(pow(m2/m3,2)) - 2.*Dilog1 - 2.*Dilog2 + pow(M_PI,2)/3.);
+          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(m1/m3,2))*std::log(pow(m2/m3,2)) - 2.*Dilog1 - 2.*Dilog2 + std::pow(M_PI,2)/3.);
         } 
         else 
         { 
@@ -342,30 +343,30 @@ namespace Gambit
       double TwoLoopf1(double x, void * params)
       {
         double w = *(double *) params;
-        return w/2. * (2.*x*(1.-x)-1.) / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+        return w/2. * (2.*x*(1.-x)-1.) / (w-x*(1.-x)) * std::log(w/(x*(1.-x)));
       }
 
       double TwoLoopf2(double x, void * params)
       {
         double w = *(double *) params;
-        return 1./2. * x*(x-1.) / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+        return 1./2. * x*(x-1.) / (w-x*(1.-x)) * std::log(w/(x*(1.-x)));
       }
 
       double TwoLoopf3(double x, void * params)
       {
         double w = *(double *) params;
-        return 1./2. * x*w*((3.*x*(4.*x-1.)+10.)-x*(1.-x)) / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+        return 1./2. * x*w*((3.*x*(4.*x-1.)+10.)-x*(1.-x)) / (w-x*(1.-x)) * std::log(w/(x*(1.-x)));
       }
 
       double TwoLoopf4(double x, void * params)
       {
         double w = *(double *) params;
-        return w/2. * 1. / (w-x*(1.-x)) * std::log(x/(x*(1.-x)));
+        return w/2. * 1. / (w-x*(1.-x)) * std::log(w/(x*(1.-x)));
       }
       
       double TwoLoopF1(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
+        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -380,7 +381,7 @@ namespace Gambit
 
       double TwoLoopF2(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
+        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -395,7 +396,7 @@ namespace Gambit
 
       double TwoLoopF3(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
+        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -410,7 +411,7 @@ namespace Gambit
 
       double TwoLoopF4(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(x/(x*(1-x))),{x,0,1})
+        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -733,7 +734,7 @@ namespace Gambit
         // Bottom contributions
         double term3 = std::pow(mb,2)*Qu * (std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * Yukawas::yff_phi(fd, fi, fi, phi, mmu, xi_D, VCKM, vev, cosab)).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,2)-TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,2)+TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
         double term4 = std::pow(mb,2)*Qd * (std::conj(Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * Yukawas::yff_phi(fd, fi, fi, phi, mmu, xi_D, VCKM, vev, cosab)).real() * (TwoLoopFunctions::TwoLoopG(xtC,xbC,1)-2.*TwoLoopFunctions::TwoLoopG(xtC,xbC,2)+TwoLoopFunctions::TwoLoopG(xtC,xbC,3)-TwoLoopFunctions::TwoLoopG(xtW,xbW,1)+2.*TwoLoopFunctions::TwoLoopG(xtW,xbW,2)-TwoLoopFunctions::TwoLoopG(xtW,xbW,3));
-        return alph*Nc*std::pow(VCKM(3,2)*mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
+        return alph*Nc*norm(VCKM(2,1))*std::pow(mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
       double gm2mu_barrzeeCHiggsWBosonC(int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
