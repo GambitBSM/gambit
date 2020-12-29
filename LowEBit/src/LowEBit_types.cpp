@@ -16,7 +16,7 @@
 ///
 ///  \author Dimitrios Skodras
 ///          (dimitrios.skodras@udo.edu)
-///  \date 2019 Nov
+///  \date 2020 Dec
 ///
 ///  *********************************************
 
@@ -40,7 +40,7 @@ namespace Gambit
 
       dq::dq()
       {
-    	  u = d = s = c = b = t = 0;
+    	  u = d = s = c = b = t = w = 0;
       }
       dl::dl()
       {

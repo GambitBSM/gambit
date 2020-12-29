@@ -3,52 +3,55 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-  #  nEDMme:
-  #    gTu: -0.204
-  #    gTd: 0.784
-  #    gTs: -0.0027
-  #    rhoU: 0.55
-  #    rhoD: 1.10
+  nEDMme:
+    gTu: -0.204
+    gTd: 0.784
+    gTs: -0.0027
+    rhoU: 0.55
+    rhoD: 1.10
 
-    #  diaEDMme:
-    #    CSchiff_Hg: -2.6
-    #    CSchiff_Ra: 0.0
-    #    CSchiff_Rn: 0.0
-    #    CSchiff_Xe: 0.0
-    #    a0_Hg: 0.028
-    #    a0_Ra: 0.0
-    #    a0_Rn: 0.0
-    #    a0_Xe: 0.0
-    #    a1_Hg: 0.32
-    #    a1_Ra: 0.0
-    #    a1_Rn: 0.0
-    #    a1_Xe: 0.0
-    #    b_Hg: 0.0
-    #    b_Ra: 0.0
-    #    b_Rn: 0.0
-    #    b_Xe: 0.0
+  diaEDMme:
+    CSchiff_Hg: -1.8
+    CSchiff_Ra: 0.0
+    CSchiff_Rn: 0.0
+    CSchiff_Xe: 0.0
+    a0_Hg: 0.016
+    a0_Ra: 0.0
+    a0_Rn: 0.0
+    a0_Xe: 0.0
+    a1_Hg: 0.006
+    a1_Ra: 0.0
+    a1_Rn: 0.0
+    a1_Xe: 0.0
+    b_Hg: 0.0
+    b_Ra: 0.0
+    b_Rn: 0.0
+    b_Xe: 0.0
+    ae_Hg: 0.016
+    ae_Ra: 0.016
+    ae_Rn: 0.016
+    ae_Xe: 0.016
 #  StandardModel_Higgs:
 #     mH: 150.
 #     #range: [110.,250.]
 #     #prior_type: flat
 
   CPVYukawas:
-    CbHp:  
-     range: [-6.0E-3,6.0E-3]
+    CtHp:  
+     range: [-1.0E-1,1.0E-1]
      prior_type: flat
-    CbHm: 
-          range: [-6.0E-3,6.0E-3]
+    CtHm: 
+     range: [-1.0E-1,1.0E-1]
      #     range: [-1.0E-4,1.0E-4]
-          prior_type: flat
-    CtHp: 0.
-    #range: [-32.,32.]
-    # prior_type: flat
-    CtHm: 0.
-    #     range: [-5.E-1,5.E-1]
-     #     range: [-1.,1.]
-     # prior_type: flat
-    CuHp: 0.
-    CuHm: 0.
+     prior_type: flat
+    CuHp: 
+     range: [-1.0E-5,1.0E-5]
+     prior_type: flat
+    CuHm: 
+     range: [-1.0E-5,1.0E-5]
+     prior_type: flat
+    CbHp: 0.
+    CbHm: 0.
     CdHp: 0.
     CdHm: 0.
     CcHp: 0.
@@ -87,7 +90,7 @@ Printer:
 
 
 Scanner:
-  use_scanner: grid
+  use_scanner: diver
 
   scanners:
     multinest:
@@ -100,17 +103,17 @@ Scanner:
     diver:
       plugin: diver
       like: LogLike
-      NP: 5000
+      NP: 10000
       verbosity: 1
       convthresh: 0.1
 
     grid:
       plugin: grid
       like: LogLike
-      grid_pts: [200, 200]
+      grid_pts: [300, 300]
           #, 1000, 1000, 1000, 1000]
           #parameters: ["StandardModel_Higgs::mH","CPVYukawas::kappaB" ]
-      parameters: ["CPVYukawas::CbHm", "CPVYukawas::CbHp"]
+      parameters: ["CPVYukawas::CtHm", "CPVYukawas::CtHp"]
           #, "CPVYukawas::SinPhiU", "CPVYukawas::SinPhiD"]
           # , "CPVYukawas::kappaS", "CPVYukawas::SinPhiD", "CPVYukawas::SinPhiS"]
 
@@ -120,42 +123,40 @@ ObsLikes:
   #   function: calc_HB_LEP_LogLike_CPVYukawas
   #   purpose: LogLike
  
-           - capability: LHC_Higgs_LogLike
-             function: calc_HS_LHC_LogLike_CPVYukawas
-             purpose: LogLike
-             dependencies:
-               - capability: HB_ModelParameters
-                 function: SMHiggs_ModelParameters
-                 module: ColliderBit
+          - capability: LHC_Higgs_LogLike
+            function: calc_HS_LHC_LogLike_CPVYukawas
+            purpose: LogLike
+            dependencies:
+              - capability: HB_ModelParameters
+                function: SMHiggs_ModelParameters
+                module: ColliderBit
 
-
-
-         # - capability: lnL_EDM_n
-         #   function: lnL_EDM_n_gaussianOverall
-         #   purpose: LogLike
+          - capability: lnL_EDM_n
+            function: lnL_EDM_n_gaussianOverall
+            purpose: LogLike
          
-          #- capability: EDM_n
-          #  function: EDM_n_quark
-          #  purpose: Observable
-          #  module: LowEBit
-        #
-        #  - capability: lnL_EDM_para
-        #    function: lnL_EDM_ThO_gaussianStep
-        #    purpose: LogLike
-        # 
-        #  - capability: EDM_para
-        #    function: EDM_ThO_electron
-        #    purpose: Observable 
-        #    module: LowEBit
-        #
-        #  - capability: lnL_EDM_dia
-        #    function: lnL_EDM_199Hg_step
-        #    purpose: LogLike
-        # 
-        #  - capability: EDM_dia
-        #    function: EDM_199Hg_quark
-        #    purpose: Observable 
-        #    module: LowEBit
+          - capability: EDM_n
+            function: EDM_n_quark
+            purpose: Observable
+            module: LowEBit
+        
+          - capability: lnL_EDM_para
+            function: lnL_EDM_ThO_gaussianStep
+            purpose: LogLike
+         
+          - capability: EDM_para
+            function: EDM_ThO_electron
+            purpose: Observable 
+            module: LowEBit
+        
+          - capability: lnL_EDM_dia
+            function: lnL_EDM_199Hg_step
+            purpose: LogLike
+         
+          - capability: EDM_dia
+            function: EDM_199Hg_quark
+            purpose: Observable 
+            module: LowEBit
 
 #  - capability: lnL_EDM_dia
 #    function: lnL_EDM_129Xe_step
@@ -186,52 +187,52 @@ ObsLikes:
 
 
 Rules:
-                          - capability: LHC_Higgs_LogLike
-                            function: calc_HS_LHC_LogLike_CPVYukawas
-                            purpose: LogLike
-                            dependencies:
-                              - capability: HB_ModelParameters
-                                function: SMHiggs_ModelParameters
-                                module: ColliderBit
-                              - capability: HB_ModelParameters_charged
-                                function: SMHiggs_ModelParameters_charged
-                                module: ColliderBit
-                                    #                             - capability: HB_ModelParameters
-                                    #                               function: MSSMHiggs_ModelParameters_effc
-                                    #                               module: ColliderBit
-          
+    - capability: LHC_Higgs_LogLike
+      function: calc_HS_LHC_LogLike_CPVYukawas
+      purpose: LogLike
+      dependencies:
+        - capability: HB_ModelParameters
+          function: SMHiggs_ModelParameters
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: SMHiggs_ModelParameters_charged
+          module: ColliderBit
+              #                             - capability: HB_ModelParameters
+              #                               function: MSSMHiggs_ModelParameters_effc
+              #                               module: ColliderBit
+    
 
 
  
- #   - capability: lnL_EDM_para
- #     function: lnL_EDM_ThO_gaussianStep
- #     dependencies: 
- #        - capability: EDM_para
- #          function: EDM_ThO_electron         
- #          module: LowEBit
- #
+    - capability: lnL_EDM_para
+      function: lnL_EDM_ThO_gaussianStep
+      dependencies: 
+        - capability: EDM_para
+          function: EDM_ThO_electron         
+          module: LowEBit
+ 
 
- #   - capability: lnL_EDM_n
- #     function: lnL_EDM_n_gaussianOverall
- #     purpose: LogLike
- #     dependencies:
- #      - capability: EDM_n
- #        function: EDM_n_quark
- #        module: LowEBit
-    
- #   - capability: lnL_EDM_dia
- #     function: lnL_EDM_199Hg_step
- #     dependencies: 
- #        - capability: EDM_dia
- #          function: EDM_199Hg_quark         
- #          module: LowEBit
- # ##   - capability: lnL_EDM_dia
-  #     function: lnL_EDM_129Xe_step
-  #   dependencies: 
-  #      - capability: EDM_dia
-  #        function: EDM_129Xe_quark         
-  #        module: LowEBit
-  #
+    - capability: lnL_EDM_n
+      function: lnL_EDM_n_gaussianOverall
+      purpose: LogLike
+      dependencies:
+        - capability: EDM_n
+          function: EDM_n_quark
+          module: LowEBit
+   
+    - capability: lnL_EDM_dia
+      function: lnL_EDM_199Hg_step
+      dependencies: 
+        - capability: EDM_dia
+          function: EDM_199Hg_quark         
+          module: LowEBit
+    - capability: lnL_EDM_dia
+      function: lnL_EDM_129Xe_step
+      dependencies: 
+        - capability: EDM_dia
+          function: EDM_129Xe_quark         
+          module: LowEBit
+ 
   
   
 Logger:

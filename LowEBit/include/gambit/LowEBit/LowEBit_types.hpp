@@ -54,7 +54,7 @@ namespace Gambit
      {
         public:
            dq();
-           double u, d, s, c, b, t;
+           double u, d, s, c, b, t, w;
      };
      // Lepton electric dipole moments
      class dl
@@ -63,6 +63,7 @@ namespace Gambit
            dl();
            double e, mu, tau;
      };
+
   }
 }
 

@@ -70,10 +70,10 @@ namespace Gambit
 #define MODEL diaEDMme
   START_MODEL
   // Schiff moment parameters a_i, b and Schiff constant for several diamagnetic systems
-  DEFINEPARS(a0_Hg,a1_Hg,b_Hg,CSchiff_Hg)
-  DEFINEPARS(a0_Ra,a1_Ra,b_Ra,CSchiff_Ra)
-  DEFINEPARS(a0_Rn,a1_Rn,b_Rn,CSchiff_Rn)
-  DEFINEPARS(a0_Xe,a1_Xe,b_Xe,CSchiff_Xe)
+  DEFINEPARS(a0_Hg,a1_Hg,b_Hg,CSchiff_Hg,ae_Hg)
+  DEFINEPARS(a0_Ra,a1_Ra,b_Ra,CSchiff_Ra,ae_Ra)
+  DEFINEPARS(a0_Rn,a1_Rn,b_Rn,CSchiff_Rn,ae_Rn)
+  DEFINEPARS(a0_Xe,a1_Xe,b_Xe,CSchiff_Xe,ae_Xe)
 #undef MODEL
 
 #define MODEL TESTMODel

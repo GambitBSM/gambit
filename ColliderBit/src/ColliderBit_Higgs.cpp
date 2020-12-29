@@ -999,7 +999,9 @@ namespace Gambit
       //const HiggsCouplingsTable::h0_decay_array_type&  h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(1);
       GammaTot[0] = 4.08E-3; //taken from HS //h0_widths[0]->width_in_GeV;
 
-      double ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
+
+      double ghjuu_s[Hneut], ghjuu_p[Hneut],ghjdd_s[Hneut], ghjdd_p[Hneut],ghjee_s[Hneut], ghjee_p[Hneut],
+      	ghjss_s[Hneut], ghjss_p[Hneut], ghjcc_s[Hneut], ghjcc_p[Hneut],
         ghjbb_s[Hneut], ghjbb_p[Hneut], ghjtt_s[Hneut], ghjtt_p[Hneut],
         ghjmumu_s[Hneut], ghjmumu_p[Hneut], ghjtautau_s[Hneut], ghjtautau_p[Hneut],
         ghjWW[Hneut], ghjZZ[Hneut], ghjZga[Hneut], ghjgaga[Hneut], ghjgg[Hneut];
@@ -1013,17 +1015,20 @@ namespace Gambit
       double mc = Dep::SMINPUTS->mCmC;
       double mb = Dep::SMINPUTS->mBmB;
       double mt = Dep::SMINPUTS->mT;
+      double me = Dep::SMINPUTS->mE;
       double mmu = Dep::SMINPUTS->mMu;
       double mtau = Dep::SMINPUTS->mTau;
 
-      double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
-      double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md;
-      double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/ms;
-      double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mc;
-      double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mb;
-      double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mt;
-      double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
-      double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
+      // The WCs are normalized to C*v^2/Lambda^2
+      double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.); //*vev*vev/Lambda/Lambda
+      double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
+      double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
+      double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+      double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+      double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+      double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
+      double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+      double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
  
       double cosThU = sqrt(1. - pow(sinThU,2));
       double cosThD = sqrt(1. - pow(sinThD,2));
@@ -1031,27 +1036,65 @@ namespace Gambit
       double cosThC = sqrt(1. - pow(sinThC,2));
       double cosThB = sqrt(1. - pow(sinThB,2));
       double cosThT = sqrt(1. - pow(sinThT,2));
+      double cosThE = sqrt(1. - pow(sinThE,2));
       double cosThMu = sqrt(1. - pow(sinThMu,2));
       double cosThTau = sqrt(1. - pow(sinThTau,2));
 
       for(int i = 0; i<Hneut; i++){
-	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./ms;
-	      ghjss_s[i] = 1+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./ms;
-	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mc;
-	      ghjcc_s[i] = 1+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mc;
-	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mb;
-	      ghjbb_s[i] = 1+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mb;
-	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mt;
-	      ghjtt_s[i] = 1+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mt;
-	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mmu;
-	      ghjmumu_s[i] = 1+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mmu;
-	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mtau;
-	      ghjtautau_s[i] = 1+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/sqrt(2.)/2./mtau;
-	      ghjWW[i] = 1;
-	      ghjZZ[i] = 1;
-	      ghjZga[i] = 1;
-	      ghjgaga[i] = 1;
-	      ghjgg[i] = 1;
+	      ghjuu_p[i] = -((*Param["CuHm"])*cosThU + (*Param["CuHp"])*sinThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjuu_s[i] = 1.+((*Param["CuHm"])*sinThU - (*Param["CuHp"])*cosThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);
+	      ghjdd_p[i] = -((*Param["CdHm"])*cosThD + (*Param["CdHp"])*sinThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjdd_s[i] = 1.+((*Param["CdHm"])*sinThD - (*Param["CdHp"])*cosThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
+	      ghjee_p[i] = -((*Param["CeHm"])*cosThE + (*Param["CeHp"])*sinThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjee_s[i] = 1.+((*Param["CeHm"])*sinThE - (*Param["CeHp"])*cosThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
+	
+	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjss_s[i] = 1.+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
+	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+	      ghjcc_s[i] = 1.+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+	      ghjbb_s[i] = 1.+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+	      ghjtt_s[i] = 1.+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+	      ghjmumu_s[i] = 1.+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
+	      ghjtautau_s[i] = 1.+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
+	      ghjWW[i] = 1.;
+	      ghjZZ[i] = 1.;
+	      ghjZga[i] = 1.;
+	      ghjgaga[i] = 1.0842873669425823 + 8.216327502283923E-6*pow(ghjbb_p[i],2) -  0.003882520703150105*ghjbb_s[i] + 7.524512556462154E-6*pow(ghjbb_s[i],2) +  1.4903618879647566E-6*ghjbb_p[i]*ghjcc_p[i] +  7.05435305812936E-8*pow(ghjcc_p[i],2) - 0.00044635545699386653*ghjcc_s[i] +  1.3791990010267516E-6*ghjbb_s[i]*ghjcc_s[i] +  6.671174792904467E-8*pow(ghjcc_s[i],2) +  3.681430966980521E-10*ghjbb_p[i]*ghjdd_p[i] +  3.715624552651962E-11*ghjcc_p[i]*ghjdd_p[i] +  5.322882587723499E-15*pow(ghjdd_p[i],2) - 1.4451532128070216E-7*ghjdd_s[i] +  3.4136320327459167E-10*ghjbb_s[i]*ghjdd_s[i] +  3.5664268288726596E-11*ghjcc_s[i]*ghjdd_s[i] +  5.236865434567945E-15*pow(ghjdd_s[i],2) +  1.301683959829802E-11*ghjbb_p[i]*ghjee_p[i] +  1.326253583282692E-12*ghjcc_p[i]*ghjee_p[i] +  3.8435787588092367E-16*ghjdd_p[i]*ghjee_p[i] +  6.948678482499575E-18*pow(ghjee_p[i],2) - 5.288159562341214E-9*ghjee_s[i] +  1.2060967011092195E-11*ghjbb_s[i]*ghjee_s[i] +  1.2742157949156722E-12*ghjcc_s[i]*ghjee_s[i] +  3.7886780748069596E-16*ghjdd_s[i]*ghjee_s[i] +  6.862933818769824E-18*pow(ghjee_s[i],2) +  2.0181423936814254E-7*ghjbb_p[i]*ghjmumu_p[i] +  1.969401901763074E-8*ghjcc_p[i]*ghjmumu_p[i] +  5.406373802174486E-12*ghjdd_p[i]*ghjmumu_p[i] +  1.9409092411346543E-13*ghjee_p[i]*ghjmumu_p[i] +  1.4026011646482446E-9*pow(ghjmumu_p[i],2) - 0.0000693635098934796*ghjmumu_s[i]  + 1.8723977412159846E-7*ghjbb_s[i]*ghjmumu_s[i] +  1.8793675471439227E-8*ghjcc_s[i]*ghjmumu_s[i] +  5.26582421614648E-12*ghjdd_s[i]*ghjmumu_s[i] +  1.8933832238273E-13*ghjee_s[i]*ghjmumu_s[i] +  1.354808275886351E-9*pow(ghjmumu_s[i],2) +  8.169707242188978E-8*ghjbb_p[i]*ghjss_p[i] +  8.038206686283572E-9*ghjcc_p[i]*ghjss_p[i] +  2.2304617931596485E-12*ghjdd_p[i]*ghjss_p[i] +  8.019048812442139E-14*ghjee_p[i]*ghjss_p[i] +  1.151043336509099E-9*ghjmumu_p[i]*ghjss_p[i] +  2.3647391137680786E-10*pow(ghjss_p[i],2) - 0.000029053847402867726*ghjss_s[i] +  7.581030532170868E-8*ghjbb_s[i]*ghjss_s[i] +  7.684483322037299E-9*ghjcc_s[i]*ghjss_s[i] +  2.1789524195682857E-12*ghjdd_s[i]*ghjss_s[i] +  7.846866147283477E-14*ghjee_s[i]*ghjss_s[i] +  1.1145776490878952E-9*ghjmumu_s[i]*ghjss_s[i] +  2.2958241052918477E-10*pow(ghjss_s[i],2) +  0.00002395526650185964*ghjbb_p[i]*ghjtautau_p[i] +  2.2078560547006967E-6*ghjcc_p[i]*ghjtautau_p[i] +  5.590990796791191E-10*ghjdd_p[i]*ghjtautau_p[i] +  1.9842963881297596E-11*ghjee_p[i]*ghjtautau_p[i] +  3.0247830151601774E-7*ghjmumu_p[i]*ghjtautau_p[i] +  1.2283893539155417E-7*ghjss_p[i]*ghjtautau_p[i] +  0.000017565658985786372*pow(ghjtautau_p[i],2) -  0.006232409839911992*ghjtautau_s[i] +  0.00002205082179481585*ghjbb_s[i]*ghjtautau_s[i] +  2.0630587330707534E-6*ghjcc_s[i]*ghjtautau_s[i] +  5.26477465172087E-10*ghjdd_s[i]*ghjtautau_s[i] +  1.8686229929181336E-11*ghjee_s[i]*ghjtautau_s[i] +  2.8416332446553223E-7*ghjmumu_s[i]*ghjtautau_s[i] +  1.1550469048485962E-7*ghjss_s[i]*ghjtautau_s[i] +  0.00001628172001468661*pow(ghjtautau_s[i],2) -  0.0003579066781774534*ghjbb_p[i]*ghjtt_p[i] -  0.000039243087316191844*ghjcc_p[i]*ghjtt_p[i] -  1.2335807928262449E-8*ghjdd_p[i]*ghjtt_p[i] -  4.50472345606595E-10*ghjee_p[i]*ghjtt_p[i] -  5.989036250262235E-6*ghjmumu_p[i]*ghjtt_p[i] -  2.4998575282519483E-6*ghjss_p[i]*ghjtt_p[i] -  0.0005621248279165358*ghjtautau_p[i]*ghjtt_p[i] +  0.0077841852774819*pow(ghjtt_p[i],2) + 0.12077314906248089*ghjtt_s[i] -  0.00021508108216657898*ghjbb_s[i]*ghjtt_s[i] -  0.0000247765320891759*ghjcc_s[i]*ghjtt_s[i] -  8.036714319722743E-9*ghjdd_s[i]*ghjtt_s[i] -  2.9414339526736815E-10*ghjee_s[i]*ghjtt_s[i] -  3.854098795368632E-6*ghjmumu_s[i]*ghjtt_s[i] -  1.614711970384468E-6*ghjss_s[i]*ghjtt_s[i] -  0.0003455566268792928*ghjtautau_s[i]*ghjtt_s[i] +  0.0033631548199152565*pow(ghjtt_s[i],2) +  8.932154730904804E-11*ghjbb_p[i]*ghjuu_p[i] +  9.057488247655957E-12*ghjcc_p[i]*ghjuu_p[i] +  2.6099240325845877E-15*ghjdd_p[i]*ghjuu_p[i] +  9.429868887149617E-17*ghjee_p[i]*ghjuu_p[i] +  1.3216878622631353E-12*ghjmumu_p[i]*ghjuu_p[i] +  5.456715412871026E-13*ghjss_p[i]*ghjuu_p[i] +  1.3590488388622696E-10*ghjtautau_p[i]*ghjuu_p[i] -  3.041560586478145E-9*ghjtt_p[i]*ghjuu_p[i] +  3.2004299786329838E-16*pow(ghjuu_p[i],2) - 3.5670357379949684E-8*ghjuu_s[i] +  8.279597105714866E-11*ghjbb_s[i]*ghjuu_s[i] +  8.698208022742073E-12*ghjcc_s[i]*ghjuu_s[i] +  2.5702884827626797E-15*ghjdd_s[i]*ghjuu_s[i] +  9.304685331748733E-17*ghjee_s[i]*ghjuu_s[i] +  1.288367552486003E-12*ghjmumu_s[i]*ghjuu_s[i] +  5.335301290694782E-13*ghjss_s[i]*ghjuu_s[i] +  1.2798276495662985E-10*ghjtautau_s[i]*ghjuu_s[i] -  1.9838890612945524E-9*ghjtt_s[i]*ghjuu_s[i] +  3.1550000998015847E-16*pow(ghjuu_s[i],2);
+	      ghjgaga[i] = sqrt(ghjgaga[i]);
+	      ghjgg[i] =0.002623446962136067*pow(ghjbb_p[i],2) + 0.0024025526736024204*pow(ghjbb_s[i],2) + 0.0004758677604291782*ghjbb_p[i]*ghjcc_p[i] + 0.000022524322569956413*pow(ghjcc_p[i],2) + 0.00044037380793535206*ghjbb_s[i]*ghjcc_s[i] + 0.000021300846685406573*pow(ghjcc_s[i],2) + 2.9386726867794673E-8*ghjbb_p[i]*ghjdd_p[i] + 2.9659674417747326E-9*ghjcc_p[i]*ghjdd_p[i] + 1.0622370632354044E-13*pow(ghjdd_p[i],2) + 2.7249043394595263E-8*ghjbb_s[i]*ghjdd_s[i] + 2.8468715576654333E-9*ghjcc_s[i]*ghjdd_s[i] + 1.0450714379092784E-13*pow(ghjdd_s[i],2) + 6.52140315734248E-6*ghjbb_p[i]*ghjss_p[i] + 6.416433895280646E-7*ghjcc_p[i]*ghjss_p[i] + 4.45112050806662E-11*ghjdd_p[i]*ghjss_p[i] + 4.719084988499054E-9*pow(ghjss_p[i],2) + 6.051496703958057E-6*ghjbb_s[i]*ghjss_s[i] + 6.134077062160718E-7*ghjcc_s[i]*ghjss_s[i] + 4.348328149168876E-11*ghjdd_s[i]*ghjss_s[i] + 4.581557859147247E-9*pow(ghjss_s[i],2) - 0.11427845193997535*ghjbb_p[i]*ghjtt_p[i] - 0.01253019164290687*ghjcc_p[i]*ghjtt_p[i] - 9.846959552761936E-7*ghjdd_p[i]*ghjtt_p[i] - 0.00019954911839999468*ghjss_p[i]*ghjtt_p[i] + 2.485465338770585*pow(ghjtt_p[i],2) - 0.06867469821109272*ghjbb_s[i]*ghjtt_s[i] - 0.007911067058067859*ghjcc_s[i]*ghjtt_s[i] - 6.415242625665571E-7*ghjdd_s[i]*ghjtt_s[i] - 0.00012889308551333758*ghjss_s[i]*ghjtt_s[i] + 1.0738445239734387*pow(ghjtt_s[i],2) + 7.130020738464886E-9*ghjbb_p[i]*ghjuu_p[i] + 7.230067211077874E-10*ghjcc_p[i]*ghjuu_p[i] + 5.2083772165747584E-14*ghjdd_p[i]*ghjuu_p[i] + 1.0889448075461813E-11*ghjss_p[i]*ghjuu_p[i] - 2.427901297304309E-7*ghjtt_p[i]*ghjuu_p[i] + 6.386793782441111E-15*pow(ghjuu_p[i],2) + 6.609121857867872E-9*ghjbb_s[i]*ghjuu_s[i] + 6.943274658582895E-10*ghjcc_s[i]*ghjuu_s[i] + 5.129280318702831E-14*ghjdd_s[i]*ghjuu_s[i] + 1.0647153456990897E-11*ghjss_s[i]*ghjuu_s[i] - 1.5836235013822834E-7*ghjtt_s[i]*ghjuu_s[i] + 6.29613369314231E-15*pow(ghjuu_s[i],2) ;
+	      ghjgg[i] = sqrt(ghjgg[i]);
+      }
+      //taken from HS
+	double SMBR_HWW =  0.20956600000000017;
+	double SMBR_HZZ =  2.6439400000000023E-002;
+	double SMBR_Hgg =  7.8108199999999989E-002;
+	double SMBR_Htt =  0.0000000000000000;
+	double SMBR_Hbb = 0.58950599999999986;
+	double SMBR_Htautau =  6.3346999999999987E-002;
+	double SMBR_Hss =  2.4636999999999993E-004;
+	double SMBR_Hcc =  2.8827999999999993E-002;
+	double SMBR_HZgam =  1.5473800000000008E-003;
+	double SMBR_Hmumu =  2.2445999999999995E-004;
+	double SMBR_Hgamgam =  2.3094600000000002E-003;
+
+
+      for(int i = 0; i<Hneut; i++){
+	     GammaTot[i] = GammaTot[i] * (1. 
+			     + (pow(ghjss_p[i],2) + pow(ghjss_s[i],2) - 1.)*SMBR_Hss  //HiggsSignals: ghjff_p**2 -> ghjff_p**2 * 1./(1.-4*mf**2/mh**2)
+			     + (pow(ghjcc_p[i],2) + pow(ghjcc_s[i],2) - 1.)*SMBR_Hcc
+			     + (pow(ghjbb_p[i],2) + pow(ghjbb_s[i],2) - 1.)*SMBR_Hbb
+			     + (pow(ghjmumu_p[i],2) + pow(ghjmumu_s[i],2) - 1.)*SMBR_Hmumu
+			     + (pow(ghjtautau_p[i],2) + pow(ghjtautau_s[i],2) - 1.)*SMBR_Htautau
+			     + (pow(ghjZZ[i],2) - 1.)*SMBR_HZZ
+			     + (pow(ghjWW[i],2) - 1.)*SMBR_HWW
+			     + (pow(ghjgaga[i],2) - 1.)*SMBR_Hgamgam
+			     + (pow(ghjZga[i],2) - 1.)*SMBR_HZgam
+			     + (pow(ghjgg[i],2)- 1.)*SMBR_Hgg
+			     );
       }
 
       BEreq::HiggsBounds_neutral_input_properties_HS(&Mh[0], &GammaTot[0], &CP[0]);
@@ -1083,6 +1126,7 @@ namespace Gambit
 
 
       cout << "gbbs: " << ghjbb_s[0] << " gbbp: " << ghjbb_p[0] << endl;
+      cout << "GammaTot: " << GammaTot[0] << endl;
 
 
             // run HiggsSignals
@@ -1098,7 +1142,7 @@ namespace Gambit
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(csqtot + csqtot1 + csqtot2);
-      cout << "csqtot: " << csqtot << " result: " << result << endl;
+      cout << "csqtot: " << csqtot << "csqtot1: " << csqtot1 <<"csqtot2: " << csqtot2 <<" result: " << result << endl;
     }
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
     
