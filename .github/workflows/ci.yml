@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ubuntu, ubuntu-py2] #, fedora
+        arch: [fedora] #[ubuntu, ubuntu-py2]
         #mpi: [ON, OFF]
     container: gambitbsm/gambit-base:${{ matrix.arch }}
     defaults:
@@ -48,7 +48,8 @@ jobs:
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
-        cmake .. -D WITH_ROOT=ON -D WITH_RESTFRAMES=ON -D WITH_HEPMC=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+        test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG='-Ditch="FeynHiggs"'
+        cmake .. $CMAKE_FEYNHIGGS_FLAG  -D WITH_ROOT=ON  -D WITH_RESTFRAMES=ON  -D WITH_HEPMC=ON  -D BUILD_FS_MODELS="CMSSM;MSSM;MDM"  -D WITH_MPI=OFF
     - name: Build scanners
       run: |
         cd BUILD/ && . buildenv.sh
