@@ -54,7 +54,7 @@ jobs:
       run: |
         cd BUILD/ && . buildenv.sh
         make -j$(nproc) scanners
-        test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch="FeynHiggs"
+        test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch=FeynHiggs"
         cmake .. $CMAKE_FEYNHIGGS_FLAG
     - name: Build Gambit
       run: |
