@@ -48,14 +48,14 @@ jobs:
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
-        test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch=FeynHiggs"
-        cmake .. $CMAKE_FEYNHIGGS_FLAG  -D WITH_ROOT=ON  -D WITH_RESTFRAMES=ON  -D WITH_HEPMC=ON  -D BUILD_FS_MODELS="CMSSM;MSSM;MDM"  -D WITH_MPI=OFF
+        #test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch=FeynHiggs"
+        cmake .. $CMAKE_FEYNHIGGS_FLAG -Ditch=FeynHiggs  -D WITH_ROOT=ON  -D WITH_RESTFRAMES=ON  -D WITH_HEPMC=ON  -D BUILD_FS_MODELS="CMSSM;MSSM;MDM"  -D WITH_MPI=OFF
     - name: Build scanners
       run: |
         cd BUILD/ && . buildenv.sh
         make -j$(nproc) scanners
-        test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch=FeynHiggs"
-        cmake .. $CMAKE_FEYNHIGGS_FLAG
+        #test -e /etc/redhat-release && CMAKE_FEYNHIGGS_FLAG="-Ditch=FeynHiggs"
+        cmake .. $CMAKE_FEYNHIGGS_FLAG -Ditch=FeynHiggs
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
@@ -63,7 +63,7 @@ jobs:
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
-        test -e /etc/redhat-release && yum -y install bzip2
+        test -e /etc/redhat-release && dnf -y install bzip2
         make -j1 backends
         #make -j$(nproc) backends
     - name: CLI test
