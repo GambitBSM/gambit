@@ -32,139 +32,160 @@ namespace Gambit
 {
    namespace LowEBit
    {
-	static double gCu3[9];
-	static double gCd3[9];
-	static double gCs3[9];
-	static double gCu4[9];
-	static double gCd4[9];
-	static double gCs4[9];
-	static double gCw[9];
+	// These arrays hold the numerical values for the WC prefactors, i.e. loop functions at the hadronic scale.
+	static double Ce3[9];
+	static double Cu3[9];
+	static double Cd3[9];
+	static double Cs3[9];
+	static double Cu4[9];
+	static double Cd4[9];
+	static double Cs4[9];
+	static double Cw[9];
 
-	double* Cu3list(double muH, double Lambda){
+	void Ce3list(double muH, double Lambda){
+		static bool first = true;
+		if(first){
+			LoopFunctions l;
+			std::cout << "Ce3 calc" << std::endl;
+			Ce3[0] = l.C3e('e',muH,Lambda,1,0,0,0,0,0,0,0,0);
+			Ce3[1] = l.C3e('e',muH,Lambda,0,1,0,0,0,0,0,0,0);
+			Ce3[2] = l.C3e('e',muH,Lambda,0,0,1,0,0,0,0,0,0);
+			Ce3[3] = l.C3e('e',muH,Lambda,0,0,0,1,0,0,0,0,0);
+			Ce3[4] = l.C3e('e',muH,Lambda,0,0,0,0,1,0,0,0,0);
+			Ce3[5] = l.C3e('e',muH,Lambda,0,0,0,0,0,1,0,0,0);
+			Ce3[6] = l.C3e('e',muH,Lambda,0,0,0,0,0,0,1,0,0);
+			Ce3[7] = l.C3e('e',muH,Lambda,0,0,0,0,0,0,0,1,0);
+			Ce3[8] = l.C3e('e',muH,Lambda,0,0,0,0,0,0,0,0,1);
+			first = false;
+		}
+		return;	
+	}
+	
+	void Cu3list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cu3 calc" << std::endl;
-			gCu3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[2];
-			gCu3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[2];
-			gCu3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[2];
-			gCu3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[2];
-			gCu3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[2];
-			gCu3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[2];
-			gCu3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[2];
-			gCu3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[2];
-			gCu3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[2];
+			Cu3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[2];
+			Cu3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[2];
+			Cu3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[2];
+			Cu3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[2];
+			Cu3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[2];
+			Cu3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[2];
+			Cu3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[2];
+			Cu3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[2];
+			Cu3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[2];
 			first = false;
 		}
-		return gCu3;	
+		return;	
 	}
-	double* Cd3list(double muH, double Lambda){
+	void Cd3list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cd3 calc" << std::endl;
-			gCd3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[6];
-			gCd3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[6];
-			gCd3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[6];
-			gCd3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[6];
-			gCd3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[6];
-			gCd3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[6];
-			gCd3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[6];
-			gCd3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[6];
-			gCd3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[6];
+			Cd3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[6];
+			Cd3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[6];
+			Cd3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[6];
+			Cd3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[6];
+			Cd3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[6];
+			Cd3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[6];
+			Cd3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[6];
+			Cd3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[6];
+			Cd3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[6];
 			first = false;
 		}
-		return gCd3;	
+		return;	
 	}
-	double* Cs3list(double muH, double Lambda){
+	void Cs3list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cs3 calc" << std::endl;
-			gCs3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[10];
-			gCs3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[10];
-			gCs3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[10];
-			gCs3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[10];
-			gCs3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[10];
-			gCs3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[10];
-			gCs3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[10];
-			gCs3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[10];
-			gCs3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[10];
+			Cs3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[10];
+			Cs3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[10];
+			Cs3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[10];
+			Cs3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[10];
+			Cs3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[10];
+			Cs3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[10];
+			Cs3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[10];
+			Cs3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[10];
+			Cs3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[10];
 			first = false;
 		}
-		return gCs3;	
+		return;	
 	}
-	double* Cu4list(double muH, double Lambda){
+	void Cu4list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cu4 calc" << std::endl;
-			gCu4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[3];
-			gCu4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[3];
-			gCu4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[3];
-			gCu4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[3];
-			gCu4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[3];
-			gCu4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[3];
-			gCu4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[3];
-			gCu4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[3];
-			gCu4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[3];
+			Cu4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[3];
+			Cu4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[3];
+			Cu4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[3];
+			Cu4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[3];
+			Cu4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[3];
+			Cu4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[3];
+			Cu4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[3];
+			Cu4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[3];
+			Cu4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[3];
 			first = false;
 		}
-		return gCu4;	
+		return;	
 	}
-	double* Cd4list(double muH, double Lambda){
+	void Cd4list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cd4 calc" << std::endl;
-			gCd4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[7];
-			gCd4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[7];
-			gCd4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[7];
-			gCd4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[7];
-			gCd4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[7];
-			gCd4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[7];
-			gCd4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[7];
-			gCd4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[7];
-			gCd4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[7];
+			Cd4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[7];
+			Cd4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[7];
+			Cd4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[7];
+			Cd4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[7];
+			Cd4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[7];
+			Cd4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[7];
+			Cd4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[7];
+			Cd4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[7];
+			Cd4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[7];
 			first = false;
 		}
-		return gCd4;	
+		return;	
 	}
-	double* Cs4list(double muH, double Lambda){
+	void Cs4list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cs4 calc" << std::endl;
-			gCs4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[11];
-			gCs4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[11];
-			gCs4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[11];
-			gCs4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[11];
-			gCs4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[11];
-			gCs4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[11];
-			gCs4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[11];
-			gCs4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[11];
-			gCs4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[11];
+			Cs4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[11];
+			Cs4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[11];
+			Cs4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[11];
+			Cs4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[11];
+			Cs4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[11];
+			Cs4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[11];
+			Cs4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[11];
+			Cs4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[11];
+			Cs4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[11];
 			first = false;
 		}
-		return gCs4;	
+		return;	
 	}
-	double* Cwlist(double muH, double Lambda){
+	void Cwlist(double muH, double Lambda){
 		static bool first = true;
 		if(first){
 			RGE rge;
 			std::cout << "Cw calc" << std::endl;
-			gCw[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[30];
-			gCw[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[30];
-			gCw[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[30];
-			gCw[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[30];
-			gCw[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[30];
-			gCw[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[30];
-			gCw[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[30];
-			gCw[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[30];
-			gCw[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[30];
+			Cw[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[30];
+			Cw[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[30];
+			Cw[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[30];
+			Cw[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[30];
+			Cw[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[30];
+			Cw[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[30];
+			Cw[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[30];
+			Cw[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[30];
+			Cw[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[30];
 			first = false;
 		}
-		return gCw;	
+		return;	
 	}
 	
       void CPV_Wilson_q_Simple(CPV_WC_q &result)
@@ -207,45 +228,45 @@ namespace Gambit
 		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
-		  // Wilson Coefficients at weak scale mH.
-		  // C3q(muW) = a1*CeH(Lambda) + a2*CmuH(Lambda) + ... + a9*CtH(Lambda);
+		  // Wilson Coefficients at hadronic scale.
+		  // C3q(2GeV) = a1*CeH(Lambda) + a2*CmuH(Lambda) + ... + a9*CtH(Lambda);
 		  //
-		  double* Cu3 = Cu3list(mH,Lambda);
-		  double* Cd3 = Cd3list(mH,Lambda);
-		  double* Cs3 = Cs3list(mH,Lambda);
-		  double* Cu4 = Cu4list(mH,Lambda);
-		  double* Cd4 = Cd4list(mH,Lambda);
-		  double* Cs4 = Cs4list(mH,Lambda);
-		  double* Cw = Cwlist(mH,Lambda);
+		  Cu3list(mH,Lambda);
+		  Cd3list(mH,Lambda);
+		  Cs3list(mH,Lambda);
+		  Cu4list(mH,Lambda);
+		  Cd4list(mH,Lambda);
+		  Cs4list(mH,Lambda);
+		  Cwlist(mH,Lambda);
 
-		std::cout << "Cu3: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cu3[i] << " ";
-		}
-		std::cout << std::endl  << "Cd3: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cd3[i] << " ";
-		}
-		std::cout << std::endl  << "Cs3: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cs3[i] << " ";
-		}
-		std::cout << std::endl  << "Cu4: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cu4[i] << " ";
-		}
-		std::cout << std::endl  << "Cd4: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cd4[i] << " ";
-		}
-		std::cout << std::endl  << "Cs4: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cs4[i] << " ";
-		}
-		std::cout << std::endl << "Cw: ";
-		for (int i = 0; i<9; i++){
-		  std::cout << Cw[i] << " ";
-		}
+//		std::cout << "Cu3: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cu3[i] << " ";
+//		}
+//		std::cout << std::endl  << "Cd3: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cd3[i] << " ";
+//		}
+//		std::cout << std::endl  << "Cs3: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cs3[i] << " ";
+//		}
+//		std::cout << std::endl  << "Cu4: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cu4[i] << " ";
+//		}
+//		std::cout << std::endl  << "Cd4: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cd4[i] << " ";
+//		}
+//		std::cout << std::endl  << "Cs4: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cs4[i] << " ";
+//		}
+//		std::cout << std::endl << "Cw: ";
+//		for (int i = 0; i<9; i++){
+//		  std::cout << Cw[i] << " ";
+//		}
 
 
 
@@ -256,13 +277,13 @@ namespace Gambit
 
 
 //		//MqX are from draft with orders <10^-9 omitted
-		  double Mu3[9] = {3.23E-9, 2.20E-7, 1.37E-6, 1.34E-0+1.95E-1*std::log(pow(mH/Lambda,2)), -1.48E-13, -2.96E-12, 1.14E-6, 5.21E-7, -1.41E-5};
-		  double Md3[9] = {3.26E-9, 2.23E-7, 1.40E-6, -3.21E-13, 6.20E-1+3.61E-2*std::log(pow(mH/Lambda,2)), -2.51E-12, 9.91E-7, 9.04E-7, -1.26E-5};
-		  double Ms3[9] = {1.40E-6, 2.23E-7, 1.40E-6, -1.27E-10, -4.99E-11, 3.11E-2+1.81E-3*std::log(pow(mH/Lambda,2)), 9.91E-7, 9.04E-7, -1.26E-5};
-		  double Mu4[9] = {0,0,0,-1.83E-0, 7.88E-13, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
-		  double Md4[9] = {0,0,0,1.70E-12, -8.47E-1, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
-		  double Ms4[9] = {0,0,0,6.76E-10, 3.13E-10, -4.25E-2, 2.84E-10, 4.24E-10, 2.24E-5};
-		  double Mw[9] = {0,0,0,0,0,0,0,0,-4.70E-7};
+//		  double Mu3[9] = {3.23E-9, 2.20E-7, 1.37E-6, 1.34E-0+1.95E-1*std::log(pow(mH/Lambda,2)), -1.48E-13, -2.96E-12, 1.14E-6, 5.21E-7, -1.41E-5};
+//		  double Md3[9] = {3.26E-9, 2.23E-7, 1.40E-6, -3.21E-13, 6.20E-1+3.61E-2*std::log(pow(mH/Lambda,2)), -2.51E-12, 9.91E-7, 9.04E-7, -1.26E-5};
+//		  double Ms3[9] = {1.40E-6, 2.23E-7, 1.40E-6, -1.27E-10, -4.99E-11, 3.11E-2+1.81E-3*std::log(pow(mH/Lambda,2)), 9.91E-7, 9.04E-7, -1.26E-5};
+//		  double Mu4[9] = {0,0,0,-1.83E-0, 7.88E-13, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
+//		  double Md4[9] = {0,0,0,1.70E-12, -8.47E-1, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
+//		  double Ms4[9] = {0,0,0,6.76E-10, 3.13E-10, -4.25E-2, 2.84E-10, 4.24E-10, 2.24E-5};
+//		  double Mw[9] = {0,0,0,0,0,0,0,0,-4.70E-7};
 //
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
@@ -293,13 +314,14 @@ namespace Gambit
 
 		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;}
 		  for(int i = 0; i<9; i++){
-		          result.Cu[1] = result.Cu[1] + Mu3[i]*CqH[i];
-		          result.Cd[1] = result.Cd[1] + Md3[i]*CqH[i];
-		          result.Cs[1] = result.Cs[1] + Ms3[i]*CqH[i];
-		          result.Cu[2] = result.Cu[2] + Mu4[i]*CqH[i];
-		          result.Cd[2] = result.Cd[2] + Md4[i]*CqH[i];
-		          result.Cs[2] = result.Cs[2] + Ms4[i]*CqH[i];
-			  result.Cw[1] = result.Cw[1] + Mw[i]*CqH[i];
+		          result.Cu[1] = result.Cu[1] + Cu3[i]*CqH[i];
+			  cout << "Cu3 "<<i<< " " << Cu3[i] << endl;
+		          result.Cd[1] = result.Cd[1] + Cd3[i]*CqH[i];
+		          result.Cs[1] = result.Cs[1] + Cs3[i]*CqH[i];
+		          result.Cu[2] = result.Cu[2] + Cu4[i]*CqH[i];
+		          result.Cd[2] = result.Cd[2] + Cd4[i]*CqH[i];
+		          result.Cs[2] = result.Cs[2] + Cs4[i]*CqH[i];
+			  result.Cw[1] = result.Cw[1] + Cw[i]*CqH[i];
 			  }
 		  for(int i = 1; i<3; i++) {
 			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
@@ -315,20 +337,23 @@ namespace Gambit
       // uncertainties
       {
           using namespace Pipes::CPV_Wilson_l_Simple;
+	  	LoopFunctions c;
 
-	  	  double mH = 125.09;
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  double me = Dep::SMINPUTS->mE;
-		  double mmu = Dep::SMINPUTS->mMu;
-		  double mtau = Dep::SMINPUTS->mTau;
-		  double mu = Dep::SMINPUTS->mU;
-		  double md = Dep::SMINPUTS->mD;
-		  double ms = Dep::SMINPUTS->mS;
-		  double mc = Dep::SMINPUTS->mCmC;
-		  double mb = Dep::SMINPUTS->mBmB;
-		  double mt = Dep::SMINPUTS->mT;
+		  double me = c.get_meatmz();
+		  double mmu = c.get_mmuatmz();
+		  double mtau = c.get_mtauatmz();
+		  double mu = c.get_muatmz();
+		  double md = c.get_mdatmz();
+		  double ms = c.get_msatmz();
+		  double mc = c.get_mcatmz();
+		  double mb = c.get_mbatmz();
+		  double mt = c.get_mtatmz();
+	  	  double mH = 125.09;
+	
+		  Ce3list(mH,Lambda);
 //				   e	    mu	    tau      u         d        s        c        b         t
 		  double Me3[9] = {3.94E-1 , 1.07E-7, 6.67E-7, 6.90E-9, 3.26E-9, 3.27E-8, 7.31E-7, 3.48E-7, -5.02E-7};
 		  Me3[0] = Me3[0] +  3.08E-1*std::log(mH*mH/(Lambda*Lambda));
@@ -383,11 +408,16 @@ namespace Gambit
 
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
 		  for(int i = 0; i<9; i++){
-		          result.Ce[1] = result.Ce[1] + Me3[i]*CeH[i];
+		          result.Ce[1] = result.Ce[1] + Ce3[i]*CeH[i];
+			  cout << "Ce "<<i<< " " << result.Ce[i];
+			  cout << endl;
+			  cout << "C3e "<<i<< " " << Ce3[i];
+			  cout << endl;
+			  cout << "CeH "<<i<< " " << CeH[i];
+			  cout << endl;
+			  cout << endl;
 			  }
-		  for(int i = 1; i<9; i++) {
-			  cout << "Ce"<<i<< " " << result.Ce[i];
-		  }
+		cout << "Ce"<< " " << result.Ce[1];
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
       }

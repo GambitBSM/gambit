@@ -3,57 +3,53 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
 
-  nEDMme:
-    gTu: -0.204
-    gTd: 0.784
-    gTs: -0.0027
-    rhoU: 0.55
-    rhoD: 1.10
-
-  diaEDMme:
-    CSchiff_Hg: -1.8
-    CSchiff_Ra: 0.0
-    CSchiff_Rn: 0.0
-    CSchiff_Xe: 0.0
-    a0_Hg: 0.016
-    a0_Ra: 0.0
-    a0_Rn: 0.0
-    a0_Xe: 0.0
-    a1_Hg: 0.006
-    a1_Ra: 0.0
-    a1_Rn: 0.0
-    a1_Xe: 0.0
-    b_Hg: 0.0
-    b_Ra: 0.0
-    b_Rn: 0.0
-    b_Xe: 0.0
-    ae_Hg: 0.016
-    ae_Ra: 0.016
-    ae_Rn: 0.016
-    ae_Xe: 0.016
+  #  nEDMme:
+  #    gTu: -0.204
+  #    gTd: 0.784
+  #    gTs: -0.0027
+  #    rhoU: 0.55
+  #    rhoD: 1.10
+  #
+  #  diaEDMme:
+  #    CSchiff_Hg: -1.8
+  #    CSchiff_Ra: 0.0
+  #    CSchiff_Rn: 0.0
+  #    CSchiff_Xe: 0.0
+  #    a0_Hg: 0.016
+  #    a0_Ra: 0.0
+  #    a0_Rn: 0.0
+  #    a0_Xe: 0.0
+  #    a1_Hg: 0.006
+  #    a1_Ra: 0.0
+  #    a1_Rn: 0.0
+  #    a1_Xe: 0.0
+  #    b_Hg: 0.0
+  #    b_Ra: 0.0
+  #    b_Rn: 0.0
+  #    b_Xe: 0.0
+  #    ae_Hg: 0.016
+  #    ae_Ra: 0.016
+  #    ae_Rn: 0.016
+  #    ae_Xe: 0.016
 #  StandardModel_Higgs:
 #     mH: 150.
 #     #range: [110.,250.]
 #     #prior_type: flat
 
   CPVYukawas:
-    CtHp:  
+    CbHp:  
      range: [-1.0E-1,1.0E-1]
      prior_type: flat
-    CtHm: 
-     range: [-1.0E-1,1.0E-1]
-     #     range: [-1.0E-4,1.0E-4]
+    CbHm: 
+     range: [-3.4E-2,3.4E-2]
      prior_type: flat
-    CuHp: 
-     range: [-1.0E-5,1.0E-5]
-     prior_type: flat
-    CuHm: 
-     range: [-1.0E-5,1.0E-5]
-     prior_type: flat
-    CbHp: 0.
-    CbHm: 0.
+
     CdHp: 0.
     CdHm: 0.
+    CtHp: 0.
+    CtHm: 0.
+    CuHp: 0.
+    CuHm: 0.
     CcHp: 0.
     CcHm: 0.
     CsHp: 0.
@@ -103,7 +99,7 @@ Scanner:
     diver:
       plugin: diver
       like: LogLike
-      NP: 10000
+      NP: 100000
       verbosity: 1
       convthresh: 0.1
 
@@ -131,33 +127,33 @@ ObsLikes:
                 function: SMHiggs_ModelParameters
                 module: ColliderBit
 
-          - capability: lnL_EDM_n
-            function: lnL_EDM_n_gaussianOverall
-            purpose: LogLike
-         
-          - capability: EDM_n
-            function: EDM_n_quark
-            purpose: Observable
-            module: LowEBit
+        #  - capability: lnL_EDM_n
+        #    function: lnL_EDM_n_gaussianOverall
+        #    purpose: LogLike
+        #  
+        #  - capability: EDM_n
+        #    function: EDM_n_quark
+        #    purpose: Observable
+        #    module: LowEBit
         
-          - capability: lnL_EDM_para
-            function: lnL_EDM_ThO_gaussianStep
-            purpose: LogLike
-         
-          - capability: EDM_para
-            function: EDM_ThO_electron
-            purpose: Observable 
-            module: LowEBit
+       #   - capability: lnL_EDM_para
+       #     function: lnL_EDM_ThO_gaussianStep
+       #     purpose: LogLike
+       #  
+       #   - capability: EDM_para
+       #     function: EDM_ThO_electron
+       #     purpose: Observable 
+       #     module: LowEBit
         
-          - capability: lnL_EDM_dia
-            function: lnL_EDM_199Hg_step
-            purpose: LogLike
-         
-          - capability: EDM_dia
-            function: EDM_199Hg_quark
-            purpose: Observable 
-            module: LowEBit
-
+      #    - capability: lnL_EDM_dia
+      #      function: lnL_EDM_199Hg_step
+      #      purpose: LogLike
+      #    
+      #    - capability: EDM_dia
+      #      function: EDM_199Hg_quark
+      #      purpose: Observable 
+      #      module: LowEBit
+            
 #  - capability: lnL_EDM_dia
 #    function: lnL_EDM_129Xe_step
 #    purpose: LogLike
@@ -204,34 +200,34 @@ Rules:
 
 
  
-    - capability: lnL_EDM_para
-      function: lnL_EDM_ThO_gaussianStep
-      dependencies: 
-        - capability: EDM_para
-          function: EDM_ThO_electron         
-          module: LowEBit
- 
-
-    - capability: lnL_EDM_n
-      function: lnL_EDM_n_gaussianOverall
-      purpose: LogLike
-      dependencies:
-        - capability: EDM_n
-          function: EDM_n_quark
-          module: LowEBit
-   
-    - capability: lnL_EDM_dia
-      function: lnL_EDM_199Hg_step
-      dependencies: 
-        - capability: EDM_dia
-          function: EDM_199Hg_quark         
-          module: LowEBit
-    - capability: lnL_EDM_dia
-      function: lnL_EDM_129Xe_step
-      dependencies: 
-        - capability: EDM_dia
-          function: EDM_129Xe_quark         
-          module: LowEBit
+ #   - capability: lnL_EDM_para
+ #     function: lnL_EDM_ThO_gaussianStep
+ #     dependencies: 
+ #       - capability: EDM_para
+ #         function: EDM_ThO_electron         
+ #         module: LowEBit
+ #
+ #
+  #  - capability: lnL_EDM_n
+  #    function: lnL_EDM_n_gaussianOverall
+  #    purpose: LogLike
+  #    dependencies:
+  #      - capability: EDM_n
+  #        function: EDM_n_quark
+  #        module: LowEBit
+  #        #   
+          #    - capability: lnL_EDM_dia
+          #      function: lnL_EDM_199Hg_step
+          #      dependencies: 
+          #        - capability: EDM_dia
+          #          function: EDM_199Hg_quark         
+          #          module: LowEBit
+          #    - capability: lnL_EDM_dia
+          #      function: lnL_EDM_129Xe_step
+          #      dependencies: 
+          #        - capability: EDM_dia
+          #          function: EDM_129Xe_quark         
+          #          module: LowEBit
  
   
   
