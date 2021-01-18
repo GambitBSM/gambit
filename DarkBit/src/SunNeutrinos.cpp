@@ -71,7 +71,7 @@ namespace Gambit
       double resultSI;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
       BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp,*Dep::sigma_SD_p,*Dep::sigma_SI_p,resultSD,resultSI);
       result = resultSI + resultSD;
 
@@ -101,7 +101,7 @@ namespace Gambit
       const int nelems = 29;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
 
       resultSI = 0e0;
       resultSD = 0e0;
@@ -172,7 +172,7 @@ namespace Gambit
       double maxcap;
       const int niso = 16;
 
-      BEreq::cap_sun_saturation(Dep::WIMP_properties->mass,maxcap);
+      maxcap = BEreq::cap_sun_saturation(Dep::WIMP_properties->mass);
 
       /*
       use pipe to access parameters of model (0c1...1c15) here (3.2.3 of gambit paper)

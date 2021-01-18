@@ -1026,7 +1026,7 @@ START_MODULE
     #define FUNCTION capture_rate_Sun_const_xsec_capgen
     START_FUNCTION(double)
     BACKEND_REQ(cap_Sun_v0q0_isoscalar,(CaptnGeneral),void,(const double&,const double&,const double&,double&,double&))
-    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),double,(const double&))
     DEPENDENCY(mwimp,double)
     DEPENDENCY(sigma_SI_p, double)
     DEPENDENCY(sigma_SD_p, double)
@@ -1036,7 +1036,7 @@ START_MODULE
     #define FUNCTION capture_rate_Sun_vnqn
     START_FUNCTION(double)
     BACKEND_REQ(cap_Sun_vnqn_isoscalar,(CaptnGeneral),void,(const double&,const double&,const int&,const int&,const int&,double&))
-    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),double,(const double&))
     DEPENDENCY(mwimp,double)
     DEPENDENCY(sigma_SD_p, map_intpair_dbl)
     DEPENDENCY(sigma_SI_p,map_intpair_dbl)
@@ -1051,7 +1051,7 @@ START_MODULE
     #define FUNCTION capture_rate_Sun_NREO
     START_FUNCTION(double)
     BACKEND_REQ(captn_NREO,(CaptnGeneral),void,(const double&,const double&,const int&,const int&,double&))
-    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),void,(const double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),double,(const double&))
     BACKEND_REQ(populate_array,(CaptnGeneral),void,(const double&,const int&,const int&))
     DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(DD_nonrel_WCs,NREO_DM_nucleon_couplings)
