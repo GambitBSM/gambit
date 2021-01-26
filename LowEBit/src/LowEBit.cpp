@@ -18,12 +18,14 @@
 ///
 ///  *********************************************
 #include <cmath>
+#include <typeinfo>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/LowEBit/LowEBit_rollcall.hpp"
 #include "gambit/LowEBit/RGE.h"
+#include "gambit/LowEBit/input.h"
 #include "gambit/LowEBit/LoopFunctions.h"
 #include "gambit/LowEBit/QCD_beta.h"
 
@@ -41,6 +43,7 @@ namespace Gambit
 	static double Cd4[9];
 	static double Cs4[9];
 	static double Cw[9];
+	static double* qmasses;
 
 	void Ce3list(double muH, double Lambda){
 		static bool first = true;
@@ -66,15 +69,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cu3 calc" << std::endl;
-			Cu3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[2];
-			Cu3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[2];
-			Cu3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[2];
-			Cu3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[2];
-			Cu3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[2];
-			Cu3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[2];
-			Cu3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[2];
-			Cu3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[2];
-			Cu3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[2];
+			Cu3[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[2];
+			Cu3[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[2];
+			Cu3[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[2];
+			Cu3[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[2];
+			Cu3[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[2];
+			Cu3[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[2];
+			Cu3[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[2];
+			Cu3[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[2];
+			Cu3[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[2];
 			first = false;
 		}
 		return;	
@@ -84,15 +87,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cd3 calc" << std::endl;
-			Cd3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[6];
-			Cd3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[6];
-			Cd3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[6];
-			Cd3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[6];
-			Cd3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[6];
-			Cd3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[6];
-			Cd3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[6];
-			Cd3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[6];
-			Cd3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[6];
+			Cd3[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[6];
+			Cd3[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[6];
+			Cd3[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[6];
+			Cd3[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[6];
+			Cd3[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[6];
+			Cd3[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[6];
+			Cd3[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[6];
+			Cd3[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[6];
+			Cd3[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[6];
 			first = false;
 		}
 		return;	
@@ -102,15 +105,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cs3 calc" << std::endl;
-			Cs3[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[10];
-			Cs3[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[10];
-			Cs3[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[10];
-			Cs3[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[10];
-			Cs3[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[10];
-			Cs3[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[10];
-			Cs3[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[10];
-			Cs3[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[10];
-			Cs3[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[10];
+			Cs3[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[10];
+			Cs3[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[10];
+			Cs3[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[10];
+			Cs3[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[10];
+			Cs3[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[10];
+			Cs3[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[10];
+			Cs3[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[10];
+			Cs3[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[10];
+			Cs3[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[10];
 			first = false;
 		}
 		return;	
@@ -120,15 +123,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cu4 calc" << std::endl;
-			Cu4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[3];
-			Cu4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[3];
-			Cu4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[3];
-			Cu4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[3];
-			Cu4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[3];
-			Cu4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[3];
-			Cu4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[3];
-			Cu4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[3];
-			Cu4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[3];
+			Cu4[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[3];
+			Cu4[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[3];
+			Cu4[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[3];
+			Cu4[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[3];
+			Cu4[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[3];
+			Cu4[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[3];
+			Cu4[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[3];
+			Cu4[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[3];
+			Cu4[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[3];
 			first = false;
 		}
 		return;	
@@ -138,15 +141,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cd4 calc" << std::endl;
-			Cd4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[7];
-			Cd4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[7];
-			Cd4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[7];
-			Cd4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[7];
-			Cd4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[7];
-			Cd4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[7];
-			Cd4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[7];
-			Cd4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[7];
-			Cd4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[7];
+			Cd4[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[7];
+			Cd4[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[7];
+			Cd4[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[7];
+			Cd4[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[7];
+			Cd4[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[7];
+			Cd4[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[7];
+			Cd4[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[7];
+			Cd4[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[7];
+			Cd4[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[7];
 			first = false;
 		}
 		return;	
@@ -156,15 +159,15 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cs4 calc" << std::endl;
-			Cs4[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[11];
-			Cs4[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[11];
-			Cs4[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[11];
-			Cs4[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[11];
-			Cs4[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[11];
-			Cs4[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[11];
-			Cs4[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[11];
-			Cs4[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[11];
-			Cs4[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[11];
+			Cs4[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[11];
+			Cs4[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[11];
+			Cs4[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[11];
+			Cs4[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[11];
+			Cs4[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[11];
+			Cs4[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[11];
+			Cs4[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[11];
+			Cs4[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[11];
+			Cs4[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[11];
 			first = false;
 		}
 		return;	
@@ -174,18 +177,35 @@ namespace Gambit
 		if(first){
 			RGE rge;
 			std::cout << "Cw calc" << std::endl;
-			Cw[0] = rge.C_2GeV_0(muH,Lambda,1,0,0,0,0,0,0,0,0)[30];
-			Cw[1] = rge.C_2GeV_0(muH,Lambda,0,1,0,0,0,0,0,0,0)[30];
-			Cw[2] = rge.C_2GeV_0(muH,Lambda,0,0,1,0,0,0,0,0,0)[30];
-			Cw[3] = rge.C_2GeV_0(muH,Lambda,0,0,0,1,0,0,0,0,0)[30];
-			Cw[4] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,1,0,0,0,0)[30];
-			Cw[5] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,1,0,0,0)[30];
-			Cw[6] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,1,0,0)[30];
-			Cw[7] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,1,0)[30];
-			Cw[8] = rge.C_2GeV_0(muH,Lambda,0,0,0,0,0,0,0,0,1)[30];
+			Cw[0] = rge.C_2GeV_0(4,muH,Lambda,1,0,0,0,0,0,0,0,0)[30];
+			Cw[1] = rge.C_2GeV_0(4,muH,Lambda,0,1,0,0,0,0,0,0,0)[30];
+			Cw[2] = rge.C_2GeV_0(4,muH,Lambda,0,0,1,0,0,0,0,0,0)[30];
+			Cw[3] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,1,0,0,0,0,0)[30];
+			Cw[4] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,1,0,0,0,0)[30];
+			Cw[5] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,1,0,0,0)[30];
+			Cw[6] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,1,0,0)[30];
+			Cw[7] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,1,0)[30];
+			Cw[8] = rge.C_2GeV_0(4,muH,Lambda,0,0,0,0,0,0,0,0,1)[30];
 			first = false;
 		}
 		return;	
+	}
+	void initialise(double Lambda){
+		static bool first = true;
+		if(first){
+		  Cu3list(Mh,Lambda);
+		  Cd3list(Mh,Lambda);
+		  Cs3list(Mh,Lambda);
+		  Cu4list(Mh,Lambda);
+		  Cd4list(Mh,Lambda);
+		  Cs4list(Mh,Lambda);
+		  Cwlist(Mh,Lambda);
+		  Ce3list(Mh,Lambda);
+		  first = false;	
+	  	  LoopFunctions c;
+		  qmasses = c.get_masses();
+		}
+	return;
 	}
 	
       void CPV_Wilson_q_Simple(CPV_WC_q &result)
@@ -193,21 +213,22 @@ namespace Gambit
       // uncertainties
       {
           using namespace Pipes::CPV_Wilson_q_Simple;
-	  	LoopFunctions c;
+	  	cout << "atleast function starts" << endl;
+	  	cout << "c initialized" << endl;
 
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  double me = c.get_meatmz();
-		  double mmu = c.get_mmuatmz();
-		  double mtau = c.get_mtauatmz();
-		  double mu = c.get_muatmz();
-		  double md = c.get_mdatmz();
-		  double ms = c.get_msatmz();
-		  double mc = c.get_mcatmz();
-		  double mb = c.get_mbatmz();
-		  double mt = c.get_mtatmz();
-	  	  double mH = 125.09;
+		  //double me = c.get_meatmz();
+		  //double mmu = c.get_mmuatmz();
+		  //double mtau = c.get_mtauatmz();
+		  initialise(Lambda);
+		  double mu = qmasses[0];
+		  double md = qmasses[1];
+		  double ms = qmasses[2];
+		  double mc = qmasses[3];
+		  double mb = qmasses[4];
+		  double mt = qmasses[5];
 	  	  
 		  double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/me;
 		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
@@ -231,13 +252,13 @@ namespace Gambit
 		  // Wilson Coefficients at hadronic scale.
 		  // C3q(2GeV) = a1*CeH(Lambda) + a2*CmuH(Lambda) + ... + a9*CtH(Lambda);
 		  //
-		  Cu3list(mH,Lambda);
-		  Cd3list(mH,Lambda);
-		  Cs3list(mH,Lambda);
-		  Cu4list(mH,Lambda);
-		  Cd4list(mH,Lambda);
-		  Cs4list(mH,Lambda);
-		  Cwlist(mH,Lambda);
+//		  Cu3list(Mh,Lambda);
+//		  Cd3list(Mh,Lambda);
+//		  Cs3list(Mh,Lambda);
+//		  Cu4list(Mh,Lambda);
+//		  Cd4list(Mh,Lambda);
+//		  Cs4list(Mh,Lambda);
+//		  Cwlist(Mh,Lambda);
 
 //		std::cout << "Cu3: ";
 //		for (int i = 0; i<9; i++){
@@ -315,7 +336,7 @@ namespace Gambit
 		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;}
 		  for(int i = 0; i<9; i++){
 		          result.Cu[1] = result.Cu[1] + Cu3[i]*CqH[i];
-			  cout << "Cu3 "<<i<< " " << Cu3[i] << endl;
+//			  cout << "Cu3 "<<i<< " " << Cu3[i] << endl;
 		          result.Cd[1] = result.Cd[1] + Cd3[i]*CqH[i];
 		          result.Cs[1] = result.Cs[1] + Cs3[i]*CqH[i];
 		          result.Cu[2] = result.Cu[2] + Cu4[i]*CqH[i];
@@ -324,9 +345,9 @@ namespace Gambit
 			  result.Cw[1] = result.Cw[1] + Cw[i]*CqH[i];
 			  }
 		  for(int i = 1; i<3; i++) {
-			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
-			  cout << "Cd"<<i<< " " << result.Cd[i] << " ";
-			  cout << "Cs"<<i<< " " << result.Cs[i] << " " << endl;
+//			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
+//			  cout << "Cd"<<i<< " " << result.Cd[i] << " ";
+//			  cout << "Cs"<<i<< " " << result.Cs[i] << " " << endl;
 		  }
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
@@ -342,21 +363,21 @@ namespace Gambit
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  double me = c.get_meatmz();
-		  double mmu = c.get_mmuatmz();
-		  double mtau = c.get_mtauatmz();
-		  double mu = c.get_muatmz();
-		  double md = c.get_mdatmz();
-		  double ms = c.get_msatmz();
-		  double mc = c.get_mcatmz();
-		  double mb = c.get_mbatmz();
-		  double mt = c.get_mtatmz();
-	  	  double mH = 125.09;
-	
-		  Ce3list(mH,Lambda);
+		  initialise(Lambda);
+//		  double me = c.get_meatmz();
+	//	  double mmu = c.get_mmuatmz();
+		//  double mtau = c.get_mtauatmz();
+//		  double* masses = c.get_masses();
+		  double mu = qmasses[0];
+		  double md = qmasses[1];
+		  double ms = qmasses[2];
+		  double mc = qmasses[3];
+		  double mb = qmasses[4];
+		  double mt = qmasses[5];
+		  
 //				   e	    mu	    tau      u         d        s        c        b         t
-		  double Me3[9] = {3.94E-1 , 1.07E-7, 6.67E-7, 6.90E-9, 3.26E-9, 3.27E-8, 7.31E-7, 3.48E-7, -5.02E-7};
-		  Me3[0] = Me3[0] +  3.08E-1*std::log(mH*mH/(Lambda*Lambda));
+//		  double Me3[9] = {3.94E-1 , 1.07E-7, 6.67E-7, 6.90E-9, 3.26E-9, 3.27E-8, 7.31E-7, 3.48E-7, -5.02E-7};
+//		  Me3[0] = Me3[0] +  3.08E-1*std::log(mH*mH/(Lambda*Lambda));
 //
 		  double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/me;
 		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
@@ -409,15 +430,15 @@ namespace Gambit
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
 		  for(int i = 0; i<9; i++){
 		          result.Ce[1] = result.Ce[1] + Ce3[i]*CeH[i];
-			  cout << "Ce "<<i<< " " << result.Ce[i];
+/*			  cout << "Ce "<<i<< " " << result.Ce[i];
 			  cout << endl;
 			  cout << "C3e "<<i<< " " << Ce3[i];
 			  cout << endl;
 			  cout << "CeH "<<i<< " " << CeH[i];
 			  cout << endl;
 			  cout << endl;
-			  }
-		cout << "Ce"<< " " << result.Ce[1];
+*/			  }
+//		cout << "Ce"<< " " << result.Ce[1];
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
       }
@@ -451,10 +472,9 @@ namespace Gambit
 
     	 double gf = Dep::SMINPUTS->GF;
     	 double me = Dep::SMINPUTS->mE;
-	 double gsat2GeV = 1.82415;
 
     	 CPV_WC_l c = *Dep::CPV_Wilson_Coeff_l;
-         result.e = sqrt(2.)*gf/pow(gsat2GeV,2)*(-1.)*me*c.Ce[1]*gev2cm;
+         result.e = sqrt(2.)*gf*(-1.)*me*c.Ce[1]*gev2cm;
          //Heavy quarks for completeness??
       }
 
@@ -492,8 +512,9 @@ namespace Gambit
           void lnL_EDM_ThO_gaussianStep(double &result)
 	  {
 		  using namespace Pipes::lnL_EDM_ThO_gaussianStep;
-		  double mu = 4.3E-30, sig = 4.0E-30, offset = 1.1E-29; //taken from ACME: https://doi.org/10.1038/s41586-018-0599-8
-		  cout << "Dep::EDM_ThO: " << abs(*Dep::EDM_para) << endl;
+		  double mu = 4.3E-30, sig = 4.0E-30;
+		  //double  offset = 1.1E-29; //taken from ACME: https://doi.org/10.1038/s41586-018-0599-8
+		 /* cout << "Dep::EDM_ThO: " << abs(*Dep::EDM_para) << endl;
 		  if(abs(*Dep::EDM_para) < 1.1E-29)
 		  {
 			result = 0.0;
@@ -503,7 +524,7 @@ namespace Gambit
 			if(*Dep::EDM_para < 0){offset = +offset;} //RFit - below the 90%CL it's a step function, above it is a gaussian
 			else{offset = -offset;}
 			result = -1/2.*(std::log(2*pi) + 2*std::log(sig) + std::pow((*Dep::EDM_para - mu + offset)/sig,2));
-		  }
+		  }*/
 			//gaussian Overall:
 		  	mu = 0.;
 			result = 0.;
@@ -615,8 +636,8 @@ namespace Gambit
          result = 2.0E-3 * (*Param["CSchiff_Hg"]) * gPiNN * 
 			 ((*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) + *Param["ae_Hg"]*dEDM.e;
 //	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
-	 cout << "d_e: " << dEDM.e << endl;	 
-	 cout << "dHg: " << result << endl;
+//	 cout << "d_e: " << dEDM.e << endl;	 
+//	 cout << "dHg: " << result << endl;
       }
 
       void lnL_EDM_199Hg_step(double &result)
@@ -625,10 +646,9 @@ namespace Gambit
     	  using namespace Pipes::lnL_EDM_199Hg_step;
     		  double sig = 4.23E-30; //1601.04339
 		  double mu = 2.2E-30; //1601.04339
-		  double offset = 7.4E-30;//90% CL limit from arXiv:hep-ex/0602020
-		  double value = *Dep::EDM_dia;
+	//	  double offset = 7.4E-30;//90% CL limit from arXiv:hep-ex/0602020
+	//	  double value = *Dep::EDM_dia;
 		  
-		  cout << "Dep::EDM_dia: " << abs(value) << endl;
 /*		  if(abs(value) < 7.4E-30)
 		  {
 			result = 0.0;
@@ -641,7 +661,6 @@ namespace Gambit
 		  }
 */			//gaussian overall:
 		  	mu = 0.;
-			result = 0.;
 			result = -1./2*pow((*Dep::EDM_dia - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
 		  	cout << "gaussian result_EDM_dia: " << result << endl;
 
@@ -711,7 +730,7 @@ namespace Gambit
 			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
 			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
 			// likelihood accordingly?
-			result = 0.;
+			//result = 0.;
 			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
 		  	cout << "gaussian result_EDM_n: " << result << endl;
 	  }

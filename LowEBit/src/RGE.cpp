@@ -9,7 +9,7 @@ RGE::~RGE(){
 }
 
 Eigen::MatrixXd RGE::U0(unsigned int nf, double asmu_high, double asmu_low){
-    double b0 = QCD_beta(nf,1).chet();
+    double b0 = QCD_beta(nf,1).trad();
     return (std::log(asmu_high/asmu_low)/(2*b0) * ADM_full(nf).transpose()).exp();
 }
 
@@ -157,29 +157,32 @@ Eigen::MatrixXd RGE::ADM_full(unsigned int nf){
         }
         return res;
     }
+    std::cout << "ERROR. number of flavours should be 3 <= nf <= 5" << std::endl;
+	Eigen::MatrixXd res(1,1);
+	return res;
 }
 
 Eigen::VectorXd RGE::Cinit_mh_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t){
     Eigen::VectorXd res(81);
     LoopFunctions c;
-    res << c.C1q('u',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0,
+    res << 0, 0,
         c.C3q('u',muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t), c.C4q('u',muW,Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_t),
-        c.C1q('d',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0,
+        0, 0,
         c.C3q('d',muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t), c.C4q('d',muW,Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_t),
-        c.C1q('s',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0,
+        0, 0,
         c.C3q('s',muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t), c.C4q('s',muW,Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_t),
         c.C1q('c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
         c.C1q('b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('u','d',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('d','u',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('u','s',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('s','u',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('u','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('c','u',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('u','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('b','u',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('d','s',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('s','d',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('d','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('c','d',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('d','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('b','d',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('s','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('c','s',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('s','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('b','s',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
-        c.C1qqp('c','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, c.C1qqp('b','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        c.C1qqp('u','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        c.C1qqp('u','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        c.C1qqp('d','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        c.C1qqp('d','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        c.C1qqp('s','c',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        c.C1qqp('s','b',Lambda,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b), 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
         c.Cw(Lambda,Ctil_t);
     return res;
 }
@@ -234,10 +237,20 @@ Eigen::VectorXd RGE::Cmatched_mc_0(double muW, double Lambda, double Ctil_e, dou
     return res;
 }
 
-Eigen::VectorXd RGE::C_2GeV_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t){
-    double as_high = as41lMc;
-    double as_low = as31l2;
-    return U0(3,as_high,as_low) * Cmatched_mc_0(muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t);
+Eigen::VectorXd RGE::C_2GeV_0(int nf, double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t){
+    if(nf==4){
+        double as_high = as51lMb;
+        double as_low = as41l2;
+        return U0(4,as_high,as_low) * Cmatched_mb_0(muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t);
+    }
+    if(nf==3){
+        double as_high = as41lMc;
+        double as_low = as31l2;
+        return U0(3,as_high,as_low) * Cmatched_mc_0(muW,Lambda,Ctil_e,Ctil_mu,Ctil_tau,Ctil_u,Ctil_d,Ctil_s,Ctil_c,Ctil_b,Ctil_t);
+    }
+	std::cout << "only 3 or 4 flavour matching" << std::endl;
+	Eigen::VectorXd res(1);
+	return res;
 }
 
 

@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <Eigen/Dense>
-//#include "/usr/local/include/eigen3/Eigen/Dense"
 #include <unsupported/Eigen/MatrixFunctions>
 #include "QCD_beta.h"
 #include "LoopFunctions.h"
@@ -30,22 +29,22 @@ class RGE
         Eigen::VectorXd Cmatched_mb_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t);
         Eigen::VectorXd C_mc_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t);
         Eigen::VectorXd Cmatched_mc_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t);
-        Eigen::VectorXd C_2GeV_0(double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t);
+        Eigen::VectorXd C_2GeV_0(int nf, double muW, double Lambda, double Ctil_e, double Ctil_mu, double Ctil_tau, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_c, double Ctil_b, double Ctil_t);
     protected:
     private:
-        Eigen::MatrixXd m_adm;
-        unsigned int m_nf;
         //calculated in 2-loop as rge:
-        double mumd =  0.462526377828;
-        double mums =  0.0232253729884;
-        double mumc =  0.00194328143591;
-        double mumb =  0.000441518828425;
-        double mdms =  0.0502141588064;
-        double mdmc =  0.00420144996927;
-        double mdmb =  0.000954580861956;
-        double msmc =  0.0836706233688;
-        double msmb =  0.0190101932333;
-        double mcmb =  0.227202720237;
+        double mumd = 0.46252608039;
+double mums = 0.0232254188548;
+
+double mumc =0.00184983387625;
+double mumb =0.000461829760055;
+double mdms= 0.0502142902628;
+double mdmc =0.00399941528636;
+double mdmb =0.000998494527412;
+double msmc =0.0796469543915;
+double msmb =0.0198846687305;
+double mcmb =0.249660126773;
+
         double Qu = 2/3.;
         double Qd = -1/3.;
         double Qs = -1/3.;
@@ -54,6 +53,7 @@ class RGE
         double as51lMh = 0.112943337832;
         double as51lMb = 0.212494236131;
         double as41lMc = 0.319897299822;
+        double as41l2 = 0.26821777971;
         double as31l2 = 0.26479567324;
 
 

@@ -1049,7 +1049,7 @@ namespace Gambit
       }
       int Hneut = 1;
       double Mh[Hneut];
-      Mh[0] = 125.09;
+      Mh[0] = 125.1;
       double GammaTot[Hneut];
       double CP[Hneut];
       CP[0] = 0.;
@@ -1066,26 +1066,27 @@ namespace Gambit
       double gf = Dep::SMINPUTS->GF;
       double vev = 1/sqrt(sqrt(2.)*gf);
       double Lambda = 1000.;
-      double mu = Dep::SMINPUTS->mU;
-      double md = Dep::SMINPUTS->mD;
-      double ms = Dep::SMINPUTS->mS;
-      double mc = Dep::SMINPUTS->mCmC;
-      double mb = Dep::SMINPUTS->mBmB;
-      double mt = Dep::SMINPUTS->mT;
-      double me = Dep::SMINPUTS->mE;
-      double mmu = Dep::SMINPUTS->mMu;
-      double mtau = Dep::SMINPUTS->mTau;
-
+      //values at the Higgs mass
+	double me = 0.0005109989461;
+	double mmu = 0.1056583745;
+	double mtau = 1.77686;
+	double mu = 0.00138818972836;
+	double md = 0.00300132208045;
+	double ms = 0.0597702783098;
+	double mc = 0.750440223951;
+	double mb = 3.00584732405;
+	double mt = 166.394;
+	
       // The WCs are normalized to C*v^2/Lambda^2
-      double sinThU = *Param["CuHm"]*vev/mu/2./sqrt(2.); //*vev*vev/Lambda/Lambda
-      double sinThD = *Param["CdHm"]*vev/md/2./sqrt(2.);
-      double sinThS = *Param["CsHm"]*vev/ms/2./sqrt(2.);
-      double sinThC = *Param["CcHm"]*vev/mc/2./sqrt(2.);
-      double sinThB = *Param["CbHm"]*vev/mb/2./sqrt(2.);
-      double sinThT = *Param["CtHm"]*vev/mt/2./sqrt(2.);
-      double sinThE = *Param["CeHm"]*vev/me/2./sqrt(2.);
-      double sinThMu = *Param["CmuHm"]*vev/mmu/2./sqrt(2.);
-      double sinThTau = *Param["CtauHm"]*vev/mtau/2./sqrt(2.);
+      double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.); //*vev*vev/Lambda/Lambda
+      double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
+      double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
+      double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+      double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+      double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+      double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
+      double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+      double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
  
       double cosThU = sqrt(1. - pow(sinThU,2));
       double cosThD = sqrt(1. - pow(sinThD,2));
@@ -1102,25 +1103,25 @@ namespace Gambit
       initialize();
 
       for(int i = 0; i<Hneut; i++){
-	      ghjuu_p[i] = -((*Param["CuHm"])*cosThU + (*Param["CuHp"])*sinThU)*vev/mu/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjuu_s[i] = 1.+((*Param["CuHm"])*sinThU - (*Param["CuHp"])*cosThU)*vev/mu/2./sqrt(2.);
-	      ghjdd_p[i] = -((*Param["CdHm"])*cosThD + (*Param["CdHp"])*sinThD)*vev/md/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjdd_s[i] = 1.+((*Param["CdHm"])*sinThD - (*Param["CdHp"])*cosThD)*vev/md/2./sqrt(2.);
-	      ghjee_p[i] = -((*Param["CeHm"])*cosThE + (*Param["CeHp"])*sinThE)*vev/me/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjee_s[i] = 1.+((*Param["CeHm"])*sinThE - (*Param["CeHp"])*cosThE)*vev/me/2./sqrt(2.);
+	      ghjuu_p[i] = -((*Param["CuHm"])*cosThU + (*Param["CuHp"])*sinThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjuu_s[i] = 1.+((*Param["CuHm"])*sinThU - (*Param["CuHp"])*cosThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);
+	      ghjdd_p[i] = -((*Param["CdHm"])*cosThD + (*Param["CdHp"])*sinThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjdd_s[i] = 1.+((*Param["CdHm"])*sinThD - (*Param["CdHp"])*cosThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
+	      ghjee_p[i] = -((*Param["CeHm"])*cosThE + (*Param["CeHp"])*sinThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjee_s[i] = 1.+((*Param["CeHm"])*sinThE - (*Param["CeHp"])*cosThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
 	
-	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev/ms/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjss_s[i] = 1.+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev/ms/2./sqrt(2.);
-	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev/mc/2./sqrt(2.);
-	      ghjcc_s[i] = 1.+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev/mc/2./sqrt(2.);
-	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev/mb/2./sqrt(2.);
-	      ghjbb_s[i] = 1.+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev/mb/2./sqrt(2.);
-	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev/mt/2./sqrt(2.);
-	      ghjtt_s[i] = 1.+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev/mt/2./sqrt(2.);
-	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev/mmu/2./sqrt(2.);
-	      ghjmumu_s[i] = 1.+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev/mmu/2./sqrt(2.);
-	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev/mtau/2./sqrt(2.);
-	      ghjtautau_s[i] = 1.+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev/mtau/2./sqrt(2.);
+	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);//*vev*vev/Lambda/Lambda
+	      ghjss_s[i] = 1.+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
+	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+	      ghjcc_s[i] = 1.+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+	      ghjbb_s[i] = 1.+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+	      ghjtt_s[i] = 1.+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+	      ghjmumu_s[i] = 1.+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
+	      ghjtautau_s[i] = 1.+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
 	      double WCeven[9] = {ghjee_s[i], ghjmumu_s[i], ghjtautau_s[i], ghjuu_s[i], ghjdd_s[i], ghjss_s[i], ghjcc_s[i], ghjbb_s[i], ghjtt_s[i]};
 	      double WCodd[9] = {ghjee_p[i], ghjmumu_p[i], ghjtautau_p[i], ghjuu_p[i], ghjdd_p[i], ghjss_p[i], ghjcc_p[i], ghjbb_p[i], ghjtt_p[i]};
 	      ghjWW[i] = 1.;
@@ -1136,16 +1137,16 @@ namespace Gambit
 		      kapglu += CPevenKapPreGlu[j]*WCeven[j];
 		      kaptilglu += CPoddKapPreGlu[j]*WCodd[j];
 	      }	
-	      cout << "kapgam " << kapgam << endl;
+	     /* cout << "kapgam " << kapgam << endl;
 	      cout << "kapgam^2 " << std::real(std::conj(kapgam)*kapgam) << endl;
 	      cout << "kaptilgam " << kaptilgam << endl;
-	      cout << "kaptilgam^2 " << std::real(std::conj(kaptilgam)*kaptilgam) << endl;
-	      ghjgaga[i] = 0;
+	      cout << "kaptilgam^2 " << std::real(std::conj(kaptilgam)*kaptilgam) << endl;*/
+	      ghjgaga[i] = 0; //test speed
 	      ghjgg[i] = 0;
-	      cout << "gaga part1 " <<std::real(kapgam*std::conj(kapgam)) << endl;
+	      /*cout << "gaga part1 " <<std::real(kapgam*std::conj(kapgam)) << endl;
 	      cout << "gaga part2 " <<std::real(kaptilgam*std::conj(kaptilgam)) << endl;
 	      cout << "combined " <<std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam)) << endl;
-	      cout << "sqrt " <<sqrt(std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam))) << endl;
+	      cout << "sqrt " <<sqrt(std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam))) << endl;*/
 	      ghjgaga[i] += sqrt(std::real(kapgam*std::conj(kapgam)) + std::real(kaptilgam*std::conj(kaptilgam))) ;
 	      ghjgg[i] += sqrt(std::real(kapglu*std::conj(kapglu)) + std::real(kaptilglu*std::conj(kaptilglu))) ;
       }
@@ -1206,7 +1207,7 @@ namespace Gambit
 
 
 
-      cout << "gbbs: " << ghjbb_s[0] << " gbbp: " << ghjbb_p[0] << endl;
+/*      cout << "gbbs: " << ghjbb_s[0] << " gbbp: " << ghjbb_p[0] << endl;
       for(int i = 0; i<9; i++){
       cout << i << "CPegam " << CPevenKapPreGam[i] << endl;
       cout << i <<"CPogam " << CPoddKapPreGam[i] << endl;
@@ -1216,7 +1217,7 @@ namespace Gambit
       cout << "gaga " << ghjgaga[0] << endl;
       cout << "gg " << ghjgg[0] << endl;
       cout << "GammaTot: " << GammaTot[0] << endl;
-
+*/
 
             // run HiggsSignals
 //      int mode = 1; // 1- peak-centered chi2 method (recommended) - not needed in HS-2.5.0 anymore
@@ -1231,7 +1232,7 @@ namespace Gambit
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(csqtot + csqtot1 + csqtot2);
-      cout << "csqtot: " << csqtot << "csqtot1: " << csqtot1 <<"csqtot2: " << csqtot2 <<" result: " << result << endl;
+  //    cout << "csqtot: " << csqtot << "csqtot1: " << csqtot1 <<"csqtot2: " << csqtot2 <<" result: " << result << endl;
     }
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
     
