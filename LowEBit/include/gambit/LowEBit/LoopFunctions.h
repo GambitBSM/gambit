@@ -11,7 +11,8 @@ class LoopFunctions
     public:
         LoopFunctions();
         virtual ~LoopFunctions();
-	double* get_masses();
+	double* get_masses2GeV();
+	double* get_massesMh();
         //functions taken from draft;
         static double Clausens2(double th, void* params);
         static double PolyLog(double xi, void* params);

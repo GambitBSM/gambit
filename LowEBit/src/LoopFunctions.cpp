@@ -33,7 +33,21 @@ LoopFunctions::~LoopFunctions()
     //dtor
 }
 
-double* LoopFunctions::get_masses(){
+double* LoopFunctions::get_masses2GeV(){
+    M_Quark_MSbar m;
+    static double masses[6] = {
+	    m.run('u',2,3,1),
+	    m.run('d',2,3,1),
+	    m.run('s',2,3,1),
+	    m.run('c',2,4,1),
+	    m.run('b',2,5,1),
+	    m.run('t',2,6,1),
+	   };
+    return masses;
+}
+
+double* LoopFunctions::get_massesMh(){
+    M_Quark_MSbar m;
     static double masses[6] = {mu,md,ms,mc,mb,mt};
     return masses;
 }
@@ -107,16 +121,16 @@ double LoopFunctions::C3e(char l, double muW, double Lambda, double Ctil_e, doub
     double ml = 0.; double Ctilq = 0.;
     if (l=='e') ml = me; double Ctill = Ctil_e;
     double res = 1/(4*pi)*std::pow(vev,3)/(std::sqrt(2) * std::pow(Lambda,2))*(
-         + 3.*as51lMh/(8.*pi*pi) * 1/mt * Ctil_t * (Qu*Qu*xth*DTPHI(1./(4*xth)) + Qu/(16.*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xth*xtz/(xtz-xth)*(DTPHI(1/(4*xtz)) - DTPHI(1/(4*xth))))
-         + as51lMh/(6*pi*pi) * 1/ml * Ctill * (0
+         + 3.*aMZ/(8.*pi*pi) * 1/mt * Ctil_t * (Qu*Qu*xth*DTPHI(1./(4*xth)) + Qu/(16.*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xth*xtz/(xtz-xth)*(DTPHI(1/(4*xtz)) - DTPHI(1/(4*xth))))
+         + aMZ/(6*pi*pi) * 1/ml * Ctill * (0
             + Qu*Qu*xth*((1-2*xth)*DTPHI(1./(4*xth)) + 2*(2+std::log(xth)))
             + Qu/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xth*xtz/(xtz-xth)*((1-2*xth)*DTPHI(1./(4*xth)) - 2*std::log(xhz) - (1-2*xtz)*DTPHI(1./(4*xtz)))
                 )
-         + 3*as51lMh/(8*pi*pi) * 1/mb * Ctil_b * (Qd*Qd*xbh*(std::pow(std::log(xbh),2) + pi*pi/3.) + Qd/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1+4*sw2*Qd)*xbh*xbz/(xbz-xbh)*(std::pow(std::log(xbh),2) - std::pow(std::log(xbz),2)))
-         + 3*as51lMh/(8*pi*pi) * 1/mc * Ctil_c * (Qu*Qu*xch*(std::pow(std::log(xch),2) + pi*pi/3.) + Qu/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xch*xcz/(xcz-xch)*(std::pow(std::log(xch),2) - std::pow(std::log(xcz),2)))
-         + 1*as51lMh/(8*pi*pi) * 1/mtau * Ctil_tau * (xtauh*(std::pow(std::log(xtauh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xtauh*xtauz/(xtauz-xtauh)*(std::pow(std::log(xtauh),2) - std::pow(std::log(xtauz),2)))
-         + 1*as51lMh/(8*pi*pi) * 1/mmu * Ctil_mu * (xmuh*(std::pow(std::log(xmuh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xmuh*xmuz/(xmuz-xmuh)*(std::pow(std::log(xmuh),2) - std::pow(std::log(xmuz),2)))
-         - as51lMh/(32*pi*pi) * 1/ml * 3./(2*cw2) * Ctill * std::log(std::pow(muW/Lambda,2))
+         + 3*aMZ/(8*pi*pi) * 1/mb * Ctil_b * (Qd*Qd*xbh*(std::pow(std::log(xbh),2) + pi*pi/3.) + Qd/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1+4*sw2*Qd)*xbh*xbz/(xbz-xbh)*(std::pow(std::log(xbh),2) - std::pow(std::log(xbz),2)))
+         + 3*aMZ/(8*pi*pi) * 1/mc * Ctil_c * (Qu*Qu*xch*(std::pow(std::log(xch),2) + pi*pi/3.) + Qu/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xch*xcz/(xcz-xch)*(std::pow(std::log(xch),2) - std::pow(std::log(xcz),2)))
+         + 1*aMZ/(8*pi*pi) * 1/mtau * Ctil_tau * (xtauh*(std::pow(std::log(xtauh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xtauh*xtauz/(xtauz-xtauh)*(std::pow(std::log(xtauh),2) - std::pow(std::log(xtauz),2)))
+         + 1*aMZ/(8*pi*pi) * 1/mmu * Ctil_mu * (xmuh*(std::pow(std::log(xmuh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xmuh*xmuz/(xmuz-xmuh)*(std::pow(std::log(xmuh),2) - std::pow(std::log(xmuz),2)))
+         - aMZ/(32*pi*pi) * 1/ml * 3./(2*cw2) * Ctill * std::log(std::pow(muW/Lambda,2))
         );
 
     return res;
