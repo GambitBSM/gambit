@@ -724,10 +724,12 @@ namespace Gambit
 	  // a1_Hg = 0.032(59);			1308.6283 averaging over multiple calculations
 	
          dq dCEDM = *Dep::CEDM_q;
-         dl dEDM = *Dep::EDM_l;
+//         dl dEDM = *Dep::EDM_l;
 	  // 2.(+4 -1) 
          result = 2.0E-3 * (*Param["CSchiff_Hg"]) * gPiNN * 
-			 ((*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) + *Param["ae_Hg"]*dEDM.e;
+			 ((*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) 
+			 //+ *Param["ae_Hg"]*dEDM.e
+			 ;
 //	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
 //	 cout << "d_e: " << dEDM.e << endl;	 
 //	 cout << "dHg: " << result << endl;
