@@ -31,6 +31,12 @@ namespace Gambit
     	  for (int i = 0; i <= 2; i++)
     		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = Cw[i] = 0;
       }
+
+      CPV_WC_qTEST::CPV_WC_qTEST()
+      {
+    	  for (int i = 0; i <= 2; i++)
+    		  Cu[i] = Cd[i] = Cs[i] = Cc[i] = Cb[i] = Ct[i] = Cw[i] = 0;
+      }
       CPV_WC_l::CPV_WC_l()
       {
     	  for (int i = 0; i <= 2; i++)
@@ -42,6 +48,11 @@ namespace Gambit
       {
     	  u = d = s = c = b = t = w = 0;
       }
+      dqTEST::dqTEST()
+      {
+    	  u = d = s = c = b = t = w = 0;
+      }
+ 
       dl::dl()
       {
     	  e = mu = tau = 0;

@@ -278,11 +278,11 @@ namespace Gambit
 		  Cu3list(muH,Lambda);
 		  Cd3list(muH,Lambda);
 		  Cs3list(muH,Lambda);
+		  Ce3list(muH,Lambda);
 		  Cu4list(muH,Lambda);
 		  Cd4list(muH,Lambda);
 		  Cs4list(muH,Lambda);
 		  Cwlist(muH,Lambda);
-		  Ce3list(muH,Lambda);
 		  first = false;	
 	  	  LoopFunctions c;
 		  qmasses = c.get_massesMh();
@@ -309,10 +309,8 @@ namespace Gambit
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  //double me = c.get_meatmz();
-		  //double mmu = c.get_mmuatmz();
-		  //double mtau = c.get_mtauatmz();
 		  initialise(Mh,Lambda);
+		  double me = 5.11E-4;
 		  double mu = qmasses[0];
 		  double md = qmasses[1];
 		  double ms = qmasses[2];
@@ -340,65 +338,8 @@ namespace Gambit
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
 		  // Wilson Coefficients at hadronic scale.
-		  // C3q(2GeV) = a1*CeH(Lambda) + a2*CmuH(Lambda) + ... + a9*CtH(Lambda);
-		  //
-//		  Cu3list(Mh,Lambda);
-//		  Cd3list(Mh,Lambda);
-//		  Cs3list(Mh,Lambda);
-//		  Cu4list(Mh,Lambda);
-//		  Cd4list(Mh,Lambda);
-//		  Cs4list(Mh,Lambda);
-//		  Cwlist(Mh,Lambda);
+		  // C3q(2GeV) = Cq3[0]*CeH(Lambda) + Cq3[1]*CmuH(Lambda) + ... + Cq3[9]*CtH(Lambda);
 
-//		std::cout << "Cu3: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cu3[i] << " ";
-//		}
-//		std::cout << std::endl  << "Cd3: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cd3[i] << " ";
-//		}
-//		std::cout << std::endl  << "Cs3: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cs3[i] << " ";
-//		}
-//		std::cout << std::endl  << "Cu4: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cu4[i] << " ";
-//		}
-//		std::cout << std::endl  << "Cd4: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cd4[i] << " ";
-//		}
-//		std::cout << std::endl  << "Cs4: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cs4[i] << " ";
-//		}
-//		std::cout << std::endl << "Cw: ";
-//		for (int i = 0; i<9; i++){
-//		  std::cout << Cw[i] << " ";
-//		}
-
-
-
-
-
-
-
-
-
-//		//MqX are from draft with orders <10^-9 omitted
-//		  double Mu3[9] = {3.23E-9, 2.20E-7, 1.37E-6, 1.34E-0+1.95E-1*std::log(pow(mH/Lambda,2)), -1.48E-13, -2.96E-12, 1.14E-6, 5.21E-7, -1.41E-5};
-//		  double Md3[9] = {3.26E-9, 2.23E-7, 1.40E-6, -3.21E-13, 6.20E-1+3.61E-2*std::log(pow(mH/Lambda,2)), -2.51E-12, 9.91E-7, 9.04E-7, -1.26E-5};
-//		  double Ms3[9] = {1.40E-6, 2.23E-7, 1.40E-6, -1.27E-10, -4.99E-11, 3.11E-2+1.81E-3*std::log(pow(mH/Lambda,2)), 9.91E-7, 9.04E-7, -1.26E-5};
-//		  double Mu4[9] = {0,0,0,-1.83E-0, 7.88E-13, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
-//		  double Md4[9] = {0,0,0,1.70E-12, -8.47E-1, 1.57E-11, 2.84E-10, 4.24E-10, 2.24E-5};
-//		  double Ms4[9] = {0,0,0,6.76E-10, 3.13E-10, -4.25E-2, 2.84E-10, 4.24E-10, 2.24E-5};
-//		  double Mw[9] = {0,0,0,0,0,0,0,0,-4.70E-7};
-//
-
-//		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
-//		  if(sampleStyle==1){
 		  double CqH[9] = {
 			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
 			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
@@ -410,18 +351,6 @@ namespace Gambit
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
 		  		  };
-//		  }
-//		  else if(sampleStyle==2){
-	//	  double CqH[6] = {
-	//		  (*Param["CuHm"]),
-	//		  (*Param["CdHm"]),
-	//		  (*Param["CsHm"]),
-	//		  (*Param["CcHm"]),
-	//		  (*Param["CbHm"]),
-	//		  (*Param["CtHm"])
-	//			  };
-
-//		  }
 		  for(int i = 0; i<9; i++){cout << "CqH[" << i << "] = " << CqH[i] << endl; }
 
 		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;Cw[i]=0;}
@@ -449,16 +378,12 @@ namespace Gambit
       // uncertainties
       {
           using namespace Pipes::CPV_Wilson_l_Simple;
-	  	LoopFunctions c;
 
 		  double gf = Dep::SMINPUTS->GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
 		  initialise(Mh,Lambda);
-//		  double me = c.get_meatmz();
-	//	  double mmu = c.get_mmuatmz();
-		//  double mtau = c.get_mtauatmz();
-//		  double* masses = c.get_masses();
+		  double me = 5.11E-4;
 		  double mu = qmasses[0];
 		  double md = qmasses[1];
 		  double ms = qmasses[2];
@@ -466,10 +391,6 @@ namespace Gambit
 		  double mb = qmasses[4];
 		  double mt = qmasses[5];
 		  
-//				   e	    mu	    tau      u         d        s        c        b         t
-//		  double Me3[9] = {3.94E-1 , 1.07E-7, 6.67E-7, 6.90E-9, 3.26E-9, 3.27E-8, 7.31E-7, 3.48E-7, -5.02E-7};
-//		  Me3[0] = Me3[0] +  3.08E-1*std::log(mH*mH/(Lambda*Lambda));
-//
 		  double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/me;
 		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
 		  double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
@@ -489,8 +410,6 @@ namespace Gambit
 		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
-		  cout << "sind: " << sinThD << endl;
-		  cout << "sinu: " << sinThU << endl;
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
@@ -505,21 +424,6 @@ namespace Gambit
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*1 + (*Param["CtHp"]*sinThT*0) //cosThT
 		  		  };
-//		  }
-//		  else if(sampleStyle==2){
-/*		  double CeH[9] = {
-			  (*Param["CeHm"]),
-			  (*Param["CmuHm"]),
-			  (*Param["CtauHm"]),
-			  (*Param["CuHm"]),
-			  (*Param["CdHm"]),
-			  (*Param["CsHm"]),
-			  (*Param["CcHm"]),
-			  (*Param["CbHm"]),
-			  (*Param["CtHm"])
-				  };
-*/
-//		  }
 
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
 		  for(int i = 0; i<9; i++){
@@ -561,12 +465,13 @@ namespace Gambit
          using namespace Pipes::EDM_l_Wilson;
 
     	 double gf = Dep::SMINPUTS->GF;
-    	 double me = Dep::SMINPUTS->mE;
+    	 //double me = Dep::SMINPUTS->mE;
+	 double me = 5.11E-4;
 
     	 CPV_WC_l c = *Dep::CPV_Wilson_Coeff_l;
          result.e = sqrt(2.)*gf*(-1.)*me*c.Ce[1]*gev2cm;
-	 cout << "Ce[1]: " << c.Ce[1] << endl;
-	 cout << "result.e: " << result.e << endl;
+//	 cout << "Ce[1]: " << c.Ce[1] << endl;
+//	 cout << "result.e: " << result.e << endl;
 
          //Heavy quarks for completeness??
       }
@@ -587,7 +492,7 @@ namespace Gambit
          result.u = -sqrt(2.)*gf/gsat2GeV*mu*c.Cu[2]*gev2cm;
          result.d = -sqrt(2.)*gf/gsat2GeV*md*c.Cd[2]*gev2cm;
          result.s = -sqrt(2.)*gf/gsat2GeV*ms*c.Cs[2]*gev2cm;
-         result.w = -sqrt(2.)*2./3.*gf/gsat2GeV*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
+         result.w = sqrt(2.)*gf/gsat2GeV*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
 	 cout << "cdu: " << result.u << " cdd: " << result.d << " cds: " << result.s << " w: " << result.w << endl;
          //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
       }
@@ -599,7 +504,7 @@ namespace Gambit
 	
          dl dEDM = *Dep::EDM_l;
          result = dEDM.e ;
-	 cout << "EDM_ThO_electron - eEDM: " << result << endl;
+	// cout << "EDM_ThO_electron - eEDM: " << result << endl;
       }
 
           void lnL_EDM_ThO_gaussianStep(double &result)
@@ -607,7 +512,7 @@ namespace Gambit
 		  using namespace Pipes::lnL_EDM_ThO_gaussianStep;
 		  double mu = 4.3E-30, sig = 4.0E-30;
 		  //double  offset = 1.1E-29; //taken from ACME: https://doi.org/10.1038/s41586-018-0599-8
-		  cout << "Dep::EDM_ThO_para: " << abs(*Dep::EDM_para) << endl;
+	//	  cout << "Dep::EDM_ThO_para: " << abs(*Dep::EDM_para) << endl;
 		  /*if(abs(*Dep::EDM_para) < 1.1E-29)
 		  {
 			result = 0.0;
@@ -625,6 +530,42 @@ namespace Gambit
 		  	cout << "gaussian result_EDM_ThO: " << result << endl;
 
 	  }
+      void EDM_n_quark(double &result)
+      // Calculation of neutron EDM from quark EDMs and CEDMs in e cm
+      {
+         using namespace Pipes::EDM_n_quark;
+
+    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
+         dq dEDM = *Dep::EDM_q;
+         dq dCEDM = *Dep::CEDM_q;
+
+/*	 cout << "nEDM comparisons: " << endl;
+	 cout << "uCEDM: " << dCEDM.u*(*Param["rhoU"]) << endl;
+	 cout << "dCEDM: " << dCEDM.d*(*Param["rhoD"]) << endl;
+	 cout << "uEDM: " << dCEDM.u*(*Param["gTu"])/e << endl;
+	 cout << "dEDM: " << dCEDM.d*(*Param["gTd"])/e << endl;
+	 cout << "sEDM: " << dCEDM.s*(*Param["gTs"])/e << endl;
+	 cout << "wEDM: " << 25E-3*dCEDM.w << endl;
+*/
+         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)
+            + ((*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
+			+ (*Param["gTs"])*dEDM.s )/e
+			+ 25E-3*dCEDM.w // CEDMs are in cm, EDMs are in e cm, the 25E-3 is valid if w is given in GeV
+			;
+      }
+	  void lnL_EDM_n_gaussianOverall(double &result)
+	  {
+			using namespace Pipes::lnL_EDM_n_gaussianOverall;
+			double mu = 0., sig = 2.2E-26;//mu=-0.0E-26 , sig: 1.5(stat)+0.7(sys)
+			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
+			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
+			// likelihood accordingly?
+			//result = 0.;
+			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+		  	cout << "gaussian result_EDM_n: " << result << endl;
+	  }
+
+
 
 	  void EDM_129Xe_quark(double &result)
       // Calculation of 199Xe EDM from quark and CEDMs in e cm
@@ -761,30 +702,6 @@ namespace Gambit
 
       }
 
-      void EDM_n_quark(double &result)
-      // Calculation of neutron EDM from quark EDMs and CEDMs in e cm
-      {
-         using namespace Pipes::EDM_n_quark;
-
-    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
-         dq dEDM = *Dep::EDM_q;
-         dq dCEDM = *Dep::CEDM_q;
-
-/*	 cout << "nEDM comparisons: " << endl;
-	 cout << "uCEDM: " << dCEDM.u*(*Param["rhoU"]) << endl;
-	 cout << "dCEDM: " << dCEDM.d*(*Param["rhoD"]) << endl;
-	 cout << "uEDM: " << dCEDM.u*(*Param["gTu"])/e << endl;
-	 cout << "dEDM: " << dCEDM.d*(*Param["gTd"])/e << endl;
-	 cout << "sEDM: " << dCEDM.s*(*Param["gTs"])/e << endl;
-	 cout << "wEDM: " << 25E-3*dCEDM.w << endl;
-*/
-         result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)
-            + ((*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
-			+ (*Param["gTs"])*dEDM.s )/e
-			+ 25E-3*dCEDM.w // CEDMs are in cm, EDMs are in e cm, the 25E-3 is valid if w is given in GeV
-			;
-      }
-
       void lnL_EDM_n_step(double &result)
       // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
       {
@@ -827,17 +744,6 @@ namespace Gambit
 */
 	  }
 
-	  void lnL_EDM_n_gaussianOverall(double &result)
-	  {
-			using namespace Pipes::lnL_EDM_n_gaussianOverall;
-			double mu = 0., sig = 2.2E-26;//mu=-0.0E-26 , sig: 1.5(stat)+0.7(sys)
-			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
-			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
-			// likelihood accordingly?
-			//result = 0.;
-			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
-		  	cout << "gaussian result_EDM_n: " << result << endl;
-	  }
 
    }
 }

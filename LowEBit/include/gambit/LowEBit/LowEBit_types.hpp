@@ -39,6 +39,15 @@ namespace Gambit
     	   // for operator 2. Cq[0] is not used. Cw is for the Weinberg operator.
     	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3], Cw[3];
 	 };
+     class CPV_WC_qTEST
+	 {
+	    public:
+    	   CPV_WC_qTEST();
+    	   // Cq[1] is the Wilson coefficient for operator 1, Cq[2]
+    	   // for operator 2. Cq[0] is not used. Cw is for the Weinberg operator.
+    	   double Cu[3], Cd[3], Cs[3], Cc[3], Cb[3], Ct[3], Cw[3];
+	 };
+
      class CPV_WC_l
 	 {
 	    public:
@@ -55,7 +64,16 @@ namespace Gambit
         public:
            dq();
            double u, d, s, c, b, t, w;
+
      };
+     class dqTEST
+     {
+        public:
+           dqTEST();
+           double u, d, s, c, b, t, w;
+
+     };
+ 
      // Lepton electric dipole moments
      class dl
      {
