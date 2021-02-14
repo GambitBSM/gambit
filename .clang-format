@@ -1,0 +1,10 @@
+---
+IndentWidth: 2
+ColumnLimit: 180
+BreakBeforeBraces: Allman
+NamespaceIndentation: All
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
