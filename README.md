@@ -75,6 +75,7 @@ OPTIONAL:
  - axel (speeds up downloads of backends and scanners)
  - graphviz (required for model hierarchy and dependency tree plots)
  - ROOT (required for RestFrames support in ColliderBit, or the GreAT scanner from ScannerBit)
+ - clang-format (required for the code style utilities, without it you have to follow the style by yourself)
  - Python modules:
     - Cython (required for using the classy backend)
     - scipy (required for using the MontePython or DarkAges backends)
