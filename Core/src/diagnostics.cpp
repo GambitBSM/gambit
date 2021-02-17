@@ -40,19 +40,41 @@ namespace Gambit
   /// Basic module diagnostic function
   void gambit_core::module_diagnostic()
   {
-    table_formatter table("Modules", "#functions");
+    YAML::Node gambit_bits_yaml = YAML::LoadFile(GAMBIT_DIR "/config/gambit_bits.yaml");
+    auto gambit_bits = gambit_bits_yaml["gambit_bits"].as<std::vector<std::string>>();
+
+    // We need to manually add this here, can not be crawled by our script.
+    // We want to sort it again to keep alphabetical ordering from the python script after adding bits explicitly here.
+    gambit_bits.emplace_back(std::string{"BackendIniBit"});
+    std::sort(gambit_bits.begin(), gambit_bits.end());
+
+    table_formatter table("Modules", "Status", "#functions");
     table.padding(1);
     table.capitalize_title();
     table.default_widths(25);
-    for (const auto &module : modules)
+
+    for (const auto &bit: gambit_bits)
     {
-      int nf = 0;
-      for (const auto &functor : functorList)
+      table << bit;
+
+      auto result = std::find(std::begin(modules), std::end(modules), bit);
+      if (result == std::end(modules))
       {
-        if (functor->origin() == module) nf++;
+        table.red() << "ditched";
+        table << "n/a";
       }
-      table << module << nf;
+      else 
+      {
+        int nf = 0;
+        for (const auto &functor : functorList)
+        {
+          if (functor->origin() == bit) nf++;
+        }
+        table.green() << "OK";
+        table << nf;
+      }
     }
+
     std::stringstream out;
     out << table.str();
     print_to_screen(out.str(), "module");

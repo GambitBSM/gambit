@@ -9,8 +9,9 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Sebastian Hoof
-///          (s.hoof15@imperial.ac.uk)
+///          (hoof@uni-goettingen.de)
 ///  \date 2019 Feb
+///  \date 2020 June-July, Oct
 ///
 ///  *********************************************
 
@@ -36,6 +37,7 @@ void MODEL_NAMESPACE::QCDAxion_to_GeneralALP (const ModelParameters &myparams, M
 
     parentparams.setValue("gagg", alpha_red*std::fabs(EoN-CG)/fa);
     parentparams.setValue("gaee", m_electron*myparams["Caee"]/fa);
+    parentparams.setValue("gaN", myparams["CaN"]/fa); // N.B. the energy scale of the 'nucleon mass' is ~ 1 GeV
     parentparams.setValue("fa", fa);
     parentparams.setValue("ma0", 1E+3*L2/fa);
     parentparams.setValue("Tchi", myparams["Tchi"]);
@@ -59,6 +61,7 @@ void MODEL_NAMESPACE::KSVZAxion_to_QCDAxion (const ModelParameters &myparams, Mo
     parentparams.setValue("EoverN", EoN);
     parentparams.setValue("CaggQCD", CaggQCD);
     parentparams.setValue("Caee", prefactor*(EoN*std::log(fa/m_electron) - CaggQCD*std::log(scale/m_electron)));
+    parentparams.setValue("CaN", myparams["CaN"]);
     parentparams.setValue("fa", fa);
     parentparams.setValue("LambdaChi", myparams["LambdaChi"]);
     parentparams.setValue("Tchi", myparams["Tchi"]);
@@ -73,12 +76,13 @@ void MODEL_NAMESPACE::DFSZAxion_I_to_QCDAxion (const ModelParameters &myparams, 
     logger()<<"Running interpret_as_parent calculations for DFSZAxion I -> QCDAxion ..."<<EOM;
 
     double angle = std::atan(myparams["tanbeta"]);
-    double S2    = std::sin(angle);
-           S2    = S2*S2;
+    double s2    = std::sin(angle);
+           s2    = s2*s2;
 
     parentparams.setValue("EoverN", myparams["EoverN"]);
     parentparams.setValue("CaggQCD", myparams["CaggQCD"]);
-    parentparams.setValue("Caee", S2/3.0);
+    parentparams.setValue("Caee", s2/3.0);
+    parentparams.setValue("CaN", myparams["CaN"]);
     parentparams.setValue("fa", myparams["fa"]);
     parentparams.setValue("LambdaChi", myparams["LambdaChi"]);
     parentparams.setValue("Tchi", myparams["Tchi"]);
@@ -93,12 +97,13 @@ void MODEL_NAMESPACE::DFSZAxion_II_to_QCDAxion (const ModelParameters &myparams,
     logger()<<"Running interpret_as_parent calculations for DFSZAxion II -> QCDAxion ..."<<EOM;
 
     double angle = std::atan(myparams["tanbeta"]);
-    double S2    = std::sin(angle);
-           S2    = S2*S2;
+    double s2    = std::sin(angle);
+           s2    = s2*s2;
 
     parentparams.setValue("EoverN", myparams["EoverN"]);
     parentparams.setValue("CaggQCD", myparams["CaggQCD"]);
-    parentparams.setValue("Caee", (1.0-S2)/3.0);
+    parentparams.setValue("Caee", (1.0-s2)/3.0);
+    parentparams.setValue("CaN", myparams["CaN"]);
     parentparams.setValue("fa", myparams["fa"]);
     parentparams.setValue("LambdaChi", myparams["LambdaChi"]);
     parentparams.setValue("Tchi", myparams["Tchi"]);
@@ -119,6 +124,7 @@ void MODEL_NAMESPACE::ConstantMassALP_to_GeneralALP (const ModelParameters &mypa
 
     parentparams.setValue("gagg", alpha_red*myparams["Cagg"]/fa);
     parentparams.setValue("gaee", m_electron*myparams["Caee"]/fa);
+    parentparams.setValue("gaN", myparams["CaN"]/fa); // N.B. the energy scale of the 'nucleon mass' is ~ 1 GeV
     parentparams.setValue("fa", fa);
     parentparams.setValue("ma0", 1E+3*L2/fa);
     parentparams.setValue("Tchi", 1.0E99);

@@ -4086,28 +4086,36 @@ calculate_uncertainty_amu_2loop: |
 #----------------------------
 
 GeneralALP_parameters: |
-   Parameters of the GeneralALP model (gagg, gaee, fa, ma0, Tchi, beta, thetai).
+   Parameters of the GeneralALP model (gagg, gaee, gaN, fa, ma0, Tchi, beta, thetai).
    See also ./gambit GeneralALP
 
 QCDAxion_parameters: |
-   Parameters of the QCDAxion model (EoverN, CaggQCD, Caee, fa, LambdaChi, Tchi, beta, thetai).
+   Parameters of the QCDAxion model (EoverN, CaggQCD, Caee, CaN, fa, LambdaChi, Tchi, beta, thetai).
    See also ./gambit QCDAxion
 
 KSVZAxion_parameters: |
-   Parameters of the KSVZAxion model (EoverN, CaggQCD, fa, LambdaChi, Tchi, beta, thetai).
+   Parameters of the KSVZAxion model (EoverN, CaggQCD, CaN, fa, LambdaChi, Tchi, beta, thetai).
    See also ./gambit KSVZAxion
 
 DFSZAxion_I_parameters: |
-   Parameters of the DFSZAxion_I model (EoverN, CaggQCD, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
+   Parameters of the DFSZAxion_I model (EoverN, CaggQCD, CaN, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
    See also ./gambit DFSZAxion_I
 
 DFSZAxion_II_parameters: |
-   Parameters of the DFSZAxion_II model (EoverN, CaggQCD, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
+   Parameters of the DFSZAxion_II model (EoverN, CaggQCD, CaN, tanbeta, fa, LambdaChi, Tchi, beta, thetai).
    See also ./gambit DFSZAxion_II
 
 ConstantMassALP_parameters: |
-   Parameters of the ConstantMassALP model (Cagg, Caee, fa, Lambda, thetai).
+   Parameters of the ConstantMassALP model (Cagg, Caee, CaN, fa, Lambda, thetai).
    See also ./gambit ConstantMassALP
+
+XENON1T_DM_NuisanceParameters_parameters: |
+   Parameters of the XENON1T_DM_NuisanceParameters model (delta_eff,delta_bkg,x_3H).
+   See also ./gambit XENON1T_DM_NuisanceParameters
+
+XENON1T_NuisanceParameters_parameters: |
+   Parameters of the XENON1T_NuisanceParameters model (eta).
+   See also ./gambit XENON1T_NuisanceParameters
 
 QCDAxion_ZeroTemperatureMass: |
    Nuisance likelihood for the QCD-related energy scale LambdaChi, which defines the low-energy QCD axion mass.
@@ -4186,6 +4194,15 @@ PhotonFluence_SN1987A_Decay: |
 
 lnL_HESS_GCMF: |
    LogLikelihood for H.E.S.S. constraints on axions (Galactic Centre magnetic field result).
+
+lnL_XENON1T_Anomaly: |
+   Likelihood function for the 2020 XENON-1T anomaly (solar ALP hypothesis) [arXiv:2006.10035].
+
+lnL_XENON1T_DM_Anomaly: |
+   Likelihood function for the 2020 XENON-1T anomaly (DM ALP hypothesis) [arXiv:2006.10035].
+
+lnL_XENON1T_Anomaly_NuisanceParameters: |
+    Likelihood function for experimental nuisance parameters (detector effciency and background level) the 2020 XENON-1T anomaly [arXiv:2006.10035].
 
 #------------------------------
 #  SUSYHD capabilities

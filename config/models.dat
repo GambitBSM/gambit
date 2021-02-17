@@ -520,7 +520,8 @@ GeneralALP: |
    A general model for an axion-like particle with the possibility of having a temperature-dependent mass.
 
    gagg              - ALP-photon coupling [GeV^-1]
-   gaee              - ALP-electron couplings [dimensionless]
+   gaee              - ALP-electron coupling [dimensionless]
+   gaN               - ALP-nucleon coupling [dimensionless]
    fa                - ALP decay constant [GeV]
    ma0               - ALP mass (at zero temperature) [eV]
    Tchi              - Critical temperature below which the axion mass is constant [MeV]
@@ -529,11 +530,12 @@ GeneralALP: |
 
 QCDAxion: |
 
-   A convenient version of the GeneralALP model for QCD axion studies. Comes with several model-specific nuisance likelihoods and one additional nuisance parameter (Cagg). The differences are:
+   A convenient version of the GeneralALP model for QCD axion studies. Comes with several model-specific nuisance likelihoods and one additional nuisance parameter (CaggQCD). The differences are:
 
-   Cagg              - Contribution to the axion-photon coupling gagg from chiral Lagrangian [dimensionless]
+   CaggQCD           - Contribution to the axion-photon coupling gagg from chiral Lagrangian [dimensionless]
    EoverN            - Contribution to the axion-photon coupling gagg from the ratio of electromagnetic vs colour anomaly [dimensionless]
    Caee              - Re-parameterised axion-electron coupling gaee [dimensionless]
+   CaN               - Re-parameterised axion-nucleon coupling [dimensionless]
    LambdaChi         - Convenient re-parameterisation of the axion zero-temperature mass ma0 = LambdaChi^2/fa [MeV]
 
 KSVZAxion: |
@@ -551,6 +553,20 @@ DFSZAxion_II: |
 ConstantMassALP: |
 
    A convenient version of the GeneralALP model for studies of ALPs with not explicitly temperature-dependent axion mass (beta=0, Tchi irrelevant).
+
+XENON1T_NuisanceParameters: |
+
+   Nuisance parameters for the XENON-1T experiment.
+
+   delta_eff         - Deviation from the quoted detector efficiency (delta_eff = 0 corresponds to no deviation)
+   delta_bkg         - Deviation from the quoted background model (delta_bkg = 0 corresponds to no deviation)
+   x_3H              - Tritium (^3H) abundance in the detector
+
+XENON1T_DM_NuisanceParameters: |
+
+   Additional nuisance parameters when considering the DM ALP hypothesis for the XENON-1T experiment.
+
+   eta              - Fraction of the local DM in axion-like particles
 
 RightHandedNeutrinos: |
    Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
@@ -814,7 +830,7 @@ cosmo_nuisance_ska1: |
    sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
 
 cosmo_nuisance_ska1_IM_band: |
-   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331). 
+   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331).
    Use this model with the MontePython likelihood 'ska1_IM_band1' or 'ska1_IM_band2'. To neglect the parameters Omega_HI0 and alpha_HI use the model 'cosmo_nuisance_ska1_IM_band_noHI'.
 
    sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
@@ -850,7 +866,7 @@ cosmo_nuisance_ska2_pk: |
                      => b(z) = c4 beta_0SKA/2 exp(c5 beta_SKA2 z)  (eq. 2.20)
 
 cosmo_nuisance_ska_lensing: |
-   Cosmological nuisance parameters for SKA1 & SKA2 cosmic shear from Sprenger et al. (https://arxiv.org/abs/11801.08331). Use this model with the MontePython likelihoods 'ska1_lensing' and 'ska2_lensing'. 
+   Cosmological nuisance parameters for SKA1 & SKA2 cosmic shear from Sprenger et al. (https://arxiv.org/abs/11801.08331). Use this model with the MontePython likelihoods 'ska1_lensing' and 'ska2_lensing'.
 
    epsilon_ska       - nuisance parameter accounting for a global uncorrelated
                        theoretical error in e.g. (non-)linear power spectrum, scale dependent bias,
@@ -997,4 +1013,3 @@ DecayingDM_electron: |
    mass        - mass of the dark matter candidate [in GeV]
    lifetime    - lifetime of said DM candidate [in s]
    fraction    - fraction of how much the decaying DM component contributes to all DM.
-
