@@ -68,6 +68,7 @@ contrib/pybind11/
 # Local configuration files
 config/*_locations.yaml
 config/gambit_bits.yaml
+config/gambit_backends.yaml
 
 # Scratch files
 scratch/**
