@@ -1,0 +1,124 @@
+##########################################################################
+## GAMBIT configuration for an ultra-minimal MultiNest scan of a toy model.
+##
+## Only needs ExampleBit_A and a scanner (either one of the built-ins like
+## the random sampler or TWalk, or an external like Diver, MultiNest,
+## GreAT or Polychord).
+##########################################################################
+
+
+Parameters:
+  # In this example we will simply be fitting the mean and standard deviation of a normal distribution.
+  NormalDist:
+    mu:
+      range: [15, 30]
+    sigma:
+      range: [0, 5]
+
+
+Priors:
+
+  # None needed: flat priors are automatically generated for mu and sigma
+
+
+Printer:
+
+  #printer: sqlite
+  #options:
+  #  output_file: "results.sql"
+  #  table_name: "spartan"
+  #  buffer_length: 1000
+  #  delete_file_on_restart: true
+
+  #printer: hdf5
+  #options:
+  #  output_file: "results.hdf5"
+  #  group: "/spartan"
+  #  delete_file_on_restart: true
+  #  buffer_length: 1000
+  #  #disable_autorepair: true
+
+  #printer: ascii
+  #options:
+  #  output_file: "results.dat"
+  #  buffer_length: 10
+  #  delete_file_on_restart: true
+
+  printer: cout
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1000
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 5000
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 2000
+      #tol: 0.0001
+      tol: 0.1
+
+    mcmc:
+      plugin: great
+      like: LogLike
+      nTrialLists: 5
+      nTrials: 10000
+
+    twalk:
+      plugin: twalk
+      like: LogLike
+      sqrtR: 1.001
+
+    polychord:
+      plugin: polychord
+      like:  LogLike
+      tol: 0.1
+
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   normaldist_loglike
+    module:       ExampleBit_A
+    type:         double
+
+
+Rules:
+
+  # None required, since no module dependencies to be resolved.
+  - capability: normaldist_loglike
+    options:
+        probability_of_validity: 1.0
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [ExampleBit_A] : "ExampleBit_A.log"
+    [Scanner]      : "Scanner.log"
+  debug: true
+
+KeyValues:
+
+  default_output_path: "runs/spartan"
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    print_points_with_lnlike_above: -50
