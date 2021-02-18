@@ -86,7 +86,9 @@ def list_files(files, recursive=False, extensions=None, exclude=None):
                     if ext in extensions:
                         out.append(f)
         else:
-            out.append(file)
+            ext = os.path.splitext(file)[1][1:]
+            if ext in extensions:
+                out.append(file)
     return out
 
 
