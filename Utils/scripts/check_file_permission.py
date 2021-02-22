@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 
-FILE_EXTENSIONS = ['.c', '.h', '.C', '.H', '.cpp', '.hpp', '.cc', '.hh', '.c++', '.h++', '.cxx', '.hxx']
+FILE_EXTENSIONS = ['.c', '.h', '.C', '.H', '.cpp', '.hpp', '.cc', '.hh', '.c++', '.h++', '.cxx', '.hxx', '.txt', '.dat', '.slha', '.yaml']
 PERMISSION = 0o100664  # Commonly known as 664
 
 
