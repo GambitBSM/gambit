@@ -1130,7 +1130,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      const int l = 1, lp = 1;
+      const int f = 0, l = 1, lp = 1;
 
       const double Alpha = 1/(sminputs.alphainv);
       const double alpha = spectrum.get(Par::dimensionless,"alpha");
@@ -1157,7 +1157,7 @@ namespace Gambit
       const vector<double> ml = {mE, mMu, mTau};     // charged leptons
       const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
       const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
-      const vector<double> mphi = {mh, mH, mA, mHp};
+      const vector<double> mphi = {mh, mH, mA, mHp, mh};
       const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
       const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
       const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
@@ -1222,25 +1222,28 @@ namespace Gambit
               Vtd, Vts, Vtb;
 
       // One loop amplitude
-      complex<double> Aloop1L = 0;
-      complex<double> Aloop1R = 0;
+      complex<double> Aloop1L = 0, A1L = 0;
+      complex<double> Aloop1R = 0, A1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
+      //TODO: Remove SM higgs contribution
       for (int phi=0; phi<=3; ++phi)
       {
         for (int li = 0; li <=2; ++li)
         {
-          if ((phi == 0) and (li == 1))
-          {
+          //if ((phi == 0) and (li == 1))
+          //{
             // Ignore purely SM contributions with SM higgs and no flavour changing 
-            Aloop1L += 0.0;
-            Aloop1R += 0.0;
-          }
-          else
-          {
-            Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-            Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-          }
+          //  Aloop1L += 0.0;
+          //  Aloop1R += 0.0;
+          //}
+          //else
+          //{
+            A1L=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            A1R=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            Aloop1L += A1L;
+            Aloop1R += A1R;
+          //}
         }
       }
 
@@ -1253,7 +1256,7 @@ namespace Gambit
 
       complex<double> Aloop2f = 0.;
       //Fermionic contribution
-      for (int phi=0; phi<=3; ++phi)
+      for (int phi=0; phi<=4; ++phi)
       { 
         for (int f=0; f<=2; ++f)
         {
@@ -1262,11 +1265,11 @@ namespace Gambit
       }
 
       const vector<double> couplingphiCC = { \
-      ((pow(mh,2)-2.*pow(mHp,2)) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v), \
-      ((pow(mH,2)-2.*pow(mHp,2)) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v), \
+      (-(mh*mh-2.*mHp*mHp) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v*v), \
+      (-(mH*mH-2.*mHp*mHp) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v*v), \
       0.};
-      const vector<double> couplingphiWW = {-sqrt(1-pow(cab,2)), cab, 0.};
-      const vector<complex<double>> couplingphiCW = {(cab,-0.), (sqrt(1-pow(cab,2)),-0.), (0.,-1.)};
+      const vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
+      const vector<complex<double>> couplingphiCW = { complex<double> (cab,0.),  complex<double> (-sqrt(1-pow(cab,2)),0.), complex<double> (0.,-1.)};
       
       //Barr-Zee contribution
       complex<double> Aloop2BZ = 0.;
@@ -1279,12 +1282,12 @@ namespace Gambit
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
       }
-      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
+      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);*/
 
       //Bosonic contribution
-      /*complex<double> Aloop2bL = 0;
+      complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
       for (int phi=0; phi<=1; ++phi)
       {
@@ -1300,7 +1303,7 @@ namespace Gambit
         Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
         Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
        }
-      }*/
+      }
 
       result.central = Aloop1L.real() + Aloop1R.real() + Aloop2f.real() + Aloop2BZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
