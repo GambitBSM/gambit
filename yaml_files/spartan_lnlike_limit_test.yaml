@@ -30,13 +30,13 @@ Printer:
   #  buffer_length: 1000
   #  delete_file_on_restart: true
 
-  #printer: hdf5
-  #options:
-  #  output_file: "results.hdf5"
-  #  group: "/spartan"
-  #  delete_file_on_restart: true
-  #  buffer_length: 1000
-  #  #disable_autorepair: true
+  printer: hdf5
+  options:
+   output_file: "results.hdf5"
+   group: "/spartan"
+   delete_file_on_restart: true
+   buffer_length: 1000
+   #disable_autorepair: true
 
   #printer: ascii
   #options:
@@ -44,11 +44,12 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
-  printer: cout
+  # printer: cout
 
 Scanner:
 
-  use_scanner: random
+  # use_scanner: random
+  use_scanner: multinest
 
   scanners:
 
@@ -121,4 +122,4 @@ KeyValues:
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6
-    print_points_with_lnlike_above: -50
+    disable_print_for_lnlike_below: -50
