@@ -18,8 +18,14 @@ Parameters:
 
 Priors:
 
-  # None needed: flat priors are automatically generated for mu and sigma
-
+  # None needed: flat priors are automatically generated for NormalDist::mu and NormalDist::sigma
+  # If you wanted to use a Gaussian prior on these parameters instead, you would comment
+  # out their ranges above, and do e.g.
+  #prior1:
+  #  parameters: ["NormalDist::mu", "NormalDist::sigma"]
+  #  prior_type: gaussian
+  # mu: [18, 5]
+  #  sigma: [3.0, 1]
 
 Printer:
 
@@ -45,6 +51,8 @@ Printer:
   #  delete_file_on_restart: true
 
   #printer: cout
+
+  #printer: none
 
 Scanner:
 
@@ -83,6 +91,7 @@ Scanner:
     polychord:
       plugin: polychord
       like:  LogLike
+      print_parameters_in_native_output: true
       tol: 0.1
 
 
@@ -111,13 +120,15 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/spartan"
+  default_output_path: "${PWD}/runs/spartan"
 
   rng:
     generator: ranlux48
     seed: -1
 
   print_timing_data: true
+
+  print_unitcube: true
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

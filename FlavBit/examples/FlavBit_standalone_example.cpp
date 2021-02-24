@@ -26,7 +26,6 @@
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
 
-using namespace FlavBit::Accessors;     // Helper functions that provide some info about the module
 using namespace FlavBit::Functown;      // Functors wrapping the module's actual module functions
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
@@ -100,10 +99,6 @@ int main(int argc, char** argv)
     logger().initialise(loggerinfo);
 
     logger()<<"Running FlavBit standalone example"<<LogTags::info<<EOM;
-
-    std::cout << std::endl << "My name is " << name() << std::endl;
-    std::cout << " I can calculate: " << endl << iCanDo << std::endl;
-    std::cout << " ...but I may need: " << endl << iMayNeed << std::endl << std::endl;
 
     // Notify all module functions that care of the model being scanned.
     createSpectrum.notifyOfModel("MSSM30atQ");

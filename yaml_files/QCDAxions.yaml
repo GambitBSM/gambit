@@ -1,5 +1,5 @@
 # An example YAML file for QCD axion scans
-# Author: Sebastian Hoof (s.hoof15@imperial.ac.uk)
+# Author: Sebastian Hoof (hoof@uni-goettingen.de)
 
 #################################
  # Input parameter declarations
@@ -28,6 +28,7 @@ Parameters:
     Caee:
       range: [1.0E-4, 1.0E4]
       prior_type: log
+    CaN : 0.0
     thetai:
       range: [-3.14159, 3.14159]
       prior_type: flat
@@ -43,6 +44,12 @@ Parameters:
     alpha: 1
     beta: 3
     gamma: 1
+  LCDM:
+    omega_b:   0.02237
+    omega_cdm: 0.1200
+    H0:        67.36
+    tau_reio:  0.0544
+    T_cmb:     2.72548
 
 #################################
  # Prior setup
@@ -65,7 +72,7 @@ Printer:
 #################################
 
 Scanner:
-  use_scanner: de
+  use_scanner: random
 
   scanners:
     mn:
@@ -85,6 +92,10 @@ Scanner:
       plugin: twalk
       like: LogLike
       sqrtR: 1.01
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
 
 #################################
  # likelihoods and observables

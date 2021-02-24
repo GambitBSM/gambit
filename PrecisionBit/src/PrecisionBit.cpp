@@ -1132,7 +1132,7 @@ namespace Gambit
       double sinW2_SM = 0.23152; // taken from 1211.1864
       double sinW2_SM_err = 0.00010;
 
-      result.central = 0.5 - 0.5*sqrt(1.0 - 4*sinW2_SM*(1.0 - sinW2_SM)*sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) ); 
+      result.central = 0.5 - 0.5*sqrt(1.0 - 4*sinW2_SM*(1.0 - sinW2_SM)*sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) );
       result.upper = (1.0 - 2*sinW2_SM) / (1.0 - 2*result.central) * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) * sinW2_SM_err;
       result.lower = result.upper;
     }
@@ -1155,6 +1155,26 @@ namespace Gambit
       result.central = sqrt( pow(mW_SM,2) * sinW2_SM / sinW2.central * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1))  );
       result.upper = 0.5*result.central*sqrt( pow(2*mW_SM_err/mW_SM,2) + pow(sinW2_SM_err/sinW2_SM,2) + pow(sinW2.upper/sinW2.central,2)  );
       result.lower = result.upper;
+    }
+
+    // Neutron lifetime measurements
+
+    /// Beam method: Phys. Rev. Lett. 111, 222501 (2013) https://arxiv.org/abs/1309.2623
+    void lnL_neutron_lifetime_beam_Yue(double &result)
+    {
+      using namespace Pipes::lnL_neutron_lifetime_beam_Yue;
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      result = Stats::gaussian_loglikelihood(*Param["neutron_lifetime"], 887.7, 1.9, 1.2, profile);
+    }
+
+    /// Bottle method: average recommended by PDG 2019 http://pdg.lbl.gov/2019/listings/rpp2019-list-n.pdf
+    void lnL_neutron_lifetime_bottle_PDG19(double &result)
+    {
+      using namespace Pipes::lnL_neutron_lifetime_bottle_PDG19;
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      result = Stats::gaussian_loglikelihood(*Param["neutron_lifetime"], 879.4, 0, 0.6, profile);
     }
 
   }

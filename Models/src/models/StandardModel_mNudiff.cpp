@@ -12,6 +12,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 December
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 February
+///
 ///  *********************************************
 
 #include "gambit/Models/model_macros.hpp"
@@ -45,6 +49,17 @@
            pow(myP["mNu_light"]*myP["mNu_light"]-myP["dmNu3l"], 0.5)*1e-9);
        targetP.setValue("mNu1",
            pow(myP["mNu_light"]*myP["mNu_light"]-myP["dmNu3l"]-myP["dmNu21"], 0.5)*1e-9);
+     }
+
+     // When "mNu_light", "dmNu21", and "dmNu3l" are badly chosen, the neutrino mases in
+     // "StandardModel_SLHA2" cannot be set properly.
+     // Invalidate this point, since it is clearly non-physical.
+     if (std::isnan(targetP["mNu1"]) || std::isnan(targetP["mNu2"]) || std::isnan(targetP["mNu3"]))
+     {
+       std::string ErrMssg = "There is a conflicting parameter choice of ";
+       ErrMssg += "\"mNu_light\", \"dmNu21\", and \"dmNu3l\"   in \"StandardModel_mNudiff\" ";
+       ErrMssg +=  "such that the neutrino masses in \"StandardModel_SLHA2\" cannot be set properly.";
+       invalid_point().raise(ErrMssg.c_str());
      }
   }
 

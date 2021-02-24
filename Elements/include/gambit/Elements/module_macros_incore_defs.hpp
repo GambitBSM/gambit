@@ -2,8 +2,8 @@
 //   *********************************************
 ///  \file
 ///
-///  Redirection macros for generic observable and 
-///  likelihood function macro definitions, for 
+///  Redirection macros for generic observable and
+///  likelihood function macro definitions, for
 ///  inclusion from the Core.
 ///
 ///
@@ -63,7 +63,7 @@
 #include "gambit/Elements/module_macros_common.hpp"
 #include "gambit/Elements/safety_bucket.hpp"
 #include "gambit/Elements/ini_functions.hpp"
-#include "gambit/Elements/ini_code_struct.hpp"
+#include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
@@ -154,122 +154,6 @@
 /// Central module definition macro, used by modules and models.
 #define CORE_START_MODULE_COMMON_MAIN(MODULE)                                  \
                                                                                \
-      namespace Accessors                                                      \
-      {                                                                        \
-                                                                               \
-        /* Module name */                                                      \
-        str name() { return STRINGIFY(MODULE); }                               \
-                                                                               \
-        /* Maps from tag strings to tag-specialisted functions */              \
-        std::map<str, bool(*)()> map_bools;                                    \
-        std::map<str, bool(*)(str)> condit_bools;                              \
-        std::map<str, std::map<str, bool(*)()> >model_bools;                   \
-                                                                               \
-        /* All module observables/likelihoods, their dependencies, required    \
-        quantities from backends, and their types, as strings */               \
-        static std::map<str,str> iCanDo, iMayNeed, iMayNeedFromBackends;       \
-                                                                               \
-        /* Module provides observable/likelihood TAG? */                       \
-        template <typename TAG>                                                \
-        bool provides() { return false; }                                      \
-                                                                               \
-        /* Overloaded, non-templated version */                                \
-        bool provides(str obs)                                                 \
-        {                                                                      \
-          if (map_bools.find(obs) == map_bools.end()) { return false; }        \
-          return (*map_bools[obs])();                                          \
-        }                                                                      \
-                                                                               \
-        /* Module requires observable/likelihood DEP_TAG to compute TAG */     \
-        template <typename DEP_TAG, typename TAG>                              \
-        bool requires() { return false; }                                      \
-                                                                               \
-        /* Overloaded, non-templated version */                                \
-        bool requires(str dep, str obs)                                        \
-        {                                                                      \
-          if (map_bools.find(dep+obs) == map_bools.end()) { return false; }    \
-          return (*map_bools[dep+obs])();                                      \
-        }                                                                      \
-                                                                               \
-        /* Additional overloaded, non-templated versions */                    \
-        bool requires(str dep, str obs, str req, str be, str ver)              \
-        {                                                                      \
-          if (requires(dep, obs)) {return true; }                              \
-          if (condit_bools.find(dep+obs+req+be) == condit_bools.end())         \
-          {                                                                    \
-            return false;                                                      \
-          }                                                                    \
-          if ((*condit_bools[dep+obs+req+be])("any"))                          \
-          {                                                                    \
-            return true;                                                       \
-          }                                                                    \
-          else                                                                 \
-          {                                                                    \
-            return (*condit_bools[dep+obs+req+be])(ver);                       \
-          }                                                                    \
-        }                                                                      \
-        bool requires(str dep, str obs, str req, str be)                       \
-        {                                                                      \
-          return requires(dep, obs, req, be, "any");                           \
-        }                                                                      \
-                                                                               \
-        /* Module could require quantity BE_TAG from a backend to compute TAG*/\
-        template <typename BE_TAG, typename TAG>                               \
-        bool could_need_from_backend() { return false; }                       \
-                                                                               \
-        /* Overloaded, non-templated version */                                \
-        bool could_need_from_backend(str quant, str obs)                       \
-        {                                                                      \
-          if (map_bools.find("BE_"+quant+obs) == map_bools.end()) return false;\
-          return (*map_bools["BE_"+quant+obs])();                              \
-        }                                                                      \
-                                                                               \
-        /* Module currently requires quant from a backend to compute obs*/     \
-        bool currently_needs_from_backend(str quant, str obs)                  \
-        {                                                                      \
-          if (map_bools.find("BE_"+quant+obs+"now") == map_bools.end())        \
-           return false;                                                       \
-          return (*map_bools["BE_"+quant+obs+"now"])();                        \
-        }                                                                      \
-                                                                               \
-        /* Module may require observable/likelihood DEP_TAG to compute TAG,    \
-        depending on the backend and version meeting requirement REQ_TAG.*/    \
-        template <typename DEP_TAG, typename TAG, typename REQ_TAG,            \
-         typename BE>                                                          \
-        bool requires_conditional_on_backend(str) {return false; }             \
-                                                                               \
-        /* Overloaded version of templated function */                         \
-        template <typename DEP_TAG, typename TAG, typename REQ_TAG,            \
-         typename BE>                                                          \
-        bool requires_conditional_on_backend()                                 \
-        {                                                                      \
-          return requires_conditional_on_backend<DEP_TAG,TAG,                  \
-           REQ_TAG,BE>("any");                                                 \
-        }                                                                      \
-                                                                               \
-        /* Module may require observable/likelihood DEP_TAG to compute TAG,    \
-        depending on the model being scanned.*/                                \
-        template <typename DEP_TAG, typename TAG>                              \
-        bool requires_conditional_on_model(str) {return false; }               \
-                                                                               \
-        /* Module allows use of model MODEL_TAG when computing TAG */          \
-        template <typename MODEL_TAG, typename TAG>                            \
-        bool explicitly_allowed_model()                                        \
-        {                                                                      \
-          return false;                                                        \
-        }                                                                      \
-                                                                               \
-        /* Overloaded, non-templated version */                                \
-        bool allowed_model(str model, str obs)                                 \
-        {                                                                      \
-          if (model_bools.find(obs) == model_bools.end()) return true;         \
-          if (model_bools[obs].find(model) == model_bools[obs].end())          \
-           return false;                                                       \
-          return (*model_bools[obs][model])();                                 \
-        }                                                                      \
-                                                                               \
-      }                                                                        \
-                                                                               \
       /* Resolve dependency DEP_TAG in function TAG */                         \
       template <typename DEP_TAG, typename TAG>                                \
       void resolve_dependency(functor*, module_functor_common*)                \
@@ -284,14 +168,6 @@
       {                                                                        \
         cout<<STRINGIFY(MODULE)<<" does not"<<endl;                            \
         cout<<"have this backend requirement for this function.";              \
-      }                                                                        \
-                                                                               \
-      /* Runtime registration function for nesting requirements of             \
-      observable/likelihood function TAG*/                                     \
-      template <typename TAG>                                                  \
-      void rt_register_function_nesting ()                                     \
-      {                                                                        \
-        cout<<"This tag is not supported by "<<STRINGIFY(MODULE)<<"."<<endl;   \
       }                                                                        \
                                                                                \
       /* Runtime registration function for dependency DEP_TAG of function TAG*/\
@@ -341,24 +217,6 @@
   {                                                                            \
     /* Add CAPABILITY to the global set of things that can be calculated*/     \
     ADD_TAG_IN_CURRENT_NAMESPACE(CAPABILITY)                                   \
-                                                                               \
-    /* Put everything inside the Models namespace if this is a model-module */ \
-    BOOST_PP_IIF(IS_MODEL, namespace Models {, )                               \
-                                                                               \
-    namespace MODULE                                                           \
-    {                                                                          \
-                                                                               \
-      namespace Accessors                                                      \
-      {                                                                        \
-        /* Indicate that this module can provide quantity CAPABILITY */        \
-        template <>                                                            \
-        bool provides<Gambit::Tags::CAPABILITY>() { return true; }             \
-      }                                                                        \
-                                                                               \
-    }                                                                          \
-                                                                               \
-    /* End Models namespace */                                                 \
-    BOOST_PP_IIF(IS_MODEL, }, )                                                \
                                                                                \
   }                                                                            \
 
@@ -474,9 +332,19 @@
        bool (*ModelInUse)(str) = &Functown::CAT(FUNCTION,_modelInUse); )       \
       /* Declare a safe pointer to the functor's run options. */               \
       safe_ptr<Options> runOptions;                                            \
-      BOOST_PP_IIF(CAN_MANAGE,                                                 \
-       namespace Loop                                                          \
-       {                                                                       \
+      /* Set up Downstream pipes */                                            \
+      namespace Downstream                                                     \
+      {                                                                        \
+         /* Create a pipe to hold a vector of all capability,type pairs of     \
+         functors that get connected downstream of this one. */                \
+         safe_ptr<std::set<sspair>> dependees;                                 \
+         /* Create a pipe to hold all subcaps given for downstream functors */ \
+         safe_ptr<Options> subcaps;                                            \
+      }                                                                        \
+      /* Set up Loop pipes */                                                  \
+      namespace Loop                                                           \
+      {                                                                        \
+        BOOST_PP_IIF(CAN_MANAGE,                                               \
          /* Create a pointer to the single iteration of the loop that can      \
          be executed by this functor */                                        \
          void (*executeIteration)(long long)=&Functown::CAT(FUNCTION,_iterate);\
@@ -485,8 +353,8 @@
          safe_ptr<bool> done;                                                  \
          /* Declare a function that is used to reset the done flag. */         \
          void reset() { Functown::FUNCTION.resetLoop(); }                      \
-       }                                                                       \
-      ,)                                                                       \
+        ,)                                                                     \
+      }                                                                        \
     }                                                                          \
                                                                                \
   }                                                                            \
@@ -496,8 +364,9 @@
    register_function(Functown::FUNCTION,                                       \
    CAN_MANAGE,                                                                 \
    BOOST_PP_IIF(CAN_MANAGE, &Pipes::FUNCTION::Loop::done, NULL),               \
-   Accessors::iCanDo, Accessors::map_bools,                                    \
-   Accessors::provides<Gambit::Tags::CAPABILITY>, Pipes::FUNCTION::runOptions);\
+   Pipes::FUNCTION::runOptions,                                                \
+   Pipes::FUNCTION::Downstream::dependees,                                     \
+   Pipes::FUNCTION::Downstream::subcaps);                                      \
 
 // Determine whether to make registration calls to the Core in the
 // CORE_NEEDS_MANAGER macro, depending on STANDALONE flag
@@ -562,32 +431,19 @@
             on to the next iteration. */                                       \
             void cycle() { throw invalid_loop_iteration_exception(); }         \
           }                                                                    \
+          /* Register the fact that this FUNCTION must be run by a manager with\
+          capability LOOPMAN. */                                               \
+          const int nest_reg = register_function_nesting(Functown::FUNCTION,   \
+           Loop::iteration, STRINGIFY(LOOPMAN), STRINGIFY(TYPE));              \
         }                                                                      \
-      }                                                                        \
-                                                                               \
-      /* Set up the runtime commands that register the fact that this FUNCTION \
-      requires it be run inside a loop manager with capability LOOPMAN. */     \
-      template <>                                                              \
-      void rt_register_function_nesting<Tags::FUNCTION> ()                     \
-      {                                                                        \
-        Functown::FUNCTION.setLoopManagerCapType(STRINGIFY(LOOPMAN),           \
-                                                 STRINGIFY(TYPE));             \
-        Pipes::FUNCTION::Loop::iteration = Functown::FUNCTION.iterationPtr();  \
-      }                                                                        \
-                                                                               \
-      /* Create the corresponding initialisation object */                     \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT(FUNCTION,_nesting)                                        \
-         (&rt_register_function_nesting<Tags::FUNCTION>);                      \
       }                                                                        \
     }                                                                          \
   }                                                                            \
 
 
-/// First common component of CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION) and
+/// Common components of CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION) and
 /// CORE_START_CONDITIONAL_DEPENDENCY(TYPE).
-#define DEPENDENCY_COMMON_1(DEP, TYPE, MODULE, FUNCTION)                       \
+#define DEPENDENCY_COMMON(DEP, TYPE, MODULE, FUNCTION)                         \
                                                                                \
       /* Given that TYPE is not void, create a safety_bucket for the           \
       dependency result. To be initialized automatically at runtime            \
@@ -631,18 +487,6 @@
       }                                                                        \
 
 
-/// Second common component of CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION) and
-/// CORE_START_CONDITIONAL_DEPENDENCY(TYPE).
-#define DEPENDENCY_COMMON_2(DEP,FUNCTION)                                      \
-                                                                               \
-  /* Create the dependency initialisation object */                            \
-  namespace Ini                                                                \
-  {                                                                            \
-    ini_code CAT_3(DEP,_for_,FUNCTION)                                         \
-     (&rt_register_dependency<Gambit::Tags::DEP, Tags::FUNCTION>);             \
-  }                                                                            \
-
-
 /// Redirection of DEPENDENCY(DEP, TYPE) when invoked from within the core.
 #define CORE_DEPENDENCY(DEP, TYPE, MODULE, FUNCTION, IS_MODEL_DEP)             \
                                                                                \
@@ -657,29 +501,11 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
+      DEPENDENCY_COMMON(DEP, TYPE, MODULE, FUNCTION)                           \
                                                                                \
-      DEPENDENCY_COMMON_1(DEP, TYPE, MODULE, FUNCTION)                         \
-                                                                               \
-      namespace Accessors                                                      \
-      {                                                                        \
-        /* Indicate that FUNCTION requires DEP to be computed previously*/     \
-        template <>                                                            \
-        bool requires<Gambit::Tags::DEP, Tags::FUNCTION>() { return true; }    \
-      }                                                                        \
-                                                                               \
-      /* Set up the commands to be called at runtime to register dependency*/  \
-      template <>                                                              \
-      void rt_register_dependency<Gambit::Tags::DEP, Tags::FUNCTION> ()        \
-      {                                                                        \
-        Accessors::map_bools[STRINGIFY(CAT(DEP,FUNCTION))] =                   \
-         &Accessors::requires<Gambit::Tags::DEP, Tags::FUNCTION>;              \
-        Accessors::iMayNeed[STRINGIFY(DEP)] = STRINGIFY(TYPE);                 \
-        Functown::FUNCTION.setDependency(STRINGIFY(DEP),STRINGIFY(TYPE),       \
-         &resolve_dependency<Gambit::Tags::DEP, Tags::FUNCTION>);              \
-      }                                                                        \
-                                                                               \
-      DEPENDENCY_COMMON_2(DEP, FUNCTION)                                       \
-                                                                               \
+      const int CAT_3(DEP,_for_,FUNCTION) = register_dependency(               \
+       Functown::FUNCTION, STRINGIFY(DEP), STRINGIFY(TYPE),                    \
+       &resolve_dependency<Gambit::Tags::DEP, Tags::FUNCTION>);                \
     }                                                                          \
                                                                                \
     /* Close the Models namespace if this is a model dep */                    \
@@ -813,24 +639,11 @@
         }                                                                      \
       }                                                                        \
                                                                                \
-      /* Set up the commands to be called at runtime to register the           \
-      compatibility of the model with the functor */                           \
-      template <>                                                              \
-      void rt_register_dependency<ModelTags::MODEL, Tags::FUNCTION> ()         \
-      {                                                                        \
-        Accessors::iMayNeed[STRINGIFY(CAT(MODEL,_parameters))] =               \
-         "ModelParameters";                                                    \
-        Functown::FUNCTION.setModelConditionalDependency(STRINGIFY(MODEL),     \
-         STRINGIFY(CAT(MODEL,_parameters)),"ModelParameters",                  \
+      /* Register the dependency of the functor on the model parameters */     \
+      const int CAT_3(MODEL,_params_for_,FUNCTION) =                           \
+       register_model_parameter_dependency(Functown::FUNCTION,                 \
+        STRINGIFY(MODEL), STRINGIFY(CAT(MODEL,_parameters)),                   \
          &resolve_dependency<ModelTags::MODEL, Tags::FUNCTION>);               \
-      }                                                                        \
-                                                                               \
-      /* Create the dependency initialisation object */                        \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(MODEL,_params_for_,FUNCTION)                            \
-        (&rt_register_dependency<ModelTags::MODEL, Tags::FUNCTION>);           \
-      }                                                                        \
                                                                                \
     }                                                                          \
 
@@ -840,33 +653,9 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      namespace Accessors                                                      \
-      {                                                                        \
-        /* Indicate that FUNCTION can be used with MODEL */                    \
-        template <>                                                            \
-        bool explicitly_allowed_model<ModelTags::MODEL,Tags::FUNCTION >()      \
-        {                                                                      \
-          return true;                                                         \
-        }                                                                      \
-      }                                                                        \
-                                                                               \
-      /* Set up the commands to be called at runtime to register the           \
-      compatibility of the model with the functor */                           \
-      void CAT_4(rt_register_model_singly_,FUNCTION,_,MODEL)()                 \
-      {                                                                        \
-        Accessors::model_bools[STRINGIFY(FUNCTION)][STRINGIFY(MODEL)] =        \
-         &Accessors::explicitly_allowed_model<ModelTags::MODEL,Tags::FUNCTION>;\
-        Functown::FUNCTION.setAllowedModel(STRINGIFY(MODEL));                  \
-      }                                                                        \
-                                                                               \
-      /* Create the model registration initialisation object */                \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(MODEL,_allowed_for_,FUNCTION)                           \
-         (&CAT_4(rt_register_model_singly_,FUNCTION,_,MODEL));                 \
-      }                                                                        \
-                                                                               \
+      /* Register the compatibility of the model with the functor */           \
+      const int CAT_3(MODEL,_allowed_for_,FUNCTION) = register_model_singly(   \
+        Functown::FUNCTION, STRINGIFY(MODEL));                                 \
     }                                                                          \
 
 
@@ -878,7 +667,6 @@
    "ALLOW_MODEL_COMBINATION. Please check the rollcall header for "            \
    STRINGIFY(MODULE) "."))                                                     \
                                                                                \
-  /* Register the combination as allowed with the functor */                   \
   namespace Gambit                                                             \
   {                                                                            \
     /* Put everything inside the Models namespace if this is a model-module */ \
@@ -886,24 +674,10 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      /* Set up the commands to be called at runtime to register the           \
-      compatibility of the model combination with the functor */               \
-      void CAT_4(rt_register_model_combination_,FUNCTION,_,                    \
-       BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(COMBO)))))()       \
-      {                                                                        \
-        Functown::FUNCTION.setAllowedModelGroupCombo(#COMBO);                  \
-      }                                                                        \
-                                                                               \
-      /* Create the dependency initialisation object */                        \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(FUNCTION,_,                                             \
-         BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(COMBO)))))       \
-         (&CAT_4(rt_register_model_combination_,FUNCTION,_,                    \
-         BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(COMBO))))));     \
-      }                                                                        \
-                                                                               \
+      /* Register the combination as allowed with the functor */               \
+      const int CAT_3(FUNCTION,_,BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((      \
+       STRIP_PARENS(COMBO))))) = register_model_combination(Functown::FUNCTION,\
+       STRINGIFY(COMBO));                                                      \
     }                                                                          \
                                                                                \
     /* End Models namespace */                                                 \
@@ -927,22 +701,12 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      /* Set up the commands to be called at runtime to register the           \
-      the model group with the functor */                                      \
-      void CAT_4(rt_register_model_group_,FUNCTION,_,GROUPNAME)()              \
-      {                                                                        \
-       Functown::FUNCTION.setModelGroup(STRINGIFY(GROUPNAME),STRINGIFY(GROUP));\
-      }                                                                        \
-                                                                               \
-      /* Create the model group initialisation object */                       \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(GROUPNAME,_model_group_in_,FUNCTION)                    \
-         (&CAT_4(rt_register_model_group_,FUNCTION,_,GROUPNAME));              \
-      }                                                                        \
-                                                                               \
+      /* Register the model group with the functor */                          \
+      const int CAT_3(GROUPNAME,_model_group_in_,FUNCTION) =                   \
+       register_model_group(Functown::FUNCTION, STRINGIFY(GROUPNAME),          \
+       STRINGIFY(GROUP));                                                      \
     }                                                                          \
+                                                                               \
     /* End Models namespace */                                                 \
     BOOST_PP_IIF(IS_MODEL, }, )                                                \
  }                                                                             \
@@ -974,19 +738,8 @@
           {                                                                    \
             /* Declare a safe pointer to the functor's internal register of    \
             which backend requirement is activated from this group. */         \
-            safe_ptr<str> GROUP;                                               \
-                                                                               \
-            /* Define command to be called at runtime to register the group*/  \
-            void rt_register_group()                                           \
-            {                                                                  \
-              GROUP=Functown::FUNCTION.getChosenReqFromGroup(STRINGIFY(GROUP));\
-            }                                                                  \
-                                                                               \
-            /* Create the group initialisation object */                       \
-            namespace Ini                                                      \
-            {                                                                  \
-              ini_code GROUP (&rt_register_group);                             \
-            }                                                                  \
+            safe_ptr<str> GROUP =                                              \
+             Functown::FUNCTION.getChosenReqFromGroup(STRINGIFY(GROUP));       \
           }                                                                    \
         }                                                                      \
       }                                                                        \
@@ -1043,26 +796,11 @@
         }                                                                      \
       }                                                                        \
                                                                                \
-      /* Indicate that FUNCTION has a potential REQUIREMENT */                 \
-      namespace Accessors                                                      \
-      {                                                                        \
-        template <>                                                            \
-        bool could_need_from_backend<BETags::REQUIREMENT, Tags::FUNCTION>()    \
-        {                                                                      \
-          return true;                                                         \
-        }                                                                      \
-      }                                                                        \
-                                                                               \
       /* Resolve REQUIREMENT in FUNCTION */                                    \
       template <>                                                              \
       void resolve_backendreq<BETags::REQUIREMENT, Tags::FUNCTION>             \
        (functor* be_functor)                                                   \
       {                                                                        \
-        /* Indicate that this is a current backend requirement */              \
-        Accessors::map_bools[STRINGIFY(CAT_4(BE_,REQUIREMENT,FUNCTION,now))] = \
-         &Accessors::could_need_from_backend<BETags::REQUIREMENT,              \
-         Tags::FUNCTION>;                                                      \
-                                                                               \
         /* First try casting the pointer passed in to a backend_functor*/      \
         typedef UNUSED_OK backend_functor<TYPE*(*)(), TYPE*>* var;             \
         typedef UNUSED_OK backend_functor<BOOST_PP_IIF(IS_VARIABLE,int,TYPE(*) \
@@ -1088,37 +826,12 @@
         Pipes::FUNCTION::BEreq::REQUIREMENT.initialize(ptr);                   \
       }                                                                        \
                                                                                \
-      /* Set up the commands to be called at runtime to register req.          \
-      (Note that TYPE is used for backend functions, while TYPE* is used       \
-      for backend variables.) */                                               \
-      template <>                                                              \
-      void rt_register_req<BETags::REQUIREMENT, Tags::FUNCTION>()              \
-      {                                                                        \
-        Accessors::map_bools[STRINGIFY(CAT_3(BE_,REQUIREMENT,FUNCTION))] =     \
-         &Accessors::could_need_from_backend<BETags::REQUIREMENT,              \
-         Tags::FUNCTION>;                                                      \
-                                                                               \
-        str varsig = STRINGIFY(TYPE*);                                         \
-        str funcsig = STRINGIFY(TYPE) STRINGIFY(CONVERT_VARIADIC_ARG(ARGS));   \
-                                                                               \
-        Accessors::iMayNeedFromBackends[STRINGIFY(REQUIREMENT)] =              \
-          BOOST_PP_IIF(IS_VARIABLE, varsig, funcsig);                          \
-                                                                               \
-        Functown::FUNCTION.setBackendReq(                                      \
-         STRINGIFY(GROUP),                                                     \
-         STRINGIFY(REQUIREMENT),                                               \
-         #TAGS,                                                                \
-         BOOST_PP_IIF(IS_VARIABLE, varsig, funcsig),                           \
-         &resolve_backendreq<BETags::REQUIREMENT,Tags::FUNCTION>);             \
-                                                                               \
-      }                                                                        \
-                                                                               \
-      /* Create the backend requirement initialisation object */               \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(REQUIREMENT,_backend_for_,FUNCTION)                     \
-         (&rt_register_req<BETags::REQUIREMENT,Tags::FUNCTION>);               \
-      }                                                                        \
+      /* Register the backend requirement with the functor */                  \
+      const int CAT_3(REQUIREMENT,_backend_for_,FUNCTION) =                    \
+       register_backend_requirement(Functown::FUNCTION, STRINGIFY(GROUP),      \
+       STRINGIFY(REQUIREMENT), STRINGIFY(TAGS), BOOST_PP_IIF(IS_VARIABLE,      \
+       true, false), STRINGIFY(TYPE), STRINGIFY(CONVERT_VARIADIC_ARG(ARGS)),   \
+       &resolve_backendreq<BETags::REQUIREMENT,Tags::FUNCTION>);               \
                                                                                \
     }                                                                          \
                                                                                \
@@ -1130,7 +843,8 @@
 
 /// Redirection of BACKEND_OPTION(BACKEND_AND_VERSIONS, TAGS) when invoked from
 /// within the core.
-#define CORE_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BE_AND_VER,TAGS,IS_MODEL) \
+#define CORE_BACKEND_OPTION(MODULE, CAPABILITY, FUNCTION, BE_AND_VER, TAGS,    \
+ IS_MODEL)                                                                     \
                                                                                \
   IF_TOKEN_UNDEFINED(MODULE,FAIL("You must define MODULE before calling "      \
    "BACKEND_OPTION."))                                                         \
@@ -1148,26 +862,11 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      /* Set up the commands to be called at runtime to apply the rule.*/      \
-      void CAT_6(apply_rule_,FUNCTION,_,                                       \
-       BOOST_PP_TUPLE_ELEM(0,(STRIP_PARENS(BE_AND_VER))),_,                    \
-       BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(TAGS)))) ) ()      \
-      {                                                                        \
-        Functown::FUNCTION.makeBackendOptionRule(#BE_AND_VER, #TAGS);          \
-      }                                                                        \
-                                                                               \
-      /* Create the rule's initialisation object. */                           \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_5(FUNCTION,_,                                             \
-         BOOST_PP_TUPLE_ELEM(0,(STRIP_PARENS(BE_AND_VER))),_,                  \
-         BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(TAGS)))) )       \
-         (&CAT_6(apply_rule_,FUNCTION,_,                                       \
-         BOOST_PP_TUPLE_ELEM(0,(STRIP_PARENS(BE_AND_VER))),_,                  \
-         BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(TAGS)))) ) );    \
-      }                                                                        \
-                                                                               \
+      /* Apply the rule */                                                     \
+      const int CAT_5(FUNCTION,_,BOOST_PP_TUPLE_ELEM(0,(STRIP_PARENS           \
+       (BE_AND_VER))),_,BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((               \
+       STRIP_PARENS(TAGS))))) = apply_backend_option_rule(Functown::FUNCTION,  \
+       STRINGIFY(BE_AND_VER), STRINGIFY(TAGS));                                \
     }                                                                          \
                                                                                \
     /* End Models namespace */                                                 \
@@ -1195,24 +894,11 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      /* Set up the commands to be called at runtime to apply the rule.*/      \
-      void CAT_4(apply_rule_,FUNCTION,_,                                       \
-       BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(__VA_ARGS__))))) ()\
-      {                                                                        \
-        Functown::FUNCTION.makeBackendMatchingRule(#__VA_ARGS__);              \
-      }                                                                        \
-                                                                               \
-      /* Create the rule's initialisation object. */                           \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_3(FUNCTION,_,                                             \
-         BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(__VA_ARGS__))))) \
-         (&CAT_4(apply_rule_,FUNCTION,_,BOOST_PP_SEQ_CAT(                      \
-         BOOST_PP_TUPLE_TO_SEQ((STRIP_PARENS(__VA_ARGS__))))));                \
-      }                                                                        \
-                                                                               \
+      const int CAT_3(FUNCTION,_,BOOST_PP_SEQ_CAT(BOOST_PP_TUPLE_TO_SEQ((      \
+       STRIP_PARENS(__VA_ARGS__))))) =                                         \
+       apply_backend_matching_rule(Functown::FUNCTION, #__VA_ARGS__);          \
     }                                                                          \
+                                                                               \
     /* End Models namespace */                                                 \
     BOOST_PP_IIF(IS_MODEL, }, )                                                \
                                                                                \
@@ -1239,7 +925,7 @@
                                                                                \
   namespace Gambit                                                             \
   {                                                                            \
-    /* Add DEP to global set of tags of recognised module capabilities/deps */ \
+    /* Add dep to global set of tags of recognised module capabilities/deps */ \
     ADD_TAG_IN_CURRENT_NAMESPACE(CONDITIONAL_DEPENDENCY)                       \
                                                                                \
     /* Put everything inside the Models namespace if this is a model-module */ \
@@ -1247,22 +933,13 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
+      DEPENDENCY_COMMON(CONDITIONAL_DEPENDENCY, TYPE, MODULE, FUNCTION)        \
                                                                                \
-      DEPENDENCY_COMMON_1(CONDITIONAL_DEPENDENCY, TYPE, MODULE, FUNCTION)      \
-                                                                               \
-      /* Set up the first set of commands to be called at runtime to register  \
-      the conditional dependency. */                                           \
-      template <>                                                              \
-      void rt_register_dependency                                              \
-       <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION> ()               \
-      {                                                                        \
-        Accessors::iMayNeed[STRINGIFY(CONDITIONAL_DEPENDENCY)]=STRINGIFY(TYPE);\
-      }                                                                        \
-                                                                               \
-      /* Create the first conditional dependency initialisation object */      \
-      DEPENDENCY_COMMON_2(CONDITIONAL_DEPENDENCY, FUNCTION)                    \
-                                                                               \
+      const int CAT_3(CONDITIONAL_DEPENDENCY,_for_,FUNCTION) =                 \
+       register_conditional_dependency(Functown::FUNCTION,                     \
+       STRINGIFY(CONDITIONAL_DEPENDENCY), STRINGIFY(TYPE));                    \
     }                                                                          \
+                                                                               \
     /* End Models namespace */                                                 \
     BOOST_PP_IIF(IS_MODEL, }, )                                                \
                                                                                \
@@ -1295,57 +972,14 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      namespace Accessors                                                      \
-      {                                                                        \
-        /* Indicate that FUNCTION requires CONDITIONAL_DEPENDENCY to have      \
-        been computed previously if BACKEND is in use for BACKEND_REQ.*/       \
-        template <>                                                            \
-        bool requires_conditional_on_backend                                   \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION,                \
-         BETags::BACKEND_REQ, BETags::BACKEND> (str ver)                       \
-        {                                                                      \
-          typedef std::vector<str> vec;                                        \
-          vec versions = Utils::delimiterSplit(VERSTRING, ",");                \
-          for (vec::iterator it= versions.begin() ; it != versions.end(); ++it)\
-          {                                                                    \
-            if (*it == ver) return true;                                       \
-          }                                                                    \
-          return false;                                                        \
-        }                                                                      \
-      }                                                                        \
-                                                                               \
-      /* Set up the second set of commands to be called at runtime to register \
-      the conditional dependency. */                                           \
-      template <>                                                              \
-      void rt_register_conditional_dependency                                  \
-       <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION,                  \
-       BETags::BACKEND_REQ, BETags::BACKEND> ()                                \
-      {                                                                        \
-        Accessors::condit_bools[STRINGIFY(CAT_4(CONDITIONAL_DEPENDENCY,        \
-         FUNCTION,BACKEND_REQ,BACKEND))] =                                     \
-         &Accessors::requires_conditional_on_backend                           \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION,                \
-         BETags::BACKEND_REQ, BETags::BACKEND>;                                \
-        Functown::FUNCTION.setBackendConditionalDependency                     \
-         (STRINGIFY(BACKEND_REQ), STRINGIFY(BACKEND), VERSTRING,               \
-         STRINGIFY(CONDITIONAL_DEPENDENCY),                                    \
-         Accessors::iMayNeed[STRINGIFY(CONDITIONAL_DEPENDENCY)],               \
-         &resolve_dependency<Gambit::Tags::CONDITIONAL_DEPENDENCY,             \
-         Tags::FUNCTION>);                                                     \
-      }                                                                        \
-                                                                               \
-      /* Create the second conditional dependency initialisation object */     \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_7(CONDITIONAL_DEPENDENCY,_for_,FUNCTION,_with_,           \
-         BACKEND_REQ,_provided_by_,BACKEND)                                    \
-         (&rt_register_conditional_dependency                                  \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION,                \
-         BETags::BACKEND_REQ, BETags::BACKEND>);                               \
-      }                                                                        \
-                                                                               \
+      /* Register the backend conditional dependency with the functor */       \
+      const int CAT_7(CONDITIONAL_DEPENDENCY,_for_,FUNCTION,_with_,BACKEND_REQ,\
+       _provided_by_,BACKEND) = register_backend_conditional_dependency(       \
+       Functown::FUNCTION, STRINGIFY(BACKEND_REQ), STRINGIFY(BACKEND),         \
+       VERSTRING, STRINGIFY(CONDITIONAL_DEPENDENCY), &resolve_dependency       \
+       <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION>);                \
     }                                                                          \
+                                                                               \
     /* End Models namespace */                                                 \
     BOOST_PP_IIF(IS_MODEL, }, )                                                \
                                                                                \
@@ -1403,56 +1037,19 @@
                                                                                \
   namespace Gambit                                                             \
   {                                                                            \
-    /* End Models namespace */                                                 \
-    BOOST_PP_IIF(IS_MODEL, }, )                                                \
+    /* Put everything inside the Models namespace if this is a model-module */ \
+    BOOST_PP_IIF(IS_MODEL, namespace Models {, )                               \
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
-                                                                               \
-      namespace Accessors                                                      \
-      {                                                                        \
-        /* Indicate that FUNCTION requires CONDITIONAL_DEPENDENCY to be        \
-        computed previously if one of the models in MODELSTRING is scanned.*/  \
-        template <>                                                            \
-        bool requires_conditional_on_model                                     \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY,Tags::FUNCTION> (str model)     \
-        {                                                                      \
-          typedef std::vector<str> vec;                                        \
-          vec models = Utils::delimiterSplit(MODELSTRING, ",");                \
-          for (vec::iterator it = models.begin() ; it != models.end(); ++it)   \
-          {                                                                    \
-            if (*it == model) return true;                                     \
-          }                                                                    \
-          return false;                                                        \
-        }                                                                      \
-      }                                                                        \
-                                                                               \
-      /* Set up the second set of commands to be called at runtime to register \
-      the conditional dependency. */                                           \
-      template <>                                                              \
-      void rt_register_conditional_dependency                                  \
-       <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION> ()               \
-      {                                                                        \
-        Accessors::condit_bools[STRINGIFY(CAT(CONDITIONAL_DEPENDENCY,          \
-         FUNCTION))] = &Accessors::requires_conditional_on_model               \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY,Tags::FUNCTION>;                \
-                                                                               \
-        Functown::FUNCTION.setModelConditionalDependency                       \
-         (MODELSTRING, STRINGIFY(CONDITIONAL_DEPENDENCY),                      \
-         Accessors::iMayNeed[STRINGIFY(CONDITIONAL_DEPENDENCY)],               \
-         &resolve_dependency<Gambit::Tags::CONDITIONAL_DEPENDENCY,             \
+      /* Register the conditional dependency. */                               \
+      const int CAT_4(CONDITIONAL_DEPENDENCY,_for_,FUNCTION,_with_models) =    \
+       register_model_conditional_dependency(Functown::FUNCTION,               \
+       MODELSTRING, STRINGIFY(CONDITIONAL_DEPENDENCY),                         \
+       &resolve_dependency<Gambit::Tags::CONDITIONAL_DEPENDENCY,               \
          Tags::FUNCTION>);                                                     \
-      }                                                                        \
-                                                                               \
-      /* Create the second conditional dependency initialisation object */     \
-      namespace Ini                                                            \
-      {                                                                        \
-        ini_code CAT_4(CONDITIONAL_DEPENDENCY,_for_,FUNCTION,_with_models)     \
-         (&rt_register_conditional_dependency                                  \
-         <Gambit::Tags::CONDITIONAL_DEPENDENCY, Tags::FUNCTION>);              \
-      }                                                                        \
-                                                                               \
     }                                                                          \
+                                                                               \
     /* End Models namespace */                                                 \
     BOOST_PP_IIF(IS_MODEL, }, )                                                \
                                                                                \

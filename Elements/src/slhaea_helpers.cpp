@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Jul
+///
 ///  *********************************************
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
@@ -127,7 +131,6 @@ namespace Gambit
     i<<index;
     SLHAea::Block::key_type key(1);
     key[0] = i.str();
-    //std::cout << "Searching block "<<block<<" for key "<<key[0]<<std::endl;
     if( slha[block].find(key) != slha[block].end()) 
     {
       found = true;
@@ -150,7 +153,6 @@ namespace Gambit
     SLHAea::Block::key_type key(2);
     key[0] = i.str();
     key[1] = j.str();
-    //std::cout << "Searching block "<<block<<" for key "<<key[0]<<", "<<key[1]<<std::endl;
     if( slha[block].find(key) != slha[block].end() ) 
     {
       found = true;
@@ -171,7 +173,6 @@ namespace Gambit
   {
     if(SLHAea_check_block(slha, block, index))
     {
-      //std::cout << "Entry "<<block<<", "<<index<<" already exists, deleting and replacing it." <<std::endl;
       // entry exists already, delete it
       slha.at(block).at(index).at(1);
       auto& line = slha[block][index];
@@ -181,7 +182,6 @@ namespace Gambit
     else
     {
       // Doesn't already exist, add it
-      //std::cout << "Adding entry "<<block<<", "<<index<<std::endl;
       slha[block][""] << index << value << comment;
     }
   }
@@ -194,7 +194,6 @@ namespace Gambit
     //std::vector<int> indices = initVector<int>(index1, index2);
     if(SLHAea_check_block(slha, block, index1, index2))
     {
-      //std::cout << "Entry "<<block<<", "<<index1<<","<<index2<<" already exists, deleting and replacing it." <<std::endl;
       // entry exists already, delete it
       //slha.at(block).at(indices).at(1); // Is this actually a valid way to use SLHAea? I don't see it in their documentation.
       std::stringstream i,j;
@@ -208,7 +207,6 @@ namespace Gambit
     }
     else
     {
-      //std::cout << "Adding entry "<<block<<","<<index1<<","<<index2<<std::endl;
       // Doesn't exist, add it
       slha[block][""] << index1 << index2 << value << comment;
     }
@@ -226,7 +224,7 @@ namespace Gambit
      // For now we don't try to track where the data originally came from, we just label
      // it as GAMBIT-produced.
      std::ostringstream progname;
-     if(not SLHAea_check_block(slha, "SPINFO", 1, false))
+     if(not SLHAea_check_block(slha, "SPINFO", 1))
      {
         SLHAea_add(slha, "SPINFO", 1, "GAMBIT", "Program");
         SLHAea_add(slha, "SPINFO", 2, gambit_version(), "Version number");

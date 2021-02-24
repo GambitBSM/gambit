@@ -1,0 +1,259 @@
+##########################################################################
+##
+##
+##      Quickstart yaml file for CosmoBit
+##
+##        With this file, you can reproduce Fig. 5 in the 
+##        CosmoBit Module paper (GAMBIT Cosmology Workgroup, Renk, et al. arXiv:2009.xxxxx). 
+##        It shows the constraints on Omega_m and H0 arising from BBN and BAO data.
+##        See arXiv 1907.11594 for the original study.
+##
+##
+##  \author Janina Renk <janina.renk@fysik.su.se>
+##      \date 2020 Feb,July
+##
+##########################################################################
+
+# =======  1) Install GAMBIT & Backends =========
+#
+#   => To install GAMBIT do
+#     (check README.md for more details on prerequisites & dependencies)
+#
+#         Note:
+#         -----
+#           *) for this specific yaml file you only need CosmoBit and NeutrinoBit
+#                 => there is no need to build all Bits of GAMBIT, you can ditch the others
+#                    with the cmake flag -Ditch="Collider;Dark;Decay;Spec;Flav;Precision"
+#           *) you will need the python package cython (now added to cmake prerequisite)
+#
+#
+#      cmake -Ditch="Collider;Decay;Spec;Flav;Precision;Neutrino;Dark" -DWITH_MPI=ON ..
+#      make -jn scanners (where n specifies the desired number of cores for the build, e.g. 4)
+#      cmake ..
+#      make -jn gambit
+#      make -jn alterbbn montepythonlike classy
+#
+#   => To look at available capabilities of different Bits and explanations of capabilites, models & their parameters.. do
+#      ./gambit CosmoBit  (DarkBit,...)
+#      ./gambit <capability_name>
+#      ./gambit <model_name>
+#
+#    => To clean/nuke a backend just do
+#
+#     make clean-<backendname>
+#     make nuke-<backendname>
+#
+#    => To check if a backend is correctly installed & look at available backed functions
+#     ./gambit backends
+#     ./gambit <backend_name>
+#
+# ======================================
+
+
+#======== 2) Input parameter declarations =======
+#  In this section, the models to be scanned over are specified. You can
+#  set all model parameters here or import another yaml file containing them.
+#
+#  => for more details check out chapter 6.2 of the GAMBIT manual (https://arxiv.org/abs/1705.07908)
+#
+
+Parameters:
+
+  # Fix the sum of the neutrino masses to 0.06 with only one massive neutrino, as in
+  # the Planck 'baseline' analysis and in 1907.11594.
+  # For a physical treatment of neutrino masses, see yaml_files/CosmoBit_tutorial. 
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
+
+  # base-line LCDM model parameters and prior
+  LCDM:
+    omega_b:
+      prior_type: flat
+      range: [0.020,0.024]
+    omega_cdm:
+      prior_type: flat
+      range: [0.0,0.6]
+    H0:
+      prior_type: flat
+      range: [50.,100.]
+    # Fix all non-background parameters as they do not
+    # impact BBN or the BAO scale
+    tau_reio: 0.0544
+    T_cmb: 2.72548
+
+  # Minimal base-line power-law power spectrum and priors
+  # the values can be fixed as well as A_s and n_s don't impact
+  # the BBN and BAO scale likelihoods
+  Minimal_PowerLaw_ps:
+    ln10A_s: 3.044
+    n_s: 0.9649
+
+  # Uncomment to allow for non-standard values of dNeff
+  #dNurCMB:
+  #  dNur_CMB:
+  #    prior_type: flat
+  #    range: [-1.0,1.0]
+
+
+#======== 3) Prior setup ========
+# you can also have an extra section specifying priors. Or just do it as above
+# for details check chapter 6.3 of the GAMBIT manual (https://arxiv.org/abs/1705.07908)
+Priors:
+
+#======== 4) Output setup ========
+# different output formats, for details check chapter 6.6 of the GAMBIT manual (https://arxiv.org/abs/1705.07908)
+Printer:
+  printer: ascii
+  options:
+    output_file: "gambit_output.data"
+    buffer_length: 100
+
+#======== 5) Scanner setup ========
+# different scanner settings, for details check chapter 6.7 of the GAMBIT manual (https://arxiv.org/abs/1705.07908)
+#   comparison of different sampling algorithms in https://arxiv.org/abs/1705.07959
+
+Scanner:
+  # use random just for testing.
+  use_scanner: random
+
+  scanners:
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.01
+
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
+
+#======== 6) Observables of interest ========
+#
+# Specify all likelihoods (driving the scan) and observables (just printed, don't influence scan)
+# that should be calculated
+#
+#
+#
+
+ObsLikes:
+
+  # ---- 6.a) BBN -----
+
+  # Likelihood from BBN; use deuterium (D) and Helium-4 (He4)
+  - purpose:      LogLike
+    capability:   BBN_LogLike
+    sub_capabilities: [D, He4]
+
+  # print isotope abundances + errors
+  # As D and He4 are used for BBN_LogLike, they are automatically included.
+  # Here we also include Helium-3 and Lithium-7
+  - purpose:      Observable
+    capability:   BBN_abundances
+    sub_capabilities:
+      - He3
+      - Li7
+
+
+  # ---- 6.b) MontePython Likelihoods -----
+
+  # The total lnL from MontePython
+  # Since the single MontePython likelihoods are not implemented in GAMBIT as capabilities
+  # (and are more flexible -- you import them at runtime and don't need to know their names
+  # at compile time) you can just tell GAMBIT here which to include
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    sub_capabilities:
+      # Include BAO likelihoods:
+      # Galactic data:
+      bao_boss_dr12: default
+      # (use custom data file for bao_smallz_2014 likelihood)
+      bao_smallz_2014: CosmoBit/data/BAO/bao_galactic_settings.data
+      # Lyman alpha data:
+      eBOSS_DR14_Lya_combined: default
+
+  # A breakdown of each likelihood component in the above total lnL,
+  # plus any others that you might like to compute but not include in the
+  # likelihood.
+  - purpose:      Observable
+    capability:   MP_LogLikes
+    type:         map_str_dbl
+
+  # Add Omega0_m  to output data file
+  - purpose:     Observable
+    capability:  Omega0_m
+    function:    get_Omega0_m_classy
+
+
+#======== 7) Rule entries ========
+Rules:
+
+  # ----------- 7.a) BBN Likelihoods, AlterBBN interface -----------
+  #                (CosmoBit Module paper, Appendix C.1)
+
+  # error calculation precision settings for AltterBBN
+  # (use failsafe 1 and 0 to speed up Helium abundance calculation for testing)
+  # (For more precise calculations, use 3 or 7)
+  # Here, we choose err: 0, as the error calculation is dictated by the rule below
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  # Fix relative error and covariance of helium-4 and deuterium abundances
+  - capability: BBN_abundances
+    options:
+      isotope_basis: [Yp, D]
+      correlation_matrix: [[+1.000e00, +1.524e-2],
+                           [+1.524e-2, +1.000e00]]
+      relative_errors: [1.348e-3, 1.596e-2]
+
+
+  # ----------- 7.b) MontePython Likelihoods ------------
+  #         (CosmoBit Module paper, Appendix C.4)
+
+  # Choose which function to use for initialising the input parameters to be sent to CLASS.
+  # If including MontePython likelihoods in your scan, the first option must be used.
+  # If you have not installed MontePython, the second option must be used.
+  # GAMBIT will stop and tell you to fix this if you get it wrong though, so don't stress.
+  # (i) set CLASS input with MP compatibility
+  - capability: classy_MPLike_input
+    function: set_classy_input_with_MPLike
+  # (ii) set CLASS input without MP compatibility
+  #- capability: classy_final_input
+  #  function: set_classy_input
+
+
+  # ----------- 7.c) "Global" (CossmoBit-wide) settings ------------
+
+  # By default, CosmoBit does not allow negative values for dNur_BBN and dNur_CMB as this can
+  # lead to unphysical inputs in cases where dN_ur < 0 and abs(dN_ur) > N_ur contribution from 3 SM neutrinos today.
+  # As this scan assumes only one massive neutrino, the resultant inputs for CLASS remain valid
+  # and we can safely circumvent the limitation
+  - module: CosmoBit
+    options:
+      allow_negative_delta_N_ur: true
+
+#======== 8) Logging setup ========
+Logger:
+  # log tags => check default.log and CosmoBit.log to see more details than
+  # printed to screen
+  redirection:
+    [Debug]   : "debug.log"
+    [Default] : "default.log"
+    [CosmoBit]: "CosmoBit.log"
+    [Scanner] : "Scanner.log"
+
+#======== 9) Generic Name/Value Section ========
+KeyValues:
+
+  # if set to true, the log files will contain more information, e.g.
+  # the complete input dictionary passed to CLASS for each parameter point
+  debug: true
+
+  # where to safe the output
+  default_output_path: "runs/CosmoBit_quickStart"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e30

@@ -3,7 +3,7 @@
 ///  \file
 ///
 ///  Generic observable and likelihood function
-///  macro definitions, for inclusion from 
+///  macro definitions, for inclusion from
 ///  macro redirection headers.
 ///
 ///  *********************************************
@@ -19,7 +19,7 @@
 ///  \author Abram Krislock
 ///          (abram.krislock@fysik.su.se)
 ///  \date 2013 Jan, Feb
-//
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2013 Jan, Feb, 2014 Jan
@@ -31,7 +31,7 @@
 ///  \author Ben Farmer
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2015 Apr, 2019 Jul
-//
+///
 ///  *********************************************
 
 #ifndef __module_macros_inmodule_defs_hpp__
@@ -42,6 +42,8 @@
 #include "gambit/Utils/exceptions.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/Models/safe_param_map.hpp"
+
+#include <vector>
 
 //  *******************************************************************************
 /// \name In-module rollcall macros
@@ -85,6 +87,12 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
+      /* Register (prototype) the function as defined elsewhere */             \
+      BOOST_PP_IIF(IS_TYPE(void,TYPE),                                         \
+        extern void FUNCTION();                                                \
+      ,                                                                        \
+        extern void FUNCTION (TYPE &);                                         \
+      )                                                                        \
                                                                                \
       /* Let the module source know that this functor is declared*/            \
       namespace Functown { extern module_functor<TYPE> FUNCTION; }             \
@@ -100,6 +108,19 @@
            extern bool (*ModelInUse)(str); )                                   \
           /* Declare the safe pointer to the run options as external. */       \
           extern safe_ptr<Options> runOptions;                                 \
+          /* Set up Downstream pipes */                                        \
+          namespace Downstream                                                 \
+          {                                                                    \
+             /* Declare the dependees pipe external */                         \
+             extern safe_ptr<std::set<sspair>> dependees;                      \
+             /* Pipes to test whether dependees include specific things */     \
+             template<typename... Args>                                        \
+             bool neededFor(Args&&... args)                                    \
+             { return Utils::sspairset_contains(args..., *dependees); }        \
+             /* Declare the subcaps pipe external */                           \
+             extern safe_ptr<Options> subcaps;                                 \
+          }                                                                    \
+          /* Set up Loop pipes */                                              \
           namespace Loop                                                       \
           {                                                                    \
             BOOST_PP_IIF(BOOST_PP_EQUAL(CAN_MANAGE, 1),                        \

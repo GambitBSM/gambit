@@ -202,7 +202,7 @@ namespace Gambit
     void DarkMatter_ID_DiracSingletDM(std::string & result) { result = "F"; }
 
     /// Direct detection couplings for the DiracSingletDM_Z2 model.
-    void DD_nonrel_WCs_DiracSingletDM_Z2(NREO_DM_nucleon_couplings &result)
+    void DD_couplings_DiracSingletDM_Z2(DM_nucleon_couplings_fermionic_HP &result)
     {
       using namespace Pipes::DD_nonrel_WCs_DiracSingletDM_Z2;
       const Spectrum& spec = *Dep::DiracSingletDM_Z2_spectrum;
@@ -249,11 +249,17 @@ namespace Gambit
     {
       using namespace Pipes::DD_rel_WCs_EW_DiracSingletDM_Z2;
 
-      // Get values of non-relativistic operators from Spectrum
-      Spectrum spec = *Dep::DiracSingletDM_Z2_spectrum;
+      // SI scalar and pseudoscalar couplings
+      result.gps = lambda*fp*m_proton*cosXI/pow(mh,2);
+      result.gns = lambda*fn*m_neutron*cosXI/pow(mh,2);
+      result.gp_q2 = lambda*fp*m_proton*sinXI/pow(mh,2);
+      result.gn_q2 = lambda*fn*m_neutron*sinXI/pow(mh,2);
 
-      double lambda = spec.get(Par::dimensionless, "lF");
-      double xi = spec.get(Par::dimensionless, "xi");
+      logger() << LogTags::debug << "Dirac DM DD couplings:" << std::endl;
+      logger() << " gps = " << result.gps << std::endl;
+      logger() << " gns = " << result.gns << std::endl;
+      logger() << " gp_q2 = " << result.gp_q2 << std::endl;
+      logger() << " gn_q2 = " << result.gn_q2 << EOM;
 
       // lambda*cos(xi) XXHH
       result["C53"] = lambda*std::cos(xi);

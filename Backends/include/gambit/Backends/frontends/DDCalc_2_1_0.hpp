@@ -104,15 +104,6 @@ BE_FUNCTION(DARWIN_Init,         int, (), "C_DDCalc_darwin_init",         "DARWI
 // values are already set via DDCalc_InitHalo routine, so it need not be called at all if the default values are to be used.
 BE_FUNCTION(DDCalc_SetSHM, void, (const int&, const double&, const double&, const double&, const double&), "C_DDCalc_ddcalc_setshm", "SetSHM")
 
-// Set the WIMP mass and couplings for the Higgs portal DM models.
-//    *higgsportal:  mass, fsp, fsn, app, apn
-//  Units: mass [GeV]; f [GeV^-2] = pure scalar coupling; a [GeV^-2] = pure pseudoscalar coupling
-// Convention: f = G/2 where G is the effective 4 vertex DM-nucleon coupling.
-BE_FUNCTION(DDCalc_SetWIMP_higgsportal, void, (const int&, const double&, const double&, const double&, const double&, const double&), "C_DDCalc_ddcalc_setwimp_higgsportal", "SetWIMP_higgsportal")
-
-// Get the WIMP mass and couplings for the Higgs portal DM models.
-BE_FUNCTION(DDCalc_GetWIMP_higgsportal, void, (const int&, double&, double&, double&, double&, double&), "C_DDCalc_ddcalc_getwimp_higgsportal", "GetWIMP_higgsportal")
-
 // Set the WIMP mass and couplings/cross-sections for standard SI/SD scattering.
 // There are three versions, depending on how the couplings are specified:
 //   * mfa:    mass, fp, fn, ap, an

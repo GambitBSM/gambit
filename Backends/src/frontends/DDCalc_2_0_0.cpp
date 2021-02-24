@@ -106,9 +106,27 @@ BE_INI_FUNCTION
   // Point-level initialization ----------------------------
 
   // Change DM parameters
-  // Note: f's = G's/2 where G's are the effective DM-nucleon couplings
-  DDCalc_SetWIMP_higgsportal(WIMP,*Dep::mwimp,(Dep::DD_couplings->gps)/2,(Dep::DD_couplings->gns)/2,
-                    (Dep::DD_couplings->gpa)/2,(Dep::DD_couplings->gna)/2);
+  if (ModelInUse("MSSM63atQ") or ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running") or
+           ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running") or ModelInUse("VectorSingletDM_Z2"))
+  {
+    // Regular style
+    DDCalc_SetWIMP_mG(WIMP,*Dep::mwimp,Dep::DD_couplings->gps,
+                                       Dep::DD_couplings->gns,
+                                       Dep::DD_couplings->gpa,
+                                       Dep::DD_couplings->gna);
+  }
+  else if (ModelInUse("MajoranaSingletDM_Z2") or ModelInUse("DiracSingletDM_Z2"))
+  {
+    // Hacky Higgs-portal style (deprecated in later releases)
+    // Note: f = G/2 where G is the effective DM-nucleon coupling
+    DDCalc_SetWIMP_higgsportal(WIMP,*Dep::mwimp,Dep::DD_couplings_fermionic_HP->gps/2,
+                                                Dep::DD_couplings_fermionic_HP->gns/2,
+                                                Dep::DD_couplings_fermionic_HP->gp_q2/2,
+                                                Dep::DD_couplings_fermionic_HP->gn_q2/2);
+  }
+  // The line below (and in fact this whole block) is just a temporary crutch, which can be removed in
+  // future versions when specific model-checking is not required for dealing properly with the HP hack.
+  else backend_error().raise(LOCAL_INFO, "Sorry, you can't use DDCalc 2.0.0 with this model.");
 
   // Log stuff if in debug mode
   #ifdef DDCALC_DEBUG
@@ -155,7 +173,7 @@ BE_NAMESPACE
   {
     int result = -1;
     try { result = ex_map.at(ex); }
-    catch(std::out_of_range) { backend_error().raise(LOCAL_INFO, "Unknown experiment requested from DDCalc."); }
+    catch(std::out_of_range&) { backend_error().raise(LOCAL_INFO, "Unknown experiment requested from DDCalc."); }
     return result;
   }
 

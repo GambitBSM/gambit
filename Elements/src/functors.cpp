@@ -331,6 +331,12 @@ namespace Gambit
       utils_error().raise(LOCAL_INFO,"The notifyOfModel method has not been defined in this class.");
     }
 
+    /// Notify the functor that it is being used to fill a dependency of another functor
+    void functor::notifyOfDependee (functor*)
+    {
+      utils_error().raise(LOCAL_INFO,"The notifyOfDependee method has not been defined in this class.");
+    }
+
     /// Indicate to the functor which backends are actually loaded and working
     void functor::notifyOfBackends(std::map<str, std::set<str> >)
     {
@@ -371,19 +377,59 @@ namespace Gambit
       return safe_ptr<Options>(&myOptions);
     }
 
+    /// Notify the functor about an instance of the options class that contains sub-capability information
+    void functor::notifyOfSubCaps(const Options& subcaps)
+    {
+      for (auto entry : subcaps)
+      {
+        str key = entry.first.as<std::string>();
+        if (not mySubCaps.hasKey(key)) mySubCaps.setValue(key, entry.second);
+        else
+        {
+          std::ostringstream ss1, ss2;
+          ss1 << mySubCaps.getValue<YAML::Node>(key);
+          ss2 << entry.second.as<YAML::Node>();
+          if (not (ss1.str() == ss2.str()))
+          {
+            std::ostringstream ss;
+            ss << "Duplicate sub_capability clash. " << endl
+               << "Your ObsLike section of the YAML file contains both " << endl
+               << key << ": " << ss1.str() << endl << "and" << endl << key << ": " << ss2.str() << endl
+               << "GAMBIT does not know which value to choose when trying to determine the sub-capabilities" << endl
+               << "served by " << myOrigin << "::" << myName << ", as both ObsLike entries depend on this function.";
+            utils_error().raise(LOCAL_INFO, ss.str());
+          }
+        }
+      }
+    }
+
+    /// Return a safe pointer to the subcaps that this functor realises it is supposed to facilitate downstream calculation of.
+    safe_ptr<Options> functor::getSubCaps()
+    {
+      return safe_ptr<Options>(&mySubCaps);
+    }
+
+    /// Return a safe pointer to the vector of all capability,type pairs of functors arranged downstream of this one in the dependency tree.
+    safe_ptr<std::set<sspair>> functor::getDependees()
+    {
+      return safe_ptr<std::set<sspair>>(&myDependees);
+    }
+
     /// Test whether the functor is allowed (either explicitly or implicitly) to be used with a given model
     bool functor::modelAllowed(str model)
     {
       bool allowed = false;
-      /// DEBUG! See what models are allowed for this functor
-      // std::cout << "Checking allowedModels set for functor "<<myLabel<<std::endl;
-      // for(std::set<str>::iterator it = allowedModels.begin(); it != allowedModels.end(); ++it)
-      // {
-      //    std::cout << "  "<< *it << std::endl;
-      // }
+      if (verbose)
+      {
+        std::cout << "Checking allowedModels set for functor "<<myLabel<<std::endl;
+        for(std::set<str>::iterator it = allowedModels.begin(); it != allowedModels.end(); ++it)
+        {
+          std::cout << "  "<< *it << std::endl;
+        }
+      }
       if (allowedModels.empty() and allowedGroupCombos.empty()) allowed=true;
       if (allowed_parent_or_friend_exists(model)) allowed=true;
-      //std::cout << "  Allowed to be used with model "<<model<<"? "<<allowed<<std::endl;
+      if (verbose) std::cout << "  Allowed to be used with model "<<model<<"? "<<allowed<<std::endl;
       return allowed;
     }
 
@@ -996,31 +1042,51 @@ namespace Gambit
     }
 
     /// Add and activate unconditional dependencies.
-    void module_functor_common::setDependency(str dep, str type, void(*resolver)(functor*, module_functor_common*), str purpose)
+    void module_functor_common::setDependency(str dep, str dep_type, void(*resolver)(functor*, module_functor_common*), str purpose)
     {
-      sspair key (dep, Utils::fix_type(type));
+      sspair key (dep, Utils::fix_type(dep_type));
       myDependencies.insert(key);
       dependency_map[key] = resolver;
       this->myPurpose = purpose; // only relevant for output nodes
     }
 
+    /// Add conditional dependency-type pairs in advance of later conditions.
+    void module_functor_common::setConditionalDependency(str dep, str dep_type)
+    {
+      myConditionalDependencies[dep] = dep_type;
+    }
+
+    /// Retrieve full conditional dependency-type pair from conditional dependency only
+    sspair module_functor_common::retrieve_conditional_dep_type_pair(str dep)
+    {
+      if (myConditionalDependencies.find(dep) == myConditionalDependencies.end())
+      {
+        str errmsg = "Problem whilst attempting to set conditional dependency:";
+        errmsg +=  "\nThe conditional dependency " + dep + " appears not to have"
+                   "\nbeen fully declared; START_CONDITIONAL_DEPENDENCY() is missing."
+                   "\nThis is " + this->name() + " in " + this->origin() + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+      }
+      return sspair(dep, myConditionalDependencies.at(dep));
+    }
+
     /// Add a backend conditional dependency for multiple backend versions
     void module_functor_common::setBackendConditionalDependency
-     (str req, str be, str ver, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str req, str be, str ver, str dep, void(*resolver)(functor*, module_functor_common*))
     {
       // Split the version string and send each version to be registered
       std::vector<str> versions = Utils::delimiterSplit(ver, ",");
       for (std::vector<str>::iterator it = versions.begin() ; it != versions.end(); ++it)
       {
-        setBackendConditionalDependencySingular(req, be, *it, dep, dep_type, resolver);
+        setBackendConditionalDependencySingular(req, be, *it, dep, resolver);
       }
     }
 
     /// Add a backend conditional dependency for a single backend version
     void module_functor_common::setBackendConditionalDependencySingular
-     (str req, str be, str ver, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str req, str be, str ver, str dep, void(*resolver)(functor*, module_functor_common*))
     {
-      sspair key (dep, Utils::fix_type(dep_type));
+      sspair key = retrieve_conditional_dep_type_pair(dep);
       std::vector<str> quad;
       if (backendreq_types.find(req) != backendreq_types.end())
       {
@@ -1048,21 +1114,21 @@ namespace Gambit
 
     /// Add a model conditional dependency for multiple models
     void module_functor_common::setModelConditionalDependency
-     (str model, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str model, str dep, void(*resolver)(functor*, module_functor_common*))
     {
       // Split the model string and send each model to be registered
       std::vector<str> models = Utils::delimiterSplit(model, ",");
       for (std::vector<str>::iterator it = models.begin() ; it != models.end(); ++it)
       {
-        setModelConditionalDependencySingular(*it, dep, dep_type, resolver);
+        setModelConditionalDependencySingular(*it, dep, resolver);
       }
     }
 
     /// Add a model conditional dependency for a single model
     void module_functor_common::setModelConditionalDependencySingular
-     (str model, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str model, str dep, void(*resolver)(functor*, module_functor_common*))
     {
-      sspair key (dep, Utils::fix_type(dep_type));
+      sspair key = retrieve_conditional_dep_type_pair(dep);
       if (myModelConditionalDependencies.find(model) == myModelConditionalDependencies.end())
       {
         std::set<sspair> newvec;
@@ -1329,13 +1395,31 @@ namespace Gambit
       }
       else
       {
+        // resolve the dependency
         if (dependency_map.find(key) != dependency_map.end()) (*dependency_map[key])(dep_functor,this);
         // propagate purpose from next to next-to-output nodes
         dep_functor->setPurpose(this->myPurpose);
+        // propagate this functor's dependees and subcaps on to the resolving functor
+        dep_functor->notifyOfDependee(this);
+        // save the pointer to the resolving functor to allow this functor to notify it of future dependees
+        dependency_functor_map[key] = dep_functor;
       }
     }
 
-    // Set this functor's loop manager (if it has one)
+    /// Notify the functor that another functor depends on it
+    void module_functor_common::notifyOfDependee (functor* dependent_functor)
+    {
+      // Add the dependent functor's capability-type pair to the list of dependees
+      myDependees.insert(dependent_functor->quantity());
+      // Inherit the dependent functor's own dependees
+      for (const sspair& q : *(dependent_functor->getDependees())) { myDependees.insert(q); }
+      // Inherit the dependent functor's subcaps
+      notifyOfSubCaps(*(dependent_functor->getSubCaps()));
+      // Notify all functors on which this one depends that they also now have a new dependent
+      for (auto entry : dependency_functor_map) entry.second->notifyOfDependee(dependent_functor);
+    }
+
+    /// Set this functor's loop manager (if it has one)
     void module_functor_common::resolveLoopManager (functor* dep_functor)
     {
       if (dep_functor->capability() != myLoopManagerCapability or not dep_functor->canBeLoopManager())

@@ -26,6 +26,7 @@
 #include <cctype>  // ::tolower function
 #include <sstream> // stringstream
 #include <string>  // string
+#include <regex>   // regular expressions
 
 /// POSIX filesystem libraries
 #include <stdio.h>
@@ -43,6 +44,7 @@
 /// Boost
 #include <boost/algorithm/string/iter_find.hpp>
 #include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 namespace Gambit
 {
@@ -53,15 +55,37 @@ namespace Gambit
     const char* whitespaces[] = {" ", "\t", "\n", "\f", "\r"};
 
     /// Return the path to the run-specific scratch directory
+    /// Don't call this from a destructor, as the internal static str may have already been destroyed.
     const str& runtime_scratch()
     {
-      #ifdef WITH_MPI
-        static const str master_procID = std::to_string(GMPI::Comm().MasterPID());
-      #else
-        static const str master_procID = std::to_string(getpid());
-      #endif
-      static const str path = ensure_path_exists(GAMBIT_DIR "/scratch/run_time/machine_" + std::to_string(gethostid()) + "/master_process_" + master_procID + "/");
+      static const str path = construct_runtime_scratch();
       return path;
+    }
+
+    /// Construct the path to the run-specific scratch directory
+    /// This version is safe to call from a destructor.
+    str construct_runtime_scratch(bool
+    #ifdef WITH_MPI
+      fail_on_mpi_uninitialised
+    #endif
+    )
+    {
+      str master_procID;
+      #ifdef WITH_MPI
+        if (GMPI::Is_initialized() and not GMPI::Is_finalized())
+        {
+          master_procID = "/master_process_" + std::to_string(GMPI::Comm().MasterPID());
+        }
+        else
+        {
+          if (fail_on_mpi_uninitialised)
+            utils_error().raise(LOCAL_INFO, "Tried to call construct_runtime_scratch without MPI initialised!");
+          master_procID = "/unattached_MPI_process_" + std::to_string(getpid());
+        }
+      #else
+        master_procID = "/master_process_" + std::to_string(getpid());
+      #endif
+      return ensure_path_exists(GAMBIT_DIR "/scratch/run_time/machine_" + std::to_string(gethostid()) + master_procID + "/");
     }
 
     /// Split a string into a vector of strings using a delimiter,
@@ -70,22 +94,9 @@ namespace Gambit
     {
       std::vector<str> vec;
       // Get rid of any whitespace around the delimiters
-      #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
-        regex rgx1("\\s+"+delim), rgx2(delim+"\\s+");
-        s = regex_replace(s, rgx1, delim);
-        s = regex_replace(s, rgx2, delim);
-      #else                                // Using lame-o methods >:(
-        str previous = s+".";
-        while (s != previous)
-        {
-          previous = s;
-          for (int i = 0; i != 5; i++)
-          {
-            boost::replace_all(s, whitespaces[i]+delim, delim);
-            boost::replace_all(s, delim+whitespaces[i], delim);
-          }
-        }
-      #endif
+      std::regex rgx1("\\s+"+delim), rgx2(delim+"\\s+");
+      s = std::regex_replace(s, rgx1, delim);
+      s = std::regex_replace(s, rgx2, delim);
       if (s == "") return vec;
       // Split up the list of versions by the delimiters
       boost::split(vec, s, boost::is_any_of(delim), boost::token_compress_on);
@@ -95,44 +106,16 @@ namespace Gambit
     /// Strips namespace from the start of a string, or after "const".
     str strip_leading_namespace(str s, str ns)
     {
-      #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
-        regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
-        s = regex_replace(s, expression, str("\\1"));
-      #else                                // Using lame-o methods >:(
-        int len = ns.length() + 2;
-        if (s.substr(0,len) == ns+str("::")) s.replace(0,len,"");
-        boost::replace_all(s, str(",")+ns+"::", str(","));
-        boost::replace_all(s, str("*")+ns+"::", str("*"));
-        boost::replace_all(s, str("&")+ns+"::", str("&"));
-        boost::replace_all(s, str("(")+ns+"::", str("("));
-        boost::replace_all(s, str("[")+ns+"::", str("["));
-        for (int i = 0; i != 5; i++)
-        {
-          boost::replace_all(s, whitespaces[i]+ns+"::", whitespaces[i]);
-        }
-      #endif
+      std::regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
+      s = std::regex_replace(s, expression, str("$1"));
       return s;
     }
 
     /// Replaces a namespace at the start of a string, or after "const".
     str replace_leading_namespace(str s, str ns, str ns_new)
     {
-      #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
-        regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
-        s = regex_replace(s, expression, str("\\1")+ns_new+"::");
-      #else                                // Using lame-o methods >:(
-        int len = ns.length() + 2;
-        if (s.substr(0,len) == ns+str("::")) s.replace(0,len,ns_new+"::");
-        boost::replace_all(s, str(",")+ns+"::", str(",")+ns_new+"::");
-        boost::replace_all(s, str("*")+ns+"::", str("*")+ns_new+"::");
-        boost::replace_all(s, str("&")+ns+"::", str("&")+ns_new+"::");
-        boost::replace_all(s, str("(")+ns+"::", str("(")+ns_new+"::");
-        boost::replace_all(s, str("[")+ns+"::", str("[")+ns_new+"::");
-        for (int i = 0; i != 5; i++)
-        {
-          boost::replace_all(s, whitespaces[i]+ns+"::", whitespaces[i]+ns_new+"::");
-        }
-      #endif
+      std::regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
+      s = std::regex_replace(s, expression, str("$1")+ns_new+"::");
       return s;
     }
 
@@ -140,24 +123,10 @@ namespace Gambit
     void strip_whitespace_except_after_const(str &s)
     {
       str tempstr("__TEMP__"), empty(""), constdec2("const ");
-      #if GAMBIT_CONFIG_FLAG_use_regex     // Using regex :D
-        regex constdec1("const\\s+"), temp(tempstr), whitespace("\\s+");
-        s = regex_replace(s, constdec1, tempstr);
-        s = regex_replace(s, whitespace, empty);
-        s = regex_replace(s, temp, constdec2);
-      #else                                // Using lame-o methods >:(
-        str previous = s+".";
-        while (s != previous)
-        {
-          previous = s;
-          for (int i = 0; i != 5; i++)
-          {
-            boost::replace_all(s, str("const")+whitespaces[i], tempstr);
-            s.erase(std::remove(s.begin(), s.end(), *whitespaces[i]), s.end());
-          }
-        }
-        boost::replace_all(s, tempstr, constdec2);
-      #endif
+      std::regex constdec1("const\\s+"), temp(tempstr), whitespace("\\s+");
+      s = std::regex_replace(s, constdec1, tempstr);
+      s = std::regex_replace(s, whitespace, empty);
+      s = std::regex_replace(s, temp, constdec2);
     }
 
     /// Strips leading and/or trailing parentheses from a string.
@@ -165,6 +134,25 @@ namespace Gambit
     {
       if (s.at(0) == '(')       s = s.substr(1, s.size());
       if (*s.rbegin() == ')')   s = s.substr(0, s.size()-1);
+    }
+
+    /// Test if a set of str,str pairs contains any entry with first element matching a given string
+    bool sspairset_contains(const str& el, const std::set<std::pair<str,str>>& set)
+    {
+      for (std::pair<str,str> x : set) { if (x.first == el) return true; }
+      return false;
+    }
+
+    /// Tests if a set of str,str pairs contains an entry matching two given strings
+    bool sspairset_contains(const str& el1, const str& el2, const std::set<std::pair<str,str>>& set)
+    {
+      return sspairset_contains(std::pair<str,str>(el1, el2), set);
+    }
+
+    /// Tests if a set of str,str pairs contains an entry matching a given pair
+    bool sspairset_contains(const sspair& quantity, const std::set<sspair>& set)
+    {
+      return std::find(set.begin(), set.end(), quantity) != set.end();
     }
 
     /// Created a std::string of a specified length.

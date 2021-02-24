@@ -573,6 +573,9 @@ namespace Gambit
       pybind11::object sys_path_insert = sys_path.attr("insert");
       sys_path_insert(0,path_dir(be, ver));
 
+      // Function to remove the location of the library after we attempted to load it.
+      pybind11::object sys_path_remove = sys_path.attr("remove");
+
       // Attempt to import the module
       const str name = lib_name(be, ver);
       pybind11::module* new_module;
@@ -586,6 +589,8 @@ namespace Gambit
             << "Python error was: " << e.what() << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
@@ -609,11 +614,12 @@ namespace Gambit
             << "Got: " << loaded_loc << " (expected: " << expected_loc << ")" << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
       // Remove the path to the backend from the Python system path
-      pybind11::object sys_path_remove = sys_path.attr("remove");
       sys_path_remove(path_dir(be, ver));
 
       logger() << "Succeeded in loading " << path << LogTags::backends << LogTags::info << EOM;

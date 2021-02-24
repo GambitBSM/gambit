@@ -65,7 +65,7 @@ namespace Gambit
 
         // Permanently unavailable for this printer
         Options resume_reader_options();
- 
+
         ///@}
 
         /// @{ coutPrinter specific functions
@@ -74,7 +74,7 @@ namespace Gambit
         void check_point(unsigned int mpirank, unsigned long pointID);
 
         /// @}
- 
+
         // PRINT FUNCTIONS
         //----------------------------
         // Need to define one of these for every type we want to print!
@@ -86,7 +86,7 @@ namespace Gambit
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}
