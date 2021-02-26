@@ -573,41 +573,50 @@ namespace Gambit
         }
       }
 
-        //2-loop fermionic contribution
-        //AL
-        std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
-        {
+    //2-loop fermionic contribution
+    //AL
+    std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    {
         std::complex<double> I(0,1);
-             if (lf==0)
-             {
-              return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
-             }
-             else if (lf==1)
-             {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
-             }
-             else if (lf==2)
-             {
-             return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
-             }
+        double xfphi = std::pow(mlf/mphi,2);
+        double xfZ   = std::pow(mlf/mZ,2);
+        std::complex<double> FHm = (xfphi*TwoLoopFunctions::TwoLoopFH(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFH(xfphi))/(xfphi-xfZ);
+        std::complex<double> FAm = (xfphi*TwoLoopFunctions::TwoLoopFA(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFA(xfphi))/(xfphi-xfZ);
+        if (lf==0)
+        {
+            return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
         }
-        //AR
-        std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
+        else if (lf==1)
         {
+            return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
+        }
+        else if (lf==2)
+        {
+            return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
+        }
+    }
+    
+    //AR
+    std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    {
         std::complex<double> I(0,1);
+        double xfphi = std::pow(mlf/mphi,2);
+        double xfZ   = std::pow(mlf/mZ,2);
+        std::complex<double> FHm = (xfphi*TwoLoopFunctions::TwoLoopFH(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFH(xfphi))/(xfphi-xfZ);
+        std::complex<double> FAm = (xfphi*TwoLoopFunctions::TwoLoopFA(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFA(xfphi))/(xfphi-xfZ);
          if (lf==0)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_L, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
            }
            else if (lf==1)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_D, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
            }
            else if (lf==2)
            {
-             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2)));
+             return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_U, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
            }
-         }
+     }
 
       //2-loop bosonic contribution
       //AL

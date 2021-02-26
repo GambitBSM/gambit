@@ -112,9 +112,9 @@ namespace Gambit
 
       //2-loop fermionic contribution
       //AL
-      std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab);
+      std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab);
       //AR
-      std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab);
+      std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd VCKM, double vev, double cosab);
 
       //2-loop bosonic contribution
       //AL

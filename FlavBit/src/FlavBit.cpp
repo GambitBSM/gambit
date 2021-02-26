@@ -2708,8 +2708,12 @@ namespace Gambit
       }
 
       /// Two loop amplitude
-      const vector<double> Qf = {2/3,-1/3,-1};
-      const vector<double> Nc = {3,3,1};
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
+      const double sw2 = 1 - pow(mW/mZ,2);
+      const vector<double> Qf = {2./3.,-1./3.,-1.};
+      const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
+      const vector<double> Nc = {3.,3.,1.};
       //Fermionic contribution
       complex<double> Aloop2fL = 0;
       complex<double> Aloop2fR = 0;
@@ -2719,18 +2723,18 @@ namespace Gambit
                {
                  if (phi==0)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, xi_L, xi_U, xi_D, VCKM, v, cab);
-                   }
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                 }
                  else if (phi==1)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                  else if (phi==2)
                  {
-                  Aloop2fL += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*pow(Qf[lf],2)*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
                  }
                 }
                }
@@ -2738,8 +2742,6 @@ namespace Gambit
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
-      const double mW = (*sminputspointer)->mW;
-      const double mZ = (*sminputspointer)->mZ;
       for (int phi=0; phi<=1; ++phi)
       {
        const complex<double> sab(sqrt(1-cab*cab),0);
