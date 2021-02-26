@@ -1284,7 +1284,7 @@ namespace Gambit
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
       }
-      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);*/
+      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
 
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
