@@ -626,7 +626,6 @@ namespace Gambit
         std::complex<double> three(3,0);
         std::complex<double> four(4,0);
         std::complex<double> twenty3(23,0);
-        //Contributions from Z-boson diagrams are neglected.
         return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
       }
       //AR
@@ -645,7 +644,6 @@ namespace Gambit
         std::complex<double> three(3,0);
         std::complex<double> four(4,0);
         std::complex<double> twenty3(23,0);
-        //Contributions from Z-boson diagrams are neglected.
         return  Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
       }
     }
