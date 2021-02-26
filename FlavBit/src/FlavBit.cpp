@@ -2675,6 +2675,7 @@ namespace Gambit
       const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       xi_L << xiee,  xiemu,  xietau,
               ximue, ximumu, ximutau,
@@ -2723,18 +2724,18 @@ namespace Gambit
                {
                  if (phi==0)
                  {
-                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mh, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
                  }
                  else if (phi==1)
                  {
-                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mH, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
                  }
                  else if (phi==2)
                  {
-                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
-                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_L, xi_U, xi_D, VCKM, v, cab);
+                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
+                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(lf, l, lp, phi, ml[l], mlf[lf], mA, mZ, Qf[lf], QfZ[lf], sw2, xi_f, xi_L, VCKM, v, cab);
                  }
                 }
                }
