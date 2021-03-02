@@ -198,6 +198,7 @@ namespace Gambit
         }
 
       // Two Loop Functions for Muon g-2 for gTHDM
+      //  Source:  1607.06292, eqn (68)
       std::complex<double> TwoLoopPhi(double m1, double m2, double m3)
       { 
         if (m3 != 0)
@@ -220,6 +221,7 @@ namespace Gambit
         }
       }   
         
+      //  Source:  1607.06292, eqns (54-57)
       std::complex<double> TwoLoopfgammaphi(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
       {
         double sw2 = 1-std::pow(mW/mZ,2);
@@ -252,6 +254,7 @@ namespace Gambit
         return -Nc * Qf * glv * gfv * std::pow(alph * mmu,2) / std::pow(2.*M_PI*mW*sw2,2) / cw2 * std::pow(mf,2)/(std::pow(mphi,2)-std::pow(mZ,2)) * (Fphi-FZ);
       }
 
+      //  Source:  1607.06292, eqns (60-62)
       std::complex<double> TwoLoopfCl(double xl)
       {
         std::complex<double> z = 1.-1./xl;
@@ -340,6 +343,7 @@ namespace Gambit
         }
       }
 
+      //  Source:  1502.04199, eqn (25-29)
       double TwoLoopf1(double x, void * params)
       {
         double w = *(double *) params;
@@ -366,7 +370,7 @@ namespace Gambit
       
       double TwoLoopF1(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
+        // Integral of w/2 * integral((2*x*(1-x)-1) / (w-x*(1-x)) * log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -381,7 +385,7 @@ namespace Gambit
 
       double TwoLoopF2(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
+        // Integral of 1/2 * integral(x*(x-1) / (w-x*(1-x)) * log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -396,7 +400,7 @@ namespace Gambit
 
       double TwoLoopF3(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
+        // Integral of 1/2 * integral((x*w*(3*x*(4*x-1)+10)-x*(1-x)) / (w-x*(1.-x)) * log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -411,7 +415,7 @@ namespace Gambit
 
       double TwoLoopF4(double w)
       {
-        // Integral of w/2. * integral((2*x*(1-x)-1) / (w-x*(1-x)) * std::log(w/(x*(1-x))),{x,0,1})
+        // Integral of w/2 * integral(1 / (w-x*(1-x)) * log(w/(x*(1-x))),{x,0,1})
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -435,7 +439,7 @@ namespace Gambit
 
       double TwoLoopG(double wa, double wb, int n)
       {
-        // Integral of std::pow(x,n) * std::log((wa*x+wb*(1.-x)) / (x*(1.-x))) / (x*(1.-x)-wa*x-wb*(1.-x))
+        // Integral of std::pow(x,n) * log((wa*x+wb*(1-x)) / (x*(1-x))) / (x*(1-x)-wa*x-wb*(1-x))
         double result, error;
         const int alloc = 1000;
         gsl_integration_workspace * work = gsl_integration_workspace_alloc (alloc);
@@ -455,6 +459,7 @@ namespace Gambit
     }
 
     // Loop functions for one loop diagrams
+    // Source: FlexibleSUSY v2 manual 1710.03760, eqns (40-43)
     namespace OneLoopFunctions
     {
       double OneLoopB(const double x)
@@ -635,9 +640,10 @@ namespace Gambit
       }
     }
 
-    // Two Loop Contributions for gTHDM from 1607.06292
+    // Two Loop muon g-2 Contributions for gTHDM
     namespace TwoLoopContributions
     {
+      // Source: 1607.06292, eqns (53,58)
       std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_0, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
@@ -669,6 +675,7 @@ namespace Gambit
         }
       }
 
+      // Source: 1502.04199, eqns (19-24)
       double gm2mu_barrzeephigammaf(int f, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
       {
         const double x = std::pow(mf/mphi,2);
