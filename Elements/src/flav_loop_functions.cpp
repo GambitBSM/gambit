@@ -580,7 +580,7 @@ namespace Gambit
 
     //2-loop fermionic contribution
     //AL
-    std::complex<double> A_loop2fL(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    std::complex<double> A_loop2fL(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab)
     {
         std::complex<double> I(0,1);
         const int gi = 2; // Internal generation is the heaviest
@@ -592,7 +592,7 @@ namespace Gambit
     }
     
     //AR
-    std::complex<double> A_loop2fR(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    std::complex<double> A_loop2fR(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab)
     {
         std::complex<double> I(0,1);
         const int gi = 2; // Internal generation is the heaviest
@@ -605,9 +605,8 @@ namespace Gambit
 
       //2-loop bosonic contribution
       //AL
-      std::complex<double> A_loop2bL(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ)
+      std::complex<double> A_loop2bL(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ)
       {
-        double sw2 = 1-std::pow(mW/mZ,2);
         double tw2 = sw2/(1-sw2);
         std::complex<double> xWphi(std::pow(mW/mphi,2),0);
         std::complex<double> xWZ(std::pow(mW/mZ,2),0);
@@ -623,9 +622,8 @@ namespace Gambit
         return  conj(Yukawas::yff_phi(f, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(three*TwoLoopFunctions::TwoLoopFH(xWphi)+(twenty3/four)*TwoLoopFunctions::TwoLoopFA(xWphi)+(three/four)*TwoLoopFunctions::TwoLoopGW(xWphi)+(onehalf)*std::pow(mphi/mW,2)*(TwoLoopFunctions::TwoLoopFH(xWphi)-TwoLoopFunctions::TwoLoopFA(xWphi))+((1-4*sw2)/(8*sw2))*(pH*FHm + pA*FAm + (three/two)*(TwoLoopFunctions::TwoLoopFA(xWphi)+TwoLoopFunctions::TwoLoopGW(xWphi))));
       }
       //AR
-      std::complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ)
+      std::complex<double> A_loop2bR(int f, int l, int lp, int phi, double ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ)
       {
-        double sw2 = 1-std::pow(mW/mZ,2);
         double tw2 = sw2/(1-sw2);
         std::complex<double> xWphi(std::pow(mW/mphi,2),0);
         std::complex<double> xWZ(std::pow(mW/mZ,2),0);
@@ -711,13 +709,12 @@ namespace Gambit
         return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiWW * TwoLoopFunctions::TwoLoopF3(x);
       }
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
         // mf is the array of loop fermion masses
         // Qf is the array of loop fermion charges
-        const double sw2 = 1 - std::pow(mW/mZ,2);
         const int phi = 2; // Use CP-odd Higgs boson
         const int fu = 2, fd = 1; // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
@@ -737,7 +734,7 @@ namespace Gambit
         return alph*Nc*norm(VCKM(2,1))*std::pow(mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -745,7 +742,6 @@ namespace Gambit
         // mphi is neutral scalar boson mass
         // couplingphiCC is the coupling between scalar phi and two H+
         // couplingphiCW is the coupling between scalar phi, H+, and W+
-        const double sw2 = 1 - std::pow(mW/mZ,2);
         const double xSC = std::pow(mphi/mHp, 2);
         const double xSW = std::pow(mphi/mW,  2);
         const double xCW = std::pow(mHp/mW,   2);
@@ -754,7 +750,7 @@ namespace Gambit
         return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiCC * couplingphiCW) * (term1-term2);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -762,7 +758,6 @@ namespace Gambit
         // mphi is neutral scalar boson mass
         // couplingphiWW is the coupling between scalar phi and two W+
         // couplingphiCW is the coupling between scalar phi, H+, and W+
-        const double sw2 = 1 - std::pow(mW/mZ,2);
         const double xSC = std::pow(mphi/mHp,2);
         const double xSW = std::pow(mphi/mW, 2);
         const double xWC = std::pow(mW/mHp,  2);

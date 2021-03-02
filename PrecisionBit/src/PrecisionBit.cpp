@@ -1294,11 +1294,11 @@ namespace Gambit
         }*/
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
       }
       // Superseded by gm2mu_loop2f by charged boson contributions
-      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, v, cab, mW, mZ, Alpha);
 
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
