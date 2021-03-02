@@ -1219,8 +1219,6 @@ namespace Gambit
               Vcd, Vcs, Vcb,
               Vtd, Vts, Vtb;
 
-      const int l = 1, lp = 1;
-
       // One loop amplitude
       complex<double> Aloop1L = 0, A1L = 0;
       complex<double> Aloop1R = 0, A1R = 0;
@@ -1249,8 +1247,8 @@ namespace Gambit
       // Need to remove the SM Higgs contribution
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       // Alternatively could use: 1607.06292, eqn (32)
-      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
-      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
 
       // Two loop amplitude
       const vector<double> Qf = {-1.,-1./3.,2./3.};
@@ -1271,7 +1269,7 @@ namespace Gambit
       }
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
-      for (int f=0; f<=2; ++f)
+      for (int lf=0; lf<=2; ++lf)
       {
         Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
       }

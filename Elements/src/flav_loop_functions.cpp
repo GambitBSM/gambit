@@ -323,7 +323,7 @@ namespace Gambit
         {
           const double xlC = std::pow(mf[lf]/mphi,2);
           const double xlW = std::pow(mf[lf]/mW,2);
-          return std::pow((alph*mmu)*mf[f]/(M_PI*mW*sw2),2) * Nc / (std::pow(mphi,2)-std::pow(mW,2)) / 32. * (TwoLoopFunctions::TwoLoopfCl(xlC) - TwoLoopFunctions::TwoLoopfCl(xlW));
+          return std::pow((alph*mmu)*mf[lf]/(M_PI*mW*sw2),2) * Nc / (std::pow(mphi,2)-std::pow(mW,2)) / 32. * (TwoLoopFunctions::TwoLoopfCl(xlC) - TwoLoopFunctions::TwoLoopfCl(xlW));
         } 
         else if (lf == 1)
         {
