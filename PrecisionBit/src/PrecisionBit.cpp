@@ -1157,7 +1157,7 @@ namespace Gambit
       const vector<double> ml = {mE, mMu, mTau};     // charged leptons
       const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
       const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
-      const vector<double> mphi = {mh, mH, mA, mHp, mh};
+      const vector<double> mphi = {mh, mH, mA, mHp};
       const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
       const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
       const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
@@ -1226,14 +1226,13 @@ namespace Gambit
       complex<double> Aloop1R = 0, A1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
-      //TODO: Remove SM higgs contribution
       for (int phi=0; phi<=3; ++phi)
       {
         for (int li = 0; li <=2; ++li)
         {
           //if ((phi == 0) and (li == 1))
           //{
-            // Ignore purely SM contributions with SM higgs and no flavour changing 
+          // Ignore purely SM contributions with SM higgs and no flavour changing 
           //  Aloop1L += 0.0;
           //  Aloop1R += 0.0;
           //}
@@ -1247,7 +1246,13 @@ namespace Gambit
         }
       }
 
-      /// Two loop amplitude
+      // Need to remove the SM Higgs contribution
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      // Alternatively could use: 1607.06292, eqn (32)
+      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_0, VCKM, v, 0.);
+      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_0, VCKM, v, 0.);
+
+      // Two loop amplitude
       const vector<double> Qf = {-1.,-1./3.,2./3.};
       const vector<double> Nc = { 1.,    3.,   3.};
 
@@ -1291,7 +1296,7 @@ namespace Gambit
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
 
-      result.central = Aloop1L.real() + Aloop1R.real() + Aloop2f.real() + Aloop2BZ.real();
+      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() + Aloop2BZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
