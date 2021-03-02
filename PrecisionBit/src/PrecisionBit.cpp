@@ -1198,7 +1198,7 @@ namespace Gambit
       const double xitaumu = Ytaumu/cosb;
       const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
 
-      Eigen::Matrix3cd xi_L, xi_U, xi_D, xi_0, VCKM;
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
       xi_L << xiee,  xiemu,  xietau,
               ximue, ximumu, ximutau,
@@ -1211,10 +1211,6 @@ namespace Gambit
       xi_D << 0,   0,    0,
               0,   0,  xisb,
               0, xisb, xibb;
-
-      xi_0 << 0, 0, 0,
-              0, 0, 0,
-              0, 0, 0;
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
@@ -1249,8 +1245,8 @@ namespace Gambit
       // Need to remove the SM Higgs contribution
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       // Alternatively could use: 1607.06292, eqn (32)
-      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_0, VCKM, v, 0.);
-      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_0, VCKM, v, 0.);
+      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, li, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
 
       // Two loop amplitude
       const vector<double> Qf = {-1.,-1./3.,2./3.};
@@ -1266,14 +1262,14 @@ namespace Gambit
       { 
         for (int f=0; f<=2; ++f)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
         }
       }
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       for (int f=0; f<=2; ++f)
       {
-        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, 0., mW, mZ, Alpha);
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, gfv, v, 0., mW, mZ, Alpha);
       }
 
       const vector<double> couplingphiCC = { \

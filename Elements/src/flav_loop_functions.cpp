@@ -644,7 +644,7 @@ namespace Gambit
     namespace TwoLoopContributions
     {
       // Source: 1607.06292, eqns (53,58)
-      std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd xi_0, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_loop2f(int f, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
         const int fe = 0, l = 1, lp = 1; //External fermions are both muons
@@ -668,10 +668,6 @@ namespace Gambit
           const double Qu = Qf[2], Qd = Qf[1];
           const std::complex<double> I(0,1);
           return TwoLoopFunctions::TwoLoopfC(f, Nc, Qu, Qd, alph, mmu, mf, mphi, mW, mZ) * I * vev / mmu * Yukawas::yff_phi(fe, l, lp, 2, mmu, xi_L, VCKM, vev, cosab) * I * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, 2, mf[f], xi_f, VCKM, vev, cosab);
-        }
-        else if (phi == 4)
-        {
-          return -(TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[f], alph, mmu, mf[f], mphi, mW, mZ, gfv[0], gfv[f]));//* vev / mmu * Yukawas::yff_phi(fe, l, lp, 0, mmu, xi_0, VCKM, vev, cosab) * vev / mf[f] * Yukawas::yff_phi(f, fi, fi, 0, mf[f], xi_0, VCKM, vev, cosab);
         }
       }
 
