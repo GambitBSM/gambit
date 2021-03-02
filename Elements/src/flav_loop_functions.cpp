@@ -644,10 +644,10 @@ namespace Gambit
     namespace TwoLoopContributions
     {
       // Source: 1607.06292, eqns (53,58)
-      std::complex<double> gm2mu_loop2f(int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_loop2f(int fe, int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
-        const int fe = 0; // External fermions are both leptons
+        // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
         if ((phi == 0) or (phi == 1))
         {
@@ -666,36 +666,33 @@ namespace Gambit
       }
 
       // Source: 1502.04199, eqns (19-24)
-      double gm2mu_barrzeephigammaf(int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
+      double gm2mu_barrzeephigammaf(int fe, int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
       {
         const double x = std::pow(mf/mphi,2);
         Eigen::Matrix3cd xi_f;
-        const int fe = 0; // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
         double term1 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).real() * TwoLoopFunctions::TwoLoopF1(x);
         double term2 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).imag() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).imag() * TwoLoopFunctions::TwoLoopF4(x);
         return alph * Nc * std::pow(mmu * Qf / vev,2) / (4. * std::pow(M_PI,3)) * (term1 + term2);
       }
 
-      double gm2mu_barrzeephigammaC(int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+      double gm2mu_barrzeephigammaC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
         const double x = std::pow(mHp/mphi,2);
-        const int fe = 0; // External fermions are both leptons
         return alph * std::pow(mmu/mphi,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiCC * TwoLoopFunctions::TwoLoopF2(x);
       }
         
-      double gm2mu_barrzeephigammaW(int l, int lp, int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
+      double gm2mu_barrzeephigammaW(int fe, int l, int lp, int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
         const double x = std::pow(mW/mphi,2);
-        const int fe = 0, l = 1, lp = 1; //External fermions are both muons
         return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiWW * TwoLoopFunctions::TwoLoopF3(x);
       }
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
         const int phi = 2; // Use CP-odd Higgs boson
-        const int fu = 2, fd = 1, fe = 0; // External fermions are both leptons
+        const int fu = 2, fd = 1; // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
         const int Nc = 3; // Since internal fermions are top+bottom, number of colours is 3
         const double mt = mf[2], mb = mf[1];
@@ -713,10 +710,9 @@ namespace Gambit
         return alph*Nc*norm(VCKM(2,1))*std::pow(mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonC(int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
-        const int fe = 0; // External fermions are both leptons
         const double xSC = std::pow(mphi/mHp, 2);
         const double xSW = std::pow(mphi/mW,  2);
         const double xCW = std::pow(mHp/mW,   2);
@@ -725,10 +721,9 @@ namespace Gambit
         return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiCC * couplingphiCW) * (term1-term2);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonW(int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
         const double sw2 = 1 - std::pow(mW/mZ,2);
-        const int fe = 0; // External fermions are both leptons
         const double xSC = std::pow(mphi/mHp,2);
         const double xSW = std::pow(mphi/mW, 2);
         const double xWC = std::pow(mW/mHp,  2);

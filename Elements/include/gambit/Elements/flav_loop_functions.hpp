@@ -126,15 +126,15 @@ namespace Gambit
     // Two Loop Contributions for gTHDM from 1607.06292
     namespace TwoLoopContributions
     {
-      std::complex<double> gm2mu_loop2f(int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph);
+      std::complex<double> gm2mu_loop2f(int fe, int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph);
 
-      double gm2mu_barrzeephigammaf(int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph);
-      double gm2mu_barrzeephigammaC(int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
-      double gm2mu_barrzeephigammaW(int l, int lp,int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
+      double gm2mu_barrzeephigammaf(int fe, int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph);
+      double gm2mu_barrzeephigammaC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
+      double gm2mu_barrzeephigammaW(int fe, int l, int lp,int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonC(int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonW(int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph);
     }
     
     // Loop functions for LFV diagrams
