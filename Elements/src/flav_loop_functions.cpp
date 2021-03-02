@@ -580,25 +580,27 @@ namespace Gambit
 
     //2-loop fermionic contribution
     //AL
-    std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    std::complex<double> A_loop2fL(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
     {
         std::complex<double> I(0,1);
+        const int gi = 2; // Internal generation is the heaviest
         double xfphi = std::pow(mlf/mphi,2);
         double xfZ   = std::pow(mlf/mZ,2);
         std::complex<double> FHm = (xfphi*TwoLoopFunctions::TwoLoopFH(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFH(xfphi))/(xfphi-xfZ);
         std::complex<double> FAm = (xfphi*TwoLoopFunctions::TwoLoopFA(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFA(xfphi))/(xfphi-xfZ);
-        return conj(Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
+        return conj(Yukawas::yff_phi(fe, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
     }
     
     //AR
-    std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
+    std::complex<double> A_loop2fR(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
     {
         std::complex<double> I(0,1);
+        const int gi = 2; // Internal generation is the heaviest
         double xfphi = std::pow(mlf/mphi,2);
         double xfZ   = std::pow(mlf/mZ,2);
         std::complex<double> FHm = (xfphi*TwoLoopFunctions::TwoLoopFH(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFH(xfphi))/(xfphi-xfZ);
         std::complex<double> FAm = (xfphi*TwoLoopFunctions::TwoLoopFA(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFA(xfphi))/(xfphi-xfZ);
-        return Yukawas::yff_phi(lf, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, lf, lf, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
+        return Yukawas::yff_phi(fe, l, lp, phi, ml, xi_L, VCKM, vev, cosab)*(real(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
     }
 
       //2-loop bosonic contribution

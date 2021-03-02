@@ -95,11 +95,8 @@ namespace Gambit
     namespace OneLoopFunctions
     {
       double OneLoopB(const double x);
-
       double OneLoopC(const double x);
-
       double OneLoopE(const double x);
-
       double OneLoopF(const double x);
     }
 
@@ -112,9 +109,9 @@ namespace Gambit
 
       //2-loop fermionic contribution
       //AL
-      std::complex<double> A_loop2fL(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab);
+      std::complex<double> A_loop2fL(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab);
       //AR
-      std::complex<double> A_loop2fR(int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab);
+      std::complex<double> A_loop2fR(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, double sw2, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab);
 
       //2-loop bosonic contribution
       //AL
