@@ -2694,6 +2694,8 @@ namespace Gambit
               Vcd, Vcs, Vcb,
               Vtd, Vts, Vtb;
 
+      int f = 0;
+
       // One loop amplitude
       complex<double> Aloop1L = 0;
       complex<double> Aloop1R = 0;
@@ -2703,8 +2705,8 @@ namespace Gambit
       {
         for (int li = 0; li <=2; ++li)
         {
-          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(l, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
         }
       }
 
