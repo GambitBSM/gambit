@@ -1274,36 +1274,22 @@ namespace Gambit
       //Barr-Zee contribution
       complex<double> Aloop2BZ = 0.;
       for (int phi=0; phi<=2; ++phi)
-      {
-        for (int f=0; f<=2; ++f)
+      { 
+        // Superseded by gm2mu_loop2f by neutral boson contributions
+        /*for (int f=0; f<=2; ++f)
         {
           Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
-        }
+        }*/
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
       }
-      Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
+      // Superseded by gm2mu_loop2f by charged boson contributions
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
 
       //Bosonic contribution
-      complex<double> Aloop2bL = 0;
-      complex<double> Aloop2bR = 0;
-      for (int phi=0; phi<=1; ++phi)
-      {
-       const complex<double> sab(sqrt(1-cab*cab),0);
-       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
-       if (phi==0)
-       {
-        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
-        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*sab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mh, xi_L, VCKM, v, cab, mW, mZ);
-       }
-       else if (phi==1)
-       {
-        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bL(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
-        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*Cab*Amplitudes::A_loop2bR(phi, l, lp, phi, ml[l], mH, xi_L, VCKM, v, cab, mW, mZ);
-       }
-      }
+      // 3-boson contributions suppressed and neglected
 
       result.central = Aloop1L.real() + Aloop1R.real() + Aloop2f.real() + Aloop2BZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
