@@ -517,7 +517,7 @@ namespace Gambit
       //1-loop AL and AR amplitudes
       std::complex<double> A_loop1L(int f, int l, int li, int lp, int phi, std::vector<double> mnu, std::vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
       {
-        // f = 0,1,2 for electron,down,up fermion families
+        // f = 0,1,2 for electron,down,up families for external fermion
         // l,li,lp = 0,1,2 are the generation numbers of incoming,internal,outgoing lepton
         // phi = 0,1,2,3 for h,H,A,H+
         // mnu,ml is mass of neutrino,lepton in loop
@@ -549,8 +549,8 @@ namespace Gambit
 
       std::complex<double> A_loop1R(int f, int l, int li, int lp, int phi, std::vector<double> mnu, std::vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
       {
-        // f = 0,1,2 for electroni,down,up fermion families
-        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // f = 0,1,2 for electron,down,up families for external fermion
+        // l,li,lp = 0,1,2 are the generation numbers of incoming,internal,outgoing lepton
         // phi = 0,1,2,3 for h,H,A,H+
         // mnu,ml is mass of neutrino,lepton in loop
         // mphi is array of Higgs boson masses
@@ -646,8 +646,13 @@ namespace Gambit
       // Source: 1607.06292, eqns (53,58)
       std::complex<double> gm2mu_loop2f(int fe, int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
-        Eigen::Matrix3cd xi_f;
-        // External fermions are both leptons
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lf,lp = 0,1,2 are the generation numbers of incoming,loop,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mf is array of loop fermion masses
+        // mphi is array of Higgs boson masses
+        // Qf is array of fermion electric charges
+        // gfv is array of fermion Z-charges
         const int gi = 2; // Internal generation is the heaviest
         if ((phi == 0) or (phi == 1))
         {
@@ -668,8 +673,14 @@ namespace Gambit
       // Source: 1502.04199, eqns (19-24)
       double gm2mu_barrzeephigammaf(int fe, int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lf,lp = 0,1,2 are the generation numbers of incoming,loop,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mf is loop fermion mass
+        // mphi is neutral scalar boson mass
+        // Qf is loop fermion charge
+        // Nc is loop fermion colour number
         const double x = std::pow(mf/mphi,2);
-        Eigen::Matrix3cd xi_f;
         const int gi = 2; // Internal generation is the heaviest
         double term1 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).real() * TwoLoopFunctions::TwoLoopF1(x);
         double term2 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).imag() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).imag() * TwoLoopFunctions::TwoLoopF4(x);
@@ -678,18 +689,32 @@ namespace Gambit
 
       double gm2mu_barrzeephigammaC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mphi is neutral scalar boson mass
+        // couplingphiCC is the coupling between scalar phi and two H+
         const double x = std::pow(mHp/mphi,2);
         return alph * std::pow(mmu/mphi,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiCC * TwoLoopFunctions::TwoLoopF2(x);
       }
         
       double gm2mu_barrzeephigammaW(int fe, int l, int lp, int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mphi is neutral scalar boson mass
+        // couplingphiWW is the coupling between scalar phi and two W+
         const double x = std::pow(mW/mphi,2);
         return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiWW * TwoLoopFunctions::TwoLoopF3(x);
       }
 
       std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // mf is the array of loop fermion masses
+        // Qf is the array of loop fermion charges
         const double sw2 = 1 - std::pow(mW/mZ,2);
         const int phi = 2; // Use CP-odd Higgs boson
         const int fu = 2, fd = 1; // External fermions are both leptons
@@ -712,6 +737,12 @@ namespace Gambit
 
       double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mphi is neutral scalar boson mass
+        // couplingphiCC is the coupling between scalar phi and two H+
+        // couplingphiCW is the coupling between scalar phi, H+, and W+
         const double sw2 = 1 - std::pow(mW/mZ,2);
         const double xSC = std::pow(mphi/mHp, 2);
         const double xSW = std::pow(mphi/mW,  2);
@@ -723,6 +754,12 @@ namespace Gambit
 
       double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double mW, double mZ, double alph)
       {
+        // fe = 0,1,2 for electron,down,up families for external fermion
+        // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
+        // phi = 0,1,2,3 for h,H,A,H+
+        // mphi is neutral scalar boson mass
+        // couplingphiWW is the coupling between scalar phi and two W+
+        // couplingphiCW is the coupling between scalar phi, H+, and W+
         const double sw2 = 1 - std::pow(mW/mZ,2);
         const double xSC = std::pow(mphi/mHp,2);
         const double xSW = std::pow(mphi/mW, 2);
