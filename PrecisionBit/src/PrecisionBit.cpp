@@ -1217,6 +1217,8 @@ namespace Gambit
               Vcd, Vcs, Vcb,
               Vtd, Vts, Vtb;
 
+      const int l = 1, lp = 1;
+
       // One loop amplitude
       complex<double> Aloop1L = 0, A1L = 0;
       complex<double> Aloop1R = 0, A1R = 0;
@@ -1260,16 +1262,16 @@ namespace Gambit
       //Fermionic contribution
       for (int phi=0; phi<=3; ++phi)
       { 
-        for (int f=0; f<=2; ++f)
+        for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[lf], Qf, gfv, v, cab, mW, mZ, Alpha);
         }
       }
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       for (int f=0; f<=2; ++f)
       {
-        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf, gfv, v, 0., mW, mZ, Alpha);
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
       }
 
       const vector<double> couplingphiCC = { \
@@ -1284,17 +1286,17 @@ namespace Gambit
       for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
-        /*for (int f=0; f<=2; ++f)
+        /*for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
+          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
         }*/
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, v, cab, mW, mZ, Alpha);
       }
       // Superseded by gm2mu_loop2f by charged boson contributions
-      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, v, cab, mW, mZ, Alpha);
 
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
