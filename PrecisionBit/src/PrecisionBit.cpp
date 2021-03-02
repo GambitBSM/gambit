@@ -1260,13 +1260,20 @@ namespace Gambit
       const vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
 
       complex<double> Aloop2f = 0.;
+      complex<double> Aloop2SMf = 0.;
       //Fermionic contribution
-      for (int phi=0; phi<=4; ++phi)
+      for (int phi=0; phi<=3; ++phi)
       { 
         for (int f=0; f<=2; ++f)
         {
           Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, cab, mW, mZ, Alpha);
         }
+      }
+
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      for (int f=0; f<=2; ++f)
+      {
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, xi_0, VCKM, Nc[f], Qf, gfv, v, 0., mW, mZ, Alpha);
       }
 
       const vector<double> couplingphiCC = { \
@@ -1296,7 +1303,7 @@ namespace Gambit
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
 
-      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() + Aloop2BZ.real();
+      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
