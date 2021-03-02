@@ -2675,7 +2675,6 @@ namespace Gambit
       const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
-      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       xi_L << xiee,  xiemu,  xietau,
               ximue, ximumu, ximutau,
@@ -2688,6 +2687,8 @@ namespace Gambit
       xi_D << 0,   0,    0,
               0,   0,  xisb,
               0, xisb, xibb;
+
+      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,

@@ -644,17 +644,11 @@ namespace Gambit
     namespace TwoLoopContributions
     {
       // Source: 1607.06292, eqns (53,58)
-      std::complex<double> gm2mu_loop2f(int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_loop2f(int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
       { 
         Eigen::Matrix3cd xi_f;
         const int fe = 0; // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
-        switch (lf)
-        {
-          case 0: xi_f = xi_L; break;
-          case 1: xi_f = xi_D; break;
-          case 2: xi_f = xi_U; break;
-        }
         if ((phi == 0) or (phi == 1))
         {
           return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ, gfv[0], gfv[lf])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[lf] * Yukawas::yff_phi(lf, gi, gi, phi, mf[lf], xi_f, VCKM, vev, cosab);
@@ -672,18 +666,12 @@ namespace Gambit
       }
 
       // Source: 1502.04199, eqns (19-24)
-      double gm2mu_barrzeephigammaf(int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
+      double gm2mu_barrzeephigammaf(int lf, int l, int lp, int phi, double mmu, double mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, double Qf, double vev, double cosab, double alph)
       {
         const double x = std::pow(mf/mphi,2);
         Eigen::Matrix3cd xi_f;
         const int fe = 0; // External fermions are both leptons
         const int gi = 2; // Internal generation is the heaviest
-        switch (lf)
-        {
-          case 0: xi_f = xi_L; break;
-          case 1: xi_f = xi_D; break;
-          case 2: xi_f = xi_U; break;
-        }
         double term1 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).real() * TwoLoopFunctions::TwoLoopF1(x);
         double term2 = vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).imag() * vev / mf * Yukawas::yff_phi(lf, gi, gi, phi, mf, xi_f, VCKM, vev, cosab).imag() * TwoLoopFunctions::TwoLoopF4(x);
         return alph * Nc * std::pow(mmu * Qf / vev,2) / (4. * std::pow(M_PI,3)) * (term1 + term2);

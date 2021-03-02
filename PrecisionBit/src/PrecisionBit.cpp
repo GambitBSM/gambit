@@ -1212,6 +1212,8 @@ namespace Gambit
               0,   0,  xisb,
               0, xisb, xibb;
 
+      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
               Vcd, Vcs, Vcb,
@@ -1264,14 +1266,14 @@ namespace Gambit
       { 
         for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[lf], Qf, gfv, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, cab, mW, mZ, Alpha);
         }
       }
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       for (int f=0; f<=2; ++f)
       {
-        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_D, xi_U, VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
       }
 
       const vector<double> couplingphiCC = { \
@@ -1288,7 +1290,7 @@ namespace Gambit
         // Superseded by gm2mu_loop2f by neutral boson contributions
         /*for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_D, xi_U, VCKM, Nc[f], Qf[f], v, cab, Alpha);
+          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
         }*/
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
