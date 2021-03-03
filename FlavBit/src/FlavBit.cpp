@@ -40,8 +40,9 @@
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
-///  \date 2020 June, Sep, Oct
-///
+///  \date 2020 June-December
+///  \date 2021 Jan- March
+
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
 ///  \date 2020 Nov
@@ -548,12 +549,9 @@ namespace Gambit
         result.Re_DeltaC7  = Dep::DeltaC7->real();
         result.Im_DeltaC7  = Dep::DeltaC7->imag();
         result.Re_DeltaC9  = Dep::DeltaC9->real();
-        cout<<"After result.Re_DeltaC9"<<Dep::DeltaC9->real()<<endl;
         result.Im_DeltaC9  = Dep::DeltaC9->imag();
         result.Re_DeltaC10 = Dep::DeltaC10->real();
-        cout<<"After result.Re_DeltaC10"<<Dep::DeltaC10->real()<<endl;
         result.Im_DeltaC10 = Dep::DeltaC10->imag();
-        //cout<<"After result.Re_DeltaC7"<<Dep::DeltaC7->real()<<endl;
         result.Re_DeltaCQ1 = Dep::DeltaCQ1->real();
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
@@ -563,8 +561,7 @@ namespace Gambit
         result.Im_DeltaC7p  = Dep::DeltaC7p->imag();
         result.Re_DeltaC9p  = Dep::DeltaC9p->real();
         result.Im_DeltaC9p  = Dep::DeltaC9p->imag();
-        result.Re_DeltaC10p = Dep::DeltaC10p->real();
-        result.Im_DeltaC10p = Dep::DeltaC10p->imag();
+        
         result.Re_DeltaCQ1p = Dep::DeltaCQ1p->real();
         result.Im_DeltaCQ1p = Dep::DeltaCQ1p->imag();
         result.Re_DeltaCQ2p = Dep::DeltaCQ2p->real();
@@ -572,308 +569,336 @@ namespace Gambit
       }     
       if (flav_debug) cout<<"Finished SI_fill"<<endl;
     }   
-    
      /// Delta CQ1 at tree level for the general THDM
     void calculate_DeltaCQ1(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ1;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
-      double mMu = Dep::SMINPUTS->mMu;
-      double mBmB = Dep::SMINPUTS->mBmB;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(0.23356489);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_sb = Ysb/cosb;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4);   
-      
-      result = mBmB*(pow(pi,2)*xi_sb*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) + 
-               pow(2,0.75)*sqrt(sminputs.GF)*(pow(mh,2) - pow(mH,2))*mMu*sin(2*alpha-beta) + 
+      double xi_bs = Ybs/cosb;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      result = mBmB*(pow(pi,2)*xi_bs*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) +
+               pow(2,0.75)*sqrt(sminputs.GF)*(pow(mh,2) - pow(mH,2))*mMu*sin(2*alpha-beta) +
                (pow(mh,2) + pow(mH,2))*(xi_mumu - pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb)))/
-               (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                                          
-    }
-    //At tree level we hace CQ1=CQ1p
+               (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);     
+    }    
+   
     void calculate_DeltaCQ1p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ1p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
-      double mMu = Dep::SMINPUTS->mMu;
-      double mBmB = Dep::SMINPUTS->mBmB;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(0.23356489);
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4);   
-      
-      result = mBmB*(pow(pi,2)*xi_sb*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) + 
-               pow(2,0.75)*sqrt(sminputs.GF)*(pow(mh,2) - pow(mH,2))*mMu*sin(2*alpha-beta) + 
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      result = mBmB*(pow(pi,2)*xi_sb*(-((pow(mh,2) - pow(mH,2))*xi_mumu*cos(2*(alpha-beta))) +
+               pow(2,0.75)*sqrt(sminputs.GF)*(pow(mh,2) - pow(mH,2))*mMu*sin(2*alpha-beta) +
                (pow(mh,2) + pow(mH,2))*(xi_mumu - pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb)))/
-               (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                                          
-    }    
-    
+               (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);
+    }
+
      /// Delta CQ2 at tree level for the general THDM
     void calculate_DeltaCQ2(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ2;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
-      double mMu = Dep::SMINPUTS->mMu;
-      double mBmB = Dep::SMINPUTS->mBmB;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(0.23356489);
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mA = spectrum.get(Par::Pole_Mass,"A0");
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_sb = Ysb/cosb;
+      double xi_bs = Ybs/cosb;
       //CKM elements
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-      
-      result = mBmB*(pow(pi,2)*xi_sb*(-xi_mumu + pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb))/
-               (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);                 
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      result = mBmB*(pow(pi,2)*xi_bs*(-xi_mumu + pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb))/
+               (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);
     }
-    
+
    void calculate_DeltaCQ2p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaCQ2p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double sinb = sin(beta), cosb = cos(beta);
-      double mMu = Dep::SMINPUTS->mMu;
-      double mBmB = Dep::SMINPUTS->mBmB;
-      double mZ = Dep::SMINPUTS->mZ;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(1-pow(mW/mZ,2));
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mA = spectrum.get(Par::Pole_Mass,"A0");
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_sb = Ysb/cosb;
       //CKM elements
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-      
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
       result = -mBmB*(pow(pi,2)*xi_sb*(-xi_mumu + pow(2,0.75)*sqrt(sminputs.GF)*mMu*sinb))/
                (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);
-    }   
+    }
     //Green functios for Delta C7 in THDM
     double F7_1(double t)
     {
-	if(fabs(1.-t)<1.e-5) return F7_1(0.9999);
-	return -((7 - 12*t - 3*t*t + 8*t*t*t + 
+        if(fabs(1.-t)<1.e-5) return F7_1(0.9999);
+        return -((7 - 12*t - 3*t*t + 8*t*t*t +
            6*t*(-2 + 3*t)*log(1/t)))/(72.*pow(-1 + t,4));
     }
-    
+
     double F7_2(double t)
     {
     if(fabs(1.-t)<1.e-5) return F7_2(0.9999);
-	return sqrt(t)*(3 - 8*t + 5*t*t + (-4 + 6*t)*log(1/t))/
+        return sqrt(t)*(3 - 8*t + 5*t*t + (-4 + 6*t)*log(1/t))/
            (12.*pow(-1 + t,3));
     }
-    
+    double F7_3 (double t)
+    {
+    if (fabs (1. - t) < 1.e-5) return F7_3 (0.9999);
+        return -(3*t*(-2*log (1/t) + 1) - 6*t*t + t*t*t + 2)/(24.* pow (-1 + t, 4));
+    }
+
+    double F7_4 (double t)
+    {
+    if (fabs (1. - t) < 1.e-5) return F7_4 (0.9999);
+        return sqrt(t)*(-2*log (1/t) + 3 - 4*t + t*t)/(4.*pow (-1 + t, 3));
+    }
+
     /// Delta C7 from the general THDM
     void calculate_DeltaC7(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC7;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mBmB = Dep::SMINPUTS->mBmB;
+      const double mC = Dep::SMINPUTS->mCmC;
+      const double mT = Dep::SMINPUTS->mT;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      double xi_ct = Yct/cosb;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4);         
-      cout<<"prefactor diag = "<<((1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))))<<endl;
-      cout<<"prefactor mix = "<<((1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*(conj(Vcs)*conj(xi_tc) + conj(Vts)*conj(xi_tt))))<<endl;
-      
-      result = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
-               (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
+      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      double C70 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+               (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
                + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
-               (conj(Vcs)*conj(xi_tc) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2))); 
-               
+               (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2)));
+
+      double C80 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+               (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_3(pow(mT/mHp,2)))
+               + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
+               (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_4(pow(mT/mHp,2)));
+
+      double C2diag = (-7*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
+
+      double C2mix = -(mC*(xi_bb*conj(Vcb) + xi_sb*conj(Vcs))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
+
+      result = 0.698*C70+0.086*C80 + C2diag + C2mix;
+
     }
-    
+
     //Green functios for Delta C9 and Delta C10 in THDM
     //Gamma penguin Green function
     double DHp(double t)
     {
      if(fabs(1.-t)<1.e-5) return DHp(0.9999);
-     
-	 return -(-38 + 117*t - 126*t*t + 47*pow(t,3) + 
+
+         return -(-38 + 117*t - 126*t*t + 47*pow(t,3) +
             6*(4 - 6*t + 3*pow(t,3))*log(1/t))/
            (108.*pow(t-1,4));
     }
     //Z penguin Green function
     double CHp(double t)
     {
-	 if(fabs(1.-t)<1.e-5) return CHp(0.9999);	
-		
-	 return -t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
+         if(fabs(1.-t)<1.e-5) return CHp(0.9999);
+
+         return -t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
     }
     //Box diagram Green function
     double BHp(double t)
     {
-	 if(fabs(1.-t)<1.e-5) return BHp(0.9999);
-		
-	 return (-1 + t + t*log(1/t))/(16.*pow(t-1,2));
+         if(fabs(1.-t)<1.e-5) return BHp(0.9999);
+
+         return (-1 + t + t*log(1/t))/(16.*pow(t-1,2));
     }
-    
+
     //Box diagram Green function for C9' and C10'
     double BHpp(double t)
     {
-	 if(fabs(1.-t)<1.e-5) return BHpp(0.9999);
-		
-	 return ((-1 + t + t*log(1/t)))/(16.*pow(t-1,2));
+         if(fabs(1.-t)<1.e-5) return BHpp(0.9999);
+
+         return ((-1 + t + t*log(1/t)))/(16.*pow(t-1,2));
     }
-    
+
     /// Delta C9 from the general THDM
     void calculate_DeltaC9(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC9;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mMu = Dep::SMINPUTS->mMu;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW =sqrt(0.23356489);
+      const double mT = Dep::SMINPUTS->mT;
+      const double mC = Dep::SMINPUTS->mCmC;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
+      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
+      double xi_ct = Yct/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_mutau = Ymutau/cosb;
+      double xi_taumu = Ytaumu/cosb;
       //CKM elements
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       // cout<< "Vcb = " << Vcb << endl;
-      
-      std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
-                                      (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
-             
-      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*
-                                  (Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));  
-             
-      std::complex<double> C9_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + 
-                                     conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*
-                                     conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); 
-                          
+
+      std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+                                      (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
+
+      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+                                  (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
+
+      std::complex<double> C9_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
 
       result = C9_gamma + C9_Z + C9_Box;
 
-    }  
-    
+    }
+
     /// Delta C10 from the general THDM
     void calculate_DeltaC10(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mMu = Dep::SMINPUTS->mMu;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW =sqrt(0.23356489);
+      const double mT = Dep::SMINPUTS->mT;
+      const double mC = Dep::SMINPUTS->mCmC;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_tc = Ytc/cosb;
+      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
+      double xi_ct = Yct/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_mutau = Ymutau/cosb;
-      //cout<<"xi_tt "<<xi_tt<<endl;
+      double xi_taumu = Ytaumu/cosb;
       //CKM elements
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      // cout<<"Vcs is  = "<<Vcs<<endl; 
-      
-      std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
-             
- 
-      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_mutau,2))*(xi_tc*conj(Vcs)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt)) + conj(Vts)*((Vtb*xi_tc + Vcb*xi_tt)*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+     // cout<<"Vcs is  = "<<Vcs<<endl; 
 
+      std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
+
+      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); result = C10_Z + C10_Box;
 
       result = C10_Z + C10_Box;
-
-    } 
+    }
     /// Prime Wilson Coefficients in the general THDM      
     // Delta C7' from the general THDM
     void calculate_DeltaC7p(std::complex<double> &result)
@@ -881,128 +906,1800 @@ namespace Gambit
       using namespace Pipes::calculate_DeltaC7p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mBmB = Dep::SMINPUTS->mBmB;
+      const double mT = Dep::SMINPUTS->mT;
+      const double mS = Dep::SMINPUTS->mS;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-      
-      result =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*
-               (Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
-                +
-               (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2)); 
-              
+      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      double xi_bs = Ybs/cosb;
+      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
+      double xi_tc = Ytc/cosb;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double Vcb = A*lambda*lambda;
+
+      double C7p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
+               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
+
+      double C8p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
+                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
+
+      double C2diag = -7*((Vcb*xi_bb + Vcs*xi_sb)*(conj(Vcb)*conj(xi_bs) + conj(Vcs)*conj(xi_ss)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
+
+      double C2mix = -(mC*(conj(Vcb)*conj(xi_bs) + conj(Vcs)*conj(xi_ss))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
+
+      result = 0.698*C7p0+0.086*C8p0 + C2diag + C2mix;
+
     }
-    
+
     /// Delta C9' from the general THDM
     void calculate_DeltaC9p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC9p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mBmB = Dep::SMINPUTS->mBmB;
-      double mMu = Dep::SMINPUTS->mMu;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(0.23356489);
+      const double mT = Dep::SMINPUTS->mT;
+      const double mS = Dep::SMINPUTS->mS;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
+      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      double xi_bs = Ybs/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_mutau = Ymutau/cosb;
-
+      double xi_taumu = Ytaumu/cosb;
       //CKM elements
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-      
-      std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_bb*Vtb + xi_sb*Vts)*
-                                       (Vtb*xi_sb)*DHp(pow(mT/mHp,2));
-             
-      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
-                                   (xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));  
-             
-      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*conj(xi_sb)*(pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) 
-                                     + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2))); 
-              
-                        
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double Vub = 0;//This should be improved to call directly an Eigen object, for the moment this approximation should be fine
+      const double Vus = lambda;
+
+      std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
+
+      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
+
+      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
+
+
       result = C9p_gamma + C9p_Z + C9p_Box;
-               
-    }  
-      
+
+    }
+
     /// Delta C10' from the general THDM
     void calculate_DeltaC10p(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10p;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mT = Dep::SMINPUTS->mT;
-      double mBmB = Dep::SMINPUTS->mBmB;
-      double mMu = Dep::SMINPUTS->mMu;
-      //Check later how to deal with mW
-      double mW = Dep::SMINPUTS->mW;
-      double SW = sqrt(0.23356489);
+      const double mT = Dep::SMINPUTS->mT;
+      const double mS = Dep::SMINPUTS->mS;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mZ = Dep::SMINPUTS->mZ;
+      const double mW = Dep::SMINPUTS->mW;
+      const double SW = sqrt(1-pow(mW/mZ,2));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
+      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      double xi_bs = Ybs/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_mutau = Ymutau/cosb;
+      double xi_taumu = Ytaumu/cosb;
       //CKM elements
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-             
-       std::complex<double> C10p_Z = (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double Vub = 0;//This should be improved to call directly an Eigen object, for the moment this approximation should be fine
+      const double Vus = lambda;
+
+
+      std::complex<double> C10p_Z = (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
                                    (xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));
-
-      std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*conj(xi_sb)*(pow(xi_mumu,2) + pow(xi_mutau,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb)
-                                     + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb))*BHpp(pow(mT/mHp,2)));
-
+      std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
 
       result = C10p_Z + C10p_Box;
+
+    }
+
+    ///  B-> D tau nu distributions in GTHDM
+    double THDM_dGammaBDlnu(double gs, double q2)
+    {
+	  const double mB = 5.27961;
+	  const double mD = 1.870;
+	  const double ml = 1.77686;
+          const double mb = 4.18;
+          const double mc = 1.28;
+          const double GF = 1.16638e-5;
+          const double Vcb = 0.041344392;
+	  
+	  const double rho_D2 = 1.186;
+	  const double V1_1 = 1.074;
+	  const double Delta = 1;
+	
+          double C_V1=0.;
+          double C_V2=0.;
+          double C_T=0.;
+	 
+	  double lambda_D=((mB-mD)*(mB-mD)-q2)*((mB+mD)*(mB+mD)-q2);
+
+	  double r_D=mD/mB;
+	  double w=(mB*mB+mD*mD-q2)/2./mB/mD;
+	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+
+	  double V1=V1_1*(1.-8.*rho_D2*z+(51.*rho_D2-10.)*z*z-(252.*rho_D2-84.)*z*z*z);
+	  double S1=V1*(1.+Delta*(-0.019+0.041*(w-1.)-0.015*(w-1.)*(w-1.)));
+
+	  double hp=1./2./(1.+r_D*r_D-2.*r_D*w)*(-(1.+r_D)*(1.+r_D)*(w-1.)*V1+(1.-r_D)*(1.-r_D)*(w+1.)*S1);
+	  double hm=(1.-r_D*r_D)*(w+1.)/2./(1.+r_D*r_D-2.*r_D*w)*(S1-V1);
+	  double hT=(mb+mc)/(mB+mD)*(hp-(1.+r_D)/(1.-r_D)*hm);
+
+	  double F_1=1./2./sqrt(mB*mD)*((mB+mD)*hp-(mB-mD)*hm);
+	  double F_0=1./2./sqrt(mB*mD)*(((mB+mD)*(mB+mD)-q2)/(mB+mD)*hp-((mB-mD)*(mB-mD)-q2)/(mB-mD)*hm);
+	  double F_T=(mB+mD)/2./sqrt(mB*mD)*hT;
+	
+	  double Hs_V0=sqrt(lambda_D/q2)*F_1;
+	  double Hs_Vt=(mB*mB-mD*mD)/sqrt(q2)*F_0;
+	  double Hs_S=(mB*mB-mD*mD)/(mb-mc)*F_0;
+	  double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
+	
+
+	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*pow(1.-ml*ml/q2,2.)*
+	  (pow(1.+C_V1+C_V2,2.)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
+	  +3./2.*pow(gs,2.)*Hs_S*Hs_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
+	  +3.*(1.+C_V1+C_V2)*conj(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
+	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0);
+	
+	
+      return dGamma_dq2;
+
+    }
+                
+    ///  B->D* tau nu distributions in GTHDM
+    double THDM_dGammaBDstarlnu(double gp, double q2)
+    {
+      
+	  const double mB = 5.27961;
+	  const double mDs = 2.007;
+          const double ml = 1.77686;
+          const double mb = 4.18;
+          const double mc = 1.28;
+          const double GF = 1.16638e-5;
+          const double Vcb = 0.041344392;
+	  
+	  const double rho_Dstar2=1.214;
+	  const double R1_1=1.403;
+	  const double R2_1=0.864;
+	  const double R3_1=0.97;
+	  const double hA1_1=0.921;
+      
+          double C_V1=0.;
+          double C_V2=0.;
+          double C_T=0.;
+
+	  double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
+
+	  double r_Dstar=mDs/mB;
+	  double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
+	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+
+	  double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
+	  double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
+	  double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
+	  double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
+
+          double hV=R1*hA1;
+	  double hA2=(R2-R3)/2./r_Dstar*hA1;
+	  double hA3=(R2+R3)/2.*hA1;
+
+	  double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
+	  double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
+	  double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
+ 
+	  double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
+	  double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
+	  double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
+	  double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);	
+	  double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
+	  double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
+	  double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
+	
+	  double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
+	  double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
+	  double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
+	  double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
+	  double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
+	  double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
+	  
+	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
+	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
+	  
+      return dGamma_dq2;
+    }
+    
      
-    }        
+    ///  B->D* tau nu distribution for FLDstar
+    double THDM_dFLDstar(double gp, double q2)
+    {
+      
+	  const double mB = 5.27961;
+	  const double mDs = 2.007;
+          const double ml = 1.77686;
+          const double mb = 4.18;
+          const double mc = 1.28;
+          const double GF = 1.16638e-5;
+          const double Vcb = 0.041344392;
+	  
+	  const double rho_Dstar2=1.214;
+	  const double R1_1=1.403;
+	  const double R2_1=0.864;
+	  const double R3_1=0.97;
+	  const double hA1_1=0.921;
+      
+          double C_V1=0.;
+          double C_V2=0.;
+          double C_T=0.;
+
+	  double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
+
+	  double r_Dstar=mDs/mB;
+	  double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
+	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+
+	  double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
+	  double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
+	  double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
+	  double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
+
+          double hV=R1*hA1;
+	  double hA2=(R2-R3)/2./r_Dstar*hA1;
+	  double hA3=(R2+R3)/2.*hA1;
+
+	  double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
+	  double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
+	  double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
+ 
+	  double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
+	  double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
+	  double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
+	  double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);	
+	  double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
+	  double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
+	  double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
+	
+	  double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
+	  double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
+	  double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
+	  double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
+	  double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
+	  double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
+	  
+	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
+	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
+	  
+      return dGamma_dq2;
+    }
+    
+
+    //Partial decay width for B->D l nu computed with Simpson's rule
+    double Gamma_BDlnu(double gs, int n)
+    {
+      const double a = 1.77686*1.77686;//mTau^2
+      const double b = 3.40961*3.40961;//(mB-mD)^2	
+      double h = (b-a)/n;
+      double sum_odds = 0.0;
+      for (int i = 1; i < n; i += 2)
+      {
+        sum_odds += THDM_dGammaBDlnu(gs, a + i * h);
+      }
+      double sum_evens = 0.0;
+      for (int i = 2; i < n; i += 2)
+      {
+        sum_evens += THDM_dGammaBDlnu(gs, a + i * h);
+      }
+      return (THDM_dGammaBDlnu(gs, a) + THDM_dGammaBDlnu(gs, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+    }
+      
+    //Partial decay width for B->D* l nu computed with Simpson's rule
+    double Gamma_BDstarlnu(double gp, int n)
+    {
+      const double a = 1.77686*1.77686;//mTau^2
+      const double b = 3.27261*3.27261;//(mB-mDs)^2      
+      double h = (b-a)/n;
+      double sum_odds = 0.0;
+      for (int i = 1; i < n; i += 2)
+      {
+        sum_odds += THDM_dGammaBDstarlnu(gp, a + i * h);
+      }
+      double sum_evens = 0.0;
+      for (int i = 2; i < n; i += 2)
+      {
+        sum_evens += THDM_dGammaBDstarlnu(gp, a + i * h);
+      }
+      return (THDM_dGammaBDstarlnu(gp, a) + THDM_dGammaBDstarlnu(gp, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+    }
+
+    //Partial decay width for B->D* l nu for lambda_Dstar=0 computed with Simpson's rule
+    double GammaDstar_BDstarlnu(double gp, int n)
+    {
+      const double a = 1.77686*1.77686;//mTau^2
+      const double b = 3.27261*3.27261;//(mB-mDs)^2      
+      double h = (b-a)/n;
+      double sum_odds = 0.0;
+      for (int i = 1; i < n; i += 2)
+      {
+        sum_odds += THDM_dFLDstar(gp, a + i * h);
+      }
+      double sum_evens = 0.0;
+      for (int i = 2; i < n; i += 2)
+      {
+        sum_evens += THDM_dFLDstar(gp, a + i * h);
+      }
+      return (THDM_dFLDstar(gp, a) + THDM_dFLDstar(gp, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+    }
+
+   // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
+    double GammaDstar_Gamma(double gp)
+    { 
+      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, 13)/Gamma_BDstarlnu(gp, 13);
+      
+      return GammaDstar_Gamma;
+    }
+ 
+    /// FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma in THMD
+    void THDM_FLDstar(double &result)
+    {
+      using namespace Pipes::THDM_FLDstar;
+      if (flav_debug) cout<<"Starting THDM_FLDstarlnu"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = GammaDstar_Gamma(gp);
+      if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
+    }
+
+
+    // Normalized partial decay width  dGamma(B->D l nu)/dq2/Gamma
+    double THDM_dGammaBDlnu_Gamma(double gs, double q2min, double q2max)
+    { 
+      double q2 = (q2min + q2max)/2;	 
+      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, q2)/Gamma_BDlnu(gs, 15);
+      
+      return dGamma_dq2_Gamma;
+    }
+
+    // Normalized partial decay width  dGamma(B->D* l nu)/dq2/Gamma
+    double THDM_dGammaBDstarlnu_Gamma(double gp, double q2min, double q2max)
+    {
+      double q2 = (q2min + q2max)/2;
+      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, q2)/Gamma_BDstarlnu(gp, 13);
+
+      return dGamma_dq2_Gamma;
+    }
+      
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_40_45(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_40_45;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_40_45"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 4.0, 4.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_40_45"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_45_50(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_45_50;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_45_50"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 4.5, 5.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_45_50"<<endl;
+    }
+       
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_50_55(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_50_55;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_50_55"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 5.0, 5.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_50_55"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_55_60(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_55_60;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_55_60"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 5.5, 6.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_55_60"<<endl;
+    }
+   
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_60_65(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_60_65;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_60_65"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 6.0, 6.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_60_65"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_65_70(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_65_70;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_65_70"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 6.5, 7.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_65_70"<<endl;
+    }
+
+   
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_70_75(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_70_75;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_70_75"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 7.0, 7.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_70_75"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_75_80(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_75_80;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_75_80"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 7.5, 8.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_75_80"<<endl;
+    }
+   
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_80_85(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_80_85;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_80_85"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 8.0, 8.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_80_85"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_85_90(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_85_90;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_85_90"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 8.5, 9.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_85_90"<<endl;
+    }
+    
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_90_95(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_90_95;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_90_95"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 9.0, 9.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_90_95"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_95_100(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_95_100;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_95_100"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 9.5, 10.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_95_100"<<endl;
+    }
+   
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_100_105(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_100_105;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_100_105"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 10.0, 10.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_100_105"<<endl;
+    }
+
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_105_110(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_105_110;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_105_110"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb;
+      result = THDM_dGammaBDlnu_Gamma(gs, 10.5, 11.0);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_105_110"<<endl;
+    }
+ 
+    ///  Normalized differential B-> D tau nu width
+    void THDM_BDlnu_110_115(double &result)
+    {
+      using namespace Pipes::THDM_BDlnu_110_115;
+      if (flav_debug) cout<<"Starting THDM_BRBDlnu_110_115"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      result = THDM_dGammaBDlnu_Gamma(gs, 11.0, 11.5);
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDlnu_110_115"<<endl;
+    }
+ 
+  
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_40_45(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_40_45;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_40_45"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 4.0, 4.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_40_45"<<endl;
+    }
+
+   ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_45_50(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_45_50;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_45_50"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 4.5, 5.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_45_50"<<endl;
+    }
+       
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_50_55(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_50_55;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_50_55"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 5.0, 5.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_50_55"<<endl;
+    }
+
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_55_60(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_55_60;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_55_60"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 5.5, 6.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_55_60"<<endl;
+    }
+   
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_60_65(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_60_65;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_60_65"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 6.0, 6.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_60_65"<<endl;
+    }
+
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_65_70(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_65_70;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_65_70"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 6.5, 7.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_65_70"<<endl;
+    }
+
+   
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_70_75(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_70_75;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_70_75"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 7.0, 7.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_70_75"<<endl;
+    }
+
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_75_80(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_75_80;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_75_80"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 7.5, 8.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_75_80"<<endl;
+    }
+   
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_80_85(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_80_85;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_80_85"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 8.0, 8.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_80_85"<<endl;
+    }
+
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_85_90(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_85_90;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_85_90"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 8.5, 9.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_85_90"<<endl;
+    }
+    
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_90_95(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_90_95;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_90_95"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 9.0, 9.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_90_95"<<endl;
+    }
+
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_95_100(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_95_100;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_95_100"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb;
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 9.5, 10.0);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_95_100"<<endl;
+    }
+   
+    ///  Normalized differential B-> D* tau nu width
+    void THDM_BDstarlnu_100_105(double &result)
+    {
+      using namespace Pipes::THDM_BDstarlnu_100_105;
+      if (flav_debug) cout<<"Starting THDM_BRBDstarlnu_100_105"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+     
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      result = THDM_dGammaBDstarlnu_Gamma(gp, 10.0, 10.5);
+      //cout<<"THDM_dGammaBDstarlnu_Gamma  = "<<result<<endl;
+      if (flav_debug) printf("dGamma(B->D tau nu)/dq2/Gamma=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu_100_105"<<endl;
+    }
+   
+    /// Measurements for tree-level semileptonic B decays
+    void BDtaunu_measurements(predictions_measurements_covariances &pmc)
+    {
+      using namespace Pipes::BDtaunu_measurements;
+
+      const int n_bins=15;
+      static bool th_err_absolute[n_bins], first = true;
+      static double th_err[n_bins];
+
+      if (flav_debug) cout<<"Starting BDtaunu_measurements"<<endl;
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        pmc.LL_name="BDtaunu_likelihood";
+
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in BDtaunu_measurements"<<endl;
+
+        std::vector<string> observables;
+        const vector<string> q2_bins_min_str = {"4.0", "4.5", "5.0", "5.5", "6.0","6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0","10.5","11.0"};
+        const vector<string> q2_bins_max_str = {"4.5", "5.0", "5.5", "6.0", "6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0","10.5","11.0","11.5"};
+        for (unsigned i=0;i<q2_bins_min_str.size();++i)
+        {
+         // create observable names
+          observables.push_back("dBR_BDlnu_"+q2_bins_min_str[i]+"-"+q2_bins_max_str[i]);
+        }
+
+        const unsigned num_obs = observables.size();
+
+        for (unsigned i=0;i<num_obs;++i)
+        {
+         // fill fread from observable names
+          fread.read_yaml_measurement("flav_data.yaml", observables[i]);
+        }
+          
+        fread.initialise_matrices();
+        pmc.cov_exp=fread.get_exp_cov();
+        pmc.value_exp=fread.get_exp_value();
+
+        pmc.value_th.resize(n_bins,1);
+        // Set all entries in the covariance matrix explicitly to zero, as we will only write the diagonal ones later.
+        pmc.cov_th = boost::numeric::ublas::zero_matrix<double>(n_bins,n_bins);
+        for (int i = 0; i < n_bins; ++i)
+        {
+          th_err[i] = fread.get_th_err()(i,0).first;
+          th_err_absolute[i] = fread.get_th_err()(i,0).second;
+        }
+
+        pmc.dim=n_bins;
+
+        // Init over.
+        first = false;
+      }
+
+      double theory[14];
+      
+      theory[0] = *Dep::BDlnu_40_45;
+      theory[1] = *Dep::BDlnu_45_50;
+      theory[2] = *Dep::BDlnu_50_55;
+      theory[3] = *Dep::BDlnu_55_60;
+      theory[4] = *Dep::BDlnu_60_65;
+      theory[5] = *Dep::BDlnu_65_70;
+      theory[6] = *Dep::BDlnu_70_75;
+      theory[7] = *Dep::BDlnu_75_80;
+      theory[8] = *Dep::BDlnu_80_85;
+      theory[9] = *Dep::BDlnu_85_90;
+      theory[10] = *Dep::BDlnu_90_95;
+      theory[11] = *Dep::BDlnu_95_100;
+      theory[12] = *Dep::BDlnu_100_105;
+      theory[13] = *Dep::BDlnu_105_110;
+      theory[14] = *Dep::BDlnu_110_115;
+
+      for (int i = 0; i < n_bins; ++i)
+      {
+        pmc.value_th(i,0) = theory[i];
+        pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
+      }
+
+      pmc.diff.clear();
+      for (int i=0;i<n_bins;++i)
+      {
+        pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
+      }
+
+      if (flav_debug) cout<<"Finished BDtaunu_measurements"<<endl;
+
+    }
+
+    /// Likelihood for tree-level leptonic and semileptonic B decays
+    void BDtaunu_likelihood(double &result)
+    {
+      using namespace Pipes::BDtaunu_likelihood;
+
+      if (flav_debug) cout<<"Starting BDtaunu_likelihood"<<endl;
+
+      predictions_measurements_covariances pmc = *Dep::BDtaunu_M;
+
+      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+
+      // adding theory and experimental covariance
+      cov+=pmc.cov_th;
+      //calculating a diff
+      vector<double> diff;
+      diff=pmc.diff;
+
+      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      InvertMatrix(cov, cov_inv);
+      double Chi2=0;
+
+      for (int i=0; i < pmc.dim; ++i)
+      {
+        for (int j=0; j<pmc.dim; ++j)
+        {
+          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+        }
+      }
+
+      result=-0.5*Chi2;
+
+      if (flav_debug) cout<<"Finished BDtaunu_likelihood"<<endl;
+
+      if (flav_debug_LL) cout<<"Likelihood result BDtaunu_likelihood  : "<< result<<endl;
+
+    }      
+   
+    /// Measurements for tree-level semileptonic B decays
+    void BDstartaunu_measurements(predictions_measurements_covariances &pmc)
+    {
+      using namespace Pipes::BDstartaunu_measurements;
+
+      const int n_bins=13;
+      static bool th_err_absolute[n_bins], first = true;
+      static double th_err[n_bins];
+
+      if (flav_debug) cout<<"Starting BDstartaunu_measurements"<<endl;
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        pmc.LL_name="BDstartaunu_likelihood";
+
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in BDstartaunu_measurements"<<endl;
+
+        std::vector<string> observables;
+        const vector<string> q2_bins_min_str = {"4.0", "4.5", "5.0", "5.5", "6.0","6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0"};
+        const vector<string> q2_bins_max_str = {"4.5", "5.0", "5.5", "6.0", "6.5","7.0","7.5","8.0","8.5","9.0","9.5","10.0","10.5"};
+        for (unsigned i=0;i<q2_bins_min_str.size();++i)
+        {
+         // create observable names
+          observables.push_back("dBR_BDstarlnu_"+q2_bins_min_str[i]+"-"+q2_bins_max_str[i]);
+        }
+
+        const unsigned num_obs = observables.size();
+
+        for (unsigned i=0;i<num_obs;++i)
+        {
+         // fill fread from observable names
+          fread.read_yaml_measurement("flav_data.yaml", observables[i]);
+        }
+          
+        fread.initialise_matrices();
+        pmc.cov_exp=fread.get_exp_cov();
+        pmc.value_exp=fread.get_exp_value();
+
+        pmc.value_th.resize(n_bins,1);
+        // Set all entries in the covariance matrix explicitly to zero, as we will only write the diagonal ones later.
+        pmc.cov_th = boost::numeric::ublas::zero_matrix<double>(n_bins,n_bins);
+        for (int i = 0; i < n_bins; ++i)
+        {
+          th_err[i] = fread.get_th_err()(i,0).first;
+          th_err_absolute[i] = fread.get_th_err()(i,0).second;
+        }
+
+        pmc.dim=n_bins;
+
+        // Init over.
+        first = false;
+      }
+
+      double theory[12];
+      
+      theory[0] = *Dep::BDstarlnu_40_45;
+      theory[1] = *Dep::BDstarlnu_45_50;
+      theory[2] = *Dep::BDstarlnu_50_55;
+      theory[3] = *Dep::BDstarlnu_55_60;
+      theory[4] = *Dep::BDstarlnu_60_65;
+      theory[5] = *Dep::BDstarlnu_65_70;
+      theory[6] = *Dep::BDstarlnu_70_75;
+      theory[7] = *Dep::BDstarlnu_75_80;
+      theory[8] = *Dep::BDstarlnu_80_85;
+      theory[9] = *Dep::BDstarlnu_85_90;
+      theory[10] = *Dep::BDstarlnu_90_95;
+      theory[11] = *Dep::BDstarlnu_95_100;
+      theory[12] = *Dep::BDstarlnu_100_105;
+
+      for (int i = 0; i < n_bins; ++i)
+      {
+        pmc.value_th(i,0) = theory[i];
+        pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
+      }
+
+      pmc.diff.clear();
+      for (int i=0;i<n_bins;++i)
+      {
+        pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
+      }
+
+      if (flav_debug) cout<<"Finished BDstartaunu_measurements"<<endl;
+
+    }
+
+    /// Likelihood for tree-level leptonic and semileptonic B decays
+    void BDstartaunu_likelihood(double &result)
+    {
+      using namespace Pipes::BDstartaunu_likelihood;
+
+      if (flav_debug) cout<<"Starting BDstartaunu_likelihood"<<endl;
+
+      predictions_measurements_covariances pmc = *Dep::BDstartaunu_M;
+
+      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+
+      // adding theory and experimental covariance
+      cov+=pmc.cov_th;
+      //calculating a diff
+      vector<double> diff;
+      diff=pmc.diff;
+
+      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      InvertMatrix(cov, cov_inv);
+      double Chi2=0;
+      for (int i=0; i < pmc.dim; ++i)
+      {
+        for (int j=0; j<pmc.dim; ++j)
+        {
+          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+        }
+      }
+
+      result=-0.5*Chi2;
+
+      if (flav_debug) cout<<"Finished BDstartaunu_likelihood"<<endl;
+
+      if (flav_debug_LL) cout<<"Likelihood result BDstartaunu_likelihood  : "<< result<<endl;
+
+    } 
 
    /// mu-e universality for the general THDM from JHEP07(2013)044
    /// Green functions
@@ -1012,7 +2709,7 @@ namespace Gambit
        else if (x==0)
         return 1;
        else
-        return 1 + 9*x - 9*pow(x,2) - pow(x,3) + 6*x*(1 + x)*log(x);
+	return 1 + 9*x - 9*pow(x,2) - pow(x,3) + 6*x*(1 + x)*log(x);
     }
     
     double Fps(double x)
@@ -1020,31 +2717,37 @@ namespace Gambit
       if (x < 0) FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
        else if (x==0)
         return 1;
-      else
-       return 1 - 8*x + 8*pow(x,3) - pow(x,4) - 12*pow(x,2)*log(x);
+       else
+	return 1 - 8*x + 8*pow(x,3) - pow(x,4) - 12*pow(x,2)*log(x);
     }
-    
-    void gmu_ge_2(double &result)
+
+    //Lepton universality test observable from JHEP07(2013)044
+    void THDM_gmu_ge(double &result)
     {
-      using namespace Pipes::gmu_ge_2;
+      using namespace Pipes::THDM_gmu_ge;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double mMu = Dep::SMINPUTS->mMu;
-      double mTau = Dep::SMINPUTS->mTau;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mTau = Dep::SMINPUTS->mTau;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       double D = (2*mMu*Fint(pow(mMu,2)/pow(mTau,2)))/(mTau*Fps(pow(mMu,2)/pow(mTau,2)));
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double xi_mutau = Ymutau/cosb;
+      double xi_taumu = Ytaumu/cosb;
       double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
+      double Roff = ((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);
       //cout<<"D = "<<D<<endl;
       
-      result = 1 + R*R/4 - D*R;                                          
+      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R+Roff));               
     }           
       
     /// Br b	-> s gamma decays
@@ -1091,42 +2794,6 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Bsee_untag"<<endl;
     }
 
-    // Br D_s->tau nu in gTHDM
-    void Dstaunu_THDM(double &result)
-    {
-      using namespace Pipes::Dstaunu_THDM;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      double m_Ds = 1.9683;
-      double f_Ds = 0.2486;
-      double hbar = 6.582119514e-25;
-      double life_Ds = 5.e-13;
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double mTau = Dep::SMINPUTS->mTau;
-      double mS = Dep::SMINPUTS->mS;
-      double mCmC = Dep::SMINPUTS->mCmC;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Y22 = -((v*(-((sqrt(2)*mCmC*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
-      double X22 = (v*(-((sqrt(2)*mS*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vcb*Ysb))/(sqrt(2)*mS);
-      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
-      
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*Z33)/(pow(mHp,2)*(mS + mCmC)*Vcs);
-
-      result = (pow(1 - Deltaij,2)*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
-  
-      if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
-      if (flav_debug) cout << "Finished Dstaunu_THDM" << endl;
-    }
-
     /// Br B0->mumu decays
     void SI_Bmumu(double &result)
     {
@@ -1155,6 +2822,38 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Btaunu"<<endl;
     }
 
+    // Br Bu->tau nu in gTHDM
+    void THDM_Btaunu(double &result)
+    { 
+      using namespace Pipes::THDM_Btaunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double m_B = 5.27926;//All values are taken from SuperIso 3.6
+      const double f_B = 0.1905;
+      const double hbar = 6.582119514e-25;
+      const double life_B = 1.638e-12;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double Vus = lambda;
+      const double Vub = 3.55e-3;
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double X13 = (v*(Vub*(-((sqrt(2)*mBmB*tanb)/v) + sqrt(1 + pow(tanb,2))*Ybb) + sqrt(1 + pow(tanb,2))*Vus*Ysb))/(sqrt(2)*mBmB);
+      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
+      
+      double Deltaij = (pow(m_B,2)*X13*(Z33+Z32))/(pow(mHp,2)*Vub);
+      result = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
+      
+      if (flav_debug) cout << "BR(Bu->tau nu) = " << result << endl;
+      if (flav_debug) cout << "Finished THDM_Butaunu" << endl;
+    }
 
     /// Br B->D_s tau nu
     void SI_Dstaunu(double &result)
@@ -1169,6 +2868,43 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Dstaunu"<<endl;
     }
 
+    // Br D_s->tau nu in gTHDM
+    void THDM_Dstaunu(double &result)
+    {
+      using namespace Pipes::THDM_Dstaunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double m_Ds = 1.9683;//All values are taken from SuperIso 3.6
+      const double f_Ds = 0.2486;
+      const double hbar = 6.582119514e-25;
+      const double life_Ds = 5.e-13;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mS = Dep::SMINPUTS->mS;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Y22 = -((v*(-((sqrt(2)*mCmC*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      double X22 = (v*(-((sqrt(2)*mS*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vcb*Ysb))/(sqrt(2)*mS);
+      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
+      
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33+Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+
+      result = (pow(1 - Deltaij,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+  
+      if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
+      if (flav_debug) cout << "Finished THDM_Dstaunu" << endl;
+    }
 
     /// Br B->D_s mu nu
     void SI_Dsmunu(double &result)
@@ -1184,41 +2920,40 @@ namespace Gambit
     }
 
     /// Br D_s->mu nu in gTHDM
-    void Dsmunu_THDM(double &result)
+    void THDM_Dsmunu(double &result)
     {
-      using namespace Pipes::Dsmunu_THDM;
+      using namespace Pipes::THDM_Dsmunu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      double m_Ds = 1.9683;
-      double f_Ds = 0.2486;
-      double hbar = 6.582119514e-25;
-      double life_Ds = 5.e-13;
+      const double m_Ds = 1.9683;//All values are taken from SuperIso 3.6
+      const double f_Ds = 0.2486;
+      const double hbar = 6.582119514e-25;
+      const double life_Ds = 5.e-13;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double A = Dep::SMINPUTS->CKM.A;
-      double Vcs = 1 - (1/2)*lambda*lambda;
-      double Vcb = A*lambda*lambda;
-      double Vts = -A*lambda*lambda;
-      double mMu = Dep::SMINPUTS->mMu;
-      double mS = Dep::SMINPUTS->mS;
-      double mCmC = Dep::SMINPUTS->mCmC;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mS = Dep::SMINPUTS->mS;
+      const double mCmC = Dep::SMINPUTS->mCmC;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Y22 = -((v*(-((sqrt(2)*mCmC*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
       double X22 = (v*(-((sqrt(2)*mS*tanb*Vcs)/v) + sqrt(1 + pow(tanb,2))*Vcb*Ysb))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-      
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*Z22)/(pow(mHp,2)*(mS + mCmC)*Vcs);
-
-      result = (pow(1 - Deltaij,2)*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22+Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      result = ((pow(1 - Deltaij,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
-      if (flav_debug) cout << "Finished Dsmunu_THDM" << endl;
+      if (flav_debug) cout << "Finished THDM_Dsmunu" << endl;
     } 
-
 
     /// Br D -> mu nu
     void SI_Dmunu(double &result)
@@ -1234,36 +2969,36 @@ namespace Gambit
     }
 
     /// Br D->mu nu in gTHDM
-    void Dmunu_THDM(double &result)
+    void THDM_Dmunu(double &result)
     {
-      using namespace Pipes::Dmunu_THDM;
+      using namespace Pipes::THDM_Dmunu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      double m_D = 1.86961;
-      double f_D = 0.2135;
-      double hbar = 6.582119514e-25;
-      double life_D = 1.040e-12;
+      const double m_D = 1.86961;//All values are taken from SuperIso 3.6
+      const double f_D = 0.2135;
+      const double hbar = 6.582119514e-25;
+      const double life_D = 1.040e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double Vcd = -lambda;
-      double Vtd = 8.54e-3;
-      double mMu = Dep::SMINPUTS->mMu;
-      double mCmC = Dep::SMINPUTS->mCmC;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double Vcd = -lambda;
+      const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mCmC = Dep::SMINPUTS->mCmC;
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3); 
       double Y21 = -((v*(-((sqrt(2)*mCmC*tanb*Vcd)/v) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-      
-      double Deltaij = (pow(m_D,2)*Y21*Z22)/(pow(mHp,2)*Vcd);
-
-      result = (pow(1 - Deltaij,2)*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
+      double Deltaij = (pow(m_D,2)*Y21*(Z22+Z23))/(pow(mHp,2)*Vcd);
+      result = ((pow(1 - Deltaij,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
-      if (flav_debug) cout << "Finished Dmunu_THDM" << endl;
+      if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
     }
-
+    
     /// Br B -> D tau nu
     void SI_BDtaunu(double &result)
     {
@@ -1379,6 +3114,141 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RD*"<<endl;
     }
 
+   ///  B-> D tau nu / B-> D e nu decays in THDM
+    void THDM_RD(double &result)
+    {
+      using namespace Pipes::THDM_RD;
+      if (flav_debug) cout<<"Starting THDM_RD"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      
+      double gs =  (CRcb + CLcb)/CSMcb; 
+      
+      double RDSM = 0.299;
+      
+      result = RDSM*(1+1.5*real(gs)+1.0*norm(gs));
+
+      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_RD"<<endl;
+    }
+
+
+    ///  B->D* tau nu / B-> D* e nu decays in THDM
+    void THDM_RDstar(double &result)
+    {
+      using namespace Pipes::THDM_RDstar;
+      if (flav_debug) cout<<"Starting THDM_RDstar"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+      
+      double gp =  (CRcb - CLcb)/CSMcb; 
+      
+      double RDstarSM = 0.252;
+      
+      result = RDstarSM*(1+0.12*real(gp)+0.05*norm(gp));
+
+      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_RDstar"<<endl;
+    }
+
+    ///  Bc lifetime in THDM
+    void THDM_Bc_lifetime(double &result)
+    {
+      using namespace Pipes::THDM_Bc_lifetime;
+      if (flav_debug) cout<<"Starting THDM_Bc_lifetime"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mC = Dep::SMINPUTS->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
+      const double f_Bc = 0.434;
+      const double hbar = 6.582119514e-25;
+      double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      double CLcb = 2*Vtb*conj(xitc)*conj(xitautau)/pow(mHp,2);
+
+      double gp =  (CRcb - CLcb)/CSMcb;
+      double Bctaunu = 0.5; //Theoretical value from 1611.06676
+
+      result = hbar*Bctaunu/((pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2))*(pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
+
+      if (flav_debug) printf("THDM_Bc_lifetime=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_Bc_lifetime"<<endl;
+    }
+
 
     /// BR(K->mu nu) /BR pi -> mu nu)
     void SI_Rmu(double &result)
@@ -1394,40 +3264,40 @@ namespace Gambit
     }
 
     /// BR(K->mu nu) /BR pi-> mu nu) in gTHDM
-    void Rmu_THDM(double &result)
+    void THDM_Rmu(double &result)
     {
-      using namespace Pipes::Rmu_THDM;
-      if (flav_debug) cout<<"Starting Rmu_THDM"<<endl;
+      using namespace Pipes::THDM_Rmu;
+      if (flav_debug) cout<<"Starting THDM_Rmu"<<endl;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      double delta_em = -0.0070;
-      double m_pi = 0.13957;
-      double m_K = 0.493677;
-      double fK_fpi = 1.193;
-      double life_pi=2.6033e-8;
-      double life_K=1.2380e-8; 
+      const double delta_em = -0.0070;//All values taken from SuperIso 3.6
+      const double m_pi = 0.13957;
+      const double m_K = 0.493677;
+      const double fK_fpi = 1.193;
+      const double life_pi=2.6033e-8;
+      const double life_K=1.2380e-8; 
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double lambda = Dep::SMINPUTS->CKM.lambda;
-      double Vud = 1. - 0.5*pow(lambda,2);
-      double Vus = lambda;
-      double Vub = 3.55e-3;//From superiso 3.4 manual
-      double mMu = Dep::SMINPUTS->mMu;
-      double mS = Dep::SMINPUTS->mS;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double Vud = 1. - 0.5*pow(lambda,2);
+      const double Vus = lambda;
+      double Vub = 3.55e-3;//From superiso 3.6 manual
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mS = Dep::SMINPUTS->mS;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double X12 = (v*(-((sqrt(2)*mS*tanb*Vus)/v) + sqrt(1 + pow(tanb,2))*Vub*Ysb))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-     
-      double Deltaij = (pow(m_K,2)*X12*Z22)/(pow(mHp,2)*Vus);
+      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu); 
+      double Deltaij = (pow(m_K,2)*X12*(Z22+Z23))/(pow(mHp,2)*Vus);
       double leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
-      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*pow(1 - Deltaij,2)*(1.+delta_em);
+      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2));
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
-      if (flav_debug) cout<<"Finished Rmu_THDM"<<endl;
+      if (flav_debug) cout<<"Finished THDM_Rmu"<<endl;
     }
-
 
     /// 2-to-3-body decay ratio for semileptonic K and pi decays
     void SI_Rmu23(double &result)
@@ -1930,12 +3800,12 @@ namespace Gambit
       pmc.value_th(46,0)=Dep::BKstarmumu_17_19->S8;
       pmc.value_th(47,0)=Dep::BKstarmumu_17_19->S9;
 
-      double FL = pmc.value_th(24,0);
-      double S5 = pmc.value_th(28,0);
-      double AFB = pmc.value_th(25,0);
+      //double FL = pmc.value_th(24,0);
+      //double S5 = pmc.value_th(28,0);
+      //double AFB = pmc.value_th(25,0);
 
-      cout<<"BKstarmumu_6_8->P5' "<< S5/sqrt(FL*(1-FL)) <<endl;
-      cout<<"BKstarmumu_6_8->P2 "<< 2*AFB/(3*(1-FL)) <<endl;
+      //cout<<"BKstarmumu_6_8->P5' "<< S5/sqrt(FL*(1-FL)) <<endl;
+      //cout<<"BKstarmumu_6_8->P2 "<< 2*AFB/(3*(1-FL)) <<endl;
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
@@ -3803,42 +5673,111 @@ namespace Gambit
 
     }
 
-
    /// Likelihood for  mu-e universality
-    void gmu_ge_2_likelihood(double &result)
+    void gmu_ge_likelihood(double &result)
     {
-      using namespace Pipes::gmu_ge_2_likelihood;
+      using namespace Pipes::gmu_ge_likelihood;
       static bool th_err_absolute, first = true;
-      static double exp_meas, exp_gmu_ge_2_err, th_err;
+      static double exp_meas, exp_gmu_ge_err, th_err;
 
-      if (flav_debug) cout << "gmu_ge_2_likelihood"<<endl;
+      if (flav_debug) cout << "gmu_ge_likelihood"<<endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in gmu_ge_2_ikelihood"<<endl;
-        fread.read_yaml_measurement("flav_data.yaml", "gmu_ge_2");
-        fread.initialise_matrices();
+        if (flav_debug) cout<<"Initialised Flav reader in gmu_ge_ikelihood"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "gmu_ge");
+        fread.initialise_matrices(); 
         exp_meas = fread.get_exp_value()(0,0);
-        exp_gmu_ge_2_err = sqrt(fread.get_exp_cov()(0,0));
+        exp_gmu_ge_err = sqrt(fread.get_exp_cov()(0,0));
         th_err = fread.get_th_err()(0,0).first;
         th_err_absolute = fread.get_th_err()(0,0).second;
         first = false;
       }
 
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_gmu_ge_2_err << " " << th_err <<
-endl;
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_gmu_ge_err << " " << th_err << endl;
 
-      double theory_prediction = *Dep::Gmu_ge_2;
-      double theory_gmu_ge_2_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_gmu_ge_2_err<<endl;
+      double theory_prediction = *Dep::gmu_ge;
+      double theory_gmu_ge_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_gmu_ge_err<<endl;
 
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
 
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_gmu_ge_2_err, exp_gmu_ge_2_err, profile);
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_gmu_ge_err, exp_gmu_ge_err, profile);
     }
-    /// Likelihood for l -> l gamma processes
+
+   /// Likelihood for the Bc lifetime
+    void Bc_lifetime_likelihood(double &result)
+    {
+      using namespace Pipes::Bc_lifetime_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_taulifetime_err, th_err;
+
+      if (flav_debug) cout << "Bc_lifetime_likelihood"<<endl;
+
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in Bc_lifetime_ikelihood"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "Bc_lifetime");
+        fread.initialise_matrices();
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_taulifetime_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_taulifetime_err << " " << th_err << endl;
+
+      double theory_prediction = *Dep::Bc_lifetime;
+      double theory_taulifetime_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_taulifetime_err<<endl;
+
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_taulifetime_err, exp_taulifetime_err, profile);
+    }
+
+
+   /// Likelihood for FLDstar
+    void FLDstar_likelihood(double &result)
+    {
+      using namespace Pipes::FLDstar_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_FLDstar_err, th_err;
+
+      if (flav_debug) cout << "FLDstar_likelihood"<<endl;
+
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in FLDstar_likelihood"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "FLDstar");
+        fread.initialise_matrices();
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_FLDstar_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_FLDstar_err << " " << th_err << endl;
+
+      double theory_prediction = *Dep::FLDstar;
+      double theory_FLDstar_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_FLDstar_err<<endl;
+
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_FLDstar_err, exp_FLDstar_err, profile);
+    }
+
+
+   /// Likelihood for l -> l gamma processes
     void l2lgamma_likelihood(double &result)
     {
       using namespace Pipes::l2lgamma_likelihood;
