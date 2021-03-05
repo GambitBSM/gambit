@@ -787,6 +787,14 @@ namespace Gambit
 
          return -t*(-1 + t + log(1/t))/(8.*pow(t-1,2));
     }
+    //Zmix  penguin Green function
+    double CHpmix(double t)
+    {    
+         if(fabs(1.-t)<1.e-5) return CHpmix(0.9999);
+         
+         return t*(-1 + t*t +2*t*log(1/t))/(pow(t-1,3));
+    }
+
     //Box diagram Green function
     double BHp(double t)
     {
@@ -816,6 +824,7 @@ namespace Gambit
       double beta = atan(tanb);
       double cosb = cos(beta);
       const double mT = Dep::SMINPUTS->mT;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       const double mC = Dep::SMINPUTS->mCmC;
       const double mMu = Dep::SMINPUTS->mMu;
       const double mZ = Dep::SMINPUTS->mZ;
@@ -827,6 +836,8 @@ namespace Gambit
       double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
@@ -835,6 +846,8 @@ namespace Gambit
       double xi_ct = Yct/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_taumu = Ytaumu/cosb;
+      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xi_sb = Ysb/cosb;
       //CKM elements
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
@@ -848,9 +861,11 @@ namespace Gambit
       std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
                                   (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
 
+      std::complex<double> C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
+
       std::complex<double> C9_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
 
-      result = C9_gamma + C9_Z + C9_Box;
+      result = C9_gamma + C9_Z + C9_Zmix + C9_Box;
 
     }
 
@@ -867,6 +882,7 @@ namespace Gambit
       double beta = atan(tanb);
       double cosb = cos(beta);
       const double mT = Dep::SMINPUTS->mT;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       const double mC = Dep::SMINPUTS->mCmC;
       const double mMu = Dep::SMINPUTS->mMu;
       const double mZ = Dep::SMINPUTS->mZ;
@@ -878,6 +894,8 @@ namespace Gambit
       double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
@@ -886,6 +904,8 @@ namespace Gambit
       double xi_ct = Yct/cosb;
       double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
       double xi_taumu = Ytaumu/cosb;
+      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xi_sb = Ysb/cosb;
       //CKM elements
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
@@ -895,9 +915,11 @@ namespace Gambit
 
       std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
 
-      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); result = C10_Z + C10_Box;
+      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); 
 
-      result = C10_Z + C10_Box;
+      std::complex<double> C10_Zmix = (mBmB*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
+
+      result = C10_Z + C10_Box + C10_Zmix;
     }
     /// Prime Wilson Coefficients in the general THDM      
     // Delta C7' from the general THDM
@@ -999,7 +1021,7 @@ namespace Gambit
       std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
 
 
-      result = C9p_gamma + C9p_Z + C9p_Box;
+      result = C9p_gamma + C9p_Z + C9p_Box;//The C9p_Zmix contribution is suppressed by the strange quark mass
 
     }
 
