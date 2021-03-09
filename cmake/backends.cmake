@@ -1357,8 +1357,9 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch < ${patch}/Makefile.patch
 	    COMMAND patch -s -p0 < ${patch}/src.patch
-  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
-      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
+      # should be done by patching step so don't exit if the 'mv' fails
+  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp || true 
+      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h || true
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
