@@ -5,6 +5,7 @@
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SM.h"
+#include <complex>
 
 #include "identification.hpp"
 
@@ -109,7 +110,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             void set_diagonal_CKM();
     
+            void set_CKM_element_complex(int i, int j, ::std::complex<double> Vij);
+    
             double get_CKM_element(int i, int j);
+    
+            ::std::complex<double> get_CKM_element_complex(int i, int j);
     
             void set_lmass_pole(int l, double lmass_in);
     

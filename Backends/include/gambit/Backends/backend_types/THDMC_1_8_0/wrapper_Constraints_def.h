@@ -12,9 +12,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Member functions: 
-    inline void Constraints::set_THDM(THDM mod)
+    inline void Constraints::set_THDM(THDM* mod)
     {
-        get_BEptr()->set_THDM__BOSS(*mod.get_BEptr());
+        get_BEptr()->set_THDM__BOSS((*mod).get_BEptr());
     }
     
     inline bool Constraints::check_unitarity(double unitarity_limit)
@@ -96,7 +96,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         get_BEptr()->set_delete_wrapper(false);
     }
     
-    inline Constraints::Constraints(THDM mod) :
+    inline Constraints::Constraints(THDM* mod) :
         WrapperBase(__factory1(mod))
     {
         get_BEptr()->set_wptr(this);

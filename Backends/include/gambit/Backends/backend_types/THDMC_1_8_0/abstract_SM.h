@@ -4,6 +4,7 @@
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
+#include <complex>
 #include <cstddef>
 #include <iostream>
 
@@ -123,7 +124,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual void set_diagonal_CKM() =0;
     
+            virtual void set_CKM_element_complex(int, int, ::std::complex<double>) =0;
+    
             virtual double get_CKM_element(int, int) =0;
+    
+            virtual ::std::complex<double> get_CKM_element_complex(int, int) =0;
     
             virtual void set_lmass_pole(int, double) =0;
     

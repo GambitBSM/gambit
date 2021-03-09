@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         public:
     
-            virtual void set_model__BOSS(Abstract_THDM&) =0;
+            virtual void set_model__BOSS(Abstract_THDM*) =0;
     
             virtual Abstract_THDM* get_model__BOSS() =0;
     
@@ -54,7 +54,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual double get_gamma_uhd(int, int, int) =0;
     
+            virtual double get_gamma_uhd_flipped(int, int, int) =0;
+    
             virtual double get_gamma_uhu(int, int, int) =0;
+    
+            virtual double get_gamma_uhu_flipped(int, int, int) =0;
     
             virtual void print_decays(int) =0;
     

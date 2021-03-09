@@ -12,14 +12,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Member functions: 
-    inline void DecayTableTHDM::set_model(THDM model)
+    inline void DecayTableTHDM::set_model(THDM* model)
     {
-        get_BEptr()->set_model__BOSS(*model.get_BEptr());
+        get_BEptr()->set_model__BOSS((*model).get_BEptr());
     }
     
-    inline THDM DecayTableTHDM::get_model()
+    inline THDM* DecayTableTHDM::get_model()
     {
-        return THDM( get_BEptr()->get_model__BOSS() );
+        return get_BEptr()->get_model__BOSS()->get_init_wptr();
     }
     
     inline double DecayTableTHDM::get_gamma_huu(int h, int u1, int u2)
@@ -97,9 +97,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_gamma_uhd(u, h, d);
     }
     
+    inline double DecayTableTHDM::get_gamma_uhd_flipped(int u, int h, int d)
+    {
+        return get_BEptr()->get_gamma_uhd_flipped(u, h, d);
+    }
+    
     inline double DecayTableTHDM::get_gamma_uhu(int u1, int h, int u2)
     {
         return get_BEptr()->get_gamma_uhu(u1, h, u2);
+    }
+    
+    inline double DecayTableTHDM::get_gamma_uhu_flipped(int u1, int h, int u2)
+    {
+        return get_BEptr()->get_gamma_uhu_flipped(u1, h, u2);
     }
     
     inline void DecayTableTHDM::print_decays(int h)
@@ -139,7 +149,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     
     // Wrappers for original constructors: 
-    inline DecayTableTHDM::DecayTableTHDM(THDM mod) :
+    inline DecayTableTHDM::DecayTableTHDM(THDM* mod) :
         WrapperBase(__factory0(mod))
     {
         get_BEptr()->set_wptr(this);

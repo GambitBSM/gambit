@@ -20,15 +20,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
         public:
             // -- Static factory pointers: 
-            static Abstract_DecayTableTHDM* (*__factory0)(THDM);
+            static Abstract_DecayTableTHDM* (*__factory0)(THDM*);
     
             // -- Other member variables: 
     
             // Member functions: 
         public:
-            void set_model(THDM model);
+            void set_model(THDM* model);
     
-            THDM get_model();
+            THDM* get_model();
     
             double get_gamma_huu(int h, int u1, int u2);
     
@@ -60,7 +60,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             double get_gamma_uhd(int u, int h, int d);
     
+            double get_gamma_uhd_flipped(int u, int h, int d);
+    
             double get_gamma_uhu(int u1, int h, int u2);
+    
+            double get_gamma_uhu_flipped(int u1, int h, int u2);
     
             void print_decays(int h);
     
@@ -79,7 +83,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             // Wrappers for original constructors: 
         public:
-            DecayTableTHDM(THDM mod);
+            DecayTableTHDM(THDM* mod);
     
             // Special pointer-based constructor: 
             DecayTableTHDM(Abstract_DecayTableTHDM* in);

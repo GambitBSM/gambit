@@ -1,7 +1,7 @@
 #ifndef __wrapper_SM_def_THDMC_1_8_0_h__
 #define __wrapper_SM_def_THDMC_1_8_0_h__
 
-
+#include <complex>
 
 #include "identification.hpp"
 
@@ -140,9 +140,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         get_BEptr()->set_diagonal_CKM();
     }
     
+    inline void SM::set_CKM_element_complex(int i, int j, ::std::complex<double> Vij)
+    {
+        get_BEptr()->set_CKM_element_complex(i, j, Vij);
+    }
+    
     inline double SM::get_CKM_element(int i, int j)
     {
         return get_BEptr()->get_CKM_element(i, j);
+    }
+    
+    inline ::std::complex<double> SM::get_CKM_element_complex(int i, int j)
+    {
+        return get_BEptr()->get_CKM_element_complex(i, j);
     }
     
     inline void SM::set_lmass_pole(int l, double lmass_in)
