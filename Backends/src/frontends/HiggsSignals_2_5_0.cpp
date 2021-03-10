@@ -29,6 +29,7 @@
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Backends/frontends/HiggsSignals_2_5_0.hpp"
 #include "gambit/Utils/file_lock.hpp"
+#include "gambit/Core/cleanup.hpp"
 
 BE_INI_FUNCTION
 {
@@ -59,6 +60,7 @@ BE_INI_FUNCTION
 
     // Initialize HiggsSignals with 'latestresults' analyses
     initialize_HiggsSignals_latestresults(nHneut, nHplus);
+    ::Gambit::cleanup::register_cleanup_function("finish_HiggsSignals", []() { finish_HiggsSignals(); });
 
     // Set up Higgs mass pdf shape
     setup_pdf(pdf);

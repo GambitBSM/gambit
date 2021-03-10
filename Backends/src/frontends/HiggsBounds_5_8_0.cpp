@@ -32,6 +32,7 @@
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/HiggsBounds_5_8_0.hpp"
 #include "gambit/Utils/file_lock.hpp"
+#include "gambit/Core/cleanup.hpp"
 
 BE_INI_FUNCTION
 {
@@ -53,9 +54,11 @@ BE_INI_FUNCTION
     { 
       // initialize LEP chisq tables
       initialize_HiggsBounds_chisqtables();
-      
+      ::Gambit::cleanup::register_cleanup_function("finish_HiggsBounds_chisqtables", []() { finish_HiggsBounds_chisqtables(); });
+
       // initialize HiggsBounds to LEP only
       initialize_HiggsBounds_int(nHneut,nHplus,ANA);
+      ::Gambit::cleanup::register_cleanup_function("finish_HiggsBounds", []() { finish_HiggsBounds(); });
     }
     mylock.release_lock();
     scan_level = false;

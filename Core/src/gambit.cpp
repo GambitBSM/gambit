@@ -17,7 +17,7 @@
 
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
-
+#include "gambit/Core/cleanup.hpp"
 
 using namespace Gambit;
 using namespace LogTags;
@@ -213,6 +213,10 @@ int main(int argc, char* argv[])
         logger() << core << "Starting scan." << EOM;
         if (rank == 0) std::cerr << "Starting scan." << std::endl;
         scan.Run(); // Note: the likelihood container will unblock signals when it is safe to receive them.
+
+        // run cleanup functions to clear backend memory
+        Gambit::cleanup::run_cleanup();
+
         logger().enable(); // Turn logs back on (in case they were disabled for speed)
         // Check why we have exited the scanner; scan may have been terminated early by a signal.
         // We assume here that because the scanner has exited that it has already down whatever

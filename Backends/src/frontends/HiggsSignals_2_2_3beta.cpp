@@ -24,6 +24,7 @@
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Backends/frontends/HiggsSignals_2_2_3beta.hpp"
 #include "gambit/Utils/file_lock.hpp"
+#include "gambit/Core/cleanup.hpp"
 
 BE_INI_FUNCTION
 {
@@ -55,6 +56,7 @@ BE_INI_FUNCTION
     // Initialize HiggsSignals with 13 TeV LHC results and set pdf shape
     initialize_HiggsSignals_LHC13(nHneut,nHplus);
     setup_pdf(pdf);
+    ::Gambit::cleanup::register_cleanup_function("finish_HiggsSignals", []() { finish_HiggsSignals(); });
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)
     {
