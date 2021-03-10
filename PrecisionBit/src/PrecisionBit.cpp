@@ -1169,8 +1169,10 @@ namespace Gambit
       const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",2,2);
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double rhobar = (*sminputspointer)->CKM.rhobar;
@@ -1185,8 +1187,10 @@ namespace Gambit
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
       const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Yss/cosb;
       const double xitc = Ytc/cosb;
       const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
       const double xisb = Ysb/cosb;
       const double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
       const double xiemu = Yemu/cosb;
@@ -1205,11 +1209,11 @@ namespace Gambit
               xitaue, xitaumu, xitautau;
 
       xi_U << 0,   0,    0,
-              0,   0,  xitc,
+              0, xicc,  xitc,
               0, xitc, xitt;
 
       xi_D << 0,   0,    0,
-              0,   0,  xisb,
+              0, xiss,  xisb,
               0, xisb, xibb;
 
       const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
