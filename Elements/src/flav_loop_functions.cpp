@@ -284,7 +284,7 @@ namespace Gambit
           gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
           std::complex<double> Dilog(reD.val,imD.val);
           return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \
-                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)) \
+                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.))*/ \
                  + (s+xd) * std::log(xd) + (s-xu)*std::log(xu);
         }
         else
@@ -306,7 +306,7 @@ namespace Gambit
           gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
           std::complex<double> Dilog(reD.val,imD.val);
           return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \
-                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)) \
+                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)*/) \
                  + (s+xd) * std::log(xd) + (s-xu)*std::log(xu) \
                  - 4./3. * (xu-xd-1.)/y * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) - 1./3.*(std::pow(std::log(xd),2)-std::pow(std::log(xu),2));
         }
