@@ -1261,9 +1261,9 @@ namespace Gambit
       const double sw2 = 1 - pow(mW/mZ,2);
       const vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
 
+      //Fermionic contribution, source: 1607.06292
       complex<double> Aloop2f = 0.;
       complex<double> Aloop2SMf = 0.;
-      //Fermionic contribution
       for (int phi=0; phi<=3; ++phi)
       { 
         for (int lf=0; lf<=2; ++lf)
@@ -1285,8 +1285,9 @@ namespace Gambit
       const vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
       const vector<complex<double>> couplingphiCW = { complex<double> (cab,0.),  complex<double> (-sqrt(1-pow(cab,2)),0.), complex<double> (0.,-1.)};
       
-      //Barr-Zee contribution
+      //Barr-Zee contribution, source: 1502.04199
       complex<double> Aloop2BZ = 0.;
+      complex<double> Aloop2SMBZ = 0.;
       for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
@@ -1302,10 +1303,13 @@ namespace Gambit
       // Superseded by gm2mu_loop2f by charged boson contributions
       //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, v, cab, mW, mZ, Alpha);
 
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, v, 0., Alpha);
+
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
 
-      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real();
+      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real() - Aloop2SMBZ.real();
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
