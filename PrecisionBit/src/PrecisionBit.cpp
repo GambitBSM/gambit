@@ -43,6 +43,7 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/yaml_read_data.hpp"
 
 //#define PRECISIONBIT_DEBUG
 
@@ -59,6 +60,9 @@ namespace Gambit
   {
 
     using namespace LogTags;
+
+    const std::string default_data_dir = GAMBIT_DIR;
+    const std::string default_data_file = "pdg2020.yaml";
 
     // Module functions
 
@@ -741,7 +745,10 @@ namespace Gambit
       using namespace Pipes::lnL_Z_mass;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-      result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mZ, 91.1876, 0.0, 0.0021, profile);
+      const static auto data = Data::read_yaml<Options>(runOptions, "MZ", default_data_dir, default_data_file);
+      const static auto mu = data.getValue<double>("mu");
+      const static auto sigma = data.getValue<double>("sigma");
+      result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mZ, mu, 0.0, sigma, profile);
     }
 
     /// t quark mass likelihood

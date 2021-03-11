@@ -74,7 +74,7 @@ namespace Gambit
           if (not node) inifile_error().raise(LOCAL_INFO,"No inifile entry for [" + stringifyVariadic(keys...) + "]");
           return NodeUtility::getNode<TYPE>(node);
         }
-
+        
         template<typename TYPE, typename... args> TYPE getValueOrDef(TYPE def, const args&... keys) const
         {
           const YAML::Node node = getVariadicNode(keyValuePairNode, keys...);
@@ -119,10 +119,15 @@ namespace Gambit
         YAML::Node scannerNode;
         YAML::Node logNode;
     };
-
-
-  }
-
-}
+  
+    /** Explicit specialization for Options, as yaml parser doesn't like them */
+    template<>
+    Options Parser::getValue<Options, std::string>(std::string key) const
+    {
+      return Options(getValue<YAML::Node>(key));
+    }
+    
+  }  // end namespace IniParser
+}  // end namespace Gambit
 
 #endif /* defined(__yaml_parser_base_hpp__) */
