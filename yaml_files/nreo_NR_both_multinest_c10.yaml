@@ -14,10 +14,11 @@ Parameters:
   NREO_DiracDM:
     m:
       prior_type: log # flat log prior
-      range: [1.0e+0, 1.0e+4]
+      range: [1.0e+1, 1.0e+4]
     c0_1: 0
       # prior_type: log # flat log prior
       # range: [3.03e-8, 3.03e-6] # rescale range to match c4 capture rates from catena plot
+      # range: [1.0e-10, 1.0e-7]
     c0_2: 0
       # prior_type: log # flat log prior
     c0_3: 0
@@ -25,6 +26,7 @@ Parameters:
     c0_4: 0 #1.65e-8
       # prior_type: log # flat log prior
       # range: [3.03e-7, 3.03e-5] # should correspond to a cross section of [10^-41 cm^2, 10^-37 cm^2]
+      # range: [1.0e-7, 1.0e-4]
     c0_5: 0
       # prior_type: log # flat log prior
     c0_6: 0
@@ -34,14 +36,17 @@ Parameters:
     c0_8: 0
       # prior_type: log # flat log prior
       # range: [9.58e-6, 9.58e-4] # rescale range to match c4 capture rates from catena plot
+      # range: [1.0e-7, 1.0e-4]
     c0_9: 0
       # prior_type: log # flat log prior
     c0_10:
       prior_type: log # flat log prior
-      range: [3.03e-5, 3.03e-3] # rescale range to match c4 capture rates from catena plot
+      # range: [3.03e-5, 3.03e-3] # rescale range to match c4 capture rates from catena plot
+      range: [1.0e-6, 1.0e-3]
     c0_11: 0
       # prior_type: log # flat log prior
       # range: [9.58e-7, 9.58e-5] # rescale range to match c4 capture rates from catena plot
+      # range: [1.0e-9,1.0e-6]
     c0_12: 0
       # prior_type: log # flat log prior
     c0_13: 0
@@ -150,7 +155,7 @@ Scanner:
       plugin: multinest
       like:  LogLike
       nlive: 500
-      tol: 0.5
+      tol: 0.1
 
     twalk:
       plugin: twalk
