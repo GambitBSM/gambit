@@ -149,17 +149,13 @@ namespace Gambit
            // If LogMaster was never initialised, create a default log file to which the messages can be dumped.
            if (not loggers_readyQ)
            {
-             str log_path = Utils::construct_runtime_scratch(false) + "default.log";
-             #ifdef WITH_MPI
-               if (GMPI::Is_initialized() and not GMPI::Is_finalized())
-                 log_path += ("_" + std::to_string(GMPI::Comm().Get_rank()));
-             #endif
-             if (verbose) std::cout<<std::endl<<"GAMBIT logger was never initialised. Outputting default log to "<<log_path<<std::endl;
-             StdLogger* deflogger = new StdLogger(log_path);
+             if (verbose) std::cout<<"Logger was never initialised! Creating default log messenger..."<<std::endl;
+             StdLogger* deflogger = new StdLogger(Utils::runtime_scratch() + "default.log");
              std::set<int> deftag;
              deftag.insert(def);
              loggers[deftag] = deflogger;
              loggers_readyQ = true;
+             if (verbose) std::cout<<"Log messages will be delivered to '" << Utils::runtime_scratch() << "default.log'"<<std::endl;
            }
            // Dump buffered messages
            empty_backlog();

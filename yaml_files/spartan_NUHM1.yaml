@@ -24,11 +24,6 @@ Parameters:
     TanBeta:
       fixed_value: 1
 
-  NormalDist:
-    mu:
-      range: [15, 30]
-    sigma:
-      range: [0, 5]
 
 Priors:
 

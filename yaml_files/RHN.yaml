@@ -108,8 +108,8 @@ Scanner:
       plugin: diver
       version: 1.0.4
       like: LogLike
-      NP: 6000
-      convthresh: 1e-5
+      NP: 19200
+      convthresh: 1e-10
       lambdajDE: true
 
     multinest:
@@ -220,24 +220,24 @@ ObsLikes:
   - capability: perturbativity_lnL
     purpose: LogLike
 
-  # NuFit v3.2 likelihoods
+  # NuFit likelihoods
   
-  - capability: theta12_NuFit_v3_2_lnL
+  - capability: theta12_lnL
     purpose: LogLike
 
-  - capability: theta23_NuFit_v3_2_lnL
+  - capability: theta23_lnL
     purpose: LogLike
 
-  - capability: theta13_NuFit_v3_2_lnL
+  - capability: theta13_lnL
     purpose: LogLike
 
-  - capability: deltaCP_NuFit_v3_2_lnL
+  - capability: deltaCP_lnL
     purpose: LogLike
 
-  - capability: md21_NuFit_v3_2_lnL
+  - capability: md21_lnL
     purpose: LogLike
 
-  - capability: md3l_NuFit_v3_2_lnL
+  - capability: md3l_lnL
     purpose: LogLike
 
   - capability: sum_mnu_lnL

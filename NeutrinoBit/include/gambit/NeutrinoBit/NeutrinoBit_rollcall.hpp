@@ -290,6 +290,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY Gamma_RHN2pi0nu
+  START_CAPABILITY
+    #define FUNCTION Gamma_RHN2pi0nu
+    START_FUNCTION(std::vector<double>)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
+    ALLOW_MODELS(RightHandedNeutrinos)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY Gamma_RHN2piplusl
   START_CAPABILITY
     #define FUNCTION Gamma_RHN2piplusl
@@ -340,9 +350,9 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY Gamma_RHN2Bcl
+  #define CAPABILITY Gamma_RHN2Bsl
   START_CAPABILITY
-    #define FUNCTION Gamma_RHN2Bcl
+    #define FUNCTION Gamma_RHN2Bsl
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
@@ -350,13 +360,13 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY Gamma_RHN2pi0nu
+  #define CAPABILITY Gamma_RHN2Bcl
   START_CAPABILITY
-    #define FUNCTION Gamma_RHN2pi0nu
+    #define FUNCTION Gamma_RHN2Bcl
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODELS(RightHandedNeutrinos)
+    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -380,39 +390,9 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY Gamma_RHN2etacnu
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2etacnu
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODEL(RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
   #define CAPABILITY Gamma_RHN2rhoplusl
   START_CAPABILITY
     #define FUNCTION Gamma_RHN2rhoplusl
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY Gamma_RHN2Dstarplusl
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2Dstarplusl
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY Gamma_RHN2Dstarsl
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2Dstarsl
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
@@ -425,40 +405,6 @@ START_MODULE
     #define FUNCTION Gamma_RHN2rho0nu
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODEL(RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY Gamma_RHN2omeganu
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2omeganu
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODEL(RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY Gamma_RHN2phinu
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2phinu
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
-    DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
-    ALLOW_MODEL(RightHandedNeutrinos)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY Gamma_RHN2Jpsinu
-  START_CAPABILITY
-    #define FUNCTION Gamma_RHN2Jpsinu
-    START_FUNCTION(std::vector<double>)
-    DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_MODEL(RightHandedNeutrinos)
     #undef FUNCTION
@@ -489,7 +435,6 @@ START_MODULE
     #define FUNCTION Gamma_RHN2null
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -500,7 +445,6 @@ START_MODULE
     #define FUNCTION Gamma_RHN2nuuubar
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -511,7 +455,6 @@ START_MODULE
     #define FUNCTION Gamma_RHN2nuddbar
     START_FUNCTION(std::vector<double>)
     DEPENDENCY(SMINPUTS, SMInputs)
-    DEPENDENCY(prec_sinW2_eff, triplet<double>)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_SLHA2)
     #undef FUNCTION
@@ -531,23 +474,18 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION Gamma_BBN
     START_FUNCTION(std::vector<double>)
+    DEPENDENCY(Gamma_RHN2pi0nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2piplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Kplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Dplusl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Dsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Bplusl, std::vector<double>)
+    DEPENDENCY(Gamma_RHN2Bsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2Bcl, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2pi0nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2etanu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2etaprimenu, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2etacnu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2rhoplusl, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2Dstarplusl, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2Dstarsl, std::vector<double>)
     DEPENDENCY(Gamma_RHN2rho0nu, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2omeganu, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2phinu, std::vector<double>)
-    DEPENDENCY(Gamma_RHN2Jpsinu, std::vector<double>)
     DEPENDENCY(Gamma_RHN23nu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2llnu, std::vector<double>)
     DEPENDENCY(Gamma_RHN2null, std::vector<double>)
@@ -978,18 +916,9 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
     
-  #define CAPABILITY theta12_NuFit_v3_2_lnL
+  #define CAPABILITY theta12_lnL
   START_CAPABILITY
-    #define FUNCTION theta12_NuFit_v3_2_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(theta12, double)
-    #undef FUNCTION
-  #undef CAPABILITY  
-
-  #define CAPABILITY theta12_NuFit_v4_1_lnL
-  START_CAPABILITY
-    #define FUNCTION theta12_NuFit_v4_1_lnL
+    #define FUNCTION theta12_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta12, double)
@@ -1004,18 +933,9 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY theta23_NuFit_v3_2_lnL
+  #define CAPABILITY theta23_lnL
   START_CAPABILITY
-    #define FUNCTION theta23_NuFit_v3_2_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(theta23, double)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY theta23_NuFit_v4_1_lnL
-  START_CAPABILITY
-    #define FUNCTION theta23_NuFit_v4_1_lnL
+    #define FUNCTION theta23_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta23, double)
@@ -1030,24 +950,15 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
     
-  #define CAPABILITY theta13_NuFit_v3_2_lnL
+  #define CAPABILITY theta13_lnL
   START_CAPABILITY
-    #define FUNCTION theta13_NuFit_v3_2_lnL
+    #define FUNCTION theta13_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(theta13, double)
     #undef FUNCTION
   #undef CAPABILITY
  
-  #define CAPABILITY theta13_NuFit_v4_1_lnL
-  START_CAPABILITY
-    #define FUNCTION theta13_NuFit_v4_1_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(theta13, double)
-    #undef FUNCTION
-  #undef CAPABILITY
-
   #define CAPABILITY deltaCP
   START_CAPABILITY
     #define FUNCTION deltaCP
@@ -1056,72 +967,33 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY deltaCP_NuFit_v3_2_lnL
+  #define CAPABILITY deltaCP_lnL
   START_CAPABILITY
-    #define FUNCTION deltaCP_NuFit_v3_2_lnL
+    #define FUNCTION deltaCP_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(deltaCP, double)
     #undef FUNCTION
   #undef CAPABILITY  
     
-  #define CAPABILITY deltaCP_NuFit_v4_1_lnL
+  #define CAPABILITY md21_lnL
   START_CAPABILITY
-    #define FUNCTION deltaCP_NuFit_v4_1_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(deltaCP, double)
-    #undef FUNCTION
-  #undef CAPABILITY  
-
-  #define CAPABILITY md21_NuFit_v3_2_lnL
-  START_CAPABILITY
-    #define FUNCTION md21_NuFit_v3_2_lnL
+    #define FUNCTION md21_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(md21, double)
     #undef FUNCTION
   #undef CAPABILITY  
   
-  #define CAPABILITY md21_NuFit_v4_1_lnL
+  #define CAPABILITY md3l_lnL
   START_CAPABILITY
-    #define FUNCTION md21_NuFit_v4_1_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(md21, double)
-    #undef FUNCTION
-  #undef CAPABILITY  
-
-  #define CAPABILITY md3l_NuFit_v3_2_lnL
-  START_CAPABILITY
-    #define FUNCTION md3l_NuFit_v3_2_lnL
+    #define FUNCTION md3l_lnL
     START_FUNCTION(double)
     DEPENDENCY(ordering, bool)
     DEPENDENCY(md31, double)
     DEPENDENCY(md32, double)
     #undef FUNCTION
   #undef CAPABILITY 
-
-  #define CAPABILITY md3l_NuFit_v4_1_lnL
-  START_CAPABILITY
-    #define FUNCTION md3l_NuFit_v4_1_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(md31, double)
-    DEPENDENCY(md32, double)
-    #undef FUNCTION
-  #undef CAPABILITY 
-
-  #define CAPABILITY md21_md3l_NuFit_v4_1_lnL
-  START_CAPABILITY
-    #define FUNCTION md21_md3l_NuFit_v4_1_lnL
-    START_FUNCTION(double)
-    DEPENDENCY(ordering, bool)
-    DEPENDENCY(md21, double)
-    DEPENDENCY(md31, double)
-    DEPENDENCY(md32, double)
-    #undef FUNCTION
-  #undef CAPABILITY
 
   #define CAPABILITY sum_mnu_lnL
   START_CAPABILITY

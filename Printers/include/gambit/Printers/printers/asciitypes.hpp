@@ -27,10 +27,8 @@
   (map_intpair_dbl)                         \
 
 
-#define ASCII_BACKEND_TYPES                 \
+#define ASCII_MODULE_BACKEND_TYPES          \
   (DM_nucleon_couplings)                    \
-  (DM_nucleon_couplings_fermionic_HP)       \
   (Flav_KstarMuMu_obs)                      \
-  (BBN_container)                           \
 
 #endif

@@ -43,9 +43,7 @@ namespace Gambit {
       hid_t create_GAMBIT_fapl()
       {
          hid_t fapl(H5Pcreate(H5P_FILE_ACCESS)); // Copy defaults
-         #ifdef HDF5_DEBUG
-           std::cout<<"HDF5 version:"<<H5_VERS_MAJOR<<"."<<H5_VERS_MINOR<<"."<<H5_VERS_RELEASE<<std::endl;
-         #endif
+         //std::cout<<"HDF5 version:"<<H5_VERS_MAJOR<<"."<<H5_VERS_MINOR<<"."<<H5_VERS_RELEASE<<std::endl;
          #if (H5_VERS_MAJOR > 1) || \
              (H5_VERS_MAJOR == 1) && H5_VERS_MINOR > 10 || \
              (H5_VERS_MAJOR == 1) && H5_VERS_MINOR == 10 && H5_VERS_RELEASE >= 1
@@ -58,9 +56,7 @@ namespace Gambit {
          // However, if you see RAM blowouts and your HDF5 version is old,
          // then this is probably the reason.
          H5Pset_evict_on_close(fapl, value); // Set evict_on_close = true
-         #ifdef HDF5_DEBUG
-           std::cout <<"GAMBIT fapl used!"<<std::endl; // Check that this code is built...
-         #endif
+         //std::cout <<"GAMBIT fapl used!"<<std::endl; // Check that this code is built...
          #endif
 
         return fapl;
@@ -125,9 +121,7 @@ namespace Gambit {
             errmsg << "Failed to close HDF5 file with ID "<<id<<"! See HDF5 error output for more details.";
             printer_error().raise(LOCAL_INFO, errmsg.str());
          }
-         #ifdef HDF5_DEBUG
-           std::cout<<"Called H5Fclose on file with ID "<<id<<std::endl;
-         #endif
+         //std::cout<<"Called H5Fclose on file with ID "<<id<<std::endl;
          return out_id;
       }
 
@@ -256,9 +250,7 @@ namespace Gambit {
           }
 
           // DEBUG
-          #ifdef HDF5_DEBUG
-            std::cout<<"Opened file "<<fname<<" in mode "<<access_type<<", and assigned it ID "<<file_id<<std::endl;
-          #endif
+          //std::cout<<"Opened file "<<fname<<" in mode "<<access_type<<", and assigned it ID "<<file_id<<std::endl;
 
           /* Return the file handle */
           return file_id;
@@ -292,9 +284,7 @@ namespace Gambit {
             readable=true;
           }
           // DEBUG
-          #ifdef HDF5_DEBUG
-            std::cout<<"Checked that file "<<fname<<" was readable (had RDONLY access and ID "<<file_id<<")"<<std::endl;
-          #endif
+          std::cout<<"Checked that file "<<fname<<" was readable (had RDONLY access and ID "<<file_id<<")"<<std::endl;
           return readable;
       }
 
@@ -577,10 +567,8 @@ namespace Gambit {
       // Iterator function for listing datasets in a group
       herr_t group_ls(hid_t g_id, const char *name, const H5L_info_t* /*info*/, void *op_data)
       {
-          #ifdef HDF5_DEBUG
-            //std::cout<<"group_ls: "<<name<<std::endl;
-            //std::cout<<info->type<<" "<<H5G_DATASET<<std::endl;
-          #endif
+          //std::cout<<"group_ls: "<<name<<std::endl;
+          //std::cout<<info->type<<" "<<H5G_DATASET<<std::endl;
           std::vector<std::string>* out = static_cast<std::vector<std::string>*>(op_data);
           // Only add names that correspond to datasets
           H5G_stat_t statbuf;

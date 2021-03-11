@@ -33,6 +33,7 @@ def main(argv):
 
     model_headers=set([])
     model_type_headers = set([])
+    exclude_models=set([])
 
     # Handle command line options
     verbose = False
@@ -41,17 +42,20 @@ def main(argv):
     except getopt.GetoptError:
         print('Usage: model_harvestor.py [flags]')
         print(' flags:')
-        print('        -v : More verbose output')
+        print('        -v                   : More verbose output')
+        print('        -x model1,model2,... : Exclude model1, model2, etc.')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
         verbose = True
         print('model_harvester.py: verbose=True')
+      elif opt in ('-x','--exclude-models'):
+        exclude_models.update(neatsplit(",",arg))
 
     # Get list of models to include in models_rollcall.hpp
-    model_headers.update(retrieve_generic_headers(verbose,"./Models/include/gambit/Models/models","model", set()))
+    model_headers.update(retrieve_generic_headers(verbose,"./Models/include/gambit/Models/models","model",exclude_models))
     # Get lists of model type header files
-    model_type_headers.update(retrieve_generic_headers(verbose,"./Models/include/gambit/Models/model_types","model type", set()))
+    model_type_headers.update(retrieve_generic_headers(verbose,"./Models/include/gambit/Models/model_types","model type",exclude_models))
 
     if verbose:
         print("Model headers identified:")

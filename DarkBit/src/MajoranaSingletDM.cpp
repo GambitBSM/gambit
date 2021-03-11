@@ -205,7 +205,8 @@ namespace Gambit
     void DarkMatter_ID_MajoranaSingletDM(std::string & result) { result = "X"; }
 
     /// Direct detection couplings for the MajoranaSingletDM_Z2 model.
-    void DD_couplings_MajoranaSingletDM_Z2(DM_nucleon_couplings_fermionic_HP &result)
+    /// Non-relativistic Wilson Coefficients for direct detection
+    void DD_nonrel_WCs_MajoranaSingletDM_Z2(NREO_DM_nucleon_couplings &result)
     {
       using namespace Pipes::DD_nonrel_WCs_MajoranaSingletDM_Z2;
       const Spectrum& spec = *Dep::MajoranaSingletDM_Z2_spectrum;
@@ -249,17 +250,16 @@ namespace Gambit
       result.c0[11] = (app + apn)*m_proton/mass;
       result.c1[11] = (app - apn)*m_proton/mass;
 
-      // SI scalar and pseudoscalar couplings
-      result.gps = lambda*fp*m_proton*cosXI/pow(mh,2);
-      result.gns = lambda*fn*m_neutron*cosXI/pow(mh,2);
-      result.gp_q2 = lambda*fp*m_proton*sinXI/pow(mh,2);
-      result.gn_q2 = lambda*fn*m_neutron*sinXI/pow(mh,2);
+    } // function DD_couplings_MajoranaSingletDM_Z2
+    
+    /// Relativistic Wilson Coefficients for direct detection
+    /// defined above the EW scale
+    void DD_rel_WCs_EW_MajoranaSingletDM_Z2(map_str_dbl &result)
+    {
+      using namespace Pipes::DD_rel_WCs_EW_MajoranaSingletDM_Z2;
 
-      logger() << LogTags::debug << "Majorana DM DD couplings:" << std::endl;
-      logger() << " gps = " << result.gps << std::endl;
-      logger() << " gns = " << result.gns << std::endl;
-      logger() << " gp_q2 = " << result.gp_q2 << std::endl;
-      logger() << " gn_q2 = " << result.gn_q2 << EOM;
+      // Get values of non-relativistic operators from Spectrum
+      Spectrum spec = *Dep::MajoranaSingletDM_Z2_spectrum;
 
       double lambda = spec.get(Par::dimensionless, "lX");
       double xi = spec.get(Par::dimensionless, "xi");

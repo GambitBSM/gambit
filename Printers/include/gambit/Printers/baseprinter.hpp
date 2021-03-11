@@ -34,8 +34,6 @@
 #include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Utils/export_symbols.hpp"
 
-#include "gambit/Logs/logmaster.hpp"
-
 // Boost
 #include <boost/preprocessor/seq/for_each_i.hpp>
 

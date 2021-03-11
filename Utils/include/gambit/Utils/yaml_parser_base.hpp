@@ -21,10 +21,6 @@
 ///  \date 2014 Mar
 ///  \date 2015 Mar
 ///
-///  \author Markus Prim
-///          (markus.prim@kit.edu)
-///  \date 2020 May
-///
 ///  *********************************************
 
 #ifndef __yaml_parser_base_hpp__
@@ -72,7 +68,7 @@ namespace Gambit
         {
           const YAML::Node node = getVariadicNode(keyValuePairNode, keys...);
           if (not node) inifile_error().raise(LOCAL_INFO,"No inifile entry for [" + stringifyVariadic(keys...) + "]");
-          return NodeUtility::getNode<TYPE>(node);
+          return node.as<TYPE>();
         }
 
         template<typename TYPE, typename... args> TYPE getValueOrDef(TYPE def, const args&... keys) const
@@ -82,7 +78,7 @@ namespace Gambit
           {
               return def;
           }
-          return NodeUtility::getNode<TYPE>(node);
+          return node.as<TYPE>();
         }
         /// @}
 

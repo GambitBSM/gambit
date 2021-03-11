@@ -33,7 +33,6 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 May, Dec
 ///  \date 2018 Oct
-///  \date 2020 May
 ///
 /// \author Aaron Vincent
 ///         (aaron.vincent@cparc.ca)
@@ -54,7 +53,6 @@
 #include "gambit/Utils/variadic_functions.hpp"
 #include "gambit/Utils/local_info.hpp"
 
-
 namespace Gambit
 {
 
@@ -66,20 +64,14 @@ namespace Gambit
   typedef std::pair<double, double> ddpair;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
-  /// Shorthand for a string-to-int map
-  typedef std::map<std::string,int> map_str_int;
   /// Shorthand for a string-to-string-to-double map
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
-  /// Shorthand for a string-to-string-to-string map
-  typedef std::map<std::string,std::map<std::string,std::string> > map_str_map_str_str;
+
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
-
-  /// Shorthand for a pointer to a void function with no arguments
-  typedef void (*fptr_void)();
-
+  
   // Useful unqualified functions
   using std::cout;
   using std::cerr;
@@ -324,13 +316,13 @@ namespace Gambit
       struct calc_nElem<limL,limU,_lims...>
       {
         enum{val= (limU-limL+1)*calc_nElem<_lims... >::val};
-        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
       template<int limL, int limU>
       struct calc_nElem<limL,limU>
       {
         enum{val=(limU-limL+1)};
-        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
     public:
       typedef calc_nElem<lims... > nElem;
@@ -602,12 +594,12 @@ namespace Gambit
       template<typename T2>
       FcomplexT operator / (const FcomplexT<T2> &in)
       {
-        FcomplexT out;
+        FcomplexT out = (*this)*in;
 
         if(in.abs() != 0)
         {
-          out.re = (re*in.re + im*in.im) / in.abs();
-          out.im = (im*in.re - re*in.im) / in.abs();
+          out.re /= in.abs();
+          out.im /= in.abs();
         }
         else
         {
@@ -640,6 +632,7 @@ namespace Gambit
   typedef float             Freal4;
   typedef double            Freal8;
   typedef long double       Freal16;
+
 
   /// Types used for Mathematica backends
   typedef void         MVoid;

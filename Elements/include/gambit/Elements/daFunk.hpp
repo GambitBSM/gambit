@@ -887,7 +887,6 @@ namespace daFunk
             {
                 arguments = vec(arg);
                 this->set_singularity("v", pos, width);
-                singularities[arg].push_back(std::pair<Funk, Funk>(cnst(pos), cnst(width)));
             }
 
             double value(const std::vector<double> & data, size_t bindID)
