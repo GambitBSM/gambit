@@ -245,7 +245,6 @@ endif()
 # GreAT
 set(name "great")
 set(ver "1.0.0")
-set(lib "libgreat")
 set(dl "null")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/ScannerBit/patches/${name}/${ver}/patch_${name}_${ver}.dif")

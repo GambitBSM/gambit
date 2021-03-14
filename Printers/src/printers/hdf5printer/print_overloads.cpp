@@ -201,6 +201,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings_fermionic_HP)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, FlavBit::flav_predicition)
     #endif
 
     /// @}

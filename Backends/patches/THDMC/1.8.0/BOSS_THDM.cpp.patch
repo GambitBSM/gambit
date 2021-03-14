@@ -1,0 +1,11 @@
+--- BOSS_THDM.cpp	2020-08-10 08:22:35.729797000 +0000
++++ BOSS_THDM.cpp.patched	2020-08-10 08:24:09.331000000 +0000
+@@ -47,7 +47,7 @@
+ 
+ 
+ 
+-const double& THDM::EPS_ref__BOSS() { return EPS; }
++const double& THDM::EPS_ref__BOSS() { return double(EPS); }
+ 
+ 
+ #include "backend_types/THDMC_1_8_0/identification.hpp"

@@ -13,6 +13,7 @@
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)         
 ///  \date June 2016
+///  \date 2020 Apr
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
@@ -50,7 +51,6 @@ namespace Gambit
     addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
     addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
-    //addParameter(Par::Pole_Mixing, "sinW2", scalar, "HMIX",23);
     addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
     addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
@@ -73,6 +73,7 @@ namespace Gambit
     addParameter(Par::mass1, "u_1", scalar, "SMINPUTS",22);
     addParameter(Par::mass1, "d_2", scalar, "SMINPUTS",23);
 */
+    // Yukawas
     addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
     addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
     addParameter(Par::dimensionless, "Ye1", m3x3, "Ye1");
@@ -89,12 +90,19 @@ namespace Gambit
     addParameter(Par::dimensionless, "ImYu2", m3x3, "ImYu2");
     addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
 
+    // Pole masses
     addParameter(Par::Pole_Mass, "h0_1", scalar,"MASS",25); 
     addParameter(Par::Pole_Mass, "h0_2", scalar,"MASS",35);
     addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36); 
     addParameter(Par::Pole_Mass, "H+",   scalar,"MASS",37);
     addParameter(Par::Pole_Mass, "W+",   scalar,"MASS",24);
 
+    // Running masses
+    addParameter(Par::mass1, "h0", v2, "MRUN", {25,35});
+    addParameter(Par::mass1, "A0", scalar, "MRUN", 36);
+    addParameter(Par::mass1, "H+", scalar, "MRUN", 37);
+    addParameter(Par::mass1, "W+", scalar, "MRUN", 24);
+ 
     addParameter(Par::dimensionless, "lambda1",scalar,"MINPAR",11);
     addParameter(Par::dimensionless, "lambda2",scalar,"MINPAR",12);
     addParameter(Par::dimensionless, "lambda3",scalar,"MINPAR",13);

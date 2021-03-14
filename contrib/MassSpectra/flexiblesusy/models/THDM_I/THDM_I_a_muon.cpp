@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:52
+// File generated at Tue 7 Apr 2020 02:34:07
 
 /**
  * @file THDM_I_a_muon.cpp
  *
- * This file was generated at Wed 31 Oct 2018 19:37:52 with FlexibleSUSY
- * 2.0.1 and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 02:34:07 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.13.0 .
  */
 
 #include "THDM_I_a_muon.hpp"
@@ -264,10 +264,9 @@ double calculate_a_muon_impl(THDM_I_mass_eigenstates& model)
 
    std::array<int, 1> indices = { 1 };
 
-   val += AMuonVertexCorrectionSF<Hm, Fe>::value(indices, context);
-   val += AMuonVertexCorrectionSF<conj<Hm>::type, Fe>::value(indices, context);
-   val += AMuonVertexCorrectionFS<Fe, Hm>::value(indices, context);
-   val += AMuonVertexCorrectionFS<Fe, conj<Hm>::type>::value(indices, context);
+   val += AMuonVertexCorrectionFS<Fe, Ah>::value(indices, context);
+   val += AMuonVertexCorrectionSF<Hm, Fv>::value(indices, context);
+   val += AMuonVertexCorrectionFS<Fe, hh>::value(indices, context);
 
    // add 2-loop QED logarithms
    val *= 1. + get_QED_2L(context);

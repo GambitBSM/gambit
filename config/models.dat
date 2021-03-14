@@ -711,7 +711,6 @@ THDMII_higgs_hybrid: |
 THDMII_higgs_hybridatQ: |
    The Type-II Two-Higgs-Doublet Model in the Higgs basis (see THDMII_higgs_hybrid) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 ############################
 # Cosmology related models #
@@ -1149,4 +1148,3 @@ DecayingDM_electron: |
    mass        - mass of the dark matter candidate [in GeV]
    lifetime    - lifetime of said DM candidate [in s]
    fraction    - fraction of how much the decaying DM component contributes to all DM.
-

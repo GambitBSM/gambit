@@ -99,6 +99,11 @@ indent = 3
 known_classes = {
 }
 
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:49
+// File generated at Tue 7 Apr 2020 02:34:05
 
 #include "THDM_I_two_scale_high_scale_constraint.hpp"
 #include "THDM_I_two_scale_model.hpp"
@@ -89,9 +89,9 @@ bool THDM_I_high_scale_constraint<Two_scale>::check_non_perturbative()
    const auto Lambda4 = MODELPARAMETER(Lambda4);
    const auto Lambda3 = MODELPARAMETER(Lambda3);
    const auto Lambda2 = MODELPARAMETER(Lambda2);
+   const auto Yu = MODELPARAMETER(Yu);
    const auto Yd = MODELPARAMETER(Yd);
    const auto Ye = MODELPARAMETER(Ye);
-   const auto Yu = MODELPARAMETER(Yu);
 
    if (MaxAbsValue(g1) > 3.5449077018110318) {
       problem = true;
@@ -152,6 +152,68 @@ bool THDM_I_high_scale_constraint<Two_scale>::check_non_perturbative()
       model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Lambda2, MaxAbsValue(Lambda2), model->get_scale(), 3.5449077018110318);
    } else {
       model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Lambda2);
+   }
+   if (MaxAbsValue(Yu(0,0)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_0, MaxAbsValue(Yu(0,0)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_0);
+   }
+
+   if (MaxAbsValue(Yu(0,1)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_1, MaxAbsValue(Yu(0,1)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_1);
+   }
+
+   if (MaxAbsValue(Yu(0,2)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_2, MaxAbsValue(Yu(0,2)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_2);
+   }
+
+   if (MaxAbsValue(Yu(1,0)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_0, MaxAbsValue(Yu(1,0)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_0);
+   }
+
+   if (MaxAbsValue(Yu(1,1)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_1, MaxAbsValue(Yu(1,1)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_1);
+   }
+
+   if (MaxAbsValue(Yu(1,2)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_2, MaxAbsValue(Yu(1,2)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_2);
+   }
+
+   if (MaxAbsValue(Yu(2,0)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_0, MaxAbsValue(Yu(2,0)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_0);
+   }
+
+   if (MaxAbsValue(Yu(2,1)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_1, MaxAbsValue(Yu(2,1)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_1);
+   }
+
+   if (MaxAbsValue(Yu(2,2)) > 3.5449077018110318) {
+      problem = true;
+      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_2, MaxAbsValue(Yu(2,2)), model->get_scale(), 3.5449077018110318);
+   } else {
+      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_2);
    }
    if (MaxAbsValue(Yd(0,0)) > 3.5449077018110318) {
       problem = true;
@@ -276,68 +338,6 @@ bool THDM_I_high_scale_constraint<Two_scale>::check_non_perturbative()
       model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Ye2_2, MaxAbsValue(Ye(2,2)), model->get_scale(), 3.5449077018110318);
    } else {
       model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Ye2_2);
-   }
-   if (MaxAbsValue(Yu(0,0)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_0, MaxAbsValue(Yu(0,0)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_0);
-   }
-
-   if (MaxAbsValue(Yu(0,1)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_1, MaxAbsValue(Yu(0,1)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_1);
-   }
-
-   if (MaxAbsValue(Yu(0,2)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu0_2, MaxAbsValue(Yu(0,2)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu0_2);
-   }
-
-   if (MaxAbsValue(Yu(1,0)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_0, MaxAbsValue(Yu(1,0)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_0);
-   }
-
-   if (MaxAbsValue(Yu(1,1)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_1, MaxAbsValue(Yu(1,1)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_1);
-   }
-
-   if (MaxAbsValue(Yu(1,2)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu1_2, MaxAbsValue(Yu(1,2)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu1_2);
-   }
-
-   if (MaxAbsValue(Yu(2,0)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_0, MaxAbsValue(Yu(2,0)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_0);
-   }
-
-   if (MaxAbsValue(Yu(2,1)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_1, MaxAbsValue(Yu(2,1)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_1);
-   }
-
-   if (MaxAbsValue(Yu(2,2)) > 3.5449077018110318) {
-      problem = true;
-      model->get_problems().flag_non_perturbative_parameter(THDM_I_info::Yu2_2, MaxAbsValue(Yu(2,2)), model->get_scale(), 3.5449077018110318);
-   } else {
-      model->get_problems().unflag_non_perturbative_parameter(THDM_I_info::Yu2_2);
    }
 
 

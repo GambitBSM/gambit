@@ -148,6 +148,12 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
@@ -162,6 +168,8 @@ namespace Gambit
        bool HDF5Reader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+       bool HDF5Reader::_retrieve(FlavBit::flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #endif

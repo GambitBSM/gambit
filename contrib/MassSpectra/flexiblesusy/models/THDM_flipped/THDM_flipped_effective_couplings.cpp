@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:53
+// File generated at Tue 7 Apr 2020 14:56:55
 
 #include "THDM_flipped_effective_couplings.hpp"
 
@@ -251,6 +251,69 @@ std::complex<double> THDM_flipped_effective_couplings::CphhconjVWmVWm(int gI2) c
    return result;
 }
 
+std::complex<double> THDM_flipped_effective_couplings::CpbarFdFdhhPL(int gO2, int gI2, int gI1) const
+{
+   const auto Yd = MODELPARAMETER(Yd);
+
+   const std::complex<double> result = -0.7071067811865475*SUM(j2,0,2,Conj(Vd(
+      gI2,j2))*SUM(j1,0,2,Conj(Ud(gO2,j1))*Yd(j1,j2)))*ZH(gI1,0);
+
+   return result;
+}
+
+std::complex<double> THDM_flipped_effective_couplings::CpbarFdFdAhPL(int gO2, int gI1, int gI2) const
+{
+   const auto Yd = MODELPARAMETER(Yd);
+
+   const std::complex<double> result = std::complex<double>(0.,
+      0.7071067811865475)*SUM(j2,0,2,Conj(Vd(gI1,j2))*SUM(j1,0,2,Conj(Ud(gO2,j1))*
+      Yd(j1,j2)))*ZA(gI2,0);
+
+   return result;
+}
+
+std::complex<double> THDM_flipped_effective_couplings::CpbarFeFehhPL(int gO2, int gI2, int gI1) const
+{
+   const auto Ye = MODELPARAMETER(Ye);
+
+   const std::complex<double> result = -0.7071067811865475*SUM(j2,0,2,Conj(Ve(
+      gI2,j2))*SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,j2)))*ZH(gI1,1);
+
+   return result;
+}
+
+std::complex<double> THDM_flipped_effective_couplings::CpbarFeFeAhPL(int gO2, int gI1, int gI2) const
+{
+   const auto Ye = MODELPARAMETER(Ye);
+
+   const std::complex<double> result = std::complex<double>(0.,
+      0.7071067811865475)*SUM(j2,0,2,Conj(Ve(gI1,j2))*SUM(j1,0,2,Conj(Ue(gO2,j1))*
+      Ye(j1,j2)))*ZA(gI2,1);
+
+   return result;
+}
+
+std::complex<double> THDM_flipped_effective_couplings::CpbarFuFuhhPL(int gO2, int gI2, int gI1) const
+{
+   const auto Yu = MODELPARAMETER(Yu);
+
+   const std::complex<double> result = 0.7071067811865475*SUM(j2,0,2,Conj(Vu(
+      gI2,j2))*SUM(j1,0,2,Conj(Uu(gO2,j1))*Yu(j1,j2)))*ZH(gI1,1);
+
+   return result;
+}
+
+std::complex<double> THDM_flipped_effective_couplings::CpbarFuFuAhPL(int gO2, int gI1, int gI2) const
+{
+   const auto Yu = MODELPARAMETER(Yu);
+
+   const std::complex<double> result = std::complex<double>(0.,
+      0.7071067811865475)*SUM(j2,0,2,Conj(Vu(gI1,j2))*SUM(j1,0,2,Conj(Uu(gO2,j1))*
+      Yu(j1,j2)))*ZA(gI2,1);
+
+   return result;
+}
+
 std::complex<double> THDM_flipped_effective_couplings::CphhHmconjHm(int gt1, int gt2, int gt3) const
 {
    const auto Lambda1 = MODELPARAMETER(Lambda1);
@@ -264,13 +327,13 @@ std::complex<double> THDM_flipped_effective_couplings::CphhHmconjHm(int gt1, int
    const auto v2 = MODELPARAMETER(v2);
 
    const std::complex<double> result = 0.5*(-(ZH(gt1,1)*(ZP(gt2,0)*((Lambda6*v1
-      + 2*Lambda3*v2 + v1*Conj(Lambda6))*ZP(gt3,0) + (Lambda4*v1 + Lambda5*v1 + 2
-      *Lambda7*v2)*ZP(gt3,1)) + ZP(gt2,1)*((Lambda4*v1 + v1*Conj(Lambda5) + 2*v2*
+      + 2*Lambda3*v2 + v1*Conj(Lambda6))*ZP(gt3,0) + (Lambda4*v1 + 2*Lambda7*v2 +
+      v1*Conj(Lambda5))*ZP(gt3,1)) + ZP(gt2,1)*(((Lambda4 + Lambda5)*v1 + 2*v2*
       Conj(Lambda7))*ZP(gt3,0) + (Lambda7*v1 + 2*Lambda2*v2 + v1*Conj(Lambda7))*ZP
       (gt3,1)))) - ZH(gt1,0)*(ZP(gt2,0)*((2*Lambda1*v1 + Lambda6*v2 + v2*Conj(
-      Lambda6))*ZP(gt3,0) + (2*Lambda6*v1 + (Lambda4 + Lambda5)*v2)*ZP(gt3,1)) +
-      ZP(gt2,1)*((Lambda4*v2 + v2*Conj(Lambda5) + 2*v1*Conj(Lambda6))*ZP(gt3,0) +
-      (2*Lambda3*v1 + Lambda7*v2 + v2*Conj(Lambda7))*ZP(gt3,1))));
+      Lambda6))*ZP(gt3,0) + (2*Lambda6*v1 + Lambda4*v2 + v2*Conj(Lambda5))*ZP(gt3,
+      1)) + ZP(gt2,1)*(((Lambda4 + Lambda5)*v2 + 2*v1*Conj(Lambda6))*ZP(gt3,0) + (
+      2*Lambda3*v1 + Lambda7*v2 + v2*Conj(Lambda7))*ZP(gt3,1))));
 
    return result;
 }
@@ -286,7 +349,7 @@ std::complex<double> THDM_flipped_effective_couplings::CpAhHmconjHm(int gt1, int
 
    const std::complex<double> result = std::complex<double>(0,0.5)*(v2*ZA(gt1,0
       ) - v1*ZA(gt1,1))*(ZP(gt2,0)*((Lambda6 - Conj(Lambda6))*ZP(gt3,0) + (
-      -Lambda4 + Lambda5)*ZP(gt3,1)) + ZP(gt2,1)*((Lambda4 - Conj(Lambda5))*ZP(gt3
+      -Lambda4 + Conj(Lambda5))*ZP(gt3,1)) + ZP(gt2,1)*((Lambda4 - Lambda5)*ZP(gt3
       ,0) + (Lambda7 - Conj(Lambda7))*ZP(gt3,1)));
 
    return result;
@@ -295,6 +358,9 @@ std::complex<double> THDM_flipped_effective_couplings::CpAhHmconjHm(int gt1, int
 void THDM_flipped_effective_couplings::calculate_eff_CphhVPVP(int gO1)
 {
    const auto MHm = PHYSICAL(MHm);
+   const auto MFd = PHYSICAL(MFd);
+   const auto MFu = PHYSICAL(MFu);
+   const auto MFe = PHYSICAL(MFe);
    const auto MVWm = PHYSICAL(MVWm);
    const auto decay_mass = PHYSICAL(Mhh)(gO1);
    const auto decay_scale = 0.25 * Sqr(decay_mass);
@@ -307,6 +373,20 @@ void THDM_flipped_effective_couplings::calculate_eff_CphhVPVP(int gO1)
    for (int gI1 = 1; gI1 < 2; ++gI1) {
       result += 0.5 * CphhHmconjHm(gO1, gI1, gI1) * vev * AS0(decay_scale /
          Sqr(MHm(gI1))) / Sqr(MHm(gI1));
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += 0.3333333333333333 * scalar_fermion_qcd_factor(decay_mass,
+         MFd(gI1)) * CpbarFdFdhhPL(gI1, gI1, gO1) * vev * AS12(decay_scale / Sqr(
+         MFd(gI1))) / MFd(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += 1.3333333333333333 * scalar_fermion_qcd_factor(decay_mass,
+         MFu(gI1)) * CpbarFuFuhhPL(gI1, gI1, gO1) * vev * AS12(decay_scale / Sqr(
+         MFu(gI1))) / MFu(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFeFehhPL(gI1, gI1, gO1) * vev * AS12(decay_scale / Sqr(
+         MFe(gI1))) / MFe(gI1);
    }
    result += -0.5 * CphhconjVWmVWm(gO1) * vev * AS1(decay_scale / Sqr(MVWm)) /
       Sqr(MVWm);
@@ -323,6 +403,8 @@ void THDM_flipped_effective_couplings::calculate_eff_CphhVPVP(int gO1)
 void THDM_flipped_effective_couplings::calculate_eff_CphhVGVG(int gO1)
 {
    const auto g3 = MODELPARAMETER(g3);
+   const auto MFd = PHYSICAL(MFd);
+   const auto MFu = PHYSICAL(MFu);
    const double alpha_s = 0.07957747154594767*Sqr(g3);
    const auto decay_mass = PHYSICAL(Mhh)(gO1);
    const auto decay_scale = 0.25 * Sqr(decay_mass);
@@ -332,6 +414,14 @@ void THDM_flipped_effective_couplings::calculate_eff_CphhVGVG(int gO1)
    const auto vev = 1.0 / Sqrt(qedqcd.displayFermiConstant() * Sqrt(2.0));
 
    std::complex<double> result = 0;
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFdFdhhPL(gI1, gI1, gO1) * vev * AS12(decay_scale / Sqr(
+         MFd(gI1))) / MFd(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFuFuhhPL(gI1, gI1, gO1) * vev * AS12(decay_scale / Sqr(
+         MFu(gI1))) / MFu(gI1);
+   }
    result *= 0.75;
 
    if (include_qcd_corrections) {
@@ -349,6 +439,9 @@ void THDM_flipped_effective_couplings::calculate_eff_CphhVGVG(int gO1)
 
 void THDM_flipped_effective_couplings::calculate_eff_CpAhVPVP(int gO1)
 {
+   const auto MFd = PHYSICAL(MFd);
+   const auto MFu = PHYSICAL(MFu);
+   const auto MFe = PHYSICAL(MFe);
    const auto decay_mass = PHYSICAL(MAh)(gO1);
    const auto decay_scale = 0.25 * Sqr(decay_mass);
    const auto saved_ZA = ZA;
@@ -357,6 +450,20 @@ void THDM_flipped_effective_couplings::calculate_eff_CpAhVPVP(int gO1)
    const auto vev = 1.0 / Sqrt(qedqcd.displayFermiConstant() * Sqrt(2.0));
 
    std::complex<double> result = 0;
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += 0.3333333333333333 * pseudoscalar_fermion_qcd_factor(
+         decay_mass, MFd(gI1)) * CpbarFdFdAhPL(gI1, gI1, gO1) * vev * AP12(
+         decay_scale / Sqr(MFd(gI1))) / MFd(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += 1.3333333333333333 * pseudoscalar_fermion_qcd_factor(
+         decay_mass, MFu(gI1)) * CpbarFuFuAhPL(gI1, gI1, gO1) * vev * AP12(
+         decay_scale / Sqr(MFu(gI1))) / MFu(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFeFeAhPL(gI1, gI1, gO1) * vev * AP12(decay_scale / Sqr(
+         MFe(gI1))) / MFe(gI1);
+   }
    result *= 2.0;
 
 
@@ -371,6 +478,8 @@ void THDM_flipped_effective_couplings::calculate_eff_CpAhVPVP(int gO1)
 void THDM_flipped_effective_couplings::calculate_eff_CpAhVGVG(int gO1)
 {
    const auto g3 = MODELPARAMETER(g3);
+   const auto MFd = PHYSICAL(MFd);
+   const auto MFu = PHYSICAL(MFu);
    const double alpha_s = 0.07957747154594767*Sqr(g3);
    const auto decay_mass = PHYSICAL(MAh)(gO1);
    const auto decay_scale = 0.25 * Sqr(decay_mass);
@@ -380,6 +489,14 @@ void THDM_flipped_effective_couplings::calculate_eff_CpAhVGVG(int gO1)
    const auto vev = 1.0 / Sqrt(qedqcd.displayFermiConstant() * Sqrt(2.0));
 
    std::complex<double> result = 0;
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFdFdAhPL(gI1, gI1, gO1) * vev * AP12(decay_scale / Sqr(
+         MFd(gI1))) / MFd(gI1);
+   }
+   for (int gI1 = 0; gI1 < 3; ++gI1) {
+      result += CpbarFuFuAhPL(gI1, gI1, gO1) * vev * AP12(decay_scale / Sqr(
+         MFu(gI1))) / MFu(gI1);
+   }
    result *= 1.5;
 
    if (include_qcd_corrections) {

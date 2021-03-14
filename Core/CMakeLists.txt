@@ -33,6 +33,7 @@ set(source_files src/container_factory.cpp
                  src/modelgraph.cpp
                  src/yaml_description_database.cpp
                  src/yaml_parser.cpp
+                 src/cleanup.cpp
 )
 
 set(header_files include/gambit/Core/container_factory.hpp
@@ -46,6 +47,7 @@ set(header_files include/gambit/Core/container_factory.hpp
                  include/gambit/Core/modelgraph.hpp
                  include/gambit/Core/yaml_description_database.hpp
                  include/gambit/Core/yaml_parser.hpp
+                 include/gambit/Core/cleanup.hpp
 )
 
 add_gambit_library(Core OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})

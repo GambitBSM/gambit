@@ -38,6 +38,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Jan
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Apr
+///
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
 ///  \date 2020 Nov
@@ -256,6 +260,8 @@ START_MODULE
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
   #undef FUNCTION
 #undef CAPABILITY
 

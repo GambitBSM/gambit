@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:56
+// File generated at Tue 7 Apr 2020 02:34:12
 
 /**
  * @file THDM_I_cxx_diagrams.hpp
  *
- * This file was generated at Wed 31 Oct 2018 19:37:56 with FlexibleSUSY
- * 2.0.1 and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 02:34:12 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.13.0 .
  */
 
 #ifndef THDM_I_CXXDIAGRAMS_H
@@ -648,56 +648,14 @@ private:
 };
 
 
-template<> struct VertexData<bar<Fe>::type, Fe, Hm>
-{
-   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
-   using vertex_type = LeftAndRightComponentedVertex;
-};
-
-template<> struct VertexData<Fe, bar<Fe>::type, conj<Hm>::type>
-{
-   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
-   using vertex_type = LeftAndRightComponentedVertex;
-};
-
-template<> struct VertexData<VP, conj<Hm>::type, Hm>
-{
-   static constexpr impl::IndexBounds<2> index_bounds = { { 0, 0 }, { 2, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 0, 1, 2 };
-   using vertex_type = SingleComponentedVertex;
-};
-
-template<> struct VertexData<bar<Fe>::type, Fe, conj<Hm>::type>
-{
-   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
-   using vertex_type = LeftAndRightComponentedVertex;
-};
-
-template<> struct VertexData<Fe, bar<Fe>::type, Hm>
-{
-   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
-   using vertex_type = LeftAndRightComponentedVertex;
-};
-
-template<> struct VertexData<VP, Hm, conj<Hm>::type>
-{
-   static constexpr impl::IndexBounds<2> index_bounds = { { 0, 0 }, { 2, 2 } };
-   static constexpr int fieldIndexStart[4] = { 0, 0, 1, 2 };
-   using vertex_type = SingleComponentedVertex;
-};
-
-template<> struct VertexData<bar<Fe>::type, Hm, Fe>
+template<> struct VertexData<bar<Fe>::type, Ah, Fe>
 {
    static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 2, 3 } };
    static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
    using vertex_type = LeftAndRightComponentedVertex;
 };
 
-template<> struct VertexData<Fe, conj<Hm>::type, bar<Fe>::type>
+template<> struct VertexData<Fe, Ah, bar<Fe>::type>
 {
    static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 2, 3 } };
    static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
@@ -711,14 +669,35 @@ template<> struct VertexData<VP, bar<Fe>::type, Fe>
    using vertex_type = LeftAndRightComponentedVertex;
 };
 
-template<> struct VertexData<bar<Fe>::type, conj<Hm>::type, Fe>
+template<> struct VertexData<bar<Fe>::type, Fv, Hm>
+{
+   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
+   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
+   using vertex_type = LeftAndRightComponentedVertex;
+};
+
+template<> struct VertexData<Fe, bar<Fv>::type, conj<Hm>::type>
+{
+   static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 3, 2 } };
+   static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
+   using vertex_type = LeftAndRightComponentedVertex;
+};
+
+template<> struct VertexData<VP, conj<Hm>::type, Hm>
+{
+   static constexpr impl::IndexBounds<2> index_bounds = { { 0, 0 }, { 2, 2 } };
+   static constexpr int fieldIndexStart[4] = { 0, 0, 1, 2 };
+   using vertex_type = SingleComponentedVertex;
+};
+
+template<> struct VertexData<bar<Fe>::type, hh, Fe>
 {
    static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 2, 3 } };
    static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
    using vertex_type = LeftAndRightComponentedVertex;
 };
 
-template<> struct VertexData<Fe, Hm, bar<Fe>::type>
+template<> struct VertexData<Fe, hh, bar<Fe>::type>
 {
    static constexpr impl::IndexBounds<3> index_bounds = { { 0, 0, 0 }, { 3, 2, 3 } };
    static constexpr int fieldIndexStart[4] = { 0, 1, 2, 3 };
@@ -727,27 +706,27 @@ template<> struct VertexData<Fe, Hm, bar<Fe>::type>
 
 
 template<> inline
-Vertex<bar<Fe>::type, Fe, Hm>::vertex_type
-Vertex<bar<Fe>::type, Fe, Hm>::evaluate(const indices_type& indices, const EvaluationContext& context)
+Vertex<bar<Fe>::type, Ah, Fe>::vertex_type
+Vertex<bar<Fe>::type, Ah, Fe>::evaluate(const indices_type& indices, const EvaluationContext& context)
 {
    const int gt1 = indices[0];
    const int gt2 = indices[1];
    const int gt3 = indices[2];
    const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
    const auto Ve = MODELPARAMETER(Ve);
-   const auto ZP = MODELPARAMETER(ZP);
+   const auto Ue = MODELPARAMETER(Ue);
+   const auto ZA = MODELPARAMETER(ZA);
 
-   const std::complex<double> left = 0;
+   const std::complex<double> left = std::complex<double>(0.,0.7071067811865475)*SUM(j2,0,2,Conj(Ve(gt3,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZA(gt2,1);
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt2,j1))*Ve(gt1,j2))*ZP(gt3,1));
+   const std::complex<double> right = std::complex<double>(0.,-0.7071067811865475)*SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt3,j1))*Ve(gt1,j2))*ZA(gt2,1);
 
    return vertex_type(left, right);
 }
 
 template<> inline
-Vertex<Fe, bar<Fe>::type, conj<Hm>::type>::vertex_type
-Vertex<Fe, bar<Fe>::type, conj<Hm>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
+Vertex<Fe, Ah, bar<Fe>::type>::vertex_type
+Vertex<Fe, Ah, bar<Fe>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
 {
    const int gt1 = indices[0];
    const int gt2 = indices[1];
@@ -755,117 +734,11 @@ Vertex<Fe, bar<Fe>::type, conj<Hm>::type>::evaluate(const indices_type& indices,
    const auto Ye = MODELPARAMETER(Ye);
    const auto Ve = MODELPARAMETER(Ve);
    const auto Ue = MODELPARAMETER(Ue);
-   const auto ZP = MODELPARAMETER(ZP);
+   const auto ZA = MODELPARAMETER(ZA);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt2,j1))*Ye(j1,j2)))*ZP(gt3,1));
+   const std::complex<double> left = std::complex<double>(0.,0.7071067811865475)*SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt3,j1))*Ye(j1,j2)))*ZA(gt2,1);
 
-   const std::complex<double> right = 0;
-
-   return vertex_type(left, right);
-}
-
-template<> inline
-Vertex<VP, conj<Hm>::type, Hm>::vertex_type
-Vertex<VP, conj<Hm>::type, Hm>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt2 = indices[0];
-   const int gt3 = indices[1];
-   const auto g1 = MODELPARAMETER(g1);
-   const auto g2 = MODELPARAMETER(g2);
-   const auto ThetaW = DERIVEDPARAMETER(ThetaW);
-
-   const std::complex<double> result = -0.5*KroneckerDelta(gt2,gt3)*(g1*Cos(ThetaW) + g2*Sin(ThetaW));
-
-   return vertex_type(result);
-}
-
-template<> inline
-Vertex<bar<Fe>::type, Fe, conj<Hm>::type>::vertex_type
-Vertex<bar<Fe>::type, Fe, conj<Hm>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt1 = indices[0];
-   const int gt2 = indices[1];
-   const int gt3 = indices[2];
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ve = MODELPARAMETER(Ve);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto ZP = MODELPARAMETER(ZP);
-
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt2,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt3,1));
-
-   const std::complex<double> right = 0;
-
-   return vertex_type(left, right);
-}
-
-template<> inline
-Vertex<Fe, bar<Fe>::type, Hm>::vertex_type
-Vertex<Fe, bar<Fe>::type, Hm>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt1 = indices[0];
-   const int gt2 = indices[1];
-   const int gt3 = indices[2];
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto Ve = MODELPARAMETER(Ve);
-   const auto ZP = MODELPARAMETER(ZP);
-
-   const std::complex<double> left = 0;
-
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt2,j2))*ZP(gt3,1));
-
-   return vertex_type(left, right);
-}
-
-template<> inline
-Vertex<VP, Hm, conj<Hm>::type>::vertex_type
-Vertex<VP, Hm, conj<Hm>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt2 = indices[0];
-   const int gt3 = indices[1];
-   const auto g1 = MODELPARAMETER(g1);
-   const auto g2 = MODELPARAMETER(g2);
-   const auto ThetaW = DERIVEDPARAMETER(ThetaW);
-
-   const std::complex<double> result = -0.5*KroneckerDelta(gt2,gt3)*(g1*Cos(ThetaW) + g2*Sin(ThetaW));
-
-   return vertex_type(result);
-}
-
-template<> inline
-Vertex<bar<Fe>::type, Hm, Fe>::vertex_type
-Vertex<bar<Fe>::type, Hm, Fe>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt1 = indices[0];
-   const int gt2 = indices[1];
-   const int gt3 = indices[2];
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto Ve = MODELPARAMETER(Ve);
-   const auto ZP = MODELPARAMETER(ZP);
-
-   const std::complex<double> left = 0;
-
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt3,j1))*Ve(gt1,j2))*ZP(gt2,1));
-
-   return vertex_type(left, right);
-}
-
-template<> inline
-Vertex<Fe, conj<Hm>::type, bar<Fe>::type>::vertex_type
-Vertex<Fe, conj<Hm>::type, bar<Fe>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
-{
-   const int gt1 = indices[0];
-   const int gt2 = indices[1];
-   const int gt3 = indices[2];
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ve = MODELPARAMETER(Ve);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto ZP = MODELPARAMETER(ZP);
-
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt3,j1))*Ye(j1,j2)))*ZP(gt2,1));
-
-   const std::complex<double> right = 0;
+   const std::complex<double> right = std::complex<double>(0.,-0.7071067811865475)*SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt3,j2))*ZA(gt2,1);
 
    return vertex_type(left, right);
 }
@@ -888,18 +761,17 @@ Vertex<VP, bar<Fe>::type, Fe>::evaluate(const indices_type& indices, const Evalu
 }
 
 template<> inline
-Vertex<bar<Fe>::type, conj<Hm>::type, Fe>::vertex_type
-Vertex<bar<Fe>::type, conj<Hm>::type, Fe>::evaluate(const indices_type& indices, const EvaluationContext& context)
+Vertex<bar<Fe>::type, Fv, Hm>::vertex_type
+Vertex<bar<Fe>::type, Fv, Hm>::evaluate(const indices_type& indices, const EvaluationContext& context)
 {
    const int gt1 = indices[0];
    const int gt2 = indices[1];
    const int gt3 = indices[2];
    const auto Ye = MODELPARAMETER(Ye);
-   const auto Ve = MODELPARAMETER(Ve);
    const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> left = -(SUM(j2,0,2,Conj(Ve(gt3,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZP(gt2,1));
+   const std::complex<double> left = -(SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,gt2))*ZP(gt3,1));
 
    const std::complex<double> right = 0;
 
@@ -907,20 +779,72 @@ Vertex<bar<Fe>::type, conj<Hm>::type, Fe>::evaluate(const indices_type& indices,
 }
 
 template<> inline
-Vertex<Fe, Hm, bar<Fe>::type>::vertex_type
-Vertex<Fe, Hm, bar<Fe>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
+Vertex<Fe, bar<Fv>::type, conj<Hm>::type>::vertex_type
+Vertex<Fe, bar<Fv>::type, conj<Hm>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
 {
    const int gt1 = indices[0];
    const int gt2 = indices[1];
    const int gt3 = indices[2];
    const auto Ye = MODELPARAMETER(Ye);
    const auto Ue = MODELPARAMETER(Ue);
-   const auto Ve = MODELPARAMETER(Ve);
    const auto ZP = MODELPARAMETER(ZP);
 
    const std::complex<double> left = 0;
 
-   const std::complex<double> right = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt3,j2))*ZP(gt2,1));
+   const std::complex<double> right = -(SUM(j1,0,2,Conj(Ye(j1,gt2))*Ue(gt1,j1))*ZP(gt3,1));
+
+   return vertex_type(left, right);
+}
+
+template<> inline
+Vertex<VP, conj<Hm>::type, Hm>::vertex_type
+Vertex<VP, conj<Hm>::type, Hm>::evaluate(const indices_type& indices, const EvaluationContext& context)
+{
+   const int gt2 = indices[0];
+   const int gt3 = indices[1];
+   const auto g1 = MODELPARAMETER(g1);
+   const auto g2 = MODELPARAMETER(g2);
+   const auto ThetaW = DERIVEDPARAMETER(ThetaW);
+
+   const std::complex<double> result = -0.5*KroneckerDelta(gt2,gt3)*(g1*Cos(ThetaW) + g2*Sin(ThetaW));
+
+   return vertex_type(result);
+}
+
+template<> inline
+Vertex<bar<Fe>::type, hh, Fe>::vertex_type
+Vertex<bar<Fe>::type, hh, Fe>::evaluate(const indices_type& indices, const EvaluationContext& context)
+{
+   const int gt1 = indices[0];
+   const int gt2 = indices[1];
+   const int gt3 = indices[2];
+   const auto Ye = MODELPARAMETER(Ye);
+   const auto Ve = MODELPARAMETER(Ve);
+   const auto Ue = MODELPARAMETER(Ue);
+   const auto ZH = MODELPARAMETER(ZH);
+
+   const std::complex<double> left = -0.7071067811865475*SUM(j2,0,2,Conj(Ve(gt3,j2))*SUM(j1,0,2,Conj(Ue(gt1,j1))*Ye(j1,j2)))*ZH(gt2,1);
+
+   const std::complex<double> right = -0.7071067811865475*SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt3,j1))*Ve(gt1,j2))*ZH(gt2,1);
+
+   return vertex_type(left, right);
+}
+
+template<> inline
+Vertex<Fe, hh, bar<Fe>::type>::vertex_type
+Vertex<Fe, hh, bar<Fe>::type>::evaluate(const indices_type& indices, const EvaluationContext& context)
+{
+   const int gt1 = indices[0];
+   const int gt2 = indices[1];
+   const int gt3 = indices[2];
+   const auto Ye = MODELPARAMETER(Ye);
+   const auto Ve = MODELPARAMETER(Ve);
+   const auto Ue = MODELPARAMETER(Ue);
+   const auto ZH = MODELPARAMETER(ZH);
+
+   const std::complex<double> left = -0.7071067811865475*SUM(j2,0,2,Conj(Ve(gt1,j2))*SUM(j1,0,2,Conj(Ue(gt3,j1))*Ye(j1,j2)))*ZH(gt2,1);
+
+   const std::complex<double> right = -0.7071067811865475*SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gt1,j1))*Ve(gt3,j2))*ZH(gt2,1);
 
    return vertex_type(left, right);
 }

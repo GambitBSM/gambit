@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:35:34
+// File generated at Tue 7 Apr 2020 02:31:52
 
 #include "THDM_I_susy_parameters.hpp"
 #include "config.h"
@@ -47,14 +47,14 @@ THDM_I_susy_parameters::THDM_I_susy_parameters(
    const THDM_I_input_parameters& input_
    , double g1_, double g2_, double g3_, double Lambda6_, double Lambda5_,
    double Lambda7_, double Lambda1_, double Lambda4_, double Lambda3_, double
-   Lambda2_, const Eigen::Matrix<double,3,3>& Yd_, const Eigen::Matrix<double,3
-   ,3>& Ye_, const Eigen::Matrix<double,3,3>& Yu_
+   Lambda2_, const Eigen::Matrix<double,3,3>& Yu_, const Eigen::Matrix<double,3
+   ,3>& Yd_, const Eigen::Matrix<double,3,3>& Ye_
 
 )
    : Beta_function()
    , g1(g1_), g2(g2_), g3(g3_), Lambda6(Lambda6_), Lambda5(Lambda5_), Lambda7(
    Lambda7_), Lambda1(Lambda1_), Lambda4(Lambda4_), Lambda3(Lambda3_), Lambda2(
-   Lambda2_), Yd(Yd_), Ye(Ye_), Yu(Yu_)
+   Lambda2_), Yu(Yu_), Yd(Yd_), Ye(Ye_)
 
    , input(input_)
 {
@@ -81,9 +81,9 @@ THDM_I_susy_parameters THDM_I_susy_parameters::calc_beta(int loops) const
    double beta_Lambda4 = 0.;
    double beta_Lambda3 = 0.;
    double beta_Lambda2 = 0.;
+   Eigen::Matrix<double,3,3> beta_Yu = Eigen::Matrix<double,3,3>::Zero();
    Eigen::Matrix<double,3,3> beta_Yd = Eigen::Matrix<double,3,3>::Zero();
    Eigen::Matrix<double,3,3> beta_Ye = Eigen::Matrix<double,3,3>::Zero();
-   Eigen::Matrix<double,3,3> beta_Yu = Eigen::Matrix<double,3,3>::Zero();
 
    if (loops > 0) {
       const auto TRACE_STRUCT = CALCULATE_TRACES(loops);
@@ -98,9 +98,9 @@ THDM_I_susy_parameters THDM_I_susy_parameters::calc_beta(int loops) const
       beta_Lambda4 += calc_beta_Lambda4_1_loop(TRACE_STRUCT);
       beta_Lambda3 += calc_beta_Lambda3_1_loop(TRACE_STRUCT);
       beta_Lambda2 += calc_beta_Lambda2_1_loop(TRACE_STRUCT);
+      beta_Yu += calc_beta_Yu_1_loop(TRACE_STRUCT);
       beta_Yd += calc_beta_Yd_1_loop(TRACE_STRUCT);
       beta_Ye += calc_beta_Ye_1_loop(TRACE_STRUCT);
-      beta_Yu += calc_beta_Yu_1_loop(TRACE_STRUCT);
 
       if (loops > 1) {
          beta_g1 += calc_beta_g1_2_loop(TRACE_STRUCT);
@@ -113,9 +113,9 @@ THDM_I_susy_parameters THDM_I_susy_parameters::calc_beta(int loops) const
          beta_Lambda4 += calc_beta_Lambda4_2_loop(TRACE_STRUCT);
          beta_Lambda3 += calc_beta_Lambda3_2_loop(TRACE_STRUCT);
          beta_Lambda2 += calc_beta_Lambda2_2_loop(TRACE_STRUCT);
+         beta_Yu += calc_beta_Yu_2_loop(TRACE_STRUCT);
          beta_Yd += calc_beta_Yd_2_loop(TRACE_STRUCT);
          beta_Ye += calc_beta_Ye_2_loop(TRACE_STRUCT);
-         beta_Yu += calc_beta_Yu_2_loop(TRACE_STRUCT);
 
          if (loops > 2) {
          #ifdef ENABLE_THREADS
@@ -131,7 +131,7 @@ THDM_I_susy_parameters THDM_I_susy_parameters::calc_beta(int loops) const
 
 
    return THDM_I_susy_parameters(get_scale(), loops, get_thresholds(), input,
-                    beta_g1, beta_g2, beta_g3, beta_Lambda6, beta_Lambda5, beta_Lambda7, beta_Lambda1, beta_Lambda4, beta_Lambda3, beta_Lambda2, beta_Yd, beta_Ye, beta_Yu);
+                    beta_g1, beta_g2, beta_g3, beta_Lambda6, beta_Lambda5, beta_Lambda7, beta_Lambda1, beta_Lambda4, beta_Lambda3, beta_Lambda2, beta_Yu, beta_Yd, beta_Ye);
 }
 
 THDM_I_susy_parameters THDM_I_susy_parameters::calc_beta() const
@@ -152,9 +152,9 @@ void THDM_I_susy_parameters::clear()
    Lambda4 = 0.;
    Lambda3 = 0.;
    Lambda2 = 0.;
+   Yu = Eigen::Matrix<double,3,3>::Zero();
    Yd = Eigen::Matrix<double,3,3>::Zero();
    Ye = Eigen::Matrix<double,3,3>::Zero();
-   Yu = Eigen::Matrix<double,3,3>::Zero();
 
 }
 
@@ -174,33 +174,33 @@ Eigen::ArrayXd THDM_I_susy_parameters::get() const
    pars(7) = Lambda4;
    pars(8) = Lambda3;
    pars(9) = Lambda2;
-   pars(10) = Yd(0,0);
-   pars(11) = Yd(0,1);
-   pars(12) = Yd(0,2);
-   pars(13) = Yd(1,0);
-   pars(14) = Yd(1,1);
-   pars(15) = Yd(1,2);
-   pars(16) = Yd(2,0);
-   pars(17) = Yd(2,1);
-   pars(18) = Yd(2,2);
-   pars(19) = Ye(0,0);
-   pars(20) = Ye(0,1);
-   pars(21) = Ye(0,2);
-   pars(22) = Ye(1,0);
-   pars(23) = Ye(1,1);
-   pars(24) = Ye(1,2);
-   pars(25) = Ye(2,0);
-   pars(26) = Ye(2,1);
-   pars(27) = Ye(2,2);
-   pars(28) = Yu(0,0);
-   pars(29) = Yu(0,1);
-   pars(30) = Yu(0,2);
-   pars(31) = Yu(1,0);
-   pars(32) = Yu(1,1);
-   pars(33) = Yu(1,2);
-   pars(34) = Yu(2,0);
-   pars(35) = Yu(2,1);
-   pars(36) = Yu(2,2);
+   pars(10) = Yu(0,0);
+   pars(11) = Yu(0,1);
+   pars(12) = Yu(0,2);
+   pars(13) = Yu(1,0);
+   pars(14) = Yu(1,1);
+   pars(15) = Yu(1,2);
+   pars(16) = Yu(2,0);
+   pars(17) = Yu(2,1);
+   pars(18) = Yu(2,2);
+   pars(19) = Yd(0,0);
+   pars(20) = Yd(0,1);
+   pars(21) = Yd(0,2);
+   pars(22) = Yd(1,0);
+   pars(23) = Yd(1,1);
+   pars(24) = Yd(1,2);
+   pars(25) = Yd(2,0);
+   pars(26) = Yd(2,1);
+   pars(27) = Yd(2,2);
+   pars(28) = Ye(0,0);
+   pars(29) = Ye(0,1);
+   pars(30) = Ye(0,2);
+   pars(31) = Ye(1,0);
+   pars(32) = Ye(1,1);
+   pars(33) = Ye(1,2);
+   pars(34) = Ye(2,0);
+   pars(35) = Ye(2,1);
+   pars(36) = Ye(2,2);
 
 
    return pars;
@@ -219,9 +219,9 @@ void THDM_I_susy_parameters::print(std::ostream& ostr) const
    ostr << "Lambda4 = " << Lambda4 << '\n';
    ostr << "Lambda3 = " << Lambda3 << '\n';
    ostr << "Lambda2 = " << Lambda2 << '\n';
+   ostr << "Yu = " << Yu << '\n';
    ostr << "Yd = " << Yd << '\n';
    ostr << "Ye = " << Ye << '\n';
-   ostr << "Yu = " << Yu << '\n';
 
 }
 
@@ -237,33 +237,33 @@ void THDM_I_susy_parameters::set(const Eigen::ArrayXd& pars)
    Lambda4 = pars(7);
    Lambda3 = pars(8);
    Lambda2 = pars(9);
-   Yd(0,0) = pars(10);
-   Yd(0,1) = pars(11);
-   Yd(0,2) = pars(12);
-   Yd(1,0) = pars(13);
-   Yd(1,1) = pars(14);
-   Yd(1,2) = pars(15);
-   Yd(2,0) = pars(16);
-   Yd(2,1) = pars(17);
-   Yd(2,2) = pars(18);
-   Ye(0,0) = pars(19);
-   Ye(0,1) = pars(20);
-   Ye(0,2) = pars(21);
-   Ye(1,0) = pars(22);
-   Ye(1,1) = pars(23);
-   Ye(1,2) = pars(24);
-   Ye(2,0) = pars(25);
-   Ye(2,1) = pars(26);
-   Ye(2,2) = pars(27);
-   Yu(0,0) = pars(28);
-   Yu(0,1) = pars(29);
-   Yu(0,2) = pars(30);
-   Yu(1,0) = pars(31);
-   Yu(1,1) = pars(32);
-   Yu(1,2) = pars(33);
-   Yu(2,0) = pars(34);
-   Yu(2,1) = pars(35);
-   Yu(2,2) = pars(36);
+   Yu(0,0) = pars(10);
+   Yu(0,1) = pars(11);
+   Yu(0,2) = pars(12);
+   Yu(1,0) = pars(13);
+   Yu(1,1) = pars(14);
+   Yu(1,2) = pars(15);
+   Yu(2,0) = pars(16);
+   Yu(2,1) = pars(17);
+   Yu(2,2) = pars(18);
+   Yd(0,0) = pars(19);
+   Yd(0,1) = pars(20);
+   Yd(0,2) = pars(21);
+   Yd(1,0) = pars(22);
+   Yd(1,1) = pars(23);
+   Yd(1,2) = pars(24);
+   Yd(2,0) = pars(25);
+   Yd(2,1) = pars(26);
+   Yd(2,2) = pars(27);
+   Ye(0,0) = pars(28);
+   Ye(0,1) = pars(29);
+   Ye(0,2) = pars(30);
+   Ye(1,0) = pars(31);
+   Ye(1,1) = pars(32);
+   Ye(1,2) = pars(33);
+   Ye(2,0) = pars(34);
+   Ye(2,1) = pars(35);
+   Ye(2,2) = pars(36);
 
 }
 

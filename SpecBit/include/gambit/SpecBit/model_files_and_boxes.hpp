@@ -188,7 +188,7 @@
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
 #undef MODELNAME
 
-#define MODELNAME THDM_lepton
+#define MODELNAME THDM_LS
 #include "gambit/SpecBit/flexiblesusy_include_automater.hpp" // Automatically includes necessary SingletDM model headers etc.
 #undef MODELNAME
 

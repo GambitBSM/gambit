@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:45
+// File generated at Tue 7 Apr 2020 02:34:00
 
 #ifndef THDM_I_SPECTRUM_GENERATOR_H
 #define THDM_I_SPECTRUM_GENERATOR_H

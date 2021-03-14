@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:49
+// File generated at Tue 7 Apr 2020 02:34:04
 
 #include "THDM_I_mass_eigenstates.hpp"
 #include "THDM_I_weinberg_angle.hpp"
@@ -264,10 +264,32 @@ double CLASSNAME::calculate_delta_rho_hat(double sinThetaW) const
 
       const auto g1 = MODELPARAMETER(g1);
       const auto g2 = MODELPARAMETER(g2);
+      const auto v1 = MODELPARAMETER(v1);
+      const auto v2 = MODELPARAMETER(v2);
+      const auto Yu = MODELPARAMETER(Yu);
+      const auto Vu = MODELPARAMETER(Vu);
+      const auto Uu = MODELPARAMETER(Uu);
+      const auto ZA = MODELPARAMETER(ZA);
+      const auto ZH = MODELPARAMETER(ZH);
+      const auto MAh = MODELPARAMETER(MAh);
+      const auto Mhh = MODELPARAMETER(Mhh);
 
-      deltaRhoHat2LoopSM = (0.0020157209020749685*ALPHAS*Sqr(g1)*Sqr(g2)*(-2.24 +
-         1.262*Log(MT/MZ) - (2.145*Sqr(MT))/Sqr(MW) - (0.85*Sqr(MZ))/Sqr(MT)))/((Sqr(
-         g1) + Sqr(g2))*(1 + PIZZTMZ/Sqr(MZ))*Sqr(SINTHETAW));
+      deltaRhoHat2LoopSM = (0.000010025373295590172*((64*ALPHAS*Pi*Sqr(g1)*Sqr(g2)
+         *(-2.24 + 1.262*Log(MT/MZ) - (2.145*Sqr(MT))/Sqr(MW) - (0.85*Sqr(MZ))/Sqr(MT
+         )))/((Sqr(g1) + Sqr(g2))*Sqr(SINTHETAW)) + 3*Sqr(GFERMI)*Sqr(MT)*(Sqr(v1) +
+         Sqr(v2))*(RHO2(MAh(1)/MT)*(Sqr(Abs((-SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,
+         Conj(Uu(2,j1))*Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))
+         *Vu(2,j2)))*ZA(1,1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(
+         Uu(2,j1))*Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2
+         ,j2)))*ZA(1,1)))) - RHO2(Mhh(0)/MT)*(Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(
+         j1,0,2,Conj(Uu(2,j1))*Yu(j1,j2))) - SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu
+         (2,j1))*Vu(2,j2)))*ZH(0,1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2
+         ,Conj(Uu(2,j1))*Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1)
+         )*Vu(2,j2)))*ZH(0,1)))) - RHO2(Mhh(1)/MT)*(Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2)
+         )*SUM(j1,0,2,Conj(Uu(2,j1))*Yu(j1,j2))) - SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,
+         j2))*Uu(2,j1))*Vu(2,j2)))*ZH(1,1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM
+         (j1,0,2,Conj(Uu(2,j1))*Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*
+         Uu(2,j1))*Vu(2,j2)))*ZH(1,1)))))))/(1 + PIZZTMZ/Sqr(MZ));
    }
 
    const double deltaRhoHat2LoopSMreal = std::real(deltaRhoHat2LoopSM);
@@ -312,10 +334,33 @@ double CLASSNAME::calculate_delta_r_hat(double rhohat_ratio, double sinThetaW) c
 
       const auto g1 = MODELPARAMETER(g1);
       const auto g2 = MODELPARAMETER(g2);
+      const auto v1 = MODELPARAMETER(v1);
+      const auto v2 = MODELPARAMETER(v2);
+      const auto Yu = MODELPARAMETER(Yu);
+      const auto Vu = MODELPARAMETER(Vu);
+      const auto Uu = MODELPARAMETER(Uu);
+      const auto ZA = MODELPARAMETER(ZA);
+      const auto ZH = MODELPARAMETER(ZH);
+      const auto MAh = MODELPARAMETER(MAh);
+      const auto Mhh = MODELPARAMETER(Mhh);
 
-      deltaRHat2LoopSM = (-0.0020157209020749685*ALPHAS*Sqr(g1)*Sqr(g2)*(-0.224 +
-         0.575*Log(MT/MZ) + (2.145*Sqr(MT))/Sqr(MZ) - (0.144*Sqr(MZ))/Sqr(MT)))/((Sqr
-         (g1) + Sqr(g2))*(-1 + Sqr(SINTHETAW))*Sqr(SINTHETAW));
+      deltaRHat2LoopSM = -0.000010025373295590172*((64*ALPHAS*Pi*Sqr(g1)*Sqr(g2)*(
+         -0.224 + 0.575*Log(MT/MZ) + (2.145*Sqr(MT))/Sqr(MZ) - (0.144*Sqr(MZ))/Sqr(MT
+         )))/((Sqr(g1) + Sqr(g2))*(-1 + Sqr(SINTHETAW))*Sqr(SINTHETAW)) + 3*(1 -
+         DELTARHAT1LOOP)*RHOHATRATIO*Sqr(GFERMI)*Sqr(MT)*(Sqr(v1) + Sqr(v2))*(RHO2(
+         MAh(1)/MT)*(Sqr(Abs((-SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(Uu(2,j1))*Yu
+         (j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2,j2)))*ZA(1,
+         1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(Uu(2,j1))*Yu(j1,j2
+         ))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2,j2)))*ZA(1,1))))
+         - RHO2(Mhh(0)/MT)*(Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(Uu(2,
+         j1))*Yu(j1,j2))) - SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2,j2))
+         )*ZH(0,1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(Uu(2,j1))*
+         Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2,j2)))*ZH(
+         0,1)))) - RHO2(Mhh(1)/MT)*(Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,
+         Conj(Uu(2,j1))*Yu(j1,j2))) - SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))
+         *Vu(2,j2)))*ZH(1,1))) - Sqr(Abs((SUM(j2,0,2,Conj(Vu(2,j2))*SUM(j1,0,2,Conj(
+         Uu(2,j1))*Yu(j1,j2))) + SUM(j2,0,2,SUM(j1,0,2,Conj(Yu(j1,j2))*Uu(2,j1))*Vu(2
+         ,j2)))*ZH(1,1))))));
    }
 
    const double deltaRHat2LoopSMreal = std::real(deltaRHat2LoopSM);
@@ -454,118 +499,94 @@ std::complex<double> CLASSNAME::CpbarFvFeconjVWmPL(int gI1, int gI2) const
    return result;
 }
 
-double CLASSNAME::CpbarFvFehhPL(int , int , int ) const
+double CLASSNAME::CpbarFvFeconjHmPL(int , int , int ) const
 {
    const double result = 0;
 
    return result;
 }
 
-std::complex<double> CLASSNAME::CpbarFvFehhPR(int gO1, int gI2, int gI1) const
+std::complex<double> CLASSNAME::CpbarFvFeconjHmPR(int gO1, int gI2, int gI1) const
 {
    const auto Ye = MODELPARAMETER(Ye);
    const auto Ue = MODELPARAMETER(Ue);
-   const auto ZH = MODELPARAMETER(ZH);
+   const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> result = 0.7071067811865475*SUM(j1,0,2,Conj(Ye(j1
-      ,gO1))*Ue(gI2,j1))*ZH(gI1,1);
-
-   return result;
-}
-
-double CLASSNAME::CpbarFvFeAhPL(int , int , int ) const
-{
-   const double result = 0;
+   const std::complex<double> result = -(SUM(j1,0,2,Conj(Ye(j1,gO1))*Ue(gI2,j1)
+      )*ZP(gI1,1));
 
    return result;
 }
 
-std::complex<double> CLASSNAME::CpbarFvFeAhPR(int gO1, int gI1, int gI2) const
-{
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto ZA = MODELPARAMETER(ZA);
-
-   const std::complex<double> result = std::complex<double>(0.,
-      -0.7071067811865475)*SUM(j1,0,2,Conj(Ye(j1,gO1))*Ue(gI1,j1))*ZA(gI2,1);
-
-   return result;
-}
-
-std::complex<double> CLASSNAME::CpbarFeFeconjHmPL(int gO2, int gI2, int gI1) const
+std::complex<double> CLASSNAME::CpbarFeFehhPL(int gO2, int gI2, int gI1) const
 {
    const auto Ye = MODELPARAMETER(Ye);
    const auto Ve = MODELPARAMETER(Ve);
    const auto Ue = MODELPARAMETER(Ue);
-   const auto ZP = MODELPARAMETER(ZP);
-
-   const std::complex<double> result = -(SUM(j2,0,2,Conj(Ve(gI2,j2))*SUM(j1,0,2
-      ,Conj(Ue(gO2,j1))*Ye(j1,j2)))*ZP(gI1,1));
-
-   return result;
-}
-
-double CLASSNAME::CpbarFeFeconjHmPR(int , int , int ) const
-{
-   const double result = 0;
-
-   return result;
-}
-
-std::complex<double> CLASSNAME::CpbarFeFvhhPL(int gO2, int gI2, int gI1) const
-{
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
    const auto ZH = MODELPARAMETER(ZH);
 
-   const std::complex<double> result = 0.7071067811865475*SUM(j1,0,2,Conj(Ue(
-      gO2,j1))*Ye(j1,gI2))*ZH(gI1,1);
+   const std::complex<double> result = -0.7071067811865475*SUM(j2,0,2,Conj(Ve(
+      gI2,j2))*SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,j2)))*ZH(gI1,1);
 
    return result;
 }
 
-double CLASSNAME::CpbarFeFvhhPR(int , int , int ) const
-{
-   const double result = 0;
-
-   return result;
-}
-
-std::complex<double> CLASSNAME::CpbarFeFvAhPL(int gO2, int gI1, int gI2) const
-{
-   const auto Ye = MODELPARAMETER(Ye);
-   const auto Ue = MODELPARAMETER(Ue);
-   const auto ZA = MODELPARAMETER(ZA);
-
-   const std::complex<double> result = std::complex<double>(0.,
-      0.7071067811865475)*SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,gI1))*ZA(gI2,1);
-
-   return result;
-}
-
-double CLASSNAME::CpbarFeFvAhPR(int , int , int ) const
-{
-   const double result = 0;
-
-   return result;
-}
-
-double CLASSNAME::CpbarFeFeHmPL(int , int , int ) const
-{
-   const double result = 0;
-
-   return result;
-}
-
-std::complex<double> CLASSNAME::CpbarFeFeHmPR(int gO4, int gI3, int gI4) const
+std::complex<double> CLASSNAME::CpbarFeFehhPR(int gO1, int gI2, int gI1) const
 {
    const auto Ye = MODELPARAMETER(Ye);
    const auto Ue = MODELPARAMETER(Ue);
    const auto Ve = MODELPARAMETER(Ve);
+   const auto ZH = MODELPARAMETER(ZH);
+
+   const std::complex<double> result = -0.7071067811865475*SUM(j2,0,2,SUM(j1,0,
+      2,Conj(Ye(j1,j2))*Ue(gI2,j1))*Ve(gO1,j2))*ZH(gI1,1);
+
+   return result;
+}
+
+std::complex<double> CLASSNAME::CpbarFeFvHmPL(int gO2, int gI2, int gI1) const
+{
+   const auto Ye = MODELPARAMETER(Ye);
+   const auto Ue = MODELPARAMETER(Ue);
    const auto ZP = MODELPARAMETER(ZP);
 
-   const std::complex<double> result = -(SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*
-      Ue(gI3,j1))*Ve(gO4,j2))*ZP(gI4,1));
+   const std::complex<double> result = -(SUM(j1,0,2,Conj(Ue(gO2,j1))*Ye(j1,gI2)
+      )*ZP(gI1,1));
+
+   return result;
+}
+
+double CLASSNAME::CpbarFeFvHmPR(int , int , int ) const
+{
+   const double result = 0;
+
+   return result;
+}
+
+std::complex<double> CLASSNAME::CpbarFeFeAhPL(int gO2, int gI1, int gI2) const
+{
+   const auto Ye = MODELPARAMETER(Ye);
+   const auto Ve = MODELPARAMETER(Ve);
+   const auto Ue = MODELPARAMETER(Ue);
+   const auto ZA = MODELPARAMETER(ZA);
+
+   const std::complex<double> result = std::complex<double>(0.,
+      0.7071067811865475)*SUM(j2,0,2,Conj(Ve(gI1,j2))*SUM(j1,0,2,Conj(Ue(gO2,j1))*
+      Ye(j1,j2)))*ZA(gI2,1);
+
+   return result;
+}
+
+std::complex<double> CLASSNAME::CpbarFeFeAhPR(int gO1, int gI1, int gI2) const
+{
+   const auto Ye = MODELPARAMETER(Ye);
+   const auto Ue = MODELPARAMETER(Ue);
+   const auto Ve = MODELPARAMETER(Ve);
+   const auto ZA = MODELPARAMETER(ZA);
+
+   const std::complex<double> result = std::complex<double>(0.,
+      -0.7071067811865475)*SUM(j2,0,2,SUM(j1,0,2,Conj(Ye(j1,j2))*Ue(gI1,j1))*Ve(
+      gO1,j2))*ZA(gI2,1);
 
    return result;
 }
@@ -574,98 +595,68 @@ std::complex<double> CLASSNAME::CpbarFeFeHmPR(int gO4, int gI3, int gI4) const
 std::complex<double> CLASSNAME::delta_vb_wave_Fv(int gO1) const
 {
    const auto MFe = MODELPARAMETER(MFe);
-   const auto Mhh = MODELPARAMETER(Mhh);
-   const auto MAh = MODELPARAMETER(MAh);
+   const auto MHm = MODELPARAMETER(MHm);
 
-   const std::complex<double> result = SUM(gI1,0,1,SUM(gI2,0,2,-(AbsSqr(
-      CpbarFeFvhhPL(gI2,gO1,gI1))*B1(0,Sqr(MFe(gI2)),Sqr(Mhh(gI1)))))) + SUM(gI1,1
-      ,1,SUM(gI2,0,2,-(AbsSqr(CpbarFeFvAhPL(gI2,gO1,gI1))*B1(0,Sqr(MFe(gI2)),Sqr(
-      MAh(gI1))))));
+   const std::complex<double> result = SUM(gI1,1,1,SUM(gI2,0,2,-(AbsSqr(
+      CpbarFeFvHmPL(gI2,gO1,gI1))*B1(0,Sqr(MFe(gI2)),Sqr(MHm(gI1))))));
 
    return result;
 }
 
 std::complex<double> CLASSNAME::delta_vb_wave_Fe(int gO1) const
 {
-   const auto MFv = MODELPARAMETER(MFv);
-   const auto Mhh = MODELPARAMETER(Mhh);
    const auto MFe = MODELPARAMETER(MFe);
+   const auto Mhh = MODELPARAMETER(Mhh);
+   const auto MFv = MODELPARAMETER(MFv);
    const auto MHm = MODELPARAMETER(MHm);
    const auto MAh = MODELPARAMETER(MAh);
 
    const std::complex<double> result = SUM(gI1,0,1,SUM(gI2,0,2,-(AbsSqr(
-      CpbarFvFehhPL(gI2,gO1,gI1))*B1(0,Sqr(MFv(gI2)),Sqr(Mhh(gI1)))))) + SUM(gI1,0
-      ,2,SUM(gI2,1,1,-(AbsSqr(CpbarFeFeconjHmPL(gI1,gO1,gI2))*B1(0,Sqr(MFe(gI1)),
-      Sqr(MHm(gI2)))))) + SUM(gI1,1,1,SUM(gI2,0,2,-(AbsSqr(CpbarFeFeHmPL(gI2,gO1,
-      gI1))*B1(0,Sqr(MFe(gI2)),Sqr(MHm(gI1)))))) + SUM(gI1,1,1,SUM(gI2,0,2,-(
-      AbsSqr(CpbarFvFeAhPL(gI2,gO1,gI1))*B1(0,Sqr(MFv(gI2)),Sqr(MAh(gI1))))));
+      CpbarFeFehhPL(gI2,gO1,gI1))*B1(0,Sqr(MFe(gI2)),Sqr(Mhh(gI1)))))) + SUM(gI1,0
+      ,2,SUM(gI2,1,1,-(AbsSqr(CpbarFvFeconjHmPL(gI1,gO1,gI2))*B1(0,Sqr(MFv(gI1)),
+      Sqr(MHm(gI2)))))) + SUM(gI1,1,1,SUM(gI2,0,2,-(AbsSqr(CpbarFeFeAhPL(gI2,gO1,
+      gI1))*B1(0,Sqr(MFe(gI2)),Sqr(MAh(gI1))))));
 
    return result;
 }
 
 std::complex<double> CLASSNAME::delta_vb_vertex(int gO1, int gO2) const
 {
-   const auto Mhh = MODELPARAMETER(Mhh);
    const auto MHm = MODELPARAMETER(MHm);
+   const auto Mhh = MODELPARAMETER(Mhh);
    const auto MFe = MODELPARAMETER(MFe);
    const auto MAh = MODELPARAMETER(MAh);
 
-   const std::complex<double> result = (SUM(gI1,0,1,SUM(gI2,1,1,SUM(gI3,0,2,0.5
-      *CpbarFeFeconjHmPL(gI3,gO1,gI2)*CpbarFvFehhPR(gO2,gI3,gI1)*CphhHmconjVWm(gI1
-      ,gI2)*(0.5 + B0(0,Sqr(Mhh(gI1)),Sqr(MHm(gI2))) + C0(Sqr(MFe(gI3)),Sqr(Mhh(
-      gI1)),Sqr(MHm(gI2)))*Sqr(MFe(gI3)))))) + SUM(gI1,1,1,SUM(gI2,1,1,SUM(gI3,0,2
-      ,0.5*CpAhHmconjVWm(gI1,gI2)*CpbarFeFeconjHmPL(gI3,gO1,gI2)*CpbarFvFeAhPR(gO2
-      ,gI3,gI1)*(0.5 + B0(0,Sqr(MAh(gI1)),Sqr(MHm(gI2))) + C0(Sqr(MFe(gI3)),Sqr(
-      MAh(gI1)),Sqr(MHm(gI2)))*Sqr(MFe(gI3)))))))/CpbarFvFeconjVWmPL(gO2,gO1);
+   const std::complex<double> result = (SUM(gI1,1,1,SUM(gI2,0,1,SUM(gI3,0,2,
+      -0.5*CpbarFeFehhPL(gI3,gO1,gI2)*CpbarFvFeconjHmPR(gO2,gI3,gI1)*CphhHmconjVWm
+      (gI2,gI1)*(0.5 + B0(0,Sqr(MHm(gI1)),Sqr(Mhh(gI2))) + C0(Sqr(MFe(gI3)),Sqr(
+      MHm(gI1)),Sqr(Mhh(gI2)))*Sqr(MFe(gI3)))))) + SUM(gI1,1,1,SUM(gI2,1,1,SUM(gI3
+      ,0,2,-0.5*CpAhHmconjVWm(gI2,gI1)*CpbarFeFeAhPL(gI3,gO1,gI2)*
+      CpbarFvFeconjHmPR(gO2,gI3,gI1)*(0.5 + B0(0,Sqr(MHm(gI1)),Sqr(MAh(gI2))) + C0
+      (Sqr(MFe(gI3)),Sqr(MHm(gI1)),Sqr(MAh(gI2)))*Sqr(MFe(gI3)))))))
+      /CpbarFvFeconjVWmPL(gO2,gO1);
 
    return result;
 }
 
 std::complex<double> CLASSNAME::delta_vb_box(int gO1, int gO2, int gO3, int gO4) const
 {
-   const auto Mhh = MODELPARAMETER(Mhh);
    const auto MFe = MODELPARAMETER(MFe);
-   const auto MFv = MODELPARAMETER(MFv);
-   const auto MAh = MODELPARAMETER(MAh);
    const auto MHm = MODELPARAMETER(MHm);
+   const auto Mhh = MODELPARAMETER(Mhh);
+   const auto MAh = MODELPARAMETER(MAh);
+   const auto MFv = MODELPARAMETER(MFv);
 
-   const std::complex<double> result = SUM(gI1,0,1,SUM(gI2,0,2,SUM(gI3,0,1,SUM(
-      gI4,0,2,CpbarFeFvhhPL(gI2,gO3,gI3)*CpbarFeFvhhPR(gO4,gI4,gI3)*CpbarFvFehhPL(
-      gI4,gO1,gI1)*CpbarFvFehhPR(gO2,gI2,gI1)*D27(Sqr(Mhh(gI1)),Sqr(MFe(gI2)),Sqr(
-      Mhh(gI3)),Sqr(MFv(gI4))))))) + SUM(gI1,0,1,SUM(gI2,0,2,SUM(gI3,0,1,SUM(gI4,0
-      ,2,-(CpbarFeFvhhPL(gI2,gO3,gI1)*CpbarFeFvhhPR(gO4,gI4,gI3)*CpbarFvFehhPL(gI4
-      ,gO1,gI1)*CpbarFvFehhPR(gO2,gI2,gI3)*D27(Sqr(Mhh(gI1)),Sqr(MFe(gI2)),Sqr(Mhh
-      (gI3)),Sqr(MFv(gI4)))))))) + SUM(gI1,0,1,SUM(gI2,0,2,SUM(gI3,1,1,SUM(gI4,0,2
-      ,-(CpbarFeFvAhPR(gO4,gI4,gI3)*CpbarFeFvhhPL(gI2,gO3,gI1)*CpbarFvFeAhPR(gO2,
-      gI2,gI3)*CpbarFvFehhPL(gI4,gO1,gI1)*D27(Sqr(Mhh(gI1)),Sqr(MFe(gI2)),Sqr(MAh(
-      gI3)),Sqr(MFv(gI4)))))))) + SUM(gI1,0,1,SUM(gI2,0,2,SUM(gI3,1,1,SUM(gI4,0,2,
-      CpbarFeFvAhPL(gI2,gO3,gI3)*CpbarFeFvAhPR(gO4,gI4,gI3)*CpbarFvFehhPL(gI4,gO1,
-      gI1)*CpbarFvFehhPR(gO2,gI2,gI1)*D27(Sqr(Mhh(gI1)),Sqr(MFe(gI2)),Sqr(MAh(gI3)
-      ),Sqr(MFv(gI4))))))) + SUM(gI1,0,2,SUM(gI2,0,1,SUM(gI3,0,2,SUM(gI4,1,1,
-      CpbarFeFeconjHmPR(gO4,gI3,gI4)*CpbarFeFeHmPL(gI1,gO1,gI4)*CpbarFeFvhhPL(gI3,
-      gO3,gI2)*CpbarFvFehhPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(Mhh(gI2)),Sqr(MFe(
-      gI3)),Sqr(MHm(gI4))))))) + SUM(gI1,0,2,SUM(gI2,0,1,SUM(gI3,0,2,SUM(gI4,1,1,
-      CpbarFeFeconjHmPL(gI1,gO1,gI4)*CpbarFeFeHmPR(gO4,gI3,gI4)*CpbarFeFvhhPL(gI3,
-      gO3,gI2)*CpbarFvFehhPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(Mhh(gI2)),Sqr(MFe(
-      gI3)),Sqr(MHm(gI4))))))) + SUM(gI1,0,2,SUM(gI2,1,1,SUM(gI3,0,2,SUM(gI4,1,1,
-      CpbarFeFeconjHmPR(gO4,gI3,gI4)*CpbarFeFeHmPL(gI1,gO1,gI4)*CpbarFeFvAhPL(gI3,
-      gO3,gI2)*CpbarFvFeAhPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(MAh(gI2)),Sqr(MFe(
-      gI3)),Sqr(MHm(gI4))))))) + SUM(gI1,0,2,SUM(gI2,1,1,SUM(gI3,0,2,SUM(gI4,1,1,
-      CpbarFeFeconjHmPL(gI1,gO1,gI4)*CpbarFeFeHmPR(gO4,gI3,gI4)*CpbarFeFvAhPL(gI3,
-      gO3,gI2)*CpbarFvFeAhPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(MAh(gI2)),Sqr(MFe(
-      gI3)),Sqr(MHm(gI4))))))) + SUM(gI1,1,1,SUM(gI2,0,2,SUM(gI3,0,1,SUM(gI4,0,2,
-      CpbarFeFvhhPL(gI2,gO3,gI3)*CpbarFeFvhhPR(gO4,gI4,gI3)*CpbarFvFeAhPL(gI4,gO1,
-      gI1)*CpbarFvFeAhPR(gO2,gI2,gI1)*D27(Sqr(MAh(gI1)),Sqr(MFe(gI2)),Sqr(Mhh(gI3)
-      ),Sqr(MFv(gI4))))))) + SUM(gI1,1,1,SUM(gI2,0,2,SUM(gI3,0,1,SUM(gI4,0,2,-(
-      CpbarFeFvAhPL(gI2,gO3,gI1)*CpbarFeFvhhPR(gO4,gI4,gI3)*CpbarFvFeAhPL(gI4,gO1,
-      gI1)*CpbarFvFehhPR(gO2,gI2,gI3)*D27(Sqr(MAh(gI1)),Sqr(MFe(gI2)),Sqr(Mhh(gI3)
-      ),Sqr(MFv(gI4)))))))) + SUM(gI1,1,1,SUM(gI2,0,2,SUM(gI3,1,1,SUM(gI4,0,2,
-      CpbarFeFvAhPL(gI2,gO3,gI3)*CpbarFeFvAhPR(gO4,gI4,gI3)*CpbarFvFeAhPL(gI4,gO1,
-      gI1)*CpbarFvFeAhPR(gO2,gI2,gI1)*D27(Sqr(MAh(gI1)),Sqr(MFe(gI2)),Sqr(MAh(gI3)
-      ),Sqr(MFv(gI4))))))) + SUM(gI1,1,1,SUM(gI2,0,2,SUM(gI3,1,1,SUM(gI4,0,2,-(
-      CpbarFeFvAhPL(gI2,gO3,gI1)*CpbarFeFvAhPR(gO4,gI4,gI3)*CpbarFvFeAhPL(gI4,gO1,
-      gI1)*CpbarFvFeAhPR(gO2,gI2,gI3)*D27(Sqr(MAh(gI1)),Sqr(MFe(gI2)),Sqr(MAh(gI3)
-      ),Sqr(MFv(gI4))))))));
+   const std::complex<double> result = SUM(gI1,0,2,SUM(gI2,1,1,SUM(gI3,0,2,SUM(
+      gI4,0,1,CpbarFeFehhPL(gI1,gO1,gI4)*CpbarFeFehhPR(gO4,gI3,gI4)*CpbarFeFvHmPL(
+      gI3,gO3,gI2)*CpbarFvFeconjHmPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(MHm(gI2)),
+      Sqr(MFe(gI3)),Sqr(Mhh(gI4))))))) + SUM(gI1,0,2,SUM(gI2,1,1,SUM(gI3,0,2,SUM(
+      gI4,1,1,CpbarFeFeAhPL(gI1,gO1,gI4)*CpbarFeFeAhPR(gO4,gI3,gI4)*CpbarFeFvHmPL(
+      gI3,gO3,gI2)*CpbarFvFeconjHmPR(gO2,gI1,gI2)*D27(Sqr(MFe(gI1)),Sqr(MHm(gI2)),
+      Sqr(MFe(gI3)),Sqr(MAh(gI4))))))) + SUM(gI1,1,1,SUM(gI2,0,2,SUM(gI3,1,1,SUM(
+      gI4,0,2,-(CpbarFeFvHmPL(gI2,gO3,gI1)*CpbarFeFvHmPR(gO4,gI4,gI3)*
+      CpbarFvFeconjHmPL(gI4,gO1,gI1)*CpbarFvFeconjHmPR(gO2,gI2,gI3)*D27(Sqr(MHm(
+      gI1)),Sqr(MFe(gI2)),Sqr(MHm(gI3)),Sqr(MFv(gI4))))))));
 
    return result;
 }

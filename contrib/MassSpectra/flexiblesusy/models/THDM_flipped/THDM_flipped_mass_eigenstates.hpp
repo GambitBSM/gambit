@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:45
+// File generated at Tue 7 Apr 2020 14:56:47
 
 /**
  * @file THDM_flipped_mass_eigenstates.hpp
@@ -25,8 +25,8 @@
  *        value problem using the two_scale solver by solving EWSB
  *        and determine the pole masses and mixings
  *
- * This file was generated at Wed 31 Oct 2018 21:01:45 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 14:56:47 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.13.0 .
  */
 
 #ifndef THDM_flipped_MASS_EIGENSTATES_H
@@ -200,10 +200,12 @@ public:
    std::complex<double> CpAhhhUhh(int gI2, int gI1, int gO2) const;
    std::complex<double> CphhhhUhh(int gI1, int gI2, int gO2) const;
    std::complex<double> CpUhhHmconjHm(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarFuFdUhhPR(int gI1, int gI2, int gO2) const;
-   std::complex<double> CpbarFuFdUhhPL(int gI1, int gI2, int gO1) const;
-   std::complex<double> CpbarFvFeUhhPR(int gI1, int gI2, int gO2) const;
-   double CpbarFvFeUhhPL(int , int , int ) const;
+   std::complex<double> CpbarFdFdUhhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFdFdUhhPL(int gI1, int gI2, int gO1) const;
+   std::complex<double> CpbarFeFeUhhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFeFeUhhPL(int gI1, int gI2, int gO1) const;
+   std::complex<double> CpbarFuFuUhhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFuFuUhhPL(int gI1, int gI2, int gO1) const;
    std::complex<double> CpAhUhhVZ(int gI2, int gO2) const;
    std::complex<double> CpUhhHmconjVWm(int gO2, int gI2) const;
    std::complex<double> CpbargWmgWmUAh(int gO1) const;
@@ -217,10 +219,12 @@ public:
    std::complex<double> CpAhUAhhh(int gI2, int gO2, int gI1) const;
    std::complex<double> CpUAhhhhh(int gO2, int gI1, int gI2) const;
    std::complex<double> CpUAhHmconjHm(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarFuFdUAhPR(int gI1, int gI2, int gO2) const;
-   std::complex<double> CpbarFuFdUAhPL(int gI1, int gI2, int gO1) const;
-   std::complex<double> CpbarFvFeUAhPR(int gI1, int gI2, int gO2) const;
-   double CpbarFvFeUAhPL(int , int , int ) const;
+   std::complex<double> CpbarFdFdUAhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFdFdUAhPL(int gI1, int gI2, int gO1) const;
+   std::complex<double> CpbarFeFeUAhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFeFeUAhPL(int gI1, int gI2, int gO1) const;
+   std::complex<double> CpbarFuFuUAhPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFuFuUAhPL(int gI1, int gI2, int gO1) const;
    std::complex<double> CpUAhhhVZ(int gO2, int gI2) const;
    std::complex<double> CpUAhHmconjVWm(int gO2, int gI2) const;
    std::complex<double> CpbargWmgZUHm(int gO2) const;
@@ -236,12 +240,10 @@ public:
    std::complex<double> CpHmUHmconjHmconjUHm(int gI1, int gO1, int gI2, int gO2) const;
    std::complex<double> CpAhHmconjUHm(int gI2, int gI1, int gO2) const;
    std::complex<double> CphhHmconjUHm(int gI2, int gI1, int gO2) const;
-   double CpbarFdFdconjUHmPR(int , int , int ) const;
-   std::complex<double> CpbarFdFdconjUHmPL(int gI1, int gI2, int gO1) const;
-   double CpbarFeFeconjUHmPR(int , int , int ) const;
-   std::complex<double> CpbarFeFeconjUHmPL(int gI1, int gI2, int gO1) const;
-   std::complex<double> CpbarFuFuconjUHmPR(int gI1, int gI2, int gO2) const;
-   double CpbarFuFuconjUHmPL(int , int , int ) const;
+   std::complex<double> CpbarFuFdconjUHmPR(int gI1, int gI2, int gO2) const;
+   std::complex<double> CpbarFuFdconjUHmPL(int gI1, int gI2, int gO1) const;
+   std::complex<double> CpbarFvFeconjUHmPR(int gI1, int gI2, int gO2) const;
+   double CpbarFvFeconjUHmPL(int , int , int ) const;
    std::complex<double> CpAhconjUHmVWm(int gI2, int gO2) const;
    std::complex<double> CphhconjUHmVWm(int gI2, int gO2) const;
    std::complex<double> CpHmconjUHmVP(int gI2, int gO2) const;
@@ -308,12 +310,12 @@ public:
    double CpconjVWmconjVWmVWmVWm2() const;
    double CpconjVWmconjVWmVWmVWm1() const;
    double CpconjVWmconjVWmVWmVWm3() const;
-   std::complex<double> CpbarUFdFdconjHmPL(int gO2, int gI2, int gI1) const;
-   double CpbarUFdFdconjHmPR(int , int , int ) const;
-   std::complex<double> CpbarUFdFuhhPL(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarUFdFuhhPR(int gO1, int gI2, int gI1) const;
-   std::complex<double> CpbarUFdFuAhPL(int gO2, int gI1, int gI2) const;
-   std::complex<double> CpbarUFdFuAhPR(int gO1, int gI1, int gI2) const;
+   std::complex<double> CpbarUFdFdhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarUFdFdhhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarUFdFuHmPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarUFdFuHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarUFdFdAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarUFdFdAhPR(int gO1, int gI1, int gI2) const;
    std::complex<double> CpbarUFdFdVGPR(int gO2, int gI2) const;
    std::complex<double> CpbarUFdFdVGPL(int gO1, int gI2) const;
    std::complex<double> CpbarUFdFdVPPR(int gO2, int gI2) const;
@@ -322,12 +324,12 @@ public:
    std::complex<double> CpbarUFdFdVZPL(int gO1, int gI2) const;
    double CpbarUFdFuVWmPR(int , int ) const;
    std::complex<double> CpbarUFdFuVWmPL(int gO1, int gI2) const;
-   std::complex<double> CpbarUFuFdhhPL(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarUFuFdhhPR(int gO1, int gI2, int gI1) const;
-   double CpbarUFuFuconjHmPL(int , int , int ) const;
-   std::complex<double> CpbarUFuFuconjHmPR(int gO1, int gI2, int gI1) const;
-   std::complex<double> CpbarUFuFdAhPL(int gO2, int gI1, int gI2) const;
-   std::complex<double> CpbarUFuFdAhPR(int gO1, int gI1, int gI2) const;
+   std::complex<double> CpbarUFuFdconjHmPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarUFuFdconjHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarUFuFuhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarUFuFuhhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarUFuFuAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarUFuFuAhPR(int gO1, int gI1, int gI2) const;
    double CpbarUFuFdconjVWmPR(int , int ) const;
    std::complex<double> CpbarUFuFdconjVWmPL(int gO1, int gI2) const;
    std::complex<double> CpbarUFuFuVGPR(int gO2, int gI2) const;
@@ -336,44 +338,42 @@ public:
    std::complex<double> CpbarUFuFuVPPL(int gO1, int gI2) const;
    std::complex<double> CpbarUFuFuVZPR(int gO2, int gI2) const;
    std::complex<double> CpbarUFuFuVZPL(int gO1, int gI2) const;
-   std::complex<double> CpbarUFeFeconjHmPL(int gO2, int gI2, int gI1) const;
-   double CpbarUFeFeconjHmPR(int , int , int ) const;
-   std::complex<double> CpbarUFeFvhhPL(int gO2, int gI2, int gI1) const;
-   double CpbarUFeFvhhPR(int , int , int ) const;
-   std::complex<double> CpbarUFeFvAhPL(int gO2, int gI1, int gI2) const;
-   double CpbarUFeFvAhPR(int , int , int ) const;
+   std::complex<double> CpbarUFeFehhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarUFeFehhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarUFeFvHmPL(int gO2, int gI2, int gI1) const;
+   double CpbarUFeFvHmPR(int , int , int ) const;
+   std::complex<double> CpbarUFeFeAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarUFeFeAhPR(int gO1, int gI1, int gI2) const;
    std::complex<double> CpbarUFeFeVPPR(int gO2, int gI2) const;
    std::complex<double> CpbarUFeFeVPPL(int gO1, int gI2) const;
    std::complex<double> CpbarUFeFeVZPR(int gO2, int gI2) const;
    std::complex<double> CpbarUFeFeVZPL(int gO1, int gI2) const;
    double CpbarUFeFvVWmPR(int , int ) const;
    double CpbarUFeFvVWmPL(int gO1, int gI2) const;
-   double CpbarFvFehhPL(int , int , int ) const;
-   std::complex<double> CpbarFvFehhPR(int gO1, int gI2, int gI1) const;
-   double CpbarFvFeAhPL(int , int , int ) const;
-   std::complex<double> CpbarFvFeAhPR(int gO1, int gI1, int gI2) const;
-   std::complex<double> CpbarFdFdconjHmPL(int gO2, int gI2, int gI1) const;
-   double CpbarFdFdconjHmPR(int , int , int ) const;
-   std::complex<double> CpbarFdFuhhPL(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarFdFuhhPR(int gO1, int gI2, int gI1) const;
-   std::complex<double> CpbarFdFuAhPL(int gO2, int gI1, int gI2) const;
-   std::complex<double> CpbarFdFuAhPR(int gO1, int gI1, int gI2) const;
+   double CpbarFvFeconjHmPL(int , int , int ) const;
+   std::complex<double> CpbarFvFeconjHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFdhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFdhhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFuHmPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFuHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFdFdAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFdFdAhPR(int gO1, int gI1, int gI2) const;
    double CpbarFdFuVWmPR(int , int ) const;
    std::complex<double> CpbarFdFuVWmPL(int gO1, int gI2) const;
-   std::complex<double> CpbarFeFeconjHmPL(int gO2, int gI2, int gI1) const;
-   double CpbarFeFeconjHmPR(int , int , int ) const;
-   std::complex<double> CpbarFeFvhhPL(int gO2, int gI2, int gI1) const;
-   double CpbarFeFvhhPR(int , int , int ) const;
-   std::complex<double> CpbarFeFvAhPL(int gO2, int gI1, int gI2) const;
-   double CpbarFeFvAhPR(int , int , int ) const;
+   std::complex<double> CpbarFeFehhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFehhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFeFvHmPL(int gO2, int gI2, int gI1) const;
+   double CpbarFeFvHmPR(int , int , int ) const;
+   std::complex<double> CpbarFeFeAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFeFeAhPR(int gO1, int gI1, int gI2) const;
    double CpbarFeFvVWmPR(int , int ) const;
    std::complex<double> CpbarFeFvVWmPL(int gO1, int gI2) const;
-   std::complex<double> CpbarFuFdhhPL(int gO2, int gI2, int gI1) const;
-   std::complex<double> CpbarFuFdhhPR(int gO1, int gI2, int gI1) const;
-   double CpbarFuFuconjHmPL(int , int , int ) const;
-   std::complex<double> CpbarFuFuconjHmPR(int gO1, int gI2, int gI1) const;
-   std::complex<double> CpbarFuFdAhPL(int gO2, int gI1, int gI2) const;
-   std::complex<double> CpbarFuFdAhPR(int gO1, int gI1, int gI2) const;
+   std::complex<double> CpbarFuFdconjHmPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFdconjHmPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFuhhPL(int gO2, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFuhhPR(int gO1, int gI2, int gI1) const;
+   std::complex<double> CpbarFuFuAhPL(int gO2, int gI1, int gI2) const;
+   std::complex<double> CpbarFuFuAhPR(int gO1, int gI1, int gI2) const;
    std::complex<double> self_energy_hh_1loop(double p , int gO1, int gO2) const;
    Eigen::Matrix<std::complex<double>,2,2> self_energy_hh_1loop(double p) const;
    std::complex<double> self_energy_Ah_1loop(double p , int gO1, int gO2) const;
@@ -469,6 +469,7 @@ public:
    double calculate_MVZ_DRbar(double);
    double calculate_MVWm_DRbar(double);
 
+   double v() const;
    double Betax() const;
    double Alpha() const;
    double ThetaW() const;

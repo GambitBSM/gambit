@@ -89,6 +89,9 @@ namespace Gambit
             double get_ms()             const;
 
             double get_vev()            const;
+            double get_v1()             const;
+            double get_v2()             const;
+
             double get_g1()             const;
             double get_g2()             const;
             double get_g3()             const;
@@ -115,9 +118,10 @@ namespace Gambit
             double get_mC()                 const;
             double get_mG0()                 const;
             double get_mGC()                 const;
+
             double get_tanb()               const;
+            double get_beta()               const;
             double get_alpha()              const;
-            //double get_yukawaCoupling()     const;
 
             double get_lambda1()            const;
             double get_lambda2()            const;
@@ -131,17 +135,6 @@ namespace Gambit
             double get_m22_2()              const;
             double get_m12_2()              const;
 
-/*            double get_Lambda1()            const;
-            double get_Lambda2()            const;
-            double get_Lambda3()            const;
-            double get_Lambda4()            const;
-            double get_Lambda5()            const;
-            double get_Lambda6()            const;
-            double get_Lambda7()            const;
-            double get_M11_2()              const;
-            double get_M22_2()              const;
-            double get_M12_2()              const;*/
-            // double get_sinthW2_DRbar()      const;
             /// @}
     };
 
@@ -164,29 +157,29 @@ namespace Gambit
           Models::THDMModel params;
 
         public:
-            // Constructors/destructors
-            THDMSimpleSpec();
-            THDMSimpleSpec(const SLHAea::Coll&);
-            THDMSimpleSpec(const THDMSimpleSpec&);
-            THDMSimpleSpec(const Models::THDMModel&); 
+          // Constructors/destructors
+          THDMSimpleSpec();
+          THDMSimpleSpec(const SLHAea::Coll&);
+          THDMSimpleSpec(const THDMSimpleSpec&);
+          THDMSimpleSpec(const Models::THDMModel&); 
 
-            virtual ~THDMSimpleSpec() {};
+          virtual ~THDMSimpleSpec() {};
 
-            virtual double GetScale() const;
+          virtual double GetScale() const;
 
-            /// Add SLHAea object to another
-            virtual void add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const override {
-               // Add SPINFO data if not already present
-               SLHAea_add_GAMBIT_SPINFO(slha);
+          /// Add SLHAea object to another
+          virtual void add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const override {
+             // Add SPINFO data if not already present
+             SLHAea_add_GAMBIT_SPINFO(slha);
 
-               // All THDM  blocks
-               slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
-            }
-           
-            /// Map filler
-            /// Used to initialise maps of function pointers
-            static GetterMaps fill_getter_maps();
-    };
+             // All THDM  blocks
+             slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
+          }
+         
+          /// Map filler
+          /// Used to initialise maps of function pointers
+          static GetterMaps fill_getter_maps();
+  };
 
 } // end Gambit namespace
 

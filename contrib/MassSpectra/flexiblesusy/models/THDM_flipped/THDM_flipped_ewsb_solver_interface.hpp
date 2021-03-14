@@ -16,15 +16,15 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:47
+// File generated at Tue 7 Apr 2020 14:56:49
 
 /**
  * @file THDM_flipped_ewsb_solver_interface.hpp
  *
  * @brief contains interface for EWSB solver
  *
- * This file was generated at Wed 31 Oct 2018 21:01:47 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 14:56:49 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.13.0 .
  */
 
 #ifndef THDM_flipped_EWSB_SOLVER_INTERFACE_H

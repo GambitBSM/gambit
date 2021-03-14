@@ -36,9 +36,13 @@
 #  \date 2016 Jul
 #
 #  \author Tomas Gonzalo
-#          (tomas.gonzalo@monash.edu
+#          (tomas.gonzalo@monash.edu)
 #  \date 2019 Feb
 #  \date 2020 May
+#
+#  \author Jonathan Cornell
+#          (jonathan.cornell@uc.edu)
+#  \date 2020 Mar
 #
 #************************************************
 
@@ -123,8 +127,20 @@ cd $6
 $2 -E tar -xf $1/${filename}
 # Get rid of any internal 'container folder' from tarball, unless $9 has been set
 if [ "retain container folder" != "$9" ]; then
-  if [ $(ls -1 | wc -l) = "1" ]; then
-    dirname=$(ls)
+  ndir=$(ls -1 | wc -l)
+  if [ ${ndir} = 1 ] || [ ${ndir} = 2 ]; then
+  # 2 corresponds to having a build directory in the source (for HiggsBounds/HiggsSignals)
+    if [ ${ndir} = 1 ]; then
+      dirname=$(ls)
+    else
+      dir1=$(ls | sed -n 1p)
+      dir2=$(ls | sed -n 2p)
+      if [ "${dir1}" = "build" ]; then
+        dirname=${dir2}
+      else
+        dirname=${dir1}
+      fi
+    fi
     if cd ${dirname}; then
       mv * ../
       cd ../

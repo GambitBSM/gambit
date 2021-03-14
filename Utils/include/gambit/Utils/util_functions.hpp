@@ -72,6 +72,9 @@ namespace Gambit
     /// Return the path the the run-specific scratch directory
     EXPORT_SYMBOLS const str& runtime_scratch();
 
+    /// Convert all instances of "p" in a string to "."
+    EXPORT_SYMBOLS str p2dot(str s);
+
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
     EXPORT_SYMBOLS std::vector<str> delimiterSplit(str s, str delim);

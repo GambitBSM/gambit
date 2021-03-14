@@ -207,18 +207,19 @@ clean-$(MODNAME)-obj:
 		-rm -f $(LLTHDM_I_OBJ)
 
 # BEGIN: NOT EXPORTED ##########################################
-# clean-$(MODNAME)-src:
-# 		-rm -f $(LIBTHDM_I_SRC)
-# 		-rm -f $(LIBTHDM_I_HDR)
-# 		-rm -f $(EXETHDM_I_SRC)
-# 		-rm -f $(LLTHDM_I_SRC)
-# 		-rm -f $(LLTHDM_I_MMA)
-# 		-rm -f $(METACODE_STAMP_THDM_I)
-# 		-rm -f $(THDM_I_INCLUDE_MK)
-# 		-rm -f $(THDM_I_SLHA_INPUT)
-# 		-rm -f $(THDM_I_REFERENCES)
-# 		-rm -f $(THDM_I_GNUPLOT)
+clean-$(MODNAME)-src:
+		-rm -f $(LIBTHDM_I_SRC)
+		-rm -f $(LIBTHDM_I_HDR)
+		-rm -f $(EXETHDM_I_SRC)
+		-rm -f $(LLTHDM_I_SRC)
+		-rm -f $(LLTHDM_I_MMA)
+		-rm -f $(METACODE_STAMP_THDM_I)
+		-rm -f $(THDM_I_INCLUDE_MK)
+		-rm -f $(THDM_I_SLHA_INPUT)
+		-rm -f $(THDM_I_REFERENCES)
+		-rm -f $(THDM_I_GNUPLOT)
 
+# the following is commented out in GAMBIT to avoid nuke-all removing the source files
 # distclean-$(MODNAME): clean-$(MODNAME)-src
 # END:   NOT EXPORTED ##########################################
 

@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:50
+// File generated at Tue 7 Apr 2020 02:34:05
 
 #include "THDM_I_two_scale_low_scale_constraint.hpp"
 #include "THDM_I_two_scale_model.hpp"
@@ -92,9 +92,9 @@ void THDM_I_low_scale_constraint<Two_scale>::apply()
    const auto g1 = MODELPARAMETER(g1);
    const auto g2 = MODELPARAMETER(g2);
 
-   MODEL->set_v1(Re((2*MZDRbar)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(TanBeta))
+   MODEL->set_v1(Re((2*MZMSbar)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(TanBeta))
       )));
-   MODEL->set_v2(Re((2*MZDRbar*TanBeta)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(
+   MODEL->set_v2(Re((2*MZMSbar*TanBeta)/(Sqrt(Sqr(g1) + Sqr(g2))*Sqrt(1 + Sqr(
       TanBeta)))));
    calculate_Yu_DRbar();
    calculate_Yd_DRbar();
@@ -367,7 +367,9 @@ void THDM_I_low_scale_constraint<Two_scale>::calculate_Yu_DRbar()
       upQuarksDRbar(2,2) = MODEL->calculate_MFu_DRbar(qedqcd.displayPoleMt(), 2);
    }
 
-   MODEL->set_Yu((ZEROMATRIX(3,3)).real());
+   const auto v2 = MODELPARAMETER(v2);
+   MODEL->set_Yu((-((1.4142135623730951*upQuarksDRbar)/v2).transpose()).real())
+      ;
 
 }
 
@@ -384,7 +386,9 @@ void THDM_I_low_scale_constraint<Two_scale>::calculate_Yd_DRbar()
       downQuarksDRbar(2,2) = MODEL->calculate_MFd_DRbar(qedqcd.displayMass(softsusy::mBottom), 2);
    }
 
-   MODEL->set_Yd((ZEROMATRIX(3,3)).real());
+   const auto v2 = MODELPARAMETER(v2);
+   MODEL->set_Yd((((1.4142135623730951*downQuarksDRbar)/v2).transpose()).real()
+      );
 
 }
 
@@ -406,7 +410,9 @@ void THDM_I_low_scale_constraint<Two_scale>::calculate_Ye_DRbar()
       downLeptonsDRbar(2,2) = MODEL->calculate_MFe_DRbar(qedqcd.displayMass(softsusy::mTau), 2);
    }
 
-   MODEL->set_Ye((ZEROMATRIX(3,3)).real());
+   const auto v2 = MODELPARAMETER(v2);
+   MODEL->set_Ye((((1.4142135623730951*downLeptonsDRbar)/v2).transpose()).real(
+      ));
 
 }
 

@@ -594,7 +594,7 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend name backend_version)
+macro(BOSS_backend_full name backend_version include_ROOT)
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
@@ -650,4 +650,12 @@ macro(BOSS_backend name backend_version)
       DEPENDERS configure
     )
   endif()
+endmacro()
+
+macro(BOSS_backend name backend_version)
+  BOSS_backend_full(${name} ${backend_version} "")
+endmacro()
+
+macro(BOSS_backend_with_ROOT name backend_version)
+  BOSS_backend_full(${name} ${backend_version} "--include=${ROOT_INCLUDE_DIRS}")
 endmacro()
