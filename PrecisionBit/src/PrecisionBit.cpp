@@ -1148,6 +1148,8 @@ namespace Gambit
       const double mNu2 = (*sminputspointer)->mNu2;
       const double mNu3 = (*sminputspointer)->mNu3;
       const double mBmB = (*sminputspointer)->mBmB;
+      const double mS = (*sminputspointer)->mS;
+      const double mCmC = (*sminputspointer)->mCmC;
       const double mT = (*sminputspointer)->mT;
       const double m122 = spectrum.get(Par::mass1, "m12_2");
       const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
@@ -1171,8 +1173,8 @@ namespace Gambit
       const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",2,2);
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double rhobar = (*sminputspointer)->CKM.rhobar;
@@ -1288,13 +1290,13 @@ namespace Gambit
       //Barr-Zee contribution, source: 1502.04199
       complex<double> Aloop2BZ = 0.;
       complex<double> Aloop2SMBZ = 0.;
-      for (int phi=0; phi<=2; ++phi)
+      /*for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
-        /*for (int lf=0; lf<=2; ++lf)
-        {
-          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
-        }*/
+        //for (int lf=0; lf<=2; ++lf)
+        //{
+        //  Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
+        //}
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
@@ -1305,6 +1307,7 @@ namespace Gambit
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, v, 0., Alpha);
+*/
 
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
