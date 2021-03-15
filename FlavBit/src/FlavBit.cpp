@@ -4023,6 +4023,7 @@ namespace Gambit
                }
               }
 
+
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
@@ -4034,6 +4035,7 @@ namespace Gambit
        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
       }
+
 
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
       double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
