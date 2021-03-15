@@ -1290,7 +1290,7 @@ namespace Gambit
       //Barr-Zee contribution, source: 1502.04199
       complex<double> Aloop2BZ = 0.;
       complex<double> Aloop2SMBZ = 0.;
-      /*for (int phi=0; phi<=2; ++phi)
+      for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
         //for (int lf=0; lf<=2; ++lf)
@@ -1307,7 +1307,6 @@ namespace Gambit
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, v, 0., Alpha);
-*/
 
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected

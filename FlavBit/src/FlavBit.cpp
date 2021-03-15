@@ -4012,7 +4012,7 @@ namespace Gambit
       //Fermionic contribution
       complex<double> Aloop2fL = 0;
       complex<double> Aloop2fR = 0;
-      /*for (int phi=0; phi<=2; ++phi)
+      for (int phi=0; phi<=2; ++phi)
          for (int lf=0; lf<=2; ++lf)
               {
                {
@@ -4020,12 +4020,12 @@ namespace Gambit
                   Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
                }
               }
-*/
+
 
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
-      /*for (int phi=0; phi<=1; ++phi)
+      for (int phi=0; phi<=1; ++phi)
       {
        const complex<double> sab(sqrt(1-cab*cab),0);
        const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
@@ -4033,7 +4033,7 @@ namespace Gambit
        Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
        Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
       }
-*/
+
 
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
       double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
