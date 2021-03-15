@@ -1149,6 +1149,8 @@ namespace Gambit
       const double mNu3 = (*sminputspointer)->mNu3;
       const double mBmB = (*sminputspointer)->mBmB;
       const double mT = (*sminputspointer)->mT;
+      const double mCmC = (*sminputspointer)->mCmC;
+      const double mS = (*sminputspointer)->mS;
       const double m122 = spectrum.get(Par::mass1, "m12_2");
       const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
@@ -1170,8 +1172,8 @@ namespace Gambit
       const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       const double Ybb = spectrum.get(Par::dimensionless,"Yd2",2,2);
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
@@ -1187,7 +1189,7 @@ namespace Gambit
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
       const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Yss/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       const double xitc = Ytc/cosb;
       const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;

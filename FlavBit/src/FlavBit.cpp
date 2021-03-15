@@ -756,16 +756,16 @@ namespace Gambit
                (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
                + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2)));
-
+      
       double C80 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
                (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_3(pow(mT/mHp,2)))
                + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_4(pow(mT/mHp,2)));
-
+    
       double C2diag = (-7*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
-
+   
       double C2mix = -(mC*(xi_bb*conj(Vcb) + xi_sb*conj(Vcs))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
-
+  
       result = 0.698*C70+0.086*C80 + C2diag + C2mix;
 
     }
@@ -2648,17 +2648,19 @@ namespace Gambit
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
       const double f_Bc = 0.434;
-      const double hbar = 6.582119514e-25;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       double CLcb = 2*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       double gp =  (CRcb - CLcb)/CSMcb;
-      double Bctaunu = 0.52; //Theoretical value from 1611.06676
-
-      result = hbar*Bctaunu/((pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2))*(pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
-
+      const double hbar = 6.582119514e-25; // GeV * s
+      const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
+      const double Gamma_Bc_exp = (hbar/(0.507e-12)); //experimental value in GeV^-1
+      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2));
+      double BR_Bc_SM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
+      double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
+      result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);
       if (flav_debug) printf("THDM_Bc_lifetime=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Bc_lifetime"<<endl;
     }
