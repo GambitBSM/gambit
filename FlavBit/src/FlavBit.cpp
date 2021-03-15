@@ -78,24 +78,18 @@
 #include <fstream>
 #include <map>
 
+#include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/Utils/statistics.hpp"
+#include "gambit/Elements/loop_functions.hpp"
+#include "gambit/Elements/translator.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/Elements/spectrum.hpp"
+#include "gambit/Elements/thdm_slhahelp.hpp"
 #include "gambit/FlavBit/FlavBit_rollcall.hpp"
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/FlavBit/Flav_reader.hpp"
 #include "gambit/FlavBit/Kstarmumu_theory_err.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
-#include "gambit/Elements/flav_loop_functions.hpp"
-#include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/thdm_slhahelp.hpp"
-#include "gambit/Utils/statistics.hpp"
-#include "gambit/cmake/cmake_variables.hpp"
-//#define FLAVBIT_DEBUG
-//#define FLAVBIT_DEBUG_LL
-#include "gambit/FlavBit/flav_loop_functions.hpp"
-#include "gambit/Elements/translator.hpp"
-#include "gambit/Utils/statistics.hpp"
-#include "gambit/cmake/cmake_variables.hpp"
-
 
 //#define FLAVBIT_DEBUG
 //#define FLAVBIT_DEBUG_LL
@@ -828,15 +822,15 @@ namespace Gambit
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
         result.Im_DeltaCQ2 = Dep::DeltaCQ2->imag();
         // Prime WCs
-        result.Re_DeltaC7p  = Dep::DeltaC7p->real();
-        result.Im_DeltaC7p  = Dep::DeltaC7p->imag();
-        result.Re_DeltaC9p  = Dep::DeltaC9p->real();
-        result.Im_DeltaC9p  = Dep::DeltaC9p->imag();
+        result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
+        result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
+        result.Re_DeltaC9_Prime  = Dep::DeltaC9_Prime->real();
+        result.Im_DeltaC9_Prime  = Dep::DeltaC9_Prime->imag();
         
-        result.Re_DeltaCQ1p = Dep::DeltaCQ1p->real();
-        result.Im_DeltaCQ1p = Dep::DeltaCQ1p->imag();
-        result.Re_DeltaCQ2p = Dep::DeltaCQ2p->real();
-        result.Im_DeltaCQ2p = Dep::DeltaCQ2p->imag();
+        result.Re_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->real();
+        result.Im_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->imag();
+        result.Re_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->real();
+        result.Im_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->imag();
       }     
       if (flav_debug) cout<<"Finished SI_fill"<<endl;
     }   
@@ -873,9 +867,9 @@ namespace Gambit
                (4.*pow(sminputs.GF,2)*pow(mh,2)*pow(mH,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);     
     }    
    
-    void calculate_DeltaCQ1p(std::complex<double> &result)
+    void calculate_DeltaCQ1_Prime(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaCQ1p;
+      using namespace Pipes::calculate_DeltaCQ1_Prime;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -935,9 +929,9 @@ namespace Gambit
                (2.*pow(sminputs.GF,2)*pow(mA,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts*cosb*cosb);
     }
 
-   void calculate_DeltaCQ2p(std::complex<double> &result)
+   void calculate_DeltaCQ2_Prime(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaCQ2p;
+      using namespace Pipes::calculate_DeltaCQ2_Prime;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -1194,9 +1188,9 @@ namespace Gambit
     }
     /// Prime Wilson Coefficients in the general THDM      
     // Delta C7' from the general THDM
-    void calculate_DeltaC7p(std::complex<double> &result)
+    void calculate_DeltaC7_Prime(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaC7p;
+      using namespace Pipes::calculate_DeltaC7_Prime;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -1245,9 +1239,9 @@ namespace Gambit
     }
 
     /// Delta C9' from the general THDM
-    void calculate_DeltaC9p(std::complex<double> &result)
+    void calculate_DeltaC9_Prime(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaC9p;
+      using namespace Pipes::calculate_DeltaC9_Prime;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -1297,9 +1291,9 @@ namespace Gambit
     }
 
     /// Delta C10' from the general THDM
-    void calculate_DeltaC10p(std::complex<double> &result)
+    void calculate_DeltaC10_Prime(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaC10p;
+      using namespace Pipes::calculate_DeltaC10_Prime;
       Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
@@ -2376,24 +2370,24 @@ namespace Gambit
 
     } 
 
-   /// mu-e universality for the general THDM from JHEP07(2013)044
-   /// Green functions
+    /// mu-e universality for the general THDM from JHEP07(2013)044
+    /// Green functions
     double Fint(double x)
     {
-       if (x < 0) FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
-       else if (x==0)
+      if (x < 0)
+        FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
+      if (x==0)
         return 1;
-       else
-	return 1 + 9*x - 9*pow(x,2) - pow(x,3) + 6*x*(1 + x)*log(x);
+      return 1 + 9*x - 9*pow(x,2) - pow(x,3) + 6*x*(1 + x)*log(x);
     }
     
     double Fps(double x)
     {
-      if (x < 0) FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
-       else if (x==0)
+      if (x < 0)
+        FlavBit_error().raise(LOCAL_INFO, "Negative mass in loop function");
+      if (x==0)
         return 1;
-       else
-	return 1 - 8*x + 8*pow(x,3) - pow(x,4) - 12*pow(x,2)*log(x);
+      return 1 - 8*x + 8*pow(x,3) - pow(x,4) - 12*pow(x,2)*log(x);
     }
 
     //Lepton universality test observable from JHEP07(2013)044

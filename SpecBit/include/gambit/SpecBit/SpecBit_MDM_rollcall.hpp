@@ -18,6 +18,10 @@
 #ifndef __SpecBit_MDM_hpp__
 #define __SpecBit_MDM_hpp__
 
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
+
   #define CAPABILITY MDM_spectrum
   START_CAPABILITY
     #if(FS_MODEL_MDM_IS_BUILT)
@@ -29,7 +33,7 @@
     MODEL_GROUP(mdm, (MDM))
     ALLOW_MODEL_COMBINATION(higgs_running, mdm)
     #undef FUNCTION
-		#endif
+                #endif
 
     // Convert spectrum into a standard map so that it can be printed
     #define FUNCTION get_MDM_spectrum_as_map
@@ -49,7 +53,6 @@
     #undef FUNCTION
 
   #undef CAPABILITY
-
 
 #endif
 

@@ -1587,28 +1587,6 @@ namespace Gambit
             buffermaster.schedule_print<T>(value,label,mpirank,pointID);
         }
 
-        template<typename T>
-        void print_map_str_dbl(const T& map, const std::string& label, const unsigned int mpirank, const unsigned long pointID)
-        {
-          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
-          {
-            std::stringstream ss;
-            ss<<label<<"::"<<it->first;
-            basic_print(it->second,ss.str(),mpirank,pointID);
-          }
-        }
-
-        template<typename T>
-        void print_map_str_map_str_dbl(const T& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-        {
-          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
-          {
-            std::stringstream ss;
-            ss<<label<<"::"<<it->first;
-            _print(it->second,ss.str(),vID,mpirank,pointID);
-          }
-        }
-
         /// @}
 
     };

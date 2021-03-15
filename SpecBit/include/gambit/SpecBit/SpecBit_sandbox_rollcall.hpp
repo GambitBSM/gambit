@@ -18,6 +18,10 @@
 #ifndef __SpecBit_sandbox_hpp__
 #define __SpecBit_sandbox_hpp__
 
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
+
  // For testing only
   #define CAPABILITY test_MSSM_spectrum
   START_CAPABILITY

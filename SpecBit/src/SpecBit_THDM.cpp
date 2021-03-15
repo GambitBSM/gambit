@@ -5,7 +5,12 @@
 ///  Functions of module SpecBit
 ///
 ///  SpecBit module functions related to the
-///  2HDM general model, type-I, type-II, lepton specific (X) & flipped (Y) models
+///  2HDM general models:
+///  - Type-I
+///  - Type-II
+///  - lepton specific (X)
+///  - flipped (Y) 
+///  - general (Type-III)
 ///
 ///  *********************************************
 ///
@@ -105,7 +110,6 @@ namespace Gambit
     using namespace flexiblesusy;
 
     // --------------------------------------------------
-    // declarations for convenience
     enum yukawa_type
     {
       type_I = 1,
@@ -351,25 +355,82 @@ namespace Gambit
     void get_THDM_Type(THDM_TYPE &type)
     {
       using namespace Pipes::get_THDM_Type;
+      SMInputs sminputs = *Dep::SMINPUTS;
 
       // Choose a small value to avoid comparing with 0
-      double epsilon = 1e-20;
+      const double eps = 1e-20;
 
-      if (all_yukawas_zero)
+      // Needed to compare masses
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double sb = *Param.at("tanb")/sqrt(1+pow(*Param.at("tanb"),2));
+
+      // Flags
+      bool yu_empty = true, yd_empty = true, yl_empty= true;
+      bool real = true, diagonal = true;
+
+      const std::vector<str> yuk_base = {"yu2_re", "yu2_im", "yd2_re", "yd_im", "yl_re", "yl_im"};
+      for (str yuk : yuk_base)
+      {
+        for(size_t i=1; i<=3; ++i)
+        {
+          for(size_t j=1; j<=3; ++j)
+          {
+            std::stringstream ss(yuk);
+            ss << "_" << i << j;
+            if(std::abs(*Param.at(ss.str())) > eps)
+            {
+              // if any element is non-zero, it is not empty
+              if(yuk.find("yu") != std::string::npos)
+                yu_empty = false;
+              else if(yuk.find("yd") != std::string::npos)
+                yd_empty = false;
+              else if(yuk.find("yl") != std::string::npos)
+                yl_empty = false;
+
+              // if any imaginary element is non-zero, it is not real
+              if(yuk.find("im") != std::string::npos)
+                real = false;
+
+              // if any off-diagonal element, is non-zero, it is not diagonal
+              if(i != j)
+                diagonal = false;
+            }
+          }
+        }
+      }
+
+      // If all y2 yukawas are zero, it is type I
+      if (yu_empty and yd_empty and yl_empty)
       {
         type = TYPE_I;
       }
-      else if (1)
+      // All other specific types have real and diagonal yukawas
+      else if (real and diagonal and yd_empty and yl_empty and
+               std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb*sminputs.mU) < eps and
+               std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb*sminputs.mCmC) < eps and
+               std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb*sminputs.mT) < eps)
       {
         type = TYPE_II;
       }
-      else if(1)
-      {
-        type = TYPE_flipped;
-      }
-      else if(1)
+      else if(real and diagonal and yl_empty and
+              std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb * sminputs.mU) < eps and
+              std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb * sminputs.mCmC) < eps and
+              std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb * sminputs.mT) < eps and
+              std::abs(*Param.at("yd2_re_11") - sqrt(2)/v/sb * sminputs.mD) < eps and
+              std::abs(*Param.at("yd2_re_22") - sqrt(2)/v/sb * sminputs.mS) < eps and
+              std::abs(*Param.at("yd2_re_33") - sqrt(2)/v/sb * sminputs.mBmB) < eps)
       {
         type = TYPE_LS;
+      }
+      else if(real and diagonal and yd_empty and
+              std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb * sminputs.mU) < eps and
+              std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb * sminputs.mCmC) < eps and
+              std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb * sminputs.mT) < eps and
+              std::abs(*Param.at("yl2_re_11") - sqrt(2)/v/sb * sminputs.mE) < eps and
+              std::abs(*Param.at("yl2_re_22") - sqrt(2)/v/sb * sminputs.mMu) < eps and
+              std::abs(*Param.at("yl2_re_33") - sqrt(2)/v/sb * sminputs.mTau) < eps)
+      {
+        type = TYPE_flipped;
       }
       // Otherwise, it is the generic type
       else
@@ -384,40 +445,6 @@ namespace Gambit
       using namespace Pipes::get_THDM_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
 
-      // TODO: This should not be necessary, everything works with Type III
-      // set THDM model type
-      /*
-      int y_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (myPipe::ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          y_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
-
-      if ((y_type < 0) | (y_type > 5))
-      {
-        // by definition this error should never be raised due to ALLOWED_MODELS protection in rollcall file
-        std::ostringstream errmsg;
-        errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-        errmsg << "The chosen THDM model was not recognized." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-      }
-      else if (y_type == 5)
-      {
-        std::ostringstream errmsg;
-        errmsg << "The general THDM is not yet supported by GAMBIT." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-      }
-      else if (!is_at_Q)
-
-      */
-      
       if (ModelInUse("THDM"))
       {
         // SoftSUSY object used to set quark and lepton masses and gauge
@@ -572,17 +599,17 @@ namespace Gambit
 
         result = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
       }
-      else
+      else if(ModelInUse("THDMatQ"))
       {
         // check perturbativity if key exists in yaml
-        if (myPipe::runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
+        if (runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
         {
           bool is_perturbative = true;
           std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4",
                                                   "lambda_5", "lambda_6", "lambda_7"};
           for (auto const &each_lambda : lambda_keys)
           {
-            if (*myPipe::Param.at(each_lambda) > 4. * M_PI)
+            if (*Param.at(each_lambda) > 4. * M_PI)
             {
               is_perturbative = false;
               break;
@@ -594,18 +621,18 @@ namespace Gambit
         using namespace softsusy;
 
         // Determine THDM type
-        THDM_TYPE TDHM_type = *Dep::TDHM_type;
+        THDM_TYPE THDM_type = *Dep::THDM_Type;
         switch (THDM_type)
         {
-          case type_I:
+          case TYPE_I:
           {
             #if (FS_MODEL_THDM_I_IS_BUILT)
               THDM_I_input_parameters input;
-              fill_THDM_FS_input(input, myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-              if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
               {
-                double const scale = *myPipe::Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -617,15 +644,15 @@ namespace Gambit
             #endif
             break;
           }
-          case type_II:
+          case TYPE_II:
           {
             #if (FS_MODEL_THDM_II_IS_BUILT)
               THDM_II_input_parameters input;
-              fill_THDM_FS_input(input, myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-              if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
               {
-                double const scale = *myPipe::Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -637,15 +664,15 @@ namespace Gambit
             #endif
             break;
           }
-          case lepton_specific:
+          case TYPE_LS:
           {
             #if (FS_MODEL_THDM_LS_IS_BUILT)
               THDM_LS_input_parameters input;
-              fill_THDM_FS_input(input, myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-              if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
               {
-                double const scale = *myPipe::Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -657,15 +684,15 @@ namespace Gambit
             #endif
             break;
           }
-          case flipped:
+          case TYPE_flipped:
           {
             #if (FS_MODEL_THDM_flipped_IS_BUILT)
               THDM_flipped_input_parameters input;
-              fill_THDM_FS_input(input, myPipe::Param);
-              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-              if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
               {
-                double const scale = *myPipe::Param.at("QrunTo");
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
                 result.RunBothToScale(scale);
               }
@@ -677,7 +704,7 @@ namespace Gambit
             #endif
             break;
           }
-          case general:
+          case TYPE_III:
           {
             // TODO: Implement the typeIII model in FS
             std::ostringstream errmsg;
@@ -687,10 +714,9 @@ namespace Gambit
           }
           default:
           {
-            // this error should never be raised due to previous check of y_type
             std::ostringstream errmsg;
             errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-            errmsg << "Tried to set the Yukawa Type to " << y_type << " . Yukawa Type should be 1-4." << std::endl;
+            errmsg << "Tried to set an unkwown THDM type." << std::endl;
             SpecBit_error().raise(LOCAL_INFO, errmsg.str());
             break;
           }

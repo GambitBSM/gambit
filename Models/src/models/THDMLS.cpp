@@ -200,7 +200,7 @@ void MODEL_NAMESPACE::THDMLS_higgs_to_THDMLS(const ModelParameters &myP, ModelPa
 
   // higgs basis
   double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-  double tanb  = double tanb"];
+  double tanb  = myP.getValue("tanb");
   double beta = atan(tanb);
   double sb = sin(beta), cb = cos(beta), tb = tan(beta);
   double ctb = 1./tb;
@@ -247,7 +247,7 @@ void MODEL_NAMESPACE::THDMLS_higgsatQ_to_THDMLSatQ(const ModelParameters &myP, M
 
   // higgs basis
   double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-  double tanb  = double tanb"];
+  double tanb  = myP.getValue("tanb");
   double beta = atan(tanb);
   double sb = sin(beta), cb = cos(beta), tb = tan(beta);
   double ctb = 1./tb;
@@ -283,13 +283,13 @@ void MODEL_NAMESPACE::THDMLS_higgsatQ_to_THDMLSatQ(const ModelParameters &myP, M
 #undef PARENT
 #undef MODEL
 
-//  THDMLS_physical --> THDMI
+//  THDMLS_physical --> THDMLS
 #define MODEL THDMLS_physical
 #define PARENT THDMLS
-void MODEL_NAMESPACE::TDHMI_physical_to_THDMLS(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMLS_physical_to_THDMLS(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(PARENT) // get pope for "interpret as PARENT" function
-  logger()<<"Running interpre_as_parent calculations for THDMLS_physical ->> THDMLS"<<LogTags::info<<EOM;
+  logger()<<"Running interpre_as_parent calculations for THDMLS_physical --> THDMLS"<<LogTags::info<<EOM;
 
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
@@ -326,10 +326,10 @@ void MODEL_NAMESPACE::TDHMI_physical_to_THDMLS(const ModelParameters &myP, Model
 //  THDMLS_physicalatQ --> THDMLSatQ
 #define MODEL THDMLS_physicalatQ
 #define PARENT THDMLSatQ
-void MODEL_NAMESPACE::TDHMI_physicalatQ_to_THDMLSatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMLS_physicalatQ_to_THDMLSatQ(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(PARENT) // get pope for "interpret as PARENT" function
-  logger()<<"Running interpre_as_parent calculations for THDMLS_physicalatQ ->> THDMLSatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpre_as_parent calculations for THDMLS_physicalatQ --> THDMLSatQ"<<LogTags::info<<EOM;
 
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
@@ -364,7 +364,7 @@ void MODEL_NAMESPACE::TDHMI_physicalatQ_to_THDMLSatQ(const ModelParameters &myP,
 #undef PARENT
 #undef MODEL
 
-//  THDMLS_hybrid_lambda1 --> THDMI
+//  THDMLS_hybrid_lambda1 --> THDMLS
 #define MODEL  THDMLS_hybrid_lambda1
 #define PARENT THDMLS
 void MODEL_NAMESPACE::THDMLS_hybrid_lambda1_to_THDMLS(const ModelParameters &myP, ModelParameters &targetP)
@@ -375,7 +375,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda1_to_THDMLS(const ModelParameters &myP
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda2");
+               m12_2 = myP.getValue("m12_2"), lambda2 = myP.getValue("lambda2");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -385,7 +385,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda1_to_THDMLS(const ModelParameters &myP
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda2*v2*pow(sb,2)*pow(ca,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -410,7 +410,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda1atQ_to_THDMLSatQ(const ModelParameter
   logger()<<"Running interpret_as_PARENT calculations for THDMLS_hybrid_lambda1atQ --> THDMLSatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda2");
+               m12_2 = myP.getValue("m12_2"), lambda2 = myP.getValue("lambda2");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -420,7 +420,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda1atQ_to_THDMLSatQ(const ModelParameter
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda2*v2*pow(sb,2)*pow(ca,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -437,7 +437,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda1atQ_to_THDMLSatQ(const ModelParameter
 #undef PARENT
 #undef MODEL
 
-//  THDMLS_hybrid_lambda2 --> THDMI
+//  THDMLS_hybrid_lambda2 --> THDMLS
 #define MODEL  THDMLS_hybrid_lambda2
 #define PARENT THDMLS
 void MODEL_NAMESPACE::THDMLS_hybrid_lambda2_to_THDMLS(const ModelParameters &myP, ModelParameters &targetP)
@@ -446,7 +446,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda2_to_THDMLS(const ModelParameters &myP
   logger()<<"Running interpret_as_PARENT calculations for THDMLS_hybrid_lambda2 --> THDMLS"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda1");
+      m12_2 = myP.getValue("m12_2"), lambda1 = myP.getValue("lambda1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -456,7 +456,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda2_to_THDMLS(const ModelParameters &myP
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
-      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -481,7 +481,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda2atQ_to_THDMLSatQ(const ModelParameter
   logger()<<"Running interpret_as_PARENT calculations for THDMLS_hybrid_lambda2atQ --> THDMLSatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda1");
+      m12_2 = myP.getValue("m12_2"), lambda1 = myP.getValue("lambda1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -491,7 +491,7 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda2atQ_to_THDMLSatQ(const ModelParameter
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
-      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );

@@ -17,6 +17,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Apr
+///  \date 2021 Mar
 ///
 ///  *********************************************
 
@@ -71,6 +72,7 @@ namespace Gambit {
    
       protected:
         void addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape = initVector(1), const std::string& blockname="", const int index=0);
+        void addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape, const std::string& blockname, const std::vector<int>& indices);
         void setName(const std::string& name);
   
       public:

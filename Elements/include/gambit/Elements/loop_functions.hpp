@@ -2,8 +2,9 @@
 //   *********************************************
 ///  \file
 ///
-///  Loop functions for flavour violating decays of charged leptons (from hep-ph/9403398)
-///  And for RK from 1706.07570
+///  Loop functions
+///  - flavour violating decays of charged leptons (from hep-ph/9403398)
+///  - RK from 1706.07570
 ///
 ///  *********************************************
 ///
@@ -23,15 +24,18 @@
 ///
 ///  *********************************************
 
-#ifndef __flav_loop_functions_hpp
-#define __flav_loop_functions_hpp
+#ifndef __loop_functions_hpp
+#define __loop_functions_hpp
+
 #include <complex>
 #include <vector>
 #include <cmath>
 #include <Eigen/Dense>
+
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf_dilog.h>
 #include <gsl/gsl_sf_result.h>
+
 #include "gambit/Elements/shared_types.hpp"
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Elements/spectrum.hpp"
@@ -130,8 +134,8 @@ namespace Gambit
       double gm2mu_barrzeephigammaW(int fe, int l, int lp,int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
 
       std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
     }
     
     // Loop functions for LFV diagrams
@@ -282,4 +286,4 @@ namespace Gambit
     } // Form Factors
 }
 
-#endif //#defined __flav_loop_functions_hpp__
+#endif //#defined __loop_functions_hpp__

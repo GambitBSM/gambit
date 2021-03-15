@@ -61,17 +61,17 @@ BE_NAMESPACE
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
   }
   
-   void modify_WCP(const parameters *param, double Cpb[11])
+   void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
-    Cpb[7]+=param->Re_DeltaC7p;
-    Cpb[9]+=param->Re_DeltaC9p;
-    Cpb[10]+=param->Re_DeltaC10p;
+    Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
+    Cpb[9]+=std::complex<double>(param->Re_DeltaC9_Prime, param->Im_DeltaC9_Prime);
+    Cpb[10]+=std::complex<double>(param->Re_DeltaC10_Prime, param->Im_DeltaC10_Prime);
   }
-  void modify_WCP(const parameters *param, double Cpb[11], std::complex<double> CQpb[3])
+  void modify_WCP(const parameters *param, std::complex<double> Cpb[11], std::complex<double> CQpb[3])
   {
     modify_WCP(param, Cpb);
-    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1p, param->Im_DeltaCQ1p);
-    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2p, param->Im_DeltaCQ2p);
+    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1_Prime, param->Im_DeltaCQ1_Prime);
+    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2_Prime, param->Im_DeltaCQ2_Prime);
   }
   /// @}
 
@@ -87,7 +87,6 @@ BE_NAMESPACE
   /// B0 -> K*0 mu mu observables
   Flav_KstarMuMu_obs BKstarmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
-    std::cout<<"I am used"<<std::endl;
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
@@ -129,14 +128,14 @@ BE_NAMESPACE
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
     double obs[3];
-    Flav_KstarMuMu_obs results;
-    results.q2_min=Q2_min;
-    results.q2_max=Q2_max;
+    //Flav_KstarMuMu_obs results;
+    //results.q2_min=Q2_min;
+    //results.q2_max=Q2_max;
 
-    double mu_W=2.*param->mass_W;
+    //double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_pole;
 
     double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));        

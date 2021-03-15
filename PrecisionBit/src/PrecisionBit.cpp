@@ -45,29 +45,14 @@
 
 #include <algorithm>
 
-// GSL headers
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_permutation.h>
-#include <gsl/gsl_permute.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_min.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_deriv.h>
-
 #include "gambit/Elements/gambit_module_headers.hpp"
-// intorduce FlavBit helper routines for likelihood calculations
-#include "gambit/FlavBit/FlavBit_types.hpp"
-#include "gambit/FlavBit/flav_utils.hpp"
-// Amplitudes needed for muon g-2 calculation
-#include "gambit/Elements/flav_loop_functions.hpp"
-
-#include "gambit/Elements/smlike_higgs.hpp"
-#include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
-#include "gambit/Utils/statistics.hpp"
+#include "gambit/Elements/loop_functions.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
+#include "gambit/Elements/smlike_higgs.hpp"
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
+
 
 //#define PRECISIONBIT_DEBUG
 
@@ -1131,7 +1116,6 @@ namespace Gambit
       #endif
 
       SMInputs sminputs = *Dep::SMINPUTS;
-      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int f = 0, l = 1, lp = 1;
 
@@ -1142,25 +1126,27 @@ namespace Gambit
       const double cosb = cos(beta);
       const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       const double cab = cos(alpha-beta);
-      const double mW = (*sminputspointer)->mW;
-      const double mZ = (*sminputspointer)->mZ;
-      const double mE = (*sminputspointer)->mE;
-      const double mMu = (*sminputspointer)->mMu;
-      const double mTau = (*sminputspointer)->mTau;
-      const double mNu1 = (*sminputspointer)->mNu1;
-      const double mNu2 = (*sminputspointer)->mNu2;
-      const double mNu3 = (*sminputspointer)->mNu3;
-      const double mBmB = (*sminputspointer)->mBmB;
-      const double mT = (*sminputspointer)->mT;
+      const double mW = sminputs.mW;
+      const double mZ = sminputs.mZ;
+      const double mE = sminputs.mE;
+      const double mMu = sminputs.mMu;
+      const double mTau = sminputs.mTau;
+      const double mNu1 = sminputs.mNu1;
+      const double mNu2 = sminputs.mNu2;
+      const double mNu3 = sminputs.mNu3;
+      const double mBmB = sminputs.mBmB;
+      const double mT = sminputs.mT;
+      const double mCmC = sminputs.mCmC;
+      const double mS = sminputs.mS;
       const double m122 = spectrum.get(Par::mass1, "m12_2");
       const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
       const double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
-      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
-      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
-      const vector<double> mphi = {mh, mH, mA, mHp};
+      const std::vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const std::vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const std::vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const std::vector<double> mphi = {mh, mH, mA, mHp};
       const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
       const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
       const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
@@ -1172,23 +1158,23 @@ namespace Gambit
       const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      //TODO: remove if unused const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      const double A      = (*sminputspointer)->CKM.A;
-      const double lambda = (*sminputspointer)->CKM.lambda;
-      const double rhobar = (*sminputspointer)->CKM.rhobar;
-      const double etabar = (*sminputspointer)->CKM.etabar;
-      const complex<double> Vud(1 - (1/2)*lambda*lambda);
-      const complex<double> Vcd(-lambda,0);
-      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vus(lambda,0);
-      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
-      const complex<double> Vts(-A*lambda*lambda,0);
-      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vcb(A*lambda*lambda,0);
-      const complex<double> Vtb(1,0);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double rhobar = sminputs.CKM.rhobar;
+      const double etabar = sminputs.CKM.etabar;
+      const std::complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const std::complex<double> Vcd(-lambda,0);
+      const std::complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vus(lambda,0);
+      const std::complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const std::complex<double> Vts(-A*lambda*lambda,0);
+      const std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vcb(A*lambda*lambda,0);
+      const std::complex<double> Vtb(1,0);
       const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Yss/cosb;
       const double xitc = Ytc/cosb;
@@ -1219,7 +1205,7 @@ namespace Gambit
               0, xiss,  xisb,
               0, xisb, xibb;
 
-      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+      const std::vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
@@ -1227,8 +1213,8 @@ namespace Gambit
               Vtd, Vts, Vtb;
 
       // One loop amplitude
-      complex<double> Aloop1L = 0, A1L = 0;
-      complex<double> Aloop1R = 0, A1R = 0;
+      std::complex<double> Aloop1L = 0, A1L = 0;
+      std::complex<double> Aloop1R = 0, A1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
       for (int phi=0; phi<=3; ++phi)
@@ -1254,19 +1240,19 @@ namespace Gambit
       // Need to remove the SM Higgs contribution
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       // Alternatively could use: 1607.06292, eqn (32)
-      complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
-      complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      std::complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
 
       // Two loop amplitude
-      const vector<double> Qf = {-1.,-1./3.,2./3.};
-      const vector<double> Nc = { 1.,    3.,   3.};
+      const std::vector<double> Qf = {-1.,-1./3.,2./3.};
+      const std::vector<double> Nc = { 1.,    3.,   3.};
 
       const double sw2 = 1 - pow(mW/mZ,2);
-      const vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
+      const std::vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
 
       //Fermionic contribution, source: 1607.06292
-      complex<double> Aloop2f = 0.;
-      complex<double> Aloop2SMf = 0.;
+      std::complex<double> Aloop2f = 0.;
+      std::complex<double> Aloop2SMf = 0.;
       for (int phi=0; phi<=3; ++phi)
       { 
         for (int lf=0; lf<=2; ++lf)
@@ -1281,16 +1267,16 @@ namespace Gambit
         Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
       }
 
-      const vector<double> couplingphiCC = { \
+      const std::vector<double> couplingphiCC = { \
       (-(mh*mh-2.*mHp*mHp) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v*v), \
       (-(mH*mH-2.*mHp*mHp) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v*v), \
       0.};
-      const vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
-      const vector<complex<double>> couplingphiCW = { complex<double> (cab,0.),  complex<double> (-sqrt(1-pow(cab,2)),0.), complex<double> (0.,-1.)};
+      const std::vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
+      const std::vector<std::complex<double>> couplingphiCW = { std::complex<double> (cab,0.),  std::complex<double> (-sqrt(1-pow(cab,2)),0.), std::complex<double> (0.,-1.)};
       
       //Barr-Zee contribution, source: 1502.04199
-      complex<double> Aloop2BZ = 0.;
-      complex<double> Aloop2SMBZ = 0.;
+      std::complex<double> Aloop2BZ = 0.;
+      std::complex<double> Aloop2SMBZ = 0.;
       for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
@@ -1392,7 +1378,8 @@ namespace Gambit
     }
 
     // calculates chi2 from EWPO in the THDM using 2HDMC
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container)
+    { 
       THDMC_1_8_0::Constraints constraints_object(container.THDM_object);
 
       const double mh_ref = 125.0; 
@@ -1402,7 +1389,8 @@ namespace Gambit
       // if new physics in the low energy scale 
       // move to basis as introduced in arxiv:9407203
       const bool use_low_energy = true;
-      if (use_low_energy) {
+      if (use_low_energy)
+      {
         const double sinW2 = container.he->get(Par::dimensionless, "sinW2");
         const double cosW2 = 1. - sinW2;
         S = S + 4.*sinW2*cosW2*V + 4.*(cosW2-sinW2)*X;
@@ -1414,35 +1402,31 @@ namespace Gambit
       std::vector<double> value_exp = {S,T,U};
       std::vector<double> value_th = {0.04, 0.09, -0.02};
       std::vector<double> error;
-      const int dim = value_exp.size();
+      const size_t dim = value_exp.size();
 
-      for (int i=0;i<dim;++i) {
+      for (size_t i=0; i<dim; ++i)
+      {
         error.push_back(abs(value_exp[i] - value_th[i]));
       }
 
       // calculating the covariance matrix
-      boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+      Eigen::Matrix3d cov,corr; 
       std::vector<double> sigma = {0.11, 0.14, 0.11};
 
-      // fill with zeros
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) corr(i,j) = 0.0;
-      }
+      corr <<  1.0,   0.92, -0.68,
+               0.92,  1.0,  -0.87, 
+              -0.68, -0.87,  1.0;
 
-      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.68;
-      corr(1,0) = 0.92; corr(1,1) = 1.0; corr(1,2) = -0.87; 
-      corr(2,0) = -0.68; corr(2,1) = -0.87; corr(2,2) = 1.0;
-
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
-      }
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
 
       // calculating the chi2
       double chi2=0;
-      FlavBit::InvertMatrix(cov, cov_inv);
-      for (int i=0; i < dim; ++i) {
-        for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
-      }
+      Eigen::Matrix3d cov_inv = cov.inverse();
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          chi2 += error[i] * cov_inv(i,j)* error[j];
         
       return -0.5*chi2;
     }

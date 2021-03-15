@@ -152,7 +152,7 @@ namespace Gambit
         // at the moment only SLHA2 is called, but in case, throw an error
         std::ostringstream errmsg;
         errmsg << "Only SLHA2 convention is currently compatible with the THDM. Expect problems." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO,errmsg.str());
+        utils_error().raise(LOCAL_INFO,errmsg.str());
 
       }
     }

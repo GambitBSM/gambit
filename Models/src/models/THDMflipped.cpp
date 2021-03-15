@@ -202,7 +202,7 @@ void MODEL_NAMESPACE::THDMflipped_higgs_to_THDMflipped(const ModelParameters &my
 
   // higgs basis
   double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-  double tanb  = double tanb"];
+  double tanb = myP.getValue("tanb");
   double beta = atan(tanb);
   double sb = sin(beta), cb = cos(beta), tb = tan(beta);
   double ctb = 1./tb;
@@ -249,7 +249,7 @@ void MODEL_NAMESPACE::THDMflipped_higgsatQ_to_THDMflippedatQ(const ModelParamete
 
   // higgs basis
   double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
-  double tanb  = double tanb"];
+  double tanb = myP.getValue("tanb");
   double beta = atan(tanb);
   double sb = sin(beta), cb = cos(beta), tb = tan(beta);
   double ctb = 1./tb;
@@ -285,13 +285,13 @@ void MODEL_NAMESPACE::THDMflipped_higgsatQ_to_THDMflippedatQ(const ModelParamete
 #undef PARENT
 #undef MODEL
 
-//  THDMflipped_physical --> THDMI
+//  THDMflipped_physical --> THDMflipped
 #define MODEL THDMflipped_physical
 #define PARENT THDMflipped
-void MODEL_NAMESPACE::TDHMI_physical_to_THDMflipped(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMflipped_physical_to_THDMflipped(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(PARENT) // get pope for "interpret as PARENT" function
-  logger()<<"Running interpre_as_parent calculations for THDMflipped_physical ->> THDMflipped"<<LogTags::info<<EOM;
+  logger()<<"Running interpre_as_parent calculations for THDMflipped_physical --> THDMflipped"<<LogTags::info<<EOM;
 
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
@@ -328,10 +328,10 @@ void MODEL_NAMESPACE::TDHMI_physical_to_THDMflipped(const ModelParameters &myP, 
 //  THDMflipped_physicalatQ --> THDMflippedatQ
 #define MODEL THDMflipped_physicalatQ
 #define PARENT THDMflippedatQ
-void MODEL_NAMESPACE::TDHMI_physicalatQ_to_THDMflippedatQ(const ModelParameters &myP, ModelParameters &targetP)
+void MODEL_NAMESPACE::THDMflipped_physicalatQ_to_THDMflippedatQ(const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(PARENT) // get pope for "interpret as PARENT" function
-  logger()<<"Running interpre_as_parent calculations for THDMflipped_physicalatQ ->> THDMflippedatQ"<<LogTags::info<<EOM;
+  logger()<<"Running interpre_as_parent calculations for THDMflipped_physicalatQ --> THDMflippedatQ"<<LogTags::info<<EOM;
 
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
@@ -366,7 +366,7 @@ void MODEL_NAMESPACE::TDHMI_physicalatQ_to_THDMflippedatQ(const ModelParameters 
 #undef PARENT
 #undef MODEL
 
-//  THDMflipped_hybrid_lambda1 --> THDMI
+//  THDMflipped_hybrid_lambda1 --> THDMflipped
 #define MODEL  THDMflipped_hybrid_lambda1
 #define PARENT THDMflipped
 void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1_to_THDMflipped(const ModelParameters &myP, ModelParameters &targetP)
@@ -377,7 +377,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1_to_THDMflipped(const ModelParam
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda2");
+               m12_2 = myP.getValue("m12_2"), lambda2 = myP.getValue("lambda2");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -387,7 +387,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1_to_THDMflipped(const ModelParam
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda2*v2*pow(sb,2)*pow(ca,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -412,7 +412,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1atQ_to_THDMflippedatQ(const Mode
   logger()<<"Running interpret_as_PARENT calculations for THDMflipped_hybrid_lambda1atQ --> THDMflippedatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-               m12_2 = myP.getValue("m12_2"), lambda_2 = myP.getValue("lambda2");
+               m12_2 = myP.getValue("m12_2"), lambda2 = myP.getValue("lambda2");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -422,7 +422,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1atQ_to_THDMflippedatQ(const Mode
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda1 = 1.0/(v2*pow(cb,2)*pow(sa,2)) * \
-      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_2*v2*pow(sb,2)*pow(ca,2));
+      ( pow(m_h,2)*(pow(sa,4) - pow(ca,4)) + m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda2*v2*pow(sb,2)*pow(ca,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -439,7 +439,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda1atQ_to_THDMflippedatQ(const Mode
 #undef PARENT
 #undef MODEL
 
-//  THDMflipped_hybrid_lambda2 --> THDMI
+//  THDMflipped_hybrid_lambda2 --> THDMflipped
 #define MODEL  THDMflipped_hybrid_lambda2
 #define PARENT THDMflipped
 void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2_to_THDMflipped(const ModelParameters &myP, ModelParameters &targetP)
@@ -448,7 +448,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2_to_THDMflipped(const ModelParam
   logger()<<"Running interpret_as_PARENT calculations for THDMflipped_hybrid_lambda2 --> THDMflipped"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda1");
+      m12_2 = myP.getValue("m12_2"), lambda1 = myP.getValue("lambda1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -458,7 +458,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2_to_THDMflipped(const ModelParam
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
-      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );
@@ -483,7 +483,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2atQ_to_THDMflippedatQ(const Mode
   logger()<<"Running interpret_as_PARENT calculations for THDMflipped_hybrid_lambda2atQ --> THDMflippedatQ"<<LogTags::info<<EOM;
 
   const double m_h = myP.getValue("mh"), sba = myP.getValue("sba"), tanb = myP.getValue("tanb"), \
-      m12_2 = myP.getValue("m12_2"), lambda_1 = myP.getValue("lambda1");
+      m12_2 = myP.getValue("m12_2"), lambda1 = myP.getValue("lambda1");
 
   const double beta = atan(tanb);
   double ba = asin(sba);
@@ -493,7 +493,7 @@ void MODEL_NAMESPACE::THDMflipped_hybrid_lambda2atQ_to_THDMflippedatQ(const Mode
   const double v2 = 1./(sqrt(2)*GF);
 
   const double lambda2 = 1.0/(v2*pow(sb,2)*pow(ca,2)) * \
-      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda_1*v2*pow(cb,2)*pow(sa,2));
+      ( -pow(m_h,2)*(pow(sa,4) - pow(ca,4)) - m12_2*(cotb*pow(ca,2) - tanb*pow(sa,2)) + lambda1*v2*pow(cb,2)*pow(sa,2));
 
   targetP.setValue("lambda1", lambda1 );
   targetP.setValue("lambda2", lambda2 );

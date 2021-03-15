@@ -48,7 +48,8 @@
   (triplet<double>)                    \
   (map_intpair_dbl)                    \
 
-#define HDF5_MODULE_BACKEND_TYPES      \
+// TODO: This breaks modularity with FlavBit, must find another way
+#define HDF5_BACKEND_TYPES             \
   (DM_nucleon_couplings)               \
   (DM_nucleon_couplings_fermionic_HP)  \
   (Flav_KstarMuMu_obs)                 \

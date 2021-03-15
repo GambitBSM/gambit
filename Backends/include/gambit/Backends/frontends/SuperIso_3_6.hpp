@@ -33,6 +33,7 @@ BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ)
 
 BE_FUNCTION(Init_param, void, (parameters*), "Init_param", "Init_param")
 BE_FUNCTION(slha_adjust, void, (parameters*), "slha_adjust", "slha_adjust")
+BE_CONV_FUNCTION(mcmc_from_pole, double, (double, int, parameters*), "mcmc_from_pole")
 
 BE_FUNCTION(print_test, void, (int, double*, double*, double*, double, const parameters*), "print_test", "print_test")
 

@@ -2,8 +2,9 @@
 //   *********************************************
 ///  \file
 ///
-///  Loop functions for flavour violating decays of charged leptons (from hep-ph/9403398)
-///  And for RK from 1706.07570
+///  Loop functions
+///  - flavour violating decays of charged leptons (from hep-ph/9403398)
+///  - RK from 1706.07570
 ///
 ///  *********************************************
 ///
@@ -26,7 +27,7 @@
 #include "gambit/Elements/shared_types.hpp"
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/flav_loop_functions.hpp"
+#include "gambit/Elements/loop_functions.hpp"
 #include "gambit/Elements/ini_functions.hpp"
 #include "gambit/Utils/util_types.hpp"
 
@@ -284,7 +285,7 @@ namespace Gambit
           gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
           std::complex<double> Dilog(reD.val,imD.val);
           return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \
-                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.))*/ \
+                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.))*/) \
                  + (s+xd) * std::log(xd) + (s-xu)*std::log(xu);
         }
         else
@@ -727,7 +728,7 @@ namespace Gambit
         return alph*Nc*norm(VCKM(2,1))*std::pow(mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -743,7 +744,7 @@ namespace Gambit
         return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiCC * couplingphiCW) * (term1-term2);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton

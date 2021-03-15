@@ -38,6 +38,7 @@ DarkSUSY_generic_wimp:
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
 
 SuperIso:
+  3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
 
 Flavio:
