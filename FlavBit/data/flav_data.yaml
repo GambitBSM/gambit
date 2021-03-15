@@ -13,11 +13,11 @@
 
 - name: Bc_lifetime
   islimit: false
-  exp_value: 0.507
-  exp_stat_error: 0.008
+  exp_value: 0.507e-12
+  exp_stat_error: 0.008e-12
   exp_sys_error: 0.0
   exp_source: 1611.06676
-  th_error: 0.18
+  th_error: 0.18e-12
   th_error_type: M
   th_error_source: NONE
   correlation:
