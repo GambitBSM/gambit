@@ -39,10 +39,18 @@ namespace Gambit
    void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape,
                                          const std::string& blockname, const std::vector<int>& indices)
    {
-     if(shape.size() != indices.size())
+     // Must be a vector, not a matrix
+     if(shape.size() > 1)
      {
        std::ostringstream errmsg;
-       errmsg << "Error while adding parameter. Size of shape must be equal to size of indices." << std::endl;
+       errmsg << "Error while adding parameter. Vector shortcut cannot be used with matrices." << std::endl;
+       utils_error().forced_throw(LOCAL_INFO,errmsg.str());
+     }
+     // Shape must match size of indices
+     if(shape.at(0) != indices.size())
+     {
+       std::ostringstream errmsg;
+       errmsg << "Error while adding parameter. Shape must be equal to size of indices." << std::endl;
        utils_error().forced_throw(LOCAL_INFO,errmsg.str());
      }
      std::vector<int> scalar = initVector(1);   // i.e. get(Par::Tag, "name")

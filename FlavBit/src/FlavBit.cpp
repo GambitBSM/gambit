@@ -3279,7 +3279,6 @@ namespace Gambit
       double CRcb = -2*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       double CLcb = 2*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       double gp =  (CRcb - CLcb)/CSMcb;
-      const double hbar = 6.582119514e-25; // GeV * s
       const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
       const double Gamma_Bc_exp = (hbar/(0.507e-12)); //experimental value in GeV^-1
       double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2));
