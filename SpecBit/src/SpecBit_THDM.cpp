@@ -368,15 +368,15 @@ namespace Gambit
       bool yu_empty = true, yd_empty = true, yl_empty= true;
       bool real = true, diagonal = true;
 
-      const std::vector<str> yuk_base = {"yu2_re", "yu2_im", "yd2_re", "yd_im", "yl_re", "yl_im"};
+      const std::vector<str> yuk_base = {"yu2_re", "yu2_im", "yd2_re", "yd2_im", "yl2_re", "yl2_im"};
       for (str yuk : yuk_base)
       {
         for(size_t i=1; i<=3; ++i)
         {
           for(size_t j=1; j<=3; ++j)
           {
-            std::stringstream ss(yuk);
-            ss << "_" << i << j;
+            std::stringstream ss;
+            ss << yuk << "_" << i << j;
             if(std::abs(*Param.at(ss.str())) > eps)
             {
               // if any element is non-zero, it is not empty
@@ -489,7 +489,10 @@ namespace Gambit
         const double alpha = basis["alpha"];
         const double tanb = basis["tanb"];
 
+
         // fill spectrum container
+        thdm_model.model_type = *Dep::THDM_Type;
+
         thdm_model.tanb = tanb;
         thdm_model.alpha = alpha;
 

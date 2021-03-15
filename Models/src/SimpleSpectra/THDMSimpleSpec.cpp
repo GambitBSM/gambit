@@ -41,6 +41,9 @@ namespace Gambit
 
     /// @{ Getters for SM information 
 
+    // Model type
+    double THDMea::get_model_type()   const { return getdata("FMODSEL",1) - 30; }
+
     /// Pole masses
     double THDMea::get_MZ_pole()        const { return getdata("SMINPUTS",4); }
     double THDMea::get_Mtop_pole()      const { return getdata("SMINPUTS",6); }
@@ -82,8 +85,7 @@ namespace Gambit
     double THDMea::get_tanb()  const { return getdata("MINPAR",3); }
     double THDMea::get_beta()  const { return atan(get_tanb()); }
     double THDMea::get_alpha() const { return getdata("ALPHA",0); }
-    // TODO: Should not be part of the spectrum
-    //double THDMea::get_yukawaCoupling() const { return (getdata("FMODSEL",1) - 30); } 
+
     double THDMea::get_v1()    const { return sqrt(pow(get_vev(),2)*pow(get_tanb(),2)/(1+pow(get_tanb(),2)));  } 
     double THDMea::get_v2()    const { return sqrt(pow(get_vev(),2)/(1+pow(get_tanb(),2))); } 
  
@@ -124,7 +126,20 @@ namespace Gambit
     double THDMea::get_ImYu2(int i, int j) const { return getdata("ImYu2",i,j); }
     double THDMea::get_ImYe2(int i, int j) const { return getdata("ImYe2",i,j); }
  
-      
+    // Pole masses  
+    double THDMea::get_mh0_pole(int i) const
+    {
+      if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
+      else if (i==2){ return getdata("MASS",35); } // Neutral Higgs(2)
+      else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mh0! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
+    }
+
+    double THDMea::get_mA0_pole() const { return getdata("MASS",36); }
+    double THDMea::get_mC_pole()  const { return getdata("MASS",37); }
+    double THDMea::get_mG0() const { return 0.0; }
+    double THDMea::get_mGC() const { return 0.0; }
+
+    // Running masses, same to pole masses on simple spectra
     double THDMea::get_mh0(int i) const
     {
       if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
@@ -134,8 +149,7 @@ namespace Gambit
 
     double THDMea::get_mA0() const { return getdata("MASS",36); }
     double THDMea::get_mC()  const { return getdata("MASS",37); }
-    double THDMea::get_mG0() const { return 0.0; }
-    double THDMea::get_mGC() const { return 0.0; }
+    double THDMea::get_MW()  const { return getdata("MASS",24); }
 
     double THDMea::get_lambda1() const { return getdata("MINPAR",11); }
     double THDMea::get_lambda2() const { return getdata("MINPAR",12); }
@@ -189,12 +203,19 @@ namespace Gambit
                                       {"vev",p.vev}, {"g1",p.g1}, {"g2",p.g2}, {"g3",p.g3}, {"sinW2",p.sinW2}};
 
       SLHAea::Coll slha;
+
+      SLHAea_add(slha, "FMODSEL", 1, 30 + p.model_type, "THDM");
+
       const std::vector<SpectrumParameter> contents = Contents().all_parameters();
 
       for(auto scalar = scalars.begin(); scalar != scalars.end(); scalar++)
         for(auto param = contents.begin(); param != contents.end(); param++)
+        {
           if(param->name() == scalar->first)
+          {
             SLHAea_add(slha, param->blockname(), param->blockindex(), scalar->second, "# "+scalar->first, true);
+          }
+        }
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -268,7 +289,21 @@ namespace Gambit
             tmp_map["m11_2"]  = &THDMea::get_m11_2;
             tmp_map["m22_2"]  = &THDMea::get_m22_2;
 
+            // Running masses
+            tmp_map["A0"] = &THDMea::get_mA0;
+            tmp_map["H+"] = &THDMea::get_mC;
+            tmp_map["H-"] = &THDMea::get_mC;
+            tmp_map["W+"] = &THDMea::get_MW;
+
             map_collection[Par::mass1].map0 = tmp_map;
+        }
+
+        /// THDM Scalar Higgs Running Mass
+        {
+            MTget::fmap1 tmp_map;
+            tmp_map["h0"]   = FInfo1( &THDMea::get_mh0, i12 );
+
+            map_collection[Par::mass1].map1 = tmp_map;
         }
 
         /// Fill Pole_mass map (from Model object)
@@ -299,9 +334,9 @@ namespace Gambit
             tmp_map["e-"]  = &THDMea::get_Melectron_pole;
 
             // THDM Extra Scalar Pole Masses
-            tmp_map["A0"]= &THDMea::get_mA0;
-            tmp_map["H+"] = &THDMea::get_mC;
-            tmp_map["H-"]  = &THDMea::get_mC;
+            tmp_map["A0"]= &THDMea::get_mA0_pole;
+            tmp_map["H+"] = &THDMea::get_mC_pole;
+            tmp_map["H-"]  = &THDMea::get_mC_pole;
             tmp_map["G+"]  = &THDMea::get_mGC;
             tmp_map["G-"]  = &THDMea::get_mGC;
             tmp_map["G0"]  = &THDMea::get_mG0;
@@ -312,7 +347,7 @@ namespace Gambit
         // THDM Scalar Higgs Pole Mass
         {
             MTget::fmap1 tmp_map;
-            tmp_map["h0"]   = FInfo1( &THDMea::get_mh0, i12 );
+            tmp_map["h0"]   = FInfo1( &THDMea::get_mh0_pole, i12 );
 
             map_collection[Par::Pole_Mass].map1 = tmp_map;
         }
@@ -334,6 +369,8 @@ namespace Gambit
         // Dimensionless block
         {
             MTget::fmap0 tmp_map;
+
+            tmp_map["model_type"] = &THDMea::get_model_type;
 
             tmp_map["g1"]   = &THDMea::get_g1;
             tmp_map["g2"]   = &THDMea::get_g2;

@@ -47,17 +47,17 @@ namespace Gambit
        utils_error().forced_throw(LOCAL_INFO,errmsg.str());
      }
      // Shape must match size of indices
-     if(shape.at(0) != indices.size())
+     if(size_t(shape.at(0)) != indices.size())
      {
        std::ostringstream errmsg;
        errmsg << "Error while adding parameter. Shape must be equal to size of indices." << std::endl;
        utils_error().forced_throw(LOCAL_INFO,errmsg.str());
      }
      std::vector<int> scalar = initVector(1);   // i.e. get(Par::Tag, "name")
-     for(size_t i=0; i<shape.size(); ++i)
+     for(size_t i=0; i<indices.size(); ++i)
      {
-       std::stringstream parname(name);
-       parname << "_" << i;
+       std::ostringstream parname;
+       parname << name << "_" << i+1;
        parameters.emplace_back(tag,parname.str(),scalar,blockname,indices[i]);
      }
    }

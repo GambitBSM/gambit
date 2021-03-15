@@ -37,6 +37,7 @@ namespace Gambit
       {
 
         // get all THDM variables
+        const int model_type = thdmspec.get(Par::dimensionless, "model_type");
         const double m_h = thdmspec.get(Par::Pole_Mass, "h0",1);
         const double m_H = thdmspec.get(Par::Pole_Mass, "h0",2);
         const double m_A = thdmspec.get(Par::Pole_Mass, "A0");
@@ -58,8 +59,6 @@ namespace Gambit
         const double g = thdmspec.get(Par::dimensionless,"g1");
         const double g_prime = thdmspec.get(Par::dimensionless,"g2");
         const double g_3 = thdmspec.get(Par::dimensionless,"g3");
-        // TODO: This should not be part of the spectrum
-        //const int yukawa_coupling = thdmspec.get(Par::dimensionless,"yukawaCoupling");
 
         // begin filling the SLHA
 
@@ -69,12 +68,11 @@ namespace Gambit
         SLHAea_add(slha, "MODSEL", 1, 10, "THDM", true);
         
         // flavor MODSEL block
-        // THDM Yukawa type is give by (30 + yukawas_type), we also have no CP-violation in our model
+        // THDM Yukawa type is given by (30 + model_type), we also have no CP-violation in our model
         SLHAea_add_block(slha, "FMODSEL");
-        // TODO: Really needed here?
-        //SLHAea_add(slha, "FMODSEL", 1, (30 + yukawa_coupling), "THDM", true);
-        // TODO: No longer true for the general THDM with imaginary yukawas
-        //SLHAea_add(slha, "FMODSEL", 5, 0, "No CP-violation", true);
+        SLHAea_add(slha, "FMODSEL", 1, (30 + model_type), "THDM", true);
+        // TODO: Actually it might not be true with imaginary yukawas, but leave for now
+        SLHAea_add(slha, "FMODSEL", 5, 0, "No CP-violation", true);
 
         // scale
         SLHAea_add_block(slha, "MSOFT", thdmspec.GetScale());

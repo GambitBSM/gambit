@@ -48,7 +48,7 @@
     #define FUNCTION get_THDM_spectrum
       START_FUNCTION(Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
-      MODEL_CONDITIONAL_DEPENDENCY(THDM_Type, THDM_TYPE, THMDatQ)
+      DEPENDENCY(THDM_Type, THDM_TYPE)
       ALLOW_MODEL(THDM,THDMatQ)
     #undef FUNCTION
      // Convert spectrum into a standard map so that it can be printed

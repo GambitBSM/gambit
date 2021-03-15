@@ -554,10 +554,10 @@ Logger:
   redirection:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
-   # [DecayBit] :  "DecayBit.log"
-   # [DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
-   # [ColliderBit] :  "ColliderBit.log"
+    [DecayBit] :  "DecayBit.log"
+    [DarkBit] :  "DarkBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
     [FlavBit] :  "FlavBit.log"
     [Dependency Resolver] :  "depresolver.log"
@@ -572,17 +572,6 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
-    debug: true
-
-  dependency_resolution:
-    prefer_model_specific_functions: true
-    use_old_routines: false
-
-  #By default, errors are fatal and warnings non-fatal
-  exceptions:
-    dependency_resolver_error: fatal
-    dependency_resolver_warning: non-fatal
-    core_warning: fatal
 
   default_output_path: "runs/THDM/"
   debug: true

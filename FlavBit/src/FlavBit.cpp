@@ -247,15 +247,8 @@ namespace Gambit
         // Add the MODSEL block if it is not provided by the spectrum object.
         SLHAea_add(spectrum,"MODSEL",1, 0, "General MSSM", false);
       }
-      //else if(ModelInUse("THDM") or ModelInUse("THDMatQ"))
-      //{
-      //FlavBit_error().raise(LOCAL_INFO, "Sorry Flavor Physics is not yet supported for the general THDM.");
-      //}
-      //else if(ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
-         //     ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
-       //       ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
-     //         ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ") or
-      else if(ModelInUse("THDMatQ")) {
+      else if(ModelInUse("THDM") or ModelInUse("THDMatQ"))
+      {
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
@@ -354,9 +347,7 @@ namespace Gambit
           case 10:
           {
             // THDM model parameter
-            
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-           // cout<<"THDM_model value is "<<result.THDM_model<<endl;
             if (result.THDM_model == 0) result.THDM_model=10;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
@@ -703,7 +694,7 @@ namespace Gambit
         result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
       }
       if (ModelInUse("WC_LR"))
-        {
+      {
           result.SM = 1;
 
           result.Re_DeltaC7  = *Param["Re_DeltaC7"];
@@ -809,7 +800,7 @@ namespace Gambit
         result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
 
       }
-     if (ModelInUse("THDMatQ"))
+      if (ModelInUse("THDMatQ"))
       {
         result.Re_DeltaC7  = Dep::DeltaC7->real();
         result.Im_DeltaC7  = Dep::DeltaC7->imag();
