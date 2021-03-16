@@ -38,7 +38,6 @@ DarkSUSY_generic_wimp:
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
 
 SuperIso:
-  3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
 
 Flavio:
@@ -85,8 +84,8 @@ gamLike:
   1.0.1:       ./Backends/installed/gamlike/1.0.1/lib/gamLike.so
 
 THDMC:
-  1.7.0:       ./Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so
-  1.8.0:       ./Backends/installed/THDMC/1.8.0/lib/lib2HDMC.so
+  1.7.0:       ./Backends/installed/thdmc/1.7.0/lib/lib2HDMC.so
+  1.8.0:       ./Backends/installed/thdmc/1.8.0/lib/lib2HDMC.so
 
 gm2calc:
   1.2.0:       ./Backends/installed/gm2calc/1.2.0/src/libgm2calc.so

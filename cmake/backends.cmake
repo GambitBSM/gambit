@@ -339,41 +339,12 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ""
     )
   BOSS_backend_with_ROOT(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
-endif()
-
-# SuperIso 3.6
-set(name "superiso")
-set(ver "3.6")
-set(lib "libsuperiso")
-set(dl "http://superiso.in2p3.fr/download/${name}_v${ver}.tgz")
-set(md5 "df864ceeccb72467bfbe572a8da9711d")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    PATCH_COMMAND cd .. && patch -s -p0 < ${patch}/superiso.patch
-    BUILD_COMMAND sed ${dashi} -e "s#CC = gcc#CC = ${CMAKE_C_COMPILER}#g" Makefile
-          COMMAND sed ${dashi} -e "s#rcsU#rcs#g" src/Makefile
-          COMMAND sed ${dashi} -e "s/CFLAGS= -O3 -pipe -fomit-frame-pointer/CFLAGS= -fPIC ${BACKEND_C_FLAGS}/g" Makefile
-          COMMAND ${MAKE_PARALLEL}
-          COMMAND ar x src/libisospin.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
-          COMMAND chmod u+x make_so.sh
-          COMMAND ./make_so.sh
-    INSTALL_COMMAND ""
-  )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
 # SuperIso 4.1
@@ -403,7 +374,7 @@ if(NOT ditched_${name}_${ver})
     # ----------
     # instead I use
     # ----------
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${BACKEND_C_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} ARFLAGS=rcs CFLAGS=${BACKEND_C_FLAGS}
           COMMAND ar x src/libsuperiso.a
     # ----------
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} -shared -o ${lib}.so *.o" > make_so.sh
@@ -1199,7 +1170,7 @@ if(NOT ditched_${name}_${ver})
     BINARY_DIR "${dir}/build"
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DLEP_CHISQ=ON
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHB.a lib/objects/libHB.a
           COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHB.a
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so lib/objects/*.o" > make_so.sh
@@ -1318,7 +1289,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
@@ -1348,7 +1319,7 @@ if(NOT ditched_${name}_${ver})
     BINARY_DIR "${dir}/build"
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER} -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -DCMAKE_Fortran_FLAGS=${BACKEND_Fortran_FLAGS} -DHiggsBounds_DIR=${PROJECT_SOURCE_DIR}/Backends/installed/${hb_name}/${hb_ver}/build
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E copy lib/libHS.a lib/objects/libHS.a
           COMMAND ${CMAKE_COMMAND} -E copy "${hb_dir}/build/lib/libHB.a" lib/objects/libHB.a
           COMMAND ${CMAKE_COMMAND} -E chdir lib/objects ar -x libHS.a
@@ -1390,7 +1361,7 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure --hbpath=../../${hb_name}/${hb_ver}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
@@ -1577,11 +1548,10 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # THDMC
-set(name "THDMC")
+set(name "thdmc")
 set(ver "1.8.0")
 set(ver_underlined "1_8_0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(frontend_header_dir "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
 set(md5 "97a60d3d10637faf3fe26f704a666d26")
@@ -1595,10 +1565,10 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch < ${patch}/Makefile.patch
-	    COMMAND patch -s -p0 < ${patch}/src.patch
+	  COMMAND patch -s -p0 < ${patch}/src.patch
       # should be done by patching step so don't exit if the 'mv' fails
   	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp || true 
-      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h || true
+          COMMAND mv src/DecayTable.h src/DecayTableTHDM.h || true
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
@@ -1610,7 +1580,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-set(name "THDMC")
+set(name "thdmc")
 set(ver "1.7.0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")

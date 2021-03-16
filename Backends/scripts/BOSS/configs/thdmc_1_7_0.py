@@ -39,15 +39,16 @@ gambit_base_namespace  = ''
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = ['../../../Backends/installed/THDMC/'+gambit_backend_version+'/src/SM.h',
-                '../../../Backends/installed/THDMC/'+gambit_backend_version+'/src/THDM.h',
-                '../../../Backends/installed/THDMC/'+gambit_backend_version+'/src/Constraints.h',
-                '../../../Backends/installed/THDMC/'+gambit_backend_version+'/src/DecayTableTHDM.h']
-include_paths = ['../../../Backends/installed/THDMC/'+gambit_backend_version+'/lib/','../../../Backends/installed/THDMC/'+gambit_backend_version+'/src/','.']
-base_paths    = ['../../../Backends/installed/THDMC/'+gambit_backend_version+'/']
+input_files   = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src/SM.h',
+                '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src/THDM.h',
+                '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src/Constraints.h',
+                '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src/DecayTableTHDM.h']
+include_paths = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/lib/',
+                 '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src/','.']
+base_paths    = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/']
 
-header_files_to = '../../../Backends/installed/THDMC/'+gambit_backend_version+'/src'
-src_files_to    = '../../../Backends/installed/THDMC/'+gambit_backend_version+'/src'
+header_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src'
+src_files_to    = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src'
 
 load_classes = ['SM',
                 'THDM',
