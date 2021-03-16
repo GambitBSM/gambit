@@ -47,7 +47,7 @@ namespace Gambit
      *
      * Defined by a covariance matrix and mean of \f$\log x\f$.
      *
-     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its 
+     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its
      * diagonal entries, denoted \f$\sigma\f$.
      *
      * The base is by default 10.

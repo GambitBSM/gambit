@@ -129,7 +129,7 @@ namespace Gambit
         if (options.getValue<std::string>("base") == "e")
         {
           base = M_E;
-        } 
+        }
         else
         {
           base = options.getValue<double>("base");

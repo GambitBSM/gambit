@@ -166,9 +166,6 @@ namespace Gambit
          /// Flag to let us known if the dataset is open
          bool is_open;
 
-         /// Variable tracking size of dataset on disk
-         std::size_t virtual_dset_length;
-
          /// Variable tracking whether the dataset is known to exist in the output file yet
          bool exists_on_disk;
 

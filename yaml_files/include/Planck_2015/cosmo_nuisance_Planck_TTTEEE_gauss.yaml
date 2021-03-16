@@ -37,80 +37,80 @@ ksz_norm:
   range: [0.0,10.0]
 gal545_A_100:
   prior_type: gaussian
-  mean: [7.0]
-  sigs: [2.0]
+  mu: [7.0]
+  sigma: [2.0]
 gal545_A_143:
   prior_type: gaussian
-  mean: [9.0]
-  sigs: [2.0]
+  mu: [9.0]
+  sigma: [2.0]
 gal545_A_143_217:
   prior_type: gaussian
-  mean: [21.0]
-  sigs: [8.5]
+  mu: [21.0]
+  sigma: [8.5]
 gal545_A_217:
   prior_type: gaussian
-  mean: [80.0]
-  sigs: [20.0]
+  mu: [80.0]
+  sigma: [20.0]
 galf_EE_A_100:
   prior_type: gaussian
-  mean: [0.06]
-  sigs: [0.012]
+  mu: [0.06]
+  sigma: [0.012]
 galf_EE_A_100_143:
   prior_type: gaussian
-  mean: [0.05]
-  sigs: [0.015]
+  mu: [0.05]
+  sigma: [0.015]
 galf_EE_A_100_217:
   prior_type: gaussian
-  mean: [0.11]
-  sigs: [0.033]
+  mu: [0.11]
+  sigma: [0.033]
 galf_EE_A_143:
   prior_type: gaussian
-  mean: [0.10]
-  sigs: [0.02]
+  mu: [0.10]
+  sigma: [0.02]
 galf_EE_A_143_217:
   prior_type: gaussian
-  mean: [0.24]
-  sigs: [0.048]
+  mu: [0.24]
+  sigma: [0.048]
 galf_EE_A_217:
   prior_type: gaussian
-  mean: [0.72]
-  sigs: [0.14]
+  mu: [0.72]
+  sigma: [0.14]
 galf_EE_index:
   fixed_value: -2.4
 galf_TE_A_100:
   prior_type: gaussian
-  mean: [0.140]
-  sigs: [0.042]
+  mu: [0.140]
+  sigma: [0.042]
 galf_TE_A_100_143:
   prior_type: gaussian
-  mean: [0.120]
-  sigs: [0.036]
+  mu: [0.120]
+  sigma: [0.036]
 galf_TE_A_100_217:
   prior_type: gaussian
-  mean: [0.30]
-  sigs: [0.09]
+  mu: [0.30]
+  sigma: [0.09]
 galf_TE_A_143:
   prior_type: gaussian
-  mean: [0.24]
-  sigs: [0.072]
+  mu: [0.24]
+  sigma: [0.072]
 galf_TE_A_143_217:
   prior_type: gaussian
-  mean: [0.60]
-  sigs: [0.18]
+  mu: [0.60]
+  sigma: [0.18]
 galf_TE_A_217:
   prior_type: gaussian
-  mean: [1.8]
-  sigs: [0.54]
+  mu: [1.8]
+  sigma: [0.54]
 galf_TE_index:
   fixed_value: -2.4
 calib_100T:
   prior_type: gaussian
-  mean: [0.9990004]
-  sigs: [0.001]
+  mu: [0.9990004]
+  sigma: [0.001]
 calib_217T:
   prior_type: gaussian
-  mean: [0.99501]
-  sigs: [0.002]
+  mu: [0.99501]
+  sigma: [0.002]
 calib_100P:
   fixed_value: 1.0
 calib_143P:
@@ -121,5 +121,5 @@ A_pol:
   fixed_value: 1.0
 A_planck:
   prior_type: gaussian
-  mean: [1.0]
-  sigs: [0.0025]
+  mu: [1.0]
+  sigma: [0.0025]

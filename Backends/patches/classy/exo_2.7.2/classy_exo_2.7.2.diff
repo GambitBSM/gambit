@@ -69,7 +69,7 @@ diff --git a/python/classy.pyx b/python/classy.pyx
 index fae0dd04..a8020991 100644
 --- a/python/classy.pyx
 +++ b/python/classy.pyx
-@@ -113,8 +113,21 @@
+@@ -113,8 +113,21 @@ cdef class Class:
              "output":"tCl mPk",}
          self.set(**_pars)
  
@@ -89,9 +89,9 @@ index fae0dd04..a8020991 100644
          cpdef char* dumc
 +        self.recomputed = True
          self.ready = False
+         self.allocated = False
          self._pars = {}
-         self.fc.size=0
-@@ -1016,8 +1016,10 @@ cdef class Class:
+@@ -1016,8 +1029,10 @@ cdef class Class:
      # This is commented because in the current form it only applies
      # to minimal LambdaCDM.
      # On would need to add contributions from ncdm, ddmdr, etc.
@@ -104,7 +104,7 @@ index fae0dd04..a8020991 100644
  
      def Omega_Lambda(self):
          return self.ba.Omega0_lambda
-@@ -1028,6 +1030,21 @@ cdef class Class:
+@@ -1028,6 +1043,21 @@ cdef class Class:
      def Omega_b(self):
          return self.ba.Omega0_b
  

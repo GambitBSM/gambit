@@ -227,7 +227,7 @@ endif()
 
 # Check for required Python libraries
 foreach(module yaml os re datetime sys getopt shutil itertools)
-  find_python_module(${module} REQUIRED)
+  gambit_find_python_module(${module} REQUIRED)
 endforeach()
 
 # Check for axel
@@ -668,3 +668,6 @@ include(cmake/executables.cmake)
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
 endif()
+
+# Create a list of Gambit bits to be used in the diagnostic system of Gambit.
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Utils/scripts/find_all_gambit_bits.py --source-dir ${PROJECT_SOURCE_DIR} --output-file=${PROJECT_SOURCE_DIR}/config/gambit_bits.yaml)

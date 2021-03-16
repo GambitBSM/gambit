@@ -28,6 +28,7 @@ Parameters:
     Caee:
       range: [1.0E-4, 1.0E4]
       prior_type: log
+    CaN : 0.0
     thetai:
       range: [-3.14159, 3.14159]
       prior_type: flat

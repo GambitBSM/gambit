@@ -127,8 +127,8 @@ Parameters:
       #
       # -> vary within error range
       #prior_type: gaussian
-      #mean: [2.75248]
-      #sigs: [0.00057]
+      #mu: [2.75248]
+      #sigma: [0.00057]
 
 
 

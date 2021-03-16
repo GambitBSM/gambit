@@ -10,5 +10,5 @@
 
 A_planck:
   prior_type: gaussian
-  mean: [1.0]
-  sigs: [0.0025]
+  mu: [1.0]
+  sigma: [0.0025]

@@ -15,7 +15,7 @@ A_planck            1   1.0         2.5e-3
 
 # Priors on TT power spectrum calibration at 100 GHz and 217 GHz (Planck_TT and Planck_TTTEEE)
 calib_100T          3   0.9990004   0.001
-calib_217T          3   0.99501     0.001
+calib_217T          3   0.99501     0.002
 
 # Priors on dust residual contamination in TT (at 100 GHz, 143 GHz, and 217 Ghz) (Planck_TT and Planck_TTTEEE)
 gal545_A_100        3   7.0         2.0
