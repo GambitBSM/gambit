@@ -175,14 +175,11 @@ namespace Gambit
       maxcap = BEreq::cap_sun_saturation(Dep::WIMP_properties->mass);
 
       /*
-      use pipe to access parameters of model (0c1...1c15) here (3.2.3 of gambit paper)
-
-      for loop through C++ array of [0c1,0c2,...] (initialized by INI in captn_gen.cpp)
-      call populate Array with the value found in the C++ array and the position in the C++ array
+      The coupling constants captn uses are stored in DD_nonrel_WCs.
+      Captn has a Fortran array (2,14) that was initalized to all 0.0 when captngeneral_2_0_init was called.
+      Uses populate array to update each entry in the Fortran array as needed for capture rate calculation.
       */
-      // cout << "The capability grabbed via Pipes, *Dep::c0_1_cap: " << *Dep::c0_1_cap << endl;
-      // bjf> Modified to use a custom object to carry these couplings (makes for a better 
-      // dependency structure)
+
       cout << "DD_nonrel_WCs capabilitiy grabbed via Pipes, e.g. Dep::DD_nonrel_WCs->c(0,1) " << Dep::DD_nonrel_WCs->c(0,1) << endl;
       
       int coupleNum;
@@ -202,11 +199,11 @@ namespace Gambit
       The fourth parameter tells captn_NREO which of the 16 elements to sum over,
        any other integer (than 1 to 16) tells it to sum over all elements together.
       */
-      //cout << "Before calling captn_NREO, capped: " << capped << endl;
-      BEreq::captn_NREO(Dep::WIMP_properties->mass,Dep::WIMP_properties->spinx2/2.,niso,0,capped);
+      cout << "Before calling captn_NREO, capped: " << capped << endl;
+      BEreq::captn_NREO(Dep::WIMP_properties->mass,Dep::WIMP_properties->spinx2/2.,niso,capped);
       cout << "From captn_NREO;" << endl << "mwimp: " << Dep::WIMP_properties->mass << "GeV" << endl << "capped: " << capped << " captures/second" << endl;
 
-      /// Loop to sum over each element in solar model individually.
+      /// Loop to sum over each element in solar model individually. Just used for testing.
       /*
       double isoCapped = 0e0;
       for(int iso=1; iso<(niso+1); iso++)

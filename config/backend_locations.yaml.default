@@ -13,6 +13,7 @@
 
 CaptnGeneral:
   1.0:         ./Backends/installed/capgen/1.0/gencaplib.so
+  2.0:         ./Backends/installed/capgen/2.0/gencaplib.so
 
 DarkSUSY:
   5.1.3:       ./Backends/installed/darksusy/5.1.3/lib/libdarksusy.so

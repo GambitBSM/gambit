@@ -1041,16 +1041,11 @@ START_MODULE
     DEPENDENCY(sigma_SD_p, map_intpair_dbl)
     DEPENDENCY(sigma_SI_p,map_intpair_dbl)
     #undef FUNCTION
-/*
-    #define FUNCTION populate_captureArray
-    START_FUNCTION(double, int, int)
-    BACKEND_REQ(populate_array,(CaptnGeneral),void,(const double&,const int&,const int&))
-    #undef FUNCTION
-*/
+
     ///Capture rate of dark matter with NREO method (s^-1), using backend Captn' General
     #define FUNCTION capture_rate_Sun_NREO
     START_FUNCTION(double)
-    BACKEND_REQ(captn_NREO,(CaptnGeneral),void,(const double&,const double&,const int&,const int&,double&))
+    BACKEND_REQ(captn_NREO,(CaptnGeneral),void,(const double&,const double&,const int&,double&))
     BACKEND_REQ(cap_sun_saturation,(CaptnGeneral),double,(const double&))
     BACKEND_REQ(populate_array,(CaptnGeneral),void,(const double&,const int&,const int&))
     DEPENDENCY(WIMP_properties, WIMPprops)
