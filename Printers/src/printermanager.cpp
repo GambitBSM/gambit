@@ -38,10 +38,15 @@
 namespace Gambit
 {
   
-  // TODO: Decide if this is the method we want to use.
   // Set/Get global reader object retrieval
   Printers::PrinterManager* global_printer_manager = NULL;
   
+  // Function to return the value of global_printer_manager
+  Printers::PrinterManager* get_global_printer_manager()
+  {
+    return(global_printer_manager);
+  }
+
   Printers::BaseReader& get_pp_reader()
   {
     if(global_printer_manager==NULL)

@@ -1,6 +1,19 @@
-"""
-Master module containing class information, auto-writing codes, etc.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Master module containing class information, auto-writing codes, etc.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018, 2019
+#
+#  **************************************
+
+from __future__ import print_function
+from future.utils import iteritems
 
 import datetime
 import os
@@ -9,20 +22,54 @@ import sys
 class GumError(Exception):
   pass
 
+# Banner
+def banner() :
+  return " ***********************************\n"\
+         " GUM: GAMBIT Universal Model Machine\n"\
+         " ***********************************\n"\
+         "\n"\
+         " Created by:\n"\
+         "\n"\
+         " Sanjay Bloor\n"\
+         "   (sanjay.bloor12@imperial.ac.uk)\n"\
+         " Tomas Gonzalo\n"\
+         "   (tomas.gonzalo@monash.edu)\n"\
+         " Pat Scott\n"\
+         "   (pat.scott@uq.edu.au)\n"\
+         "\n"\
+         " ***********************************\n"\
+         "\n"\
+         " GUM 1.0 is open source and under\n"\
+         " the terms of the standard 3-clause\n"\
+         " BSD license.\n"\
+         "\n"\
+         " Documentation and details for GUM\n"\
+         " can be found at\n"\
+         "   S. Bloor et al, arXiv:20xx.xxxx\n"\
+         "\n"\
+         " *********************************\n"\
+         "\n"
+
+
 class Particle:
     """
     Particle class for internal use in GUM.
     """
 
-    def __init__(self, name, antiname, spinx2, pdg_code, mass_name, alt_name = None, alt_mass_name = None):
+    def __init__(self, name, antiname, spinx2, pdg_code, mass_name, 
+                 chargex3, color, 
+                 alt_name = None, alt_mass_name = None, tree_mass = None):
 
         self.name = name
         self.antiname = antiname
         self.spinX2 = spinx2
+        self.chargeX3 = chargex3
+        self.color = color
         self.PDG_code = pdg_code
         self.mass = mass_name
         self.alt_name = alt_name
         self.alt_mass_name = alt_mass_name
+        self.tree_mass = tree_mass
 
         self.own_conjugate = None
         if (name == antiname):
@@ -32,9 +79,9 @@ class Particle:
 
         # If a particle is self-conjugate -> the conjugate PDG code is same.
         if self.own_conjugate:
-            self.Conjugate.PDG_code = self.PDG_code
+            self.conjugate_PDG_code = self.PDG_code
         else:
-            self.Conjugate.PDG_code = -self.PDG_code
+            self.conjugate_PDG_code = -self.PDG_code
 
     def is_sc(self):
         """
@@ -43,34 +90,16 @@ class Particle:
 
         return self.own_conjugate
 
-    class Conjugate:
-        """
-        Conjugate sub-class for Particle class, e.g. DM.Conjugate.PDG_code
-        for generalisation.
-        """
-
-        #PDG_code = None
-
-        def __init__(self):
-            self.PDG_code = self.PDG_code
-
 def pdg_to_particle(pdg_code, pdg_dict):
     """
     Returns the particle name from the PDG code, from either
-    a GAMBIT or CalcHEP dict, wrapped in quoatation marks.
+    a GAMBIT or CalcHEP dict, wrapped in quotation marks.
     """
     
-    for name, pdg_val in pdg_dict.iteritems():
+    for name, pdg_val in iteritems(pdg_dict) :
         if pdg_code == pdg_val:
             return name
         
-    """ 
-    # If not found -> throw error; gum doesn't know what to do.
-    raise GumError(("\n\nNo entry for PDG code " + str(pdg_code) + 
-                    " in dictionary. Please check "
-                    "gambit/config/particle_database.yaml "
-                    "or your Mathematica file."))
-    """
     # If not found -> return None & deal with this on case-by-case
     return None
 
@@ -107,7 +136,8 @@ class SpectrumParameter:
                  sm=False, gb_input=None,
                  alt_name=None, bcs=None,
                  is_output=False, is_real=False, 
-                 fullparticlename = None):
+                 fullparticlename = None, 
+                 default = 0.1):
 
         self.name = name
         self.tag = tag
@@ -118,6 +148,7 @@ class SpectrumParameter:
         self.is_output = is_output
         self.is_real = is_real
         self.fullparticlename = fullparticlename
+        self.default = default
 
         if not fullname:
             self.fullname = name

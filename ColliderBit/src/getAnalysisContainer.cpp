@@ -38,6 +38,7 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 // #define COLLIDERBIT_DEBUG
+#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
 {
@@ -49,7 +50,7 @@ namespace Gambit
     void getAnalysisContainer(AnalysisContainer& result,
                               const str& detname,
                               const MCLoopInfo& RunMC,
-                              const xsec& CrossSection,
+                              const xsec_container& TotalCrossSection,
                               int iteration)
     {
       if (RunMC.analyses.empty() or iteration == BASE_INIT) return;
@@ -81,7 +82,21 @@ namespace Gambit
       if (iteration == COLLIDER_FINALIZE)
       {
         result.collect_and_add_signal();
-        result.scale(CrossSection.xsec_per_event());
+        int ntot = RunMC.current_event_count();
+        double xs = TotalCrossSection.xsec();
+        double xs_per_event = 0;
+        if (xs >= 0 && ntot > 0)
+        {
+          xs_per_event = xs / ntot;
+        }
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "getAnalysisContainer: "
+               << "ntot = " << ntot << ",  "
+               << "xs = " << xs << ",  "
+               << "xs_per_event = " << xs_per_event << endl;
+        #endif
+        // Scale all analysis results with the total cross-section per event
+        result.scale(xs_per_event);
       }
 
     }
@@ -92,7 +107,7 @@ namespace Gambit
     {                                                              \
       using namespace Pipes::NAME;                                 \
       getAnalysisContainer(result, #EXPERIMENT, *Dep::RunMC,       \
-       *Dep::CrossSection, *Loop::iteration);                      \
+       *Dep::TotalCrossSection, *Loop::iteration);                 \
     }
 
     GET_ANALYSIS_CONTAINER(getATLASAnalysisContainer, ATLAS)

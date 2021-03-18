@@ -41,9 +41,12 @@ FeynHiggs:
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
 
+# Work in progress:
+# Prospino:
+#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
+
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
-  8.212.EM:    ./Backends/installed/pythia/8.212.EM/lib/libpythia8.so
 
 gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
@@ -78,18 +81,19 @@ nulike:
   1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
 
+# Work in progress:
+# Rivet:
+#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
 
-SPhenoMSSM:
-  3.3.8:       ./Backends/installed/sphenomssm/3.3.8/lib/libSPhenoMSSM.so
-  
 CalcHEP:
   3.6.27:      ./Backends/installed/calchep/3.6.27/lib/libcalchep.so
-  
+
 libMathematicaTest:
   1.0:         ./Backends/examples/libMathematicaTest.m
 
@@ -97,7 +101,23 @@ SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
 
 DirectDM:
-  2.1.0:       ./Backends/installed/directdm/2.1.0/directdm
+  2.2.0:       ./Backends/installed/directdm/2.2.0/directdm
+
+vevacious:
+  1.0:         ./Backends/installed/vevacious/1.0/lib/libVevaciousPlusPlus.so
+
+hom4ps:
+  2.0:         ./Backends/installed/hom4ps/2.0/
+
+phc:
+  2.4.58:      ./Backends/installed/phc/2.4.58/
+
+plc:
+  3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
+
+MultiModeCode:
+  2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
+
 
 # Example/debug backends
 
@@ -124,11 +144,10 @@ LibFarrayTest:
 libMathematicaTest:
   1.0:         ./Backends/examples/libMathematicaTest.m
 
-vevacious:
-  1.0:         ./Backends/installed/vevacious/1.0/VevaciousPlusPlus/lib/libVevaciousPlusPlus.so
+# Work in progress:
+# xsecBE:
+#   1.0.2:       ./Backends/installed/xsecBE/1.0.2/xsecBE_gambit.py
 
-hom4ps:
-  2.0:         ./Backends/installed/hom4ps/2.0/
-
-phc:
-  2.4.58:      ./Backends/installed/phc/2.4.58/
+# Work in progress:
+# salami:
+#   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py

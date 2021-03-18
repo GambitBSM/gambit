@@ -281,16 +281,14 @@
       /* Make the functor exclusive to this model and its descendants */       \
       CORE_ALLOW_MODEL(MODEL,PARAMETER,MODEL)                                  \
                                                                                \
+      /* Create dependency on the parameters of MODEL */                       \
+      /* TODO: Check whether there is a more elegant solution */               \
+      CORE_ALLOWED_MODEL_ARRANGE_DEP(MODEL,PARAMETER,MODEL)                    \
+                                                                               \
     }                                                                          \
                                                                                \
   }                                                                            \
                                                                                \
-  /* Create dependency of PARAMETER functor on host model parameters object */ \
-  /*CORE_DEPENDENCY(CAT(MODEL,_parameters),ModelParameters,MODEL,PARAMETER,      \
-   IS_MODEL)                                                                   \
-    **No longer needed, I think. ALLOW_MODEL should add the required dependency**
-  */   \
-  \
   /* Define the actual parameter setting function, now that we have the
      functor and its dependency */                                             \
   namespace Gambit                                                             \

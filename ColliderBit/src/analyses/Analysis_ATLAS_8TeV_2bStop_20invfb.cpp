@@ -30,8 +30,8 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int _numSRA, _numSRB;
-      int _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
+      double _numSRA, _numSRB;
+      double _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -66,8 +66,8 @@ namespace Gambit {
         double met = event->met();
 
         // Now define vector of baseline electrons
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 7. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
         }
 
@@ -75,8 +75,8 @@ namespace Gambit {
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Now define vector of baseline muons
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 6. && fabs(muon->eta()) < 2.4) baselineMuons.push_back(muon);
         }
 
@@ -88,21 +88,21 @@ namespace Gambit {
         const std::vector<double> c = {0.60};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        vector<HEPUtils::Jet*> baselineJets;
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> trueBJets; //for debugging
+        vector<const HEPUtils::Jet*> baselineJets;
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
-        for (HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.9) baselineJets.push_back(jet);
         }
 
         // Overlap removal
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> electronsForVeto;
-        vector<HEPUtils::Particle*> muonsForVeto;
-        vector<HEPUtils::Jet*> goodJets;
-        vector<HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> electronsForVeto;
+        vector<const HEPUtils::Particle*> muonsForVeto;
+        vector<const HEPUtils::Jet*> goodJets;
+        vector<const HEPUtils::Jet*> signalJets;
 
         // Remove any jet within dR=0.2 of an electrons
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
@@ -142,7 +142,7 @@ namespace Gambit {
           if(!overlap)muonsForVeto.push_back(baselineMuons.at(iMu));
         }
 
-        for (HEPUtils::Jet* jet : signalJets) {
+        for (const HEPUtils::Jet* jet : signalJets) {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
@@ -262,11 +262,11 @@ namespace Gambit {
 
         //Calculate meff (all jets with pT>20 GeV, and met)
         double meff = met;
-        for (HEPUtils::Jet* jet : signalJets) {
+        for (const HEPUtils::Jet* jet : signalJets) {
           if(jet->pT()>20.)meff += jet->pT();
         }
         double meff2 = met; double meff3 = met; int nummeff=0;
-        for (HEPUtils::Jet* jet : signalJets) {
+        for (const HEPUtils::Jet* jet : signalJets) {
           nummeff++;
           if(nummeff<=2 && jet->pT()>20.)meff2 += jet->pT();
           if(nummeff<=3 && jet->pT()>20.)meff3 += jet->pT();
@@ -275,7 +275,7 @@ namespace Gambit {
 
         //Calculate HT,3 (all jets except 3 highest pT)
         double ht3 = 0; int num=0;
-        for (HEPUtils::Jet* jet : signalJets) {
+        for (const HEPUtils::Jet* jet : signalJets) {
           num++;
           if(num>3 && jet->pT()>20.)ht3 += jet->pT();
         }
@@ -363,14 +363,14 @@ namespace Gambit {
         //_numSRA, _numSRB, _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
 
         if(cut_ElectronVeto && cut_MuonVeto && cut_METGt150 && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb>200.) {
-          _numSRA++;
-          if(mCT>150.) _numSRA15++;
-          if(mCT>200.) _numSRA20++;
-          if(mCT>250.) _numSRA25++;
-          if(mCT>300.) _numSRA30++;
-          if(mCT>350.) _numSRA35++;
+          _numSRA += event->weight();
+          if(mCT>150.) _numSRA15 += event->weight();
+          if(mCT>200.) _numSRA20 += event->weight();
+          if(mCT>250.) _numSRA25 += event->weight();
+          if(mCT>300.) _numSRA30 += event->weight();
+          if(mCT>350.) _numSRA35 += event->weight();
         }
-        if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _numSRB ++;
+        if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _numSRB += event->weight();
 
 
         return;
@@ -399,60 +399,15 @@ namespace Gambit {
 
 
       void collect_results() {
-        SignalRegionData results_SRA15;
-        results_SRA15.sr_label = "SRA15";
-        results_SRA15.n_observed = 102.;
-        results_SRA15.n_background = 94.;
-        results_SRA15.background_sys = 13.;
-        results_SRA15.signal_sys = 0.;
-        results_SRA15.n_signal = _numSRA15;
 
-        SignalRegionData results_SRA20;
-        results_SRA20.sr_label = "SRA20";
-        results_SRA20.n_observed = 48.;
-        results_SRA20.n_background = 39.;
-        results_SRA20.background_sys = 6.;
-        results_SRA20.signal_sys = 0.;
-        results_SRA20.n_signal = _numSRA20;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_SRA25;
-        results_SRA25.sr_label = "SRA25";
-        results_SRA25.n_observed = 14.;
-        results_SRA25.n_background = 15.8;
-        results_SRA25.background_sys = 2.8;
-        results_SRA25.signal_sys = 0.;
-        results_SRA25.n_signal = _numSRA25;
-
-        SignalRegionData results_SRA30;
-        results_SRA30.sr_label = "SRA30";
-        results_SRA30.n_observed = 7.;
-        results_SRA30.n_background = 5.9;
-        results_SRA30.background_sys = 1.1;
-        results_SRA30.signal_sys = 0.;
-        results_SRA30.n_signal = _numSRA30;
-
-        SignalRegionData results_SRA35;
-        results_SRA35.sr_label = "SRA35";
-        results_SRA35.n_observed = 3.;
-        results_SRA35.n_background = 2.5;
-        results_SRA35.background_sys = 0.6;
-        results_SRA35.signal_sys = 0.;
-        results_SRA35.n_signal = _numSRA35;
-
-        SignalRegionData results_SRB;
-        results_SRB.sr_label = "SRB";
-        results_SRB.n_observed = 65.;
-        results_SRB.n_background = 64.;
-        results_SRB.background_sys = 10.;
-        results_SRB.signal_sys = 0.;
-        results_SRB.n_signal = _numSRB;
-
-        add_result(results_SRA15);
-        add_result(results_SRA20);
-        add_result(results_SRA25);
-        add_result(results_SRA30);
-        add_result(results_SRA35);
-        add_result(results_SRB);
+        add_result(SignalRegionData("SRA15", 102., {_numSRA15, 0.}, { 94., 13.}));
+        add_result(SignalRegionData("SRA20", 48., {_numSRA20, 0.}, { 39., 6.}));
+        add_result(SignalRegionData("SRA25", 14., {_numSRA25, 0.}, { 15.8, 2.8}));
+        add_result(SignalRegionData("SRA30", 7., {_numSRA30, 0.}, { 5.9, 1.1}));
+        add_result(SignalRegionData("SRA35", 3., {_numSRA35, 0.}, { 2.5, 0.6}));
+        add_result(SignalRegionData("SRB", 65., {_numSRB, 0.}, { 64., 10.}));
 
         return;
       }

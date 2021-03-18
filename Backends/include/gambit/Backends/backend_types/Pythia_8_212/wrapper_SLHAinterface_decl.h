@@ -2,6 +2,7 @@
 #define __wrapper_SLHAinterface_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <sstream>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SLHAinterface.h"
@@ -10,7 +11,6 @@
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
 #include "wrapper_ParticleData_decl.h"
-#include <sstream>
 #include "wrapper_SusyLesHouches_decl.h"
 #include "wrapper_CoupSUSY_decl.h"
 
@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_SLHAinterface* (*__factory0)();
+                static Abstract_SLHAinterface* (*__factory0)();
         
                 // -- Other member variables: 
             public:
@@ -51,7 +51,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 SLHAinterface();
         
                 // Special pointer-based constructor: 
-                SLHAinterface(Pythia8::Abstract_SLHAinterface* in);
+                SLHAinterface(Abstract_SLHAinterface* in);
         
                 // Copy constructor: 
                 SLHAinterface(const SLHAinterface& in);
@@ -63,7 +63,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~SLHAinterface();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_SLHAinterface* get_BEptr() const;
+                Abstract_SLHAinterface* get_BEptr() const;
         
         };
     }

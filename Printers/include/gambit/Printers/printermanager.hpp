@@ -41,6 +41,7 @@ namespace Gambit
   // Global manager setter/retriever
   Printers::BaseReader& get_pp_reader();
   void set_global_printer_manager(Printers::PrinterManager* pm);
+  Printers::PrinterManager* get_global_printer_manager();
 
   namespace Printers
   {

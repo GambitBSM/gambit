@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ************************************
 ///  \file
 ///
 ///  Contains all routines for interface
@@ -9,7 +9,7 @@
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
-///  \date 2017, 2018, 2019
+///  \date 2018, 2019
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)

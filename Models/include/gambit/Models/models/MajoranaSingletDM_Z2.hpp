@@ -18,6 +18,7 @@
 ///
 ///  \author Sanjay Bloor
 ///  \date 2018 August
+///        2020 May
 ///
 ///  *********************************************
 
@@ -27,6 +28,15 @@
 #define MODEL MajoranaSingletDM_Z2
   START_MODEL
   DEFINEPARS(mX, lX, xi)
+
+  #define CAPABILITY WIMP_properties
+  START_CAPABILITY
+     #define FUNCTION MajoranaSingletDM_Z2_WIMP_properties
+     START_FUNCTION(WIMPprops)
+     ALLOW_MODELS(MajoranaSingletDM_Z2)
+     #undef FUNCTION
+  #undef CAPABILITY
+
 #undef MODEL
 
 #define MODEL MajoranaSingletDM_Z2_sps

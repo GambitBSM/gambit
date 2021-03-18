@@ -10,35 +10,14 @@
 ///
 ///  \author Martin White
 ///          (martin.white@adelaide.edu.au)
+///
 ///  \author Andre Scaffidi
 ///          (andre.scaffidi@adelaide.edu.au)
 ///  \date 2019 Aug
 ///
 ///  Analyses based on: arxiv:1711.03301 and https://journals.aps.org/prd/abstract/10.1103/PhysRevD.97.092005
-
-//////  *********************************************
-#include <chrono>
-#include <thread>
-#include <cmath>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <memory>
-#include <numeric>
-#include <sstream>
-#include <vector> 
-#include <iomanip>
-#include <math.h>
-#include <cstring>
-#include <stdlib.h>
-using namespace std;
-
-#include "gambit/ColliderBit/analyses/Analysis.hpp"
-#include "gambit/Elements/gambit_module_headers.hpp"
-#include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
-#include "gambit/Utils/ascii_table_reader.hpp"
-#include "gambit/Utils/file_lock.hpp"
-//#include DMEFT_grids.hpp
+///
+///  *********************************************
 
 // Needs GSL 2 
 #include <gsl/gsl_math.h>
@@ -49,15 +28,31 @@ using namespace std;
 #include "Eigen/Eigenvalues"
 #include "Eigen/Eigen"
 
+#include "multimin/multimin.hpp"
+
+#include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
+#include "gambit/Utils/ascii_table_reader.hpp"
+#include "gambit/Utils/file_lock.hpp"
+
+
+// #define COLLIDERBIT_DEBUG_PROFILING
+// #define COLLIDERBIT_DEBUG
+// #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
 {
 
   namespace ColliderBit
   {  
+    // Forward declaration of funtion in LHC_likelihoods
+    AnalysisLogLikes calc_loglikes_for_analysis(const AnalysisData&, bool, bool, bool, bool);
+
+
     // ---------------------------------- INTERPOLATION FUNCTIONS ------------------------------------------------
       const char* colliderbitdata_path = GAMBIT_DIR "/ColliderBit/data/"; 
-      #define PI 3.14159265
+      // #define PI 3.14159265
       // Initialize all data
       // static const size_t data_INC           = 15;
       // static const size_t data_SIZE          = pow(data_INC,2);
@@ -170,16 +165,109 @@ namespace Gambit
     }
 
 
+    // 
+    // Functions to modify the DMEFT LHC signal prediction for ETmiss bins where ETmiss > Lambda
+    // 
+
+    // Alt 1: Gradually turn off the ETmiss spectrum above Lambda by multiplying 
+    // the spectrum with (ETmiss/Lambda)^-a
+    void signal_modifier_function(AnalysisData& adata, float lambda, float a)
+    {
+      static int n_calls = 0;
+      n_calls++;
+
+      int met_bin_size;
+      const double* METMINS;
+
+      // Choose experiment
+      if (adata.analysis_name.find("ATLAS") != std::string::npos)
+      {
+        bool is_ATLAS = true;
+        METMINS = METMINS_ATLAS;
+        met_bin_size = atlas_bin_size;
+      }
+      else if (adata.analysis_name.find("CMS") != std::string::npos)
+      {
+        bool is_CMS = false;
+        METMINS = METMINS_CMS;
+        met_bin_size = cms_bin_size;
+      }
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Unknown analysis encountered in signal_modifier_function!");
+      }
+
+      // Modify signals
+      for (int bin_index = 0; bin_index < met_bin_size; bin_index++ ) 
+      {
+        double MET_min = METMINS[bin_index];
+        double weight = 1.0;
+
+        if (lambda < MET_min)
+        {
+          weight = pow(MET_min / lambda, -a);
+
+          if (weight < 1.0e-8) { weight = 0.0; }
+        }
+
+        SignalRegionData& srdata = adata[bin_index];
+        srdata.n_sig_MC *= weight;
+        srdata.n_sig_scaled *= weight;
+      } 
+
+    }
+
+
+    // Alt 2: Simply put a hard cut-off in the ETmiss spectrum for ETmiss > Lambda
+    void signal_cutoff_function(AnalysisData& adata, float lambda)
+    {
+      static int n_calls = 0;
+      n_calls++;
+
+      int met_bin_size;
+      const double* METMINS;
+
+      // Choose experiment
+      if (adata.analysis_name.find("ATLAS") != std::string::npos)
+      {
+        bool is_ATLAS = true;
+        METMINS = METMINS_ATLAS;
+        met_bin_size = atlas_bin_size;
+      }
+      else if (adata.analysis_name.find("CMS") != std::string::npos)
+      {
+        bool is_CMS = false;
+        METMINS = METMINS_CMS;
+        met_bin_size = cms_bin_size;
+      }
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Unknown analysis encountered in signal_cutoff_function!");
+      }
+
+      // Modify signals with a hard cutoff
+      for (int bin_index = 0; bin_index < met_bin_size; bin_index++ ) 
+      {
+        double MET_min = METMINS[bin_index];
+
+        if (lambda < MET_min)
+        {
+          SignalRegionData& srdata = adata[bin_index];
+          srdata.n_sig_MC = 0.0;
+          srdata.n_sig_scaled = 0.0;
+        }
+      } 
+
+    }
+
+
     // ---------------------------------------------------- //
     //  Calculate Yields // 
     // ---------------------------------------------------- //  
  
-    void Acceptance_CS(double * accep, float m,float O1,float O2, float lambda ,const char* pair, const char* experiment)
+    void Acceptance_CS_dim6(double * accep, float m,float O1,float O2, float lambda ,const char* pair, const char* experiment)
     {
 
-      static bool first     = true;
-      static bool first_low = true;
-      Utils::FileLock mylock("Get_data_once");
 
       if (m>150){
 
@@ -207,9 +295,10 @@ namespace Gambit
 
         
     
+        static bool first = true;
         if (first)
         {
-
+          Utils::ProcessLock mylock("Acceptance_CS_dim6_high");
           mylock.get_lock();
 
           cout << "Reading in grids. [Only happens on first itteration per MPI process]."<<endl;
@@ -224,7 +313,7 @@ namespace Gambit
           fclose(fp); 
           
 
-          ifstream mb(met_ATLAS_23);
+          std::ifstream mb(met_ATLAS_23);
 
           for(int row = 0; row < data_SIZE; row++) {  
             for(int column = 0; column < atlas_bin_size; column++){
@@ -234,7 +323,7 @@ namespace Gambit
           mb.close();
 
 
-          ifstream mba14(met_ATLAS_14);
+          std::ifstream mba14(met_ATLAS_14);
           for(int row = 0; row < data_SIZE; row++) {  
             for(int column = 0; column < atlas_bin_size; column++){
               mba14 >> MET_HIST_ATLAS_14[row][column];
@@ -243,7 +332,7 @@ namespace Gambit
           mba14.close();
 
 
-          ifstream mbc23(met_CMS_23);
+          std::ifstream mbc23(met_CMS_23);
           for(int row = 0; row < data_SIZE; row++) {  
             for(int column = 0; column < cms_bin_size; column++){
               mbc23 >> MET_HIST_CMS_23[row][column];
@@ -252,7 +341,7 @@ namespace Gambit
           mbc23.close();     
 
 
-          ifstream mbc14(met_CMS_14);
+          std::ifstream mbc14(met_CMS_14);
           for(int row = 0; row < data_SIZE; row++) {  
             for(int column = 0; column < cms_bin_size; column++){
               mbc14 >> MET_HIST_CMS_14[row][column];
@@ -408,26 +497,23 @@ namespace Gambit
         // Calculate normalisation
         double Norm,th;
 
-        if (O1==0){
-          Norm = pow(O2,2);
-          th   = 0;
-          // cout << " O1 is zero"<< endl;
-        }
-        else if (O2==0){
-          Norm = pow(O1,2);
-          th   = float(PI)/float(2);
+        Norm = pow(O1,2) + pow(O2,2);
+
+        if (O2==0){
+          th   = pi/float(2);
           // cout << " O2 is zero"<< endl;
         }
         else{
-          th    = 0.5*asin(float(2*O1*O2)/float((pow(O1,2)+pow(O2,2))));
-
-          if (O1*O2 < 0){
-            th = th + float(PI);
+          th    = atan(float(O1/O2));
+          if (O1/O2 < 0){
+            th = th + pi;
           }
-          // cout << "Theta = "<< th<<endl;
-          Norm  = 2*O1*O2/(sin(2.0*th));
         }
 
+        if (Norm < 0.0)
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "Norm < 0 in function Acceptance_CS_dim6.");
+        }
 
         // Checks to go ahead with interpolation
         // cout << "Check things 6"<<mass[0]<<endl;  
@@ -441,7 +527,7 @@ namespace Gambit
           cout<<" Error! Theta param out of range with value " << th << " Exiting..."<<endl;
           std::exit(EXIT_SUCCESS);
         }
-        // cout << " Acceptance_CS DEBUG: 4" << endl;
+        // cout << " Acceptance_CS_dim6 DEBUG: 4" << endl;
 
         
         // Get x1,2 y1,2 : Mass and theta coordinates for interpolation
@@ -616,7 +702,7 @@ namespace Gambit
             // cout << "Exited while loop..." << endl;
             // cout << "Check things 9"<<mass[0]<<endl;  
 
-            // cout << " Acceptance_CS DEBUG: 5 - Fixed" << endl;
+            // cout << " Acceptance_CS_dim6 DEBUG: 5 - Fixed" << endl;
 
             // Luminoscity scaling gets applied at the end...
             double A   = BilinearInterpolation(Q11[Emiss], Q12[Emiss], Q21[Emiss], Q22[Emiss], x1, x2, y1, y2, m, th,yalpha);
@@ -637,38 +723,9 @@ namespace Gambit
             
             //  cout << "Res = "<< res << " Mass, theta = "<< m <<" , "<<th<<" A = "<<A<<" B = "<<B<<endl;
             
-
-            // DO LAMBDA CHECK HERE!
-            // Also perform lambda scaling!! Put this back in March 4. (Sorry Sanjay)
-            // Grids calculated at Lambda = 1000 GeV, hence the factor here. 
-
             double lambda_scaling = float(pow(1000.0,4))/float(pow(lambda,4));
 
-        
-            // EFT validity checks:            
-
-            if(strcmp(experiment,"ATLAS") == 0){
-              if (lambda < METMINS_ATLAS[Emiss]){
-                accep[Emiss] = 0;
-            }
-              else{
-                accep[Emiss] = res*lambda_scaling;
-              }
-            } 
-
-            if(strcmp(experiment,"CMS") == 0){
-              if (lambda < METMINS_CMS[Emiss]){
-                accep[Emiss] = 0;
-            }
-              else{
-                accep[Emiss] = res*lambda_scaling;
-              }
-            } 
-            
-
-                // accep[Emiss] = res;
-
-
+            accep[Emiss] = res*lambda_scaling;
 
           } // Loop over Emiss
 
@@ -725,10 +782,10 @@ namespace Gambit
         static double theta_low[data_INC_low];
         static double mass_low[data_INC_low]; 
 
-        
-    
+        static bool first_low = true;
         if (first_low)
         {
+          Utils::ProcessLock mylock("Acceptance_CS_dim6_low");
           mylock.get_lock();
 
           cout << "Reading in grids. [Only happens on first itteration per MPI process]."<<endl;
@@ -743,7 +800,7 @@ namespace Gambit
           fclose(fp); 
           
 
-          ifstream mb(met_ATLAS_23_low);
+          std::ifstream mb(met_ATLAS_23_low);
 
           for(int row = 0; row <data_SIZE_low; row++) {  
             for(int column = 0; column < atlas_bin_size; column++){
@@ -753,7 +810,7 @@ namespace Gambit
           mb.close();
 
 
-          ifstream mba14(met_ATLAS_14_low);
+          std::ifstream mba14(met_ATLAS_14_low);
           for(int row = 0; row <data_SIZE_low; row++) {  
             for(int column = 0; column < atlas_bin_size; column++){
               mba14 >> MET_HIST_ATLAS_14_low[row][column];
@@ -762,7 +819,7 @@ namespace Gambit
           mba14.close();
 
 
-          ifstream mbc23(met_CMS_23_low);
+          std::ifstream mbc23(met_CMS_23_low);
           for(int row = 0; row <data_SIZE_low; row++) {  
             for(int column = 0; column < cms_bin_size; column++){
               mbc23 >> MET_HIST_CMS_23_low[row][column];
@@ -771,7 +828,7 @@ namespace Gambit
           mbc23.close();     
 
 
-          ifstream mbc14(met_CMS_14_low);
+          std::ifstream mbc14(met_CMS_14_low);
           for(int row = 0; row <data_SIZE_low; row++) {  
             for(int column = 0; column < cms_bin_size; column++){
               mbc14 >> MET_HIST_CMS_14_low[row][column];
@@ -925,26 +982,23 @@ namespace Gambit
         // Calculate normalisation
         double Norm,th;
 
-        if (O1==0){
-          Norm = pow(O2,2);
-          th   = 0;
-          // cout << " O1 is zero"<< endl;
-        }
-        else if (O2==0){
-          Norm = pow(O1,2);
-          th   = float(PI)/2;
+        Norm = pow(O1,2) + pow(O2,2);
+
+        if (O2==0){
+          th   = pi/float(2);
           // cout << " O2 is zero"<< endl;
         }
         else{
-          th    = 0.5*asin(float(2*O1*O2)/float((pow(O1,2)+pow(O2,2))));
-
-          if (O1*O2 < 0){
-            th = th + float(PI);
+          th    = atan(float(O1/O2));
+          if (O1/O2 < 0){
+            th = th + pi;
           }
-          // cout << "Theta = "<< th<<endl;
-          Norm  = 2*O1*O2/(sin(2.0*th));
         }
 
+        if (Norm < 0.0)
+        {
+          ColliderBit_error().raise(LOCAL_INFO, "Norm < 0 in function Acceptance_CS_dim6.");
+        }
 
         // Checks to go ahead with interpolation
         // cout << "Check things 6"<<mass[0]<<endl;  
@@ -958,7 +1012,7 @@ namespace Gambit
           cout<<" Error! Theta param out of range with value " << th << " Exiting..."<<endl;
           std::exit(EXIT_SUCCESS);
         }
-        // cout << " Acceptance_CS DEBUG: 4" << endl;
+        // cout << " Acceptance_CS_dim6 DEBUG: 4" << endl;
 
         
         // Get x1,2 y1,2 : Mass and theta coordinates for interpolation
@@ -1133,7 +1187,7 @@ namespace Gambit
             // cout << "Exited while loop..." << endl;
             // cout << "Check things 9"<<mass[0]<<endl;  
 
-            // cout << " Acceptance_CS DEBUG: 5 - Fixed" << endl;
+            // cout << " Acceptance_CS_dim6 DEBUG: 5 - Fixed" << endl;
 
             // Luminoscity scaling gets applied at the end...
             double A   = BilinearInterpolation(Q11[Emiss], Q12[Emiss], Q21[Emiss], Q22[Emiss], x1, x2, y1, y2, m, th,yalpha);
@@ -1153,36 +1207,10 @@ namespace Gambit
             
             //  cout << "Res = "<< res << " Mass, theta = "<< m <<" , "<<th<<" A = "<<A<<" B = "<<B<<endl;
             
-
-            // DO LAMBDA CHECK HERE!
-            // Also perform lambda scaling!! Put this back in March 4. (Sorry Sanjay)
-            
             double lambda_scaling = float(pow(1000.0,4))/float(pow(lambda,4));
 
-            // cout << "lambda scale factor = " << lambda_scaling<<endl;        
-            
-            if(strcmp(experiment,"ATLAS") == 0){
-              if (lambda < METMINS_ATLAS[Emiss]){
-                accep[Emiss] = 0;
-            }
-              else{
-                accep[Emiss] = res*lambda_scaling;
-              }
-            } 
-
-            if(strcmp(experiment,"CMS") == 0){
-              if (lambda < METMINS_CMS[Emiss]){
-                accep[Emiss] = 0;
-            }
-              else{
-                accep[Emiss] = res*lambda_scaling;
-              }
-            } 
-            
-
-                // accep[Emiss] = res;
-
-
+            accep[Emiss] = res*lambda_scaling;
+ 
 
           } // Loop over Emiss
 
@@ -1215,15 +1243,11 @@ namespace Gambit
     
     
     
-    } // Function Acceptance_CS <---- End of function
+    } // Function Acceptance_CS_dim6 <---- End of function
 
 
     void Acceptance_CS_dim7(double * accep, float m, float Opp, float lambda ,const char* pair, const char* experiment)
     {
-      static bool first_7     = true;
-      Utils::FileLock mylock7("Get_data_once7");
-
-  
       static double MET_HIST_CMS_71[data_SIZE_d7][cms_bin_size];
       static double MET_HIST_ATLAS_71[data_SIZE_d7][atlas_bin_size];
       static double MET_HIST_CMS_72[data_SIZE_d7][cms_bin_size];
@@ -1243,9 +1267,10 @@ namespace Gambit
       static double mass[data_INC_d7]; 
 
   
+      static bool first_7 = true;
       if (first_7)
       {
-        
+        Utils::ProcessLock mylock7("Acceptance_CS_dim7");
         mylock7.get_lock();
         
         cout << "Reading in grids. [Only happens on first itteration per MPI process]."<<endl;
@@ -1258,7 +1283,7 @@ namespace Gambit
         fclose(fp); 
         
 
-        ifstream mb(met_ATLAS_71);
+        std::ifstream mb(met_ATLAS_71);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < atlas_bin_size; column++){
             mb >> MET_HIST_ATLAS_71[row][column];
@@ -1267,7 +1292,7 @@ namespace Gambit
         mb.close();
 
 
-        ifstream mba72(met_ATLAS_72);
+        std::ifstream mba72(met_ATLAS_72);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < atlas_bin_size; column++){
             mba72 >> MET_HIST_ATLAS_72[row][column];
@@ -1275,7 +1300,7 @@ namespace Gambit
         }
         mba72.close();
 
-        ifstream mb73(met_ATLAS_73);
+        std::ifstream mb73(met_ATLAS_73);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < atlas_bin_size; column++){
             mb73 >> MET_HIST_ATLAS_73[row][column];
@@ -1283,7 +1308,7 @@ namespace Gambit
         }
         mb73.close();
 
-        ifstream mba74(met_ATLAS_74);
+        std::ifstream mba74(met_ATLAS_74);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < atlas_bin_size; column++){
             mba74 >> MET_HIST_ATLAS_74[row][column];
@@ -1294,7 +1319,7 @@ namespace Gambit
 
         // -------------------------------- //
 
-        ifstream mbc71(met_CMS_71);
+        std::ifstream mbc71(met_CMS_71);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < cms_bin_size; column++){
             mbc71 >> MET_HIST_CMS_71[row][column];
@@ -1303,7 +1328,7 @@ namespace Gambit
         mbc71.close();
 
 
-        ifstream mbac72(met_CMS_72);
+        std::ifstream mbac72(met_CMS_72);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < cms_bin_size; column++){
             mbac72 >> MET_HIST_CMS_72[row][column];
@@ -1311,7 +1336,7 @@ namespace Gambit
         }
         mbac72.close();
 
-        ifstream mbc73(met_CMS_73);
+        std::ifstream mbc73(met_CMS_73);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < cms_bin_size; column++){
             mbc73 >> MET_HIST_CMS_73[row][column];
@@ -1319,7 +1344,7 @@ namespace Gambit
         }
         mbc73.close();
 
-        ifstream mbac74(met_CMS_74);
+        std::ifstream mbac74(met_CMS_74);
         for(int row = 0; row < data_SIZE_d7; row++) {  
           for(int column = 0; column < cms_bin_size; column++){
             mbac74 >> MET_HIST_CMS_74[row][column];
@@ -1632,33 +1657,7 @@ namespace Gambit
           double res =  36000.0*A*Norm*B; 
           double lambda_scaling = float(pow(1000.0,6))/float(pow(lambda,6));
   
-          // cout << "Res check = " << res*lambda_scaling << " norm = " << Norm << " opperator = "<< pair <<endl;
-
-          // DO LAMBDA CHECK HERE!
-          // Also perform lambda scaling!! Put this back in March 4. (Sorry Sanjay)
-          
-
-          // cout << "lambda scale factor dim 7 = " << lambda_scaling<<endl;        
-  
-            // Lambda Cut
-          if(strcmp(experiment,"ATLAS") == 0){
-            if (lambda < METMINS_ATLAS[Emiss]){
-              accep[Emiss] = 0;
-          }
-            else{
-              accep[Emiss] = res*lambda_scaling;
-            }
-          } 
-
-          if(strcmp(experiment,"CMS") == 0){
-            if (lambda < METMINS_CMS[Emiss]){
-              accep[Emiss] = 0;
-          }
-            else{
-              accep[Emiss] = res*lambda_scaling;
-            }
-          } 
-          
+          accep[Emiss] = res*lambda_scaling;
 
         } // Loop over Emiss
 
@@ -1674,8 +1673,6 @@ namespace Gambit
 
       }
 
-
-  
   
    // Function Acceptance_CS <---- End of function
 
@@ -1706,9 +1703,9 @@ namespace Gambit
       double A23[met_bin_size];
       double A14[met_bin_size];
 
-      Acceptance_CS(A23, m, C62, C63, lambda, tt, exper_);
+      Acceptance_CS_dim6(A23, m, C62, C63, lambda, tt, exper_);
 
-      Acceptance_CS(A14, m, C61, C64, lambda, of, exper_);
+      Acceptance_CS_dim6(A14, m, C61, C64, lambda, of, exper_);
 
       // Dim-7 yields
       double A71[met_bin_size];
@@ -1731,7 +1728,7 @@ namespace Gambit
 
     }
 
-    void DMEFT_results(AnalysisDataPointers &result)
+    void DMEFT_results(AnalysisDataPointers& result)
     { 
 
       // auto start_wall_clock = std::chrono::steady_clock::now();
@@ -1809,12 +1806,12 @@ namespace Gambit
         // Construct a SignalRegionData instance and add it to cmsBinnedResults
         SignalRegionData sr;
         sr.sr_label = ss.str();
-        sr.n_observed = CMS_OBSNUM[ibin];
-        sr.n_signal = _srnums_CMS[ibin];
-        sr.n_signal_at_lumi = _srnums_CMS[ibin];  // We have already scaled the signals in _srnums_CMS to xsec * lumi
-        sr.signal_sys = 0.;
-        sr.n_background = CMS_BKGNUM[ibin];
-        sr.background_sys = CMS_BKGERR[ibin];
+        sr.n_obs = CMS_OBSNUM[ibin];
+        sr.n_sig_MC = _srnums_CMS[ibin];
+        sr.n_sig_scaled = _srnums_CMS[ibin];  // We have already scaled the signals in _srnums_CMS to xsec * lumi
+        sr.n_sig_MC_sys = 0.;
+        sr.n_bkg = CMS_BKGNUM[ibin];
+        sr.n_bkg_err = CMS_BKGERR[ibin];
         cmsBinnedResults.push_back(sr);
       }
 
@@ -1888,13 +1885,13 @@ namespace Gambit
         // Construct a SignalRegionData instance and add it to atlasBinnedResults
         SignalRegionData sr;
         sr.sr_label = ss.str();
-        sr.n_observed = ATLAS_OBSNUM[ibin];
-        sr.n_signal = _srnums_ATLAS[ibin];
-        sr.n_signal_at_lumi = _srnums_ATLAS[ibin];  // We have already scaled the signals in _srnums_ATLAS to xsec * lumi
+        sr.n_obs = ATLAS_OBSNUM[ibin];
+        sr.n_sig_MC = _srnums_ATLAS[ibin];
+        sr.n_sig_scaled = _srnums_ATLAS[ibin];  // We have already scaled the signals in _srnums_ATLAS to xsec * lumi
         // cout << "Check output: "<< sr.sr_label<< "  " << _srnums_ATLAS[ibin] <<endl;
-        sr.signal_sys = 0.;
-        sr.n_background = ATLAS_BKGNUM[ibin];
-        sr.background_sys = ATLAS_BKGERR[ibin];
+        sr.n_sig_MC_sys = 0.;
+        sr.n_bkg = ATLAS_BKGNUM[ibin];
+        sr.n_bkg_err = ATLAS_BKGERR[ibin];
         atlasBinnedResults.push_back(sr);
       }
 
@@ -1919,7 +1916,287 @@ namespace Gambit
       // cout << fixed << setprecision(8) << "Excecution time for DMEFT_results: " << ((finish_wall_clock - start_wall_clock) / std::chrono::nanoseconds(1))/(1E9) << '\n';
     };
          
-     
+
+
+    // A struct to contain parameters for the GSL optimiser target function
+    struct _gsl_target_func_params
+    {
+      float lambda;
+      AnalysisDataPointers adata_ptrs_original;
+      std::vector<str> skip_analyses;
+      bool use_covar;
+      bool use_marg;
+      bool combine_nocovar_SRs;
+    };
+
+    void _gsl_target_func(const size_t n, const double* a, void* fparams, double* fval)
+    {
+      double total_loglike = 0.0;
+
+      // Cast fparams to correct type
+      _gsl_target_func_params* fpars = static_cast<_gsl_target_func_params*>(fparams);
+
+      AnalysisLogLikes analoglikes;
+
+      // Create a vector with temp AnalysisData instances by copying the original ones
+      std::vector<AnalysisData> temp_adata_vec;
+      for (AnalysisData* adata_ptr : fpars->adata_ptrs_original)
+      {
+        const str& analysis_name = adata_ptr->analysis_name;
+        // If the analysis name is in skip_analyses, don't take it into account in this profiling
+        if (std::find(fpars->skip_analyses.begin(), fpars->skip_analyses.end(), analysis_name) != fpars->skip_analyses.end())
+        {
+          continue;
+        }
+        // Make a copy of the AnalysisData instance that adata_ptr points to
+        temp_adata_vec.push_back( AnalysisData(*adata_ptr) );
+      }
+
+      // Now loop over all the temp AnalysisData instances and calculate the total loglike for the current a-value
+      for (AnalysisData& adata : temp_adata_vec)
+      {
+        signal_modifier_function(adata, fpars->lambda, *a);
+        analoglikes = calc_loglikes_for_analysis(adata, fpars->use_covar, fpars->use_marg, fpars->combine_nocovar_SRs, false);
+        total_loglike += analoglikes.combination_loglike;
+      }
+
+      *fval = -total_loglike;
+    }
+
+    // DMEFT: Profile the 'a' nuisance parameter, which is used to smoothly 
+    // suppress signal predictions for MET bins with MET > Lambda
+    void calc_DMEFT_profiled_LHC_nuisance_params(map_str_dbl& result)
+    {
+      using namespace Pipes::calc_DMEFT_profiled_LHC_nuisance_params;
+
+      static bool first = true;
+
+      // Check if user has requested a fixed value for the a parameter
+      static bool use_fixed_value_a = false;
+      static double fixed_a = -1e99;
+      if (first)
+      {
+        if (runOptions->hasKey("use_fixed_value_a"))
+        {
+          use_fixed_value_a = true;
+          fixed_a = runOptions->getValue<double>("use_fixed_value_a");
+        }
+        first = false;
+      }
+
+      if (use_fixed_value_a)
+      {
+        result["a"] = fixed_a;
+        return;
+      }
+
+      // Steal the list of skipped analyses from the options from the "calc_combined_LHC_LogLike" function
+      std::vector<str> default_skip_analyses;  // The default is empty lists of analyses to skip
+      static const std::vector<str> skip_analyses = Pipes::calc_combined_LHC_LogLike::runOptions->getValueOrDef<std::vector<str> >(default_skip_analyses, "skip_analyses");
+      
+      // Steal some settings from the "calc_LHC_LogLikes" function
+      static const bool use_covar = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(true, "use_covariances");
+      // Use marginalisation rather than profiling (probably less stable)?
+      static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
+      // Use the naive sum of SR loglikes for analyses without known correlations?
+      static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+
+      // Clear previous result map
+      result.clear();
+
+      // Optimiser parameters
+      // Params: step1size, tol, maxiter, epsabs, simplex maxsize, method, verbosity
+      // Methods:
+      //  0: Fletcher-Reeves conjugate gradient
+      //  1: Polak-Ribiere conjugate gradient
+      //  2: Vector Broyden-Fletcher-Goldfarb-Shanno method
+      //  3: Steepest descent algorithm
+      //  4: Nelder-Mead simplex
+      //  5: Vector Broyden-Fletcher-Goldfarb-Shanno method ver. 2
+      //  6: Simplex algorithm of Nelder and Mead ver. 2
+      //  7: Simplex algorithm of Nelder and Mead: random initialization
+
+      static const double INITIAL_STEP = runOptions->getValueOrDef<double>(0.1, "nuisance_prof_initstep");
+      static const double CONV_TOL = runOptions->getValueOrDef<double>(0.01, "nuisance_prof_convtol");
+      static const unsigned MAXSTEPS = runOptions->getValueOrDef<unsigned>(10000, "nuisance_prof_maxsteps");
+      static const double CONV_ACC = runOptions->getValueOrDef<double>(0.01, "nuisance_prof_convacc");
+      static const double SIMPLEX_SIZE = runOptions->getValueOrDef<double>(1e-5, "nuisance_prof_simplexsize");
+      static const unsigned METHOD = runOptions->getValueOrDef<unsigned>(6, "nuisance_prof_method");
+      static const unsigned VERBOSITY = runOptions->getValueOrDef<unsigned>(0, "nuisance_prof_verbosity");
+
+      static const struct multimin::multimin_params oparams = {INITIAL_STEP, CONV_TOL, MAXSTEPS, CONV_ACC, SIMPLEX_SIZE, METHOD, VERBOSITY};
+
+      // Set fixed function parameters
+      _gsl_target_func_params fpars;
+      fpars.lambda = Dep::DMEFT_spectrum->get(Par::mass1, "Lambda");
+      fpars.adata_ptrs_original = *Dep::AllAnalysisNumbersUnmodified;
+      fpars.skip_analyses = skip_analyses;
+      fpars.use_covar = use_covar;
+      fpars.use_marg = use_marg;
+      fpars.combine_nocovar_SRs = combine_nocovar_SRs;
+
+      // Create a variable to store the best-fit loglike
+      double minus_loglike_bestfit = 50000.;
+
+      // Nuisance parameter(s) to be profiled 
+      // NOTE: Currently we only profile one parameter ('a'), but the 
+      //       below setup can  easily be extended to more parameters
+      static const std::vector<double> init_values_a = runOptions->getValue<std::vector<double>>("init_values_a");
+      static const std::pair<double,double> range_a = runOptions->getValue<std::pair<double,double>>("range_a");
+      
+      // How many times should we run the optimiser?
+      static const size_t n_runs = init_values_a.size();
+      size_t run_i = 0;
+      double current_bestfit_a = init_values_a.at(0);
+      double current_bestfit_loglike = -minus_loglike_bestfit;
+
+      // Do profiling n_runs times
+      while (run_i < n_runs)
+      {
+        std::vector<double> nuisances = {init_values_a[run_i]};  // set initial guess for each nuisance parameter
+        std::vector<double> nuisances_min = {range_a.first};   // min value for each nuisance parameter
+        std::vector<double> nuisances_max = {range_a.second}; // max value for each nuisance parameter
+        const size_t n_profile_pars = nuisances.size();
+        // Choose boundary type for each nuisance param (see comment below)
+        std::vector<unsigned int> boundary_types = {6};
+        /*
+        From multimin.cpp:
+          Interval:                                       Transformation:
+          0 unconstrained                                 x=y
+          1 semi-closed right half line [ xmin,+infty )   x=xmin+y^2
+          2 semi-closed left  half line ( -infty,xmax ]   x=xmax-y^2
+          3 closed interval              [ xmin,xmax ]    x=SS+SD*sin(y)
+          4 open right half line        ( xmin,+infty )   x=xmin+exp(y)
+          5 open left  half line        ( -infty,xmax )   x=xmax-exp(y)
+          6 open interval                ( xmin,xmax )    x=SS+SD*tanh(y)
+
+          where SS=.5(xmin+xmax) SD=.5(xmax-xmin)
+        */
+
+        // Call the optimiser
+        multimin::multimin(n_profile_pars, &nuisances[0], &minus_loglike_bestfit,
+                 &boundary_types[0], &nuisances_min[0], &nuisances_max[0],
+                 &_gsl_target_func,
+                 nullptr,  // If available: function returning the gradient of the target function
+                 nullptr,  // If available: function returning the value *and* the gradient of the target function
+                 &fpars, oparams);
+
+        double run_i_bestfit_a = nuisances[0];
+        double run_i_bestfit_loglike = -minus_loglike_bestfit;
+        
+        // Save info for this run
+        result["a_run" + std::to_string(run_i)] = run_i_bestfit_a;
+        result["loglike_run" + std::to_string(run_i)] = run_i_bestfit_loglike;
+
+        // Update the global result?
+        if (run_i_bestfit_loglike > current_bestfit_loglike)
+        {
+          current_bestfit_loglike = run_i_bestfit_loglike;
+          current_bestfit_a = run_i_bestfit_a;
+        }
+
+        run_i++;
+
+      } // end optimisation loop
+
+      // Save the overall best-fit results
+      result["a"] = current_bestfit_a;
+      result["loglike"] = current_bestfit_loglike;
+
+
+      // DEBUG: Do a grid scan of a and Lambda parameter to investigate the profiled likelihood function
+      #ifdef COLLIDERBIT_DEBUG_PROFILING
+        double log10_a_min = -1.0;
+        double log10_a_max = 3.0;
+        double step_log10_a = 0.02;
+
+        double log10_a = log10_a_min;
+        vector<double> a = { pow(10., log10_a) };
+        double ll_val = 0.0;
+
+        double lambda_min = 670.0;
+        double lambda_max = 1070.0;
+        double step_lambda = 2.0;
+        double lambda = lambda_min;
+
+        ofstream f;
+        f.open("lambda_a_loglike.dat");
+        
+        while (lambda <= lambda_max)
+        {
+          log10_a = log10_a_min;
+
+          while (log10_a <= log10_a_max)
+          {
+            cout << "DEBUG: lambda, log10_a : " << lambda << ", " << log10_a << endl;
+            a[0] = pow(10., log10_a);
+
+            fpars.lambda = lambda;
+
+            _gsl_target_func(n_profile_pars, &a[0], &fpars, &ll_val);
+
+            f << fixed << setprecision(8) << fpars.lambda << "  " << a[0] << "  " << ll_val << "\n";
+
+            log10_a += step_log10_a;
+          }
+          lambda += step_lambda;
+        }
+        f.close();
+      #endif
+
+    }
+
+
+    void DMEFT_results_profiled(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::DMEFT_results_profiled;
+
+      // Clear previous vectors, etc.
+      result.clear();
+
+      // Get the original AnalysisDataPointers that we will adjust
+      result = *Dep::AllAnalysisNumbersUnmodified;
+
+      // Get the best-fit nuisance parameter(s)
+      map_str_dbl bestfit_nuisance_pars = *Dep::DMEFT_profiled_LHC_nuisance_params;
+      float a_bestfit = bestfit_nuisance_pars.at("a");
+
+      // Get Lambda
+      const Spectrum& spec = *Dep::DMEFT_spectrum;
+      float lambda = spec.get(Par::mass1, "Lambda");
+
+      // Recalculate AnalysisData instances in "result", using the best-fit a-value
+      for (AnalysisData* adata_ptr : result)
+      {
+        signal_modifier_function(*adata_ptr, lambda, a_bestfit);
+      }
+    }
+
+
+    void DMEFT_results_cutoff(AnalysisDataPointers& result)
+    {
+      using namespace Pipes::DMEFT_results_cutoff;
+
+      // Clear previous vectors, etc.
+      result.clear();
+
+      // Get the original AnalysisDataPointers that we will adjust
+      result = *Dep::AllAnalysisNumbersUnmodified;
+
+      // Get Lambda
+      const Spectrum& spec = *Dep::DMEFT_spectrum;
+      float lambda = spec.get(Par::mass1, "Lambda");
+
+      // Apply the function signal_cutoff_function to each of the 
+      // AnalysisData instances in "result"
+      for (AnalysisData* adata_ptr : result)
+      {
+        signal_cutoff_function(*adata_ptr, lambda);
+      }
+    }
+
+
+   
     void InterpolatedMCInfo(MCLoopInfo& result)
     {
       // cout << "Have run the void..."<<endl;

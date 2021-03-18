@@ -5,7 +5,7 @@
 
 // Based on http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-16-035/index.html
 //          https://arxiv.org/abs/1704.07323
-            
+
 // Search for physics beyond the standard model in events with two leptons of same sign, missing transverse momentum, and jets in proton-proton collisions at sqrt(s) = 13 TeV
 
 // Note:
@@ -32,27 +32,154 @@ namespace Gambit {
 
     class Analysis_CMS_13TeV_2SSLEP_Stop_36invfb : public Analysis {
     protected:
+
         // Counters for the number of accepted events for each signal region
-        static const size_t NUMSRHH = 51;
-        double _SRHH[NUMSRHH];
-        static const size_t NUMSRHL = 41;
-        double _SRHL[NUMSRHL];
-        static const size_t NUMSRLL = 8;
-        double _SRLL[NUMSRLL];
-        
-        static const size_t NUMSRinc = 15;
-        double _SRinc[NUMSRinc];
-        static const size_t NUMSRexc = 15;
-        double _SRexc[NUMSRexc];
-        
+        std::map<string, EventCounter> _counters = {
+            // HH
+            {"SRHH-0", EventCounter("SRHH-0")},
+            {"SRHH-1", EventCounter("SRHH-1")},
+            {"SRHH-2", EventCounter("SRHH-2")},
+            {"SRHH-3", EventCounter("SRHH-3")},
+            {"SRHH-4", EventCounter("SRHH-4")},
+            {"SRHH-5", EventCounter("SRHH-5")},
+            {"SRHH-6", EventCounter("SRHH-6")},
+            {"SRHH-7", EventCounter("SRHH-7")},
+            {"SRHH-8", EventCounter("SRHH-8")},
+            {"SRHH-9", EventCounter("SRHH-9")},
+            {"SRHH-10", EventCounter("SRHH-10")},
+            {"SRHH-11", EventCounter("SRHH-11")},
+            {"SRHH-12", EventCounter("SRHH-12")},
+            {"SRHH-13", EventCounter("SRHH-13")},
+            {"SRHH-14", EventCounter("SRHH-14")},
+            {"SRHH-15", EventCounter("SRHH-15")},
+            {"SRHH-16", EventCounter("SRHH-16")},
+            {"SRHH-17", EventCounter("SRHH-17")},
+            {"SRHH-18", EventCounter("SRHH-18")},
+            {"SRHH-19", EventCounter("SRHH-19")},
+            {"SRHH-20", EventCounter("SRHH-20")},
+            {"SRHH-21", EventCounter("SRHH-21")},
+            {"SRHH-22", EventCounter("SRHH-22")},
+            {"SRHH-23", EventCounter("SRHH-23")},
+            {"SRHH-24", EventCounter("SRHH-24")},
+            {"SRHH-25", EventCounter("SRHH-25")},
+            {"SRHH-26", EventCounter("SRHH-26")},
+            {"SRHH-27", EventCounter("SRHH-27")},
+            {"SRHH-28", EventCounter("SRHH-28")},
+            {"SRHH-29", EventCounter("SRHH-29")},
+            {"SRHH-30", EventCounter("SRHH-30")},
+            {"SRHH-31", EventCounter("SRHH-31")},
+            {"SRHH-32", EventCounter("SRHH-32")},
+            {"SRHH-33", EventCounter("SRHH-33")},
+            {"SRHH-34", EventCounter("SRHH-34")},
+            {"SRHH-35", EventCounter("SRHH-35")},
+            {"SRHH-36", EventCounter("SRHH-36")},
+            {"SRHH-37", EventCounter("SRHH-37")},
+            {"SRHH-38", EventCounter("SRHH-38")},
+            {"SRHH-39", EventCounter("SRHH-39")},
+            {"SRHH-40", EventCounter("SRHH-40")},
+            {"SRHH-41", EventCounter("SRHH-41")},
+            {"SRHH-42", EventCounter("SRHH-42")},
+            {"SRHH-43", EventCounter("SRHH-43")},
+            {"SRHH-44", EventCounter("SRHH-44")},
+            {"SRHH-45", EventCounter("SRHH-45")},
+            {"SRHH-46", EventCounter("SRHH-46")},
+            {"SRHH-47", EventCounter("SRHH-47")},
+            {"SRHH-48", EventCounter("SRHH-48")},
+            {"SRHH-49", EventCounter("SRHH-49")},
+            {"SRHH-50", EventCounter("SRHH-50")},
+            // HL
+            {"SRHL-0", EventCounter("SRHL-0")},
+            {"SRHL-1", EventCounter("SRHL-1")},
+            {"SRHL-2", EventCounter("SRHL-2")},
+            {"SRHL-3", EventCounter("SRHL-3")},
+            {"SRHL-4", EventCounter("SRHL-4")},
+            {"SRHL-5", EventCounter("SRHL-5")},
+            {"SRHL-6", EventCounter("SRHL-6")},
+            {"SRHL-7", EventCounter("SRHL-7")},
+            {"SRHL-8", EventCounter("SRHL-8")},
+            {"SRHL-9", EventCounter("SRHL-9")},
+            {"SRHL-10", EventCounter("SRHL-10")},
+            {"SRHL-11", EventCounter("SRHL-11")},
+            {"SRHL-12", EventCounter("SRHL-12")},
+            {"SRHL-13", EventCounter("SRHL-13")},
+            {"SRHL-14", EventCounter("SRHL-14")},
+            {"SRHL-15", EventCounter("SRHL-15")},
+            {"SRHL-16", EventCounter("SRHL-16")},
+            {"SRHL-17", EventCounter("SRHL-17")},
+            {"SRHL-18", EventCounter("SRHL-18")},
+            {"SRHL-19", EventCounter("SRHL-19")},
+            {"SRHL-20", EventCounter("SRHL-20")},
+            {"SRHL-21", EventCounter("SRHL-21")},
+            {"SRHL-22", EventCounter("SRHL-22")},
+            {"SRHL-23", EventCounter("SRHL-23")},
+            {"SRHL-24", EventCounter("SRHL-24")},
+            {"SRHL-25", EventCounter("SRHL-25")},
+            {"SRHL-26", EventCounter("SRHL-26")},
+            {"SRHL-27", EventCounter("SRHL-27")},
+            {"SRHL-28", EventCounter("SRHL-28")},
+            {"SRHL-29", EventCounter("SRHL-29")},
+            {"SRHL-30", EventCounter("SRHL-30")},
+            {"SRHL-31", EventCounter("SRHL-31")},
+            {"SRHL-32", EventCounter("SRHL-32")},
+            {"SRHL-33", EventCounter("SRHL-33")},
+            {"SRHL-34", EventCounter("SRHL-34")},
+            {"SRHL-35", EventCounter("SRHL-35")},
+            {"SRHL-36", EventCounter("SRHL-36")},
+            {"SRHL-37", EventCounter("SRHL-37")},
+            {"SRHL-38", EventCounter("SRHL-38")},
+            {"SRHL-39", EventCounter("SRHL-39")},
+            {"SRHL-40", EventCounter("SRHL-40")},
+            // LL
+            {"SRLL-0", EventCounter("SRLL-0")},
+            {"SRLL-1", EventCounter("SRLL-1")},
+            {"SRLL-2", EventCounter("SRLL-2")},
+            {"SRLL-3", EventCounter("SRLL-3")},
+            {"SRLL-4", EventCounter("SRLL-4")},
+            {"SRLL-5", EventCounter("SRLL-5")},
+            {"SRLL-6", EventCounter("SRLL-6")},
+            {"SRLL-7", EventCounter("SRLL-7")},
+            // inc
+            {"SRinc-0", EventCounter("SRinc-0")},
+            {"SRinc-1", EventCounter("SRinc-1")},
+            {"SRinc-2", EventCounter("SRinc-2")},
+            {"SRinc-3", EventCounter("SRinc-3")},
+            {"SRinc-4", EventCounter("SRinc-4")},
+            {"SRinc-5", EventCounter("SRinc-5")},
+            {"SRinc-6", EventCounter("SRinc-6")},
+            {"SRinc-7", EventCounter("SRinc-7")},
+            {"SRinc-8", EventCounter("SRinc-8")},
+            {"SRinc-9", EventCounter("SRinc-9")},
+            {"SRinc-10", EventCounter("SRinc-10")},
+            {"SRinc-11", EventCounter("SRinc-11")},
+            {"SRinc-12", EventCounter("SRinc-12")},
+            {"SRinc-13", EventCounter("SRinc-13")},
+            {"SRinc-14", EventCounter("SRinc-14")},
+            // exc
+            {"SRexc-0", EventCounter("SRexc-0")},
+            {"SRexc-1", EventCounter("SRexc-1")},
+            {"SRexc-2", EventCounter("SRexc-2")},
+            {"SRexc-3", EventCounter("SRexc-3")},
+            {"SRexc-4", EventCounter("SRexc-4")},
+            {"SRexc-5", EventCounter("SRexc-5")},
+            {"SRexc-6", EventCounter("SRexc-6")},
+            {"SRexc-7", EventCounter("SRexc-7")},
+            {"SRexc-8", EventCounter("SRexc-8")},
+            {"SRexc-9", EventCounter("SRexc-9")},
+            {"SRexc-10", EventCounter("SRexc-10")},
+            {"SRexc-11", EventCounter("SRexc-11")},
+            {"SRexc-12", EventCounter("SRexc-12")},
+            {"SRexc-13", EventCounter("SRexc-13")},
+            {"SRexc-14", EventCounter("SRexc-14")},
+        };
+
         Cutflow _cutflow;
-        
+
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
         bool overlap = false;
@@ -73,11 +200,11 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec) {
         //Routine to do lepton-jet check
         //Discards leptons if they are within dR of a jet as defined in analysis paper
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
           bool overlap = false;
@@ -107,27 +234,17 @@ namespace Gambit {
         Analysis_CMS_13TeV_2SSLEP_Stop_36invfb():
         _cutflow("CMS_13TeV_2SSLEP_Stop_36invfb", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
         {
-
             set_analysis_name("CMS_13TeV_2SSLEP_Stop_36invfb");
             set_luminosity(36);
-            
-            for (size_t i = 0; i < NUMSRHH; ++i) _SRHH[i] = 0;
-            for (size_t i = 0; i < NUMSRHL; ++i) _SRHL[i] = 0;
-            for (size_t i = 0; i < NUMSRLL; ++i) _SRLL[i] = 0;
-            
-            for (size_t i = 0; i < NUMSRinc; ++i) _SRinc[i] = 0;
-            for (size_t i = 0; i < NUMSRexc; ++i) _SRexc[i] = 0;
-            
-            
         }
 
         struct ptComparison {
-            bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+            bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
         } comparePt;
-        
+
         void run(const HEPUtils::Event* event) {
             _cutflow.fillinit();
-            
+
             // Missing energy
             double met = event->met();
             HEPUtils::P4 ptot = event->missingmom();
@@ -146,13 +263,13 @@ namespace Gambit {
                                    0.0,   0.0,     0.0,     0.0,     0.0,     0.0,     0.0// eta > 2.5
                                   };
             HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
-            vector<HEPUtils::Particle*> electrons;
-            for (HEPUtils::Particle* electron : event->electrons()) {
+            vector<const HEPUtils::Particle*> electrons;
+            for (const HEPUtils::Particle* electron : event->electrons()) {
                 bool isEl=has_tag(_eff2dEl, fabs(electron->eta()), electron->pT());
                 if (electron->pT() > 15. && fabs(electron->eta()) < 2.5 && isEl)
                     electrons.push_back(electron);
             }
-            
+
             // Muons
             //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_035_ttbar.pdf
             const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
@@ -166,17 +283,17 @@ namespace Gambit {
                                    0.0,   0.0,     0.0,      0.0,    0.0,     0.0,     0.0,     0.0// eta > 2.4
                                   };
             HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
-            vector<HEPUtils::Particle*> muons;
-            for (HEPUtils::Particle* muon : event->muons()) {
+            vector<const HEPUtils::Particle*> muons;
+            for (const HEPUtils::Particle* muon : event->muons()) {
                 bool isMu=has_tag(_eff2dMu, fabs(muon->eta()), muon->pT());
                 if (muon->pT() > 10.&& fabs(muon->eta()) < 2.4 && isMu)
                     muons.push_back(muon);
             }
-            
+
             double HT;
             // Jets
-            vector<HEPUtils::Jet*> candJets;
-            for (HEPUtils::Jet* jet : event->jets()) {
+            vector<const HEPUtils::Jet*> candJets;
+            for (const HEPUtils::Jet* jet : event->jets()) {
                 if (jet->pT() > 25. && fabs(jet->eta()) < 2.4){
                     HT += jet->pT();
                     candJets.push_back(jet);
@@ -190,14 +307,14 @@ namespace Gambit {
             LeptonJetOverlapRemoval(muons,candJets);
 
             // Jets
-            vector<HEPUtils::Jet*> bJets;
-            vector<HEPUtils::Jet*> nonbJets;
+            vector<const HEPUtils::Jet*> bJets;
+            vector<const HEPUtils::Jet*> nonbJets;
 
-            
+
             // Find b-jets
             // Copied from ATLAS_13TeV_3b_24invfb
             double btag = 0.85; double cmisstag = 1/12.; double misstag = 1./381.;
-            for (HEPUtils::Jet* jet : candJets) {
+            for (const HEPUtils::Jet* jet : candJets) {
                 // Tag
                 if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
                 // Misstag c-jet
@@ -209,19 +326,19 @@ namespace Gambit {
                     nonbJets.push_back(jet);
                 }
             }
-            
+
             size_t Nb=bJets.size();
             size_t Nj=nonbJets.size();
-            
+
             // Leptons = electrons + muons
-            vector<HEPUtils::Particle*> leptons;
+            vector<const HEPUtils::Particle*> leptons;
             leptons=electrons;
             leptons.insert(leptons.end(),muons.begin(),muons.end());
             sort(leptons.begin(),leptons.end(),comparePt);
 
             // At least two light leptons
             if (leptons.size()<2) return;
-            
+
             // Triggers
             bool pure_dilepton_trigger=false;
             // Leading electron (muon) PT > 23 (17) GeV
@@ -232,7 +349,7 @@ namespace Gambit {
             }
             if ( not pure_dilepton_trigger and HT<300 ) return;
             _cutflow.fill(1); // Trigger and >=2 leptons
-            
+
             // Find pair same sign (SS) leptons
             vector<size_t> SS_1,SS_2;
             for (size_t i=0; i<leptons.size(); ++i) {
@@ -247,9 +364,9 @@ namespace Gambit {
             // At least one SS lepton pair ( with an invari-ant mass above 8 GeV )
             if (SS_1.size()==0) return;
             _cutflow.fill(2); // At least one SS lepton pair
-            
+
             // An additional loose lepton forms an opposite-sign same-flavor pair
-            // withone of the two SS leptons, with an invariant mass less than 12 GeV 
+            // withone of the two SS leptons, with an invariant mass less than 12 GeV
             // or between 76 and 106 GeV
             if (leptons.size()>2){
                 for (size_t i=0; i<SS_1.size(); ++i) {
@@ -267,16 +384,16 @@ namespace Gambit {
                     }
                 }
             }
-            
-            
+
+
             // At least two jets and MET>50
             if ( nonbJets.size()<2 or  met<50) return;
             _cutflow.fill(3); // Baseline (two jets and MET>50 GeV)
-            
+
             // M_T^{miss}
             // The smallest of the transverse masses constructed between p^miss_T and each of the leptons.
             double MTmiss = 9999;
-            for (HEPUtils::Particle* lep : leptons) {
+            for (const HEPUtils::Particle* lep : leptons) {
                 double MTmiss_temp = sqrt(2.*lep->pT()*met*(1. - cos(lep->mom().deltaPhi(ptot))));
                 if (MTmiss_temp<MTmiss) {
                     MTmiss = MTmiss_temp;
@@ -305,119 +422,119 @@ namespace Gambit {
             // SR HH
             if ( leptons[SS_1[0]]->pT() > 25. and leptons[SS_2[0]]->pT() > 25.) {
                 if (Nb==0) {
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)               _SRHH[0]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)          _SRHH[1]++;
-                    if (SSHH_combine)                                                     _SRHH[2]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125)          _SRHH[3]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)   _SRHH[4]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp)  _SRHH[5]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)          _SRHH[6]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)   _SRHH[7]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp)  _SRHH[8]++;
-                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _SRHH[9]++;
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)               _counters.at("SRHH-0").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)          _counters.at("SRHH-1").add_event(event);
+                    if (SSHH_combine)                                                     _counters.at("SRHH-2").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125)          _counters.at("SRHH-3").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)   _counters.at("SRHH-4").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp)  _counters.at("SRHH-5").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)          _counters.at("SRHH-6").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)   _counters.at("SRHH-7").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp)  _counters.at("SRHH-8").add_event(event);
+                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _counters.at("SRHH-9").add_event(event);
                 } else if (Nb==1) {
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)              _SRHH[10]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)         _SRHH[11]++;
-                    if (SSHH_combine and pp)                                             _SRHH[12]++;
-                    if (SSHH_combine and !pp)                                            _SRHH[13]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and pp)  _SRHH[14]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and !pp) _SRHH[15]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _SRHH[16]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _SRHH[17]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)         _SRHH[18]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)  _SRHH[19]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp) _SRHH[20]++;
-                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _SRHH[21]++;
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)              _counters.at("SRHH-10").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)         _counters.at("SRHH-11").add_event(event);
+                    if (SSHH_combine and pp)                                             _counters.at("SRHH-12").add_event(event);
+                    if (SSHH_combine and !pp)                                            _counters.at("SRHH-13").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and pp)  _counters.at("SRHH-14").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and !pp) _counters.at("SRHH-15").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHH-16").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHH-17").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)         _counters.at("SRHH-18").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHH-19").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHH-20").add_event(event);
+                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _counters.at("SRHH-21").add_event(event);
                 } else if (Nb==2){
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)              _SRHH[22]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)         _SRHH[23]++;
-                    if (SSHH_combine and pp)                                             _SRHH[24]++;
-                    if (SSHH_combine and !pp)                                            _SRHH[25]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and pp)  _SRHH[26]++;
-                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and !pp) _SRHH[27]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _SRHH[28]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _SRHH[29]++;
-                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)         _SRHH[30]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)  _SRHH[31]++;
-                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp) _SRHH[32]++;
-                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _SRHH[33]++;
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300)              _counters.at("SRHH-22").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_2_4 and HT_300_1125)         _counters.at("SRHH-23").add_event(event);
+                    if (SSHH_combine and pp)                                             _counters.at("SRHH-24").add_event(event);
+                    if (SSHH_combine and !pp)                                            _counters.at("SRHH-25").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and pp)  _counters.at("SRHH-26").add_event(event);
+                    if (MTmiss_l_120 and met_50_200  and Nj_5   and HT_300_1125 and !pp) _counters.at("SRHH-27").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHH-28").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHH-29").add_event(event);
+                    if (MTmiss_l_120 and met_200_300 and Nj_5   and HT_300_1125)         _counters.at("SRHH-30").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHH-31").add_event(event);
+                    if (MTmiss_g_120 and met_50_200  and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHH-32").add_event(event);
+                    if (MTmiss_g_120 and((met_50_200&&Nj_5)||met_200_300)and HT_300_1125) _counters.at("SRHH-33").add_event(event);
                 } else if (Nb>=3){
-                    if (MTmiss_l_120 and met<300                and HT_300 and pp)       _SRHH[34]++;
-                    if (MTmiss_l_120 and met<300                and HT_300 and !pp)      _SRHH[35]++;
-                    if (MTmiss_l_120 and met_50_200             and HT_300_1125 and pp)  _SRHH[36]++;
-                    if (MTmiss_l_120 and met_50_200             and HT_300_1125 and !pp) _SRHH[37]++;
-                    if (MTmiss_l_120 and met_200_300            and HT_300_1125)         _SRHH[38]++;
-                    if (MTmiss_g_120 and met<300                and HT_300)              _SRHH[39]++;
-                    if (MTmiss_g_120 and met<300                and HT_300_1125)         _SRHH[40]++;   
+                    if (MTmiss_l_120 and met<300                and HT_300 and pp)       _counters.at("SRHH-34").add_event(event);
+                    if (MTmiss_l_120 and met<300                and HT_300 and !pp)      _counters.at("SRHH-35").add_event(event);
+                    if (MTmiss_l_120 and met_50_200             and HT_300_1125 and pp)  _counters.at("SRHH-36").add_event(event);
+                    if (MTmiss_l_120 and met_50_200             and HT_300_1125 and !pp) _counters.at("SRHH-37").add_event(event);
+                    if (MTmiss_l_120 and met_200_300            and HT_300_1125)         _counters.at("SRHH-38").add_event(event);
+                    if (MTmiss_g_120 and met<300                and HT_300)              _counters.at("SRHH-39").add_event(event);
+                    if (MTmiss_g_120 and met<300                and HT_300_1125)         _counters.at("SRHH-40").add_event(event);
                 }
-                
-                if (met_300_500 and HT>300       and pp)  _SRHH[41]++;
-                if (met_300_500 and HT>300       and !pp) _SRHH[42]++;
-                if (met_500     and HT>300       and pp)  _SRHH[43]++;
-                if (met_500     and HT>300       and !pp) _SRHH[44]++;
-                
-                if (met<300     and HT_1125_1300 and pp)  _SRHH[45]++;
-                if (met<300     and HT_1125_1300 and !pp) _SRHH[46]++;
-                if (met<300     and HT_1300_1600 and pp)  _SRHH[47]++;
-                if (met<300     and HT_1300_1600 and !pp) _SRHH[48]++;
-                if (met<300     and HT_1600 and pp)  _SRHH[48]++;
-                if (met<300     and HT_1600 and !pp) _SRHH[50]++;
-                
+
+                if (met_300_500 and HT>300       and pp)  _counters.at("SRHH-41").add_event(event);
+                if (met_300_500 and HT>300       and !pp) _counters.at("SRHH-42").add_event(event);
+                if (met_500     and HT>300       and pp)  _counters.at("SRHH-43").add_event(event);
+                if (met_500     and HT>300       and !pp) _counters.at("SRHH-44").add_event(event);
+
+                if (met<300     and HT_1125_1300 and pp)  _counters.at("SRHH-45").add_event(event);
+                if (met<300     and HT_1125_1300 and !pp) _counters.at("SRHH-46").add_event(event);
+                if (met<300     and HT_1300_1600 and pp)  _counters.at("SRHH-47").add_event(event);
+                if (met<300     and HT_1300_1600 and !pp) _counters.at("SRHH-48").add_event(event);
+                if (met<300     and HT_1600 and pp)  _counters.at("SRHH-48").add_event(event);
+                if (met<300     and HT_1600 and !pp) _counters.at("SRHH-50").add_event(event);
+
             }
-            
+
             bool SSHL_combine = MTmiss_l_120&&( (met_50_200&&Nj_5) or met_200_300 )&&HT_300 ;
-            
+
             // SR HL
             if ( leptons[SS_1[0]]->pT() > 25. and leptons[SS_2[0]]->pT() < 25.) {
                 if (Nb==0 and MTmiss_l_120) {
-                    if ( met_50_200  and Nj_2_4 and HT_300)              _SRHL[0]++;
-                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _SRHL[1]++;
-                    if ( SSHL_combine)                                   _SRHL[2]++;
-                    if ( met_50_200  and Nj_5 and HT_300_1125)           _SRHL[3]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _SRHL[4]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _SRHL[5]++;
-                    if ( met_200_300 and Nj_5 and HT_300_1125)           _SRHL[6]++;
+                    if ( met_50_200  and Nj_2_4 and HT_300)              _counters.at("SRHL-0").add_event(event);
+                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _counters.at("SRHL-1").add_event(event);
+                    if ( SSHL_combine)                                   _counters.at("SRHL-2").add_event(event);
+                    if ( met_50_200  and Nj_5 and HT_300_1125)           _counters.at("SRHL-3").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHL-4").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHL-5").add_event(event);
+                    if ( met_200_300 and Nj_5 and HT_300_1125)           _counters.at("SRHL-6").add_event(event);
                 } else if(Nb==1 and MTmiss_l_120) {
-                    if ( met_50_200  and Nj_2_4 and HT_300)              _SRHL[7]++;
-                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _SRHL[8]++;
-                    if ( SSHL_combine and pp)                            _SRHL[9]++;
-                    if ( SSHL_combine and !pp)                           _SRHL[10]++;
-                    if ( met_50_200  and Nj_5 and HT_300_1125 and pp)    _SRHL[11]++;
-                    if ( met_50_200  and Nj_5 and HT_300_1125 and !pp)   _SRHL[12]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _SRHL[13]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _SRHL[14]++;
-                    
-                    if ( met_200_300 and Nj_5 and HT_300_1125 and pp)    _SRHL[15]++;
-                    if ( met_200_300 and Nj_5 and HT_300_1125 and !pp)   _SRHL[16]++;
+                    if ( met_50_200  and Nj_2_4 and HT_300)              _counters.at("SRHL-7").add_event(event);
+                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _counters.at("SRHL-8").add_event(event);
+                    if ( SSHL_combine and pp)                            _counters.at("SRHL-9").add_event(event);
+                    if ( SSHL_combine and !pp)                           _counters.at("SRHL-10").add_event(event);
+                    if ( met_50_200  and Nj_5 and HT_300_1125 and pp)    _counters.at("SRHL-11").add_event(event);
+                    if ( met_50_200  and Nj_5 and HT_300_1125 and !pp)   _counters.at("SRHL-12").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHL-13").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHL-14").add_event(event);
+
+                    if ( met_200_300 and Nj_5 and HT_300_1125 and pp)    _counters.at("SRHL-15").add_event(event);
+                    if ( met_200_300 and Nj_5 and HT_300_1125 and !pp)   _counters.at("SRHL-16").add_event(event);
                 } else if(Nb==2 and MTmiss_l_120) {
-                    if ( met_50_200  and Nj_2_4 and HT_300)              _SRHL[17]++;
-                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _SRHL[18]++;
-                    if ( SSHL_combine and pp)                            _SRHL[19]++;
-                    if ( SSHL_combine and !pp)                           _SRHL[20]++;
-                    if ( met_50_200  and Nj_5 and HT_300_1125 and pp)    _SRHL[21]++;
-                    if ( met_50_200  and Nj_5 and HT_300_1125 and !pp)   _SRHL[22]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _SRHL[23]++;
-                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _SRHL[24]++;
-                    if ( met_200_300 and Nj_5 and HT_300_1125)           _SRHL[25]++;
+                    if ( met_50_200  and Nj_2_4 and HT_300)              _counters.at("SRHL-17").add_event(event);
+                    if ( met_50_200  and Nj_2_4 and HT_300_1125)         _counters.at("SRHL-18").add_event(event);
+                    if ( SSHL_combine and pp)                            _counters.at("SRHL-19").add_event(event);
+                    if ( SSHL_combine and !pp)                           _counters.at("SRHL-20").add_event(event);
+                    if ( met_50_200  and Nj_5 and HT_300_1125 and pp)    _counters.at("SRHL-21").add_event(event);
+                    if ( met_50_200  and Nj_5 and HT_300_1125 and !pp)   _counters.at("SRHL-22").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and pp)  _counters.at("SRHL-23").add_event(event);
+                    if ( met_200_300 and Nj_2_4 and HT_300_1125 and !pp) _counters.at("SRHL-24").add_event(event);
+                    if ( met_200_300 and Nj_5 and HT_300_1125)           _counters.at("SRHL-25").add_event(event);
                 }else if(Nb==3 and MTmiss_l_120) {
-                    if ( met_50_200 and HT_300 and pp)                   _SRHL[26]++;
-                    if ( met_50_200 and HT_300 and !pp)                  _SRHL[27]++;
-                    if ( met_50_200 and HT_300_1125 and pp)              _SRHL[28]++;
-                    if ( met_50_200 and HT_300_1125 and !pp)             _SRHL[29]++;
-                    if ( met_200_300 and HT_300_1125)                    _SRHL[30]++;
+                    if ( met_50_200 and HT_300 and pp)                   _counters.at("SRHL-26").add_event(event);
+                    if ( met_50_200 and HT_300 and !pp)                  _counters.at("SRHL-27").add_event(event);
+                    if ( met_50_200 and HT_300_1125 and pp)              _counters.at("SRHL-28").add_event(event);
+                    if ( met_50_200 and HT_300_1125 and !pp)             _counters.at("SRHL-29").add_event(event);
+                    if ( met_200_300 and HT_300_1125)                    _counters.at("SRHL-30").add_event(event);
                 }
-                if (MTmiss_g_120 and met<300 and HT_300)       _SRHL[31]++;
-                if (MTmiss_g_120 and met<300 and HT_300_1125)  _SRHL[32]++;
-                
-                if (met_300_500  and HT>300 and pp)  _SRHL[33]++;
-                if (met_300_500  and HT>300 and !pp) _SRHL[34]++;
-                if (met_500      and HT>300 and pp)  _SRHL[35]++;
-                if (met_500      and HT>300 and !pp) _SRHL[36]++;
-                
-                if (met<300      and HT_1125_1300 and pp)  _SRHL[37]++;
-                if (met<300      and HT_1125_1300 and !pp) _SRHL[38]++;
-                if (met<300      and HT_1300 and pp)       _SRHL[39]++;
-                if (met<300      and HT_1300 and !pp)      _SRHL[40]++;
+                if (MTmiss_g_120 and met<300 and HT_300)       _counters.at("SRHL-31").add_event(event);
+                if (MTmiss_g_120 and met<300 and HT_300_1125)  _counters.at("SRHL-32").add_event(event);
+
+                if (met_300_500  and HT>300 and pp)  _counters.at("SRHL-33").add_event(event);
+                if (met_300_500  and HT>300 and !pp) _counters.at("SRHL-34").add_event(event);
+                if (met_500      and HT>300 and pp)  _counters.at("SRHL-35").add_event(event);
+                if (met_500      and HT>300 and !pp) _counters.at("SRHL-36").add_event(event);
+
+                if (met<300      and HT_1125_1300 and pp)  _counters.at("SRHL-37").add_event(event);
+                if (met<300      and HT_1125_1300 and !pp) _counters.at("SRHL-38").add_event(event);
+                if (met<300      and HT_1300 and pp)       _counters.at("SRHL-39").add_event(event);
+                if (met<300      and HT_1300 and !pp)      _counters.at("SRHL-40").add_event(event);
             }
 
             // SR LL
@@ -425,70 +542,70 @@ namespace Gambit {
                 if (HT>300) {
                     if (MTmiss_l_120) {
                         if (Nb==0) {
-                            if (met_50_200) _SRLL[0]++;
-                            else            _SRLL[1]++;
+                            if (met_50_200) _counters.at("SRLL-0").add_event(event);
+                            else            _counters.at("SRLL-1").add_event(event);
                         } else if (Nb==1) {
-                            if (met_50_200) _SRLL[2]++;
-                            else            _SRLL[3]++;
+                            if (met_50_200) _counters.at("SRLL-2").add_event(event);
+                            else            _counters.at("SRLL-3").add_event(event);
                         } else if (Nb==2) {
-                            if (met_50_200) _SRLL[4]++;
-                            else            _SRLL[5]++;
-                        } else if (Nb>=3)   _SRLL[6]++;
-                    } else                  _SRLL[7]++;
+                            if (met_50_200) _counters.at("SRLL-4").add_event(event);
+                            else            _counters.at("SRLL-5").add_event(event);
+                        } else if (Nb>=3)   _counters.at("SRLL-6").add_event(event);
+                    } else                  _counters.at("SRLL-7").add_event(event);
                 }
             }
-            
+
             // Inclusive SR
             if (  leptons[SS_1[0]]->pT() > 25. and leptons[SS_2[0]]->pT() > 25. ) {
                 // Nj>=2 and met>50 have been applied
-                if ( Nb==0 and HT>=1200)               _SRinc[0]++;
-                if ( Nb>=2 and HT>=1100)               _SRinc[1]++;
-                if ( Nb==0 and met>450)                _SRinc[2]++;
-                if ( Nb>=2 and met>300)                _SRinc[3]++;
-                if ( Nb==0 and met>250 and MTmiss>120) _SRinc[4]++;
-                if ( Nb>=2 and met>150 and MTmiss>120) _SRinc[5]++;
-                if ( Nb==0 and HT>900 and met>200)     _SRinc[6]++;
-                if ( Nb>=2 and HT>900 and met>200)     _SRinc[7]++;
-                if ( Nj>=7)                            _SRinc[8]++;
-                if ( Nj>=4 and MTmiss>120)             _SRinc[9]++;
-                if ( Nb>=3)                            _SRinc[10]++;
-                if ( HT>700)                           _SRinc[11]++;
+                if ( Nb==0 and HT>=1200)               _counters.at("SRinc-0").add_event(event);
+                if ( Nb>=2 and HT>=1100)               _counters.at("SRinc-1").add_event(event);
+                if ( Nb==0 and met>450)                _counters.at("SRinc-2").add_event(event);
+                if ( Nb>=2 and met>300)                _counters.at("SRinc-3").add_event(event);
+                if ( Nb==0 and met>250 and MTmiss>120) _counters.at("SRinc-4").add_event(event);
+                if ( Nb>=2 and met>150 and MTmiss>120) _counters.at("SRinc-5").add_event(event);
+                if ( Nb==0 and HT>900 and met>200)     _counters.at("SRinc-6").add_event(event);
+                if ( Nb>=2 and HT>900 and met>200)     _counters.at("SRinc-7").add_event(event);
+                if ( Nj>=7)                            _counters.at("SRinc-8").add_event(event);
+                if ( Nj>=4 and MTmiss>120)             _counters.at("SRinc-9").add_event(event);
+                if ( Nb>=3)                            _counters.at("SRinc-10").add_event(event);
+                if ( HT>700)                           _counters.at("SRinc-11").add_event(event);
             }
-            
+
             if (  leptons[SS_1[0]]->pT() < 25. and leptons[SS_2[0]]->pT() < 25. ) {
                 // Nj>=2 and met>50 have been applied
-                if (met>200) _SRinc[12]++;
-                if (Nj>=5)   _SRinc[13]++;
-                if (Nb>=3)   _SRinc[14]++;
+                if (met>200) _counters.at("SRinc-12").add_event(event);
+                if (Nj>=5)   _counters.at("SRinc-13").add_event(event);
+                if (Nb>=3)   _counters.at("SRinc-14").add_event(event);
             }
-            
+
             // Exclusive SR
             if (  leptons[SS_1[0]]->pT() > 25. and leptons[SS_2[0]]->pT() > 25. ) {
                 // Nj>=2 and met>50 have been applied
-                if (Nb==0 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _SRexc[0]++;
-                if (Nb==0 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _SRexc[1]++;
-                if (Nb==1 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _SRexc[2]++;
-                if (Nb==1 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _SRexc[3]++;
-                if (Nb==2 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _SRexc[4]++;
-                if (Nb==2 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _SRexc[5]++;
-                if (Nb>=3 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _SRexc[6]++;
-                if (Nb>=3 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _SRexc[7]++;
-                if (          met>300 and             HT>300)                 _SRexc[8]++;
-                if (          met<300 and HT>1125)                            _SRexc[9]++;
+                if (Nb==0 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _counters.at("SRexc-0").add_event(event);
+                if (Nb==0 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _counters.at("SRexc-1").add_event(event);
+                if (Nb==1 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _counters.at("SRexc-2").add_event(event);
+                if (Nb==1 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _counters.at("SRexc-3").add_event(event);
+                if (Nb==2 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _counters.at("SRexc-4").add_event(event);
+                if (Nb==2 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _counters.at("SRexc-5").add_event(event);
+                if (Nb>=3 and met<300 and HT<1125 and (HT<300 or MTmiss<120)) _counters.at("SRexc-6").add_event(event);
+                if (Nb>=3 and met<300 and HT<1125 and HT>300 and MTmiss>120)  _counters.at("SRexc-7").add_event(event);
+                if (          met>300 and             HT>300)                 _counters.at("SRexc-8").add_event(event);
+                if (          met<300 and HT>1125)                            _counters.at("SRexc-9").add_event(event);
             }
-            
+
             if (  leptons[SS_1[0]]->pT() > 25. and leptons[SS_2[0]]->pT() < 25. ) {
                 // Nj>=2 and met>50 have been applied
-                if (met<300 and HT<1125 and MTmiss<120) _SRexc[10]++;
-                if (met<300 and HT<1125 and MTmiss>120) _SRexc[11]++;
-                if (met>300 and HT>300)                 _SRexc[12]++;
-                if (met<300 and HT>1125)                _SRexc[13]++;
+                if (met<300 and HT<1125 and MTmiss<120) _counters.at("SRexc-10").add_event(event);
+                if (met<300 and HT<1125 and MTmiss>120) _counters.at("SRexc-11").add_event(event);
+                if (met>300 and HT>300)                 _counters.at("SRexc-12").add_event(event);
+                if (met<300 and HT>1125)                _counters.at("SRexc-13").add_event(event);
             }
             if (  leptons[SS_1[0]]->pT() < 25. and leptons[SS_2[0]]->pT() < 25. ) {
                 // Nj>=2 and met>50 have been applied
-                if (HT>300) _SRexc[14]++;
+                if (HT>300) _counters.at("SRexc-14").add_event(event);
             }
-            
+
             return;
         }
 
@@ -497,14 +614,7 @@ namespace Gambit {
         {
             const Analysis_CMS_13TeV_2SSLEP_Stop_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_2SSLEP_Stop_36invfb*>(other);
-            
-            for (size_t i = 0; i < NUMSRHH; ++i) _SRHH[i] += specificOther->_SRHH[i];
-            for (size_t i = 0; i < NUMSRHL; ++i) _SRHL[i] += specificOther->_SRHL[i];
-            for (size_t i = 0; i < NUMSRLL; ++i) _SRLL[i] += specificOther->_SRLL[i];
-            
-            for (size_t i = 0; i < NUMSRinc; ++i) _SRinc[i] += specificOther->_SRinc[i];
-            for (size_t i = 0; i < NUMSRexc; ++i) _SRexc[i] += specificOther->_SRexc[i];
-            
+            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 
@@ -514,82 +624,118 @@ namespace Gambit {
             cout << _cutflow << endl;
             #endif
 
-            // Observed event counts
-            static const double OBSNUM_HH[NUMSRHH] = {
-                468, 162, 24.4, 17.6, 17.8, 7.8, 1.96, 4.58, 3.63, 2.82, 313, 104, 9.5, 8.7, 14.4, 12.7, 7.3, 3.92, 3.26, 2.6, 3.02, 2.80, 70, 35.7, 3.99, 2.68, 9.7, 7.9, 2.78, 1.86, 2.20, 1.85, 1.20, 1.81, 1.98, 1.43, 4.2, 3.04, 0.63, 0.29, 0.80, 13.4, 8.0, 3.33, 0.94, 2.92, 1.78, 1.95, 1.23, 1.46, 0.74
-            };
-            // Background estimates
-            static const double BKGNUM_HH[NUMSRHH] = {
-                98, 25, 5.4, 3.0, 3.9, 1.5, 0.47, 0.81, 0.75, 0.56, 87, 20, 1.9, 2.0, 2.9, 2.6, 1.2, 0.79, 0.74, 2.7, 0.75, 0.57, 12, 5.9, 0.73, 0.80, 1.8, 2.5, 0.58, 0.38, 0.54, 0.39, 0.32, 0.42, 0.61, 0.37, 1.3, 0.68, 0.17, 0.34, 0.22, 1.9, 3.0, 0.74, 0.26, 0.50, 0.42, 0.39, 0.30, 0.31, 0.18
-            };
-            // Background uncertainties
-            static const double BKGERR_HH[NUMSRHH] = {
-                435, 166, 30, 24, 22, 6, 2, 5, 3, 3, 304, 111, 13, 11, 17, 10, 11, 2, 3, 4, 3, 1, 90, 40, 2, 0, 9, 8, 1, 1, 1, 5, 0, 3, 1, 2, 2, 4, 1, 0, 3, 19, 8, 3, 1, 3, 3, 5, 3, 0, 0
-            };
-            for (size_t ibin = 0; ibin < NUMSRHH; ++ibin)
-            {
-                stringstream ss; ss << "SR-HH-" << ibin+1;
-                add_result(SignalRegionData(ss.str(), OBSNUM_HH[ibin], {_SRHH[ibin],  0.}, {BKGNUM_HH[ibin], BKGERR_HH[ibin]}));
-                #ifdef CHECK_CUTFLOW
-                cout << ss.str() << "\t" << _SRHH[ibin] << endl;
-                #endif
-            }
+            // HH
+            add_result(SignalRegionData(_counters.at("SRHH-0"), 435, {468, 98}));
+            add_result(SignalRegionData(_counters.at("SRHH-1"), 166, {162, 25}));
+            add_result(SignalRegionData(_counters.at("SRHH-2"), 30, {24.4, 5.4}));
+            add_result(SignalRegionData(_counters.at("SRHH-3"), 24, {17.6, 3.0}));
+            add_result(SignalRegionData(_counters.at("SRHH-4"), 22, {17.8, 3.9}));
+            add_result(SignalRegionData(_counters.at("SRHH-5"), 6, {7.8, 1.5}));
+            add_result(SignalRegionData(_counters.at("SRHH-6"), 2, {1.96, 0.47}));
+            add_result(SignalRegionData(_counters.at("SRHH-7"), 5, {4.58, 0.81}));
+            add_result(SignalRegionData(_counters.at("SRHH-8"), 3, {3.63, 0.75}));
+            add_result(SignalRegionData(_counters.at("SRHH-9"), 3, {2.82, 0.56}));
+            add_result(SignalRegionData(_counters.at("SRHH-10"), 304, {313, 87}));
+            add_result(SignalRegionData(_counters.at("SRHH-11"), 111, {104, 20}));
+            add_result(SignalRegionData(_counters.at("SRHH-12"), 13, {9.5, 1.9}));
+            add_result(SignalRegionData(_counters.at("SRHH-13"), 11, {8.7, 2.0}));
+            add_result(SignalRegionData(_counters.at("SRHH-14"), 17, {14.4, 2.9}));
+            add_result(SignalRegionData(_counters.at("SRHH-15"), 10, {12.7, 2.6}));
+            add_result(SignalRegionData(_counters.at("SRHH-16"), 11, {7.3, 1.2}));
+            add_result(SignalRegionData(_counters.at("SRHH-17"), 2, {3.92, 0.79}));
+            add_result(SignalRegionData(_counters.at("SRHH-18"), 3, {3.26, 0.74}));
+            add_result(SignalRegionData(_counters.at("SRHH-19"), 4, {2.6, 2.7}));
+            add_result(SignalRegionData(_counters.at("SRHH-20"), 3, {3.02, 0.75}));
+            add_result(SignalRegionData(_counters.at("SRHH-21"), 1, {2.8, 0.57}));
+            add_result(SignalRegionData(_counters.at("SRHH-22"), 90, {70, 12}));
+            add_result(SignalRegionData(_counters.at("SRHH-23"), 40, {35.7, 5.9}));
+            add_result(SignalRegionData(_counters.at("SRHH-24"), 2, {3.99, 0.73}));
+            add_result(SignalRegionData(_counters.at("SRHH-25"), 0, {2.68, 0.8}));
+            add_result(SignalRegionData(_counters.at("SRHH-26"), 9, {9.7, 1.8}));
+            add_result(SignalRegionData(_counters.at("SRHH-27"), 8, {7.9, 2.5}));
+            add_result(SignalRegionData(_counters.at("SRHH-28"), 1, {2.78, 0.58}));
+            add_result(SignalRegionData(_counters.at("SRHH-29"), 1, {1.86, 0.38}));
+            add_result(SignalRegionData(_counters.at("SRHH-30"), 1, {2.2, 0.54}));
+            add_result(SignalRegionData(_counters.at("SRHH-31"), 5, {1.85, 0.39}));
+            add_result(SignalRegionData(_counters.at("SRHH-32"), 0, {1.2, 0.32}));
+            add_result(SignalRegionData(_counters.at("SRHH-33"), 3, {1.81, 0.42}));
+            add_result(SignalRegionData(_counters.at("SRHH-34"), 1, {1.98, 0.61}));
+            add_result(SignalRegionData(_counters.at("SRHH-35"), 2, {1.43, 0.37}));
+            add_result(SignalRegionData(_counters.at("SRHH-36"), 2, {4.2, 1.3}));
+            add_result(SignalRegionData(_counters.at("SRHH-37"), 4, {3.04, 0.68}));
+            add_result(SignalRegionData(_counters.at("SRHH-38"), 1, {0.63, 0.17}));
+            add_result(SignalRegionData(_counters.at("SRHH-39"), 0, {0.29, 0.34}));
+            add_result(SignalRegionData(_counters.at("SRHH-40"), 3, {0.8, 0.22}));
+            add_result(SignalRegionData(_counters.at("SRHH-41"), 19, {13.4, 1.9}));
+            add_result(SignalRegionData(_counters.at("SRHH-42"), 8, {8.0, 3.0}));
+            add_result(SignalRegionData(_counters.at("SRHH-43"), 3, {3.33, 0.74}));
+            add_result(SignalRegionData(_counters.at("SRHH-44"), 1, {0.94, 0.26}));
+            add_result(SignalRegionData(_counters.at("SRHH-45"), 3, {2.92, 0.5}));
+            add_result(SignalRegionData(_counters.at("SRHH-46"), 3, {1.78, 0.42}));
+            add_result(SignalRegionData(_counters.at("SRHH-47"), 5, {1.95, 0.39}));
+            add_result(SignalRegionData(_counters.at("SRHH-48"), 3, {1.23, 0.3}));
+            add_result(SignalRegionData(_counters.at("SRHH-49"), 0, {1.46, 0.31}));
+            add_result(SignalRegionData(_counters.at("SRHH-50"), 0, {0.74, 0.18}));
 
-            // Observed event counts
-            static const double OBSNUM_HL[NUMSRHL] = {
-                419, 100, 9.2, 15.0, 7.3, 4.1, 1.01, 300, 73, 2.30, 2.24, 12.8, 8.9, 4.5, 4.7, 2.3, 0.73, 54, 23.7, 0.59, 0.34, 5.2, 4.9, 0.97, 1.79, 1.01, 1.03, 1.33, 2.89, 2.24, 0.27, 0.79, 0.53, 6.3, 2.92, 0.51, 0.15, 1.07, 0.81, 1.54, 1.23
-            };
-            // Background estimates
-            static const double BKGNUM_HL[NUMSRHL] = {
-                100, 20, 2.4, 4.5, 1.5, 1.2, 0.28, 82, 17, 0.61, 0.87, 3.3, 2.3, 1.3, 1.6, 1.1, 0.29, 12, 4.9, 0.17, 0.20, 1.2, 1.4, 0.27, 0.74, 0.27, 0.44, 0.61, 0.99, 0.79, 0.30, 0.33, 0.13, 1.3, 0.87, 0.15, 0.07, 0.33, 0.47, 0.50, 0.53
-            };
-            // Background uncertainties
-            static const double BKGERR_HL[NUMSRHL] = {
-                442, 101, 6, 13, 14, 5, 0, 346, 95, 1, 1, 12, 8, 5, 4, 1, 1, 62, 24, 2, 1, 9, 6, 0, 0, 1, 1, 0, 3, 2, 1, 1, 0, 6, 3, 3, 0, 3, 0, 4, 1
-            };
-            for (size_t ibin = 0; ibin < NUMSRHL; ++ibin)
-            {
-                stringstream ss; ss << "SR-HL-" << ibin+1;
-                add_result(SignalRegionData(ss.str(), OBSNUM_HL[ibin], {_SRHL[ibin],  0.}, {BKGNUM_HL[ibin], BKGERR_HL[ibin]}));
-                #ifdef CHECK_CUTFLOW
-                cout << ss.str() << "\t" << _SRHL[ibin] << endl;
-                #endif
-            
-            }
+            // HL
+            add_result(SignalRegionData(_counters.at("SRHL-0"), 442, {419, 100}));
+            add_result(SignalRegionData(_counters.at("SRHL-1"), 101, {100, 20}));
+            add_result(SignalRegionData(_counters.at("SRHL-2"), 6, {9.2, 2.4}));
+            add_result(SignalRegionData(_counters.at("SRHL-3"), 13, {15.0, 4.5}));
+            add_result(SignalRegionData(_counters.at("SRHL-4"), 14, {7.3, 1.5}));
+            add_result(SignalRegionData(_counters.at("SRHL-5"), 5, {4.1, 1.2}));
+            add_result(SignalRegionData(_counters.at("SRHL-6"), 0, {1.01, 0.28}));
+            add_result(SignalRegionData(_counters.at("SRHL-7"), 346, {300, 82}));
+            add_result(SignalRegionData(_counters.at("SRHL-8"), 95, {73, 17}));
+            add_result(SignalRegionData(_counters.at("SRHL-9"), 1, {2.3, 0.61}));
+            add_result(SignalRegionData(_counters.at("SRHL-10"), 1, {2.24, 0.87}));
+            add_result(SignalRegionData(_counters.at("SRHL-11"), 12, {12.8, 3.3}));
+            add_result(SignalRegionData(_counters.at("SRHL-12"), 8, {8.9, 2.3}));
+            add_result(SignalRegionData(_counters.at("SRHL-13"), 5, {4.5, 1.3}));
+            add_result(SignalRegionData(_counters.at("SRHL-14"), 4, {4.7, 1.6}));
+            add_result(SignalRegionData(_counters.at("SRHL-15"), 1, {2.3, 1.1}));
+            add_result(SignalRegionData(_counters.at("SRHL-16"), 1, {0.73, 0.29}));
+            add_result(SignalRegionData(_counters.at("SRHL-17"), 62, {54, 12}));
+            add_result(SignalRegionData(_counters.at("SRHL-18"), 24, {23.7, 4.9}));
+            add_result(SignalRegionData(_counters.at("SRHL-19"), 2, {0.59, 0.17}));
+            add_result(SignalRegionData(_counters.at("SRHL-20"), 1, {0.34, 0.2}));
+            add_result(SignalRegionData(_counters.at("SRHL-21"), 9, {5.2, 1.2}));
+            add_result(SignalRegionData(_counters.at("SRHL-22"), 6, {4.9, 1.4}));
+            add_result(SignalRegionData(_counters.at("SRHL-23"), 0, {0.97, 0.27}));
+            add_result(SignalRegionData(_counters.at("SRHL-24"), 0, {1.79, 0.74}));
+            add_result(SignalRegionData(_counters.at("SRHL-25"), 1, {1.01, 0.27}));
+            add_result(SignalRegionData(_counters.at("SRHL-26"), 1, {1.03, 0.44}));
+            add_result(SignalRegionData(_counters.at("SRHL-27"), 0, {1.33, 0.61}));
+            add_result(SignalRegionData(_counters.at("SRHL-28"), 3, {2.89, 0.99}));
+            add_result(SignalRegionData(_counters.at("SRHL-29"), 2, {2.24, 0.79}));
+            add_result(SignalRegionData(_counters.at("SRHL-30"), 1, {0.27, 0.3}));
+            add_result(SignalRegionData(_counters.at("SRHL-31"), 1, {0.79, 0.33}));
+            add_result(SignalRegionData(_counters.at("SRHL-32"), 0, {0.53, 0.13}));
+            add_result(SignalRegionData(_counters.at("SRHL-33"), 6, {6.3, 1.3}));
+            add_result(SignalRegionData(_counters.at("SRHL-34"), 3, {2.92, 0.87}));
+            add_result(SignalRegionData(_counters.at("SRHL-35"), 3, {0.51, 0.15}));
+            add_result(SignalRegionData(_counters.at("SRHL-36"), 0, {0.15, 0.07}));
+            add_result(SignalRegionData(_counters.at("SRHL-37"), 3, {1.07, 0.33}));
+            add_result(SignalRegionData(_counters.at("SRHL-38"), 0, {0.81, 0.47}));
+            add_result(SignalRegionData(_counters.at("SRHL-39"), 4, {1.54, 0.5}));
+            add_result(SignalRegionData(_counters.at("SRHL-40"), 1, {1.23, 0.53}));
 
-            // Observed event counts
-            static const double OBSNUM_LL[NUMSRLL] = {
-                12.0, 1.88, 15.5, 1.42, 4.2, 0.84, 0.95, 0.09
-            };
-            // Background estimates
-            static const double BKGNUM_LL[NUMSRLL] = {
-                3.9, 0.62, 4.7, 0.69, 1.4, 0.48, 0.52, 0.07
-            };
-            // Background uncertainties
-            static const double BKGERR_LL[NUMSRLL] = {
-                12, 3, 17, 4, 5, 2, 0, 0
-            };
-            for (size_t ibin = 0; ibin < NUMSRLL; ++ibin)
-            {
-                stringstream ss; ss << "SR-LL-" << ibin+1;
-                add_result(SignalRegionData(ss.str(), OBSNUM_LL[ibin], {_SRLL[ibin],  0.}, {BKGNUM_LL[ibin], BKGERR_LL[ibin]}));
-                #ifdef CHECK_CUTFLOW
-                cout << ss.str() << "\t" << _SRLL[ibin] << endl;
-                #endif
-            }
+            // LL
+            add_result(SignalRegionData(_counters.at("SRLL-0"), 12, {12.0, 3.9}));
+            add_result(SignalRegionData(_counters.at("SRLL-1"), 3, {1.88, 0.62}));
+            add_result(SignalRegionData(_counters.at("SRLL-2"), 17, {15.5, 4.7}));
+            add_result(SignalRegionData(_counters.at("SRLL-3"), 4, {1.42, 0.69}));
+            add_result(SignalRegionData(_counters.at("SRLL-4"), 5, {4.2, 1.4}));
+            add_result(SignalRegionData(_counters.at("SRLL-5"), 2, {0.84, 0.48}));
+            add_result(SignalRegionData(_counters.at("SRLL-6"), 0, {0.95, 0.52}));
+            add_result(SignalRegionData(_counters.at("SRLL-7"), 0, {0.09, 0.07}));
 
             return;
         }
 
     protected:
       void analysis_specific_reset() {
-        for(size_t i=0;i<NUMSRHH;i++) { _SRHH[i]=0; }
-        for(size_t i=0;i<NUMSRHL;i++) { _SRHL[i]=0; }
-        for(size_t i=0;i<NUMSRLL;i++) { _SRLL[i]=0; }
-        
-        for(size_t i=0;i<NUMSRinc;i++) { _SRinc[i]=0; }
-        for(size_t i=0;i<NUMSRexc;i++) { _SRexc[i]=0; }
-        
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };
@@ -608,29 +754,24 @@ namespace Gambit {
       }
 
         virtual void collect_results() {
-                  
-            // Observed event counts
-            static const double OBSNUM_inc[NUMSRinc] = {
-                4.00, 3.63, 3.72, 3.32, 1.68, 3.82, 5.6, 5.8, 10.1, 15.2, 13.3, 3.6, 4.9, 7.3, 1.06
-            };
-            // Background estimates
-            static const double BKGNUM_inc[NUMSRinc] = {
-                0.79, 0.71, 0.83, 0.81, 0.44, 0.76, 1.1, 1.3, 2.7, 3.5, 3.4, 2.5, 2.9, 5.5, 0.99
-            };
-            // Background uncertainties
-            static const double BKGERR_inc[NUMSRinc] = {
-                10, 4, 4, 6, 2, 7, 10, 9, 9, 22, 17, 3, 10, 6, 0
-            };
-            for (size_t ibin = 0; ibin < NUMSRinc; ++ibin)
-            {
-                stringstream ss; ss << "InSR-" << ibin+1;
-                add_result(SignalRegionData(ss.str(), OBSNUM_inc[ibin], {_SRinc[ibin],  0.}, {BKGNUM_inc[ibin], BKGERR_inc[ibin]}));
-                #ifdef CHECK_CUTFLOW
-                cout << ss.str() << "\t" << _SRinc[ibin] << endl;
-                #endif
-            
-            }
-      
+
+            // inc
+            add_result(SignalRegionData(_counters.at("SRinc-0"), 10, {4.0, 0.79}));
+            add_result(SignalRegionData(_counters.at("SRinc-1"), 4, {3.63, 0.71}));
+            add_result(SignalRegionData(_counters.at("SRinc-2"), 4, {3.72, 0.83}));
+            add_result(SignalRegionData(_counters.at("SRinc-3"), 6, {3.32, 0.81}));
+            add_result(SignalRegionData(_counters.at("SRinc-4"), 2, {1.68, 0.44}));
+            add_result(SignalRegionData(_counters.at("SRinc-5"), 7, {3.82, 0.76}));
+            add_result(SignalRegionData(_counters.at("SRinc-6"), 10, {5.6, 1.1}));
+            add_result(SignalRegionData(_counters.at("SRinc-7"), 9, {5.8, 1.3}));
+            add_result(SignalRegionData(_counters.at("SRinc-8"), 9, {10.1, 2.7}));
+            add_result(SignalRegionData(_counters.at("SRinc-9"), 22, {15.2, 3.5}));
+            add_result(SignalRegionData(_counters.at("SRinc-10"), 17, {13.3, 3.4}));
+            add_result(SignalRegionData(_counters.at("SRinc-11"), 3, {3.6, 2.5}));
+            add_result(SignalRegionData(_counters.at("SRinc-12"), 10, {4.9, 2.9}));
+            add_result(SignalRegionData(_counters.at("SRinc-13"), 6, {7.3, 5.5}));
+            add_result(SignalRegionData(_counters.at("SRinc-14"), 0, {1.06, 0.99}));
+
         }
 
     };
@@ -649,28 +790,23 @@ namespace Gambit {
       }
 
         virtual void collect_results() {
-                  
-            // Observed event counts
-            static const double OBSNUM_exc[NUMSRexc] = {
-                700, 11.0, 477, 8.4, 137, 4.9, 11.6, 0.8, 25.7, 10.1, 1070, 1.33, 9.9, 4.7, 37
-            };
-            // Background estimates
-            static const double BKGNUM_exc[NUMSRexc] = {
-                130, 2.2, 120, 3.5, 25, 1.2, 3.1, 0.24, 5.4, 2.2, 250, 0.46, 2.5, 1.8, 12
-            };
-            // Background uncertainties
-            static const double BKGERR_exc[NUMSRexc] = {
-                685, 11, 482, 8, 152, 8, 10, 3, 31, 14, 1167, 1, 12, 8, 43
-            };
-            for (size_t ibin = 0; ibin < NUMSRexc; ++ibin)
-            {
-                stringstream ss; ss << "ExSR-" << ibin+1;
-                add_result(SignalRegionData(ss.str(), OBSNUM_exc[ibin], {_SRexc[ibin],  0.}, {BKGNUM_exc[ibin], BKGERR_exc[ibin]}));
-                #ifdef CHECK_CUTFLOW
-                cout << ss.str() << "\t" << _SRexc[ibin] << endl;
-                #endif
-            
-            }
+
+            // exc
+            add_result(SignalRegionData(_counters.at("SRexc-0"), 685, {700, 130}));
+            add_result(SignalRegionData(_counters.at("SRexc-1"), 11, {11.0, 2.2}));
+            add_result(SignalRegionData(_counters.at("SRexc-2"), 482, {477, 120}));
+            add_result(SignalRegionData(_counters.at("SRexc-3"), 8, {8.4, 3.5}));
+            add_result(SignalRegionData(_counters.at("SRexc-4"), 152, {137, 25}));
+            add_result(SignalRegionData(_counters.at("SRexc-5"), 8, {4.9, 1.2}));
+            add_result(SignalRegionData(_counters.at("SRexc-6"), 10, {11.6, 3.1}));
+            add_result(SignalRegionData(_counters.at("SRexc-7"), 3, {0.8, 0.24}));
+            add_result(SignalRegionData(_counters.at("SRexc-8"), 31, {25.7, 5.4}));
+            add_result(SignalRegionData(_counters.at("SRexc-9"), 14, {10.1, 2.2}));
+            add_result(SignalRegionData(_counters.at("SRexc-10"), 1167, {1070, 250}));
+            add_result(SignalRegionData(_counters.at("SRexc-11"), 1, {1.33, 0.46}));
+            add_result(SignalRegionData(_counters.at("SRexc-12"), 12, {9.9, 2.5}));
+            add_result(SignalRegionData(_counters.at("SRexc-13"), 8, {4.7, 1.8}));
+            add_result(SignalRegionData(_counters.at("SRexc-14"), 43, {37, 12}));
 
             static const vector< vector<double> > BKGCOV = {
                 {17559.1, 111.4, 13059.1, 136.0, 1982.8, 34.0, 187.1, 14.8, 260.9, 80.2, 26183.7, 21.0, 134.9, 78.2, 987.5},
@@ -691,7 +827,7 @@ namespace Gambit {
             };
 
             set_covariance(BKGCOV);
-      
+
         }
 
     };

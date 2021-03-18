@@ -15,6 +15,10 @@
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2017 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Dec
+///
 ///  *********************************************
 
 #include "gambit/Printers/baseprinter.hpp"
@@ -23,6 +27,7 @@
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer/DataSetInterfaceScalar.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 #include <boost/preprocessor/seq/for_each_i.hpp>
 

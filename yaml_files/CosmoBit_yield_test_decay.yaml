@@ -1,0 +1,200 @@
+##########################################################################
+##
+##
+##      Test gamma, positron and electrons for CosmoBit
+##
+##
+##########################################################################
+
+
+Parameters:
+  LCDM:
+    omega_b:
+      prior_type: flat
+      range: [0.020,0.024]
+    omega_cdm:
+      prior_type: flat
+      range: [0.10,0.13]
+    H0:
+      prior_type: flat
+      range: [62,74]
+    tau_reio:
+      prior_type: flat
+      range: [0.004,0.20]
+    T_cmb:
+      fixed_value: 2.72548
+
+  Minimal_PowerLaw_ps:
+    ln10A_s:
+      prior_type: flat
+      range: [2.9,3.2]
+    n_s:
+      prior_type: flat
+      range: [0.9,1.10]
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
+
+  DecayingDM_mixture:
+    mass:                   # (mass in Gev)
+      range: [1e1, 1e4]
+      prior_type: log
+    BR_el:
+      range: [0.0, 1.0]
+    BR_ph:
+      same_as: DecayingDM_mixture::BR_el
+      shift: 1.0
+      scale: -1.0
+    lifetime:               # (lifetime in s)
+      range: [1e14, 1e18]
+      prior_type: log
+    fraction:               # (initial fractional decaying dark matter abundance)
+      range: [1e-12, 1e-6]
+      prior_type: log
+
+  cosmo_nuisance_Planck_lite: !import include/Planck_2018/cosmo_nuisance_Planck_lite_flat.yaml
+
+  cosmo_nuisance_Pantheon:
+    M:
+      prior_type: flat
+      range: [-20,-18]
+
+Priors:
+
+Printer:
+
+  printer: cout
+
+  #printer: ascii
+  #options:
+  #  output_file: "gambit_output.data"
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   BBN_LogLike
+    sub_capabilities: [He4, D]
+
+  - purpose:      Observable
+    capability:   BBN_abundances
+
+  - purpose:      LogLike
+    capability:   Planck_nuisance_prior_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_highl_loglike
+    function:     function_Planck_highl_TTTEEE_lite_2018_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_lensing_loglike
+    function:     function_Planck_lensing_2018_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_lowl_loglike
+    function:     function_Planck_lowl_TTEE_2018_loglike
+
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    sub_capabilities:
+      - bao_smallz_2014
+      - bao_boss_dr12
+      - Pantheon
+
+  - purpose:          Observable
+    capability:       MP_LogLikes
+    type:             map_str_dbl
+
+  - purpose:          Observable
+    capability:       f_eff
+    type:             double
+
+Rules:
+
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  - capability: BBN_abundances
+    options:
+      isotope_basis: [Yp, D, He3, Be7, Li7]
+      correlation_matrix: [[+1.000e00, +1.524e-2, +2.667e-2, +2.303e-2, +2.429e-2],
+                           [+1.524e-2, +1.000e00, -8.160e-1, -3.775e-1, -3.653e-1],
+                           [+2.667e-2, -8.160e-1, +1.000e00, +3.897e-1, +3.780e-1],
+                           [+2.303e-2, -3.775e-1, +3.897e-1, +1.000e00, +9.974e-1],
+                           [+2.429e-2, -3.653e-1, +3.780e-1, +9.974e-1, +1.000e00]]
+      relative_errors: [1.348e-3, 1.596e-2, 1.618e-2, 6.788e-2, 6.579e-2]
+
+  - capability: DarkAges_1_2_0_init
+    options:
+      f_eff_mode: true
+      print_table: false
+
+  - capability: f_eff
+    #function: f_eff_at_z # (This is still experimental for decaying dark matter)
+    function: f_eff_constant
+
+  - capability: energy_injection_spectrum
+    function:   energy_injection_spectrum_ProcessCatalog
+
+  - capability: classy_parameters_EnergyInjection
+    function: set_classy_parameters_EnergyInjection_DecayingDM
+    #function: set_classy_parameters_EnergyInjection_DecayingDM_onSpot
+
+  - capability: GA_Yield
+    function: GA_DecayYield_General
+
+  - capability: GA_SimYieldTable
+    #function: GA_SimYieldTable_DarkSUSY
+    function: GA_SimYieldTable_PPPC
+    #function: GA_SimYieldTable_empty
+
+  - capability: electron_Yield
+    function: electron_DecayYield_General
+
+  - capability: electron_SimYieldTable
+    function: electron_SimYieldTable_from_positron_SimYieldTable
+
+  - capability: positron_Yield
+    function: positron_DecayYield_General
+
+  - capability: positron_SimYieldTable
+    #function: positron_SimYieldTable_DarkSUSY
+    function: positron_SimYieldTable_PPPC
+    #function: positron_SimYieldTable_empty
+
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_empty
+
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_empty
+
+  - capability: classy_MPLike_input
+    function: set_classy_input_with_MPLike
+
+#======== Logging setup ========
+Logger:
+  redirection:
+    [Debug]        : "debug.log"
+    [Default]      : "default.log"
+
+#======== Generic Name/Value Section ========
+KeyValues:
+
+  debug: true
+
+  default_output_path: "runs/CosmoBit_yield_test_decay"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e30

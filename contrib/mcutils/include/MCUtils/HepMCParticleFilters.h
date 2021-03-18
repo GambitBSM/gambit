@@ -12,7 +12,7 @@
 #error "This library needs at least a C++11 compliant compiler: are you using -std=c++11?"
 #endif
 
-#include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 
 #include "HEPUtils/Utils.h"
 #include "HEPUtils/Vectors.h"
@@ -28,9 +28,9 @@ namespace MCUtils {
   template <typename FN>
   inline GenParticlesC& filter_keep(GenParticlesC& particles, FN fkeep) {
     // Reimplementation of std::remove_if with inverted predicate logic
-    std::vector<const HepMC::GenParticle*>::iterator itr = particles.begin();
-    std::vector<const HepMC::GenParticle*>::iterator last = particles.end();
-    std::vector<const HepMC::GenParticle*>::iterator newend = itr;
+    std::vector<const HepMC3::GenParticle*>::iterator itr = particles.begin();
+    std::vector<const HepMC3::GenParticle*>::iterator last = particles.end();
+    std::vector<const HepMC3::GenParticle*>::iterator newend = itr;
     for ( ; itr != last; ++itr)
       if (fkeep(*itr)) *newend++ = *itr;
     particles.resize(newend - particles.begin());
@@ -42,9 +42,9 @@ namespace MCUtils {
   template <typename FN>
   inline GenParticlesC& filter_remove(GenParticlesC& particles, FN fremove) {
     // Reimplementation of std::remove_if, for equivalence to filter_keep
-    std::vector<const HepMC::GenParticle*>::iterator itr = particles.begin();
-    std::vector<const HepMC::GenParticle*>::iterator last = particles.end();
-    std::vector<const HepMC::GenParticle*>::iterator newend = itr;
+    std::vector<const HepMC3::GenParticle*>::iterator itr = particles.begin();
+    std::vector<const HepMC3::GenParticle*>::iterator last = particles.end();
+    std::vector<const HepMC3::GenParticle*>::iterator newend = itr;
     for ( ; itr != last; ++itr)
       if (!fremove(*itr)) *newend++ = *itr;
     particles.resize(newend - particles.begin());

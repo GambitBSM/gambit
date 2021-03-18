@@ -1,9 +1,9 @@
 #ifndef __wrapper_LHdecayTable_def_Pythia_8_212_h__
 #define __wrapper_LHdecayTable_def_Pythia_8_212_h__
 
-#include "wrapper_LHdecayChannel_decl.h"
 #include <vector>
 #include <string>
+#include "wrapper_LHdecayChannel_decl.h"
 
 #include "identification.hpp"
 
@@ -81,21 +81,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::LHdecayTable::LHdecayTable() :
+        inline LHdecayTable::LHdecayTable() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::LHdecayTable::LHdecayTable(int idIn) :
+        inline LHdecayTable::LHdecayTable(int idIn) :
             WrapperBase(__factory1(idIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::LHdecayTable::LHdecayTable(int idIn, double widthIn) :
+        inline LHdecayTable::LHdecayTable(int idIn, double widthIn) :
             WrapperBase(__factory2(idIn, widthIn))
         {
             get_BEptr()->set_wptr(this);
@@ -103,7 +103,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::LHdecayTable::LHdecayTable(Pythia8::Abstract_LHdecayTable* in) :
+        inline LHdecayTable::LHdecayTable(Abstract_LHdecayTable* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -111,7 +111,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::LHdecayTable::LHdecayTable(const LHdecayTable& in) :
+        inline LHdecayTable::LHdecayTable(const LHdecayTable& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -119,7 +119,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::LHdecayTable& LHdecayTable::operator=(const LHdecayTable& in)
+        inline LHdecayTable& LHdecayTable::operator=(const LHdecayTable& in)
         {
             if (this != &in)
             {
@@ -130,7 +130,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::LHdecayTable::~LHdecayTable()
+        inline LHdecayTable::~LHdecayTable()
         {
             if (get_BEptr() != 0)
             {
@@ -145,9 +145,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_LHdecayTable* Pythia8::LHdecayTable::get_BEptr() const
+        inline Abstract_LHdecayTable* Pythia8::LHdecayTable::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_LHdecayTable*>(BEptr);
+            return dynamic_cast<Abstract_LHdecayTable*>(BEptr);
         }
     }
     

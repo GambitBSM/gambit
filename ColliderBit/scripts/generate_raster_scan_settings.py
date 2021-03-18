@@ -72,7 +72,7 @@ for i in range(len(m2)):
 
 
 # Format parameter lists for output
-model_name= "CB_SLHA_simpmod_scan_model"
+model_name= "ColliderBit_SLHA_scan_model"
 
 m1_str = "\"" + model_name + "::m1\"" + ": ["
 for x in m1_raster:

@@ -962,7 +962,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Info::Info() :
+        inline Info::Info() :
             WrapperBase(__factory0()),
             LHEFversionSave( get_BEptr()->LHEFversionSave_ref__BOSS()),
             sigmaLHEFSave( get_BEptr()->sigmaLHEFSave_ref__BOSS()),
@@ -975,7 +975,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Info::Info(Pythia8::Abstract_Info* in) :
+        inline Info::Info(Abstract_Info* in) :
             WrapperBase(in),
             LHEFversionSave( get_BEptr()->LHEFversionSave_ref__BOSS()),
             sigmaLHEFSave( get_BEptr()->sigmaLHEFSave_ref__BOSS()),
@@ -988,7 +988,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Info::Info(const Info& in) :
+        inline Info::Info(const Info& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             LHEFversionSave( get_BEptr()->LHEFversionSave_ref__BOSS()),
             sigmaLHEFSave( get_BEptr()->sigmaLHEFSave_ref__BOSS()),
@@ -1001,7 +1001,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Info& Info::operator=(const Info& in)
+        inline Info& Info::operator=(const Info& in)
         {
             if (this != &in)
             {
@@ -1012,7 +1012,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Info::~Info()
+        inline Info::~Info()
         {
             if (get_BEptr() != 0)
             {
@@ -1027,9 +1027,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Info* Pythia8::Info::get_BEptr() const
+        inline Abstract_Info* Pythia8::Info::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Info*>(BEptr);
+            return dynamic_cast<Abstract_Info*>(BEptr);
         }
     }
     

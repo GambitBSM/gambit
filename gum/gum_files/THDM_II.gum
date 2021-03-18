@@ -1,14 +1,18 @@
-## Minimal .gum (YAML) file for the NMSSM model in GUM
+## Minimal .gum (YAML) file for the THDM-II model in GUM
 
 math:
   # Name of Mathematica package, either 'feynrules' or 'sarah'
   package: sarah
   # Name of Model within that package. This will also be the name of the GAMBIT model.
   model: THDM-II
-  #base_model: SM
-  #lagrangian: LSM + LU1 + LR2 + LS3
+  lagrangian: LTotal
 
 # Outputs for GUM to hook up to GAMBIT
 output:
   spheno: true
-  #vevacious: true
+  vevacious: true
+
+# Options for outputs
+output_options:
+  spheno:
+    IncludeLoopDecays: false

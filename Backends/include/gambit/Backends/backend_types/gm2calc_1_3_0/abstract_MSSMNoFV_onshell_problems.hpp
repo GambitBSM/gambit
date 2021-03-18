@@ -1,14 +1,14 @@
 #ifndef __abstract_MSSMNoFV_onshell_problems_gm2calc_1_3_0_hpp__
 #define __abstract_MSSMNoFV_onshell_problems_gm2calc_1_3_0_hpp__
 
-#include "gambit/Backends/abstractbase.hpp"
-#include "forward_decls_abstract_classes.hpp"
-#include "forward_decls_wrapper_classes.hpp"
+#include <cstddef>
+#include <iostream>
 #include <string>
 #include <ostream>
 #include <vector>
-#include <cstddef>
-#include <iostream>
+#include "gambit/Backends/abstractbase.hpp"
+#include "forward_decls_abstract_classes.hpp"
+#include "forward_decls_wrapper_classes.hpp"
 
 #include "identification.hpp"
 

@@ -1,15 +1,32 @@
-"""
-Master module for all DecayBit related routines.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Master module for all DecayBit-related 
+#  routines.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018 Apr, Nov
+#        2019 Mar, Jul, Oct, Nov
+#        2020 Feb, Apr, Jul
+#
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Mar
+#
+#  **************************************
 
 import numpy as np
 import re
 from collections import Counter
+from collections import defaultdict
 
-from setup import *
-from files import *
-from cmake_variables import *
-
+from .setup import *
+from .files import *
+from .cmake_variables import *
 
 """
 CALCHEP-ONLY ROUTINES
@@ -27,12 +44,13 @@ def find_decay_type(vertex):
 
     # Case 2. A-> B, B process. Return the array in the order for 1->2 process.
     elif len(Counter(vertex).values()) == 2:
-        if Counter(vertex).values()[0] == 1:
+        if list(Counter(vertex).values())[0] == 1:
             return vertex, "ABB"
-        elif Counter(vertex).values()[0] == 2:
-            return [Counter(vertex).keys()[1],
-                    Counter(vertex).keys()[0],
-                    Counter(vertex).keys()[0]], "ABB"
+        elif list(Counter(vertex).values())[0] == 2:
+            return [list(Counter(vertex).keys())[1],
+                    list(Counter(vertex).keys())[0],
+                    list(Counter(vertex).keys())[0]], "ABB"
+
 
     # Case 3. A -> B, C process.
     elif len(Counter(vertex).values()) == 3:
@@ -134,21 +152,45 @@ def decay_sorter(three_diagrams, aux_particles, antiparticle_dict):
         if decaytype == "AAA":
             pass
         else:
-
             decays.append([vertex, decaytype])
 
     return decay_grouper(decays, antiparticle_dict)
 
+def ch_decays_to_dict(three_decays):
+    """
+    Recast the CalcHEP decays to the same dictionary format as those from
+    SPheno, so they can be used by other backends (e.g. Pythia) and other
+    writing routines (such as for decaying DM).
+
+    This is just a dictionary:
+
+    decays = {
+               pdg_code : [products_1], [products_2], [products_3]
+             }
+    """
+
+    decays = defaultdict(list)
+
+    for entry in three_decays:
+        key = entry[0]
+        products = entry[1]
+
+        for product in products:
+            decays[key].append(product)
+
+    return decays
+
+
 def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
                                    calchep_pdg_codes, gambit_pdg_codes,
-                                   decaybit_dict):
+                                   decaybit_dict, calchep_processes):
     """
     Writes a DecayBit DecayTable::Entry module function for a given set of
     of particle decays.
     Here, grouped_decays is a list, where:
       1. The first element is the decaying particle.
       2. The remaining entries are pairs of decay products.
-      e.g. grouped_decays = [h, [tau+, tau-], [b, bbar], [t, tbar]]
+      e.g. grouped_decays = [h, [  [tau+, tau-], [b, bbar], [t, tbar] ]]
     """
 
     # Find the name of the particle as in DecayBit_rollcall.hpp
@@ -170,12 +212,12 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
     elif decayparticle == "W_minus":
         return ""
 
-    function_name = "CH_{0}_{1}_decays".format(gambit_model_name, decayparticle)
+    function_name = "CH_{0}_{1}_decays".format(gambit_model_name, decayparticle).replace('~','bar')
     spectrum = gambit_model_name + "_spectrum"
 
-
-    # definitely a nicer way to do this, but, this will do for now. should make it
-    # a bit easier to add 3 body final states (should be overloaded as a backend func)
+    # Definitely a nicer way to do this, but, this will do for now. 
+    # Should make it a bit easier to add 3 body final states.
+    # (Overloaded as a backend function?)
     products = np.array(grouped_decays[1])
 
     c_name = []
@@ -184,11 +226,16 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
         c_name.append(map(lambda x:pdg_to_particle(x, calchep_pdg_codes),products[i]))
         g_name.append(map(lambda x:pdg_to_particle(x, gambit_pdg_codes), products[i]))
 
+    out1c = np.array([pdg_to_particle(x, calchep_pdg_codes) for x in products[:,0]])
+    out2c = np.array([pdg_to_particle(x, calchep_pdg_codes) for x in products[:,1]])
+
     c_strings = []
     g_strings = []
     for i in np.arange(len(c_name)):
         c_strings.append("{{{}}}".format(', '.join("\"{0}\"".format(x) for x in c_name[i])))
         g_strings.append("{{{}}}".format(', '.join("\"{0}\"".format(y) for y in g_name[i])))
+
+    calchep_processes['decays'][chep_name].append([list(i) for i in zip(out1c, out2c)])
 
     towrite = (
             "void {0}(DecayTable::Entry& result)\n"
@@ -198,7 +245,6 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
             "result = DecayTable::Entry();\n"
             "\n"
             "const Spectrum& spec = *Dep::{1};\n"
-            "double QCD_coupling = spec.get(Par::dimensionless, \"g3\");\n"
             "\n"
     ).format(function_name, spectrum)
 
@@ -217,7 +263,7 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
             "{{\n"
             "\n"
             "double gamma = BEreq::CH_Decay_Width(model, in, "
-            "out_calchep[i], QCD_coupling); // Partial width\n"
+            "out_calchep[i]); // Partial width\n"
             "double newwidth = result.width_in_GeV + gamma;  "
             "// Adjust total width\n"
             "double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV"
@@ -253,7 +299,8 @@ def write_decaytable_entry_calchep(grouped_decays, gambit_model_name,
     return indent(towrite, 4)
 
 def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays, 
-                                          decaybit_dict, gambit_dict):
+                                          decaybit_dict, gambit_dict,
+                                          cap_def = {}):
     """
     Returns amendments for the  new rollcall entries for DecayBit as a 
     numpy array. The format of the array is:
@@ -266,7 +313,7 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
     rollcall_entries = []
     new_decays = []
      
-    for i in xrange(len(newdecays)):
+    for i in range(len(newdecays)):
         decayparticle = newdecays[i][0]
         # TODO: support for BSM contribution to Z/W decays
         if decayparticle in [24, -24, 23]:
@@ -278,10 +325,10 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
             pass
         else:
             continue
-        cap = "{0}_decay_rates".format(gb_name)
+        cap = "{0}_decay_rates".format(gb_name).replace('~','bar')
         func = "CH_{0}_{1}_decays".format(model_name, 
                                           pdg_to_particle(decayparticle, 
-                                                          decaybit_dict)
+                                                          decaybit_dict).replace('~','bar')
                                           )
         # If the capability already exists, see if the function already exists, 
         # only need to write the function
@@ -295,12 +342,11 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
             else:
                 extra = ""
             towrite = (
-                    "\n"
                     "    #define FUNCTION {0}\n"
                     "    START_FUNCTION(DecayTable::Entry)\n"
                     "    DEPENDENCY({1}, Spectrum)\n{2}"
                     "    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, "
-                    "std::vector<str>&, double&))\n"
+                    "std::vector<str>&))\n"
                     "    ALLOW_MODELS({3})\n"
                     "    #undef FUNCTION\n"
             ).format(func, spectrum, extra, model_name)
@@ -309,7 +355,6 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
         # well as the function
         elif not find_capability(cap, "DecayBit")[0]:
             towrite = (
-                    "\n"
                     "  #define CAPABILITY {0}\n"
                     "  START_CAPABILITY\n"
                     "\n"
@@ -317,7 +362,7 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
                     "    START_FUNCTION(DecayTable::Entry)\n"
                     "    DEPENDENCY({2}, Spectrum)\n"
                     "    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, "
-                    "std::vector<str>&, double&))\n"
+                    "std::vector<str>&))\n"
                     "    ALLOW_MODELS({3})\n"
                     "    #undef FUNCTION\n"
                     "\n"
@@ -327,6 +372,8 @@ def write_decaybit_rollcall_entry_calchep(model_name, spectrum, newdecays,
             gb_name = pdg_to_particle(decayparticle, gambit_dict)
             new_decays.append([cap, gb_name])
 
+            # Add capability definition
+            cap_def[cap] = 'All decay rates for particle ' + gb_name + '.'
 
     return rollcall_entries, new_decays
 
@@ -340,7 +387,7 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
     header = ""
     src_extra = ""
     
-    for i in xrange(len(new_decays)):
+    for i in range(len(new_decays)):
         src_extra += (
                   "decays(\"{0}\") = *Dep::{1};\n"
         ).format(new_decays[i][1], new_decays[i][0])
@@ -359,7 +406,7 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
             "}}\n"
         ).format(model_name, src_extra), 6)
     
-    for i in xrange(len(new_decays)):
+    for i in range(len(new_decays)):
         header += (
                "\n    MODEL_CONDITIONAL_DEPENDENCY({0}, DecayTable::Entry, {1})"
         ).format(new_decays[i][0], model_name)
@@ -374,13 +421,14 @@ def amend_all_decays_calchep(model_name, spectrum, new_decays):
 SPHENO
 """
 
-def write_spheno_decay_entry(model_name):
+def write_spheno_decay_entry(model_name, clean_model_name):
     """
     Writes a DecayBit entry for SPheno decays.
     """
 
     towrite_src = (
-        "/// Get all the decays from SPheno\n"
+        "\n"
+        "/// Get all the decays from SPheno (for the {0} model).\n"
         "void all_{0}_decays_from_SPheno(DecayTable& decays)\n"
         "{{\n"
         "namespace myPipe = Pipes::all_{0}_decays_from_SPheno;\n"
@@ -394,42 +442,38 @@ def write_spheno_decay_entry(model_name):
         "inputs.options = myPipe::runOptions;\n"
         "\n"
         "// Use SPheno to fill the decay table\n"
-        "myPipe::BEreq::{0}_decays(spectrum, decays, inputs);\n"
+        "myPipe::BEreq::SARAHSPheno_{0}_decays(spectrum, decays, inputs);\n"
         "\n"
         "// Add some SM decays\n"
         "decays(\"Z0\") = *myPipe::Dep::Z_decay_rates;           // Add the Z decays\n"
         "decays(\"W+\") = *myPipe::Dep::W_plus_decay_rates;      // Add the W decays for W+.\n"
         "decays(\"W-\") = *myPipe::Dep::W_minus_decay_rates;     // Add the W decays for W-\n"
         "\n"
-        "/// Spit out the full decay table as SLHA1 and SLHA2 files.\n"
-        "/// @todo Get the mass eigenstate pseudonyms working for {0} as well. Need it for SLHA1 decays\n"
+        "/// Spit out the full decay table as an SLHA2 file.\n"
+        "/// We do not provide SLHA1 as that requires knowledge of the pseudonyms, which we do not have in general.\n"
         "if (myPipe::runOptions->getValueOrDef<bool>(false, \"drop_SLHA_file\"))\n"
         "{{\n"
         "str prefix   = myPipe::runOptions->getValueOrDef<str>(\"\", \"SLHA_output_prefix\");\n"
         "str filename = myPipe::runOptions->getValueOrDef<str>(\"GAMBIT_decays\", \"SLHA_output_filename\");\n"
-        "// decays.writeSLHAfile(1,prefix+filename+\".slha1\",false,psn);\n"
-        "// decays.writeSLHAfile(2,prefix+filename+\".slha2\",false,psn);\n"
-        "// decays.writeSLHAfile(1,prefix+filename+\".slha1\",false);\n"
         "decays.writeSLHAfile(2,prefix+filename+\".slha2\",false);\n"
         "}}\n"
         "\n"
-        "}}\n"
+        "}}\n\n"
     ).format(model_name)
 
     towrite_header = (
-                   "\n"
                    "#define FUNCTION all_{0}_decays_from_SPheno\n"
                    "START_FUNCTION(DecayTable)\n"
                    "DEPENDENCY(W_minus_decay_rates, DecayTable::Entry)\n"
                    "DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)\n"
                    "DEPENDENCY(Z_decay_rates, DecayTable::Entry)\n"
                    "DEPENDENCY({0}_spectrum, Spectrum)\n"
-                   "BACKEND_REQ({0}_decays, (libSPheno{0}), int, "
+                   "BACKEND_REQ(SARAHSPheno_{0}_decays, (libSPheno{2}), int, "
                    "(const Spectrum&, DecayTable&, const Finputs&) )\n"
-                   "BACKEND_OPTION((SARAHSPheno_{0}, {1}), (libSPheno{0}))\n"
+                   "BACKEND_OPTION((SARAHSPheno_{0}, {1}), (libSPheno{2}))\n"
                    "ALLOW_MODELS({0})\n"
                    "#undef FUNCTION\n"
                    "\n"
-    ).format(model_name, SPHENO_VERSION)
+    ).format(model_name, SPHENO_VERSION, clean_model_name)
 
-    return indent(towrite_src), dumb_indent(4, towrite_header)
+    return dumb_indent(4, indent(towrite_src)), dumb_indent(4, towrite_header)

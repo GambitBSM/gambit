@@ -1,6 +1,20 @@
-"""
-Master module for all CalcHEP related routines.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Master module for all CalcHEP related routines.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018, 2019, 2020
+#
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020
+#
+#  **************************************
 
 import argparse
 import os
@@ -9,8 +23,8 @@ import re
 import datetime
 import numpy as np
 
-from setup import *
-from files import *
+from .setup import *
+from .files import *
 
 def clean(line):
     """
@@ -21,7 +35,7 @@ def clean(line):
     return line.replace(line.split('|')[1], "1\n")
 
 
-def clean_calchep_model_files(model_folder, model_name):
+def clean_calchep_model_files(model_folder, model_name, output_dir):
     """
     Makes CalcHEP .mdl files GAMBIT-friendly, and moves them to the
     CalcHEP backend folder.
@@ -131,21 +145,16 @@ def clean_calchep_model_files(model_folder, model_name):
 
             ## /(if slhaVal in line)
 
-            # W mass - since CalcHEP uses tree-level relation to MZ, GF
-            # & alphainv. GAMBIT uses measured value.
+            # W mass - CalcHEP uses tree-level relation to MZ, GF & alphainv
+            # We set this to use GAMBIT's value, which is the measured MW mass.
 
             elif re.match("MWp", first_entry) or re.match("MWm", first_entry):
                 temp.write(clean(line))
 
             # Weinberg angle - again, CalcHEP uses tree-level relation.
-            # (Same definition as GAMBIT, but for different MW...? Weirdly.)
+            # We use GABMIT's value again
             elif re.match("TW", first_entry):
                 temp.write(clean(line))
-
-            # This is ok I think.
-            # # Only want g3 of the SM coupling constants.
-            # elif re.match("g3", first_entry):
-            #     temp.write(clean(line))
 
             # If no criteria has been matched - go ahead. For example,
             # vertices & variables defined internally, e.g. Higgs self coupling
@@ -183,7 +192,7 @@ def clean_calchep_model_files(model_folder, model_name):
             f.close()
 
         # Copy CalcHEP files to the correct directories
-        copy_calchep_files(model_folder, model_name)
+        copy_calchep_files(model_folder, model_name, output_dir)
 
         print("CalcHEP model files cleaned!")
         
@@ -209,7 +218,7 @@ def convert(vertex, PDG_conversion):
     Swaps field names for PDG codes for a vertex (list object).
     """
 
-    for particleName, PDGcode in PDG_conversion.iteritems():
+    for particleName, PDGcode in iteritems(PDG_conversion):
         for i in range(0, len(vertex)):
             if vertex[i] == particleName:
                 vertex[i] = PDGcode
@@ -239,7 +248,7 @@ def get_vertices(foldername):
         with open(foldername + "/prtcls1.mdl") as prtcls:
 
             # Trim the unuseful information such as model name etc. from the beginning
-            for i in xrange(3):
+            for i in range(3):
                 next(prtcls)
 
             for line in prtcls:
@@ -285,7 +294,7 @@ def get_vertices(foldername):
         with open(foldername + "/lgrng1.mdl") as lgrng:
 
             # Trim the model etc. from the beginning
-            for i in xrange(3):
+            for i in range(3):
                 next(lgrng)
 
             # Read in line-by-line.
@@ -330,41 +339,32 @@ def get_vertices(foldername):
         raise GumError(("\n\nERROR: CalcHEP Model folder " 
                                         + foldername + " not found."))
                     
-def copy_calchep_files(model_folder, model_name):
+def copy_calchep_files(model_folder, model_name, output_dir):
     """
-    Copies all CalcHEP files into the GAMBIT Backends directory.
+    Copies all CalcHEP files into the GAMBIT Backend patches directory.
     """
     
     model_name.strip('/')    
     model_folder.strip('/')    
 
-    gb_target = "./../Backends/installed/calchep/3.6.27/models/" + model_name
-    if not os.path.exists(gb_target):
-        os.makedirs(gb_target)
-        
-    shutil.copyfile(model_folder + "/func1.mdl", gb_target + "/func1.mdl")
-    shutil.copyfile(model_folder + "/vars1.mdl", gb_target + "/vars1.mdl")
-    shutil.copyfile(model_folder + "/lgrng1.mdl", gb_target + "/lgrng1.mdl")
-    shutil.copyfile(model_folder + "/prtcls1.mdl", gb_target + "/prtcls1.mdl")
-    shutil.copyfile(model_folder + "/extlib1.mdl", gb_target + "/extlib1.mdl")
+    out_target = output_dir + "/Backends/patches/calchep/3.6.27/Models/" + model_name
+    mkdir_if_absent(out_target)
 
-    # Also move them to patches, just in case the user does make nuke-calchep
-    gb_target = "./../Backends/patches/calchep/3.6.27/Models/" + model_name
-    if not os.path.exists(gb_target):
-        os.makedirs(gb_target)
-
-    shutil.copyfile(model_folder + "/func1.mdl", gb_target + "/func1.mdl")
-    shutil.copyfile(model_folder + "/vars1.mdl", gb_target + "/vars1.mdl")
-    shutil.copyfile(model_folder + "/lgrng1.mdl", gb_target + "/lgrng1.mdl")
-    shutil.copyfile(model_folder + "/prtcls1.mdl", gb_target + "/prtcls1.mdl")
-    shutil.copyfile(model_folder + "/extlib1.mdl", gb_target + "/extlib1.mdl")
+    shutil.copyfile(model_folder + "/func1.mdl", out_target + "/func1.mdl")
+    shutil.copyfile(model_folder + "/vars1.mdl", out_target + "/vars1.mdl")
+    shutil.copyfile(model_folder + "/lgrng1.mdl", out_target + "/lgrng1.mdl")
+    shutil.copyfile(model_folder + "/prtcls1.mdl", out_target + "/prtcls1.mdl")
+    shutil.copyfile(model_folder + "/extlib1.mdl", out_target + "/extlib1.mdl")
     
-    print("CalcHEP files moved to GAMBIT Backends directory.")
+    print("CalcHEP files moved to Backends directory.")
     
-def add_calchep_switch(model_name, spectrum):
+def add_calchep_switch(model_name, spectrum, calchep_processes):
     """
     Adds an 'if ModelInUse()' switch to the CalcHEP frontend to make GAMBIT
     point to the correct CalcHEP files.
+
+    Also adds the matrix elements to the ini step so we can generate codelets
+    only with rank 0; so that there are no clashes when running CalcHEP.
     """
 
     # Scan-level
@@ -375,8 +375,10 @@ def add_calchep_switch(model_name, spectrum):
         "path = BEpath.c_str();\n"
         "modeltoset = (char*)malloc(strlen(path)+11);\n"
         "sprintf(modeltoset, \"%s\", path);\n"
+        "{1}"
+        "model = \"{0}\";\n"
         "}}\n\n"
-    ).format(model_name))
+    ).format(model_name, save_CH_matrix_elements(calchep_processes)))
 
     # Point-level
     src_pl = dumb_indent(2, (
@@ -393,9 +395,47 @@ def add_calchep_switch(model_name, spectrum):
            "}}\n\n"
     ).format(model_name, spectrum))
 
-    # to do -- also ALLOW_MODEL()
     header = (
            "BE_INI_CONDITIONAL_DEPENDENCY({0}, Spectrum, {1})\n"
     ).format(spectrum, model_name)
 
     return indent(src_sl), indent(src_pl), header
+
+def save_CH_matrix_elements(calchep_processes):
+    """
+    Saves the CalcHEP matrix elements. 
+    """
+
+    towrite = ""
+
+    decays = calchep_processes['decays']
+    xsecs = calchep_processes['xsecs']
+
+    # Initial state, final state
+    for IS, FS in iteritems(decays):
+
+        fs = []
+        for f in FS[0]:
+            fs.append("{{{0}}}".format(','.join('"{0}"'.format(x) for x in f)))
+
+        towrite += (
+                "decays[\"{0}\"] = std::vector< std::vector<str> >"
+                "{{ {1} }};\n"
+        ).format(IS, ', '.join(fs))
+
+ 
+    for IS, FS in iteritems(xsecs):
+
+        fs = []
+        for f in FS[0]:
+            fs.append("{{{0}}}".format(','.join('"{0}"'.format(x) for x in f)))
+
+        towrite += (
+                "xsecs[std::vector<str>{{\"{0}\", \"{1}\"}}] = "
+                "std::vector< std::vector<str> >"
+                "{{ {2} }};\n"
+        ).format(IS[0], IS[1], ', '.join(fs))
+
+    return towrite
+
+   

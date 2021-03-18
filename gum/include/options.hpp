@@ -1,10 +1,12 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ****************************************
 ///  \file
 ///
-///  Declarations of SARAH class
+///  Declarations of various utility classes:
+///    Options, Output, Particle, Parameter,
+///    Error
 ///
-///  **********************************
+///  ****************************************
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
@@ -14,7 +16,7 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 Sep
 ///
-///  ***********************************
+///  ****************************************
 
 
 #ifndef OPTIONS
@@ -22,18 +24,22 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 class Options
 {
 
-    std::string optpackage;
-    std::string optmodel;
-    std::string optbasemodel;
-    std::string optrestriction;
-    std::string optLTot;
+    private:
+        std::string optpackage;
+        std::string optmodel;
+        std::string optbasemodel;
+        std::string optrestriction;
+        std::string optLTot;
+        std::map<std::string,std::map<std::string,std::string> > optoptions;
 
     public:
-        Options(std::string package, std::string model, std::string basemodel, std::string restriction, std::string lagrangian = "LTotal")
+
+        Options(std::string package, std::string model, std::string basemodel, std::string restriction, std::string lagrangian="LTotal")
         {
             optpackage = package;
             optmodel = model;
@@ -42,21 +48,36 @@ class Options
             optLTot = lagrangian;
         }
 
+        Options(std::string package, std::string model)
+        {
+            optpackage = package;
+            optmodel = model;
+        }
+
         std::string model() { return optmodel; }
         std::string base_model() { return optbasemodel; }
         std::string package() { return optpackage; }
         std::string restriction() { return optrestriction; }
         std::string lagrangian() { return optLTot; }
+        std::map<std::string,std::map<std::string,std::string> > options() { return optoptions; }
+
+        void setOptions(std::map<std::string,std::map<std::string,std::string> > options)
+        {
+          optoptions = options;
+        }
+
 
 };
 
 
 class Outputs
 {
-    std::string ch;
-    std::string mg;
-    std::string vev;
-    std::string sph;
+
+    private:
+        std::string ch;
+        std::string mg;
+        std::string vev;
+        std::string sph;
 
     public:
 
@@ -90,6 +111,7 @@ class Particle
     std::string alt_partmass;
     bool selfconj;
     std::string antipartname;
+    std::string treelevelmass;
 
     public:
 
@@ -99,7 +121,7 @@ class Particle
 
         Particle(int pdg, std::string name, int spinX2, int chargeX3, int color, 
                  bool SM, std::string mass, std::string antiname, std::string alt_name = "",
-                 std::string alt_mass= "")
+                 std::string alt_mass= "", std::string tree_mass = "")
         {
             pdgcode = pdg;
             partname = name;
@@ -111,6 +133,7 @@ class Particle
             partmass = mass;
             antipartname = antiname;
             alt_partmass = alt_mass;
+            treelevelmass = tree_mass;
 
             if (name == antiname)
             {
@@ -134,6 +157,7 @@ class Particle
         std::string antiname() { return antipartname; }
         std::string alt_name() { return alt_partname; }
         std::string alt_mass() { return alt_partmass; }
+        std::string tree_mass() { return treelevelmass; }
 
 };
 
@@ -148,6 +172,7 @@ class Parameter
     bool real;
     bool output;
     std::string boundary_conditions;
+    double default_value=0.1;
 
  
     public:
@@ -179,8 +204,12 @@ class Parameter
         std::string shape() { return paramshape; }
         bool is_output() { return output; }
         bool is_real() { return real; }
+        double defvalue() { return default_value; }
 
         void set_bcs(std::string bc) { boundary_conditions = bc; }
+        void set_name(std::string name) { paramname = name; }
+        void set_output(bool is_output) {output = is_output; }
+        void set_default(double def) { default_value = def; }
 
 };
 

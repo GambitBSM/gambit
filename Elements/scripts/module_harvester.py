@@ -95,7 +95,7 @@ def main(argv):
     exclude_types=set(["void"])
 
     # List of directory names to ignore when searching for headers
-    exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts"])
+    exclude_dirs=set([".git","build","doc","cmake","extras","config","contrib","runs","Logs","Printers","scratch","installed","scripts","gum"])
 
     # Load up the sets of equivalent types and namespaces
     equiv_ns = get_default_boss_namespaces()

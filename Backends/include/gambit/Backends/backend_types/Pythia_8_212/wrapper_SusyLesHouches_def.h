@@ -3,9 +3,9 @@
 
 #include <string>
 #include <istream>
-#include "SLHAea/slhaea.h"
 #include <map>
 #include <vector>
+#include "SLHAea/slhaea.h"
 
 #include "identification.hpp"
 
@@ -49,21 +49,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline int SusyLesHouches::readFile(::std::basic_istream<char, std::char_traits<char> >& arg_1)
         {
             return get_BEptr()->readFile__BOSS(arg_1);
-        }
-        
-        inline int SusyLesHouches::readSLHAea(int verboseIn, bool useDecayIn)
-        {
-            return get_BEptr()->readSLHAea(verboseIn, useDecayIn);
-        }
-        
-        inline int SusyLesHouches::readSLHAea(int verboseIn)
-        {
-            return get_BEptr()->readSLHAea__BOSS(verboseIn);
-        }
-        
-        inline int SusyLesHouches::readSLHAea()
-        {
-            return get_BEptr()->readSLHAea__BOSS();
         }
         
         inline void SusyLesHouches::setSLHAea(const ::SLHAea::Coll* inputSLHAea)
@@ -123,7 +108,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::SusyLesHouches::SusyLesHouches(int verboseIn) :
+        inline SusyLesHouches::SusyLesHouches(int verboseIn) :
             WrapperBase(__factory0(verboseIn)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -134,7 +119,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SusyLesHouches::SusyLesHouches() :
+        inline SusyLesHouches::SusyLesHouches() :
             WrapperBase(__factory1()),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -145,7 +130,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename, int verboseIn) :
+        inline SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename, int verboseIn) :
             WrapperBase(__factory2(filename, verboseIn)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -156,7 +141,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename) :
+        inline SusyLesHouches::SusyLesHouches(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > filename) :
             WrapperBase(__factory3(filename)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -168,7 +153,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::SusyLesHouches::SusyLesHouches(Pythia8::Abstract_SusyLesHouches* in) :
+        inline SusyLesHouches::SusyLesHouches(Abstract_SusyLesHouches* in) :
             WrapperBase(in),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -180,7 +165,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::SusyLesHouches::SusyLesHouches(const SusyLesHouches& in) :
+        inline SusyLesHouches::SusyLesHouches(const SusyLesHouches& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -192,7 +177,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::SusyLesHouches& SusyLesHouches::operator=(const SusyLesHouches& in)
+        inline SusyLesHouches& SusyLesHouches::operator=(const SusyLesHouches& in)
         {
             if (this != &in)
             {
@@ -203,7 +188,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::SusyLesHouches::~SusyLesHouches()
+        inline SusyLesHouches::~SusyLesHouches()
         {
             if (get_BEptr() != 0)
             {
@@ -218,9 +203,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_SusyLesHouches* Pythia8::SusyLesHouches::get_BEptr() const
+        inline Abstract_SusyLesHouches* Pythia8::SusyLesHouches::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_SusyLesHouches*>(BEptr);
+            return dynamic_cast<Abstract_SusyLesHouches*>(BEptr);
         }
     }
     

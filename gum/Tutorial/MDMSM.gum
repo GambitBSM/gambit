@@ -5,11 +5,12 @@ math:
     package: feynrules
     model: MDMSM
     base_model: SM
-    restriction: DiagonalCKM
     lagrangian: LDM + LSM
+    restriction: DiagonalCKM
 
-wimp_candidate: 99901
+wimp_candidate: 52
 
 output:
+    pythia: false
     calchep: true
     micromegas: true

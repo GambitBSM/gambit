@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ************************************
 ///  \file
 ///
 ///  Definitions of Feynrules class
@@ -8,7 +8,7 @@
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
-///  \date 2017, 2018, 2019
+///  \date 2018, 2019, 2020
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
@@ -50,6 +50,7 @@ namespace GUM
   {
 
     std::cout << "Loading FeynRules... ";
+    std::cout.flush();
 
     std::string input = "$FeynRulesPath = SetDirectory[\"" + std::string(FEYNRULES_PATH) + "\"]";
 
@@ -70,8 +71,13 @@ namespace GUM
         std::cout << "FeynRules loaded from " << out << "." << std::endl;
     }
 
+    // Need to run FR serially, as it bugs out in parallel
+    input = "FR$Parallel=False;";
+    send_to_math(input);
+
     input = "<<FeynRules`";
     send_to_math(input);
+
 
   }
 
@@ -79,6 +85,7 @@ namespace GUM
   {
 
     std::cout << "Loading model " + model + " in FeynRules";
+    std::cout.flush();
     if (not base_model.empty()) { std::cout << ", piggybacking off of " << base_model; }
     std::cout << "... " << std::endl;
 
@@ -103,7 +110,7 @@ namespace GUM
     // Same process for the base_model
     if (!base_model.empty())
     {
-        std::string basepath = std::string(FEYNRULES_PATH) + "Models/" + base_model + "/" + base_model + ".fr";
+        std::string basepath = std::string(FEYNRULES_PATH) + "/Models/" + base_model + "/" + base_model + ".fr";
 
         std::ifstream basepath1(basepath.c_str());
         if (!basepath1.good())
@@ -126,17 +133,6 @@ namespace GUM
         std::string command = "LoadModel[\"" + modelpath + "\"]";
         send_to_math(command);
     }
-
-    // // First case: no base model
-    // if (base_model.empty()) 
-    // {
-
-    // }
-    // // Otherwise got to check for both
-    // else
-    // {
-        
-    // }
 
     // Check the model has been loaded by querying the model name. If it has changed from the default then we're set.
     // TODO: need to check for duplicate definitions of gauge groups, field contents etc - this makes gum freeze 
@@ -173,23 +169,53 @@ namespace GUM
   void FeynRules::load_restriction(std::string model, std::string base_model, std::string rst)
   {
    
-    std::cout << "Attempting to load restriction " + rst + "... ";
+    std::cout << "Attempting to load restriction " + rst + "... " << std::endl;
 
-    std::string filename;
-    filename = model + "/" + rst + ".rst";
-    std::ifstream infile(filename.c_str());
-    // If it's not in the model directory, try the base_model...
-    if (!infile.good() and base_model != "") 
+    std::string respath;
+    respath = std::string(FEYNRULES_PATH) + "/Models/" + model + "/" + rst + ".rst";
+    std::ifstream path1(respath.c_str());
+
+    // If it's not in the FeynRules directory, try the gum Models dir...
+    if (!path1.good())
     {
-        filename = base_model + "/" + rst + ".rst";
+        respath = std::string(GUM_DIR) + "/Models/" + model + "/" + rst + ".rst";
+        std::ifstream path2(respath.c_str());
+
+        // If it's not in the model directory, try the base_model...
+        if (!path2.good())
+        {  
+            if (!base_model.empty())
+            {
+                respath = std::string(FEYNRULES_PATH) + "/Models/" + base_model + "/" + rst + ".rst";
+        
+                std::ifstream path3(respath.c_str());
+                if (!path3.good())
+                {
+                    respath = std::string(GUM_DIR) + "/Models/" + base_model + "/" + rst + ".rst";
+                    std::ifstream path4(respath.c_str());
+                    if (!path4.good())
+                    {
+                    throw std::runtime_error("GUM Error: Unable to find the restriction " + rst + " in either\n"
+                                             "the FeynRules model directory, or the GUM model directory,"
+                                             "for both the model *and* the base_model!");
+                    }
+                }
+            }
+            else
+            {
+                throw std::runtime_error("GUM Error: Unable to find the restriction " + rst + " in either\n"
+                                         "the FeynRules model directory, or the GUM model directory!");
+            }
+        }
     }
 
+    std::cout << "Found restriction file at " << respath << std::endl;
+
     // LoadRestriction command.
-    std::string command = "LoadRestriction[\"Models/" + filename + "\"]";
+    std::string command = "LoadRestriction[\"" + respath + "\"]";
     send_to_math(command);
 
-    // Some sort of check here?
-    // TODO: TG: This checks are really clanky
+    // Check restrictions are ok
     command = "Length[M$Restrictions]";
     send_to_math(command);
 
@@ -232,10 +258,12 @@ namespace GUM
   }
 
   // Check a model is Hermitian (it should be...)
+  // Also check for correct normalisation
   void FeynRules::check_herm(std::string LTot)
   {
 
     std::cout << "Checking the model is Hermitian... ";
+    std::cout.flush();
 
     std::string command = "ch = CheckHermiticity[" + LTot + "]";
     send_to_math(command);
@@ -258,6 +286,57 @@ namespace GUM
         ss << "Please check your FeynRules file." << std::endl;
         throw std::runtime_error(ss.str());
     }
+
+    std::cout << "Checking kinetic and mass terms are properly diagonalised..." << std::endl;
+
+    // Check for kinetic term diagonalisation...
+    std::string isnorm;
+    command = "CheckDiagonalKineticTerms[" + LTot + "]";
+    send_to_math(command);
+
+    get_from_math(isnorm);
+    if (isnorm != "True")
+    {
+        std::stringstream ss;
+        ss << "Your Lagrangian has kinetic terms that are not correctly diagonalised!" << std::endl;
+        ss << "Please check your FeynRules file and the FeynRules manual." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+
+    std::cout << "Kinetic terms are diagonal... ";
+    std::cout.flush();
+
+    // Check for mass term diagonalisation...
+    command = "CheckDiagonalMassTerms[" + LTot + "]";
+    send_to_math(command);
+
+    get_from_math(isnorm);
+    if (isnorm != "True")
+    {
+        std::stringstream ss;
+        ss << "Your Lagrangian has mass terms that are not correctly diagonalised!" << std::endl;
+        ss << "Please check your FeynRules file and the FeynRules manual." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+
+    std::cout << "Mass terms are diagonal... ";
+    std::cout.flush();
+
+    // Kinetic term normalisation. 
+    // We ignore the SM neutrinos because they don't have a kinetic term under the SM.
+    command = "CheckKineticTermNormalisation[" + LTot + ", Free -> {ve,vm,vt}] == Null // ToString";
+    send_to_math(command);
+
+    get_from_math(isnorm);
+    if (isnorm == "True")
+    {
+        std::stringstream ss;
+        ss << "Your Lagrangian is not correctly normalised!" << std::endl;
+        ss << "Please check your FeynRules file and the FeynRules manual." << std::endl;
+        throw std::runtime_error(ss.str());
+    }
+
+    std::cout << "All good." << std::endl;
 
   }
 
@@ -298,10 +377,10 @@ namespace GUM
             // Initialise all properties we wish to find out about a particle.
             std::string name;
             std::string antiname;
-            std::string  spin;
-            std::string  fullname;
-            std::string  eaten;
-            std::string  mass;
+            std::string spin;
+            std::string fullname;
+            std::string eaten;
+            std::string mass;
             // Needs to initialise these to suppress compiler warnings.
             int color = 1;
             int chargeX3 = 0;
@@ -334,6 +413,10 @@ namespace GUM
             else if (spin == "S")
             {
                 spinX2 = 0;
+            }
+            else if (spin == "T")
+            {
+                spinX2 = 4;
             }
             // Don't try and parse ghosts; it'll give us an error. We also
             // don't care about them from a pheno (GUM) standpoint.
@@ -507,11 +590,52 @@ namespace GUM
     std::string gauge = "feynman";
     set_gauge(gauge);
 
+    // Check to see if FR catches any 4-fermion vertices.
+    bool fourF = false;
+    int nfourF = 0;
+
+    // Redirect output to catch them after writing CH files
+    send_to_math("streams = AppendTo[$Output, OpenWrite[]];");
+
     // Write output.
     std::string command = "WriteCHOutput[" + LTot + ", CHAutoWidths -> False];";
     send_to_math(command);
 
+    // Close the output stream and restore to stdout
+    command = "Close@Last@streams; $Output = Most@streams; output = ReadList@First@Last@streams;";
+    send_to_math(command);
+
+    // Process the output to find out if there are any 4-fermion interactions.
+    int noutput;
+    send_to_math("Length[output]");
+    get_from_math(noutput);
+
+    for(int i=1; i<=noutput; i++)
+    {
+      std::string output;
+      send_to_math("ToString[output[[" + std::to_string(i) + "]]]");
+      get_from_math(output);
+
+      // If we find a 4-fermion vertex, take a note of it
+      size_t pos = output.find("4 fermion");
+      if(pos != std::string::npos)
+      {
+        fourF = true;
+        nfourF++;
+      }
+    }
+
+    // 4-fermion vertices result in a fatal error in GUM v1.
+    if(fourF)
+    {
+      std::stringstream ss;
+      ss << "GUM caught " + std::to_string(nfourF) + " 4-fermion vertices in your Lagrangian." << std::endl;
+      ss << "This is a fatal error in the current release of GUM." << std::endl;
+      ss << "Dealing with 4-fermion vertices is planned for future releases." << std::endl;
+      throw std::runtime_error(ss.str());
+    }
     std::cout << "CalcHEP files written." << std::endl;
+
   }
 
   // Write MadGraph output.

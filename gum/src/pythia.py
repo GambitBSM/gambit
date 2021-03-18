@@ -1,14 +1,45 @@
-"""
-Contains all routines for Pythia output, via the MadGraph interface.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Contains all routines for Pythia output,
+#  via the MadGraph interface.
+#
+#  *************************************
+#
+#  \author Pat Scott
+#          (pat.scott@uq.edu.au)
+#  \date 2018 Dec
+#        2019 Jan
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2019 July
+#        2020 June, July
+#
+#  **************************************
 
-from backends import *
-from setup import *
-from files import *
-from parse import *
-from cmake_variables import *
+from .backends import *
+from .setup import *
+from .files import *
+from .parse import *
+from .cmake_variables import *
 
-def fix_pythia_lib(model, patched_dir, pythia_groups):
+class PythiaMatch:
+    """
+    Class used for saving details about particles from ParticleData.xml
+    """
+
+    def __init__(self, pdg, name, antiname, spintype, chargetype, coltype):
+
+        self.pdg = pdg
+        self.name = name
+        self.antiname = antiname
+        self.spintype = spintype
+        self.chargetype = chargetype
+        self.coltype = coltype
+
+def fix_pythia_lib(model, patched_dir, pythia_groups, particles, decays):
     """
     Routine to patch the new Pythia - adding new matrix elements to the
     Process Container -- and the shared library too.
@@ -57,7 +88,7 @@ def fix_pythia_lib(model, patched_dir, pythia_groups):
                     f.write("Common switch for production of "+model+" processes, involving the group of particles ["+', '.join(v)+"] as external legs ONLY. Added by GAMBIT.\n")
                     f.write("</flag>\n")
 
-        # Invidiual processes
+        # Individual processes
         for x in processes:
             f.write("\n")
             f.write("<flag name=\""+model+":"+x[0]+"2"+x[1]+"\" default=\"off\">\n")
@@ -125,96 +156,269 @@ def fix_pythia_lib(model, patched_dir, pythia_groups):
                     f_new.write("    sigmaPtr = new Sigma_"+model+"_"+x[0]+"_"+x[1]+"();\n")
                     f_new.write("    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );\n")
                     f_new.write("  }\n")
+
     os.remove(old)
     os.rename(tmp, old)
 
-def write_boss_config_for_pythia(model, output_dir):
     """
-    TODO: use writing routines in files.py & reset dict.
-    Writes the BOSS config for Pythia.
+    S.B. 22/07/2020: commented the below out, as it looks like we actually
+    _don't_ need to make changes to ParticleData.xml. Leaving it here just
+    in case we change our minds again...
+
+
+    # Add new particles to the ParticeData xml file, and their decay products
+    # Firstly scrape the initial list of particles and check everything
+    # is consistent
+    xmold = patched_dir + "/share/Pythia8/xmldoc/ParticleData.xml"
+    xmnew = patched_dir + "/share/Pythia8/xmldoc/ParticleData.xml_new"
+    with open(xmold) as f:
+        txt = f.read()
+
+    pat = re.compile(r'<particle\s+(.*?)\n(.*?)>', re.MULTILINE)
+    matches = re.findall(pat, txt)
+
+    # Save a dict of PDG code : match object
+    # Check consistency between the newly added particles and any definitions
+    defined_particles = {}
+
+    for match in matches:
+
+        m = ''.join(match)
+
+        pdg = re.search(r'id="(.*?)"', m).group(1)
+        name = re.search(r'name="(.*?)"', m).group(1)
+        spintype = re.search(r'spinType="(.*?)"', m).group(1)
+        chargetype = re.search(r'chargeType="(.*?)"', m).group(1)
+        coltype = re.search(r'colType="(.*?)"', m).group(1)
+        a = re.search(r'antiName="(.*?)"', m)
+        antiname = a.group(1) if a else ""
+
+        pm = PythiaMatch(pdg, name, antiname, spintype, chargetype, coltype)
+
+        defined_particles[int(pdg)] = pm
+
+    # Iterate through the particle list and check to see if any are
+    # already defined in Pythia.
+    dp = []
+    for p in particles:
+        if p.PDG_code in defined_particles:
+
+            dp.append(p.PDG_code)
+
+            # Check the particle definition applies to the user's file...
+            ppy = defined_particles[p.PDG_code]
+
+            # Spin
+            if p.spinX2+1 != int(ppy.spintype):
+                raise GumError(("Particle with PDG code {0} is "
+                                "already defined in Pythia's particle database."
+                                "\nThe spin provided for this particle does "
+                                "not match up with the definition in Pythia.\n"
+                                "Pythia: {1}, you: {2}. (spin = 2s+1)\n"
+                                "Please use a different PDG code."
+                              ).format(str(p.PDG_code), ppy.spintype,
+                                       str(p.spinX2+1)))
+
+            # Charge
+            if int(p.chargeX3) != int(ppy.chargetype):
+                raise GumError(("Particle with PDG code {0} is "
+                                "already defined in Pythia's particle database."
+                                "\nThe charge provided for this particle does "
+                                "not match up with the definition in Pythia.\n"
+                                "Pythia: {1}, you: {2}. (charge x 3)\n"
+                                "Please use a different PDG code."
+                              ).format(str(p.PDG_code), ppy.chargetype,
+                                       p.chargeX3))
+
+            # Color
+            pycolor = 0
+            if p.color == 3: pycolor = 1
+            elif p.color == -3: pycolor = -1
+            elif p.color == 8: pycolor = 2
+            elif p.color == 6: pycolor = 3
+            elif p.color == -6: pycolor = -3
+            if int(pycolor) != int(ppy.coltype):
+                raise GumError(("Particle with PDG code {0} is "
+                                "already defined in Pythia's particle database."
+                                "\nThe color provided for this particle does "
+                                "not match up with the definition in Pythia.\n"
+                                "Pythia: {1}, you: {2}.\n"
+                                "Please use a different PDG code."
+                              ).format(str(p.PDG_code), ppy.coltype,
+                                       pycolor))
+
+            # Antiparticle
+            if not p.is_sc():
+                if not ppy.antiname:
+                    raise GumError(("Particle with PDG code {0} is "
+                                    "already defined in Pythia's particle "
+                                    "database.\n"
+                                    "It has no distinct antiparticle, "
+                                    "whereas your model definition says it "
+                                    "does.\nThis particle does not match up "
+                                    "with the definition in Pythia.\n"
+                                    "Please use a different PDG code."
+                                  ).format(str(p.PDG_code)))
+            else:
+                if ppy.antiname:
+                    raise GumError(("Particle with PDG code {0} is "
+                                    "already defined in Pythia's particle "
+                                    "database.\nIt has an antiparticle, "
+                                    "whereas your model definition says it "
+                                    "does not.\nThis particle does not match up "
+                                    "with the definition in Pythia.\n"
+                                    "Please use a different PDG code."
+                                  ).format(str(p.PDG_code)))
+
+    # Once we're satisfied there's no incorrect duplicates, we can
+    # add new entries to the XML file.
+    p_towrite = ""
+    append_decays = {}
+    for p in particles:
+
+        # Don't need to add the particle if it already exists...
+        if not p.PDG_code in dp:
+
+            # If antiparticle is distinct, we want to save this information too.
+            name = p.name
+            if not p.is_sc():
+                name += " antiname = {}".format(p.antiname)
+
+            # Convert to Pythia's color basis:
+            # 0 = uncolored, (-)1 = (anti)triplet, 2 = octet, (-)3 = (anti)sextet
+            color = 0
+            if p.color == 3: color = 1
+            elif p.color == -3: color = -1
+            elif p.color == 8: color = 2
+            elif p.color == 6: color = 3
+            elif p.color == -6: color = -3
+            # All gucci. Save the particle
+            p_towrite += (
+                      "<particle id=\"{0}\" name=\"{1}\" spinType=\"{2}\" "
+                      "chargeType=\"{3}\" colType=\"{4}\"\n"
+                      "          m0=\"100.00000\">\n"
+            ).format(p.PDG_code, name, p.spinX2+1, p.chargeX3, color)
+
+            # Now for the decays...
+            if p.PDG_code in decays:
+                for d in decays[p.PDG_code]:
+                    p_towrite += (
+                              " <channel onMode=\"1\" bRatio=\"0.0000000\" "
+                              "meMode=\"0\" products=\"{0}\"/>\n"
+                    ).format(' '.join(str(x) for x in d))
+
+            p_towrite += "</particle>\n\n"
+
+        # If it already exists, just need to append the decays to the entry
+        else:
+
+            if p.PDG_code in decays:
+                d_entry = ""
+                for d in decays[p.PDG_code]:
+                    d_entry += (
+                              " <channel onMode=\"1\" bRatio=\"0.0000000\" "
+                              "meMode=\"0\" products=\"{0}\"/>\n"
+                    ).format(' '.join(str(x) for x in d))
+
+                append_decays[p.PDG_code] = d_entry
+
+    # Save the new .xml file
+    waiting_for_braces = False
+    with open(xmnew, 'w+') as f, open(xmold) as g:
+        for line in g:
+            # This is the end...
+            if "</chapter>" in line:
+                f.write(p_towrite)
+
+            # If the particle definition is there, see if we need to add decays
+            r = re.search(r'id="(.*?)"', line)
+            if r:
+                pdg = int(r.group(1))
+                if pdg in append_decays:
+                    waiting_for_braces = True
+
+            if waiting_for_braces and "</particle>" in line:
+                f.write(append_decays[pdg])
+                waiting_for_braces = False
+
+            f.write(line)
+
+    os.remove(xmold)
+    os.rename(xmnew, xmold)
+    """
+
+def write_boss_configs_for_pythia(model, output_dir, reset_dict):
+    """
+    Writes the BOSS configs for Pythia.
     """
 
     # Sort out the paths
     path = "/Backends/scripts/BOSS/configs"
-    filename = "/pythia_"+model.lower()+"_8_"+base_pythia_version+".py"
     full_output_dir = output_dir+path
     mkdir_if_absent(full_output_dir)
-    template = ".."+path+"/pythia_8_"+base_pythia_version+".py"
-    outfile = full_output_dir+filename
+    filenames = ["/pythia_"+model.lower()+"_8_"+base_pythia_version+part+".py" for part in ["","_nohepmc"]]
+    templates = [".."+path+"/pythia_8_"+base_pythia_version+part+".py" for part in ["","_nohepmc"]]
+    outfiles = ["BOSS/configs"+f for f in filenames]
 
     # Write the actual BOSS config file
-    with open(outfile, 'w') as f_new, open(template) as f_old:
+    for outfile, template in zip(outfiles, templates):
+
+      to_write = ("")
+      with open(template) as f_old:
         for line in f_old:
           if "gambit_backend_name    = 'Pythia'" in line:
-              f_new.write("gambit_backend_name    = 'Pythia_"+model+"'\n")
+              to_write += ("gambit_backend_name    = 'Pythia_"+model+"'\n")
+          # Add the CombineMatchingInput class to the input files.
+          elif "                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h'" in line:
+              to_write += ("                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h',\n")
+              to_write += ("                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8Plugins/CombineMatchingInput.h',\n")
           else:
-              f_new.write(line)
+              to_write += (line)
           if "#  Configuration module for BOSS  #" in line:
-              f_new.write("#  ----brought to you by GUM----  #\n")
+              to_write += ("#  ----brought to you by GUM----  #\n")
+
+          # Add in the Combine Matching Input Class
+          if "    'Pythia8::BeamParticle'," in line:
+              to_write += ("    'Pythia8::CombineMatchingInput',\n")
+
+      write_file(outfile, "Backends", to_write, reset_dict)
 
 
-
-def add_new_pythia_to_backends_cmake(model, output_dir):
+def write_pythia_cmake_entry(model, output_dir):
     """
-    TODO: amend this to use the backends.cmake routine in backends.py
-    Adds a new Pythia entry to cmake/backends.cmake
+    Writes Pythia entry for cmake/backends.cmake
     """
 
     # The string that will commence the block to be added by GUM
-    signature = "# Pythia with matrix elements for "+model+" (brought to you today by the letters G, U and M)."
+    to_write = "# Pythia with matrix elements for "+model+" (brought to you today by the letters G, U and M).\n"\
+               "set(model \""+model.lower()+"\")\n"\
+               "set(name \"pythia_${model}\")\n"\
+               "set(ver \"8."+base_pythia_version+"\")\n"\
+               "set(lib \"libpythia8\")\n"\
+               "set(dl \"http://home.thep.lu.se/~torbjorn/pythia8/pythia8"+base_pythia_version+".tgz\")\n"\
+               "set(md5 \""+pythia_md5+"\")\n"\
+               "set(dir \"${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}\")\n"\
+               "set(model_specific_patch \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif\")\n"\
+               "check_ditch_status(${name} ${ver} ${dir})\n"\
+               "if(NOT ditched_${name}_${ver})\n"\
+               "  ExternalProject_Add(${name}_${ver}\n"\
+               "    DEPENDS ${pythia_depends_on}\n"\
+               "    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}\n"\
+               "    SOURCE_DIR ${dir}\n"\
+               "    BUILD_IN_SOURCE 1\n"\
+               "    PATCH_COMMAND patch -p1 < ${model_specific_patch}\n"\
+               "          COMMAND patch -p1 < ${patch}\n"\
+               "          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}.py\n"\
+               "    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx=\"${CMAKE_CXX_COMPILER}\" --cxx-common=\"${pythia_CXXFLAGS}\" --cxx-shared=\"${pythia_CXX_SHARED_FLAGS}\" --cxx-soname=\"${pythia_CXX_SONAME_FLAGS}\" --lib-suffix=\".so\"\n"\
+               "    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=\"${CMAKE_CXX_COMPILER}\" lib/${lib}.so\n"\
+               "    INSTALL_COMMAND \"\"\n"\
+               "  )\n"\
+               "  BOSS_backend(${name} ${ver} ${BOSS_suffix})\n"\
+               "  add_extra_targets(\"backend\" ${name} ${ver} ${dir} ${dl} distclean)\n"\
+               "  set_as_default_version(\"backend\" ${name} ${ver})\n"\
+               "endif()\n\n"
 
-    # The path to the original file in GAMBIT
-    old = "../cmake/backends.cmake"
-    # Sort out the path to the candidate replacement
-    newdir = output_dir+"/cmake"
-    mkdir_if_absent(newdir)
-    new = newdir+"/backends.cmake"
-
-    # Initialise flags to indicate place in the original file
-    in_duplicate = False
-    passed_pythia = False
-    wrote_entry = False
-
-    # Open old and new files and iterate through the old one, writing to the new as we go.
-    with open(old) as f_old, open(new, 'w') as f_new:
-        for line in f_old:
-            # Have we spotted a previous modification by GUM?  If so, overwrite it.
-            if signature in line: in_duplicate = True
-            # Have we spotted the vanilla pythia entry yet?
-            if "set(name \"pythia\")" in line: passed_pythia = True
-            if not in_duplicate: f_new.write(line)
-            if not wrote_entry and passed_pythia and "set_as_default_version(\"backend\" ${name} ${ver})" in line:
-                to_write = "endif()\n"\
-                           "\n"+signature+"\n"\
-                           "set(model \""+model.lower()+"\")\n"\
-                           "set(name \"pythia_${model}\")\n"\
-                           "set(ver \"8."+base_pythia_version+"\")\n"\
-                           "set(lib \"libpythia8\")\n"\
-                           "set(dl \"http://home.thep.lu.se/~torbjorn/pythia8/pythia8"+base_pythia_version+".tgz\")\n"\
-                           "set(md5 \""+pythia_md5+"\")\n"\
-                           "set(dir \"${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}\")\n"\
-                           "set(patch1 \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif\")\n"\
-                           "set(patch2 \"${PROJECT_SOURCE_DIR}/Backends/patches/pythia/${ver}/patch_pythia_${ver}.dif\")\n"\
-                           "check_ditch_status(${name} ${ver})\n"\
-                           "if(NOT ditched_${name}_${ver})\n"\
-                           "  ExternalProject_Add(${name}_${ver}\n"\
-                           "    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}\n"\
-                           "    SOURCE_DIR ${dir}\n"\
-                           "    BUILD_IN_SOURCE 1\n"\
-                           "    PATCH_COMMAND patch -p1 < ${patch1}\n"\
-                           "          COMMAND patch -p1 < ${patch2}\n"\
-                           "          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}.py\n"\
-                           "    CONFIGURE_COMMAND ./configure --enable-shared --cxx=\"${CMAKE_CXX_COMPILER}\" --cxx-common=\"${pythia_CXXFLAGS}\" --cxx-shared=\"${pythia_CXX_SHARED_FLAGS}\" --lib-suffix=\".so\"\n"\
-                           "    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=\"${CMAKE_CXX_COMPILER}\" lib/${lib}.so\n"\
-                           "    INSTALL_COMMAND \"\"\n"\
-                           "  )\n"\
-                           "  BOSS_backend(${name} ${ver})\n"\
-                           "  add_extra_targets(\"backend\" ${name} ${ver} ${dir} ${dl} distclean)\n"\
-                           "  set_as_default_version(\"backend\" ${name} ${ver})\n"
-                f_new.write(to_write)
-                wrote_entry = True
-            # We've reached the end of the previous modification by GUM, so remove the hold on repeating lines from the old file.
-            if in_duplicate and "endif()" in line: in_duplicate = False
+    return to_write
 
 
 def patch_pythia_patch(model_parameters, model_name, reset_dict):
@@ -230,30 +434,22 @@ def patch_pythia_patch(model_parameters, model_name, reset_dict):
 
     for i in model_parameters:
 
-        if (i.sm) or (i.tag == "Pole_Mass" and i.block == "") or i.block in blocks:
+        if (i.sm) or (i.tag == "Pole_Mass" and i.block == "") or i.block in blocks or i.block.lower() == "mass":
             continue
 
+        pp_source += (
+                "        \"      if (blockName == \\\"{0}\\\") ifail={0}.set(linestream);\\n\"\n"
+        ).format(i.block.lower())
+
+        # Scalars
         if i.shape == "scalar" or i.shape == None:
-
-            pp_source += (
-                    "        \"      else if (blockName == \\\"{0}\\\") {{\\n\"\n"
-                    "        \"        FILL_LHBLOCK({0}, double)\\n\"\n"
-                    "        \"      }}\\n\"\n"
-            ).format(i.block.lower())
-          
             pp_header += "        \"  LHblock<double> {0};\\n\"\n".format(i.block.lower())
-
-        # Matrix cases
+        # Matrices
         elif re.match("m[2-9]x[2-9]", i.shape):
-
-            pp_source += (
-                    "        \"      else if (blockName == \\\"{0}\\\") {{\\n\"\n"
-                    "        \"        FILL_LHMATRIXBLOCK({0})\\n\"\n"
-                    "        \"      }}\\n\"\n"
-            ).format(i.block.lower())
-          
             pp_header += "        \"  LHmatrixBlock<{0}> {1};\\n\"\n".format(i.shape[-1], i.block.lower())
-
+        # Wtfs
+        else:
+            raise GumError("Unknown shape for block " + i.block.lower() + ".")
 
         blocks.append(i.block)
 
@@ -271,7 +467,7 @@ def patch_pythia_patch(model_parameters, model_name, reset_dict):
         "linenum = 0\n"
         "with open(location) as f:\n"
         "    for num, line in enumerate(f, 1):\n"
-        "        if \"FILL_LHBLOCK(nmssmrun, double)\" in line:\n"
+        "        if \"(blockName == \\\"nmssmrun\\\") ifail=nmssmrun.set(linestream)\" in line:\n"
         "            linenum = num+1\n"
         "            break\n"
         "\n"
@@ -321,10 +517,9 @@ def patch_pythia_patch(model_parameters, model_name, reset_dict):
         "os.rename(temp_location, location)\n"
     ).format(model_name.lower(), base_pythia_version, pp_source, pp_header)
 
-    filename = "pythia_{0}/8.{1}/patch_pythia_{0}.dif".format(model_name.lower(), base_pythia_version)
-    write_file(filename, "Backends", patch_contents, reset_dict)
-    loc = full_filename(filename, "Backends")
-    new_loc = "../Backends/patches/pythia_{0}/8.{1}/patch_pythia_{0}.py".format(model_name.lower(), base_pythia_version)
-    print loc
-    print new_loc
-    os.rename(loc, new_loc)
+    filename = "pythia_{0}/8.{1}/patch_pythia_{0}.py".format(model_name.lower(), base_pythia_version)
+    write_file(filename, "Backends", patch_contents, reset_dict, overwrite_path = "patches/")
+
+def write_pythia_capability_defs(model, cap_def):
+    # Add capability definitions
+    cap_def['Pythia_' + model + "_8_" + base_pythia_version + '_init'] = 'Initialise the Pythia 8.' + base_pythia_version + ' ' + model + ' backend.'

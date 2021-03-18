@@ -105,7 +105,7 @@ def main(argv):
   with open("./config/particle_database.yaml", "r") as f:
 
     try:
-      data = yaml.load(f)
+      data = yaml.safe_load(f)
     except yaml.YAMLerror as exc:
       print (exc)
       

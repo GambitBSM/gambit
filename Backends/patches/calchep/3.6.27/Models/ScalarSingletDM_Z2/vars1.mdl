@@ -1,0 +1,28 @@
+ScalarSingletDM_Z2(CKM=1)
+ Parameters 
+ Name | Value       |> Comment                                                                <|
+EE    |0.31223      |Electroweak coupling. EE=0.31223 corresponds to alpha=EE^2/(4*PI)=1/128.9  
+GG    |1.238        |Strong coupling. Value will be changed automaticaly in numerical session.        
+alfSMZ|0.1172       |MS-BAR alpha-strong at MZ
+SW    |0.481        |MS-BAR sine of the electroweak mixing angle
+Me    |0.000511     |electron mass                               
+Mm    |0.1057       |muon mass                                                                  
+Ml    |1.777        |tau-lepton mass                                                     
+Q     |100          | QCD scale for calculation of quark masses 
+McMc  |1.27         | Mc(Mc)  MS-BAR                                          
+MbMb  |4.18         | Mb(Mb)  MS-BAR                                          
+Mtp   |173.21       |t-quark pole mass                                                  
+MZ    |91.1884      |Z-boson mass                                                        
+Mh    |125.09       |higgs mass                                                                 
+wt    |1.41         |t-quark width        (tree level 1->2x)                                    
+wZ    |2.49444      |Z-boson width        (tree level 1->2x)                                    
+wW    |2.08895      |W-boson width        (tree level 1->2x)
+wh    |0.00407      |higgs width
+wl    |2.27E-12     |tau-lepton width
+wm    |3.01E-19     |muon width
+Mu    |0.0022       |mass of u-quark
+Md    |0.0047       |mass of d-quark
+Ms    |0.096        |mass of s-quark
+MS    |150.0        |S mass
+lambda|0.01         |hS coupling
+================================================================================================

@@ -1,26 +1,48 @@
-"""
-Master routines for all MadGraph related routines.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Master routines for all MadGraph related routines.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018, 2019, 2020
+#
+#  \author Pat Scott
+#          (pat.scott@uq.edu.au)
+#  \date 2019 Jan
+#
+#  **************************************
 
 import os
 import sys
 from distutils.dir_util import copy_tree
-from files import mkdir_if_absent, remove_tree_quietly
+
+from .files import mkdir_if_absent, remove_tree_quietly
 
 script_name = "generate_matrix_elements.mg5"
 
-def make_madgraph_script(mg5_output_dir, model_name, processes, multiparticles):
+def make_madgraph_script(mg5_dir, mg5_output_dir, model_name, processes, multiparticles):
     """
     Writes a script to be used when calling MadGraph.
     """
 
+    model_path = mg5_dir + "/models/" + model_name
     filename = mg5_output_dir + "/" + script_name
 
     print("Generating {}.".format(filename))
 
-    # Import the model 
-    towrite = "import model " + model_name + "\n"
-    
+    # First convert the model to python3 if needed
+    if sys.version_info[0] < 3:
+        towrite = ""
+    else:
+        towrite = "convert model " + model_path + "\n"
+
+    # Then, import the model
+    towrite += "import model " + model_name + "\n"
+
     # Import any multiparticles
     if multiparticles:
         for multi in multiparticles:

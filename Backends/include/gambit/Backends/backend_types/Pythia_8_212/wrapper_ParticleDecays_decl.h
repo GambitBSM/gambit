@@ -2,6 +2,7 @@
 #define __wrapper_ParticleDecays_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleDecays.h"
@@ -10,7 +11,6 @@
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <vector>
 #include "wrapper_Event_decl.h"
 #include "wrapper_ParticleDataEntry_decl.h"
 #include "wrapper_Particle_decl.h"
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_ParticleDecays* (*__factory0)();
+                static Abstract_ParticleDecays* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -44,7 +44,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ParticleDecays();
         
                 // Special pointer-based constructor: 
-                ParticleDecays(Pythia8::Abstract_ParticleDecays* in);
+                ParticleDecays(Abstract_ParticleDecays* in);
         
                 // Copy constructor: 
                 ParticleDecays(const ParticleDecays& in);
@@ -56,7 +56,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~ParticleDecays();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_ParticleDecays* get_BEptr() const;
+                Abstract_ParticleDecays* get_BEptr() const;
         
         };
     }

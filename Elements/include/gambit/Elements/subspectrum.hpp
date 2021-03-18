@@ -35,7 +35,7 @@
 #include "gambit/Utils/safebool.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Elements/spectrum_helpers.hpp"
 #include "gambit/Models/partmap.hpp"
 

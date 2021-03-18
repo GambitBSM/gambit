@@ -43,6 +43,12 @@
 // Load it
 LOAD_LIBRARY
 
+// Allow this version of DDCalc for all models but fermionic HP
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+BE_ALLOW_MODELS(ScalarSingletDM_Z2,ScalarSingletDM_Z2_running)
+BE_ALLOW_MODELS(VectorSingletDM_Z2)
+BE_ALLOW_MODELS(ScalarSingletDM_Z3,ScalarSingletDM_Z3_running)
+
 // BACKEND FUNCTIONS =======================================
 
 /* Import functions.
@@ -186,9 +192,11 @@ BE_FUNCTION(DDCalc_FreeHalos,     void, (), "C_DDUtils_ddcalc_freehalos",     "F
 BE_FUNCTION(DDCalc_FreeDetectors, void, (), "C_DDUtils_ddcalc_freedetectors", "FreeDetectorss")
 BE_FUNCTION(DDCalc_FreeAll,       void, (), "C_DDUtils_ddcalc_freeall",       "FreeAll")
 
-// DM mass, couplings and fraction of cosmological DM that is accounted for by model
+// DM mass, spin & conjugate nature, plus couplings and fraction of cosmological DM that is accounted for by model.
 BE_INI_DEPENDENCY(mwimp, double)
 BE_INI_DEPENDENCY(DD_couplings, DM_nucleon_couplings)
+BE_INI_DEPENDENCY(spinwimpx2, unsigned int)
+BE_INI_DEPENDENCY(wimp_sc, bool)
 BE_INI_DEPENDENCY(RD_fraction, double)
 BE_INI_DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
 

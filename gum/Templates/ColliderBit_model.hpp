@@ -17,23 +17,36 @@
 
 #define MODULE ColliderBit
 
+
+  // Construct an SLHAea object with spectrum and decays for Pythia
+  #define CAPABILITY SpectrumAndDecaysForPythia
+
+    #define FUNCTION getSpectrumAndDecaysForPythia_@MODEL@
+    START_FUNCTION(SLHAstruct)
+    DEPENDENCY(decay_rates, DecayTable)
+    DEPENDENCY(@MODEL@_spectrum, Spectrum)
+    ALLOW_MODEL(@MODEL@)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+
   // Get Monte Carlo event generator
   #define CAPABILITY HardScatteringSim
 
     #define FUNCTION getPythia_@MODEL@
-    START_FUNCTION(ColliderPythia_@MODEL@_defaultversion)
+    START_FUNCTION(Py8Collider_@MODEL@_defaultversion)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
     ALLOW_MODEL(@MODEL@)
-    DEPENDENCY(decay_rates, DecayTable)
-    DEPENDENCY(@MODEL@_spectrum, Spectrum)
+    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
 
     #define FUNCTION getPythia_@MODEL@AsBase
     START_FUNCTION(const BaseCollider*)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    DEPENDENCY(HardScatteringSim, ColliderPythia_@MODEL@_defaultversion)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     ALLOW_MODEL(@MODEL@)
     #undef FUNCTION
 
@@ -43,78 +56,14 @@
   // Run event generator
   #define CAPABILITY HardScatteringEvent
     #define FUNCTION generateEventPythia_@MODEL@
-    START_FUNCTION(Pythia_@MODEL@_default::Pythia8::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    DEPENDENCY(HardScatteringSim, ColliderPythia_@MODEL@_defaultversion)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  // Get detector simulations
-
-  #define CAPABILITY ATLASDetectorSim
-    #define FUNCTION getBuckFastATLASPythia_@MODEL@
-    START_FUNCTION(BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY CMSDetectorSim
-    #define FUNCTION getBuckFastCMSPythia_@MODEL@
-    START_FUNCTION(BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY IdentityDetectorSim
-    #define FUNCTION getBuckFastIdentityPythia_@MODEL@
-    START_FUNCTION(BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  // Run detector simulations
-
-  #define CAPABILITY ATLASSmearedEvent
-    #define FUNCTION smearEventATLAS_@MODEL@
     START_FUNCTION(HEPUtils::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
-    DEPENDENCY(ATLASDetectorSim, BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
     ALLOW_MODEL(@MODEL@)
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY CMSSmearedEvent
-    #define FUNCTION smearEventCMS_@MODEL@
-    START_FUNCTION(HEPUtils::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
-    DEPENDENCY(CMSDetectorSim, BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  #define CAPABILITY CopiedEvent
-    #define FUNCTION copyEvent_@MODEL@
-    START_FUNCTION(HEPUtils::Event)
-    NEEDS_MANAGER(RunMC, MCLoopInfo)
-    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
-    DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
-    DEPENDENCY(IdentityDetectorSim, BaseDetector<Pythia_@MODEL@_default::Pythia8::Event>*)
-    ALLOW_MODEL(@MODEL@)
-    #undef FUNCTION
-  #undef CAPABILITY
 
 #undef MODULE

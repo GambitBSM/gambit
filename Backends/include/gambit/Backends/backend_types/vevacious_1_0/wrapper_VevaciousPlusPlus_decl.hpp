@@ -2,11 +2,12 @@
 #define __wrapper_VevaciousPlusPlus_decl_vevacious_1_0_hpp__
 
 #include <cstddef>
+#include <string>
+#include <utility>
+#include <vector>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_VevaciousPlusPlus.hpp"
-#include <string>
-#include <vector>
 
 #include "identification.hpp"
 
@@ -29,19 +30,25 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 void RunPoint(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& newInput);
         
+                ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > GetPanicVacua();
+        
+                ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > RunVacua(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& newInput);
+        
                 void ReadLhaBlock(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& uppercaseBlockName, const double scale, const ::std::vector<std::pair<int, double>, std::allocator<std::pair<int, double> > >& parameters, const int dimension);
         
                 void WriteResultsAsXmlFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& xmlFilename);
         
                 ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > GetResultsAsString();
-
+        
                 double GetLifetimeInSeconds();
-
+        
                 double GetThermalProbability();
-
-                ::std::vector<double> GetThresholdAndActions();
-
-                ::std::vector<double> GetThermalThresholdAndActions();
+        
+                double GetThermalDecayWidth();
+        
+                ::std::vector<double, std::allocator<double> > GetThresholdAndActions();
+        
+                ::std::vector<double, std::allocator<double> > GetThermalThresholdAndActions();
         
                 void AppendResultsToLhaFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& lhaFilename, const bool writeWarnings);
         
@@ -54,9 +61,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Special pointer-based constructor: 
                 VevaciousPlusPlus(Abstract_VevaciousPlusPlus* in);
-        
-                // Assignment operator: 
-                VevaciousPlusPlus& operator=(const VevaciousPlusPlus& in);
         
                 // Destructor: 
                 ~VevaciousPlusPlus();

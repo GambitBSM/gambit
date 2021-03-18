@@ -1,11 +1,31 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//  *********************************************
+///
+///  \file
+///  Util variables and functions for ColliderBit
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Andy Buckley
+///  \author Abram Krislock
+///  \author Anders Kvellestad
+///  \author Pat Scott
+///  \author Tomas Gonzalo
+///
+///  *********************************************
+
 #pragma once
+
+#include <functional>
+#include <memory>
+#include <cfloat>
+
 #include "HEPUtils/MathUtils.h"
 #include "HEPUtils/BinnedFn.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/FastJet.h"
-#include <functional>
-#include <memory>
-#include <cfloat>
 
 namespace Gambit
 {
@@ -27,17 +47,14 @@ namespace Gambit
     /// Use the HEPUtils P4 four-vector without needing namespace qualification
     using HEPUtils::P4;
 
+    /// Use the HEPUtils add_quad function without needing namespace qualification
+    using HEPUtils::add_quad;
 
     /// Typedef for a vector of Particle pointers
-    typedef std::vector<HEPUtils::Particle*> ParticlePtrs;
-    /// Typedef for a vector of const Particle pointers
-    typedef std::vector<const HEPUtils::Particle*> ConstParticlePtrs;
-
+    typedef std::vector<const HEPUtils::Particle*> ParticlePtrs;
 
     /// Typedef for a vector of Jet pointers
-    typedef std::vector<HEPUtils::Jet*> JetPtrs;
-    /// Typedef for a vector of const Jet pointers
-    typedef std::vector<const HEPUtils::Jet*> ConstJetPtrs;
+    typedef std::vector<const HEPUtils::Jet*> JetPtrs;
 
     /// @name Particle IDs
     //@{
@@ -45,14 +62,14 @@ namespace Gambit
     /// Identifier for jets true
     inline bool amIaJet(const HEPUtils::Jet *jet) { (void)jet; return true; }
 
-    /// Indentifier for b-jets true 
-    inline bool amIaBJet(const HEPUtils::Jet *jet) { return jet->btag(); } 
+    /// Indentifier for b-jets true
+    inline bool amIaBJet(const HEPUtils::Jet *jet) { return jet->btag(); }
 
     /// Identifier for jets false
     inline bool amIaJet(const HEPUtils::Particle *part) { (void)part; return false; }
 
     /// Indentifier for b-jets true
-    inline bool amIaBJet(const HEPUtils::Particle *part) { (void)part; return true; } 
+    inline bool amIaBJet(const HEPUtils::Particle *part) { (void)part; return true; }
 
     //@}
 
@@ -68,8 +85,8 @@ namespace Gambit
 
     /// In-place filter a supplied particle vector by rejecting those which fail a supplied cut
     inline void ifilter_reject(ParticlePtrs& particles,
-                               std::function<bool(Particle*)> rejfn, bool do_delete=true) {
-      iremoveerase(particles, [&](Particle* p) {
+                               std::function<bool(const Particle*)> rejfn, bool do_delete=true) {
+      iremoveerase(particles, [&](const Particle* p) {
           const bool rm = rejfn(p);
           if (rm && do_delete) delete p;
           return rm;
@@ -78,15 +95,15 @@ namespace Gambit
 
     /// In-place filter a supplied particle vector by keeping those which pass a supplied cut
     inline void ifilter_select(ParticlePtrs& particles,
-                               std::function<bool(Particle*)> selfn, bool do_delete=true) {
-      ifilter_reject(particles, [&](Particle* p) { return !selfn(p); }, do_delete);
+                               std::function<bool(const Particle*)> selfn, bool do_delete=true) {
+      ifilter_reject(particles, [&](const Particle* p) { return !selfn(p); }, do_delete);
     }
 
 
     /// Filter a supplied particle vector by rejecting those which fail a supplied cut
     /// @todo Optimise by only copying those which are selected (filter_select is canonical)
     inline ParticlePtrs filter_reject(const ParticlePtrs& particles,
-                                      std::function<bool(Particle*)> rejfn, bool do_delete=true) {
+                                      std::function<bool(const Particle*)> rejfn, bool do_delete=true) {
       ParticlePtrs rtn = particles;
       ifilter_reject(rtn, rejfn, do_delete);
       return rtn;
@@ -94,8 +111,8 @@ namespace Gambit
 
     /// Filter a supplied particle vector by keeping those which pass a supplied cut
     inline ParticlePtrs filter_select(const ParticlePtrs& particles,
-                                      std::function<bool(Particle*)> selfn, bool do_delete=true) {
-      return filter_reject(particles, [&](Particle* p) { return !selfn(p); }, do_delete);
+                                      std::function<bool(const Particle*)> selfn, bool do_delete=true) {
+      return filter_reject(particles, [&](const Particle* p) { return !selfn(p); }, do_delete);
     }
 
     //@}
@@ -107,8 +124,8 @@ namespace Gambit
 
     /// In-place filter a supplied jet vector by rejecting those which fail a supplied cut
     inline void ifilter_reject(JetPtrs& jets,
-                               std::function<bool(Jet*)> rejfn, bool do_delete=true) {
-      iremoveerase(jets, [&](Jet* j) {
+                               std::function<bool(const Jet*)> rejfn, bool do_delete=true) {
+      iremoveerase(jets, [&](const Jet* j) {
           const bool rm = rejfn(j);
           if (rm && do_delete) delete j;
           return rm;
@@ -117,15 +134,15 @@ namespace Gambit
 
     /// In-place filter a supplied jet vector by keeping those which pass a supplied cut
     inline void ifilter_select(JetPtrs& jets,
-                               std::function<bool(Jet*)> selfn, bool do_delete=true) {
-      ifilter_reject(jets, [&](Jet* j) { return !selfn(j); }, do_delete);
+                               std::function<bool(const Jet*)> selfn, bool do_delete=true) {
+      ifilter_reject(jets, [&](const Jet* j) { return !selfn(j); }, do_delete);
     }
 
 
     /// Filter a supplied particle vector by rejecting those which fail a supplied cut
     /// @todo Optimise by only copying those which are selected (filter_select is canonical)
     inline JetPtrs filter_reject(const JetPtrs& jets,
-                                 std::function<bool(Jet*)> rejfn, bool do_delete=true) {
+                                 std::function<bool(const Jet*)> rejfn, bool do_delete=true) {
       JetPtrs rtn = jets;
       ifilter_reject(rtn, rejfn, do_delete);
       return rtn;
@@ -133,8 +150,8 @@ namespace Gambit
 
     /// Filter a supplied particle vector by keeping those which pass a supplied cut
     inline JetPtrs filter_select(const JetPtrs& jets,
-                                 std::function<bool(Jet*)> selfn, bool do_delete=true) {
-      return filter_reject(jets, [&](Jet* j) { return !selfn(j); }, do_delete);
+                                 std::function<bool(const Jet*)> selfn, bool do_delete=true) {
+      return filter_reject(jets, [&](const Jet* j) { return !selfn(j); }, do_delete);
     }
 
     //@}
@@ -168,16 +185,16 @@ namespace Gambit
     //@{
 
     /// Utility function for filtering a supplied particle vector by sampling wrt an efficiency scalar
-    void filtereff(std::vector<HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
+    void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling an efficiency returned by a provided function object
-    void filtereff(std::vector<HEPUtils::Particle*>& particles, std::function<double(HEPUtils::Particle*)> eff_fn, bool do_delete=false);
+    void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
+    void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
+    void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
 
     //@}
 
@@ -194,6 +211,36 @@ namespace Gambit
         return false; // No tag if outside lookup range... be careful!
       }
     }
+
+    /// Return a map<Jet*,bool> containing a generated b-tag for every jet in the input vector
+    inline std::map<const HEPUtils::Jet*,bool> generateBTagsMap(const std::vector<const HEPUtils::Jet*>& jets, 
+                                                                double bTagEff, double cMissTagEff, double otherMissTagEff,
+                                                                double pTmin = 0., double absEtaMax = DBL_MAX)
+    {
+      std::map<const HEPUtils::Jet*,bool> bTagsMap;
+      for (const HEPUtils::Jet* j : jets)
+      {
+        bool genBTag = false;
+        if((j->pT() > pTmin) && (j->abseta() < absEtaMax))
+        {
+          if(j->btag()) 
+          { 
+            if(random_bool(bTagEff)) { genBTag = true; }
+          }
+          else if(j->ctag()) 
+          { 
+            if(random_bool(cMissTagEff)) { genBTag = true; }
+          }
+          else
+          { 
+            if(random_bool(otherMissTagEff)) { genBTag = true; }
+          }
+        }
+        bTagsMap[j] = genBTag;
+      }
+      return bTagsMap;
+    }
+
 
     template <typename NUM1, typename NUM2>
     inline size_t binIndex(NUM1 val, const std::vector<NUM2>& binedges, bool allow_overflow=false) {
@@ -280,6 +327,24 @@ namespace Gambit
       }, false);
     }
 
+    /// Overlap removal for checking against b-jets -- discard from first list if within deltaRMax of a b-jet in the second list
+    /// Optional arguments:
+    ///  - use_rapidity = use rapidity instead of psedurapidity to compute deltaR. Defaults to False
+    ///  - pTmax = only discard from first list with pT < pTmax. Defaults to DBL_MAX
+    template<typename MOMPTRS1>
+    void removeOverlapIfBjet(MOMPTRS1& momstofilter, std::vector<const HEPUtils::Jet*>& jets, double deltaRMax, bool use_rapidity=false, double pTmax = DBL_MAX)
+    {
+      ifilter_reject(momstofilter, [&](const typename MOMPTRS1::value_type& mom1)
+      {
+        for (const HEPUtils::Jet* jet : jets) {
+          const double dR = (use_rapidity) ? deltaR_rap(mom1->mom(), jet->mom()) : deltaR_eta(mom1->mom(), jet->mom());
+          if (dR < deltaRMax && mom1->pT() < pTmax && jet->btag() ) return true;
+        }
+        return false;
+      }, false);
+    }
+
+
     /// Non-iterator version of std::all_of
     template <typename CONTAINER, typename FN>
     inline bool all_of(const CONTAINER& c, const FN& f) {
@@ -300,13 +365,13 @@ namespace Gambit
 
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
-    std::vector<std::vector<HEPUtils::Particle*>> getSFOSpairs(std::vector<HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
-    std::vector<std::vector<HEPUtils::Particle*>> getOSpairs(std::vector<HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of same-sign particle pairs
-    std::vector<std::vector<HEPUtils::Particle*>> getSSpairs(std::vector<HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
 
 
     /// @name Sorting
@@ -334,8 +399,64 @@ namespace Gambit
 
     // Sort a jets list by decreasing pT
     inline void sortByPt(JetPtrs& jets) { sortBy(jets, cmpJetsByPt); }
+    //@}
 
+
+    /// @name Counting
+    //@{
+
+    /// Count number of particles that have pT > pTlim
+    inline int countPt(const std::vector<const Particle*>& particles, double pTlim)
+    {
+        int sum = 0;
+        for (const Particle* p : particles)
+        {
+          if (p->pT() > pTlim) { sum++; }
+        }
+        return sum;
+    }
+
+    /// Count number of jets that have pT > pTlim
+    inline int countPt(const std::vector<const Jet*>& jets, double pTlim)
+    {
+        int sum = 0;
+        for (const Jet* j : jets)
+        {
+          if (j->pT() > pTlim) { sum++; }
+        }
+        return sum;
+    }
+    
+    //@}
+
+
+    /// @name Summing pT
+    //@{
+
+    /// Scalar sum pT of particles with pT > pTlim (default pTlim = 0)
+    inline double scalarSumPt(const std::vector<const Particle*>& particles, double pTlim=0.)
+    {
+        double sum = 0.;
+        for (const Particle* p : particles)
+        { 
+          if (p->pT() > pTlim) { sum += p->pT(); } 
+        }
+        return sum;
+    }
+
+    /// Scalar sum pT of jets
+    inline double scalarSumPt(const std::vector<const Jet*>& jets, double pTlim=0.)
+    {
+        double sum = 0.;
+        for (const Jet* j : jets)
+        { 
+          if (j->pT() > pTlim) { sum += j->pT(); } 
+        }
+        return sum;
+    }
+    
     //@}
 
   }
+
 }

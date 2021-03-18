@@ -147,11 +147,16 @@ namespace Gambit
       /// Command-line info function
       void bail(int mpirank=-1);
 
+<<<<<<< HEAD
       /// Process default command line options
       str process_primary_options(int,char**);
 
       /// Diagnostics function
       str run_diagnostic(int,char**);
+=======
+    /// Command-line info function
+    void bail(int mpirank = -1);
+>>>>>>> DMEFT
 
       /// Add a new module to modules list
       void registerModule(str);

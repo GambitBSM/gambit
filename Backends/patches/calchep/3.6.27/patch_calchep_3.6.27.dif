@@ -30,7 +30,7 @@
        if(getcwd(compDir,size)) break; else size*=2;
     }
 -   strcat(compDir,"/aux");
-+   strcat(compDir,"/Backends/installed/calchep/3.6.27/aux");
++   compDir = "GAMBITDIR/Backends/installed/calchep/3.6.27/aux";
     libDir=malloc(strlen(compDir)+20);
     sprintf(libDir,"%s/so_generated",compDir);
     modelNum=nModel;

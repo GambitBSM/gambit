@@ -14,7 +14,8 @@
 ///  \author Anders Kvellestad
 ///  \author Matthias Danninger
 ///  \author Rose Kudzman-Blais
-//   \author Tomas Gonzalo
+///  \author Pat Scott
+///  \author Tomas Gonzalo
 ///
 ///  *********************************************
 
@@ -46,7 +47,7 @@ namespace Gambit
 
         // /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
         // /// @todo Remove? This is not the electron efficiency
-        // inline void applyElectronTrackingEff(std::vector<HEPUtils::Particle*>& electrons) {
+        // inline void applyElectronTrackingEff(std::vector<const HEPUtils::Particle*>& electrons) {
         //   static HEPUtils::BinnedFn2D<double> _elTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
         //                                                     {{0, 0.1, 1.0, 100, DBL_MAX}}, //< pT
         //                                                     {{0., 0.73, 0.95, 0.99,
@@ -58,7 +59,7 @@ namespace Gambit
 
         /// Randomly filter the supplied particle list by parameterised electron efficiency
         /// @note Should be applied after the electron energy smearing
-        inline void applyElectronEff(std::vector<HEPUtils::Particle*>& electrons) {
+        inline void applyElectronEff(std::vector<const HEPUtils::Particle*>& electrons) {
           static HEPUtils::BinnedFn2D<double> _elEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
                                                        {{0,10.,DBL_MAX}}, //< pT
                                                        {{0., 0.95,
@@ -70,7 +71,7 @@ namespace Gambit
 
         // /// Randomly filter the supplied particle list by parameterised muon tracking efficiency
         // /// @todo Remove? This is not the muon efficiency
-        // inline void applyMuonTrackEff(std::vector<HEPUtils::Particle*>& muons) {
+        // inline void applyMuonTrackEff(std::vector<const HEPUtils::Particle*>& muons) {
         //   static HEPUtils::BinnedFn2D<double> _muTrackEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
         //                                                     {{0,0.1,1.0,DBL_MAX}}, //< pT
         //                                                     {{0., 0.75, 0.99,
@@ -81,7 +82,7 @@ namespace Gambit
 
 
         /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEff(std::vector<HEPUtils::Particle*>& muons) {
+        inline void applyMuonEff(std::vector<const HEPUtils::Particle*>& muons) {
           static HEPUtils::BinnedFn2D<double> _muEff2d({{0,1.5,2.7,DBL_MAX}}, //< |eta|
                                                        {{0,10.0,DBL_MAX}}, //< pT
                                                        {{0., 0.95,
@@ -92,7 +93,7 @@ namespace Gambit
 
 
         /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEffR2(std::vector<HEPUtils::Particle*>& muons) {
+        inline void applyMuonEffR2(std::vector<const HEPUtils::Particle*>& muons) {
           static HEPUtils::BinnedFn2D<double> _muEff2d({0, 2.7, DBL_MAX}, //< |eta|
                                                        {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
                                                        {0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
@@ -104,7 +105,7 @@ namespace Gambit
         /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
         /// @note From Delphes 3.1.2
         /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
-        inline void applyTauEfficiencyR1(std::vector<HEPUtils::Particle*>& taus) {
+        inline void applyTauEfficiencyR1(std::vector<const HEPUtils::Particle*>& taus) {
           filtereff(taus, 0.40);
         }
 
@@ -112,7 +113,7 @@ namespace Gambit
         /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
         /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
         /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-        inline void applyTauEfficiencyR2(std::vector<HEPUtils::Particle*>& taus) {
+        inline void applyTauEfficiencyR2(std::vector<const HEPUtils::Particle*>& taus) {
 
           // Delphes 3.3.2 config:
           //   set DeltaR 0.2
@@ -148,7 +149,7 @@ namespace Gambit
 
 
 
-        inline void applyPhotonEfficiencyR2(std::vector<HEPUtils::Particle*>& photons) {
+        inline void applyPhotonEfficiencyR2(std::vector<const HEPUtils::Particle*>& photons) {
 
           const static std::vector<double> binedges_eta   = { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX };
           const static std::vector<double> binedges_pt    = { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX };
@@ -520,7 +521,7 @@ namespace Gambit
 
         /// Electron 2019 ID efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIDEfficiency2019(std::vector<HEPUtils::Particle*>& electrons, str operating_point)
+        inline void applyElectronIDEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
         {
 
           // digitised from Fig 8
@@ -544,11 +545,11 @@ namespace Gambit
           // filter electrons
           filtereff_pt(electrons, _eff_pt);
 
-        }        
+        }
 
         /// Electron 2019 Isolation efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIsolationEfficiency2019(std::vector<HEPUtils::Particle*>& electrons, str operating_point)
+        inline void applyElectronIsolationEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
         {
 
           // digitised from Fig 12

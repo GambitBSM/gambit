@@ -134,84 +134,84 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5, int prod6, int prod7) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5, int prod6, int prod7) :
             WrapperBase(__factory0(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2, prod3, prod4, prod5, prod6, prod7))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5, int prod6) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5, int prod6) :
             WrapperBase(__factory1(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2, prod3, prod4, prod5, prod6))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4, int prod5) :
             WrapperBase(__factory2(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2, prod3, prod4, prod5))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3, int prod4) :
             WrapperBase(__factory3(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2, prod3, prod4))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2, int prod3) :
             WrapperBase(__factory4(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2, prod3))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1, int prod2) :
             WrapperBase(__factory5(onModeIn, bRatioIn, meModeIn, prod0, prod1, prod2))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0, int prod1) :
             WrapperBase(__factory6(onModeIn, bRatioIn, meModeIn, prod0, prod1))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn, int prod0) :
             WrapperBase(__factory7(onModeIn, bRatioIn, meModeIn, prod0))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn, int meModeIn) :
             WrapperBase(__factory8(onModeIn, bRatioIn, meModeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn, double bRatioIn) :
+        inline DecayChannel::DecayChannel(int onModeIn, double bRatioIn) :
             WrapperBase(__factory9(onModeIn, bRatioIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel(int onModeIn) :
+        inline DecayChannel::DecayChannel(int onModeIn) :
             WrapperBase(__factory10(onModeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::DecayChannel::DecayChannel() :
+        inline DecayChannel::DecayChannel() :
             WrapperBase(__factory11())
         {
             get_BEptr()->set_wptr(this);
@@ -219,7 +219,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::DecayChannel::DecayChannel(Pythia8::Abstract_DecayChannel* in) :
+        inline DecayChannel::DecayChannel(Abstract_DecayChannel* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -227,7 +227,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::DecayChannel::DecayChannel(const DecayChannel& in) :
+        inline DecayChannel::DecayChannel(const DecayChannel& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -235,7 +235,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::DecayChannel& DecayChannel::operator=(const DecayChannel& in)
+        inline DecayChannel& DecayChannel::operator=(const DecayChannel& in)
         {
             if (this != &in)
             {
@@ -246,7 +246,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::DecayChannel::~DecayChannel()
+        inline DecayChannel::~DecayChannel()
         {
             if (get_BEptr() != 0)
             {
@@ -261,9 +261,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_DecayChannel* Pythia8::DecayChannel::get_BEptr() const
+        inline Abstract_DecayChannel* Pythia8::DecayChannel::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_DecayChannel*>(BEptr);
+            return dynamic_cast<Abstract_DecayChannel*>(BEptr);
         }
     }
     

@@ -2,6 +2,7 @@
 // Created by dsteiner on 31/07/18.
 // Amended by Martin White on 08/03/19.
 //
+// Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2012-10/ (arXiv:1209.2102)
 
 //#include <gambit/ColliderBit/colliders/SpecializablePythia.hpp>
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
@@ -11,10 +12,10 @@
 
 namespace Gambit {
   namespace ColliderBit {
-    
+
     using namespace std;
     using namespace HEPUtils;
-    
+
     class Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb : public Analysis {
 public:
 
@@ -60,7 +61,7 @@ static constexpr const char* detector = "ATLAS";
 #undef VARMAP
 
       std::map<std::string, std::vector<double>> varResults;
-  
+
       std::map<std::string, int> cutflows;
 
       double num1LSR=0;
@@ -84,10 +85,10 @@ static constexpr const char* detector = "ATLAS";
 	    return {a + std::sqrt(delta), a - std::sqrt(delta)};
 	  }
       }
-  
+
       P4 getBestHadronicTop(
-			    std::vector<Jet *> bJets,
-			    std::vector<Jet *> lightJets,
+			    std::vector<const Jet *> bJets,
+			    std::vector<const Jet *> lightJets,
 			    const P4& leptonMom,
 			    const P4& metMom,
 			    double width,
@@ -98,7 +99,7 @@ static constexpr const char* detector = "ATLAS";
 	auto prob = [&width, &mean](P4 particle) {
 	  return 1 - std::erf(1.0 * std::abs(particle.m() - mean) / (std::sqrt(2.0) * width));
 	};
-    
+
 	double pTotal = 0.0;
 	P4 bestHadronicTop;
 	std::vector<double> nuPzChoices = calcNuPz(80.0, metMom, leptonMom);
@@ -109,9 +110,9 @@ static constexpr const char* detector = "ATLAS";
 	    nu.setPE(metMom.px(), metMom.py(), nuPz, nuE);
 	    P4 WLep = leptonMom + nu;
 	    // go through every bJet
-	    for (Jet* firstBJet : bJets)
+	    for (const Jet* firstBJet : bJets)
 	      {
-		for (Jet* secondBJet : bJets)
+		for (const Jet* secondBJet : bJets)
 		  {
 		    if (firstBJet == secondBJet)
 		      {
@@ -119,9 +120,9 @@ static constexpr const char* detector = "ATLAS";
 		      }
 		    P4 topLep = *firstBJet + WLep;
 		    // go through every combination of two light jets
-		    for (Jet* firstLightJet : lightJets)
+		    for (const Jet* firstLightJet : lightJets)
 		      {
-			for (Jet* secondLightJet : lightJets)
+			for (const Jet* secondLightJet : lightJets)
 			  {
 			    // don't want to use a light jet with itself
 			    if (firstLightJet == secondLightJet)
@@ -145,15 +146,15 @@ static constexpr const char* detector = "ATLAS";
 	  }
 	return bestHadronicTop;
       }
-  
+
       double calcMt(P4 metVec, P4 lepVec)
       {
 	double Met = metVec.pT();
 	double pTLep = lepVec.pT();
 	return std::sqrt(2 * pTLep * Met - 2 * AnalysisUtil::dot2D(lepVec, metVec));
       }
-  
-  
+
+
       double calcSqrtSSubMin(P4 visibleSubsystem, P4 invisbleSubsystem)
       {
 	double visiblePart = std::sqrt(sqr(visibleSubsystem.m()) + sqr(visibleSubsystem.pT()));
@@ -163,18 +164,18 @@ static constexpr const char* detector = "ATLAS";
 	  + sqr(visibleSubsystem.py() + invisbleSubsystem.py());
 	return std::sqrt(sqr(visiblePart + invisiblePart) - twoDimensionalVecSum);
       }
-  
+
       void getBJets(
-		    std::vector<Jet*>& jets,
-		    std::vector<Jet*>* bJets,
-		    std::vector<Jet*>* lightJets)
+		    std::vector<const Jet*>& jets,
+		    std::vector<const Jet*>* bJets,
+		    std::vector<const Jet*>* lightJets)
       {
 	/// @note We assume that b jets have previously been 100% tagged
 	const std::vector<double> a = {0, 10.};
 	const std::vector<double> b = {0, 10000.};
 	const std::vector<double> c = {0.60};
 	BinnedFn2D<double> _eff2d(a,b,c);
-	for (Jet* jet : jets)
+	for (const Jet* jet : jets)
 	  {
 	    bool hasTag = has_tag(_eff2d, jet->eta(), jet->pT());
 	    if(jet->btag() && hasTag && jet->abseta() < 2.5)
@@ -187,8 +188,8 @@ static constexpr const char* detector = "ATLAS";
 	      }
 	  }
       }
-  
-  
+
+
       /**
        * The constructor that should initialize some variables
        */
@@ -208,26 +209,26 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 	//HEPUtilsAnalysis::analyze(event);
 	//cout << "Event number: " << num_events() << endl;
 	incrementCut(Total_events);
-	std::vector<Particle*> electrons = event->electrons();
-	std::vector<Particle*> muons = event->muons();
-	std::vector<Jet*> jets = event->jets();
-  
+	std::vector<const Particle*> electrons = event->electrons();
+	std::vector<const Particle*> muons = event->muons();
+	std::vector<const Jet*> jets = event->jets();
+
 	electrons = AnalysisUtil::filterPtEta(electrons, 20, 2.47);
 	muons = AnalysisUtil::filterPtEta(muons, 10, 2.4);
 	jets = AnalysisUtil::filterPtEta(jets, 20, 4.5);
-  
-	std::vector<Jet*> bJets, lightJets;
+
+	std::vector<const Jet*> bJets, lightJets;
 	getBJets(jets, &bJets, &lightJets);
-  
+
 	jets = AnalysisUtil::jetLeptonOverlapRemoval(jets, electrons, 0.2);
 	electrons = AnalysisUtil::leptonJetOverlapRemoval(electrons, jets, 0.4);
 	muons = AnalysisUtil::leptonJetOverlapRemoval(muons, jets, 0.4);
-  
+
 	jets = AnalysisUtil::filterMaxEta(jets, 2.5);
-  
+
 	ATLAS::applyTightIDElectronSelection(electrons);
-  
-	std::vector<Particle*> leptons = AnalysisUtil::getSortedLeptons({electrons, muons});
+
+	std::vector<const Particle*> leptons = AnalysisUtil::getSortedLeptons({electrons, muons});
 	std::sort(electrons.begin(), electrons.end(), AnalysisUtil::sortParticlesByPt);
 	std::sort(muons.begin(), muons.end(), AnalysisUtil::sortParticlesByPt);
 	std::sort(jets.begin(), jets.end(), AnalysisUtil::sortJetsByPt);
@@ -239,10 +240,10 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 	  nJets = jets.size(),
 	  nBJets = bJets.size(),
 	  nLightJets = lightJets.size();
-  
+
 	double Met = event->met();
 	const P4& metVec = event->missingmom();
-  
+
 	if (nLeptons == 1)
 	  {
 	    if (!AnalysisUtil::muonFilter7TeV(muons) && muons.size() == 1)
@@ -267,22 +268,22 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 		}
 	      }
 	  }
-  
-	
-	
-	
+
+
+
+
 	// minimal selection requirements for single lepton
 	if (nLeptons == 1 && nBJets >= 2 && nLightJets >= 2 && Met > 40)
 	  {
 	    double mT = calcMt(metVec, leptons[0]->mom());
-	    
+
 	    auto isValidTop = [](double mean, double width, double mass) {return mass < mean - 0.5 * width;};
-	    
+
 	    if (mT > 30)
 	      {
 		double mean = 0.0, width = 0.0;
 		P4 hadronicTop;
-		
+
 		P4 visibleSubsystem = *leptons[0] + *lightJets[0] + *lightJets[1] + *bJets[0] + *bJets[1];
 		double sqrtSsubMin = calcSqrtSSubMin(visibleSubsystem, metVec);
 		bool isOneLep = false;
@@ -293,7 +294,7 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 		    hadronicTop = getBestHadronicTop(bJets, lightJets, *electrons[0], metVec, width, mean);
 		    isOneLep = true;
 		  }
-		
+
 		// mu-channel
 		if (muons.size() == 1 && muons[0]->pT() > 20)
 		  {
@@ -301,26 +302,26 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 		    hadronicTop = getBestHadronicTop(bJets, lightJets, *muons[0], metVec, width, mean);
 		    isOneLep = true;
 		  }
-		
-		
+
+
 		bool validTop = isValidTop(mean, width, hadronicTop.m());
-		
+
 		if (isOneLep)
 		  {
 		    varResults[varNames[mTopHad]].push_back(hadronicTop.m());
 		    varResults[varNames[oneLepSqrtS]].push_back(sqrtSsubMin);
 		  }
-		
+
 		// check if we are in the 1LSR signal region
 		if (isOneLep && validTop && sqrtSsubMin < 250)
 		  {
-		    num1LSR++;
+		    num1LSR += event->weight();
 		    if (electrons.size() == 1) incrementCut(electron_sr);
 		    if (muons.size() == 1) incrementCut(muon_sr);
 		  }
 	      }
 	  }
-	
+
 	if (nLeptons == 2 && Met > 40 && AnalysisUtil::oppositeSign(leptons[0], leptons[1]) && nJets >= 2)
 	  {
 	    P4 ll = *leptons[0] + *leptons[1];
@@ -341,52 +342,52 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
 		}
 	    }
 	  }
-	
+
 	if (nLeptons == 2 && AnalysisUtil::oppositeSign(leptons[0], leptons[1]) && Met > 40 && nJets >= 2 && nBJets >= 1)
 	  {
 	    P4 ll = *leptons[0] + *leptons[1];
 	    double mll = ll.m();
-	    
+
 	    P4 visibleSubsystem = *leptons[0] + *leptons[1] + *jets[0] + *jets[1];
-	    
+
 	    double sqrtSsubMin = calcSqrtSSubMin(visibleSubsystem, metVec);
-	    
+
 	    double mlljj = visibleSubsystem.m();
 	    varResults[varNames[mllKey]].push_back(mll);
 	    if (mll > 30 && mll < 81)
 	      {
 		bool isTwoLeptonEvent = false;
-		
+
 		// ee channel
 		if (electrons.size() == 2 && electrons[0]->pT() > 25)
 		  {
 		    isTwoLeptonEvent = true;
 		  }
-		
+
 		// mu-mu channel
 		if (muons.size() == 2 && muons[0]->pT() > 20)
 		  {
 		    isTwoLeptonEvent = true;
 		  }
-		
+
 		// e-mu channel
 		if (electrons.size() == 1 && muons.size() == 1 && (electrons[0]->pT() > 25 || muons[0]->pT() > 20))
 		  {
 		    isTwoLeptonEvent = true;
 		  }
-		
+
 		if (isTwoLeptonEvent)
 		  {
 		    varResults[varNames[twoLepSqrtS]].push_back(sqrtSsubMin);
-		    
+
 		    if (sqrtSsubMin < 225)
 		      {
-			num2LSR1++;
+			num2LSR1 += event->weight();
 			incrementCut(num_2lsr1);
 		      }
 		    if (sqrtSsubMin < 235 && mlljj < 140)
 		      {
-			num2LSR2++;
+			num2LSR2 += event->weight();
 			incrementCut(num_2lsr2);
 		      }
 		  }
@@ -398,7 +399,7 @@ Analysis_ATLAS_7TeV_1OR2LEPStop_4_7invfb()
        * Adds results from other threads if OMP_NUM_THREAD != 1
        * @param other results from another thread
        */
-      
+
       /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
 void combine(const Analysis* other)
 {
@@ -412,13 +413,13 @@ void combine(const Analysis* other)
       void collect_results()
       {
 	//saveCutFlow();
-	
+
 	add_result(SignalRegionData("1LSR", 50, {num1LSR, 0.}, {38., 7.}));
 	add_result(SignalRegionData("2LSR1", 123, {num2LSR1, 0.}, {115., 15.}));
 	add_result(SignalRegionData("2LSR2", 47, {num2LSR2, 0.}, {46., 7.}));
-	
+
 	//cout << "1LSR: " << num1LSR << ", 2LSR1: " << num2LSR1 << ", 2LSR2: " << num2LSR2 << endl;
-	
+
 	/*for (std::pair<std::string, std::vector<double>> entry : varResults)
 	  {
 	    cout << "SAVE_START:" << entry.first << endl;

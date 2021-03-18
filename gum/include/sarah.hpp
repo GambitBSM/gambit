@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ***********************************
 ///  \file
 ///
 ///  Declarations of SARAH class
@@ -37,8 +37,11 @@ namespace GUM
       // Load model
       void load_model(std::string name);
     
-      // Model checks
-      bool check_model(std::string name);
+      // Model exists
+      bool model_exists(std::string name);
+
+      // Check model
+      void check_model(std::string name, std::vector<std::string>&);
     
       // Get model name
       std::string get_modelname();
@@ -65,6 +68,9 @@ namespace GUM
       // Add SPheno masses
       void add_SPheno_mass_names(std::vector<Particle>&);
 
+      // Leave only the parameters that SPheno uses
+      void SPheno_parameters(std::vector<Parameter> &parameters);
+
       // Get tadpoles
       void get_tadpoles(std::vector<Parameter>&);
 
@@ -75,7 +81,7 @@ namespace GUM
       void write_ch_output();
       void write_micromegas_output();
       void write_madgraph_output();
-      void write_spheno_output();
+      void write_spheno_output(std::map<std::string,std::string>);
       void write_flexiblesusy_output();
       void write_vevacious_output();
 

@@ -1,3 +1,23 @@
+//   GUM: GAMBIT Universal Model Machine
+//   ************************************
+///  \file
+///
+///  Definitions of various utility classes:
+///    Options, Output, Particle, Parameter,
+///    Error
+///
+///  **********************************
+///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2018, 2019
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019
+///
+///  ***********************************
+
 #include <iostream>
 
 #include "options.hpp"

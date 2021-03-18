@@ -1,8 +1,0 @@
-# Test case for the MSSM
-
-math:
-    package: sarah
-    model: testMSSM
-
-output:
-    spheno: true

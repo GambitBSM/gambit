@@ -26,6 +26,7 @@
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
 #    \date 2018 Oct
+#    \date 2021 Mar
 #
 #*********************************************
 import os
@@ -581,16 +582,16 @@ def same(f1,f2):
     return True
 
 # Compare a candidate file to an existing file, replacing only if they differ.
-def update_only_if_different(existing, candidate):
+def update_only_if_different(existing, candidate, verbose=True):
     if not os.path.isfile(existing):
          shutil.move(candidate,existing)
-         print( "\033[1;33m   Created "+re.sub("\\.\\/","",existing)+"\033[0m" )
+         if verbose: print( "\033[1;33m   Created "+re.sub("\\.\\/","",existing)+"\033[0m" )
     elif same(existing, candidate):
          os.remove(candidate)
-         print( "\033[1;33m   Existing "+re.sub("\\.\\/","",existing)+" is identical to candidate; leaving it untouched\033[0m" )
+         if verbose: print( "\033[1;33m   Existing "+re.sub("\\.\\/","",existing)+" is identical to candidate; leaving it untouched\033[0m" )
     else:
          shutil.move(candidate,existing)
-         print( "\033[1;33m   Updated "+re.sub("\\.\\/","",existing)+"\033[0m" )
+         if verbose: print( "\033[1;33m   Updated "+re.sub("\\.\\/","",existing)+"\033[0m" )
 
 #Create the module_rollcall header in the Core directory
 def make_module_rollcall(rollcall_headers,verbose):

@@ -57,9 +57,11 @@ namespace Gambit
       DMEFTmodel.DMEFT_C78 = *myPipe::Param.at("C78");
       DMEFTmodel.DMEFT_C79 = *myPipe::Param.at("C79");
       DMEFTmodel.DMEFT_C710 = *myPipe::Param.at("C710");
+      // Pole mass inputs (mh is a nuiisance parameter?)
       DMEFTmodel.DMEFT_chi_Pole_Mass = *myPipe::Param.at("mchi");
       DMEFTmodel.DMEFT_h0_1_Pole_Mass = *myPipe::Param.at("mH");
-
+      // running top mass input, must be standard model msbar mt(mt)
+      DMEFTmodel.mtrun = *myPipe::Param.at("mtrunIN");
       // Invalidate point if the EFT is violated for DM annihilation i.e. 2*m_DM > Lambda
       // Default: true
       if (myPipe::runOptions->getValueOrDef<bool>(true,"impose_EFT_validity"))
@@ -92,25 +94,54 @@ namespace Gambit
       double sqrt2v = pow(2.0,0.5)/vev;
       DMEFTmodel.Yu[0][0] = sqrt2v * sminputs.mU;
       DMEFTmodel.Yu[1][1] = sqrt2v * sminputs.mCmC;
-      DMEFTmodel.Yu[2][2] = sqrt2v * sminputs.mT;
+      // top quark is treated at one-loop with different running and pole mass
+      DMEFTmodel.Yu[2][2] = sqrt2v * DMEFTmodel.mtrun;
       DMEFTmodel.Ye[0][0] = sqrt2v * sminputs.mE;
       DMEFTmodel.Ye[1][1] = sqrt2v * sminputs.mMu;
       DMEFTmodel.Ye[2][2] = sqrt2v * sminputs.mTau;
       DMEFTmodel.Yd[0][0] = sqrt2v * sminputs.mD;
       DMEFTmodel.Yd[1][1] = sqrt2v * sminputs.mS;
       DMEFTmodel.Yd[2][2] = sqrt2v * sminputs.mBmB;
-      
+
       // Create a SubSpectrum object wrapper
       Models::DMEFTSimpleSpec spec(DMEFTmodel);
       
       // Retrieve any mass cuts
       static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
       static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
+
+      // We have decided to calculate mT pole from the input running mt
+      // using only one-loop QCD correction
+      // See footnote 9 https://link.springer.com/article/10.1007/JHEP11(2019)150
       
-      // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'sminputs'
-      result = Spectrum(spec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
+      // Firts we run alpha_S from MZ to desired scale with one-loop SM RGE
+
+      // PA: commented out for now, as I think the O(alpha_S^2) correction
+      // to pole mass from this makes numbers less consistent
+      // b_N = 11/ 3 N - nf / 4 - ns /6 = 11 - 10/3 for a topless SM
+      // const double b0 = 23/3.;
+      // const double alpha_S_MZ = sminputs.alphaS;
+      // const double MZ = sminputs.mZ;
+      // const double alpha_S_mtop = alpha_S_MZ / (1. + b0 / (2. * M_PI) * alpha_S_MZ * std::log(DMEFTmodel.mtrun/ MZ));
+
+      // Approximate alpha_S(mtop) as alpha_S(mZ) because the even a one-loop
+      // correction here will lead to O(alpha_S^2) correction
+      // this approximation fits the numbers in https://link.springer.com/article/10.1007/JHEP11(2019)150
+      
+      const double alpha_S_mtop = sminputs.alphaS;
+      // Now extract pole mass from running mass
+      const double mtop_MSBAR_mtop = DMEFTmodel.mtrun; // must be SM MSbar mt(mt)
+      const double mtop_pole = mtop_MSBAR_mtop * (1. + 4. / 3.
+						  * alpha_S_mtop / M_PI);
+
+      // Make a local sminputs so we can change pole mT to the one we calculated
+      SMInputs localsminputs = sminputs;
+      localsminputs.mT = mtop_pole;
+      // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'localsminputs'
+      result = Spectrum(spec,localsminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
+
     }
-    
+
     // Declaration: print spectrum out
     void fill_map_from_DMEFT_spectrum(std::map<std::string,double>&, const Spectrum&);
     
@@ -172,6 +203,11 @@ namespace Gambit
           errmsg << "Problematic parameter was: "<< tag <<", " << name << ", shape="<< shape;
           utils_error().forced_throw(LOCAL_INFO,errmsg.str());
         }
+
+        // Include the pole mass of the top (which is a derived parameter and not in SpectrumContents::DMEFT)
+        std::ostringstream label;
+        label << "t" <<" "<< Par::toString.at(Par::Pole_Mass);
+        specmap[label.str()] = spec.get(Par::Pole_Mass,"t");
       }
     }
     

@@ -34,7 +34,7 @@ namespace Gambit
 
   namespace DarkBit
   {
- 
+
     //////////////////////////////////////////////////////////////////////////
     //
     //            Neutrino telescope likelihoods and observables
@@ -179,20 +179,25 @@ namespace Gambit
       Captn has a Fortran array (2,14) that was initalized to all 0.0 when captngeneral_2_0_init was called.
       Uses populate array to update each entry in the Fortran array as needed for capture rate calculation.
       */
+      // cout << "The capability grabbed via Pipes, *Dep::c0_1_cap: " << *Dep::c0_1_cap << endl;
+      // bjf> Modified to use a custom object to carry these couplings (makes for a better
+      // dependency structure)
+      cout << "DD_nonrel_WCs capabilitiy grabbed via Pipes, e.g. Dep::DD_nonrel_WCs->c0.at(1) " << Dep::DD_nonrel_WCs->c0.at(1) << endl;
 
-      cout << "DD_nonrel_WCs capabilitiy grabbed via Pipes, e.g. Dep::DD_nonrel_WCs->c(0,1) " << Dep::DD_nonrel_WCs->c(0,1) << endl;
-      
+      // FK: IMPORTANT! I made a temporary fix below to ensure that GAMBIT compiles, but the result is maybe not what is desired
+      // There needs to be a check of which basis is being used for the DD_nonrel_WCs to ensure that they are interpreted correctly
+      // See DDCalc interface for details / examples
       int coupleNum;
-      for(int j=0; j<15; j++)
+      for(int j=0; j<12; j++)
       {
         coupleNum = j + 1; // this is the coupling number, ranges 1 to 15 (but not 2)
         if (coupleNum != 2) // 2 is not an allowed coupling constant
         {
-          BEreq::populate_array(Dep::DD_nonrel_WCs->c(0,coupleNum), coupleNum, 0);
-          BEreq::populate_array(Dep::DD_nonrel_WCs->c(1,coupleNum), coupleNum, 1);
+          BEreq::populate_array(Dep::DD_nonrel_WCs->c0.at(coupleNum), coupleNum, 0);
+          BEreq::populate_array(Dep::DD_nonrel_WCs->c1.at(coupleNum), coupleNum, 1);
         }
       }
-      
+
 
       /*
       Code to sum over all elements in solar model simultaneously.
@@ -235,7 +240,12 @@ namespace Gambit
       double T_Sun_core = 1.35e-6; // Sun's core temperature (GeV)
 
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+
+      // Make sure that we're not trying to work with decaying DM.
+      const TH_Process* p = Dep::TH_ProcessCatalog->find(DMid, DMbarid);
+      if (p == NULL) DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet by the DarkBit neutrino routines.");
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
 
       // Add all the regular channels
       for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
@@ -253,7 +263,7 @@ namespace Gambit
 
       double ca = sigmav/6.6e28 * pow(*Dep::mwimp/20.0, 1.5);
       // Scale the annihilation rate down by a factor of two if the DM is not self-conjugate
-      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatter_ID).isSelfConj) ca *= 0.5;
+      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatterConj_ID).isSelfConj) ca *= 0.5;
       result = pow(*Dep::capture_rate_Sun * ca, -0.5);
 
       // std::cout << "v = " << sqrt(2.0*T_Sun_core/(*Dep::mwimp)) << " and sigmav inside equilibration_time_Sun = " << sigmav << std::endl;
@@ -281,12 +291,12 @@ namespace Gambit
       // Set annihilation branching fractions
       // TODO: needs to be fixed once BFs are available directly from TH_Process
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
-
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
-      
+
       #ifdef DARKBIT_DEBUG
         Models::ParticleDB().partmap::check_contents();
         // Print out the vector of channels from TH_ProcessCatalog
@@ -315,14 +325,14 @@ namespace Gambit
           pdgstrings.push_back(Models::ParticleDB().partmap::long_name(Models::ParticleDB().partmap::pdg_pair(*it).first, 0));
         }
         const TH_Channel* channel = annProc.find(pdgstrings);
-        
+
         #ifdef DARKBIT_DEBUG
           // Print out the current neutral_channel
           cout << "Looking at the ";
           for (auto it=neutral_channels[i].begin(); it!=neutral_channels[i].end(); it++) cout << *it << " ";
           cout << "neutral_channel" << endl;
         #endif
-        
+
         if (channel == NULL or i == 26) // Channel 26 has not been implemented in DarkSUSY.
         {
           annihilation_bf[i] = 0.;
@@ -344,7 +354,7 @@ namespace Gambit
             annihilation_bf[i] += channel->genRate->bind("v")->eval(0.);
           }
           annihilation_bf[i] /= *Dep::sigmav;
-          
+
           #ifdef DARKBIT_DEBUG
             // state the channel which is having its bf set
             cout << "For which, I found this channel in the annihilation proccess: ";

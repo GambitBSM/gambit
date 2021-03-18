@@ -1,0 +1,261 @@
+Parameters:
+
+  LCDM:
+    omega_b:
+      range: [0.020,0.024]
+    omega_cdm:
+      range: [0.10,0.13]
+    H0:
+      range: [62,74]
+    tau_reio:
+      range: [0.004,0.20]
+    T_cmb: 2.72548
+
+  Minimal_PowerLaw_ps:
+    ln10A_s:
+      range: [2.9,3.2]
+    n_s:
+      range: [0.9,1.10]
+
+  cosmo_nuisance_Planck_lite:
+    A_planck:
+      range: [0.9,1.1]
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
+
+  StandardModel_Higgs:
+     mH: 125.10 # PDG 2020 value
+
+  DMEFT:
+    # DM mass
+    mchi: 10.
+    # Scale of new physics
+    Lambda: 100
+    # EM interactions (only turn on at loop-level -- not concerned with these)
+    C51: 0.
+    C52: 0.
+    # Dim 6 -- qq chi chi bilinears
+    # vector vector
+    C61: 0
+    # axial-vector vector
+    C62: 0
+    # vector axial-vector
+    C63: 0
+    # axial-vector axial-vector
+    C64:
+      #range: [0.0, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [0., 0., 1e-06, 12.56637]
+    # Dim 7 -- gluons
+    C71: 0
+    C72: 0
+    C73: 0
+    C74: 0
+    # Dim 7 -- Higgs induced bilinears
+    # Scalar scalar
+    C75: 0
+    # Pseudoscalar scalar
+    C76: 0
+    # Scalar pseudoscalar
+    C77: 0
+    # Pseudoscalar pseudoscalar
+    C78: 0
+    # Dim 7 -- tensor currents
+    # sigma sigma
+    C79: 0
+    # sigma*ig5 sigma
+    C710: 0
+    # Top running mass - this overrides the SM top pole mass parameter
+    mtrunIN: 162.9
+
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   Planck_nuisance_prior_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_highl_loglike
+    function:     function_Planck_highl_TTTEEE_lite_2018_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_lensing_loglike
+    function:     function_Planck_lensing_2018_loglike
+
+  - purpose:      LogLike
+    capability:   Planck_lowl_loglike
+    function:     function_Planck_lowl_TTEE_2018_loglike
+
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    sub_capabilities:
+      - bao_smallz_2014
+      - bao_boss_dr12
+
+  - purpose:          Observable
+    capability:       MP_LogLikes
+    type:             map_str_dbl
+
+  - purpose:          Observable
+    capability:       p_ann
+    type:             double
+
+  - purpose:          Observable
+    capability:       f_eff
+    type:             double
+
+  - purpose:          Observable
+    capability:       sigmav
+    type:             double
+
+  - purpose:          Observable
+    capability:       RD_fraction
+    type:             double
+
+Rules:
+
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  - capability:   BBN_abundances
+    options:
+      isotope_basis: [Yp, D]
+      correlation_matrix: [[+1.000e00, +1.524e-2],
+                           [+1.524e-2, +1.000e00]]
+      relative_errors: [1.348e-3, 1.596e-2]
+
+  - capability: classy_MPLike_input
+    function: set_classy_input_with_MPLike
+
+  - capability: DarkAges_1_2_0_init
+    options:
+      f_eff_mode: true
+
+  - capability: f_eff
+    function: f_eff_weighted
+    #function: f_eff_at_z
+    #function: f_eff_constant
+
+  - capability: classy_parameters_EnergyInjection
+    function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
+
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+    #function: GA_SimYieldTable_PPPC
+    #function: GA_SimYieldTable_empty
+
+  - capability: electron_Yield
+    function: electron_AnnYield_General
+
+  - capability: electron_SimYieldTable
+    function: electron_SimYieldTable_from_positron_SimYieldTable
+
+  - capability: positron_Yield
+    function: positron_AnnYield_General
+
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+    #function: positron_SimYieldTable_PPPC
+    #function: positron_SimYieldTable_empty
+
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_empty
+
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_empty
+
+  # For simplicity assume that the parameter point will saturate the relic density
+  #  - Alternatively, choose to rescale it (either by a constant or properly via LCDM::omega_b)
+  #    This will require RD_oh2 to be calculated (rule below)
+  - capability: RD_fraction
+    function: RD_fraction_one
+    #function: RD_fraction_rescaled_LCDM
+    #function: RD_fraction_leq_one
+    #options: # Planck 2018 values
+    #  oh2_obs: 0.120
+
+  # Use DarkSUSY directly, MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Consult the DarkBit manual for the required options in each case
+  - capability: RD_oh2
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
+    options:
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+    #  omtype: 1  # 0: no coann, 1: all coann (default)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  # Choose to get decay rates from DecayBit proper, not an SLHA file
+  - capability: decay_rates
+    function: all_decays
+
+Logger:
+
+  redirection:
+    [Default] : "default.log"
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "DMEFT_CMB_test.hdf5"
+  #   delete_file_on_restart: false
+  #   buffer_length: 200
+  #   group: "/DMEFT"
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+    random:
+      plugin: random
+      point_number: 10
+      like:  LogLike
+
+    diver:
+      plugin: diver
+      like: LogLike
+      NP: 50000
+      verbosity: 1
+      convthresh: 3E-5
+      lambdajDE: false
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    debug: false
+
+  default_output_path: "runs/DMEFT/CMB_test/"
+
+  debug: false
+  print_timing_data: false

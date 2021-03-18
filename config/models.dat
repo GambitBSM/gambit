@@ -22,6 +22,9 @@ NormalDist: |
 TestModel1D: |
    A one-dimensional test model, typically used for debugging simple prior transformations, or when a dummy model is required (as in the external model example in ColliderBit).
 
+demo_CAP: |
+   A test model for a demonstration of the use of ordinary module functions directly in a model namespace.
+
 MSSM63atQ: |
    The most general formulation of the CP-conserving MSSM, with C terms set to zero due to their usual irrelevance in (known) SUSY-breaking schemes. The parameters are:
 
@@ -480,6 +483,10 @@ nuclear_params_ChPT: |
 
    Model of nuclear matrix elements relevant for chiral perturbation theory in the context of direct detection. This is primarily designed for the interface with DirectDM, and the naming of the parameters corresponds to the one given in 1708.02678.
 
+nuclear_params_neutron_lifetime : |
+
+   Model for the neutron lifetime (parameter name neutron_lifetime [s]).
+
 ScalarSingletDM_Z2: |
 
    The scalar singlet DM model, with two parameters mS (the mass of the scalar DM), and lambda_hS, the strength of the new scalar interaction with the SM Higgs. Note that mS should either be interpreted as the tree level mass or directly as the pole mass for S. This is analogous to the treatment of the SM Higgs mass in the model StandardModel_Higgs.
@@ -563,3 +570,465 @@ NREO_DiracDM: |
 
 WIMP_sigmav: |
    General A + Bv^2 parameterisation of WIMP self-annihilation to all SM two-body final states
+
+############################
+# Cosmology related models #
+############################
+
+LCDM: |
+
+   The standard Lambda-CDM model, but without any details of the inflationary or neutrino sectors. Chooses Hubble scale as an input parameter.
+   The simplest standard contemporary model with 4+1 effective parameters, chosen as:
+
+   omega_b             - baryon density parameter
+   omega_cdm           - dark matter density parameter
+   H0                  - Hubble constant [km/s/Mpc]
+   tau_reio            - reionization optical depth
+   T_cmb               - CMB temperature [K] (if not specified, default value is used)
+
+LCDM_theta: |
+
+   The standard Lambda-CDM model, but without any details of the inflationary or neutrino sectors. Chooses the acoustic scale as an input parameter.
+   The simplest standard contemporary model with 4+1 effective parameters including cosmological constant Lambda and cold dark matter. The 5 parameters are chosen as:
+
+   omega_b             - baryon density parameter
+   omega_cdm           - dark matter density parameter
+   100theta_s          - acoustic angular scale, times 100
+   tau_reio            - reionization optical depth
+   T_cmb               - CMB temperature [K]
+
+#
+# Modifications to N_eff
+#
+
+etaBBN_rBBN_rCMB_dNurBBN_dNurCMB: |
+
+   Model to be scanned in addition to LCDM as an extension: allowing for non-standard values of the baryon-to-photon ratio at BBN, non-standard values of the temperature ratio between photon and neutrinos at BBN and CMB release, as well as additional ultra-relativistic species present during BBN or at CMB release.
+   Total value of Neff @BBN: 3.045 x (r_BBN)^4 + dNur_BBN
+   Total value of Neff @CMB: 3.045 x (r_CMB)^4 + dNur_CMB
+   Total value of Neff today: Neff @CMB - N_ur_SMnu x (r_CMB)^4 (value of Neff depending on #massive Nu) assuming that r_CMB = r_0 and dNur_CMB = dNur_0   => this is the value we have to pass to class as `N_ur`
+
+   eta_BBN             - baryon-to-photon ratio during BBN (eta at CMB set by omega_b)
+   r_BBN               - factor by which the temperature ratio of SM neutrinos and photons deviates
+                         from the standard value T_ncdm during BBN
+   r_CMB               - factor by which the temperature ratio of SM neutrinos and photons deviates
+                         from the standard value T_ncdm at CMB release
+   dNur_BBN            - additional ultra-relativistic species during BBN
+   dNur_CMB            - additional ultra-relativistic species at CMB
+
+etaBBN: |
+
+   Child model of etaBBN_rBBN_rCMB_dNurBBN_dNurCMB with only etaBBN as free parameter. Only allows for non-standard baryon-to-photon ratios, Neff as in SM at all times => r_BBN = r_CMB = 1 and dNur_BBN = dNur_CMB = 0.
+
+   eta_BBN             - baryon-to-photon ratio during BBN (eta at CMB set by omega_b)
+
+rBBN_rCMB_dNurBBN_dNurCMB: |
+
+   Child model of etaBBN_rBBN_rCMB_dNurBBN_dNurCMB. Parameters as in parent but with etaBBN = eta0 (calculated from omega_b from a LCDM model)
+
+dNurBBN_dNurCMB: |
+
+   Child model of rBBN_rCMB_dNurBBN_dNurCMB model. Parameters are as in parent model but without allowing for non-standard neutrino temperatures => r_BBN = r_CMB = 1.
+
+dNurCMB: |
+
+   Child model of dNurBBN_dNurCMB model. Parameters are as in parent model but the number of extra ultra-relativistic species is assumed to be constant between BBN and CMB, hence dNur_BBN = dNur_CMB.
+
+rBBN_rCMB: |
+
+   Child model of rBBN_rCMB_dNurBBN_dNurCMB model. Parameters are as in parent model but without allowing for additional ultra-relativistic species => dNur_BBN = dNur_CMB = 0.
+
+rCMB: |
+
+   Child model of rBBN_rCMB model. Parameters are as in parent model but the neutrino to photon temperature ratio between BBN and CMB is assumed to be constant, hence r_BBN = r_CMB.
+
+#
+# Inflationary models
+#
+
+PowerLaw_ps: |
+
+   Simple, parameterised, purely phenomenological, scale-free power spectrum.
+   Parameters:
+
+   ln10A_s             - primordial curvature fluctuation amplitude
+   n_s                 - parametrises the primordial scale dependence
+   r                   - scalar to tensor ratio
+   N_pivot             - pivot scale: number of e-folds from the end of inflation (for k_pivot)
+
+Minimal_PowerLaw_ps: |
+
+   As PowerLaw_ps, but with no tensor perturbations (r=0) and fixed N_pivot (=55).
+
+Inflation_InstReh_1Starobinsky : |
+
+   Single field Starobinsky inflation (aka R^2 inflation), assuming instant reheating.
+   Potential: V(phi) = Lambda^4 [1-exp(-sqrt(2/3)phi/M_P)]^2 (dimensionful Lambda == lambda * M_P)
+                     = (lambda M_P)^4 [1-exp(-sqrt(2/3)phi/M_P)]^2
+
+   lambda:       - the [dimensionless] amplitude of the coupling term in the potential
+
+Inflation_InstReh_1mono23: |
+
+   Inflation model with potential V(phi) = 1.5 lambda phi^(2/3), assuming instant reheating.
+
+   lambda        - the amplitude of the coupling term in the potential
+
+
+Inflation_InstReh_1linear: |
+
+   Inflation model with potential V(phi) = lambda phi, assuming instant reheating.
+
+   lambda        - the amplitude of the coupling term in the potential
+
+
+Inflation_InstReh_1quadratic: |
+
+   Inflation model with potential V(phi) = lambda phi, assuming instant reheating.
+
+   m_phi         - the mass of the inflaton field (in units of mpl)
+
+
+Inflation_InstReh_1quartic: |
+
+  Inflation model with potential V(phi) = 0.25 lambda phi^4, assuming instant reheating.
+
+  lambda        - the amplitude of the coupling term in the potential
+
+
+Inflation_InstReh_1natural: |
+
+   Natural inflation model (axion-like particles) with potential V(phi) = Lambda^4 [1 + cos(phi/f)], assuming instant reheating.
+
+   Lambda       - overall energy scale of the potential
+   f_phi        - decay constant of the inflaton
+
+#
+# Cosmological nuisance parameters
+#
+
+cosmo_nuisance_dummy: |
+   Dummy model for cosmological nuisance parameters that can be used by new MontePython likelihoods. This model has 10 parameters, more can be added anytime to Models/include/gambit/Models/models/CosmoNuisanceModels.hpp.
+   Note: if you want to use this model for nuisance parameters in MP make sure that the
+         name of the nuisance parameters matches the variable name in GAMBIT -> 'nuisance_param_X'.
+         You can fix all not needed parameters to a constant value in the yaml file before starting a scan.
+
+cosmo_nuisance_acbar: |
+   Cosmological nuisance parameters for MontePython acbar likelihood.
+
+cosmo_nuisance_spt: |
+   Cosmological nuisance parameters for MontePython spt and spt_2500 likelihood.
+
+cosmo_nuisance_Pantheon: |
+   Cosmological nuisance parameters for Pantheon SNe Ia likelihood from Scolnic et al. (https://arxiv.org/abs/1710.00845).
+
+   M                   - absolute magnitude of Type Ia Supernova
+
+cosmo_nuisance_JLA: |
+   Cosmological nuisance parameters for JLA SNe Ia likelihood from JLA likelihood from Betoule et al. 2014 (https://arxiv.org/abs/1401.4064).
+
+   M                   - B band peak magnitude of Type Ia Supernova
+   Delta_M             - Error in M (includes contributions from intrinsic dispersion,
+                         lensing, and redshift uncertainty)
+   alpha               - SALT2 shape parameter
+   beta                - SALT2 colour parameter
+
+cosmo_nuisance_BK14: |
+   Cosmological nuisance parameters for BK14 likelihood, from http://arxiv.org/pdf/1510.09217.pdf, http://bicepkeck.org/bk14_2015_release.html. Descriptions taken from BK14_cosmomc/batch2/BK14.ini
+
+   BBTdust             - dust blackbody temperature [K] -- fixed to 19.6 / very insensitive to this
+   BBalphadust         - dust spatial power spectrum power law index
+   BBalphasync         - sync spatial power specturm power law index
+   BBbetadust          - dust SED power law index
+   BBbetasync          - sync SED power law index
+   BBdust              - dust power at ell=80, nu=353 GHz [uK^2]
+   BBdustsynccorr      - correlation between dust and sync
+   BBsync              - sync power at ell=80, nu=23 GHz [uK^2]
+   EEtoBB_dust         - EE/BB ratios -- recommended to fix to 2 / only used if E-modes are turned on
+   EEtoBB_sync         - EE/BB ratios -- recommended to fix to 2 / only used if E-modes are turned on
+
+cosmo_nuisance_BK14priors: |
+   Cosmological nuisance parameters for BK14priors likelihood in MontePython, from http://arxiv.org/pdf/1510.09217.pdf
+   @TODO
+
+   BBbetadust          - dust SED power law index
+   BBbetasync          - sync SED power law index
+
+cosmo_nuisance_CFHTLens_correlation: |
+   Cosmological nuisance parameters for CFHTLenS tomographic weak lensing likelihood from Heymans et al. (https://arxiv.org/abs/1303.1808 ).
+
+   epsilon_CFHT        - nuisance parameter for theoretical error calculation on non-linear matter power spectrum P_nl_th.
+
+cosmo_nuisance_euclid_lensing: |
+   Cosmological nuisance parameters for euclid cosmic shear likelihood from Sprenger et al. (https://arxiv.org/abs/1801.08331). This likelihood is based on an earlier Euclid P(k) likelihood by Audren & Lesgourgues described in Audren et al. (https://arxiv.org/1210.2194).
+
+   epsilon_euclid        - nuisance parameter accounting for a global uncorrelated
+                           theoretical error in e.g. (non-)linear power spectrum, scale dependent bias,
+                           errors in redshift-space distortions.. for details see appendix A.4 of Audren et al. (https://arxiv.org/abs/1210.2194)
+
+cosmo_nuisance_euclid_pk: |
+   Cosmological nuisance parameters for euclid galaxy clustering likelihood from Sprenger et al. (https://arxiv.org/abs/1801.08331). This likelihood is based on an earlier Euclid P(k) likelihood by Audren & Lesgourgues described in Audren et al. (https://arxiv.org/1210.2194).
+
+   sigma_NL_euclid      - nuisance parameter parametrising uncertainty in the galaxy power spectrum,
+                          details and definition (eq. 5.15) can be found in Sprenger et al.
+   beta_0Euclid         - nuisance parameter parametrising uncertainty in redshift dependence of galaxy bias, mean value 1.
+   beta_1Euclid         - nuisance parameter parametrising uncertainty in redshift dependence of galaxy bias, mean value 1.
+                          => b(z) =  beta_0Euclid (1 + z)^(0.5 x beta_1Euclid)  (eq. 2.15 in Sprenger et al.)
+   P_shot               - shot noise, see Eq. A.2 in Sprenger et al. If the shot noise shall be neglected in the likelihood calculation, use the model 'cosmo_nuisance_euclid_pk_noShot' instead.
+
+cosmo_nuisance_euclid_pk_noShot: |
+   As cosmo_nuisance_euclid_pk but without the parameter 'P_shot'. Hence, shot noise in the likelihood calculation is neglected when using this nuisance model.
+
+cosmo_nuisance_ISW: |
+   Cosmological nuisance parameters for tomographic ISW effect from Stölzner et al. (https://arxiv.org/abs/1710.03238). Used cross-correlation between CMB TT spectrum and 5 galaxy surveys: 2MPZ, Wise x SuperCOSMOS, SDSS DR12 photometric, SDSS DR6 QSO, and NVSS.
+
+   A_ISW             - ISW amplitude
+   bX_sdss           - linear bias for redshift bin X of SDSS DR12 photometric data
+   bX_qso            - linear bias for redshift bin X of SDSS DR6 QSO
+   bX_mpz            - linear bias for redshift bin X of 2MASS Photometric Redshift catalogue
+   bX_wisc           - linear bias for redshift bin X of WISE × SuperCOSMOS
+   bX_nvss           - linear bias for redshift bin X of the NRAO VLA Sky Survey
+
+cosmo_nuisance_kids450_qe_likelihood_public: |
+   Cosmological nuisance parameters for KiDS-450 shear power spectrum likelihood from Koehlinger et al. (https://arxiv.org/abs/1706.02892).
+
+   A_IA              - dimensionless amplitude to rescale normalisation entering the computation of the
+                       cross-correlation of  intrinsic ellipticities of foreground galaxies and the
+                       gravitational shear of background galaxies Cl_GI, defined in eq. (23)
+   A_bary            - amplitude in fitting formula for baryon feedback when determining scale dependent galaxy bias,
+                       defined in eq. (19)
+   A_noise_zX        - nuisance parameters for residual noise power, independent for each z bin X
+   exp_IA            - exponent entering the calculation of rescaling factor of Cl_II & Cl_GI correlations,
+                       if 0 redshift-scaling is turned off
+   m_corr            - nuisance parameters for m-correction
+
+cosmo_nuisance_ska1: |
+   Cosmological nuisance parameters for SKA1 21cm intensity mapping and galaxy clustering from Sprenger et al. (https://arxiv.org/abs/11801.08331). These likelihoods are based on an earlier Euclid P(k) likelihood by Audren & Lesgourgues described in Audren et al. (https://arxiv.org/abs/1210.2194).
+   When using only intensity mapping likelihoods use the child models 'cosmo_nuisance_ska1_IM_band' or 'cosmo_nuisance_ska1_IM_band_noHI' (neglecting the nuisance parameters Omega_HI0 and alpha_HI). For the galaxy clustering likelihood only use 'cosmo_nuisance_ska1_pk'
+
+   21 cm intensity mapping:
+   Omega_HI0         - nuisance parameter for calculation of Omega_HI (energy density of neutral hydrogen)
+   alpha_HI          - nuisance parameter for redshift dependence of Omega_HI
+                       => Omega_HI = Omega_HI0 x (1 + z)^(alpha_HI)  (eq. 4.5)
+   beta_0IM          - nuisance parameters to describe the future accuracy of bias modelling
+   beta_1IM          - nuisance parameters to describe the future accuracy of bias modelling
+                       => bHI(z) = beta_0IM [0.904 + 0.135(1 + z)^(1.696 beta_1IM)]  (eq. 4.7)
+
+   galaxy clustering:
+   beta_0SKA1        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+                       dependence for SKA 1 & 2 respectively
+   beta_1SKA2        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+                       dependence for SKA 1 & 2 respectively
+                     => b(z) = c4 beta_0SKA/2 exp(c5 beta_SKA1/2 z)  (eq. 2.20)
+   common:
+   sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
+
+cosmo_nuisance_ska1_IM_band: |
+   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331).
+   Use this model with the MontePython likelihood 'ska1_IM_band1' or 'ska1_IM_band2'. To neglect the parameters Omega_HI0 and alpha_HI use the model 'cosmo_nuisance_ska1_IM_band_noHI'.
+
+   sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
+   Omega_HI0         - nuisance parameter for calculation of Omega_HI (energy density of neutral hydrogen)
+   alpha_HI          - nuisance parameter for redshift dependence of Omega_HI
+                       => Omega_HI = Omega_HI0 x (1 + z)^(alpha_HI)  (eq. 4.5)
+   beta_0IM          - nuisance parameters to describe the future accuracy of bias modelling
+   beta_1IM          - nuisance parameters to describe the future accuracy of bias modelling
+                       => bHI(z) = beta_0IM [0.904 + 0.135(1 + z)^(1.696 beta_1IM)]  (eq. 4.7)
+
+cosmo_nuisance_ska1_IM_band_noHI: |
+   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331) neglect the nuisance parameters Omega_HI0 and alpha_HI.
+
+   sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
+   beta_0IM          - nuisance parameters to describe the future accuracy of bias modelling
+   beta_1IM          - nuisance parameters to describe the future accuracy of bias modelling
+                       => bHI(z) = beta_0IM [0.904 + 0.135(1 + z)^(1.696 beta_1IM)]  (eq. 4.7)
+
+cosmo_nuisance_ska1_pk: |
+   Cosmological nuisance parameters for SKA1 galaxy clustering from Sprenger et al. (https://arxiv.org/abs/11801.08331). These likelihoods are based on an earlier Euclid P(k) likelihood by Audren & Lesgourgues described in Audren et al. (https://arxiv.org/abs/1210.2194). Use this model with the MontePython likelihood 'ska1_pk'.
+
+   sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
+   beta_0SKA1        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+   beta_1SKA1        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+                     => b(z) = c4 beta_0SKA/2 exp(c5 beta_SKA1 z)  (eq. 2.20)
+
+cosmo_nuisance_ska2_pk: |
+   Cosmological nuisance parameters for SKA2 galaxy clustering from Sprenger et al. (https://arxiv.org/abs/11801.08331). These likelihoods are based on an earlier Euclid P(k) likelihood by Audren & Lesgourgues described in Audren et al. (https://arxiv.org/abs/1210.2194). Use this model with the MontePython likelihood 'ska2_pk'.
+
+   sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
+   beta_0SKA2        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+   beta_1SKA2        - nuisance parameter modelling the inaccuracy of the theoretical galaxy bias redshift
+                     => b(z) = c4 beta_0SKA/2 exp(c5 beta_SKA2 z)  (eq. 2.20)
+
+cosmo_nuisance_ska_lensing: |
+   Cosmological nuisance parameters for SKA1 & SKA2 cosmic shear from Sprenger et al. (https://arxiv.org/abs/11801.08331). Use this model with the MontePython likelihoods 'ska1_lensing' and 'ska2_lensing'.
+
+   epsilon_ska       - nuisance parameter accounting for a global uncorrelated
+                       theoretical error in e.g. (non-)linear power spectrum, scale dependent bias,
+                       errors in redshift-space distortions.. for details see appendix A.4 of Audren et al. (https://arxiv.org/abs/1210.2194)
+
+
+cosmo_nuisance_Planck_TTTEEE: |
+   Planck likelihood for high-l TT,TE,EE-spectra with 34 nuissance parameter.
+
+   A_cib_217           - the CIB contamination at ℓ=3000 in the 217-GHz Planck map
+   cib_index           - the effective slope of the CIB spectrum, which should be set to -1.3
+   xi_sz_cib           - the SZ×CIB cross-correlation
+   A_sz                - the tSZ contamination at 143GHz
+   ps_A_100_100        - the point source contribution in 100×100
+   ps_A_143_143        - the point source contribution in 143×143
+   ps_A_143_217        - the point source contribution in 143×217
+   ps_A_217_217        - the point source contribution in 217×217
+   ksz_norm            - the kSZ contamination
+   gal545_A_100        - the dust residual contamination at ℓ=200 in 100×100TT
+   gal545_A_143        - the dust residual contamination at ℓ=200 in 143×143TT
+   gal545_A_143_217    - the dust residual contamination at ℓ=200 in 143×217TT
+   gal545_A_217        - the dust residual contamination at ℓ=200 in 217×217TT
+   galf_EE_A_100       - the dust residual contamination at ℓ=500 in 100×100EE
+   galf_EE_A_100_143   - the dust residual contamination at ℓ=500 in 100×143EE
+   galf_EE_A_100_217   - the dust residual contamination at ℓ=500 in 100×217EE
+   galf_EE_A_143       - the dust residual contamination at ℓ=500 in 143×143EE
+   galf_EE_A_143_217   - the dust residual contamination at ℓ=500 in 143×217EE
+   galf_EE_A_217       - the dust residual contamination at ℓ=500 in 217×217EE
+   galf_EE_index       - the dust EE template slope, which should be set to -2.4
+   galf_TE_A_100       - the dust residual contamination at ℓ=500 in 100×100TE
+   galf_TE_A_100_143   - the dust residual contamination at ℓ=500 in 100×143TE
+   galf_TE_A_100_217   - the dust residual contamination at ℓ=500 in 100×217TE
+   galf_TE_A_143       - the dust residual contamination at ℓ=500 in 143x143TE
+   galf_TE_A_143_217   - the dust residual contamination at ℓ=500 in 143×217TE
+   galf_TE_A_217       - the dust residual contamination at ℓ=500 in 217×217TE
+   galf_TE_index       - the dust EE template slope, which should be set to -2.4
+   calib_100T          - the relative calibration between 100 and 143 TT spectra
+   calib_217T          - the relative calibration between 217 and 143 TT spectra
+   calib_100P          - the calibration of the 100 EE spectra, which should be set to 1
+   calib_143P          - the calibration of the 143 EE spectra, which should be set to 1
+   calib_217P          - the calibration of the 217 EE spectra, which should be set to 1
+   A_pol               - the calibration of the polarization relative to the temperature, which should be set to 1
+   A_planck            - the Planck absolute calibration.
+
+cosmo_nuisance_Planck_TT: |
+   Planck likelihood for high-l TT-spectrum with 16 nuissance parameter.
+
+   A_cib_217           - the CIB contamination at l=3000 in the 217-GHz Planck map
+   cib_index           - the effective slope of the CIB spectrum, a parameter that should be set to -1.3
+   xi_sz_cib           - the SZxCIB cross-correlation
+   A_sz                - the tSZ contamination at 143GHz
+   ps_A_100_100        - the point source contribution in 100x100
+   ps_A_143_143        - the point source contribution in 143x143
+   ps_A_143_217        - the point source contribution in 143x217
+   ps_A_217_217        - the point source contribution in 217x217
+   ksz_norm            - the kSZ contamination
+   gal545_A_100        - the dust residual contamination at l=200 in 100x100
+   gal545_A_143        - the dust residual contamination at l=200 in 143x143
+   gal545_A_143_217    - the dust residual contamination at l=200 in 143x217
+   gal545_A_217        - the dust residual contamination at l=200 in 217x217
+   calib_100T          - the relative calibration between the 100 and 143 spectra
+   calib_217T          - the relative calibration between the 217 and 143 spectra
+   A_planck            - the Planck absolute calibration.
+
+cosmo_nuisance_Planck_lite: |
+   Planck likelihood for high-l TT-spectrum (marginalized) with 1 nuissance parameter.
+
+   A_planck            - the Planck absolute calibration.
+
+#
+# Energy injection models
+#
+
+AnnihilatingDM_general: |
+
+   The most general scenario of dark matter s-wave annihilating, to inject energy. An additional module function
+   must be written to provide the correct efficiency functions or spectra of injected photons & electrons.
+
+   This scenario implicitly assumes that the particle in question is all of dark matter,
+   such that the fractional abundance ξ = 1. To consider scenarios where ξ != 1, the
+   cross-section should be scaled down by ξ^2.
+
+   mass        - mass of the dark matter candidate [in GeV]
+   sigmav      - thermally averaged cross section [in cm^3 s^-1]
+
+AnnihilatingDM_mixture : |
+
+   Simple model of promptly annihilating dark matter into e+/e- and/or photons.
+
+   This scenario implicitly assumes that the particle in question is all of dark matter,
+   such that the fractional abundance ξ = 1. To consider scenarios where ξ != 1, the
+   cross-section should be scaled down by ξ^2.
+
+   mass        - mass of the dark matter candidate [in GeV]
+   sigmav      - thermally averaged cross section [in cm^3 s^-1]
+   BR_el       - the fraction of how much energy will be contributed in e+/e-.
+   BR_ph       - the fraction of how much energy will be contributed to photons.
+
+AnnihilatingDM_photon: |
+
+   Special case of AnnihilatingDM_mixture. (Annihilation only into photons -> BR_el = 0, BR_ph = 1)
+
+   mass        - mass of the dark matter candidate [in GeV]
+   sigmav      - thermally averaged cross section [in cm^3 s^-1]
+
+AnnihilatingDM_electron: |
+
+   Special case of AnnihilatingDM_mixture. (Annihilation only into e+/e- -> BR_el = 1, BR_ph = 0)
+
+   mass        - mass of the dark matter candidate [in GeV]
+   sigmav      - thermally averaged cross section [in cm^3 s^-1]
+
+DecayingDM_general : |
+
+   The most general scenario of decaying dark matter, to inject energy. An additional module function
+   must be written to provide the correct efficiency functions or spectra of injected photons & electrons.
+
+   mass        - mass of the dark matter candidate [in GeV]
+   fraction    - fraction of how much the decaying DM component contributes to all DM.
+   sigmav      - thermally averaged cross section [in cm^3 s^-1]
+
+DecayingDM_mixture: |
+
+   Simple model of promptly decaying dark matter into e+/e- and/or photons.
+
+   mass        - mass of the dark matter candidate [in GeV]
+   lifetime    - lifetime of said DM candidate [in s]
+   fraction    - fraction of how much the decaying DM component contributes to all DM.
+   BR_el       - the fraction of how much energy will be contributed in e+/e-.
+   BR_ph       - the fraction of how much energy will be contributed to photons.
+
+DecayingDM_photon: |
+
+   Special case of DecayingDM_mixture. (Decay only into photons -> BR_el = 0, BR_ph = 1)
+
+   mass        - mass of the dark matter candidate [in GeV]
+   lifetime    - lifetime of said DM candidate [in s]
+   fraction    - fraction of how much the decaying DM component contributes to all DM.
+
+DecayingDM_electron: |
+
+   Special case of DecayingDM_mixture. (Decay only into e+/e- -> BR_el = 1, BR_ph = 0)
+
+   mass        - mass of the dark matter candidate [in GeV]
+   lifetime    - lifetime of said DM candidate [in s]
+   fraction    - fraction of how much the decaying DM component contributes to all DM.
+
+#
+# Simple SLHA-based models used for validation of ColliderBit analyses
+#
+
+ColliderBit_SLHA_scan_model: |
+
+   Dummy model for doing a ColliderBit-only scan based on replacing SLHA file entries.
+   See ColliderBit/examples/ColliderBit_SLHA_scan_model.yaml for an example yaml file
+   that uses this model.
+
+   m1                        - parameter that can replace a SLHA BLOCK MASS entry
+   m2                        - parameter that can replace a SLHA BLOCK MASS entry
+   br1                       - parameter that can replace a SLHA DECAY branching ratio entry
+   br2                       - parameter that can replace a SLHA DECAY branching ratio entry
+   cross_section_fb          - total cross-section [in fb]
+   cross_section_uncert_fb   - uncertainty on total cross-section [in fb]
+
+ColliderBit_SLHA_file_model: |
+
+   Dummy model for doing a ColliderBit-only scan over a set of SLHA files.
+   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example
+   yaml file that uses this model.
+
+   dummy    - a dummy parameter, not used for anything

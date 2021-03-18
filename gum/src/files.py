@@ -1,7 +1,21 @@
-"""
-Master module containing all routines for finding, creating,
-amending, and reading files.
-"""
+#  GUM: GAMBIT Universal Model Machine
+#  ***********************************
+#  \file
+#
+#  Master module containing all routines for finding, creating,
+#  amending, and reading files.
+#
+#  *************************************
+#
+#  \author Sanjay Bloor
+#          (sanjay.bloor12@imperial.ac.uk)
+#  \date 2018, 2019, 2020
+#
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Feb
+#
+#  **************************************
 
 import os
 import re
@@ -9,8 +23,10 @@ import numpy as np
 import yaml
 from distutils.dir_util import remove_tree
 from collections import defaultdict
+import filecmp
+import glob
 
-from setup import *
+from .setup import *
 
 def remove_tree_quietly(path):
     """
@@ -19,7 +35,7 @@ def remove_tree_quietly(path):
     if os.path.exists(path):
         remove_tree(path)
 
-def mkdir_if_absent(path):
+def mkdir_if_absent(path, reset_dict={}, hard_reset=False):
     """
     Makes a new directory if the proposed path doesn't yet exist
     """
@@ -29,7 +45,13 @@ def mkdir_if_absent(path):
         if not os.path.isdir(path):
             raise
 
-def full_filename(filename, module):
+    if reset_dict != {}:
+        if not hard_reset:
+            reset_dict['new_dirs']['soft'].append(path)
+        else:
+            reset_dict['new_dirs']['hard'].append(path)
+
+def full_filename(filename, module, overwrite_path = None):
     """
     Formats a gambit file correctly based on the filename, the
     module, and whether it is a header file.
@@ -52,6 +74,12 @@ def full_filename(filename, module):
         path = ""
 
     location = "../{0}/{1}{2}".format(module, path, filename)
+
+    # If the user specifies that the "path" should be overwritten based
+    # on the filetype, then do so...
+    if overwrite_path: 
+        location = "../{0}/{1}{2}".format(module, overwrite_path, filename)
+
     return location
 
 def find_file(filename, module):
@@ -139,8 +167,8 @@ def amend_rollcall(capability, module, contents, reset_dict, filename=None):
     # Found the capability -> find the #undef
     if found == True:
         with open(location) as f:
-            for i in xrange(num):
-                f.next()
+            for i in range(num):
+                next(f)
             for no, line in enumerate(f, 1+num):
                 if lookup in line:
                     break
@@ -177,8 +205,8 @@ def find_function(function, capability, module, filename=None):
     terminate = "#undef CAPABILITY"
 
     with open(location) as f:
-        for i in xrange(num):
-            f.next()
+        for i in range(num):
+            next(f)
         for no, line in enumerate(f, 1+num):
             r = re.search(pat, line)
             if r:
@@ -210,12 +238,12 @@ def find_string(filename, module, string, filename_overwrite = ""):
 
     return False, 0
 
-def write_file(filename, module, contents, reset_dict):
+def write_file(filename, module, contents, reset_dict, overwrite_path = None):
     """
     Writes a file in a specified location.
     """
 
-    location = full_filename(filename, module)
+    location = full_filename(filename, module, overwrite_path)
     location_parts = os.path.split(location)
 
     if find_file(filename, module):
@@ -235,13 +263,13 @@ def write_file(filename, module, contents, reset_dict):
     print("File {} successfully created.".format(location))
 
 def copy_file(filename, module, output_dir, reset_dict, 
-              existing=True):
+              existing=True, overwrite_path=None):
     """
     Copies an output file in a specified location.
     """
     import shutil
 
-    location = full_filename(filename, module)
+    location = full_filename(filename, module, overwrite_path=overwrite_path)
     location_parts = os.path.split(location)
     GUM_version = output_dir + '/' + location[3:]
 
@@ -282,10 +310,19 @@ def amend_file(filename, module, contents, line_number, reset_dict,
     location = full_filename(filename, module)
 
     # Catch an error code
-    if line_number == -1:
+    if line_number < -1:
         raise GumError(("Error in amend_file routine. Received line_number"
                         " of " + line_number + " to write to the file "
                         "" + location + ". I think something is wrong."))
+
+    # Find end of file
+    if line_number == -1:
+       temp_line_number = 0
+       with open(location) as f:
+            for line in f:
+                temp_line_number += 1
+       line_number = temp_line_number
+      
 
     if not find_file(filename, module):
         raise GumError(("\n\nERROR: Tried to amend file " + location +
@@ -313,10 +350,10 @@ def amend_file(filename, module, contents, line_number, reset_dict,
     lines = open(location, 'r').readlines()
 
     with open(temp_location, 'w') as f:
-        for i in xrange(line_number):
+        for i in range(line_number):
             f.write(lines[i])
         f.write(contents)
-        for i in xrange(len(lines)-line_number):
+        for i in range(len(lines)-line_number):
             f.write(lines[i+line_number])
 
     os.remove(location)
@@ -362,7 +399,7 @@ def add_capability(module, capability, function, reset_dict,
     # end of the file.
     else:
         contents = (
-            "  #define CAPBILITY {0}\n"
+            "  #define CAPABILITY {0}\n"
             "  START_CAPABILITY\n"
             "  \n"
             "{1}"
@@ -553,9 +590,8 @@ def indent(text, numspaces=0):
 
     for line in lines:
 
-
         if numspaces < 0:
-            raise GumError(("\n\nTried to indent a negative number of spaces."
+            raise GumError(("\n\nTried to indent a negative number of spaces. "
                             "Please check for rogue braces."))
 
         num_open = line.count("{")
@@ -574,6 +610,8 @@ def revert(reset_file):
     """
     Go back to the previous save point.
     """
+
+    import shutil
 
     print("GUM called in reset mode.")
 
@@ -594,8 +632,45 @@ def revert(reset_file):
 
         for i in new_files:
             if os.path.isfile(i):
+
+                # If deleted file is a BOSS config file, BOSS might have been run
+                if "BOSS/config" in i:
+
+                    from .backends import get_boss_backend_name_and_version, force_backend_rebuild
+
+                    be_name, be_ver = get_boss_backend_name_and_version(i)
+                    be_name_ver_safe = be_name + "_" + be_ver.replace('.','_')
+
+                    boss_reset_file = 'reset_info.' + be_name_ver_safe + ".boss"
+
+                    boss_dir = '/'.join(i.split('/')[:-2]) + '/'
+                    gambit_build_dir = "../build/"
+
+                    # If there is a reset file on GAMBIT's build directory, BOSS was run
+                    if os.path.exists(gambit_build_dir + boss_reset_file) :
+
+                        # TODO: This only removes changes to the backend, not the main gambit tree, so I don't think it's needed
+                        #call_boss_reset(gambit_build_dir, boss_dir, reset_file_name)
+
+                        # Remove BOSS-generated files in the main GAMBIT tree
+                        backend_types_dir = "../Backends/include/gambit/Backends/backend_types/" + be_name_ver_safe
+                        if os.path.isdir(backend_types_dir):
+                            shutil.rmtree(backend_types_dir, ignore_errors=True)
+                            print("Deleting backend types for " + be_name_ver_safe + "...")
+                        frontend_header_file = "../Backends/include/gambit/Backends/frontends/" + be_name_ver_safe + ".hpp"
+                        if os.path.isfile(frontend_header_file):
+                            os.remove(frontend_header_file)
+                            print("Deleting " + frontend_header_file + "...")
+
+                        # Remove reset file
+                        os.remove(gambit_build_dir + boss_reset_file)
+
+                    # In case it was built but not nuked, force it to rebuild from scratch
+                    force_backend_rebuild(be_name.lower(), be_ver)
+
                 print("Deleting {0}...".format(i))
                 os.remove(i)
+
             else:
                 print(("Tried deleting {0}, but it seems to have already been "
                       "removed.".format(i)))
@@ -603,7 +678,7 @@ def revert(reset_file):
         # Go through the new capabilities and functions
         if 'capabilities' in data:
             capabilities = data['capabilities']
-            for filename, entries in capabilities.iteritems():
+            for filename, entries in iteritems(capabilities):
 
                 temp_file = filename + "_temp"
                 with open(filename, 'r') as original_file:
@@ -612,7 +687,6 @@ def revert(reset_file):
 
                 for entry in entries:
                     capability, function = entry.split('|')
-                    print entry
                     print((
                            "Removing FUNCTION: {0}, in CAPABILITY: {1}, in "
                            "file {2}..."
@@ -687,7 +761,7 @@ def revert(reset_file):
 
         # We want to match strings and not line numbers or anything like that.
         # This way, there is no order needed to perform resets in.
-        for filename, v in amended_files.iteritems():
+        for filename, v in iteritems(amended_files):
 
             print("Amending {0}...".format(filename))
 
@@ -720,19 +794,26 @@ def revert(reset_file):
         if 'new_models' in data:
             amended_capabilities = data['new_models']
 
-            for loc_cap_func_pattern, model in amended_capabilities.iteritems():
+            for loc_cap_func_pattern, model in iteritems(amended_capabilities):
                 
                 location, capability, function, pattern = \
                                                  loc_cap_func_pattern.split('|')
                 module = location.split('/')[1]
+                filename = location.split('/')[-1]
 
-                print(("Removing model from capability {0}; function {1};"
+                print(("Removing model {3} from capability {0}; function {1};"
                        " in {2}..."
-                       ).format(capability, function, module))
+                       ).format(capability, function, module, model[0]))
 
                 temp_file = location + "_temp"
                 
-                exists, num = find_function(function, capability, module)
+                exists, num = find_function(function, capability, module, 
+                                            filename)
+
+                if not exists:
+                    print(("Could not find capability {0} in location {1}! "
+                           "Continuing...").format(capability, location)) 
+                    continue
                 
                 counter = 0
                 done = False
@@ -764,6 +845,97 @@ def revert(reset_file):
 
                 os.remove(location)
                 os.rename(temp_file, location)
+
+        # Clean up the particle database
+        if 'particles' in data:
+            particles = data['particles']
+
+            # If there's anything, that is...
+            if len(particles) > 0:
+
+                # Fire it up!
+                with open("./../config/particle_database.yaml", "r") as f:
+                    particledata = yaml.safe_load(f)
+                    # particledata is a dict
+
+                # This is a list of dictionaries
+                parts = particledata['OtherModels']['Particles']
+
+                # List of particles to remove
+                toremove = list(particles.values())[0]
+                toremove_name = [x.split('|')[0] for x in toremove]
+                toremove_model = toremove[0].split('|')[1]
+
+                print("Removing the following particles from the particle DB:")
+                print(toremove_name)
+                
+                # Remove them - belt and bracers with the model name!
+                newparts = [x for x in parts if x['name'] not in toremove_name
+                            and x['description'].find(toremove_model)]
+                particledata['OtherModels']['Particles'] = newparts
+
+                stream = (
+                       "# YAML file containing all particles for the particle database.\n\n"
+                       "# particle_database.cpp is constructed from this YAML file at compile time, via particle_harvester.py.\n\n"
+                       "# New entries should look like:\n"
+                       "#\n"
+                       "#   - name: \"X+\"                         The name used within GAMBIT, in the particleDB.\n"
+                       "#     PDG_context: [10, 4]                 The PDG-context pair used for a single particle.\n"
+                       "#     conjugate: \"X-\"                    The name for the conjugate particle, also added to the particleDB.\n"
+                       "#     description: \"New particle\"        Optional - adds a C++ comment to particle_database.cpp. For readability.\n"
+                       "#     chargex3: 0                          Three times the electric charge.\n"
+                       "#     spinx2: 1                            Twice the spin.\n"
+                       "#     color:  3                            The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).\n"
+                       "#     DecayBit:\n"
+                       "#       Decays: True                       Flag to show whether or not to include a particle's Decays in DecayBit.\n"
+                       "#       name: \"X_plus\"                   The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.\n"
+                       "#       conjugate: \"X_minus\"             And the name used for it's conjugate.\n"
+                       "#\n"
+                       "# The syntax for adding sets is identical - GAMBIT automatically numbers each particle in a set.\n"
+                       "#\n"
+                       "#   - name: \"h0\"\n"
+                       "#     PDG_context:\n"
+                       "#     - [25, 0]      (This line-by-line format is equivalent to a list of lists)\n"
+                       "#     - [35, 0]      Creates entries for \"h0_1\" and \"h0_2\" in the particleDB.\n"
+                       "#     DecayBit:\n"
+                       "#       Decays: True\n"
+                       "#       name: \"h0\"                         Creates rollcall entries for \"h0_1_decay_rates\" and \"h0_2_decay_rates\" CAPABILITIES.\n"
+                       "#       name: [\"Higgs\", \"h0_2\"]            Alternative syntax - if particles within sets have different names - creating CAPABILITIES \"Higgs_decay_rates\" and \"h0_2_decay_rates\".\n"
+                       "#\n"
+                       "# Note: If there is no entry for the 'DecayBit' field, GAMBIT will use the 'name' and 'conjugate' fields by default.\n"
+                       "# TODO: Decide if Decays belong here, or elsewhere (GUM)\n\n"
+                )
+
+
+                # Overwrite the particle database YAML file
+                stream += yaml.dump(particledata).replace('\n  - ', '\n\n  - ')
+
+                with open("./../config/particle_database.yaml", "w") as f:
+                    f.write(stream)
+
+        # If there are any new dirs remove them if empty, as well as any empty directories on the same tree
+        # Hard reset wipes out directory with contents
+        if 'hard' in data['new_dirs']:
+            for new_dir in data['new_dirs']['hard']:
+                if os.path.isdir(new_dir):
+                    shutil.rmtree(new_dir, ignore_errors=True)
+                    print("Deleting full directory tree {0}...".format(new_dir))
+
+        # Soft reset only deletes empty directories
+        if 'soft' in data['new_dirs']:
+
+            for new_dir in data['new_dirs']['soft']:
+                empty = True
+                while(empty):
+                    if os.path.isdir(new_dir):
+                        try:
+                            os.rmdir(new_dir)
+                            print("Deleting directory {0}...".format(new_dir))
+                        except OSError:
+                            empty = False;
+                        new_dir = os.path.dirname(new_dir)
+                    else:
+                        empty = False
 
     return
 
@@ -828,16 +1000,25 @@ def drop_mug_file(mug_file, contents):
         capabilities = dict(d['capabilities'])
     else:
         capabilities = {}
+    if 'particles' in d:
+        particles = dict(d['particles'])
+    else:
+        particles = {}
+    if 'new_dirs' in d:
+        new_dirs = dict(d['new_dirs'])
+    else:
+        new_dirs = {}
         
     new_contents = {'new_files': new_files, 'amended_files': amended_files, 
-                    'new_models' : new_models, 'capabilities' : capabilities}
+                    'new_models' : new_models, 'capabilities' : capabilities,
+                    'particles' : particles, 'new_dirs' : new_dirs}
 
     with open(mug_file, 'w') as f:
         yaml.dump(new_contents, f, default_flow_style=False)
 
 
 def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
-                   spectrum):
+                   spectrum, with_spheno):
     """
     Drops an example YAML file with all decays of a new model
     added.
@@ -859,7 +1040,7 @@ def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
         "\n"
     ).format(model_name)
 
-    if add_higgs:
+    if add_higgs and not with_spheno:
         towrite+= (
             "  StandardModel_Higgs:\n"
             "    mH: 125.09\n"
@@ -869,30 +1050,34 @@ def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
     towrite += ("  {0}:\n").format(model_name)
 
     # Don't want the SM-like Higgs mass a fundamental parameter
-    bsm_params = [x for x in model_parameters if x.name != 'h0_1'
+    bsm_params = [x for x in model_parameters if x.name != 'mH'
                   and x.sm == False]
-    params = []
+    params = {}
 
     for i in bsm_params:
-        if i.shape == 'scalar' or i.shape == None: params.append(i.gb_in)
+        if i.shape == 'scalar' or i.shape == None: params[i.gb_in] = i.default
         elif re.match("m[2-9]x[2-9]", i.shape): 
             size = int(i.shape[-1])
-            for j in xrange(size):
-                for k in xrange(size):
-                    params.append(i.gb_in + str(j+1) + 'x' + str(k+1))
+            for j in range(size):
+                for k in range(size):
+                    params[i.gb_in + '_' + str(j+1) + 'x' + str(k+1)] = i.default
         elif re.match("v[2-9]", i.shape): 
             size = int(i.shape[-1])
-            for j in xrange(size):
-                params.append(i.gb_in + str(j+1))
+            for j in range(size):
+                params[i.gb_in + '_' + str(j+1)] = i.default
 
     # No double counting (also want to preserve the order)
-    norepeats = []
-    [norepeats.append(i) for i in params if not i in norepeats]
+    norepeats = {}
+    for i,val in params.items():
+      if i not in norepeats.keys():
+        norepeats[i] = val
 
-    for i in norepeats:
-        towrite += ("    {0}: 0.1\n").format(i)
+    # Do this in alphabetical order, so it looks nice.
+    for i,val in sorted(norepeats.items()):
+        towrite += ("    {0}: {1}\n").format(i,str(val))
 
     towrite += (
+        "\n"
         "Priors:\n"
         "\n"
         "  # All the priors are simple for this scan, so they "
@@ -901,12 +1086,7 @@ def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
         "\n"
         "Printer:\n"
         "\n"
-        "  printer: hdf5\n"
-        "\n"
-        "  options:\n"
-        "    output_file: \"{0}.hdf5\"\n"
-        "    group: \"/{0}\"\n"
-        "\n"
+        "  printer: cout\n"
         "\n"
         "Scanner:\n"
         "\n"
@@ -931,10 +1111,16 @@ def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
         "Logger:\n"
         "\n"
         "  redirection:\n"
-        "    [Debug] : \"debug.log\"\n"
+        "    [Backends] : \"backends.log\"\n"
         "    [Default] : \"default.log\"\n"
+        "    [DecayBit] : \"DecayBit.log\"\n"
+        "    [PrecisionBit] : \"PrecisionBit.log\"\n"
+        "    [Scanner] : \"ScannerBit.log\"\n"
         "    [SpecBit] : \"SpecBit.log\"\n"
         "    [Dependency Resolver] : \"dep_resolver.log\"\n"
+        "    [Error] : \"errors.log\"\n"
+        "    [Warning] : \"warnings.log\"\n"
+        "    [Utilities] : \"utils.log\"\n"
         "\n"
         "KeyValues:\n"
         "\n"
@@ -954,37 +1140,113 @@ def drop_yaml_file(model_name, model_parameters, add_higgs, reset_contents,
     write_file(model_name + '_example.yaml', 'yaml_files', 
                towrite, reset_contents)
 
-def write_config_file(outputs, model_name, reset_contents):
+def write_config_file(outputs, model_name, reset_contents, rebuild_backends=[]):
     """
     Drops a configuration file, which will build the correct backends, 
     and then GAMBIT, in the correct order.
+
+    9/8/20: updated to just print these contents, not add to file.
     """
 
     towrite = (
+        "\n"
+        "The commands needed to build GAMBIT successfully (replacing '<n>' "
+        "with\nthe number of logical cores available on your machine) are:\n"
+        "\n"
         "cd ../build\n"
         "cmake ..\n"
-        "make -j4"
     )
 
+    backends = []
     if outputs.pythia:
-        towrite += " pythia_{0}".format(model_name.lower())
+        backends.append("pythia_{0}".format(model_name.lower()))
 
     if outputs.mo:
-        towrite += " micromegas_{0}".format(model_name)
+        backends.append("micromegas_{0}".format(model_name))
 
     if outputs.spheno:
-        towrite += " spheno_{0}".format(model_name.lower())
+        backends.append("sarah-spheno_{0}".format(model_name))
+        backends.append("higgsbounds")
+        backends.append("higgssignals")
 
     if outputs.vev:
-        towrite += " vevacious"
+        backends.append("vevacious")
 
     if outputs.ch:
-        towrite += " calchep"
+        backends.append("calchep")
 
+    # If any backend needs rebuilding, nuke them first
+    bes = ""
+    for be in backends:
+      if be in rebuild_backends:
+        towrite += ("make nuke-{0}\n").format(be)
+      towrite += ("make {0}\n").format(be)
+
+    # Have to cmake here because of Pythia headers.
+    if outputs.pythia: towrite += "cmake ..\n"
+
+    # Just GAMBIT to go.
     towrite += (
-        "\n"
-        "cmake ..\n"      # Have to cmake here because of Pythia headers.
-        "make -j4 gambit\n"
+        "make -j<n> gambit\n"
     )
 
-    write_file(model_name + '_config.sh', 'gum', towrite, reset_contents)
+    print(towrite)
+
+def compare_patched_files(gambit_dir, gum_dir, file_endings = ()):
+    """
+    Check if there is already a patched version of the backend files
+    and if they are they same as the gum version.
+    Returns True if the directory is empty or all files match
+    Returns False if any files are different or missing
+    """
+
+    if not os.path.exists(gambit_dir) or len(os.listdir(gambit_dir)) == 0:
+        return True
+
+    # Get files from both directories
+    gambit_files =  [f for f in glob.glob(gambit_dir+'**/*') if f.endswith(file_endings)]
+    gum_files = [f for f in glob.glob(gum_dir+'**/*') if f.endswith(file_endings)]
+
+    # If the number of files is different it needs recompiling
+    if len(gambit_files) != len(gum_files):
+      return False
+
+    # Loop over files to and compare
+    for gbf in gambit_files:
+
+        gbfilename = gbf.replace(gambit_dir,'')
+
+        for gumf in gum_files:
+            gumfilename = gumf.replace(gum_dir,'')
+
+            if gbfilename == gumfilename and not filecmp.cmp(gbf, gumf, shallow=False):
+                  return False
+            
+    return True
+
+def write_capability_definitions(filename, model_name, cap_def, reset_dict):
+    """
+    Writes entries in the capability definitions file
+    """
+
+    contents = "\n#####  " + model_name + " model #####\n\n"
+
+    for key, text in cap_def.items():
+        contents += key + ": |\n"\
+                         "    " + text + "\n\n"
+
+    amend_file(filename, "config", contents, -1, reset_dict)
+
+def write_model_definitions(filename, model_name, model_def, reset_dict):
+    """
+    Writes entries in the model definitions file
+    """
+
+    contents = '\n'
+    for key, text in model_def.items():
+        contents += key + ": |\n"\
+                         "    " + text + "\n\n"
+
+    amend_file(filename, "config", contents, -1, reset_dict)
+
+    

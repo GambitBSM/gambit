@@ -28,15 +28,17 @@ namespace Gambit {
 
     protected:
       // Signal region map
-      std::map<string,double> _numSR = {
-        {"SR-3b-meff1-A", 0.},       // Exclusion regions, disjoint
-        {"SR-3b-meff2-A", 0.},
-        {"SR-3b-meff3-A", 0.},
-        {"SR-4b-meff1-A", 0.},
-        {"SR-4b-meff1-B", 0.},
-        {"SR-4b-meff2-A", 0.},
-        {"SR-4b-meff2-B", 0.},
-        {"SR-4b-meff1-A-disc", 0.}   // Discovery regions, SR-4b-meff1-A and SR-4b-meff2-A are subsets
+      std::map<string, EventCounter> _counters = {
+        // Exclusion regions, disjoint
+        {"SR-3b-meff1-A", EventCounter("SR-3b-meff1-A")},
+        {"SR-3b-meff2-A", EventCounter("SR-3b-meff2-A")},
+        {"SR-3b-meff3-A", EventCounter("SR-3b-meff3-A")},
+        {"SR-4b-meff1-A", EventCounter("SR-4b-meff1-A")},
+        {"SR-4b-meff1-B", EventCounter("SR-4b-meff1-B")},
+        {"SR-4b-meff2-A", EventCounter("SR-4b-meff2-A")},
+        {"SR-4b-meff2-B", EventCounter("SR-4b-meff2-B")},
+        // Discovery regions, SR-4b-meff1-A and SR-4b-meff2-A are subsets
+        {"SR-4b-meff1-A-disc", EventCounter("SR-4b-meff1-A-disc")},
       };
 
     private:
@@ -52,7 +54,7 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      static bool sortByPT(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+      static bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
 
       Analysis_ATLAS_13TeV_3b_36invfb() {
 
@@ -69,11 +71,11 @@ namespace Gambit {
       }
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
           bool overlap = false;
@@ -94,11 +96,11 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec) {
         //Routine to do lepton-jet check
         //Discards leptons if they are within dR of a jet as defined in analysis paper
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
           bool overlap = false;
@@ -138,8 +140,8 @@ namespace Gambit {
         // - application of basic pT and eta cuts
 
         // Electrons
-        vector<HEPUtils::Particle*> electrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> electrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 5.
               && fabs(electron->eta()) < 2.47)
             electrons.push_back(electron);
@@ -149,8 +151,8 @@ namespace Gambit {
         ATLAS::applyElectronEff(electrons);
 
         // Muons
-        vector<HEPUtils::Particle*> muons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> muons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 5.
               && fabs(muon->eta()) < 2.5)
             muons.push_back(muon);
@@ -159,19 +161,19 @@ namespace Gambit {
         // Apply muon efficiency
         ATLAS::applyMuonEff(muons);
 
-        vector<HEPUtils::Jet*> candJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> candJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
             candJets.push_back(jet);
         }
 
    	    // Jets
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> nonbJets;
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> nonbJets;
 
         // Find b-jets
         double btag = 0.77; double cmisstag = 1/6.; double misstag = 1./134.;
-        for (HEPUtils::Jet* jet : candJets) {
+        for (const HEPUtils::Jet* jet : candJets) {
           // Tag
           if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
           // Misstag c-jet
@@ -189,27 +191,27 @@ namespace Gambit {
         LeptonJetOverlapRemoval(muons,nonbJets);
 
         // Find veto leptons with pT > 20 GeV
-        vector<HEPUtils::Particle*> vetoElectrons;
-        for (HEPUtils::Particle* electron : electrons) {
+        vector<const HEPUtils::Particle*> vetoElectrons;
+        for (const HEPUtils::Particle* electron : electrons) {
           if (electron->pT() > 20.) vetoElectrons.push_back(electron);
         }
-        vector<HEPUtils::Particle*> vetoMuons;
-        for (HEPUtils::Particle* muon : muons) {
+        vector<const HEPUtils::Particle*> vetoMuons;
+        for (const HEPUtils::Particle* muon : muons) {
           if (muon->pT() > 20.) vetoMuons.push_back(muon);
         }
 
         // Restrict jets to pT > 25 GeV after overlap removal
-        vector<HEPUtils::Jet*> bJets_survivors;
-        for (HEPUtils::Jet* jet : bJets) {
+        vector<const HEPUtils::Jet*> bJets_survivors;
+        for (const HEPUtils::Jet* jet : bJets) {
           if(jet->pT() > 25.) bJets_survivors.push_back(jet);
         }
-        vector<HEPUtils::Jet*> nonbJets_survivors;
-        for (HEPUtils::Jet* jet : nonbJets) {
+        vector<const HEPUtils::Jet*> nonbJets_survivors;
+        for (const HEPUtils::Jet* jet : nonbJets) {
           if(jet->pT() > 25.) nonbJets_survivors.push_back(jet);
         }
-        vector<HEPUtils::Jet*> jet_survivors;
+        vector<const HEPUtils::Jet*> jet_survivors;
         jet_survivors = nonbJets_survivors;
-        for (HEPUtils::Jet* jet : bJets) {
+        for (const HEPUtils::Jet* jet : bJets) {
           jet_survivors.push_back(jet);
         }
         std::sort(jet_survivors.begin(), jet_survivors.end(), sortByPT);
@@ -231,17 +233,17 @@ namespace Gambit {
         }
 
         // Collect the four signal jets.
-        vector<HEPUtils::Jet*> signalJets;
-        for(HEPUtils::Jet* jet : bJets_survivors){
+        vector<const HEPUtils::Jet*> signalJets;
+        for(const HEPUtils::Jet* jet : bJets_survivors){
           if(signalJets.size() < 4) signalJets.push_back(jet);
         }
-        for(HEPUtils::Jet* jet : nonbJets_survivors){
+        for(const HEPUtils::Jet* jet : nonbJets_survivors){
           if(signalJets.size() < 4) signalJets.push_back(jet);
         }
 
         // Effective mass (using the four jets used in Higgses)
         double meff = met;
-        for(HEPUtils::Jet* jet : signalJets){
+        for(const HEPUtils::Jet* jet : signalJets){
           meff += jet->pT();
         }
 
@@ -391,15 +393,15 @@ namespace Gambit {
 
         // Now increment signal region variables
         // First exclusion regions
-        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600. && meff < 850.) _numSR["SR-3b-meff1-A"]++;
-        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 850. && meff < 1100.) _numSR["SR-3b-meff2-A"]++;
-        if(nbJets >= 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 130. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 1100.) _numSR["SR-3b-meff3-A"]++;
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 850.) _numSR["SR-4b-meff1-A"]++;
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 850.) _numSR["SR-4b-meff1-B"]++;
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 1100.) _numSR["SR-4b-meff2-A"]++;
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 1100.) _numSR["SR-4b-meff2-B"]++;
+        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600. && meff < 850.) _counters.at("SR-3b-meff1-A").add_event(event);
+        if(nbJets == 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 150. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 850. && meff < 1100.) _counters.at("SR-3b-meff2-A").add_event(event);
+        if(nbJets >= 3 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mTmin > 130. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 1100.) _counters.at("SR-3b-meff3-A").add_event(event);
+        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 850.) _counters.at("SR-4b-meff1-A").add_event(event);
+        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && meff > 600. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 850.) _counters.at("SR-4b-meff1-B").add_event(event);
+        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff < 1100.) _counters.at("SR-4b-meff2-A").add_event(event);
+        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 6 && meff > 850. && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 1.4 && Rbbmax < 2.4 && meff < 1100.) _counters.at("SR-4b-meff2-B").add_event(event);
         // Discovery regions
-        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600.) _numSR["SR-4b-meff1-A-disc"]++;
+        if(nbJets >= 4 && met > 200 && nLeptons == 0 && phi4min > 0.4 && nJets >= 4 && nJets <= 5 && mlead > 110. && mlead < 150. && msubl > 90. && msubl < 140. && Rbbmax > 0.4 && Rbbmax < 1.4 && meff > 600.) _counters.at("SR-4b-meff1-A-disc").add_event(event);
 
         return;
 
@@ -411,14 +413,12 @@ namespace Gambit {
         const Analysis_ATLAS_13TeV_3b_36invfb* specificOther
           = dynamic_cast<const Analysis_ATLAS_13TeV_3b_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j=0; j<NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
-        for (auto& el : _numSR) {
-          el.second += specificOther->_numSR.at(el.first);
         }
 
       }
@@ -447,21 +447,20 @@ namespace Gambit {
 
         // Now fill a results object with the results for each SR
         // Only exclusion regions here
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR-3b-meff1-A", 4., {_numSR["SR-3b-meff1-A"], 0.}, {2.5, 1.0}));
-        add_result(SignalRegionData("SR-3b-meff2-A", 3., {_numSR["SR-3b-meff2-A"], 0.}, {2.0, 0.5}));
-        add_result(SignalRegionData("SR-3b-meff3-A", 0., {_numSR["SR-3b-meff3-A"], 0.}, {0.8, 0.5}));
-        add_result(SignalRegionData("SR-4b-meff1-A", 1., {_numSR["SR-4b-meff1-A"], 0.}, {0.43, 0.31}));
-        add_result(SignalRegionData("SR-4b-meff1-B", 2., {_numSR["SR-4b-meff1-B"], 0.}, {2.6, 0.9}));
-        add_result(SignalRegionData("SR-4b-meff2-A", 1., {_numSR["SR-4b-meff2-A"], 0.}, {0.43, 0.27}));
-        add_result(SignalRegionData("SR-4b-meff2-B", 0., {_numSR["SR-4b-meff2-B"], 0.}, {1.3, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR-3b-meff1-A"), 4., {2.5, 1.0}));
+        add_result(SignalRegionData(_counters.at("SR-3b-meff2-A"), 3., {2.0, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR-3b-meff3-A"), 0., {0.8, 0.5}));
+        add_result(SignalRegionData(_counters.at("SR-4b-meff1-A"), 1., {0.43, 0.31}));
+        add_result(SignalRegionData(_counters.at("SR-4b-meff1-B"), 2., {2.6, 0.9}));
+        add_result(SignalRegionData(_counters.at("SR-4b-meff2-A"), 1., {0.43, 0.27}));
+        add_result(SignalRegionData(_counters.at("SR-4b-meff2-B"), 0., {1.3, 0.6}));
 
         return;
       }
 
       void analysis_specific_reset() {
         // Clear signal regions
-        for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         // Clear cut flow vector
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
@@ -486,8 +485,8 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR-4b-meff1-A-disc", 2., {_numSR["SR-4b-meff1-A-disc"], 0.}, {0.7, 0.5}));
+
+        add_result(SignalRegionData(_counters.at("SR-4b-meff1-A-disc"), 2., {0.7, 0.5}));
       }
 
     };

@@ -34,6 +34,10 @@
 ///          (ankit.beniwal@adelaide.edu.au)
 ///  \date 2018 August
 ///
+///  \author Torsten Bringmann
+///          (torsten.bringmann@fys.uio.no)
+///  \date 2019 May
+///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2018 Sep
@@ -55,11 +59,11 @@ namespace Gambit
     //
     //////////////////////////////////////////////////////////////////////////
 
-    /*! \brief Get direct detection couplings from initialized DarkSUSY.
+    /*! \brief Get direct detection couplings from initialized DarkSUSY 5.
     */
-    void DD_couplings_DarkSUSY(DM_nucleon_couplings &result)
+    void DD_couplings_DarkSUSY_DS5(DM_nucleon_couplings &result)
     {
-      using namespace Pipes::DD_couplings_DarkSUSY;
+      using namespace Pipes::DD_couplings_DarkSUSY_DS5;
 
       double fG;
 
@@ -123,35 +127,108 @@ namespace Gambit
       // option in the official DS5.1.3.  The version in GAMBIT is patched to implement this option though,
       // so we use it as the default here.
 
-
-      if (*Dep::DarkSUSY_PointInit)
-      {
-        // Calling DarkSUSY subroutine dsddgpgn(gps,gns,gpa,gna)
-        // to set all four couplings.
-        BEreq::dsddgpgn(result.gps, result.gns, result.gpa, result.gna);
-        double factor =
-        /// Option rescale_couplings<double>: Rescaling factor for WIMP-nucleon couplings (default 1.)
-          runOptions->getValueOrDef<double>(1., "rescale_couplings");
-        result.gps *= factor;
-        result.gns *= factor;
-        result.gpa *= factor;
-        result.gna *= factor;
-        logger() << LogTags::debug << "DarkSUSY dsddgpgn gives:" << std::endl;
-        logger() << LogTags::debug << " gps = " << result.gps << std::endl;
-        logger() << LogTags::debug << " gns = " << result.gns << std::endl;
-        logger() << LogTags::debug << " gpa = " << result.gpa << std::endl;
-        logger() << LogTags::debug << " gna = " << result.gna << EOM;
-      }
-      else
-      {
-        // Set couplings to zero if DarkSUSY point initialization
-        // was not successful
-        result.gps = 0.0; result.gns = 0.0;
-        result.gpa = 0.0; result.gna = 0.0;
-        logger() << "DarkSUSY point initialization failed:" << std::endl;
-        logger() << " couplings set to zero." << EOM;
-      }
+      // Calling DarkSUSY subroutine dsddgpgn(gps,gns,gpa,gna)
+      // to set all four couplings.
+      std::vector<double> DDcouplings=BEreq::get_DD_couplings();
+      double factor =
+      /// Option rescale_couplings<double>: Rescaling factor for WIMP-nucleon couplings (default 1.)
+      runOptions->getValueOrDef<double>(1., "rescale_couplings");
+      result.gps = factor*DDcouplings[0];// *= factor;
+      result.gns = factor*DDcouplings[1];// *= factor;
+      result.gpa = factor*DDcouplings[2];// *= factor;
+      result.gna = factor*DDcouplings[3];// *= factor;
+      logger() << LogTags::debug << "DarkSUSY dsddgpgn gives:" << std::endl;
+      logger() << LogTags::debug << " gps = " << result.gps << std::endl;
+      logger() << LogTags::debug << " gns = " << result.gns << std::endl;
+      logger() << LogTags::debug << " gpa = " << result.gpa << std::endl;
+      logger() << LogTags::debug << " gna = " << result.gna << EOM;
     }
+
+    /*! \brief Get direct detection couplings from DarkSUSY 6 initialized with MSSM module.
+    */
+    void DD_couplings_DarkSUSY_MSSM(DM_nucleon_couplings &result)
+    {
+      using namespace Pipes::DD_couplings_DarkSUSY_MSSM;
+
+      double fG;
+
+      // Set proton hadronic matrix elements
+      BEreq::ddcomlegacy->ftp(7)  = *Param["fpu"];
+      BEreq::ddcomlegacy->ftp(8)  = *Param["fpd"];
+      BEreq::ddcomlegacy->ftp(10) = *Param["fps"];
+
+      fG = 2./27.*(1. - *Param["fpu"] - *Param["fpd"] - *Param["fps"]);
+      BEreq::ddcomlegacy->ftp(9) = fG;
+      BEreq::ddcomlegacy->ftp(11) = fG;
+      BEreq::ddcomlegacy->ftp(12) = fG;
+
+      logger() << LogTags::debug << "DarkSUSY proton hadronic matrix elements set to:" << endl;
+      logger() << LogTags::debug << "ftp(7) = fpu = " << BEreq::ddcomlegacy->ftp(7);
+      logger() << LogTags::debug << "\tftp(8) = fpd = " << BEreq::ddcomlegacy->ftp(8);
+      logger() << LogTags::debug << "\tftp(10) = fps = " << BEreq::ddcomlegacy->ftp(10) << endl;
+      logger() << LogTags::debug << "ftp(9) = ftp(11) = ftp(12) = 2/27 fG = " <<
+        BEreq::ddcomlegacy->ftp(9) << EOM;
+
+      // Set neutron hadronic matrix elements
+      BEreq::ddcomlegacy->ftn(7)  = *Param["fnu"];
+      BEreq::ddcomlegacy->ftn(8)  = *Param["fnd"];
+      BEreq::ddcomlegacy->ftn(10) = *Param["fns"];
+
+      fG = 2./27.*(1. - *Param["fnu"] - *Param["fnd"] - *Param["fns"]);
+      BEreq::ddcomlegacy->ftn(9) = fG;
+      BEreq::ddcomlegacy->ftn(11) = fG;
+      BEreq::ddcomlegacy->ftn(12) = fG;
+
+      logger() << LogTags::debug << "DarkSUSY neutron hadronic matrix elements set to:" << endl;
+      logger() << LogTags::debug << "ftn(7) = fnu = " << BEreq::ddcomlegacy->ftn(7);
+      logger() << LogTags::debug << "\tftn(8) = fnd = " << BEreq::ddcomlegacy->ftn(8);
+      logger() << LogTags::debug << "\tftn(10) = fns = " << BEreq::ddcomlegacy->ftn(10) << endl;
+      logger() << LogTags::debug << "ftn(9) = ftn(11) = ftn(12) = 2/27 fG = " <<
+        BEreq::ddcomlegacy->ftn(9) << EOM;
+
+      // Set deltaq
+      BEreq::ddcomlegacy->delu = *Param["deltau"];
+      BEreq::ddcomlegacy->deld = *Param["deltad"];
+      BEreq::ddcomlegacy->dels = *Param["deltas"];
+      logger() << LogTags::debug << "DarkSUSY delta q set to:" << endl;
+      logger() << LogTags::debug << "delu = delta u = " << BEreq::ddcomlegacy->delu;
+      logger() << LogTags::debug << "\tdeld = delta d = " << BEreq::ddcomlegacy->deld;
+      logger() << LogTags::debug << "\tdels = delta s = " << BEreq::ddcomlegacy->dels << EOM;
+
+
+      // Loop corrections and pole removal.
+
+      // Option loop<bool>: If true, include 1-loop effects discussed in
+      // Drees Nojiri Phys.Rev. D48 (1993) 3483-3501 (default: true)
+      BEreq::ddmssmcom->dddn = runOptions->getValueOrDef<bool>(true,"loop");
+
+      // Option pole<bool>: If true, include pole in nuclear scattering cross-section.
+      // If false, approximate squark propagator as 1/m_sq^2 (default: false)
+      BEreq::ddmssmcom->ddpole = runOptions->getValueOrDef<bool>(false,"pole");
+
+      // Some version notes:
+      // The default in DS5 is  for both these options to be false (tree-level cross-section with pole removed).
+      // The default in DS6 is to use Drees-Nojiri (1 loop) with the pole removed, which isn't an
+      // option in the official DS5.1.3.  The version in GAMBIT is patched to implement this option though,
+      // so we use it as the default here.
+
+      // Calling DarkSUSY subroutine dsddgpgn(gps,gns,gpa,gna)
+      // to set all four couplings.
+      std::vector<double> DDcouplings=BEreq::get_DD_couplings();
+      double factor =
+      /// Option rescale_couplings<double>: Rescaling factor for WIMP-nucleon couplings (default 1.)
+      runOptions->getValueOrDef<double>(1., "rescale_couplings");
+      result.gps = factor*DDcouplings[0];// *= factor;
+      result.gns = factor*DDcouplings[1];// *= factor;
+      result.gpa = factor*DDcouplings[2];// *= factor;
+      result.gna = factor*DDcouplings[3];// *= factor;
+      logger() << LogTags::debug << "DarkSUSY dsddgpgn gives:" << std::endl;
+      logger() << LogTags::debug << " gps = " << result.gps << std::endl;
+      logger() << LogTags::debug << " gns = " << result.gns << std::endl;
+      logger() << LogTags::debug << " gpa = " << result.gpa << std::endl;
+      logger() << LogTags::debug << " gna = " << result.gna << EOM;
+    }
+
 
     /*! \brief Get direct detection couplings from initialized MicrOmegas.
     */
@@ -257,15 +334,46 @@ namespace Gambit
       result = 3.0*gev2cm2/pi*pow(reduced_mass*gna,2.0);
     }
 
-    /// Calculation of SI and SD cross sections at a reference momentum q0
-    /// for the fermionic Higgs portal models
+    /// Spin-independent generalized DM-nucleon cross section
+    /*
     void sigma_SI_vnqn(map_intpair_dbl &result)
     {
       using namespace Pipes::sigma_SI_vnqn;
+      //This is where you would stick in your functions
+      result[std::make_pair(0,0)] =   0e-35;
+      result[std::make_pair(-2,0)] =  1e-35;
+      result[std::make_pair(2,0)] =   0e-35;
+      result[std::make_pair(4,0)] =   0e-35;
+      result[std::make_pair(0,-2)] =  1e-35;
+      result[std::make_pair(0,2)] =   0e-35;
+      result[std::make_pair(0,4)] =   0e-35;
+    }
+    /// Spin-dependent generalized DM-nucleon cross section
+    void sigma_SD_vnqn(map_intpair_dbl &result)
+    {
+      using namespace Pipes::sigma_SD_vnqn;
+      //This is where you would stick in your functions
+      result[std::make_pair(0,0)] =   1e-40;
+      result[std::make_pair(-2,0)] =  0e-35;
+      result[std::make_pair(2,0)] =   0e-35;
+      result[std::make_pair(4,0)] =   0e-35;
+      result[std::make_pair(0,-2)] =  0e-35;
+      result[std::make_pair(0,2)] =   0e-35;
+      result[std::make_pair(0,4)] =   0e-35;
+    }
+    */
+
+    /// Calculation of SI and SD cross sections at a reference momentum q0
+    /// for the fermionic Higgs portal models
+    void sigma_SI_vnqn_FermionicHiggsPortal(map_intpair_dbl &result)
+    {
+      using namespace Pipes::sigma_SI_vnqn_FermionicHiggsPortal;
+
+      NREO_DM_nucleon_couplings wilsonCoeffs = *Dep::DD_nonrel_WCs;
 
       double q0 = 0.04; // reference momentum transfer: 40 MeV
-      double gps = Dep::DD_couplings->gps;
-      double gpa = Dep::DD_couplings->gpa;
+      double gps = (wilsonCoeffs.c0[1] + wilsonCoeffs.c1[1])/2. ;
+      double gpa = (wilsonCoeffs.c0[11] + wilsonCoeffs.c1[11])/2.;
       double reduced_mass = *Dep::mwimp * m_proton / (*Dep::mwimp + m_proton);
 
       result[std::make_pair(0,0)] =   gev2cm2/pi*pow(reduced_mass*gps,2.0);
@@ -277,22 +385,9 @@ namespace Gambit
       result[std::make_pair(0,4)] =   0.0;
     }
 
-    void sigma_SD_vnqn(map_intpair_dbl &result)
-    {
-      using namespace Pipes::sigma_SD_vnqn;
-
-      result[std::make_pair(0,0)] =   0.0;
-      result[std::make_pair(-2,0)] =  0.0;
-      result[std::make_pair(2,0)] =   0.0;
-      result[std::make_pair(4,0)] =   0.0;
-      result[std::make_pair(0,-2)] =  0.0;
-      result[std::make_pair(0,2)] =   0.0;
-      result[std::make_pair(0,4)] =   0.0;
-    }
-
     /// DDCalc initialisation.
 
-    // Using DM-nucleon couplings.
+    // Using spin-independent/spin-dependent interactions only
     void DDCalc_Couplings_WIMP_nucleon(DD_coupling_container &result)
     {
       using namespace Pipes::DDCalc_Couplings_WIMP_nucleon;
@@ -300,7 +395,7 @@ namespace Gambit
       result.DM_nucleon_coeffs = *Dep::DD_couplings;
     }
 
-    // Using non-relativistic Wilson Coefficients.
+    // Using non-relativistic Wilson Coefficient coupling structure
     void DDCalc_Couplings_NR_WCs(DD_coupling_container &result)
     {
       using namespace Pipes::DDCalc_Couplings_NR_WCs;

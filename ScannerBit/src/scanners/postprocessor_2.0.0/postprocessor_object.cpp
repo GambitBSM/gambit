@@ -654,7 +654,7 @@ namespace Gambit
          {
             PPIDpair current_point = getReader().get_current_point();
             loopi = getReader().get_current_index();
- 
+
             //iif(verbose) logger() << LogTags::debug << LogTags::scanner << "Starting loop over old points ("<<total_length<<" in total)" << std::endl;
             //std::cout << "This task (rank "<<rank<<" of "<<numtasks<<"), will process iterations "<<mychunk.start<<" through to "<<mychunk.end<<", excluding any points that may have already been processed as recorded by resume data. This leaves "<<mychunk.eff_length<<" points for this rank to process."<<std::endl;
 
@@ -715,16 +715,10 @@ namespace Gambit
                   unsigned int       MPIrank = current_point.rank;
                   unsigned long long pointID = current_point.pointID;
 
-                  //if(verbose) logger() << LogTags::debug << LogTags::scanner
-                  //   << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
-                  //   << "Current index: "<<getReader().get_current_index()<<std::endl;
-                  //   << "Current loopi: "<<loopi<<EOM;
-
-
-                  // std::cout << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
-                  // std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
-                  // std::cout << "Current loopi: "<<loopi<<std::endl;
-
+                  if(verbose) logger() << LogTags::debug << LogTags::scanner
+                     << "Current point: "<<MPIrank<<", "<<pointID<<std::endl
+                     << "Current index: "<<getReader().get_current_index()<<std::endl
+                     << "Current loopi: "<<loopi<<EOM;
 
                   // Make sure we didn't somehow get desynchronised from the reader's internal index
                   if(loopi!=getReader().get_current_index())
@@ -759,7 +753,7 @@ namespace Gambit
                   if(loopi<mychunk.start or (current_done_chunk!=done_chunks.end() and current_done_chunk->iContain(loopi)))
                   {
                      //std::cout<<"Skipping point (not in our batch)"<<std::endl;
-                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl; 
+                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl;
                      current_point = getReader().get_next_point();
                      loopi++;
                      continue;
@@ -891,7 +885,7 @@ namespace Gambit
 
                      // Print the index of the point in the input dataset, so that we can easily figure out later which ones
                      // were postprocessed
-                     //std::cout<<"Rank "<<rank<<": Printing new data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
+                     //std::cout<<"Rank "<<rank<<": Printing new data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl;
                      getPrinter().print(loopi, "input_dataset_index", MPIrank, pointID);
 
                      // Add old likelihood components as requested in the inifile
@@ -977,7 +971,7 @@ namespace Gambit
                   else if(not discard_points_outside_cuts)
                   {
                      if(verbose) logger() << LogTags::debug << LogTags::scanner << "Point outside cuts, but discard_points_outside_cuts is false, so we will copy the old data for this point. But no new calculations will be done."<<EOM;
-       
+
                      /// No postprocessing to be done, but we still should copy across the modelparameters
                      /// and point ID data, since the copying routines below assume that these were taken
                      /// care of by the likelihood routine, which we never ran.
@@ -1018,7 +1012,7 @@ namespace Gambit
 
                      if(verbose) logger() << LogTags::debug << LogTags::scanner << "Copying old data for this point to new output file" << EOM;
 
-                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
+                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl;
 
                      for(std::set<std::string>::iterator it = data_labels_copy.begin(); it!=data_labels_copy.end(); ++it)
                      {

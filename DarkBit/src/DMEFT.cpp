@@ -35,13 +35,10 @@ namespace Gambit
       ~DMEFT() {};
       
       // Annihilation cross-section. sigmav is a pointer to a CalcHEP backend function.
-      double sv(str channel, DecayTable& tbl, double (*sigmav)(str&, std::vector<str>&, std::vector<str>&, double&, double&, const DecayTable&), double v_rel)
+      double sv(str channel, DecayTable& tbl, double (*sigmav)(str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&), double v_rel)
       {
         /// Returns sigma*v for a given channel.
         double GeV2tocm3s1 = gev2cm2*s2cm;
-        
-        /// Hard-coded for now -- CalcHEP frontend needs this removing anyway, it doesn't use it.
-        double QCD_coupling = 1.0;
         
         // CalcHEP args
         str model = "DMEFT"; // CalcHEP model name
@@ -56,7 +53,7 @@ namespace Gambit
         if (channel == "g, g") out = {"g", "g"};
         
         // Check the channel has been filled
-        if (out.size() > 1) return sigmav(model, in, out, QCD_coupling, v_rel, tbl)*GeV2tocm3s1;
+        if (out.size() > 1) return sigmav(model, in, out, v_rel, tbl)*GeV2tocm3s1;
         else return 0;
       }
       
@@ -87,7 +84,7 @@ namespace Gambit
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       const SubSpectrum& SM = spec.get_LE();
       const SMInputs& SMI   = spec.get_SMInputs();
-      
+
       // Get SM pole masses
       getSMmass("e-_1",     1)
       getSMmass("e+_1",     1)
@@ -200,6 +197,8 @@ namespace Gambit
     
     void DarkMatter_ID_DMEFT(std::string& result){ result = "chi"; }
 
+    void DarkMatterConj_ID_DMEFT(std::string& result){ result = "chi"; }
+
     /// Relativistic Wilson Coefficients for direct detection
     /// DMEFT basis is the same as that used in DirectDM
     void DD_rel_WCs_flavscheme_DMEFT(map_str_dbl& result)
@@ -304,14 +303,16 @@ namespace Gambit
       result["C710c"] = C710/pow(Lambda, 3.);
       result["C710b"] = C710/pow(Lambda, 3.);
 
-      // If Lambda > m_t then we include corrections
-      double mt = spec.get(Par::Pole_Mass, "t");
-      if(Lambda > mt) 
+      // use the running top mass at Q=mt, which is an input
+      double mtatmt = spec.get(Par::mass1,"mtrun");
+      
+      // If Lambda > m_t(m_t) then we include corrections
+      if(Lambda > mtatmt)
       {
         // 1. Loop induced coupling to dim-5 
         //    operators to dim-7, see:
         // https://arxiv.org/pdf/1302.4454.pdf
-        double lamovermt2 = pow(Lambda, 2.)/pow(mt, 2.);
+	      double lamovermt2 = pow(Lambda, 2.)/pow(mtatmt, 2.);
         double prefactor = -4/lamovermt2*log(lamovermt2);
         result["C51"] += prefactor*C79/Lambda;
         result["C52"] += prefactor*C710/Lambda;

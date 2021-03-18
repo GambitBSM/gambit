@@ -1008,6 +1008,8 @@ namespace Gambit
       using namespace Pipes::stop_1_decays;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
+      static const bool allow_offshell_modes = runOptions->getValueOrDef<bool>(true, "allow_offshell_modes_in_decay_table");
+      
       result.calculator = BEreq::cb_sd_stopwidth.origin();
       result.calculator_version = BEreq::cb_sd_stopwidth.version();
 
@@ -1058,6 +1060,23 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop3body->brstelsbnu(1,1) : 0.0), 0.0, psn.isb1, "mu+", "nu_mu");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop3body->brstelsbnu(1,2) : 0.0), 0.0, psn.isb2, "mu+", "nu_mu");
 
+      if (BEreq::cb_sd_stop4body->br4bodoffshelltau > BEreq::cb_sd_stop3body->brstopw(1,1))
+      {
+        // Take the total 4-body BR(~t_1 -->  ~chi0_1 b f f') and assign to the off-shell mode BR(~t_1 -->  ~chi0_1 b W(*))
+        if(allow_offshell_modes)
+        {      
+          result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "W+");
+        }
+        // This is a temp solution
+        else
+        {
+          result.set_BF((result.width_in_GeV > 0 ? 0.1071 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "e+", "nu_e");
+          result.set_BF((result.width_in_GeV > 0 ? 0.1063 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "mu+", "nu_mu");
+          result.set_BF((result.width_in_GeV > 0 ? 0.1138 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "tau+", "nu_tau");
+          result.set_BF((result.width_in_GeV > 0 ? 0.6741 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "hadron", "hadron");
+        }
+      }
+      
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
@@ -2281,6 +2300,10 @@ namespace Gambit
       using namespace Pipes::chargino_plus_1_decays_smallsplit;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
+      // Option for requiring a bit more mass difference before switching on a decay channel.
+      // Can help avoid problems with chargino decays in Pythia (due to Pythia's MSAFETY checks).
+      static const double m_safety = runOptions->getValueOrDef<double>(0.0, "m_safety");
+
       // Get spectrum objects
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const SubSpectrum& mssm = spec.get_HE();
@@ -2292,6 +2315,7 @@ namespace Gambit
       const double m_C = abs(m_C_signed);
 
       const double delta_m = m_C - m_N;
+      const double delta_m_safety = m_C - (m_N + m_safety);
 
       // If the chargino--neutralino mass difference is large,
       // the calculations in this module function should not be used.
@@ -2420,7 +2444,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+
       //
       partial_widths["N_pi+"] = 0.0;
-      if (delta_m > m_pi)
+      if (delta_m_safety > m_pi)
       {
         double k_pi = sqrt_lambda(m_C2,m_N2,m_pi2) / (2*m_C);
         partial_widths["N_pi+"] = ( (f_pi2 * G_F2 * k_pi / (4. * pi * m_C2)) *
@@ -2432,7 +2456,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0
       //
       partial_widths["N_pi+_pi0"] = 0.0;
-      if (delta_m > 2*m_pi)
+      if (delta_m_safety > 2*m_pi)
       {
         // Define a helper function
         std::function<std::complex<double>(double)> F = [&beta,&m_rho_02,&gamma_rho_0,&m_rho_prime2,&gamma_rho_prime](double q2)
@@ -2458,7 +2482,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0 pi0
       //
       partial_widths["N_pi+_pi0_pi0"] = 0.0;
-      if (delta_m > 3*m_pi)
+      if (delta_m_safety > 3*m_pi)
       {
         // Define a helper function
         std::function<double(double)> g = [&m_pi,&m_pi2,&m_rho_0](double q2)
@@ -3057,6 +3081,7 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
+      
 
       // MSSM-specific
       if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))

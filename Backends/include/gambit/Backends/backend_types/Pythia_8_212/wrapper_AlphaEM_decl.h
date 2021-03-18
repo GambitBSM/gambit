@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_AlphaEM* (*__factory0)();
+                static Abstract_AlphaEM* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -36,7 +36,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 AlphaEM();
         
                 // Special pointer-based constructor: 
-                AlphaEM(Pythia8::Abstract_AlphaEM* in);
+                AlphaEM(Abstract_AlphaEM* in);
         
                 // Copy constructor: 
                 AlphaEM(const AlphaEM& in);
@@ -48,7 +48,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~AlphaEM();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_AlphaEM* get_BEptr() const;
+                Abstract_AlphaEM* get_BEptr() const;
         
         };
     }

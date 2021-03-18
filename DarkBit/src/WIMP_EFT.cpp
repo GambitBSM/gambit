@@ -22,6 +22,14 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
 ///
+///  \author Felix Kahlhofer
+///          (kahlhoefer@physik.rwth-aachen.de)
+///  \date 2020 May
+///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@uclouvain.be)
+///  \date 2020 Dec
+///
 ///  *********************************************
 
 #include <boost/make_shared.hpp>
@@ -123,6 +131,14 @@ namespace Gambit
        result = Dep::WIMP_properties->name;
     }
 
+    /// DarkMatterConj_ID string for generic EFT dark matter 
+    void DarkMatterConj_ID_EFT(std::string& result)
+    {
+       using namespace Pipes::DarkMatterConj_ID_EFT;
+       result = Dep::WIMP_properties->name;
+    }
+
+
     /// WIMP spin property extractor
     void jwimpx2_from_WIMPprops(unsigned int& result)
     {
@@ -169,29 +185,11 @@ namespace Gambit
        using namespace Pipes::NREO_from_DD_couplings;
        DM_nucleon_couplings ddc = *Dep::DD_couplings;
 
-       // TODO! I have not been able to find the exact conventions
-       // used in DDcalc vs the NREO model. I think it is just this:
-       // c0 = 0.5*(cp+cn)
-       // c1 = 0.5*(cp-cn)
-       // so that 
-       // cp = c0 + c1
-       // cn = c0 - c1
-       // Change if needed!
-
-       // From Catena & Schwabe (2015) (arXiv 1501.03729, bottom of page 5):
-       // cp = (c0 + c1)/2
-       // cn = (c0 - c1)/2
-       // so
-       // c0 = cp + cn
-       // c1 = cp - cn
-       // I've implemented the change to the factor of 2
-    
-       // Compute non-zero isospin basis couplings from DM_nucleon_couplings entries
-       // TODO: I also did this from memory, should check I got the operator numbers right
        NREO_couplings.c0[1] = (ddc.gps + ddc.gns);
        NREO_couplings.c1[1] = (ddc.gps - ddc.gns);
        NREO_couplings.c0[4] = (ddc.gpa + ddc.gna);
        NREO_couplings.c1[4] = (ddc.gpa - ddc.gna);
+       NREO_couplings.CPTbasis = 0;
     }
 
     /* Non-relativistic Wilson Coefficients, model independent */
@@ -246,6 +244,7 @@ namespace Gambit
       using namespace Pipes::DD_nonrel_WCs_EW;
 
       // Specify the scale that the Lagrangian is defined at
+      // TODO: roll Ychi & dchi into WIMP_properties?
       double scale = runOptions->getValue<double>("scale");
       // Hypercharge of DM
       double Ychi = runOptions->getValue<double>("Ychi");
@@ -306,36 +305,38 @@ namespace Gambit
       // Then top it up with parameters from nuclear_params_ChPT.
       result["gA"]      = *Param["gA"];
       result["mG"]      = *Param["mG"];
+      
       result["sigmaup"] = *Param["sigmaup"];
       result["sigmadp"] = *Param["sigmadp"];
       result["sigmaun"] = *Param["sigmaun"];
       result["sigmadn"] = *Param["sigmadn"];
       result["sigmas"]  = *Param["sigmas"];
-      // Set p and n equal
-      result["Deltaup"] = *Param["Deltaup"];
-      result["Deltaun"] = *Param["Deltaup"];
-      // Set p and n equal
-      result["Deltadp"] = *Param["Deltadp"];
-      result["Deltadn"] = *Param["Deltadp"];
-      result["Deltas"]  = *Param["Deltas"];
+
+      result["DeltauDeltad"] = *Param["DeltauDeltad"];
+      result["Deltas"]       = *Param["Deltas"];
+
       result["B0mu"]    = *Param["B0mu"];
       result["B0md"]    = *Param["B0md"];
       result["B0ms"]    = *Param["B0ms"];
+
       result["mup"]     = *Param["mup"];
       result["mun"]     = *Param["mun"];
-      result["ap"]      = *Param["ap"];
-      result["an"]      = *Param["an"];
-      result["F2sp"]    = *Param["F2sp"];
+      result["mus"]     = *Param["mus"];
+
       result["gTu"]     = *Param["gTu"];
       result["gTd"]     = *Param["gTd"];
       result["gTs"]     = *Param["gTs"];
-      // Set p and n equal
+
+      // Note! Setting BT10dn equal to BT10up
       result["BT10up"]  = *Param["BT10up"];
-      result["BT10un"]  = *Param["BT10up"];
-      // Set p and n equal
+      result["BT10dn"]  = *Param["BT10up"];
+
+      // Note! Setting BT10un equal to BT10dp
       result["BT10dp"]  = *Param["BT10dp"];
-      result["BT10dn"]  = *Param["BT10dp"];
-      result["BT10s"]   = *Param["BT10s"];      
+      result["BT10un"]  = *Param["BT10dp"];
+
+      result["BT10s"]   = *Param["BT10s"];
+      result["rs2"]     = *Param["rs2"];
     }
 
     //////////////////////////////////////////////////////////////////////////

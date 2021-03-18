@@ -26,6 +26,10 @@
 ///    (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no
+///  \date 2021 Feb
+///
 ///  *********************************************
 
 #ifndef __likelihood_container_hpp__
@@ -73,6 +77,13 @@ namespace Gambit
       /// Switch to print or not print invalid points to the output file
       bool print_invalid_points;
 
+      /// Disable printing for points with log likelihood below some value
+      double disable_print_for_lnlike_below;
+
+      /// Option to modify the total likelihood function before passing it to the scanner
+      str lnlike_modifier_name;
+      Options lnlike_modifier_params;
+
       /// Map of return types of target functors
       std::map<DRes::VertexID,str> return_types;
 
@@ -91,6 +102,9 @@ namespace Gambit
       const int interloopID;
       const int totalloopID;
 
+      /// Invalid Code printing ID
+      const int invalidcodeID;
+
       /// Run in likelihood debug mode?
       bool debug;
 
@@ -107,6 +121,8 @@ namespace Gambit
       /// Evaluate total likelihood function
       double main (std::unordered_map<std::string, double> &in);
 
+      /// Use this to modify the total likelihood function before passing it to the scanner
+      double purposeModifier(double lnlike);
   };
 
   // Register the Likelihood Container as an available target function for ScannerBit.  The first argument

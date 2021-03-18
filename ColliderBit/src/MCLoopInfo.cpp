@@ -25,9 +25,32 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
+    void MCLoopInfo::report_exceeded_maxFailedEvents() const
+    {
+      #pragma omp critical
+      {
+        exceeded_maxFailedEvents = true;
+        // Decrement event counter
+        _current_event_count_it->second--;        
+      }
+    }
+
+    /// Set end_of_event_file = true and decrement event counter by 1
+    void MCLoopInfo::report_end_of_event_file() const
+    {
+      #pragma omp critical
+      {
+        end_of_event_file = true;
+        // Decrement event counter
+        _current_event_count_it->second--;        
+      }
+    }
+
     /// Reset flags
     void MCLoopInfo::reset_flags()
     {
+      end_of_event_file = false;
       event_generation_began = false;
       exceeded_maxFailedEvents = false;
     }

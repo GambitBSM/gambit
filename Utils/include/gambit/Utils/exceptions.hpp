@@ -210,6 +210,9 @@ namespace Gambit
       /// Raise the exception, i.e. throw it.
       virtual void raise(const std::string&);
 
+      /// Integer code used for exceptions
+      int invalidcode;
+
     private:
 
       /// What this exception is (for returning with what method).
@@ -245,8 +248,11 @@ namespace Gambit
       /// Retrieve pointer to the functor that threw the invalid point exception.
       functor* thrower();
 
-      /// Raise the exception, i.e. throw it.
+      /// Raise the exception, i.e. throw it. Exact override of base method.
       virtual void raise(const std::string&);
+
+      /// Raise the exception, i.e. throw it with a message and code.
+      virtual void raise(const std::string&, int code);
 
   };
 

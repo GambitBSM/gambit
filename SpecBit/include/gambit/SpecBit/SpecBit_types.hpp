@@ -28,9 +28,7 @@
 #define __SpecBit_types_hpp__
 
 #include <string>
-#include <iostream>
 #include <vector>
-#include <stdlib.h>     /* malloc, free, rand */
 #include "gambit/Utils/util_types.hpp"
 
 namespace Gambit
@@ -40,7 +38,7 @@ namespace Gambit
   {
 
     // this vector of <int,double> pairs is the type the routine 'ReadLhaBlock' of vevacious uses to read
-    // in the passed parameters 
+    // in the passed parameters
     typedef std::vector<std::pair<int,double>> vec_pair_int_dbl;
 
     // create a spectrum entry type storing all information necessary for the vevacious function 'ReadLhaBlock'
@@ -55,16 +53,16 @@ namespace Gambit
     // typdef to avoid having to use 'struct SpectrumEntry' every time
     typedef struct SpectrumEntry SpectrumEntry;
 
-    /// map mapping the name of a spectrum entry to the SpectrumEntry type. 
-    /// In principle one could just use a vector instead of a map. However, 
-    /// this requires a lot of caution to avoid filling up the vector with 
-    /// more & more entries with the same name but different parameters 
+    /// map mapping the name of a spectrum entry to the SpectrumEntry type.
+    /// In principle one could just use a vector instead of a map. However,
+    /// this requires a lot of caution to avoid filling up the vector with
+    /// more & more entries with the same name but different parameters
     /// after one point is run so I thought this was the safer option
     typedef std::map<std::string,SpectrumEntry> map_str_SpectrumEntry;
 
 
-    /// class for setting & storing all spectrum entries of type SpectrumEntry 
-    /// that need to be passed to vevacious (scale, input filenames & paths as 
+    /// class for setting & storing all spectrum entries of type SpectrumEntry
+    /// that need to be passed to vevacious (scale, input filenames & paths as
     /// well as spectrum entries)
     /// passed to vevacious before calling it
     class SpectrumEntriesForVevacious
@@ -76,7 +74,7 @@ namespace Gambit
             void set_scale (double inScale) {scale = inScale;};
             void set_inputPath (std::string inPath) {inputPath = inPath;};
             void set_inputFilename (std::string inFile) {inputFilename = inFile;};
-            
+
             // getter functions for scale, inputPath and input Filenames
             double get_scale () {return scale;};
             std::string get_inputFilename () {return inputFilename;};
@@ -96,22 +94,22 @@ namespace Gambit
     };
 
 
-    /* Class that stores the results computed by vevacious that will be 
+    /* Class that stores the results computed by vevacious that will be
     needed by other capabilites in GAMBIT  */
     class VevaciousResultContainer
     {
 
       public:
-        // constructor initialises every member to -1 to avoid 
+        // constructor initialises every member to -1 to avoid
         // problems when printing results when vevacious did not run
         VevaciousResultContainer(){};
 
         // clear all maps and set value of lifetime and thermalProbability to -1
         void clear_results(const str panic_vaccum, int pathFinder_number);
 
-        // setter functions for results lifetime, thermal probability & bounce action vectors 
-        // straightPathGoodEnough checks wethere the action of drawing a straigh path between the 
-        // physical & panic vacuum is already below the action threshold. 
+        // setter functions for results lifetime, thermal probability & bounce action vectors
+        // straightPathGoodEnough checks wethere the action of drawing a straigh path between the
+        // physical & panic vacuum is already below the action threshold.
         void set_results (str panic_vaccum, str name, double val);
         void add_straightPathGoodEnough(str panic_vacuum);
 
@@ -119,12 +117,16 @@ namespace Gambit
         map_str_dbl get_nearest_results() {return result_map["nearest"];}
         map_str_dbl get_global_results() {return result_map["global"];}
 
-        // return lifetime for nearest/global minimum
-        double get_lifetime(str panic_vaccum) {return result_map[panic_vaccum]["lifetime"];};
-        double get_thermalProbability(str panic_vaccum) {return result_map[panic_vaccum]["thermalProbability"];};
-        
+        // return width, lifetime for nearest/global minimum
+        double get_width(str panic_vacuum) { return result_map[panic_vacuum]["width"]; }
+        double get_lifetime(str panic_vaccum) {return result_map[panic_vaccum]["lifetime"]; }
+
+        // return thermal probability and width for nearest/global minimum
+        double get_thermalProbability(str panic_vaccum) { return result_map[panic_vaccum]["thermalProbability"]; }
+        double get_thermalWidth(str panic_vacuum) { return result_map[panic_vacuum]["thermalWidth"]; }
+
       private:
-        map_str_map_str_dbl result_map;   
+        map_str_map_str_dbl result_map;
     };
   }
 }

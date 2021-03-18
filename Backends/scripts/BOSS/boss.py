@@ -374,7 +374,7 @@ def main():
             root = tree.getroot()
 
             # Set the global xml id dict. (Needed by the functions called from utils.)
-            gb.id_dict = OrderedDict([ (el.get('id'), el) for el in root.getchildren() ])
+            gb.id_dict = OrderedDict([ (el.get('id'), el) for el in list(root) ])
 
             # Find all available classes
             for el in (root.findall('Class') + root.findall('Struct')):

@@ -23,12 +23,18 @@
 ///
 ///  *********************************************
 
+#include "gambit/cmake/cmake_variables.hpp"
+
+#ifndef EXCLUDE_HEPMC
+
 using namespace std;
 
 #include <iostream>
-#include "LHEF.h"
-#include "HEPUtils/FastJet.h"
+
 #include "gambit/ColliderBit/lhef2heputils.hpp"
+
+#include "HepMC3/LHEF.h"
+#include "HEPUtils/FastJet.h"
 
 //#define COLLIDERBIT_DEBUG
 
@@ -36,7 +42,7 @@ using namespace HEPUtils;
 using namespace FJNS;
 
 /// Extract an LHE event as a HEPUtils::Event
-void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt)
+void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt, double jet_pt_min)
 {
 
   P4 vmet;
@@ -49,7 +55,8 @@ void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt)
   {
     // Get status and PID code
     const int st = lhe.hepeup.ISTUP[i];
-    const int apid = fabs(lhe.hepeup.IDUP[i]);
+    const int pid = lhe.hepeup.IDUP[i];
+    const int apid = fabs(pid);
 
     // Use LHE-stable particles only
     if (st != 1) continue;
@@ -61,13 +68,17 @@ void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt)
     /// @todo Dress leptons?
     if (apid == 22 || apid == 11 || apid == 13 || apid == 15)
     {
-      evt.add_particle(new Particle(p4, apid));
+      Particle* p = new Particle(p4, pid); // the event will take ownership of this pointer
+      p->set_prompt(true);
+      evt.add_particle(p);
     }
 
     // Aggregate missing ET
     else if (apid == 12 || apid == 14 || apid == 16 || apid == 1000022 || apid == 1000039)
     {
-      evt.add_particle(new Particle(p4, apid));
+      Particle* p = new Particle(p4, pid); // the event will take ownership of this pointer
+      p->set_prompt(true);
+      evt.add_particle(p);
       vmet += p4;
     }
 
@@ -86,7 +97,8 @@ void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt)
   evt.set_missingmom(vmet);
 
   // Jets
-  vector<PseudoJet> jets = get_jets(jetparticles, 0.4, 20.0);
+  vector<PseudoJet> jets = get_jets(jetparticles, 0.4, jet_pt_min);
+
   for (const PseudoJet& pj : jets)
   {
     bool hasC = false, hasB = false;
@@ -110,3 +122,5 @@ void get_HEPUtils_event(const LHEF::Reader& lhe, Event& evt)
   #endif
 
 }
+
+#endif

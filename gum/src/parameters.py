@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-#
-#  GUM: GAMBIT Universal Models
-#  ****************************
+#  GUM: GAMBIT Universal Models Machine
+#  ************************************
 #  \file
 #
 #  Master module for all routines relating 
@@ -11,7 +9,7 @@
 #
 #  \author Sanjay Bloor
 #          (sanjay.bloor12@imperial.ac.uk)
-#  \date 2017, 2018, 2019 
+#  \date 2018, 2019 
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
@@ -19,8 +17,9 @@
 #
 #  **************************************
 
-from setup import *
 import re
+
+from .setup import *
 
 ###############
 ## FEYNRULES ##
@@ -42,11 +41,11 @@ def fr_part_to_gum_part(fr_bsm):
     if 25 in all_pdgs and 35 not in all_pdgs: 
         add_higgs = True
 
-    for i in xrange(len(fr_bsm)):
+    for i in range(len(fr_bsm)):
         part = fr_bsm[i]
         bsm_list.append(Particle(part.name(), part.antiname(),
                                  part.spinX2(), part.pdg(), 
-                                 part.mass()))
+                                 part.mass(), part.chargeX3(), part.color()))
     
     return bsm_list, add_higgs
 
@@ -74,7 +73,7 @@ def fr_params(paramlist, add_higgs):
     params = []
 
     # Add all parameters from the parameter list from FeynRules
-    for i in xrange(len(paramlist)):
+    for i in range(len(paramlist)):
         p = paramlist[i]
         if (    (p.block() != 'YUKAWA')
             and (p.block() != 'SMINPUTS')
@@ -106,7 +105,7 @@ def fr_params(paramlist, add_higgs):
     matrices = {}
 
     # Go through each entry in the dictionary, and try and group them
-    for k, v in blockdict.iteritems():
+    for k, v in iteritems(blockdict):
 
         # FeynRules splits a matrix M into M1x1, M1x2, ..., Mdxd.
         # Find any matches to M1x1 to start with.
@@ -177,7 +176,7 @@ def add_masses_to_params(parameters, bsm_particle_list, gambit_pdgs, add_higgs):
 
     parameters_by_name = [x.name for x in parameters]
 
-    for i in xrange(len(bsm_particle_list)):
+    for i in range(len(bsm_particle_list)):
         p = bsm_particle_list[i]
         
         # Mass block convention is the index of a *pole mass* is the PDG code
@@ -207,7 +206,9 @@ def add_masses_to_params(parameters, bsm_particle_list, gambit_pdgs, add_higgs):
         # Save the particle name as 
         x = SpectrumParameter(mass, "Pole_Mass", gb_input=p.mass, block=block, 
                               index=index, shape="scalar", 
-                              fullparticlename = pdg_to_particle(p.PDG_code, gambit_pdgs))
+                              fullparticlename = pdg_to_particle(p.PDG_code, 
+                                                                 gambit_pdgs)
+                              )
         parameters.append(x)
 
     return parameters
@@ -232,23 +233,23 @@ def sarah_part_to_gum_part(sarah_bsm):
     if 25 in all_pdgs and 35 not in all_pdgs: 
         add_higgs = True
     
-    for i in xrange(len(sarah_bsm)):
+    for i in range(len(sarah_bsm)):
         part = sarah_bsm[i]            
         bsm_list.append(Particle(part.name(), part.antiname(),
-        			 part.spinX2(), part.pdg(), 
-                                 part.mass(), part.alt_name(),
-                                 part.alt_mass()))
+                        part.spinX2(), part.pdg(), 
+                        part.mass(), part.chargeX3(), part.color(), 
+                        part.alt_name(), part.alt_mass(), part.tree_mass()))
     
     return bsm_list, add_higgs
 
 def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
-                 particles):
+                 particles, boundary_conditions):
     """
     Removes all Standard Model parameters from those we wish
     to add to the GAMBIT model. This utilises the 'BlockName'
     tag (i.e. the SLHA Block the parameters will be placed in)
     to distinguish between Standard Model parameters, and 
-    parameters the user has implemented in their own FeynRules
+    parameters the user has implemented in their own SARAH
     model file.
 
     Behaviour mimics the default imported SARAH conventions, which
@@ -260,7 +261,9 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
     - overwrite any parameter definitions that have the same
      *descriptions* in both files with that from the defaults.
     Anything that is given in the following blocks will be ignored:
-    'SMINPUTS', 'CKMBLOCK', 'SM'
+
+    'SMINPUTS', 'CKMBLOCK', 'SM', 'VCKM', 'GAUGE', 'YE', 'YU', 'YD'...
+    
     Everything else is fair game. 
 
     Default assumption is that everything is a dimensionless
@@ -274,17 +277,36 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
 
     # Convert the C++ dict to python properly
     mixingdict = dict((m.key(),m.data()) for m in mixings)
+    bcs = dict((bc.data(),bc.key()) for bc in boundary_conditions)
     
     # List of parameters which have been added. Dupes can arise
     # from the Pole_Mixings for multiple particles
-    addedpars = [] 
+    addedpars = []
+
+    # Save the SM vev name, we might need it
+    smvevname = "vev"
 
     # Add all parameters from the parameter list from SARAH
-    for i in xrange(len(paramlist)):
+    for i in range(len(paramlist)):
         p = paramlist[i]
-        if (    (p.block() != 'SM')
-            and (p.block() != 'SMINPUTS')
-            and (p.block() != 'VCKM')
+
+        # If it's the Higgs vev, don't add it! We'll do it ourselves. 
+        # Save the name though.
+        if add_higgs and p.block() == "HMIX" and p.index() == 3:
+            smvevname = p.name()
+            continue
+
+        # Remove SM parameters here
+        # TODO: SM is not a SLHA block. SM parameters are in sminputs
+        # Parameters in this made-up SM block are not actually fixed
+        #if (    (p.block().lower() != 'sm')
+        #    and (p.block().lower() != 'sminputs')
+        if (    (p.block().lower() != 'sminputs')
+            and (p.block().lower() != 'vckm')
+            and (p.block().lower() != 'gauge')
+            and (p.block().lower() != 'ye')
+            and (p.block().lower() != 'yu')
+            and (p.block().lower() != 'yd')
             ):
 
             # Mixing matrices
@@ -293,61 +315,70 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
 
             name = p.name()
 
-            if tag == "Pole_Mixing":
-                found = False
-                
-                # Throw an error if we don't know what the mixing matrix is.
-                if not name in mixingdict:
-                    raise GumError(("Could not find which particle "
-                                    "eigenstates the mixing matrix {0} "
-                                    "couples to!")).format(name)
+            # If the parameter has a boundary condition, share the default value
+            default = p.defvalue()
 
-                entry = mixingdict[name]
+            if name in bcs.keys(): 
+                 default = [param.defvalue() for param in paramlist if param.name() == bcs[name] or param.alt_name() == bcs[name]]
+                 if default:
+                    default = default[0]
+                 else:
+                    default = 0.1
+            elif p.alt_name() in bcs.keys():
+                 default = [param.defvalue() for param in paramlist if param.name() == bcs[p.alt_name()] or param.alt_name() == bcs[p.alt_name()]]
+                 if default:
+                    default = default[0]
+                 else:
+                    default = 0.1
 
-                for particle in particles:
-
-                    # Strip numbers and try to align particles
-                    tomatch = ''.join([i for i in particle.alt_name()
-                                       if not i.isdigit()])
-                
-                    if tomatch in entry:
-                        name = pdg_to_particle(particle.pdg(), 
-                                               gambit_pdgs).split('_')[0]
-                        found = True
-                        continue
-
-            if name in addedpars: 
-                continue
-            else:
-                addedpars.append(name)
-
+            # If there are more than one parameter with the same name, take 
+            # the not default one
+            if default == 0.1:
+                other_defaults = [param.defvalue() for param in paramlist if 
+                                  param.name() == name or 
+                                  param.alt_name() == name]
+                default = [d for d in other_defaults if d != 0.1]
+                if default:
+                    default = default[0]
+                else: 
+                    default = 0.1
 
             # Create a new instance of SpectrumParameter
-            # TODO: still need to find mass dimension for parameters that aren't
-            # pole masses and pole mixings. 
             x = SpectrumParameter(name, tag, block=p.block(),
                                   index=p.index(), alt_name = p.alt_name(),
                                   bcs = p.bcs(), shape = p.shape(), 
-                                  is_output = p.is_output(), is_real = p.is_real())
+                                  is_output = p.is_output(), 
+                                  is_real = p.is_real(), default = default)
             params.append(x)
-
-    # Now all of the parameters have been extracted, look to see if any of them
-    # are elements of a matrix.
     
     # Now add some Standard Model stuff that's in every SimpleSpectrum, for now.
     if add_higgs:
-        params.append(SpectrumParameter("vev", "mass1", shape="scalar", sm=True, is_real=True))
+        params.append(SpectrumParameter(smvevname, "mass1", shape="scalar", 
+                                        sm=True, is_real=True, block="HMIX",
+                                        index=3))
 
-    # Add gauge couplings and Yukawas here? TODO: check! 
-    params.append(SpectrumParameter("g1", "dimensionless", block="GAUGE", index=1, shape="scalar", sm=True, is_real=True))
-    params.append(SpectrumParameter("g2", "dimensionless", block="GAUGE", index=2, shape="scalar", sm=True, is_real=True))
-    params.append(SpectrumParameter("g3", "dimensionless", block="GAUGE", index=3, shape="scalar", sm=True, is_real=True))
-    params.append(SpectrumParameter("sinW2", "Pole_Mixing", shape="scalar", sm=True, is_real=True))
-    params.append(SpectrumParameter("Yd", "dimensionless", block="YD", shape="m3x3", sm=True, is_real=True))
-    params.append(SpectrumParameter("Yu", "dimensionless", block="YU", shape="m3x3", sm=True, is_real=True))
-    params.append(SpectrumParameter("Ye", "dimensionless", block="YE", shape="m3x3", sm=True, is_real=True))
+    params.append(SpectrumParameter("g1", "dimensionless", block="GAUGE", 
+                                    index=1, shape="scalar", sm=True, 
+                                    is_real=True))
+    params.append(SpectrumParameter("g2", "dimensionless", block="GAUGE", 
+                                    index=2, shape="scalar", sm=True, 
+                                    is_real=True))
+    params.append(SpectrumParameter("g3", "dimensionless", block="GAUGE", 
+                                    index=3, shape="scalar", sm=True, 
+                                    is_real=True))
+    params.append(SpectrumParameter("sinW2", "Pole_Mixing", shape="scalar", 
+                                    sm=True, is_real=True))
+    # TODO: TG: Yukawas do not seem to be real, at least for the test model
+    params.append(SpectrumParameter("Yd", "dimensionless", block="YD", 
+                                    shape="m3x3", sm=True, is_real=False))
+    params.append(SpectrumParameter("Yu", "dimensionless", block="YU", 
+                                    shape="m3x3", sm=True, is_real=False))
+    params.append(SpectrumParameter("Ye", "dimensionless", block="YE", 
+                                    shape="m3x3", sm=True, is_real=False))
     
     return params
+
+
 
 
 ##################
@@ -383,8 +414,6 @@ def sort_params_by_block(parameters, mixings):
         if not par.block:
             continue
 
-        # If the parameter 
-
         shape = par.shape
 
         matrix = False
@@ -400,11 +429,15 @@ def sort_params_by_block(parameters, mixings):
 
         # If it's a matrix then it will be a new block
         if matrix:
-            # if it's a mixing matrix
+            # if it's a mixing matrix, save the outputname (SPheno) and the
+            # particle eigenstates (as known by SARAH) to the entry.
             if par.is_output and is_mixing :
-                newentry = { "mixingmatrix": par.shape[1:], "outputname": par.name }
+                newentry = { "mixingmatrix": shape[1:], 
+                             "outputname": par.name,
+                             "particles" : mixings[par.name] }
             else:
-                newentry = { "matrix": par.shape[1:], "outputname": par.name }
+                newentry = { "matrix": shape[1:], 
+                             "outputname": par.name }
             params_by_block[par.block] = newentry
 
         # If it's not a matrix and is a new block, then create the entry
@@ -442,8 +475,8 @@ def spheno_dependencies(sphenodeps):
     # each p is an instance of SARAHParameter
     for p in sphenodeps:
 
+        # Don't need the block. index etc, we're using internal SPheno params
         name = p.name() # As known to SPheno
-        # Don't need the block. index etc, we're using internal SPheno params here
 
         description = p.alt_name()
 

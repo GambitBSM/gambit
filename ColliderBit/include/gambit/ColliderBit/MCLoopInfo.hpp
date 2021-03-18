@@ -38,8 +38,11 @@ namespace Gambit
       /// Event generation has started
       bool event_generation_began;
 
+      /// Maximum allowed number of failed events has been reached
+      mutable bool exceeded_maxFailedEvents;
+
       /// Maximum allowed number of failed events has been reached and MC loop terminated
-      bool exceeded_maxFailedEvents;
+      mutable bool end_of_event_file;
 
       /// The names of all colliders
       std::vector<str> collider_names;
@@ -51,7 +54,7 @@ namespace Gambit
       std::map<str,bool> invalidate_failed_points;
 
       /// Number of events generated for each collider
-      std::map<str,int> event_count;
+      mutable std::map<str,int> event_count;
 
       /// Convergence options for each collider
       std::map<str,convergence_settings> convergence_options;
@@ -100,6 +103,12 @@ namespace Gambit
 
       /// Query whether any analyses exist for a given detector for the current collider
       bool current_analyses_exist_for(const str&) const;
+
+      /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
+      void report_exceeded_maxFailedEvents() const;
+
+      /// Set end_of_event_file = true and decrement event counter by 1
+      void report_end_of_event_file() const;
 
       /// Reset flags
       void reset_flags();

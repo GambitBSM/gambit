@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ***********************************
 ///  \file
 ///
 ///  Declarations of mother class for
@@ -16,7 +16,6 @@
 #ifndef MATH_PACKAGE_H
 #define MATH_PACKAGE_H
 
-#include "wstp.h"
 #include <math.h>
 #include <stdio.h>
 #include <sstream>
@@ -24,6 +23,8 @@
 #include <vector>
 #include <map>
 #include <exception>
+
+#include "wstp.h"
 
 #include "cmake_variables.hpp"
 #include "options.hpp"

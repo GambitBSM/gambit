@@ -4,17 +4,17 @@
 
 # New entries should look like:
 #
-#   - name: "X+"                           The name used within GAMBIT, in the particleDB.
-#     PDG_context: [10, 4]                 The PDG-context pair used for a single particle.
-#     conjugate: "X-"                      The name for the conjugate particle, also added to the particleDB.
-#     description: "New particle"          Optional - adds a C++ comment to particle_database.cpp. For readability.
-#     chargex3: 0                          Three times the electric charge.
-#     spinx2: 1                            Twice the spin.
-#     color:  3                            The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
+#   - name: "X+"                         The name used within GAMBIT, in the particleDB.
+#     PDG_context: [10, 4]               The PDG-context pair used for a single particle.
+#     conjugate: "X-"                    The name for the conjugate particle, also added to the particleDB.
+#     description: "New particle"        Optional - adds a C++ comment to particle_database.cpp. For readability.
+#     chargex3: 0                        Three times the electric charge.
+#     spinx2: 1                          Twice the spin.
+#     color:  3                          The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
 #     DecayBit:
-#       Decays: True                       Flag to show whether or not to include a particle's Decays in DecayBit.
-#       name: "X_plus"                     The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.
-#       conjugate: "X_minus"                    And the name used for it's conjugate.
+#       Decays: True                     Flag to show whether or not to include a particle's Decays in DecayBit.
+#       name: "X_plus"                   The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.
+#       conjugate: "X_minus"             And the name used for it's conjugate.
 #
 # The syntax for adding sets is identical - GAMBIT automatically numbers each particle in a set.
 #
@@ -33,63 +33,82 @@
 OtherModels:
   Generic:
 
-  - PDG_context: [9900081, 0]
+  - PDG_context:
+    - 9900081
+    - 0
     name: boson
     spinx2: 0
 
-  - PDG_context: [9900082, 0]
+  - PDG_context:
+    - 9900082
+    - 0
     name: fermion
     spinx2: 1
 
-  - PDG_context: [9900083, 0]
+  - PDG_context:
+    - 9900083
+    - 0
     name: lepton
     spinx2: 1
 
-  - PDG_context: [9900084, 0]
+  - PDG_context:
+    - 9900084
+    - 0
     name: quark
     spinx2: 1
 
-  - PDG_context: [9900085, 0]
+  - PDG_context:
+    - 9900085
+    - 0
     name: neutrino
     spinx2: 1
 
-  - PDG_context: [9900086, 0]
+  - PDG_context:
+    - 9900086
+    - 0
     name: hadron
     spinx2: 1
 
-  - PDG_context: [9900087, 0]
+  - PDG_context:
+    - 9900087
+    - 0
     name: meson
     spinx2: 0
 
-  - PDG_context: [9900088, 0]
+  - PDG_context:
+    - 9900088
+    - 0
     name: penta
   Particles:
 
-  - DecayBit: {Decays: true, name: gluino}
-    PDG_context: [1000021, 0]
+  - DecayBit:
+      Decays: true
+      name: gluino
+    PDG_context:
+    - 1000021
+    - 0
     chargex3: 0
     color: 8
     description: Gluino
     name: ~g
     spinx2: 1
 
-  - PDG_context: [1000039, 0]
+  - PDG_context:
+    - 1000039
+    - 0
     chargex3: 0
     color: 1
     description: Gravitino
     name: ~G
     spinx2: 3
 
-  - DecayBit: {Decays: true}
-    PDG_context: [36, 0]
-    chargex3: 0
-    color: 1
-    description: Pseudoscalar Higgs
-    name: A0
-    spinx2: 0
-
-  - DecayBit: {Decays: true, conjugate: H_minus, name: H_plus}
-    PDG_context: [37, 0]
+  - DecayBit:
+      Decays: true
+      conjugate: H_minus
+      name: H_plus
+    PDG_context:
+    - 37
+    - 0
     chargex3: 3
     color: 1
     conjugate: H-
@@ -97,28 +116,36 @@ OtherModels:
     name: H+
     spinx2: 0
 
-  - PDG_context: [9900001, 0]
+  - PDG_context:
+    - 9900001
+    - 0
     chargex3: 0
     color: 1
     description: Scalar Singlet
     name: S
     spinx2: 0
 
-  - PDG_context: [9900002, 0]
+  - PDG_context:
+    - 9900002
+    - 0
     chargex3: 0
     color: 1
     description: Dirac Singlet
     name: F
     spinx2: 1
 
-  - PDG_context: [9900003, 0]
+  - PDG_context:
+    - 9900003
+    - 0
     chargex3: 0
     color: 1
     description: Majorana Singlet
     name: X
     spinx2: 1
 
-  - PDG_context: [9900004, 0]
+  - PDG_context:
+    - 9900004
+    - 0
     chargex3: 0
     color: 1
     description: Vector Singlet
@@ -131,14 +158,29 @@ OtherModels:
     conjugate: chi~
     name: chi
     spinx2: 1
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 36
+    - 0
+    chargex3: 0
+    color: 1
+    description: Pseudoscalar Higgs
+    name: A0
+    spinx2: 0
   Sets:
 
   - DecayBit:
       Decays: true
-      name: [Higgs, h0_2]
+      name:
+      - Higgs
+      - h0_2
     PDG_context:
-    - [25, 0]
-    - [35, 0]
+    - - 25
+      - 0
+    - - 35
+      - 0
     chargex3: 0
     color: 1
     description: Mass-ordered neutral Higgs
@@ -146,12 +188,18 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
-    - [1000001, 0]
-    - [1000003, 0]
-    - [1000005, 0]
-    - [2000001, 0]
-    - [2000003, 0]
-    - [2000005, 0]
+    - - 1000001
+      - 0
+    - - 1000003
+      - 0
+    - - 1000005
+      - 0
+    - - 2000001
+      - 0
+    - - 2000003
+      - 0
+    - - 2000005
+      - 0
     chargex3: -1
     color: 3
     conjugate: ~dbar
@@ -160,12 +208,18 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
-    - [1000002, 0]
-    - [1000004, 0]
-    - [1000006, 0]
-    - [2000002, 0]
-    - [2000004, 0]
-    - [2000006, 0]
+    - - 1000002
+      - 0
+    - - 1000004
+      - 0
+    - - 1000006
+      - 0
+    - - 2000002
+      - 0
+    - - 2000004
+      - 0
+    - - 2000006
+      - 0
     chargex3: 2
     color: 3
     conjugate: ~ubar
@@ -174,12 +228,18 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
-    - [1000011, 0]
-    - [1000013, 0]
-    - [1000015, 0]
-    - [2000011, 0]
-    - [2000013, 0]
-    - [2000015, 0]
+    - - 1000011
+      - 0
+    - - 1000013
+      - 0
+    - - 1000015
+      - 0
+    - - 2000011
+      - 0
+    - - 2000013
+      - 0
+    - - 2000015
+      - 0
     chargex3: -3
     color: 1
     conjugate: ~e+
@@ -188,12 +248,18 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
-    - [1000012, 0]
-    - [1000014, 0]
-    - [1000016, 0]
-    - [2000012, 0]
-    - [2000014, 0]
-    - [2000016, 0]
+    - - 1000012
+      - 0
+    - - 1000014
+      - 0
+    - - 1000016
+      - 0
+    - - 2000012
+      - 0
+    - - 2000014
+      - 0
+    - - 2000016
+      - 0
     chargex3: 0
     color: 1
     conjugate: ~nubar
@@ -201,22 +267,35 @@ OtherModels:
     name: ~nu
     spinx2: 0
 
-  - DecayBit: {Decays: true, name: neutralino}
+  - DecayBit:
+      Decays: true
+      name: neutralino
     PDG_context:
-    - [1000022, 0]
-    - [1000023, 0]
-    - [1000025, 0]
-    - [1000035, 0]
+    - - 1000022
+      - 0
+    - - 1000023
+      - 0
+    - - 1000025
+      - 0
+    - - 1000035
+      - 0
+    - - 1000045
+      - 0
     chargex3: 0
     color: 1
     description: Mass-ordered neutralinos
     name: ~chi0
     spinx2: 1
 
-  - DecayBit: {Decays: true, conjugate: chargino_minus, name: chargino_plus}
+  - DecayBit:
+      Decays: true
+      conjugate: chargino_minus
+      name: chargino_plus
     PDG_context:
-    - [1000024, 0]
-    - [1000037, 0]
+    - - 1000024
+      - 0
+    - - 1000037
+      - 0
     chargex3: 3
     color: 1
     conjugate: ~chi-
@@ -225,14 +304,22 @@ OtherModels:
     spinx2: 1
 
   - PDG_context:
-    - [12, 10]
-    - [14, 10]
-    - [16, 10]
-    - [1000022, 10]
-    - [1000023, 10]
-    - [1000025, 10]
-    - [1000035, 10]
-    - [1000045, 10]
+    - - 12
+      - 10
+    - - 14
+      - 10
+    - - 16
+      - 10
+    - - 1000022
+      - 10
+    - - 1000023
+      - 10
+    - - 1000025
+      - 10
+    - - 1000035
+      - 10
+    - - 1000045
+      - 10
     chargex3: 0
     color: 1
     description: Example extension of neutrino set to account for mixing with NMSSM
@@ -242,7 +329,9 @@ OtherModels:
 StandardModel:
   Particles:
 
-  - PDG_context: [1, 1]
+  - PDG_context:
+    - 1
+    - 1
     chargex3: -1
     color: 3
     conjugate: dbar
@@ -250,7 +339,9 @@ StandardModel:
     name: d
     spinx2: 1
 
-  - PDG_context: [2, 1]
+  - PDG_context:
+    - 2
+    - 1
     chargex3: 2
     color: 3
     conjugate: ubar
@@ -258,7 +349,9 @@ StandardModel:
     name: u
     spinx2: 1
 
-  - PDG_context: [3, 1]
+  - PDG_context:
+    - 3
+    - 1
     chargex3: -1
     color: 3
     conjugate: sbar
@@ -266,7 +359,9 @@ StandardModel:
     name: s
     spinx2: 1
 
-  - PDG_context: [4, 1]
+  - PDG_context:
+    - 4
+    - 1
     chargex3: 2
     color: 3
     conjugate: cbar
@@ -274,7 +369,9 @@ StandardModel:
     name: c
     spinx2: 1
 
-  - PDG_context: [5, 1]
+  - PDG_context:
+    - 5
+    - 1
     chargex3: -1
     color: 3
     conjugate: bbar
@@ -282,8 +379,11 @@ StandardModel:
     name: b
     spinx2: 1
 
-  - DecayBit: {Decays: true}
-    PDG_context: [6, 1]
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 6
+    - 1
     chargex3: 2
     color: 3
     conjugate: tbar
@@ -291,7 +391,9 @@ StandardModel:
     name: t
     spinx2: 1
 
-  - PDG_context: [11, 1]
+  - PDG_context:
+    - 11
+    - 1
     chargex3: -3
     color: 1
     conjugate: e+
@@ -299,8 +401,13 @@ StandardModel:
     name: e-
     spinx2: 1
 
-  - DecayBit: {Decays: true, conjugate: mu_plus, name: mu_minus}
-    PDG_context: [13, 1]
+  - DecayBit:
+      Decays: true
+      conjugate: mu_plus
+      name: mu_minus
+    PDG_context:
+    - 13
+    - 1
     chargex3: -3
     color: 1
     conjugate: mu+
@@ -308,8 +415,13 @@ StandardModel:
     name: mu-
     spinx2: 1
 
-  - DecayBit: {Decays: true, conjugate: tau_plus, name: tau_minus}
-    PDG_context: [15, 1]
+  - DecayBit:
+      Decays: true
+      conjugate: tau_plus
+      name: tau_minus
+    PDG_context:
+    - 15
+    - 1
     chargex3: -3
     color: 1
     conjugate: tau+
@@ -317,7 +429,9 @@ StandardModel:
     name: tau-
     spinx2: 1
 
-  - PDG_context: [12, 1]
+  - PDG_context:
+    - 12
+    - 1
     chargex3: 0
     color: 1
     conjugate: nubar_e
@@ -325,7 +439,9 @@ StandardModel:
     name: nu_e
     spinx2: 1
 
-  - PDG_context: [14, 1]
+  - PDG_context:
+    - 14
+    - 1
     chargex3: 0
     color: 1
     conjugate: nubar_mu
@@ -333,7 +449,9 @@ StandardModel:
     name: nu_mu
     spinx2: 1
 
-  - PDG_context: [16, 1]
+  - PDG_context:
+    - 16
+    - 1
     chargex3: 0
     color: 1
     conjugate: nubar_tau
@@ -341,30 +459,43 @@ StandardModel:
     name: nu_tau
     spinx2: 1
 
-  - PDG_context: [21, 0]
+  - PDG_context:
+    - 21
+    - 0
     chargex3: 0
     color: 8
     description: Gluon
     name: g
     spinx2: 2
 
-  - PDG_context: [22, 0]
+  - PDG_context:
+    - 22
+    - 0
     chargex3: 0
     color: 1
     description: Photon
     name: gamma
     spinx2: 2
 
-  - DecayBit: {Decays: true, name: Z}
-    PDG_context: [23, 0]
+  - DecayBit:
+      Decays: true
+      name: Z
+    PDG_context:
+    - 23
+    - 0
     chargex3: 0
     color: 1
     description: Z Boson
     name: Z0
     spinx2: 2
 
-  - DecayBit: {Decays: true, conjugate: W_minus, name: W_plus}
-    PDG_context: [24, 0]
+  - DecayBit:
+      Decays: true
+      conjugate: W_minus
+      name: W_plus
+    PDG_context:
+    - 24
+    - 0
     chargex3: -3
     color: 1
     conjugate: W-
@@ -372,62 +503,131 @@ StandardModel:
     name: W+
     spinx2: 2
 
-  - PDG_context: [39, 0]
+  - PDG_context:
+    - 39
+    - 0
     chargex3: 0
     color: 1
     description: Graviton
     name: G
     spinx2: 4
 
-  - DecayBit: {Decays: true, name: pi_0}
-    PDG_context: [111, 0]
+  - PDG_context:
+    - 2212
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: pbar
+    description: proton
+    name: p
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+      conjugate: neutron
+      name: neutron_bar
+    PDG_context:
+    - 2112
+    - 0
     chargex3: 0
     color: 1
+    conjugate: nbar
+    description: neutron
+    name: n
+    spinx2: 1
+
+  - PDG_context:
+    - 1000010020
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: Dbar
+    description: deuteron
+    name: D
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+      name: pi_0
+    PDG_context:
+    - 111
+    - 0
+    chargex3: 0
+    color: 1
+    description: Neutral pion
     name: pi0
     spinx2: 0
 
-  - DecayBit: {Decays: true, conjugate: pi_minus, name: pi_plus}
-    PDG_context: [211, 0]
+  - DecayBit:
+      Decays: true
+      conjugate: pi_minus
+      name: pi_plus
+    PDG_context:
+    - 211
+    - 0
     chargex3: 3
     color: 1
     conjugate: pi-
+    description: Charged pion
     name: pi+
     spinx2: 0
 
-  - DecayBit: {Decays: true}
-    PDG_context: [221, 0]
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 221
+    - 0
     chargex3: 0
     color: 1
+    description: Eta meson
     name: eta
     spinx2: 0
 
-  - DecayBit: {Decays: true, name: rho_0}
-    PDG_context: [113, 0]
+  - DecayBit:
+      Decays: true
+      name: rho_0
+    PDG_context:
+    - 113
+    - 0
     chargex3: 0
     color: 1
+    description: Neutral rho meson
     name: rho0
     spinx2: 2
 
-  - DecayBit: {Decays: true, conjugate: rho_minus, name: rho_plus}
-    PDG_context: [213, 0]
+  - DecayBit:
+      Decays: true
+      conjugate: rho_minus
+      name: rho_plus
+    PDG_context:
+    - 213
+    - 0
     chargex3: 3
     color: 1
     conjugate: rho-
+    description: Charged rho meson
     name: rho+
     spinx2: 2
 
-  - DecayBit: {Decays: true}
-    PDG_context: [223, 0]
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 223
+    - 0
     chargex3: -3
     color: 1
+    description: Omega meson
     name: omega
     spinx2: 3
   Sets:
 
   - PDG_context:
-    - [1, 0]
-    - [3, 0]
-    - [5, 0]
+    - - 1
+      - 0
+    - - 3
+      - 0
+    - - 5
+      - 0
     chargex3: 1
     color: 3
     conjugate: dbar
@@ -436,9 +636,12 @@ StandardModel:
     spinx2: 1
 
   - PDG_context:
-    - [2, 0]
-    - [4, 0]
-    - [6, 0]
+    - - 2
+      - 0
+    - - 4
+      - 0
+    - - 6
+      - 0
     chargex3: 2
     color: 3
     conjugate: ubar
@@ -447,9 +650,12 @@ StandardModel:
     spinx2: 1
 
   - PDG_context:
-    - [11, 0]
-    - [13, 0]
-    - [15, 0]
+    - - 11
+      - 0
+    - - 13
+      - 0
+    - - 15
+      - 0
     chargex3: 3
     color: 1
     conjugate: e+
@@ -458,9 +664,12 @@ StandardModel:
     spinx2: 1
 
   - PDG_context:
-    - [12, 0]
-    - [14, 0]
-    - [16, 0]
+    - - 12
+      - 0
+    - - 14
+      - 0
+    - - 16
+      - 0
     chargex3: 0
     color: 1
     conjugate: nubar

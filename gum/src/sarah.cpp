@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Machine
+//   ************************************
 ///  \file
 ///
 ///  Definitions of SARAH class
@@ -8,7 +8,7 @@
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
-///  \date 2017, 2018, 2019
+///  \date 2018, 2019
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
@@ -23,6 +23,7 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost/python/raw_function.hpp>
 
 #include <boost/filesystem.hpp>
 
@@ -53,6 +54,7 @@ namespace GUM
   {
 
     std::cout << "Loading SARAH... ";
+    std::cout.flush();
 
     std::string input;
     input+= "SetDirectory[\"" + std::string(SARAH_PATH) + "\"]";
@@ -78,7 +80,7 @@ namespace GUM
       std::cout << "Loading model " + model + " in SARAH... " << std::endl;
 
       // Check if model is in SARAH's or GUM's list of models
-      if(!check_model(model))
+      if(!model_exists(model))
       {
         throw std::runtime_error("SARAH Error: Could not load model " + model + ". Model is not recognised by SARAH or GUM.");
       }
@@ -96,9 +98,176 @@ namespace GUM
 
       // All good.
       std::cout << "Model " + model + " loaded successfully, with model name " << modelname << "." << std::endl;
-  
     } catch(...) { throw; }
   }
+
+  void SARAH::check_model(std::string model, std::vector<std::string> &backends)
+  {
+    try
+    {
+      std::cout << "Checking your model... " << std::endl;
+
+      // Check whether CalcHEP or MicrOmegas have been requested as backend
+      bool need_ch = false;
+      if (std::find(backends.begin(), backends.end(), "calchep") != backends.end()   ||
+          std::find(backends.begin(), backends.end(), "micromegas") != backends.end() )
+        need_ch = true;
+      
+      // Redirect output to catch them after checking model
+      send_to_math("streams = AppendTo[$Output, OpenWrite[]];");
+   
+      send_to_math("CheckModel[]; messages = $MessageList;");
+
+      // Close the output stream and restore to stdout
+      std::string command = "Close@Last@streams;"\
+                "$Output = Most@streams;"\
+                "output = ReadList@First@Last@streams;";
+      send_to_math(command);
+
+      // Process the output to find anomaly warnings
+      int noutput;
+      send_to_math("Length[output]");
+      get_from_math(noutput);
+      for(int i=1; i<=noutput; i++)
+      {
+        std::string output;
+        send_to_math("ToString[output[[" + std::to_string(i) + "]]]");
+        get_from_math(output);
+
+        size_t pos = output.find("WARNING");
+        if(pos != std::string::npos)
+          std::cout << output.substr(pos) << std::endl;
+      }
+
+      // Get the messages and processes them
+      int nmessages;
+      send_to_math("Length[messages]");
+      get_from_math(nmessages);
+      for(int i=1; i<=nmessages; i++)
+      {
+        std::string error, message;
+        send_to_math("ToString[messages[[" + std::to_string(i) + "]]]");
+        get_from_math(error);
+        send_to_math("ToString[ReleaseHold[messages[[" + std::to_string(i) + "]]]]");
+        get_from_math(message);
+
+        //CheckAnomalies
+        // This is handled above as it does not produce error messages, only prints
+
+        //CheckChargeConservation;
+        if(error == "ChargeConservation::NoSUN")
+          std::cout << "Warning! " << message << std::endl;
+        else if(error == "Superpotential::ChargeViolation")
+          throw std::runtime_error("SARAH Error: Model violates charge conservation. Please fix your superpotential");
+        else if(error == "Superpotential::MaybeChargeViolation")
+          std::cout << "Warning! The superpotential may violate charge conservation." << std::endl;
+        else if(error == "Superpotential::ViolationGlobal")
+          throw std::runtime_error("SARAH Error: Model violates global symmetry. Please fix your superpotential");
+
+        //CheckPossibleTermsSuperPotential, CheckPossibleTermsPotential
+        else if(error == "Lagrange:ChargeViolation")
+          throw std::runtime_error("SARAH Error: Model violates charge conservation. Please fix your Lagrangian");
+        else if(error == "Lagrange::MaybeChargeViolation")
+          std::cout << "Warning! The Lagrangian may violate charge conservation." << std::endl;
+        else if(error == "PossibleTerms::IncludeGlobal")
+          std::cout << "Warning! The superpotential does not include all possible terms." << std::endl;
+        else if(error == "PossibleTerms::NonSUSY")
+          std::cout << "Warning! The Lagrangian does not include all possible terms. Note that this functionality does not work perfectly for non-susy models, so check your Lagrangian" << std::endl;
+
+
+        //CheckParticleMixingAndVEVs
+        else if(error == "Mixing::DifferentQN")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your model file.");
+        else if(error == "VEV::UnbrokenSymmetries")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your model file.");
+
+        //CheckMassMatrices
+        else if(error == "MassMatrix::OnlyZero")
+          std::cout << "Warning! " << message << "." << std::endl;
+        else if(error == "MassMatrix::Reducible")
+          std::cout << "Warning! " << message << "." << std::endl;
+
+        //CheckMissingMixing
+        else if(error == "Lagrangian::PossibleMixing")
+          std::cout << "Warning! Possible mixing between fields has been found." << std::endl;    
+
+
+        //CheckDiracSpinors
+        else if(error == "DiracSpinor::missing")
+          std::cout << "Warning! Missing Dirac spinor definitions for some Weyl spinors." << std::endl;
+
+        //CheckParameterDefinitionsFinal
+        else if(error == "CheckModelFiles::MissingParameter")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your parameters file.");
+        else if(error == "CheckModelFiles::MissingLH")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your parameters file.");
+        else if(error == "CheckModelFiles::MissingOutputNameParameter")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your parameters file.");
+        else if(error == "ParameterNames::TooLong")
+          if(need_ch)
+            throw std::runtime_error("SARAH Error: Some parameter OutputName is too long for a valid CalcHEP output.");
+          else
+            std::cout << "Warning! The OutputNames of some parameters are too long for CalcHEP output. If using CalcHEP please reduce their length." << std::endl;
+        else if(error == "ParameterNames::DefinedTwice")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your parameters file.");
+
+        //CheckParticleDefinitionsFinal
+        else if(error == "CheckModelFiles::MissingParticle")
+          std::cout << "Warning! Some particle definitions are missing from the particles file." << std::endl;
+          //throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "CheckModelFiles::MissingOutputName")
+          std::cout << "Warning! Some particle are missing a definition of OutputName in the particles file." << std::endl;
+          //throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "CheckModelFiles::MissingRParity")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "CheckModelFiles::WrongPDG")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "CheckModelFiles::ElectricCharge")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "ParticleNames::TooLong")
+          if(need_ch)
+            throw std::runtime_error("SARAH Error: Some particle OutputName is too long for a valid CalcHEP output.");
+          else
+            std::cout << "Warning! The OutputNames of some particles are too long for CalcHEP output. If using CalcHEP please reduce their length." << std::endl;
+        else if(error == "ParticleNames::DefinedTwice")
+          std::cout << "Warning! Some particle OutputNames are defined twice." << std::endl;
+          //throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+        else if(error == "FeynArts::NN")
+          std::cout << "Warning! " << message << ". If using FeynArts please add missing numbers." << std::endl;
+        else if(error == "FeynArts::NumberDefinedTwiceF")
+          std::cout << "Warning! " << message << ". If using FeynArts please change duplicated numbers." << std::endl;
+        else if(error == "FeynArts::NumberDefinedTwiceS")
+          std::cout << "Warning! " << message << ". If using FeynArts please change duplicated numbers." << std::endl;
+        else if(error == "FeynArts::NumberDefinedTwiceV")
+          std::cout << "Warning! " << message << ". If using FeynArts please change duplicated numbers." << std::endl;
+        else if(error == "FeynArts::NumberDefinedTwiceG")
+          std::cout << "Warning! " << message << ". If using FeynArts please change duplicated numbers." << std::endl;
+        else if(error == "Model::NoEC")
+          throw std::runtime_error("SARAH Error: " + message + ". Please fix your particles file.");
+
+        // This seems to be a recurring bug in SARAH, so ignore it
+        else if(error == "Transpose::nmtx")
+        {
+          // Do nothing
+        }
+
+        // Ignore messages about suppression of messages
+        else if(error == "General::stop")
+        {
+          // Do nothing
+        }
+
+        // If error is unknown throw exception
+        else
+          throw std::runtime_error("SARAH Error: " + error + " : " + message);
+      }
+
+      // All good.
+      std::cout << "Model " + model + " successfully passed SARAH's checks. Please address any warnings issued." << std::endl;
+    } catch(...) { throw; }
+  }
+
+
 
   // The model may have a different "internal" name than what's on the package.
   // Need this info for output files, etc.
@@ -116,7 +285,7 @@ namespace GUM
   }
 
   // Check if model is SARAH's database or in GUM's
-  bool SARAH::check_model(std::string modelname)
+  bool SARAH::model_exists(std::string modelname)
   {
     try
     {
@@ -133,7 +302,6 @@ namespace GUM
       }
 
       // If not check if it's in the GUM model database
-      // TODO: check if it's in the models dir and if it is move it to the SARAH dir
       std::string modelpath = std::string(GUM_DIR) + "/Models/" + modelname + "/" + modelname + ".m";
 
       // If it exists, then copy the folder to the SARAH model dir
@@ -215,17 +383,37 @@ namespace GUM
     {
 
       // Command to get a list with (most) particle info.
-      command = "pl = ParticleDefinitions[EWSB];";
+      command = "plgum = ParticleDefinitions[EWSB];";
       send_to_math(command);
 
       // Find out how many particles we have to get.
-      command = "Length[pl]";
+      command = "Length[plgum]";
       send_to_math(command);
 
       int lenpl;
       get_from_math(lenpl);
 
+      // Save some stuff for in a minute.
 
+      // Fermions
+      std::vector<std::string> dFs;
+      command = "PART[F][[All,1]]";
+      // command = "diracFermions[ALL]";
+      send_to_math(command);
+      get_from_math(dFs);
+
+      // Scalar
+      std::vector<std::string> scs;
+      command = "PART[S][[All,1]]";
+      send_to_math(command);
+      get_from_math(scs);
+      
+      // Vector
+      std::vector<std::string> vecs;
+      command = "PART[V][[All,1]]";
+      send_to_math(command);
+      get_from_math(scs);
+      
       std::cout << "Found " << lenpl << " particle sets." << std::endl;
 
       // Get to parsing this monster.
@@ -235,7 +423,7 @@ namespace GUM
         // First things first, check to see if we are dealing with multiplets.
         // e.g., l = (e, mu, tau).
         int numelements;
-        command = "Length[getPDG[pl[[" + std::to_string(i+1) + ", 1]]]]";
+        command = "Length[getPDG[plgum[[" + std::to_string(i+1) + ", 1]]]]";
         send_to_math(command);
         get_from_math(numelements);
 
@@ -255,7 +443,7 @@ namespace GUM
             std::string antioutputname;
             std::string mass;
             std::string colorrep;
-            int spinX2 = 0; // Needs to be initialised to suppress compiler warnings.
+            int spinX2 = -1; // Set to -1 for error catching
             int chargeX3 = 0;
             int color = 0;
             int pdg;
@@ -267,40 +455,42 @@ namespace GUM
             bool self_conjugate = true;
 
             // Get SARAH name of the particle
-            send_to_math("pl[[" + std::to_string(i+1) + ", 1]]");
+            send_to_math("plgum[[" + std::to_string(i+1) + ", 1]]");
             get_from_math(alt_name);
 
+            // Use this to get the spin of the particle
+
             // Get the PDG
-            command = "Part[getPDG[pl[[" + std::to_string(i+1) + ", 1]]], " + std::to_string(j+1) + "]";
+            command = "Part[getPDG[plgum[[" + std::to_string(i+1) + ", 1]]], " + std::to_string(j+1) + "]";
             send_to_math(command);
             get_from_math(pdg);
 
             // If it's got a PDG of 0 it's not a physical particle. Don't care about it.
             if (pdg == 0) { continue; }
 
-            command = "Length[getOutputName[pl[[" + std::to_string(i+1) + ", 1]]]]";
+            command = "Length[getOutputName[plgum[[" + std::to_string(i+1) + ", 1]]]]";
             send_to_math(command);
             get_from_math(num);
 
             if (num == 2)
             {
                 self_conjugate = false;
-                command = "Part[getOutputName[pl[[" + std::to_string(i+1) + ", 1]]], 1]";
+                command = "Part[getOutputName[plgum[[" + std::to_string(i+1) + ", 1]]], 1]";
                 send_to_math(command);
                 get_from_math(name);
 
-                command = "Part[getOutputName[pl[[" + std::to_string(i+1) + ", 1]]], 2]";
+                command = "Part[getOutputName[plgum[[" + std::to_string(i+1) + ", 1]]], 2]";
                 send_to_math(command);
                 get_from_math(antiname);
             }
             else if (num == 0)
             {
-                command = "getOutputName[pl[[" + std::to_string(i+1) + ", 1]]]";
+                command = "getOutputName[plgum[[" + std::to_string(i+1) + ", 1]]]";
                 send_to_math(command);
                 get_from_math(name);
 
                 // Probe to see if it is self-conjugate
-                command = "TrueQ[pl[[" + std::to_string(i+1) + ", 1]] == conj[pl[[" + std::to_string(i+1) + ", 1]]]]";
+                command = "TrueQ[plgum[[" + std::to_string(i+1) + ", 1]] == conj[plgum[[" + std::to_string(i+1) + ", 1]]]]";
                 send_to_math(command);
                 bool is_sc;
                 get_from_math(is_sc);
@@ -346,7 +536,7 @@ namespace GUM
             mass = "M" + outputname;
 
             // Get the color rep
-            command = "getColorRep[pl[["+std::to_string(i+1)+",1]]] // ToString";
+            command = "getColorRep[plgum[["+std::to_string(i+1)+",1]]] // ToString";
             send_to_math(command);
             get_from_math(colorrep);
 
@@ -356,6 +546,44 @@ namespace GUM
             else if(colorrep == "O") color = 8;
             else if(colorrep == "Six") color = 6;
             else throw std::runtime_error("Unrecognised color - " + colorrep + " - found.");
+
+            // Electric charge
+            command = "getElectricCharge[plgum[["+std::to_string(i+1)+",1]]] * 3";
+            send_to_math(command);
+            get_from_math(chargeX3);
+
+            // Spin
+            std::string spinentry;
+            command = "getType[plgum[["+std::to_string(i+1)+",1]]]";
+            send_to_math(command);
+            get_from_math(spinentry);
+
+            if (spinentry == "S") spinX2 = 0;
+            else if(spinentry == "F") spinX2 = 1;
+            else if(spinentry == "V") spinX2 = 2;
+            // Get Spinformation for EWSB particles that come from mixings in either
+            // matter/gauge sectors or are from VEVs
+            else if(spinentry == "NoField") 
+            {
+              // Strip any trailing digits first
+              size_t last_index = alt_name.find_last_not_of("0123456789");
+              std::string strippedname = alt_name.substr(0, last_index + 1);
+
+              // Check to see if it's in the list of fermions we have
+              if (std::find(dFs.begin(), dFs.end(), strippedname) != dFs.end())
+                spinX2 = 1;
+              // If not - how about a scalar?
+              else if (std::find(scs.begin(), scs.end(), strippedname) != scs.end())
+                spinX2 = 0;
+              // Or a vector?
+              else if (std::find(vecs.begin(), vecs.end(), strippedname) != vecs.end())
+                spinX2 = 2;
+            }
+            else throw std::runtime_error("Unrecognised spin - " + spinentry + " - found.");
+
+            // If we haven't found a spin...
+            if (spinX2 == -1)
+              throw std::runtime_error("Unable to extract spin for particle: " + alt_name + ".");
 
             std::set<int> SM_pdgs = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24};
             if (SM_pdgs.count(abs(pdg)))
@@ -367,9 +595,30 @@ namespace GUM
                 SM = false;
             }
 
+            // If it's not SM, get the tree-level mass relation
+            std::string treelevelmass = "";
+
+            if (not SM)
+            {
+              // If there are multiplets, the tree-level masses cannot give the mixings or the EWSB conditions
+              // In these cases one should use a spectrum generator
+              // Hence, flag the tree level mass as not valid so an error can be thrown later if there's no spec gen
+              if (numelements > 1)
+              {
+                treelevelmass = "NotValid";
+              }
+              else
+              {
+                // Use Mathematica's terrible CForm output, amend this in GUM -- string replacement is nicer in Python :-)
+                command = "TreeMass[" + alt_name + ",EWSB] // CForm // ToString";
+                send_to_math(command);
+                get_from_math(treelevelmass);
+              }
+            }
+
             // Add the particle to the list.
             Particle particle(pdg, outputname, spinX2, chargeX3, color, 
-                              SM, mass, antioutputname, alt_name);
+                              SM, mass, antioutputname, alt_name, "", treelevelmass);  // Blank space is for SPheno mass (alt_mass)
             partlist.push_back(particle);
 
         }
@@ -399,16 +648,16 @@ namespace GUM
     {
 
       // Get list of parameters
-      command = "pd = ParameterDefinitions;";
+      command = "pdgum = ParameterDefinitions;";
       send_to_math(command);
 
       // Here's another parameter list which has, crucically,
       // the size of mixing matrices.
-      command = "p = parameters;";
+      command = "pgum = parameters;";
       send_to_math(command);
 
       // Find out how many parameters we have to get.
-      command = "Length[pd]";
+      command = "Length[pdgum]";
       send_to_math(command);
 
       int lenpl;
@@ -425,24 +674,20 @@ namespace GUM
         int index = 1;
         bool sphenodeps = false; // Do we want to save this as a SPheno dep?
 
-        // Whether or not the parameter is defined by other parameters
-        // of the model. If so, don't want it in GAMBIT
-        //bool externalparam = true;
-
         // Whether we've found an LH block
         bool LHblock = false;
 
         // Whether the LHblock is a mixing matrix [of some size]
         bool ismixing = false;
 
-        command = "pd[[" + std::to_string(i+1) + ",1]]//ToString";
+        command = "pdgum[[" + std::to_string(i+1) + ",1]]//ToString";
         send_to_math(command);
 
         // Get the parameter name as it is known in SARAH. This
         // might change later.
         get_from_math(paramname);
 
-        command = "Length[pd[[" + std::to_string(i+1) + ",2]]]";
+        command = "Length[pdgum[[" + std::to_string(i+1) + ",2]]]";
         send_to_math(command);
 
         // Each entry will be some sort of descriptor for
@@ -456,7 +701,7 @@ namespace GUM
         // - dependences
         // - if a parameter is *definitely* real
 
-        command = "Real /. pd[[" + std::to_string(i+1) + ", 2]] // ToString";
+        command = "Real /. pdgum[[" + std::to_string(i+1) + ", 2]] // ToString";
         send_to_math(command);
         get_from_math(entry);
 
@@ -464,7 +709,7 @@ namespace GUM
         if (entry == "True") real = true;
 
         // With DependenceSPheno -- flag it, so we can save it for later; we'll want it
-        command = "DependenceSPheno /. pd[[" + std::to_string(i+1) + ",2]] // ToString";
+        command = "DependenceSPheno /. pdgum[[" + std::to_string(i+1) + ",2]] // ToString";
         send_to_math(command);
         get_from_math(entry);
         if (entry != "DependenceSPheno" and entry != "None") 
@@ -476,26 +721,23 @@ namespace GUM
         // If it has a dependence -- not interested. Bin it.
 
         // Numerical dependence?
-        command = "DependenceNum /. pd[[" + std::to_string(i+1) + ",2]] // ToString";
-        send_to_math(command);
-        get_from_math(entry);
-        if (entry != "DependenceNum" and entry != "None" and sphenodeps != true) continue;
+        // Parameters with DependenceNum are acutally needed, so keep these
         
         // Same with just Dependence
-        command = "Dependence /. pd[[" + std::to_string(i+1) + ",2]] // ToString";
+        command = "Dependence /. pdgum[[" + std::to_string(i+1) + ",2]] // ToString";
         send_to_math(command); 
         get_from_math(entry);
         if (entry != "Dependence" and entry != "None" and sphenodeps != true) continue;
 
         // Get block name
-        command = "Head[LesHouches /. pd[[" + std::to_string(i+1) + ",2]]]";
+        command = "Head[LesHouches /. pdgum[[" + std::to_string(i+1) + ",2]]]";
         send_to_math(command);
         get_from_math(entry);
 
         // If we have a list, then there's a blockname and an index.
         if (entry == "List") 
         { 
-            command = "LesHouches /. pd[[" + std::to_string(i+1) + ",2]]";
+            command = "LesHouches /. pdgum[[" + std::to_string(i+1) + ",2]]";
             send_to_math(command);
             std::vector<std::string> leshouches;
             get_from_math(leshouches);
@@ -505,17 +747,24 @@ namespace GUM
             // index
             index = std::stoi(leshouches[1]);
             LHblock = true;
+
+            // If blockname is PHASES then it's effectively a mixing
+            if (block == "phases" or block == "Phases")
+              ismixing = true;
         }
         // If not a list, but a symbol, then we've got a mixing block
         else if(entry == "Symbol") 
         {
             // Get the blockname
-            command = "LesHouches /. pd[[" + std::to_string(i+1) + ",2]]";
+            command = "LesHouches /. pdgum[[" + std::to_string(i+1) + ",2]]";
             send_to_math(command);
             get_from_math(block);
 
-            ismixing = true;
-            LHblock = true;
+            if(block != "None")
+            {
+              ismixing = true;
+              LHblock = true;
+            }
         }
         else
         {
@@ -526,7 +775,7 @@ namespace GUM
 
         // Does the parameter have a different external
         // name than the internal SARAH name? If so, use it.
-        command = "OutputName /. pd[[" + std::to_string(i+1) + ",2]] // ToString";
+        command = "OutputName /. pdgum[[" + std::to_string(i+1) + ",2]] // ToString";
         send_to_math(command);
         get_from_math(entry);
 
@@ -553,14 +802,19 @@ namespace GUM
             std::vector<std::string> shapesize;
 
             // Get the position of the mixing block in the other param list
-            command = "pos = Position[p, " + alt_paramname + "]";
+            command = "pos = Position[pgum, " + alt_paramname + "]";
             send_to_math(command);
 
             // Extract the size of the matrix
-            command = "Extract[p, pos[[1,1]]][[3]]";
+            command = "Extract[pgum, pos[[1,1]]][[3]]";
             send_to_math(command);
             get_from_math(shapesize);
-            shape = "m" + shapesize[0] + "x" + shapesize[1];
+
+            // If it's a phase, then it's a scalar
+            if(shapesize.size())
+              shape = "m" + shapesize[0] + "x" + shapesize[1];
+            else
+              shape = "scalar";
             
             // Add to the paramlist -- but only as an *output* parameter, 
             // and with the shape of the matrix
@@ -575,7 +829,7 @@ namespace GUM
         {
           // If there's a SPheno dep., use Mathematica's terrible CForm output.
           // We'll amend this in GUM -- string replacement is nicer in Python :-)
-          command = "DependenceSPheno /. pd[[" + std::to_string(i+1) + ",2]] // CForm // ToString";
+          command = "DependenceSPheno /. pdgum[[" + std::to_string(i+1) + ",2]] // CForm // ToString";
           send_to_math(command);
           get_from_math(entry);
           // Here we are storing the alt_paramname as the definition. Be careful!
@@ -601,16 +855,53 @@ namespace GUM
     std::vector<std::vector<std::string> > minpar;
     std::vector<std::vector<std::string> > extpar;
 
+    std::string defaultlist;
     std::string command = "";
 
     try
     {
+      
 
-      // Check if MINPAR is a list first
+      // Check if MINPAR is a list
       bool is_list;
       command = "Head[MINPAR]===List";
       send_to_math(command);
       get_from_math(is_list);
+
+      // Find out how many parameters we have...
+      command = "Length[pdgum]";
+      send_to_math(command);
+      int lenpl;
+      get_from_math(lenpl);
+
+      // Get default parameters
+      bool default_is_list;
+      command = "Head[DefaultInputValues]===List";
+      send_to_math(command);
+      get_from_math(default_is_list);
+
+      // If there's no 'DefaultInputValues' list, try 
+      // DefaultInputValues[1] -- sometimes models have
+      // different benchmark points. 
+      if(default_is_list)
+      {
+        defaultlist = "DefaultInputValues";
+      }
+      else
+      {
+        bool please_be_list;
+        command = "Head[DefaultInputValues[1]]===List";
+        send_to_math(command);
+        get_from_math(please_be_list);
+        if(please_be_list)
+        {
+          defaultlist = "DefaultInputValues[1]";
+        }
+        else
+        {
+          defaultlist = "NONE";
+        }
+      }
 
       if(is_list)
       {
@@ -621,7 +912,42 @@ namespace GUM
 
         // Add MINPAR parameters to the parameter list
         for(std::vector<std::string> par : minpar)
-          parameters.push_back(Parameter(par[1], "MINPAR", std::stoi(par[0])));
+        {
+          // Query the parameter list, as the MINPAR entry may end up being a BC already,
+          // such as TanBeta. Then we should find out if it's real or not.
+          std::string paramname;
+          bool real = false;
+          for (int i=0; i<lenpl; i++)
+          {
+            command = "pdgum[[" + std::to_string(i+1) + ",1]] // ToString";
+            send_to_math(command);
+            get_from_math(paramname);
+
+            if(par[1] == paramname)
+            {
+              command = "Real /. pdgum[[" + std::to_string(i+1) + ", 2]] // ToString";
+              send_to_math(command);
+              std::string entry;
+              get_from_math(entry);
+              if(entry == "True") real = true;
+            }
+          }
+          
+          Parameter param(par[1], "MINPAR", std::stoi(par[0]), par[1], real);
+ 
+          // Get default values (if there are any)
+          if (defaultlist != "NONE")
+          {
+            std::string value;
+            command = par[1] + "/." + defaultlist;
+            send_to_math(command);
+            get_from_math(value);
+            if(value != par[1])
+              param.set_default(std::stod(value));
+          }
+
+          parameters.push_back(param);
+        }
       }
 
       // Check if EXTPAR is a list
@@ -638,7 +964,42 @@ namespace GUM
 
         // Add EXTPAR parameters to the parameter list
         for(std::vector<std::string> par : extpar)
-          parameters.push_back(Parameter(par[1], "EXTPAR", std::stoi(par[0])));
+        {
+          // Query the parameter list, as the EXTPAR entry may end up being a BC already,
+          // such as TanBeta. Then we should find out if it's real or not.
+          std::string paramname;
+          bool real = false;
+          for (int i=0; i<lenpl; i++)
+          {
+            command = "pdgum[[" + std::to_string(i+1) + ",1]] // ToString";
+            send_to_math(command);
+            get_from_math(paramname);
+
+            if(par[1] == paramname)
+            {
+              command = "Real /. pdgum[[" + std::to_string(i+1) + ", 2]] // ToString";
+              std::cout << command << std::endl;
+              send_to_math(command);
+              std::string entry;
+              get_from_math(entry);
+              if(entry == "True") real = true;
+            }
+          }
+          Parameter param(par[1], "EXTPAR", std::stoi(par[0]), par[1], real);
+
+          // Get default values (if there are any)
+          if (defaultlist != "NONE")
+          {
+            std::string value;
+            command = par[1] + "/." + defaultlist;
+            send_to_math(command);
+            get_from_math(value);
+            if(value != par[1])
+              param.set_default(std::stod(value));
+          }
+
+          parameters.push_back(param);
+        }
       }
 
     }
@@ -697,14 +1058,14 @@ namespace GUM
 
           // Get the output name and remove params that have dependencies
           int pdlength;
-          command = "Length[pd]";
+          command = "Length[pdgum]";
           send_to_math(command);
           get_from_math(pdlength);
 
           for(int j=1; j<=pdlength; j++)
           {
             std::string name;
-            command = "pd[["+std::to_string(j)+",1]]//ToString";
+            command = "pdgum[["+std::to_string(j)+",1]]//ToString";
             send_to_math(command);
             get_from_math(name);
 
@@ -712,28 +1073,34 @@ namespace GUM
             {
               std::string entry;
 
-              command = "DependenceNum /. pd[[" + std::to_string(j) + ",2]] // ToString";
+              command = "DependenceNum /. pdgum[[" + std::to_string(j) + ",2]] // ToString";
               send_to_math(command);
               get_from_math(entry);
               if (entry != "DependenceNum" and entry != "None") continue;
 
-              command = "DependenceSPheno /. pd[[" + std::to_string(j) + ",2]] // ToString";
+              command = "DependenceSPheno /. pdgum[[" + std::to_string(j) + ",2]] // ToString";
               send_to_math(command);
               get_from_math(entry);
               if (entry != "DependenceSPheno" and entry != "None") continue;
 
-              command = "Dependence /. pd[[" + std::to_string(j) + ",2]] // ToString";
+              command = "Dependence /. pdgum[[" + std::to_string(j) + ",2]] // ToString";
               send_to_math(command);
               get_from_math(entry);
               if (entry != "Dependence" and entry != "None") continue;
 
               std::string outputname;
-              command = "OutputName/.pd[["+std::to_string(j)+",2]]//ToString";
+              command = "OutputName /. pdgum[[" + std::to_string(j) + ",2]] // ToString";
               send_to_math(command);
               get_from_math(outputname);
               if(outputname == "OutputName") outputname = parname;
 
-              parameters.push_back(Parameter(outputname, blockname, std::stoi(parindex)));
+              bool real = false;
+              command = "Real /. pdgum[[" + std::to_string(j) + ", 2]] // ToString";
+              send_to_math(command);
+              get_from_math(entry);
+              if(entry == "True") real = true;
+
+              parameters.push_back(Parameter(outputname, blockname, std::stoi(parindex), outputname, real));
 
             }
           }
@@ -759,7 +1126,7 @@ namespace GUM
 
     try
     {
-      // TODO: for now just get the low scale conditions
+      // TODO: Expand this for other types of boundary conditions 
       int bc_len;
       command = "Length[BoundaryLowScaleInput]";
       send_to_math(command);
@@ -793,7 +1160,7 @@ namespace GUM
     }
   }
 
-  // Extract parameters used to solve tadpoles and remove them from the list
+  // Extract parameters used to solve tadpoles and mark them as output
   void SARAH::get_tadpoles(std::vector<Parameter> &parameters)
   {
     std::cout << "Extracting parameters to solve tadpoles" << std::endl;
@@ -817,8 +1184,7 @@ namespace GUM
           for(auto tp : tadpoles)
             if (param->name() == tp or param->alt_name() == tp)
             {
-              param--;
-              parameters.erase(param+1);
+              param->set_output(true);
             }
       }
     }
@@ -839,7 +1205,7 @@ namespace GUM
 
     try
     {
-
+      std::vector<Particle> newParticles;
       for (auto part = particles.begin(); part != particles.end(); part++)
       {
         std::string sarah_mass;
@@ -848,9 +1214,118 @@ namespace GUM
         send_to_math(command);
         get_from_math(sarah_mass);
 
-        Particle temp_part(part->pdg(), part->name(), part->spinX2(), part->chargeX3(), part->color(), part->SM(), part->mass(), part->antiname(), part->alt_name(), sarah_mass);
-        (*part) =  temp_part;
+        newParticles.push_back(Particle(part->pdg(), part->name(), part->spinX2(), part->chargeX3(), part->color(), part->SM(), part->mass(), part->antiname(), part->alt_name(), sarah_mass, part->tree_mass()));
       }
+      particles = newParticles;
+    }
+    catch (std::runtime_error &e)
+    {
+      std::stringstream ss;
+      ss << e.what() << ": Last command: " << command;
+      throw std::runtime_error(ss.str());
+    }
+  }
+
+  // Leave only the parameters that SPheno uses
+  void SARAH::SPheno_parameters(std::vector<Parameter> &parameters)
+  {
+    std::cout << "Getting SPheno parameters" << std::endl;
+
+    std::string command;
+
+    try
+    {
+      bool is_list;
+      std::vector<std::string> SPhenoparams;
+      std::vector<std::string> SPhenomassparams;
+      std::vector<std::string> MCparams;
+      std::vector<std::string> MCvars;
+
+      // Get the list of parameters and vevs used by SPheno
+      command = "Head[listAllParametersAndVEVs]===List";
+      send_to_math(command);
+      get_from_math(is_list);
+      if(is_list)
+      {
+        command = "SPhenoForm/@listAllParametersAndVEVs";
+        send_to_math(command);
+        get_from_math(SPhenoparams);
+
+      }
+
+      // Get the mixing parameters
+      command = "Head[NewMassParameters]===List";
+      send_to_math(command);
+      get_from_math(is_list);
+      if(is_list)
+      {
+        command = "SPhenoForm/@NewMassParameters";
+        send_to_math(command);
+        get_from_math(SPhenomassparams);
+      }
+
+      // Check if any of the parameters have a matching condition
+      command = "mcgum = DEFINITION[MatchingConditions]";
+      send_to_math(command);
+ 
+      int size = 0;
+      command = "Length[mcgum]";
+      send_to_math(command);
+      get_from_math(size);
+      for(int i=1; i<=size; i++)
+      {
+        std::string par;
+        command = "mcgum[[" + std::to_string(i) + ",1]]";
+        send_to_math(command);
+        get_from_math(par);
+        MCparams.push_back(par);
+
+        std::vector<std::string> vars;
+        command = "Variables[mcgum[[" + std::to_string(i) + ",2]]]";
+        send_to_math(command);
+        get_from_math(vars);
+        MCvars.insert(MCvars.end(),vars.begin(), vars.end());
+      }
+
+      std::vector<Parameter> newParameters;
+      for(auto param : parameters)
+      {
+
+        for(auto mcv: MCvars)
+        {
+          if(param.name() == mcv or param.alt_name() == mcv)
+          {
+            if(std::find(SPhenoparams.begin(), SPhenoparams.end(), param.name()) == SPhenoparams.end() and
+               std::find(SPhenoparams.begin(), SPhenoparams.end(), param.alt_name()) == SPhenoparams.end())
+            {
+              // If the param is in the matching conditions, we always want the name in the matching conditions
+              SPhenoparams.push_back(mcv);
+            }
+          }
+        }
+
+        for(auto SPhenoparam :  SPhenoparams)
+        {
+          if(param.name() == SPhenoparam or param.alt_name() == SPhenoparam)
+          {
+            bool is_output = param.is_output();
+            if(std::find(MCparams.begin(), MCparams.end(), param.name()) != MCparams.end() or
+               std::find(MCparams.begin(), MCparams.end(), param.alt_name()) != MCparams.end())
+              is_output = true;
+            newParameters.push_back(Parameter(SPhenoparam, param.block(), param.index(), param.alt_name(), param.is_real(), param.shape(), is_output, param.bcs()));
+          }
+        }
+
+        for(auto SPhenomassparam :  SPhenomassparams)
+        {
+          if(param.name() == SPhenomassparam or param.alt_name() == SPhenomassparam)
+          {
+            newParameters.push_back(Parameter(SPhenomassparam, param.block(), param.index(), param.alt_name(), param.is_real(), param.shape(), param.is_output(), param.bcs()));
+          }
+        }
+      }
+
+      parameters = newParameters;
     }
     catch (std::runtime_error &e)
     {
@@ -869,12 +1344,12 @@ namespace GUM
 
     try
     {
-      command = "d = DEFINITION[EWSB][MatterSector];";
+      command = "dgum = DEFINITION[EWSB][MatterSector];";
       send_to_math(command);
 
       // Find out how many (sets of) mixing matrices there are...
       int len;
-      command = "Length[d]";
+      command = "Length[dgum]";
       send_to_math(command);
       get_from_math(len);
   
@@ -882,7 +1357,7 @@ namespace GUM
       {
         std::vector<std::string> eigenpairs;
         // Make this one list, easier to parse
-        command = "a = Flatten[d[[" + std::to_string(i) + ",2]]]";
+        command = "agum = Flatten[dgum[[" + std::to_string(i) + ",2]]]";
         send_to_math(command);
         get_from_math(eigenpairs);
 
@@ -915,21 +1390,21 @@ namespace GUM
           }
 
           // Check to see if the mixing matrix has a different OutputName
-          command = "Length[pd]";
+          command = "Length[pdgum]";
           send_to_math(command);
           get_from_math(len2);
           
           for(int j=0; j<len2; j++)
           {
             std::string pname;
-            command = "pd[[" + std::to_string(j+1) + ",1]] // ToString";
+            command = "pdgum[[" + std::to_string(j+1) + ",1]] // ToString";
             send_to_math(command);
             get_from_math(pname);
 
             if(pname == mixingmat)
             {
               std::string oname;
-              command = "OutputName /. pd[[" + std::to_string(j+1) + ",2]] // ToString";
+              command = "OutputName /. pdgum[[" + std::to_string(j+1) + ",2]] // ToString";
               send_to_math(command);
               get_from_math(oname);
 
@@ -989,22 +1464,29 @@ namespace GUM
   }
 
   // Write SPheno output.
-  void SARAH::write_spheno_output()
+  void SARAH::write_spheno_output(std::map<std::string,std::string> options)
   {
       std::cout << "Writing SPheno output." << std::endl;
       std::cout << "Strap in tight -- this might take a while..." << std::endl;
       
       // Options for SPheno output.
-      std::string options;
-      // TODO: options:
+      std::string SPhenoOptions = "";
       // - InputFile (default $MODEL/SPheno.m)
       // - StandardCompiler -> <COMPILER> (default gfortran) // TG: This should be handled by GM cmake system, so no need
-      // TODO: temp hack to make it faster
+      // - IncludeLoopDecays (default True)
+      // - ReadLists (default False) 
+      // - IncludeFlavourKit (default True but we set it to False cause FlavourKit will be a different backend)
       //options = "IncludeLoopDecays->False, IncludeFlavorKit->False, ReadLists->True";
-      options = "IncludeFlavorKit->False";
+      for(auto it = options.begin(); it != options.end(); it++)
+      {
+        SPhenoOptions += it->first + "->" + it->second + ", ";
+      }
+      SPhenoOptions += "IncludeFlavorKit->False";
+
+      std::cout << "Options for SPheno given as: " << SPhenoOptions << std::endl;
 
       // Write output.
-      std::string command = "MakeSPheno[" + options + "];";
+      std::string command = "MakeSPheno[" + SPhenoOptions + "];";
       send_to_math(command);
 
       std::cout << "SPheno files written." << std::endl;
@@ -1041,8 +1523,11 @@ namespace GUM
       // Create SARAH object, open link to Mathematica, load SARAH and the model
       SARAH model(opts.model());
 
-      // Compute the vertices here
-      model.calculate_vertices();
+      // Get the options to pass to backends
+      std::map<std::string, std::map<std::string, std::string> > BEoptions = opts.options();
+
+      // Check the model using SARAH's CheckModel function
+      model.check_model(opts.model(), backends);
 
       // Get all of the particles
       model.get_partlist(partlist);
@@ -1083,22 +1568,36 @@ namespace GUM
       /// Write SPheno output
       if (std::find(backends.begin(), backends.end(), "spheno") != backends.end() )
       {
-        model.write_spheno_output();
+       
+        std::map<std::string, std::string> sphenoopts;
 
+        // If there's SPheno options in the map, pass them over...
+        if ( BEoptions.find("spheno") != BEoptions.end() ) 
+        {
+          sphenoopts = BEoptions.at("spheno");
+        }
+
+        model.write_spheno_output(sphenoopts);
+
+        // Leave only the parameters that SPheno uses
+        model.SPheno_parameters(paramlist);
+ 
         // Get minpar and extpar parameters
         model.get_minpar_extpar(paramlist);
 
         // Get useful SPheno flags, default to False
         flags = {
           {"SupersymmetricModel",false}, 
-          {"OnlyLowEnergySPheno", false}
+          {"OnlyLowEnergySPheno", false},
+          {"UseHiggs2LoopMSSM", false},
+          {"SA`AddOneLoopDecay", false}
         };
         model.get_flags(flags);
 
         // Get the boundary conditions for the parameters
         model.get_boundary_conditions(bcs, paramlist);
 
-        // Get the parameters used to solve tadpoles and removed them from the list
+        // Get the parameters used to solve tadpoles and remove them from the list
         model.get_tadpoles(paramlist);
 
         // Get in-out blocks
@@ -1112,6 +1611,7 @@ namespace GUM
         std::replace(sphdir.begin(), sphdir.end(), ' ', '-');
         outputs.set_sph(sphdir);
       }
+
 
       /// Write Vevacious output
       if (std::find(backends.begin(), backends.end(), "vevacious") != backends.end() )
@@ -1136,11 +1636,38 @@ namespace GUM
 } // namespace GUM
 
 // Now all the grizzly stuff, so Python can call C++ (which can call Mathematica...)
+using namespace boost::python;
+
+// Nasty function to translate python dictionaries to maps
+object setOptions(tuple args, dict kwargs)
+{
+    Options& self = extract<Options&>(args[0]);
+
+    list keys = kwargs.keys();
+
+    std::map<std::string,std::map<std::string,std::string> > outMap;
+    for(int i = 0; i < len(keys); ++i)
+    {
+        dict secondLayer = extract<dict>(kwargs[keys[i]]);
+        list keys2 = secondLayer.keys();
+
+        std::map<std::string,std::string> tempMap;
+        for(int j=0; j < len(keys2); ++j)
+        {
+          std::string value = extract<std::string>(str(secondLayer[keys2[j]]));
+          tempMap[extract<std::string>(keys2[j])] = value;
+        }
+        outMap[extract<std::string>(keys[i])] = tempMap;
+    }
+    self.setOptions(outMap);
+
+    return object();
+}
+
 BOOST_PYTHON_MODULE(libsarah)
 {
-  using namespace boost::python;
 
-  class_<Particle>("SARAHParticle", init<int, std::string, int, int, int, bool, std::string, std::string, std::string, std::string>())
+  class_<Particle>("SARAHParticle", init<int, std::string, int, int, int, bool, std::string, std::string, std::string, std::string, std::string>())
     .def("pdg",      &Particle::pdg)
     .def("name",     &Particle::name)
     .def("SM",       &Particle::SM)
@@ -1152,6 +1679,7 @@ BOOST_PYTHON_MODULE(libsarah)
     .def("antiname", &Particle::antiname)
     .def("alt_name", &Particle::alt_name)
     .def("alt_mass", &Particle::alt_mass)
+    .def("tree_mass", &Particle::tree_mass)
     ;
 
   class_<Parameter>("SARAHParameter", init<std::string, std::string, int, std::string, bool, std::string, bool, std::string>())
@@ -1163,11 +1691,13 @@ BOOST_PYTHON_MODULE(libsarah)
     .def("shape",     &Parameter::shape)
     .def("is_output", &Parameter::is_output)
     .def("bcs",       &Parameter::bcs)
+    .def("defvalue",  &Parameter::defvalue)
     ;
 
-  class_<Options>("SARAHOptions", init<std::string, std::string, std::string, std::string, std::string>())
+  class_<Options>("SARAHOptions", init<std::string, std::string>())
     .def("package",     &Options::package)
     .def("model",       &Options::model)
+    .def("setOptions",  raw_function(&setOptions,1))
     ;
 
   class_<Outputs>("SARAHOutputs", init<>())
@@ -1194,7 +1724,7 @@ BOOST_PYTHON_MODULE(libsarah)
     .def(vector_indexing_suite< std::vector<Parameter> >() )
     ;
 
-  class_< std::map<std::string,bool> >("SARAHMapOfFlags")
+  class_< std::map<std::string,bool> >("SARAHMapStrBool")
     .def(map_indexing_suite< std::map<std::string,bool> >() )
     ;
 
