@@ -48,7 +48,7 @@
 #  \date 2015 Sep
 #
 #  \author Tomas Gonzalo
-#          (t.e.gonzalo@fys.uio.no)
+#          (tomas.gonzalo@monash.edu)
 #  \date 2016 Apr, Dec
 #  \date 2017 Nov
 #  \date 2019 June
@@ -88,6 +88,49 @@
 #************************************************
 
 
+# Compiler flags for AlterBBN
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
+  set(AlterBBN_C_FLAGS "${BACKEND_C99_FLAGS} -fast")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+  # Include all flags from -ffast-math, except -ffinite-math-only (which has proved to cause incorrect results), and -fno-rounding-math -fno-signaling-nans (which don't exist in Clang and are defaults anyway for gcc).
+  set(AlterBBN_C_FLAGS "${BACKEND_C99_FLAGS} -fno-math-errno -funsafe-math-optimizations")
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+    set(AlterBBN_C_FLAGS "${AlterBBN_C_FLAGS} -fcx-limited-range") # Clang doesn't have this one.
+    # For some reason "-fomit-frame-pointer" must be explicitly included -- at least for gcc --
+    # otherwise the uncertainty estimates of AlterBBN are bogus.
+    set(AlterBBN_C_FLAGS "${AlterBBN_C_FLAGS} -fomit-frame-pointer")
+  endif()
+endif()
+
+# AlterBBN
+set(name "alterbbn")
+set(ver "2.2")
+set(lib "libbbn")
+set(dl "https://alterbbn.hepforge.org/downloads?f=alterbbn_v2.2.tgz")
+set(md5 "00441dde718ba00d3acbb2196a8a5439")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}.diff")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND sed ${dashi} -e "s#CC = gcc#CC = ${CMAKE_C_COMPILER}#g" Makefile
+          COMMAND sed ${dashi} -e "s/CFLAGS= -O3 -pipe -fomit-frame-pointer -mtune=native -ffast-math -fno-finite-math-only/CFLAGS= ${AlterBBN_C_FLAGS}/g" Makefile
+          COMMAND sed ${dashi} -e "s/CFLAGS_MP= -fopenmp/CFLAGS_MP= ${OpenMP_C_FLAGS}/g" Makefile
+          COMMAND ${MAKE_PARALLEL}
+          COMMAND ar x src/libbbn.a
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # CaptnGeneral
 set(name "capgen")
@@ -130,7 +173,6 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
-
 # DarkSUSY
 set(name "darksusy")
 set(ver "5.1.3")
@@ -149,12 +191,127 @@ if(NOT ditched_${name}_${ver})
     #COMMAND patch -b -p2 -d src < ${patch}/patchDS_OMP_src.dif
     #COMMAND patch -b -p2 -d include < ${patch}/patchDS_OMP_include.dif
     CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} dslib_shared
-          COMMAND ${CMAKE_MAKE_PROGRAM} install_tables
+    BUILD_COMMAND ${MAKE_SERIAL} dslib_shared
+          COMMAND ${MAKE_PARALLEL} install_tables
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.1.1")
+set(dl "staff.fysik.su.se/~edsjo/darksusy/tars/${name}-${ver}.tar.gz")
+set(md5 "448f72e9bfafbb086bf4526a2094a189")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} tspack ds_core ds_common ds_empty inst_tab_if_loc
+    # FIXME Need to add shared option
+    #BUILD_COMMAND ${MAKE_PARALLEL} dslib_shared
+    #      COMMAND ${MAKE_PARALLEL} install_tables
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} feynhiggs higgsbounds higgssignals superiso libisajet ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+endif()
+
+# DarkSUSY base (for all models)
+set(name "darksusy")
+set(ver "6.2.2")
+set(dl "https://darksusy.hepforge.org/tars/${name}-${ver}.tgz")
+set(md5 "e23feb7363aebc5460aa8ae2c6906ce1")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} makedirs tspack healpix ds_core ds_common ds_empty inst_tab_if_loc
+    # FIXME Need to add shared option
+    #BUILD_COMMAND ${MAKE_PARALLEL} dslib_shared
+    #COMMAND ${MAKE_PARALLEL} install_tables
+    #COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend base (not functional alone)" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend base (not functional alone)" ${name} ${ver})
+endif()
+
+# DarkSUSY MSSM module
+set(model "MSSM")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} feynhiggs higgsbounds higgssignals superiso libisajet ds_mssm
+          COMMAND ${MAKE_PARALLEL} ds_mssm_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
+endif()
+
+# DarkSUSY generic_wimp module
+set(model "generic_wimp")
+check_ditch_status(${name}_${model} ${ver} ${dir})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_Add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ds_generic_wimp
+          COMMAND ${MAKE_PARALLEL} ds_generic_wimp_shared
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend model" ${name} ${ver} ${dir}/dummy ${model} "none")
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 
@@ -175,9 +332,9 @@ if(NOT ditched_${name}_${ver})
     BUILD_COMMAND sed ${dashi} -e "s#CC = gcc#CC = ${CMAKE_C_COMPILER}#g" Makefile
           COMMAND sed ${dashi} -e "s#rcsU#rcs#g" src/Makefile
           COMMAND sed ${dashi} -e "s/CFLAGS= -O3 -pipe -fomit-frame-pointer/CFLAGS= -fPIC ${BACKEND_C_FLAGS}/g" Makefile
-          COMMAND ${CMAKE_MAKE_PROGRAM}
+          COMMAND ${MAKE_PARALLEL}
           COMMAND ar x src/libisospin.a
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} -shared -o ${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -185,7 +342,6 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
-
 
 # DDCalc
 set(name "ddcalc")
@@ -204,7 +360,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -224,7 +380,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -244,7 +400,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -264,7 +420,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -284,7 +440,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -304,7 +460,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${ddcalc_flags} DDCALC_DIR=${dir} OUTPUT_PIPE=>/dev/null
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -339,7 +495,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${gamlike_CXXFLAGS} LDFLAGS=${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} LDLIBS=${GAMLIKE_GSL_LIBS} GAMLIKE_DATA_PATH=${dir}/data
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${gamlike_CXXFLAGS} LDFLAGS=${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} LDLIBS=${GAMLIKE_GSL_LIBS} GAMLIKE_DATA_PATH=${dir}/data
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -371,7 +527,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${gamlike_CXXFLAGS} LDFLAGS=${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} LDLIBS=${GAMLIKE_GSL_LIBS} GAMLIKE_DATA_PATH=${dir}/data
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${gamlike_CXXFLAGS} LDFLAGS=${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} LDLIBS=${GAMLIKE_GSL_LIBS} GAMLIKE_DATA_PATH=${dir}/data
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -393,8 +549,8 @@ set(md5 "72807f6d0ef80737554d8702b6b212c1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
+if(NOT ditched_.${name}_${ver}_base)
+  ExternalProject_Add(.${name}_${ver}_base
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     PATCH_COMMAND patch -p1 < ${patch}
@@ -417,8 +573,8 @@ if(NOT ditched_${name}_${ver})
           COMMAND make
     INSTALL_COMMAND ""
   )
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} "yes | clean")
-  set_as_default_version("backend" ${name} ${ver})
+  add_extra_targets("backend base (functional alone)" ${name} ${ver} ${dir} ${dl} "yes | clean")
+  set_as_default_version("backend base (functional alone)" ${name} ${ver})
 endif()
 
 # MicrOmegas MSSM model
@@ -432,11 +588,11 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas ScalarSingletDM_Z2 model
@@ -450,11 +606,11 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas ScalarSingletDM_Z3 model
@@ -468,11 +624,11 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas VectorSingletDM_Z2 model
@@ -486,11 +642,11 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas MajoranaSingletDM_Z2 model
@@ -504,11 +660,11 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
-  set_as_default_version("backend model" ${name}_${model} ${ver})
+  set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
 # MicrOmegas DiracSingletDM_Z2 model
@@ -522,7 +678,7 @@ if(NOT ditched_${name}_${model}_${ver})
     PATCH_COMMAND ./newProject ${model} && patch -p1 < ${patch}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c
+    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${MAKE_PARALLEL} sharedlib main=main.c
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend model" ${name} ${ver} ${dir}/${model} ${model} "yes | clean")
@@ -599,8 +755,10 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
+  set(pythia_CXX_SONAME_FLABS "-Wl,-dylib_install_name")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-soname")
 endif()
 
 # - Add option to turn off intel IPO if insufficient memory exists to use it.
@@ -665,7 +823,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
@@ -685,7 +843,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
@@ -705,7 +863,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
@@ -725,7 +883,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
@@ -745,12 +903,33 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
+
+# Nulike
+set(name "nulike")
+set(ver "1.0.9")
+set(lib "libnulike")
+set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
+set(md5 "b3f9d626fc964e9b0d1f33187504662d")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FF=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 # SUSY-HIT
 set(name "susyhit")
@@ -775,7 +954,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${susyhit_Fortran_FLAGS}
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${susyhit_Fortran_FLAGS}
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
@@ -802,9 +981,9 @@ if(NOT ditched_${name}_${ver})
     # Fix bug preventing the use of array bounds checking.
     CONFIGURE_COMMAND sed ${dashi} -e "s#ComplexType spi_(2, 6:7, nvec, 1)#ComplexType spi_(2, 6:7, nvec, LEGS)#g" src/Decays/VecSet.F
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -831,15 +1010,14 @@ if(NOT ditched_${name}_${ver})
     # Fix bug preventing the use of array bounds checking.
     CONFIGURE_COMMAND sed ${dashi} -e "s#ComplexType spi_(2, 6:7, nvec, 1)#ComplexType spi_(2, 6:7, nvec, LEGS)#g" src/Decays/VecSet.F
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # FeynHiggs
@@ -861,9 +1039,9 @@ if(NOT ditched_${name}_${ver})
     # Fix bug preventing the use of array bounds checking.
     CONFIGURE_COMMAND sed ${dashi} -e "s#ComplexType spi_(2, 6:7, nvec, 1)#ComplexType spi_(2, 6:7, nvec, LEGS)#g" src/Decays/VecSet.F
               COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FH_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FH_CXX_FLAGS}
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -922,9 +1100,9 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -960,9 +1138,9 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so *.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so *.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1000,10 +1178,10 @@ if(NOT ditched_${name}_${ver})
               COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" makefile.in.tmp > makefile.in
               COMMAND ${CMAKE_COMMAND} -E remove makefile.in.tmp
               COMMAND ./my_configure
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+    BUILD_COMMAND ${MAKE_PARALLEL}
           COMMAND ${CMAKE_COMMAND} -E make_directory lib
           COMMAND ${CMAKE_COMMAND} -E remove HiggsSignals.o
-          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} -shared -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so ./*.o ../../${hb_name}/${hb_ver}/*.o" > make_so.sh
           COMMAND chmod u+x make_so.sh
           COMMAND ./make_so.sh
     INSTALL_COMMAND ""
@@ -1017,14 +1195,16 @@ endif()
 set(name "spheno")
 set(ver "3.3.8")
 set(lib "lib/libSPheno.so")
-set(dl "https://${name}.hepforge.org/downloads/SPheno-${ver}.tar.gz")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
 set(md5 "4307cb4b736cebca5e57ca6c5e0b5836")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
@@ -1033,6 +1213,30 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+# SPheno
+set(name "spheno")
+set(ver "4.0.3")
+set(lib "lib/libSPheno.so")
+set(dl "http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz")
+set(md5 "64787d6c8ce03cac38aec53d34ac46ad")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+string(REGEX REPLACE "(-cpp)|(-fpp)" "" SPheno_FLAGS "${BACKEND_Fortran_FLAGS}") #SPheno hates the preprocessor
+set(SPheno_FLAGS "-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include -I${dir}/include")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} F90=${CMAKE_Fortran_COMPILER} FFLAGS="${SPheno_FLAGS}" ${lib}
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} cleanall)
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
@@ -1058,7 +1262,7 @@ if(NOT ditched_${name}_${ver})
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}_error.dif
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} alllib
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} alllib
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver})
@@ -1090,7 +1294,7 @@ if(NOT ditched_${name}_${ver})
           COMMAND patch -p1 < ${patch}_module.dif
           COMMAND patch -p1 < ${patch}_error.dif
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} sharedlib
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${GM2CALC_CXX_FLAGS} EIGENFLAGS=-I${EIGEN3_INCLUDE_DIR} BOOSTFLAGS=-I${Boost_INCLUDE_DIR} sharedlib
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver})
@@ -1219,7 +1423,7 @@ set(ditch_if_absent "Mathematica")
 check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""

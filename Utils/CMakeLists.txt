@@ -29,6 +29,7 @@
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
+                 src/ascii_dict_reader.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
                  src/integration.cpp
@@ -49,9 +50,11 @@ set(source_files src/ascii_table_reader.cpp
                  src/util_functions.cpp
                  src/version.cpp
                  src/yaml_parser_base.cpp
+                 src/yaml_node_utility.cpp
 )
 
 set(header_files include/gambit/Utils/ascii_table_reader.hpp
+                 include/gambit/Utils/ascii_dict_reader.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
                  include/gambit/Utils/exceptions.hpp
@@ -86,6 +89,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/yaml_options.hpp
                  include/gambit/Utils/yaml_parser_base.hpp
                  include/gambit/Utils/yaml_variadic_functions.hpp
+                 include/gambit/Utils/yaml_node_utility.hpp
 )
 
 add_gambit_library(Utils OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})
