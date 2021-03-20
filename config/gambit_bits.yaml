@@ -1,0 +1,12 @@
+gambit_bits:
+- ColliderBit
+- CosmoBit
+- DarkBit
+- DecayBit
+- ExampleBit_A
+- ExampleBit_B
+- FlavBit
+- NeutrinoBit
+- PrecisionBit
+- ScannerBit
+- SpecBit
