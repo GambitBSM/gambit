@@ -15,7 +15,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/CaptnGeneral_2_0.hpp"
+#include "gambit/Backends/frontends/CaptnGeneral_2_1.hpp"
 
 
 // Capgen Initialisation function (definition)
