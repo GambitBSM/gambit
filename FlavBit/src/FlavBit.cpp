@@ -2839,9 +2839,9 @@ namespace Gambit
     }
 
     // Br Bu->tau nu in gTHDM
-    void THDM_Btaunu(double &result)
+    void THDM_B2taunu(flav_prediction &result)
     { 
-      using namespace Pipes::THDM_Btaunu;
+      using namespace Pipes::THDM_B2taunu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double m_B = 5.27926;//All values are taken from SuperIso 3.6
@@ -2865,10 +2865,11 @@ namespace Gambit
       double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
       
       double Deltaij = (pow(m_B,2)*X13*(Z33+Z32))/(pow(mHp,2)*Vub);
-      result = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
-      
-      if (flav_debug) cout << "BR(Bu->tau nu) = " << result << endl;
-      if (flav_debug) cout << "Finished THDM_Butaunu" << endl;
+   
+      double prediction = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
+      result.central_values["B2taunu"] = prediction;
+      if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
+      if (flav_debug) cout << "Finished THDMB2taunu" << endl;
     }
 
     /// Br B->D_s tau nu
@@ -3332,7 +3333,7 @@ namespace Gambit
     /// 2-to-3-body decay ratio for semileptonic K and pi decays
     void SI_Rmu23(double &result)
     {
-      using namespace Pipes::SI_Rmu23;
+    using namespace Pipes::SI_Rmu23;
       if (flav_debug) cout<<"Starting SI_Rmu23"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
@@ -4046,7 +4047,44 @@ namespace Gambit
       if (flav_debug) cout<<"Finished BKstarmumu_AI_ll"<<endl;
     }
 
- 
+    // likelihood for delta0
+    void delta0_ll(double &result)
+    { 
+      using namespace Pipes::delta0_ll;
+      if (flav_debug) cout<<"Starting delta0"<<endl;
+      
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_err, th_err;
+      
+      if (first)
+      { 
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) cout<<"Initialised Flav reader in delta0"<<endl;
+        fread.read_yaml_measurement("flav_data.yaml", "delta0");
+        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+      
+      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_err << " " << th_err << endl;
+      
+      // Now we do the stuff that actually depends on the parameters
+      double theory_prediction = *Dep::delta0;
+      double theory_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_err<<endl;
+      
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_err, exp_err, profile);
+      
+      if (flav_debug) cout<<"delta0_ll"<<endl;
+    }
+
     /// Likelihood for Delta Ms
     void deltaMB_likelihood(double &result)
     {
@@ -4270,7 +4308,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=8;
+      const int n_experiments=8;//8;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4287,7 +4325,7 @@ namespace Gambit
         if (flav_debug) cout<<"Initialised Flav reader in SL_measurements"<<endl;
 
         // B-> tau nu
-        fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
+       // fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
@@ -4302,7 +4340,9 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dsmunu");
         // D -> mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dmunu");
-
+         // R_mu
+        fread.read_yaml_measurement("flav_data.yaml", "R_mu");
+       
         fread.initialise_matrices();
         pmc.cov_exp=fread.get_exp_cov();
         pmc.value_exp=fread.get_exp_value();
@@ -4323,33 +4363,34 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[8];
+      double theory[8];//[8];
       // B-> tau nu SI
-      theory[0] = *Dep::Btaunu;
+      //theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      theory[1] = *Dep::BDmunu;
+      theory[0] = *Dep::BDmunu;
       // B-> D* mu nu
-      theory[2] = *Dep::BDstarmunu;
+      theory[1] = *Dep::BDstarmunu;
       // RD
-      theory[3] = *Dep::RD;
+      theory[2] = *Dep::RD;
       // RDstar
-      theory[4] = *Dep::RDstar;
+      theory[3] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[5] = *Dep::Dstaunu;
+      theory[4] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[6] = *Dep::Dsmunu;
+      theory[5] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[7] =*Dep::Dmunu;
-
+      theory[6] =*Dep::Dmunu;
+      //R_mu
+      theory[7] =*Dep::Rmu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      pmc.cov_th(0,2) = pmc.cov_th(2,0) = -0.55 * th_err[0]*th_err[2] * (th_err_absolute[0] ? 1.0 : theory[0]) * (th_err_absolute[2] ? 1.0 : theory[2]);
       // Add in the correlations between B-> D* mu nu and RD*
-      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
+      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.62 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)

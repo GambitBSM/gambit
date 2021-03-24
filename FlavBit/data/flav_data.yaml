@@ -1,4 +1,16 @@
 
+- name: R_mu
+  islimit: false
+  exp_value: 0.6358
+  exp_stat_error: 0.0011
+  exp_sys_error: 0.0
+  exp_source: SuperIso
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: FLDstar
   islimit: false
   exp_value: 0.6

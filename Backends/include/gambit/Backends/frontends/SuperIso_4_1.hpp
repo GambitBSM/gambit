@@ -109,6 +109,7 @@ BE_CONV_FUNCTION(BRBXstautau_highq2_CONV, double, (const parameters*), "BRBXstau
 BE_CONV_FUNCTION(A_BXstautau_highq2_CONV, double, (const parameters*), "A_BXstautau_highq2_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 BE_CONV_FUNCTION(SI_AI_BKstarmumu_CONV, double, (const parameters*), "SI_AI_BKstarmumu_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 BE_CONV_FUNCTION(SI_AI_BKstarmumu_zero_CONV, double, (const parameters*), "SI_AI_BKstarmumu_zero_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
+BE_CONV_FUNCTION(delta0_CONV, double, (const parameters*), "delta0_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

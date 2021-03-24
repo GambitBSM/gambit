@@ -657,6 +657,13 @@ START_MODULE
     BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
    #undef FUNCTION
+ //Function for the general THDM
+    #define FUNCTION THDM_B2taunu
+    START_FUNCTION(flav_prediction)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY prediction_RDRDstar
@@ -1298,23 +1305,23 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B -> tau nu)
-  #define CAPABILITY Btaunu
-  START_CAPABILITY
+   //  Observable: BR(B -> tau nu)
+   #define CAPABILITY Btaunu
+   START_CAPABILITY
     #define FUNCTION SI_Btaunu
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Btaunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
- //Function for the general THDM
-    #define FUNCTION THDM_Btaunu
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
+  //Function for the general THDM
+   // #define FUNCTION THDM_Btaunu
+   // START_FUNCTION(double)
+   // ALLOW_MODELS(THDM,THDMatQ)
+   // DEPENDENCY(SMINPUTS,SMInputs)
+   // DEPENDENCY(THDM_spectrum, Spectrum)
+   // #undef FUNCTION
+   #undef CAPABILITY
 
   // Observable: BR(B->D tau nu)/BR(B->D e nu)
   #define CAPABILITY RD
@@ -2112,6 +2119,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // delta0 CP isospin asymmetry
+  #define CAPABILITY delta0_LL
+  START_CAPABILITY
+    #define FUNCTION delta0_ll
+    START_FUNCTION(double)
+    DEPENDENCY(delta0, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Rare fully leptonic B decay measurements
   #define CAPABILITY b2ll_M
@@ -2141,7 +2156,7 @@ START_MODULE
     DEPENDENCY(RDstar, double)
     DEPENDENCY(BDmunu, double)
     DEPENDENCY(BDstarmunu, double)
-    DEPENDENCY(Btaunu, double)
+    DEPENDENCY(Rmu, double)
     DEPENDENCY(Dstaunu, double)
     DEPENDENCY(Dsmunu, double)
     DEPENDENCY(Dmunu, double)
