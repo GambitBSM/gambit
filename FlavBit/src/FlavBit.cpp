@@ -2839,9 +2839,9 @@ namespace Gambit
     }
 
     // Br Bu->tau nu in gTHDM
-    void THDM_B2taunu(flav_prediction &result)
+    void THDM_Btaunu(double &result)//(flav_prediction &result)
     { 
-      using namespace Pipes::THDM_B2taunu;
+      using namespace Pipes::THDM_Btaunu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double m_B = 5.27926;//All values are taken from SuperIso 3.6
@@ -2867,7 +2867,8 @@ namespace Gambit
       double Deltaij = (pow(m_B,2)*X13*(Z33+Z32))/(pow(mHp,2)*Vub);
    
       double prediction = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
-      result.central_values["B2taunu"] = prediction;
+      result = prediction;
+     // result.central_values["B2taunu"] = prediction;
       if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
       if (flav_debug) cout << "Finished THDMB2taunu" << endl;
     }
@@ -4308,7 +4309,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=8;//8;
+      const int n_experiments=9;//8;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4325,7 +4326,7 @@ namespace Gambit
         if (flav_debug) cout<<"Initialised Flav reader in SL_measurements"<<endl;
 
         // B-> tau nu
-       // fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
@@ -4363,34 +4364,34 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[8];//[8];
+      double theory[9];//[8];
       // B-> tau nu SI
-      //theory[0] = *Dep::Btaunu;
+      theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      theory[0] = *Dep::BDmunu;
+      theory[1] = *Dep::BDmunu;
       // B-> D* mu nu
-      theory[1] = *Dep::BDstarmunu;
+      theory[2] = *Dep::BDstarmunu;
       // RD
-      theory[2] = *Dep::RD;
+      theory[3] = *Dep::RD;
       // RDstar
-      theory[3] = *Dep::RDstar;
+      theory[4] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[4] = *Dep::Dstaunu;
+      theory[5] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[5] = *Dep::Dsmunu;
+      theory[6] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[6] =*Dep::Dmunu;
+      theory[7] =*Dep::Dmunu;
       //R_mu
-      theory[7] =*Dep::Rmu;
+      theory[8] =*Dep::Rmu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      pmc.cov_th(0,2) = pmc.cov_th(2,0) = -0.55 * th_err[0]*th_err[2] * (th_err_absolute[0] ? 1.0 : theory[0]) * (th_err_absolute[2] ? 1.0 : theory[2]);
+      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
       // Add in the correlations between B-> D* mu nu and RD*
-      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.62 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)

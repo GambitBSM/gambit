@@ -373,10 +373,10 @@
 
 - name: BR_Bs2mumu
   islimit: false
-  exp_value: 2.9e-9
-  exp_stat_error: 0.7e-9
-  exp_sys_error: 0.2e-9
-  exp_source: CMS-PAS-BPH-16-004
+  exp_value: 3.09e-9
+  exp_stat_error: 0.46e-9
+  exp_sys_error: 0.15e-9
+  exp_source: LHCB-PAPER-2021-007
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
@@ -481,29 +481,29 @@
 
 - name: RDstar
   islimit: false
-  exp_value: 0.407
-  exp_stat_error: 0.039
-  exp_sys_error: 0.024
-  exp_source: 1612.07233
+  exp_value: 0.295
+  exp_stat_error: 0.011
+  exp_sys_error: 0.008
+  exp_source: HFLAV
   th_error: 0.001
   th_error_type: M
   th_error_source: Phys.Rev.D85,094025(2012)
   correlation:
   - name: RD
-    value: -0.2
+    value: -0.38
 
 - name: RD
   islimit: false
-  exp_value: 0.306
-  exp_stat_error: 0.013
-  exp_sys_error: 0.007
-  exp_source: 1612.07233
+  exp_value: 0.340
+  exp_stat_error: 0.027
+  exp_sys_error: 0.013
+  exp_source: HFLAV
   th_error: 0.037
   th_error_type: M
   th_error_source: Phys.Rev.D92,034506(2015)
   correlation:
   - name: RDstar
-    value: -0.2
+    value: -0.38
 
 - name: DeltaMs
   islimit: false

@@ -164,33 +164,50 @@ ObsLikes:
       function: SI_delta0
       purpose: Observable
 
-    # B->tau,nu likelihood (using HEPlike)
-   # - capability: B2taunu_LogLikelihood
-    #  function: HEPLike_B2taunu_LogLikelihood
-    #  purpose: LogLike
+   # B->tau,nu likelihood (using HEPlike)
+  #  - capability: B2taunu_LogLikelihood
+   #   function: HEPLike_B2taunu_LogLikelihood
+   #   purpose: LogLike
 
-   # B->mu,mu LHCb likelihood (using HEPlike)
-    - capability: B2mumu_LogLikelihood_LHCb
-      function: HEPLike_B2mumu_LogLikelihood_LHCb
+  # The printer type is not defined for this observable:
+  #  - capability: prediction_B2taunu
+   #   function: SuperIso_prediction_B2taunu
+   #   purpose: Observable      
+
+    - capability: Btaunu
+      function: THDM_Btaunu
+      module: FlavBit
+      purpose: Observable
+
+    # B->mu,mu likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
       purpose: LogLike
 
-    # Semi-Leptonic likelihood collection 8 obs (Ds,D->munu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
+    # Semi-Leptonic likelihood collection 9 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
     - capability: SL_LL
       function: SL_likelihood
       purpose: LogLike
     
-    #g-2 likelihood 
-  #  - capability: lnL_gm2
-   #   function: lnL_gm2
-    #  purpose: LogLike
+    # muon g-2 likelihood 
+    - capability: lnL_gm2
+      function: lnL_gm2
+      purpose: LogLike
 
    #LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
     - capability: gmu_ge_lnL
       function: gmu_ge_likelihood
       purpose: LogLike
-    
-    #Need to call tau->mu gamma likelihood
-    #l->lll likelihood goes here, removed temporarily
+
+   # # l->l gamma 
+    - capability: l2lgamma_lnL
+      function: l2lgamma_likelihood
+      purpose: LogLike
+
+    # # l->lll
+    - capability: l2lll_lnL
+      function: l2lll_likelihood
+      purpose: LogLike
 
     # FLDstar likelihood 
     - capability: FLDstar_lnL
@@ -212,15 +229,58 @@ ObsLikes:
       function: BDtaunu_likelihood
       purpose: LogLike
 
+    #Old measurements
     # B->Kstarll angular for 6 bins, 48 obs in total:FL,AFB,S3,S4,S5,S7,S8,S9
-    - capability: b2sll_LL
-      function: b2sll_likelihood
-      purpose: LogLike
+   # - capability: b2sll_LL
+    #  function: b2sll_likelihood
+     # purpose: LogLike
+   
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    #B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas, whyis this splitted in thiw way? contains _2_4_Atlas and _4_8_Atlas
 
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # B2KstarmumuAng_NoLowq2_LogLikelihood_Belle, same splitting, why?
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+    # B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020, large uncertainties for low q2?
+
+    # 6 observables, HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+    # FATAL: GAMBIT has exited with fatal exception: map::at
+   # - purpose: LogLike
+    #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb, no low q2
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
+    #Old observables
     # # B->Kstarll branching for 6 bins 
-    - capability: b2sll_BR_LL
-      function: b2sll_BR_likelihood
-      purpose: LogLike
+   # - capability: b2sll_BR_LL
+    #  function: b2sll_BR_likelihood
+     # purpose: LogLike
 
     # LUV likelihood collection (RKstar_0045_11 and RKstar_11_60) 
     - purpose: LogLike
@@ -250,17 +310,73 @@ Rules:
     # Likelihood/Observable Rules
     ##############################
 
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime]
+       #  obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+   # Likelihood not working
+   # - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+    #  options:
+    #    obs_list: [A3, A4, A5, A6, A7, A8, A9]
+     
     - capability: SuperIso_modelinfo
       function: SI_fill
+
+    - capability: b2ll_M
+      function: b2ll_measurements
+      dependencies:
+        - capability: Bsmumu_untag
+          function: SI_Bsmumu_untag
+          module: FlavBit
 
     - capability: delta0
       function: SI_delta0
 
-    - capability: B2taunu_LogLikelihood
-      function: HEPLike_B2taunu_LogLikelihood
-
-    #- capability: prediction_B2taunu
-     # function: SuperIso_prediction_B2taunu
+    - capability: prediction_B2taunu
+      function: SuperIso_prediction_B2taunu
+      options:
+         obs_list: [B2taunu] 
 
     - capability: b2sll_M
       function: b2sll_measurements
@@ -281,8 +397,8 @@ Rules:
     - capability: lnL_gm2
       function: lnL_gm2
       dependencies:
-        - capability: muon_gm2
-          function: THDM_mumugamma
+        - capability: muon_gm2_SM
+          function: gm2_SM_ee
           module: PrecisionBit
     # ----------------------
 
