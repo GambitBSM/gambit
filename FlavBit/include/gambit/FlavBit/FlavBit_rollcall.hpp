@@ -1759,6 +1759,13 @@ START_MODULE
     BACKEND_REQ(Delta_MBs, (libsuperiso),  double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //
+    #define FUNCTION THDM_Delta_MBs
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: B_d mass difference

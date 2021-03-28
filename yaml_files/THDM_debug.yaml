@@ -65,9 +65,9 @@ Parameters:
       yd2_re_13: 0.0
       yd2_re_21: 0.0
       yd2_re_22: 0.0
-      yd2_re_23: 0.0
+      yd2_re_23: 0.01
       yd2_re_31: 0.0
-      yd2_re_32: 0.0
+      yd2_re_32: -0.01
       yd2_re_33: 0.0234969
       yl2_im_11: 0.0
       yl2_im_12: 0.0
@@ -296,6 +296,14 @@ ObsLikes:
       function: BKstarmumu_AI_zero_ll
       purpose: LogLike
 
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+      purpose: Observable
+
     #################
     # Observables
     #################
@@ -309,6 +317,9 @@ Rules:
     ##############################
     # Likelihood/Observable Rules
     ##############################
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
 
     - capability: prediction_Bs2phimumuBr_*
       options:

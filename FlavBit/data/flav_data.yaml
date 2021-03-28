@@ -511,9 +511,9 @@
   exp_stat_error: 0.021
   exp_sys_error: 0.000
   exp_source: HFAG16
-  th_error: 0.06
+  th_error: 1.6 
   th_error_type: M
-  th_error_source: 1511.09466
+  th_error_source: 1602.03560
   correlation:
   - name: NONE
 

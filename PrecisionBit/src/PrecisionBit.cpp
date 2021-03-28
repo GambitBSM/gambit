@@ -1158,7 +1158,7 @@ namespace Gambit
       const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      //TODO: remove if unused const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
@@ -1176,7 +1176,7 @@ namespace Gambit
       const std::complex<double> Vcb(A*lambda*lambda,0);
       const std::complex<double> Vtb(1,0);
       const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Yss/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       const double xitc = Ytc/cosb;
       const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;

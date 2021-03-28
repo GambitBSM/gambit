@@ -3679,6 +3679,44 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_Delta_MBs"<<endl;
     }
 
+     /// DeltaMBs at tree level for the general THDM
+    void THDM_Delta_MBs(double &result)
+    { 
+      using namespace Pipes::THDM_Delta_MBs;
+      if (flav_debug) cout<<"Starting THDM_Delta_MBs"<<endl;     
+
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double mBs = 5.36689;// values from 1602.03560
+      const double fBs = 0.2303;
+      const double Bag2 = 0.806;
+      const double Bag4 = 1.129;
+      const double DeltaSM = 1.29022e-11; //.in GeV from  [arXiv:1602.03560]
+      const double conv_factor = 1.519267e12;// from GeV to ps^-1
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double sba = sin(beta-alpha), cba = cos(beta-alpha);
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mS = Dep::SMINPUTS->mS;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      double xi_bs = Ybs/cosb;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xi_sb = Ysb/cosb;
+      double C2 = -(0.25)*(xi_bs*xi_bs)*(pow(sba/mH,2)+pow(cba/mh,2)-pow(1/mA,2));      
+      double C2p = -(0.25)*(xi_sb*xi_sb)*(pow(sba/mH,2)+pow(cba/mh,2)-pow(1/mA,2)); 
+      double C4 = -(0.5)*(xi_sb*xi_bs)*(pow(sba/mH,2)+pow(cba/mh,2)+pow(1/mA,2)); 
+      double M12_C2 = (0.208333)*((pow(fBs,2)*pow(mBs,3)*Bag2)/(pow(mBmB+mS,2)))*C2;
+      double M12_C2p = (0.208333)*((pow(fBs,2)*pow(mBs,3)*Bag2)/(pow(mBmB+mS,2)))*C2p;
+      double M12_C4 = -(0.25)*((pow(fBs,2)*pow(mBs,3)*Bag4)/(pow(mBmB+mS,2)))*C4;
+      result = 2*abs(0.5*DeltaSM + M12_C2 + M12_C2p + M12_C4)*conv_factor;  
+      if (flav_debug) printf("Delta_MBs=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
+    }
+
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FH_FlavourObs(fh_FlavourObs &result)
