@@ -397,6 +397,22 @@ namespace Gambit
       result = f_eff * f2_sv / m;
     }
 
+    // Profiled likelihood on p_ann.
+    // Used Datasets:
+    //  - P18 highl TT+TE+EE (lite)
+    //  - P18 lowl TT+EE
+    //  - P18 lensing
+    //  - BAO ("smallz 2014" + BOSS DR12)
+    void lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO(double& result)
+    {
+      using namespace Pipes::lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO;
+      //const double p_ann = *Dep::p_ann;
+
+      // Implementation goes here !
+
+      result = 0.0;
+    }
+
     /// The energy injection spectrum from the AnnihilatingDM model hierarchy.
     void energy_injection_spectrum_AnnihilatingDM_mixture(DarkAges::Energy_injection_spectrum& spectrum)
     {

@@ -116,6 +116,15 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Profiled likelihood on p_ann = f_eff * f^2 * <sv> / m
+  #define CAPABILITY lnL_p_ann
+  START_CAPABILITY
+    #define FUNCTION lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO
+    START_FUNCTION(double)
+    DEPENDENCY(p_ann, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // ----------------------
 
   // capabilities related to setting neutrino masses,

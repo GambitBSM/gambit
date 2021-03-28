@@ -4665,6 +4665,9 @@ p_ann: |
    Annihilation rate (p_ann = f_eff * f^2 * <sv>/m)
    Unit: cm^3 s^-1 GeV^-1
 
+lnL_p_ann: |
+   Profiled likelihood on p_ann
+
 #----------------------------
 #  CosmoBit Models
 #----------------------------
