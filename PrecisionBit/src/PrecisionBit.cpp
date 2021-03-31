@@ -1185,7 +1185,7 @@ namespace Gambit
 
     // calculates chi2 from EWPO in the THDM using 2HDMC
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
-      THDMC_1_8_0::Constraints constraints_object(*(container.THDM_object));
+      THDMC_1_8_0::Constraints constraints_object(container.THDM_object);
 
       const double mh_ref = 125.0; 
       double S, T, U, V, W, X;

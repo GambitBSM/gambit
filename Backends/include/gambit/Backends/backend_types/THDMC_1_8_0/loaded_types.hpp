@@ -11,8 +11,8 @@
 #define THDMC_1_8_0_all_data \
   (( /*class*/(SM),    /*constructors*/(("Factory_SM_0__BOSS_1",())) )) \
   (( /*class*/(THDM),    /*constructors*/(("Factory_THDM_0__BOSS_2",())) )) \
-  (( /*class*/(DecayTableTHDM),    /*constructors*/(("Factory_DecayTableTHDM_0__BOSS_3",(my_ns::THDM))) )) \
-  (( /*class*/(Constraints),    /*constructors*/(("Factory_Constraints_0__BOSS_4",())) (("Factory_Constraints_1__BOSS_5",(my_ns::THDM))) )) \
+  (( /*class*/(DecayTableTHDM),    /*constructors*/(("Factory_DecayTableTHDM_0__BOSS_3",(my_ns::THDM*))) )) \
+  (( /*class*/(Constraints),    /*constructors*/(("Factory_Constraints_0__BOSS_4",())) (("Factory_Constraints_1__BOSS_5",(my_ns::THDM*))) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))

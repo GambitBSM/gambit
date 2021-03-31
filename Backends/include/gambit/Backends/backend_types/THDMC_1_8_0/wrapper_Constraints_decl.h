@@ -21,13 +21,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         public:
             // -- Static factory pointers: 
             static Abstract_Constraints* (*__factory0)();
-            static Abstract_Constraints* (*__factory1)(THDM);
+            static Abstract_Constraints* (*__factory1)(THDM*);
     
             // -- Other member variables: 
     
             // Member functions: 
         public:
-            void set_THDM(THDM mod);
+            void set_THDM(THDM* mod);
     
             bool check_unitarity(double unitarity_limit);
     
@@ -61,7 +61,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Wrappers for original constructors: 
         public:
             Constraints();
-            Constraints(THDM mod);
+            Constraints(THDM* mod);
     
             // Special pointer-based constructor: 
             Constraints(Abstract_Constraints* in);

@@ -397,12 +397,6 @@ namespace Gambit
          double b = atan(v_2/v_1), v2 = pow(v_1,2) + pow(v_2,2);
          double mA = get_mA_running(model), m_A2 = pow(mA,2);
          double Lam1 = get_Lambda1(model), Lam5 = get_Lambda5(model), Lam6 = get_Lambda6(model);
-         double sb = sin(b), cb = cos(b), tb = v_2/v_1, ctb = v_1/v_2;
-         double sb2 = sb*sb, cb2 = cb*cb;
-         double m122 = model.get_M122();
-         double lam1 = model.get_Lambda1(), lam2 = model.get_Lambda2(), lam3 = model.get_Lambda3(), lam4 = model.get_Lambda4();
-         double lam5 = model.get_Lambda5(), lam6 = model.get_Lambda6(), lam7 = model.get_Lambda7();
-
          double s2ba = -2.*Lam6*v2, c2ba = -(m_A2+(Lam5-Lam1)*v2);
          // gaurenteed to be in quadrant I or IV, due to 1/2 factor
          double ba = 0.5*atan2(s2ba,c2ba);

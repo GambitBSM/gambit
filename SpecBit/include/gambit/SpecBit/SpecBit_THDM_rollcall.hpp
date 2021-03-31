@@ -176,6 +176,18 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY THDM_scalar_masses
+START_CAPABILITY
+  #define FUNCTION check_THDM_scalar_masses
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
 // Generalised Higgs couplings
 #define CAPABILITY Higgs_Couplings
   #define FUNCTION THDM_higgs_couplings_pwid

@@ -1,6 +1,6 @@
 diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
---- src/CalcLH.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/CalcLH.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/CalcLH.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/CalcLH.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -1,6 +1,6 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -19,8 +19,8 @@ diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
---- src/CalcMSSM.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/CalcMSSM.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/CalcMSSM.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/CalcMSSM.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -1,7 +1,7 @@
  #include "THDM.h"
  #include "Constraints.h"
@@ -31,8 +31,8 @@ diff -ruN src/CalcMSSM.cpp src_patched/CalcMSSM.cpp
  using namespace std;
  
 diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
---- src/CalcPhys.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/CalcPhys.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/CalcPhys.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/CalcPhys.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -50,8 +50,8 @@ diff -ruN src/CalcPhys.cpp src_patched/CalcPhys.cpp
    table.print_decays(2);
    table.print_decays(3);
 diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
---- src/Constraints.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/Constraints.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/Constraints.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/Constraints.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -1,5 +1,5 @@
  #include "Constraints.h"
 -#include "DecayTable.h"
@@ -59,6 +59,141 @@ diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
  #include "THDM.h"
  #include "Util.h"
  #include <fstream>
+@@ -18,15 +18,15 @@
+ }
+ 
+ 
+-Constraints::Constraints(THDM mod) : table(mod) {
++Constraints::Constraints(THDM* mod) : table(mod) {
+ //  init_externals();
+   set_THDM(mod);
+   delta = exp(-log(10.)*DBL_DIG/5.);
+ }
+ 
+-void Constraints::set_THDM(THDM mod) {
++void Constraints::set_THDM(THDM* mod) {
+   model = mod;
+-  sm    = mod.get_SM();
++  sm    = mod->get_SM();
+ 
+ //  table.set_model(mod);
+ 
+@@ -117,18 +117,18 @@
+   double m2[3];
+   double mu2[5];
+ 
+-  complex <double> q11 = model.get_qki(1,1);
+-  complex <double> q12 = model.get_qki(1,2);
+-  complex <double> q21 = model.get_qki(2,1);
+-  complex <double> q22 = model.get_qki(2,2);
++  complex <double> q11 = model->get_qki(1,1);
++  complex <double> q12 = model->get_qki(1,2);
++  complex <double> q21 = model->get_qki(2,1);
++  complex <double> q22 = model->get_qki(2,2);
+ 
+   m2[1] = 0.;
+-  m2[2] = pow(model.get_hmass(4),2);
++  m2[2] = pow(model->get_hmass(4),2);
+ 
+   mu2[1] = 0.;
+-  mu2[2] = pow(model.get_hmass(3),2);
+-  mu2[3] = pow(model.get_hmass(1),2);
+-  mu2[4] = pow(model.get_hmass(2),2);
++  mu2[2] = pow(model->get_hmass(3),2);
++  mu2[3] = pow(model->get_hmass(1),2);
++  mu2[4] = pow(model->get_hmass(2),2);
+ 
+   double UdU[3][3] = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
+   UdU[1][1]=1.0;
+@@ -396,12 +396,12 @@
+   double damu_2loop = 0.;
+ 
+   for (int h=1;h<=4;h++) {
+-    double mh = model.get_hmass(h);
++    double mh = model->get_hmass(h);
+ 
+     if (h<4) {
+-      model.get_coupling_hll(h,2,2,cs,cp);
++      model->get_coupling_hll(h,2,2,cs,cp);
+     } else {
+-      model.get_coupling_hln(h,2,2,cs,cp);
++      model->get_coupling_hln(h,2,2,cs,cp);
+     }
+ 
+     double CS_mu=imag(cs);
+@@ -415,16 +415,16 @@
+ 
+ 
+   for (int h=1;h<=3;h++) {
+-    double mh = model.get_hmass(h);
++    double mh = model->get_hmass(h);
+ 
+-    model.get_coupling_hll(h,2,2,cs,cp);
++    model->get_coupling_hll(h,2,2,cs,cp);
+     double CS_mu=imag(cs);
+     double CP_mu=real(cp);
+ 
+     // Down-type quarks
+     for (int i=1;i<=3;i++) {
+       complex <double> gS(0.,0.), gP(0.,0.);
+-      model.get_coupling_hdd(h,i,i,gS,gP);
++      model->get_coupling_hdd(h,i,i,gS,gP);
+       double m = sm.get_dmass_MSbar(i);
+ 
+       if (m > 1E-3) {
+@@ -440,7 +440,7 @@
+     // Up-type quarks
+     for (int i=1;i<=3;i++) {
+       complex <double> gS(0.,0.), gP(0.,0.);
+-      model.get_coupling_huu(h,i,i,gS,gP);
++      model->get_coupling_huu(h,i,i,gS,gP);
+       double m = sm.get_umass_MSbar(i);
+ 
+       if (m > 1E-3) {
+@@ -456,7 +456,7 @@
+     // Leptons
+     for (int i=1;i<=3;i++) {
+       complex <double> gS(0.,0.), gP(0.,0.);
+-      model.get_coupling_hll(h,i,i,gS,gP);
++      model->get_coupling_hll(h,i,i,gS,gP);
+       double m = sm.get_lmass_pole(i);
+ 
+       if (m > 1E-3) {
+@@ -557,21 +557,21 @@
+ 
+ 
+ bool Constraints::check_unitarity(double unitarity_limit) {
+-  return model.check_unitarity(unitarity_limit);
++  return model->check_unitarity(unitarity_limit);
+ }
+ 
+ bool Constraints::check_perturbativity(double perturbativity_limit) {
+-  return model.check_perturbativity(perturbativity_limit);
++  return model->check_perturbativity(perturbativity_limit);
+ }
+ 
+ 
+ bool Constraints::check_positivity() {
+-  return model.check_stability();
++  return model->check_stability();
+ }
+ 
+ 
+ bool Constraints::check_stability() {
+-  return model.check_stability();
++  return model->check_stability();
+ }
+ 
+ 
+@@ -591,7 +591,7 @@
+   // Limit from Z width on charged Higgs mass, hep-ex/0404012
+   const double Z_LIMIT_MCH = 39.6;
+ 
+-  double mcH = model.get_hmass(4);
++  double mcH = model->get_hmass(4);
+ 
+   HpHp = (mcH > Z_LIMIT_MCH);
+ 
 @@ -674,12 +674,12 @@
    return HpHp&&HpHptau&&HpHpcs;
  }
@@ -74,6 +209,15 @@ diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
    // The constraints on the neutral Higgses are collected from NMSSMTools,
    // if available
    int i;
+@@ -738,7 +738,7 @@
+   sfspec_.csmu=0.;
+ 
+   double mh,mH,mA,mHp,sba,m12_2,lam6,lam7,tb;
+-  model.get_param_phys(mh,mH,mA,mHp,sba,lam6,lam7,m12_2,tb);
++  model->get_param_phys(mh,mH,mA,mHp,sba,lam6,lam7,m12_2,tb);
+   double alpha=-asin(sba)+atan(tb);
+   higgspec_.smass[0]=mh;
+   higgspec_.smass[1]=mH;
 @@ -937,8 +937,9 @@
  
    return hZ&&hZ2b&&hZ2tau&&hZinv&&hZ2j&&hZ2gamma&&hZ4b&&hZ4tau&&hZ2b2tau&&
@@ -85,9 +229,22 @@ diff -ruN src/Constraints.cpp src_patched/Constraints.cpp
  
  
  double Constraints::delta_rho(double mh) {
+@@ -992,9 +993,9 @@
+ 
+   printf("\n");
+ 	printf("Constraints:\n");
+-  printf(" Tree-level unitarity: %u\n", model.check_unitarity());
+-  printf(" Perturbativity:       %u\n", model.check_perturbativity());
+-  printf(" Stability:            %u\n", model.check_stability());
++  printf(" Tree-level unitarity: %u\n", model->check_unitarity());
++  printf(" Perturbativity:       %u\n", model->check_perturbativity());
++  printf(" Stability:            %u\n", model->check_stability());
+ //#if defined HiggsBounds
+ //  printf(" Mass constraints:     %u\n",test_HiggsBounds);
+ //  printf("  Charged Higgs        %u (HpHp:%u HpHptau:%u HpHpcs:%u)\n",test_charged,HpHp,HpHptau,HpHpcs);
 diff -ruN src/Constraints.h src_patched/Constraints.h
---- src/Constraints.h	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/Constraints.h	2020-11-09 13:05:54.000000000 +1030
+--- src/Constraints.h	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/Constraints.h	2021-03-09 16:09:49.000000000 +1100
 @@ -3,7 +3,7 @@
  
  #include "SM.h"
@@ -97,6 +254,24 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
  
  using namespace std;
  
+@@ -38,7 +38,7 @@
+   *
+   * @param  mod THDM object for which the constraints should be calculated
+   */
+-  Constraints(THDM mod);
++  Constraints(THDM* mod);
+ 
+ 
+   /**
+@@ -49,7 +49,7 @@
+   *
+   * @param  mod THDM object to use for the underlying model
+   */
+-  void set_THDM(THDM mod);
++  void set_THDM(THDM* mod);
+ 
+ 
+   /**
 @@ -198,8 +198,8 @@
    *
    * @see      check_masses
@@ -108,9 +283,12 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
  
  
    /**
-@@ -264,7 +264,7 @@
+@@ -262,9 +262,9 @@
+   void print_all(double mh_ref);
+ 
   private:
-   THDM model;
+-  THDM model;
++  THDM* model;
    SM sm;
 -  DecayTable table;
 +  DecayTableTHDM table;
@@ -127,8 +305,8 @@ diff -ruN src/Constraints.h src_patched/Constraints.h
  };
  
 diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
---- src/DecayTable.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/DecayTable.cpp	1970-01-01 09:30:00.000000000 +0930
+--- src/DecayTable.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/DecayTable.cpp	1970-01-01 10:00:00.000000000 +1000
 @@ -1,1915 +0,0 @@
 -#include "DecayTable.h"
 -#include "Util.h"
@@ -2046,8 +2224,8 @@ diff -ruN src/DecayTable.cpp src_patched/DecayTable.cpp
 -}
 -
 diff -ruN src/DecayTable.h src_patched/DecayTable.h
---- src/DecayTable.h	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/DecayTable.h	1970-01-01 09:30:00.000000000 +0930
+--- src/DecayTable.h	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/DecayTable.h	1970-01-01 10:00:00.000000000 +1000
 @@ -1,389 +0,0 @@
 -#if !defined(DECAY_H)
 -#define DECAY_H
@@ -2439,9 +2617,9 @@ diff -ruN src/DecayTable.h src_patched/DecayTable.h
 -
 -#endif
 diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
---- src/DecayTableTHDM.cpp	1970-01-01 09:30:00.000000000 +0930
-+++ src_patched/DecayTableTHDM.cpp	2020-11-09 13:05:54.000000000 +1030
-@@ -0,0 +1,2001 @@
+--- src/DecayTableTHDM.cpp	1970-01-01 10:00:00.000000000 +1000
++++ src_patched/DecayTableTHDM.cpp	2021-03-09 16:09:49.000000000 +1100
+@@ -0,0 +1,2002 @@
 +#include "DecayTableTHDM.h"
 +#include "Util.h"
 +#include <iostream>
@@ -2469,16 +2647,17 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +const static double dmtb = 10.;
 +
 +
-+DecayTableTHDM::DecayTableTHDM(THDM mod) {
++DecayTableTHDM::DecayTableTHDM(THDM* mod) {
 +  set_model(mod);
 +  qcd_on=true;
 +  
 +
 +}
 +
-+void DecayTableTHDM::set_model(THDM mod) {
++
++void DecayTableTHDM::set_model(THDM* mod) {
 +  model = mod;
-+  sm = mod.get_SM();
++  sm = mod->get_SM();
 +  int i,j,k;
 +  for (i=1;i<5;i++) {
 +    gammatot_h[i]=-1.;
@@ -2505,7 +2684,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +}
 +
 +
-+THDM DecayTableTHDM::get_model() {
++THDM* DecayTableTHDM::get_model() {
 +  return model;
 +}
 +
@@ -2519,7 +2698,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  if (gamma_uhd[u][h][d]>=0) return gamma_uhd[u][h][d];
 +
 +  double M =  sm.get_umass_pole(u);
-+  double m1 = model.get_hmass(h);
++  double m1 = model->get_hmass(h);
 +  double m2 = sm.get_dmass_pole(d);
 +  
 +  if (M<(m1+m2)) {
@@ -2528,7 +2707,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hdu(h,d,u,cs,cp);
++  model->get_coupling_hdu(h,d,u,cs,cp);
 +  cp = -cp;
 +
 +  gamma_uhd[u][h][d] =  1./(16.*M_PI)*M*pow(1.-m1*m1/(M*M),2)*(pow(abs(cs),2)+pow(abs(cp),2));
@@ -2559,7 +2738,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  if (gamma_uhd[u][h][d]>=0) return gamma_uhd[u][h][d];
 +
 +  double M =  sm.get_umass_pole(u);
-+  double m1 = model.get_hmass(h);
++  double m1 = model->get_hmass(h);
 +  double m2 = sm.get_dmass_pole(d);
 +
 +  if (M<(m1+m2)) {
@@ -2568,7 +2747,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hdu(h,u,d,cs,cp);
++  model->get_coupling_hdu(h,u,d,cs,cp);
 +
 +  cp = -cp;
 +
@@ -2600,7 +2779,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hdd[h][d1][d2]>=0) return gamma_hdd[h][d1][d2];
 +
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double m1p = sm.get_dmass_pole(d1);
 +  double m2p = sm.get_dmass_pole(d2);
 +  
@@ -2633,7 +2812,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hdd(h,d1,d2,cs,cp);
++  model->get_coupling_hdd(h,d1,d2,cs,cp);
 +
 +  gamma_hdd[h][d1][d2] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
 +  return gamma_hdd[h][d1][d2];
@@ -2648,7 +2827,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_huu[h][u1][u2]>=0) return gamma_huu[h][u1][u2];
 +
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double m1 = sm.get_umass_pole(u1);
 +  double m2 = sm.get_umass_pole(u2);
 +
@@ -2675,7 +2854,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_huu(h,u1,u2,cs,cp);
++  model->get_coupling_huu(h,u1,u2,cs,cp);
 + 
 + 
 + 
@@ -2746,7 +2925,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hdu[h][d][u]>=0) return gamma_hdu[h][d][u];
 +
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double m1p = sm.get_dmass_pole(d);
 +  double m2p = sm.get_umass_pole(u);
 +  
@@ -2773,7 +2952,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hdu(h,d,u,cs,cp);
++  model->get_coupling_hdu(h,d,u,cs,cp);
 +  
 +  if (h<4) {
 +	gamma_hdu[h][d][u] = hff_onshell(M,m1p,m1run,m2p,m2run,cs,cp,3,h,false);
@@ -2841,7 +3020,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hll[h][l1][l2]>=0) return gamma_hll[h][l1][l2];
 +
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double m1 = sm.get_lmass_pole(l1);
 +  double m2 = sm.get_lmass_pole(l2);
 +
@@ -2851,7 +3030,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hll(h,l1,l2,cs,cp);
++  model->get_coupling_hll(h,l1,l2,cs,cp);
 +
 +  gamma_hll[h][l1][l2] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
 +
@@ -2867,7 +3046,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hln[h][l][n]>=0) return gamma_hln[h][l][n];
 +
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double m1 = sm.get_lmass_pole(l);
 +  double m2 = 0.;
 +
@@ -2877,7 +3056,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_hln(h,l,n,cs,cp);
++  model->get_coupling_hln(h,l,n,cs,cp);
 +
 +  
 +  gamma_hln[h][l][n] = hff_onshell(M,m1,m1,m2,m2,cs,cp,1,h,false);
@@ -2933,7 +3112,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hvv[h][V]>=0) return gamma_hvv[h][V];
 +  
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  
 +  gamma_hvv[h][V] = hvv_all(h,V,M);
 +  return gamma_hvv[h][V];
@@ -2954,8 +3133,8 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  if (gamma_hvh[H][V][h]>=0) return gamma_hvh[H][V][h];
 +
-+  double M  = model.get_hmass(H);
-+  double m1  = model.get_hmass(h);
++  double M  = model->get_hmass(H);
++  double m1  = model->get_hmass(h);
 +  double m2 = sm.get_vmass(V);
 +  
 +  double GV = sm.get_gamma_V(V);
@@ -3004,7 +3183,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +    w = NULL;
 +  
 +    complex <double> c;
-+    model.get_coupling_vhh(V,H,h,c);
++    model->get_coupling_vhh(V,H,h,c);
 +  
 +    double dV = 0.;
 +    double stw = sm.get_sintw();
@@ -3054,12 +3233,12 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  double Sf = 1.;
 +  if ((h1==h2)&&(h1!=4)) Sf = 0.5;
 +
-+  double M = model.get_hmass(h);
-+  double m1 = model.get_hmass(h1);
-+  double m2 = model.get_hmass(h2);
++  double M = model->get_hmass(h);
++  double m1 = model->get_hmass(h1);
++  double m2 = model->get_hmass(h2);
 +
 +  complex <double> c;
-+  model.get_coupling_hhh(h,h1,h2,c);
++  model->get_coupling_hhh(h,h1,h2,c);
 +  
 +  gamma_hhh[h][h1][h2] = 0.;
 +
@@ -3496,7 +3675,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  w = NULL;
 +
 +  complex <double> c;
-+  model.get_coupling_vvh(V,V,h,c);
++  model->get_coupling_vvh(V,V,h,c);
 +  
 +  double dV = 0.;
 +  double stw = sm.get_sintw();
@@ -3557,7 +3736,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  w = NULL;
 +
 +  complex <double> c;
-+  model.get_coupling_vvh(V,V,h,c);
++  model->get_coupling_vvh(V,V,h,c);
 +  
 +  double dV = 0.;
 +
@@ -3592,7 +3771,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  if (M<2.*m) return 0.0;
 +
 +  complex <double> c;
-+  model.get_coupling_vvh(V,V,h,c);
++  model->get_coupling_vvh(V,V,h,c);
 +
 +  double M2 = 0.;
 +  
@@ -3611,12 +3790,12 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +double DecayTableTHDM::hvh_onshell(int H, int V, int h, double M) {
 +  double m1 = sm.get_vmass(V);
-+  double m2  = model.get_hmass(h);
++  double m2  = model->get_hmass(h);
 +
 +  if (M<m1+m2) return 0.;
 +
 +  complex <double> c;
-+  model.get_coupling_vhh(V,H,h,c);
++  model->get_coupling_vhh(V,H,h,c);
 +  
 +  int dV = 1;
 +
@@ -3713,7 +3892,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  double G = Nc*1./(8.*M_PI)*M2*PS2(M,m1,m2);
 +
 +  complex <double> cst,cpt;
-+  model.get_coupling_huu(h,3,3,cst,cpt);
++  model->get_coupling_huu(h,3,3,cst,cpt);
 +  double mt = sm.get_umass_MSbar(3);
 +  double Qinit = mt;
 +  if(sm.b_HD) Qinit = SM::Q_HD;
@@ -3760,7 +3939,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  if (gamma_uhu[u1][h][u2]>=0) return gamma_uhu[u1][h][u2];
 +
 +  double M =  sm.get_umass_pole(u1);
-+  double m1 = model.get_hmass(h);
++  double m1 = model->get_hmass(h);
 +  double m2 = sm.get_umass_pole(u2);
 +  
 +  if (M<(m1+m2)) {
@@ -3769,7 +3948,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  }
 +
 +  complex <double> cs,cp;
-+  model.get_coupling_huu(h,u1,u2,cs,cp);
++  model->get_coupling_huu(h,u1,u2,cs,cp);
 + 
 +  double x1 = m1/M;
 +  double x2 = m2/M; 	
@@ -3795,7 +3974,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  if ((u2<1)||(u2>=u1)) return 0.;
 +
 +  double M =  sm.get_umass_pole(u1);
-+  double m1 = model.get_hmass(h);
++  double m1 = model->get_hmass(h);
 +  double m2 = sm.get_umass_pole(u2);
 +
 +  if (M<(m1+m2)) {
@@ -3807,7 +3986,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +    // added to to compute chirality flipped states
 +    complex <double> cs_flipped,cp_flipped;
-+    model.get_coupling_huu(h,u2,u1,cs_flipped,cp_flipped);
++    model->get_coupling_huu(h,u2,u1,cs_flipped,cp_flipped);
 +
 +  double x1 = m1/M;
 +  double x2 = m2/M;
@@ -3831,7 +4010,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  complex <double> cs, cp;
 +  complex <double> cs_mtp, cp_mtp;
-+  model.get_coupling_huu(h,3, 3,cs,cp);
++  model->get_coupling_huu(h,3, 3,cs,cp);
 +
 +  double mtp = sm.get_qmass_pole(6);
 +  double mt_mt = sm.get_qmass_MSbar(6);
@@ -3887,7 +4066,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  complex <double> cs, cp;
 +  complex <double> cs_mtp, cp_mtp;
-+  model.get_coupling_huu(h,3, 3,cs,cp);
++  model->get_coupling_huu(h,3, 3,cs,cp);
 +
 +  double mtp = sm.get_qmass_pole(6);
 +  double mt_mt = sm.get_qmass_MSbar(6);
@@ -4002,10 +4181,10 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  double v2 		= sm.get_v2();
 +  double mW 		= sm.get_MW();
 +  
-+  double M 		= model.get_hmass(h);
++  double M 		= model->get_hmass(h);
 +  double M2 		= M*M;  
 +
-+  double mHp 		= model.get_hmass(4);
++  double mHp 		= model->get_hmass(4);
 +
 +  double tau_W   = M2/(4.*mW*mW);
 +  double tau_Hp  = M2/(4.*mHp*mHp);
@@ -4017,7 +4196,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Down-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_hdd(h,i,i,gS,gP);
++    model->get_coupling_hdd(h,i,i,gS,gP);
 +    double m = sm.get_dmass_MSbar(i);
 +    double mp = sm.get_dmass_pole(i);    
 +
@@ -4037,7 +4216,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  
 +  // Up-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_huu(h,i,i,gS,gP);
++    model->get_coupling_huu(h,i,i,gS,gP);
 +    double m = sm.get_umass_MSbar(i);
 +    double mp = sm.get_umass_pole(i);    
 +
@@ -4062,7 +4241,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Leptons
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_hll(h,i,i,gS,gP);
++    model->get_coupling_hll(h,i,i,gS,gP);
 +    double m = sm.get_lmass_pole(i);
 +    
 +    if (m > 0) {
@@ -4076,8 +4255,8 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Charged Higgs and W contribution to scalar operator
 +  complex <double> g_hww,g_hhchc;
-+  model.get_coupling_vvh(3,3,h,g_hww);
-+  model.get_coupling_hhh(h,4,4,g_hhchc);
++  model->get_coupling_vvh(3,3,h,g_hww);
++  model->get_coupling_hhh(h,4,4,g_hhchc);
 +
 +  g_hww = g_hww*v/(2.*pow(mW,2));
 +  
@@ -4105,10 +4284,10 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  double stw            = sm.get_sintw();
 +  double ctw            = sm.get_costw();
 +  
-+  double M 		= model.get_hmass(h);
++  double M 		= model->get_hmass(h);
 +  double M2 		= M*M;  
 +
-+  double mHp 		= model.get_hmass(4);
++  double mHp 		= model->get_hmass(4);
 +
 +  double tau_W   = (4.*mW2)/M2;
 +  double tau_Hp  = (4.*mHp*mHp)/M2;
@@ -4125,7 +4304,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Down-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_hdd(h,i,i,gS,gP);
++    model->get_coupling_hdd(h,i,i,gS,gP);
 +    double m = sm.get_dmass_MSbar(i);
 +    double mp = sm.get_dmass_pole(i);    
 +
@@ -4146,7 +4325,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Up-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_huu(h,i,i,gS,gP);
++    model->get_coupling_huu(h,i,i,gS,gP);
 +    double m = sm.get_umass_MSbar(i);
 +    double mp = sm.get_umass_pole(i);        
 +
@@ -4174,7 +4353,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Leptons
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_hll(h,i,i,gS,gP);
++    model->get_coupling_hll(h,i,i,gS,gP);
 +    double m = sm.get_lmass_pole(i);
 +    
 +    if (m > 0) {
@@ -4191,8 +4370,8 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Charged Higgs and W contribution to scalar operator
 +  complex <double> g_hww,g_hhchc;
-+  model.get_coupling_vvh(3,3,h,g_hww);
-+  model.get_coupling_hhh(h,4,4,g_hhchc);
++  model->get_coupling_vvh(3,3,h,g_hww);
++  model->get_coupling_hhh(h,4,4,g_hhchc);
 +
 +  g_hww = g_hww*v/(2.*pow(mW,2));
 +
@@ -4213,7 +4392,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +  double v  = sm.get_v();
 +  double v2 = sm.get_v2();
 +  
-+  double M = model.get_hmass(h);
++  double M = model->get_hmass(h);
 +  double M2 = M*M;  
 +
 +  double mt   = sm.get_qmass_MSbar(6);
@@ -4224,7 +4403,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Down-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_hdd(h,i,i,gS,gP);
++    model->get_coupling_hdd(h,i,i,gS,gP);
 +    double m = sm.get_dmass_MSbar(i);
 +    double mp = sm.get_dmass_pole(i);    
 +
@@ -4243,7 +4422,7 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +
 +  // Up-type quarks
 +  for (int i=1;i<=3;i++) {
-+    model.get_coupling_huu(h,i,i,gS,gP);
++    model->get_coupling_huu(h,i,i,gS,gP);
 +    double m = sm.get_umass_MSbar(i);
 +    
 +    if (m > 0) {
@@ -4444,8 +4623,8 @@ diff -ruN src/DecayTableTHDM.cpp src_patched/DecayTableTHDM.cpp
 +}
 +
 diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
---- src/DecayTableTHDM.h	1970-01-01 09:30:00.000000000 +0930
-+++ src_patched/DecayTableTHDM.h	2020-11-09 13:05:54.000000000 +1030
+--- src/DecayTableTHDM.h	1970-01-01 10:00:00.000000000 +1000
++++ src_patched/DecayTableTHDM.h	2021-03-09 16:09:49.000000000 +1100
 @@ -0,0 +1,390 @@
 +#if !defined(DECAY_H)
 +#define DECAY_H
@@ -4479,7 +4658,7 @@ diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
 +  * 
 +  * @param mod Two-Higgs doublet model for which to calculate decay modes
 +  */
-+  DecayTableTHDM(THDM mod);
++  DecayTableTHDM(THDM* mod);
 +
 +
 +  /**
@@ -4489,7 +4668,7 @@ diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
 +  * 
 +  * @param model Two-Higgs doublet model for which to calculate decay modes
 +  */
-+	void set_model(THDM model);
++	void set_model(THDM* model);
 +
 +
 +  /**
@@ -4499,7 +4678,7 @@ diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
 +  * 
 +  * @returns The THDM object on which this DecayTableTHDM operates
 +  */
-+	THDM get_model();  
++	THDM* get_model();  
 +
 +
 +  /**
@@ -4773,7 +4952,7 @@ diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
 +
 +
 + private:
-+  THDM model;
++  THDM* model;
 +  SM sm;
 +  
 +  complex <double> F_sf(double t);
@@ -4838,8 +5017,8 @@ diff -ruN src/DecayTableTHDM.h src_patched/DecayTableTHDM.h
 +
 +#endif
 diff -ruN src/Demo.cpp src_patched/Demo.cpp
---- src/Demo.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/Demo.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/Demo.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/Demo.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -5,7 +5,7 @@
   http://2hdmc.hepforge.org
  *******************************************************************************/
@@ -4866,8 +5045,8 @@ diff -ruN src/Demo.cpp src_patched/Demo.cpp
 +  model.free_gsl();
  }
 diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
---- src/HBHS.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/HBHS.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/HBHS.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/HBHS.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -1,5 +1,5 @@
  #include "HBHS.h"
 -#include "DecayTable.h"
@@ -4921,8 +5100,8 @@ diff -ruN src/HBHS.cpp src_patched/HBHS.cpp
  
    const std::array<double, nHplus> MHp{model.get_hmass(4)};
 diff -ruN src/HBHS.h src_patched/HBHS.h
---- src/HBHS.h	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/HBHS.h	2020-11-09 13:05:54.000000000 +1030
+--- src/HBHS.h	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/HBHS.h	2021-03-09 16:09:49.000000000 +1100
 @@ -1,7 +1,7 @@
  #ifndef HBHS_H
  #define HBHS_H
@@ -4933,9 +5112,9 @@ diff -ruN src/HBHS.h src_patched/HBHS.h
  #include <array>
  
 diff -ruN src/SM.cpp src_patched/SM.cpp
---- src/SM.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/SM.cpp	2020-11-09 13:05:54.000000000 +1030
-@@ -105,17 +105,25 @@
+--- src/SM.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/SM.cpp	2021-03-09 16:09:49.000000000 +1100
+@@ -105,17 +105,38 @@
  double SM::get_CKM_element(int i, int j) {
  
    if ((i>0)&&(i<=3)&&(j>0)&&(j<=3))
@@ -4960,10 +5139,23 @@ diff -ruN src/SM.cpp src_patched/SM.cpp
      for (int j=0; j<3;j++) {
 -      gsl_matrix_set(ckm,i,j,m_CKM[i][j]);
 +      gsl_matrix_set(ckm,i,j,abs(m_CKM[i][j]));
++    }
++  }
++  return ckm;
++}
++
++gsl_matrix_complex* SM::get_CKM_matrix_complex() {
++  gsl_matrix_complex *ckm = gsl_matrix_complex_alloc(3,3);
++  gsl_complex element;
++  for (int i=0;i<3;i++) {
++    for (int j=0; j<3;j++) {
++      GSL_SET_REAL(&element, m_CKM[i][j].real());
++      GSL_SET_IMAG(&element, m_CKM[i][j].imag());
++      gsl_matrix_complex_set(ckm,i,j,element);
      }
    }
    return ckm;
-@@ -308,6 +316,13 @@
+@@ -308,6 +329,13 @@
    clear_lookup();
  }
  
@@ -4977,7 +5169,7 @@ diff -ruN src/SM.cpp src_patched/SM.cpp
  
  double SM::get_qmass_pole(int flav) {
    if ((flav>=1)&&(flav<=6)) {
-@@ -878,3 +893,16 @@
+@@ -878,3 +906,16 @@
    m_qmass_ms[6] = get_qmass_MSbar(6);
  
  }
@@ -4995,8 +5187,8 @@ diff -ruN src/SM.cpp src_patched/SM.cpp
 +    clear_lookup();
 +}
 diff -ruN src/SM.h src_patched/SM.h
---- src/SM.h	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/SM.h	2020-11-09 13:05:54.000000000 +1030
+--- src/SM.h	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/SM.h	2021-03-09 16:09:49.000000000 +1100
 @@ -2,6 +2,7 @@
  #define SM_H
  
@@ -5014,7 +5206,15 @@ diff -ruN src/SM.h src_patched/SM.h
    /**
    * @brief Full CKM matrix
    *
-@@ -310,6 +313,7 @@
+@@ -297,6 +300,7 @@
+   * @see get_MD, get_MU, get_ML, get_CKM_element
+   */
+   gsl_matrix* get_CKM_matrix();
++  gsl_matrix_complex* get_CKM_matrix_complex();
+ 
+   /**
+   * @brief Element of the CKM matrix
+@@ -310,6 +314,7 @@
    * @see get_CKM
    */
    double get_CKM_element(int i, int j);
@@ -5022,7 +5222,7 @@ diff -ruN src/SM.h src_patched/SM.h
  
    /**
    * @brief Sets the pole mass of a lepton
-@@ -527,6 +531,8 @@
+@@ -527,6 +532,8 @@
    double get_gamma_top();
    double get_gamma_tWd(int d);
  
@@ -5031,7 +5231,7 @@ diff -ruN src/SM.h src_patched/SM.h
  
  
  
-@@ -566,7 +572,7 @@
+@@ -566,7 +573,7 @@
    double m_MZ;
    double m_GammaW;
    double m_GammaZ;
@@ -5041,8 +5241,8 @@ diff -ruN src/SM.h src_patched/SM.h
    double m_qmass_ms[7];
  
 diff -ruN src/THDM.cpp src_patched/THDM.cpp
---- src/THDM.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/THDM.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/THDM.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/THDM.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -6,7 +6,7 @@
  *******************************************************************************/
  
@@ -5057,7 +5257,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
     bool S = model->check_stability();
  
 -    DecayTable table(*model);
-+    DecayTableTHDM table(*model);
++    DecayTableTHDM table(model);
  
      double gtoth = table.get_gammatot_h(1);
      double gtotH = table.get_gammatot_h(2);
@@ -5860,12 +6060,12 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
        break;
      }
  
-@@ -1292,28 +1449,38 @@
+@@ -1292,28 +1449,39 @@
    cs = 0.;
    cp = 0.;
  
 -  gsl_matrix* ckm = sm.get_CKM_matrix();
-+  gsl_matrix_complex* ckm = convertMatrixToComplex(sm.get_CKM_matrix());
++  gsl_matrix_complex* ckm = sm.get_CKM_matrix_complex();
  
    if (h!=4) return;
  
@@ -5895,6 +6095,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
 +    gsl_matrix_complex_float * B = convertMatrixToComplexFloat(rho_D);
  
 +    gsl_blas_cgemm(CblasNoTrans,CblasNoTrans,gsl_one, A, B, gsl_zero, RD);
++    gsl_matrix_complex_float_free(B);
 +    B = convertMatrixToComplexFloat(rho_U);
 +
 +    gsl_blas_cgemm(CblasConjTrans,CblasNoTrans,gsl_one, B, A, gsl_zero, RU);
@@ -5913,7 +6114,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  
      double mdms  = sm.get_dmass_MSbar(d);
      double Qinit  = mdms;
-@@ -1343,13 +1510,89 @@
+@@ -1343,13 +1511,89 @@
        ru = ru/mup*murun;
      }
  
@@ -5936,7 +6137,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
 +    cs = 0.;
 +    cp = 0.;
 +    
-+    gsl_matrix_complex* ckm = convertMatrixToComplex(sm.get_CKM_matrix());
++    gsl_matrix_complex* ckm = sm.get_CKM_matrix_complex();
 +    
 +    if (h!=4) return;
 +    
@@ -6005,7 +6206,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  void THDM::get_coupling_hln(int h,int l,int n,complex <double> &cs, complex <double> &cp) {
    complex <double> I(0.0,1.0);
  
-@@ -1361,11 +1604,11 @@
+@@ -1361,11 +1605,11 @@
    if (h!=4) return;
  
    if ((n<=3)&&(n>=1)&&(l<=3)&&(l>=1)) {
@@ -6021,7 +6222,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    }
  
  }
-@@ -1991,54 +2234,57 @@
+@@ -1991,54 +2235,57 @@
    fprintf(output,"Block ALPHA     # Effective Higgs mixing parameter\n");
    fprintf(output,"            % 16.8e   # alpha\n",-asin(sba)+atan(tan_beta));
  
@@ -6127,16 +6328,16 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  
  #if defined HiggsBounds
  
-@@ -2062,7 +2308,7 @@
+@@ -2062,7 +2309,7 @@
  #endif
  
  
 -  DecayTable table(*this);
-+  DecayTableTHDM table(*this);
++  DecayTableTHDM table(this);
    table.set_qcd(qcd_on);
    fprintf(output,"#     PDG   Width\n");
    table.print_top_decays_LesHouches(output,fulldecay);
-@@ -2548,21 +2794,23 @@
+@@ -2548,21 +2795,23 @@
  
  
  void THDM::print_yukawas() {
@@ -6175,7 +6376,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2672,23 +2920,29 @@
+@@ -2672,23 +2921,29 @@
  
  
  double THDM::get_m12_2() {
@@ -6220,7 +6421,7 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  }
  
  
-@@ -2696,6 +2950,10 @@
+@@ -2696,6 +2951,10 @@
    return sm;
  }
  
@@ -6232,8 +6433,8 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
  void THDM::set_SM(SM sm_in) {
    sm=sm_in;
 diff -ruN src/THDM.h src_patched/THDM.h
---- src/THDM.h	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/THDM.h	2020-11-09 13:05:54.000000000 +1030
+--- src/THDM.h	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/THDM.h	2021-03-09 16:09:49.000000000 +1100
 @@ -3,8 +3,11 @@
  
  #include "SM.h"
@@ -6434,8 +6635,8 @@ diff -ruN src/THDM.h src_patched/THDM.h
  
    static bool first_run;
 diff -ruN src/Util.cpp src_patched/Util.cpp
---- src/Util.cpp	2020-11-09 13:05:54.000000000 +1030
-+++ src_patched/Util.cpp	2020-11-09 13:05:54.000000000 +1030
+--- src/Util.cpp	2021-03-09 16:09:49.000000000 +1100
++++ src_patched/Util.cpp	2021-03-09 16:09:49.000000000 +1100
 @@ -161,7 +161,7 @@
      
    if (status) 

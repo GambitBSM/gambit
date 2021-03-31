@@ -20,8 +20,8 @@
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Backends/frontends/HiggsSignals_1_4.hpp"
 #include "gambit/Utils/file_lock.hpp"
-
 #include "gambit/Backends/frontend_macros.hpp"
+#include "gambit/Core/cleanup.hpp"
 
 BE_INI_FUNCTION
 {
@@ -56,6 +56,7 @@ BE_INI_FUNCTION
     std::cout << "(HS DEBUG) Input filename (C++ string): " << runOptions->getValueOrDef<std::string>("latestresults", "HS_Expt_string") << " (strcpy2f Fortran string): " << Expt_string << std::endl;
     initialize_HiggsSignals(nHneut,nHplus,Expt_string);
     setup_pdf(pdf);
+    ::Gambit::cleanup::register_cleanup_function("finish_HiggsSignals", []() { finish_HiggsSignals(); });
 
     for (auto it = mylocks.begin(); it != mylocks.end(); ++it)
     {

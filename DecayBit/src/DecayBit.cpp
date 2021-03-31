@@ -3630,7 +3630,7 @@ namespace Gambit
   // }
 
     void h_decays_THDM(DecayTable::Entry& result, THDM_spectrum_container& container, int h) {
-      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
 
       // particle keys to simplify loops
       enum p_family {up, down, electron, neutrino, vector, higgs};
@@ -3834,7 +3834,7 @@ namespace Gambit
       THDM_spectrum_container container;
       // set up container and fill BFs
       BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(y_type), 0.0, 0);
-      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+      THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
 
       // particle keys to simplify loops
       enum p_family {up, down, electron, neutrino, vector, higgs};

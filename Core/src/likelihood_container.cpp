@@ -44,16 +44,17 @@ namespace Gambit
   Likelihood_Container::Likelihood_Container(const std::map<str, primary_model_functor *> &functorMap,
    DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile,
    const str &purpose, Printers::BaseBasePrinter& printer)
-  : dependencyResolver (dependencyResolver),
-    printer            (printer),
-    functorMap         (functorMap),
-    min_valid_lnlike        (iniFile.getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below")),
-    alt_min_valid_lnlike    (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
-    active_min_valid_lnlike (min_valid_lnlike), // can be switched to the alternate value by the scanner
-    print_invalid_points    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
-    intralooptime_label     ("Runtime(ms) intraloop"),
-    interlooptime_label     ("Runtime(ms) interloop"),
-    totallooptime_label     ("Runtime(ms) totalloop"),
+  : dependencyResolver               (dependencyResolver),
+    printer                          (printer),
+    functorMap                       (functorMap),
+    min_valid_lnlike                 (iniFile.getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below")),
+    alt_min_valid_lnlike             (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
+    active_min_valid_lnlike          (min_valid_lnlike), // can be switched to the alternate value by the scanner
+    print_invalid_points             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
+    disable_print_for_lnlike_below   (iniFile.getValueOrDef<double>(min_valid_lnlike, "likelihood", "disable_print_for_lnlike_below")),
+    intralooptime_label              ("Runtime(ms) intraloop"),
+    interlooptime_label              ("Runtime(ms) interloop"),
+    totallooptime_label              ("Runtime(ms) totalloop"),
     /* Note, likelihood container should be constructed after dependency
        resolution, so that new printer IDs can be safely acquired without
        risk of collision with graph vertex IDs */
@@ -306,6 +307,9 @@ namespace Gambit
 
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
       if(point_invalidated and !print_invalid_points)
+        printer.disable();
+      // If the likelihood is below the limit given in disable_print_for_lnlike_below, disable the printer
+      else if(lnlike <= disable_print_for_lnlike_below)
         printer.disable();
       else
       {

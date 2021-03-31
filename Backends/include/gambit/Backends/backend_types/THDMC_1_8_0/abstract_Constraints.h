@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         public:
     
-            virtual void set_THDM__BOSS(Abstract_THDM&) =0;
+            virtual void set_THDM__BOSS(Abstract_THDM*) =0;
     
             virtual bool check_unitarity(double) =0;
     
