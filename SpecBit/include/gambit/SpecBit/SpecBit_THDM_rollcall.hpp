@@ -116,6 +116,15 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY perturbativity_yukawas_LL
+  START_CAPABILITY
+    #define FUNCTION simple_perturbativity_yukawas_LL
+    START_FUNCTION(double)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY stability_likelihood_THDM
   START_CAPABILITY
     #define FUNCTION get_stability_likelihood_THDM

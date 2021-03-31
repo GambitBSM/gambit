@@ -658,12 +658,12 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
    #undef FUNCTION
  //Function for the general THDM
-  //  #define FUNCTION THDM_B2taunu
-  //  START_FUNCTION(flav_prediction)
-  //  ALLOW_MODELS(THDM,THDMatQ)
-  //  DEPENDENCY(SMINPUTS,SMInputs)
-  //  DEPENDENCY(THDM_spectrum, Spectrum)
-  //  #undef FUNCTION
+   // #define FUNCTION THDM_Btaunu
+   // START_FUNCTION(flav_prediction)
+   // ALLOW_MODELS(THDM,THDMatQ)
+   // DEPENDENCY(SMINPUTS,SMInputs)
+   // DEPENDENCY(THDM_spectrum, Spectrum)
+   // #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY prediction_RDRDstar

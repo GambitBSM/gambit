@@ -2868,7 +2868,7 @@ namespace Gambit
    
       double prediction = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
       result = prediction;
-     // result.central_values["B2taunu"] = prediction;
+      //result.central_values["B2taunu"] = prediction;
       if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
       if (flav_debug) cout << "Finished THDMB2taunu" << endl;
     }
@@ -3689,30 +3689,32 @@ namespace Gambit
       const double mBs = 5.36689;// values from 1602.03560
       const double fBs = 0.2303;
       const double Bag2 = 0.806;
-      const double Bag4 = 1.129;
+      const double Bag3 = 1.10;
+      const double Bag4 = 1.022;
       const double DeltaSM = 1.29022e-11; //.in GeV from  [arXiv:1602.03560]
       const double conv_factor = 1.519267e12;// from GeV to ps^-1
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double sba = sin(beta-alpha), cba = cos(beta-alpha);
+      double cba = cos(beta-alpha);
       const double mBmB = Dep::SMINPUTS->mBmB;
       const double mS = Dep::SMINPUTS->mS;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
-      double mA = spectrum.get(Par::Pole_Mass,"A0");
+      //double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double U22 = 1.41304;//From JHEP02(2020)147
+      const double U32 = -0.0516513;
+      const double U44 = 1.79804;
+      const double b2 = -1.6666;
+      const double b3 = 0.3333;
+      const double b4 = 2.0;
       double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
       double xi_bs = Ybs/cosb;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_sb = Ysb/cosb;
-      double C2 = -(0.25)*(xi_bs*xi_bs)*(pow(sba/mH,2)+pow(cba/mh,2)-pow(1/mA,2));      
-      double C2p = -(0.25)*(xi_sb*xi_sb)*(pow(sba/mH,2)+pow(cba/mh,2)-pow(1/mA,2)); 
-      double C4 = -(0.5)*(xi_sb*xi_bs)*(pow(sba/mH,2)+pow(cba/mh,2)+pow(1/mA,2)); 
-      double M12_C2 = (0.208333)*((pow(fBs,2)*pow(mBs,3)*Bag2)/(pow(mBmB+mS,2)))*C2;
-      double M12_C2p = (0.208333)*((pow(fBs,2)*pow(mBs,3)*Bag2)/(pow(mBmB+mS,2)))*C2p;
-      double M12_C4 = -(0.25)*((pow(fBs,2)*pow(mBs,3)*Bag4)/(pow(mBmB+mS,2)))*C4;
-      result = 2*abs(0.5*DeltaSM + M12_C2 + M12_C2p + M12_C4)*conv_factor;  
+      double M12_NP = -(0.125)*(pow(fBs,2)*pow(mBs,3)/(pow(mBmB+mS,2)))*((0.25)*pow(cba,2)*(pow(1/mh,2)-pow(1/mH,2))*((U22*Bag2*b2+U32*Bag3*b3)*(xi_bs*xi_bs+xi_sb*xi_sb)+2*U44*Bag4*b4*xi_sb*xi_bs)+(pow(1/mH,2)*U44*Bag4*b4*xi_sb*xi_bs));
+      result = 2*abs(0.5*DeltaSM + M12_NP)*conv_factor;  
       if (flav_debug) printf("Delta_MBs=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
     }

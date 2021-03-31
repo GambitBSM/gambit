@@ -3098,6 +3098,37 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
+    void simple_perturbativity_yukawas_LL(double &result)
+    { 
+      using namespace Pipes::simple_perturbativity_yukawas_LL;
+      const Spectrum spec = *Dep::THDM_spectrum;
+      std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+      // all values < 4*PI for perturbativity conditions
+      const double perturbativity_upper_limit = 4 * M_PI;
+      const double sigma = 0.1;
+      //-----------------------------
+      double error = 0.0;
+      std::vector<double> Yukawas;
+      for (int i = 1; i <= 3; i++)
+       {
+         for (int j = 1; j <= 3; j++)
+         {
+          Yukawas.push_back(he->get(Par::dimensionless, "Yu2", i, j));
+          Yukawas.push_back(he->get(Par::dimensionless, "Yd2", i, j));
+          Yukawas.push_back(he->get(Par::dimensionless, "Ye2", i, j));
+         }
+       }
+      // loop over all yukawas
+      for (auto & each_yukawa : Yukawas)
+      {
+       // cout<<"Yukawas= "<<each_yukawa<<endl;
+        if (abs(each_yukawa) > perturbativity_upper_limit)
+          error += abs(each_yukawa) - perturbativity_upper_limit;
+      }
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+
+
     void get_stability_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_stability_likelihood_THDM;
