@@ -49,6 +49,7 @@
 
 #include <gsl/gsl_spline.h>
 
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Utils/ascii_table_reader.hpp"
 
@@ -406,11 +407,12 @@ namespace Gambit
     void lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO(double& result)
     {
       using namespace Pipes::lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO;
-      //const double p_ann = *Dep::p_ann;
 
-      // Implementation goes here !
+      const double p_ann28 = (*Dep::p_ann)*1e28;
 
-      result = 0.0;
+      // The likelihood is given by a Gaussian in p_ann28
+      // centered around -0.75 with a width of 2.4/sqrt(2)
+      result = Stats::gaussian_loglikelihood(p_ann28, -0.75, 0.0, 2.4/sqrt(2.), true);
     }
 
     /// The energy injection spectrum from the AnnihilatingDM model hierarchy.
