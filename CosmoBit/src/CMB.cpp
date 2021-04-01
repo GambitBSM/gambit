@@ -411,8 +411,8 @@ namespace Gambit
       const double p_ann28 = (*Dep::p_ann)*1e28;
 
       // The likelihood is given by a Gaussian in p_ann28
-      // centered around -0.75 with a width of 2.4/sqrt(2)
-      result = Stats::gaussian_loglikelihood(p_ann28, -0.75, 0.0, 2.4/sqrt(2.), true);
+      // centered around -0.48 with a width of 2.48/sqrt(2)
+      result = Stats::gaussian_loglikelihood(p_ann28, -0.48, 0.0, 2.48/sqrt(2.), true);
     }
 
     /// The energy injection spectrum from the AnnihilatingDM model hierarchy.
