@@ -148,6 +148,11 @@ namespace GUM
         std::string error, message;
         send_to_math("ToString[messages[[" + std::to_string(i) + "]]]");
         get_from_math(error);
+
+        // If the error is a Mathematica error rather than a SARAH error (e.g. Part::partw) skip
+        if(error == "Part::partw" or error == "Part::pkspec1") continue;
+
+        // Else, carry on analysing the error
         send_to_math("ToString[ReleaseHold[messages[[" + std::to_string(i) + "]]]]");
         get_from_math(message);
 
@@ -1527,6 +1532,7 @@ namespace GUM
       std::map<std::string, std::map<std::string, std::string> > BEoptions = opts.options();
 
       // Check the model using SARAH's CheckModel function
+      // Note: this is necessary, as it initilizes some variables used later, do not remove
       model.check_model(opts.model(), backends);
 
       // Get all of the particles

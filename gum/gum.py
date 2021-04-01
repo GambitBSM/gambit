@@ -342,16 +342,12 @@ if args.file:
         missing_parts = check_all_particles_present(partlist, gambit_pdgs)
 
         if len(missing_parts) != 0:
-            if args.dryrun:
-                print("GUM won't add to the particle database for a dryrun.")
-                print("GUM will fail shortly. That's a promise.")
-            else:
-                # Add new particles to the database, refresh the dicts
-                gambit_pdgs, decaybit_dict = \
-                    add_new_particleDB_entry(missing_parts, gum.dm_pdg,
-                                             gambit_pdgs, decaybit_dict,
-                                             reset_contents, gum.name,
-                                             gum.dm_decays)
+           # Add new particles to the database, refresh the dicts
+           gambit_pdgs, decaybit_dict, particleDB = \
+               add_new_particleDB_entry(missing_parts, gum.dm_pdg,
+                                        gambit_pdgs, decaybit_dict,
+                                        reset_contents, gum.name,
+                                        gum.dm_decays)
 
         # Grab the antiparticles
         antiparticle_dict = get_antiparticles(partlist)
@@ -712,6 +708,10 @@ if args.file:
 
         print("")
         print("Now putting the new code into GAMBIT.")
+
+        # ParticleDB
+        if len(missing_parts) :
+            write_particleDB(particleDB)
 
         # Models
         m = "Models"

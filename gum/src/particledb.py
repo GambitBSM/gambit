@@ -204,7 +204,7 @@ def add_new_particleDB_entry(particles, dm_pdg, gambit_pdg_codes,
     """
     Adds a list of particles to the particle database.
     """
-    stream = (
+    particleDB = (
            "# YAML file containing all particles for the particle database.\n\n"
            "# particle_database.cpp is constructed from this YAML file at compile time, via particle_harvester.py.\n\n"
            "# New entries should look like:\n"
@@ -332,12 +332,18 @@ def add_new_particleDB_entry(particles, dm_pdg, gambit_pdg_codes,
             data['OtherModels']['Particles'].append(entry)
 
     # Overwrite the particle database file
-    stream += yaml.dump(data).replace('\n  - ', '\n\n  - ')
+    particleDB += yaml.dump(data).replace('\n  - ', '\n\n  - ')
+
+    return gambit_pdg_codes, decaybit_dict, particleDB
+
+def write_particleDB(particleDB):
+    """
+    Write the new particle DB to file, overwriting the existing one
+    """
 
     with open("./../config/particle_database.yaml", "w") as f:
-        f.write(stream)
+        f.write(particleDB)
 
-    return gambit_pdg_codes, decaybit_dict
 
 def get_antiparticles(partlist):
     """

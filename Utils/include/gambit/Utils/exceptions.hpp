@@ -248,8 +248,11 @@ namespace Gambit
       /// Retrieve pointer to the functor that threw the invalid point exception.
       functor* thrower();
 
-      /// Raise the exception, i.e. throw it. The default code is 1.
-      virtual void raise(const std::string&, int code = 1);
+      /// Raise the exception, i.e. throw it. Exact override of base method.
+      virtual void raise(const std::string&);
+
+      /// Raise the exception, i.e. throw it with a message and code.
+      virtual void raise(const std::string&, int code);
 
   };
 
