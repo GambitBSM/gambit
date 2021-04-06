@@ -2138,9 +2138,9 @@
 - name: RK
   islimit: false
   exp_value: 0.846
-  exp_stat_error: 0.060
-  exp_sys_error: 0.016
-  exp_source: 1903.09252
+  exp_stat_error: 0.042
+  exp_sys_error: 0.013
+  exp_source: 2103.11769
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633

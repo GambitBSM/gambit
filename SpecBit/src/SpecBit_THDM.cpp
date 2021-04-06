@@ -3128,6 +3128,92 @@ namespace Gambit
       result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
+    //LO stability function without 2HDMC from 1106.0034
+    void stability_lambdas_LL(double &result)
+    {
+        using namespace Pipes::stability_lambdas_LL;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double sigma = 0.01;
+        double error = 0.;
+        std::vector<double> lambda;
+        lambda.push_back(he->get(Par::dimensionless, "lambda1"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda2"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda3"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda4"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda5"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda6"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda7"));
+        if (lambda[1] < 0.0)
+          error += abs(lambda[1]);
+        if (lambda[2] < 0.0)
+          error += abs(lambda[2]);
+
+        if (std::isnan(sqrt(lambda[1] * lambda[2])))
+        {
+          result = -L_MAX;
+        }
+        else
+        {
+          if (lambda[3] < -sqrt(lambda[1] * lambda[2]))
+            error += abs(lambda[3] - (-sqrt(lambda[1] * lambda[2])));
+          if (lambda[6] == 0.0 || lambda[7] == 0.0)
+          {
+            if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt(lambda[1] * lambda[2]))
+              error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt(lambda[1] * lambda[2])));
+          }
+          else
+          {
+            if (lambda[3] + lambda[4] - lambda[5] < -sqrt(lambda[1] * lambda[2]))
+              error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt(lambda[1] * lambda[2])));
+          }
+        }
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+    
+    //LO unitarity function without 2HDMC
+    void unitarity_lambdas_LL(double &result)
+    {   
+        using namespace Pipes::unitarity_lambdas_LL;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double unitarity_limit = 8 * M_PI;
+        const double sigma = 0.1;
+        double error = 0.;
+        std::vector<double> lambda;
+        lambda.push_back(he->get(Par::dimensionless, "lambda1"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda2"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda3"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda4"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda5"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda6"));
+        lambda.push_back(he->get(Par::dimensionless, "lambda7"));
+
+        //Define eigenvalues from 1106.0034
+        std::vector<double> eigenval(12);
+        eigenval[1] = 1.5*(lambda[1]+lambda[2])+sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2));
+        eigenval[2] = 1.5*(lambda[1]+lambda[2])-sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2));
+        eigenval[3] = 0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2));
+        eigenval[4] = 0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2));
+        eigenval[5] = 0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2));
+        eigenval[6] = 0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2));
+        eigenval[7] = lambda[3]+2*lambda[4]+3*lambda[5];
+        eigenval[8] = lambda[3]+2*lambda[4]-3*lambda[5];
+        eigenval[9] = lambda[3]+lambda[5];
+        eigenval[10] = lambda[3]-lambda[5];
+        eigenval[11] = lambda[3]+lambda[4];
+        eigenval[12] = lambda[3]-lambda[4];
+        
+        // loop over all eigenvalues
+        for (auto & each_eigen : eigenval)
+        {
+        if (abs(each_eigen) > unitarity_limit)
+          error += abs(each_eigen - unitarity_limit);
+      }
+ 
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+
 
     void get_stability_likelihood_THDM(double &result)
     {
