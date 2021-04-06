@@ -125,6 +125,7 @@
   START_CAPABILITY
     #define FUNCTION simple_perturbativity_yukawas_LL
     START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION

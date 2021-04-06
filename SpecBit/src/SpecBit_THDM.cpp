@@ -25,6 +25,9 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Apr
 ///
+///  \author Cristian Sierra
+///          (cristian.sierra@monash.edu)
+///  \date 2021 Apr
 ///  *********************************************
 
 // TODO: Too many headers, all used?
@@ -3101,30 +3104,39 @@ namespace Gambit
     void simple_perturbativity_yukawas_LL(double &result)
     { 
       using namespace Pipes::simple_perturbativity_yukawas_LL;
+      SMInputs sminputs = *Dep::SMINPUTS;
       const Spectrum spec = *Dep::THDM_spectrum;
       std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
       const double sigma = 0.1;
-      //-----------------------------
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double mT = Dep::SMINPUTS->mT;
+      double tanb = he->get(Par::dimensionless,"tanb");
       double error = 0.0;
       std::vector<double> Yukawas;
       for (int i = 1; i <= 3; i++)
        {
          for (int j = 1; j <= 3; j++)
          {
-          Yukawas.push_back(he->get(Par::dimensionless, "Yu2", i, j));
           Yukawas.push_back(he->get(Par::dimensionless, "Yd2", i, j));
           Yukawas.push_back(he->get(Par::dimensionless, "Ye2", i, j));
          }
        }
+      //The Yu2 matrix is called outside in order to get the Yu2tt element
+      //which has a softer perturbativity bound
+      //For the moment there is no Yukawas for 1-3 family interactions
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 2));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 3));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 2));
+      double Yu2tt = he->get(Par::dimensionless, "Yu2", 3, 3);
       // loop over all yukawas
       for (auto & each_yukawa : Yukawas)
       {
        // cout<<"Yukawas= "<<each_yukawa<<endl;
-        if (abs(each_yukawa) > perturbativity_upper_limit)
-          error += abs(each_yukawa) - perturbativity_upper_limit;
+        if (abs(each_yukawa) > sqrt(4*M_PI)/(sqrt(1+tanb*tanb)))
+          error += abs(each_yukawa) - (sqrt(4*M_PI)/(sqrt(1+tanb*tanb)));
       }
+      //Apply softer bound for Yu2tt
+      error += abs(Yu2tt) - ((sqrt(4*M_PI)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
       result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3134,7 +3146,7 @@ namespace Gambit
         using namespace Pipes::stability_lambdas_LL;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-        const double sigma = 0.01;
+        const double sigma = 0.1;
         double error = 0.;
         std::vector<double> lambda;
         lambda.push_back(he->get(Par::dimensionless, "lambda1"));
