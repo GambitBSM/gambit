@@ -160,7 +160,7 @@ BE_NAMESPACE
                 container.THDM_object->print_param_higgs();
                 container.THDM_object->get_alpha();
                 // set up decay table
-                THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+                THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
                 // widths
                 decay_table_2hdmc.print_width(1);
                 decay_table_2hdmc.print_width(2);
