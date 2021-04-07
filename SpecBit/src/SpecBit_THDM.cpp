@@ -3180,7 +3180,7 @@ namespace Gambit
               error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt(lambda[1] * lambda[2])));
           }
         }
-      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      result = Stats::gaussian_lower_limit(error, 0.0, 0.0, sigma, false);
     }
     
     //LO unitarity function without 2HDMC
