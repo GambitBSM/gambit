@@ -427,6 +427,7 @@ namespace Gambit
         // fill spectrum container
         thdm_model.tanb = tanb;
         thdm_model.alpha = alpha;
+        thdm_model.beta = basis["beta"];
 
         thdm_model.lambda1 = basis["lambda1"];
         thdm_model.lambda2 = basis["lambda2"];
