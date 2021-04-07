@@ -3113,6 +3113,7 @@ namespace Gambit
       double tanb = he->get(Par::dimensionless,"tanb");
       double error = 0.0;
       std::vector<double> Yukawas;
+
       for (int i = 1; i <= 3; i++)
        {
          for (int j = 1; j <= 3; j++)
@@ -3124,14 +3125,18 @@ namespace Gambit
       //The Yu2 matrix is called outside in order to get the Yu2tt element
       //which has a softer perturbativity bound
       //For the moment there is no Yukawas for 1-3 family interactions
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 1));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 2));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 3));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 1));
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 2));
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 3));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 1));
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 2));
       double Yu2tt = he->get(Par::dimensionless, "Yu2", 3, 3);
       // loop over all yukawas
       for (auto & each_yukawa : Yukawas)
       {
-       // cout<<"Yukawas= "<<each_yukawa<<endl;
         if (abs(each_yukawa) > sqrt(4*M_PI)/(sqrt(1+tanb*tanb)))
           error += abs(each_yukawa) - (sqrt(4*M_PI)/(sqrt(1+tanb*tanb)));
       }
@@ -3148,14 +3153,16 @@ namespace Gambit
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         const double sigma = 0.1;
         double error = 0.;
-        std::vector<double> lambda;
-        lambda.push_back(he->get(Par::dimensionless, "lambda1"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda2"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda3"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda4"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda5"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda6"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda7"));
+        std::vector<double> lambda(8);
+
+        lambda[1] = he->get(Par::dimensionless, "lambda1");
+        lambda[2] = he->get(Par::dimensionless, "lambda2");
+        lambda[3] = he->get(Par::dimensionless, "lambda3");
+        lambda[4] = he->get(Par::dimensionless, "lambda4");
+        lambda[5] = he->get(Par::dimensionless, "lambda5");
+        lambda[6] = he->get(Par::dimensionless, "lambda6");
+        lambda[7] = he->get(Par::dimensionless, "lambda7");
+
         if (lambda[1] < 0.0)
           error += abs(lambda[1]);
         if (lambda[2] < 0.0)
@@ -3180,7 +3187,7 @@ namespace Gambit
               error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt(lambda[1] * lambda[2])));
           }
         }
-      result = Stats::gaussian_lower_limit(error, 0.0, 0.0, sigma, false);
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
     
     //LO unitarity function without 2HDMC
@@ -3192,29 +3199,30 @@ namespace Gambit
         const double unitarity_limit = 8 * M_PI;
         const double sigma = 0.1;
         double error = 0.;
-        std::vector<double> lambda;
-        lambda.push_back(he->get(Par::dimensionless, "lambda1"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda2"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda3"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda4"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda5"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda6"));
-        lambda.push_back(he->get(Par::dimensionless, "lambda7"));
+        std::vector<double> lambda(8);
+
+        lambda[1] = he->get(Par::dimensionless, "lambda1");
+        lambda[2] = he->get(Par::dimensionless, "lambda2");
+        lambda[3] = he->get(Par::dimensionless, "lambda3");
+        lambda[4] = he->get(Par::dimensionless, "lambda4");
+        lambda[5] = he->get(Par::dimensionless, "lambda5");
+        lambda[6] = he->get(Par::dimensionless, "lambda6");
+        lambda[7] = he->get(Par::dimensionless, "lambda7");
 
         //Define eigenvalues from 1106.0034
-        std::vector<double> eigenval(12);
-        eigenval[1] = 1.5*(lambda[1]+lambda[2])+sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2));
-        eigenval[2] = 1.5*(lambda[1]+lambda[2])-sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2));
-        eigenval[3] = 0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2));
-        eigenval[4] = 0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2));
-        eigenval[5] = 0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2));
-        eigenval[6] = 0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2));
-        eigenval[7] = lambda[3]+2*lambda[4]+3*lambda[5];
-        eigenval[8] = lambda[3]+2*lambda[4]-3*lambda[5];
-        eigenval[9] = lambda[3]+lambda[5];
-        eigenval[10] = lambda[3]-lambda[5];
-        eigenval[11] = lambda[3]+lambda[4];
-        eigenval[12] = lambda[3]-lambda[4];
+        std::vector<double> eigenval;
+        eigenval.push_back(1.5*(lambda[1]+lambda[2])+sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
+        eigenval.push_back(1.5*(lambda[1]+lambda[2])-sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2)));
+        eigenval.push_back(lambda[3]+2*lambda[4]+3*lambda[5]);
+        eigenval.push_back(lambda[3]+2*lambda[4]-3*lambda[5]);
+        eigenval.push_back(lambda[3]+lambda[5]);
+        eigenval.push_back(lambda[3]-lambda[5]);
+        eigenval.push_back(lambda[3]+lambda[4]);
+        eigenval.push_back(lambda[3]-lambda[4]);
         
         // loop over all eigenvalues
         for (auto & each_eigen : eigenval)
@@ -3222,7 +3230,6 @@ namespace Gambit
         if (abs(each_eigen) > unitarity_limit)
           error += abs(each_eigen - unitarity_limit);
       }
- 
       result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
