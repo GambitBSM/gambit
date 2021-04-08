@@ -22,8 +22,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             static Abstract_THDM* (*__factory0)();
     
             // -- Other member variables: 
-        public:
-            const double& EPS;
     
             // Member functions: 
         public:

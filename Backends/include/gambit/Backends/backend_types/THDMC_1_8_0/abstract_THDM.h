@@ -165,8 +165,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual double get_alpha() =0;
     
-            virtual const double& EPS_ref__BOSS() =0;
-    
         public:
             virtual void pointer_assign__BOSS(Abstract_THDM*) =0;
             virtual Abstract_THDM* pointer_copy__BOSS() =0;

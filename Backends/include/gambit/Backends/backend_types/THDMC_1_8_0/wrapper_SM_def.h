@@ -248,40 +248,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Wrappers for original constructors: 
     inline SM::SM() :
-        WrapperBase(__factory0()),
-        alpha( get_BEptr()->alpha_ref__BOSS()),
-        alpha0( get_BEptr()->alpha0_ref__BOSS()),
-        GF( get_BEptr()->GF_ref__BOSS()),
-        MZ( get_BEptr()->MZ_ref__BOSS()),
-        MW( get_BEptr()->MW_ref__BOSS()),
-        alpha_s( get_BEptr()->alpha_s_ref__BOSS()),
-        GammaZ( get_BEptr()->GammaZ_ref__BOSS()),
-        GammaW( get_BEptr()->GammaW_ref__BOSS()),
-        md_p( get_BEptr()->md_p_ref__BOSS()),
-        mu_p( get_BEptr()->mu_p_ref__BOSS()),
-        ms_p( get_BEptr()->ms_p_ref__BOSS()),
-        Q_ms( get_BEptr()->Q_ms_ref__BOSS()),
-        mc_p( get_BEptr()->mc_p_ref__BOSS()),
-        mb_p( get_BEptr()->mb_p_ref__BOSS()),
-        mt_p( get_BEptr()->mt_p_ref__BOSS()),
-        me_p( get_BEptr()->me_p_ref__BOSS()),
-        mmu_p( get_BEptr()->mmu_p_ref__BOSS()),
-        mtau_p( get_BEptr()->mtau_p_ref__BOSS()),
-        Vud( get_BEptr()->Vud_ref__BOSS()),
-        Vus( get_BEptr()->Vus_ref__BOSS()),
-        Vub( get_BEptr()->Vub_ref__BOSS()),
-        Vcd( get_BEptr()->Vcd_ref__BOSS()),
-        Vcs( get_BEptr()->Vcs_ref__BOSS()),
-        Vcb( get_BEptr()->Vcb_ref__BOSS()),
-        Vtd( get_BEptr()->Vtd_ref__BOSS()),
-        Vts( get_BEptr()->Vts_ref__BOSS()),
-        Vtb( get_BEptr()->Vtb_ref__BOSS()),
-        Q_HD( get_BEptr()->Q_HD_ref__BOSS()),
-        b_HD( get_BEptr()->b_HD_ref__BOSS()),
-        ms_5( get_BEptr()->ms_5_ref__BOSS()),
-        mc_5( get_BEptr()->mc_5_ref__BOSS()),
-        mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS())
+        WrapperBase(__factory0())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -289,40 +256,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Special pointer-based constructor: 
     inline SM::SM(Abstract_SM* in) :
-        WrapperBase(in),
-        alpha( get_BEptr()->alpha_ref__BOSS()),
-        alpha0( get_BEptr()->alpha0_ref__BOSS()),
-        GF( get_BEptr()->GF_ref__BOSS()),
-        MZ( get_BEptr()->MZ_ref__BOSS()),
-        MW( get_BEptr()->MW_ref__BOSS()),
-        alpha_s( get_BEptr()->alpha_s_ref__BOSS()),
-        GammaZ( get_BEptr()->GammaZ_ref__BOSS()),
-        GammaW( get_BEptr()->GammaW_ref__BOSS()),
-        md_p( get_BEptr()->md_p_ref__BOSS()),
-        mu_p( get_BEptr()->mu_p_ref__BOSS()),
-        ms_p( get_BEptr()->ms_p_ref__BOSS()),
-        Q_ms( get_BEptr()->Q_ms_ref__BOSS()),
-        mc_p( get_BEptr()->mc_p_ref__BOSS()),
-        mb_p( get_BEptr()->mb_p_ref__BOSS()),
-        mt_p( get_BEptr()->mt_p_ref__BOSS()),
-        me_p( get_BEptr()->me_p_ref__BOSS()),
-        mmu_p( get_BEptr()->mmu_p_ref__BOSS()),
-        mtau_p( get_BEptr()->mtau_p_ref__BOSS()),
-        Vud( get_BEptr()->Vud_ref__BOSS()),
-        Vus( get_BEptr()->Vus_ref__BOSS()),
-        Vub( get_BEptr()->Vub_ref__BOSS()),
-        Vcd( get_BEptr()->Vcd_ref__BOSS()),
-        Vcs( get_BEptr()->Vcs_ref__BOSS()),
-        Vcb( get_BEptr()->Vcb_ref__BOSS()),
-        Vtd( get_BEptr()->Vtd_ref__BOSS()),
-        Vts( get_BEptr()->Vts_ref__BOSS()),
-        Vtb( get_BEptr()->Vtb_ref__BOSS()),
-        Q_HD( get_BEptr()->Q_HD_ref__BOSS()),
-        b_HD( get_BEptr()->b_HD_ref__BOSS()),
-        ms_5( get_BEptr()->ms_5_ref__BOSS()),
-        mc_5( get_BEptr()->mc_5_ref__BOSS()),
-        mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS())
+        WrapperBase(in)
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -330,40 +264,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Copy constructor: 
     inline SM::SM(const SM& in) :
-        WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
-        alpha( get_BEptr()->alpha_ref__BOSS()),
-        alpha0( get_BEptr()->alpha0_ref__BOSS()),
-        GF( get_BEptr()->GF_ref__BOSS()),
-        MZ( get_BEptr()->MZ_ref__BOSS()),
-        MW( get_BEptr()->MW_ref__BOSS()),
-        alpha_s( get_BEptr()->alpha_s_ref__BOSS()),
-        GammaZ( get_BEptr()->GammaZ_ref__BOSS()),
-        GammaW( get_BEptr()->GammaW_ref__BOSS()),
-        md_p( get_BEptr()->md_p_ref__BOSS()),
-        mu_p( get_BEptr()->mu_p_ref__BOSS()),
-        ms_p( get_BEptr()->ms_p_ref__BOSS()),
-        Q_ms( get_BEptr()->Q_ms_ref__BOSS()),
-        mc_p( get_BEptr()->mc_p_ref__BOSS()),
-        mb_p( get_BEptr()->mb_p_ref__BOSS()),
-        mt_p( get_BEptr()->mt_p_ref__BOSS()),
-        me_p( get_BEptr()->me_p_ref__BOSS()),
-        mmu_p( get_BEptr()->mmu_p_ref__BOSS()),
-        mtau_p( get_BEptr()->mtau_p_ref__BOSS()),
-        Vud( get_BEptr()->Vud_ref__BOSS()),
-        Vus( get_BEptr()->Vus_ref__BOSS()),
-        Vub( get_BEptr()->Vub_ref__BOSS()),
-        Vcd( get_BEptr()->Vcd_ref__BOSS()),
-        Vcs( get_BEptr()->Vcs_ref__BOSS()),
-        Vcb( get_BEptr()->Vcb_ref__BOSS()),
-        Vtd( get_BEptr()->Vtd_ref__BOSS()),
-        Vts( get_BEptr()->Vts_ref__BOSS()),
-        Vtb( get_BEptr()->Vtb_ref__BOSS()),
-        Q_HD( get_BEptr()->Q_HD_ref__BOSS()),
-        b_HD( get_BEptr()->b_HD_ref__BOSS()),
-        ms_5( get_BEptr()->ms_5_ref__BOSS()),
-        mc_5( get_BEptr()->mc_5_ref__BOSS()),
-        mb_5( get_BEptr()->mb_5_ref__BOSS()),
-        mt_5( get_BEptr()->mt_5_ref__BOSS())
+        WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
