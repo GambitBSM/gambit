@@ -580,8 +580,8 @@ namespace Gambit
         thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
         thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
 
-        // Create a SubSpectrum object to wrap the EW sector information
-        THDMSimpleSpec thdm_spec(thdm_model);
+        // Create a SimpleSpec object to wrap the spectrum
+        THDMSimpleSpec thdm_spec(thdm_model,sminputs);
 
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum

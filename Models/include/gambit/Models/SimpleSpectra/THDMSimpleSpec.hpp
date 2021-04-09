@@ -166,7 +166,7 @@ namespace Gambit
           THDMSimpleSpec();
           THDMSimpleSpec(const SLHAea::Coll&);
           THDMSimpleSpec(const THDMSimpleSpec&);
-          THDMSimpleSpec(const Models::THDMModel&); 
+          THDMSimpleSpec(const Models::THDMModel&, const SMInputs&);
 
           virtual ~THDMSimpleSpec() {};
 

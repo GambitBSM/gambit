@@ -131,7 +131,8 @@ BE_NAMESPACE
       SM_object->set_qmass_msbar(4,container.sminputs.mCmC);
 
       // up and down ma (ms_bar) masses are calculated from the Yukawa's in the high energy spectrum
-      double tanb = container.he->get(Par::dimensionless, "tanb");
+      // TODO: All unnecessary, remove it
+      /*double tanb = container.he->get(Par::dimensionless, "tanb");
       const double sqrt2v = pow(2.0,0.5)/vev, b = atan(tanb);
       const double cb = cos(b), sb = sin(b);
       double beta_scaling_u = sb, beta_scaling_d = sb;
@@ -147,13 +148,16 @@ BE_NAMESPACE
         case 4:
           beta_scaling_d = cb;
           break;
-      }
-      const double Yd1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
+      }*/
+      // TODO: This is redundant and does not work
+      /*const double Yd1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
       const double Yu1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
       const double mu1 = Yu1 * beta_scaling_u/sqrt2v;
       const double md1 = Yd1 * beta_scaling_d/sqrt2v;
       SM_object->set_qmass_msbar(1,md1);
-      SM_object->set_qmass_msbar(2,mu1);
+      SM_object->set_qmass_msbar(2,mu1);*/
+      SM_object->set_qmass_msbar(1,container.he->get(Par::mass1, "d_1"));
+      SM_object->set_qmass_msbar(2,container.he->get(Par::mass1, "u_1"));
     }
 
     // Set up an SM like model if the SM_like parameter is set to a neutral Higgs number

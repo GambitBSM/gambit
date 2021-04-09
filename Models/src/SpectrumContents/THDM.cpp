@@ -56,8 +56,6 @@ namespace Gambit
     addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
     addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
-// TODO: Not sure this is necessary
-/*
     addParameter(Par::Pole_Mass, "Z0", scalar, "SMINPUTS", 4);
     addParameter(Par::Pole_Mass, "W+", scalar, "MASS", 24);
 
@@ -74,7 +72,7 @@ namespace Gambit
     addParameter(Par::mass1, "d_1", scalar, "SMINPUTS",21);
     addParameter(Par::mass1, "u_1", scalar, "SMINPUTS",22);
     addParameter(Par::mass1, "d_2", scalar, "SMINPUTS",23);
-*/
+
     // Yukawas
     addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
     addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
