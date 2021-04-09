@@ -40,6 +40,8 @@
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
 ///  \date 2020 Nov
+///  \date 2021 Feb 
+///  \date 2021 Apr
 ///
 ///  *********************************************
 
@@ -922,9 +924,9 @@ namespace Gambit
       double amu_bsm_error = 0.5*std::max(Dep::muon_gm2->upper, Dep::muon_gm2->lower);
       double amu_theory = amu_sm + amu_bsm;
       double amu_theory_err = sqrt(Gambit::Utils::sqr(amu_sm_error) + Gambit::Utils::sqr(amu_bsm_error));
-      // From hep-ex/0602035, as updated in PDG 2016 (C. Patrignani et al, Chin. Phys. C, 40, 100001 (2016). ). Error combines statistical (5.4) and systematic (3.3) uncertainties in quadrature.
-      double amu_exp = 11659209.1e-10;
-      double amu_exp_error = 6.3e-10;
+      // From hep-ex/2104.03281 (Fermilab muon g-2 contribution)
+      double amu_exp = 116592061e-11;
+      double amu_exp_error = 41e-11;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(amu_theory, amu_exp, amu_theory_err, amu_exp_error, profile);
