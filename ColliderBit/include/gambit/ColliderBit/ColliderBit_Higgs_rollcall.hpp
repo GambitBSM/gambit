@@ -223,7 +223,7 @@
    // BACKEND_OPTION( (HiggsSignals, 2.2.3beta), (libhiggssignals) )
     #undef FUNCTION
 
-    #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas
+    #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas 
     START_FUNCTION(double)
     ALLOW_MODELS(CPVYukawas)
     DEPENDENCY(SMINPUTS, SMInputs)

@@ -17,6 +17,8 @@
 ///  \date 2020 Dec
 ///
 ///  *********************************************
+#include <iostream>
+#include <fstream>
 #include <cmath>
 #include <typeinfo>
 #include <Eigen/Dense>
@@ -45,6 +47,7 @@ namespace Gambit
 	static double Cw[9];
 	static double* qmasses;
 	static double gsat2GeV;
+	static long int cnt;
 
 	void Ce3list(double muH, double Lambda){
 		static bool first = true;
@@ -275,6 +278,9 @@ namespace Gambit
 	void initialise(double muH, double Lambda){
 		static bool first = true;
 		if(first){
+		  std::fstream wcinit("/home/dskodras/gambitgit/LowEBit/src/WCinits1.dat", std::ios::app);
+		  if (wcinit.is_open()){std::cout << "opened" << std::endl;}
+		  else {std::cout << "failed" << std::endl;return;}
 		  Cu3list(muH,Lambda);
 		  Cd3list(muH,Lambda);
 		  Cs3list(muH,Lambda);
@@ -284,11 +290,12 @@ namespace Gambit
 		  Cs4list(muH,Lambda);
 		  Cwlist(muH,Lambda);
 		  first = false;	
+		  cnt = 1;
 	  	  LoopFunctions c;
-		  qmasses = c.get_massesMh();
+		  qmasses = c.get_masses2GeV();
 		  AlphaS as;
 		  gsat2GeV = sqrt(4*pi*as.run(2,4,1));
-		  cout << "masses at Mh:" << endl;
+		  cout << "masses at 2GeV:" << endl;
 		  cout  << qmasses[0] << endl;
 		  cout  << qmasses[1] << endl;
 		  cout  << qmasses[2] << endl;
@@ -296,7 +303,95 @@ namespace Gambit
 		  cout  << qmasses[4] << endl;
 		  cout  << qmasses[5] << endl;
 		  cout << "gsat2GeV: " << gsat2GeV << endl;
+		  if (wcinit.is_open()){
+			wcinit << "quark masses at 2GeV. 1loop alpha_s running";
+			for(int i=0;i<6;i++){wcinit << i << ": " << qmasses[i] << "; ";}
+			wcinit << "\nValues for respective WCs at 2GeV. Each value stands for an isolated contribution by a specific fermion (0=e,1=mu,2=tau,3=u,4=d,5=s,6=c,7=b,8=t) where the others are\n \
+shut down. The running of the WCs is done in 4- and 5-flavour theory, where the bottom quark gets integrated out at mb(mb).\n";
+			wcinit << "Cu3:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cu3[i] << "; ";
+			}
+			wcinit << "\nCd3:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cd3[i] << "; ";
+			}
+			wcinit << "\nCs3:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cs3[i] << "; ";
+			}
+			wcinit << "\nCe3:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Ce3[i] << "; ";
+			}
+			wcinit << "\nCu4:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cu4[i] << "; ";
+			}
+			wcinit << "\nCd4:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cd4[i] << "; ";
+			}
+			wcinit << "\nCs4:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cs4[i] << "; ";
+			}
+			wcinit << "\nCw:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i << ": " << Cw[i] << "; ";
+			}
+			wcinit << "\n\n";
+
+	
+			double e = 0.30282212;
+         		wcinit << "partonic (C)EDMs with unity Wilson coefficient at scale Lambda:\n";
+			wcinit << "du: \n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << std::sqrt(2.)*GF*e/std::pow(gsat2GeV,2)*2./3.*qmasses[0]*Cu3[i]*gev2cm<< "; ";
+			}
+			wcinit << "\nGF: " << GF<< "; ";
+			wcinit << "gs^2: " << gsat2GeV*gsat2GeV<< "; ";
+			wcinit << "mu: " << qmasses[0]<< "; ";
+			wcinit << "conv: " << gev2cm<< "; ";
+			wcinit << "Cu3: " << Cu3[3]<< "; \n";
+	
+			wcinit << "\ndd:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << std::sqrt(2.)*GF*e/std::pow(gsat2GeV,2)*(-1.)/3.*qmasses[1]*Cd3[i]*gev2cm<< "; ";
+			}
+			wcinit << "\nds:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << std::sqrt(2.)*GF*e/std::pow(gsat2GeV,2)*(-1.)/3.*qmasses[2]*Cs3[i]*gev2cm<< "; ";
+			}
+			wcinit << "\nde:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << std::sqrt(2.)*GF*(-1)*me*Ce3[i]*gev2cm<< "; ";
+			}
+			wcinit << "\ncdu:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << -sqrt(2.)*GF/std::pow(gsat2GeV,2)*qmasses[0]*Cu4[i]*gev2cm<< "; ";
+			}
+			wcinit << "\ncdd:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << -sqrt(2.)*GF/std::pow(gsat2GeV,2)*qmasses[1]*Cd4[i]*gev2cm<< "; ";
+			}
+			wcinit << "\ncds:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << -sqrt(2.)*GF/std::pow(gsat2GeV,2)*qmasses[2]*Cs4[i]*gev2cm<< "; ";
+			}
+			wcinit << "\ncw:\n";
+			for(int i = 0; i<9;i++){
+				wcinit << i<< ": " << sqrt(2.)*GF/std::pow(gsat2GeV,2)*Cw[i]*gev2cm<< "; ";
+			}
+			wcinit << "\n\n";
+	
+	
+		  }
+		  else std::cout << "unable to open file" << std::endl;
+		  wcinit.close();
+	
 		}
+		cnt++;
 	return;
 	}
 	
@@ -351,7 +446,7 @@ namespace Gambit
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
 		  		  };
-		  for(int i = 0; i<9; i++){cout << "CqH[" << i << "] = " << CqH[i] << endl; }
+//		  for(int i = 0; i<9; i++){cout << "CqH[" << i << "] = " << CqH[i] << endl; }
 
 		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;Cw[i]=0;}
 		  for(int i = 0; i<9; i++){
@@ -363,12 +458,12 @@ namespace Gambit
 		          result.Cs[2] = result.Cs[2] + Cs4[i]*CqH[i];
 			  result.Cw[1] = result.Cw[1] + Cw[i]*CqH[i];
 			  }
-		  for(int i = 1; i<3; i++) {
+/*		  for(int i = 1; i<3; i++) {
 			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
 			  cout << "Cd"<<i<< " " << result.Cd[i] << " ";
 			  cout << "Cs"<<i<< " " << result.Cs[i] << " " << endl;
 			  cout << "Cw"<<i<< " " << result.Cw[i] << " " << endl;
-		  }
+		  }*/
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
       }
@@ -428,12 +523,12 @@ namespace Gambit
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
 		  for(int i = 0; i<9; i++){
 		          result.Ce[1] = result.Ce[1] + Ce3[i]*CeH[i];
-			  cout << "Ce "<<i<< " " << result.Ce[i];
+/*			  cout << "Ce "<<i<< " " << result.Ce[i];
 			  cout << " C3e "<<i<< " " << Ce3[i];
 			  cout << " CeH "<<i<< " " << CeH[i];
-			  cout << endl;
+			  cout << endl;*/
 			  }
-		cout << "Ce: "<< " " << result.Ce[1] << endl;;
+//		cout << "Ce: "<< " " << result.Ce[1] << endl;;
 //
 //		  for(int i = 1; i<3; i++) {result.Cu[i]=result.Cu[i]/mH/mH;result.Cd[i]=result.Cd[i]/mH/mH;result.Cs[i]=result.Cs[i]/mH/mH;}
       }
@@ -445,16 +540,17 @@ namespace Gambit
       {
          using namespace Pipes::EDM_q_Wilson;
 
+    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
     	 double gf = Dep::SMINPUTS->GF;
     	 double mu = Dep::SMINPUTS->mU;
     	 double md = Dep::SMINPUTS->mD;
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = sqrt(2.)*gf/pow(gsat2GeV,2)*2./3.*mu*c.Cu[1]*gev2cm;
-         result.d = sqrt(2.)*gf/pow(gsat2GeV,2)*(-1./3.)*md*c.Cd[1]*gev2cm;
-         result.s = sqrt(2.)*gf/pow(gsat2GeV,2)*(-1./3.)*ms*c.Cs[1]*gev2cm;
-	 cout << "du: " << result.u << " dd: " << result.d << " ds: " << result.s << endl;
+         result.u = sqrt(2.)*gf*e/pow(gsat2GeV,2)*2./3.*mu*c.Cu[1]*gev2cm;
+         result.d = sqrt(2.)*gf*e/pow(gsat2GeV,2)*(-1./3.)*md*c.Cd[1]*gev2cm;
+         result.s = sqrt(2.)*gf*e/pow(gsat2GeV,2)*(-1./3.)*ms*c.Cs[1]*gev2cm;
+//	 cout << "du: " << result.u << " dd: " << result.d << " ds: " << result.s << endl;
          //Heavy quarks for completeness??
       }
 
@@ -489,11 +585,11 @@ namespace Gambit
     	 double ms = Dep::SMINPUTS->mS;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
-         result.u = -sqrt(2.)*gf/gsat2GeV*mu*c.Cu[2]*gev2cm;
-         result.d = -sqrt(2.)*gf/gsat2GeV*md*c.Cd[2]*gev2cm;
-         result.s = -sqrt(2.)*gf/gsat2GeV*ms*c.Cs[2]*gev2cm;
-         result.w = sqrt(2.)*gf/gsat2GeV*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
-	 cout << "cdu: " << result.u << " cdd: " << result.d << " cds: " << result.s << " w: " << result.w << endl;
+         result.u = -sqrt(2.)*gf/pow(gsat2GeV,2)*mu*c.Cu[2]*gev2cm;
+         result.d = -sqrt(2.)*gf/pow(gsat2GeV,2)*md*c.Cd[2]*gev2cm;
+         result.s = -sqrt(2.)*gf/pow(gsat2GeV,2)*ms*c.Cs[2]*gev2cm;
+         result.w = sqrt(2.)*gf/pow(gsat2GeV,2)*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
+//	 cout << "cdu: " << result.u << " cdd: " << result.d << " cds: " << result.s << " w: " << result.w << endl;
          //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
       }
 
@@ -527,7 +623,7 @@ namespace Gambit
 		  	mu = 0.;
 			result = 0.;
 			result = -1./2*pow((*Dep::EDM_para - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
-		  	cout << "gaussian result_EDM_ThO: " << result << endl;
+//		  	cout << "gaussian result_EDM_ThO: " << result << endl;
 
 	  }
       void EDM_n_quark(double &result)
@@ -562,7 +658,9 @@ namespace Gambit
 			// likelihood accordingly?
 			//result = 0.;
 			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
-		  	cout << "gaussian result_EDM_n: " << result << endl;
+//		  	cout << "gaussian result_EDM_n: " << result << endl;
+			cnt++;
+			cout << "sample: " << cnt << endl;
 	  }
 
 

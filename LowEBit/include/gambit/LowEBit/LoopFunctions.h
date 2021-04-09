@@ -47,6 +47,9 @@ class LoopFunctions
         double xeh;
         double xez;
         double xhz;
+        double xzh;
+        double xhw;
+        double xwh;
 };
 
 #endif // LOOPFUNCTIONS_H

@@ -972,7 +972,7 @@ namespace Gambit
     }
 
 
-    //loop functions for effective hBB couplings for photon pair, gluon pair and photon-Z-Boson
+    //loop functions for effective hVV couplings for photon pair, gluon pair and photon-Z-Boson
     std::complex<double> Aloop(double tau){
 	return 3.*tau/2. * (1.+(1-tau)*pow(atan(1./sqrt(std::complex<double>(tau-1))),2));
     }	   
@@ -982,8 +982,8 @@ namespace Gambit
     static std::complex<double> weakLoopConstant;
     static std::complex<double> CPevenKapPreGam[9];
     static std::complex<double> CPoddKapPreGam[9];
-    static std::complex<double> CPevenKapPreGlu[6];
-    static std::complex<double> CPoddKapPreGlu[6];
+    static std::complex<double> CPevenKapPreGlu[9];
+    static std::complex<double> CPoddKapPreGlu[9];
     void initialize(){
 	static bool first = true;
 	if(first){
@@ -1008,10 +1008,12 @@ namespace Gambit
 		std::complex<double> dengam = AW;
 		std::complex<double> denglu = 0.0;
 		for(int i = 0; i<9; i++) { 
+			//c_SM - denominators of the respective signal strengths
 			dengam += 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(pow(fmasses[i]/Mh,2)); 
 			denglu += Aloop(pow(fmasses[i]/Mh,2))*fisq[i]; 
 		}
 		for(int i = 0; i<9; i++){
+			//c and c_tilde and c_SM combined
 			CPevenKapPreGam[i] = 1./dengam * 1./6. * pow(fcharges[i],2) * fNcs[i] * Aloop(pow(fmasses[i]/Mh,2));
 			CPoddKapPreGam[i] = 1./dengam * 1./4. * pow(fcharges[i],2) * fNcs[i] * Bloop(pow(fmasses[i]/Mh,2));
 			CPevenKapPreGlu[i] = 1./denglu * fisq[i] * Aloop(pow(fmasses[i]/Mh,2));
@@ -1019,6 +1021,7 @@ namespace Gambit
 			cout << "Aloop " << Aloop(pow(fmasses[i]/Mh,2)) << endl;
 			cout << "Bloop " << Bloop(pow(fmasses[i]/Mh,2)) << endl;
 		}
+		//contribution from W-loops in h->gamgam
 		weakLoopConstant = AW/dengam;
 		first = false;
 	}
@@ -1038,11 +1041,11 @@ namespace Gambit
 //      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       Farray<double, 1,3, 1,3> ghjhiZ;
-      Farray<double, 1,3> BR_HpjhiW;
+//      Farray<double, 1,3> BR_HpjhiW;
       for(int i = 0; i < 3; i++) 
       {
 //        BR_HpjhiW(i+1) = ModelParam_charged.BR_HpjhiW[i];
-        BR_HpjhiW(i+1) = 0.;
+//        BR_HpjhiW(i+1) = 0.;
         for(int j = 0; j < 3; j++) {
           ghjhiZ(i+1,j+1) = 0;//ModelParam.ghjhiZ[i][j];
         }
@@ -1088,6 +1091,16 @@ namespace Gambit
       double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
       double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
  
+      if(sinThU>1) sinThU=1.;
+      if(sinThD>1) sinThD=1.;
+      if(sinThS>1) sinThS=1.;
+      if(sinThC>1) sinThC=1.;
+      if(sinThB>1) sinThB=1.;
+      if(sinThT>1) sinThT=1.;
+      if(sinThE>1) sinThE=1.;
+      if(sinThMu>1) sinThMu=1.;
+      if(sinThTau>1) sinThTau=1.;
+
       double cosThU = sqrt(1. - pow(sinThU,2));
       double cosThD = sqrt(1. - pow(sinThD,2));
       double cosThS = sqrt(1. - pow(sinThS,2));
@@ -1103,25 +1116,27 @@ namespace Gambit
       initialize();
 
       for(int i = 0; i<Hneut; i++){
+	      // gp = - (Cm*cos + Cp*sin)/2/sqrt(2)vev^3/Lambda^2/m
+	      // gs = 1 - (Cm*sin - Cp*cos)/2/sqrt(2)vev^3/Lambda^2/m
 	      ghjuu_p[i] = -((*Param["CuHm"])*cosThU + (*Param["CuHp"])*sinThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjuu_s[i] = 1.+((*Param["CuHm"])*sinThU - (*Param["CuHp"])*cosThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);
+	      ghjuu_s[i] = 1.-((*Param["CuHm"])*sinThU - (*Param["CuHp"])*cosThU)*vev*vev*vev/Lambda/Lambda/mu/2./sqrt(2.);
 	      ghjdd_p[i] = -((*Param["CdHm"])*cosThD + (*Param["CdHp"])*sinThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjdd_s[i] = 1.+((*Param["CdHm"])*sinThD - (*Param["CdHp"])*cosThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
+	      ghjdd_s[i] = 1.-((*Param["CdHm"])*sinThD - (*Param["CdHp"])*cosThD)*vev*vev*vev/Lambda/Lambda/md/2./sqrt(2.);
 	      ghjee_p[i] = -((*Param["CeHm"])*cosThE + (*Param["CeHp"])*sinThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjee_s[i] = 1.+((*Param["CeHm"])*sinThE - (*Param["CeHp"])*cosThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
+	      ghjee_s[i] = 1.-((*Param["CeHm"])*sinThE - (*Param["CeHp"])*cosThE)*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
 	
 	      ghjss_p[i] = -((*Param["CsHm"])*cosThS + (*Param["CsHp"])*sinThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);//*vev*vev/Lambda/Lambda
-	      ghjss_s[i] = 1.+((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
+	      ghjss_s[i] = 1.-((*Param["CsHm"])*sinThS - (*Param["CsHp"])*cosThS)*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
 	      ghjcc_p[i] = -((*Param["CcHm"])*cosThC + (*Param["CcHp"])*sinThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
-	      ghjcc_s[i] = 1.+((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
+	      ghjcc_s[i] = 1.-((*Param["CcHm"])*sinThC - (*Param["CcHp"])*cosThC)*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
 	      ghjbb_p[i] = -((*Param["CbHm"])*cosThB + (*Param["CbHp"])*sinThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
-	      ghjbb_s[i] = 1.+((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+	      ghjbb_s[i] = 1.-((*Param["CbHm"])*sinThB - (*Param["CbHp"])*cosThB)*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
 	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
-	      ghjtt_s[i] = 1.+((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
+	      ghjtt_s[i] = 1.-((*Param["CtHm"])*sinThT - (*Param["CtHp"])*cosThT)*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
 	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
-	      ghjmumu_s[i] = 1.+((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
+	      ghjmumu_s[i] = 1.-((*Param["CmuHm"])*sinThMu - (*Param["CmuHp"])*cosThMu)*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
 	      ghjtautau_p[i] = -((*Param["CtauHm"])*sinThTau + (*Param["CtauHp"])*cosThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
-	      ghjtautau_s[i] = 1.+((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
+	      ghjtautau_s[i] = 1.-((*Param["CtauHm"])*cosThTau - (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/2./sqrt(2.);
 	      double WCeven[9] = {ghjee_s[i], ghjmumu_s[i], ghjtautau_s[i], ghjuu_s[i], ghjdd_s[i], ghjss_s[i], ghjcc_s[i], ghjbb_s[i], ghjtt_s[i]};
 	      double WCodd[9] = {ghjee_p[i], ghjmumu_p[i], ghjtautau_p[i], ghjuu_p[i], ghjdd_p[i], ghjss_p[i], ghjcc_p[i], ghjbb_p[i], ghjtt_p[i]};
 	      ghjWW[i] = 1.;
@@ -1141,12 +1156,13 @@ namespace Gambit
 	      cout << "kapgam^2 " << std::real(std::conj(kapgam)*kapgam) << endl;
 	      cout << "kaptilgam " << kaptilgam << endl;
 	      cout << "kaptilgam^2 " << std::real(std::conj(kaptilgam)*kaptilgam) << endl;*/
-	      ghjgaga[i] = 0; //test speed
+	      ghjgaga[i] = 0; 
 	      ghjgg[i] = 0;
-	      /*cout << "gaga part1 " <<std::real(kapgam*std::conj(kapgam)) << endl;
+/*	      cout << "gaga part1 " <<std::real(kapgam*std::conj(kapgam)) << endl;
 	      cout << "gaga part2 " <<std::real(kaptilgam*std::conj(kaptilgam)) << endl;
 	      cout << "combined " <<std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam)) << endl;
 	      cout << "sqrt " <<sqrt(std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam))) << endl;*/
+	      //g = sqrt(signalstrength = mu) = sqrt(|kappa|^2 + |kappa_tilde|^2)
 	      ghjgaga[i] += sqrt(std::real(kapgam*std::conj(kapgam)) + std::real(kaptilgam*std::conj(kaptilgam))) ;
 	      ghjgg[i] += sqrt(std::real(kapglu*std::conj(kapglu)) + std::real(kaptilglu*std::conj(kaptilglu))) ;
       }
@@ -1232,7 +1248,7 @@ namespace Gambit
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(csqtot + csqtot1 + csqtot2);
-  //    cout << "csqtot: " << csqtot << "csqtot1: " << csqtot1 <<"csqtot2: " << csqtot2 <<" result: " << result << endl;
+//      cout << "csqtot: " << csqtot << "csqtot1: " << csqtot1 <<"csqtot2: " << csqtot2 <<" result: " << result << endl;
     }
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
     

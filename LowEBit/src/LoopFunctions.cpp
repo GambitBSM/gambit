@@ -25,6 +25,9 @@ LoopFunctions::LoopFunctions()
     xeh = pow(me/Mh,2);
     xez = pow(me/Mz,2);
     xhz = pow(Mh/Mz,2);
+    xzh = 1/xhz;
+    xhw = pow(Mh/Mw,2);
+    xwh = 1/xhw;
     as51lMh = as.run(Mh,5,1);
 }
 
@@ -68,9 +71,19 @@ double LoopFunctions::PolyLog(double xi, void * params){
     double res = 0.0;
     double step = 1E-6;
     double iter = step;
-    while(iter<xi){
-        res+=log(1-iter)/iter*step;
-        iter+=step;
+    if(xi>0){
+	    while(iter<xi){
+		res+=log(1-iter)/iter*step;
+		iter+=step;
+	    }
+    }
+    else{
+	    iter = -step;
+	    while(iter>xi){
+		res-=log(1-iter)/iter*step;
+		iter-=step;
+	    }
+
     }
     return -res;
 //    return -log(1-xi)/xi;
@@ -111,8 +124,14 @@ double LoopFunctions::C3q(char q, double muW, double Lambda, double Ctil_e, doub
          + 1*aMZ*as51lMh/(8*pi*pi) * 1/mtau * Ctil_tau * (xtauh*(std::pow(std::log(xtauh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xtauh*xtauz/(xtauz-xtauh)*(std::pow(std::log(xtauh),2) - std::pow(std::log(xtauz),2)))
          + 1*aMZ*as51lMh/(8*pi*pi) * 1/mmu * Ctil_mu * (xmuh*(std::pow(std::log(xmuh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xmuh*xmuz/(xmuz-xmuh)*(std::pow(std::log(xmuh),2) - std::pow(std::log(xmuz),2)))
          + 1*aMZ*as51lMh/(8*pi*pi) * 1/me * Ctil_e * (xeh*(std::pow(std::log(xeh),2) + pi*pi/3.) - 1/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2)*xeh*xez/(xez-xeh)*(std::pow(std::log(xeh),2) - std::pow(std::log(xez),2)))
-         - aMZ*as51lMh/(32*pi*pi) * 1/mq * (4*Qq - pq)/(2*Qq*cw2) * Ctilq * std::log(std::pow(muW/Lambda,2))
+         - aMZ*as51lMh/(16*pi*pi) * 1/mq * (pq*1/(4*Qq) + 1)/(cw2) * Ctilq * std::log(std::pow(muW/Lambda,2))
         );
+    	double pre = std::pow(vev,3)/(std::sqrt(2) * std::pow(Lambda,2));
+	double u2 = aMZ*as51lMh/(6*pi*pi) * 1/mq * Ctilq * Qu*Qu*xth*((1-2*xth)*DTPHI(1/(4*xth))+ 2*(2+std::log(xth)));
+	double u1 = aMZ*as51lMh/(6*pi*pi) * 1/mq * Ctilq * (+ Qu/(16*Qq*cw2*sw2)*(1+pq*4*sw2*Qq)*(1-4*sw2*Qu)*xth*xtz/(xtz-xth)*((1-2*xth)*DTPHI(1/(4*xth)) - 2*std::log(xhz) - (1-2*xtz)*DTPHI(1/(4*xtz))));
+	double u3 = - aMZ*as51lMh/(16*pi*pi) * 1/mq * (pq*1/(4*Qq) + 1)/(cw2) * Ctilq * std::log(std::pow(muW/Lambda,2));
+	
+ 
     return res;
 }
 
@@ -137,16 +156,36 @@ double LoopFunctions::C3e(char l, double muW, double Lambda, double Ctil_e, doub
 }
 
 double LoopFunctions::C4q(char q, double muW, double Lambda, double Ctil_u, double Ctil_d, double Ctil_s, double Ctil_t){
-    double mq = 0.; double Ctilq = 0.;
-    if (q=='u') {mq = mu; Ctilq = Ctil_u;}
-    if (q=='d') {mq = md; Ctilq = Ctil_d;}
-    if (q=='s') {mq = ms; Ctilq = Ctil_s;}
+    double mq = 0.; double Ctilq = 0.; double Qq = 0.; int pm=0.;
+    if (q=='u') {mq = mu; Ctilq = Ctil_u;Qq=2./3.;pm=-1;}
+    if (q=='d') {mq = md; Ctilq = Ctil_d;Qq=-1./3.;pm=1;}
+    if (q=='s') {mq = ms; Ctilq = Ctil_s;Qq=-1./3.;pm=1;}
 
     double res = std::pow(vev,3)/(std::sqrt(2) * std::pow(Lambda,2))*(
         + as51lMh*as51lMh/(16*pi*pi) * 1/mt * Ctil_t * xth*DTPHI(1/(4*xth))
         + as51lMh*as51lMh/(16*pi*pi) * 1/mq * Ctilq * xth*((2*xth-1)*DTPHI(1/(4*xth)) - 2*(2+std::log(xth)) )
-        + 0.0*std::log(std::pow(muW/Lambda,2))
+	+ as51lMh*aMZ/(192*pi*pi*cw2) * 1/mq * Ctilq * (2*Qq*Qq*sw2 + pm*Qq)*
+		(
+		(3*xhz*xhz*xhz - 18*xhz*xhz + 24*xhz)*DTPHI(xhz/4) + 6*xhz*(1+2*std::log(xhz))
+		+(12*xhz*xhz*xhz - 48*xhz*xhz + 12*xhz)*PolyLog(1-xhz,nullptr)
+		+(xhz*xhz*xhz - 4*xhz*xhz)*pi*pi + (3*xhz*xhz*xhz - 12*xhz*xhz)*std::pow(std::log(xhz),2)
+		)
+	+ as51lMh*aMZ/(1152*pi*pi*cw2*sw2) * 1/mq * Ctilq * (1+pm*4*Qq*sw2 + 8*Qq*Qq*sw2*sw2)*xzh*xzh*
+		(
+		(3*xhz*xhz*xhz - 6*xhz*xhz - 24*xhz)*DTPHI(xhz/4) 
+		+ (6*xhz*xhz + 24*xhz)*std::log(xhz) + (6*xhz*xhz - 24*xhz)
+		+ (6*xhz*xhz*xhz - 18*xhz*xhz - 24*xhz)*PolyLog(1-xhz,nullptr) + (3*xhz + 4)*pi*pi
+		)
+	+ as51lMh*aMZ/(576*pi*pi*sw2) * 1/mq * Ctilq * xhw*
+		(
+		(3 - 6*xwh - 24*xwh*xwh)*DTPHI(xhw/4) + (3*xwh*xwh + 4*xwh*xwh*xwh)*pi*pi
+		-(6*xwh+24*xwh*xwh)*std::log(xwh) + (6*xwh - 24*xwh*xwh)
+		+(12*xwh*xwh*xwh + 9*xwh*xwh - 3) * (2*PolyLog(1-xwh,nullptr) + std::pow(std::log(xwh),2))
+		)
         );
+
+
+   
     return res;
 }
 
