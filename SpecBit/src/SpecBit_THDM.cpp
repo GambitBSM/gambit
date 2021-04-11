@@ -336,13 +336,13 @@ namespace Gambit
     {
       // read in THDM model parameters
       input.TanBeta = *Param.at("tanb");
-      input.Lambda1IN = *Param.at("lambda_1");
-      input.Lambda2IN = *Param.at("lambda_2");
-      input.Lambda3IN = *Param.at("lambda_3");
-      input.Lambda4IN = *Param.at("lambda_4");
-      input.Lambda5IN = *Param.at("lambda_5");
-      input.Lambda6IN = *Param.at("lambda_6");
-      input.Lambda7IN = *Param.at("lambda_7");
+      input.Lambda1IN = *Param.at("lambda1");
+      input.Lambda2IN = *Param.at("lambda2");
+      input.Lambda3IN = *Param.at("lambda3");
+      input.Lambda4IN = *Param.at("lambda4");
+      input.Lambda5IN = *Param.at("lambda5");
+      input.Lambda6IN = *Param.at("lambda6");
+      input.Lambda7IN = *Param.at("lambda7");
       input.M122IN = *Param.at("m12_2");
       input.Qin = *Param.at("Qin");
       // Sanity check on tanb
@@ -611,8 +611,8 @@ namespace Gambit
         if (runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
         {
           bool is_perturbative = true;
-          std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4",
-                                                  "lambda_5", "lambda_6", "lambda_7"};
+          std::vector<std::string> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
+                                                  "lambda5", "lambda6", "lambda7"};
           for (auto const &each_lambda : lambda_keys)
           {
             if (*Param.at(each_lambda) > 4. * M_PI)
@@ -772,13 +772,13 @@ namespace Gambit
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container &container)
     {
       std::vector<double> Lambda(8);
-      Lambda[1] = container.he->get(Par::mass1, "lambda1");
-      Lambda[2] = container.he->get(Par::mass1, "lambda2");
-      Lambda[3] = container.he->get(Par::mass1, "lambda3");
-      Lambda[4] = container.he->get(Par::mass1, "lambda4");
-      Lambda[5] = container.he->get(Par::mass1, "lambda5");
-      Lambda[6] = container.he->get(Par::mass1, "lambda6");
-      Lambda[7] = container.he->get(Par::mass1, "lambda7");
+      Lambda[1] = container.he->get(Par::dimensionless, "lambda1");
+      Lambda[2] = container.he->get(Par::dimensionless, "lambda2");
+      Lambda[3] = container.he->get(Par::dimensionless, "lambda3");
+      Lambda[4] = container.he->get(Par::dimensionless, "lambda4");
+      Lambda[5] = container.he->get(Par::dimensionless, "lambda5");
+      Lambda[6] = container.he->get(Par::dimensionless, "lambda6");
+      Lambda[7] = container.he->get(Par::dimensionless, "lambda7");
       return Lambda;
     }
 
@@ -3213,10 +3213,10 @@ namespace Gambit
         std::vector<double> eigenval;
         eigenval.push_back(1.5*(lambda[1]+lambda[2])+sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
         eigenval.push_back(1.5*(lambda[1]+lambda[2])-sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
-        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2)));
-        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[4],2)));
-        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2)));
-        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+pow(4*lambda[5],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[5],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[5],2)));
         eigenval.push_back(lambda[3]+2*lambda[4]+3*lambda[5]);
         eigenval.push_back(lambda[3]+2*lambda[4]-3*lambda[5]);
         eigenval.push_back(lambda[3]+lambda[5]);
@@ -3817,10 +3817,10 @@ namespace Gambit
     // ---------------------------------------------------------------------
     double global_minimum_discriminant_THDM(THDM_spectrum_container &container)
     {
-      const double lambda1 = container.he->get(Par::mass1, "lambda_1");
-      const double lambda2 = container.he->get(Par::mass1, "lambda_2");
-      const double lambda6 = container.he->get(Par::mass1, "lambda_6");
-      const double lambda7 = container.he->get(Par::mass1, "lambda_7");
+      const double lambda1 = container.he->get(Par::dimensionless, "lambda1");
+      const double lambda2 = container.he->get(Par::dimensionless, "lambda2");
+      const double lambda6 = container.he->get(Par::dimensionless, "lambda6");
+      const double lambda7 = container.he->get(Par::dimensionless, "lambda7");
       const double tb = container.he->get(Par::dimensionless, "tanb");
       const double m12_2 = container.he->get(Par::mass1, "m12_2");
 
