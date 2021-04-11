@@ -46,30 +46,30 @@ BE_NAMESPACE
         }
 
         // add the Higgs basis parameters to the container via the higgs par struct
-        container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda_1");
-        container.higgs_pars.Lambda2 = container.he->get(Par::mass1,"Lambda_2");
-        container.higgs_pars.Lambda3 = container.he->get(Par::mass1,"Lambda_3");
-        container.higgs_pars.Lambda4 = container.he->get(Par::mass1,"Lambda_4");
-        container.higgs_pars.Lambda5 = container.he->get(Par::mass1,"Lambda_5");
-        container.higgs_pars.Lambda6 = container.he->get(Par::mass1,"Lambda_6");
-        container.higgs_pars.Lambda7 = container.he->get(Par::mass1,"Lambda_7");
-        container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
-        container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
-        container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");
+        container.higgs_pars.Lambda1 = container.he->get(Par::dimensionless,"lambda1");
+        container.higgs_pars.Lambda2 = container.he->get(Par::dimensionless,"lambda2");
+        container.higgs_pars.Lambda3 = container.he->get(Par::dimensionless,"lambda3");
+        container.higgs_pars.Lambda4 = container.he->get(Par::dimensionless,"lambda4");
+        container.higgs_pars.Lambda5 = container.he->get(Par::dimensionless,"lambda5");
+        container.higgs_pars.Lambda6 = container.he->get(Par::dimensionless,"lambda6");
+        container.higgs_pars.Lambda7 = container.he->get(Par::dimensionless,"lambda7");
+        //container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
+        //container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
+        //container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");
 
         // fill THDM parameters into the 2HDMC
         // both generic and physical parameters are filled using the added set_param_full method
         // the use of basis transformations between the generic and physical basis have been patched
         // to not occur when set_param_full has been used
         if (SM_like < 1) {
-            double lambda_1 = container.he->get(Par::mass1,"lambda_1");
-            double lambda_2 = container.he->get(Par::mass1,"lambda_2");
-            double lambda_3 = container.he->get(Par::mass1, "lambda_3");
-            double lambda_4 = container.he->get(Par::mass1, "lambda_4");
-            double lambda_5 = container.he->get(Par::mass1, "lambda_5");
+            double lambda_1 = container.he->get(Par::dimensionless,"lambda1");
+            double lambda_2 = container.he->get(Par::dimensionless,"lambda2");
+            double lambda_3 = container.he->get(Par::dimensionless, "lambda3");
+            double lambda_4 = container.he->get(Par::dimensionless, "lambda4");
+            double lambda_5 = container.he->get(Par::dimensionless, "lambda5");
             double tan_beta = container.he->get(Par::dimensionless, "tanb");
-            double lambda_6 = container.he->get(Par::mass1, "lambda_6");
-            double lambda_7 = container.he->get(Par::mass1, "lambda_7");
+            double lambda_6 = container.he->get(Par::dimensionless, "lambda6");
+            double lambda_7 = container.he->get(Par::dimensionless, "lambda7");
             double m12_2 = container.he->get(Par::mass1,"m12_2");
             double mh = container.he->get(Par::mass1, "h0", 1);
             double mH = container.he->get(Par::mass1, "h0", 2);
@@ -136,8 +136,8 @@ BE_NAMESPACE
                     beta_scaling_d = cb;
                     break;
                 }
-            const double Yd1 = container.he->get(Par::dimensionless, "Yd", 1, 1);
-            const double Yu1 = container.he->get(Par::dimensionless, "Yu", 1, 1);
+            const double Yd1 = container.he->get(Par::dimensionless, "Yd1", 1, 1);
+            const double Yu1 = container.he->get(Par::dimensionless, "Yu1", 1, 1);
             const double mu1 = Yu1 * beta_scaling_u/sqrt2v;
             const double md1 = Yd1 * beta_scaling_d/sqrt2v;
             SM_object->set_qmass_msbar(1,md1);
