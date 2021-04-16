@@ -70,7 +70,6 @@ load_classes = [
 ]
 
 load_functions = [
-#  'gm2calc::calculate_uncertainty_amu_2loop(const gm2calc::MSSMNoFV_onshell&)'
     'HL_Data()',
     'HL_Data(std::string)',
     'read()',
@@ -80,8 +79,6 @@ load_functions = [
     'GetLikelihood(double, double )',
     'GetLogLikelihood(double, double )',
 ]
-
-print('Funcitions: ', load_functions)
 
 ditch = []
 
