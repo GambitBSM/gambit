@@ -602,10 +602,19 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend_full name backend_version include_ROOT)
+macro(BOSS_backend_full name backend_version BOSS_includes_ROOT ${ARGN})
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
+
+  # Check if there is a suffix
+  set(extra_args ${ARGN})
+  list(LENGTH extra_args n_extra_args)
+  if (${n_extra_args} GREATER 0)
+    set(suffix "_${ARGN}")
+  else()
+    set(suffix "")
+  endif()
 
   # Construct path to the config file expected by BOSS
   set(config_file_path "${BOSS_dir}/configs/${name}_${backend_version_safe}.py")
@@ -650,7 +659,7 @@ macro(BOSS_backend_full name backend_version include_ROOT)
       # Check for castxml binaries and download if they do not exist
       COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${castxml_dl} ${castxml_dl_filename}
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
+      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${BOSS_includes_ROOT} ${name}_${backend_version_safe}${suffix}
       # Copy BOSS-generated files to correct folders within Backends/include
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
       COMMAND cp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp
@@ -660,10 +669,10 @@ macro(BOSS_backend_full name backend_version include_ROOT)
   endif()
 endmacro()
 
-macro(BOSS_backend name backend_version)
-  BOSS_backend_full(${name} ${backend_version} "")
+macro(BOSS_backend name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} "" ${ARGN})
 endmacro()
 
-macro(BOSS_backend_with_ROOT name backend_version)
-  BOSS_backend_full(${name} ${backend_version} "--include=${ROOT_INCLUDE_DIRS}")
+macro(BOSS_backend_with_ROOT name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} "--include=${ROOT_INCLUDE_DIRS}" ${ARGN})
 endmacro()
