@@ -202,19 +202,57 @@ namespace Gambit
       //  Source:  1607.06292, eqn (68)
       std::complex<double> TwoLoopPhi(double m1, double m2, double m3)
       { 
-        if (m3 != 0)
+        double mm1, mm2, mm3;
+        // Order the masses in increasing order
+        if (m1 <= m2)
         {
-          std::complex<double> argum  = std::complex<double> (std::pow(m1,4)+std::pow(m2,4)+std::pow(m3,4)-2*std::pow(m1*m2,2)-2*std::pow(m2*m3,2)-2*std::pow(m3*m1,2));
+          if (m1 <= m3)
+          {
+            if (m2 <= m3)
+            {
+              mm1 = m1; mm2 = m2; mm3 = m3;
+            }
+            else
+            {
+              mm1 = m1; mm2 = m3; mm3 = m2;
+            }
+          }
+          else
+          {
+            mm1 = m3; mm2 = m1; mm3 = m2;
+          }
+        }
+        else
+        {
+          if (m1 <= m3)
+          {
+            mm1 = m2; mm2 = m1; mm3 = m3;
+          }
+          else
+          {
+            if (m2 <= m3)
+            {              
+              mm1 = m2; mm2 = m3; mm3 = m1;
+            }
+            else
+            {
+              mm1 = m3; mm2 = m2; mm3 = m1;
+            }
+          }
+        }
+        if (mm3 != 0)
+        {
+          std::complex<double> argum  = std::complex<double> (std::pow(mm1,4)+std::pow(mm2,4)+std::pow(mm3,4)-2*std::pow(mm1*mm2,2)-2*std::pow(mm2*mm3,2)-2*std::pow(mm3*mm1,2));
           std::complex<double> lambda = std::sqrt(argum);
-          std::complex<double> alphap = (std::pow(m3,2)+std::pow(m1,2)-std::pow(m2,2)-lambda) / (2*std::pow(m3,2));
-          std::complex<double> alpham = (std::pow(m3,2)-std::pow(m1,2)+std::pow(m2,2)-lambda) / (2*std::pow(m3,2));
+          std::complex<double> alphap = (std::pow(mm3,2)+std::pow(mm1,2)-std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
+          std::complex<double> alpham = (std::pow(mm3,2)-std::pow(mm1,2)+std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
           gsl_sf_result reD1, imD1;
           gsl_sf_complex_dilog_e(abs(alphap), arg(alphap), &reD1, &imD1);
           std::complex<double> Dilog1(reD1.val,imD1.val);
           gsl_sf_result reD2, imD2;
           gsl_sf_complex_dilog_e(abs(alpham), arg(alpham), &reD2, &imD2);
           std::complex<double> Dilog2(reD2.val,imD2.val);
-          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(m1/m3,2))*std::log(pow(m2/m3,2)) - 2.*Dilog1 - 2.*Dilog2 + std::pow(M_PI,2)/3.);
+          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(mm1/mm3,2))*std::log(pow(mm2/mm3,2)) - 2.*Dilog1 - 2.*Dilog2 + std::pow(M_PI,2)/3.);
         } 
         else 
         { 

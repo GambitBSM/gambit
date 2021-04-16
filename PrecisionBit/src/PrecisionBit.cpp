@@ -1250,7 +1250,7 @@ namespace Gambit
       const std::vector<double> Nc = { 1.,    3.,   3.};
 
       const double sw2 = 1 - pow(mW/mZ,2);
-      const std::vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, -1./2./2.-Qf[2]*sw2};
+      const std::vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, 1./2./2.-Qf[2]*sw2};
 
       //Fermionic contribution, source: 1607.06292
       std::complex<double> Aloop2f = 0.;
