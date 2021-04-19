@@ -87,6 +87,7 @@
     #define FUNCTION get_unitarity_likelihood_THDM
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)     
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -103,6 +104,7 @@
     #define FUNCTION get_NLO_unitarity_likelihood_THDM
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)     
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -115,6 +117,7 @@
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)     
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -137,6 +140,7 @@
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -153,8 +157,8 @@
     #define FUNCTION get_alignment_likelihood_THDM
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
@@ -165,6 +169,7 @@
     #define FUNCTION check_vacuum_global_minimum
     START_FUNCTION(int)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -176,6 +181,7 @@
     #define FUNCTION check_h0_loop_order_corrections
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -187,6 +193,7 @@
     #define FUNCTION check_THDM_scalar_loop_order_corrections
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -198,6 +205,7 @@
     #define FUNCTION check_THDM_scalar_masses
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
@@ -209,7 +217,6 @@
     #define FUNCTION THDM_higgs_couplings_pwid
     START_FUNCTION(HiggsCouplingsTable)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    //DEPENDENCY(SMlike_Higgs_PDG_code, int)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
     DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
     DEPENDENCY(Reference_SM_A0_decay_rates, DecayTable::Entry)
@@ -225,7 +232,7 @@
     START_FUNCTION(HiggsCouplingsTable)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    //DEPENDENCY(SMlike_Higgs_PDG_code, int)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
     DEPENDENCY(Reference_SM_other_Higgs_decay_rates, DecayTable::Entry)
     DEPENDENCY(Reference_SM_A0_decay_rates, DecayTable::Entry)
