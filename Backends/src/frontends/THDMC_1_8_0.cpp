@@ -8,7 +8,7 @@
 ///
 ///  Authors (add name and sate if you modify):
 ///
-///  \author Filip Rjaec
+///  \author Filip Rajec
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
