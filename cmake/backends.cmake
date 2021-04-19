@@ -309,15 +309,16 @@ set(name "heplikedata")
 set(ver "1.0")
 set(dl "https://github.com/mchrzasz/HEPLikeData/archive/master.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(md5 "b45f6f6f0ff08775f85054cf6946141a")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory "${patchdir}/data" "${dir}/data/"
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_COMMAND} -E echo 'cp  ${dir}/HEPLikeData-master/data/ ${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}' > make_hepliedata.sh
-          COMMAND chmod u+x make_hepliedata.sh
+    BUILD_COMMAND ""
     INSTALL_COMMAND ""
     )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
