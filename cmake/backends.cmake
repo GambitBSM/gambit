@@ -1356,45 +1356,17 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch < ${patch}/Makefile.patch
-	    COMMAND patch -s -p0 < ${patch}/src.patch
-      # should be done by patching step so don't exit if the 'mv' fails
-  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp || true 
-      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h || true
+	        COMMAND patch -s -p0 < ${patch}/src.patch
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss 
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
+          COMMAND patch -u src/BOSS_SM.cpp -i ${patch}/BOSS_SM.cpp.patch 
+          COMMAND patch -u src/BOSS_THDM.cpp -i ${patch}/BOSS_THDM.cpp.patch
+          COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
+          COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
     INSTALL_COMMAND ""
   )
   BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
-endif()
-
-
-set(name "THDMC")
-set(ver "1.7.0")
-set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
-set(md5 "28d70cdce026eac37d947a14f6f5246c")
-set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(GSL_LIB_FLAGS "${GSL_LIBRARIES}")
-string(REPLACE ";" " " GSL_LIB_FLAGS "${GSL_LIB_FLAGS}")
-check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
-  ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch < ${patch}/Makefile.patch
-	    COMMAND patch -s -p0 < ${patch}/src.patch
-  	  COMMAND mv src/DecayTable.cpp src/DecayTableTHDM.cpp
-      COMMAND mv src/DecayTable.h src/DecayTableTHDM.h
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
-    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
-    INSTALL_COMMAND ""
-  )
-  BOSS_backend(${name} ${ver})
-  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
