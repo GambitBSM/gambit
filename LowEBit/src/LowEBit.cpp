@@ -505,6 +505,14 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
+		std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
+	  	if (dne.is_open()){
+			dne << "CuHm " << *Param["CuHm"] << "\n";
+			dne << "CuHp " << *Param["CuHp"] << "\n";
+			dne << "CdHm " << *Param["CdHm"] << "\n";
+			dne << "CdHp " << *Param["CdHp"] << "\n";
+		}
+		  	dne.close();
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
 //		  if(sampleStyle==1){
@@ -657,7 +665,17 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
 			// likelihood accordingly?
 			//result = 0.;
+			//
+
+	
 			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+			std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
+		  	if (dne.is_open()){
+				dne << "dne: " << *Dep::EDM_n << "\n";
+				dne << "dchi2: " << result << "\n";
+			}
+		  	dne.close();
+	
 //		  	cout << "gaussian result_EDM_n: " << result << endl;
 			cnt++;
 			cout << "sample: " << cnt << endl;
