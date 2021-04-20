@@ -1,12 +1,12 @@
 #########################################################################
-## GAMBIT configuration for running a diver scan of the THDM
-## THDM_TEST
+## GAMBIT configuration for running a single random point of the GTHDM
+## THDM_debug	
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals
+## THDMC, SuperISO, HEPlike
 ##########################################################################
 
 Parameters:
@@ -38,69 +38,71 @@ Parameters:
     theta13: 0.15495
     theta23: 0.76958
   THDM_physical:
-      sba: 0.9999
-      yl2_re_32: -0.293452
-      yu2_re_33: 0.99946
-      yu2_re_32: -1.1456
-      mC2: 4840000.0
-      tanb: 1
-      yl2_re_22: -0.301196
-      lambda6: 0.0
-      lambda7: 0.0
-      m12_2: 2250000.0
-      mA2: 4840000.0
-      mH2: 4840000.0
-      mh2: 15650.01
-      yd2_im_11: 0.0
-      yd2_im_12: 0.0
-      yd2_im_13: 0.0
-      yd2_im_21: 0.0
-      yd2_im_22: 0.0
-      yd2_im_23: 0.0
-      yd2_im_31: 0.0
-      yd2_im_32: 0.0
-      yd2_im_33: 0.0
-      yd2_re_11: 0.0
-      yd2_re_12: 0.0
-      yd2_re_13: 0.0
-      yd2_re_21: 0.0
-      yd2_re_22: 0.0
-      yd2_re_23: 0.01
-      yd2_re_31: 0.0
-      yd2_re_32: -0.01
-      yd2_re_33: 0.0234969
-      yl2_im_11: 0.0
-      yl2_im_12: 0.0
-      yl2_im_13: 0.0
-      yl2_im_21: 0.0
-      yl2_im_22: 0.0
-      yl2_im_23: 0.0
-      yl2_im_31: 0.0
-      yl2_im_32: 0.0
-      yl2_im_33: 0.0
-      yl2_re_11: 0.0
-      yl2_re_12: 0.0
-      yl2_re_13: 0.0
-      yl2_re_21: 0.0
-      yl2_re_23: -0.293452
-      yl2_re_31: 0.0
-      yl2_re_33: -1.0
-      yu2_im_11: 0.0
-      yu2_im_12: 0.0
-      yu2_im_13: 0.0
-      yu2_im_21: 0.0
-      yu2_im_22: 0.0
-      yu2_im_23: 0.0
-      yu2_im_31: 0.0
-      yu2_im_32: 0.0
-      yu2_im_33: 0.0
-      yu2_re_11: 0.0
-      yu2_re_12: 0.0
-      yu2_re_13: 0.0
-      yu2_re_21: 0.0
-      yu2_re_22: 0.0
-      yu2_re_23: -1.1456
-      yu2_re_31: 0.0
+    lambda6: 0
+    lambda7: 0
+    m12_2: 1537600.0 #1562500.0
+    mA2: 3240000
+    mC2: 3240000
+    mH2: 3240000
+    mh2: 15650
+    sba: 0.9999
+    tanb: 1.0
+    yd2_im_11: 0
+    yd2_im_12: 0
+    yd2_im_13: 0
+    yd2_im_21: 0
+    yd2_im_22: 0
+    yd2_im_23: 0
+    yd2_im_31: 0
+    yd2_im_32: 0
+    yd2_im_33: 0
+    yd2_re_11: 0
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22: 0.0253133
+    yd2_re_23: 0.0475382
+    yd2_re_31: 0
+    yd2_re_32: 0.0475382
+    yd2_re_33: 1
+    yl2_im_11: 0
+    yl2_im_12: 0
+    yl2_im_13: 0
+    yl2_im_21: 0
+    yl2_im_22: 0
+    yl2_im_23: 0
+    yl2_im_31: 0
+    yl2_im_32: 0
+    yl2_im_33: 0
+    yl2_re_11: 0
+    yl2_re_12: 0
+    yl2_re_13: 0
+    yl2_re_21: 0
+    yl2_re_22: 0.10581
+    yl2_re_23: -0.109674
+    yl2_re_31: 0
+    yl2_re_32: -0.109674
+    yl2_re_33: 0.0472628
+    yu2_im_11: 0
+    yu2_im_12: 0
+    yu2_im_13: 0
+    yu2_im_21: 0
+    yu2_im_22: 0
+    yu2_im_23: 0
+    yu2_im_31: 0
+    yu2_im_32: 0
+    yu2_im_33: 0
+    yu2_re_11: 0
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22: 0.306963
+    yu2_re_23: -0.60303
+    yu2_re_31: 0
+    yu2_re_32: -0.60303
+    yu2_re_33: 0.929556
+
+
 # Printer setup
 ##############################
 
@@ -149,6 +151,67 @@ ObsLikes:
     # Likelihoods
     ###########################
 
+    #Tree level Yukawas perturbativity
+
+    - purpose:    LogLike
+      capability: perturbativity_yukawas_LL
+
+    # Calculates all quartic Higgs couplings in the physical
+    # basis & applies a 4pi perturbativity constraint on each
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
+
+    # Applies the THDM stability constraints on the potential
+    # NOTE: This likelihood has two parts, described below
+    # (i) Applies strict stability constraint
+    # Likelihood type: Acceptance/Rejection
+    # (ii) If rejected, applies looser stabililty constraints
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+    # function: stability_lambdas_LL #Does not use the backend THDMC
+
+    # Checks that the NLO scattering-matrix is unitary
+    # Calculates and applies limit on eigenvalues of matrix
+    # NOTE: This is always a subset of LO unitarity so it not needed
+    # Likelihood type: Half-Gaussian
+    # Only supports CP-conserving models
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
+
+ # -------------------------------------------
+
+    #### NOTE
+    # LHC & LEP likelihoods
+    # Coupling Squared input structs are filled by colliderBit,
+    # then chi^2 are extracted directly from HS & HB
+
+    # HB 5beta likelihood
+    - capability: LEP_Higgs_LogLike
+      function: calc_HB_5_LEP_LogLike
+      purpose: LogLike
+    
+    # HS 2beta likelihood
+    - capability: LHC_Higgs_LogLike
+      function: calc_HS_2_LHC_LogLike
+      purpose: LogLike
+
+  # -------------------------------------------
+
+
+    #### NOTE
+    # Flavor likelihoods 
+
     # B->s,gamma likelihood (using HEPlike)
     - capability: b2sgamma_LogLikelihood
       function: HEPLike_b2sgamma_LogLikelihood
@@ -164,20 +227,24 @@ ObsLikes:
       function: SI_delta0
       purpose: Observable
 
+   # This likelihood capability has an unstable behaviour
    # B->tau,nu likelihood (using HEPlike)
-  #  - capability: B2taunu_LogLikelihood
+   # - capability: B2taunu_LogLikelihood
    #   function: HEPLike_B2taunu_LogLikelihood
    #   purpose: LogLike
 
-  # The printer type is not defined for this observable:
-  #  - capability: prediction_B2taunu
-   #   function: SuperIso_prediction_B2taunu
-   #   purpose: Observable      
+    #ERROR: A problem has occurred in the printer utilities.
+    #No print function override has been 
+    #defined for this type (for whatever printer
+    #class the current printer comes from)
+    #Dumping available info...
+    #Label      : #prediction_B2taunu @FlavBit::THDM_Btaunu
+    #vertexID   : 794
 
     - capability: Btaunu
       function: THDM_Btaunu
       module: FlavBit
-      purpose: Observable
+      purpose: Observable      
 
     # B->mu,mu likelihood
     - capability: b2ll_LL
@@ -239,7 +306,7 @@ ObsLikes:
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Atlas
    
-    #B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas, whyis this splitted in thiw way? contains _2_4_Atlas and _4_8_Atlas
+    #B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas, why is this splitted in this way? contains _2_4_Atlas and _4_8_Atlas
 
     # 7 observables all q2 range 
     - purpose:    LogLike
@@ -259,8 +326,8 @@ ObsLikes:
 
     # 6 observables, HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
     # FATAL: GAMBIT has exited with fatal exception: map::at
-   # - purpose: LogLike
-    #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+    - purpose: LogLike
+      capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
 
    # 6 observables
     - purpose:    LogLike
@@ -276,13 +343,23 @@ ObsLikes:
     - purpose:    LogLike
       capability: B2KmumuBr_LogLikelihood_LHCb
 
+   # - purpose: LogLike
+    #  capability: RK_LogLikelihood
+
+   # No candidates found while trying to resolve:
+   #SuperIso_theory_covariance (flav_covariance_map), required by
+   # RKstar_LogLikelihood_LHCb (double) [HEPLike_RKstar_LogLikelihood_LHCb, FlavBit]
+
+   # - purpose: LogLike
+    #  capability: RKstar_LogLikelihood_LHCb
+
     #Old observables
     # # B->Kstarll branching for 6 bins 
    # - capability: b2sll_BR_LL
     #  function: b2sll_BR_likelihood
      # purpose: LogLike
 
-    # LUV likelihood collection (RKstar_0045_11 and RKstar_11_60) 
+    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
     - purpose: LogLike
       capability: LUV_LL
 
@@ -304,6 +381,9 @@ ObsLikes:
       function: THDM_Delta_MBs
       purpose: Observable
 
+    #- purpose:    LogLike
+    #  capability: RDRDstar_LogLikelihood
+
     #################
     # Observables
     #################
@@ -311,12 +391,101 @@ ObsLikes:
     - capability: THDM_spectrum
       purpose: Observable
       type: map_str_dbl
+ 
+    - capability: DeltaC7
+      function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC7_Prime
+      function: calculate_DeltaC7_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9
+      function: calculate_DeltaC9
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10
+      function: calculate_DeltaC10
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9_Prime
+      function: calculate_DeltaC9_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10_Prime
+      function: calculate_DeltaC10_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ1
+      function: calculate_DeltaCQ1
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ2
+      function: calculate_DeltaCQ2
+      module: FlavBit
+      purpose: Observable
 
 Rules:
 
     ##############################
     # Likelihood/Observable Rules
     ##############################
+
+    #- capability: THDM_spectrum
+    #  function: get_THDM_spectrum
+    #  options:
+    #    check_perturbativity: true
+    # [check_perturbativity: true] a hard cut-off on perturabitivity 
+    # on spectrum generation only required in physical basis
+    # -------------------------------------------
+
+    ##
+    # the check_all_scales option-flag triggers evaluation
+    # of the likelihood at the default Qin scale, 
+    # but also at QrunTo scale, where the worst performing
+    # of the two likelihoods is returned.
+    # eg. min[L(Q_in), L(Q_runTo)]
+    #
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: false
+        simple_perturbativity: true
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: false
+
+    - capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+
+    # -------------------------------------------
+
+   # Specifies effc coupling input for HB/HS
+    #- capability: HB_ModelParameters_neutral
+    #  function: THDM_ModelParameters_effc
+    #  module: ColliderBit
+
+    - capability: HB_ModelParameters_charged
+      function: THDM_ModelParameters_charged
+      
+    - capability: HB_ModelParameters_neutral
+      function: THDM_ModelParameters_effc
+     
+    - capability: Higgs_Couplings
+      function: THDM_higgs_couplings_2HDMC
+      module: SpecBit
+    # -------------------------------------------
 
     - capability: DeltaMs
       function: THDM_Delta_MBs
@@ -359,20 +528,23 @@ Rules:
 
     - capability: prediction_B2KstarmumuAng_.*_LHCb
       options:
-        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime]
-       #  obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+       # obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime]
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
 
     - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
       options:
         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-   # Likelihood not working
-   # - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
-    #  options:
-    #    obs_list: [A3, A4, A5, A6, A7, A8, A9]
-     
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
+
     - capability: SuperIso_modelinfo
       function: SI_fill
+
+    #- capability: 
+    #  options:
+    #    obs_list: [P4prime, P5prime]
 
     - capability: b2ll_M
       function: b2ll_measurements
@@ -384,10 +556,10 @@ Rules:
     - capability: delta0
       function: SI_delta0
 
-    - capability: prediction_B2taunu
-      function: SuperIso_prediction_B2taunu
-      options:
-         obs_list: [B2taunu] 
+   # - capability: prediction_B2taunu
+    #  function: THDM_Btaunu
+    #  options:
+    #     obs_list: [B2taunu] 
 
     - capability: b2sll_M
       function: b2sll_measurements
@@ -405,13 +577,18 @@ Rules:
     - capability: RKstar_11_60
       function: SI_RKstar_11_60
 
+    - options:
+      use_SM_covariance: true
+
     - capability: lnL_gm2
       function: lnL_gm2
       dependencies:
         - capability: muon_gm2_SM
           function: gm2_SM_ee
           module: PrecisionBit
-    # ----------------------
+
+    #- capability: stability_likelihood_THDM
+    #  function: stability_lambdas_LL
 
 #########################
 # Logging setup
@@ -424,7 +601,7 @@ Logger:
     [Default] :  "Default.log"
     #[DecayBit] :  "DecayBit.log"
     #[DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
     #[ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
     [Dependency Resolver] :  "DepResolver.log"
@@ -453,3 +630,4 @@ KeyValues:
 
   default_output_path: "runs/THDM_TEST/"
   debug: true
+
