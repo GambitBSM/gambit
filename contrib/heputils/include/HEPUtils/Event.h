@@ -254,7 +254,7 @@ namespace HEPUtils {
       }
       else if (p->abspid() == 12 || p->abspid() == 14 || p->abspid() == 16 ||
                p->pid() == 1000022 || p->pid() == 1000039 ||
-               in_range(p->pid(), 50, 60)) //< invert definition to specify all *visibles*?
+               in_range(p->abspid(), 50, 60)) //< invert definition to specify all *visibles*?
       {
         _invisibles.push_back(p);
         _cinvisibles.push_back(p);
