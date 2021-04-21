@@ -3905,7 +3905,7 @@ namespace Gambit
 
       // set up some necessary quantities
       const double vev = spec.get(Par::mass1, "vev");
-      const double mW = spec.get(Par::Pole_Mass, "W+");
+      const double mW = spec.get(Par::mass1, "W+");
       const double g = 2.*mW/vev;
       const double costw = sqrt(1. - spec.get(Par::dimensionless, "sinW2"));
 
