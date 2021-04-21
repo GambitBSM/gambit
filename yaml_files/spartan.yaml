@@ -94,6 +94,24 @@ Scanner:
       print_parameters_in_native_output: true
       tol: 0.1
 
+    minuit2:
+      plugin: minuit2
+      like: LogLike
+      tolerance: 0.0001
+      precision: 0.0001
+      max_loglike_calls: 100000
+      max_iterations: 100000
+      algorithm: combined # simplex, combined, scan, fumili, bfgs, migrad
+      print_level: 1
+      strategy: 2
+
+      start:
+        NormalDist::mu: 25.
+        NormalDist::sigma: 2.5
+      step:
+        NormalDist::mu: 5.
+        NormalDist::sigma: 1.
+
 
 ObsLikes:
 

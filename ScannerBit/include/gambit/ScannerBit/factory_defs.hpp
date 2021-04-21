@@ -320,6 +320,22 @@ namespace Gambit
             //like_ptr(like_ptr &&in) : s_ptr (std::move(in)) {}
             like_ptr(void *in) : s_ptr(in) {}
 
+            std::unordered_map<std::string, double> transform(const std::vector<double> &vec)
+            {
+                (*this)->getPrior().transform(vec, map);
+                return map;
+            }
+
+            std::vector<std::string> get_names() const
+            {
+              return (*this)->getPrior().getShownParameters();
+            }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical)
+            {
+                return (*this)->getPrior().inverse_transform(physical);
+            }
+
             double operator()(const std::vector<double> &vec)
             {
                 int rank = (*this)->getRank();

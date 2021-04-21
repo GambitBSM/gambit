@@ -108,7 +108,7 @@ polychord: |
       frac_slow (0.75)              fraction of time to spend on slow parameters
       nprior (10*nlive):            rejection sample the prior by this amount
       do_clustering (1):            perform clustering?
-      fb (1):                       Feedback level 
+      fb (1):                       Feedback level
       tol (0.5):                    defines the stopping criteria
       logZero (-1E90):              points with loglike < logZero will be ignored by PolyChord
       maxiter (-1):                 Max no. of iterations, a negative value means infinity.
@@ -186,6 +186,25 @@ toy_mcmc: |
   Auxillary output variables:
       mult:     Multiplicity (weight) of each point.
 
+
+minuit2: |
+  #remove_newlines
+  Minuit2 is a C++ implemntation of the classic MINUIT minimization library. See www.cern.ch/minuit and https://root.cern.ch/doc/master/Minuit2Page.html
+  for further details.
+
+  YAML options (defaults):
+    tolerance(0.0001): Stopping tolerance on parameters
+    precision(0.0001): Stopping precision on log-likelihood function
+    max_loglike_calls(100000): Maximum number of calls of log-likelihood function
+    max_iterations(100000): Maximum number of algorithm iterations
+    algorithm(combined): Choice of minimization algorithm - simplex, combined, scan, fumili, bfgs, migrad
+    print_level(1): Verbosity for printing to the screen
+    strategy(2): Sets a collection of tolerance and precision parameters; see Minuit documentation
+
+    start:
+      model::parameter: Starting point for model parameter
+    step:
+      model::parameter: Starting step-size for model parameter
 
 postprocessor: |
   #remove_newlines

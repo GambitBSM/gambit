@@ -35,3 +35,9 @@ great:
     - headers: ./ScannerBit/installed/great/1.0.0/Manager/include
     - headers: ./ScannerBit/installed/great/1.0.0/MCMC/include
     - headers: ./ScannerBit/installed/great/1.0.0/fparser4.5.1
+
+minuit2:
+  6.23.01:
+    - lib: ./ScannerBit/installed/minuit2/6.23.01/lib/libMinuit2.so
+    - lib: ./ScannerBit/installed/minuit2/6.23.01/lib/libMinuit2Math.so
+    - headers: ./ScannerBit/installed/minuit2/6.23.01/inc/
