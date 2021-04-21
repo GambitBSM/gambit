@@ -45,18 +45,6 @@ BE_NAMESPACE
             container.yukawa_type = 1;
         }
 
-        // add the Higgs basis parameters to the container via the higgs par struct
-        container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda_1");
-        container.higgs_pars.Lambda2 = container.he->get(Par::mass1,"Lambda_2");
-        container.higgs_pars.Lambda3 = container.he->get(Par::mass1,"Lambda_3");
-        container.higgs_pars.Lambda4 = container.he->get(Par::mass1,"Lambda_4");
-        container.higgs_pars.Lambda5 = container.he->get(Par::mass1,"Lambda_5");
-        container.higgs_pars.Lambda6 = container.he->get(Par::mass1,"Lambda_6");
-        container.higgs_pars.Lambda7 = container.he->get(Par::mass1,"Lambda_7");
-        container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
-        container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
-        container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");
-
         // fill THDM parameters into the 2HDMC
         // both generic and physical parameters are filled using the added set_param_full method
         // the use of basis transformations between the generic and physical basis have been patched
