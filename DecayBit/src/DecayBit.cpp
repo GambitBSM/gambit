@@ -3828,13 +3828,19 @@ namespace Gambit
             break;
           }
       }
-      // fill BFs
+      // - fill BFs
       
       // set up container and 2HDMC decay table object
       THDM_spectrum_container container;
       // set up container and fill BFs
       BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(y_type), 0.0, 0);
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
+      // get a pointer to the 2HDMC SM class
+      THDMC_1_8_0::SM* SM_object = container.THDM_object->get_SM_pointer();
+
+      // get total top widths
+      const double gamma_total_top = decay_table_2hdmc.get_gammatot_top();
+      const double gamma_total_top_SM = SM_object->get_gamma_top();
 
       // particle keys to simplify loops
       enum p_family {up, down, electron, neutrino, vector, higgs};
@@ -3850,12 +3856,10 @@ namespace Gambit
       // create GAMBIT decay table
       result.calculator = "2HDMC";
       result.calculator_version = "1.8.0";
-      result.positive_error = 0; //narrow width
-      result.negative_error = 0;
-      result.width_in_GeV = decay_table_2hdmc.get_gammatot_top();
-      // result.width_in_GeV = 1.41;
-      // result.positive_error = 1.9e-01;
-      // result.negative_error = 1.5e-01;
+      result.width_in_GeV = gamma_total_top;
+      // we don't include an error here. Is this OK?
+      result.positive_error = 0.0;
+      result.negative_error = 0.0;
 
       // fill the GAMBIT decay table
       for(int f=1; f<4; f++) {
@@ -3865,7 +3869,7 @@ namespace Gambit
         }
       }
       
-      result.set_BF(0.0, 0.0, "W+", "b"); // TODO: not in 2HDMC
+      result.set_BF(gamma_total_top_SM/gamma_total_top, 0.0, "W+", "b");
       check_width(LOCAL_INFO, result.width_in_GeV, true, true);
     }
      /// @}
