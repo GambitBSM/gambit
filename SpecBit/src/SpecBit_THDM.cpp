@@ -3778,27 +3778,29 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      
+      // give higgs indicies names
+      enum neutral_higgs_indicies {
+          light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
+      };
 
       // Set the CP of the Higgs states.
-      result.CP[0] = 1;  //h0_1
-      result.CP[1] = 1;  //h0_2
-      result.CP[2] = -1; //A0
-
-      int higgs = 0;
-      int other_higgs = 1;
+      result.CP[light_higgs] = 1;
+      result.CP[heavy_higgs] = 1;
+      result.CP[CP_odd_higgs] = -1;
 
       // Set the decays
-      result.set_neutral_decays_SM(higgs, sHneut[higgs], *Dep::Reference_SM_Higgs_decay_rates);
-      result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
-      result.set_neutral_decays_SM(2, sHneut[2], *Dep::Reference_SM_A0_decay_rates);
-      result.set_neutral_decays(0, sHneut[0], *Dep::Higgs_decay_rates);
-      result.set_neutral_decays(1, sHneut[1], *Dep::h0_2_decay_rates);
-      result.set_neutral_decays(2, sHneut[2], *Dep::A0_decay_rates);
-      result.set_charged_decays(0, "H+", *Dep::H_plus_decay_rates);
+      result.set_neutral_decays_SM(light_higgs, sHneut[light_higgs], *Dep::Reference_SM_Higgs_decay_rates);
+      result.set_neutral_decays_SM(heavy_higgs, sHneut[heavy_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
+      result.set_neutral_decays_SM(CP_odd_higgs, sHneut[CP_odd_higgs], *Dep::Reference_SM_A0_decay_rates);
+      result.set_neutral_decays(light_higgs, sHneut[light_higgs], *Dep::Higgs_decay_rates);
+      result.set_neutral_decays(heavy_higgs, sHneut[heavy_higgs], *Dep::h0_2_decay_rates);
+      result.set_neutral_decays(CP_odd_higgs, sHneut[CP_odd_higgs], *Dep::A0_decay_rates);
+      result.set_charged_decays(light_higgs, "H+", *Dep::H_plus_decay_rates);
       result.set_t_decays(*Dep::t_decay_rates);
 
       // Use them to compute effective couplings for all neutral higgses, except for hhZ.
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < NUMBER_OF_NEUTRAL_HIGGS; i++)
       {
         result.C_WW[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(24, 0), std::pair<int, int>(-24, 0)));
         result.C_ZZ[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(23, 0)));
@@ -3846,11 +3848,24 @@ namespace Gambit
     // todo: save computational time by filling only those required in each case
     void fill_THDM_couplings_struct(THDM_couplings &couplings, THDM_spectrum_container &container)
     {
-      for (int h = 1; h < 5; h++)
+      // give higgs indicies names
+      enum neutral_higgs_indicies {
+          light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
+      };
+      // note: the below does not include degenerate charged higgs
+      enum charged_higgs_indicies {
+          charged_higgs=3, NUMBER_OF_CHARGED_HIGGS=1
+      };
+      // the total number of higgs does not include degenerate charged higgs
+      const int total_number_of_higgs = NUMBER_OF_NEUTRAL_HIGGS + NUMBER_OF_CHARGED_HIGGS;
+      const int total_number_of_fermions = 3;
+      const int total_number_of_vector_bosons = 3;
+
+      for (int h = 1; h <= total_number_of_higgs; h++)
       {
-        for (int f1 = 1; f1 < 4; f1++)
+        for (int f1 = 1; f1 <= total_number_of_fermions; f1++)
         {
-          for (int f2 = 1; f2 < 4; f2++)
+          for (int f2 = 1; f2 <= total_number_of_fermions; f2++)
           {
             container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
             container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
@@ -3861,14 +3876,14 @@ namespace Gambit
           }
         }
 
-        for (int v1 = 1; v1 < 4; v1++)
+        for (int v1 = 1; v1 <= total_number_of_vector_bosons; v1++)
         {
-          for (int v2 = 1; v2 < 4; v2++)
+          for (int v2 = 1; v2 <= total_number_of_vector_bosons; v2++)
           {
             container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
             check_coupling(couplings.vvh[v1][v2][h]);
           }
-          for (int h2 = 1; h2 < 5; h2++)
+          for (int h2 = 1; h2 <= total_number_of_higgs; h2++)
           {
             container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
             check_coupling(couplings.vhh[v1][h][h2]);
@@ -3889,33 +3904,36 @@ namespace Gambit
       const SubSpectrum &spec = fullspectrum.get_HE();
 
       // set up some necessary quantities
-      const double g = spec.get(Par::dimensionless, "g1");
+      const double vev = spec.get(Par::mass1, "vev");
+      const double mW = spec.get(Par::Pole_Mass, "W+");
+      const double g = 2.*mW/vev;
       const double costw = sqrt(1. - spec.get(Par::dimensionless, "sinW2"));
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
 
-      // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
-      result.CP[0] = 1;  //h0_1
-      result.CP[1] = 1;  //h0_2
-      result.CP[2] = -1; //A0
+       // give higgs indicies names
+      enum neutral_higgs_indicies {
+          light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
+      };
 
-      // Work out which SM values correspond to which extra Higgs
-      int higgs = 0;
-      int other_higgs = 1;
+      // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
+      result.CP[light_higgs] = 1;  //h0_1
+      result.CP[heavy_higgs] = 1;  //h0_2
+      result.CP[CP_odd_higgs] = -1; //A0
 
       // Set the decays
-      result.set_neutral_decays_SM(higgs, sHneut[higgs], *Dep::Reference_SM_Higgs_decay_rates);
-      result.set_neutral_decays_SM(other_higgs, sHneut[other_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
-      result.set_neutral_decays_SM(2, sHneut[2], *Dep::Reference_SM_A0_decay_rates);
-      result.set_neutral_decays(0, sHneut[0], *Dep::Higgs_decay_rates);
-      result.set_neutral_decays(1, sHneut[1], *Dep::h0_2_decay_rates);
-      result.set_neutral_decays(2, sHneut[2], *Dep::A0_decay_rates);
-      result.set_charged_decays(0, "H+", *Dep::H_plus_decay_rates);
+      result.set_neutral_decays_SM(light_higgs, sHneut[light_higgs], *Dep::Reference_SM_Higgs_decay_rates);
+      result.set_neutral_decays_SM(heavy_higgs, sHneut[heavy_higgs], *Dep::Reference_SM_other_Higgs_decay_rates);
+      result.set_neutral_decays_SM(CP_odd_higgs, sHneut[CP_odd_higgs], *Dep::Reference_SM_A0_decay_rates);
+      result.set_neutral_decays(light_higgs, sHneut[light_higgs], *Dep::Higgs_decay_rates);
+      result.set_neutral_decays(heavy_higgs, sHneut[heavy_higgs], *Dep::h0_2_decay_rates);
+      result.set_neutral_decays(CP_odd_higgs, sHneut[CP_odd_higgs], *Dep::A0_decay_rates);
+      result.set_charged_decays(light_higgs, "H+", *Dep::H_plus_decay_rates);
       result.set_t_decays(*Dep::t_decay_rates);
 
       // Use the branching fractions to compute gluon, gamma/Z effective couplings
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < NUMBER_OF_NEUTRAL_HIGGS; i++)
       {
         result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int, int>(21, 0), std::pair<int, int>(21, 0));
         result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(22, 0), std::pair<int, int>(22, 0));
@@ -3946,7 +3964,7 @@ namespace Gambit
       THDM_couplings SM_couplings;
 
       // loop over each neutral higgs
-      for (int h = 1; h <= 3; h++)
+      for (int h = 1; h <= NUMBER_OF_NEUTRAL_HIGGS; h++)
       {
         // init an SM like container for each neutral higgs
         BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, 1, 0.0, byVal(h));
@@ -3958,7 +3976,7 @@ namespace Gambit
       double cs, cp;
 
       // Use couplings to get effective fermion & diboson couplings
-      for (int h = 1; h <= 3; h++)
+      for (int h = 1; h <= NUMBER_OF_NEUTRAL_HIGGS; h++)
       {
         // s
         cs = (couplings.hdd_cs[h][2][2].imag() / couplings_SM_like[h - 1].hdd_cs[1][2][2].imag());
@@ -4001,7 +4019,7 @@ namespace Gambit
         // W
         result.C_WW[h - 1] = couplings.vvh[3][3][h].imag() / couplings_SM_like[h - 1].vvh[3][3][1].imag();
 
-        for (int h2 = 1; h2 <= 3; h2++)
+        for (int h2 = 1; h2 <= NUMBER_OF_NEUTRAL_HIGGS; h2++)
         {
           result.C_hiZ[h - 1][h2 - 1] = (couplings.vhh[2][h][h2].real()) / (g / 2. / costw);
         }

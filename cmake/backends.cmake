@@ -1360,8 +1360,8 @@ if(NOT ditched_${name}_${ver})
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss 
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
-          COMMAND patch -u src/BOSS_SM.cpp -i ${patch}/BOSS_SM.cpp.patch 
-          COMMAND patch -u src/BOSS_THDM.cpp -i ${patch}/BOSS_THDM.cpp.patch
+          COMMAND patch -u src/BOSS_SM.cpp -i ${patch}/BOSS_SM.cpp.patch || true
+          COMMAND patch -u src/BOSS_THDM.cpp -i ${patch}/BOSS_THDM.cpp.patch || true
           COMMAND ${CMAKE_MAKE_PROGRAM} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
           COMMAND ${CMAKE_MAKE_PROGRAM} GSLLIBS=${GSL_LIB_FLAGS} sharedlib
     INSTALL_COMMAND ""
