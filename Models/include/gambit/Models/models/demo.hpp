@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///  \date 2013 May
 ///  \date 2014 Mar
@@ -22,6 +22,41 @@
 #ifndef __demo_hpp__
 #define __demo_hpp__
 
+#define MODEL trivial_1d
+  START_MODEL
+  DEFINEPARS(x1)
+#undef MODEL
+
+#define MODEL trivial_2d
+  START_MODEL
+  DEFINEPARS(x1, x2)
+#undef MODEL
+
+#define MODEL trivial_3d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3)
+#undef MODEL
+
+#define MODEL trivial_4d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4)
+#undef MODEL
+
+#define MODEL trivial_5d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4, x5)
+#undef MODEL
+
+#define MODEL trivial_7d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4, x5, x6, x7)
+#undef MODEL
+
+#define MODEL trivial_10d
+  START_MODEL
+  DEFINEPARS(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10)
+#undef MODEL
+
 // This is the normal distribution toy model used in ExampleBit_A.
 #define MODEL NormalDist
   START_MODEL
@@ -35,12 +70,12 @@
 #undef MODEL
 
 // The following are some examples that demonstrate the available ways to declare
-// models and their relationships.  These are commented out as they are not necessary for  
+// models and their relationships.  These are commented out as they are not necessary for
 // any of the module examples, but you can uncomment and experiment with them in order to
 // learn about model declaration in GAMBIT if you like.
 
 /*
- 
+
 #include "gambit/Logs/logging.hpp"
 #include <string>
 
@@ -74,18 +109,18 @@
   void MODEL_NAMESPACE::kevin_bacon_IAPfunc (const ModelParameters &myparams, ModelParameters &parentparams)
   {
       logger()<<"Running interpret_as_parent calculations for kevin_bacon -> the_ancient_one ..."<<EOM;
-      
+
       double M1 = myparams["M1"];
       double M2 = myparams["M2"];
       double M3 = myparams["M3"];
       double AU1 = myparams["AU1"];
       double AU2 = myparams["AU2"];
       double AU3 = myparams["AU3"];
-    
+
       parentparams.setValue("p1", 0.01*M1*M2+AU1);
       parentparams.setValue("p2", 0.10*M2*M3+AU2);
       parentparams.setValue("p3", 1.00*M1*M3+AU3);
-  } 
+  }
 #undef PARENT
 #undef MODEL
 
@@ -94,22 +129,22 @@
 #define PARENT kevin_bacon
   START_MODEL
   DEFINEPARS(M0, M12, A0, Mstop, tanb, sgnmu)
-  
+
   // Attach a CAPABILITY to a parameter.
   // This creates a new module function with CAPABILITY = Mstop_obs, TYPE = double and MODULE = MODEL.
   MAP_TO_CAPABILITY(Mstop, Mstop_obs)
 
-  // Declare the interpret-as-parent function for going up the model hierarchy to kevin_bacon.  
+  // Declare the interpret-as-parent function for going up the model hierarchy to kevin_bacon.
   INTERPRET_AS_PARENT_FUNCTION(demo_A_IAPfunc)
 
   // Give the new interpret-as-parent function a dependency, a la regular GAMBIT module functions.
   INTERPRET_AS_PARENT_DEPENDENCY(id, std::string)
-  
+
   // Define the interpret-as-parent function.  This can also be done in a source file if you prefer.
   void MODEL_NAMESPACE::demo_A_IAPfunc (const ModelParameters &myparams, ModelParameters &parentparams)
   {
       // Finding the correct Pipes to retrieve dependencies in model functions can take
-      // a little effort.  To save this effort, use the USE_MODEL_PIPE(MODEL_X) macro. 
+      // a little effort.  To save this effort, use the USE_MODEL_PIPE(MODEL_X) macro.
       // This macro just expands to the following:
       //   using namespace Gambit::Models::MODEL::Pipes::MODEL_X_parameters;
       // which points to the Pipes for the module function that wraps the user-defined
@@ -117,15 +152,15 @@
       USE_MODEL_PIPE(PARENT)
 
       logger()<<"Running interpret_as_parent calculations for demo_A -> kevin_bacon ..."<<EOM;
-      
+
       double M0  = myparams["M0"];
       double A0  = myparams["A0"];
-      
+
       // Play around with the extra info obtained from the dependency.
       logger()<<"identity dependency has supplied the value: "<<*Dep::id<<EOM;
-      
-      // Grab a reference to the parent parameter object and set some values. 
-      // The parent parameter object already exists if we have gotten this 
+
+      // Grab a reference to the parent parameter object and set some values.
+      // The parent parameter object already exists if we have gotten this
       // far (it was created along with the functor that wraps this function).
       parentparams.setValue("M1", M0);
       parentparams.setValue("M2", 0.5*M0);
@@ -183,7 +218,7 @@
   {
       // Get the Pipes for the interpret-as-parent function
       USE_MODEL_PIPE(PARENT)
-      logger()<<"Running interpret_as_parent calculations for demo_B -> demo_B_ancestor ..."<<EOM;     
+      logger()<<"Running interpret_as_parent calculations for demo_B -> demo_B_ancestor ..."<<EOM;
       parentparams.setValue("X",myparams["X"]);
       parentparams.setValue("Y",2.0*myparams["Y"]);
       parentparams.setValue("Z",myparams["Z"]);
@@ -193,7 +228,7 @@
   {
       // Get the Pipes for the interpret-as-X function
       USE_MODEL_PIPE(kevin_bacon)
-      logger()<<"Running interpret_as_X calculations for demo_B -> kevin_bacon ..."<<EOM;     
+      logger()<<"Running interpret_as_X calculations for demo_B -> kevin_bacon ..."<<EOM;
       kevin_bacon_params.setValue("M1",myparams["X"]);
       kevin_bacon_params.setValue("M2",myparams["Y"]);
       kevin_bacon_params.setValue("M3",myparams["Z"]);
@@ -215,7 +250,7 @@
   {
       // Get the Pipes for the interpret-as-parent function
       USE_MODEL_PIPE(PARENT)
-      logger()<<"Running interpret_as_parent calculations for demo_B_subspace -> demo_B ..."<<EOM;     
+      logger()<<"Running interpret_as_parent calculations for demo_B_subspace -> demo_B ..."<<EOM;
       parentparams.setValue("X",1.0);
       parentparams.setValue("Y",myparams["Y"]);
       parentparams.setValue("Z",myparams["Z"]);
@@ -229,7 +264,7 @@
 // (rather than putting them in some other module)
 // Basically the generalisation of MAP_TO_CAPABILITY, just using the normal module function
 // macros
-// 
+//
 #define MODEL demo_CAP
   START_MODEL
   DEFINEPARS(a,b,c)
@@ -242,7 +277,7 @@
     ALLOW_MODELS(demo_CAP)
     DEPENDENCY(xsection, double) // From ExampleBit_A
     // Other module-function macros not tested in model context
-    // Please submit a bug report if they don't work for you! 
+    // Please submit a bug report if they don't work for you!
    #undef FUNCTION
 
   #undef CAPABILITY

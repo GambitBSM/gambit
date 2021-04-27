@@ -5499,4 +5499,37 @@ vevacious_1_0_init: |
 pass_spectrum_to_vevacious: |
     Adds all entries of the spectrum object (as SLHAea) that need to be passed to vevacious to an instance of type SpectrumEntriesForVevacious and returns this instance. The actual passing happens in the helper function exec_pass_spectrum_to_vevacious which gets executed every time before a vevacious call. Model dependent.
 
+#-------------------------------------
+#  ObjectivesBit capabilities
+#-------------------------------------
 
+gaussian: |
+  Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
+rosenbrock: |
+  Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
+himmelblau: |
+  Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
+mccormick: |
+  Two-dimensional McCormick function.
+ackley: |
+  Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
+eggbox: |
+  Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
+rastrigin: |
+  Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function 
+beale: |
+  Two-dimensional Beale function.
+shells: |
+  Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
+styblinski_tang: |
+  Multi-dimensional Styblinski-Tang function.
+easom: |
+  Two-dimensional Easom function.
+tf1: |
+  Analytic function 1 from https://arxiv.org/abs/2101.04525
+tf2: |
+  Analytic function 2 from https://arxiv.org/abs/2101.04525
+tf3: |
+  Analytic function 3 from https://arxiv.org/abs/2101.04525
+tf4: |
+  Analytic function 4 from https://arxiv.org/abs/2101.04525
