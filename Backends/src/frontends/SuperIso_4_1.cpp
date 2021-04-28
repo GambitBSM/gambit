@@ -23,6 +23,10 @@
 /// \date 2016
 /// \date 2017
 ///
+/// \author Cristian Sierra
+/// \date 2021 April
+///         (cristian.sierra@monash.edu)
+///
 ///  *********************************************
 
 #include <sstream>
@@ -50,7 +54,9 @@ BE_NAMESPACE
   /// except O_7, O_9, O_10, Q_1 and Q_2.
   void modify_WC(const parameters *param, std::complex<double> C0b[11])
   {
+    C0b[2]+=std::complex<double>(param->Re_DeltaC2, param->Im_DeltaC2);
     C0b[7]+=std::complex<double>(param->Re_DeltaC7, param->Im_DeltaC7);
+    C0b[8]+=std::complex<double>(param->Re_DeltaC8, param->Im_DeltaC8);
     C0b[9]+=std::complex<double>(param->Re_DeltaC9, param->Im_DeltaC9);
     C0b[10]+=std::complex<double>(param->Re_DeltaC10, param->Im_DeltaC10);
   }
@@ -63,6 +69,7 @@ BE_NAMESPACE
   
    void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
+    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
     Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
     Cpb[9]+=std::complex<double>(param->Re_DeltaC9_Prime, param->Im_DeltaC9_Prime);
     Cpb[10]+=std::complex<double>(param->Re_DeltaC10_Prime, param->Im_DeltaC10_Prime);

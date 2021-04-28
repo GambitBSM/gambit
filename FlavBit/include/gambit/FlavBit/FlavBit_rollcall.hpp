@@ -466,6 +466,21 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY  
 
+// ---------------------------------
+//  Wilson coefficients in the GTHDM
+// ---------------------------------
+
+//C2 in the general THDM capability
+  #define CAPABILITY DeltaC2
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC2
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 //C7 in the general THDM capability
   #define CAPABILITY DeltaC7
   START_CAPABILITY
@@ -477,6 +492,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
   
+//C8 in the general THDM capability
+  #define CAPABILITY DeltaC8
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC8
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 //C9 in the general THDM capability
   #define CAPABILITY DeltaC9
   START_CAPABILITY
@@ -503,6 +529,17 @@ START_MODULE
   #define CAPABILITY DeltaC7_Prime
   START_CAPABILITY
     #define FUNCTION calculate_DeltaC7_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//C8' in the general THDM capability
+  #define CAPABILITY DeltaC8_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC8_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -575,6 +612,9 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY  
+
+//  End of WCs in the GTHDM
+// -------------------------------
   
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
