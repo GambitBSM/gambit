@@ -104,6 +104,7 @@ START_MODULE
     // Set f_eff to a constant that the user can choose
     #define FUNCTION f_eff_constant
     START_FUNCTION(double)
+    ALLOW_MODELS(AnnihilatingDM_general,DecayingDM_general)
     #undef FUNCTION
   #undef CAPABILITY
 
