@@ -47,7 +47,7 @@
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
-///  \date 2021 Jan- March
+///  \date 2021 Jan-April
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -799,8 +799,12 @@ namespace Gambit
       }
       if (ModelInUse("THDMatQ"))
       {
+        result.Re_DeltaC2  = Dep::DeltaC7->real();
+        result.Im_DeltaC7  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
         result.Im_DeltaC7  = Dep::DeltaC7->imag();
+        result.Re_DeltaC8  = Dep::DeltaC8->real();
+        result.Im_DeltaC8  = Dep::DeltaC8->imag();
         result.Re_DeltaC9  = Dep::DeltaC9->real();
         result.Im_DeltaC9  = Dep::DeltaC9->imag();
         result.Re_DeltaC10 = Dep::DeltaC10->real();
@@ -812,6 +816,8 @@ namespace Gambit
         // Prime WCs
         result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
         result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
+        result.Re_DeltaC8_Prime  = Dep::DeltaC8_Prime->real();
+        result.Im_DeltaC8_Prime  = Dep::DeltaC8_Prime->imag();
         result.Re_DeltaC9_Prime  = Dep::DeltaC9_Prime->real();
         result.Im_DeltaC9_Prime  = Dep::DeltaC9_Prime->imag();
         
@@ -987,12 +993,10 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_ct = Yct/cosb;
       double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
@@ -1023,23 +1027,18 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double mC = Dep::SMINPUTS->mCmC;
       const double mT = Dep::SMINPUTS->mT;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_ct = Yct/cosb;
-      double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
@@ -1067,23 +1066,18 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double mC = Dep::SMINPUTS->mCmC;
       const double mT = Dep::SMINPUTS->mT;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_ct = Yct/cosb;
-      double xi_tc = Ytc/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
@@ -1138,165 +1132,195 @@ namespace Gambit
 
          return ((-1 + t + t*log(1/t)))/(16.*pow(t-1,2));
     }
+    
+    //Function for GTHDM WCs 9,10 and primes
+    void THDM_DeltaC_NP(int wc, int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, std::complex<double> &result)
+    {
+      const double tanb = spectrum.get(Par::dimensionless,"tanb");
+      const double beta = atan(tanb);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double cosb = cos(beta);
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mS = (*sminputspointer)->mS;
+      const double mCmC = (*sminputspointer)->mCmC;
+      const double mT = (*sminputspointer)->mT;
+      const double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
+      const double SW = sqrt(1 - pow(mW/mZ,2));
+      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      //const double rhobar = (*sminputspointer)->CKM.rhobar;
+      //const double etabar = (*sminputspointer)->CKM.etabar;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double Vub = 0;//This should be improved to call directly an Eigen object
+      const double Vus = lambda;
+      const double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      const double xi_cc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const double xi_tc = Ytc/cosb;
+      const double xi_ct = Yct/cosb;
+      const double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      const double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      const double xi_sb = Ysb/cosb;
+      const double xi_bs = Ybs/cosb;
+      const double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const double xi_mutau = Ymutau/cosb;
+      const double xi_taumu = Ytaumu/cosb;
+      const double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+
+      Eigen::Matrix3cd xi_L;
+
+      xi_L << 0,       0,       0,
+              0,  xi_mumu, xi_mutau,
+              0, xi_taumu, xi_tautau;
+
+      Eigen::Vector3cd xil_m1 = xi_L.col(1);
+      Eigen::Vector3cd xil_m1conj = xil_m1.conjugate();
+      Eigen::Vector3cd xilp_m2 = xi_L.col(2);
+
+
+      std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+                                      (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));        
+      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+                                  (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
+      std::complex<double> C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
+  
+      std::complex<double> C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
+
+      std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
+
+      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
+
+      std::complex<double> C10p_Z = (1/(4*SW*SW-1))*C9p_Z;
+
+      switch(wc)
+      {
+        case 9:
+           if((l==1 && lp==2)||(l==2 && lp==1))
+           {
+           std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+      
+           result = C9_gamma + C9_Z + C9_Zmix + C9_Box;
+           }
+           else
+           {
+           std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+    
+           result = C9_gamma + C9_Z + C9_Zmix + C9_Box;
+           } 
+           break;
+
+        case 10:
+           if((l==1 && lp==2)||(l==2 && lp==1))
+           {
+           std::complex<double> C10_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+
+           result = C10_Ztotal + C10_Box;
+           }
+           else
+           {
+           std::complex<double> C10_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+
+           result = C10_Ztotal + C10_Box;
+           }
+           break;
+
+        case 11://C9prime
+           if((l==1 && lp==2)||(l==2 && lp==1))
+           {
+           std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
+           result = C9p_gamma + C9p_Z + C9p_Box;//C9p_Zmix contribution is suppressed by the strange quark mass
+           }
+           else
+           {
+           std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
+
+           result = C9p_gamma + C9p_Z + C9p_Box;//C9p_Zmix contribution is suppressed by the strange quark mass
+           }
+           break;
+
+        case 12://C10prime
+           if((l==1 && lp==2)||(l==2 && lp==1))
+           {
+           std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
+           result = C10p_Z + C10p_Box;
+           }
+           else
+           {
+           std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
+           
+           result = C10p_Z + C10p_Box;
+           }
+           break;
+
+      }
+    }
 
     /// Delta C9 from the general THDM
     void calculate_DeltaC9(std::complex<double> &result)
     {
-      using namespace Pipes::calculate_DeltaC9;
-      Spectrum spectrum = *Dep::THDM_spectrum;
+      using namespace Pipes::calculate_DeltaC9; 
       SMInputs sminputs = *Dep::SMINPUTS;
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double mT = Dep::SMINPUTS->mT;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mC = Dep::SMINPUTS->mCmC;
-      const double mMu = Dep::SMINPUTS->mMu;
-      const double mZ = Dep::SMINPUTS->mZ;
-      const double mW = Dep::SMINPUTS->mW;
-      const double SW = sqrt(1-pow(mW/mZ,2));
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_tc = Ytc/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
-      double xi_ct = Yct/cosb;
-      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_taumu = Ytaumu/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      //CKM elements
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vts = -A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      // cout<< "Vcb = " << Vcb << endl;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 1;
 
-      std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-                                      (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
-
-      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-                                  (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
-
-      std::complex<double> C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
-
-      std::complex<double> C9_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
-
-      result = C9_gamma + C9_Z + C9_Zmix + C9_Box;
-
+      THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-    /// Delta C10 from the general THDM
+      /// Delta C10 from the general THDM
     void calculate_DeltaC10(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10;
-      Spectrum spectrum = *Dep::THDM_spectrum;
       SMInputs sminputs = *Dep::SMINPUTS;
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double mT = Dep::SMINPUTS->mT;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mC = Dep::SMINPUTS->mCmC;
-      const double mMu = Dep::SMINPUTS->mMu;
-      const double mZ = Dep::SMINPUTS->mZ;
-      const double mW = Dep::SMINPUTS->mW;
-      const double SW = sqrt(1-pow(mW/mZ,2));
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_tc = Ytc/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
-      double xi_ct = Yct/cosb;
-      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_taumu = Ytaumu/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      //CKM elements
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vts = -A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-     // cout<<"Vcs is  = "<<Vcs<<endl; 
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 1;
 
-      std::complex<double> C10_Z =  (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_tc*conj(Vcs) + xi_tt*conj(Vts))*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
-
-      std::complex<double> C10_Box =   (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(pow(xi_mumu,2) + pow(xi_taumu,2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2)); 
-
-      std::complex<double> C10_Zmix = (mBmB*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
-
-      result = C10_Z + C10_Box + C10_Zmix;
+      THDM_DeltaC_NP(10, l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-    /// Prime Wilson Coefficients in the GTHDM      
+ 
+    /// Delta C9' from the general THDM
+    void calculate_DeltaC9_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 1;
 
-    // Delta C2' from the GTHDM
-    //void calculate_DeltaC2_Prime(std::complex<double> &result)
-    //{
-     // using namespace Pipes::calculate_DeltaC2_Prime;
-      //Spectrum spectrum = *Dep::THDM_spectrum;
-      //SMInputs sminputs = *Dep::SMINPUTS;
-      //const double lambda = Dep::SMINPUTS->CKM.lambda;
-      //const double A = Dep::SMINPUTS->CKM.A;
-      //const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      //double tanb = spectrum.get(Par::dimensionless,"tanb");
-      //double beta = atan(tanb);
-      //double cosb = cos(beta);
-      //const double mT = Dep::SMINPUTS->mT;
-      //const double mS = Dep::SMINPUTS->mS;
-      //const double mBmB = Dep::SMINPUTS->mBmB;
-      //const double mC = Dep::SMINPUTS->mCmC;
-      //double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      //Yukawa couplings
-      //double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      //double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      //double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      //double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      //double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      //double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      //double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      //double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      //double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      //double xi_sb = Ysb/cosb;
-      //double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      //double xi_bs = Ybs/cosb;
-      //double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
-      //double xi_tc = Ytc/cosb;
-      //const double Vcs = 1 - (1/2)*lambda*lambda;
-      //const double Vts = -A*lambda*lambda;
-      //const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      //const double Vcb = A*lambda*lambda;
+      THDM_DeltaC_NP(11, l, lp, sminputs, sminputspointer, spectrum, result);
+    }
 
+    /// Delta C10' from the general THDM
+    void calculate_DeltaC10_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 1;
 
-     // std::complex<double> C2diag = -7.*((Vcb*xi_bb + Vcs*xi_sb)*(conj(Vcb)*conj(xi_bs) + conj(Vcs)*conj(xi_ss)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
-
-      //std::complex<double> C2mix = -(mC*(conj(Vcb)*conj(xi_bs) + conj(Vcs)*conj(xi_ss))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
-
-      //result = C2diag + C2mix;
-
-    //}
+      THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum, result);
+    }
 
     // Delta C7' from the GTHDM
     void calculate_DeltaC7_Prime(std::complex<double> &result)
@@ -1311,26 +1335,17 @@ namespace Gambit
       double beta = atan(tanb);
       double cosb = cos(beta);
       const double mT = Dep::SMINPUTS->mT;
-      const double mS = Dep::SMINPUTS->mS;
       const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      double xi_bs = Ybs/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
       double xi_tc = Ytc/cosb;
-      const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -1338,12 +1353,11 @@ namespace Gambit
       std::complex<double> C7p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
                +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
 
-
       result = C7p0;
 
     }
 
-    // Delta C7' from the GTHDM
+    // Delta C8' from the GTHDM
     void calculate_DeltaC8_Prime(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC8_Prime;
@@ -1356,26 +1370,17 @@ namespace Gambit
       double beta = atan(tanb);
       double cosb = cos(beta);
       const double mT = Dep::SMINPUTS->mT;
-      const double mS = Dep::SMINPUTS->mS;
       const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      double xi_bs = Ybs/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
       double xi_tc = Ytc/cosb;
-      const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -1385,108 +1390,6 @@ namespace Gambit
 
 
       result = C8p0;
-
-    }
-
-    /// Delta C9' from the general THDM
-    void calculate_DeltaC9_Prime(std::complex<double> &result)
-    {
-      using namespace Pipes::calculate_DeltaC9_Prime;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double mT = Dep::SMINPUTS->mT;
-      const double mS = Dep::SMINPUTS->mS;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mMu = Dep::SMINPUTS->mMu;
-      const double mZ = Dep::SMINPUTS->mZ;
-      const double mW = Dep::SMINPUTS->mW;
-      const double SW = sqrt(1-pow(mW/mZ,2));
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      //Yukawa couplings
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      double xi_bs = Ybs/cosb;
-      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_taumu = Ytaumu/cosb;
-      //CKM elements
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vts = -A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      const double Vub = 0;//This should be improved to call directly an Eigen object, for the moment this approximation should be fine
-      const double Vus = lambda;
-
-      std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
-
-      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
-
-      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
-
-
-      result = C9p_gamma + C9p_Z + C9p_Box;//The C9p_Zmix contribution is suppressed by the strange quark mass
-
-    }
-
-    /// Delta C10' from the general THDM
-    void calculate_DeltaC10_Prime(std::complex<double> &result)
-    {
-      using namespace Pipes::calculate_DeltaC10_Prime;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double mT = Dep::SMINPUTS->mT;
-      const double mS = Dep::SMINPUTS->mS;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mMu = Dep::SMINPUTS->mMu;
-      const double mZ = Dep::SMINPUTS->mZ;
-      const double mW = Dep::SMINPUTS->mW;
-      const double SW = sqrt(1-pow(mW/mZ,2));
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      //Yukawa couplings
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      double xi_bs = Ybs/cosb;
-      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_taumu = Ytaumu/cosb;
-      //CKM elements
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vts = -A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      const double Vub = 0;//This should be improved to call directly an Eigen object, for the moment this approximation should be fine
-      const double Vus = lambda;
-
-
-      std::complex<double> C10p_Z = (1/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_sb*Vtb)*
-                                   (xi_bb*Vtb + xi_sb*Vts)*CHp(pow(mT/mHp,2));
-      std::complex<double> C10p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp)*((pow(xi_mumu,2) + pow(xi_taumu,2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss)))*BHpp(pow(mT/mHp,2)));
-
-      result = C10p_Z + C10p_Box;
 
     }
 
