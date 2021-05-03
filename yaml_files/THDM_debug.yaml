@@ -78,11 +78,11 @@ Parameters:
     yl2_re_12: 0
     yl2_re_13: 0
     yl2_re_21: 0
-    yl2_re_22: 0.10581
-    yl2_re_23: -0.109674
+    yl2_re_22: 0.1
+    yl2_re_23: -0.1
     yl2_re_31: 0
-    yl2_re_32: -0.109674
-    yl2_re_33: 0.0472628
+    yl2_re_32: -0.1
+    yl2_re_33: 0.03
     yu2_im_11: 0
     yu2_im_12: 0
     yu2_im_13: 0
@@ -271,6 +271,11 @@ ObsLikes:
       function: l2lgamma_likelihood
       purpose: LogLike
 
+     # # Bs->llp 
+    - capability: Bs2llp_lnL
+      function: Bs2llp_likelihood
+      purpose: LogLike
+
     # # l->lll
     - capability: l2lll_lnL
       function: l2lll_likelihood
@@ -381,8 +386,8 @@ ObsLikes:
       function: THDM_Delta_MBs
       purpose: Observable
 
-    #- purpose:    LogLike
-    #  capability: RDRDstar_LogLikelihood
+    - purpose:    LogLike
+      capability: RDRDstar_LogLikelihood
 
     #################
     # Observables
@@ -391,6 +396,16 @@ ObsLikes:
     - capability: THDM_spectrum
       purpose: Observable
       type: map_str_dbl
+
+    - capability: DeltaC2
+      function: calculate_DeltaC2
+      module: FlavBit
+      purpose: Observable
+
+   # - capability: DeltaC2_Prime
+    #  function: calculate_DeltaC2_Prime
+    #  module: FlavBit
+    #  purpose: Observable
  
     - capability: DeltaC7
       function: calculate_DeltaC7
@@ -399,6 +414,16 @@ ObsLikes:
 
     - capability: DeltaC7_Prime
       function: calculate_DeltaC7_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8
+      function: calculate_DeltaC8
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8_Prime
+      function: calculate_DeltaC8_Prime
       module: FlavBit
       purpose: Observable
 
@@ -429,6 +454,26 @@ ObsLikes:
 
     - capability: DeltaCQ2
       function: calculate_DeltaCQ2
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ1_Prime
+      function: calculate_DeltaCQ1_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ2_Prime
+      function: calculate_DeltaCQ2_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bs2mutau
+      function: THDM_Bs2mutau
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bs2tautau
+      function: THDM_Bs2tautau
       module: FlavBit
       purpose: Observable
 
