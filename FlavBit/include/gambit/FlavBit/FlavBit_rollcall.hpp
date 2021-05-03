@@ -40,7 +40,7 @@
 ///
 ///  \author Cristian Sierra
 ///  \date 2020 June-December
-///  \date 2021 Jan-March
+///  \date 2021 Jan-May
 ///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
@@ -466,9 +466,41 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY  
 
-// ---------------------------------
-//  Wilson coefficients in the GTHDM
-// ---------------------------------
+//Observable: Bs2mutau 
+  #define CAPABILITY Bs2mutau
+  START_CAPABILITY
+    #define FUNCTION THDM_Bs2mutau
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ //Observable: Bs2tautau 
+  #define CAPABILITY Bs2tautau
+  START_CAPABILITY
+    #define FUNCTION THDM_Bs2tautau
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// Bs2llp likelihood
+  #define CAPABILITY Bs2llp_lnL
+  START_CAPABILITY
+    #define FUNCTION Bs2llp_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(Bs2mutau, double)
+    DEPENDENCY(Bs2tautau, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ // ---------------------------------
+ //  Wilson coefficients in the GTHDM
+ // ---------------------------------
 
 //C2 in the general THDM capability
   #define CAPABILITY DeltaC2
