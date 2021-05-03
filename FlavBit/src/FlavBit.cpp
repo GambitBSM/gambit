@@ -5417,7 +5417,7 @@ namespace Gambit
     ///      Likelihoods section      ///
     ///-------------------------------///
 
-    /// Likelihood for l -> l gamma processes
+    /// Likelihood for Bs -> mu tau and Bs -> tau tau
     void Bs2llp_likelihood(double &result)
     {
       using namespace Pipes::Bs2llp_likelihood;
@@ -5442,8 +5442,6 @@ namespace Gambit
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
-        cout<<"value_exp0= "<<value_exp(0,0)<<endl;
-        cout<<"value_exp1= "<<value_exp(1,0)<<endl;
 
         for (int i = 0; i < 2; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
