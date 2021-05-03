@@ -563,7 +563,8 @@ namespace Gambit
     }
 
     // fills THDM charged model input for HB 4/5
-    void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
+    void THDM_ModelParameters_charged(hb_charged_ModelParameters &result)
+    {
         using namespace Pipes::THDM_ModelParameters_charged;
 
         // Retrieve higgs partial widths
