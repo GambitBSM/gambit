@@ -1243,7 +1243,7 @@ namespace Gambit
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      const double Vub = 0;//This should be improved to call directly an Eigen object
+      const double Vub = 0;//This should be improved by directly calling an Eigen object
       const double Vus = lambda;
       const double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       const double xi_cc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
@@ -1296,6 +1296,7 @@ namespace Gambit
       std::complex<double> CR_nunu = -C9p_Box;
 
       const double CL_SM = -1.469/pow(SW,2);
+      const double denom = norm(CL_nunu+CL_SM)+norm(CR_nunu);
 
       switch(wc)
       {
@@ -1316,18 +1317,26 @@ namespace Gambit
            break;
 
         case 13://epsilon for b->snunu from 1409.4557
-           return  sqrt(norm(CL_nunu)+norm(CR_nunu))/abs(CL_SM);
-           break;
-
-        case 14://eta for b->snunu from 1409.4557
-           if(norm(CL_nunu)+norm(CR_nunu) == 0)
+           if(l != lp)
            {
            return 0;
            break;
            }
            else
            {
-           return  -real(CL_nunu*conj(CR_nunu))/norm(CL_nunu)+norm(CR_nunu);
+           return  sqrt(norm(CL_nunu + CL_SM)+norm(CR_nunu))/abs(CL_SM);
+           break;
+           }
+
+        case 14://eta for b->snunu from 1409.4557
+           if(denom == 0)
+           {
+           return 0;
+           break;
+           }
+           else
+           {
+           return  -real((CL_nunu+CL_SM)*conj(CR_nunu))/denom;
            break;
            }
       }
@@ -1405,11 +1414,11 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       double RKnunu = 0;
 
-      for (int i = 1; i < 3; i += 2)
+      for (int i = 0; i <= 2; ++i)
       {
-        for (int j = 1; j < 3; j += 2)
+        for (int j = 0; j <= 2; ++j)
         {
-         RKnunu += (1/3)*(1-2*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+         RKnunu += (0.33333333)*(1-2*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
         }
       }
 
@@ -1426,11 +1435,11 @@ namespace Gambit
       double RKstarnunu = 0;
       double kappa = 1.34;
 
-      for (int i = 1; i < 3; i += 2)
+      for (int i = 0; i <= 2; ++i)
       {
-        for (int j = 1; j < 3; j += 2)
+        for (int j = 0; j <= 2; ++j)
         {
-         RKstarnunu += (1/3)*(1 + kappa*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+         RKstarnunu += (0.33333333)*(1 + kappa*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
         }
       }
 
