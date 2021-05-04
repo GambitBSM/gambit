@@ -47,7 +47,7 @@
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
-///  \date 2021 Jan-April
+///  \date 2021 Jan-May
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -1271,11 +1271,11 @@ namespace Gambit
 
       std::complex<double> C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
                                       (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));        
-      std::complex<double> C9_Z =  ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
+      std::complex<double> C9_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
                                   (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
       std::complex<double> C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
 
-      std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));  
+      std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));  
 
       std::complex<double> C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
 
@@ -1285,43 +1285,52 @@ namespace Gambit
 
       std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
  
-      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss))*BHpp(pow(mT/mHp,2)); 
+      std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss))*BHpp(pow(mT/mHp,2)); 
 
       std::complex<double> C10p_Z = (1/(4*SW*SW-1))*C9p_Z;
 
       std::complex<double> C10p_Box = C9p_Box;
 
+      std::complex<double> CL_nunu = -C9_Box;
+
+      std::complex<double> CR_nunu = -C9p_Box;
+
+      const double CL_SM = -1.469/pow(SW,2);
+
       switch(wc)
       {
         case 9:
-           C9_Box*= (xil_m1conj.dot(xilp_m2));       
            return  C9_gamma + C9_Z + C9_Zmix + C9_Box;
-            
            break;
 
         case 10:
-           C10_Box*= (xil_m1conj.dot(xilp_m2)); 
            return  C10_Ztotal + C10_Box;
-
            break;
 
         case 11://C9prime
-           C9p_Box*= (xil_m1conj.dot(xilp_m2));
-
            return  C9p_gamma + C9p_Z + C9p_Box;//C9p_Zmix contribution is suppressed by the strange quark mass
-
            break;
 
         case 12://C10prime
-           {
-            C10p_Box*= (xil_m1conj.dot(xilp_m2));
-
            return  C10p_Z + C10p_Box;//C10p_Zmix contribution is suppressed by the strange quark mass
-          
            break;
 
-            }
-         }
+        case 13://epsilon for b->snunu from 1409.4557
+           return  sqrt(norm(CL_nunu)+norm(CR_nunu))/abs(CL_SM);
+           break;
+
+        case 14://eta for b->snunu from 1409.4557
+           if(norm(CL_nunu)+norm(CR_nunu) == 0)
+           {
+           return 0;
+           break;
+           }
+           else
+           {
+           return  -real(CL_nunu*conj(CR_nunu))/norm(CL_nunu)+norm(CR_nunu);
+           break;
+           }
+      }
     } 
 
     /// Delta C9 from the general THDM
@@ -1372,6 +1381,62 @@ namespace Gambit
 
       result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
     }
+
+    ///epsilon for b->snunu 
+    double epsilon(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
+    {
+      std::complex<double> epsilonij = THDM_DeltaC_NP(13, l, lp, sminputs, sminputspointer, spectrum);
+      return real(epsilonij);
+    }
+
+    ///eta for b->snunu 
+    double eta(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
+    {
+      std::complex<double> etaij = THDM_DeltaC_NP(14, l, lp, sminputs, sminputspointer, spectrum);
+      return real(etaij);
+    }
+
+   /// RKnunu for b->snunu in the GTHDM
+    void THDM_RKnunu(double &result)
+    {
+      using namespace Pipes::THDM_RKnunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double RKnunu = 0;
+
+      for (int i = 1; i < 3; i += 2)
+      {
+        for (int j = 1; j < 3; j += 2)
+        {
+         RKnunu += (1/3)*(1-2*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+        }
+      }
+
+      result = RKnunu;
+    }
+
+   /// RKstarnunu for b->snunu in the GTHDM
+    void THDM_RKstarnunu(double &result)
+    {
+      using namespace Pipes::THDM_RKstarnunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double RKstarnunu = 0;
+      double kappa = 1.34;
+
+      for (int i = 1; i < 3; i += 2)
+      {
+        for (int j = 1; j < 3; j += 2)
+        {
+         RKstarnunu += (1/3)*(1 + kappa*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+        }
+      }
+
+      result = RKstarnunu;
+    }
+
 
     double THDM_Bs2llp(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
     {
@@ -5460,6 +5525,51 @@ namespace Gambit
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
 
     }
+
+ /// Likelihood for  RKnunu and RKstarnunu
+    void RK_RKstarnunu_likelihood(double &result)
+    { 
+      using namespace Pipes::RK_RKstarnunu_likelihood;
+      
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[2];
+      double theory[2];
+      
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      { 
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        
+        // RKnunu
+        fread.read_yaml_measurement("flav_data.yaml", "RKnunu");
+        // RKstarnunu
+        fread.read_yaml_measurement("flav_data.yaml", "RKstarnunu");
+        
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+        
+        for (int i = 0; i < 2; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+        
+        // Init over.
+        first = false;
+      }
+     
+     theory[0] = *Dep::RKnunu;
+     if(flav_debug) cout << "RKnunu = " << theory[0] << endl;
+     theory[1] = *Dep::RKstarnunu;
+     if(flav_debug) cout << "RKstarnunu = " << theory[1] << endl;
+
+     result = 0;
+     for (int i = 0; i < 2; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
 
     /// Likelihood for  mu-e universality
     void gmu_ge_likelihood(double &result)

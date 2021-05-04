@@ -498,6 +498,38 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+//Observable: RKnunu
+  #define CAPABILITY RKnunu
+  START_CAPABILITY
+    #define FUNCTION THDM_RKnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//Observable: RKstarnunu
+  #define CAPABILITY RKstarnunu
+  START_CAPABILITY
+    #define FUNCTION THDM_RKstarnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//  RKnunu and RKstarnunu likelihood
+  #define CAPABILITY RK_RKstarnunu_lnL
+  START_CAPABILITY
+    #define FUNCTION RK_RKstarnunu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(RKnunu, double)
+    DEPENDENCY(RKstarnunu, double)
+    #undef FUNCTION
+  #undef CAPABILITY 
+
  // ---------------------------------
  //  Wilson coefficients in the GTHDM
  // ---------------------------------
