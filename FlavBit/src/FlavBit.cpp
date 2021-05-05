@@ -1504,6 +1504,51 @@ namespace Gambit
       result = THDM_Bs2llp(l, lp, sminputs, sminputspointer, spectrum);
     }
 
+    double THDM_B2Kllp(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
+    {
+      //constants from 1903.10440
+      const double a_ktaumu = 9.6;
+      const double b_ktaumu = 10.0;
+      const double a_kmue = 15.4;
+      const double b_kmue = 15.7;
+      const vector<double> akllp = {a_kmue, a_ktaumu}; 
+      const vector<double> bkllp = {b_kmue, b_ktaumu};
+
+      std::complex<double> C9 = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> C9p = THDM_DeltaC_NP(11, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> C10 = THDM_DeltaC_NP(10, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> C10p = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> C9lp = THDM_DeltaC_NP(9, lp, l, sminputs, sminputspointer, spectrum);
+      std::complex<double> C9plp = THDM_DeltaC_NP(11, lp, l, sminputs, sminputspointer, spectrum);
+      std::complex<double> C10lp = THDM_DeltaC_NP(10, lp, l, sminputs, sminputspointer, spectrum);
+      std::complex<double> C10plp = THDM_DeltaC_NP(12, lp, l, sminputs, sminputspointer, spectrum);
+      
+      return 10e-9*(akllp[lp]*norm(C9+C9p)+bkllp[lp]*norm(C10+C10p)+(akllp[lp]*norm(C9lp+C9plp)+bkllp[lp]*norm(C10lp+C10plp)));
+
+     }
+
+    void THDM_B2Ktaumu(double &result)
+    {
+      using namespace Pipes::THDM_B2Ktaumu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 1;
+
+      result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    void THDM_B2Kmue(double &result)
+    {
+      using namespace Pipes::THDM_B2Kmue;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 1, lp = 0;
+
+      result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
+    }
+
     ///  B-> D tau nu distributions in GTHDM
     double THDM_dGammaBDlnu(double gs, double q2)
     {
@@ -5528,6 +5573,50 @@ namespace Gambit
      if(flav_debug) cout << "Bs -> mu tau = " << theory[0] << endl;
      theory[1] = *Dep::Bs2tautau;
      if(flav_debug) cout << "Bs -> tau+ tau- = " << theory[1] << endl;
+
+     result = 0;
+     for (int i = 0; i < 2; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+    /// Likelihood for B+->K+ l lp
+    void B2Kllp_likelihood(double &result)
+    { 
+      using namespace Pipes::B2Kllp_likelihood;
+      
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[2];
+      double theory[2];
+      
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      { 
+        // Read in experimental measuremens
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        
+        // B+-> K+ tau+- mu-+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtaumu");
+        // B+-> K+ mu+- e-+ 
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKmue");
+        
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+        
+        for (int i = 0; i < 2; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+        
+        // Init over.
+        first = false;
+      }
+     
+     theory[0] = *Dep::B2Ktaumu;
+     if(flav_debug) cout << "B ->K tau mu = " << theory[0] << endl;
+     theory[1] = *Dep::B2Kmue;
+     if(flav_debug) cout << "B ->K mu e = " << theory[1] << endl;
 
      result = 0;
      for (int i = 0; i < 2; ++i)

@@ -498,6 +498,38 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+ //Observable: B2Kmue 
+  #define CAPABILITY B2Kmue
+  START_CAPABILITY
+    #define FUNCTION THDM_B2Kmue
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ //Observable: B2Ktaumu 
+  #define CAPABILITY B2Ktaumu
+  START_CAPABILITY
+    #define FUNCTION THDM_B2Ktaumu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// Bs2llp likelihood
+  #define CAPABILITY B2Kllp_lnL
+  START_CAPABILITY
+    #define FUNCTION B2Kllp_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(B2Kmue, double)
+    DEPENDENCY(B2Ktaumu, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 //Observable: RKnunu
   #define CAPABILITY RKnunu
   START_CAPABILITY
