@@ -553,7 +553,7 @@ if args.file:
 
             # Write ColliderBit headers and sources for the new model
             new_colliderbit_model(cb_output_dir, gum.name)
-
+            
         """
         DARKBIT
         """
@@ -813,6 +813,11 @@ if args.file:
             amend_file("getPy8Collider.hpp", m, apply_userhook,
                            num+10, reset_contents)
 
+            # write all invisible particles in the model to Event header
+            num = find_string("heputils/include/HEPUtils/Event.h", "contrib",
+                                  "        _cinvisibles.push_back(p);")[1]
+            amend_file("heputils/include/HEPUtils/Event.h", "contrib", get_invisibles(gum.invisibles_pdg),
+                           num+1, reset_contents)
 
         # HiggsBounds interface
         if output_opts.spheno:

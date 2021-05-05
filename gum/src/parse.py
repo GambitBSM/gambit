@@ -43,7 +43,7 @@ class Inputs:
     """
 
     def __init__(self, model_name, base_model, mathpackage,
-                 wimp_candidate, decaying_dm = False, 
+                 wimp_candidate, invisibles, decaying_dm = False,
                  mathname = None, lagrangian = None, restriction = None):
 
         self.name = model_name.replace('-','_')
@@ -57,6 +57,7 @@ class Inputs:
             self.dm_pdg = wimp_candidate
             self.dm_decays = False
 
+        self.invisibles_pdg = invisibles
         self.math = mathpackage
         self.restriction = None
         self.LTot = lagrangian
@@ -215,6 +216,11 @@ def fill_gum_object(data):
     else:
         wimp_candidate = None
 
+    if 'invisibles' in data:
+        invisibles = data['invisibles']
+    else:
+        invisibles = []
+
     backends = ['calchep', 'pythia', 'spheno', 'ufo',
                 'micromegas', 'vevacious']
 
@@ -280,7 +286,7 @@ def fill_gum_object(data):
         restriction = math['restriction']
 
     gum_info = Inputs(gambit_model, base_model, mathpackage, 
-                      wimp_candidate, decaying_dm, 
+                      wimp_candidate, invisibles, decaying_dm,
                       mathname, lagrangian, restriction)
 
     print("Parse successful.")

@@ -391,3 +391,31 @@ def get_higgses(partlist):
     higgses = neutral_higgses + charged_higgses
 
     return higgses, neutral_higgses, charged_higgses
+    
+def get_invisibles(invisible_pdgs):
+    """
+    Get the PDG codes of invisibles particles to write to 'contrib/heputils/include/HEPUtils/Event.h'
+    Will not write for photons, leptons or existing invisibles in Event.h
+    """
+    
+    # Create list of existing particle
+    existing_invisibles = [22,11,-11,13,-13,15,-15]
+    existing_invisibles.extend([12,-12,14,-14,16,-16,1000022,1000039,50,-50,51,-51,52,-52,53,-53,54,-54,55,-55,56,-56,57,-57,58,-58,59,-59])
+    
+    new_invisibles = [pdg for pdg in invisible_pdgs if pdg not in
+                      existing_invisibles]
+    to_write = ""
+
+    if (len(new_invisibles) != 0):
+        pdg_string = "p->pid() == {0}".format(new_invisibles[0])
+        for i,pdg in enumerate(new_invisibles):
+            if i != 0:
+                pdg_string = pdg_string + "|| p->pid() == {0} ".format(pdg)
+    
+        to_write = ("      else if (" + pdg_string + ") \n"
+        "      { \n"
+        "        _invisibles.push_back(p); \n"
+        "        _cinvisibles.push_back(p); \n"
+        "      } \n")
+    
+    return to_write
