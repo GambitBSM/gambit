@@ -74,7 +74,7 @@ namespace Gambit
       bool print_invalid_points;
 
       /// Disable printing for points with log likelihood below some value
-      double disable_print_for_lnlike_below
+      double disable_print_for_lnlike_below;
 
       /// Map of return types of target functors
       std::map<DRes::VertexID,str> return_types;

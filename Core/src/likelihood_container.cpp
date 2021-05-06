@@ -308,6 +308,9 @@ namespace Gambit
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
       if(point_invalidated and !print_invalid_points)
         printer.disable();
+      // If the likelihood is below the limit given in disable_print_for_lnlike_below, disable the printer
+      else if(lnlike <= disable_print_for_lnlike_below)
+        printer.disable();
       else
       {
         for (auto it = target_vertices.begin(), end = target_vertices.end(); it != end; ++it)
