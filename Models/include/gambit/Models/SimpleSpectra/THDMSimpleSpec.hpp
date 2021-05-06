@@ -38,6 +38,7 @@ namespace Gambit
         int model_type;
         double mh0, mH0, mA0, mC, mG0, mGC;
         double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7;
+        double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
         double tanb, alpha, m11_2, m12_2, m22_2;
         double mW;
         double vev;
@@ -136,9 +137,21 @@ namespace Gambit
             double get_lambda6()            const;
             double get_lambda7()            const;
 
+            double get_Lambda1()            const;
+            double get_Lambda2()            const;
+            double get_Lambda3()            const;
+            double get_Lambda4()            const;
+            double get_Lambda5()            const;
+            double get_Lambda6()            const;
+            double get_Lambda7()            const;
+
             double get_m11_2()              const;
             double get_m22_2()              const;
             double get_m12_2()              const;
+
+            double get_M11_2()              const;
+            double get_M22_2()              const;
+            double get_M12_2()              const;
 
             /// @}
     };
