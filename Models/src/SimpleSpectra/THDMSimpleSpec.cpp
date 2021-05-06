@@ -356,9 +356,9 @@ namespace Gambit
             tmp_map["m22_2"]  = &THDMea::get_m22_2;
 
             // higgs basis potential parameters
-            tmp_map["M12_2"]  = &THDMea::get_m12_2;
-            tmp_map["M11_2"]  = &THDMea::get_m11_2;
-            tmp_map["M22_2"]  = &THDMea::get_m22_2;
+            tmp_map["M12_2"]  = &THDMea::get_M12_2;
+            tmp_map["M11_2"]  = &THDMea::get_M11_2;
+            tmp_map["M22_2"]  = &THDMea::get_M22_2;
 
             // Running masses
             tmp_map["A0"] = &THDMea::get_mA0;
