@@ -4940,15 +4940,13 @@ namespace Gambit
       complex<double> Aloop2fL = 0;
       complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
-         for (int lf=0; lf<=2; ++lf)
-              {
-               {
-                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-               }
-              }
-
-
+      {
+        for (int lf=0; lf<=2; ++lf)
+        {
+          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+         }
+      }
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
@@ -4965,11 +4963,9 @@ namespace Gambit
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
       double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
       result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
-
     }
 
-
-// BR(mu -> e  gamma) for gTHDM from 1511.08880
+    // BR(mu -> e  gamma) for gTHDM from 1511.08880
     void THDM_muegamma(double &result)
     {
       using namespace Pipes::THDM_muegamma;
@@ -4981,7 +4977,7 @@ namespace Gambit
       THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-// BR(tau -> e gamma) for gTHDM from 1511.08880
+    // BR(tau -> e gamma) for gTHDM from 1511.08880
     void THDM_tauegamma(double &result)
     {
       using namespace Pipes::THDM_tauegamma;
@@ -4993,7 +4989,7 @@ namespace Gambit
       THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-// BR(tau -> mu gamma) for gTHDM from 1511.08880
+    // BR(tau -> mu gamma) for gTHDM from 1511.08880
     void THDM_taumugamma(double &result)
     {
       using namespace Pipes::THDM_taumugamma;
