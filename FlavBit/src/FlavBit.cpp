@@ -799,8 +799,8 @@ namespace Gambit
       }
       if (ModelInUse("THDMatQ"))
       {
-        result.Re_DeltaC2  = Dep::DeltaC7->real();
-        result.Im_DeltaC7  = Dep::DeltaC2->imag();
+        result.Re_DeltaC2  = Dep::DeltaC2->real();
+        result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
         result.Im_DeltaC7  = Dep::DeltaC7->imag();
         result.Re_DeltaC8  = Dep::DeltaC8->real();
