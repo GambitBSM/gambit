@@ -38,7 +38,6 @@ namespace Gambit
         int model_type;
         double mh0, mH0, mA0, mC, mG0, mGC;
         double lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7;
-        double Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7;
         double tanb, alpha, m11_2, m12_2, m22_2;
         double mW;
         double vev;
