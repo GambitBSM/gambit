@@ -531,9 +531,9 @@ namespace Gambit
           const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
 
           // Total width - get HB to calculate this 
-            // result.hGammaTot[i] = -1.;
+          result.hGammaTot[i] = -1.;
           // Total width - use calculated
-          result.hGammaTot[i] = decays.width_in_GeV;
+          // result.hGammaTot[i] = decays.width_in_GeV;
         }
 
         // fill neutral effective couplings
