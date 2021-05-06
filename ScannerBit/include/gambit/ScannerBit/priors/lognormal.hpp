@@ -47,7 +47,7 @@ namespace Gambit
      *
      * Defined by a covariance matrix and mean of \f$\log x\f$.
      *
-     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its 
+     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its
      * diagonal entries, denoted \f$\sigma\f$.
      *
      * The base is by default 10.
@@ -84,16 +84,44 @@ namespace Gambit
         }
       }
 
+      std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+      {
+        // undo exponentiation
+        std::vector<double> log_physical;
+       for (int i = 0, n = this->size(); i < n; i++)
+        {
+          log_physical.push_back(std::log(physical.at(param_names[i])) / std::log(base));
+        }
+
+        // subtract mean
+        std::vector<double> central;
+        for (int i = 0, n = this->size(); i < n; i++)
+        {
+          central.push_back(log_physical[i] - mu[i]);
+        }
+
+        // invert rotation by Cholesky matrix
+        std::vector<double> rotated = col.invElMult(central);
+
+        // now diagonal; invert Gaussian CDF
+        std::vector<double> u;
+        for (const auto& v : rotated)
+        {
+          u.push_back(0.5 * (boost::math::erf(v / M_SQRT2) + 1.));
+        }
+        return u;
+      }
+
       double operator()(const std::vector<double> &vec) const
       {
         static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
-        const double prod = std::accumulate(vec.begin(), vec.end(), 1, std::multiplies<double>());
         std::vector<double> log_vec;
-        for (const auto& v: vec)
+        for (const auto& v : vec)
         {
           log_vec.push_back(std::log(v) / std::log(base));
         }
-        return -0.5 * col.Square(log_vec, mu) - norm - std::log(prod);
+        const double log_prod = std::accumulate(log_vec.begin(), log_vec.end(), 0.);
+        return -0.5 * col.Square(log_vec, mu) - norm - log_prod;
       }
     };
 

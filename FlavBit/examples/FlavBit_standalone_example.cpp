@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date Sep 2016
 ///
+///  \author Nazila Mahmoudi
+///          (nazila@cern.ch)
+///  \date Aug 2019
+///
 ///  *********************************************
 
 // Always required in any standalone module main file
@@ -135,6 +139,7 @@ int main(int argc, char** argv)
     //SI_fill needs on:
     //   - BEreq Init_param
     //   - BEreq slha_adjust
+    //   - BEreq mcmc_from_pole
     //   - BEreq mb_1S
     //   - MSSM_spectrum (or SM_spectrum)
     //   - W_plus_decay_rates
@@ -142,9 +147,10 @@ int main(int argc, char** argv)
     SI_fill.resolveDependency(&relabelSpectrum);
     SI_fill.resolveDependency(&GammaZ);
     SI_fill.resolveDependency(&GammaW);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Init_param);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::slha_adjust);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::mb_1S);
+    SI_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Init_param);
+    SI_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::slha_adjust);
+    SI_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::mcmc_from_pole);
+    SI_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::mb_1S);
 
     // b2sll_measurements depends on:
     //   - BKstarmumu_11_25
@@ -166,17 +172,17 @@ int main(int argc, char** argv)
     // Each has a BE requirement on:
     // - BKstarmumu_CONV (from SuperIso)
     SI_BKstarmumu_11_25.resolveDependency(&SI_fill);
-    SI_BKstarmumu_11_25.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_11_25.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
     SI_BKstarmumu_25_40.resolveDependency(&SI_fill);
-    SI_BKstarmumu_25_40.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_25_40.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
     SI_BKstarmumu_40_60.resolveDependency(&SI_fill);
-    SI_BKstarmumu_40_60.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_40_60.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
     SI_BKstarmumu_60_80.resolveDependency(&SI_fill);
-    SI_BKstarmumu_60_80.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_60_80.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
     SI_BKstarmumu_15_17.resolveDependency(&SI_fill);
-    SI_BKstarmumu_15_17.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_15_17.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
     SI_BKstarmumu_17_19.resolveDependency(&SI_fill);
-    SI_BKstarmumu_17_19.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SI_BKstarmumu_17_19.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BKstarmumu_CONV);
 
     // Now do the b2ll likelihood
     b2ll_likelihood.resolveDependency(&b2ll_measurements);
@@ -193,7 +199,7 @@ int main(int argc, char** argv)
     // Plus BE reqs:
     //  - Bsll_untag_CONV
     SI_Bsmumu_untag.resolveDependency(&SI_fill);
-    SI_Bsmumu_untag.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Bsll_untag_CONV);
+    SI_Bsmumu_untag.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Bsll_untag_CONV);
 
     // Resolve dependencies of SI_Bmumu
     // These are:
@@ -204,7 +210,7 @@ int main(int argc, char** argv)
     // - C_calculator_base1
     // - CQ_calculator
     SI_Bmumu.resolveDependency(&SI_fill);
-    SI_Bmumu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Bll_CONV);
+    SI_Bmumu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Bll_CONV);
 
     // Now do the semi-leptonic likelihood SL_LL
     // This depends on:
@@ -235,19 +241,19 @@ int main(int argc, char** argv)
     // - SI_fill
     // BE Req: BDtaunu, etc
     SI_Btaunu.resolveDependency(&SI_fill);
-    SI_Btaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Btaunu);
+    SI_Btaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Btaunu);
     SI_BDtaunu.resolveDependency(&SI_fill);
-    SI_BDtaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BRBDlnu);
+    SI_BDtaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BRBDlnu);
     SI_RD.resolveDependency(&SI_fill);
-    SI_RD.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BDtaunu_BDenu);
+    SI_RD.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BDtaunu_BDenu);
     SI_RDstar.resolveDependency(&SI_fill);
-    SI_RDstar.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BDstartaunu_BDstarenu);
+    SI_RDstar.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BDstartaunu_BDstarenu);
     SI_Dstaunu.resolveDependency(&SI_fill);
-    SI_Dstaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dstaunu);
+    SI_Dstaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dstaunu);
     SI_Dsmunu.resolveDependency(&SI_fill);
-    SI_Dsmunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dsmunu);
+    SI_Dsmunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dsmunu);
     SI_Dmunu.resolveDependency(&SI_fill);
-    SI_Dmunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dmunu);
+    SI_Dmunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dmunu);
 
     // Now resolve dependencies for the b->sgamma likelihoods
     b2sgamma_likelihood.resolveDependency(&SI_bsgamma);
@@ -257,7 +263,7 @@ int main(int argc, char** argv)
     // Plus BE reqs:
     // - bsgamma_CONV
     SI_bsgamma.resolveDependency(&SI_fill);
-    SI_bsgamma.resolveBackendReq(&Backends::SuperIso_3_6::Functown::bsgamma_CONV);
+    SI_bsgamma.resolveBackendReq(&Backends::SuperIso_4_1::Functown::bsgamma_CONV);
 
     // Double-check which backend requirements have been filled with what
     std::cout << std::endl << "My function SI_fill has had its backend requirement on Init_param filled by:" << std::endl;
@@ -309,7 +315,7 @@ int main(int argc, char** argv)
     relabelSpectrum.reset_and_calculate();
 
     // Initialise the backends
-    SuperIso_3_6_init.reset_and_calculate();
+    SuperIso_4_1_init.reset_and_calculate();
     FeynHiggs_2_11_3_init.reset_and_calculate();
 
     // Now call the module functions in an appropriate order
@@ -362,7 +368,30 @@ int main(int argc, char** argv)
     std::cout << "B->X_s gamma log-likelihood: " << loglike << std::endl;
 
     std::cout << endl;
+    std::cout << "-------------------------------------" << std::endl;
+    std::cout << "testing new SuperIso v4.1 routines..." << std::endl;
+    std::cout << "-------------------------------------" << std::endl;
+    std::cout << endl;
 
+    SI_nuisance_fill.resolveDependency(&SI_fill);
+    SI_nuisance_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::set_nuisance);
+    SI_nuisance_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::set_nuisance_value_from_param);
+
+    SI_compute_obs_list.setOption<std::vector<std::string>>("SuperIso_obs_list", {"AI_BKstargamma","BR_BXsgamma","BRuntag_Bsmumu","BR_Bdmumu","BR_BXsmumu_1_6","BR_BXsmumu_14.2_22","BR_BXsee_1_6","BR_BXsee_14.2_22","BR_B0Kstar0gamma","dGamma/dq2_B0Kstar0mumu_0.1_0.98"});
+    SI_compute_obs_list.resolveDependency(&SI_fill);
+    SI_compute_obs_list.resolveDependency(&SI_nuisance_fill);
+    SI_compute_obs_list.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+
+    SI_theory_covariance.setOption<std::vector<std::string>>("SuperIso_obs_list", {"AI_BKstargamma","BR_BXsgamma","BRuntag_Bsmumu","BR_Bdmumu","BR_BXsmumu_1_6","BR_BXsmumu_14.2_22","BR_BXsee_1_6","BR_BXsee_14.2_22","BR_B0Kstar0gamma","dGamma/dq2_B0Kstar0mumu_0.1_0.98"});
+    SI_theory_covariance.resolveDependency(&SI_fill);
+    SI_theory_covariance.resolveDependency(&SI_nuisance_fill);
+    SI_theory_covariance.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SI_theory_covariance.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SI_theory_covariance.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
+
+    SI_nuisance_fill.reset_and_calculate();
+    SI_compute_obs_list.reset_and_calculate();
+    SI_theory_covariance.reset_and_calculate();
   }
 
   catch (std::exception& e)

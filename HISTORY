@@ -3,6 +3,21 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.5.2
+Bugfix release
+- Fixed incorrect treatment of CMB temperature in Planck likelihoods
+- Fixed incorrect prior parameter names for Gaussian priors on Planck nuisance parameters
+- Fixed issues related to DarkSUSY 6 (NaN-results and unexpected behaviour of dependency resolution)
+- Improved detection of python modules by the cmake system
+- Improved build steps of alterbbn, classy, darkages, and montepythonlike, and applied minor bugfixes
+- Dropped usage of cmake's "GIT_..." commands when downloading backends
+
+v1.5.1
+Bugfix release
+- Fixed faulty patch files for versions 2.9.3 and 2.9.4 of the classy backend
+- Fixed bug in Planck 2018 lowl TTEE (Does not affect results of CosmoBit papers)
+- Support for DarkSUSY 6.1.1 and 6.2.2
+
 v1.5.0
 Feature release
 - Added CosmoBit module

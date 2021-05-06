@@ -152,8 +152,8 @@ def check_for_declaration(input_snippet,module,all_modules,local_namespace,candi
         if len(candidate_parts) == len(namespace_parts) + addon: in_module_and_namespace_matches = True
     # Continue only if the input snippet is long enough to contain a declaration and there are no namespace issues
     if len(splitline) > 1 and (not local_namespace or namespace_parts[0] not in all_modules or in_module_and_namespace_matches):
-        # Look for class/struct declarations
-        if splitline[0] in ["class", "struct"]:
+        # Look for class/struct/enum declarations
+        if splitline[0] in ["class", "struct", "enum"]:
             allowed_matches = (splitline[1], splitline[1]+"*")
             if candidate_type in allowed_matches or candidate_parts[0] in allowed_matches:
                 right_class = True

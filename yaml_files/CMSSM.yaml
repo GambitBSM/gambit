@@ -372,11 +372,8 @@ Rules:
 
   # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
   - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
     function: RD_eff_annrate_DS_MSSM
-  # ...and use the function RD_annrate_DSprep_MSSM_func to supply the dependency RD_eff_annrate_DSprep_MSSM
-  - capability: RD_eff_annrate_DSprep_MSSM
-    function: RD_annrate_DSprep_MSSM_func
-    #function: RD_annrate_DSprep_MSSM_func
   # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
   - capability: RD_spectrum
     #function: RD_spectrum_SUSY_DS5

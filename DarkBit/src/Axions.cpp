@@ -14,7 +14,8 @@
 ///  \date 2017 Jan, Feb, June, July, Sept - Dec
 ///  \date 2018 Jan, Mar - May, Sept
 ///  \date 2019 Feb, May - July
-///  \date 2020 Sept
+///  \date 2020 Sept, Dec
+///  \date 2021 Jan
 ///
 ///  *********************************************
 
@@ -25,9 +26,12 @@
 #include <iostream>
 #include <sstream>
 
+#include <Eigen/Core>
+
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf.h>
 #include <gsl/gsl_sf_trig.h>
+#include <gsl/gsl_sf_erf.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp2d.h>
 #include <gsl/gsl_spline2d.h>
@@ -61,6 +65,9 @@ namespace Gambit
     /*! \brief Supporting classes and functions for the axion module.
      */
 
+     const double gagg_conversion = 1.0E-9;
+     const double gaee_conversion = 1.0E+13;
+
     /////////////////////////////////////////////////////////////////
     //      Auxillary functions and classes for interpolation      //
     /////////////////////////////////////////////////////////////////
@@ -68,6 +75,8 @@ namespace Gambit
     /*! \brief Generic one-dimensional integration container for linear interpolation and cubic splines.
      */
 
+    enum class InterpolationOptions1D { linear, cspline };
+    const std::map<InterpolationOptions1D, std::string> int_type_name = { { InterpolationOptions1D::linear, "linear" }, { InterpolationOptions1D::cspline, "cspline"} };
     // AxionInterpolator class: Provides a general 1-D interpolation container based on the gsl library.
     // Can be declared static for efficiency & easy one-time initialisation of interpolating functions.
     class AxionInterpolator
@@ -75,10 +84,8 @@ namespace Gambit
       public:
         // Overloaded class creators for the AxionInterpolator class using the init function below.
         AxionInterpolator();
-        AxionInterpolator(const std::vector<double> x, const std::vector<double> y, std::string type);
-        AxionInterpolator(const std::vector<double> x, const std::vector<double> y);
-        AxionInterpolator(std::string file, std::string type);
-        AxionInterpolator(std::string file);
+        AxionInterpolator(const std::vector<double> x, const std::vector<double> y, InterpolationOptions1D type = InterpolationOptions1D::linear);
+        AxionInterpolator(std::string file, InterpolationOptions1D type = InterpolationOptions1D::linear);
         AxionInterpolator& operator=(AxionInterpolator&&);
         // Destructor.
         ~AxionInterpolator();
@@ -92,8 +99,8 @@ namespace Gambit
         double upper();
       private:
         // Initialiser for the AxionInterpolator class.
-        void init(std::string file, std::string type);
-        void init(const std::vector<double> x, const std::vector<double> y, std::string type);
+        void init(std::string file, InterpolationOptions1D type);
+        void init(const std::vector<double> x, const std::vector<double> y, InterpolationOptions1D type);
         // The gsl objects for the interpolating functions.
         gsl_interp_accel *acc;
         gsl_spline *spline;
@@ -103,56 +110,56 @@ namespace Gambit
     };
 
     // Default constructor.
-    AxionInterpolator::AxionInterpolator() {}
+    AxionInterpolator::AxionInterpolator()
+    {
+      acc = gsl_interp_accel_alloc();
+      spline = gsl_spline_alloc(gsl_interp_linear, 2);
+    }
 
     // Initialiser for the AxionInterpolator class.
-    void AxionInterpolator::init(const std::vector<double> x, const std::vector<double> y, std::string type)
+    void AxionInterpolator::init(const std::vector<double> x, const std::vector<double> y, InterpolationOptions1D type)
     {
       int pts = x.size();
       // Get first and last value of the "x" component.
       lo = x.front();
       up = x.back();
-      acc = gsl_interp_accel_alloc ();
-      if (type == "cspline")
+      acc = gsl_interp_accel_alloc();
+      if (type == InterpolationOptions1D::cspline)
       {
-        spline = gsl_spline_alloc (gsl_interp_cspline, pts);
+        spline = gsl_spline_alloc(gsl_interp_cspline, pts);
       }
-      else if (type == "linear")
+      else if (type == InterpolationOptions1D::linear)
       {
-        spline = gsl_spline_alloc (gsl_interp_linear, pts);
+        spline = gsl_spline_alloc(gsl_interp_linear, pts);
       }
       else
       {
-        DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type '"+type+"' not known to class AxionInterpolator.\n       Available types: 'linear' and 'cspline'.");
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type not known to class AxionInterpolator.");
       }
 
-      gsl_spline_init (spline, &x[0], &y[0], pts);
+      gsl_spline_init(spline, &x[0], &y[0], pts);
     }
 
-    // Overloaded class creators for the AxionInterpolator class using the init function above.
-    AxionInterpolator::AxionInterpolator(const std::vector<double> x, const std::vector<double> y, std::string type) { init(x, y, type); }
-    AxionInterpolator::AxionInterpolator(const std::vector<double> x, const std::vector<double> y) { init(x, y, "linear"); }
+    AxionInterpolator::AxionInterpolator(const std::vector<double> x, const std::vector<double> y, InterpolationOptions1D type) { init(x, y, type); }
 
     // Initialiser for the AxionInterpolator class.
-    void AxionInterpolator::init(std::string file, std::string type)
+    void AxionInterpolator::init(std::string file, InterpolationOptions1D type)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file)))
       {
         DarkBit_error().raise(LOCAL_INFO, "ERROR! File '"+file+"' not found!");
       } else {
-        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+type+"' method." << EOM;
+        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+int_type_name.at(type)+"' method." << EOM;
       }
       // Read numerical values from data file.
       ASCIItableReader tab (file);
       tab.setcolnames("x", "y");
 
-      init(tab["x"],tab["y"],type);
+      init(tab["x"], tab["y"], type);
     }
 
-    // Overloaded class creators for the AxionInterpolator class using the init function above.
-    AxionInterpolator::AxionInterpolator(std::string file, std::string type) { init(file, type); }
-    AxionInterpolator::AxionInterpolator(std::string file) { init(file, "linear"); }
+    AxionInterpolator::AxionInterpolator(std::string file, InterpolationOptions1D type) { init(file, type); }
 
     // Move assignment operator
     AxionInterpolator& AxionInterpolator::operator=(AxionInterpolator&& interp)
@@ -170,8 +177,8 @@ namespace Gambit
     // Destructor
     AxionInterpolator::~AxionInterpolator()
     {
-      gsl_spline_free (spline);
-      gsl_interp_accel_free (acc);
+      gsl_spline_free(spline);
+      gsl_interp_accel_free(acc);
     }
 
     // Routine to access interpolated values.
@@ -185,6 +192,8 @@ namespace Gambit
     /*! \brief Two-dimensional integration container for bilinear interpolation and bicubic splines.
      */
 
+     enum class InterpolationOptions2D { bilinear, bicubic };
+     const std::map<InterpolationOptions2D, std::string> int_2d_type_name = { { InterpolationOptions2D::bilinear, "bilinear" }, { InterpolationOptions2D::bicubic, "bicubic"} };
     // AxionInterpolator2D class: Provides a 2-D interpolation container based on the gsl library.
     // Can be declared static for efficiency & easy one-time initialisation of interpolating functions.
     class AxionInterpolator2D
@@ -192,8 +201,7 @@ namespace Gambit
       public:
         // Overloaded class creators for the AxionInterpolator class using the init function below.
         AxionInterpolator2D();
-        AxionInterpolator2D(std::string file, std::string type);
-        AxionInterpolator2D(std::string file);
+        AxionInterpolator2D(std::string file, InterpolationOptions2D type = InterpolationOptions2D::bilinear);
         AxionInterpolator2D& operator=(AxionInterpolator2D&&);
         // Destructor.
         ~AxionInterpolator2D();
@@ -206,7 +214,7 @@ namespace Gambit
         bool is_inside_box(double x, double y);
       private:
         // Initialiser for the AxionInterpolator2D class.
-        void init(std::string file, std::string type);
+        void init(std::string file, InterpolationOptions2D type);
         // The gsl objects for the interpolating functions that need to be available to the class routines.
         gsl_interp_accel *x_acc;
         gsl_interp_accel *y_acc;
@@ -243,14 +251,14 @@ namespace Gambit
     }
 
     // Initialiser for the AxionInterpolator class.
-    void AxionInterpolator2D::init(std::string file, std::string type)
+    void AxionInterpolator2D::init(std::string file, InterpolationOptions2D type)
     {
       // Check if file exists.
       if (not(Utils::file_exists(file)))
       {
         DarkBit_error().raise(LOCAL_INFO, "ERROR! File '"+file+"' not found!");
       } else {
-        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+type+"' method." << EOM;
+        logger() << LogTags::debug << "Reading data from file '"+file+"' and interpolating it with '"+int_2d_type_name.at(type)+"' method." << EOM;
       }
       // Read numerical values from data file.
       ASCIItableReader tab (file);
@@ -277,17 +285,17 @@ namespace Gambit
       // Allocate memory for "z" values array in gsl format
       z = (double*) malloc(nx * ny * sizeof(double));
 
-      if (type == "bicubic")
+      if (type == InterpolationOptions2D::bicubic)
       {
         spline = gsl_spline2d_alloc(gsl_interp2d_bicubic, nx, ny);
       }
-      else if (type == "bilinear")
+      else if (type == InterpolationOptions2D::bilinear)
       {
         spline = gsl_spline2d_alloc(gsl_interp2d_bilinear, nx, ny);
       }
       else
       {
-        DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type '"+type+"' not known to class AxionInterpolator2D.\n       Available types: 'bilinear' and 'bicubic'.");
+        DarkBit_error().raise(LOCAL_INFO, "ERROR! Interpolation type not known to class AxionInterpolator2D.");
       }
 
       x_acc = gsl_interp_accel_alloc();
@@ -326,8 +334,7 @@ namespace Gambit
       z = (double*) malloc(2 * 2 * sizeof(double));
     }
     // Overloaded class creators for the AxionInterpolator class using the init function above.
-    AxionInterpolator2D::AxionInterpolator2D(std::string file, std::string type) { init(file, type); }
-    AxionInterpolator2D::AxionInterpolator2D(std::string file) { init(file, "bilinear"); }
+    AxionInterpolator2D::AxionInterpolator2D(std::string file, InterpolationOptions2D type) { init(file, type); }
 
     // Routine to access interpolated values.
     double AxionInterpolator2D::interpolate(double x, double y) { return gsl_spline2d_eval(spline, x, y, x_acc, y_acc); }
@@ -681,7 +688,7 @@ namespace Gambit
       double rmax = std::min(1.0, sol->r_hi);
       SolarModel_params1 p1 = {p2->erg, rad, sol};
 
-      gsl_integration_workspace * w = gsl_integration_workspace_alloc (1E6);
+      gsl_integration_workspace * w = gsl_integration_workspace_alloc(1E6);
       double result, error;
 
       gsl_function F;
@@ -713,7 +720,7 @@ namespace Gambit
       //std::cout << "Energy: " << erg << ", expoure = " << exposure << "." << std::endl;
       SolarModel_params2 p2 = {erg, rs, sol};
 
-      gsl_integration_workspace * w = gsl_integration_workspace_alloc (1E6);
+      gsl_integration_workspace * w = gsl_integration_workspace_alloc(1E6);
       double result, error;
 
       gsl_function F;
@@ -805,7 +812,7 @@ namespace Gambit
         double bin_lo = 2.0, bin_delta = 0.5, rs = 1.0;
         // Number of bins
         int n_bins = 10;
-        if (data_set=="CAST2007") { bin_lo = 0.8; bin_delta = 0.3; rs = 0.231738; n_bins = 20; };
+        if (data_set=="CAST2007") { bin_lo = 0.8; bin_delta = 0.3; rs = 0.231738; n_bins = 20; }
 
         // Arrays to store the results in.
         double gagg_counts [n_bins*n_mass_bins];
@@ -813,7 +820,7 @@ namespace Gambit
 
         // Load the solar model.
         // Solar radius R_Sol and D_Sol (= 1 a.u.) in 10^10 cm.
-        double radius_sol = 6.9598, distance_sol = 1495.978707;
+        const double radius_sol = 6.9598, distance_sol = 1495.978707;
         double temp = prefactor_gagg*gsl_pow_2(radius_sol/distance_sol)*radius_sol;
 
         SolarModel model_gagg;
@@ -821,7 +828,7 @@ namespace Gambit
         {
           if (Utils::file_exists(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat"))
           {
-            model_gagg = std::move(SolarModel(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat"));
+            model_gagg = SolarModel(darkbitdata_path+"SolarModel_"+solar_model_gagg+".dat");
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No solar model file found for '"+solar_model_gagg+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'SolarModel_*.dat' for available options *.");
@@ -835,7 +842,7 @@ namespace Gambit
         {
           if (Utils::file_exists(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat"))
           {
-            gaee_spectrum = std::move(AxionInterpolator(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat"));
+            gaee_spectrum = AxionInterpolator(darkbitdata_path+"CAST/"+"Axion_Spectrum_"+solar_model_gaee+"_gaee.dat");
           } else {
             DarkBit_error().raise(LOCAL_INFO, "ERROR! No spectrum file found for axion-electron interactions and model '"+solar_model_gaee+"'.\n"
                                               "       Check 'DarkBit/data' for files named 'Axion_Spectrum_*_gaee.dat' for available options *.");
@@ -1069,7 +1076,7 @@ namespace Gambit
       double lgT = log10(T) - 3.0;
       // Interpolated effective relatvistic d.o.f. based on 0910.1066, deviations < 0.5%
       // Tabulated data: x = log10(T/GeV), y = gStar
-      static AxionInterpolator gR (GAMBIT_DIR "/DarkBit/data/gR_WantzShellard.dat", "cspline");
+      static AxionInterpolator gR (GAMBIT_DIR "/DarkBit/data/gR_WantzShellard.dat", InterpolationOptions1D::cspline);
       double res;
       if (lgT > 3.0) {
         res = gR.interpolate (2.99);
@@ -1089,7 +1096,7 @@ namespace Gambit
       double lgT = log10(T) - 3.0;
       // Interpolated effective relatvistic d.o.f. based on 0910.1066, deviations < 0.5%
       // Tabulated data: x = log10(T/GeV), y = gStar
-      static AxionInterpolator gS (GAMBIT_DIR "/DarkBit/data/gS_WantzShellard.dat", "cspline");
+      static AxionInterpolator gS (GAMBIT_DIR "/DarkBit/data/gS_WantzShellard.dat", InterpolationOptions1D::cspline);
       double res;
       if (lgT > 3.0) {
         res = gS.interpolate (2.99);
@@ -1133,7 +1140,6 @@ namespace Gambit
 
       result = gaussian_nuisance_lnL(CaggQCDmu, CaggQCD, CaggQCDsigma);
     }
-
 
     // Auxillary function for QCD nuisance likelihood below.
     double log_chi (double T, double beta, double Tchi)
@@ -1211,7 +1217,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_ALPS1_signal_vac;
       double m_ax = *Param["ma0"];
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
 
       result = ALPS1_signal_general(1096.0, 0.0, m_ax, gagg);
     }
@@ -1221,7 +1227,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_ALPS1_signal_gas;
       double m_ax = *Param["ma0"];
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
 
       result = ALPS1_signal_general(1044.0, 5.0E-8, m_ax, gagg);
     }
@@ -1230,7 +1236,8 @@ namespace Gambit
     double ALPS1_lnL_general(double s, double mu, double sigma)
     {
       // Propagate uncertainty from efficiency in chi^2-likelihood.
-      return -0.5*gsl_pow_2(s-mu)/(gsl_pow_2(0.05*s/0.82)+gsl_pow_2(sigma));
+      const double rel_error = 0.05/0.82;
+      return -0.5*gsl_pow_2(s-mu)/(gsl_pow_2(rel_error*s)+gsl_pow_2(sigma));
     }
 
     // Capability to provide joint liklihood for all three data runs.
@@ -1266,7 +1273,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_CAST2007_signal_vac;
       double m_ax = *Param["ma0"];
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
       double gaee = std::fabs(*Param["gaee"]);
 
       // Initialise the Solar model calculator and get the reference counts for a given mass.
@@ -1282,7 +1289,7 @@ namespace Gambit
       double dummy;
       for (int i = 0; i < n_bins; i++)
       {
-        dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[i]) + gsl_pow_2(gaee*1E13)*pow(10,lg_ref_counts_gaee[i]);
+        dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[i]) + gsl_pow_2(gaee*gaee_conversion)*pow(10,lg_ref_counts_gaee[i]);
         counts.push_back(gsl_pow_2(gagg*1E19)*dummy);
       }
 
@@ -1294,7 +1301,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_CAST2017_signal_vac;
       double m_ax = *Param["ma0"];
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
       double gaee = std::fabs(*Param["gaee"]);
       std::vector<std::vector<double>> res;
 
@@ -1327,7 +1334,7 @@ namespace Gambit
         double dummy;
         for (int bin = 0; bin < n_bins; bin++)
         {
-          dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[bin]) + gsl_pow_2(gaee*1E13)*pow(10,lg_ref_counts_gaee[bin]);
+          dummy = gsl_pow_2(gagg*1E19)*pow(10,lg_ref_counts_gagg[bin]) + gsl_pow_2(gaee*gaee_conversion)*pow(10,lg_ref_counts_gaee[bin]);
           counts.push_back(gsl_pow_2(gagg*1E19)*dummy);
         }
 
@@ -1438,7 +1445,7 @@ namespace Gambit
     void calc_Haloscope_signal(double &result)
     {
       using namespace Pipes::calc_Haloscope_signal;
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
       // Get the DM fraction in axions and the local DM density.
       double fraction = *Dep::RD_fraction;
       LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
@@ -1459,10 +1466,11 @@ namespace Gambit
       using namespace Pipes::calc_lnL_Haloscope_ADMX1;
       double m_ax = *Param["ma0"];
       // Calculate equivalent frequency in MHz.
-      double freq = m_ax*1.0E-15/(2.0*pi*hbar);
+      const double eV_to_MHz = 1.0E-15/(2.0*pi*hbar);
+      double freq = m_ax*eV_to_MHz;
       double l = 0.0;
       // Initialise GSL histogram and flag.
-      static gsl_histogram *h = gsl_histogram_alloc (89);
+      static gsl_histogram *h = gsl_histogram_alloc(89);
       static bool init_flag = false;
 
       // Unless initialised already, read in digitised limits from 0910.5914.
@@ -1608,7 +1616,7 @@ namespace Gambit
       // log10(T/GeV) required for interpolation.
       double lgT = log10(T) - 3.0;
       // Tabulated data: x = log10(T/GeV), y = F1(T); gR and gS from 0910.1066 .
-      static AxionInterpolator F1 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun1.dat", "linear");
+      static AxionInterpolator F1 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun1.dat", InterpolationOptions1D::linear);
       double res = -1.0;
       if ((lgT > 3.0) && (lgT < -5.0)) { res = F1.interpolate (lgT); }
       return res;
@@ -1620,7 +1628,7 @@ namespace Gambit
       // log10(T/GeV) required for interpolation.
       double lgT = log10(T) - 3.0;
       // Tabulated data: x = log10(T/GeV), y = F3(T); gR and gS from 0910.1066 .
-      static AxionInterpolator F3 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun3.dat", "linear");
+      static AxionInterpolator F3 (GAMBIT_DIR "/DarkBit/data/Axion_DiffEqnFun3.dat", InterpolationOptions1D::linear);
       double res = 0.0;
       if ((lgT > 3.0) && (lgT < -5.0)) { res = F3.interpolate (lgT); }
       return res;
@@ -1863,19 +1871,21 @@ namespace Gambit
      void calc_RParameter(double &result)
      {
        using namespace Pipes::calc_RParameter;
-       double gaee2 = gsl_pow_2(1.0E+13*std::fabs(*Param["gaee"]));
-       double gagg = 1.0E+10*std::fabs(std::fabs(*Param["gagg"]));
-       double lgma0 = log10(*Param["ma0"]);
+       double ma0 = *Param["ma0"];
+       double gaee2 = gsl_pow_2(gaee_conversion*std::fabs(*Param["gaee"]));
+       double gagg = 1.0E+10*std::fabs(*Param["gagg"]); // gagg needs to be in 10^-10 GeV^-1.
        // Value for He-abundance Y from 1503.08146: <Y> = 0.2515(17).
        const double Y = 0.2515;
        // Use interpolation for the finite-mass correction.
-       static AxionInterpolator correction (GAMBIT_DIR "/DarkBit/data/Axions_RParameterCorrection.dat", "linear");
+       static AxionInterpolator correction (GAMBIT_DIR "/DarkBit/data/Axions_RParameterCorrection.dat", InterpolationOptions1D::linear);
        // Initialise an effective axion-photon coupling, valid for low masses.
        double geff = gagg;
        // Apply correction for higher mass values...
-       if ((lgma0 > correction.lower()) && (lgma0 < correction.upper())) { geff *= pow(10, 0.5*correction.interpolate(lgma0)); }
+       static double m_min = pow(10,correction.lower());
+       static double m_max = pow(10,correction.upper());
+       if ((ma0 > m_min) && (ma0 < m_max)) { geff *= pow(10, 0.5*correction.interpolate(log10(ma0))); }
        // ... or set to zero if mass is too high.
-       if (lgma0 >= correction.upper()) { geff = 0.0; }
+       if (ma0 >= m_max) { geff = 0.0; }
        // Expressions only valid for gaee2 < 35.18 but limits should become stronger for gaee2 > 35.18 (but perhaps not gaee2 >> 35.18).
        // Conservative approach: Constrain gaee2 > 35.18 at the level of gaee2 = 35.18.
        if (gaee2 > 35.18) { gaee2 = 35.18; }
@@ -1902,26 +1912,64 @@ namespace Gambit
     //      White Dwarf cooling hints      //
     /////////////////////////////////////////
 
+    // White Dwarf interpolator class
+    class WDInterpolator
+    {
+      public:
+        // Constructor
+        WDInterpolator(const std::vector<double> x, const std::vector<double> y, std::string correction_file, InterpolationOptions1D type = InterpolationOptions1D::linear)
+        {
+          period_change = AxionInterpolator(x, y, type);
+          correction = AxionInterpolator(correction_file, type);
+        }
+
+        // Evaluation function
+        double evaluate(double mrel, double x2)
+        {
+          double res = x2;
+          // For higher masses, reduce the effective coupling accordingly:
+          if (mrel > 100.0)
+          {
+            res *= 15.0 * exp(-mrel) * pow(mrel,2.5)/(M_SQRT2 * pow(pi,3.5));
+          } else if (mrel > 0.01) {
+            res *= pow(10,correction.interpolate(log10(mrel)));
+          }
+          // We only have predictions up to x2 = max value. Limits should get stronger for x2 > max value, so
+          // it is conservative to use the prediction for x2 = max value for x2 > max value.
+          res = std::min(res, period_change.upper());
+          res = period_change.interpolate(res);
+          return res;
+        }
+
+      private:
+        AxionInterpolator period_change;
+        AxionInterpolator correction;
+    };
+
     // Capability function to compute the cooling likelihood of G117-B15A (1205.6180; observations from Kepler+ (2011)).
     void calc_lnL_WDVar_G117B15A(double &result)
     {
       using namespace Pipes::calc_lnL_WDVar_G117B15A;
       // Rescale coupling to be used in their model prediction.
-      double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prediction for x = 30 for x > 30.
-      x = std::min(x,30.0);
+      double x2 = (1.0e+14 * std::fabs(*Param["gaee"]))/2.8;
+      x2 = x2*x2;
 
       // Values for the model prediction provided by the authors.
-      const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.1, 22.5, 25.0, 27.5, 30.0};
+      const std::vector<double> x2vals  = {0.0, 1.0, 6.25, 25.0, 56.25, 100.0, 156.25, 225.0, 306.25, 404.0, 506.25, 625.0, 756.25, 900.0};
       const std::vector<double> dPidts  = {1.235687, 1.244741, 1.299579, 1.470017, 1.796766, 2.260604, 2.795575, 3.484570, 4.232738, 5.056075, 6.113390, 7.342085, 8.344424, 9.775156};
-      const double err = 0.09;
+      const double err2 = 0.09*0.09;
+      const double obs = 4.19;
+      const double obs_err2 = 0.73*0.73;
 
-      // Use interpolation for the model predction, but only initialise once.
-      static AxionInterpolator period_change (xvals, dPidts, "cspline");
+      static WDInterpolator dPidt (x2vals, dPidts, GAMBIT_DIR "/DarkBit/data/Axions_WDCorrection_G117B15A.dat");
 
-      double pred = period_change.interpolate(x);
-      result = -0.5 * gsl_pow_2(4.19 - pred) / (0.73*0.73 + err*err);
+      // Use interpolation for the finite-mass correction.
+      const double internal_temperature_keV = 1.19698;
+      double mrel = 0.001 * (*Param["ma0"]) / internal_temperature_keV;
+
+      double pred = dPidt.evaluate(mrel, x2);
+
+      result = -0.5 * gsl_pow_2(obs - pred) / (obs_err2 + err2);
     }
 
     // Capability function to compute the cooling likelihood of R548 (1211.3389 using T = 11630 K; observations from Mukadam+ (2012)).
@@ -1929,20 +1977,25 @@ namespace Gambit
     {
       using namespace Pipes::calc_lnL_WDVar_R548;
       // Rescale coupling to be used in their model prediction.
-      double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prodiction for x = 30 for x > 30.
-      x = std::min(x,30.0);
+      double x2 = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      x2 = x2*x2;
 
       // Values for the model prediction provided by the authors.
-      const std::vector<double> xvals   = {0.0, 1.0, 2.5, 5.0, 7.5, 10.0, 12.5, 15.0, 17.5, 20.0, 22.5, 25.0, 27.5, 30.0};
+      const std::vector<double> x2vals   = {0.0, 1.0, 6.25, 25.0, 56.25, 100.0, 156.25, 225.0, 306.25, 400.0, 506.25, 625.0, 756.25, 900.0};
       const std::vector<double> dPidts  = {1.075373, 1.095319, 1.123040, 1.289434, 1.497666, 1.869437, 2.300523, 2.844954, 3.379978, 4.086028, 4.847149, 5.754807, 6.714841, 7.649140};
-      const double err = 0.09;
+      const double err2 = 0.09*0.09;
+      const double obs = 3.3;
+      const double obs_err2 = 1.1*1.1;
 
-      static AxionInterpolator period_change (xvals, dPidts, "cspline");
+      static WDInterpolator dPidt (x2vals, dPidts, GAMBIT_DIR "/DarkBit/data/Axions_WDCorrection_R548.dat");
 
-      double pred = period_change.interpolate(x);
-      result = -0.5 * gsl_pow_2(3.3 - pred) / (1.1*1.1 + err*err);
+      // Use interpolation for the finite-mass correction.
+      const double internal_temperature_keV = 1.11447;
+      double mrel = 0.001 * (*Param["ma0"]) / internal_temperature_keV;
+
+      double pred = dPidt.evaluate(mrel, x2);
+
+      result = -0.5 * gsl_pow_2(obs - pred) / (obs_err2 + err2);
     }
 
     // Capability function to compute the cooling likelihood of PG1351+489 (1605.07668 & 1406.6034; using observations from Redaelli+ (2011)).
@@ -1950,22 +2003,25 @@ namespace Gambit
     {
       using namespace Pipes::calc_lnL_WDVar_PG1351489;
       // Rescale coupling to be used in their model prediction.
-      double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
-      // We only have predictions up to x = 20. Limits should get stronger for x > 20, so
-      // it is conservative to use the prodiction for x = 20 for x > 20.
-      x = std::min(x,20.0);
+      double x2 = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      x2 = x2*x2;
 
       // Values for the model prediction provided by the authors.
-      const std::vector<double> xvals = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0};
+      const std::vector<double> x2vals = {0.0, 4.0, 16.0, 36.0, 64.0, 100.0, 144.0, 196.0, 256.0, 324.0, 400.0};
       const std::vector<double> dPidts = {0.90878126, 0.96382008, 1.2022906, 1.5712931, 2.1220619, 2.8002354, 3.6172605, 4.5000560, 5.5256592, 6.5055283, 7.5341296};
-      const double err = 0.5;
+      const double err2 = 0.5*0.5;
+      const double obs = 2.0;
+      const double obs_err2 = 0.9*0.9;
 
-      static AxionInterpolator period_change (xvals, dPidts, "cspline");
+      static WDInterpolator dPidt (x2vals, dPidts, GAMBIT_DIR "/DarkBit/data/Axions_WDCorrection_PG1351489.dat");
 
-      // We only have predictions up to x = 20. Limits should get stronger for x > 20, so
-      // it is conservative to use the prodiction for x = 20 for x > 20.
-      double pred = period_change.interpolate(x);
-      result = -0.5 * gsl_pow_2(2.0 - pred) / (0.9*0.9 + err*err);
+      // Use interpolation for the finite-mass correction.
+      const double internal_temperature_keV = 2.64273;
+      double mrel = 0.001 * (*Param["ma0"]) / internal_temperature_keV;
+
+      double pred = dPidt.evaluate(mrel, x2);
+
+      result = -0.5 * gsl_pow_2(obs - pred) / (obs_err2 + err2);
     }
 
     // Capability function to compute the cooling likelihood of L192 (1605.06458  using l=1 & k=2; observations from Sullivan+Chote (2015)).
@@ -1973,20 +2029,25 @@ namespace Gambit
     {
       using namespace Pipes::calc_lnL_WDVar_L192;
       // Rescale coupling to be used in their model prediction.
-      double x = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
-      // We only have predictions up to x = 30. Limits should get stronger for x > 30, so
-      // it is conservative to use the prediction for x = 30 for x > 30.
-      x = std::min(x,23.0);
+      double x2 = (1.0E+14 * std::fabs(*Param["gaee"]))/2.8;
+      x2 = x2*x2;
 
       // Values for the model prediction provided by the authors.
-      const std::vector<double> xvals = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0};
+      const std::vector<double> x2vals = {0.0, 1.0, 4.0, 9.0, 16.0, 25.0, 36.0, 49.0, 64.0, 81.0, 100.0, 121.0, 144.0, 169.0, 196.0, 225.0, 256.0, 289.0, 324.0, 361.0, 400.0, 441.0, 484.0, 529.0, 576.0, 625.0, 676.0, 729.0, 784.0, 841.0, 900.0};
       const std::vector<double> dPidts = {2.41, 2.40, 2.44, 2.42, 2.50, 2.57, 2.63, 2.74, 2.83, 2.99, 3.15, 3.32, 3.52, 3.70, 3.90, 4.08, 4.42, 4.69, 4.98, 5.34, 5.62, 6.02, 6.27, 6.62, 7.04, 7.38, 7.89, 8.09, 8.65, 9.16, 9.62};
-      const double err = 0.85;
+      const double err2 = 0.85*0.85;
+      const double obs = 3.0;
+      const double obs_err2 = 0.6*0.6;
 
-      static AxionInterpolator period_change (xvals, dPidts, "cspline");
+      static WDInterpolator dPidt (x2vals, dPidts, GAMBIT_DIR "/DarkBit/data/Axions_WDCorrection_L192.dat");
 
-      double pred = period_change.interpolate(x);
-      result = -0.5 * gsl_pow_2(3.0 - pred) / (0.6*0.6 + err*err);
+      // Use interpolation for the finite-mass correction.
+      const double internal_temperature_keV = 1.04931;
+      double mrel = 0.001 * (*Param["ma0"]) / internal_temperature_keV;
+
+      double pred = dPidt.evaluate(mrel, x2);
+
+      result = -0.5 * gsl_pow_2(obs - pred) / (obs_err2 + err2);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2033,7 +2094,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_lnL_HESS_GCMF;
       double m_ax = *Param["ma0"];
-      double gagg = 1.0E-9*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
+      double gagg = gagg_conversion*std::fabs(*Param["gagg"]); // gagg needs to be in eV^-1.
 
       // Compute the domensionless parameters Epsilon and Gamma from the axion mass and axion-photon coupling (see 1311.3148).
       const double c_epsilon = 0.071546787;
@@ -2047,6 +2108,213 @@ namespace Gambit
       result = interp.lnL(epsilon, gamma);
     }
 
+    /**
+     * @brief Capability for the XENON1T likelihood from 2006.10035
+     *
+     * The signal model consists of 3 components: Primakoff, ABC, and Fe57.
+     */
+    void calc_lnL_XENON1T_Anomaly(double &result)
+    {
+      using namespace Pipes::calc_lnL_XENON1T_Anomaly;
 
-  }
-}
+      // Rescale couplings and 3H abundance to the reference values used in 2006.10035 for convenience.
+      double gae = std::fabs(*Param["gaee"]) / 5.0e-12;
+      double gagamma = std::fabs(*Param["gagg"]) / 2.0e-10;
+      double gaN = std::fabs(*Param["gaN"]) / 1.0e-6;
+      double x_3H = *Param["x_3H"] / 6.2e-25;
+      double bkg_scale = 1.0 + *Param["delta_bkg"];
+      double eff = 1.0 + *Param["delta_eff"];
+
+      static bool include_inverse_Primakoff = runOptions->getValueOrDef<bool> (true, "include_inverse_Primakoff");
+
+      // XENON1T 2020 data (based on 2006.10035 and using an exposure of 0.65 tonne-years)
+      static const Eigen::ArrayXd observed = (Eigen::ArrayXd(29) <<
+        26., 61., 55., 47., 49.,
+        47., 44., 41., 40., 37.,
+        51., 41., 42., 51., 47.,
+        48., 24., 43., 42., 34.,
+        42., 40., 38., 53., 41.,
+        57., 39., 46., 35.).finished();
+
+      static const Eigen::ArrayXd bkg_tritium = (Eigen::ArrayXd(29) <<
+        4.54543769e+00, 8.60509728e+00, 8.94256482e+00, 8.61684767e+00, 8.02464466e+00,
+        7.29168481e+00, 6.48068011e+00, 5.65037508e+00, 4.81438779e+00, 3.97835836e+00,
+        3.17827210e+00, 2.43987288e+00, 1.78022901e+00, 1.21426641e+00, 7.54437371e-01,
+        4.13276721e-01, 1.95253807e-01, 7.58276424e-02, 2.37741495e-02, 1.17262241e-02,
+        4.76851304e-03, 1.65434695e-04, 5.42752619e-05, 5.22947241e-05, 5.03141863e-05,
+        4.83336485e-05, 4.63531107e-05, 4.43725729e-05, 4.23920351e-05).finished();
+
+      static const Eigen::ArrayXd bkg_other = (Eigen::ArrayXd(29) <<
+        22.07404375, 39.45186703, 41.83417331, 42.46968003, 42.78761694, 42.96532578,
+        43.13847573, 43.56505579, 44.1162301 , 44.04330642, 43.60594679, 43.40248223,
+        43.45031774, 43.49263918, 43.57084528, 43.66270961, 43.75990478, 43.85453193,
+        43.95159076, 44.04782058, 44.14510208, 44.24450247, 44.3406822 , 44.43638726,
+        44.5331988, 44.62865958, 44.72654689, 44.82382807, 44.91842725).finished();
+
+      static const Eigen::ArrayXd signal_ref_ABC = (Eigen::ArrayXd(29) <<
+        7.46283683e+01, 9.11300502e+01, 4.91874199e+01, 3.53433982e+01, 3.97196350e+01,
+        3.57128137e+01, 2.27540737e+01, 1.19536450e+01, 6.29278747e+00, 3.30948412e+00,
+        1.61495065e+00, 6.21479171e-01, 1.55434142e-01, 2.13046184e-02, 1.63362970e-03,
+        5.94631877e-05, 6.22346656e-07, 0, 0, 0,
+        0, 0, 0, 0, 0,
+        0, 0, 0, 0).finished();
+
+      static const Eigen::ArrayXd signal_ref_primakoff = (Eigen::ArrayXd(29) <<
+        8.52269995e+00, 2.00539997e+01, 1.92433543e+01, 2.22113223e+01, 2.89487211e+01,
+        2.48618807e+01, 1.56554086e+01, 8.76011034e+00, 4.77088790e+00, 2.59966792e+00,
+        1.43054774e+00, 7.84191139e-01, 4.15162321e-01, 2.10029374e-01, 1.02847245e-01,
+        5.27333566e-02, 2.93001979e-02, 1.70759274e-02, 1.08781046e-02, 7.76743790e-03,
+        6.24916022e-03, 5.51837192e-03, 5.15693524e-03, 4.97968515e-03, 4.88717867e-03,
+        4.84242242e-03, 4.82038071e-03, 2.38442778e-03, 0).finished();
+
+      static const Eigen::ArrayXd signal_ref_fe57 = (Eigen::ArrayXd(29) <<
+        4.64697658e-22, 1.14417236e-18, 1.48421451e-15, 1.01555196e-12, 3.67061998e-10,
+        7.02067458e-08, 7.12116995e-06, 3.84028003e-04, 1.10431167e-02, 1.69885040e-01,
+        1.40292258e+00, 6.23942228e+00, 1.49856121e+01, 1.94718769e+01, 1.36959639e+01,
+        5.21070939e+00, 1.07020697e+00, 1.18324090e-01, 7.01902932e-03, 2.22639151e-04,
+        3.76396817e-06, 3.38186408e-08, 1.61083936e-10, 4.05908328e-13, 5.40175385e-16,
+        3.79105023e-19, 1.40152641e-22, 2.72678128e-26, 2.78978087e-30).finished();
+
+      static const Eigen::ArrayXd signal_ref_ABC_inv_p = (Eigen::ArrayXd(29) <<
+        6.90095435e+00, 1.39022260e+01, 1.15151093e+01, 7.97641672e+00, 5.52073353e+00,
+        4.15542096e+00, 2.85016524e+00, 1.77391643e+00, 1.07580666e+00, 6.28453363e-01,
+        3.26090878e-01, 1.31638303e-01, 3.77207469e-02, 7.52278937e-03, 1.06834615e-03,
+        1.12228106e-04, 9.07094259e-06, 5.85004243e-07, 3.10665723e-08, 1.39581067e-09,
+        5.42752207e-11, 1.86190569e-12, 5.72719620e-14, 1.60150437e-15, 4.11906863e-17,
+        9.84235043e-19, 2.20372014e-20, 4.65786516e-22, 9.35349973e-24).finished();
+
+      static const Eigen::ArrayXd signal_ref_primakoff_inv_p = (Eigen::ArrayXd(29) <<
+        8.80070525e-01, 3.29923191e+00, 4.56900949e+00, 4.56444853e+00, 3.82216381e+00,
+        2.86024934e+00, 1.98175269e+00, 1.29748018e+00, 8.13307028e-01, 4.92544613e-01,
+        2.90070188e-01, 1.66927792e-01, 9.42159402e-02, 5.23046562e-02, 2.86265445e-02,
+        1.54743414e-02, 8.27421198e-03, 4.38184245e-03, 2.30069622e-03, 1.19872791e-03,
+        6.20254770e-04, 3.18925270e-04, 1.63051423e-04, 8.29261227e-05, 4.19736901e-05,
+        2.11518187e-05, 1.06157318e-05, 5.30780091e-06, 2.64457315e-06).finished();
+
+      static const Eigen::ArrayXd signal_ref_fe57_inv_p = (Eigen::ArrayXd(29) <<
+        2.68534579e-23, 1.02403478e-19, 1.64401745e-16, 1.34346994e-13, 5.65333857e-11,
+        1.23357889e-08, 1.40118942e-06, 8.30825834e-05, 2.57975431e-03, 4.20954642e-02,
+        3.62322333e-01, 1.65087221e+00, 3.99391811e+00, 5.14060546e+00, 3.52226638e+00,
+        1.28362583e+00, 2.48258237e-01, 2.54009765e-02, 1.36995132e-03, 3.88033329e-05,
+        5.75235843e-07, 4.44951177e-09, 1.79118821e-11, 3.74451860e-14, 4.05797696e-17,
+        2.27644923e-20, 6.60289329e-24, 9.89294778e-28, 7.65058090e-32).finished();
+
+      static const double asimov = (observed * observed.log() - observed).sum();
+
+      const Eigen::ArrayXd bkg = x_3H * bkg_tritium + bkg_other;
+      Eigen::ArrayXd signal = gae * gae * (
+                              signal_ref_ABC * gae * gae +
+                              signal_ref_primakoff * gagamma * gagamma +
+                              signal_ref_fe57 * gaN * gaN);
+
+      if (include_inverse_Primakoff)
+      {
+        signal = signal + gagamma * gagamma * (
+                 signal_ref_ABC_inv_p * gae * gae +
+                 signal_ref_primakoff_inv_p * gagamma * gagamma +
+                 signal_ref_fe57_inv_p * gaN * gaN);
+      }
+
+      const Eigen::ArrayXd expected = eff * (bkg_scale * bkg + signal);
+
+      result = (observed * expected.log() - expected).sum() - asimov;
+    }
+
+    struct dRdE_params { double m; double sigma; };
+
+    double dRdE (double E, void * params)
+    {
+      struct dRdE_params * par = (struct dRdE_params *)params;
+      // Efficiency of the Xenon1T experiment from arXiv:2006.09721
+      // Columns: Energy [keV] | Efficiency [dimensionless]
+      static AxionInterpolator efficiency (GAMBIT_DIR "/DarkBit/data/XENON1T/efficiency.txt", InterpolationOptions1D::cspline);
+      return std::exp(-0.5*pow((E - par->m)/par->sigma,2))*efficiency.interpolate(E);
+    }
+
+    void calc_lnL_XENON1T_DM_Anomaly(double &result)
+    {
+      using namespace Pipes::calc_lnL_XENON1T_DM_Anomaly;
+
+      result = 0;
+
+      // Rescale couplings and 3H abundance to the reference values used in 2006.10035 for convenience.
+      double gae = std::fabs(*Param["gaee"]);
+      double ma = *Param["ma0"] / 1.0e3;
+      double x_3H = *Param["x_3H"] / 6.2e-25;
+      double bkg_scale = 1.0 + *Param["delta_bkg"];
+      double rel_eff = 1.0 + *Param["delta_eff"];
+      double dm_fraction = *Param["eta"];
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      double rho0 = LocalHaloParameters.rho0;
+
+      // XENON1T 2020 data (based on 2006.10035 and using an exposure of 0.65 tonne-years)
+      static const Eigen::ArrayXd observed = (Eigen::ArrayXd(29) <<
+        26., 61., 55., 47., 49.,
+        47., 44., 41., 40., 37.,
+        51., 41., 42., 51., 47.,
+        48., 24., 43., 42., 34.,
+        42., 40., 38., 53., 41.,
+        57., 39., 46., 35.).finished();
+
+      static const Eigen::ArrayXd bkg_tritium = (Eigen::ArrayXd(29) <<
+        4.54543769e+00, 8.60509728e+00, 8.94256482e+00, 8.61684767e+00, 8.02464466e+00,
+        7.29168481e+00, 6.48068011e+00, 5.65037508e+00, 4.81438779e+00, 3.97835836e+00,
+        3.17827210e+00, 2.43987288e+00, 1.78022901e+00, 1.21426641e+00, 7.54437371e-01,
+        4.13276721e-01, 1.95253807e-01, 7.58276424e-02, 2.37741495e-02, 1.17262241e-02,
+        4.76851304e-03, 1.65434695e-04, 5.42752619e-05, 5.22947241e-05, 5.03141863e-05,
+        4.83336485e-05, 4.63531107e-05, 4.43725729e-05, 4.23920351e-05).finished();
+
+      static const Eigen::ArrayXd bkg_other = (Eigen::ArrayXd(29) <<
+        22.07404375, 39.45186703, 41.83417331, 42.46968003, 42.78761694,
+        42.96532578, 43.13847573, 43.56505579, 44.1162301 , 44.04330642,
+        43.60594679, 43.40248223, 43.45031774, 43.49263918, 43.57084528,
+        43.66270961, 43.75990478, 43.85453193, 43.95159076, 44.04782058,
+        44.14510208, 44.24450247, 44.3406822 , 44.43638726, 44.5331988 ,
+        44.62865958, 44.72654689, 44.82382807, 44.91842725).finished();
+
+      // Photoelectric cross section for Xe from https://dx.doi.org/10.18434/T48G6X
+      // Columns: Photon energy [MeV] | Photoelectric absorption [10^-28 m^2/atom]
+      static AxionInterpolator sigma_pe (GAMBIT_DIR "/DarkBit/data/XENON1T/photoelectric.txt");
+
+      gsl_integration_workspace * w = gsl_integration_workspace_alloc(1000);
+      if ( (ma >= 1.0) && (ma <= 30.0) )
+      {
+        // Energy resolution from 2003.03825
+        double energy_resolution = 0.15 + 31.71/sqrt(ma);
+        double sigma = ma * energy_resolution / 100.0;
+        const double exposure = 0.647309514*1000.0*365.0;
+        const double photoel_eff_conversion = 1.5e19/131.0;
+        double amplitude = dm_fraction * (rho0/0.3) * exposure * gae*gae * ma * photoel_eff_conversion*sigma_pe.interpolate(ma/1000.0);
+        gsl_function f;
+        struct dRdE_params params = {ma, sigma};
+        f.function = &dRdE;
+        f.params = &params;
+        double dRdE_result, error;
+        std::vector<double> signal_vec;
+        for (int i = 0; i < 29; i++)
+        {
+          gsl_integration_qags (&f, 1.+i, 2.+i, 0, 1e-7, 1000, w, &dRdE_result, &error);
+          double s = amplitude * 1/sqrt(2*pi)/sigma * dRdE_result;
+          signal_vec.push_back(s);
+        }
+        gsl_integration_workspace_free (w);
+
+        static const double asimov = (observed * observed.log() - observed).sum();
+
+        const Eigen::ArrayXd bkg = x_3H * bkg_tritium + bkg_other;
+        const Eigen::ArrayXd signal = Eigen::ArrayXd::Map(signal_vec.data(), signal_vec.size());
+        const Eigen::ArrayXd expected = rel_eff * (bkg_scale * bkg + signal);
+
+        result = (observed * expected.log() - expected).sum() - asimov;
+      }
+    }
+
+    void calc_lnL_XENON1T_Anomaly_NuisanceParameters(double &result)
+    {
+      using namespace Pipes::calc_lnL_XENON1T_Anomaly_NuisanceParameters;
+
+      result = -0.5 * ( gsl_pow_2(*Param["delta_bkg"]/0.026) + gsl_pow_2(*Param["delta_eff"]/0.030) );
+    }
+
+  }  // namespace DarkBit
+}  // namespace Gambit

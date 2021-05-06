@@ -282,7 +282,6 @@ Printer:
     group: "/THDM"
     delete_file_on_restart: true
 
-
 ##############################
 # Scanner setup
 ##############################
@@ -304,6 +303,11 @@ Scanner:
       NP: 20000
       convthresh: 1e-5
       verbosity: 1
+
+    random:
+      plugin: random
+      point_number: 10000
+      like:  LogLike
 
       # No options to set, but still need the nodes at the moment...
       aux_printer_txt_options:
@@ -506,43 +510,134 @@ Rules:
      # function: THDM_ModelParameters_charged
       #module: ColliderBit
 
-    # -------------------------------------------
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true
+      
+  - capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
+    options:
+      maximum_scalar_mass: 3000
 
-    - capability: SuperIso_modelinfo
-      function: SI_fill
-    
-    - capability: b2sll_M
-      function: b2sll_measurements
+  - capability: perturbativity_likelihood_THDM
+    function: get_perturbativity_likelihood_THDM
+    options:
+      check_all_scales: true
+      simple_perturbativity: false
 
-    - capability: Bsmumu_untag
-      function: SI_Bsmumu_untag
-      module: FlavBit
+  - capability: stability_likelihood_THDM
+    function: get_stability_likelihood_THDM
+    options:
+      check_all_scales: true
 
-    - capability: bsgamma
-      function: SI_bsgamma
-      module: FlavBit
+  - capability: NLO_unitarity_likelihood_THDM
+    function: get_NLO_unitarity_likelihood_THDM
+    options:
+      check_correction_ratio: true
+      wave_function_corrections: true
+      gauge_corrections: true
+      yukawa_corrections: true
 
-    # Choose to use gm2calc for g-2
-    - capability: muon_gm2
-      function: SI_muon_gm2
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_THDM
 
-    # Choose to base the SM prediction for g-2 on e+e- data
-    - capability: muon_gm2_SM
-      function: gm2_SM_ee
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_THDM
 
-    # Choose to use superiso for DeltaMBs calc
-    - capability: DeltaMs
-      function: SI_Delta_MBs
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_THDM
 
-    # Choose to use superiso for RK calcs
-    - capability: RK
-      function: SI_RK
+  - capability: t_decay_rates
+    function: t_decays_THDM
 
-    - capability: RKstar_0045_11
-      function: SI_RKstar_0045_11
+  - capability: HB_ModelParameters_neutral
+    function: THDM_ModelParameters_effc
+    module: ColliderBit
 
-    - capability: RKstar_11_60
-      function: SI_RKstar_11_60
+  - capability: HB_ModelParameters_charged
+    function: THDM_ModelParameters_charged
+    module: ColliderBit
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
+
+  - capability: SuperIso_modelinfo
+    function: SI_fill
+  
+  - capability: bsgamma
+    function: SI_bsgamma
+
+  - capability: DeltaMs
+    function: SI_Delta_MBs
+
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    module: FlavBit
+
+  # -------------------------
+  # OFF - b2mumu likelihoods
+
+  # - capability: prediction_B2mumu
+  #   options:
+  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # - capability: B2mumu_LogLikelihood_.*
+  #   function: HEPLike_B2mumu_LogLikelihood_LHCb
+  #   options:
+  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # -------------------------
+
+
+  # -------------------------
+  # OFF - b2kstar likelihoods
+
+  # - capability: prediction_B2KstarmumuAng_.*_Atlas
+  #   options:
+  #     obs_list: [FL, S3, S4, S5, S7, S8]
+  
+  # - capability: B2KstarmumuAng_LogLikelihood_Atlas
+  #   options:
+  #     obs_list: [FL, S3, S4, S5, S7, S8]
+
+  # - capability: prediction_B2KstarmumuAng_.*_Belle
+  #   options:
+  #     obs_list: [P4prime, P5prime]
+
+  # - capability: B2KstarmumuAng_LogLikelihood_Belle
+  #   options:
+  #     obs_list: [P4prime, P5prime]
+
+  # - capability: prediction_B2KstarmumuAng_.*_LHCb
+  #   options:
+  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+  
+  # - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+  #   function: HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
+  #   options:
+  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]  
+
+  # - capability: prediction_B2KstarmumuAng_.*_CMS
+  #   options:
+  #     obs_list: [P1, P5prime] 
+
+  # - capability: B2KstarmumuAng_LogLikelihood_CMS
+  #   options:
+  #     obs_list: [P1, P5prime]
+
+  # -------------------------
+
+
+  # -------------------------
+  # OFF - RK/RD star likelihoods
+
+  # - capability: SuperIso_theory_covariance
+  #   function: SI_theory_covariance
+
+  # -------------------------
+
 
 #########################
 # Logging setup
@@ -572,16 +667,6 @@ KeyValues:
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
     debug: true
-
-  dependency_resolution:
-    prefer_model_specific_functions: true
-    use_old_routines: false
-
-  #By default, errors are fatal and warnings non-fatal
-  exceptions:
-    dependency_resolver_error: fatal
-    dependency_resolver_warning: non-fatal
-    core_warning: fatal
 
   default_output_path: "runs/THDM/"
   debug: false

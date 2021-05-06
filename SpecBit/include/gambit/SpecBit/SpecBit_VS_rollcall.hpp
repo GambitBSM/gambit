@@ -19,6 +19,10 @@
 #ifndef __SpecBit_VS_rollcall_hpp__
 #define __SpecBit_VS_rollcall_hpp__
 
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
+
   #define CAPABILITY lnL_EW_vacuum
   START_CAPABILITY
 

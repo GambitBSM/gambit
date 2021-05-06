@@ -343,10 +343,14 @@ Rules:
     #  fast: 1  # 0: standard (default), 1: fast
     #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
 
-  # Choose between initializing the invariant rate calculation for DS5 and DS6
-  - capability: RD_eff_annrate_DSprep_MSSM
-    function: RD_annrate_DSprep_MSSM_func
-    #function: RD_annrate_DSprep_MSSM_func
+  # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
+  - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
+    function: RD_eff_annrate_DS_MSSM
+  # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
 
   # Input type for oh2 calculations needed by DS5 and DS6, respectively
   - capability: RD_spectrum

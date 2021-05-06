@@ -16,6 +16,34 @@
 #  appear here. The extent of this string is
 #  indicated by indentation.
 
+trivial_1d: |
+   Trivial 1d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameter is labeled x1.
+
+trivial_2d: |
+   Trivial 2d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2.
+
+trivial_3d: |
+   Trivial 3d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, x3
+
+trivial_4d: |
+   Trivial 4d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, x3, x4.
+
+trivial_5d: |
+   Trivial 5d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x5.
+
+trivial_7d: |
+   Trivial 7d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x7.
+
+trivial_10d: |
+   Trivial 10d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x10.
+
 NormalDist: |
    A simple test model consisting of two parameters: the width and central value of a Gaussian distribution.
 
@@ -520,7 +548,8 @@ GeneralALP: |
    A general model for an axion-like particle with the possibility of having a temperature-dependent mass.
 
    gagg              - ALP-photon coupling [GeV^-1]
-   gaee              - ALP-electron couplings [dimensionless]
+   gaee              - ALP-electron coupling [dimensionless]
+   gaN               - ALP-nucleon coupling [dimensionless]
    fa                - ALP decay constant [GeV]
    ma0               - ALP mass (at zero temperature) [eV]
    Tchi              - Critical temperature below which the axion mass is constant [MeV]
@@ -529,11 +558,12 @@ GeneralALP: |
 
 QCDAxion: |
 
-   A convenient version of the GeneralALP model for QCD axion studies. Comes with several model-specific nuisance likelihoods and one additional nuisance parameter (Cagg). The differences are:
+   A convenient version of the GeneralALP model for QCD axion studies. Comes with several model-specific nuisance likelihoods and one additional nuisance parameter (CaggQCD). The differences are:
 
-   Cagg              - Contribution to the axion-photon coupling gagg from chiral Lagrangian [dimensionless]
+   CaggQCD           - Contribution to the axion-photon coupling gagg from chiral Lagrangian [dimensionless]
    EoverN            - Contribution to the axion-photon coupling gagg from the ratio of electromagnetic vs colour anomaly [dimensionless]
    Caee              - Re-parameterised axion-electron coupling gaee [dimensionless]
+   CaN               - Re-parameterised axion-nucleon coupling [dimensionless]
    LambdaChi         - Convenient re-parameterisation of the axion zero-temperature mass ma0 = LambdaChi^2/fa [MeV]
 
 KSVZAxion: |
@@ -551,6 +581,20 @@ DFSZAxion_II: |
 ConstantMassALP: |
 
    A convenient version of the GeneralALP model for studies of ALPs with not explicitly temperature-dependent axion mass (beta=0, Tchi irrelevant).
+
+XENON1T_NuisanceParameters: |
+
+   Nuisance parameters for the XENON-1T experiment.
+
+   delta_eff         - Deviation from the quoted detector efficiency (delta_eff = 0 corresponds to no deviation)
+   delta_bkg         - Deviation from the quoted background model (delta_bkg = 0 corresponds to no deviation)
+   x_3H              - Tritium (^3H) abundance in the detector
+
+XENON1T_DM_NuisanceParameters: |
+
+   Additional nuisance parameters when considering the DM ALP hypothesis for the XENON-1T experiment.
+
+   eta              - Fraction of the local DM in axion-like particles
 
 RightHandedNeutrinos: |
    Type I Seesaw model with 3 right handed neutrinos. The parameters include the masses of the RHNs and the mixing angles in the Casas-Ibarra parametrisations.
@@ -571,8 +615,8 @@ THDMatQ: |
 
 THDMI: |
    The Type-I Two-Higgs-Doublet Model.
-   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   lambda1, ... , lambda5      - Real scalar bilinear and quartic couplings
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
    Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_2
@@ -584,11 +628,11 @@ THDMIatQ: |
 
 THDMI_physical: |
    The Type-I Two-Higgs-Doublet Model in the physical basis.
-   m_h                           - Mass of CP-even light Higgs
-   m_H                           - Mass of CP-even heavy Higgs
-   m_A                           - Mass of CP-odd Higgs
-   m_Hp                          - Mass of degenerate charged Higgs
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   mA                           - Mass of CP-odd Higgs
+   mHp                          - Mass of degenerate charged Higgs
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    sba                           - Sine of the physical angle (beta-alpha)
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
@@ -601,8 +645,8 @@ THDMI_physicalatQ: |
 
 THDMII: |
    The Type-II Two-Higgs-Doublet Model.
-   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   lambda1, ... , lambda5      - Real scalar bilinear and quartic couplings
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
    Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_1
@@ -614,11 +658,11 @@ THDMIIatQ: |
 
 THDMII_physical: |
    The Type-II Two-Higgs-Doublet Model in the physical basis.
-   m_h                           - Mass of CP-even light Higgs
-   m_H                           - Mass of CP-even heavy Higgs
-   m_A                           - Mass of CP-odd Higgs
-   m_Hp                          - Mass of degenerate charged Higgs
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   mA                           - Mass of CP-odd Higgs
+   mHp                          - Mass of degenerate charged Higgs
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    sba                           - Sine of the physical angle (beta-alpha)
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
@@ -631,8 +675,8 @@ THDMII_physicalatQ: |
 
 THDMLS: |
    The Lepton-Specific Two-Higgs-Doublet Model.
-   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   lambda1, ... , lambda5      - Real scalar bilinear and quartic couplings
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
    Yukawa sector: u -> \Phi_2, d -> \Phi_2, e -> \Phi_1
@@ -644,11 +688,11 @@ THDMLSatQ: |
 
 THDMLS_physical: |
    The Lepton-Specific Two-Higgs-Doublet Model in the physical basis.
-   m_h                           - Mass of CP-even light Higgs
-   m_H                           - Mass of CP-even heavy Higgs
-   m_A                           - Mass of CP-odd Higgs
-   m_Hp                          - Mass of degenerate charged Higgs
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   mA                           - Mass of CP-odd Higgs
+   mHp                          - Mass of degenerate charged Higgs
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    sba                           - Sine of the physical angle (beta-alpha)
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
@@ -661,8 +705,8 @@ THDMLS_physicalatQ: |
 
 THDMflipped: |
    The Flipped Two-Higgs-Doublet Model.
-   lambda_1, ... , lambda_5      - Real scalar bilinear and quartic couplings
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   lambda1, ... , lambda5      - Real scalar bilinear and quartic couplings
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
    Yukawa sector: u -> \Phi_2, d -> \Phi_1, e -> \Phi_2
@@ -674,11 +718,11 @@ THDMflippedatQ: |
 
 THDMflipped_physical: |
    The Flipped Two-Higgs-Doublet Model in the physical basis.
-   m_h                           - Mass of CP-even light Higgs
-   m_H                           - Mass of CP-even heavy Higgs
-   m_A                           - Mass of CP-odd Higgs
-   m_Hp                          - Mass of degenerate charged Higgs
-   lambda_6, lambda_7            - Real scalar CP-violating quartic couplings
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   mA                           - Mass of CP-odd Higgs
+   mHp                          - Mass of degenerate charged Higgs
+   lambda6, lambda7            - Real scalar CP-violating quartic couplings
    sba                           - Sine of the physical angle (beta-alpha)
    tanb                          - The ratio of the up-type to down-type Higgs vevs
    m12_2                         - The squared mass-mixing bilinear coupling
@@ -705,13 +749,6 @@ THDMII_hybrid_lambda2atQ: |
    Qin                 - the scale at which the parameters are defined
    QRunTo              - the scale to which the parameters are run
 
-THDMII_higgs_hybrid: |
-   The Type-II Two-Higgs-Doublet Model in the Higgs basis.
-
-THDMII_higgs_hybridatQ: |
-   The Type-II Two-Higgs-Doublet Model in the Higgs basis (see THDMII_higgs_hybrid) with running.
-   Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 ############################
 # Cosmology related models #
@@ -966,7 +1003,7 @@ cosmo_nuisance_ska1: |
    sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
 
 cosmo_nuisance_ska1_IM_band: |
-   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331). 
+   Cosmological nuisance parameters for SKA1 21cm intensity mapping from Sprenger et al. (https://arxiv.org/abs/11801.08331).
    Use this model with the MontePython likelihood 'ska1_IM_band1' or 'ska1_IM_band2'. To neglect the parameters Omega_HI0 and alpha_HI use the model 'cosmo_nuisance_ska1_IM_band_noHI'.
 
    sigma_NL_ska      - non-linear dispersion scale of RSDs from Bull et al. (https://arxiv.org/abs/1405.1452).
@@ -1002,7 +1039,7 @@ cosmo_nuisance_ska2_pk: |
                      => b(z) = c4 beta_0SKA/2 exp(c5 beta_SKA2 z)  (eq. 2.20)
 
 cosmo_nuisance_ska_lensing: |
-   Cosmological nuisance parameters for SKA1 & SKA2 cosmic shear from Sprenger et al. (https://arxiv.org/abs/11801.08331). Use this model with the MontePython likelihoods 'ska1_lensing' and 'ska2_lensing'. 
+   Cosmological nuisance parameters for SKA1 & SKA2 cosmic shear from Sprenger et al. (https://arxiv.org/abs/11801.08331). Use this model with the MontePython likelihoods 'ska1_lensing' and 'ska2_lensing'.
 
    epsilon_ska       - nuisance parameter accounting for a global uncorrelated
                        theoretical error in e.g. (non-)linear power spectrum, scale dependent bias,
@@ -1149,4 +1186,3 @@ DecayingDM_electron: |
    mass        - mass of the dark matter candidate [in GeV]
    lifetime    - lifetime of said DM candidate [in s]
    fraction    - fraction of how much the decaying DM component contributes to all DM.
-

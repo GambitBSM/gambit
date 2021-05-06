@@ -13,6 +13,7 @@
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)         
 ///  \date June 2016
+///  \date 2020 Apr
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
@@ -46,16 +47,15 @@ namespace Gambit
     std::vector<int> m4x4   = initVector(4,4); // "
     std::vector<int> m6x6   = initVector(6,6); // "
 
+    addParameter(Par::dimensionless, "model_type", scalar, "FMODSEL", 1);
+
     addParameter(Par::dimensionless, "g1", scalar,"GAUGE",1);
     addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
     addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
-    //addParameter(Par::Pole_Mixing, "sinW2", scalar, "HMIX",23);
     addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
     addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
-// TODO: Not sure this is necessary
-/*
     addParameter(Par::Pole_Mass, "Z0", scalar, "SMINPUTS", 4);
     addParameter(Par::Pole_Mass, "W+", scalar, "MASS", 24);
 
@@ -72,7 +72,8 @@ namespace Gambit
     addParameter(Par::mass1, "d_1", scalar, "SMINPUTS",21);
     addParameter(Par::mass1, "u_1", scalar, "SMINPUTS",22);
     addParameter(Par::mass1, "d_2", scalar, "SMINPUTS",23);
-*/
+
+    // Yukawas
     addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
     addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
     addParameter(Par::dimensionless, "Ye1", m3x3, "Ye1");
@@ -89,8 +90,8 @@ namespace Gambit
     addParameter(Par::dimensionless, "ImYu2", m3x3, "ImYu2");
     addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
 
-    addParameter(Par::Pole_Mass, "h0_1", scalar,"MASS",25); 
-    addParameter(Par::Pole_Mass, "h0_2", scalar,"MASS",35);
+    // Pole masses
+    addParameter(Par::Pole_Mass, "h0",   v2,"MASS",{25,35}); 
     addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36); 
     addParameter(Par::Pole_Mass, "H+",   scalar,"MASS",37);
     addParameter(Par::Pole_Mass, "W+",   scalar,"MASS",24);

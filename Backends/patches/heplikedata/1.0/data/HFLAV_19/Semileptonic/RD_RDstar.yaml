@@ -1,0 +1,34 @@
+BibCite: Amhis:2019ckw
+BibEntry: '@article{Amhis:2019ckw,
+    author = "Amhis, Yasmine Sara and others",
+    collaboration = "HFLAV",
+    title = "{Averages of $b$-hadron, $c$-hadron, and $\tau$-lepton properties as of 2018}",
+    eprint = "1909.12524",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ex",
+    month = "9",
+    year = "2019"
+}'
+
+FileName: RD_RDstar_uodated.yaml
+Name: RD_RDstar
+Source: HFLAV
+SubmissionYear: 2019
+Arxiv: 1909.12524
+Collaborations: HFLAV
+ExperimentalDataLumi: AVERAGE
+ExperimentalDataYears: AVERAGE
+Decay: "B -> D(star) ell nu"
+Kinematics: ALL
+HLAuthor: Cristian Sierra Fonseca
+HLEmail: cristian.sierra@monash.edu
+HL_Type: HL_nDimGaussian
+Observables:
+- ["RDstar", 0.295, 0.011, 0.008]
+- ["RD",     0.340, 0.027, 0.013]
+Correlation:
+-  [ "RDstar", "RD"]
+-  [  1.00, -0.38 ]
+-  [ -0.38,  1.00 ]
+
+

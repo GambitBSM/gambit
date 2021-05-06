@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:22
+// File generated at Tue 7 Apr 2020 14:54:49
 
 #include "THDM_flipped_susy_parameters.hpp"
 #include "wrappers.hpp"
@@ -57,9 +57,9 @@ double THDM_flipped_susy_parameters::calc_beta_g1_2_loop(const Susy_traces& susy
 
    double beta_g1;
 
-   beta_g1 = Re(0.05555555555555555*twoLoop*Cube(g1)*(208*Sqr(g1) + 3*(-5
-      *traceYdAdjYd - 15*traceYeAdjYe - 17*traceYuAdjYu + 36*Sqr(g2) + 88*Sqr(
-      g3))));
+   beta_g1 = Re(twoLoop*(11.555555555555555*Power5(g1) +
+      0.16666666666666666*Cube(g1)*(-5*traceYdAdjYd - 15*traceYeAdjYe - 17*
+      traceYuAdjYu + 36*Sqr(g2) + 88*Sqr(g3))));
 
 
    return beta_g1;

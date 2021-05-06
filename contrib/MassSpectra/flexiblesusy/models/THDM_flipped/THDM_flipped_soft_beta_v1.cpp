@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 21:01:30
+// File generated at Tue 7 Apr 2020 14:54:57
 
 #include "THDM_flipped_soft_parameters.hpp"
 #include "wrappers.hpp"
@@ -95,15 +95,18 @@ double THDM_flipped_soft_parameters::calc_beta_v1_2_loop(const Soft_traces& soft
 
    double beta_v1;
 
-   beta_v1 = Re(0.010416666666666666*twoLoop*(-429*v1*Quad(g1) + Sqr(g1)*
-      (-244*traceYdAdjYd*v1 + 90*v1*Sqr(g2)) + 3*(357*v1*Quad(g2) - 324*
-      traceYdAdjYd*v1*Sqr(g2) - 8*(4*Lambda3*Lambda4*v1 - 27*
-      traceYdAdjYdYdAdjYd*v1 - 9*traceYdAdjYuYuAdjYd*v1 + 6*Lambda1*Lambda6*v2
-      + 6*Lambda3*Lambda6*v2 + 6*Lambda4*Lambda6*v2 + 6*Lambda5*Lambda6*v2 + 6*
-      Lambda2*Lambda7*v2 + 6*Lambda3*Lambda7*v2 + 6*Lambda4*Lambda7*v2 + 6*
-      Lambda5*Lambda7*v2 + 80*traceYdAdjYd*v1*Sqr(g3) + 6*v1*Sqr(Lambda1) + 4*
-      v1*Sqr(Lambda3) + 4*v1*Sqr(Lambda4) + 6*v1*Sqr(Lambda5) + 18*v1*Sqr(
-      Lambda6) + 6*v1*Sqr(Lambda7)))));
+   beta_v1 = Re(0.010416666666666666*twoLoop*(-96*Lambda3*Lambda4*v1 +
+      648*traceYdAdjYdYdAdjYd*v1 + 216*traceYdAdjYuYuAdjYd*v1 - 72*Lambda1*
+      Lambda6*v2 - 72*Lambda3*Lambda6*v2 - 72*Lambda4*Lambda6*v2 - 72*Lambda5*
+      Lambda6*v2 - 72*Lambda2*Lambda7*v2 - 72*Lambda3*Lambda7*v2 - 72*Lambda4*
+      Lambda7*v2 - 72*Lambda5*Lambda7*v2 - 144*v1*AbsSqr(Lambda7) - 72*(6*
+      Lambda6*v1 + (Lambda1 + Lambda3 + Lambda4)*v2)*Conj(Lambda6) - 72*Lambda2
+      *v2*Conj(Lambda7) - 72*Lambda3*v2*Conj(Lambda7) - 72*Lambda4*v2*Conj(
+      Lambda7) - 72*Conj(Lambda5)*(2*Lambda5*v1 + v2*Conj(Lambda6) + v2*Conj(
+      Lambda7)) - 429*v1*Quad(g1) + 1071*v1*Quad(g2) - 244*traceYdAdjYd*v1*Sqr(
+      g1) - 972*traceYdAdjYd*v1*Sqr(g2) + 90*v1*Sqr(g1)*Sqr(g2) - 1920*
+      traceYdAdjYd*v1*Sqr(g3) - 144*v1*Sqr(Lambda1) - 96*v1*Sqr(Lambda3) - 96*
+      v1*Sqr(Lambda4)));
 
 
    return beta_v1;

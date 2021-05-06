@@ -413,16 +413,16 @@ namespace Gambit
     /*! \brief Some helper function to prepare evaluation of Weff from
      *         DarkSUSY 5.
      */
-    void RD_annrate_DS5prep_MSSM_func(int &result)
+    void RD_annrate_DS5prep_func(int &result)
     {
-      using namespace Pipes::RD_annrate_DS5prep_MSSM_func;
+      using namespace Pipes::RD_annrate_DS5prep_func;
 
       // Read out coannihilating particles from RDspectrum.
       RD_spectrum_type specres = *Dep::RD_spectrum;
 
       if ( specres.particle_index_type != "DarkSUSY" )
       {
-        invalid_point().raise("RD_annrate_DS5prep_MSSM_func is only optimized for use with "
+        invalid_point().raise("RD_annrate_DS5prep_func is only optimized for use with "
          "DarkSUSY5 and requires internal particle IDs. Try RD_annrate_DSprep_MSSM_func instead!");
       }
 
@@ -455,13 +455,13 @@ namespace Gambit
           }
         }
       #ifdef DARKBIT_RD_DEBUG
-        std::cout << "DSprep_MSSM - co : "<< myrdmgev.kcoann(i) << " " <<
+        std::cout << "DS5prep - co : "<< myrdmgev.kcoann(i) << " " <<
             myrdmgev.mco(i) << " " << myrdmgev.mdof(i)
             << std::endl;
       #endif
       }
       #ifdef DARKBIT_RD_DEBUG
-        std::cout << "DSprep_MSSM - co : "<< myrdmgev.kcoann(myrdmgev.nco) << " " <<
+        std::cout << "DS5prep - co : "<< myrdmgev.kcoann(myrdmgev.nco) << " " <<
             myrdmgev.mco(myrdmgev.nco) << " " << myrdmgev.mdof(myrdmgev.nco)
             << std::endl;
       #endif
@@ -470,7 +470,7 @@ namespace Gambit
 
       result=1; // everything OK
 
-    } // function RD_annrate_DS5prep_MSSM_func
+    } // function RD_annrate_DS5prep_func
 
 
     /*! \brief Some helper function to prepare evaluation of Weff from
@@ -520,19 +520,31 @@ namespace Gambit
 
 
     /*! \brief Get Weff directly from initialized DarkSUSY.
-     * Note that this function does not (and should not) correct Weff for
+     * Note that these functions do not (and should not) correct Weff for
      * non-self-conjugate dark matter.
     */
     void RD_eff_annrate_DS_MSSM(double(*&result)(double&))
     {
       using namespace Pipes::RD_eff_annrate_DS_MSSM;
 
-      if ((BEreq::dsanwx.origin() == "DarkSUSY") || (BEreq::dsanwx.origin() == "DarkSUSY_MSSM"))
+      if (BEreq::dsanwx.origin() == "DarkSUSY_MSSM")
       {
         result=BEreq::dsanwx.pointer();
       }
       else DarkBit_error().raise(LOCAL_INFO, "Wrong DarkSUSY backend initialized?");
     } // function RD_eff_annrate_DS_MSSM
+
+    void RD_eff_annrate_DS5_MSSM(double(*&result)(double&))
+    {
+      using namespace Pipes::RD_eff_annrate_DS5_MSSM;
+
+      if (BEreq::dsanwx.origin() == "DarkSUSY")
+      {
+        result=BEreq::dsanwx.pointer();
+      }
+      else DarkBit_error().raise(LOCAL_INFO, "Wrong DarkSUSY backend initialized?");
+    } // function RD_eff_annrate_DS5_MSSM
+
 
 
     /*! \brief Infer Weff from process catalog.

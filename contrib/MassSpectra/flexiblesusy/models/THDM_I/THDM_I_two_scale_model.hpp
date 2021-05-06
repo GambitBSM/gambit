@@ -16,7 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:50
+// File generated at Tue 7 Apr 2020 02:34:06
 
 /**
  * @file THDM_I_two_scale_model.hpp
@@ -24,8 +24,8 @@
  *        value problem using the two_scale solver by solving EWSB
  *        and determine the pole masses and mixings
  *
- * This file was generated at Wed 31 Oct 2018 19:37:50 with FlexibleSUSY
- * 2.0.1 (git commit: unknown) and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 02:34:06 with FlexibleSUSY
+ * 2.0.1 (git commit: unknown) and SARAH 4.13.0 .
  */
 
 #ifndef THDM_I_TWO_SCALE_H

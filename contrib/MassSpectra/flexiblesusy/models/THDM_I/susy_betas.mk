@@ -28,6 +28,6 @@ LIBTHDM_I_SRC += \
 	models/THDM_I/THDM_I_susy_beta_Lambda4.cpp \
 	models/THDM_I/THDM_I_susy_beta_Lambda3.cpp \
 	models/THDM_I/THDM_I_susy_beta_Lambda2.cpp \
+	models/THDM_I/THDM_I_susy_beta_Yu.cpp \
 	models/THDM_I/THDM_I_susy_beta_Yd.cpp \
-	models/THDM_I/THDM_I_susy_beta_Ye.cpp \
-	models/THDM_I/THDM_I_susy_beta_Yu.cpp
+	models/THDM_I/THDM_I_susy_beta_Ye.cpp

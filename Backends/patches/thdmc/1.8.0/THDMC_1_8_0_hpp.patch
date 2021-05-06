@@ -1,0 +1,14 @@
+--- THDMC_1_8_0.hpp	2020-06-14 14:18:44.000000000 +0930
++++ THDMC_1_8_0.hpp.patched	2020-06-14 14:21:28.000000000 +0930
+@@ -28,9 +28,10 @@
+ // Convenience functions (registration)
+ 
+ // Initialisation function (definition)
+-BE_INI_FUNCTION{} END_BE_INI_FUNCTION
++// - Declared in source file
+ 
+ // Convenience functions (definitions)
++BE_CONV_FUNCTION(init_THDM_spectrum_container_CONV, void, (THDM_spectrum_container&, const Spectrum&, int, double, int), "init_THDM_spectrum_container_CONV")
+ 
+ // End
+ #include "gambit/Backends/backend_undefs.hpp"

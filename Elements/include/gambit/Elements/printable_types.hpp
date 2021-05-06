@@ -14,23 +14,31 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Jan
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Mar
+///
 ///  *********************************************
 
 #ifndef __printable_types_hpp__
 #define __printable_types_hpp__
 
-#include "gambit/Elements/shared_types.hpp"
+#include "gambit/Elements/types_rollcall.hpp"
 #include "gambit/ScannerBit/printable_types.hpp"
 
 // Types that Gambit printers can output (if printer plugin is properly equipped)
-#define PRINTABLE_TYPES    \
-  SCANNER_PRINTABLE_TYPES  \
-  (map_intpair_dbl)        \
-  (triplet<double>)        \
-  (DM_nucleon_couplings)   \
+#define PRINTABLE_TYPES               \
+  SCANNER_PRINTABLE_TYPES             \
+  (map_intpair_dbl)                   \
+  (map_const_str_dbl)                 \
+  (map_str_map_str_dbl)               \
+  (map_const_str_map_const_str_dbl)   \
+  (triplet<double>)                   \
+  (DM_nucleon_couplings)              \
   (DM_nucleon_couplings_fermionic_HP) \
-  (Flav_KstarMuMu_obs)     \
-  (BBN_container)          \
+  (Flav_KstarMuMu_obs)                \
+  (BBN_container)                     \
+  (FlavBit::flav_prediction)
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)
 // Generally needs to be the same as the printable types, i.e. should be able to retrieve everything.

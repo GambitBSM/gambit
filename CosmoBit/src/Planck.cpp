@@ -46,6 +46,19 @@ namespace Gambit
   {
     using namespace LogTags;
 
+    // Anonymous namespace
+    // - It is only visible to this file
+    // - Variables in here won't show up in the compiled files and are not seen by the linker
+    namespace
+    {
+      // In the Planck analysis the monopole (CMB temperature) is assumed to be
+      // T_cmb = 2.72548 K (FIRAS measurement).
+      // To correctly reconstruct the dimensionful Cl out of the dimensionless Cl,
+      // this value needs to be assumed rather than the (variable) value of T_cmb.
+      // (cf. Appendix A of arXiv:2005.10656)
+      double T_cmb_FIRAS = 2.72548;
+    }
+
     /// Apply Gaussian priors on some of the Planck nuisance parameters (cf. table 16 of 1907.1287)
     /// By default, the 2018 priors are used.
     /// If the 2015 priors should be considered, set "version: 2015" in the rules of this function.
@@ -145,7 +158,7 @@ namespace Gambit
       double cl_and_pars[31];
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -202,7 +215,7 @@ namespace Gambit
       double cl_and_pars[31];
       int idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_EE = *Dep::lensed_Cl_EE;
@@ -267,7 +280,7 @@ namespace Gambit
       double cl_and_pars_EE[31];
       int idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -315,7 +328,7 @@ namespace Gambit
       //--------------------------------------------------------------------------
       //------calculation of the planck loglikelihood-----------------------------
       //--------------------------------------------------------------------------
-      int tmp_result = 0.0; // temporary to not spoil the printer output if the TT works but EE fails.
+      double tmp_result = 0.0; // temporary to not spoil the printer output if the TT works but EE fails.
       tmp_result += BEreq::plc_loglike_lowl_TT_2018(&cl_and_pars_TT[0]);
       tmp_result += BEreq::plc_loglike_lowl_EE_2018(&cl_and_pars_EE[0]);
 
@@ -337,7 +350,7 @@ namespace Gambit
 
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -414,7 +427,7 @@ namespace Gambit
 
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -471,7 +484,7 @@ namespace Gambit
       double  cl_and_pars[7574];
       int idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -574,7 +587,7 @@ namespace Gambit
 
       int idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -642,7 +655,7 @@ namespace Gambit
 
       int idx_pp, idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_PhiPhi = *Dep::lensed_Cl_PhiPhi;
@@ -768,7 +781,7 @@ namespace Gambit
       double cl_and_pars[31];
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -826,7 +839,7 @@ namespace Gambit
 
       int idx_tt, idx_te, idx_ee, idx_bb;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -899,7 +912,7 @@ namespace Gambit
 
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -974,7 +987,7 @@ namespace Gambit
 
       int idx_tt;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -1031,7 +1044,7 @@ namespace Gambit
       double  cl_and_pars[7621];
       int idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -1134,7 +1147,7 @@ namespace Gambit
 
       int idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_TT = *Dep::lensed_Cl_TT;
@@ -1202,7 +1215,7 @@ namespace Gambit
 
       int idx_pp, idx_tt, idx_te, idx_ee;
 
-      double Tcmb_in_mK = (1e6)*(*Dep::T_cmb);
+      double Tcmb_in_mK = (1e6)*(T_cmb_FIRAS);
       auto scale_func = [Tcmb_in_mK](double& cl){cl *= pow( Tcmb_in_mK, 2);};
 
       std::vector<double> Cl_PhiPhi = *Dep::lensed_Cl_PhiPhi;

@@ -1,0 +1,717 @@
+#########################################################################
+## GAMBIT configuration for running a diver scan of the THDM
+## THDM_scan
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## SuperISO,HEPlike,THDMC (not is use currently)
+##########################################################################
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+        mh2:
+            fixed_value: 15650.01 # 125.1**2
+           # range: [125.0, 126.0]
+           # prior_type: flat
+        mC2:
+            range: [250000.0, 9000000.0]
+            prior_type: flat
+        mA2:
+            same_as: THDM_physical::mC2
+        mH2:
+            same_as: THDM_physical::mC2
+            #range: [130.0, 5000.0]
+            #prior_type: flat
+        # --- Assuming a CP-conserving THDM model ---
+        lambda6:
+            fixed_value: 0.0
+        lambda7:
+            fixed_value: 0.0
+        # -------------------------------------------
+        m12_2:
+            range: [250000.0, 2560000.0]
+            prior_type: flat
+        tanb:
+            range: [0.1, 10]
+            prior_type: log
+        sba:
+            range: [0.9990, 1.0000]
+            prior_type: flat
+
+        yu2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_22:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        yu2_re_23:
+            range: [-2.0, 2.0]
+            prior_type: flat
+        yu2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_32:
+            same_as: THDM_physical::yu2_re_23
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_33:
+            range: [0.5, 1.5]
+            prior_type: flat
+        # -------------------------------------------
+        yu2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat 
+        # -------------------------------------------
+        yd2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_22:
+            #fixed_value: 0
+            range: [-0.05, 0.05]
+            prior_type: flat
+        yd2_re_23:
+            #fixed_value: 0
+            range: [-0.05, 0.05]
+            prior_type: flat
+        yd2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_32:
+            #fixed_value: 0
+            same_as: THDM_physical::yd2_re_23
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_33:
+            range: [-0.05, 0.05]
+            prior_type: flat
+        # -------------------------------------------
+        yd2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        # -------------------------------------------
+        yl2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_22:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        yl2_re_23:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        yl2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_32:
+            same_as: THDM_physical::yl2_re_23
+           # fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_33:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        # -------------------------------------------
+        yl2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+
+##############################
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: hdf5
+
+  options:
+    # name of output file
+    output_file: "THDM_scan2.hdf5"
+    group: "/THDM_scan2"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 3000
+      convthresh: 1e-4
+      verbosity: 1
+
+      # No options to set, but still need the nodes at the moment...
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #Tree level Yukawas perturbativity
+
+    - purpose:    LogLike
+      capability: perturbativity_yukawas_LL
+
+    # Applies the THDM tree level stability constraints on the potential
+   
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+      function: stability_lambdas_LL
+
+    # Tree level unitarity for the potential
+
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
+      function: unitarity_lambdas_LL
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    #  Likelihood type: Half-Gaussian
+
+    # - purpose:    LogLike
+    #  capability: oblique_parameters_likelihood_THDM
+
+    # -------------------------------------------
+
+    #### NOTE
+    # Flavor likelihoods 
+
+    # B->s,gamma likelihood (using HEPlike)
+    - capability: b2sgamma_LogLikelihood
+      function: HEPLike_b2sgamma_LogLikelihood
+      purpose: LogLike
+
+    #delta0 likelihood 
+    - capability: delta0_LL
+      function: delta0_ll
+      purpose: LogLike
+
+    #delta0 obs
+    - capability: delta0
+      function: SI_delta0
+      purpose: Observable
+
+   # This likelihood capability has an unstable behaviour
+   # B->tau,nu likelihood (using HEPlike)
+   # - capability: B2taunu_LogLikelihood
+   #   function: HEPLike_B2taunu_LogLikelihood
+   #   purpose: LogLike
+
+    #ERROR: A problem has occurred in the printer utilities.
+    #No print function override has been 
+    #defined for this type (for whatever printer
+    #class the current printer comes from)
+    #Dumping available info...
+    #Label      : #prediction_B2taunu @FlavBit::THDM_Btaunu
+    #vertexID   : 794
+
+    - capability: Btaunu
+      function: THDM_Btaunu
+      module: FlavBit
+      purpose: Observable      
+
+    # B->mu,mu likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    # Semi-Leptonic likelihood collection 9 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
+    - capability: SL_LL
+      function: SL_likelihood
+      purpose: LogLike
+    
+    # muon g-2 likelihood 
+    - capability: lnL_gm2
+      function: lnL_gm2
+      purpose: LogLike
+
+   #LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
+    - capability: gmu_ge_lnL
+      function: gmu_ge_likelihood
+      purpose: LogLike
+
+   # # l->l gamma 
+    - capability: l2lgamma_lnL
+      function: l2lgamma_likelihood
+      purpose: LogLike
+
+    # # l->lll
+    - capability: l2lll_lnL
+      function: l2lll_likelihood
+      purpose: LogLike
+
+    # FLDstar likelihood 
+    - capability: FLDstar_lnL
+      function: FLDstar_likelihood
+      purpose: LogLike
+
+    # Bc->tanu lifetime likelihood 
+    - capability: Bc_lifetime_lnL
+      function: Bc_lifetime_likelihood
+      purpose: LogLike
+
+    # # B->Dstar,l,nu likelihood [Normalized differential decay width]
+    - capability: BDstartaunu_LL
+      function: BDstartaunu_likelihood
+      purpose: LogLike
+
+    # # B->D,l,nu likelihood [Normalized differential decay width]
+    - capability: BDtaunu_LL
+      function: BDtaunu_likelihood
+      purpose: LogLike
+
+    #Old measurements
+    # B->Kstarll angular for 6 bins, 48 obs in total:FL,AFB,S3,S4,S5,S7,S8,S9
+   # - capability: b2sll_LL
+    #  function: b2sll_likelihood
+     # purpose: LogLike
+   
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    #B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas, why is this splitted in this way? contains _2_4_Atlas and _4_8_Atlas
+
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # B2KstarmumuAng_NoLowq2_LogLikelihood_Belle, same splitting, why?
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+    # B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020, large uncertainties for low q2?
+
+    # 6 observables, HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+    # FATAL: GAMBIT has exited with fatal exception: map::at
+    - purpose: LogLike
+      capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb, no low q2
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
+   # - purpose: LogLike
+    #  capability: RK_LogLikelihood
+
+   # No candidates found while trying to resolve:
+   #SuperIso_theory_covariance (flav_covariance_map), required by
+   # RKstar_LogLikelihood_LHCb (double) [HEPLike_RKstar_LogLikelihood_LHCb, FlavBit]
+
+   # - purpose: LogLike
+    #  capability: RKstar_LogLikelihood_LHCb
+
+    #Old observables
+    # # B->Kstarll branching for 6 bins 
+   # - capability: b2sll_BR_LL
+    #  function: b2sll_BR_likelihood
+     # purpose: LogLike
+
+    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
+    - purpose: LogLike
+      capability: LUV_LL
+
+   # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    - capability: b2sll_AI_LL
+      function: BKstarmumu_AI_ll
+      purpose: LogLike
+
+    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    - capability: b2sll_AI_zero_LL
+      function: BKstarmumu_AI_zero_ll
+      purpose: LogLike
+
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+      purpose: Observable
+
+    #################
+    # Observables
+    #################
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    - capability: DeltaC7
+      function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC7_Prime
+      function: calculate_DeltaC7_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9
+      function: calculate_DeltaC9
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10
+      function: calculate_DeltaC10
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9_Prime
+      function: calculate_DeltaC9_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10_Prime
+      function: calculate_DeltaC10_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ1
+      function: calculate_DeltaCQ1
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ2
+      function: calculate_DeltaCQ2
+      module: FlavBit
+      purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+       # obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime]
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+   # Likelihood not working
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+
+    - capability: b2ll_M
+      function: b2ll_measurements
+      dependencies:
+        - capability: Bsmumu_untag
+          function: SI_Bsmumu_untag
+          module: FlavBit
+
+    - capability: delta0
+      function: SI_delta0
+
+   # - capability: prediction_B2taunu
+    #  function: THDM_Btaunu
+    #  options:
+    #     obs_list: [B2taunu] 
+
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: BDlnu_dBR_M
+      function: BDlnu_dBR_measurement
+
+    # Choose to use superiso for RK calcs
+    - capability: RK
+      function: SI_RK
+
+    - capability: RKstar_0045_11
+      function: SI_RKstar_0045_11
+
+    - capability: RKstar_11_60
+      function: SI_RKstar_11_60
+
+    - options:
+      use_SM_covariance: true
+
+    - capability: lnL_gm2
+      function: lnL_gm2
+      dependencies:
+        - capability: muon_gm2_SM
+          function: gm2_SM_ee
+          module: PrecisionBit
+
+    - capability: stability_likelihood_THDM
+      function: stability_lambdas_LL
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+         check_all_scales: false
+         simple_perturbativity: false
+
+   # - capability: stability_likelihood_THDM
+    #  function: get_stability_likelihood_THDM
+    #  options:
+    #     check_all_scales: true
+
+   # - capability: NLO_unitarity_likelihood_THDM
+    #  function: get_NLO_unitarity_likelihood_THDM
+    #  options:
+    #     check_all_scales: false
+    #     check_correction_ratio: true
+
+    # ----------------------
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    #[DecayBit] :  "DecayBit.log"
+    #[DarkBit] :  "DarkBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    #[ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_scan2/"
+  debug: false
+

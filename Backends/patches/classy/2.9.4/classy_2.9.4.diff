@@ -29,29 +29,28 @@
          self.allocated = False
          self.computed = False
          self._pars = {}
-
 @@ -1082,6 +1082,21 @@
      def omega_b(self):
          return self.ba.Omega0_b * self.ba.h * self.ba.h
  
 +    def Omega_dcdm(self):                   # (JR) added 
 +        return self.ba.Omega0_dcdm
-+    
++
 +    def Omega_dr(self):                     # (JR) added 
 +        return self.ba.Omega0_dr
-+    
++
 +    def Omega_dcdmdr(self):                     # (JR) added 
 +        return self.ba.Omega0_dcdmdr
 +
 +    def Omega_ncdm_tot(self):                     # (JR) added 
 +        return self.ba.Omega0_ncdm_tot
-+    
++
 +    def Omega_ur(self):                     # (JR) added 
 +        return self.ba.Omega0_ur
 +
      def Neff(self):
          return self.ba.Neff
-
+ 
 --- a/source/input.c  2017-10-24 23:42:41.000000000 +1000
 +++ b/source/input.c  2019-11-26 14:18:59.251578000 +1000 
 @@ -4,6 +4,7 @@
@@ -62,7 +61,7 @@
  
  /**
   * Use this routine to extract initial parameters from files 'xxx.ini'
-@@ -1887,9 +1887,13 @@
+@@ -1900,9 +1901,13 @@
        ppm->primordial_spec_type = external_Pk;
        flag2=_TRUE_;
      }
@@ -77,13 +76,13 @@
    }
  
    class_read_double("k_pivot",ppm->k_pivot);
-@@ -2402,6 +2402,70 @@
+@@ -2415,6 +2420,70 @@
      class_read_double("custom9",ppm->custom9);
      class_read_double("custom10",ppm->custom10);
    }
-+  
++
 +  else if (ppm->primordial_spec_type == pointer_to_Pk) {
-+    
++
 +    // initialise flags & chars here -- flag1-flag3 already defined, patch might be easier to maintain if
 +    // these definitions happen here within the patched part
 +    int flag0,flag4,flag5,flag6; 
@@ -229,7 +228,7 @@
 +    // was impelmented for)
 +    for (int index_k=0; index_k<ppm->lnk_size; index_k++)
 +    {
-+       
++
 +       ppm->lnpk[ppt->index_md_scalars][index_k] = log(ppm->ptr_pks_array[index_k]);
 +       if (ppt->has_tensors == _TRUE_)
 +         ppm->lnpk[ppt->index_md_tensors][index_k] = log(ppm->ptr_pkt_array[index_k]);
@@ -255,7 +254,7 @@
 +    // was impelmented for)
 +    for (int index_k=0; index_k<ppm->lnk_size; index_k++)
 +    {
-+       
++
 +       ppm->lnpk[ppt->index_md_scalars][index_k] = log(ppm->ptr_pks_array[index_k]);
 +       if (ppt->has_tensors == _TRUE_)
 +         ppm->lnpk[ppt->index_md_tensors][index_k] = log(ppm->ptr_pkt_array[index_k]);
@@ -279,7 +278,7 @@
 +  if (ppm->primordial_spec_type != analytic_Pk && ppm->primordial_spec_type != pointer_to_Pk) {
  
      dlnk = log(10.)/ppr->k_per_decade_primordial;
-
+ 
 --- a/include/primordial.h    2017-10-24 23:42:41.000000000 +1000
 +++ b/include/primordial.h    2019-11-25 11:01:44.417102000 +1000
 @@ -13,7 +13,8 @@
@@ -298,7 +297,7 @@
  
 +  double * ptr_pks_array;    /**< poiner to external array holding the scalar modes of the primordial Pk */
 +  double * ptr_pkt_array;    /**< poiner to external array holding the tensor modes of the primordial Pk */
-+  
++
    double * lnk;    /**< list of ln(k) values lnk[index_k] */
  
    double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:

@@ -1,3 +1,4 @@
+
 FSModelName = "THDM_flipped";
 FSEigenstates = SARAH`EWSB;
 FSDefaultSARAHModel = "THDM_flipped";
@@ -36,7 +37,7 @@ SUSYScaleInput = {
     {Lambda5, Lambda5IN},
     {Lambda6, Lambda6IN},
     {Lambda7, Lambda7IN},
-    {M122,    M122IN}
+    {M122   , M122IN}
 };
 
 LowScale = LowEnergyConstant[MZ];
@@ -44,24 +45,19 @@ LowScale = LowEnergyConstant[MZ];
 LowScaleFirstGuess = LowEnergyConstant[MZ];
 
 LowScaleInput = {
-    {v1, 2 MZDRbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
-    {v2, 2 MZDRbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
-    {Yu, Automatic},
-    {Yd, Automatic},
-    {Ye, Automatic}
+   {v1, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Cos[ArcTan[TanBeta]]},
+   {v2, 2 MZMSbar / Sqrt[GUTNormalization[g1]^2 g1^2 + g2^2] Sin[ArcTan[TanBeta]]},
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
 };
 
 InitialGuessAtLowScale = {
-    {v1, LowEnergyConstant[vev] Cos[ArcTan[TanBeta]]},
-    {v2, LowEnergyConstant[vev] Sin[ArcTan[TanBeta]]},
-    {Yu, Automatic},
-    {Yd, Automatic},
-    {Ye, Automatic}
-};
-
-SMParticles = {
-    Electron, TopQuark, BottomQuark,
-    VectorP, VectorZ, VectorG, VectorW, Neutrino
+   {v1, LowEnergyConstant[vev] Cos[ArcTan[TanBeta]]},
+   {v2, LowEnergyConstant[vev] Sin[ArcTan[TanBeta]]},
+   {Yu, Automatic},
+   {Yd, Automatic},
+   {Ye, Automatic}
 };
 
 DefaultPoleMassPrecision = MediumPrecision;
@@ -70,9 +66,9 @@ MediumPoleMassPrecision  = {};
 LowPoleMassPrecision     = {};
 
 ExtraSLHAOutputBlocks = {
-    {EFFHIGGSCOUPLINGS, NoScale,
-            {{1, FlexibleSUSYObservable`CpHiggsPhotonPhoton},
-             {2, FlexibleSUSYObservable`CpHiggsGluonGluon},
-             {3, FlexibleSUSYObservable`CpPseudoScalarPhotonPhoton},
-             {4, FlexibleSUSYObservable`CpPseudoScalarGluonGluon} } }
+   {EFFHIGGSCOUPLINGS, NoScale,
+           {{1, FlexibleSUSYObservable`CpHiggsPhotonPhoton},
+            {2, FlexibleSUSYObservable`CpHiggsGluonGluon},
+            {3, FlexibleSUSYObservable`CpPseudoScalarPhotonPhoton},
+            {4, FlexibleSUSYObservable`CpPseudoScalarGluonGluon} } }
 };

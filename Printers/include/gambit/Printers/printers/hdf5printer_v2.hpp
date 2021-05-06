@@ -166,9 +166,6 @@ namespace Gambit
          /// Flag to let us known if the dataset is open
          bool is_open;
 
-         /// Variable tracking size of dataset on disk
-         std::size_t virtual_dset_length;
-
          /// Variable tracking whether the dataset is known to exist in the output file yet
          bool exists_on_disk;
 
@@ -1575,15 +1572,19 @@ namespace Gambit
         /// Report whether this printer prints in synchronised or 'random' mode
         bool get_sync(const Options& options);
 
-        /// Helper print function
-        // Used to reduce repetition in definitions of virtual function overloads
-        // (useful since there is no automatic type conversion possible)
+        /// Helper print functions
+        /// Used to reduce repetition in definitions of virtual function overloads
+        /// (useful since there is no automatic type conversion possible)
+        /// @{
+
         template<class T>
         void basic_print(T const& value, const std::string& label, const unsigned int mpirank, const unsigned long pointID)
         {
             // Forward the print information on to the master buffer manager object
             buffermaster.schedule_print<T>(value,label,mpirank,pointID);
         }
+
+        /// @}
 
     };
 

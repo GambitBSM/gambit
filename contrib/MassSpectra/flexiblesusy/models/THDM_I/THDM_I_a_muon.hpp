@@ -16,13 +16,13 @@
 // <http://www.gnu.org/licenses/>.
 // ====================================================================
 
-// File generated at Wed 31 Oct 2018 19:37:52
+// File generated at Tue 7 Apr 2020 02:34:07
 
 /**
  * @file THDM_I_a_muon.hpp
  *
- * This file was generated at Wed 31 Oct 2018 19:37:52 with FlexibleSUSY
- * 2.0.1 and SARAH 4.12.3 .
+ * This file was generated at Tue 7 Apr 2020 02:34:07 with FlexibleSUSY
+ * 2.0.1 and SARAH 4.13.0 .
  */
 
 #ifndef THDM_I_A_MUON_H

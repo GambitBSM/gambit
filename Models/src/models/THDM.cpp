@@ -30,6 +30,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Apr
 ///
+///  \author Filip Rajec
+///          (filip.rajec@adelaide.edu.au)
+///  \date 2020 Jun
+///
 ///  *********************************************
 
 #include <string>
@@ -38,24 +42,16 @@
 #include "gambit/Models/model_macros.hpp"
 #include "gambit/Models/model_helpers.hpp"
 #include "gambit/Logs/logger.hpp"
-//#include "gambit/Utils/util_functions.hpp"
 
 #include "gambit/Models/models/THDM.hpp"
-#include "gambit/Models/models/THDM_higgs.hpp"
-#include "gambit/Models/models/THDM_physical.hpp"
 
 #include "gambit/Elements/sminputs.hpp"
-
-// Activate debug output
-//#define THDM_DBUG
 
 using namespace Gambit::Utils;
 
 // THDM --> THDMatQ
 #define MODEL  THDM
 #define PARENT THDMatQ
-
-// Translation function definition
 void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParameters &targetP)
 {
   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
@@ -88,21 +84,13 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
       targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
   }
 
-   // Done! Check that everything is ok if desired.
-   #ifdef THDM_DBUG
-     std::cout << "THDM parameters:" << myP << std::endl;
-     std::cout << "THDMatQ parameters:" << targetP << std::endl;
-   #endif
 }
-
 #undef PARENT
 #undef MODEL
 
 // THDM_higgs --> THDM
 #define MODEL  THDM_higgs
 #define PARENT THDM
-
-// Translation function definition
 void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParameters &targetP)
 {
     USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
@@ -160,15 +148,12 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
 
 
 }
-
 #undef PARENT
 #undef MODEL
 
 // THDM_physical --> THDM
 #define MODEL  THDM_physical
 #define PARENT THDM
-
-// Translation function definition
 void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelParameters &targetP)
 {
     USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
@@ -218,6 +203,5 @@ void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelPa
 
 
 }
-
 #undef PARENT
 #undef MODEL

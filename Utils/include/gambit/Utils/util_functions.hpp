@@ -69,8 +69,16 @@ namespace Gambit
     /// Return the path to the build-time scratch directory
     const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
 
-    /// Return the path the the run-specific scratch directory
+    /// Return the path to the run-specific scratch directory
+    /// Don't call this from a destructor, as the internal static str may have already been destroyed.
     EXPORT_SYMBOLS const str& runtime_scratch();
+
+    /// Convert all instances of "p" in a string to "."
+    EXPORT_SYMBOLS str p2dot(str s);
+
+    /// Construct the path to the run-specific scratch directory
+    /// This version is safe to call from a destructor.
+    EXPORT_SYMBOLS str construct_runtime_scratch(bool fail_on_mpi_uninitialised=true);
 
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.

@@ -1,0 +1,12 @@
+diff -rupN higgsbounds-5.8.0/src/usefulbits.f90 higgsbounds-5.8.0_patched/src/usefulbits.f90
+--- higgsbounds-5.8.0/src/usefulbits.f90	2020-02-04 04:40:54.000000000 -0500
++++ higgsbounds-5.8.0_patched/src/usefulbits.f90	2020-03-02 19:08:14.000000000 -0500
+@@ -46,7 +46,7 @@ module usefulbits
+     integer, allocatable :: analysis_exclude_list(:)
+ 
+ ! For the LEP chisq extension:
+-    logical :: chisqcut_at_mumax = .False.
++    logical :: chisqcut_at_mumax = .True.
+     logical :: BRdirectinput = .False.
+ 
+ ! Global parameters (to be set during initialization)

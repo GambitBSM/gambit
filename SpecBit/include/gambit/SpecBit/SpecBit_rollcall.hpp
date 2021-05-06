@@ -27,6 +27,8 @@
 #define MODULE SpecBit
 START_MODULE
 
+  #include "gambit/SpecBit/SpecBit_types.hpp"
+
   // Capabilities used in more than one of the headers
   // below need to be declared up-front (and then not
   // declared in the header)

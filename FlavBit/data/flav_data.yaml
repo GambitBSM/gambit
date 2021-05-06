@@ -1,4 +1,16 @@
 
+- name: R_mu
+  islimit: false
+  exp_value: 0.6358
+  exp_stat_error: 0.0011
+  exp_sys_error: 0.0
+  exp_source: SuperIso
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: FLDstar
   islimit: false
   exp_value: 0.6
@@ -361,10 +373,10 @@
 
 - name: BR_Bs2mumu
   islimit: false
-  exp_value: 2.9e-9
-  exp_stat_error: 0.7e-9
-  exp_sys_error: 0.2e-9
-  exp_source: CMS-PAS-BPH-16-004
+  exp_value: 3.09e-9
+  exp_stat_error: 0.46e-9
+  exp_sys_error: 0.15e-9
+  exp_source: LHCB-PAPER-2021-007
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
@@ -469,29 +481,29 @@
 
 - name: RDstar
   islimit: false
-  exp_value: 0.407
-  exp_stat_error: 0.039
-  exp_sys_error: 0.024
-  exp_source: 1612.07233
+  exp_value: 0.295
+  exp_stat_error: 0.011
+  exp_sys_error: 0.008
+  exp_source: HFLAV
   th_error: 0.001
   th_error_type: M
   th_error_source: Phys.Rev.D85,094025(2012)
   correlation:
   - name: RD
-    value: -0.2
+    value: -0.38
 
 - name: RD
   islimit: false
-  exp_value: 0.306
-  exp_stat_error: 0.013
-  exp_sys_error: 0.007
-  exp_source: 1612.07233
+  exp_value: 0.340
+  exp_stat_error: 0.027
+  exp_sys_error: 0.013
+  exp_source: HFLAV
   th_error: 0.037
   th_error_type: M
   th_error_source: Phys.Rev.D92,034506(2015)
   correlation:
   - name: RDstar
-    value: -0.2
+    value: -0.38
 
 - name: DeltaMs
   islimit: false
@@ -499,9 +511,9 @@
   exp_stat_error: 0.021
   exp_sys_error: 0.000
   exp_source: HFAG16
-  th_error: 0.06
+  th_error: 1.6 
   th_error_type: M
-  th_error_source: 1511.09466
+  th_error_source: 1602.03560
   correlation:
   - name: NONE
 
@@ -2126,9 +2138,9 @@
 - name: RK
   islimit: false
   exp_value: 0.846
-  exp_stat_error: 0.060
-  exp_sys_error: 0.016
-  exp_source: 1903.09252
+  exp_stat_error: 0.042
+  exp_sys_error: 0.013
+  exp_source: 2103.11769
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
@@ -2272,6 +2284,90 @@
   exp_stat_error: 0.
   exp_sys_error: 0.
   exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_BKmue
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 9.1e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_BKtaumu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 4.8e-5
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_Bsmutau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 4.2e-5
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_Bstautau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 6.8e-3
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: RKnunu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 3.9 
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Belle_arXiv:1702.03224
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: RKstarnunu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 2.7
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Belle_arXiv:1702.03224
   th_error: 0.
   th_error_type: M
   th_error_source: NONE

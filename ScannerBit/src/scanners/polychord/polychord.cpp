@@ -132,20 +132,20 @@ scanner_plugin(polychord, version(1, 17, 1))
       // This defaults to nDims if there are no fast parameters, or if all parameters are fast.
       // grade_dims is a vector of integers that indicates the number of slow and fast parameters
       settings.grade_dims.clear();
-      int i = 0;
+      unsigned int i = 0;
       // Run through all the parameters, and if they're slow parameters
       // give them an index i, then increment i
       for (auto param : varied_params)
           if (std::find(fast_params.begin(), fast_params.end(),param) == fast_params.end())
               Gambit::PolyChord::global_loglike_object->index_map[param] = (i++);
-      int nslow = i;
+      unsigned int nslow = i;
       if(nslow!=0) settings.grade_dims.push_back(nslow);
 
       // Do the same for the fast parameters
       for (auto param : varied_params)
           if (std::find(fast_params.begin(), fast_params.end(),param) != fast_params.end())
               Gambit::PolyChord::global_loglike_object->index_map[param] = (i++);
-      int nfast = i-nslow;
+      unsigned int nfast = i-nslow;
       if (nfast>0) settings.grade_dims.push_back(nfast);
 
       if (nslow>0 and nfast>0)
