@@ -1051,18 +1051,6 @@ namespace Gambit
                + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
                (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2)));
 
-      //TODO: This was deleted in the cleanup, sould it be here
-      //double C80 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-      //          (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_3(pow(mT/mHp,2)))
-      //          + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
-      //          (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_4(pow(mT/mHp,2)));
-
-      //double C2diag = (-7*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
-
-      //double C2mix = -(mC*(xi_bb*conj(Vcb) + xi_sb*conj(Vcs))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
-
-      //result = 0.698*C70+0.086*C80 + C2diag + C2mix;
-
       result = C70;
 
     }
@@ -4952,14 +4940,13 @@ namespace Gambit
       complex<double> Aloop2fL = 0;
       complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
-         for (int lf=0; lf<=2; ++lf)
-              {
-               {
-                  Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-                  Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-               }
-              }
-
+      {
+        for (int lf=0; lf<=2; ++lf)
+        {
+          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+         }
+      }
       //Bosonic contribution
       complex<double> Aloop2bL = 0;
       complex<double> Aloop2bR = 0;
@@ -4975,11 +4962,9 @@ namespace Gambit
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
       double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
       result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
-
     }
 
-
-// BR(mu -> e  gamma) for gTHDM from 1511.08880
+    // BR(mu -> e  gamma) for gTHDM from 1511.08880
     void THDM_muegamma(double &result)
     {
       using namespace Pipes::THDM_muegamma;
@@ -4991,7 +4976,7 @@ namespace Gambit
       THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-// BR(tau -> e gamma) for gTHDM from 1511.08880
+    // BR(tau -> e gamma) for gTHDM from 1511.08880
     void THDM_tauegamma(double &result)
     {
       using namespace Pipes::THDM_tauegamma;
@@ -5003,7 +4988,7 @@ namespace Gambit
       THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
     }
 
-// BR(tau -> mu gamma) for gTHDM from 1511.08880
+    // BR(tau -> mu gamma) for gTHDM from 1511.08880
     void THDM_taumugamma(double &result)
     {
       using namespace Pipes::THDM_taumugamma;

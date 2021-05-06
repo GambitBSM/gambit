@@ -1282,10 +1282,10 @@ namespace Gambit
       for (int phi=0; phi<=2; ++phi)
       { 
         // Superseded by gm2mu_loop2f by neutral boson contributions
-        /*for (int lf=0; lf<=2; ++lf)
-        {
-          Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
-        }*/
+        //for (int lf=0; lf<=2; ++lf)
+        //{
+        //  Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
+        //}
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
