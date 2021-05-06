@@ -16,6 +16,34 @@
 #  appear here. The extent of this string is
 #  indicated by indentation.
 
+trivial_1d: |
+   Trivial 1d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameter is labeled x1.
+
+trivial_2d: |
+   Trivial 2d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2.
+
+trivial_3d: |
+   Trivial 3d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, x3
+
+trivial_4d: |
+   Trivial 4d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, x3, x4.
+
+trivial_5d: |
+   Trivial 5d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x5.
+
+trivial_7d: |
+   Trivial 7d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x7.
+
+trivial_10d: |
+   Trivial 10d model for use with test-functions/artificial landscapes in ObjectivesBit.
+   The parameters are labeled x1, x2, ..., x10.
+
 NormalDist: |
    A simple test model consisting of two parameters: the width and central value of a Gaussian distribution.
 
