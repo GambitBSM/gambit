@@ -10,10 +10,13 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Nazila Mahmoudi
-///          (FIXME @blah.edu)
 ///  \date 2013 Dec
-///  \auther Marcin Chrzaszcz
+///
+///  \author Marcin Chrzaszcz
 ///  \date 2016 Oct
+///
+///  \author Cristian Sierra
+///  \date 2021 April
 ///
 ///  *********************************************
 
@@ -255,8 +258,12 @@ namespace Gambit
     // follow the memory layout that SuperIso expects.
 
     /* Wilson Coefficients */
+    double Re_DeltaC2 = 0.;
+    double Im_DeltaC2 = 0.;
     double Re_DeltaC7 = 0.;
     double Im_DeltaC7 = 0.;
+    double Re_DeltaC8 = 0.;
+    double Im_DeltaC8 = 0.;
     double Re_DeltaC9 = 0.;
     double Im_DeltaC9 = 0.;
     double Re_DeltaC10 = 0.;
@@ -301,6 +308,8 @@ namespace Gambit
     
     double Re_DeltaC7_Prime = 0.;
     double Im_DeltaC7_Prime = 0.;
+    double Re_DeltaC8_Prime = 0.;
+    double Im_DeltaC8_Prime = 0.;
     double Re_DeltaC9_Prime = 0.;
     double Im_DeltaC9_Prime = 0.;
     double Re_DeltaC10_Prime = 0.;

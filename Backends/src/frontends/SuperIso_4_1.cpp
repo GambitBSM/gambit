@@ -23,6 +23,10 @@
 /// \date 2016
 /// \date 2017
 ///
+/// \author Cristian Sierra
+/// \date 2021 April
+///         (cristian.sierra@monash.edu)
+///
 ///  *********************************************
 
 #include <sstream>
@@ -50,7 +54,9 @@ BE_NAMESPACE
   /// except O_7, O_9, O_10, Q_1 and Q_2.
   void modify_WC(const parameters *param, std::complex<double> C0b[11])
   {
+    C0b[2]+=std::complex<double>(param->Re_DeltaC2, param->Im_DeltaC2);
     C0b[7]+=std::complex<double>(param->Re_DeltaC7, param->Im_DeltaC7);
+    C0b[8]+=std::complex<double>(param->Re_DeltaC8, param->Im_DeltaC8);
     C0b[9]+=std::complex<double>(param->Re_DeltaC9, param->Im_DeltaC9);
     C0b[10]+=std::complex<double>(param->Re_DeltaC10, param->Im_DeltaC10);
   }
@@ -59,6 +65,20 @@ BE_NAMESPACE
     modify_WC(param, C0b);
     CQ0b[1]+=std::complex<double>(param->Re_DeltaCQ1, param->Im_DeltaCQ1);
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
+  }
+  
+   void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
+  {
+    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
+    Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
+    Cpb[9]+=std::complex<double>(param->Re_DeltaC9_Prime, param->Im_DeltaC9_Prime);
+    Cpb[10]+=std::complex<double>(param->Re_DeltaC10_Prime, param->Im_DeltaC10_Prime);
+  }
+  void modify_WCP(const parameters *param, std::complex<double> Cpb[11], std::complex<double> CQpb[3])
+  {
+    modify_WCP(param, Cpb);
+    CQpb[1]+=std::complex<double>(param->Re_DeltaCQ1_Prime, param->Im_DeltaCQ1_Prime);
+    CQpb[2]+=std::complex<double>(param->Re_DeltaCQ2_Prime, param->Im_DeltaCQ2_Prime);
   }
   /// @}
 
@@ -74,7 +94,6 @@ BE_NAMESPACE
   /// B0 -> K*0 mu mu observables
   Flav_KstarMuMu_obs BKstarmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
-    std::cout<<"I am used"<<std::endl;
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
@@ -93,6 +112,8 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
+    
 
     results.BR = BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
 
@@ -114,14 +135,14 @@ BE_NAMESPACE
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
     double obs[3];
-    Flav_KstarMuMu_obs results;
-    results.q2_min=Q2_min;
-    results.q2_max=Q2_max;
+    //Flav_KstarMuMu_obs results;
+    //results.q2_min=Q2_min;
+    //results.q2_max=Q2_max;
 
-    double mu_W=2.*param->mass_W;
+    //double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_pole;
 
     double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));        
@@ -149,6 +170,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
@@ -179,6 +201,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
@@ -198,9 +221,6 @@ BE_NAMESPACE
     double mu_b=param->mass_b_1S/2.;
     std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
     std::complex<double> CQpb[3];
-
-    //cout<<"Checking WC at W scale , C7= "<<C0w[7]+C1w[7]+C2w[7]<<" ,C9= "<<C0w[9]+C1w[9]+C2w[9]<<" ,C10= "<<C0w[10]+C1w[10]+C2w[10]<<endl;
-    //cout<<"CHecking that the parameters are filled: WC"<<param->mass_b<<"  "<<param->CKM_lambda<<endl;
     //cout<<"Params WC: "<<param->mtmt<<" "<<mu_W<<"  "<<param->mass_top_pole<<" "<<param->mass_b<<endl;
 
     //cout<<"Cross check NO WC: "<<param->alphas_MZ<<" "<<param->mass_Z<<" "<<param->mass_b<<" "<<param->mass_top_pole<<" "<<param->mass_mu<<" "<<param->mass_s<<" "<<mu_W<<endl;
@@ -221,6 +241,7 @@ BE_NAMESPACE
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b);
+    modify_WCP(param, Cpb);
 
     return bsgamma_Ecut(byVal(C0b),byVal(C1b),byVal(C2b),byVal(Cpb),byVal(mu_b),byVal(mu_W), E_t, param);
   }
@@ -241,6 +262,7 @@ BE_NAMESPACE
     CQ_calculator(flav,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(flav,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return Bsll_untag(flav,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -279,6 +301,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -297,6 +320,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -315,6 +339,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -333,6 +358,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -351,6 +377,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_zero(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -369,6 +396,7 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return BRBXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -387,6 +415,7 @@ BE_NAMESPACE
     CQ_calculator(3,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(3,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b, CQ0b);
+    modify_WCP(param, Cpb, CQpb);
 
     return A_BXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
@@ -407,6 +436,7 @@ BE_NAMESPACE
     C_calculator_base2(byVal(C0w),byVal(C1w),byVal(mu_W),byVal(C0spec),byVal(C1spec),byVal(mu_spec),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
     modify_WC(param, C0b);
+    modify_WCP(param, Cpb);
 
     return delta0(byVal(C0b),byVal(C0spec),byVal(C1b),byVal(C1spec),byVal(Cpb),param,byVal(mu_b),byVal(mu_spec),byVal(lambda_h));
   }
@@ -421,7 +451,7 @@ BE_NAMESPACE
 
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    modify_WC(param, C0b);
+    modify_WC(param, C0b);//Why does not scalars enter here?
 
     return AI_BKstarmumu(1.,6.,byVal(C0b),byVal(C1b),byVal(C2b),param,byVal(mu_b));
   }

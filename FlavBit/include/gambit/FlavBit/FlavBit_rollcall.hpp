@@ -38,6 +38,10 @@
 ///  \author Tomas Gonzalo
 ///  \date 2017 July
 ///
+///  \author Cristian Sierra
+///  \date 2020 June-December
+///  \date 2021 Jan-May
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
@@ -59,25 +63,687 @@
 #define MODULE FlavBit
 START_MODULE
 
+  #define CAPABILITY BDstarlnu_40_45
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_40_45
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_45_50
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_45_50
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_50_55
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_50_55
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_55_60
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_55_60
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_60_65
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_60_65
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_65_70
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_65_70
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_70_75
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_70_75
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_75_80
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_75_80
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_80_85
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_80_85
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_85_90
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_85_90
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_90_95
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_90_95
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDstarlnu_95_100
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_95_100
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDstarlnu_100_105
+  START_CAPABILITY
+    #define FUNCTION THDM_BDstarlnu_100_105
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // B-Dstartanu distribution measurements
+  #define CAPABILITY BDstartaunu_M
+  START_CAPABILITY
+    #define FUNCTION BDstartaunu_measurements
+    START_FUNCTION(FlavBit::predictions_measurements_covariances)
+    DEPENDENCY(BDstarlnu_40_45, double)
+    DEPENDENCY(BDstarlnu_45_50, double)
+    DEPENDENCY(BDstarlnu_50_55, double)
+    DEPENDENCY(BDstarlnu_55_60, double)
+    DEPENDENCY(BDstarlnu_60_65, double)
+    DEPENDENCY(BDstarlnu_65_70, double)
+    DEPENDENCY(BDstarlnu_70_75, double)
+    DEPENDENCY(BDstarlnu_75_80, double)
+    DEPENDENCY(BDstarlnu_80_85, double)
+    DEPENDENCY(BDstarlnu_85_90, double)
+    DEPENDENCY(BDstarlnu_90_95, double)
+    DEPENDENCY(BDstarlnu_95_100, double)
+    DEPENDENCY(BDstarlnu_100_105, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+ 
+  // B-Dstartaunu distributions likelihood [Normalized differential partial width]
+  #define CAPABILITY BDstartaunu_LL
+  START_CAPABILITY
+    #define FUNCTION BDstartaunu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(BDstartaunu_M, FlavBit::predictions_measurements_covariances)
+    #undef FUNCTION
+  #undef CAPABILITY
+ 
+ 
+  #define CAPABILITY BDlnu_40_45
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_40_45
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_45_50
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_45_50
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_50_55
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_50_55
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_55_60
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_55_60
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_60_65
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_60_65
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_65_70
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_65_70
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_70_75
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_70_75
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_75_80
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_75_80
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_80_85
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_80_85
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_85_90
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_85_90
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_90_95
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_90_95
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_95_100
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_95_100
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_100_105
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_100_105
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY BDlnu_105_110
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_105_110
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  #define CAPABILITY BDlnu_110_115
+  START_CAPABILITY
+    #define FUNCTION THDM_BDlnu_110_115
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+  // B-Dtanu distribution measurements
+  #define CAPABILITY BDtaunu_M
+  START_CAPABILITY
+    #define FUNCTION BDtaunu_measurements
+    START_FUNCTION(FlavBit::predictions_measurements_covariances)
+    DEPENDENCY(BDlnu_40_45, double)
+    DEPENDENCY(BDlnu_45_50, double)
+    DEPENDENCY(BDlnu_50_55, double)
+    DEPENDENCY(BDlnu_55_60, double)
+    DEPENDENCY(BDlnu_60_65, double)
+    DEPENDENCY(BDlnu_65_70, double)
+    DEPENDENCY(BDlnu_70_75, double)
+    DEPENDENCY(BDlnu_75_80, double)
+    DEPENDENCY(BDlnu_80_85, double)
+    DEPENDENCY(BDlnu_85_90, double)
+    DEPENDENCY(BDlnu_90_95, double)
+    DEPENDENCY(BDlnu_95_100, double)
+    DEPENDENCY(BDlnu_100_105, double)
+    DEPENDENCY(BDlnu_105_110, double)
+    DEPENDENCY(BDlnu_110_115, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+ 
+  // B-Dtanu distributions likelihood [Normalized differential partial width]
+  #define CAPABILITY BDtaunu_LL
+  START_CAPABILITY
+    #define FUNCTION BDtaunu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(BDtaunu_M, FlavBit::predictions_measurements_covariances)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//Observable: mu-e universality for the gTHDM from JHEP07(2013)044
+  #define CAPABILITY gmu_ge
+  START_CAPABILITY
+    #define FUNCTION THDM_gmu_ge
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//  mu-e universality likelihood
+  #define CAPABILITY gmu_ge_lnL
+  START_CAPABILITY
+    #define FUNCTION gmu_ge_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(gmu_ge, double)
+    #undef FUNCTION
+  #undef CAPABILITY    
+
+//Observable: FLDstar polarization
+  #define CAPABILITY FLDstar
+  START_CAPABILITY
+    #define FUNCTION THDM_FLDstar
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//  FLDstar likelihood
+  #define CAPABILITY FLDstar_lnL
+  START_CAPABILITY
+    #define FUNCTION FLDstar_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(FLDstar, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+//Observable: Bc lifetime
+  #define CAPABILITY Bc_lifetime
+  START_CAPABILITY
+    #define FUNCTION THDM_Bc_lifetime
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//  Bc lifetime likelihood
+  #define CAPABILITY Bc_lifetime_lnL
+  START_CAPABILITY
+    #define FUNCTION Bc_lifetime_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(Bc_lifetime, double)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+//Observable: Bs2mutau 
+  #define CAPABILITY Bs2mutau
+  START_CAPABILITY
+    #define FUNCTION THDM_Bs2mutau
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ //Observable: Bs2tautau 
+  #define CAPABILITY Bs2tautau
+  START_CAPABILITY
+    #define FUNCTION THDM_Bs2tautau
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// Bs2llp likelihood
+  #define CAPABILITY Bs2llp_lnL
+  START_CAPABILITY
+    #define FUNCTION Bs2llp_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(Bs2mutau, double)
+    DEPENDENCY(Bs2tautau, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ //Observable: B2Kmue 
+  #define CAPABILITY B2Kmue
+  START_CAPABILITY
+    #define FUNCTION THDM_B2Kmue
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ //Observable: B2Ktaumu 
+  #define CAPABILITY B2Ktaumu
+  START_CAPABILITY
+    #define FUNCTION THDM_B2Ktaumu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+// Bs2llp likelihood
+  #define CAPABILITY B2Kllp_lnL
+  START_CAPABILITY
+    #define FUNCTION B2Kllp_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(B2Kmue, double)
+    DEPENDENCY(B2Ktaumu, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//Observable: RKnunu
+  #define CAPABILITY RKnunu
+  START_CAPABILITY
+    #define FUNCTION THDM_RKnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//Observable: RKstarnunu
+  #define CAPABILITY RKstarnunu
+  START_CAPABILITY
+    #define FUNCTION THDM_RKstarnunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//  RKnunu and RKstarnunu likelihood
+  #define CAPABILITY RK_RKstarnunu_lnL
+  START_CAPABILITY
+    #define FUNCTION RK_RKstarnunu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(RKnunu, double)
+    DEPENDENCY(RKstarnunu, double)
+    #undef FUNCTION
+  #undef CAPABILITY 
+
+ // ---------------------------------
+ //  Wilson coefficients in the GTHDM
+ // ---------------------------------
+
+//C2 in the general THDM capability
+  #define CAPABILITY DeltaC2
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC2
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//C7 in the general THDM capability
+  #define CAPABILITY DeltaC7
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC7
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//C8 in the general THDM capability
+  #define CAPABILITY DeltaC8
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC8
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//C9 in the general THDM capability
+  #define CAPABILITY DeltaC9
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY   
+  
+//C10 in the general THDM capability
+  #define CAPABILITY DeltaC10
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//C7' in the general THDM capability
+  #define CAPABILITY DeltaC7_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC7_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//C8' in the general THDM capability
+  #define CAPABILITY DeltaC8_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC8_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+//C9' in the general THDM capability
+  #define CAPABILITY DeltaC9_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY   
+  
+//C10' in the general THDM capability
+  #define CAPABILITY DeltaC10_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+  
+//CQ1 in the general THDM capability
+  #define CAPABILITY DeltaCQ1
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+
+//CQ2 in the general THDM capability
+  #define CAPABILITY DeltaCQ2
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY 
+ 
+  //CQ1_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ1_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+
+  //CQ2_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ2_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+//  End of WCs in the GTHDM
+// -------------------------------
+  
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
   START_CAPABILITY
     #define FUNCTION SI_fill
     START_FUNCTION(parameters)
-    ALLOW_MODELS(THDM, THDMI, THDMII, THDMLS, THDMflipped)
-    ALLOW_MODELS(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    ALLOW_MODELS(THDM, THDMatQ)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC, WC_LR, WC_LUV)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
+    // TODO: Why do you need mcmc from the pole mass, if mcmc is given in sminputs?
     BACKEND_REQ(mcmc_from_pole, (libsuperiso), double, (double, int, parameters*))
     BACKEND_REQ(mb_1S, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMI, THDMII, THDMLS, THDMflipped, THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
     MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, WC, WC_LR, WC_LUV)
-    #undef FUNCTION
+    MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC2, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC8, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC7_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC8_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>,  THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_Prime, std::complex<double>, THDM, THDMatQ)
+   #undef FUNCTION
   #undef CAPABILITY
 
   // Initialisation capability (fill the SuperIso nuisance structure)
@@ -130,6 +796,13 @@ START_MODULE
     BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
    #undef FUNCTION
+ //Function for the general THDM
+   // #define FUNCTION THDM_Btaunu
+   // START_FUNCTION(flav_prediction)
+   // ALLOW_MODELS(THDM,THDMatQ)
+   // DEPENDENCY(SMINPUTS,SMInputs)
+   // DEPENDENCY(THDM_spectrum, Spectrum)
+   // #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY prediction_RDRDstar
@@ -771,16 +1444,23 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B -> tau nu)
-  #define CAPABILITY Btaunu
-  START_CAPABILITY
+   //  Observable: BR(B -> tau nu)
+   #define CAPABILITY Btaunu
+   START_CAPABILITY
     #define FUNCTION SI_Btaunu
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Btaunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
-  #undef CAPABILITY
+  //Function for the general THDM
+    #define FUNCTION THDM_Btaunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+   #undef CAPABILITY
 
   // Observable: BR(B->D tau nu)/BR(B->D e nu)
   #define CAPABILITY RD
@@ -790,6 +1470,13 @@ START_MODULE
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(BDtaunu_BDenu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+     //Function for the general THDM
+    #define FUNCTION THDM_RD
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -802,6 +1489,13 @@ START_MODULE
     BACKEND_REQ(BDstartaunu_BDstarenu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION THDM_RDstar
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: BR(K->mu nu)/BR(pi->mu nu)
@@ -813,6 +1507,14 @@ START_MODULE
     BACKEND_REQ(Kmunu_pimunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION THDM_Rmu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  
   #undef CAPABILITY
 
   // Observable: Rmu23
@@ -835,6 +1537,14 @@ START_MODULE
     BACKEND_REQ(Dstaunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+  //Function for the general THDM
+    #define FUNCTION THDM_Dstaunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   // Observable: BR(Ds->mu nu)
@@ -846,6 +1556,13 @@ START_MODULE
     BACKEND_REQ(Dsmunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION THDM_Dsmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: BR(D->mu nu)
@@ -856,6 +1573,13 @@ START_MODULE
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(Dmunu, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+    //Function for the general THDM
+    #define FUNCTION THDM_Dmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1069,6 +1793,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(SI_AI_BKstarmumu_CONV, (libsuperiso),  double, (const parameters*))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1079,6 +1804,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(SI_AI_BKstarmumu_zero_CONV, (libsuperiso),  double, (const parameters*))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1172,6 +1898,13 @@ START_MODULE
     BACKEND_REQ(Delta_MBs, (libsuperiso),  double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //
+    #define FUNCTION THDM_Delta_MBs
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: B_d mass difference
@@ -1201,6 +1934,13 @@ START_MODULE
     DEPENDENCY(mu_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_muegamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau -> e gamma
@@ -1214,6 +1954,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_tauegamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1229,6 +1976,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_MODELS(RightHandedNeutrinos)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumugamma
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: mu- -> e- e- e+
@@ -1242,6 +1996,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(mu_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_mueee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1257,6 +2018,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taueee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
    // Observable: tau- -> mu- mu- mu+
@@ -1270,6 +2038,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumumumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1285,6 +2060,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumuee
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau- -> e- e- mu+
@@ -1298,6 +2080,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taueemu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1313,6 +2102,13 @@ START_MODULE
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
     #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_tauemumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: tau- -> mu- mu- e+
@@ -1326,6 +2122,13 @@ START_MODULE
     DEPENDENCY(m_nu, Eigen::Matrix3cd)
     DEPENDENCY(tau_minus_decay_rates, DecayTable::Entry)
     ALLOW_JOINT_MODEL(RightHandedNeutrinos, StandardModel_Higgs)
+    #undef FUNCTION
+    //Function for gTHDM
+    #define FUNCTION THDM_taumumue
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1462,6 +2265,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // delta0 CP isospin asymmetry
+  #define CAPABILITY delta0_LL
+  START_CAPABILITY
+    #define FUNCTION delta0_ll
+    START_FUNCTION(double)
+    DEPENDENCY(delta0, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Rare fully leptonic B decay measurements
   #define CAPABILITY b2ll_M
@@ -1492,6 +2303,7 @@ START_MODULE
     DEPENDENCY(BDmunu, double)
     DEPENDENCY(BDstarmunu, double)
     DEPENDENCY(Btaunu, double)
+    DEPENDENCY(Rmu, double)
     DEPENDENCY(Dstaunu, double)
     DEPENDENCY(Dsmunu, double)
     DEPENDENCY(Dmunu, double)

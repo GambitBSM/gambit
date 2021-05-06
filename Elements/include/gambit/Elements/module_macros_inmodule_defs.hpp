@@ -87,6 +87,12 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
+      /* Register (prototype) the function as defined elsewhere */             \
+      BOOST_PP_IIF(IS_TYPE(void,TYPE),                                         \
+        extern void FUNCTION();                                                \
+      ,                                                                        \
+        extern void FUNCTION (TYPE &);                                         \
+      )                                                                        \
                                                                                \
       /* Let the module source know that this functor is declared*/            \
       namespace Functown { extern module_functor<TYPE> FUNCTION; }             \

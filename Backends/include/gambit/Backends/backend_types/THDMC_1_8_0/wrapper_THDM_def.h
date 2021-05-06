@@ -379,8 +379,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Wrappers for original constructors: 
     inline THDM::THDM() :
-        WrapperBase(__factory0()),
-        EPS( get_BEptr()->EPS_ref__BOSS())
+        WrapperBase(__factory0())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -388,8 +387,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Special pointer-based constructor: 
     inline THDM::THDM(Abstract_THDM* in) :
-        WrapperBase(in),
-        EPS( get_BEptr()->EPS_ref__BOSS())
+        WrapperBase(in)
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);
@@ -397,8 +395,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     // Copy constructor: 
     inline THDM::THDM(const THDM& in) :
-        WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
-        EPS( get_BEptr()->EPS_ref__BOSS())
+        WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
     {
         get_BEptr()->set_wptr(this);
         get_BEptr()->set_delete_wrapper(false);

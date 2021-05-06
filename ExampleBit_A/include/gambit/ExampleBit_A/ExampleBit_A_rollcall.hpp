@@ -122,7 +122,6 @@ START_MODULE
     ALLOW_MODEL_DEPENDENCE(NormalDist, SingletDM, CMSSM)
     MODEL_GROUP(group1, (NormalDist))
     MODEL_GROUP(group2, (CMSSM, SingletDM))
-    MODEL_GROUP(group3, (CMSSM, NormalDist))
     ALLOW_MODEL_COMBINATION(group1, group2)
       // A dependency that only counts under certain conditions (must come after all BACKEND_REQs)
       #define CONDITIONAL_DEPENDENCY xsection
@@ -133,12 +132,31 @@ START_MODULE
   #undef CAPABILITY
 
 
-  // Test function for fulfilling the dependency of nevents
+  // Test function for fulfilling the dependency of nevents.  Also gives another more complicated example of model group usage.
   #define CAPABILITY xsection
   START_CAPABILITY
-     #define FUNCTION test_sigma
-     START_FUNCTION(double)
-     #undef FUNCTION
+    #define FUNCTION test_sigma
+    START_FUNCTION(double)
+
+    // Function can be used if either NormalDist or SingletDM alone are in use.
+    ALLOW_MODELS(NormalDist, SingletDM)
+    // Function can also be used if CMSSM is in use, so long as either NormalDist or SingletDM is in use too.
+    ALLOW_MODEL_DEPENDENCE(CMSSM)
+    MODEL_GROUP(group1, (NormalDist, SingletDM))
+    MODEL_GROUP(group2, (CMSSM))
+    ALLOW_MODEL_COMBINATION(group1, group2)
+    // Function can also be used if either NUHM1 or NUHM2 is in use, so long as either NormalDist or SingletDM is in use.
+    // Note that this automatically means that if CMSSM + (NUHM1 or NUHM2) + (NormalDist or SingletDM) is in use, the function can be used.
+    // However, it does not allow the function to be used if only CMSSM + (NUHM1 or NUHM2) are in use.
+    ALLOW_MODEL_DEPENDENCE(NUHM1, NUHM2)
+    MODEL_GROUP(group3, (NUHM1, NUHM2))
+    ALLOW_MODEL_COMBINATION(group1, group3)
+    // Function can also be used if MSSM19atQ is in use, but only if CMSSM + (NUHM1 or NUHM2) + (NormalDist or SingletDM) are in use too.
+    ALLOW_MODEL_DEPENDENCE(MSSM19atQ)
+    MODEL_GROUP(group4, (MSSM19atQ))
+    ALLOW_MODEL_COMBINATION(group1, group2, group3, group4)
+
+    #undef FUNCTION
   #undef CAPABILITY
 
 
@@ -194,8 +212,8 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Scale test for various aspects of the printer buffer system
-  /// Creates 1000 items to be printed per point
+  // Scale test for various aspects of the printer buffer system
+  // Creates 1000 items to be printed per point
   #define CAPABILITY large_print
   START_CAPABILITY
     #define FUNCTION large_print

@@ -19,10 +19,15 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 
 #include "gambit/Printers/printers/hdf5printer.hpp"
+#include "gambit/Printers/printers/common_print_overloads.hpp"
 
 
 namespace Gambit
@@ -40,8 +45,6 @@ namespace Gambit
     void HDF5Printer::PRINT(uint     )
     void HDF5Printer::PRINT(long     )
     void HDF5Printer::PRINT(ulong    )
-    //void HDF5Printer::PRINT(longlong )
-    //void HDF5Printer::PRINT(ulonglong)
     void HDF5Printer::PRINT(float    )
     void HDF5Printer::PRINT(double   )
     #undef PRINT
@@ -100,6 +103,33 @@ namespace Gambit
       }
     }
 
+    void HDF5Printer::_print(std::complex<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
+
+      str real = label + "::real";
+      str imag = label + "::imag";
+
+      // Write to each buffer
+      PPIDpair ppid(pointID,mpirank);
+      if(synchronised)
+      {
+        // Write the data to the selected buffer ("just works" for simple numeric types)
+        buffer_manager.get_buffer(vID, 0, real).append(value.real(),ppid);
+        buffer_manager.get_buffer(vID, 1, imag).append(value.imag(),ppid);
+      }
+      else
+      {
+        // Queue up a desynchronised ("random access") dataset write to previous scan iteration
+        if(not seen_PPID_before(ppid))
+        {
+          add_PPID_to_list(ppid);
+        }
+        buffer_manager.get_buffer(vID, 0, real).RA_write(value.real(),ppid,primary_printer->global_index_lookup);
+        buffer_manager.get_buffer(vID, 1, imag).RA_write(value.imag(),ppid,primary_printer->global_index_lookup);
+      }
+    }
+
     void HDF5Printer::_print(const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
       // Retrieve the buffer manager for buffers with this type
@@ -130,30 +160,6 @@ namespace Gambit
         }
         i++;
       }
-    }
-
-    void HDF5Printer::_print(const map_const_str_dbl&, const std::string&, const int, const unsigned int, const unsigned long)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED");}
-
-    void HDF5Printer::_print(const map_str_map_str_dbl&, const std::string&, const int, const unsigned int, const unsigned long)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED");}
-
-    void HDF5Printer::_print(const map_const_str_map_const_str_dbl&, const std::string&, const int, const unsigned int, const unsigned long)
-    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED");}
-
-    void HDF5Printer::_print(ModelParameters const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> parameter_map = value.getValues();
-      _print(parameter_map, label, vID, mpirank, pointID);
-    }
-
-    void HDF5Printer::_print(triplet<double> const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      std::map<std::string, double> m;
-      m["central"] = value.central;
-      m["lower"] = value.lower;
-      m["upper"] = value.upper;
-      _print(m, label, vID, mpirank, pointID);
     }
 
     void HDF5Printer::_print(map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
@@ -187,41 +193,18 @@ namespace Gambit
       }
     }
 
-    #ifndef SCANNER_STANDALONE // All the types inside HDF5_MODULE_BACKEND_TYPES need to go inside this def guard.
-
-      void HDF5Printer::_print(DM_nucleon_couplings const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_SD"] = value.gpa;
-        m["Gn_SD"] = value.gna;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void HDF5Printer::_print(Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        std::ostringstream bins;
-        bins << value.q2_min << "_" << value.q2_max;
-        m["BR_"+bins.str()] = value.BR;
-        m["AFB_"+bins.str()] = value.AFB;
-        m["FL_"+bins.str()] = value.FL;
-        m["S3_"+bins.str()] = value.S3;
-        m["S4_"+bins.str()] = value.S4;
-        m["S5_"+bins.str()] = value.S5;
-        m["S7_"+bins.str()] = value.S7;
-        m["S8_"+bins.str()] = value.S8;
-        m["S9_"+bins.str()] = value.S9;
-        _print(m, label, vID, mpirank, pointID);
-      }
-
-      void HDF5Printer::_print(FlavBit::flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        // Only print the central values, as this printer is deprecated, so there is no apparent need to make it print covariances too.
-        _print(value.central_values, label, vID, mpirank, pointID);
-      }
-
+    // Piggyback off existing print functions to build standard overloads
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_str_map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, ModelParameters)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer, triplet<double>)
+    #ifndef SCANNER_STANDALONE
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings_fermionic_HP)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, Flav_KstarMuMu_obs)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, FlavBit::flav_prediction)
     #endif
 
     /// @}

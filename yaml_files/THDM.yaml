@@ -1,50 +1,271 @@
 ##########################################################################
 ## GAMBIT configuration for running a diver scan of the THDM
-## THDM Type II (with running)
+## THDM Type III 
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+## THDMC, SuperIso, HiggsBounds, HiggsSignals
 ##########################################################################
 
 Parameters:
-  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-  THDMIIatQ:
-      lambda_1:
-          range: [-0.5, 12.5664]
-          prior_type: flat
-      lambda_2:
-          range: [-0.5, 12.5664]
-          prior_type: flat
-      lambda_3:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda_4:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda_5:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      # --- Assuming a CP-conserving THDM model ---
-      lambda_6:
-          fixed_value: 0.0
-      lambda_7:
-          fixed_value: 0.0
-      # -------------------------------------------
-      m12_2:
-          ranges: [-1e6, -1e4, 1e4, 1e7]
-          prior_type: double_log_flat_join
-      tanb:
-          range: [0.1, 100]
-          prior_type: log
-      Qin:
-          fixed_value: 91.1876 # = mZ
-      QrunTo:
-          fixed_value: 1000 # for comparison with other literature
-
+    THDM:
+        lambda1: 
+            fixed_value: 1
+           # range: [-12.5664, 12.5664]
+            #prior_type: flat
+        lambda2: 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        lambda3: 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        lambda4: 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        lambda5: 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        lambda6: 
+            fixed_value: 1
+        lambda7:
+            fixed_value: 1
+        # -------------------------------------------
+        m12_2:
+            fixed_value: 250000 #This is 500**2
+            #ranges: [-1e6, -1e4, 1e4, 1e6]
+            #prior_type: double_log_flat_join
+        tanb:
+            fixed_value: 1
+            #range: [0.1, 100]
+            #prior_type: log
+        yu2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_23:
+            fixed_value: 1
+           # range: [-2.5, 2.5]
+            #prior_type: flat
+        yu2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_32:
+            #same_as: THDM::yu2_re_23 
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_re_33:
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yu2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_re_33:
+            fixed_value: 0.017
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yd2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_22:
+            fixed_value: 0.00043
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_23:
+            fixed_value: 1
+            #range: [-1.0, 1.0]
+            #prior_type: flat
+        yl2_re_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_32:
+            #same_as: THDM::yl2_re_23
+            fixed_value: 1
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_re_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_11:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_12:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_13:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_21:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_22:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_23:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_31:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_32:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+        yl2_im_33:
+            fixed_value: 0
+            #range: [-12.5664, 12.5664]
+            #prior_type: flat
+#
+#
 ##############################
 # Printer setup
 ##############################
@@ -52,23 +273,30 @@ Parameters:
 Printer:
 
   # Select printer to use via string tag
-  printer: hdf5
+  printer: cout
+  #printer: hdf5
 
   options:
-    # name of output file
-    output_file: "GAMBIT_THDMIIatQ_scan_output.hdf5"
-    group: "/data"
-    delete_file_on_restart: false
-
+    # name of output file, which format should have when using cout?
+    output_file: "THDM.hdf5"
+    group: "/THDM"
+    delete_file_on_restart: true
 
 ##############################
 # Scanner setup
 ##############################
 
 Scanner:
-  use_scanner: de
+
+  use_scanner: random
 
   scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1 # This is just a test, may be 1000
+
     de:
       plugin: diver
       like: LogLike
@@ -88,302 +316,199 @@ Scanner:
 
 ObsLikes:
 
-  ###########################
-  # Likelihoods
-  ###########################
-
-  - purpose:    LogLike
-    capability: h0_loop_order_corrections
-    function: check_h0_loop_order_corrections
-
-  - purpose:    LogLike
-    capability: THDM_scalar_loop_order_corrections
-    function: check_THDM_scalar_loop_order_corrections
-
-  - purpose:    LogLike
-    capability: THDM_scalar_masses
-    function: check_THDM_scalar_masses
-
-  - purpose:    LogLike
-    capability: perturbativity_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: stability_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: NLO_unitarity_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: oblique_parameters_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-
-  - capability: deltaMB_LL
-    function: deltaMB_likelihood
-    purpose: LogLike
-
-  - capability: deltaMBd_LL
-    function: deltaMBd_likelihood
-    purpose: LogLike
-
-  - capability: b2ll_LL
-    function: b2ll_likelihood
-    purpose: LogLike
-
-  - capability: SL_LL
-    function: SL_likelihood
-    purpose: LogLike
-
-  - purpose:    LogLike
-    capability: LUV_LL
-
-  ## -------------------------------------------
-
-  # -------------------------
-  # OFF - Currently not working in combo with HS
-
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_LHCb
-
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_CMS
-
-  # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_Atlas
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Not using in final scan
-   
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_Atlas
-
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_CMS
-
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_Belle
-
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuBr_LogLikelihood_LHCb
-
-  # - purpose:    LogLike
-  #   capability: B2KmumuBr_LogLikelihood_LHCb
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Currently not working at all
-
-  # - purpose:    LogLike # 
-  #   capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Need capability SuperIso_theory_covariance which is not on branch
-
-  # - purpose: LogLike
-  #   capability: RDRDstar_LogLikelihood
-
-  # - purpose: LogLike
-  #   capability: RKstar_LogLikelihood_LHCb
-
-  # -------------------------
-
-  ## -------------------------------------------
-
-  - capability: LEP_Higgs_LogLike
-    function: calc_HB_5_LEP_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  #################
-  # Observables
-  #################
-
-  # THDM parameters
-
-  - capability: THDM_spectrum_map
-    function: get_THDM_spectrum_as_map
-    purpose: Observable
-
-  # branching fractions
-
-  - capability: all_BFs
-    purpose: Observable
-
-  # vacuum meta-stability discriminant
-
-  - capability: vacuum_global_minimum
-    function: check_vacuum_global_minimum
-    purpose: Observable  
-
-  # angles
-
-  - capability: sba
-    function: obs_sba
-    purpose: Observable
-
-  - capability: cba
-    function: obs_cba
-    purpose: Observable
-
-  - capability: ba
-    function: obs_ba
-    purpose: Observable
-
-  - capability: vev
-    function: obs_vev
-    purpose: Observable
-
-  # bsgamma
-
-  - capability: bsgamma
-    function: SI_bsgamma
-    purpose: Observable
-
-  # meson mixing
-
-  - capability: DeltaMs
-    function: SI_Delta_MBs
-    purpose: Observable
-
-  - capability: DeltaMd
-    function: SI_Delta_MBd
-    purpose: Observable
-
-    # RD
-
-  - capability: RD
-    function: SI_RD
-    purpose: Observable
-
-    # RDstar
-
-  - capability: RDstar
-    function: SI_RDstar
-    purpose: Observable
-    
-    # BDmunu
-
-  - capability: BDmunu
-    function: SI_BDmunu
-    purpose: Observable
-
-    # BDstarmunu
-
-  - capability: BDstarmunu
-    function: SI_BDstarmunu
-    purpose: Observable
-
-    # Btaunu
-
-  - capability: Btaunu
-    function: SI_Btaunu
-    purpose: Observable
-
-    # Dstaunu
-
-  - capability: Dstaunu
-    function: SI_Dstaunu
-    purpose: Observable
-
-    # Dsmunu
-
-  - capability: Dsmunu
-    function: SI_Dsmunu
-    purpose: Observable
-
-    # Dmunu
-
-  - capability: Dmunu
-    function: SI_Dmunu
-    purpose: Observable
-
-  #   # BKstarmumu_11_25
-
-  # - capability: BKstarmumu_11_25
-  #   function: SI_BKstarmumu_11_25
-  #   purpose: Observable
-
-  #   # BKstarmumu_25_40
-
-  # - capability: BKstarmumu_25_40
-  #   function: SI_BKstarmumu_25_40
-  #   purpose: Observable
-
-  #   # BKstarmumu_40_60
-
-  # - capability: BKstarmumu_40_60
-  #   function: SI_BKstarmumu_40_60
-  #   purpose: Observable
-
-  #   # BKstarmumu_60_80
-
-  # - capability: BKstarmumu_60_80
-  #   function: SI_BKstarmumu_60_80
-  #   purpose: Observable
-
-  #   # BKstarmumu_15_17
-
-  # - capability: BKstarmumu_15_17
-  #   function: SI_BKstarmumu_15_17
-  #   purpose: Observable
-
-  #   # BKstarmumu_17_19
-
-  # - capability: BKstarmumu_17_19
-  #   function: SI_BKstarmumu_17_19
-  #   purpose: Observable
-
-    # Bsmumu_untag
-
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-    purpose: Observable
-
-    # Bmumu
-
-  - capability: Bmumu
-    function: SI_Bmumu
-    purpose: Observable
+    ###########################
+    # Likelihoods
+    ###########################
+
+    # Checks that loop corrections to the pole mass of mh0
+    # do not exceed 50% of the input mass at Qin
+    # Likelihood type: Acceptance/Rejection
+#    - purpose:    LogLike
+#      capability: h0_loop_order_corrections
+#      function: check_h0_loop_order_corrections
+
+    # Checks that loop corrections to the pole masses of mH0,
+    # mA0, mHpm do not exceed 50% of the input mass at Qin
+    # Likelihood type: Acceptance/Rejection
+#    - purpose:    LogLike
+#      capability: THDM_scalar_loop_order_corrections
+#      function: check_THDM_scalar_loop_order_corrections
+
+    # Calculates all quartic Higgs couplings in the physical
+    # basis & applies a 4pi perturbativity constraint on each
+    # Likelihood type: Half-Gaussian
+#    - purpose:    LogLike
+#      capability: perturbativity_likelihood_THDM
+
+    # Applies the THDM stability constraints on the potential
+    # NOTE: This likelihood has two parts, described below
+    # (i) Applies strict stability constraint
+    # Likelihood type: Acceptance/Rejection
+    # (ii) If rejected, applies looser stabililty constraints
+    # Likelihood type: Half-Gaussian
+#    - purpose:    LogLike
+#      capability: stability_likelihood_THDM
+
+    # Checks that the NLO scattering-matrix is unitary
+    # Calculates and applies limit on eigenvalues of matrix
+    # NOTE: This is always a subset of LO unitarity so it not needed
+    # Likelihood type: Half-Gaussian
+    # Only supports CP-conserving models
+#    - purpose:    LogLike
+#      capability: NLO_unitarity_likelihood_THDM
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    # Likelihood type: Half-Gaussian
+#    - purpose:    LogLike
+#      capability: oblique_parameters_likelihood_THDM
+
+    # # -------------------------------------------
      
+    #### NOTE
+    # Flavor likelihoods imported from Superiso
+    # Superiso is given SLHA struct filled with THDM input
+    # & then likelihoods may be called as intended
+
+    # B->s,gamma likelihood (Radiative B Decays)
+    - capability: b2sgamma_LL
+      function: b2sgamma_likelihood
+      purpose: LogLike
+
+    # B->s,l,l likelihood
+    - capability: b2sll_LL
+      function: b2sll_likelihood
+      purpose: LogLike
+
+    # B->l,l likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    # Semi-Leptonic likelihood collection
+#    - capability: SL_LL
+#      function: SL_likelihood
+#      purpose: LogLike
+
+    # LUV likelihood collection
+#    - purpose:    LogLike
+#      capability: LUV_LL
+
+    # Bs0 and Bd0 Meson Mass Splitting added to FlavBit
+    # Necessary calculations added to superiso via patch supplied by Nazila
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: deltaMBd_LL
+      function: deltaMBd_likelihood
+      purpose: LogLike
+    
+    # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    - capability: b2sll_AI_LL
+      function: BKstarmumu_AI_ll
+      purpose: LogLike  
+
+    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    - capability: b2sll_AI_zero_LL
+      function: BKstarmumu_AI_zero_ll
+      purpose: LogLike
+
+    # # B->Kstar,l,l likelihood [branching]
+    - capability: b2sll_BR_LL
+      function: b2sll_BR_likelihood
+      purpose: LogLike
+    # -------------------------------------------
+
+    ### NOTE
+    # LHC & LEP likelihoods
+    # Coupling Squared input structs are filled by colliderBit,
+    # then chi^2 are extracted directly from HS & HB
+
+    # HB 5beta likelihood
+#    - capability: LEP_Higgs_LogLike
+#      function: calc_HB_5_LEP_LogLike
+#      purpose: LogLike
+#      dependencies:
+#        - capability: HB_ModelParameters_neutral
+#          function: THDM_ModelParameters_effc
+#          module: ColliderBit
+#        - capability: HB_ModelParameters_charged
+#          function: THDM_ModelParameters_charged
+#          module: ColliderBit
+
+    # HS 2beta likelihood
+#    - capability: LHC_Higgs_LogLike
+#      function: calc_HS_2_LHC_LogLike
+#      purpose: LogLike
+#      dependencies:
+#        - capability: HB_ModelParameters_neutral
+#          function: THDM_ModelParameters_effc
+#          module: ColliderBit
+#        - capability: HB_ModelParameters_charged
+#          function: THDM_ModelParameters_charged
+#          module: ColliderBit
+
+    #################
+    # Observables
+    #################
+
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    # -------------------------------------------
+
+    # Checks if the vacuum leads to a global minimum solution
+    # Returns 0 if it is metastable or unstable (otherwise 1)
+    # Only supports CP-conserving models
+#    - capability: vacuum_global_minimum
+#      function: check_vacuum_global_minimum
+#      purpose: Observable  
+      
 
 Rules:
 
-  ##############################
-  # Likelihood/Observable Rules
-  ##############################
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
 
-  - capability: THDM_spectrum
-    function: get_THDM_spectrum
+    ##
+    # the check_all_scales option-flag triggers evaluation
+    # of the likelihood at the default Qin scale, 
+    # but also at QrunTo scale, where the worst performing
+    # of the two likelihoods is returned.
+    # eg. min[L(Q_in), L(Q_runTo)]
+    #
 
-  - capability: decay_rates
-    function: all_decays
-    module: DecayBit
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: true
+        simple_perturbativity: false
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: NLO_unitarity_likelihood_THDM
+      function: get_NLO_unitarity_likelihood_THDM
+      options:
+        check_correction_ratio: true
+    
+    # -------------------------------------------
+
+    # Specifies effc coupling input for HB/HS
+    #- capability: HB_ModelParameters_neutral
+     # function: THDM_ModelParameters_effc
+      #module: ColliderBit
+
+    #- capability: HB_ModelParameters_charged
+     # function: THDM_ModelParameters_charged
+      #module: ColliderBit
 
   - capability: all_BFs
     function: get_decaytable_as_map
@@ -521,14 +646,15 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
-    [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
-    [PrecisionBit] :  "PrecisionBit.log"
-    [ColliderBit] :  "ColliderBit.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
+   # [DecayBit] :  "DecayBit.log"
+   # [DarkBit] :  "DarkBit.log"
+   # [PrecisionBit] :  "PrecisionBit.log"
+   # [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [FlavBit] :  "FlavBit.log"
+    [Dependency Resolver] :  "depresolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################
@@ -538,9 +664,9 @@ Logger:
 KeyValues:
 
   likelihood:
-    model_invalid_for_lnlike_below: -1e8
-    model_invalid_for_lnlike_below_alt: -5e7
-    debug: false
-    
-  default_output_path: "runs/THDMIIatQ/"
-  debug: true
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: true
+
+  default_output_path: "runs/THDM/"
+  debug: false

@@ -27,7 +27,7 @@ set(nl "___totally_unlikely_to_occur_naturally___")
 set(true_nl \"\\n\")
 
 # Define the download command to use for contributed packages
-set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}")
+set(DL_CONTRIB "${PROJECT_SOURCE_DIR}/cmake/scripts/safe_dl.sh" "${CMAKE_BINARY_DIR}" "${CMAKE_COMMAND}" "${CMAKE_DOWNLOAD_FLAGS}")
 
 # Define a series of functions and macros to be used for cleaning ditched components and adding nuke and clean targets for contributed codes
 macro(get_paths package build_path clean_stamps nuke_stamps)

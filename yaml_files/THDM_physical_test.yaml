@@ -1,0 +1,436 @@
+##########################################################################
+## GAMBIT configuration for running a diver scan of the THDM
+## THDM_physical
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HiggsBounds, HiggsSignals
+##########################################################################
+
+Parameters:
+    THDM_physical:
+      sba: 0.9202905309244986
+      yl2_re_32: 0.011696233738155204
+      yu2_re_33: 0.9032232346150346
+      yu2_re_32: -3.796740677554099
+      mC2: 3262496.1193099692
+      tanb: 1.1410611963638027
+      yl2_re_22: -0.4175013373479354
+      lambda6: 0.0
+      lambda7: 0.0
+      m12_2: 2848491.9690172574
+      mA2: 3262496.1193099692
+      mH2: 3262496.1193099692
+      mh2: 15650.01
+      yd2_im_11: 0.0
+      yd2_im_12: 0.0
+      yd2_im_13: 0.0
+      yd2_im_21: 0.0
+      yd2_im_22: 0.0
+      yd2_im_23: 0.0
+      yd2_im_31: 0.0
+      yd2_im_32: 0.0
+      yd2_im_33: 0.0
+      yd2_re_11: 0.0
+      yd2_re_12: 0.0
+      yd2_re_13: 0.0
+      yd2_re_21: 0.0
+      yd2_re_22: 0.0
+      yd2_re_23: 0.0
+      yd2_re_31: 0.0
+      yd2_re_32: 0.0
+      yd2_re_33: 0.018025818611606903
+      yl2_im_11: 0.0
+      yl2_im_12: 0.0
+      yl2_im_13: 0.0
+      yl2_im_21: 0.0
+      yl2_im_22: 0.0
+      yl2_im_23: 0.0
+      yl2_im_31: 0.0
+      yl2_im_32: 0.0
+      yl2_im_33: 0.0
+      yl2_re_11: 0.0
+      yl2_re_12: 0.0
+      yl2_re_13: 0.0
+      yl2_re_21: 0.0
+      yl2_re_23: 0.011696233738155204
+      yl2_re_31: 0.0
+      yl2_re_33: 0.0
+      yu2_im_11: 0.0
+      yu2_im_12: 0.0
+      yu2_im_13: 0.0
+      yu2_im_21: 0.0
+      yu2_im_22: 0.0
+      yu2_im_23: 0.0
+      yu2_im_31: 0.0
+      yu2_im_32: 0.0
+      yu2_im_33: 0.0
+      yu2_re_11: 0.0
+      yu2_re_12: 0.0
+      yu2_re_13: 0.0
+      yu2_re_21: 0.0
+      yu2_re_22: 0.0
+      yu2_re_23: -3.796740677554099
+      yu2_re_31: 0.0
+    StandardModel_SLHA2:
+      CKM_A: 0.814
+      CKM_etabar: 0.353
+      CKM_lambda: 0.22537
+      CKM_rhobar: 0.117
+      GF: 1.1663787e-05
+      alpha1: 0.0
+      alpha2: 0.0
+      alphaS: 0.1181
+      alphainv: 127.95
+      delta13: 0.0
+      mBmB: 4.18
+      mCmC: 1.28
+      mD: 0.0047
+      mE: 0.000510998946
+      mMu: 0.105658375
+      mNu1: 0.0
+      mNu2: 0.0
+      mNu3: 0.0
+      mS: 0.096
+      mT: 173.34
+      mTau: 1.77686
+      mU: 0.0022
+      mZ: 91.1876
+      theta12: 0.58376
+      theta13: 0.15495
+      theta23: 0.76958
+
+##############################
+# Printer setup
+
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: hdf5
+
+  options:
+    # name of output file
+    output_file: "THDM_physical.hdf5"
+    group: "/THDM_physical"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 3000
+      convthresh: 1e-3
+      verbosity: 1
+
+      # No options to set, but still need the nodes at the moment...
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    # Checks that loop corrections to the pole mass of mh0
+    # do not exceed 50% of the input mass at Qin
+    # Likelihood type: Acceptance/Rejection
+   # - purpose:    LogLike
+    #  capability: h0_loop_order_corrections
+     # function: check_h0_loop_order_corrections
+
+    # Checks that loop corrections to the pole masses of mH0,
+    # mA0, mHpm do not exceed 50% of the input mass at Qin
+    # Likelihood type: Acceptance/Rejection
+    #- purpose:    LogLike
+    #  capability: THDM_scalar_loop_order_corrections
+     # function: check_THDM_scalar_loop_order_corrections
+
+
+    # Calculates all quartic Higgs couplings in the physical
+    # basis & applies a 4pi perturbativity constraint on each
+    # Likelihood type: Half-Gaussian
+   # - purpose:    LogLike
+    #  capability: perturbativity_likelihood_THDM
+
+    # Applies the THDM stability constraints on the potential
+    # NOTE: This likelihood has two parts, described below
+    # (i) Applies strict stability constraint
+    # Likelihood type: Acceptance/Rejection
+    # (ii) If rejected, applies looser stabililty constraints
+    # Likelihood type: Half-Gaussian
+   #
+# - purpose:    LogLike
+   #   capability: stability_likelihood_THDM
+
+    # Checks that the NLO scattering-matrix is unitary
+    # Calculates and applies limit on eigenvalues of matrix
+    # NOTE: This is always a subset of LO unitarity so it not needed
+    # Likelihood type: Half-Gaussian
+    # Only supports CP-conserving models
+   # - purpose:    LogLike
+    #  capability: NLO_unitarity_likelihood_THDM
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    # Likelihood type: Half-Gaussian
+   # - purpose:    LogLike
+    #  capability: oblique_parameters_likelihood_THDM
+
+    # -------------------------------------------
+     
+    #### NOTE
+    # Flavor likelihoods imported from Superiso
+    # Superiso is given SLHA struct filled with THDM input
+    # & then likelihoods may be called as intended
+
+    # B->s,gamma likelihood (Radiative B Decays)
+    - capability: b2sgamma_LL
+      function: b2sgamma_likelihood
+      purpose: LogLike
+
+    # B->s,l,l likelihood
+    - capability: b2sll_LL
+      function: b2sll_likelihood
+      purpose: LogLike
+
+    # B->l,l likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    # Semi-Leptonic likelihood collection
+   # - capability: SL_LL
+    #  function: SL_likelihood
+     # purpose: LogLike
+
+    # LUV likelihood collection
+    #- purpose:    LogLike
+     # capability: LUV_LL
+
+    # Bs0 and Bd0 Meson Mass Splitting added to FlavBit
+    # Necessary calculations added to superiso via patch supplied by Nazila
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    - capability: deltaMBd_LL
+      function: deltaMBd_likelihood
+      purpose: LogLike
+
+ # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    - capability: b2sll_AI_LL
+      function: BKstarmumu_AI_ll
+      purpose: LogLike
+
+    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    - capability: b2sll_AI_zero_LL
+      function: BKstarmumu_AI_zero_ll
+      purpose: LogLike
+
+    # # B->Kstar,l,l likelihood [branching]
+    - capability: b2sll_BR_LL
+      function: b2sll_BR_likelihood
+      purpose: LogLike
+
+
+    # -------------------------------------------
+
+    #### NOTE
+    # LHC & LEP likelihoods
+    # Coupling Squared input structs are filled by colliderBit,
+    # then chi^2 are extracted directly from HS & HB
+
+    # HB 5beta likelihood
+   # - capability: LEP_Higgs_LogLike
+    #  function: calc_HB_5_LEP_LogLike
+     # purpose: LogLike
+      #dependencies:
+       # - capability: HB_ModelParameters_neutral
+        #  function: THDM_ModelParameters_effc
+       #   module: ColliderBit
+       # - capability: HB_ModelParameters_charged
+        #  function: THDM_ModelParameters_charged
+         # module: ColliderBit
+
+    # HS 2beta likelihood
+  #  - capability: LHC_Higgs_LogLike
+   #
+
+   #function: calc_HS_2_LHC_LogLike
+    #  purpose: LogLike
+     # dependencies:
+      #  - capability: HB_ModelParameters_neutral
+       #   function: THDM_ModelParameters_effc
+        #  module: ColliderBit
+      #  - capability: HB_ModelParameters_charged
+       #   function: THDM_ModelParameters_charged
+        #  module: ColliderBit
+
+    #################
+    # Observables
+    #################
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    # Checks if the vacuum leads to a global minimum solution
+    # Returns 0 if it is metastable or unstable (otherwise 1)
+    # Only supports CP-conserving models
+   # - capability: vacuum_global_minimum
+    #  function: check_vacuum_global_minimum
+     # purpose: Observable
+
+    - purpose: Observable
+      capability: DeltaC10
+  
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+   # - capability: THDM_spectrum
+     # function: get_THDM_spectrum
+     # options:
+    #    check_perturbativity: false
+    # [check_perturbativity: true] a hard cut-off on perturabitivity 
+    # on spectrum generation only required in physical basis
+    # -------------------------------------------
+
+    ##
+    # the check_all_scales option-flag triggers evaluation
+    # of the likelihood at the default Qin scale, 
+    # but also at QrunTo scale, where the worst performing
+    # of the two likelihoods is returned.
+    # eg. min[L(Q_in), L(Q_runTo)]
+    #
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: false
+        simple_perturbativity: false
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: true
+
+    - capability: NLO_unitarity_likelihood_THDM
+      function: get_NLO_unitarity_likelihood_THDM
+      options:
+        check_all_scales: false
+        check_correction_ratio: true
+    
+    # -------------------------------------------
+
+    # Specifies effc coupling input for HB/HS
+    #- capability: HB_ModelParameters_neutral
+     # function: THDM_ModelParameters_effc
+     # module: ColliderBit
+
+   # - capability: HB_ModelParameters_charged
+    #  function: THDM_ModelParameters_charged
+     # module: ColliderBit
+
+    # -------------------------------------------
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+    
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
+
+    - capability: bsgamma
+      function: SI_bsgamma
+      module: FlavBit
+
+    # Choose to use gm2calc for g-2
+    - capability: muon_gm2
+      function: SI_muon_gm2
+
+    # Choose to base the SM prediction for g-2 on e+e- data
+    - capability: muon_gm2_SM
+      function: gm2_SM_ee
+
+    # Choose to use superiso for DeltaMBs calc
+    - capability: DeltaMs
+      function: SI_Delta_MBs
+
+    # Choose to use superiso for RK calcs
+    - capability: RK
+      function: SI_RK
+
+    - capability: RKstar_0045_11
+      function: SI_RKstar_0045_11
+
+    - capability: RKstar_11_60
+      function: SI_RKstar_11_60
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    #[DecayBit] :  "DecayBit.log"
+    #[DarkBit] :  "DarkBit.log"
+   # [PrecisionBit] :  "PrecisionBit.log"
+    #[ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_physical/"
+  debug: false

@@ -415,6 +415,8 @@ namespace Gambit
       /// Add SLHAea object to another
       void MSSMSimpleSpec::add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const
       {
+        slha = slhawrap.get_slhaea();
+
         // Add SPINFO data if not already present
         SLHAea_add_GAMBIT_SPINFO(slha);
 

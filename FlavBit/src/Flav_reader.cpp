@@ -54,9 +54,9 @@ namespace Gambit
       v.name=node["name"].as<std::string>();
       v.is_limit = node["islimit"].as<bool>();
       v.exp_value= node["exp_value"].as<double>();
-      if(node["exp_90_CL"]) v.exp_90_CL = node["exp_90_CL"].as<double>(); 
-      if(node["exp_95_CL"]) v.exp_95_CL = node["exp_95_CL"].as<double>();
-      if(node["one_sided"]) v.exp_one_sided = node["one_sided"].as<bool>(); 
+      v.exp_90_CL = node["exp_90_CL"] ? node["exp_90_CL"].as<double>() : 0.0; 
+      v.exp_95_CL = node["exp_95_CL"] ? node["exp_95_CL"].as<double>() : 0.0;
+      v.exp_one_sided = node["one_sided"] ? node["one_sided"].as<bool>() : false;
       v.exp_source = node["exp_source"].as<std::string>();
       v.exp_stat_error = node["exp_stat_error"].as<double>();
       v.exp_sys_error = node["exp_sys_error"].as<double>();

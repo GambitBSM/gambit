@@ -63,8 +63,7 @@
       START_FUNCTION(hb_neutral_ModelParameters_part)
       DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+      ALLOW_MODEL(THDM, THDMatQ)     
     #undef FUNCTION
 
      // THDM Higgs model parameters effc
@@ -72,8 +71,7 @@
       START_FUNCTION(hb_neutral_ModelParameters_effc)
       DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+      ALLOW_MODEL(THDM, THDMatQ)     
     #undef FUNCTION
 
     // MSSM Higgs model parameters (effC)
@@ -115,8 +113,7 @@
       START_FUNCTION(hb_charged_ModelParameters)
       DEPENDENCY(THDM_spectrum, Spectrum)
       DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
-      ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-      ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+      ALLOW_MODEL(THDM, THDMatQ)     
     #undef FUNCTION
 
   #undef CAPABILITY

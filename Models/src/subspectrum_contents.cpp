@@ -14,6 +14,11 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2016 Feb 
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///  \date 2021 Mar
+///
 ///  *********************************************
 
 #include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"
@@ -23,9 +28,38 @@
 namespace Gambit 
 { 
    /// Add a parameter to the Contents object
-   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape)
+   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape,
+                                          const std::string& blockname, const int blockindex)
    {
-     parameters.emplace_back(tag,name,shape);
+     parameters.emplace_back(tag,name,shape,blockname,blockindex);
+   }
+
+
+   // Add a vector of parameters to the Contents object
+   void SubSpectrumContents::addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape,
+                                         const std::string& blockname, const std::vector<int>& indices)
+   {
+     // Must be a vector, not a matrix
+     if(shape.size() > 1)
+     {
+       std::ostringstream errmsg;
+       errmsg << "Error while adding parameter. Vector shortcut cannot be used with matrices." << std::endl;
+       utils_error().forced_throw(LOCAL_INFO,errmsg.str());
+     }
+     // Shape must match size of indices
+     if(size_t(shape.at(0)) != indices.size())
+     {
+       std::ostringstream errmsg;
+       errmsg << "Error while adding parameter. Shape must be equal to size of indices." << std::endl;
+       utils_error().forced_throw(LOCAL_INFO,errmsg.str());
+     }
+     std::vector<int> scalar = initVector(1);   // i.e. get(Par::Tag, "name")
+     for(size_t i=0; i<indices.size(); ++i)
+     {
+       std::ostringstream parname;
+       parname << name << "_" << i+1;
+       parameters.emplace_back(tag,parname.str(),scalar,blockname,indices[i]);
+     }
    }
 
    /// Set the name of this Contents object (i.e. the name of the model to which this spectrum data applies) 
@@ -62,6 +96,19 @@ namespace Gambit
      return search_result; 
    }
 
+   /// Function to retrieve all parameters whose blockname is not SMINPUTS, YUKAWA, CKMBLOCK, or empty.
+   std::vector<SpectrumParameter> SubSpectrumContents::all_BSM_parameters() const
+   {
+    std::vector<SpectrumParameter> search_result;
+    for ( std::vector<SpectrumParameter>::const_iterator it=parameters.begin(); it!=parameters.end(); ++it)
+    {
+      if(it->blockname() != "SMINPUTS" || it->blockname() != "YUKAWA" || it->blockname() != "CKMBLOCK" || it->blockname() != "")
+      {
+        search_result.push_back(*it);
+      }
+    }
+    return search_result;
+   }
 
    /// Verify that the supplied SubSpectrum object conforms to the requirements specified by the Contents class
    void SubSpectrumContents::verify_contents(const SubSpectrum& spec) const

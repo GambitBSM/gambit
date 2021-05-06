@@ -9,6 +9,9 @@
 ## are included.
 ##########################################################################
 
+# NB: This example yaml file uses flexiblesusy, so make sure you have
+# built gambit with -DBUILD_FS_MODELS="MSSMatMGUT"
+
 
 Parameters:
 
@@ -70,6 +73,7 @@ Priors:
 Printer:
 
   printer: hdf5
+  #printer: ascii
 
   options:
     output_file: "NUHM1.hdf5"
@@ -299,8 +303,9 @@ Rules:
   #- options:
   #    drop_SLHA_file: true
 
-  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  # Choose to use DarkSUSY 6 rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec_DS5
     function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
@@ -332,18 +337,40 @@ Rules:
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Use DarkSUSY, MicrOmegas or the DarkBit native calculator for the relic density?
+  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
-    function: RD_oh2_general
-    #function: RD_oh2_DarkSUSY
-    #function: RD_oh2_MicrOmegas
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
     options:
-      # for all calculations
-      fast: 1
-      # used by RD_oh2_DarkSUSY only
-      omtype: 1
-      # used by RD_oh2_MicrOmegas only
-      Beps: 1e-5
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+    #  omtype: 1  # 0: no coann, 1: all coann (default)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
+  - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
+    function: RD_eff_annrate_DS_MSSM
+  # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
+
+  # Choose module function to provide the TH_ProcessCatalog
+  - capability: TH_ProcessCatalog
+    #function: TH_ProcessCatalog_DS5_MSSM # For DarkSUSY 5
+    function: TH_ProcessCatalog_DS_MSSM   # For DarkSUSY 6
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
@@ -351,13 +378,17 @@ Rules:
 
   # Choose to use DarkSUSY yield tables for indirect detection
   - capability: SimYieldTable
+    #function: SimYieldTable_DS5
     function: SimYieldTable_DarkSUSY
     options:
       allow_yield_extrapolation: true
 
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
-    function: DD_couplings_DarkSUSY
+    #function: DD_couplings_DarkSUSY_DS5
+    function: DD_couplings_DarkSUSY_MSSM
+    options:
+      loop: true
     #function: DD_couplings_MicrOmegas
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
@@ -499,85 +530,94 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
-  # ATLAS detector simulation
-  - capability: SimpleSmearingSim
-    type: "ColliderBit::BuckFastSmearATLAS"
-    function: getBuckFastATLAS
-    options:
-      partonOnly: [false]
-      antiktR: [0.4]
-      useDetector: [true]
-
-  # CMS detector simulation
-  - capability: SimpleSmearingSim
-    type: "ColliderBit::BuckFastSmearCMS"
-    function: getBuckFastCMS
-    options:
-      partonOnly: [false]
-      antiktR: [0.4]
-      useDetector: [true]
-
-  # ATLAS analysis setup.
-  - capability: ATLASAnalysisContainer
-    function: getATLASAnalysisContainer
-    options:
-      analyses: [ ["ATLAS_13TeV_0LEP_36invfb",
-                   "ATLAS_13TeV_MultiLEP_36invfb",
-                   "ATLAS_13TeV_0LEPStop_36invfb",
-                   "ATLAS_13TeV_2LEPStop_36invfb",
-                   "ATLAS_13TeV_2bMET_36invfb"] ]
-
-                   # "ATLAS_13TeV_RJ3L_lowmass_36invfb",
-                   # "ATLAS_13TeV_1LEPStop_36invfb",
-                   # These analyses currently depend on ROOT.
-
-  # CMS analysis setup
-  - capability: CMSAnalysisContainer
-    function: getCMSAnalysisContainer
-    options:
-      analyses: [ ["CMS_13TeV_0LEP_36invfb",
-                   "CMS_13TeV_1LEPbb_36invfb",
-                   "CMS_13TeV_2OSLEP_36invfb",
-                   "CMS_13TeV_2LEPsoft_36invfb",
-                   "CMS_13TeV_1LEPStop_36invfb",
-                   "CMS_13TeV_2LEPStop_36invfb",
-                   "CMS_13TeV_MultiLEP_36invfb",
-                   "CMS_13TeV_MONOJET_36invfb" ] ]
-
-  # Choose Monte Carlo event simulator.
-  - capability:  ColliderOperator
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
     function: operateLHCLoop
     options:
-      pythiaNames: ["Pythia_SUSY_LHC_13TeV"]
       silenceLoop: true
+      LHC_13TeV:
+        min_nEvents: 5000
+        max_nEvents: 50000
+        events_between_convergence_checks: 5000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - CMS_13TeV_0LEP_36invfb
+          - CMS_13TeV_1LEPbb_36invfb
+          - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_1LEPStop_36invfb
+          - CMS_13TeV_2LEPStop_36invfb
+          - CMS_13TeV_MultiLEP_36invfb
+          - CMS_13TeV_MONOJET_36invfb
+          - ATLAS_13TeV_0LEP_36invfb
+          - ATLAS_13TeV_MultiLEP_36invfb
+          - ATLAS_13TeV_0LEPStop_36invfb
+          - ATLAS_13TeV_2LEPStop_36invfb
+          - ATLAS_13TeV_2bMET_36invfb
+        # - ATLAS_13TeV_RJ3L_lowmass_36invfb
+        # - ATLAS_13TeV_1LEPStop_36invfb
+        # The last two analyses depend on ROOT.
 
-  # Choose statistical settings for Monte Carlo event generator
-  - capability: MC_ConvergenceSettings
-    options:
-      min_nEvents: [5000]
-      max_nEvents: [50000]
-      events_between_convergence_checks: [5000]
-      target_fractional_uncert: [0.3]
-      halt_when_systematic_dominated: true
-      all_SR_must_converge: false
-
-  # Define Monte Carlo event simulator and associated options.
+  # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
-    function:  getPythia
+    type: ColliderPythia_defaultversion
+    function: getPythia
     options:
-      # Pythia_doc_path defaults to the xmldoc directory of the default Pythia
-      # backend. So, this must only be set if the user chooses a different Pythia.
-      # Pythia_doc_path: "Backends/installed/Pythia/8.212/share/Pythia8/xmldoc/"
-      Pythia_SUSY_LHC_13TeV: ["Print:quiet = on",
-                             "PartonLevel:MPI = off",
-                             "PartonLevel:ISR = on",
-                             "PartonLevel:FSR = on",
-                             "HadronLevel:all = on",
-                             "SUSY:all = on",
-                             "TauDecays:mode = 0",
-                             "TimeShower:pTmin = 2"]
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        pythia_settings:
+          - Print:quiet = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
 
-      xsec_vetos: [0.028]  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+  - capability: HardScatteringSim
+    type: const BaseCollider*
+    function: getPythiaAsBase
+    module: ColliderBit
+
+  # Choose to get cross-sections from the Monte Carlo
+  - capability: CrossSection
+    function: getMCxsec
+    module: ColliderBit
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose ATLAS smearing function
+  - capability: ATLASSmearedEvent
+    function: smearEventATLAS
+    module: ColliderBit
+
+  # Choose CMS smearing function
+  - capability: CMSSmearedEvent
+    function: smearEventCMS
+    module: ColliderBit
+
+  # Choose copied event function
+  - capability: CopiedEvent
+    function: copyEvent
+    module: ColliderBit
 
   # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
   - capability: LHC_LogLikes

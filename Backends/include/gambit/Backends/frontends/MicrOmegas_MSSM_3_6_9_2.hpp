@@ -38,6 +38,7 @@ BE_FUNCTION(cleanDecayTable, void, (), "cleanDecayTable", "cleanDecayTable", (MS
 BE_FUNCTION(nucleonAmplitudes, int, (double(*)(double,double,double,double), double*, double*, double*, double*), "nucleonAmplitudes", "nucleonAmplitudes", (MSSM63atQ))
 BE_FUNCTION(FeScLoop, double, (double, double, double, double), "FeScLoop", "FeScLoop", (MSSM63atQ))
 BE_FUNCTION(calcScalarQuarkFF, void, (double, double, double, double), "calcScalarQuarkFF", "calcScalarQuarkFF", (MSSM63atQ))
+BE_FUNCTION(calcSpectrum, double, (int, double*, double*, double*, double*, double*, double*, int*), "calcSpectrum", "calcSpectrum")
 
 BE_FUNCTION(mInterp, int, (double,int,int,double*) , "mInterp", "mInterp")
 BE_FUNCTION(zInterp, double, (double,double*) , "zInterp", "zInterp")

@@ -10,12 +10,32 @@
 # absolute, those beginning with a period will
 # be interpreted as relative to the GAMBIT dir.
 
+AlterBBN:
+  2.2:         ./Backends/installed/alterbbn/2.2/libbbn.so
 
 CaptnGeneral:
   1.0:         ./Backends/installed/capgen/1.0/gencaplib.so
 
+classy:
+  2.6.3:       ./Backends/installed/classy/2.6.3/lib/classy_2_6_3.py
+  2.9.3:       ./Backends/installed/classy/2.9.3/lib/classy_2_9_3.py
+  2.9.4:       ./Backends/installed/classy/2.9.4/lib/classy_2_9_4.py
+
+  exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
+
+DarkAges:
+  1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
+
 DarkSUSY:
   5.1.3:       ./Backends/installed/darksusy/5.1.3/lib/libdarksusy.so
+
+DarkSUSY_MSSM:
+  6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
+  6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
+
+DarkSUSY_generic_wimp:
+  6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
+  6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
 
 SuperIso:
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
@@ -55,19 +75,23 @@ FeynHiggs:
 
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
-  8.212.EM:    ./Backends/installed/pythia/8.212.EM/lib/libpythia8.so
+
+Pythia_EM:
+  8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
 
 gamLike:
   1.0.0:       ./Backends/installed/gamlike/1.0.0/lib/gamLike.so
   1.0.1:       ./Backends/installed/gamlike/1.0.1/lib/gamLike.so
 
 THDMC:
-  1.7.0:       ./Backends/installed/THDMC/1.7.0/lib/lib2HDMC.so
-  1.8.0:       ./Backends/installed/THDMC/1.8.0/lib/lib2HDMC.so
+  1.8.0:       ./Backends/installed/thdmc/1.8.0/lib/lib2HDMC.so
 
 gm2calc:
   1.2.0:       ./Backends/installed/gm2calc/1.2.0/src/libgm2calc.so
   1.3.0:       ./Backends/installed/gm2calc/1.3.0/src/libgm2calc.so
+
+MontePythonLike:
+  3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
 
 MicrOmegas_MSSM:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so
@@ -93,6 +117,7 @@ nulike:
   1.0.6:       ./Backends/installed/nulike/1.0.6/lib/libnulike.so
   1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
+  1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
@@ -104,6 +129,11 @@ SPheno:
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
 
+plc:
+  3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
+
+MultiModeCode:
+  2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
 
 # Example/debug backends
 

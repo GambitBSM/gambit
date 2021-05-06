@@ -3,8 +3,7 @@
 ///  \file
 ///
 ///  Class defining the parameters that SubSpectrum
-///  objects providing THDM
-///  spectrum data must provide
+///  objects providing THDM spectrum data must provide
 ///
 ///  *********************************************
 ///
@@ -12,8 +11,17 @@
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author Filip Rajec
-///          (filip.rajec@adelaide.edu.au)
+///          (filip.rajec@adelaide.edu.au)         
+///  \date June 2016
 ///  \date 2020 Apr
+///
+///  \author Cristian Sierra
+///          (cristian.sierra@monash.edu)
+///  \date Apr 2020 
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date Apr 2020
 ///
 ///  *********************************************
 
@@ -22,7 +30,8 @@
 
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 
-namespace Gambit {
+namespace Gambit
+{
   
   /// Only have to define the constructor
   SpectrumContents::THDM::THDM()
@@ -38,61 +47,70 @@ namespace Gambit {
     std::vector<int> m4x4   = initVector(4,4); // "
     std::vector<int> m6x6   = initVector(6,6); // "
 
-    // gayge couplings, weinberg angle and vevs
-    addParameter(Par::dimensionless, "g1", scalar);
-    addParameter(Par::dimensionless, "g2", scalar);
-    addParameter(Par::dimensionless, "g3", scalar);
-    addParameter(Par::dimensionless, "sinW2", scalar);
-    addParameter(Par::mass1, "vev", scalar);
-    addParameter(Par::mass1, "v1", scalar);
-    addParameter(Par::mass1, "v2", scalar);
+    addParameter(Par::dimensionless, "model_type", scalar, "FMODSEL", 1);
 
-    // yukawas
-    addParameter(Par::dimensionless, "Yd", m3x3);
-    addParameter(Par::dimensionless, "Yu", m3x3);
-    addParameter(Par::dimensionless, "Ye", m3x3);
+    addParameter(Par::dimensionless, "g1", scalar,"GAUGE",1);
+    addParameter(Par::dimensionless, "g2", scalar,"GAUGE",2);
+    addParameter(Par::dimensionless, "g3", scalar,"GAUGE",3);
 
-    // pole masses
-    addParameter(Par::Pole_Mass, "h0",    v2);
-    addParameter(Par::Pole_Mass, "A0", scalar);
-    addParameter(Par::Pole_Mass, "H+", scalar);
-    addParameter(Par::Pole_Mass, "W+", scalar);
+    addParameter(Par::dimensionless, "sinW2", scalar, "HMIX",23);
+    addParameter(Par::mass1, "vev", scalar, "HMIX", 3);
 
-    // running masses
-    addParameter(Par::mass1, "h0",    v2);
-    addParameter(Par::mass1, "A0", scalar);
-    addParameter(Par::mass1, "H+", scalar);
-    addParameter(Par::mass1, "W+", scalar);
+    addParameter(Par::Pole_Mass, "Z0", scalar, "SMINPUTS", 4);
+    addParameter(Par::Pole_Mass, "W+", scalar, "MASS", 24);
 
-    // generic basis
-    addParameter(Par::mass1, "lambda_1");
-    addParameter(Par::mass1, "lambda_2");
-    addParameter(Par::mass1, "lambda_3");
-    addParameter(Par::mass1, "lambda_4");
-    addParameter(Par::mass1, "lambda_5");
-    addParameter(Par::mass1, "lambda_6");
-    addParameter(Par::mass1, "lambda_7");
-    addParameter(Par::mass1, "m12_2");
-    addParameter(Par::mass1, "m11_2");
-    addParameter(Par::mass1, "m22_2");
+    addParameter(Par::Pole_Mass, "d_3", scalar, "SMINPUTS", 5);
+    addParameter(Par::Pole_Mass, "u_2", scalar, "SMINPUTS", 24);
+    addParameter(Par::Pole_Mass, "u_3", scalar, "SMINPUTS", 6);
+    addParameter(Par::Pole_Mass, "e-_3", scalar, "SMINPUTS", 7);
+    addParameter(Par::Pole_Mass, "e-_2", scalar, "SMINPUTS", 13);
+    addParameter(Par::Pole_Mass, "e-_1", scalar, "SMINPUTS", 11);
+    addParameter(Par::Pole_Mass, "nu_1", scalar, "SMINPUTS", 12);
+    addParameter(Par::Pole_Mass, "nu_2", scalar, "SMINPUTS", 14);
+    addParameter(Par::Pole_Mass, "nu_3", scalar, "SMINPUTS", 8);
 
-    // higgs basis
-    addParameter(Par::mass1, "Lambda_1");
-    addParameter(Par::mass1, "Lambda_2");
-    addParameter(Par::mass1, "Lambda_3");
-    addParameter(Par::mass1, "Lambda_4");
-    addParameter(Par::mass1, "Lambda_5");
-    addParameter(Par::mass1, "Lambda_6");
-    addParameter(Par::mass1, "Lambda_7");
-    addParameter(Par::mass1, "M12_2");
-    addParameter(Par::mass1, "M11_2");
-    addParameter(Par::mass1, "M22_2");
+    addParameter(Par::mass1, "d_1", scalar, "SMINPUTS",21);
+    addParameter(Par::mass1, "u_1", scalar, "SMINPUTS",22);
+    addParameter(Par::mass1, "d_2", scalar, "SMINPUTS",23);
 
-    // angles
-    addParameter(Par::dimensionless, "tanb");
-    addParameter(Par::dimensionless, "beta");
-    addParameter(Par::dimensionless, "alpha");
-    
+    // Yukawas
+    addParameter(Par::dimensionless, "Yd1", m3x3, "Yd1");
+    addParameter(Par::dimensionless, "Yu1", m3x3, "Yu1");
+    addParameter(Par::dimensionless, "Ye1", m3x3, "Ye1");
+
+    addParameter(Par::dimensionless, "ImYd1", m3x3, "ImYd1");
+    addParameter(Par::dimensionless, "ImYu1", m3x3, "ImYu1");
+    addParameter(Par::dimensionless, "ImYe1", m3x3, "ImYe1");
+
+    addParameter(Par::dimensionless, "Yd2", m3x3, "Yd2");
+    addParameter(Par::dimensionless, "Yu2", m3x3, "Yu2");
+    addParameter(Par::dimensionless, "Ye2", m3x3, "Ye2");
+
+    addParameter(Par::dimensionless, "ImYd2", m3x3, "ImYd2");
+    addParameter(Par::dimensionless, "ImYu2", m3x3, "ImYu2");
+    addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
+
+    // Pole masses
+    addParameter(Par::Pole_Mass, "h0",   v2,"MASS",{25,35}); 
+    addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36); 
+    addParameter(Par::Pole_Mass, "H+",   scalar,"MASS",37);
+    addParameter(Par::Pole_Mass, "W+",   scalar,"MASS",24);
+
+    addParameter(Par::dimensionless, "lambda1",scalar,"MINPAR",11);
+    addParameter(Par::dimensionless, "lambda2",scalar,"MINPAR",12);
+    addParameter(Par::dimensionless, "lambda3",scalar,"MINPAR",13);
+    addParameter(Par::dimensionless, "lambda4",scalar,"MINPAR",14);
+    addParameter(Par::dimensionless, "lambda5",scalar,"MINPAR",15);
+    addParameter(Par::dimensionless, "lambda6",scalar,"MINPAR",16);
+    addParameter(Par::dimensionless, "lambda7",scalar,"MINPAR",17);
+
+    addParameter(Par::dimensionless, "tanb",scalar,"MINPAR",3);
+    addParameter(Par::dimensionless, "alpha",scalar, "ALPHA",0);
+
+    addParameter(Par::mass1, "m12_2",scalar,"MINPAR",18);
+    addParameter(Par::mass1, "m11_2",scalar,"HMIX",20);
+    addParameter(Par::mass1, "m22_2",scalar,"HMIX",21);
+
   }
   
 }

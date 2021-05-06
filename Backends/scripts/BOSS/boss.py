@@ -95,7 +95,6 @@ def main():
 
     (options, args) = parser.parse_args()
 
-
     # Print banner
     msg = '''\033[1m
 
@@ -232,6 +231,12 @@ def main():
     # add them to the list given in cfg.
     if options.cmdline_include_paths:
         cfg.include_paths = cfg.include_paths + options.cmdline_include_paths
+
+
+    # Remove any empty-string elements in the lists of input files and paths
+    cfg.input_files = list(filter(None, cfg.input_files))
+    cfg.include_paths = list(filter(None, cfg.include_paths))
+    cfg.base_paths = list(filter(None, cfg.base_paths))
 
 
     #

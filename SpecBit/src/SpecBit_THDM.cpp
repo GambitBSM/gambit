@@ -5,7 +5,12 @@
 ///  Functions of module SpecBit
 ///
 ///  SpecBit module functions related to the
-///  2HDM general model, type-I, type-II, lepton specific (X) & flipped (Y) models
+///  2HDM general models:
+///  - Type-I
+///  - Type-II
+///  - lepton specific (X)
+///  - flipped (Y) 
+///  - general (Type-III)
 ///
 ///  *********************************************
 ///
@@ -13,17 +18,44 @@
 ///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
+///  \date 2016-2019
 ///  \date 2020 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Apr
+///
+///  \author Cristian Sierra
+///          (cristian.sierra@monash.edu)
+///  \date 2021 Apr
 ///  *********************************************
 
-// C/C++ headers
-#include <string>
-#include <ostream>
-#include <sstream>
-#include <cmath>
-#include <complex>
-#include <math.h>
+// TODO: Too many headers, all used?
+// GSL headers
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_eigen.h>
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_permute.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_min.h>
+#include <gsl/gsl_integration.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_deriv.h>
+
+// Eigen headers
+#include <Eigen/Eigenvalues>
+#include <Eigen/Dense> 
+
+// Flexible SUSY stuff (should not be needed by the rest of gambit)
+#include "flexiblesusy/src/spectrum_generator_settings.hpp"
+#include "flexiblesusy/src/ew_input.hpp"
+#include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
+#include "flexiblesusy/src/numerics2.hpp"
+#include "flexiblesusy/models/THDM_I/THDM_I_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_LS/THDM_LS_input_parameters.hpp"
+#include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
+#include "flexiblesusy/src/problems.hpp"
 
 // GAMBIT headers
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -34,42 +66,13 @@
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
-#include "gambit/Models/SimpleSpectra/SMHiggsSimpleSpec.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
-#include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
 #include "gambit/SpecBit/THDMSpec_basis.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
-#include "flexiblesusy/src/spectrum_generator_settings.hpp"
-// FlavBit helper routines for likelihood calculations
-#include "gambit/FlavBit/FlavBit_types.hpp"
-#include "gambit/FlavBit/flav_utils.hpp"
-// Flexible SUSY stuff (should not be needed by the rest of gambit)
-#include "flexiblesusy/src/ew_input.hpp"
-#include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
-#include "flexiblesusy/src/numerics2.hpp"
-#include "flexiblesusy/models/THDM_I/THDM_I_input_parameters.hpp"
-#include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
-#include "flexiblesusy/models/THDM_LS/THDM_LS_input_parameters.hpp"
-#include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
-#include "flexiblesusy/src/problems.hpp"
 
-// Other headers
-// GSL
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_permutation.h>
-#include <gsl/gsl_permute.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_min.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_deriv.h>
-// Eigen
-#include <Eigen/Eigenvalues>
-#include <Eigen/Dense>
-
+// TODO: These need to go
 // compiler define statements ------
 #define L_MAX 1e50 // used to invalidate likelihood
 // #define SPECBIT_DEBUG // turn on debug mode
@@ -86,18 +89,6 @@
 #define FALL_THROUGH ((void)0)
 #endif /* __GNUC__ >= 7 */
 
-#ifdef SPECBIT_DEBUG
-// overloading cout to print std::vector for debug
-template <class T>
-std::ostream &operator<<(std::ostream &os, const std::vector<T> &vec)
-{
-  os << " ";
-  for (auto const &each_entry : vec)
-    os << each_entry << " ";
-  return os;
-}
-#endif
-
 // begin gambit namespace
 namespace Gambit
 {
@@ -108,18 +99,8 @@ namespace Gambit
     // extra namespace declarations
     using namespace LogTags;
     using namespace flexiblesusy;
-    namespace ublas = boost::numeric::ublas;
 
     // --------------------------------------------------
-    // declarations for convenience
-    enum yukawa_type
-    {
-      type_I = 1,
-      type_II,
-      lepton_specific,
-      flipped,
-      type_III
-    };
     enum particle_type
     {
       h0 = 1,
@@ -136,27 +117,6 @@ namespace Gambit
       double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha;
     };
 
-    // model lookup map -> useful for looking up model info
-    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
-    struct model_param
-    {
-      bool is_model_at_Q;
-      yukawa_type model_y_type;
-      // constructor
-      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
-    };
-
-    std::map<std::string, model_param> THDM_model_lookup_map = {
-        {"THDMatQ", model_param(true, type_III)},
-        {"THDM", model_param(false, type_III)},
-        {"THDMIatQ", model_param(true, type_I)},
-        {"THDMI", model_param(false, type_I)},
-        {"THDMIIatQ", model_param(true, type_II)},
-        {"THDMII", model_param(false, type_II)},
-        {"THDMLSatQ", model_param(true, lepton_specific)},
-        {"THDMLS", model_param(false, lepton_specific)},
-        {"THDMflippedatQ", model_param(true, flipped)},
-        {"THDMflipped", model_param(false, flipped)}};
     // --------------------------------------------------
 
     // FlexibleSUSY spectrum
@@ -335,13 +295,13 @@ namespace Gambit
     {
       // read in THDM model parameters
       input.TanBeta = *Param.at("tanb");
-      input.Lambda1IN = *Param.at("lambda_1");
-      input.Lambda2IN = *Param.at("lambda_2");
-      input.Lambda3IN = *Param.at("lambda_3");
-      input.Lambda4IN = *Param.at("lambda_4");
-      input.Lambda5IN = *Param.at("lambda_5");
-      input.Lambda6IN = *Param.at("lambda_6");
-      input.Lambda7IN = *Param.at("lambda_7");
+      input.Lambda1IN = *Param.at("lambda1");
+      input.Lambda2IN = *Param.at("lambda2");
+      input.Lambda3IN = *Param.at("lambda3");
+      input.Lambda4IN = *Param.at("lambda4");
+      input.Lambda5IN = *Param.at("lambda5");
+      input.Lambda6IN = *Param.at("lambda6");
+      input.Lambda7IN = *Param.at("lambda7");
       input.M122IN = *Param.at("m12_2");
       input.Qin = *Param.at("Qin");
       // Sanity check on tanb
@@ -353,41 +313,101 @@ namespace Gambit
       }
     }
 
-    /// Get a Spectrum object wrapper for the THDM model
-    void get_THDM_spectrum(Spectrum &result)
+    /// Get the Type of THDM from the yukawa structure
+    void get_THDM_Type(THDM_TYPE &type)
     {
-      namespace myPipe = Pipes::get_THDM_spectrum;
-      const SMInputs &sminputs = *myPipe::Dep::SMINPUTS;
+      using namespace Pipes::get_THDM_Type;
+      SMInputs sminputs = *Dep::SMINPUTS;
 
-      // set THDM model type
-      int y_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
+      // Choose a small value to avoid comparing with 0
+      const double eps = 1e-20;
+
+      // Needed to compare masses
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double sb = *Param.at("tanb")/sqrt(1+pow(*Param.at("tanb"),2));
+
+      // Flags
+      bool yu_empty = true, yd_empty = true, yl_empty= true;
+      bool real = true, diagonal = true;
+
+      const std::vector<str> yuk_base = {"yu2_re", "yu2_im", "yd2_re", "yd2_im", "yl2_re", "yl2_im"};
+      for (str yuk : yuk_base)
       {
-        // model match was found: set values based on matched model
-        if (myPipe::ModelInUse(THDM_model.first))
+        for(size_t i=1; i<=3; ++i)
         {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          y_type = THDM_model.second.model_y_type;
-          break;
+          for(size_t j=1; j<=3; ++j)
+          {
+            std::stringstream ss;
+            ss << yuk << "_" << i << j;
+            if(std::abs(*Param.at(ss.str())) > eps)
+            {
+              // if any element is non-zero, it is not empty
+              if(yuk.find("yu") != std::string::npos)
+                yu_empty = false;
+              else if(yuk.find("yd") != std::string::npos)
+                yd_empty = false;
+              else if(yuk.find("yl") != std::string::npos)
+                yl_empty = false;
+
+              // if any imaginary element is non-zero, it is not real
+              if(yuk.find("im") != std::string::npos)
+                real = false;
+
+              // if any off-diagonal element, is non-zero, it is not diagonal
+              if(i != j)
+                diagonal = false;
+            }
+          }
         }
       }
 
-      if ((y_type < 0) | (y_type > 5))
+      // If all y2 yukawas are zero, it is type I
+      if (yu_empty and yd_empty and yl_empty)
       {
-        // by definition this error should never be raised due to ALLOWED_MODELS protection in rollcall file
-        std::ostringstream errmsg;
-        errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-        errmsg << "The chosen THDM model was not recognized." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+        type = TYPE_I;
       }
-      else if (y_type == 5)
+      // All other specific types have real and diagonal yukawas
+      else if (real and diagonal and yd_empty and yl_empty and
+               std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb*sminputs.mU) < eps and
+               std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb*sminputs.mCmC) < eps and
+               std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb*sminputs.mT) < eps)
       {
-        std::ostringstream errmsg;
-        errmsg << "The general THDM is not yet supported by GAMBIT." << std::endl;
-        SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+        type = TYPE_II;
       }
-      else if (!is_at_Q)
+      else if(real and diagonal and yl_empty and
+              std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb * sminputs.mU) < eps and
+              std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb * sminputs.mCmC) < eps and
+              std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb * sminputs.mT) < eps and
+              std::abs(*Param.at("yd2_re_11") - sqrt(2)/v/sb * sminputs.mD) < eps and
+              std::abs(*Param.at("yd2_re_22") - sqrt(2)/v/sb * sminputs.mS) < eps and
+              std::abs(*Param.at("yd2_re_33") - sqrt(2)/v/sb * sminputs.mBmB) < eps)
+      {
+        type = TYPE_LS;
+      }
+      else if(real and diagonal and yd_empty and
+              std::abs(*Param.at("yu2_re_11") - sqrt(2)/v/sb * sminputs.mU) < eps and
+              std::abs(*Param.at("yu2_re_22") - sqrt(2)/v/sb * sminputs.mCmC) < eps and
+              std::abs(*Param.at("yu2_re_33") - sqrt(2)/v/sb * sminputs.mT) < eps and
+              std::abs(*Param.at("yl2_re_11") - sqrt(2)/v/sb * sminputs.mE) < eps and
+              std::abs(*Param.at("yl2_re_22") - sqrt(2)/v/sb * sminputs.mMu) < eps and
+              std::abs(*Param.at("yl2_re_33") - sqrt(2)/v/sb * sminputs.mTau) < eps)
+      {
+        type = TYPE_flipped;
+      }
+      // Otherwise, it is the generic type
+      else
+      {
+        type = TYPE_III;
+      }
+    }
+
+    /// Get a Spectrum object wrapper for the THDM model
+    void get_THDM_spectrum(Spectrum &result)
+    { 
+      using namespace Pipes::get_THDM_spectrum;
+      const SMInputs& sminputs = *Dep::SMINPUTS;
+
+      if (ModelInUse("THDM"))
       {
         // SoftSUSY object used to set quark and lepton masses and gauge
         // couplings in QEDxQCD effective theory
@@ -409,10 +429,17 @@ namespace Gambit
 
         // create empty basis
         std::map<std::string, double> basis = create_empty_THDM_basis();
+
         // fill coupling basis
-        basis["lambda1"] = *myPipe::Param.at("lambda_1"), basis["lambda2"] = *myPipe::Param.at("lambda_2"), basis["lambda3"] = *myPipe::Param.at("lambda_3");
-        basis["lambda4"] = *myPipe::Param.at("lambda_4"), basis["lambda5"] = *myPipe::Param.at("lambda_5"), basis["lambda6"] = *myPipe::Param.at("lambda_6");
-        basis["lambda7"] = *myPipe::Param.at("lambda_7"), basis["tanb"] = *myPipe::Param.at("tanb"), basis["m12_2"] = *myPipe::Param.at("m12_2");
+        basis["lambda1"] = *Param.at("lambda1");
+        basis["lambda2"] = *Param.at("lambda2");
+        basis["lambda3"] = *Param.at("lambda3");
+        basis["lambda4"] = *Param.at("lambda4");
+        basis["lambda5"] = *Param.at("lambda5");
+        basis["lambda6"] = *Param.at("lambda6");
+        basis["lambda7"] = *Param.at("lambda7");
+        basis["tanb"] = *Param.at("tanb");
+        basis["m12_2"] = *Param.at("m12_2");
 
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
@@ -424,7 +451,10 @@ namespace Gambit
         const double alpha = basis["alpha"];
         const double tanb = basis["tanb"];
 
+
         // fill spectrum container
+        thdm_model.model_type = *Dep::THDM_Type;
+
         thdm_model.tanb = tanb;
         thdm_model.alpha = alpha;
         thdm_model.beta = basis["beta"];
@@ -439,17 +469,6 @@ namespace Gambit
         thdm_model.m11_2 = basis["m11_2"];
         thdm_model.m22_2 = basis["m22_2"];
         thdm_model.m12_2 = basis["m12_2"];
-
-        thdm_model.Lambda1 = basis["Lambda1"];
-        thdm_model.Lambda2 = basis["Lambda2"];
-        thdm_model.Lambda3 = basis["Lambda3"];
-        thdm_model.Lambda4 = basis["Lambda4"];
-        thdm_model.Lambda5 = basis["Lambda5"];
-        thdm_model.Lambda6 = basis["Lambda6"];
-        thdm_model.Lambda7 = basis["Lambda7"];
-        thdm_model.M11_2 = basis["M11_2"];
-        thdm_model.M22_2 = basis["M22_2"];
-        thdm_model.M12_2 = basis["M12_2"];
 
         thdm_model.mh0 = basis["m_h"];
         thdm_model.mH0 = basis["m_H"];
@@ -477,51 +496,59 @@ namespace Gambit
 
         // Standard model
         thdm_model.sinW2 = sinW2;
+        thdm_model.vev = vev;
         // gauge couplings
         thdm_model.g1 = e / sinW2;
         thdm_model.g2 = e / cosW2;
         thdm_model.g3 = pow(4 * pi * (sminputs.alphaS), 0.5);
         thdm_model.mW = sminputs.mZ * cosW2;
-        // Yukawas
-        const double sqrt2v = pow(2.0, 0.5) / vev, b = atan(tanb);
-        const double cb = cos(b), sb = sin(b);
-        // set Yukawa scalign based on type
-        double beta_scaling_u = sb, beta_scaling_d = sb, beta_scaling_e = sb;
-        switch (y_type)
-        {
-        case type_I:
-          break;
-        case type_II:
-          beta_scaling_d = cb;
-          beta_scaling_e = cb;
-          break;
-        case lepton_specific:
-          beta_scaling_e = cb;
-          break;
-        case flipped:
-          beta_scaling_d = cb;
-          break;
-        }
-        // set Yukawas
-        thdm_model.Yu[0] = sqrt2v * sminputs.mU / beta_scaling_u;
-        thdm_model.Yu[1] = sqrt2v * sminputs.mCmC / beta_scaling_u;
-        thdm_model.Yu[2] = sqrt2v * sminputs.mT / beta_scaling_u;
-        thdm_model.Ye[0] = sqrt2v * sminputs.mE / beta_scaling_e;
-        thdm_model.Ye[1] = sqrt2v * sminputs.mMu / beta_scaling_e;
-        thdm_model.Ye[2] = sqrt2v * sminputs.mTau / beta_scaling_e;
-        thdm_model.Yd[0] = sqrt2v * sminputs.mD / beta_scaling_d;
-        thdm_model.Yd[1] = sqrt2v * sminputs.mS / beta_scaling_d;
-        thdm_model.Yd[2] = sqrt2v * sminputs.mBmB / beta_scaling_d;
-        thdm_model.yukawaCoupling = y_type;
-        thdm_model.vev = vev;
 
-        // Create a SubSpectrum object to wrap the EW sector information
-        Models::THDMSimpleSpecSM thdm_spec(thdm_model);
+        // Yukawas
+        
+        for(int i=0; i<3; i++)
+        {
+          for(int j=0; j<3; j++)
+          {
+            thdm_model.Yu2[i][j] = *Param["yu2_re_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.Yd2[i][j] = *Param["yd2_re_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.Ye2[i][j] = *Param["yl2_re_"+std::to_string(i+1)+std::to_string(j+1)];
+
+            thdm_model.ImYu2[i][j] = *Param["yu2_im_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.ImYd2[i][j] = *Param["yd2_im_"+std::to_string(i+1)+std::to_string(j+1)];
+            thdm_model.ImYe2[i][j] = *Param["yl2_im_"+std::to_string(i+1)+std::to_string(j+1)];
+
+            thdm_model.Yu1[i][j] = -tanb * thdm_model.Yu2[i][j];
+            thdm_model.Yd1[i][j] = -tanb * thdm_model.Yd2[i][j];
+            thdm_model.Ye1[i][j] = -tanb * thdm_model.Ye2[i][j];
+
+            thdm_model.ImYu1[i][j] = -tanb * thdm_model.ImYu2[i][j];
+            thdm_model.ImYd1[i][j] = -tanb * thdm_model.ImYd2[i][j];
+            thdm_model.ImYe1[i][j] = -tanb * thdm_model.ImYe2[i][j];
+          }
+        }
+
+        const double sqrt2v = sqrt(2.0)/vev;
+        const double cb = sqrt(1.0/(1+tanb*tanb));
+ 
+        thdm_model.Yu1[0][0] += sqrt2v * sminputs.mU / cb;
+        thdm_model.Yu1[1][1] += sqrt2v * sminputs.mCmC / cb;
+        thdm_model.Yu1[2][2] += sqrt2v * sminputs.mT / cb;
+        thdm_model.Yd1[0][0] += sqrt2v * sminputs.mD / cb;
+        thdm_model.Yd1[1][1] += sqrt2v * sminputs.mS / cb;
+        thdm_model.Yd1[2][2] += sqrt2v * sminputs.mBmB / cb;
+        thdm_model.Ye1[0][0] += sqrt2v * sminputs.mE / cb;
+        thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
+        thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
+
+        // Create a SimpleSpec object to wrap the spectrum
+        THDMSimpleSpec thdm_spec(thdm_model,sminputs);
+
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum
         // objects can due to a special copy constructor which does
         // the required cloning of the constituent SubSpectra.
-        static Spectrum full_spectrum;
+        //static Spectrum full_spectrum;
+
         // Note subtlety! There are TWO constructors for the Spectrum object:
         // If pointers to SubSpectrum objects are passed, it is assumed that
         // these objects are managed EXTERNALLY! So if we were to do this:
@@ -533,23 +560,22 @@ namespace Gambit
         // possession of them:
 
         // Retrieve any mass cuts
-        static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
-        static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
+        static const Spectrum::mc_info mass_cut = runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
+        static const Spectrum::mr_info mass_ratio_cut = runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
 
-        full_spectrum = Spectrum(qedqcdspec, thdm_spec, sminputs, &myPipe::Param, mass_cut, mass_ratio_cut);
-        result = full_spectrum;
+        result = Spectrum(qedqcdspec,thdm_spec,sminputs,&Param,mass_cut,mass_ratio_cut);
       }
-      else
+      else if(ModelInUse("THDMatQ"))
       {
         // check perturbativity if key exists in yaml
-        if (myPipe::runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
+        if (runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
         {
           bool is_perturbative = true;
-          std::vector<std::string> lambda_keys = {"lambda_1", "lambda_2", "lambda_3", "lambda_4",
-                                                  "lambda_5", "lambda_6", "lambda_7"};
+          std::vector<std::string> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
+                                                  "lambda5", "lambda6", "lambda7"};
           for (auto const &each_lambda : lambda_keys)
           {
-            if (*myPipe::Param.at(each_lambda) > 4. * M_PI)
+            if (*Param.at(each_lambda) > 4. * M_PI)
             {
               is_perturbative = false;
               break;
@@ -559,97 +585,107 @@ namespace Gambit
             invalid_point().raise("FS Invalid Point: Perturbativity Failed");
         }
         using namespace softsusy;
-        switch (y_type)
+
+        // Determine THDM type
+        THDM_TYPE THDM_type = *Dep::THDM_Type;
+        switch (THDM_type)
         {
-        case type_I:
-        {
-#if (FS_MODEL_THDM_I_IS_BUILT)
-          THDM_I_input_parameters input;
-          fill_THDM_FS_input(input, myPipe::Param);
-          result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-          if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+          case TYPE_I:
           {
-            double const scale = *myPipe::Param.at("QrunTo");
-            std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-            result.RunBothToScale(scale);
+            #if (FS_MODEL_THDM_I_IS_BUILT)
+              THDM_I_input_parameters input;
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
+              {
+                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
+                result.RunBothToScale(scale);
+              }
+            #else
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_I not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+            #endif
+            break;
           }
-#else
-          std::ostringstream errmsg;
-          errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-          errmsg << "FS models for THDM_I not built." << std::endl;
-          SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-#endif
-          break;
-        }
-        case type_II:
-        {
-#if (FS_MODEL_THDM_II_IS_BUILT)
-          THDM_II_input_parameters input;
-          fill_THDM_FS_input(input, myPipe::Param);
-          result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-          if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+          case TYPE_II:
           {
-            double const scale = *myPipe::Param.at("QrunTo");
-            std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-            result.RunBothToScale(scale);
+            #if (FS_MODEL_THDM_II_IS_BUILT)
+              THDM_II_input_parameters input;
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
+              {
+                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
+                result.RunBothToScale(scale);
+              }
+            #else
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_II not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+            #endif
+            break;
           }
-#else
-          std::ostringstream errmsg;
-          errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-          errmsg << "FS models for THDM_II not built." << std::endl;
-          SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-#endif
-          break;
-        }
-        case lepton_specific:
-        {
-#if (FS_MODEL_THDM_LS_IS_BUILT)
-          THDM_LS_input_parameters input;
-          fill_THDM_FS_input(input, myPipe::Param);
-          result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-          if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+          case TYPE_LS:
           {
-            double const scale = *myPipe::Param.at("QrunTo");
-            std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-            result.RunBothToScale(scale);
+            #if (FS_MODEL_THDM_LS_IS_BUILT)
+              THDM_LS_input_parameters input;
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
+              {
+                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
+                result.RunBothToScale(scale);
+              }
+            #else
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_LS not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+            #endif
+            break;
           }
-#else
-          std::ostringstream errmsg;
-          errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-          errmsg << "FS models for THDM_LS not built." << std::endl;
-          SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-#endif
-          break;
-        }
-        case flipped:
-        {
-#if (FS_MODEL_THDM_flipped_IS_BUILT)
-          THDM_flipped_input_parameters input;
-          fill_THDM_FS_input(input, myPipe::Param);
-          result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *myPipe::runOptions, myPipe::Param);
-          if (myPipe::runOptions->getValueOrDef<bool>(false, "at_QrunTo"))
+          case TYPE_flipped:
           {
-            double const scale = *myPipe::Param.at("QrunTo");
-            std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-            result.RunBothToScale(scale);
+            #if (FS_MODEL_THDM_flipped_IS_BUILT)
+              THDM_flipped_input_parameters input;
+              fill_THDM_FS_input(input, Param);
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
+              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              if(scale != sminputs.mZ)
+              {
+                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
+                result.RunBothToScale(scale);
+              }
+            #else
+              std::ostringstream errmsg;
+              errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+              errmsg << "FS models for THDM_flipped not built." << std::endl;
+              SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+            #endif
+            break;
           }
-#else
-          std::ostringstream errmsg;
-          errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-          errmsg << "FS models for THDM_flipped not built." << std::endl;
-          SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-#endif
-          break;
-        }
-        default:
-        {
-          // this error should never be raised due to previous check of y_type
-          std::ostringstream errmsg;
-          errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
-          errmsg << "Tried to set the Yukawa Type to " << y_type << " . Yukawa Type should be 1-4." << std::endl;
-          SpecBit_error().raise(LOCAL_INFO, errmsg.str());
-          break;
-        }
+          case TYPE_III:
+          {
+            // TODO: Implement the typeIII model in FS
+            std::ostringstream errmsg;
+            errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+            errmsg << "FS model for the general THDM does not exist." << std::endl;
+            SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+          }
+          default:
+          {
+            std::ostringstream errmsg;
+            errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
+            errmsg << "Tried to set an unkwown THDM type." << std::endl;
+            SpecBit_error().raise(LOCAL_INFO, errmsg.str());
+            break;
+          }
         }
       }
     }
@@ -696,13 +732,13 @@ namespace Gambit
     std::vector<double> get_lambdas_from_spectrum(THDM_spectrum_container &container)
     {
       std::vector<double> Lambda(8);
-      Lambda[1] = container.he->get(Par::mass1, "lambda_1");
-      Lambda[2] = container.he->get(Par::mass1, "lambda_2");
-      Lambda[3] = container.he->get(Par::mass1, "lambda_3");
-      Lambda[4] = container.he->get(Par::mass1, "lambda_4");
-      Lambda[5] = container.he->get(Par::mass1, "lambda_5");
-      Lambda[6] = container.he->get(Par::mass1, "lambda_6");
-      Lambda[7] = container.he->get(Par::mass1, "lambda_7");
+      Lambda[1] = container.he->get(Par::dimensionless, "lambda1");
+      Lambda[2] = container.he->get(Par::dimensionless, "lambda2");
+      Lambda[3] = container.he->get(Par::dimensionless, "lambda3");
+      Lambda[4] = container.he->get(Par::dimensionless, "lambda4");
+      Lambda[5] = container.he->get(Par::dimensionless, "lambda5");
+      Lambda[6] = container.he->get(Par::dimensionless, "lambda6");
+      Lambda[7] = container.he->get(Par::dimensionless, "lambda7");
       return Lambda;
     }
 
@@ -927,6 +963,7 @@ namespace Gambit
       c += 2.0 * q[j][1] * std::conj(q[k][1]) * q[l][2] * std::conj(q[m][2]) * Lam34;
       c += 2.0 * (std::conj(q[j][1]) * std::conj(q[k][1]) * q[l][2] * q[m][2] * Lam5).real();
       c += 4.0 * (q[j][1] * std::conj(q[k][1]) * std::conj(q[l][1]) * q[m][2] * Lam6 * (double)sgn(Lam6)).real();
+      // TODO: I feel this should be sgn(Lam7), where do these equations come from?
       c += 4.0 * (std::conj(q[j][1]) * q[k][2] * q[l][2] * std::conj(q[m][2]) * Lam7 * (double)sgn(Lam6)).real();
       return 0.125 * c;
     }
@@ -1758,30 +1795,30 @@ namespace Gambit
           cubic_couplings[j] = -i * cubic_couplings[j];
       }
 
-#ifdef SPECBIT_DEBUG_COUPLINGS
-      std::cout << "*** cubic couplings calculated by GAMBIT" << std::endl
-                << "Mass Basis | Higgs Basis" << std::endl;
-      for (int i = 1; i <= size; i++)
-      {
-        std::cout << i << " " << cubic_couplings_mass[i] << " | " << cubic_couplings[i] << std::endl;
-      }
-
-      std::cout << "*** cubic couplings calculated by GAMBIT & 2HDMC" << std::endl
-                << "GAMBIT | 2HDMC" << std::endl;
-      for (int h1 = 1; h1 < 4; h1++)
-      {
-        for (int h2 = 1; h2 < 4; h2++)
+      #ifdef SPECBIT_DEBUG_COUPLINGS
+        std::cout << "*** cubic couplings calculated by GAMBIT" << std::endl
+                  << "Mass Basis | Higgs Basis" << std::endl;
+        for (int i = 1; i <= size; i++)
         {
-          for (int h3 = 1; h3 < 4; h3++)
+          std::cout << i << " " << cubic_couplings_mass[i] << " | " << cubic_couplings[i] << std::endl;
+        }
+
+        std::cout << "*** cubic couplings calculated by GAMBIT & 2HDMC" << std::endl
+                  << "GAMBIT | 2HDMC" << std::endl;
+        for (int h1 = 1; h1 < 4; h1++)
+        {
+          for (int h2 = 1; h2 < 4; h2++)
           {
-            std::complex<double> c;
-            container.THDM_object->get_coupling_hhh(h1, h2, h3, c);
-            std::complex<double> c2 = get_cubic_coupling_higgs(container, particle_type(h1), particle_type(h2), particle_type(h3));
-            std::cout << c2 << " | " << c << std::endl;
+            for (int h3 = 1; h3 < 4; h3++)
+            {
+              std::complex<double> c;
+              container.THDM_object->get_coupling_hhh(h1, h2, h3, c);
+              std::complex<double> c2 = get_cubic_coupling_higgs(container, particle_type(h1), particle_type(h2), particle_type(h3));
+              std::cout << c2 << " | " << c << std::endl;
+            }
           }
         }
-      }
-#endif
+      #endif
 
       return cubic_couplings;
     }
@@ -2882,28 +2919,20 @@ namespace Gambit
     void get_unitarity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_unitarity_likelihood_THDM;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = unitarity_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -2912,7 +2941,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale);
         }
         else
@@ -2928,19 +2957,11 @@ namespace Gambit
     void get_NLO_unitarity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       // get options
       const bool check_corrections_ratio = runOptions->getValueOrDef<bool>(false, "check_correction_ratio");
@@ -2953,10 +2974,10 @@ namespace Gambit
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -2965,7 +2986,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections);
         }
         else
@@ -2981,28 +3002,20 @@ namespace Gambit
     void get_perturbativity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_perturbativity_likelihood_THDM;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = perturbativity_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -3011,7 +3024,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale);
         }
         else
@@ -3024,31 +3037,156 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
+    void simple_perturbativity_yukawas_LL(double &result)
+    { 
+      using namespace Pipes::simple_perturbativity_yukawas_LL;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      const Spectrum spec = *Dep::THDM_spectrum;
+      std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+      const double sigma = 0.1;
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double mT = Dep::SMINPUTS->mT;
+      double tanb = he->get(Par::dimensionless,"tanb");
+      double error = 0.0;
+      std::vector<double> Yukawas;
+
+      for (int i = 1; i <= 3; i++)
+       {
+         for (int j = 1; j <= 3; j++)
+         {
+          Yukawas.push_back(he->get(Par::dimensionless, "Yd2", i, j));
+          Yukawas.push_back(he->get(Par::dimensionless, "Ye2", i, j));
+         }
+       }
+      //The Yu2 matrix is called outside in order to get the Yu2tt element
+      //which has a softer perturbativity bound
+      //For the moment there is no Yukawas for 1-3 family interactions
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 1));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 2));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 3));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 1));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 2));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 2, 3));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 1));
+      Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 3, 2));
+      double Yu2tt = he->get(Par::dimensionless, "Yu2", 3, 3);
+      // loop over all yukawas
+      for (auto & each_yukawa : Yukawas)
+      {
+        if (abs(each_yukawa) > sqrt(4*M_PI)/(sqrt(1+tanb*tanb)))
+          error += abs(each_yukawa) - (sqrt(4*M_PI)/(sqrt(1+tanb*tanb)));
+      }
+      //Apply softer bound for Yu2tt
+      error += abs(Yu2tt) - ((sqrt(4*M_PI)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+
+    //LO stability function without 2HDMC from 1106.0034
+    void stability_lambdas_LL(double &result)
+    {
+        using namespace Pipes::stability_lambdas_LL;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double sigma = 0.1;
+        double error = 0.;
+        std::vector<double> lambda(8);
+
+        lambda[1] = he->get(Par::dimensionless, "lambda1");
+        lambda[2] = he->get(Par::dimensionless, "lambda2");
+        lambda[3] = he->get(Par::dimensionless, "lambda3");
+        lambda[4] = he->get(Par::dimensionless, "lambda4");
+        lambda[5] = he->get(Par::dimensionless, "lambda5");
+        lambda[6] = he->get(Par::dimensionless, "lambda6");
+        lambda[7] = he->get(Par::dimensionless, "lambda7");
+
+        if (lambda[1] < 0.0)
+          error += abs(lambda[1]);
+        if (lambda[2] < 0.0)
+          error += abs(lambda[2]);
+
+        if (std::isnan(sqrt(lambda[1] * lambda[2])))
+        {
+          result = -L_MAX;
+        }
+        else
+        {
+          if (lambda[3] < -sqrt(lambda[1] * lambda[2]))
+            error += abs(lambda[3] - (-sqrt(lambda[1] * lambda[2])));
+          if (lambda[6] == 0.0 || lambda[7] == 0.0)
+          {
+            if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt(lambda[1] * lambda[2]))
+              error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt(lambda[1] * lambda[2])));
+          }
+          else
+          {
+            if (lambda[3] + lambda[4] - lambda[5] < -sqrt(lambda[1] * lambda[2]))
+              error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt(lambda[1] * lambda[2])));
+          }
+        }
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+    
+    //LO unitarity function without 2HDMC
+    void unitarity_lambdas_LL(double &result)
+    {   
+        using namespace Pipes::unitarity_lambdas_LL;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double unitarity_limit = 8 * M_PI;
+        const double sigma = 0.1;
+        double error = 0.;
+        std::vector<double> lambda(8);
+
+        lambda[1] = he->get(Par::dimensionless, "lambda1");
+        lambda[2] = he->get(Par::dimensionless, "lambda2");
+        lambda[3] = he->get(Par::dimensionless, "lambda3");
+        lambda[4] = he->get(Par::dimensionless, "lambda4");
+        lambda[5] = he->get(Par::dimensionless, "lambda5");
+        lambda[6] = he->get(Par::dimensionless, "lambda6");
+        lambda[7] = he->get(Par::dimensionless, "lambda7");
+
+        //Define eigenvalues from 1106.0034
+        std::vector<double> eigenval;
+        eigenval.push_back(1.5*(lambda[1]+lambda[2])+sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
+        eigenval.push_back(1.5*(lambda[1]+lambda[2])-sqrt(2.25*pow(lambda[1]-lambda[2],2)+pow(2*lambda[3]+lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[4],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])+0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[5],2)));
+        eigenval.push_back(0.5*(lambda[1]+lambda[2])-0.5*sqrt(pow(lambda[1]-lambda[2],2)+4*pow(lambda[5],2)));
+        eigenval.push_back(lambda[3]+2*lambda[4]+3*lambda[5]);
+        eigenval.push_back(lambda[3]+2*lambda[4]-3*lambda[5]);
+        eigenval.push_back(lambda[3]+lambda[5]);
+        eigenval.push_back(lambda[3]-lambda[5]);
+        eigenval.push_back(lambda[3]+lambda[4]);
+        eigenval.push_back(lambda[3]-lambda[4]);
+        
+        // loop over all eigenvalues
+        for (auto & each_eigen : eigenval)
+        {
+        if (abs(each_eigen) > unitarity_limit)
+          error += abs(each_eigen - unitarity_limit);
+      }
+      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+
+
     void get_stability_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_stability_likelihood_THDM;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = stability_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -3057,7 +3195,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale);
         }
         else
@@ -3073,28 +3211,20 @@ namespace Gambit
     void get_alignment_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_alignment_likelihood_THDM;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = alignment_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -3103,7 +3233,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale);
         }
         else
@@ -3119,28 +3249,20 @@ namespace Gambit
     void check_vacuum_global_minimum(int &result)
     {
       using namespace Pipes::check_vacuum_global_minimum;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = alignment_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       int loglike_at_Q = 1;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
       if (check_other_scale > 0.0)
@@ -3149,7 +3271,7 @@ namespace Gambit
         {
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
           loglike_at_Q = likelihood_function(container_at_scale);
         }
         else
@@ -3165,33 +3287,27 @@ namespace Gambit
     void check_h0_loop_order_corrections(double &result)
     {
       using namespace Pipes::check_h0_loop_order_corrections;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = loop_correction_mass_splitting_h0_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (check_other_scale > 0.0 and is_at_Q)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
-        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
         loglike_at_Q = likelihood_function(container_at_scale);
       }
       // return the worse performing likelihood
@@ -3201,33 +3317,27 @@ namespace Gambit
     void check_THDM_scalar_loop_order_corrections(double &result)
     {
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &)> likelihood_function = loop_correction_mass_splitting_h0_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       // evaluate loglike
       const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (check_other_scale > 0.0 and is_at_Q)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
-        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
         loglike_at_Q = likelihood_function(container_at_scale);
       }
       // return the worse performing likelihood
@@ -3237,34 +3347,28 @@ namespace Gambit
     void check_THDM_scalar_masses(double &result)
     {
       using namespace Pipes::check_THDM_scalar_masses;
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+
+      // get THDM type and find out if it is a FS spectrum (at Q)
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
+
       // define likelihood function to use
       std::function<double(THDM_spectrum_container &, const double)> likelihood_function = scalar_masses_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       const double max_scalar_mass = runOptions->getValueOrDef<double>(3000.0, "maximum_scalar_mass");
       // evaluate loglike
       const double loglike = likelihood_function(container, max_scalar_mass);
       // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (check_other_scale > 0.0 and is_at_Q)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
-        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
         loglike_at_Q = likelihood_function(container_at_scale, max_scalar_mass);
       }
       // return the worse performing likelihood
@@ -3607,10 +3711,10 @@ namespace Gambit
     // ---------------------------------------------------------------------
     double global_minimum_discriminant_THDM(THDM_spectrum_container &container)
     {
-      const double lambda1 = container.he->get(Par::mass1, "lambda_1");
-      const double lambda2 = container.he->get(Par::mass1, "lambda_2");
-      const double lambda6 = container.he->get(Par::mass1, "lambda_6");
-      const double lambda7 = container.he->get(Par::mass1, "lambda_7");
+      const double lambda1 = container.he->get(Par::dimensionless, "lambda1");
+      const double lambda2 = container.he->get(Par::dimensionless, "lambda2");
+      const double lambda6 = container.he->get(Par::dimensionless, "lambda6");
+      const double lambda7 = container.he->get(Par::dimensionless, "lambda7");
       const double tb = container.he->get(Par::dimensionless, "tanb");
       const double m12_2 = container.he->get(Par::mass1, "m12_2");
 
@@ -3750,14 +3854,6 @@ namespace Gambit
       const double beta = he->get(Par::dimensionless, "beta");
       const double alpha = he->get(Par::dimensionless, "alpha");
       result = beta - alpha;
-    }
-
-    void obs_vev(double &result)
-    {
-      using namespace Pipes::obs_vev;
-      const Spectrum spec = *Dep::THDM_spectrum;
-      std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      result = he->get(Par::mass1, "vev");
     }
 
     /// @} end observables
@@ -3940,20 +4036,12 @@ namespace Gambit
         result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0));
       }
 
-      // set THDM model type
-      int y_type = -1;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          y_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
+      // Determine the type
+      THDM_TYPE THDM_type = *Dep::THDM_Type; 
+
       // Initiate 2HDM container
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, byVal(THDM_type), 0.0, 0);
 
       // set up and fill the THDM couplings
       THDM_couplings couplings;

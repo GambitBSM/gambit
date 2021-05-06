@@ -54,17 +54,31 @@ namespace Gambit
   /// Make sure there are no nasty surprises from regular C abs()
   using std::abs;
 
+  /// Convert the memory address a pointer points to to an unsigned integer
+  /// (The size of uintptr_t  depends on system & ensures it is big
+  /// enough to store memory addresses of the underlying setup)
+  template<typename T>
+  uintptr_t memaddress_to_uint(T* ptr)
+  {
+    return reinterpret_cast<uintptr_t>(ptr);
+  }
+
   namespace Utils
   {
 
     /// Return the path to the build-time scratch directory
     const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
 
-    /// Return the path the the run-specific scratch directory
+    /// Return the path to the run-specific scratch directory
+    /// Don't call this from a destructor, as the internal static str may have already been destroyed.
     EXPORT_SYMBOLS const str& runtime_scratch();
 
     /// Convert all instances of "p" in a string to "."
     EXPORT_SYMBOLS str p2dot(str s);
+
+    /// Construct the path to the run-specific scratch directory
+    /// This version is safe to call from a destructor.
+    EXPORT_SYMBOLS str construct_runtime_scratch(bool fail_on_mpi_uninitialised=true);
 
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
@@ -220,6 +234,9 @@ namespace Gambit
     /// Check if a string represents an integer
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
+
+    /// Get the sign of a (hopefully numeric type)
+    template <typename T> int sgn(T val) {  return (T(0) < val) - (val < T(0)); }
 
     // Dummy functions for variadic variables to avoid compiler warnings
     template<typename... T> void dummy_function() {}

@@ -186,6 +186,11 @@ OtherModels:
       PDG_context: [9900004, 0]
       description: "Vector Singlet"
 
+    - name: "p1"
+      PDG_context: [51, 0]
+      description: "External model particle"
+
+
   # add_particle_set
   Sets:
   

@@ -42,6 +42,10 @@
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
 ///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
+///
 ///  *********************************************
 
 
@@ -127,21 +131,21 @@ START_MODULE
   QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_MSSM_spectrum,                 triplet<double>, (MSSM63atQ, MSSM63atMGUT),                       (MSSM_spectrum, Spectrum))
 
   // SM nuisance likelihoods
-  QUICK_FUNCTION(PrecisionBit, lnL_Z_mass,   NEW_CAPABILITY, lnL_Z_mass_chi2,   double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_t_mass,   NEW_CAPABILITY, lnL_t_mass_chi2,   double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_mbmb,     NEW_CAPABILITY, lnL_mbmb_chi2,     double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_mcmc,     NEW_CAPABILITY, lnL_mcmc_chi2,     double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_alpha_em, NEW_CAPABILITY, lnL_alpha_em_chi2, double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_alpha_s,  NEW_CAPABILITY, lnL_alpha_s_chi2,  double, (), (SMINPUTS, SMInputs))
-  QUICK_FUNCTION(PrecisionBit, lnL_GF,       NEW_CAPABILITY, lnL_GF_chi2,       double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_Z_mass,   NEW_CAPABILITY, lnL_Z_mass,   double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_t_mass,   NEW_CAPABILITY, lnL_t_mass,   double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_mbmb,     NEW_CAPABILITY, lnL_mbmb,     double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_mcmc,     NEW_CAPABILITY, lnL_mcmc,     double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_alpha_em, NEW_CAPABILITY, lnL_alpha_em, double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_alpha_s,  NEW_CAPABILITY, lnL_alpha_s,  double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_GF,       NEW_CAPABILITY, lnL_GF,       double, (), (SMINPUTS, SMInputs))
 
-  QUICK_FUNCTION(PrecisionBit, lnL_light_quark_masses, NEW_CAPABILITY, lnL_light_quark_masses_chi2, double, (), (SMINPUTS, SMInputs))
+  QUICK_FUNCTION(PrecisionBit, lnL_light_quark_masses, NEW_CAPABILITY, lnL_light_quark_masses, double, (), (SMINPUTS, SMInputs))
 
 
   // Electroweak precision likelihoods: W mass
   #define CAPABILITY lnL_W_mass
   START_CAPABILITY
-    #define FUNCTION lnL_W_mass_chi2
+    #define FUNCTION lnL_W_mass
     START_FUNCTION(double)
     DEPENDENCY(mw, triplet<double>)
     #undef FUNCTION
@@ -150,7 +154,7 @@ START_MODULE
   // Naive Higgs mass likelihood
   #define CAPABILITY lnL_h_mass
   START_CAPABILITY
-    #define FUNCTION lnL_h_mass_chi2
+    #define FUNCTION lnL_h_mass
     START_FUNCTION(double)
     DEPENDENCY(mh, triplet<double>)
     #undef FUNCTION
@@ -159,7 +163,7 @@ START_MODULE
   // Electroweak precision likelihoods: effective leptonic weak mixing angle
   #define CAPABILITY lnL_sinW2_eff
   START_CAPABILITY
-    #define FUNCTION lnL_sinW2_eff_chi2
+    #define FUNCTION lnL_sinW2_eff
     START_FUNCTION(double)
     DEPENDENCY(prec_sinW2_eff, triplet<double>)
     #undef FUNCTION
@@ -169,7 +173,7 @@ START_MODULE
   // Precision likelihood: (g-2)_\mu
   #define CAPABILITY lnL_gm2
   START_CAPABILITY
-    #define FUNCTION lnL_gm2_chi2
+    #define FUNCTION lnL_gm2
     START_FUNCTION(double)
     DEPENDENCY(muon_gm2, triplet<double>)
     DEPENDENCY(muon_gm2_SM, triplet<double>)
@@ -179,7 +183,7 @@ START_MODULE
   // Electroweak precision likelihoods: Delta rho
   #define CAPABILITY lnL_deltarho
   START_CAPABILITY
-    #define FUNCTION lnL_deltarho_chi2
+    #define FUNCTION lnL_deltarho
     START_FUNCTION(double)
     DEPENDENCY(deltarho, triplet<double>)
     #undef FUNCTION
@@ -201,6 +205,15 @@ START_MODULE
 
   // Observable: BSM contribution to (g-2)_mu
   #define CAPABILITY muon_gm2
+
+    // Muon g-2 -- Using PrecisionBit
+    // Function for gTHDM
+    #define FUNCTION THDM_mumugamma
+    START_FUNCTION(triplet<double>)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
 
     // Muon g-2 -- Using SuperIso
     #define FUNCTION SI_muon_gm2
@@ -269,6 +282,27 @@ START_MODULE
     ALLOW_MODEL(RightHandedNeutrinos)
     #undef FUNCTION
   #undef CAPABILITY
+
+  // Neutron lifetime likelihood: beam
+  #define CAPABILITY lnL_neutron_lifetime_beam
+  START_CAPABILITY
+    #define FUNCTION lnL_neutron_lifetime_beam_Yue
+    START_FUNCTION(double)
+    ALLOW_MODEL(nuclear_params_neutron_lifetime)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Neutron lifetime likelihood: bottle
+  #define CAPABILITY lnL_neutron_lifetime_bottle
+  START_CAPABILITY
+    #define FUNCTION lnL_neutron_lifetime_bottle_PDG19
+    START_FUNCTION(double)
+    ALLOW_MODEL(nuclear_params_neutron_lifetime)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
+
 
 #undef MODULE
 

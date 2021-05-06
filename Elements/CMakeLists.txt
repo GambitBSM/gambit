@@ -12,6 +12,10 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2015 Apr
 #
+#  \author Douglas Jacob
+#          (douglas.jacob@monash.edu)
+#  \date 2020 Dec
+#
 #************************************************
 
 set(source_files src/decay_table.cpp
@@ -20,6 +24,7 @@ set(source_files src/decay_table.cpp
                  src/higgs_couplings_table.cpp
                  src/ini_functions.cpp
                  src/ini_catch.cpp
+                 src/loop_functions.cpp
                  src/mssm_slhahelp.cpp
                  src/thdm_slhahelp.cpp
                  src/slhaea_helpers.cpp
@@ -40,6 +45,7 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/higgs_couplings_table.hpp
                  include/gambit/Elements/ini_functions.hpp
                  include/gambit/Elements/ini_catch.hpp
+                 include/gambit/Elements/loop_functions.hpp
                  include/gambit/Elements/module_macros_common.hpp
                  include/gambit/Elements/module_macros_incore.hpp
                  include/gambit/Elements/module_macros_incore_defs.hpp
