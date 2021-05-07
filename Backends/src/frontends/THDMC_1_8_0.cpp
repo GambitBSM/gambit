@@ -52,19 +52,6 @@ BE_NAMESPACE
       container.yukawa_type = 1;
     }
 
-    // add the Higgs basis parameters to the container via the higgs par struct
-    // TODO: This is not needed in THDMC as far as I can see
-    /*container.higgs_pars.Lambda1 = container.he->get(Par::mass1,"Lambda1");
-    container.higgs_pars.Lambda2 = container.he->get(Par::dimensionless,"Lambda2");
-    container.higgs_pars.Lambda3 = container.he->get(Par::dimensionless,"Lambda3");
-    container.higgs_pars.Lambda4 = container.he->get(Par::dimensionless,"Lambda4");
-    container.higgs_pars.Lambda5 = container.he->get(Par::dimensionless,"Lambda5");
-    container.higgs_pars.Lambda6 = container.he->get(Par::dimensionless,"Lambda6");
-    container.higgs_pars.Lambda7 = container.he->get(Par::dimensionless,"Lambda7");
-    container.higgs_pars.M11_2 = container.he->get(Par::mass1,"M11_2");
-    container.higgs_pars.M22_2 = container.he->get(Par::mass1,"M22_2");
-    container.higgs_pars.M12_2 = container.he->get(Par::mass1,"M12_2");*/
-
     // fill THDM parameters into the 2HDMC
     // both generic and physical parameters are filled using the added set_param_full method
     // the use of basis transformations between the generic and physical basis have been patched
@@ -155,8 +142,8 @@ BE_NAMESPACE
       const double md1 = Yd1 * beta_scaling_d/sqrt2v;
       SM_object->set_qmass_msbar(1,md1);
       SM_object->set_qmass_msbar(2,mu1);*/
-      SM_object->set_qmass_msbar(1,container.he->get(Par::mass1, "d_1"));
-      SM_object->set_qmass_msbar(2,container.he->get(Par::mass1, "u_1"));
+      SM_object->set_qmass_msbar(1,container.SM->get(Par::mass1, "d_1"));
+      SM_object->set_qmass_msbar(2,container.SM->get(Par::mass1, "u_1"));
     }
 
     // Set up an SM like model if the SM_like parameter is set to a neutral Higgs number
@@ -177,7 +164,7 @@ BE_NAMESPACE
         container.THDM_object->print_param_higgs();
         container.THDM_object->get_alpha();
         // set up decay table
-        THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(*(container.THDM_object));
+        THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
         // widths
         decay_table_2hdmc.print_width(1);
         decay_table_2hdmc.print_width(2);

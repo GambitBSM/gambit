@@ -136,9 +136,21 @@ namespace Gambit
             double get_lambda6()            const;
             double get_lambda7()            const;
 
+            double get_Lambda1()            const;
+            double get_Lambda2()            const;
+            double get_Lambda3()            const;
+            double get_Lambda4()            const;
+            double get_Lambda5()            const;
+            double get_Lambda6()            const;
+            double get_Lambda7()            const;
+
             double get_m11_2()              const;
             double get_m22_2()              const;
             double get_m12_2()              const;
+
+            double get_M11_2()              const;
+            double get_M22_2()              const;
+            double get_M12_2()              const;
 
             /// @}
     };

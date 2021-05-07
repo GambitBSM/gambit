@@ -276,8 +276,6 @@ namespace Gambit
     /// Helper function for populating a HiggsBounds/Signals ModelParameters object for SM-like Higgs (charged).
     void set_SMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
-      // Cross section 
-      set_CS_charged(result); // zeroed later regardless? Is this necessary?
       // Zero all H+ masses, widths and effective couplings
       result.MHplus[0] = 0.;
       result.deltaMHplus[0] = 0.;
@@ -288,6 +286,8 @@ namespace Gambit
       result.BR_Hpjcb[0] = 0.;
       result.BR_Hptaunu[0] = 0.;
       result.CS_lep_HpjHmi_ratio[0] = 0.;
+      // Cross section 
+      set_CS_charged(result); // Moved this to end, so CS_lep_HpjHmi_ratio is set. Is that OK?
     }
 
     /// SM Higgs model parameters for HiggsBounds/Signals
@@ -531,9 +531,9 @@ namespace Gambit
           const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
 
           // Total width - get HB to calculate this 
-            // result.hGammaTot[i] = -1.;
+          result.hGammaTot[i] = -1.;
           // Total width - use calculated
-          result.hGammaTot[i] = decays.width_in_GeV;
+          // result.hGammaTot[i] = decays.width_in_GeV;
         }
 
         // fill neutral effective couplings
@@ -616,6 +616,7 @@ namespace Gambit
 
         #ifdef COLLIDERBIT_DEBUG
         std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
+        std::cout << "Width " << result.HpGammaTot[0] << std::endl;
           printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
           printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
           printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
@@ -624,7 +625,7 @@ namespace Gambit
           printf("4 %5s %16.8E\n", "BR_Hpjtb", result.BR_Hpjtb[0]);
           printf("4 %5s %16.8E\n", "BR_HpjhiW", result.BR_HpjhiW[0]);
         #endif
-
+ 
     }
 
     // fills THDM neutral model input for HB 4 

@@ -220,7 +220,7 @@ START_MODULE
     START_FUNCTION(triplet<double>)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(muon_gm2, (libsuperiso), double, (const parameters*))
-    BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
 
     // Muon g-2 -- Using gm2calc
