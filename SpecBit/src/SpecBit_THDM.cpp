@@ -226,17 +226,60 @@ namespace Gambit
       thdmspec.set_override(Par::dimensionless, model_type, "model_type", true);
 
       // Manually fill the yuakwa couplings that are input parameters
-      for(int i=0; i<3; i++)
-      {
-        for(int j=0; j<3; j++)
-        {
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Yu2", i, j, true);
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Yd2", i, j, true);
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Ye2", i, j, true);
+      const double tanb = thdmspec.get(Par::dimensionless, "tanb");
 
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYu2", i, j, true);
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYd2", i, j, true);
-          thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYe2", i, j, true);
+      for(int i=1; i<=3; i++)
+      {
+        for(int j=1; j<=3; j++)
+        {
+
+          // As this is a full spectrum, make sure to improve the translations
+          double Yu2, Yd2, Yl2;
+          switch(model_type)
+          {
+            case TYPE_I:
+              Yu2 = 0;
+              Yd2 = 0;
+              Yl2 = 0;
+              break;
+            case TYPE_II:
+              Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
+              Yd2 = 0;
+              Yl2 = 0;
+             break; 
+            case TYPE_LS:
+              Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
+              Yd2 = -thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Yl2 = 0;
+              break; 
+            case TYPE_flipped:
+              Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
+              Yd2 = 0;
+              Yl2 = -thdmspec.get(Par::dimensionless, "Yl", i, j);
+              break;
+            case TYPE_III:
+              // Use input values here
+              Yu2 = *input_Param.at("yu2_re_"+std::to_string(i)+std::to_string(j));
+              Yd2 = *input_Param.at("yd2_re_"+std::to_string(i)+std::to_string(j));
+              Yl2 = *input_Param.at("yl2_re_"+std::to_string(i)+std::to_string(j));
+              break;
+          }
+
+          thdmspec.set_override(Par::dimensionless, Yu2, "Yu2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Yd2, "Yd2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Yl2, "Ye2", i, j, true);
+
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_im_"+std::to_string(i)+std::to_string(j)), "ImYu2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_im_"+std::to_string(i)+std::to_string(j)), "ImYd2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_im_"+std::to_string(i)+std::to_string(j)), "ImYe2", i, j, true);
+
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Yu2", i, j) - thdmspec.get(Par::dimensionless, "Yu", i, j) * tanb , "Yu1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Yd2", i, j) - thdmspec.get(Par::dimensionless, "Yd", i, j) * tanb, "Yd1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Ye2", i, j) - thdmspec.get(Par::dimensionless, "Ye", i, j) * tanb, "Ye1", i, j, true);
+
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYu2", i, j), "ImYu1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYd2", i, j), "ImYd1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYe2", i, j), "ImYe1", i, j, true);
         }
       }
 

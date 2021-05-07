@@ -309,48 +309,45 @@ namespace Gambit
 
       // wrapper for yukawa couplings
       template <class Model>
-      double get_Yu1(const Model& model, int i, int j)
+      double get_Yu1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        const double cb = sqrt(1.0/(1+tanb*tanb));
-        return -tanb * get_Yu2(model,i,j) + model.get_Yu(i,j) / cb;
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       template <class Model>
-      double get_Yd1(const Model& model, int i, int j)
+      double get_Yd1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        const double cb = sqrt(1.0/(1+tanb*tanb));
-        return -tanb * get_Yd2(model,i,j) + model.get_Yd(i,j) / cb;
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       template <class Model>
-      double get_Ye1(const Model& model, int i, int j)
+      double get_Ye1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        const double cb = sqrt(1.0/(1+tanb*tanb));
-        return -tanb * get_Ye2(model,i,j) + model.get_Ye(i,j) / cb;
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       template <class Model>
-      double get_ImYu1(const Model& model, int i, int j)
+      double get_ImYu1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        return -tanb * get_ImYu2(model,i,j);
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       template <class Model>
-      double get_ImYd1(const Model& model, int i, int j)
+      double get_ImYd1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        return -tanb * get_ImYd2(model,i,j);
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       template <class Model>
-      double get_ImYe1(const Model& model, int i, int j)
+      double get_ImYe1(const Model&, int, int)
       {
-        const double tanb = get_tanb(model);
-        return -tanb * get_ImYe2(model,i,j);;
+        // This is overriden later, so only here for the verification
+        return 0;
       }
 
       // wrapper getter methods for higgs basis parameters 
@@ -592,6 +589,9 @@ namespace Gambit
 
          static const int i012v[] = {0,1,2};
          static const std::set<int> i012(i012v, Utils::endA(i012v));
+
+         static const int i123v[] = {1,2,3};
+         static const std::set<int> i123(i123v, Utils::endA(i123v));
 
          static const int i0123v[] = {0,1,2,3};
          static const std::set<int> i0123(i0123v, Utils::endA(i0123v));
