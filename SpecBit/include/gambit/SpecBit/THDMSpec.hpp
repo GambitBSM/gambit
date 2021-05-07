@@ -133,8 +133,7 @@ namespace Gambit
         return 0;
       }
 
-
-      // wrapper getter methods for
+      // wrapper getter methods for sintheta
       template <class Model>
       double get_sinthW2_MSbar(const Model& model)
       {
@@ -153,6 +152,7 @@ namespace Gambit
          return sthW2;
       }
 
+      // wrapper methods for vevs
       template <class Model>
       double get_v1(const Model& model)
       {
