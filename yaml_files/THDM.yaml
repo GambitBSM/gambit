@@ -510,71 +510,71 @@ Rules:
      # function: THDM_ModelParameters_charged
       #module: ColliderBit
 
-  - capability: all_BFs
-    function: get_decaytable_as_map
-    options:
-      printall: true
+    - capability: all_BFs
+      function: get_decaytable_as_map
+      options:
+        printall: true
       
-  - capability: THDM_scalar_masses
-    function: check_THDM_scalar_masses
-    options:
-      maximum_scalar_mass: 3000
+    - capability: THDM_scalar_masses
+      function: check_THDM_scalar_masses
+      options:
+        maximum_scalar_mass: 3000
 
-  - capability: perturbativity_likelihood_THDM
-    function: get_perturbativity_likelihood_THDM
-    options:
-      check_all_scales: true
-      simple_perturbativity: false
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: true
+        simple_perturbativity: false
 
-  - capability: stability_likelihood_THDM
-    function: get_stability_likelihood_THDM
-    options:
-      check_all_scales: true
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: true
 
-  - capability: NLO_unitarity_likelihood_THDM
-    function: get_NLO_unitarity_likelihood_THDM
-    options:
-      check_correction_ratio: true
-      wave_function_corrections: true
-      gauge_corrections: true
-      yukawa_corrections: true
+    - capability: NLO_unitarity_likelihood_THDM
+      function: get_NLO_unitarity_likelihood_THDM
+      options:
+        check_correction_ratio: true
+        wave_function_corrections: true
+        gauge_corrections: true
+        yukawa_corrections: true
 
-  - capability: Reference_SM_Higgs_decay_rates
-    function: Ref_SM_Higgs_decays_THDM
+    - capability: Reference_SM_Higgs_decay_rates
+      function: Ref_SM_Higgs_decays_THDM
 
-  - capability: Reference_SM_other_Higgs_decay_rates
-    function: Ref_SM_other_Higgs_decays_THDM
+    - capability: Reference_SM_other_Higgs_decay_rates
+      function: Ref_SM_other_Higgs_decays_THDM
 
-  - capability: Reference_SM_A0_decay_rates
-    function: Ref_SM_A0_decays_THDM
+    - capability: Reference_SM_A0_decay_rates
+      function: Ref_SM_A0_decays_THDM
 
-  - capability: t_decay_rates
-    function: t_decays_THDM
+    - capability: t_decay_rates
+      function: t_decays_THDM
 
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    module: ColliderBit
+    - capability: HB_ModelParameters_neutral
+      function: THDM_ModelParameters_effc
+      module: ColliderBit
 
-  - capability: HB_ModelParameters_charged
-    function: THDM_ModelParameters_charged
-    module: ColliderBit
+    - capability: HB_ModelParameters_charged
+      function: THDM_ModelParameters_charged
+      module: ColliderBit
 
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
+    - capability: Higgs_Couplings
+      function: THDM_higgs_couplings_2HDMC
+      module: SpecBit
 
-  - capability: SuperIso_modelinfo
-    function: SI_fill
-  
-  - capability: bsgamma
-    function: SI_bsgamma
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+    
+    - capability: bsgamma
+      function: SI_bsgamma
 
-  - capability: DeltaMs
-    function: SI_Delta_MBs
+    - capability: DeltaMs
+      function: SI_Delta_MBs
 
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-    module: FlavBit
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
 
   # -------------------------
   # OFF - b2mumu likelihoods

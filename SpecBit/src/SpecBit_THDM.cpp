@@ -77,7 +77,6 @@
 #define L_MAX 1e50 // used to invalidate likelihood
 // #define SPECBIT_DEBUG // turn on debug mode
 // #define SPECBIT_DEBUG_COUPLINGS // turn on debug mode for coupling calculations
-#define FS_THROW_POINT //required s.t. FS does not terminate the scan on invalid point
 
 // other functionality that removes warnings/helps with debugging ------
 // hides the fall through warning (case blocks) when necessary, not only on gcc compilers
@@ -132,7 +131,8 @@ namespace Gambit
     // the below template function.
     // MI for Model Interface, as defined in model_files_and_boxes.hpp
     template <class MI>
-    Spectrum run_FS_spectrum_generator(const typename MI::InputParameters &input, const SMInputs &sminputs, const Options &runOptions, const std::map<str, safe_ptr<const double>> &input_Param)
+    Spectrum run_FS_spectrum_generator(const typename MI::InputParameters &input, const SMInputs &sminputs, const Options &runOptions, 
+                                       const std::map<str, safe_ptr<const double>> &input_Param, THDM_TYPE &model_type)
     {
       // SoftSUSY object used to set quark and lepton masses and gauge
       // couplings in QEDxQCD effective theory
@@ -215,12 +215,29 @@ namespace Gambit
       // (last parameter turns on the 'allow_new' option for the override setter, which allows
       //  us to set parameters that don't previously exist)
       thdmspec.set_override(Par::mass1, spectrum_generator.get_high_scale(), "high_scale", true);
-      thdmspec.set_override(Par::mass1, spectrum_generator.get_susy_scale(), "susy_scale", true);
       thdmspec.set_override(Par::mass1, spectrum_generator.get_low_scale(), "low_scale", true);
 
       if (input_Param.find("TanBeta") != input_Param.end())
       {
         thdmspec.set_override(Par::dimensionless, *input_Param.at("tanb"), "tanbeta(mZ)", true);
+      }
+
+      // Set the model type manually
+      thdmspec.set_override(Par::dimensionless, model_type, "model_type", true);
+
+      // Manually fill the yuakwa couplings that are input parameters
+      for(int i=0; i<3; i++)
+      {
+        for(int j=0; j<3; j++)
+        {
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Yu2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Yd2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_re_"+std::to_string(i+1)+std::to_string(j+1)), "Ye2", i, j, true);
+
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYu2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYd2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_im_"+std::to_string(i+1)+std::to_string(j+1)), "ImYe2", i, j, true);
+        }
       }
 
       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
@@ -233,33 +250,28 @@ namespace Gambit
       // extracted from the QedQcd object, so use the values that we put into it.)
       QedQcdWrapper qedqcdspec(oneset, sminputs);
 
-// Deal with points where spectrum generator encountered a problem
-#ifdef SPECBIT_DEBUG
-      std::cout << "Problem? " << problems.have_problem() << std::endl;
-#endif
+      // Deal with points where spectrum generator encountered a problem
+      #ifdef SPECBIT_DEBUG
+        std::cout << "Problem? " << problems.have_problem() << std::endl;
+      #endif
       if (problems.have_problem())
       {
+        std::ostringstream errmsg;
+        errmsg << "A serious problem was encountered during spectrum generation!; ";
+        errmsg << "Message from FlexibleSUSY below:" << std::endl;
+        problems.print_problems(errmsg);
+        problems.print_warnings(errmsg);
+ 
         if (runOptions.getValueOrDef<bool>(false, "invalid_point_fatal"))
         {
           ///TODO: Need to tell gambit that the spectrum is not viable somehow. For now
           /// just die.
-          std::ostringstream errmsg;
-          errmsg << "A serious problem was encountered during spectrum generation!; ";
-          errmsg << "Message from FlexibleSUSY below:" << std::endl;
-          problems.print_problems(errmsg);
-          problems.print_warnings(errmsg);
           SpecBit_error().raise(LOCAL_INFO, errmsg.str());
         }
         else
         {
-#ifdef FS_THROW_POINT
-          std::cout << "SpecBit throwing invalid point" << std::endl;
-          std::ostringstream msg;
-          /// Apply fast way for now:
-          problems.print_problems(msg);
-          std::cout << msg.str() << std::endl;
-          invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
-#endif
+          logger() << errmsg.str() << EOM;
+          invalid_point().raise(errmsg.str()); //TODO: This message isn't ending up in the logs.
         }
       }
 
@@ -270,17 +282,17 @@ namespace Gambit
         SpecBit_warning().raise(LOCAL_INFO, msg.str()); //TODO: Is a warning the correct thing to do here?
       }
 
-// Write SLHA file (for debugging purposes...)
-#ifdef SPECBIT_DEBUG
-      typename MI::SlhaIo slha_io;
-      slha_io.set_spinfo(problems);
-      slha_io.set_sminputs(oneset);
-      //  slha_io.set_minpar(input);
-      //  slha_io.set_extpar(input);
-      slha_io.set_spectrum(thdmspec.model_interface.model);
-      slha_io.write_to_file("SpecBit/initial_THDM_spectrum->slha");
-      thdmspec.model().print(std::cout);
-#endif
+      // Write SLHA file (for debugging purposes...)
+      #ifdef SPECBIT_DEBUG
+        typename MI::SlhaIo slha_io;
+        slha_io.set_spinfo(problems);
+        slha_io.set_sminputs(oneset);
+        //  slha_io.set_minpar(input);
+        //  slha_io.set_extpar(input);
+        slha_io.set_spectrum(thdmspec.model_interface.model);
+        slha_io.write_to_file("SpecBit/initial_THDM_spectrum->slha");
+        thdmspec.model().print(std::cout);
+      #endif
 
       // Retrieve any mass cuts
       static const Spectrum::mc_info mass_cut = runOptions.getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
@@ -443,9 +455,9 @@ namespace Gambit
 
         // run tree level spectrum generator
         generate_THDM_spectrum_tree_level(basis, sminputs);
-#ifdef SPECBIT_DEBUG
-        print_THDM_spectrum(basis);
-#endif
+        #ifdef SPECBIT_DEBUG
+          print_THDM_spectrum(basis);
+        #endif
 
         // copy any info that will be reused
         const double alpha = basis["alpha"];
@@ -594,13 +606,7 @@ namespace Gambit
             #if (FS_MODEL_THDM_I_IS_BUILT)
               THDM_I_input_parameters input;
               fill_THDM_FS_input(input, Param);
-              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
-              if(scale != sminputs.mZ)
-              {
-                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-                result.RunBothToScale(scale);
-              }
+              result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param, THDM_type);
             #else
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -614,13 +620,7 @@ namespace Gambit
             #if (FS_MODEL_THDM_II_IS_BUILT)
               THDM_II_input_parameters input;
               fill_THDM_FS_input(input, Param);
-              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
-              if(scale != sminputs.mZ)
-              {
-                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-                result.RunBothToScale(scale);
-              }
+              result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param, THDM_type);
             #else
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -634,13 +634,7 @@ namespace Gambit
             #if (FS_MODEL_THDM_LS_IS_BUILT)
               THDM_LS_input_parameters input;
               fill_THDM_FS_input(input, Param);
-              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
-              if(scale != sminputs.mZ)
-              {
-                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-                result.RunBothToScale(scale);
-              }
+              result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param, THDM_type);
             #else
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
@@ -654,14 +648,8 @@ namespace Gambit
             #if (FS_MODEL_THDM_flipped_IS_BUILT)
               THDM_flipped_input_parameters input;
               fill_THDM_FS_input(input, Param);
-              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
-              if(scale != sminputs.mZ)
-              {
-                std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
-                result.RunBothToScale(scale);
-              }
-            #else
+              result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param, THDM_type);
+           #else
               std::ostringstream errmsg;
               errmsg << "A fatal problem was encountered during spectrum generation." << std::endl;
               errmsg << "FS models for THDM_flipped not built." << std::endl;
@@ -686,6 +674,13 @@ namespace Gambit
             SpecBit_error().raise(LOCAL_INFO, errmsg.str());
             break;
           }
+        }
+
+        const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+        if(scale != sminputs.mZ)
+        {
+          logger() << "Running spectrum to " << scale << " GeV." << EOM;
+          result.RunBothToScale(scale);
         }
       }
     }

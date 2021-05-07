@@ -142,8 +142,8 @@ BE_NAMESPACE
       const double md1 = Yd1 * beta_scaling_d/sqrt2v;
       SM_object->set_qmass_msbar(1,md1);
       SM_object->set_qmass_msbar(2,mu1);*/
-      SM_object->set_qmass_msbar(1,container.he->get(Par::mass1, "d_1"));
-      SM_object->set_qmass_msbar(2,container.he->get(Par::mass1, "u_1"));
+      SM_object->set_qmass_msbar(1,container.SM->get(Par::mass1, "d_1"));
+      SM_object->set_qmass_msbar(2,container.SM->get(Par::mass1, "u_1"));
     }
 
     // Set up an SM like model if the SM_like parameter is set to a neutral Higgs number
