@@ -34,7 +34,16 @@ file(GLOB contrib_sources "src/contrib/[a-zA-Z]*.cpp")
 file(GLOB contrib_public_headers "include/yaml-cpp/contrib/[a-zA-Z]*.h")
 file(GLOB contrib_private_headers "src/contrib/[a-zA-Z]*.h")
 
-add_library(yaml-cpp STATIC
+# add_library(yaml-cpp STATIC
+# 	${sources}
+# 	${public_headers}
+# 	${private_headers}
+# 	${contrib_sources}
+# 	${contrib_public_headers}
+# 	${contrib_private_headers}
+# )
+
+add_library(yaml-cpp SHARED
 	${sources}
 	${public_headers}
 	${private_headers}
