@@ -668,6 +668,7 @@ namespace Gambit
         result.SM = 1;
 
         // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
+        cout<<"Inside WC, Re_DeltaC10 = "<< *Param["Re_DeltaC10"]<<endl;
         result.Re_DeltaC7  = *Param["Re_DeltaC7"];
         result.Im_DeltaC7  = *Param["Im_DeltaC7"];
         result.Re_DeltaC9  = *Param["Re_DeltaC9"];
@@ -797,8 +798,12 @@ namespace Gambit
         result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
 
       }
-      if (ModelInUse("THDMatQ"))
+     // if (ModelInUse("THDMatQ"))
+      if (ModelInUse("THDM"))//Gambit was not going inside this conditional with THDMatQ
       {
+        //result.SM = 1; The previous models in use have this, why the THDM does not?
+        //Just checking DeltaC10 is correct
+        //cout<<"Inside ModelInUse, Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
@@ -820,11 +825,29 @@ namespace Gambit
         result.Im_DeltaC8_Prime  = Dep::DeltaC8_Prime->imag();
         result.Re_DeltaC9_Prime  = Dep::DeltaC9_Prime->real();
         result.Im_DeltaC9_Prime  = Dep::DeltaC9_Prime->imag();
-        
+        result.Im_DeltaC10_Prime = Dep::DeltaC10_Prime->imag();
         result.Re_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->real();
         result.Im_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->imag();
         result.Re_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->real();
         result.Im_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->imag();
+
+        //tautau WCs
+        result.Re_DeltaC9_tau  = Dep::DeltaC9_tautau->real();
+        result.Im_DeltaC9_tau  = Dep::DeltaC9_tautau->imag();
+        result.Re_DeltaC10_tau = Dep::DeltaC10_tautau->real();
+        result.Im_DeltaC10_tau = Dep::DeltaC10_tautau->imag();
+        result.Re_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->real();
+        result.Im_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->imag();
+        result.Re_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->real();
+        result.Im_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->imag();
+        // tautau Prime WCs
+        result.Im_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->imag();
+        result.Im_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->imag();
+        result.Re_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->real();
+        result.Im_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->imag();
+        result.Re_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->real();
+        result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
+
       }     
       if (flav_debug) cout<<"Finished SI_fill"<<endl;
     }   
@@ -952,6 +975,52 @@ namespace Gambit
       result = THDM_DeltaCQ_NP(4, l, lp, sminputs, sminputspointer, spectrum);
     }
 
+  /// Delta CQ1_tautau at tree level for the general THDM
+    void calculate_DeltaCQ1_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ1_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+    void calculate_DeltaCQ1_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ1_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(3, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    void calculate_DeltaCQ2_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ2_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(2, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+   void calculate_DeltaCQ2_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ2_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(4, l, lp, sminputs, sminputspointer, spectrum);
+    }
 
     //Green functios for Delta C7 in THDM
     double F7_1(double t)
@@ -1391,6 +1460,55 @@ namespace Gambit
       result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
     }
 
+   /// Delta C9 tautau from the general THDM
+    void calculate_DeltaC9_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+      /// Delta C10 tautau from the general THDM
+    void calculate_DeltaC10_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(10, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+    /// Delta C9' tautau from the general THDM
+    void calculate_DeltaC9_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(11, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    /// Delta C10' tautau from the general THDM
+    void calculate_DeltaC10_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
     ///epsilon for b->snunu 
     double epsilon(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
     {
@@ -1547,6 +1665,24 @@ namespace Gambit
       const int l = 1, lp = 0;
 
       result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    /// Branching ratio B+ ->K+ tau tau
+    void SI_BRBKtautau(double &result)
+    {
+      using namespace Pipes::SI_BRBKtautau;
+      if (flav_debug) cout<<"Starting SI_BRBKtautau"<<endl;
+     
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      double mB = 5.27926;    
+      double mK = 0.493677;
+      double mTau = 1.77686;
+      double Q2min = 4*mTau*mTau;
+      double Q2max = pow(mB-mK,2);
+      result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
+
+      if (flav_debug) printf("BR(B=->K+ tau tau)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_BRBKtautau"<<endl;
     }
 
     ///  B-> D tau nu distributions in GTHDM
@@ -3806,6 +3942,7 @@ namespace Gambit
       if (flav_debug) cout<<"Starting SI_RK"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
+      //cout<<"Inside SI_RK, RK_CONV ="<<BEreq::RK_CONV(&param,1.0,6.0)<<endl;
       result=BEreq::RK_CONV(&param,1.0,6.0);
 
       if (flav_debug) printf("RK=%.3e\n",result);
@@ -5585,8 +5722,8 @@ namespace Gambit
       
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
-      static double th_err[2];
-      double theory[2];
+      static double th_err[3];
+      double theory[3];
       
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -5599,12 +5736,14 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKtaumu");
         // B+-> K+ mu+- e-+ 
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKmue");
-        
+        // B+-> K+ tau+ tau- 
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtautau");        
+
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
         
-        for (int i = 0; i < 2; ++i)
+        for (int i = 0; i < 3; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
         
         // Init over.
@@ -5615,9 +5754,11 @@ namespace Gambit
      if(flav_debug) cout << "B ->K tau mu = " << theory[0] << endl;
      theory[1] = *Dep::B2Kmue;
      if(flav_debug) cout << "B ->K mu e = " << theory[1] << endl;
+     theory[2] = *Dep::B2Ktautau;
+     if(flav_debug) cout << "B ->K tau tau = " << theory[2] << endl;
 
      result = 0;
-     for (int i = 0; i < 2; ++i)
+     for (int i = 0; i < 3; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
 
     }

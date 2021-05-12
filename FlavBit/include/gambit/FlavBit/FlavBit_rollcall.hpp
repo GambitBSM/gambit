@@ -520,6 +520,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: BR(B+ ->K+ tau tau)
+  #define CAPABILITY B2Ktautau
+  START_CAPABILITY
+    #define FUNCTION SI_BRBKtautau
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(BRBKtautau_CONV, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
 // Bs2llp likelihood
   #define CAPABILITY B2Kllp_lnL
   START_CAPABILITY
@@ -527,6 +538,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
+    DEPENDENCY(B2Ktautau, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -709,7 +721,96 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY  
 
-//  End of WCs in the GTHDM
+// WCs for tautau processes
+
+  #define CAPABILITY DeltaC9_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY   
+  
+  #define CAPABILITY DeltaC10_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  #define CAPABILITY DeltaC9_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY   
+  
+//C10' in the general THDM capability
+  #define CAPABILITY DeltaC10_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+  
+//CQ1 in the general THDM capability
+  #define CAPABILITY DeltaCQ1_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+
+//CQ2 in the general THDM capability
+  #define CAPABILITY DeltaCQ2_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY 
+
+  //CQ1_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ1_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY        
+
+  //CQ2_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ2_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY  
+
+
+// -------------------------------
+//    End of WCs in the GTHDM
 // -------------------------------
   
   // Initialisation capability (fill the SuperIso structure)
@@ -743,6 +844,14 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>,  THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_Prime, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau, std::complex<double>,  THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau_Prime, std::complex<double>, THDM, THDMatQ)
    #undef FUNCTION
   #undef CAPABILITY
 

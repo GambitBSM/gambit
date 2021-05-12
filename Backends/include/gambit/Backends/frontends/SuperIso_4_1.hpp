@@ -94,6 +94,7 @@ BE_FUNCTION(Delta_MBs, double , (const parameters*), "Delta_MBs", "Delta_MBs")
 // Convenience functions:
 BE_CONV_FUNCTION(BKstarmumu_CONV, Flav_KstarMuMu_obs, (const parameters*, double, double), "BKstarmumu_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 BE_CONV_FUNCTION(BRBKmumu_CONV, double, (const parameters*, double, double), "BRBKmumu_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
+BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 
 BE_CONV_FUNCTION(RKstar_CONV, double, (const parameters*, double, double), "RKstar_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 BE_CONV_FUNCTION(RK_CONV, double, (const parameters*, double, double), "RK_CONV", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
