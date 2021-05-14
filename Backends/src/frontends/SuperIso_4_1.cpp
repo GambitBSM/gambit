@@ -24,7 +24,7 @@
 /// \date 2017
 ///
 /// \author Cristian Sierra
-/// \date 2021 April
+/// \date 2021 April, May
 ///         (cristian.sierra@monash.edu)
 ///
 ///  *********************************************
@@ -54,32 +54,11 @@ BE_NAMESPACE
   /// except O_7, O_9, O_10, Q_1 and Q_2.
   void modify_WC(const parameters *param, std::complex<double> C0b[11])
   {
-    //Something is going on here, the WCs for the SM computed by SuperIso seem to be wrong, specially C0b[9],
-    // (I checked this with the si_WC.yaml file)
-    //and there are two (maybe related to the previous one) additional problems:
-    //1) The Yukawas from the THDM model seem like being passed to SI itself and into the delta_NP for the 2HDM by default inside it,
-    //   so instead of having C = C_SI_SM + C_GTHDM  we have C =C_SI_SM + C_GTHDM + C_SI_2HDM
-    //   and this is a problem because C_SI_2HDM is not the same as C_GTHDM (C_SI_2HDM only reads the third generation diagonal couplings of Yu1,2 and Yd1,2)
-    //   (I checked this with the new modified THDM_debug.yaml file)
-    //2) The WCs in the SM seem like depending on the HEPLike likelihood functions, which are not stable (I get different values each time I run the same point)
-   //    I realised about this running the new test_WC.yaml file.
-    cout<<"Inside modify_WC"<<endl;
-    for(int i=7;i<11;++i)
-     {
-      cout<<"Before, C0b["<<i<<"] = "<<C0b[i]<<endl;
-     }
-
     C0b[2]+=std::complex<double>(param->Re_DeltaC2, param->Im_DeltaC2);
     C0b[7]+=std::complex<double>(param->Re_DeltaC7, param->Im_DeltaC7);
     C0b[8]+=std::complex<double>(param->Re_DeltaC8, param->Im_DeltaC8);
     C0b[9]+=std::complex<double>(param->Re_DeltaC9, param->Im_DeltaC9);
     C0b[10]+=std::complex<double>(param->Re_DeltaC10, param->Im_DeltaC10);
-
-    for(int i=7;i<11;++i)
-     {
-      cout<<"After, C0b["<<i<<"] = "<<C0b[i]<<endl;
-     }
-
   }
 
   void modify_WC(const parameters *param, std::complex<double> C0b[11], std::complex<double> CQ0b[3])
@@ -107,9 +86,6 @@ BE_NAMESPACE
   ///Helper functions for tau tau Wilson coeffcients
   void modify_WC_tautau(const parameters *param, std::complex<double> C0b[11])
   {
-    //cout<<"Inside modify_WC_tautau"<<endl;
-    //cout<<"Delta_C0b[10]_tautau = "<<std::complex<double>(param->Re_DeltaC10_tau, param->Im_DeltaC10_tau)<<endl;
-    //cout<<"SM_C0b[10]_tautau = "<<C0b[10]<<endl;
     C0b[2]+=std::complex<double>(param->Re_DeltaC2, param->Im_DeltaC2);
     C0b[7]+=std::complex<double>(param->Re_DeltaC7, param->Im_DeltaC7);
     C0b[8]+=std::complex<double>(param->Re_DeltaC8, param->Im_DeltaC8);
@@ -286,8 +262,24 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
 
+    double alphas_mub=alphas_running(mu_b,param->mass_top_pole,param->mass_b_pole,param);
+    cout<<"Inside RK_CONV"<<endl;
+    for(int i=7;i<11;++i)
+     {
+      cout<<"Before modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]<<endl;
+     }
+
     modify_WC(param, C0b, CQ0b);
+
+    for(int i=7;i<11;++i)
+     {
+      cout<<"After modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]<<endl;
+     }
+
     modify_WCP(param, Cpb, CQpb);
+
+    //modify_WC(param, C0b, CQ0b);
+    //modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);

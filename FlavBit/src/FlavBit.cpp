@@ -237,7 +237,7 @@ namespace Gambit
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
+      if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
@@ -345,7 +345,7 @@ namespace Gambit
           
             // THDM model parameter
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-            if (result.THDM_model == 0) result.THDM_model=10;
+            if (result.THDM_model == 0) result.THDM_model=10;//TODO: This line seems to do nothing
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if(spectrum["MINPAR"][18].is_data_line()) result.m12=SLHAea::to<double>(spectrum["MINPAR"][18][1]);
@@ -668,7 +668,7 @@ namespace Gambit
         result.SM = 1;
 
         // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
-        cout<<"Inside WC, Re_DeltaC10 = "<< *Param["Re_DeltaC10"]<<endl;
+        cout<<"ModelInUse('WC'), Re_DeltaC10 = "<< *Param["Re_DeltaC10"]<<endl;
         result.Re_DeltaC7  = *Param["Re_DeltaC7"];
         result.Im_DeltaC7  = *Param["Im_DeltaC7"];
         result.Re_DeltaC9  = *Param["Re_DeltaC9"];
@@ -801,9 +801,10 @@ namespace Gambit
      // if (ModelInUse("THDMatQ"))
       if (ModelInUse("THDM"))//Gambit was not going inside this conditional with THDMatQ
       {
-        //result.SM = 1; The previous models in use have this, why the THDM does not?
-        //Just checking DeltaC10 is correct
-        //cout<<"Inside ModelInUse, Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
+        //result.SM = 1; //The previous models in use have this, why the THDM does not?
+        //result.THDM_model = -3; //Here I was trying to force SI to read the THDM as an EFT 
+        //Just checking DeltasC's are ok, eg, DeltaC10:
+        cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
