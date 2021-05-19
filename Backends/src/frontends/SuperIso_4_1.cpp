@@ -245,7 +245,9 @@ BE_NAMESPACE
   /// RK observable
   double RK_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
+    cout<<"Inside RK_CONV"<<endl;
     check_model(param, LOCAL_INFO);
+    //cout<<"param->THDM_model= "<<param->THDM_model<<endl;
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
     std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
@@ -262,24 +264,15 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
 
+    double alpha_em = 1./133.;
     double alphas_mub=alphas_running(mu_b,param->mass_top_pole,param->mass_b_pole,param);
-    cout<<"Inside RK_CONV"<<endl;
     for(int i=7;i<11;++i)
      {
-      cout<<"Before modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]<<endl;
+      cout<<"Before modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]+alpha_em/4./pi*C1b[i]+alphas_mub*alpha_em*pow(1/(4.*pi),2.)*C2b[i]<<endl;
      }
 
     modify_WC(param, C0b, CQ0b);
-
-    for(int i=7;i<11;++i)
-     {
-      cout<<"After modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]<<endl;
-     }
-
     modify_WCP(param, Cpb, CQpb);
-
-    //modify_WC(param, C0b, CQ0b);
-    //modify_WCP(param, Cpb, CQpb);
 
     CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
     C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);

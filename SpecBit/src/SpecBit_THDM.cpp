@@ -500,8 +500,8 @@ namespace Gambit
         thdm_model.g1 = e / sinW2;
         thdm_model.g2 = e / cosW2;
         thdm_model.g3 = pow(4 * pi * (sminputs.alphaS), 0.5);
-        thdm_model.mW = sminputs.mZ * cosW2;
-
+        //thdm_model.mW = sminputs.mZ * sqrt(cosW2);// this is a tree level approximation
+        thdm_model.mW = sminputs.mW;
         // Yukawas
         
         for(int i=0; i<3; i++)

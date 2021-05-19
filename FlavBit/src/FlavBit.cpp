@@ -240,6 +240,7 @@ namespace Gambit
       if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
+        cout<<spectrum<<endl;
       }
       else if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
       {
@@ -252,7 +253,8 @@ namespace Gambit
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
-        SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false);
+      //SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false); 
+        SLHAea_add(spectrum,"MODSEL",1, -3, "THDM", false);
       }
       else
       {
@@ -262,7 +264,6 @@ namespace Gambit
       BEreq::Init_param(&result);
 
       int ie,je;
-
       result.model=-1;
       if (!spectrum["MODSEL"].empty())
       {
@@ -341,11 +342,11 @@ namespace Gambit
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
             break;
          
-          case 10:
+          case -3:
           
             // THDM model parameter
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-            if (result.THDM_model == 0) result.THDM_model=10;//TODO: This line seems to do nothing
+            if (result.THDM_model == 0) result.THDM_model=-3;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if(spectrum["MINPAR"][18].is_data_line()) result.m12=SLHAea::to<double>(spectrum["MINPAR"][18][1]);
@@ -801,9 +802,8 @@ namespace Gambit
      // if (ModelInUse("THDMatQ"))
       if (ModelInUse("THDM"))//Gambit was not going inside this conditional with THDMatQ
       {
-        //result.SM = 1; //The previous models in use have this, why the THDM does not?
-        //result.THDM_model = -3; //Here I was trying to force SI to read the THDM as an EFT 
-        //Just checking DeltasC's are ok, eg, DeltaC10:
+        result.SM = 1; 
+        result.THDM_model = -3; //force SI to read the THDM as an EFT 
         cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();

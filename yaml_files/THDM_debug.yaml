@@ -11,32 +11,33 @@
 
 Parameters:
   StandardModel_SLHA2:
-    CKM_A: 0.814
-    CKM_etabar: 0.353
-    CKM_lambda: 0.22537
-    CKM_rhobar: 0.117
-    GF: 1.16638e-05
-    alpha1: 0
-    alpha2: 0
-    alphaS: 0.1181
-    alphainv: 127.95
-    delta13: 0
-    mBmB: 4.18
-    mCmC: 1.28
-    mD: 0.0047
-    mE: 0.000510999
-    mMu: 0.105658
-    mNu1: 0
-    mNu2: 0
-    mNu3: 0
-    mS: 0.096
-    mT: 173.34
-    mTau: 1.77686
-    mU: 0.0022
-    mZ: 91.1876
-    theta12: 0.58376
-    theta13: 0.15495
-    theta23: 0.76958
+    alphaS    :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
+    mBmB      :  4.18000000E+00 # mb(mb)^MSbar &
+    alphainv  :  1.27940010E+02 # alpha^{-1}(mZ)^MSbar
+    mT        :  1.73340000E+02 # mtop(pole)
+    GF        :  1.16637870E-05 # G_Fermi
+    mZ        :  9.11876000E+01 # mZ(pole)
+    mTau      :  1.77682000E+00 # mtau(pole)
+    mNu3      :               0 # mnu3(pole)
+    mD        :  4.80000000E-03 # md(2 GeV)^MSbar
+    mU        :  2.30000000E-03 # mu(2 GeV)^MSbar
+    mS        :  9.50000000E-02 # ms(2 GeV)^MSbar
+    mCmC      :  1.27500000E+00 # mc(mc)^MSbar
+    mE        :  5.10998928E-04 # melectron(pole)
+    mMu       :  1.05658372E-01 # mmuon(pole)
+    mNu1      :               0 # mnu1(pole)
+    mNu2      :               0 # mnu2(pole)
+    CKM_lambda:  0.22537        # Wolfenstein \lambda
+    CKM_A     :  0.814          # Wolfenstein A
+    CKM_rhobar:  0.117          # Wolfenstein \bar\rho
+    CKM_etabar:  0.353          # Wolfenstein \bar\eta
+    theta12   :  0.58376        # solar angle
+    theta23   :  0.76958        # atmospheric mixing angle
+    theta13   :  0.15495        # reactor angle
+    delta13   :  0              # Dirac CP-violating phase
+    alpha1    :  0              # first Majorana CP-violating phase
+    alpha2    :  0              # second CP-violating Majorana phase
+
   THDM_physical:
     lambda6: 0
     lambda7: 0
@@ -44,7 +45,7 @@ Parameters:
     mA2: 3240000
     mC2: 3240000
     mH2: 3240000
-    mh2: 15650
+    mh2: 15647.5 #125.09^2
     sba: 1.0
     tanb: 1.0
     yd2_im_11: 0
