@@ -1347,6 +1347,9 @@ namespace Gambit
 
       std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));  
 
+      std::complex<double> C9_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*
+                                      (Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));      
+
       std::complex<double> C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
 
       std::complex<double> C10_Box = C9_Box; 
@@ -1356,6 +1359,8 @@ namespace Gambit
       std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
  
       std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss))*BHpp(pow(mT/mHp,2)); 
+
+      std::complex<double> C9p_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
 
       std::complex<double> C10p_Z = (1/(4*SW*SW-1))*C9p_Z;
 
@@ -1371,7 +1376,7 @@ namespace Gambit
       switch(wc)
       {
         case 9:
-           return  C9_gamma + C9_Z + C9_Zmix + C9_Box;
+           return  C9_gamma + C9_Z + C9_Zmix + C9_Box + C9_mub;
            break;
 
         case 10:
@@ -1379,7 +1384,7 @@ namespace Gambit
            break;
 
         case 11://C9prime
-           return  C9p_gamma + C9p_Z + C9p_Box;//C9p_Zmix contribution is suppressed by the strange quark mass
+           return  C9p_gamma + C9p_Z + C9p_Box + C9p_mub;//C9p_Zmix contribution is suppressed by the strange quark mass
            break;
 
         case 12://C10prime
@@ -4709,7 +4714,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=9;//8;
+      const int n_experiments=7;//9;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4732,9 +4737,9 @@ namespace Gambit
         // B-> D* mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
-        fread.read_yaml_measurement("flav_data.yaml", "RD");
+        //fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
-        fread.read_yaml_measurement("flav_data.yaml", "RDstar");
+        //fread.read_yaml_measurement("flav_data.yaml", "RDstar");
         // Ds-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dstaunu");
         // Ds -> mu nu
@@ -4764,7 +4769,7 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[9];//[8];
+      double theory[7];//[9];
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
@@ -4772,26 +4777,26 @@ namespace Gambit
       // B-> D* mu nu
       theory[2] = *Dep::BDstarmunu;
       // RD
-      theory[3] = *Dep::RD;
+      //theory[3] = *Dep::RD;
       // RDstar
-      theory[4] = *Dep::RDstar;
+      //theory[4] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[5] = *Dep::Dstaunu;
+      theory[3] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[6] = *Dep::Dsmunu;
+      theory[4] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[7] =*Dep::Dmunu;
+      theory[5] =*Dep::Dmunu;
       //R_mu
-      theory[8] =*Dep::Rmu;
+      theory[6] =*Dep::Rmu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      //pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
       // Add in the correlations between B-> D* mu nu and RD*
-      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
+      //pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
@@ -6208,20 +6213,20 @@ namespace Gambit
         nDimGaussian.Read();
         first = false;
       }
-      const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
-      result = nDimGaussian.GetLogLikelihood(theory /* , theory_covariance */);
+      //const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
+      // result = nDimGaussian.GetLogLikelihood(theory , theory_covariance);
       // TODO: SuperIso is not ready to give correlations for these observables. So currently we fall back to the old way.
       //       Below code is for future reference.
-      // static const std::vector<std::string> observables{
-      //   "RD",
-      //   "RDstar"
-      // };
+      static const std::vector<std::string> observables{
+         "RD",
+         "RDstar"
+      };
 
-      // flav_prediction prediction = *Dep::prediction_RDRDstar;
-      // flav_observable_map theory = prediction.central_values;
-      // flav_covariance_map theory_covariance = prediction.covariance;
+      flav_prediction prediction = *Dep::prediction_RDRDstar;
+      flav_observable_map theory = prediction.central_values;
+      flav_covariance_map theory_covariance = prediction.covariance;
 
-      // result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
+      result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
       if (flav_debug) std::cout << "HEPLike_RDRDstar_LogLikelihood result: " << result << std::endl;
     }
 
