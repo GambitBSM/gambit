@@ -420,9 +420,10 @@ namespace Gambit
           }
 
           // Total width 
+          const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
           result.hGammaTot[i] = decays.width_in_GeV;
 
-          const calc_width_using_HB = false;
+          const bool calc_width_using_HB = false;
           if (calc_width_using_HB) {
             // get HB to calculate total width internally (this is only valid for scalar masses up to 1 TeV)
             result.hGammaTot[i] = -1.;
@@ -532,12 +533,11 @@ namespace Gambit
             result.deltaMh[i] = 0.;
           }
 
-          const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
-
           // Total width 
+          const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
           result.hGammaTot[i] = decays.width_in_GeV;
 
-          const calc_width_using_HB = false;
+          const bool calc_width_using_HB = false;
           if (calc_width_using_HB) {
             // get HB to calculate total width internally (this is only valid for scalar masses up to 1 TeV)
             result.hGammaTot[i] = -1.;
