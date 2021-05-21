@@ -4714,7 +4714,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=7;//9;
+      const int n_experiments=9;//9;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4737,9 +4737,9 @@ namespace Gambit
         // B-> D* mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
-        //fread.read_yaml_measurement("flav_data.yaml", "RD");
+        fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
-        //fread.read_yaml_measurement("flav_data.yaml", "RDstar");
+        fread.read_yaml_measurement("flav_data.yaml", "RDstar");
         // Ds-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dstaunu");
         // Ds -> mu nu
@@ -4773,13 +4773,13 @@ namespace Gambit
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      theory[1] = *Dep::BDmunu;
+      //theory[1] = *Dep::BDmunu;
       // B-> D* mu nu
-      theory[2] = *Dep::BDstarmunu;
+      //theory[2] = *Dep::BDstarmunu;
       // RD
-      //theory[3] = *Dep::RD;
+      theory[1] = *Dep::RD;
       // RDstar
-      //theory[4] = *Dep::RDstar;
+      theory[2] = *Dep::RDstar;
       // Ds-> tau nu
       theory[3] = *Dep::Dstaunu;
       // Ds -> mu nu
@@ -6213,20 +6213,20 @@ namespace Gambit
         nDimGaussian.Read();
         first = false;
       }
-      //const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
-      // result = nDimGaussian.GetLogLikelihood(theory , theory_covariance);
+      const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
+      result = nDimGaussian.GetLogLikelihood(theory /*, theory_covariance */);
       // TODO: SuperIso is not ready to give correlations for these observables. So currently we fall back to the old way.
       //       Below code is for future reference.
-      static const std::vector<std::string> observables{
-         "RD",
-         "RDstar"
-      };
+     // static const std::vector<std::string> observables{
+       //  "RD",
+        // "RDstar"
+     // };
 
-      flav_prediction prediction = *Dep::prediction_RDRDstar;
-      flav_observable_map theory = prediction.central_values;
-      flav_covariance_map theory_covariance = prediction.covariance;
+      //flav_prediction prediction = *Dep::prediction_RDRDstar;
+      //flav_observable_map theory = prediction.central_values;
+      //flav_covariance_map theory_covariance = prediction.covariance;
 
-      result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
+      //result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
       if (flav_debug) std::cout << "HEPLike_RDRDstar_LogLikelihood result: " << result << std::endl;
     }
 
