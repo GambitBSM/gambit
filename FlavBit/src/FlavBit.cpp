@@ -4714,7 +4714,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=9;//9;
+      const int n_experiments=7;//9;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4733,9 +4733,9 @@ namespace Gambit
         // B-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
+        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
+        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
         fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
