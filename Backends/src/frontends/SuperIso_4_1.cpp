@@ -245,9 +245,7 @@ BE_NAMESPACE
   /// RK observable
   double RK_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
-    cout<<"Inside RK_CONV"<<endl;
     check_model(param, LOCAL_INFO);
-    //cout<<"param->THDM_model= "<<param->THDM_model<<endl;
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
 
     std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
