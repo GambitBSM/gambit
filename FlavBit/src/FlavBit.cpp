@@ -1692,7 +1692,7 @@ namespace Gambit
     }
 
     ///  B-> D tau nu distributions in GTHDM
-    double THDM_dGammaBDlnu(double gs, double q2)
+    double THDM_dGammaBDlnu(std::complex<double> gs, double q2)
     {
 	  const double mB = 5.27961;
 	  const double mD = 1.870;
@@ -1735,8 +1735,8 @@ namespace Gambit
 
 	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*pow(1.-ml*ml/q2,2.)*
 	  (pow(1.+C_V1+C_V2,2.)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
-	  +3./2.*pow(gs,2.)*Hs_S*Hs_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
-	  +3.*(1.+C_V1+C_V2)*conj(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
+	  +3./2.*norm(gs)*Hs_S*Hs_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
+	  +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
 	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0);
 	
 	
@@ -1745,7 +1745,7 @@ namespace Gambit
     }
                 
     ///  B->D* tau nu distributions in GTHDM
-    double THDM_dGammaBDstarlnu(double gp, double q2)
+    double THDM_dGammaBDstarlnu(std::complex<double> gp, double q2)
     {
       
 	  const double mB = 5.27961;
@@ -1805,8 +1805,8 @@ namespace Gambit
 	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
 	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  +3./2.*norm(gp)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
 	  
@@ -1815,7 +1815,7 @@ namespace Gambit
     
      
     ///  B->D* tau nu distribution for FLDstar
-    double THDM_dFLDstar(double gp, double q2)
+    double THDM_dFLDstar(std::complex<double> gp, double q2)
     {
       
 	  const double mB = 5.27961;
@@ -1875,8 +1875,8 @@ namespace Gambit
 	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
 	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  +3./2.*norm(gp)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
 	  
@@ -1885,7 +1885,7 @@ namespace Gambit
     
 
     //Partial decay width for B->D l nu computed with Simpson's rule
-    double Gamma_BDlnu(double gs, int n)
+    double Gamma_BDlnu(std::complex<double> gs, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.40961*3.40961;//(mB-mD)^2	
@@ -1904,7 +1904,7 @@ namespace Gambit
     }
       
     //Partial decay width for B->D* l nu computed with Simpson's rule
-    double Gamma_BDstarlnu(double gp, int n)
+    double Gamma_BDstarlnu(std::complex<double> gp, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.27261*3.27261;//(mB-mDs)^2      
@@ -1923,7 +1923,7 @@ namespace Gambit
     }
 
     //Partial decay width for B->D* l nu for lambda_Dstar=0 computed with Simpson's rule
-    double GammaDstar_BDstarlnu(double gp, int n)
+    double GammaDstar_BDstarlnu(std::complex<double> gp, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.27261*3.27261;//(mB-mDs)^2      
@@ -1942,7 +1942,7 @@ namespace Gambit
     }
 
    // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
-    double GammaDstar_Gamma(double gp)
+    double GammaDstar_Gamma(std::complex<double> gp)
     { 
       double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, 13)/Gamma_BDstarlnu(gp, 13);
       
@@ -1982,9 +1982,9 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2); 
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      double gp =  (CRcb - CLcb)/CSMcb; 
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb; 
       result = GammaDstar_Gamma(gp);
       if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
@@ -2017,11 +2017,11 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2); 
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2); 
       const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
 
-      double gs =  (CRcb + CLcb)/CSMcb;
+      std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
       double q2 = (q2min + q2max)/2;	 
 
       double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, q2)/Gamma_BDlnu(gs, 15);
@@ -2055,11 +2055,11 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
 
-      double gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
       double q2 = (q2min + q2max)/2;
 
       double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, q2)/Gamma_BDstarlnu(gp, 13);

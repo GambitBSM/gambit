@@ -10,34 +10,7 @@
 ##########################################################################
 
 Parameters:
-  StandardModel_SLHA2:
-    alphaS    :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
-    mBmB      :  4.18000000E+00 # mb(mb)^MSbar &
-    alphainv  :  1.27940010E+02 # alpha^{-1}(mZ)^MSbar
-    mT        :  1.73340000E+02 # mtop(pole)
-    GF        :  1.16637870E-05 # G_Fermi
-    mZ        :  9.11876000E+01 # mZ(pole)
-    mTau      :  1.77682000E+00 # mtau(pole)
-    mNu3      :               0 # mnu3(pole)
-    mD        :  4.80000000E-03 # md(2 GeV)^MSbar
-    mU        :  2.30000000E-03 # mu(2 GeV)^MSbar
-    mS        :  9.50000000E-02 # ms(2 GeV)^MSbar
-    mCmC      :  1.27500000E+00 # mc(mc)^MSbar
-    mE        :  5.10998928E-04 # melectron(pole)
-    mMu       :  1.05658372E-01 # mmuon(pole)
-    mNu1      :               0 # mnu1(pole)
-    mNu2      :               0 # mnu2(pole)
-    CKM_lambda:  0.22537        # Wolfenstein \lambda
-    CKM_A     :  0.814          # Wolfenstein A
-    CKM_rhobar:  0.117          # Wolfenstein \bar\rho
-    CKM_etabar:  0.353          # Wolfenstein \bar\eta
-    theta12   :  0.58376        # solar angle
-    theta23   :  0.76958        # atmospheric mixing angle
-    theta13   :  0.15495        # reactor angle
-    delta13   :  0              # Dirac CP-violating phase
-    alpha1    :  0              # first Majorana CP-violating phase
-    alpha2    :  0              # second CP-violating Majorana phase
-
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   THDM_physical:
     lambda6: 0
     lambda7: 0
@@ -161,6 +134,16 @@ ObsLikes:
       function: B2Kllp_likelihood
       purpose: LogLike
 
+     # # BDstartaunu_LL
+    - capability: BDstartaunu_LL
+      function: BDstartaunu_likelihood
+      purpose: LogLike
+
+    # # BDstartaunu_LL
+    - capability: BDtaunu_LL
+      function: BDtaunu_likelihood
+      purpose: LogLike
+
     #################
     # Observables
     #################
@@ -169,6 +152,16 @@ ObsLikes:
    # - capability: THDM_spectrum
     #  purpose: Observable
      # type: map_str_dbl
+
+    - capability: BDstarlnu_75_80
+      function: THDM_BDstarlnu_75_80
+      module: FlavBit
+      purpose: Observable
+
+    - capability: BDlnu_75_80
+      function: THDM_BDlnu_75_80
+      module: FlavBit
+      purpose: Observable
 
     - capability: DeltaC7
       function: calculate_DeltaC7
