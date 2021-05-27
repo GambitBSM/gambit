@@ -1733,11 +1733,11 @@ namespace Gambit
 	  double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
 	
 
-	  double dGamma_dq2 = std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
 	  (std::norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
 	  +3./2.*std::norm(gs)*Hs_S*Hs_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
 	  +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
-	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0);
+	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
 	
 	
       return dGamma_dq2;
@@ -1802,13 +1802,13 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
 	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  +3./2.*std::norm(gp)*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
 	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
+	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 	  
       return dGamma_dq2;
     }
@@ -1872,13 +1872,13 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
 	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  +3./2.*std::norm(gp)*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
 	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
+	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 	  
       return dGamma_dq2;
     }
