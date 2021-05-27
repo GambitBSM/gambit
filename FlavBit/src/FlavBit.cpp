@@ -1733,9 +1733,9 @@ namespace Gambit
 	  double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
 	
 
-	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*pow(1.-ml*ml/q2,2.)*
-	  (pow(1.+C_V1+C_V2,2.)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
-	  +3./2.*norm(gs)*Hs_S*Hs_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
+	  double dGamma_dq2=norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*norm(1.-ml*ml/q2)*
+	  (norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
+	  +3./2.*norm(gs)*Hs_S*Hs_S+8.*norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
 	  +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
 	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0);
 	
@@ -1802,10 +1802,10 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
-	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  double dGamma_dq2=norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*norm(1.-ml*ml/q2)*
+	  ((norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*norm(gp)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3./2.*norm(gp)*H_S*H_S+8.*norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
 	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
@@ -1872,10 +1872,10 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
-	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  double dGamma_dq2=norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*norm(1.-ml*ml/q2)*
+	  ((norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*norm(gp)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3./2.*norm(gp)*H_S*H_S+8.*norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
 	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp));
@@ -3531,10 +3531,10 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      double gs =  (CRcb + CLcb)/CSMcb; 
-      double RDSM = 0.299;
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> gs =  (CRcb + CLcb)/CSMcb; 
+      const double RDSM = 0.299;
       
       result = RDSM*(1+1.5*real(gs)+1.0*norm(gs));
 
@@ -3576,11 +3576,11 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       
-      double gp =  (CRcb - CLcb)/CSMcb; 
-      double RDstarSM = 0.252;
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb; 
+      const double RDstarSM = 0.252;
       
       result = RDstarSM*(1+0.12*real(gp)+0.05*norm(gp));
 
@@ -3621,17 +3621,18 @@ namespace Gambit
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
       const double f_Bc = 0.434;
-      // TODO: Don't hard code this again, use the one in Utils/numerical_constants
       const double hbar = 6.582119514e-25;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      double CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      double gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> factor = {(m_Bc*m_Bc/(mTau*(mBmB+mC))),0};
+      std::complex<double> one = {1,0};
       const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
       const double Gamma_Bc_exp = (hbar/(0.507e-12)); //experimental value in GeV^-1
-      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2));
+      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(norm(one + factor*gp));
       double BR_Bc_SM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
       double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
       result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);

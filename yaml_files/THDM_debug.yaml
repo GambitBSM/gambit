@@ -134,6 +134,11 @@ ObsLikes:
       function: B2Kllp_likelihood
       purpose: LogLike
 
+     # # Bc lifetime
+    - capability: Bc_lifetime_lnL
+      function: Bc_lifetime_likelihood
+      purpose: LogLike
+
      # # BDstartaunu_LL
     - capability: BDstartaunu_LL
       function: BDstartaunu_likelihood
@@ -152,6 +157,11 @@ ObsLikes:
    # - capability: THDM_spectrum
     #  purpose: Observable
      # type: map_str_dbl
+
+    - capability: Bc_lifetime
+      function: THDM_Bc_lifetime
+      module: FlavBit
+      purpose: Observable
 
     - capability: BDstarlnu_75_80
       function: THDM_BDstarlnu_75_80
