@@ -2037,10 +2037,32 @@ START_MODULE
     ALLOW_MODELS(THDM,THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
+
+ // Observable: BR(t->ch)
+  #define CAPABILITY t2ch
+  START_CAPABILITY
+    #define FUNCTION THDM_t2ch
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
   
   //###############################################
   // Lepton Flavour Violation
   //###############################################
+
+  // Observable: BR(h->tau mu)
+  #define CAPABILITY h2taumu
+  START_CAPABILITY
+    #define FUNCTION THDM_h2taumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Observable: mu -> e gamma
   #define CAPABILITY muegamma
@@ -2294,6 +2316,24 @@ START_MODULE
   //###############################################
   //  Likelihoods
   //###############################################
+
+  // h->tau mu likelihood
+  #define CAPABILITY h2taumu_LL
+  START_CAPABILITY
+    #define FUNCTION h2taumu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(h2taumu, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // t->ch likelihood
+  #define CAPABILITY t2ch_LL
+  START_CAPABILITY
+    #define FUNCTION t2ch_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(t2ch, double)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // B meson mass aysmmetry likelihood
   #define CAPABILITY deltaMB_LL

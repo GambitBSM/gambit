@@ -4123,7 +4123,49 @@ namespace Gambit
       if (flav_debug) cout<<"Finished THDM_h2bs"<<endl;
     }
 
+    /// Gamma(t->ch) at tree level for the general THDM from JHEP02(2020)147
+    void THDM_t2ch(double &result)
+    {
+      using namespace Pipes::THDM_t2ch;
+      if (flav_debug) cout<<"Starting THDM_t2ch"<<endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double cba = cos(beta-alpha);
+      const double mT = Dep::SMINPUTS->mT;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double xi_tc = Ytc/cosb;
+      const double Gamma = 1.42;//From PDG 2021 in GeV
+      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*pow(xi_tc,2)*pow(1-pow(mh/mT,2),2); 
+      if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;      
+    }
 
+   /// Gamma(t->ch) at tree level for the general THDM from JHEP02(2020)147
+    void THDM_h2taumu(double &result)
+    {
+      using namespace Pipes::THDM_h2taumu;
+      if (flav_debug) cout<<"Starting THDM_h2taumu"<<endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double cba = cos(beta-alpha);
+      const double mTau = Dep::SMINPUTS->mTau;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double xi_mutau = Ymutau/cosb;
+      double xi_taumu = Ytaumu/cosb;
+      const double Gamma = 0.0032;//From PDG 2021 in GeV
+      result = (1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2);
+      if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
+    }
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FH_FlavourObs(fh_FlavourObs &result)
@@ -4531,7 +4573,81 @@ namespace Gambit
       if (flav_debug) cout<<"delta0_ll"<<endl;
     }
 
-    /// Likelihood for Delta Ms
+    /// Likelihood for t->ch
+    void t2ch_likelihood(double &result)
+    {
+      using namespace Pipes::t2ch_likelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_t2ch");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::t2ch;
+     if(flav_debug) cout << "BR(t -> c h) = " << theory[0] << endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+    /// Likelihood for h->taumu
+    void h2taumu_likelihood(double &result)
+    {
+      using namespace Pipes::h2taumu_likelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_h2taumu");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::h2taumu;
+     if(flav_debug) cout << "BR(h -> tau mu) = " << theory[0] << endl;
+     
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+     /// Likelihood for Delta Ms
     void deltaMB_likelihood(double &result)
     {
       using namespace Pipes::deltaMB_likelihood;

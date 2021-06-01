@@ -2147,6 +2147,33 @@
   correlation:
   - name: NONE
 
+- name: BR_h2taumu
+  islimit: true
+  one_sided: false
+  exp_value: 0
+  exp_95_CL: 0.0143
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: 1604.07730
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_t2ch
+  islimit: true
+  one_sided: false
+  exp_value: 0
+  exp_95_CL: 0.0011
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: 1812.11568
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
 ################################
 

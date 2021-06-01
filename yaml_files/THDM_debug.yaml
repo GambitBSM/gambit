@@ -19,7 +19,7 @@ Parameters:
     mC2: 3240000
     mH2: 3240000
     mh2: 15647.5 #125.09^2
-    sba: 0.999
+    sba: 0.9999
     tanb: 1.0
     yd2_im_11: 0
     yd2_im_12: 0
@@ -53,9 +53,9 @@ Parameters:
     yl2_re_13: 0
     yl2_re_21: 0
     yl2_re_22: 0 #0.000429121
-    yl2_re_23: 0
+    yl2_re_23: 0.05
     yl2_re_31: 0
-    yl2_re_32: 0
+    yl2_re_32: 0.05
     yl2_re_33: 0 #0.00721657
     yu2_im_11: 0
     yu2_im_12: 0
@@ -73,7 +73,7 @@ Parameters:
     yu2_re_22: 0 #0.00519861
     yu2_re_23: 0
     yu2_re_31: 0
-    yu2_re_32: 0
+    yu2_re_32: 0.1
     yu2_re_33: 2 #0.70400593957
 
 
@@ -149,6 +149,16 @@ ObsLikes:
       function: BDtaunu_likelihood
       purpose: LogLike
 
+    # # h2taumu_LL
+    - capability: h2taumu_LL
+      function: h2taumu_likelihood
+      purpose: LogLike
+
+    # # t2ch_LL
+    - capability: t2ch_LL
+      function: t2ch_likelihood
+      purpose: LogLike
+
     #################
     # Observables
     #################
@@ -157,6 +167,15 @@ ObsLikes:
    # - capability: THDM_spectrum
     #  purpose: Observable
      # type: map_str_dbl
+
+    - capability: h2taumu
+      function: THDM_h2taumu
+      purpose: Observable
+
+    - capability: t2ch
+      function: THDM_t2ch
+      purpose: Observable
+
     - capability: h2bs
       function: THDM_h2bs
       purpose: Observable
