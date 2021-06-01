@@ -1,0 +1,555 @@
+#########################################################################
+## GAMBIT configuration for running a single random point of the GTHDM
+## THDM_debug	
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HEPlike
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+    lambda6: 0
+    lambda7: 0
+    m12_2: 1537600.0 #1562500.0
+    mA2: 3240000
+    mC2: 3240000
+    mH2: 3240000
+    mh2: 15647.5 #125.09^2
+    sba: 1.0
+    tanb: 1.0
+    yd2_im_11: 0
+    yd2_im_12: 0
+    yd2_im_13: 0
+    yd2_im_21: 0
+    yd2_im_22: 0
+    yd2_im_23: 0
+    yd2_im_31: 0
+    yd2_im_32: 0
+    yd2_im_33: 0
+    yd2_re_11: 0 #0.0000190887
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22: 0 #0.000389896
+    yd2_re_23: 0
+    yd2_re_31: 0
+    yd2_re_32: 0
+    yd2_re_33: 0 #0.01697672105
+    yl2_im_11: 0
+    yl2_im_12: 0
+    yl2_im_13: 0
+    yl2_im_21: 0
+    yl2_im_22: 0
+    yl2_im_23: 0
+    yl2_im_31: 0
+    yl2_im_32: 0
+    yl2_im_33: 0
+    yl2_re_11: 0 #2.07538e-06
+    yl2_re_12: 0
+    yl2_re_13: 0
+    yl2_re_21: 0
+    yl2_re_22: 0 #0.000429121
+    yl2_re_23: 0
+    yl2_re_31: 0
+    yl2_re_32: 0
+    yl2_re_33: 0 #0.00721657
+    yu2_im_11: 0
+    yu2_im_12: 0
+    yu2_im_13: 0
+    yu2_im_21: 0
+    yu2_im_22: 0
+    yu2_im_23: 0
+    yu2_im_31: 0
+    yu2_im_32: 0
+    yu2_im_33: 0
+    yu2_re_11: 0 #8.93512e-06
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22: 0 #0.00519861
+    yu2_re_23: 0
+    yu2_re_31: 0
+    yu2_re_32: 0
+    yu2_re_33: 2 #0.70400593957
+
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: cout
+
+  options:
+    # name of output file
+    output_file: "THDM_TEST.hdf5"
+    group: "/THDM_TEST"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 5000
+      convthresh: 1e-5
+      verbosity: 1
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #Tree level Yukawas perturbativity
+
+    - purpose:    LogLike
+      capability: perturbativity_yukawas_LL
+
+    # Calculates all quartic Higgs couplings in the physical
+    # basis & applies a 4pi perturbativity constraint on each
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: perturbativity_likelihood_THDM
+
+    # Applies the THDM stability constraints on the potential
+    # NOTE: This likelihood has two parts, described below
+    # (i) Applies strict stability constraint
+    # Likelihood type: Acceptance/Rejection
+    # (ii) If rejected, applies looser stabililty constraints
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: stability_likelihood_THDM
+    # function: stability_lambdas_LL #Does not use the backend THDMC
+
+    # Checks that the NLO scattering-matrix is unitary
+    # Calculates and applies limit on eigenvalues of matrix
+    # NOTE: This is always a subset of LO unitarity so it not needed
+    # Likelihood type: Half-Gaussian
+    # Only supports CP-conserving models
+    - purpose:    LogLike
+      capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+
+    # Calculates the electroweak precision parameters, S, T, U, V, W, X
+    # & fits to meausured values. S, T, U involve a correlation matrix.
+    # Includes low-energy notation described in arxiv::9407203.
+    # Likelihood type: Half-Gaussian
+    - purpose:    LogLike
+      capability: oblique_parameters_likelihood_THDM
+
+    #### NOTE
+    # Flavor likelihoods 
+
+    # B->s,gamma likelihood (using HEPlike)
+    - capability: b2sgamma_LogLikelihood
+      function: HEPLike_b2sgamma_LogLikelihood
+      purpose: LogLike
+
+    # B->mu,mu likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    # Semi-Leptonic likelihood collection 7 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
+    - capability: SL_LL
+      function: SL_likelihood
+      purpose: LogLike
+    
+    # muon g-2 likelihood 
+    - capability: lnL_gm2
+      function: lnL_gm2
+      purpose: LogLike
+
+   #LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
+    - capability: gmu_ge_lnL
+      function: gmu_ge_likelihood
+      purpose: LogLike
+
+   # # l->l gamma 
+    - capability: l2lgamma_lnL
+      function: l2lgamma_likelihood
+      purpose: LogLike
+
+     # # B->Kllp 
+    - capability: B2Kllp_lnL
+      function: B2Kllp_likelihood
+      purpose: LogLike
+
+     # # Bs->llp 
+    - capability: Bs2llp_lnL
+      function: Bs2llp_likelihood
+      purpose: LogLike
+
+    # # l->lll
+    - capability: l2lll_lnL
+      function: l2lll_likelihood
+      purpose: LogLike
+
+    # FLDstar likelihood 
+    - capability: FLDstar_lnL
+      function: FLDstar_likelihood
+      purpose: LogLike
+
+    # Bc->tanu lifetime likelihood 
+    - capability: Bc_lifetime_lnL
+      function: Bc_lifetime_likelihood
+      purpose: LogLike
+
+    # # B->Dstar,l,nu likelihood [Normalized differential decay width]
+    - capability: BDstartaunu_LL
+      function: BDstartaunu_likelihood
+      purpose: LogLike
+
+    # # B->D,l,nu likelihood [Normalized differential decay width]
+    - capability: BDtaunu_LL
+      function: BDtaunu_likelihood
+      purpose: LogLike
+
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+    # 6 observables, HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+    - purpose: LogLike
+      capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
+    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
+    - purpose: LogLike
+      capability: LUV_LL
+
+   # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
+    - capability: b2sll_AI_LL
+      function: BKstarmumu_AI_ll
+      purpose: LogLike
+
+    # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
+    - capability: b2sll_AI_zero_LL
+      function: BKstarmumu_AI_zero_ll
+      purpose: LogLike
+
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    #################
+    # Observables
+    #################
+
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    - capability: DeltaC2
+      function: calculate_DeltaC2
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+      purpose: Observable
+
+    - capability: DeltaC7
+      function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC7_Prime
+      function: calculate_DeltaC7_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8
+      function: calculate_DeltaC8
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8_Prime
+      function: calculate_DeltaC8_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9
+      function: calculate_DeltaC9
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10
+      function: calculate_DeltaC10
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9_Prime
+      function: calculate_DeltaC9_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10_Prime
+      function: calculate_DeltaC10_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ1
+      function: calculate_DeltaCQ1
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ2
+      function: calculate_DeltaCQ2
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ1_Prime
+      function: calculate_DeltaCQ1_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaCQ2_Prime
+      function: calculate_DeltaCQ2_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: RD
+      function: THDM_RD
+      module: FlavBit
+      purpose: Observable
+
+    - capability: RDstar
+      function: THDM_RDstar
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Btaunu
+      function: THDM_Btaunu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Rmu
+      function: THDM_Rmu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Dstaunu
+      function: THDM_Dstaunu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Dsmunu
+      function: THDM_Dsmunu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Dmunu
+      function: THDM_Dmunu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bs2mutau
+      function: THDM_Bs2mutau
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bs2tautau
+      function: THDM_Bs2tautau
+      module: FlavBit
+      purpose: Observable
+
+    - capability: B2Ktaumu
+      function: THDM_B2Ktaumu
+      module: FlavBit
+      purpose: Observable
+
+    - capability: B2Ktautau
+      function: SI_BRBKtautau
+      module: FlavBit
+      purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: perturbativity_likelihood_THDM
+      function: get_perturbativity_likelihood_THDM
+      options:
+        check_all_scales: false
+        simple_perturbativity: true
+
+    - capability: stability_likelihood_THDM
+      function: get_stability_likelihood_THDM
+      options:
+        check_all_scales: false
+
+    - capability: unitarity_likelihood_THDM
+      function: get_unitarity_likelihood_THDM
+      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+
+    - capability: b2ll_M
+      function: b2ll_measurements
+      dependencies:
+        - capability: Bsmumu_untag
+          function: SI_Bsmumu_untag
+          module: FlavBit
+
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: BDlnu_dBR_M
+      function: BDlnu_dBR_measurement
+
+    # Choose to use superiso for RK calcs
+    - capability: RK
+      function: SI_RK
+
+    - capability: RKstar_0045_11
+      function: SI_RKstar_0045_11
+
+    - capability: RKstar_11_60
+      function: SI_RKstar_11_60
+
+    - capability: muon_gm2_SM
+      function: gm2_SM_ee
+      module: PrecisionBit
+
+    - options:
+      use_SM_covariance: true
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_TEST/"
+  debug: false
+
