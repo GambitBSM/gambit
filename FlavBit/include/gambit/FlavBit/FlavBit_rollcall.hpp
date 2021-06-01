@@ -2026,6 +2026,17 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
+
+ // Observable: BR(h->bs)
+  #define CAPABILITY h2bs
+  START_CAPABILITY
+    #define FUNCTION THDM_h2bs
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
   
   //###############################################
   // Lepton Flavour Violation

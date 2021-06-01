@@ -507,11 +507,11 @@
 
 - name: DeltaMs
   islimit: false
-  exp_value: 17.757
-  exp_stat_error: 0.021
+  exp_value: 17.741
+  exp_stat_error: 0.020
   exp_sys_error: 0.000
-  exp_source: HFAG16
-  th_error: 1.6 
+  exp_source: HFLAV2021
+  th_error: 1.2 
   th_error_type: M
   th_error_source: 1602.03560
   correlation:

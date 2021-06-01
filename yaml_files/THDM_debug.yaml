@@ -19,7 +19,7 @@ Parameters:
     mC2: 3240000
     mH2: 3240000
     mh2: 15647.5 #125.09^2
-    sba: 1.0
+    sba: 0.999
     tanb: 1.0
     yd2_im_11: 0
     yd2_im_12: 0
@@ -35,9 +35,9 @@ Parameters:
     yd2_re_13: 0
     yd2_re_21: 0
     yd2_re_22: 0 #0.000389896
-    yd2_re_23: 0
+    yd2_re_23: 0.001
     yd2_re_31: 0
-    yd2_re_32: 0
+    yd2_re_32: 0.001
     yd2_re_33: 0 #0.01697672105
     yl2_im_11: 0
     yl2_im_12: 0
@@ -157,6 +157,13 @@ ObsLikes:
    # - capability: THDM_spectrum
     #  purpose: Observable
      # type: map_str_dbl
+    - capability: h2bs
+      function: THDM_h2bs
+      purpose: Observable
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+      purpose: Observable 
 
     - capability: Bc_lifetime
       function: THDM_Bc_lifetime
