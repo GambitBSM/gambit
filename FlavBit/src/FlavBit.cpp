@@ -3631,7 +3631,7 @@ namespace Gambit
       std::complex<double> factor = {(m_Bc*m_Bc/(mTau*(mBmB+mC))),0};
       std::complex<double> one = {1,0};
       const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
-      const double Gamma_Bc_exp = (hbar/(0.507e-12)); //experimental value in GeV^-1
+      const double Gamma_Bc_exp = (hbar/(0.510e-12)); //experimental value in GeV^-1
       double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(norm(one + factor*gp));
       double BR_Bc_SM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
       double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
