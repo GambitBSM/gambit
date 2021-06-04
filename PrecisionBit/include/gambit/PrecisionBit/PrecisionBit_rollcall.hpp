@@ -177,6 +177,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(muon_gm2, triplet<double>)
     DEPENDENCY(muon_gm2_SM, triplet<double>)
+    DEPENDENCY(muon_gm2_Exp, triplet<double>)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -247,6 +248,36 @@ START_MODULE
 
     // SM muon g-2, based on tau+tau- data
     #define FUNCTION gm2_SM_tautau
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // SM muon g-2, using White Paper data-driven HVP,LO
+    #define FUNCTION gm2_SM_WhitePaper
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // SM muon g-2, using BMW lattice HVP,LO
+    #define FUNCTION gm2_SM_BMW
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  // Observable: Exp measurement of (g-2)_mu
+  #define CAPABILITY muon_gm2_Exp
+
+    // Measurement of muon g-2 from BNL E821 Experiment
+    #define FUNCTION gm2_Exp_BNL
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // Measurment of muon g-2 from Fermilab
+    #define FUNCTION gm2_Exp_FNAL
+    START_FUNCTION(triplet<double>)
+    #undef FUNCTION
+
+    // World average of muon g-2 experimental measurements
+    #define FUNCTION gm2_Exp_WorldAverage
     START_FUNCTION(triplet<double>)
     #undef FUNCTION
 

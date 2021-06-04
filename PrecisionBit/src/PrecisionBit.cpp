@@ -914,6 +914,46 @@ namespace Gambit
       result.lower = result.upper;
     }
 
+    /// g-2 in SM from Muon g-2 Theory Initiative White Paper arXiv:2006.04822
+    void gm2_SM_WhitePaper(triplet<double> &result)
+    {
+      result.central = 2.0 * 11659181.0e-10;
+      result.upper = 2.0 * 4.3e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 in SM using Budapest-Marseille-Wuppertal lattice value arXiv:2002.12347
+    void gm2_SM_BMW(triplet<double> &result)
+    {
+      result.central = 2.0 * 11659195.4e-10;
+      result.upper = 2.0 * 5.8e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the BNL experiment from hep-ex/0602035
+    void gm2_Exp_BNL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592089e-11;
+      result.upper = 2.0 * 63e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL experiment from hep-ex/2104.03281
+    void gm2_Exp_FNAL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592040e-11;
+      result.upper = 2.0 * 54e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL+BNL experiment from hep-ex/2104.03281
+    void gm2_Exp_WorldAverage(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592061e-11;
+      result.upper = 2.0 * 41e-11;
+      result.lower = result.upper;
+    }
+
     /// g-2 likelihood
     void lnL_gm2(double &result)
     {
@@ -924,9 +964,8 @@ namespace Gambit
       double amu_bsm_error = 0.5*std::max(Dep::muon_gm2->upper, Dep::muon_gm2->lower);
       double amu_theory = amu_sm + amu_bsm;
       double amu_theory_err = sqrt(Gambit::Utils::sqr(amu_sm_error) + Gambit::Utils::sqr(amu_bsm_error));
-      // From hep-ex/2104.03281 (Fermilab muon g-2 contribution)
-      double amu_exp = 116592061e-11;
-      double amu_exp_error = 41e-11;
+      double amu_exp = 0.5*Dep::muon_gm2_Exp->central;
+      double amu_exp_error = 0.5*std::max(Dep::muon_gm2_Exp->upper, Dep::muon_gm2_Exp->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(amu_theory, amu_exp, amu_theory_err, amu_exp_error, profile);
