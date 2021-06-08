@@ -842,7 +842,9 @@ namespace Gambit
         result.Re_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->real();
         result.Im_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->imag();
         // tautau Prime WCs
+        result.Re_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->real();
         result.Im_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->imag();
+        result.Re_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->real();
         result.Im_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->imag();
         result.Re_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->real();
         result.Im_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->imag();
