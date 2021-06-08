@@ -445,10 +445,10 @@
 
 - name: BR_Dstaunu
   islimit: false
-  exp_value: 5.5e-2
-  exp_stat_error: 0.24e-2
+  exp_value: 5.48e-2
+  exp_stat_error: 0.23e-2
   exp_sys_error: 0.0
-  exp_source: PDG16
+  exp_source: PDG21
   th_error: 0.02
   th_error_type: M
   th_error_source: 0902.2393
@@ -457,10 +457,10 @@
 
 - name: BR_Dsmunu
   islimit: false
-  exp_value: 5.56e-3
-  exp_stat_error: 0.25e-3
+  exp_value: 5.49e-3
+  exp_stat_error: 0.16e-3
   exp_sys_error: 0.0
-  exp_source: PDG16
+  exp_source: PDG21
   th_error: 0.02
   th_error_type: M
   th_error_source: 0902.2393
