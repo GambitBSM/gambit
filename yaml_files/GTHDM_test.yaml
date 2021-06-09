@@ -1,0 +1,248 @@
+#########################################################################
+## GAMBIT configuration for running a single random point of the GTHDM
+## THDM_prueba
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HEPlike
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+    mh2: 15647.5 # 125.09^2
+    mC2: 3240000
+            #range: [250000.0, 9000000.0]
+            # prior_type: flat
+    mA2: 3240000
+            #range: [250000.0, 9000000.0]
+            #prior_type: flat
+    mH2: 3240000
+            #range: [250000.0, 9000000.0]
+            #prior_type: flat
+    # --- Assuming a CP-conserving THDM model ---
+    lambda6: 0.0
+    lambda7: 0.0
+    # -------------------------------------------
+    m12_2: 1537600.0
+            #range: [-2560000.0, 2560000.0]
+            #prior_type: flat
+    tanb: 1.0
+            #range: [0.02, 50]
+            #prior_type: log
+    sba: 1.0
+            #prior_type: double_flat_join
+            #ranges: [-1.0000, -0.90000, 0.90000, 1.0000]
+
+    # ------------------Yukawas-------------------
+    yu2_re_11: 0
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22: 0
+            #range: [-0.1, 0.1]
+            #prior_type: flat
+    yu2_re_23: 0.1
+            #range: [-2.0, 2.0]
+            #prior_type: flat
+    yu2_re_31: 0
+    yu2_re_32: 0.1
+            #same_as: THDM_physical::yu2_re_23
+    yu2_re_33: 0.1
+            #range: [0.6, 1.2]
+      #prior_type: flat
+   # -------------------------------------------
+    yu2_im_11: 0
+    yu2_im_12: 0
+    yu2_im_13: 0
+    yu2_im_21: 0
+    yu2_im_22: 0
+    yu2_im_23: 0
+    yu2_im_31: 0
+    yu2_im_32: 0
+    yu2_im_33: 0
+   # -------------------------------------------
+    yd2_re_11: 0
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22: 0
+    #range: [-0.05, 0.05]
+    # prior_type: flat
+    yd2_re_23: 0.1
+            # range: [-0.05, 0.05]
+            # prior_type: flat
+    yd2_re_31: 0
+    yd2_re_32: 0.1
+    #same_as: THDM_physical::yd2_re_23
+    yd2_re_33: 0.1
+    #range: [-0.1, 0.1]
+    # prior_type: flat
+    # -------------------------------------------
+    yd2_im_11: 0
+    yd2_im_12: 0
+    yd2_im_13: 0
+    yd2_im_21: 0
+    yd2_im_22: 0
+    yd2_im_23: 0
+    yd2_im_31: 0
+    yd2_im_32: 0
+    yd2_im_33: 0
+    # -------------------------------------------
+    yl2_re_11: 0
+    yl2_re_12: 0
+    yl2_re_13: 0
+    yl2_re_21: 0
+    yl2_re_22: 0.1
+    # range: [-0.5, 0.5]
+    # prior_type: flat
+    yl2_re_23: 0.1
+            # range: [-0.5, 0.5]
+            # prior_type: flat
+    yl2_re_31: 0
+    yl2_re_32: 0.1
+            # same_as: THDM_physical::yl2_re_23
+    yl2_re_33: 0.1
+            # range: [-0.5, 0.5]
+            # prior_type: flat
+    # -------------------------------------------
+    yl2_im_11: 0
+    yl2_im_12: 0
+    yl2_im_13: 0
+    yl2_im_21: 0
+    yl2_im_22: 0
+    yl2_im_23: 0
+    yl2_im_31: 0
+    yl2_im_32: 0
+    yl2_im_33: 0
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #### NOTE
+    # Flavour likelihoods 
+
+    # B->s,gamma likelihood (using HEPlike)
+    - capability: b2sgamma_LogLikelihood
+      function: HEPLike_b2sgamma_LogLikelihood
+      purpose: LogLike
+
+    # B->mu,mu likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    #################
+    # Observables
+    #################
+
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    - capability: DeltaC7
+      function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
+      purpose: Observable
+
+    - capability: prediction_b2sgamma
+      function: SuperIso_prediction_b2sgamma
+      module: FlavBit
+      purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+
+    - capability: b2ll_M
+      function: b2ll_measurements
+      dependencies:
+        - capability: Bsmumu_untag
+          function: SI_Bsmumu_untag
+          module: FlavBit
+
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+##############################
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: hdf5
+
+  options:
+    # name of output file
+    output_file: "THDM_TEST.hdf5"
+    group: "/THDM_TEST"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Default] :  "Default.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_TEST/"
+  debug: true
+

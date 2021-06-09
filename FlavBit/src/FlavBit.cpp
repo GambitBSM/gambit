@@ -819,6 +819,15 @@ namespace Gambit
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
         result.Im_DeltaCQ2 = Dep::DeltaCQ2->imag();
+        
+        result.deltaC[2]=std::complex<double>(result.Re_DeltaC2, result.Im_DeltaC2);
+        result.deltaC[7]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
+        result.deltaC[8]=std::complex<double>(result.Re_DeltaC8, result.Im_DeltaC8);
+        result.deltaC[9]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
+        result.deltaC[10]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
+        result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
+        result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
+     
         // Prime WCs
         result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
         result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
@@ -831,6 +840,13 @@ namespace Gambit
         result.Im_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->imag();
         result.Re_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->real();
         result.Im_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->imag();
+
+        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
+        result.deltaCp[8]=std::complex<double>(result.Re_DeltaC8_Prime, result.Im_DeltaC8_Prime);
+        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
+        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
+        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
+        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
 
         //tautau WCs
         result.Re_DeltaC9_tau  = Dep::DeltaC9_tautau->real();
