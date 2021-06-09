@@ -32,5 +32,6 @@
   (DM_nucleon_couplings_fermionic_HP)       \
   (Flav_KstarMuMu_obs)                      \
   (BBN_container)                           \
+  (FlavBit::flav_prediction)                \
 
 #endif

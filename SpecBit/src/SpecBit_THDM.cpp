@@ -595,7 +595,7 @@ namespace Gambit
               THDM_I_input_parameters input;
               fill_THDM_FS_input(input, Param);
               result = run_FS_spectrum_generator<THDM_I_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
               if(scale != sminputs.mZ)
               {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
@@ -615,7 +615,7 @@ namespace Gambit
               THDM_II_input_parameters input;
               fill_THDM_FS_input(input, Param);
               result = run_FS_spectrum_generator<THDM_II_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
               if(scale != sminputs.mZ)
               {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
@@ -635,7 +635,7 @@ namespace Gambit
               THDM_LS_input_parameters input;
               fill_THDM_FS_input(input, Param);
               result = run_FS_spectrum_generator<THDM_LS_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
               if(scale != sminputs.mZ)
               {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;
@@ -655,7 +655,7 @@ namespace Gambit
               THDM_flipped_input_parameters input;
               fill_THDM_FS_input(input, Param);
               result = run_FS_spectrum_generator<THDM_flipped_interface<ALGORITHM1>>(input, sminputs, *runOptions, Param);
-              double const scale runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
+              const double scale = runOptions->getValueOrDef<double>(sminputs.mZ, "QrunTo");
               if(scale != sminputs.mZ)
               {
                 std::cout << "Running spectrum to " << scale << " GeV." << std::endl;

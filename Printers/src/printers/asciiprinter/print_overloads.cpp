@@ -136,6 +136,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings_fermionic_HP)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, FlavBit::flav_prediction)
     #endif
 
     /// @}
