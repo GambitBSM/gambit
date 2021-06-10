@@ -96,7 +96,7 @@ namespace Gambit
       addtobuffer(values, labels, IDcode, thread, pointID);
     }
 
-    void asciiPrinter::_print(map_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    /*void asciiPrinter::_print(map_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> names;
       std::vector<double> vdvalue;
@@ -126,11 +126,15 @@ namespace Gambit
         vdvalue.push_back( it->second );
       }
       addtobuffer(vdvalue,channels,IDcode,thread,pointID);
-    }
+    }*/
 
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_map_const_str_dbl)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings_fermionic_HP)
