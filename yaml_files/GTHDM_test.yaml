@@ -138,6 +138,34 @@ ObsLikes:
       function: b2ll_likelihood
       purpose: LogLike
 
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
     #################
     # Observables
     #################
@@ -180,6 +208,55 @@ Rules:
 
     - capability: b2sll_M
       function: b2sll_measurements
+
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
+
 
 ##############################
 # Printer setup
