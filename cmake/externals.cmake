@@ -84,6 +84,23 @@ add_custom_target(nuke-pippi COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-d
 add_dependencies(nuke-all nuke-pippi)
 set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
 
+# TODO: Remove this once pippi PR has been accepted
+# Add get-pippi-tomas target
+set(name "pippi-tomas")
+set(dir "${CMAKE_SOURCE_DIR}/${name}")
+ExternalProject_Add(get-${name}
+  GIT_REPOSITORY https://github.com/tegonzalo/pippi.git
+  SOURCE_DIR ${dir}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+)
+set(rmstring "${CMAKE_BINARY_DIR}/get-${name}-prefix/src/get-${name}-stamp/get-${name}")
+add_custom_target(nuke-pippi-tomas COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update ${rmstring}-gitclone-lastrun.txt || true
+                             COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
+add_dependencies(nuke-all nuke-pippi-tomas)
+set_target_properties(get-pippi-tomas PROPERTIES EXCLUDE_FROM_ALL 1)
+
 # Macro to clear the build stamp manually for an external project
 macro(enable_auto_rebuild package)
   set(rmstring "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}-build")
