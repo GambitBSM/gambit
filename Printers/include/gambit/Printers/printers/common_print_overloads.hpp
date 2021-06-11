@@ -208,8 +208,20 @@ namespace Gambit
       template<typename P>
       void _common_print(P& printer, FlavBit::flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.central_values, label, vID, mpirank, pointID);
-        printer._print(value.covariance, label+"_cov", vID, mpirank, pointID);
+        std::map<std::string, double> map;
+
+        for (auto cv : value.central_values)
+          map[cv.first] = cv.second;
+
+        for (auto cov1 : value.covariance)
+        {
+          for(auto cov2 : cov1.second)
+          {
+            map["covariance::"+cov1.first+"::"+cov2.first] = cov2.second;
+          }
+        }
+
+        printer._print(map, label, vID, mpirank, pointID);
       }
 
     #endif
