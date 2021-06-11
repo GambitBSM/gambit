@@ -13,111 +13,69 @@
 Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   THDM_physical:
-    mh2: 15647.5 # 125.09^2
-    mC2: 3240000
-            #range: [250000.0, 9000000.0]
-            # prior_type: flat
-    mA2: 3240000
-            #range: [250000.0, 9000000.0]
-            #prior_type: flat
-    mH2: 3240000
-            #range: [250000.0, 9000000.0]
-            #prior_type: flat
-    # --- Assuming a CP-conserving THDM model ---
+    sba: 0.9999999528467435
+    yl2_re_32: 0.4478006840007356
+    yu2_re_33: 0.9614648400766777
+    yu2_re_32: 0.5442751940232391
+    mC2: 6058843.170159216
+    tanb: 3.17221761519669
+    yl2_re_22: 0.0007684904609991383
     lambda6: 0.0
     lambda7: 0.0
-    # -------------------------------------------
-    m12_2: 1537600.0
-            #range: [-2560000.0, 2560000.0]
-            #prior_type: flat
-    tanb: 1.0
-            #range: [0.02, 50]
-            #prior_type: log
-    sba: 1.0
-            #prior_type: double_flat_join
-            #ranges: [-1.0000, -0.90000, 0.90000, 1.0000]
-
-    # ------------------Yukawas-------------------
-    yu2_re_11: 0
-    yu2_re_12: 0
-    yu2_re_13: 0
-    yu2_re_21: 0
-    yu2_re_22: 0
-            #range: [-0.1, 0.1]
-            #prior_type: flat
-    yu2_re_23: 0.1
-            #range: [-2.0, 2.0]
-            #prior_type: flat
-    yu2_re_31: 0
-    yu2_re_32: 0.1
-            #same_as: THDM_physical::yu2_re_23
-    yu2_re_33: 0.1
-            #range: [0.6, 1.2]
-      #prior_type: flat
-   # -------------------------------------------
-    yu2_im_11: 0
-    yu2_im_12: 0
-    yu2_im_13: 0
-    yu2_im_21: 0
-    yu2_im_22: 0
-    yu2_im_23: 0
-    yu2_im_31: 0
-    yu2_im_32: 0
-    yu2_im_33: 0
-   # -------------------------------------------
-    yd2_re_11: 0
-    yd2_re_12: 0
-    yd2_re_13: 0
-    yd2_re_21: 0
-    yd2_re_22: 0
-    #range: [-0.05, 0.05]
-    # prior_type: flat
-    yd2_re_23: 0.1
-            # range: [-0.05, 0.05]
-            # prior_type: flat
-    yd2_re_31: 0
-    yd2_re_32: 0.1
-    #same_as: THDM_physical::yd2_re_23
-    yd2_re_33: 0.1
-    #range: [-0.1, 0.1]
-    # prior_type: flat
-    # -------------------------------------------
-    yd2_im_11: 0
-    yd2_im_12: 0
-    yd2_im_13: 0
-    yd2_im_21: 0
-    yd2_im_22: 0
-    yd2_im_23: 0
-    yd2_im_31: 0
-    yd2_im_32: 0
-    yd2_im_33: 0
-    # -------------------------------------------
-    yl2_re_11: 0
-    yl2_re_12: 0
-    yl2_re_13: 0
-    yl2_re_21: 0
-    yl2_re_22: 0.1
-    # range: [-0.5, 0.5]
-    # prior_type: flat
-    yl2_re_23: 0.1
-            # range: [-0.5, 0.5]
-            # prior_type: flat
-    yl2_re_31: 0
-    yl2_re_32: 0.1
-            # same_as: THDM_physical::yl2_re_23
-    yl2_re_33: 0.1
-            # range: [-0.5, 0.5]
-            # prior_type: flat
-    # -------------------------------------------
-    yl2_im_11: 0
-    yl2_im_12: 0
-    yl2_im_13: 0
-    yl2_im_21: 0
-    yl2_im_22: 0
-    yl2_im_23: 0
-    yl2_im_31: 0
-    yl2_im_32: 0
-    yl2_im_33: 0
+    m12_2: 3268186.5009249127
+    mA2: 6058843.170159216
+    mH2: 6058843.170159216
+    mh2: 15647.5
+    yd2_im_11: 0.0
+    yd2_im_12: 0.0
+    yd2_im_13: 0.0
+    yd2_im_21: 0.0
+    yd2_im_22: 0.0
+    yd2_im_23: 0.0
+    yd2_im_31: 0.0
+    yd2_im_32: 0.0
+    yd2_im_33: 0.0
+    yd2_re_11: 0.0
+    yd2_re_12: 0.0
+    yd2_re_13: 0.0
+    yd2_re_21: 0.0
+    yd2_re_22: -0.04978775464377502
+    yd2_re_23: -0.003778976876698384
+    yd2_re_31: 0.0
+    yd2_re_32: -0.003778976876698384
+    yd2_re_33: 0.022674582016875486
+    yl2_im_11: 0.0
+    yl2_im_12: 0.0
+    yl2_im_13: 0.0
+    yl2_im_21: 0.0
+    yl2_im_22: 0.0
+    yl2_im_23: 0.0
+    yl2_im_31: 0.0
+    yl2_im_32: 0.0
+    yl2_im_33: 0.0
+    yl2_re_11: 0.0
+    yl2_re_12: 0.0
+    yl2_re_13: 0.0
+    yl2_re_21: 0.0
+    yl2_re_23: 0.4478006840007356
+    yl2_re_31: 0.0
+    yl2_re_33: 0.21572456575504173
+    yu2_im_11: 0.0
+    yu2_im_12: 0.0
+    yu2_im_13: 0.0
+    yu2_im_21: 0.0
+    yu2_im_22: 0.0
+    yu2_im_23: 0.0
+    yu2_im_31: 0.0
+    yu2_im_32: 0.0
+    yu2_im_33: 0.0
+    yu2_re_11: 0.0
+    yu2_re_12: 0.0
+    yu2_re_13: 0.0
+    yu2_re_21: 0.0
+    yu2_re_22: -0.08731207054670698
+    yu2_re_23: 0.5442751940232391
+    yu2_re_31: 0.0
 
 ObsLikes:
 
@@ -177,6 +135,16 @@ ObsLikes:
 
     - capability: DeltaC7
       function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9
+      function: calculate_DeltaC9
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10
+      function: calculate_DeltaC10
       module: FlavBit
       purpose: Observable
 
@@ -265,7 +233,7 @@ Rules:
 Printer:
 
   # Select printer to use via string tag
-  printer: hdf5
+  printer: cout
 
   options:
     # name of output file
@@ -321,5 +289,5 @@ KeyValues:
     core_warning: fatal
 
   default_output_path: "runs/THDM_TEST/"
-  debug: true
+  debug: false
 
