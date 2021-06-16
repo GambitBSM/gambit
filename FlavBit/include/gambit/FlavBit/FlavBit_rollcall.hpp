@@ -819,7 +819,7 @@ START_MODULE
     #define FUNCTION SI_fill
     START_FUNCTION(parameters)
     ALLOW_MODELS(THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC, WC_LR, WC_LUV)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
     // TODO: Why do you need mcmc from the pole mass, if mcmc is given in sminputs?
@@ -829,7 +829,7 @@ START_MODULE
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, WC, WC_LR, WC_LUV)
+    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC2, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
@@ -2540,7 +2540,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION Flavio_test
     START_FUNCTION(double)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(sm_prediction_CONV, (needs_flavio), double, (std::string) )
     BACKEND_OPTION( (Flavio, 0.30.0), (needs_flavio) )
     #undef FUNCTION
