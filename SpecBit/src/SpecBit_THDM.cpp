@@ -3059,7 +3059,7 @@ namespace Gambit
        }
       //The Yu2 matrix is called outside in order to get the Yu2tt element
       //which has a softer perturbativity bound
-      //For the moment there is no Yukawas for 1-3 family interactions
+      //For the moment we do not use neither Yukawas for 1-3 nor 1-2 family interactions
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 1));
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 2));
       Yukawas.push_back(he->get(Par::dimensionless, "Yu2", 1, 3));
@@ -3124,7 +3124,36 @@ namespace Gambit
         }
       result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
-    
+
+    //LO lambdas perturbativity without 2HDMC
+    void simple_perturbativity_lambdas_LL (double &result)
+    {
+        using namespace Pipes::simple_perturbativity_lambdas_LL;
+        const Spectrum spec = *Dep::THDM_spectrum;
+        std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+        const double sigma = 0.1;
+        double error = 0.;
+        std::vector<double> lambda(8);
+
+        lambda[1] = he->get(Par::dimensionless, "lambda1");
+        lambda[2] = he->get(Par::dimensionless, "lambda2");
+        lambda[3] = he->get(Par::dimensionless, "lambda3");
+        lambda[4] = he->get(Par::dimensionless, "lambda4");
+        lambda[5] = he->get(Par::dimensionless, "lambda5");
+        lambda[6] = he->get(Par::dimensionless, "lambda6");
+        lambda[7] = he->get(Par::dimensionless, "lambda7");
+
+        const double perturbativity_upper_limit = 4 * M_PI;
+        // loop over all lambdas
+        for (auto const &each_lambda : lambda)
+        {
+          if (abs(each_lambda) > perturbativity_upper_limit)
+             error += abs(each_lambda) - perturbativity_upper_limit;
+        }
+
+        result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+    }
+      
     //LO unitarity function without 2HDMC
     void unitarity_lambdas_LL(double &result)
     {   
