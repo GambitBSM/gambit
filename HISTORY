@@ -3,6 +3,10 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v1.5.3
+Bugfix release
+- Updated Pythia url and checksum
+
 v1.5.2
 Bugfix release
 - Fixed incorrect treatment of CMB temperature in Planck likelihoods

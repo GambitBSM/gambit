@@ -62,7 +62,12 @@ namespace GUM
 
     const char* out;
     if (!WSGetString(link, &out))
-        throw std::runtime_error("SARAH Error: Error loading SARAH. Please check that SARAH actually lives \nwhere CMake put it, in:\n " + std::string(SARAH_PATH) + "\nPlease try rebuilding.");
+    {
+        throw std::runtime_error("SARAH Error: Error loading SARAH. Please check that Mathematica\n" 
+                                 "is working and that SARAH actually lives where CMake put it, in:\n"
+                                 "  " + std::string(SARAH_PATH) + "\n" 
+                                 "Please try rebuilding.");
+    }
     else
     {
         std::cout << "SARAH loaded from " << out << "." << std::endl;

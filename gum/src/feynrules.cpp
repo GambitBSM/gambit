@@ -59,12 +59,10 @@ namespace GUM
     const char* out;
     if (!WSGetString(link, &out))
     {
-        std::stringstream ss;
-        ss << "Error loading FeynRules. Please check that FeynRules actually lives"
-           << "\nwhere CMake put it, in:\n"
-           << "  " + std::string(FEYNRULES_PATH)
-           << "\nPlease try rebuilding." << std::endl;
-        throw std::runtime_error(ss.str());
+        throw std::runtime_error("Error loading FeynRules. Please check that Mathematica\n"
+                                 "is working and that FeynRules actually lives where CMake put it, in:\n"
+                                 "  " + std::string(FEYNRULES_PATH) + "\n"
+                                 "Please try rebuilding.");
     }
     else
     {

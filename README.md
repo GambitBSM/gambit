@@ -156,7 +156,7 @@ The BSD license below applies to all source files in the GAMBIT distribution, ex
 
 License
 --
-Copyright (c) 2017-2020, The GAMBIT Collaboration
+Copyright (c) 2017-2021, The GAMBIT Collaboration
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

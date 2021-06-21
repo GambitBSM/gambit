@@ -232,7 +232,7 @@ add_executable(mathematica ${SRC_GUM} ${HEADER_FILES})
 TARGET_LINK_LIBRARIES(mathematica ${LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${GUM_LIBS})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    message("Setting GCC flags")
+    message("   Setting GCC flags")
 
     # Remove the -g flag when not debugging
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -Wall -Wextra -W -pedantic -std=c++0x -O3")

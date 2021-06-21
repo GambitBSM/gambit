@@ -6250,3 +6250,23 @@ diff -rupN pythia_8.212_original/src/SusyLesHouches.cc pythia_8.212_patched_nohe
    if (modsel(3) == 1) {
      //NMNMIX
      if ( nmnmix.exists() ) {
+diff -rupN pythia_8.212_original/src/SigmaProcess.cc pythia_8.212_patched/src/SigmaProcess.cc
+--- pythia_8.212_original/src/SigmaProcess.cc	2015-09-23 17:35:10.000000000 +0200
++++ pythia_8.212_patched/src/SigmaProcess.cc	2021-05-21 13:11:52.469990009 +1000
+@@ -1204,7 +1204,7 @@ bool Sigma3Process::setupForME() {
+   } else if (id4Tmp != 0 && id5Tmp == id4Tmp) {
+     mME[3] = sqrtpos(0.5 * (pow2(mME[3]) + pow2(mME[4]))
+            - 0.25 * pow2(pow2(mME[3]) - pow2(mME[4])) / sH);
+-    mME[4] = mME[2];
++    mME[4] = mME[3];
+   }
+ 
+   // Iterate rescaled three-momenta until convergence.
+@@ -1224,6 +1224,7 @@ bool Sigma3Process::setupForME() {
+   while ( abs(esum - mH) > COMPRELERR * mH && iStep < NCOMPSTEP ) {
+     ++iStep;
+     double compFac = 1. + 2. * (mH - esum) / p2rat;
++    if (compFac < 0) break;
+     p2ME3 *= compFac;
+     p2ME4 *= compFac;
+     p2ME5 *= compFac;

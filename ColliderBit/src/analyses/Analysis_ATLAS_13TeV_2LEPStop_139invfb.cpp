@@ -524,7 +524,7 @@ namespace Gambit
     public:
         Analysis_ATLAS_13TeV_2LEPStop_inclusive_139invfb() 
         {
-            set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb");
+            set_analysis_name("ATLAS_13TeV_2LEPStop_inclusive_139invfb");
         }
 
         virtual void collect_results() 
@@ -566,7 +566,7 @@ namespace Gambit
     public:
         Analysis_ATLAS_13TeV_2LEPStop_exclusive_139invfb() 
         {
-            set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_exclusive_80invfb");
+            set_analysis_name("ATLAS_13TeV_2LEPStop_exclusive_139invfb");
         }
 
         virtual void collect_results() 
