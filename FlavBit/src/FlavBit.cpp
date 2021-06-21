@@ -237,7 +237,7 @@ namespace Gambit
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV"))
+      if (ModelInUse("GWC"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
         cout<<spectrum<<endl;
@@ -622,7 +622,7 @@ namespace Gambit
          if (spectrum["TE"][max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
-      else if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
+      else if (ModelInUse("GWC"))
       {
         // The Higgs mass doesn't come through in the SLHAea object, as that's only for SLHA2 SM inputs.
         result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
@@ -653,14 +653,14 @@ namespace Gambit
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
-        else if (ModelInUse("WC") || ModelInUse("WC_LUV") || ModelInUse("WC_LR") )
+        else if (ModelInUse("GWC"))
         {
           result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
         result.mass_b_1S = BEreq::mb_1S(&result);
       }
 
-      if (ModelInUse("WC"))
+      if (ModelInUse("GWC"))
       {
 
         // Tell SuperIso to do its Wilson coefficient calculations for the SM.
@@ -669,79 +669,31 @@ namespace Gambit
         result.SM = 1;
 
         // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
-        //cout<<"ModelInUse('WC'), Re_DeltaC10 = "<< *Param["Re_DeltaC10"]<<endl;
-        result.Re_DeltaC7  = *Param["Re_DeltaC7"];
-        result.Im_DeltaC7  = *Param["Im_DeltaC7"];
-        result.Re_DeltaC9  = *Param["Re_DeltaC9"];
-        result.Im_DeltaC9  = *Param["Im_DeltaC9"];
-        result.Re_DeltaC10 = *Param["Re_DeltaC10"];
-        result.Im_DeltaC10 = *Param["Im_DeltaC10"];
-        result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1"];
-        result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
-        result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
-        result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
 
-        /* Lines below are valid only in the flavour universal case
-           deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
-           deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
+        // Fill the flavour independent too, for backwards compatibility
+        result.Re_DeltaC7  = *Param["Re_DeltaC7_mu"];
+        result.Im_DeltaC7  = *Param["Im_DeltaC7_mu"];
+        result.Re_DeltaC9  = *Param["Re_DeltaC9_mu"];
+        result.Im_DeltaC9  = *Param["Im_DeltaC9_mu"];
+        result.Re_DeltaC10 = *Param["Re_DeltaC10_mu"];
+        result.Im_DeltaC10 = *Param["Im_DeltaC10_mu"];
+        result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1_mu"];
+        result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1_mu"];
+        result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2_mu"];
+        result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2_mu"];
 
-        result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
-        result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
-        result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
-
-        result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
-        result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
-      }
-      if (ModelInUse("WC_LR"))
-      {
-          result.SM = 1;
-
-          result.Re_DeltaC7  = *Param["Re_DeltaC7"];
-          result.Im_DeltaC7  = *Param["Im_DeltaC7"];
-          result.Re_DeltaC9  = *Param["Re_DeltaC9"];
-          result.Im_DeltaC9  = *Param["Im_DeltaC9"];
-          result.Re_DeltaC10 = *Param["Re_DeltaC10"];
-          result.Im_DeltaC10 = *Param["Im_DeltaC10"];
-          result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1"];
-          result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
-          result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
-          result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
-
-          result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_Prime"];
-          result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_Prime"];
-          result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_Prime"];
-          result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_Prime"];
-          result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_Prime"];
-          result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_Prime"];
-          result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_Prime"];
-          result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_Prime"];
-          result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_Prime"];
-          result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_Prime"];
-          // left handed:
-          result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
-          result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
-          result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
-
-          result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
-          result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
-
-          // right handed:
-          result.deltaCp[7]=result.deltaCp[17]=result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
-          result.deltaCp[9]=result.deltaCp[19]=result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
-          result.deltaCp[10]=result.deltaCp[20]=result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
-
-
-
-          result.deltaCQp[1]=result.deltaCQp[3]=result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
-          result.deltaCQp[2]=result.deltaCQp[4]=result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
-
-        }
-
-      else if (ModelInUse("WC_LUV"))
-      {
-        result.SM = 1;
-
-        // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
+        result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_mu_Prime"];
+        result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_mu_Prime"];
+        result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_mu_Prime"];
+        result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_mu_Prime"];
+        result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_mu_Prime"];
+        result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_mu_Prime"];
+        result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
+        result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
+        result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
+        result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
+ 
+        // Flavour dependent WCs
         result.Re_DeltaC7_mu  = *Param["Re_DeltaC7_mu"];
         result.Im_DeltaC7_mu  = *Param["Im_DeltaC7_mu"];
         result.Re_DeltaC9_mu  = *Param["Re_DeltaC9_mu"];
@@ -775,10 +727,44 @@ namespace Gambit
         result.Re_DeltaCQ2_tau = *Param["Re_DeltaCQ2_tau"];
         result.Im_DeltaCQ2_tau = *Param["Im_DeltaCQ2_tau"];
 
+        result.Re_DeltaC7_mu_Prime  = *Param["Re_DeltaC7_mu_Prime"];
+        result.Im_DeltaC7_mu_Prime  = *Param["Im_DeltaC7_mu_Prime"];
+        result.Re_DeltaC9_mu_Prime  = *Param["Re_DeltaC9_mu_Prime"];
+        result.Im_DeltaC9_mu_Prime  = *Param["Im_DeltaC9_mu_Prime"];
+        result.Re_DeltaC10_mu_Prime = *Param["Re_DeltaC10_mu_Prime"];
+        result.Im_DeltaC10_mu_Prime = *Param["Im_DeltaC10_mu_Prime"];
+        result.Re_DeltaCQ1_mu_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
+        result.Im_DeltaCQ1_mu_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
+        result.Re_DeltaCQ2_mu_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
+        result.Im_DeltaCQ2_mu_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
+
+        result.Re_DeltaC7_e_Prime  = *Param["Re_DeltaC7_e_Prime"];
+        result.Im_DeltaC7_e_Prime  = *Param["Im_DeltaC7_e_Prime"];
+        result.Re_DeltaC9_e_Prime  = *Param["Re_DeltaC9_e_Prime"];
+        result.Im_DeltaC9_e_Prime  = *Param["Im_DeltaC9_e_Prime"];
+        result.Re_DeltaC10_e_Prime = *Param["Re_DeltaC10_e_Prime"];
+        result.Im_DeltaC10_e_Prime = *Param["Im_DeltaC10_e_Prime"];
+        result.Re_DeltaCQ1_e_Prime = *Param["Re_DeltaCQ1_e_Prime"];
+        result.Im_DeltaCQ1_e_Prime = *Param["Im_DeltaCQ1_e_Prime"];
+        result.Re_DeltaCQ2_e_Prime = *Param["Re_DeltaCQ2_e_Prime"];
+        result.Im_DeltaCQ2_e_Prime = *Param["Im_DeltaCQ2_e_Prime"];
+
+        result.Re_DeltaC7_tau_Prime  = *Param["Re_DeltaC7_tau_Prime"];
+        result.Im_DeltaC7_tau_Prime  = *Param["Im_DeltaC7_tau_Prime"];
+        result.Re_DeltaC9_tau_Prime  = *Param["Re_DeltaC9_tau_Prime"];
+        result.Im_DeltaC9_tau_Prime  = *Param["Im_DeltaC9_tau_Prime"];
+        result.Re_DeltaC10_tau_Prime = *Param["Re_DeltaC10_tau_Prime"];
+        result.Im_DeltaC10_tau_Prime = *Param["Im_DeltaC10_tau_Prime"];
+        result.Re_DeltaCQ1_tau_Prime = *Param["Re_DeltaCQ1_tau_Prime"];
+        result.Im_DeltaCQ1_tau_Prime = *Param["Im_DeltaCQ1_tau_Prime"];
+        result.Re_DeltaCQ2_tau_Prime = *Param["Re_DeltaCQ2_tau_Prime"];
+        result.Im_DeltaCQ2_tau_Prime = *Param["Im_DeltaCQ2_tau_Prime"];
+
         /* Lines below are valid in the flavour NON-universal case
            deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
            deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
 
+        // left handed:
         result.deltaC[7]=std::complex<double>(result.Re_DeltaC7_mu, result.Im_DeltaC7_mu);
         result.deltaC[9]=std::complex<double>(result.Re_DeltaC9_mu, result.Im_DeltaC9_mu);
         result.deltaC[10]=std::complex<double>(result.Re_DeltaC10_mu, result.Im_DeltaC10_mu);
@@ -791,12 +777,31 @@ namespace Gambit
         result.deltaCQ[3]=std::complex<double>(result.Re_DeltaCQ1_e, result.Im_DeltaCQ1_e);
         result.deltaCQ[4]=std::complex<double>(result.Re_DeltaCQ2_e, result.Im_DeltaCQ2_e);
 
-
         result.deltaC[27]=std::complex<double>(result.Re_DeltaC7_tau, result.Im_DeltaC7_tau);
         result.deltaC[29]=std::complex<double>(result.Re_DeltaC9_tau, result.Im_DeltaC9_tau);
         result.deltaC[30]=std::complex<double>(result.Re_DeltaC10_tau, result.Im_DeltaC10_tau);
         result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1_tau, result.Im_DeltaCQ1_tau);
         result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
+
+
+        // right handed:
+        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_mu_Prime, result.Im_DeltaC7_mu_Prime);
+        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_mu_Prime, result.Im_DeltaC9_mu_Prime);
+        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_mu_Prime, result.Im_DeltaC10_mu_Prime);
+        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_mu_Prime, result.Im_DeltaCQ1_mu_Prime);
+        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_mu_Prime, result.Im_DeltaCQ2_mu_Prime);
+
+        result.deltaCp[17]=std::complex<double>(result.Re_DeltaC7_e_Prime, result.Im_DeltaC7_e_Prime);
+        result.deltaCp[19]=std::complex<double>(result.Re_DeltaC9_e_Prime, result.Im_DeltaC9_e_Prime);
+        result.deltaCp[20]=std::complex<double>(result.Re_DeltaC10_e_Prime, result.Im_DeltaC10_e_Prime);
+        result.deltaCQp[3]=std::complex<double>(result.Re_DeltaCQ1_e_Prime, result.Im_DeltaCQ1_e_Prime);
+        result.deltaCQp[4]=std::complex<double>(result.Re_DeltaCQ2_e_Prime, result.Im_DeltaCQ2_e_Prime);
+
+        result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_tau_Prime, result.Im_DeltaC7_tau_Prime);
+        result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_tau_Prime, result.Im_DeltaC9_tau_Prime);
+        result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_tau_Prime, result.Im_DeltaC10_tau_Prime);
+        result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_tau_Prime, result.Im_DeltaCQ1_tau_Prime);
+        result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
 
       }
      // if (ModelInUse("THDMatQ"))

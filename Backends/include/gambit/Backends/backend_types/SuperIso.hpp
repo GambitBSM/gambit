@@ -273,48 +273,6 @@ namespace Gambit
     double Re_DeltaCQ2 = 0.;
     double Im_DeltaCQ2 = 0.;
 
-    double Re_DeltaC7_mu = 0.;
-    double Im_DeltaC7_mu = 0.;
-    double Re_DeltaC9_mu = 0.;
-    double Im_DeltaC9_mu = 0.;
-    double Re_DeltaC10_mu = 0.;
-    double Im_DeltaC10_mu = 0.;
-    double Re_DeltaCQ1_mu = 0.;
-    double Im_DeltaCQ1_mu = 0.;
-    double Re_DeltaCQ2_mu = 0.;
-    double Im_DeltaCQ2_mu = 0.;
-    
-    double Re_DeltaC7_e = 0.;
-    double Im_DeltaC7_e = 0.;
-    double Re_DeltaC9_e = 0.;
-    double Im_DeltaC9_e = 0.;
-    double Re_DeltaC10_e = 0.;
-    double Im_DeltaC10_e = 0.;
-    double Re_DeltaCQ1_e = 0.;
-    double Im_DeltaCQ1_e = 0.;
-    double Re_DeltaCQ2_e = 0.;
-    double Im_DeltaCQ2_e = 0.;
-
-    double Re_DeltaC7_tau = 0.;
-    double Im_DeltaC7_tau = 0.;
-    double Re_DeltaC9_tau = 0.;
-    double Im_DeltaC9_tau = 0.;
-    double Re_DeltaC10_tau = 0.;
-    double Im_DeltaC10_tau = 0.;
-    double Re_DeltaCQ1_tau = 0.;
-    double Im_DeltaCQ1_tau = 0.;
-    double Re_DeltaCQ2_tau = 0.;
-    double Im_DeltaCQ2_tau = 0.;
-    
-    double Re_DeltaC9_tau_Prime = 0.;
-    double Im_DeltaC9_tau_Prime = 0.;
-    double Re_DeltaC10_tau_Prime = 0.;
-    double Im_DeltaC10_tau_Prime = 0.;
-    double Re_DeltaCQ1_tau_Prime = 0.;
-    double Im_DeltaCQ1_tau_Prime = 0.;
-    double Re_DeltaCQ2_tau_Prime = 0.;
-    double Im_DeltaCQ2_tau_Prime = 0.;
-
     double Re_DeltaC7_Prime = 0.;
     double Im_DeltaC7_Prime = 0.;
     double Re_DeltaC8_Prime = 0.;
@@ -327,7 +285,74 @@ namespace Gambit
     double Im_DeltaCQ1_Prime = 0.;
     double Re_DeltaCQ2_Prime = 0.;
     double Im_DeltaCQ2_Prime = 0.;
+ 
+    double Re_DeltaC7_mu = 0.;
+    double Im_DeltaC7_mu = 0.;
+    double Re_DeltaC9_mu = 0.;
+    double Im_DeltaC9_mu = 0.;
+    double Re_DeltaC10_mu = 0.;
+    double Im_DeltaC10_mu = 0.;
+    double Re_DeltaCQ1_mu = 0.;
+    double Im_DeltaCQ1_mu = 0.;
+    double Re_DeltaCQ2_mu = 0.;
+    double Im_DeltaCQ2_mu = 0.;
     
+    double Re_DeltaC7_mu_Prime = 0.;
+    double Im_DeltaC7_mu_Prime = 0.;
+    double Re_DeltaC9_mu_Prime = 0.;
+    double Im_DeltaC9_mu_Prime = 0.;
+    double Re_DeltaC10_mu_Prime = 0.;
+    double Im_DeltaC10_mu_Prime = 0.;
+    double Re_DeltaCQ1_mu_Prime = 0.;
+    double Im_DeltaCQ1_mu_Prime = 0.;
+    double Re_DeltaCQ2_mu_Prime = 0.;
+    double Im_DeltaCQ2_mu_Prime = 0.;
+
+    double Re_DeltaC7_e = 0.;
+    double Im_DeltaC7_e = 0.;
+    double Re_DeltaC9_e = 0.;
+    double Im_DeltaC9_e = 0.;
+    double Re_DeltaC10_e = 0.;
+    double Im_DeltaC10_e = 0.;
+    double Re_DeltaCQ1_e = 0.;
+    double Im_DeltaCQ1_e = 0.;
+    double Re_DeltaCQ2_e = 0.;
+    double Im_DeltaCQ2_e = 0.;
+
+    double Re_DeltaC7_e_Prime = 0.;
+    double Im_DeltaC7_e_Prime = 0.;
+    double Re_DeltaC9_e_Prime = 0.;
+    double Im_DeltaC9_e_Prime = 0.;
+    double Re_DeltaC10_e_Prime = 0.;
+    double Im_DeltaC10_e_Prime = 0.;
+    double Re_DeltaCQ1_e_Prime = 0.;
+    double Im_DeltaCQ1_e_Prime = 0.;
+    double Re_DeltaCQ2_e_Prime = 0.;
+    double Im_DeltaCQ2_e_Prime = 0.;
+
+    double Re_DeltaC7_tau = 0.;
+    double Im_DeltaC7_tau = 0.;
+    double Re_DeltaC9_tau = 0.;
+    double Im_DeltaC9_tau = 0.;
+    double Re_DeltaC10_tau = 0.;
+    double Im_DeltaC10_tau = 0.;
+    double Re_DeltaCQ1_tau = 0.;
+    double Im_DeltaCQ1_tau = 0.;
+    double Re_DeltaCQ2_tau = 0.;
+    double Im_DeltaCQ2_tau = 0.;
+    
+    double Re_DeltaC7_tau_Prime = 0.;
+    double Im_DeltaC7_tau_Prime = 0.;
+    double Re_DeltaC9_tau_Prime = 0.;
+    double Im_DeltaC9_tau_Prime = 0.;
+    double Re_DeltaC10_tau_Prime = 0.;
+    double Im_DeltaC10_tau_Prime = 0.;
+    double Re_DeltaCQ1_tau_Prime = 0.;
+    double Im_DeltaCQ1_tau_Prime = 0.;
+    double Re_DeltaCQ2_tau_Prime = 0.;
+    double Im_DeltaCQ2_tau_Prime = 0.;
+
+   
 
   };
 
