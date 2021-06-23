@@ -18,11 +18,17 @@
 #  \date 2014 Nov, Dec
 #  \date 2015 Jan, Feb, Apr
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Feb
+#
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
+                 src/ascii_dict_reader.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
+                 src/integration.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
@@ -38,13 +44,16 @@ set(source_files src/ascii_table_reader.cpp
                  src/util_functions.cpp
                  src/version.cpp
                  src/yaml_parser_base.cpp
+                 src/yaml_node_utility.cpp
 )
 
 set(header_files include/gambit/Utils/ascii_table_reader.hpp
+                 include/gambit/Utils/ascii_dict_reader.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
                  include/gambit/Utils/exceptions.hpp
                  include/gambit/Utils/file_lock.hpp
+                 include/gambit/Utils/integration.hpp
                  include/gambit/Utils/mpiwrapper.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
                  include/gambit/Utils/factory_registry.hpp
@@ -72,6 +81,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/yaml_options.hpp
                  include/gambit/Utils/yaml_parser_base.hpp
                  include/gambit/Utils/yaml_variadic_functions.hpp
+                 include/gambit/Utils/yaml_node_utility.hpp
 )
 
 add_gambit_library(Utils OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})

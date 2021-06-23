@@ -32,15 +32,19 @@
 #
 #************************************************
 
-# Require a minimum cmake version of 2.8.5
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+# Define minimum cmake version
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
-SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_03 RelWithDebInfo MinSizeRel.")
+# Define minimum compiler versions
+set(MIN_GCC_VERSION 5.1)
+set(MIN_ICC_VERSION 15.0.2)
+
+SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   SET(CMAKE_BUILD_TYPE None CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release_03")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release_O3")
   SET(CMAKE_BUILD_TYPE Release CACHE STRING "${CMAKE_BUILD_TYPE_STRING}" FORCE)
-  SET(FORCE_03 TRUE)
+  SET(FORCE_O3 TRUE)
 endif()
 message("${Yellow}-- Build type is set to ${CMAKE_BUILD_TYPE} ${ColourReset}")
 
@@ -53,6 +57,7 @@ foreach(p
   CMP0042 # CMake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
+  CMP0060 # CMake 3.16.2
   CMP0063 # CMake 3.3.2
   CMP0068 # CMake 3.9.1
   CMP0074 # CMake 3.12
@@ -75,13 +80,14 @@ elseif (CXX_COMPILER_NAME MATCHES "icc.*$")
   message(FATAL_ERROR "\nYou have set CMAKE_CXX_COMPILER to icc.  Did you mean icpc?")
 endif()
 
-# Use ccache to speed up re-compiling if it is available
-#find_program(CCACHE_FOUND ccache)
-#if(CCACHE_FOUND)
-#  message("-- Found ccache. Will use it to speed up recompilation.")
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-#endif(CCACHE_FOUND)
+# Include cmake utility scripts, including colour definitions.
+include(cmake/utilities.cmake)
+
+# Enforce minimum versions for the C/C++ compiler
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_ICC_VERSION) OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GCC_VERSION))
+  message(FATAL_ERROR "${BoldRed}\nGAMBIT requires at least g++ ${MIN_GCC_VERSION} or icpc ${MIN_ICC_VERSION}.  Please install a newer compiler.${ColourReset}")
+endif()
 
 # Don't relink all binaries when shared lib changes (programs will be rebuilt anyway if used headers change)
 set(CMAKE_LINK_DEPENDS_NO_SHARED 1)
@@ -99,96 +105,126 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # Add the automatically determined parts of the RPATH that point to directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Include cmake utility scripts, including colour definitions.
-include(cmake/utilities.cmake)
+# Check if pybind11 is to be ditched
+string(REGEX MATCH ";pybind;|;pybind11;|;Pybind;|;Pybind11;" DITCH_PYBIND ";${itch};")
 
 # Check for Python interpreter
 # We also need to search for PythonLibs before letting pybind11 look for them,
 # otherwise it seems to get it wrong.  Also, we need to add versions of python
 # greater than 3.3 manually, for compatibility with CMake 2.8.12.
-set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7)
+# If pybind11 is ditched, do not worry about PythonLibs
+set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9)
+# If both FORCE_PYTHON2 and FORCE_PYTHON3 are set, throw error
+if (FORCE_PYTHON2 AND FORCE_PYTHON3)
+  message(FATAL_ERROR "Two different versions of python requested. Switch either FORCE_PYTHON2 or FORCE_PYTHON3 off.")
+endif()
 if (FORCE_PYTHON2)
   message("${BoldYellow}   Python 2 requested; searching for Python 2.7${ColourReset}")
   find_package(PythonInterp 2.7 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 elseif (FORCE_PYTHON3)
   message("${BoldYellow}   Python 3 requested; searching for Python 3.x${ColourReset}")
   find_package(PythonInterp 3 REQUIRED)
-  find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  if(NOT DITCH_PYBIND)
+    find_package(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  endif()
 else()
   find_package(PythonInterp 3)
-  if(PYTHONINTERP_FOUND)
+  if(PYTHONINTERP_FOUND AND NOT DITCH_PYBIND)
     find_package(PythonLibs 3)
   else()
     message("${BoldYellow}   Python 3 not found, searching for Python 2.7${ColourReset}")
     find_package(PythonInterp 2 REQUIRED)
     if (PYTHON_VERSION_MINOR LESS 7)
       message(FATAL_ERROR "\nGAMBIT requires Python 2.7.  \nIf you need to set the path to the Python interpreter manually, "
-                          "please use -DPYTHON_EXECUTABLE:FILEPATH=path/to/preferred/python.")
+                          "please use -D PYTHON_EXECUTABLE=path/to/preferred/python.")
     endif()
-    find_package(PythonLibs 2)
+    if(NOT DITCH_PYBIND)
+      find_package(PythonLibs 2)
+    endif()
   endif()
 endif()
 message("${BoldYellow}   Using Python interpreter version ${PYTHON_VERSION_STRING} for build.${ColourReset}")
+
 if(PYTHONLIBS_FOUND)
-  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}")
+  string(FIND "${PYTHONLIBS_VERSION_STRING}" "2.7" PY2_POSITION)
+  if(PY2_POSITION EQUAL 0)
+    set(UNSUPPORTED_PYTHON_VERSION "3")
+  else()
+    set(UNSUPPORTED_PYTHON_VERSION "2.7")
+  endif()
+  message("${BoldYellow}   Using Python libraries version ${PYTHONLIBS_VERSION_STRING} for Python backend support.${ColourReset}\n"
+          "   Backends requiring Python ${UNSUPPORTED_PYTHON_VERSION} will be ditched.")
   if (NOT "${PYTHON_VERSION_STRING}" STREQUAL "${PYTHONLIBS_VERSION_STRING}")
     message("${BoldRed}   NOTE: You are using different Python versions for the interpreter and the libraries!${ColourReset}\n"
             "   In principle this should be fine, as the interpreter is only used for building GAMBIT, and the\n"
             "   libraries are only used for providing support for Python backends at runtime.  However, if you\n"
-            "   have matching versions installed, you can make this message go away by trying the following\n"
+            "   have matching versions installed, you can make this message go away by trying one of the following\n"
             "   (making sure to clean out your build directory in between any such changes):\n"
             "   1. invoke cmake as cmake -DFORCE_PYTHON2=True .. (or similar)\n"
             "   2. invoke cmake as cmake -DFORCE_PYTHON3=True .. (or similar)\n"
             "   3. set the following variables when invoking cmake:\n"
             "     PYTHON_LIBRARY\n"
             "     PYTHON_INCLUDE_DIR\n"
-            "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
-            "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)\n")
+            "     PYTHON_EXECUTABLE\n")
   endif()
 endif()
 
-# Check for pybind11 if PythonLibs were found
+# Check for pybind11 if PythonLibs were found and not ditched
 if(NOT PYTHONLIBS_FOUND AND NOT NO_PYTHON_LIBS)
-  message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
-          "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
-          "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
-          "   directory in between any such changes).  If that does not work, you can manually set the\n"
-          "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
-          "     PYTHON_LIBRARY\n"
-          "     PYTHON_INCLUDE_DIR\n"
-          "     PYTHON_INCLUDE_DIR2 (you might be able to get away without setting this one)\n"
-          "     PYTHON_EXECUTABLE   (you might be able to get away without setting this one)")
-else()
-  set(MIN_pybind11_VERSION "2.4.3")
-  set(PREFERRED_pybind11_VERSION "2.4.3")
-  set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
-  find_package(pybind11 QUIET)
-  if(NOT pybind11_FOUND AND EXISTS "${pybind11_CONTRIB_DIR}")
-    use_contributed_pybind11()
+  if(DITCH_PYBIND)
+    message("${BoldCyan} X Excluding pybind11 from GAMBIT configuration. Ditching support for Python backends.${ColourReset}")
+  else()
+    message("${BoldRed}   PythonLibs NOT found, so pybind11 cannot be used. Ditching support for Python backends.${ColourReset}\n"
+            "   If you *do* have the Python libraries installed, you should first try setting/unsetting\n"
+            "   FORCE_PYTHON2 or FORCE_PYTHON3 when invoking cmake (make sure to clean out your build\n"
+            "   directory in between any such changes).  If that does not work, you can manually set the\n"
+            "   following variables when invoking cmake (also making sure to clean out your build dir):\n"
+            "     PYTHON_LIBRARY\n"
+            "     PYTHON_INCLUDE_DIR\n"
+            "     PYTHON_EXECUTABLE")
+  set(itch "${itch};pybind11")
   endif()
+
+else()
+  set(MIN_pybind11_VERSION "2.5.0")
+  set(PREFERRED_pybind11_VERSION "2.5.0")
+  set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
+  include_directories("${PYTHON_INCLUDE_DIRS}")
+  find_package(pybind11 QUIET)
   if(pybind11_FOUND)
     if(pybind11_VERSION VERSION_LESS MIN_pybind11_VERSION)
-      message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
-      set(pybind11_FOUND FALSE)
+      if(EXISTS "${pybind11_CONTRIB_DIR}")
+        use_contributed_pybind11()
+      else()
+        message("${BoldRed}   Found pybind11 ${pybind11_VERSION}. GAMBIT requires at least v${MIN_pybind11_VERSION}.${ColourReset}")
+        set(pybind11_FOUND FALSE)
+      endif()
     else()
       message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
-      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
+      if(${PYBIND11_INCLUDE_DIR})
+        include_directories("${PYBIND11_INCLUDE_DIR}")
+      else()
+        include_directories("${pybind11_INCLUDE_DIR}")
+      endif()
     endif()
-  else()
-    message("${BoldRed}   The pybind11 library is not properly installed.${ColourReset}")
   endif()
-  if(NOT pybind11_FOUND AND NOT EXISTS "${pybind11_CONTRIB_DIR}")
-    message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
-    execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
-    if(${result} STREQUAL "0")
-      execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+  if(NOT pybind11_FOUND)
+    if(EXISTS "${pybind11_CONTRIB_DIR}")
       use_contributed_pybind11()
-      include_directories("${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}")
     else()
-      message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
-              "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
-              "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+      message("${BoldRed}   CMake will now download and install pybind11 v${PREFERRED_pybind11_VERSION}.${ColourReset}")
+      execute_process(RESULT_VARIABLE result COMMAND git clone https://github.com/pybind/pybind11.git ${pybind11_CONTRIB_DIR})
+      if(${result} STREQUAL "0")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E chdir ${pybind11_CONTRIB_DIR} git checkout -q v${PREFERRED_pybind11_VERSION})
+        use_contributed_pybind11()
+      else()
+        message("${BoldRed}   Attempt to clone git repository for pybind11 failed.  This may be because you are disconnected from the internet.\n   "
+                "Otherwise, your git installation may be faulty. Errors about missing .so files are usually due to\n   "
+                "your git installation being linked to a buggy version of libcurl.  In that case, try reinstalling libcurl.${ColourReset}")
+      endif()
     endif()
   endif()
   set(HAVE_PYBIND11 "${pybind11_FOUND}")
@@ -196,15 +232,22 @@ endif()
 
 # Check for required Python libraries
 foreach(module yaml os re datetime sys getopt shutil itertools)
-  find_python_module(${module} REQUIRED)
+  gambit_find_python_module(${module} REQUIRED)
 endforeach()
 
 # Check for axel
-find_program(axel_FOUND axel)
-if(axel_FOUND)
-  message("${BoldYellow}   Found axel.${ColourReset} Backend and scanner downloads will be as fast as possible.")
+set(CMAKE_DOWNLOAD_FLAGS "NONE")
+option(WITH_AXEL "Compile with Axel enabled" OFF)
+if(WITH_AXEL)
+  find_program(axel_FOUND axel)
+  if(axel_FOUND)
+    message("${BoldYellow}   Found axel.${ColourReset} Backend and scanner downloads will be as fast as possible.")
+    set(CMAKE_DOWNLOAD_FLAGS "WITH_AXEL")
+  else()
+    message("${Red}   Axel utility not found.  Backend downloads would be faster if you installed axel.${ColourReset}")
+  endif()
 else()
-  message("${Red}   Axel utility not found.  Backend downloads would be faster if you installed axel.${ColourReset}")
+  message("${BoldCyan} X Axel is disabled. Please use -DWITH_AXEL=ON to enable fast downloads with Axel.${ColourReset}")
 endif()
 
 # Do OSX checks
@@ -246,19 +289,38 @@ if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
 endif()
 # Second, for multi-config builds (e.g. msvc)
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mybindir} )
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
+  string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mybindir} )
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
 
-# Check for C++11, C++14 and C++17 support
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+if(HAVE_PYBIND11)
+  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
+     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
+    set(PERMIT_CXX17_CHECK FALSE)
+  else()
+    set(PERMIT_CXX17_CHECK TRUE)
+  endif()
+endif()
+
+# Check if we are using gnu version 7.2, and forbid the use of C++17 if so.
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.1 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
+  set(PERMIT_CXX17_CHECK FALSE)
+endif()
+
+# Check for C++11, C++14 and C++17 support.
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(PERMIT_CXX17_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+endif()
 if(COMPILER_SUPPORTS_CXX17)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else()
-  CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  if(PERMIT_CXX17_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  endif()
   CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
   if(COMPILER_SUPPORTS_CXX14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
@@ -276,6 +338,16 @@ else()
       endif()
     endif()
   endif()
+endif()
+
+# Check for C99, C11 and C18 support
+include(CheckCCompilerFlag)
+CHECK_C_COMPILER_FLAG("-std=c18" COMPILER_SUPPORTS_C18)
+CHECK_C_COMPILER_FLAG("-std=c11" COMPILER_SUPPORTS_C11)
+CHECK_C_COMPILER_FLAG("-std=c99" COMPILER_SUPPORTS_C99)
+if(NOT COMPILER_SUPPORTS_C99)
+  message("${BoldRed}   The compiler ${CMAKE_C_COMPILER} has no C99 support.  AlterBBN will be ditched.${ColourReset}")
+  set(itch "${itch};alterbbn")
 endif()
 
 # Check for Boost
@@ -382,7 +454,7 @@ else()
   find_library(LIBUUID NAMES uuid)
   if(LIBUUID)
     message("   Found library libuuid")
-    find_package(Mathematica 10.0)
+    find_package(Mathematica 10.0 QUIET)
     if(Mathematica_FOUND AND (NOT DEFINED Mathematica_Invalid_License OR IGNORE_MATHEMATICA_LICENSE))
       message("${BoldYellow}   Found Mathematica.${ColourReset}")
       if(Mathematica_WSTP_FOUND)
@@ -451,6 +523,10 @@ else()
   set(BACKEND_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   set(BACKEND_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
 endif()
+set(BACKEND_C18_FLAGS "${BACKEND_C_FLAGS} -std=c18")
+set(BACKEND_C11_FLAGS "${BACKEND_C_FLAGS} -std=c11")
+set(BACKEND_C99_FLAGS "${BACKEND_C_FLAGS} -std=c99")
+set(BACKEND_GNU99_FLAGS "${BACKEND_C_FLAGS} -std=gnu99")
 
 # Make symbols hidden by default when compiling GAMBIT source files only
 if(${CMAKE_MAJOR_VERSION} MATCHES "2")
@@ -557,17 +633,17 @@ list(APPEND MODULE_HARVESTER_FILES "${PROJECT_SOURCE_DIR}/config/resolution_type
 set(MODULE_HARVESTER_FILES ${MODULE_HARVESTER_FILES} ${BACKEND_HARVESTER_FILES})
 remove_build_files(models_harvested backends_harvested modules_harvested printers_harvested colliders_harvested)
 if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
-  add_gambit_custom(module_harvest modules_harvested MODULE_HARVESTER  MODULE_HARVESTER_FILES)
+  add_gambit_custom(module_harvest modules_harvested MODULE_HARVESTER MODULE_HARVESTER_FILES ${itch_with_commas})
 endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
-  add_gambit_custom(backend_harvest backends_harvested BACKEND_HARVESTER BACKEND_HARVESTER_FILES)
+  add_gambit_custom(backend_harvest backends_harvested BACKEND_HARVESTER BACKEND_HARVESTER_FILES ${itch_with_commas})
   add_dependencies(module_harvest backend_harvest)
 endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Models/")
  add_gambit_custom(model_harvest models_harvested MODEL_HARVESTER MODEL_HARVESTER_FILES)
 endif()
 if(EXISTS "${PROJECT_SOURCE_DIR}/Printers/")
-  add_gambit_custom(printer_harvest printers_harvested PRINTER_HARVESTER PRINTER_HARVESTER_FILES)
+  add_gambit_custom(printer_harvest printers_harvested PRINTER_HARVESTER PRINTER_HARVESTER_FILES ${itch_with_commas})
   add_dependencies(printer_harvest module_harvest)
 else()
   add_definitions(-DNO_PRINTERS)
@@ -631,3 +707,6 @@ include(cmake/executables.cmake)
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(${PROJECT_BINARY_DIR}/linkedout.cmake)
 endif()
+
+# Create a list of Gambit bits to be used in the diagnostic system of Gambit.
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Utils/scripts/find_all_gambit_bits.py --source-dir ${PROJECT_SOURCE_DIR} --output-file=${PROJECT_SOURCE_DIR}/config/gambit_bits.yaml)

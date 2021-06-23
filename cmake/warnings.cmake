@@ -46,21 +46,6 @@ if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
   set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
 endif()
 
-# Suppress additional warnings when using clang and ccache
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	if (CMAKE_CXX_COMPILER MATCHES "ccache")
-    message(STATUS "Using ccache with clang - disabling some warnings")
-    CHECK_CXX_COMPILER_FLAG("-Qunused-arguments" CXX_SUPPORTS_QUNUSED_ARGUMENTS)
-    if (CXX_SUPPORTS_QUNUSED_ARGUMENTS)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
-    endif()
-    CHECK_CXX_COMPILER_FLAG("-Wno-self-assign" CXX_SUPPORTS_WNO_SELF_ASSIGN)
-    if (CXX_SUPPORTS_WNO_SELF_ASSIGN)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-self-assign")
-    endif()
-  endif()
-endif()
-
 # set intel warnings
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # "remark #981: operands are evaluated in unspecified order"
@@ -74,4 +59,14 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # "remark #1419: external declaration in primary source file"
   # This can safely be ignord according to the ICC docs.
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1419")
+endif()
+
+# Set warnings to stop complaints about old Python headers not being C++17 compliant
+if(PYTHON_VERSION_MAJOR EQUAL 2)
+  set_compiler_warning("no-register" CMAKE_CXX_FLAGS)
+endif()
+
+# Set warnings to stop complaining about deprecated copies in Eigen
+if(EIGEN3_VERSION_MINOR LESS 4 AND EIGEN3_VERSION_PATCH LESS 8)
+  set_compiler_warning("no-deprecated-copy" CMAKE_CXX_FLAGS)
 endif()

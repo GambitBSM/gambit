@@ -84,6 +84,8 @@ namespace Gambit
                 Plugin_Details(const std::string &str);
                 
                 void get_status(const YAML::Node &, const YAML::Node &, const YAML::Node &);
+
+                static std::string get_description(const std::vector<const Plugin_Details *> &plugins);
                 
                 std::string printMin() const;
                 

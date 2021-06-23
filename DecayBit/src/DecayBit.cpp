@@ -53,12 +53,12 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/integration.hpp"
 
 #include <string>
 #include <map>
 #include <complex>
 #include <functional>
-#include <gsl/gsl_integration.h>
 
 #define pow2(a) ((a)*(a))          // Get speedy
 #define pow3(a) ((a)*(a)*(a))
@@ -76,36 +76,6 @@ namespace Gambit
 
     /// \name Helper functions for DecayBit
     /// @{
-
-    /// Unwrapper for passing std::function to GSL integrator
-    /// Based on example from https://martin-ueding.de/articles/cpp-lambda-into-gsl/index.html
-    double unwrap(double x, void *p)
-    {
-      auto fp = static_cast<std::function<double(double)> *>(p);
-      return (*fp)(x);
-    }
-
-    /// Integrate a std::function using GSL cquad
-    double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps)
-    {
-      double result = 0.0;
-      gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);
-
-      gsl_function F;
-      F.function = unwrap;
-      F.params = &ftor;
-
-      gsl_integration_cquad(&F, a, b, abseps, releps, gsl_ws, &result, NULL, NULL);
-      gsl_integration_cquad_workspace_free(gsl_ws);
-
-      // Check result
-      if (Utils::isnan(result))
-      {
-        invalid_point().raise("Integration returned NaN.");
-      }
-
-      return result;
-    }
 
     /// Square root of the standard kinematic function lambda(a,b,c)
     double sqrt_lambda(double a, double b, double c) { return sqrt(pow2(a+b-c) - 4*a*b); }
@@ -2383,8 +2353,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_el_nu_I1 = integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
-        double N_el_nu_I2 = integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
+        double N_el_nu_I1 = Utils::integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
+        double N_el_nu_I2 = Utils::integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_el+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_el_nu_I1 - 2.*m_N*O11L*O11R*N_el_nu_I2 );
@@ -2409,8 +2379,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_mu_nu_I1 = integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
-        double N_mu_nu_I2 = integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
+        double N_mu_nu_I1 = Utils::integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
+        double N_mu_nu_I2 = Utils::integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_mu+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_mu_nu_I1 - 2.*m_N*O11L*O11R*N_mu_nu_I2 );
@@ -2448,7 +2418,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_2pi_I = integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_2pi_I = Utils::integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0"] = G_F2 / (192. * pow3(pi) * pow3(m_C)) * N_2pi_I;
@@ -2486,7 +2456,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_3pi_I = integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_3pi_I = Utils::integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0_pi0"] = G_F2 / (6912. * pow(pi,5) * pow3(m_C) * f_pi2) * N_3pi_I;
@@ -2715,13 +2685,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_pi));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 
@@ -2759,13 +2729,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_l));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 

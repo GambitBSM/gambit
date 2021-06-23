@@ -66,7 +66,6 @@ def main(argv):
             print('scanner+_harvester.py: verbose=True')
         elif opt in ('-x','--exclude-plugins','--exclude-plugin'):
             exclude_plugins.update(neatsplit(",",arg))
-    #print(exclude_plugins)
     # info for the different plugin types
     src_paths = sorted(["./ScannerBit/src/scanners", "./ScannerBit/src/objectives"])
     inc_paths = sorted(["./ScannerBit/include/gambit/ScannerBit/scanners", "./ScannerBit/include/gambit/ScannerBit/objectives"])

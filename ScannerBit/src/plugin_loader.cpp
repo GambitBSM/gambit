@@ -79,19 +79,8 @@ namespace Gambit
             {
                 std::string p_str;
                 std::ifstream lib_list(path + "plugin_libraries.list");
-                //if (FILE* p_f = popen((std::string("ls ") + path).c_str(), "r"))
                 if (lib_list.is_open())
                 {
-                    /*char path_buffer[1024];
-                    int p_n;
-                    std::stringstream p_ss;
-
-                    while ((p_n = fread(path_buffer, 1, sizeof path_buffer, p_f)) > 0)
-                    {
-                        p_ss << std::string(path_buffer, p_n);
-                    }*/
-
-                    //while (p_ss >> p_str)
                     while (lib_list >> p_str)
                     {
                         //if (p_str.find(".so") != std::string::npos && p_str.find(".so.") == std::string::npos)
@@ -108,6 +97,7 @@ namespace Gambit
                     const str linked_libs(Utils::buildtime_scratch()+"scanbit_linked_libs.yaml");
                     const str reqd_entries(Utils::buildtime_scratch()+"scanbit_reqd_entries.yaml");
                     const str flags(Utils::buildtime_scratch()+"scanbit_flags.yaml");
+
                     process(linked_libs, reqd_entries, flags, excluded_plugins);
                 }
                 else
@@ -164,7 +154,6 @@ namespace Gambit
                         it->get_status(libNode, plugNode, flagNode);
                         excluded_plugin_map[it->type][it->plugin].push_back(*it);
                         total_plugin_map[it->type][it->plugin].push_back(*it);
-                        //std::cout << it->printFull() << std::endl;
                     }
                 }
 
@@ -175,7 +164,6 @@ namespace Gambit
                         it->get_status(libNode, plugNode, flagNode);
                         plugin_map[it->type][it->plugin].push_back(*it);
                         total_plugin_map[it->type][it->plugin].push_back(*it);
-                        //std::cout << it->printFull() << std::endl;
                     }
                 }
             }
@@ -209,7 +197,6 @@ namespace Gambit
 
                                     temp.path = path + lib;
                                     temp.status = "excluded";
-                                    //total_plugins.push_back(temp);
                                     excluded_plugins_temp.push_back(temp);
                                 }
                             }
@@ -463,7 +450,6 @@ namespace Gambit
                     auto it = it_map->second.find(name);
                     if (it != it_map->second.end())
                     {
-                        //vec.insert(vec.begin(), it->second.begin(), it->second.end());
                         for (auto &&plug : it->second)
                         {
                             vec[it_map->first].push_back(&plug);
@@ -479,7 +465,6 @@ namespace Gambit
                 {
                     for (auto it = vec.begin(), end = vec.end(); it != end; it++)
                     {
-                        //output << it->printFull() << std::endl;
                         output << Plugin_Details::printMultiPlugins(it->second) << std::endl;
                     }
                 }
@@ -733,14 +718,6 @@ namespace Gambit
 
             pluginInfo::~pluginInfo()
             {
-                /*for (auto it = resume_data.begin(), end = resume_data.end(); it != end; ++it)
-                {
-                    for (auto v_it = it->second.begin(), v_end = it->second.end(); v_it != v_end; ++v_it)
-                    {
-                        delete (*v_it);
-                    }
-                }*/
-
                 for (auto it = resume_streams.begin(), end = resume_streams.end(); it != end; ++it)
                 {
                     delete it->second;

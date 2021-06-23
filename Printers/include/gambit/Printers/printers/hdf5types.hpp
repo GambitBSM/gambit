@@ -38,8 +38,10 @@
   (triplet<double>)         \
   (map_intpair_dbl)         \
 
-#define HDF5_MODULE_BACKEND_TYPES \
-  (DM_nucleon_couplings)    \
-  (Flav_KstarMuMu_obs)      \
+#define HDF5_BACKEND_TYPES            \
+  (DM_nucleon_couplings)              \
+  (DM_nucleon_couplings_fermionic_HP) \
+  (Flav_KstarMuMu_obs)                \
+  (BBN_container)                     \
 
 #endif

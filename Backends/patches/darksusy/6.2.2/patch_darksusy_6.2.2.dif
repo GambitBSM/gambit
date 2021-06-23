@@ -1,0 +1,173 @@
+diff -rupN darksusy-6.2.2_original/makefile.in darksusy-6.2.2_patched/makefile.in
+--- darksusy-6.2.2_original/makefile.in	2020-02-12 18:28:53.008236862 +0100
++++ darksusy-6.2.2_patched/makefile.in	2020-02-12 19:10:27.244309971 +0100
+@@ -395,19 +395,19 @@ coffee :
+ # Below are instructions for shared libraries, currently used by GAMBIT
+ 
+ ds_mssm_shared : lib/libds_mssm.a lib/libds_empty.a lib/libds_core.a lib/libHS.a lib/libHB.a lib/libFH.a lib/libisospin.a lib/libisajet.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_mssm.so $(DS_INSTALL)/lib/libds_mssm.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a $(DS_INSTALL)/lib/libFH.a $(DS_INSTALL)/lib/libisospin.a $(DS_INSTALL)/lib/libisajet.a
++	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_mssm.so $(DS_INSTALL)/lib/libds_mssm.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a $(DS_INSTALL)/lib/libFH.a $(DS_INSTALL)/lib/libisospin.a $(DS_INSTALL)/lib/libisajet.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
+ 
+ ds_generic_decayingDM_shared : lib/libds_generic_decayingDM.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_decayingDM.so $(DS_INSTALL)/lib/libds_generic_decayingDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a 
++	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_decayingDM.so $(DS_INSTALL)/lib/libds_generic_decayingDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
+ 
+ ds_generic_wimp_shared : lib/libds_generic_wimp.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_wimp.so $(DS_INSTALL)/lib/libds_generic_wimp.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a 
++	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_wimp.so $(DS_INSTALL)/lib/libds_generic_wimp.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
+ 
+ ds_silveira_zee_shared : lib/libds_silveira_zee.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_silveira_zee.so $(DS_INSTALL)/lib/libds_silveira_zee.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a 
++	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_silveira_zee.so $(DS_INSTALL)/lib/libds_silveira_zee.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
+ 
+ ds_vdSIDM_shared : lib/libds_vdSIDM.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_vdSIDM.so $(DS_INSTALL)/lib/libds_vdSIDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a 
++	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_vdSIDM.so $(DS_INSTALL)/lib/libds_vdSIDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
+ 
+ .PHONY: all config_paths darksusy_lib dslib private install_tables \
+ 	clean clobber uninstall rmmore libisajet pdf-manual \
+
+diff -rupN darksusy-6.2.2_original/src/include/dsdmdcom.h darksusy-6.2.2_patched/src/include/dsdmdcom.h
+--- darksusy-6.2.2_original/src/include/dsdmdcom.h
++++ darksusy-6.2.2_patched/src/include/dsdmdcom.h
+@@ -25,7 +25,7 @@ ccc
+       common/dmdintericom/dmdihalotag,dmdihalotagtmp
+       common/dmdinterrcom/dmdobjdist,dmdradintr,dmdradouttr,dmdrho0
+       common/dmdinterccom/dmdlabel    
+-      save /dmdinterlcom/,/dmdintericom/,/dmdinterlcom/,/dmdinterccom/
++      save /dmdinterlcom/,/dmdintericom/,/dmdinterccom/
+       
+ ccc
+ ccc entries to link instructions/functions to the driver:      
+diff -rupN darksusy-6.2.2_original/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f darksusy-6.2.2_patched/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
+--- darksusy-6.2.2_original/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
++++ darksusy-6.2.2_patched/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
+@@ -74,10 +74,10 @@ c... Z FSR1
+ c... Z FSR2
+       else if (leg.eq.2) then
+ 
+-         CZ1 =gl(khc,f,ff)*gl(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ2 =gl(khc,f,ff)*gr(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ3 =gl(kz,f,f)*gr(khc,f,ff)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ4 =gr(khc,f,ff)*gr(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
++         CZ1 =gl(khc,f,ff)*gl(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
++         CZ2 =gl(khc,f,ff)*gr(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
++         CZ3 =gl(kz,f,f)*gr(khc,f,ff)*REAL(gl(kz,kn(1),kn(1)))
++         CZ4 =gr(khc,f,ff)*gr(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
+          
+          deltaZ =dcmplx(2*E2J*EvJ + 2*CW*kJ*kv 
+      -    + MB**2 - Mf**2 + Mff**2,Mf*width(f)/mx)*
+diff -rupN darksusy-6.2.2_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.2.2_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+--- darksusy-6.2.2_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
++++ darksusy-6.2.2_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+@@ -76,7 +76,7 @@ c...Read it in
+  
+  ! We want to get the model ID from the file eventually
+  ! For now, just use the filename, trimming away the path 
+-      idtag=file(index(file,'/',BACK=.true.)+1:lnblnk(file)) 
++      idtag=file(index(file,'/',BACK=.true.)+1:LEN_TRIM(file))
+ 
+ c...Transfer stuff from the SLHA data structure to DarkSUSY
+       call dsfromslha
+diff -rupN darksusy-6.2.2_original/src_models/mssm/an_ib/dsIBffdxdy.f darksusy-6.2.2_patched/src_models/mssm/an_ib/dsIBffdxdy.f
+--- darksusy-6.2.2_original/src_models/mssm/an_ib/dsIBffdxdy.f
++++ darksusy-6.2.2_patched/src_models/mssm/an_ib/dsIBffdxdy.f
+@@ -15,6 +15,7 @@
+ *** date: 2007-07-05
+ *** update: 2016-04-04 (switched to analytic tree-level expressions to avoid
+ ***                     recursive call to dssigmav0)
++***         2020-10-23 bug-fix for light fermions (corrected FSR-subtraction)
+ *****************************************************************************
+ 
+       real*8 function dsIBffdxdy(IBch,x,y)
+@@ -22,7 +23,6 @@
+       implicit none
+       include 'dsmssm.h'
+       include 'dsmpconst.h'
+-      include 'dshmcom.h'
+       include 'dsidtag.h'
+       include 'dsio.h'
+ 
+@@ -126,30 +126,33 @@ c...set up couplings
+ 
+ c...import IB expressions for |M|**2 from form/mathematica; 
+ c...for light leptons and quarks, take the simplified expression with mf=0:
+-
+-      if ((IBch.eq.4).or.(IBch.eq.5).or.(IBch.eq.7).or.
+-     -    (IBch.eq.8).or.(IBch.eq.10)) then
+-            tmpresult=
+-     -        -2*m0**6*(-1 + x)*(x**2 - 2*x*y + 2*y**2)*
+-     -       ((C11/((msf1**2 + m0**2*(1 - 2*y))*
+-     -             (msf1**2 + m0**2*(1 - 2*x + 2*y))) + 
+-     -         C12/
+-     -          ((msf2**2 + m0**2*(1 - 2*y))*
+-     -          (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2 + 
+-     -        (C151/
+-     -          ((msf1**2 + m0**2*(1 - 2*y))*
+-     -            (msf1**2 + m0**2*(1 - 2*x + 2*y))) + 
+-     -          C152/
+-     -          ((msf2**2 + m0**2*(1 - 2*y))*
+-     -            (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2)
+-           endif
+-
++c... TB bug fix 10/2020: this does NOT work when trying to consistently
++c...                     subtract the FSR contribution later on
++c...                     -> ALWAYS use the full expressions!
++
++c      if ((IBch.eq.4).or.(IBch.eq.5).or.(IBch.eq.7).or.
++c     -    (IBch.eq.8).or.(IBch.eq.10)) then
++c            tmpresult=
++c     -        -2*m0**6*(-1 + x)*(x**2 - 2*x*y + 2*y**2)*
++c     -       ((C11/((msf1**2 + m0**2*(1 - 2*y))*
++c     -             (msf1**2 + m0**2*(1 - 2*x + 2*y))) +
++c     -         C12/
++c     -          ((msf2**2 + m0**2*(1 - 2*y))*
++c     -          (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2 +
++c     -        (C151/
++c     -          ((msf1**2 + m0**2*(1 - 2*y))*
++c     -            (msf1**2 + m0**2*(1 - 2*x + 2*y))) +
++c     -          C152/
++c     -          ((msf2**2 + m0**2*(1 - 2*y))*
++c     -            (msf2**2 + m0**2*(1 - 2*x + 2*y))))**2)
++c           endif
++c
+ c...for heavy leptons and quarks, add
+ c...contributions from all linear independent combinations of coupling
+ c...constants separately, utilizing various symmetries
+-
+-      if ((IBch.eq.6).or.(IBch.eq.9).or.(IBch.eq.11)
+-     -    .or.(IBch.eq.12)) then
++c
++c      if ((IBch.eq.6).or.(IBch.eq.9).or.(IBch.eq.11)
++c     -    .or.(IBch.eq.12)) then
+ 
+           zf=(mz**2*(16*m0**4+GZ**2*mz**2-8*m0**2*mz**2
+      -       +mz**4))/(-4*m0**2 + mz**2)**2
+@@ -190,7 +193,8 @@ c...constants separately, utilizing vari
+      -
+      -  +  dsIBffdxdy_8(x,y,CZ5,CH,m0,mf,mz,mh03,GZ,Gh03)
+ 
+-      endif   ! contribution from heavy fermions
++c... TB bugfix 10/20: ALWAYS use the full expressions (see above)
++c      endif   ! contribution from heavy fermions
+ 
+ 
+ c... this is the analytically obtained 2-body 
+@@ -217,6 +221,7 @@ c 
+      -        (mz**2*(GZ**2*mz**2 + (-4*m0**2 + mz**2)**2))))/
+      -   (Gh03**2*mh03**2 + (-4*m0**2 + mh03**2)**2)
+ 
++
+         msq2bodyds = msq2body
+ 
+ 
+@@ -288,6 +293,9 @@ c      if (IBch.eq.5.or.IBch.eq.6.or.   
+                                                      ! only for those channels for
+ c     -    IBch.eq.9.or.IBch.eq.11.or.IBch.eq.12)    ! which Pythia runs exist.
+      
++c... TEST: the FSR contribution *can* be larger -- but should not be so by much!
++c      write(*,*) IBch, tmpresult, dsIBfsrdxdy(IBch,x,y), '(',x,y, ')'
++     
+       tmpresult = tmpresult - dsIBfsrdxdy(IBch,x,y)
+ 
+       dsIBffdxdy=tmpresult

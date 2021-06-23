@@ -243,18 +243,18 @@ namespace Gambit
 
                 out << "\n\x1b[01m\x1b[04mHEADER & LINK INFO\x1b[0m" << std::endl;
                 out << "\nrequired inifile entries:  ";
-                if (reqd_inifile_entries.size() == 0)
+                if (reqd_inifile_entries.empty())
                     out << "none" << std::endl;
                 else
                     out << reqd_inifile_entries << std::endl;
                 out << "\n\x1b[04mlink status\x1b[0m:" << std::endl;
                 //out << "-----------" << std::endl;
-                if (reqd_not_linked_libs.size() != 0)
+                if (not reqd_not_linked_libs.empty())
                     out << "    could not find libraries requested by plugin: " << reqd_not_linked_libs << std::endl;
-                if (ini_libs_not_found.size() != 0)
+                if (not ini_libs_not_found.empty())
                     out << "    could not find libraries specified in *locations.yaml: " << ini_libs_not_found << std::endl;
                 out << "    linked libraries:";
-                if (linked_libs.size() == 0)
+                if (linked_libs.empty())
                 {
                     out << " none" << std::endl;
                 }
@@ -267,12 +267,12 @@ namespace Gambit
 
                 out << "\n\x1b[04minclude header status\x1b[0m:" << std::endl;
                 //out << "---------------------" << std::endl;
-                if (reqd_incs_not_found.size() != 0)
+                if (not reqd_incs_not_found.empty())
                     out << "    could not find headers requested by plugin: " << reqd_incs_not_found << std::endl;
-                if (ini_incs_not_found.size() != 0)
+                if (not ini_incs_not_found.empty())
                     out << "    could not find include paths specified in *locations.yaml: " << ini_incs_not_found << std::endl;
                 out << "    headers found:";
-                if (found_incs.size() == 0)
+                if (found_incs.empty())
                 {
                     out << " none" << std::endl;
                 }
@@ -319,7 +319,7 @@ namespace Gambit
             {
                 std::stringstream out;
 
-                if (plugins.size() == 0)
+                if (plugins.empty())
                     return "";
                 else if (plugins.size() == 1)
                     return plugins[0]->printFull();
@@ -344,22 +344,24 @@ namespace Gambit
                 }
                 out << std::endl;
 
+                bool exclude{false};
+                for (auto&& plug : plugins)
                 {
-                    int tot = 0;
+                    if (not plug->reason.empty())
+                    {
+                        exclude = true;
+                        break;
+                    }
+                }
+
+                if (exclude)
+                {
+                    out << "\nreason for exclusion:";
                     for (auto &&plug : plugins)
                     {
-                        tot += plug->reason.size();
-                    }
-                    
-                    if(tot)
-                    {
-                        out << "\nreason for exclusion:";
-                        for (auto &&plug : plugins)
-                        {
-                            out << "\n    " << plug->version << ":\n";
-                            for (auto it = plug->reason.begin(), end = plug->reason.end(); it != end; ++it)
-                                out << "        " << *it << std::endl;
-                        }
+                        out << "\n    " << plug->version << ":\n";
+                        for (auto it = plug->reason.begin(), end = plug->reason.end(); it != end; ++it)
+                            out << "        " << *it << std::endl;
                     }
                 }
 
@@ -370,7 +372,7 @@ namespace Gambit
                 for (auto &&plug : plugins)
                 {
                     out << "\n    " << plug->version << ":  ";
-                    if (plug->reqd_inifile_entries.size() == 0)
+                    if (plug->reqd_inifile_entries.empty())
                         out << "none";
                     else
                         out << plug->reqd_inifile_entries;
@@ -380,17 +382,17 @@ namespace Gambit
                 for (auto &&plug : plugins)
                 {
                     out << "    " << plug->version << ":\n";
-                    if (plug->reqd_not_linked_libs.size() != 0)
+                    if (not plug->reqd_not_linked_libs.empty())
                     {
                         out << "        could not find libraries requested by plugin: " << plug->reqd_not_linked_libs << std::endl;
                     }
-                    if (plug->ini_libs_not_found.size() != 0)
+                    if (not plug->ini_libs_not_found.empty())
                     {
                         out << "        could not find libraries specified in *locations.yaml: " << plug->ini_libs_not_found << std::endl;
                     }
                 
                     out << "        linked libraries:";
-                    if (plug->linked_libs.size() == 0)
+                    if (plug->linked_libs.empty())
                     {
                         out << " none" << std::endl;
                     }
@@ -407,12 +409,12 @@ namespace Gambit
                 for (auto &&plug : plugins)
                 {
                     out << "    " << plug->version << ":\n";
-                    if (plug->reqd_incs_not_found.size() != 0)
+                    if (not plug->reqd_incs_not_found.empty())
                         out << "        could not find headers requested by plugin: " << plug->reqd_incs_not_found << std::endl;
-                    if (plug->ini_incs_not_found.size() != 0)
+                    if (not plug->ini_incs_not_found.empty())
                         out << "        could not find include paths specified in *locations.yaml: " << plug->ini_incs_not_found << std::endl;
                     out << "        headers found:";
-                    if (plug->found_incs.size() == 0)
+                    if (plug->found_incs.empty())
                     {
                         out << " none" << std::endl;
                     }
@@ -428,8 +430,15 @@ namespace Gambit
 
                 out << "\x1b[01m\x1b[04mDESCRIPTION\x1b[0m\n" << std::endl;
 
-                std::string p_str, description;
-                std::string path = GAMBIT_DIR "/config/";
+                out << get_description(plugins) << std::endl;
+
+                return out.str();
+            }
+
+            std::string Plugin_Details::get_description(const std::vector<const Plugin_Details *> &plugins) {
+                std::string description;
+                std::string p_str;
+                const std::string path = GAMBIT_DIR "/config/";
                 if (FILE* p_f = popen((std::string("ls ") + path + std::string(" | grep \".dat\" | grep \""+ plugins[0]->type + "\"")).c_str(), "r"))
                 {
                     char path_buffer[1024];
@@ -450,10 +459,7 @@ namespace Gambit
 
                     pclose(p_f);
                 }
-
-                out << description << std::endl;
-
-                return out.str();
+                return description;
             }
 
             bool Plugin_Version_Supersedes(const Plugin_Details &plug1, const Plugin_Details &plug2)
