@@ -49,6 +49,19 @@
 # Constants
 cfile=cookie
 
+# Force the use of a specific download tool
+force_axel=0
+force_wget=0
+force_curl=0
+[ "${FORCE_AXEL}" = "1" ] &&  force_axel=1
+[ "${FORCE_WGET}" = "1" ] &&  force_wget=1
+[ "${FORCE_CURL}" = "1" ] &&  force_curl=1
+
+if [ $(( ${force_axel} + ${force_wget} + ${force_curl})) -gt 1 ]; then
+  $2 -E cmake_echo_color --red --bold "ERROR: Tried to force use of multiple tools, select only one."
+  exit 1
+fi
+
 # Download
 axel_worked=0
 suffix=$($2 -E echo $4 | grep -o '\(zip\|tar.gz\|tgz\)')
@@ -62,7 +75,7 @@ $2 -E make_directory $1 >/dev/null
 if [ ! -f $1/${filename} ]; then
   with_axel=$($2 -E echo $3 | grep -o "WITH_AXEL")
   # Go to wget/curl if axel is not present
-  if [ ! -z "${with_axel}" ]; then
+  if [ ! -z "${with_axel}" ] && [ "${force_wget}" = "0" ] && [ "${force_curl}" = "0" ]; then
     if command -v axel >/dev/null; then
       # Go to wget/curl if POST data have been provided
       if [ -z "${10}" ]; then
@@ -75,7 +88,11 @@ if [ ! -f $1/${filename} ]; then
     fi
   fi
   if [ "${axel_worked}" = "0" ]; then
-    if command -v wget >/dev/null; then
+    if [ "${force_axel}" = "1" ]; then
+      $2 -E cmake_echo_color --red --bold "ERROR: Forced to use Axel, but Axel is not present or not working. Try another tool."
+      exit 1
+    fi
+    if [ "${force_curl}" = "0" ] && command -v wget >/dev/null; then
       if [ -z "${10}" ]; then
         # Skip certificate checking if requested because KIT, Hepforge, et al often haven't kept them updated
         if [ "${IGNORE_HTTP_CERTIFICATE}" = "1" ]; then
@@ -101,14 +118,20 @@ if [ ! -f $1/${filename} ]; then
         esac
         exit 1
       fi
+    elif [ "${force_wget}" = "1" ]; then
+      $2 -E cmake_echo_color --red --bold "ERROR: Forced to use wget, but wget is not present or not working. Try another tool."
+      exit 1
     elif command -v curl >/dev/null; then
       if [ -z "${10}" ]; then
-        $2 -E chdir $1 curl -L -O $4
+        $2 -E chdir $1 curl -L -o $1/${filename} $4
       else
-        $2 -E chdir $1 curl -L -O -c $cfile --data "${10}" ${11}
-        $2 -E chdir $1 curl -L -O -b $cfile $4
+        $2 -E chdir $1 curl -L -o $1/${filename} -c $cfile --data "${10}" ${11}
+        $2 -E chdir $1 curl -L -o $1/${filename} -b $cfile $4
         $2 -E remove $1/$cfile
       fi
+    elif [ "${force_curl}" = "1" ]; then
+      $2 -E cmake_echo_color --red --bold "ERROR: Forced to use curl, but curl is not present or not working. Try another tool."
+      exit 1
     else
       $2 -E cmake_echo_color --red --bold "ERROR: No axel, no wget, no curl?  What kind of OS are you running anyway?"
       exit 1

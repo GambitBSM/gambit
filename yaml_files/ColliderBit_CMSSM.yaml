@@ -1,6 +1,6 @@
 ##########################################################################
-## GAMBIT configuration for running a MultiNest scan of the CMSSM using
-## only ColliderBit likelihoods (LHC and LEP particle searches, LHC and LEP
+## GAMBIT configuration for running a few CMSSM points using only 
+## ColliderBit likelihoods (LHC and LEP particle searches, LHC and LEP
 ## Higgs data).
 ##
 ## SM nuisance parameters are fixed to default values, and no astrophysical
@@ -76,29 +76,6 @@ Scanner:
 
 
 ObsLikes:
-
-    # Calculate SM quantities
-
-    - capability: lnL_t_mass
-      purpose:    LogLike
-
-    - capability: lnL_mbmb
-      purpose:    LogLike
-
-    - capability: lnL_alpha_em
-      purpose:    LogLike
-
-    - capability: lnL_alpha_s
-      purpose:    LogLike
-
-    - capability: lnL_W_mass
-      purpose:    LogLike
-
-    - capability: lnL_sinW2_eff
-      purpose:    LogLike
-
-    - capability: lnL_deltarho
-      purpose:    LogLike
 
     # Calculate the LHC likelihood
     - purpose:    LogLike

@@ -188,7 +188,7 @@ function(check_ditch_status name version dir)
     endif()
   endforeach()
   foreach(ditch_command ${itch})
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".startswith(\"${ditch_command}\"))"
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "print(\"${name}_${version}\".lower().startswith(\"${ditch_command}\".lower()))"
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                     RESULT_VARIABLE result
                     OUTPUT_VARIABLE output)

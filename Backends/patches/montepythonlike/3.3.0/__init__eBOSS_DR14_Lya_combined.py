@@ -3,7 +3,7 @@ import os
 sys.path.append('../../')
 import numpy as np
 #from montepython import io_mp
-from MontePythonLike_3_3_0 import Likelihood
+from montepython.likelihood_class import Likelihood
 import scipy.constants as const
 from scipy.interpolate import RectBivariateSpline
 

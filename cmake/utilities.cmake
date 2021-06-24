@@ -95,9 +95,15 @@ macro(retrieve_bits bits root excludes quiet)
 
       # Work out if this Bit should be excluded or not.  Never exclude ScannerBit.
       set(excluded "NO")
-      if(NOT ${child} STREQUAL "ScannerBit")
-        foreach(x ${excludes})
-          string(FIND ${child} ${x} location)
+
+      # Make the string comparison case insensitive
+      string( TOLOWER "${child}" child_lower )
+      string( TOLOWER "${excludes}" excludes_lower )
+      
+      if(NOT ${child_lower} STREQUAL "scannerbit")
+        foreach(x ${excludes_lower})
+          string( TOLOWER "${x}" x_lower )
+          string(FIND ${child_lower} ${x_lower} location)
           if(${location} EQUAL 0)
             set(excluded "YES")
           endif()
@@ -525,7 +531,7 @@ function(add_standalone_tarballs modules version)
     set(dirname "${module}_${version}")
 
     if ("${module}" STREQUAL "ScannerBit")
-      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -535,10 +541,12 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}/yaml_files/
+                                      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/yaml_files/ScannerBit.yaml ${dirname}/yaml_files/
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar.gz
+                                      COMMAND ${CMAKE_COMMAND} -E tar cz ${module}-${version}.tar.gz ${dirname})
     else()
-      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -550,18 +558,18 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar.gz
+                                      COMMAND ${CMAKE_COMMAND} -E tar cz ${module}-${version}.tar.gz ${dirname})
     endif()
 
-    add_dependencies(${module}-${version}.tar nuke-all)
-    add_dependencies(standalone_tarballs ${module}-${version}.tar)
+    add_dependencies(${module}-${version}.tar.gz nuke-all)
+    add_dependencies(standalone_tarballs ${module}-${version}.tar.gz)
 
   endforeach()
 
   # Add a special ad-hoc command to make a tarball containing SpecBit, DecayBit and PrecisionBit
   set(dirname "3Bit_${version}")
-  add_custom_target(3Bit-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+  add_custom_target(3Bit-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/SpecBit ${dirname}/SpecBit
@@ -575,10 +583,10 @@ function(add_standalone_tarballs modules version)
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit-${version}.tar
-                             COMMAND ${CMAKE_COMMAND} -E tar c 3Bit-${version}.tar ${dirname})
-  add_dependencies(3Bit-${version}.tar nuke-all)
-  add_dependencies(standalone_tarballs 3Bit-${version}.tar)
+                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit-${version}.tar.gz
+                             COMMAND ${CMAKE_COMMAND} -E tar cz 3Bit-${version}.tar.gz ${dirname})
+  add_dependencies(3Bit-${version}.tar.gz nuke-all)
+  add_dependencies(standalone_tarballs 3Bit-${version}.tar.gz)
 
 endfunction()
 

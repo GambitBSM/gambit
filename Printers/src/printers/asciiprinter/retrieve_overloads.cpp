@@ -144,7 +144,7 @@ namespace Gambit
 
       /// Work out all the output labels that correspond to the input modelname
       bool found_at_least_one(false);
-      for(const std::pair<std::string,uint>& kv : column_map)
+      for(const auto& kv : column_map)
       {
         std::string param_name; // *output* of parsing function, parameter name
         std::string label_root; // *output* of parsing function, label minus parameter name

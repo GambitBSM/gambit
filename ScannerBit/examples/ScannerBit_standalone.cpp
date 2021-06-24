@@ -58,22 +58,19 @@ void sighandler(int)
 inline void scanner_diagnostic()
 {
     std::string output = Scanner::Plugins::plugin_info().print_all("scanner");
-    if (output.length() > 0)
-        print_to_screen(output, "scanners");
+    print_to_screen(output, "scanners");
 }
 
 inline void test_function_diagnostic()
 {
     std::string output = Scanner::Plugins::plugin_info().print_all("objective");
-    if (output.length() > 0)
-        print_to_screen(output, "objectives");
+    print_to_screen(output, "objectives");
 }
 
 inline void prior_diagnostic()
 {
     std::string output = Scanner::Plugins::plugin_info().print_priors("priors");
-    if (output.length() > 0)
-        print_to_screen(output, "priors");
+    print_to_screen(output, "priors");
 }
 
 inline void ff_prior_diagnostic(const std::string& command)
@@ -81,23 +78,20 @@ inline void ff_prior_diagnostic(const std::string& command)
     if (command != "priors")
     {
         std::string output = Scanner::Plugins::plugin_info().print_priors(command);
-        if (output.length() > 0)
-            print_to_screen(output, command);
+        print_to_screen(output, command);
     }
 }
 
 inline void ff_scanner_diagnostic(const std::string& command)
 {
     std::string output = Scanner::Plugins::plugin_info().print_plugin("scanner", command);
-    if (output.length() > 0)
-        print_to_screen(output, command);
+    print_to_screen(output, command);
 }
 
 inline void ff_test_function_diagnostic(const std::string& command)
 {
     std::string output = Scanner::Plugins::plugin_info().print_plugin("objective", command);
-    if (output.length() > 0)
-        print_to_screen(output, command);
+    print_to_screen(output, command);
 }
 
 inline void bail()

@@ -149,7 +149,7 @@ Rules:
     function: all_decays
 
   - capability: lnL_gm2
-    function: lnL_gm2_chi2
+    function: lnL_gm2
     dependencies:
       - capability: muon_gm2
         function: GM2C_SUSY

@@ -215,7 +215,7 @@ if __name__ == "__main__":
   # like this with overwriting to keep this script in-
   # dependent of the CLASS version that is used. 
   cosmo = None
-  sys.path.append(path_to_classy+"/lib/")
+  sys.path.insert(0,path_to_classy+"/lib/")
   print("from classy_"+classy_version+" import Class")
   exec("from classy_"+classy_version+" import Class")
   exec("cosmo = Class()")

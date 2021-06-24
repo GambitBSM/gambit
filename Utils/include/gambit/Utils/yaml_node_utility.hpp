@@ -50,7 +50,7 @@ namespace Gambit
             os << "Provided value " << d << " as option in the yaml file does not represent an integer.";
             utils_error().raise(LOCAL_INFO, os.str());
           }
-          if (std::numeric_limits<TYPE>::max() < d or std::numeric_limits<TYPE>::min() > d)
+          if (static_cast<double>(std::numeric_limits<TYPE>::max()) < d or static_cast<double>(std::numeric_limits<TYPE>::min()) > d)
           {
             std::ostringstream os;
             os << "Provided value " << d << " as option in the yaml file does not fit into the implemented integer type.";

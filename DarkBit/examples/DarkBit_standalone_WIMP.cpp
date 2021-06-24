@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.2"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.2 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.5 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
     gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_2_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
     SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
     SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
@@ -440,11 +440,11 @@ int main(int argc, char* argv[])
       
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
  
 
     // ---- Calculate direct detection constraints ----

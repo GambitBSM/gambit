@@ -99,7 +99,7 @@ int main()
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.2"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 6.2.2 for a generic WIMP is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 6.2.5 for a generic WIMP is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_ScalarSingletDM_Z23.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for ScalarSingletDM_Z2 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
@@ -205,15 +205,15 @@ int main()
     MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_2_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
 
     // Initialize DarkSUSY Local Halo Model
     DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&ExtractLocalMaxwellianHalo);
     DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&RD_fraction_one);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmcom);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmisodf);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmframevelcom);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmnoclue);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmcom);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmisodf);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmframevelcom);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmnoclue);
     DarkSUSY_PointInit_LocalHalo_func.reset_and_calculate();
 
     // ---- Relic density ----
@@ -242,11 +242,11 @@ int main()
 
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
     RD_oh2_DS_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
     RD_oh2_DS_general.reset_and_calculate();
 
@@ -335,7 +335,7 @@ int main()
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
     SimYieldTable_DarkSUSY.reset_and_calculate();
 
     // Collect missing final states for simulation in cascade MC
@@ -413,7 +413,7 @@ int main()
     capture_rate_Sun_const_xsec.resolveDependency(&sigma_SI_p_simple);
     capture_rate_Sun_const_xsec.resolveDependency(&sigma_SD_p_simple);
     capture_rate_Sun_const_xsec.resolveDependency(&RD_fraction_one);
-    capture_rate_Sun_const_xsec.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dssenu_capsuntab);
+    capture_rate_Sun_const_xsec.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dssenu_capsuntab);
     capture_rate_Sun_const_xsec.resolveDependency(&ExtractLocalMaxwellianHalo);
     capture_rate_Sun_const_xsec.resolveDependency(&DarkSUSY_PointInit_LocalHalo_func);
     capture_rate_Sun_const_xsec.reset_and_calculate();
@@ -435,10 +435,10 @@ int main()
     nuyield_from_DS.resolveDependency(&mwimp_generic);
     nuyield_from_DS.resolveDependency(&sigmav_late_universe);
     nuyield_from_DS.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsgenericwimp_nusetup);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::neutrino_yield);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::DS_neutral_h_decay_channels);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::DS_charged_h_decay_channels);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsgenericwimp_nusetup);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::neutrino_yield);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::DS_neutral_h_decay_channels);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::DS_charged_h_decay_channels);
     nuyield_from_DS.reset_and_calculate();
 
     // Calculate number of events at IceCube

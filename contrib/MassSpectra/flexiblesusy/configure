@@ -377,7 +377,7 @@ check_library() {
 
     libs=""
     for i in $lib ; do
-        for ext in .a .lib "" .so .sl .dylib .dll.a ; do
+        for ext in .a .lib "" .so .sl .dylib .dll.a .tbd ; do
             libs="$libs $i$ext"
         done
     done
@@ -1276,7 +1276,6 @@ check_std_threads() {
         if try_compile_cpp_program "#include <thread>
 #include <mutex>" "std::mutex mtx; std::thread thr;";
         then
-            enable_threads="yes"
             result "ok"
         else
             result "not available"
@@ -1297,12 +1296,33 @@ check_std_threads() {
 check_thread_libs() {
     # link libpthread only if $enable_threads = yes
     # I'm assuming here, that no other library we link needs libpthread.
-    if [ "x$enable_threads" = "xyes" -o -n "$pthread_lib_dir" ] ; then
-        check_library "libpthread" "$pthread_lib_dir" "$default_lib_paths"
-        if [ -z "$found_lib" ]; then
-            message "Error: libpthread must be installed to enable multithreading!"
-            exit 1
+    if [ "x$enable_threads" = "xno" ] ; then
+	return 0
+    fi
+
+    # additional search paths by the compiler
+    local cc_lib_search_paths=""
+    case "$cxx_compiler_type" in
+	gnu|clang)
+	    cc_lib_search_paths=$(${CXX} -Xlinker -v 2>&1 | sed -n '/Library search paths:/,/Framework search paths:/p' | sed '/Library search paths:/d; /Framework search paths:/d' | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g' | tr -s '[:blank:]' ':')
+	    ;;
+    esac
+
+    if [ -n $pthread_lib_dir ] ; then
+	message "Checking for libpthread..."
+        check_library "libpthread" "$pthread_lib_dir" "$default_lib_paths$cc_lib_search_paths"
+	if [ -z "$found_lib" ] ; then
+           message "cannot find libpthread, which needs to be installed to enable multithreading."
+           if test "x${enable_threads}" = "xyes" ; then
+		message "Either reconfigure with \`--disable-threads' or"
+		message "pass the library location with \`--with-pthread-libdir='"
+		exit 1
+	    fi
+	    message "will disable multi-threading"
+	    enable_threads="no"
+	    return 0
         fi
+	enable_threads="yes"
         THREADLIBS=-l$(echo "$found_lib" | sed 's/^lib\(.*\)\..*$/\1/')
         # need to link whole libpthread.a for static linking
         if [ "x$enable_static" = xyes ] ; then

@@ -27,7 +27,6 @@ namespace Gambit
     Cauchy::Cauchy(const std::vector<std::string>& param, const Options& options) :
       BasePrior(param, param.size()), col(param.size())
     {
-
       std::vector<std::vector<double>> scale_matrix(param.size(), std::vector<double>(param.size(), 0.));
 
       if (options.hasKey("scale_matrix") && options.hasKey("gamma")) {
@@ -86,7 +85,7 @@ namespace Gambit
       {
         std::stringstream err;
         err << "Cauchy prior: "
-            << "the scale matrix is not defined by either 'cov_matrix' or 'gamma'"
+            << "the scale matrix is not defined by either 'scale_matrix' or 'gamma'"
             << std::endl;
         Scanner::scan_error().raise(LOCAL_INFO, err.str());
       }
