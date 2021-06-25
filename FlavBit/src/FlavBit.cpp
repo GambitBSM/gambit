@@ -1466,6 +1466,32 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_A_BXstautau_highq2"<<endl;
     }
 
+    /// RK* in low q^2
+    void SI_RKstar_0045_11(double &result)
+    {
+      using namespace Pipes::SI_RKstar_0045_11;
+      if (flav_debug) cout<<"Starting SI_RKstar_0045_11"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar_CONV(&param,0.045,1.1);
+
+      if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_RKstar_0045_11"<<endl;
+    }
+
+    /// RK* in intermediate q^2
+    void SI_RKstar_11_60(double &result)
+    {
+      using namespace Pipes::SI_RKstar_11_60;
+      if (flav_debug) cout<<"Starting SI_RKstar_11_60"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar_CONV(&param,1.1,6.0);
+
+      if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_RKstar_11_60"<<endl;
+    }
+
     // RK* for RHN, using same approximations as RK, low q^2
     void RHN_RKstar_0045_11(double &result)
     {
@@ -1536,6 +1562,20 @@ namespace Gambit
       if (flav_debug) cout << "RK = " << result << endl;
       if (flav_debug) cout << "Finished RHN_RKstar_11_60" << endl;
 
+    }
+
+    /// RK between 1 and 6 GeV^2
+    void SI_RK(double &result)
+    {
+      using namespace Pipes::SI_RK;
+      if (flav_debug) cout<<"Starting SI_RK"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      //cout<<"Inside SI_RK, RK_CONV ="<<BEreq::RK_CONV(&param,1.0,6.0)<<endl;
+      result=BEreq::RK_CONV(&param,1.0,6.0);
+
+      if (flav_debug) printf("RK=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_RK"<<endl;
     }
 
     /// RK for RHN
