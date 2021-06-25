@@ -749,6 +749,45 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY Bsmumu_untag
+  START_CAPABILITY
+
+    #define FUNCTION SI_Bsmumu_untag
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Bsll_untag_CONV, (libsuperiso),  double, (const parameters*, int))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+    #define FUNCTION FH_Bsmumu
+    START_FUNCTION(double)
+    DEPENDENCY(FH_FlavourObs, fh_FlavourObs)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  // Observable: BR(Bs -> e+ e-)_untag
+  #define CAPABILITY Bsee_untag
+  START_CAPABILITY
+    #define FUNCTION SI_Bsee_untag
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Bsll_untag_CONV, (libsuperiso),  double, (const parameters*, int))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B -> mu+ mu-)
+  #define CAPABILITY Bmumu
+  START_CAPABILITY
+    #define FUNCTION SI_Bmumu
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Bll_CONV, (libsuperiso),  double, (const parameters*, int))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Observable: BR(B -> tau nu)
   #define CAPABILITY Btaunu
   START_CAPABILITY

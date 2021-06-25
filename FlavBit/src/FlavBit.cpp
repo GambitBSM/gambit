@@ -1112,6 +1112,49 @@ namespace Gambit
       }
     }
 
+    /// Br Bs->mumu decays for the untagged case (CP-averaged)
+    void SI_Bsmumu_untag(double &result)
+    {
+      using namespace Pipes::SI_Bsmumu_untag;
+      if (flav_debug) cout<<"Starting SI_Bsmumu_untag"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      int flav=2;
+      result=BEreq::Bsll_untag_CONV(&param, byVal(flav));
+
+      if (flav_debug) printf("BR(Bs->mumu)_untag=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Bsmumu_untag"<<endl;
+    }
+
+
+    /// Br Bs->ee decays for the untagged case (CP-averaged)
+    void SI_Bsee_untag(double &result)
+    {
+      using namespace Pipes::SI_Bsee_untag;
+      if (flav_debug) cout<<"Starting SI_Bsee_untag"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      int flav=1;
+      result=BEreq::Bsll_untag_CONV(&param, byVal(flav));
+
+      if (flav_debug) printf("BR(Bs->ee)_untag=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Bsee_untag"<<endl;
+    }
+
+    /// Br B0->mumu decays
+    void SI_Bmumu(double &result)
+    {
+      using namespace Pipes::SI_Bmumu;
+      if (flav_debug) cout<<"Starting SI_Bmumu"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      int flav=2;
+      result=BEreq::Bll_CONV(&param, byVal(flav));
+
+      if (flav_debug) printf("BR(B->mumu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_Bmumu"<<endl;
+    }
+
     /// Br B->tau nu_tau decays
     void SI_Btaunu(double &result)
     {
