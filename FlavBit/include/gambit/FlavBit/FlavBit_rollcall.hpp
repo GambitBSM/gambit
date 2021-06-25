@@ -759,11 +759,6 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
 
-    #define FUNCTION FH_Bsmumu
-    START_FUNCTION(double)
-    DEPENDENCY(FH_FlavourObs, fh_FlavourObs)
-    #undef FUNCTION
-
   #undef CAPABILITY
 
   // Observable: BR(Bs -> e+ e-)_untag
