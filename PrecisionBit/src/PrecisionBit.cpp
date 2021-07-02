@@ -1282,7 +1282,7 @@ namespace Gambit
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       // Alternatively could use: 1607.06292, eqn (32)
       std::complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
-      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1R(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
 
       // Two loop amplitude
       const std::vector<double> Qf = {-1.,-1./3.,2./3.};
