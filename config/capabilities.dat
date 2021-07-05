@@ -385,7 +385,7 @@ SPheno_internal: |
 
 DummyColliderObservable: |
    Dummy observable that creates a dependency on TestModel1D, which is used
-   to satisfy the normal GAMBIT model requirements in a minimal way. Used
+   to satisfy the normal GAMBIT model requrements in a minimal way. Used
    for testing.
 
 RunMC: |
@@ -2274,11 +2274,17 @@ DarkSUSY_MSSM_6_1_1_init: |
 DarkSUSY_MSSM_6_2_2_init: |
    Initialises DarkSUSY 6.2.2 for the MSSM.
 
+DarkSUSY_MSSM_6_2_5_init: |
+   Initialises DarkSUSY 6.2.5 for the MSSM.
+
 DarkSUSY_generic_wimp_6_1_1_init: |
    Initialises DarkSUSY 6.1.1 for a generic WIMP.
 
 DarkSUSY_generic_wimp_6_2_2_init: |
    Initialises DarkSUSY 6.2.2 for a generic WIMP.
+
+DarkSUSY_generic_wimp_6_2_5_init: |
+   Initialises DarkSUSY 6.2.5 for a generic WIMP.
 
 DarkSUSY5_PointInit_LocalHalo: |
    Initialises Milky Way halo model parameters in DarkSUSY5
@@ -5499,37 +5505,73 @@ vevacious_1_0_init: |
 pass_spectrum_to_vevacious: |
     Adds all entries of the spectrum object (as SLHAea) that need to be passed to vevacious to an instance of type SpectrumEntriesForVevacious and returns this instance. The actual passing happens in the helper function exec_pass_spectrum_to_vevacious which gets executed every time before a vevacious call. Model dependent.
 
+
 #-------------------------------------
 #  ObjectivesBit capabilities
 #-------------------------------------
 
 gaussian: |
   Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
+
 rosenbrock: |
   Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
+
 himmelblau: |
   Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
+
 mccormick: |
   Two-dimensional McCormick function.
+
 ackley: |
   Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
+
 eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
+
 rastrigin: |
   Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function 
+
 beale: |
   Two-dimensional Beale function.
+
 shells: |
   Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
+
 styblinski_tang: |
   Multi-dimensional Styblinski-Tang function.
+
 easom: |
   Two-dimensional Easom function.
+
 tf1: |
   Analytic function 1 from https://arxiv.org/abs/2101.04525
+
 tf2: |
   Analytic function 2 from https://arxiv.org/abs/2101.04525
+
 tf3: |
   Analytic function 3 from https://arxiv.org/abs/2101.04525
+
 tf4: |
   Analytic function 4 from https://arxiv.org/abs/2101.04525
+
+trivial_1d_parameters: |
+  Model parameters for the trivial 1D model
+
+trivial_2d_parameters: |
+  Model parameters for the trivial 2D model
+
+trivial_3d_parameters: |
+  Model parameters for the trivial 3D model
+
+trivial_4d_parameters: |
+  Model parameters for the trivial 4D model
+
+trivial_5d_parameters: |
+  Model parameters for the trivial 5D model
+
+trivial_7d_parameters: |
+  Model parameters for the trivial 7D model
+
+trivial_10d_parameters: |
+  Model parameters for the trivial 10D model

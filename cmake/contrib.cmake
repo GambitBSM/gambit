@@ -177,7 +177,11 @@ if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
   message("   ColliderBit Solo (CBS) will be activated.")
-  message("   Pythia can now drop HepMC files.")
+  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/Pythia_8_212/abstract_GAMBIT_hepmc_writer.h")
+    message("   Pythia can now drop HepMC files.")
+  else()
+    message("${BoldRed}   Pythia has already been compiled without HepMC so the main gambit build will fail. Please nuke Pythia before compiling gambit.${ColourReset}")
+  endif()
   message("   Backends depending on HepMC will be enabled.")
   if(NOT ROOT_FOUND)
     message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
@@ -201,15 +205,22 @@ if(NOT EXCLUDE_HEPMC)
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
+  set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
   set(HEPMC_PATH "${dir}")
   set(HEPMC_LIB "${dir}/local/lib")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
+
+  # Silence some compiler warnings coming from HepMC
+  set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     CMAKE_COMMAND ${CMAKE_COMMAND}  ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
@@ -268,6 +279,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Silence the deprecated-declarations warnings coming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FS_CXX_FLAGS)
 
   # Silence the mass of compiler warnings coming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)

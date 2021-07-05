@@ -123,8 +123,8 @@ START_MODULE
       BACKEND_REQ(dshmisodf, (ds6), DS_HMISODF)
       BACKEND_REQ(dshmframevelcom, (ds6), DS_HMFRAMEVELCOM)
       BACKEND_REQ(dshmnoclue, (ds6), DS_HMNOCLUE)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -184,7 +184,7 @@ START_MODULE
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       BACKEND_REQ(dsancoann, (ds6), DS_DSANCOANN)
       BACKEND_REQ(DSparticle_code, (ds6), int, (const str&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -203,7 +203,7 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int)
       BACKEND_REQ(dsanwx, (ds6), double, (double&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)
@@ -406,7 +406,7 @@ START_MODULE
       BACKEND_REQ(dsIBwhdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(dsIBwwdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(IBintvars, (ds6), DS_IBINTVARS)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 
@@ -1014,7 +1014,6 @@ START_MODULE
 
   #undef CAPABILITY
 
-
   // Direct detection ==================================================
 
   // Determine the DM-nucleon couplings
@@ -1035,7 +1034,7 @@ START_MODULE
       BACKEND_REQ(get_DD_couplings, (ds6), std::vector<double>, ())
       BACKEND_REQ(ddcomlegacy, (ds6), DS_DDCOMLEGACY)
       BACKEND_REQ(ddmssmcom, (ds6), DS_DDMSSMCOM)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_JOINT_MODEL(nuclear_params_fnq,MSSM63atQ)
     #undef FUNCTION
@@ -1294,8 +1293,8 @@ START_MODULE
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
       DEPENDENCY(DarkSUSY_PointInit_LocalHalo, bool)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 

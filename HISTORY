@@ -3,6 +3,39 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.0.0
+Major feature release
+- Added GUM: autogeneration of GAMBIT code from lagrangians
+- Added ObjectivesBit module
+- Added new functions for axions and ALPs
+- Added functionality for decaying DM for indirect detection
+- Added functionality to disable print for specific likelihood values
+- Further redesign of ColliderBit structure
+- Improved diagnostics, particularly for modules and scanner plugins
+- Enhanced invalid point documentation with suspicious points
+- Removed developer mode
+- Compressed standalone tarballs
+- Improved download script
+- Removed most compiler warnings with gcc8+ and clang-10
+- Improved ditch system
+- Improvements to BOSS
+- Support for DarkSUSY 6.2.5 backend
+- Support for CalcHEP 3.6.27 backend
+- Support for Vevacious 1.0 backend
+- Added HepMC printer for Pythia 8
+- Removed support of Pythia EM backend
+- Support for minuit2 scanner
+- Removed ColliderBit standalone (to be replaced with CBS)
+- Fixed bug on file decoding on harvesters
+- Fixed *_chi2 likelihood names
+- Fixed curl bug in download script
+- Fixed scratch directory issues with MPI
+- Fixed locating python modules at build time
+- Fixed FlexibleSUSY clash in Mac OS Big Sur
+- Fixed multithreading issue in FlexibleSUSY interface
+- Fixed bugs in Pythia cross section calculation
+- Fixed Polychord build issue on OSX
+
 v1.5.3
 Bugfix release
 - Updated Pythia url and checksum

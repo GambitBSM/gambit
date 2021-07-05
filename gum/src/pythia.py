@@ -395,7 +395,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "set(name \"pythia_${model}\")\n"\
                "set(ver \"8."+base_pythia_version+"\")\n"\
                "set(lib \"libpythia8\")\n"\
-               "set(dl \"http://home.thep.lu.se/~torbjorn/pythia8/pythia8"+base_pythia_version+".tgz\")\n"\
+               "set(dl \"https://pythia.org/download/pythia82/pythia8"+base_pythia_version+".tgz\")\n"\
                "set(md5 \""+pythia_md5+"\")\n"\
                "set(dir \"${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}\")\n"\
                "set(model_specific_patch \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif\")\n"\

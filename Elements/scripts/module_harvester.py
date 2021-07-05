@@ -48,6 +48,7 @@
 #*********************************************
 
 import pickle
+import io
 
 toolsfile="./Utils/scripts/harvesting_tools.py"
 exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
@@ -183,7 +184,7 @@ def main(argv):
     non_module_types=set(["ModelParameters", "double", "float", "std::vector<double>", "std::vector<float>"])
     returned_types = { "all" : types, "non_module" : non_module_types }
     for header in full_rollcall_headers:
-        with open(header) as f:
+        with io.open(header, encoding='utf-8') as f:
             if verbose: print("  Scanning header {0} for types used to instantiate module functor class templates".format(header))
             module = "__NotAModule__"
             continued_line = ""
@@ -219,7 +220,7 @@ def main(argv):
     be_types=set()
     type_packs=set()
     for header in full_rollcall_headers:
-        with open(header) as f:
+        with io.open(header, encoding='utf-8') as f:
             if verbose: print("  Scanning header {0} for types used to instantiate backend functor class templates".format(header))
             continued_line = ""
             ignore_lines = False

@@ -2,16 +2,16 @@
 #define __wrapper_MSSMNoFV_onshell_mass_eigenstates_decl_gm2calc_1_2_0_hpp__
 
 #include <cstddef>
+#include <string>
+#include <ostream>
+#include <Eigen/Core>
+#include <complex>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_MSSMNoFV_onshell_mass_eigenstates.hpp"
 #include "wrapper_MSSMNoFV_onshell_soft_parameters_decl.hpp"
 #include "wrapper_MSSMNoFV_onshell_physical_decl.hpp"
 #include "wrapper_MSSMNoFV_onshell_problems_decl.hpp"
-#include <string>
-#include <ostream>
-#include <Eigen/Core>
-#include <complex>
 
 #include "identification.hpp"
 
@@ -26,7 +26,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_MSSMNoFV_onshell_mass_eigenstates* (*__factory0)();
+            static Abstract_MSSMNoFV_onshell_mass_eigenstates* (*__factory0)();
       
             // -- Other member variables: 
       
@@ -380,7 +380,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             MSSMNoFV_onshell_mass_eigenstates();
       
             // Special pointer-based constructor: 
-            MSSMNoFV_onshell_mass_eigenstates(gm2calc::Abstract_MSSMNoFV_onshell_mass_eigenstates* in);
+            MSSMNoFV_onshell_mass_eigenstates(Abstract_MSSMNoFV_onshell_mass_eigenstates* in);
       
             // Copy constructor: 
             MSSMNoFV_onshell_mass_eigenstates(const MSSMNoFV_onshell_mass_eigenstates& in);
@@ -392,7 +392,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~MSSMNoFV_onshell_mass_eigenstates();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_MSSMNoFV_onshell_mass_eigenstates* get_BEptr() const;
+            Abstract_MSSMNoFV_onshell_mass_eigenstates* get_BEptr() const;
       
       };
    }

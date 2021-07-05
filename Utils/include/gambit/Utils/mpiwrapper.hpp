@@ -50,7 +50,12 @@
 #include <iostream>
 #include <type_traits>
 #include <chrono>
+
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include <mpi.h>
+#include "gambit/Utils/end_ignore_warnings.hpp"
+
+
 #include <boost/utility/enable_if.hpp>
 
 #include "gambit/Utils/standalone_error_handlers.hpp"

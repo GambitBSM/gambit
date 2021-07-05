@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include "Eigen/Core"
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include <string>
 #include <map>

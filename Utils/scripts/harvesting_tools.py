@@ -37,6 +37,7 @@ import getopt
 import itertools
 import shutil
 import ctypes
+import io
 
 # Python 2/3 compatibility
 # izip_longest renamed to zip_longest in Python 3
@@ -52,7 +53,7 @@ equiv_config = "./config/resolution_type_equivalency_classes.yaml"
 def get_default_boss_namespaces():
     result = dict()
     # Load the default_bossed_version header.
-    with (open(default_bossed_versions)) as f:
+    with (io.open(default_bossed_versions, encoding='utf-8')) as f:
         for newline in readlines_nocomments(f):
             newline = newline.strip()
             if not newline.startswith("#define"): continue
@@ -68,7 +69,7 @@ def get_type_equivalencies(nses):
     from collections import defaultdict
     result = defaultdict(list)
     # Load the equivalencies yaml file
-    with open(equiv_config) as f:
+    with io.open(equiv_config, encoding='utf-8') as f:
         for newline in readlines_nocomments(f):
             newline = newline.strip()
             if newline == "" or newline.startswith("#"): continue
@@ -316,7 +317,7 @@ def addiffunctormacro(line,module,all_modules,typedict,typeheaders,intrinsic_typ
                 for header in typeheaders:
                     local_namespace = ""
                     found_declaration = False
-                    with open(header) as f:
+                    with io.open(header, encoding='utf-8') as f:
                         for newline in readlines_nocomments(f):
                             splitline = neatsplit('\{|\}|:|;',newline)
                             # Determine the local namespace and look for a class or struct matching the candidate type
@@ -439,7 +440,7 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
 # Harvest the list of rollcall headers to be searched, and the list of type headers to be searched.
 def get_headers(path,header_set,exclude_set,verbose=False):
     """Parse the file at 'path' and add any headers that are "include"ed therin to the set 'header_set'"""
-    with open(path) as f:
+    with io.open(path, encoding='utf-8') as f:
         #print( "  Parsing header '{0}' for further includes...".format(path) )
         for line in readlines_nocomments(f):
             addifheader(line,header_set,exclude_set,verbose=verbose)

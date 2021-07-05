@@ -2,7 +2,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "Eigen/Eigen"
 
 namespace Gambit {
   namespace ColliderBit {

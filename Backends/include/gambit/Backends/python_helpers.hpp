@@ -32,8 +32,10 @@
 
 #else
 
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/pybind11.h>
   #include <pybind11/numpy.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 
   #include "gambit/Utils/util_types.hpp"
 

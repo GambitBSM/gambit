@@ -31,7 +31,11 @@
 #endif
 
 #ifdef HAVE_PYBIND11
+
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/embed.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
+
 #endif
 
 #ifdef HAVE_LINK_H
@@ -475,12 +479,12 @@ namespace Gambit
       pHandle = WSOpenString(WSenv, WSTPflags.str().c_str(), &WSerrno);
       if(pHandle == NULL || WSerrno != WSEOK)
       {
-        err << "Unable to create link to the Kernel" << endl;
-        backend_warning().raise(LOCAL_INFO,err.str());
-        backend_warning().raise(LOCAL_INFO, WSErrorMessage(pHandle));
-        works[be+ver] = false;
-        WSNewPacket(pHandle);
-        return;
+        if(pHandle != NULL)
+        {
+          err << "Received the following error message from WSErrorMessage: \"" << WSErrorMessage(pHandle) << "\"" << endl;
+        }
+        err << "Failed to establish link with the Mathematica kernel. Make sure that Mathematica is working or rebuild GAMBIT without Mathematica support by using the CMake flag -Ditch=\"Mathematica\".";
+        backend_error().raise(LOCAL_INFO,err.str());
       }
 
       // Tell WSTP to load up the Mathematica package of the backend

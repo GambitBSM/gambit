@@ -32,10 +32,12 @@ DarkSUSY:
 DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
-
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
+  
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
 
 SuperIso:
   3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
