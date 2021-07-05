@@ -158,8 +158,8 @@ Rules:
     function: GA_AnnYield_General
 
   - capability: GA_SimYieldTable
-    #function: GA_SimYieldTable_DarkSUSY
-    function: GA_SimYieldTable_PPPC
+    function: GA_SimYieldTable_DarkSUSY
+    #function: GA_SimYieldTable_PPPC
     #function: GA_SimYieldTable_empty
 
   - capability: electron_Yield
@@ -172,8 +172,8 @@ Rules:
     function: positron_AnnYield_General
 
   - capability: positron_SimYieldTable
-    #function: positron_SimYieldTable_DarkSUSY
-    function: positron_SimYieldTable_PPPC
+    function: positron_SimYieldTable_DarkSUSY
+    #function: positron_SimYieldTable_PPPC
     #function: positron_SimYieldTable_empty
 
   - capability: antiproton_SimYieldTable
