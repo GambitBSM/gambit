@@ -578,7 +578,7 @@ namespace Gambit
           //SSF diagram
           double x = std::pow(mnu[li]/mphi,2);
           std::complex<double> term1(ml[l]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
-          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
+          return -term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
       }
 
@@ -606,7 +606,7 @@ namespace Gambit
           //SSF diagram
           double x = std::pow(mnu[l]/mphi,2);
           std::complex<double> term1(ml[lp]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
-          return term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
+          return -term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
       }
 
