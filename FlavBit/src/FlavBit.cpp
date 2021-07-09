@@ -3263,9 +3263,10 @@ namespace Gambit
       double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
       double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
       
-      double Deltaij = (pow(m_B,2)*X13*(Z33+Z32))/(pow(mHp,2)*Vub);
+      double Deltaij = (pow(m_B,2)*X13*(Z33))/(pow(mHp,2)*Vub);
+      double Deltataumu = (pow(m_B,2)*X13*(Z32))/(pow(mHp,2)*Vub);
    
-      double prediction = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
+      double prediction = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
       result = prediction;
       //result.central_values["B2taunu"] = prediction;
       if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
@@ -3317,9 +3318,10 @@ namespace Gambit
       double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
       double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
       
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33+Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
 
-      result = (pow(1 - Deltaij,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      result = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dstaunu" << endl;
@@ -3369,8 +3371,10 @@ namespace Gambit
       double X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22+Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      result = ((pow(1 - Deltaij,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dsmunu" << endl;
@@ -3414,11 +3418,47 @@ namespace Gambit
       double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_D,2)*Y21*(Z22+Z23))/(pow(mHp,2)*Vcd);
-      result = ((pow(1 - Deltaij,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+      double Deltaij = (pow(m_D,2)*Y21*(Z22))/(pow(mHp,2)*Vcd);
+      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
+    }
+
+    /// Br D->tau nu in gTHDM
+    void THDM_Dtaunu(double &result)
+    {
+      using namespace Pipes::THDM_Dtaunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double m_D = 1.86961;//All values are taken from SuperIso 3.6
+      const double f_D = 0.2135;
+      const double hbar = 6.582119514e-25;
+      const double life_D = 1.040e-12;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double Vcd = -lambda;
+      const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
+      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mTau);
+      double Deltaij = (pow(m_D,2)*Y21*(Z33))/(pow(mHp,2)*Vcd);
+      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+
+      if (flav_debug) cout << "BR(D->tau nu) = " << result << endl;
+      if (flav_debug) cout << "Finished THDM_Dtaunu" << endl;
     }
     
     /// Br B -> D tau nu
@@ -3536,7 +3576,56 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RD*"<<endl;
     }
 
-   ///  B-> D tau nu / B-> D e nu decays in THDM
+   ///  B-> D e nu / B-> D mu nu decays in THDM
+    void THDM_RDemu(double &result)
+    { 
+      using namespace Pipes::THDM_RDemu;
+      if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
+      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
+      
+      result = 1/(0.9964+0.175*real(gsmumu)+1.46*(norm(gsmumu)+norm(gsmutau)));
+      
+      if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_RDemu"<<endl;
+    }
+
+
+   ///  B-> D tau nu / B-> D mu nu decays in THDM
     void THDM_RD(double &result)
     {
       using namespace Pipes::THDM_RD;
@@ -3591,7 +3680,7 @@ namespace Gambit
     }
 
 
-    ///  B->D* tau nu / B-> D* e nu decays in THDM
+    ///  B->D* tau nu / B-> D* mu nu decays in THDM
     void THDM_RDstar(double &result)
     {
       using namespace Pipes::THDM_RDstar;
@@ -3745,9 +3834,10 @@ namespace Gambit
       double X12 = (v*(sqrt(1 + pow(tanb,2))*Vub*Ysb + Vus*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu); 
-      double Deltaij = (pow(m_K,2)*X12*(Z22+Z23))/(pow(mHp,2)*Vus);
+      double Deltaij = (pow(m_K,2)*X12*(Z22))/(pow(mHp,2)*Vus);
+      double Deltamutau = (pow(m_K,2)*X12*(Z23))/(pow(mHp,2)*Vus);
       double leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
-      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2));
+      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2)+pow(Deltamutau,2));
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Rmu"<<endl;
@@ -4931,7 +5021,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=7;//9;
+      const int n_experiments=9;//11;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4963,9 +5053,13 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dsmunu");
         // D -> mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dmunu");
+        // D -> tau nu
+        fread.read_yaml_measurement("flav_data.yaml", "BR_Dtaunu");
          // R_mu
-        fread.read_yaml_measurement("flav_data.yaml", "R_mu");
-       
+        fread.read_yaml_measurement("flav_data.yaml", "R_mu");       
+         // RDemu
+        fread.read_yaml_measurement("flav_data.yaml", "RDemu");
+
         fread.initialise_matrices();
         pmc.cov_exp=fread.get_exp_cov();
         pmc.value_exp=fread.get_exp_value();
@@ -4986,7 +5080,7 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[7];//[9];
+      double theory[9];//[11];
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
@@ -5003,8 +5097,12 @@ namespace Gambit
       theory[4] = *Dep::Dsmunu;
       // D -> mu nu
       theory[5] =*Dep::Dmunu;
+      // D -> tau nu
+      theory[6] =*Dep::Dtaunu;
       //R_mu
-      theory[6] =*Dep::Rmu;
+      theory[7] =*Dep::Rmu;
+      //RDemu
+      theory[8] =*Dep::RDemu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];

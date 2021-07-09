@@ -1,4 +1,16 @@
 
+- name: RDemu
+  islimit: false
+  exp_value: 1.01
+  exp_stat_error: 0.01
+  exp_sys_error: 0.03
+  exp_source: SuperIso
+  th_error: 0.0001
+  th_error_type: M
+  th_error_source: 2104.02094
+  correlation:
+  - name: NONE
+
 - name: R_mu
   islimit: false
   exp_value: 0.6358
@@ -476,6 +488,18 @@
   th_error: 0.03
   th_error_type: M
   th_error_source: 0902.2393
+  correlation:
+  - name: NONE
+
+- name: BR_Dtaunu
+  islimit: false
+  exp_value: 1.2e-3
+  exp_stat_error: 0.27e-3
+  exp_sys_error: 0.0
+  exp_source: 1908.08877
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE 
   correlation:
   - name: NONE
 

@@ -1571,7 +1571,19 @@ START_MODULE
     #undef FUNCTION
    #undef CAPABILITY
 
-  // Observable: BR(B->D tau nu)/BR(B->D e nu)
+  // Observable: BR(B->D e nu)/BR(B->D mu nu)
+  #define CAPABILITY RDemu
+  START_CAPABILITY
+     //Function for the general THDM
+    #define FUNCTION THDM_RDemu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B->D tau nu)/BR(B->D mu nu)
   #define CAPABILITY RD
   START_CAPABILITY
     #define FUNCTION SI_RD
@@ -1589,7 +1601,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B->D tau nu)/BR(B->D e nu)
+  // Observable: BR(B->D tau nu)/BR(B->D mu nu)
   #define CAPABILITY RDstar
   START_CAPABILITY
     #define FUNCTION SI_RDstar
@@ -1685,6 +1697,18 @@ START_MODULE
     #undef FUNCTION
     //Function for the general THDM
     #define FUNCTION THDM_Dmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(D->tau nu)
+  #define CAPABILITY Dtaunu
+  START_CAPABILITY
+    //Function for the general THDM
+    #define FUNCTION THDM_Dtaunu
     START_FUNCTION(double)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -2467,6 +2491,8 @@ START_MODULE
     DEPENDENCY(Dstaunu, double)
     DEPENDENCY(Dsmunu, double)
     DEPENDENCY(Dmunu, double)
+    DEPENDENCY(Dtaunu, double)
+    DEPENDENCY(RDemu, double)
     #undef FUNCTION
   #undef CAPABILITY
 
