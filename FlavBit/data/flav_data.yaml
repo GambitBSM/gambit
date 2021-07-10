@@ -509,9 +509,9 @@
   exp_stat_error: 0.011
   exp_sys_error: 0.008
   exp_source: HFLAV
-  th_error: 0.001
+  th_error: 0.005
   th_error_type: M
-  th_error_source: Phys.Rev.D85,094025(2012)
+  th_error_source: HFLAV
   correlation:
   - name: RD
     value: -0.38
@@ -522,9 +522,9 @@
   exp_stat_error: 0.027
   exp_sys_error: 0.013
   exp_source: HFLAV
-  th_error: 0.037
+  th_error: 0.003
   th_error_type: M
-  th_error_source: Phys.Rev.D92,034506(2015)
+  th_error_source: HFLAV
   correlation:
   - name: RDstar
     value: -0.38

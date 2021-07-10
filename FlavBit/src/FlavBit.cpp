@@ -3673,7 +3673,7 @@ namespace Gambit
       std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
       std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
       
-      result = (1+1.725*real(gs)+1.355*(norm(gs)+norm(gsmutau)))/(3.271+4.795*(norm(gsmumu)+norm(gsmutau)));
+      result = (1+1.5*real(gs)+1.0*(norm(gs)+norm(gsmutau)))/(3.34+4.795*(norm(gsmumu)+norm(gsmutau)));
 
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_RD"<<endl;
@@ -3728,7 +3728,7 @@ namespace Gambit
       std::complex<double> gpmumu =  (CRcbmumu - CLcbmumu)/CSMcb;
       std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
 
-      result = (1+0.1145*real(gp)+0.04*(norm(gp)+norm(gpmutau)))/(4.044+0.246*(norm(gpmumu)+norm(gpmutau)));
+      result = (1+0.12*real(gp)+0.05*(norm(gp)+norm(gpmutau)))/(3.89+0.246*(norm(gpmumu)+norm(gpmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_RDstar"<<endl;
     }
